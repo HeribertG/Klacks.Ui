@@ -9,6 +9,7 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 export interface AbsenceMenuItem {
   id: string;
   absenceId: string;
+  absenceName: string;
   name: string;
   color: string;
   isDetail: boolean;
@@ -59,6 +60,8 @@ export class AbsenceMenuService {
 
       const absenceDetailsForThis = details.filter(d => d.absenceId === absence.id);
 
+      const absenceNameLocalized = this.getLocalizedName(absence.name, language) || '';
+
       if (absenceDetailsForThis.length > 0) {
         for (const detail of absenceDetailsForThis) {
           if (!detail.id) continue;
@@ -66,7 +69,8 @@ export class AbsenceMenuService {
           items.push({
             id: detail.id,
             absenceId: absence.id,
-            name: this.getLocalizedName(detail.detailName, language) || this.getLocalizedName(absence.name, language) || '',
+            absenceName: absenceNameLocalized,
+            name: this.getLocalizedName(detail.detailName, language) || absenceNameLocalized,
             color: absence.color || '',
             isDetail: true,
             startTime: detail.startTime,
@@ -80,7 +84,8 @@ export class AbsenceMenuService {
         items.push({
           id: absence.id,
           absenceId: absence.id,
-          name: this.getLocalizedName(absence.name, language) || '',
+          absenceName: absenceNameLocalized,
+          name: absenceNameLocalized,
           color: absence.color || '',
           isDetail: false,
           defaultValue: absence.defaultValue,

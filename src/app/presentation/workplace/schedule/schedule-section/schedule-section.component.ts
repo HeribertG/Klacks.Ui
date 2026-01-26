@@ -542,8 +542,13 @@ export class ScheduleSectionComponent
     const submenu = new Menu();
 
     for (const item of absenceItems) {
-      const menuItem = new MenuItem('absence', item.name, false);
+      const displayName = item.isDetail && item.name !== item.absenceName
+        ? `${item.absenceName} - ${item.name}`
+        : item.name;
+
+      const menuItem = new MenuItem('absence', displayName, false);
       menuItem.valueKey = item.id;
+      menuItem.svgIcon = this.getAbsenceSvgIcon(item.color);
 
       if (item.isDetail) {
         if (item.mode === AbsenceDetailMode.TimeRange && item.startTime && item.endTime) {
@@ -559,6 +564,11 @@ export class ScheduleSectionComponent
     }
 
     return submenu;
+  }
+
+  private getAbsenceSvgIcon(color: string): string {
+    const fillColor = color || 'transparent';
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 18" width="17" height="18"><rect width="17" height="18" fill="${fillColor}"/></svg>`;
   }
 
   private menuClicked(keys: string[]): void {
