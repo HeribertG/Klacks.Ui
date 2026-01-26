@@ -4,12 +4,8 @@ import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import {
-  addDays,
-  compareDate,
-  getDaysInMonth,
-} from 'src/app/shared/helpers/date.helper';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
+import { formatTime, hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   CellTypeEnum,
@@ -74,7 +70,7 @@ export class ScheduleDataService extends BaseDataService {
 
   getWorkScheduleEntryForCell(
     row: number,
-    col: number
+    col: number,
   ): IScheduleCell | undefined {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) {
@@ -99,28 +95,25 @@ export class ScheduleDataService extends BaseDataService {
   public getRowHeaderSlot1Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const periodHours = this.dataManagementSchedule.periodHours.get(
-      client.id
-    );
-    return periodHours ? `${periodHours.guaranteedHours}h` : '';
+    const periodHours = this.dataManagementSchedule.periodHours.get(client.id);
+    if (!periodHours) return '';
+    return hoursToHHMM(periodHours.guaranteedHours);
   }
 
   public getRowHeaderSlot2Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const periodHours = this.dataManagementSchedule.periodHours.get(
-      client.id
-    );
-    return periodHours ? `${periodHours.hours}h` : '';
+    const periodHours = this.dataManagementSchedule.periodHours.get(client.id);
+    if (!periodHours) return '';
+    return hoursToHHMM(periodHours.hours);
   }
 
   public getRowHeaderSlot3Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const periodHours = this.dataManagementSchedule.periodHours.get(
-      client.id
-    );
-    return periodHours ? `${periodHours.surcharges}h` : '';
+    const periodHours = this.dataManagementSchedule.periodHours.get(client.id);
+    if (!periodHours) return '';
+    return hoursToHHMM(periodHours.surcharges);
   }
 
   public override initializeDateAndColumns(): void {
@@ -258,8 +251,8 @@ export class ScheduleDataService extends BaseDataService {
       if (this.holidayCollection) {
         this.ensureCorrectYearLoaded(today);
 
-        const result = this.holidayCollection.holidays.holidayList.find(
-          (x) => compareDate(x.currentDate, today)
+        const result = this.holidayCollection.holidays.holidayList.find((x) =>
+          compareDate(x.currentDate, today),
         );
 
         if (result) {
@@ -307,8 +300,8 @@ export class ScheduleDataService extends BaseDataService {
       if (this.holidayCollection) {
         this.ensureCorrectYearLoaded(today);
 
-        return this.holidayCollection.holidays.holidayList.find(
-          (x) => compareDate(x.currentDate, today)
+        return this.holidayCollection.holidays.holidayList.find((x) =>
+          compareDate(x.currentDate, today),
         );
       }
     }
@@ -333,7 +326,7 @@ export class ScheduleDataService extends BaseDataService {
 
     return this.dataManagementSchedule.getWorkScheduleForClientAndDate(
       client.id,
-      date
+      date,
     );
   }
 
@@ -347,7 +340,7 @@ export class ScheduleDataService extends BaseDataService {
   override handlePaste(
     startRow: number,
     startCol: number,
-    data: string[][]
+    data: string[][],
   ): void {
     const entriesToAdd: {
       clientId: string;
@@ -394,7 +387,7 @@ export class ScheduleDataService extends BaseDataService {
 
         const matchingShift = this.findShiftByAbbreviationAndDate(
           abbreviation,
-          date
+          date,
         );
         if (!matchingShift) {
           continue;
@@ -418,13 +411,20 @@ export class ScheduleDataService extends BaseDataService {
 
   private findShiftByAbbreviationAndDate(
     abbreviation: string,
-    date: Date
-  ): { shiftId: string; workTime: number; startShift: string; endShift: string } | undefined {
+    date: Date,
+  ):
+    | {
+        shiftId: string;
+        workTime: number;
+        startShift: string;
+        endShift: string;
+      }
+    | undefined {
     const upperAbbr = abbreviation.toUpperCase();
     const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === upperAbbr &&
-        this.isSameDay(shift.date, date)
+        this.isSameDay(shift.date, date),
     );
 
     if (matchingShift) {

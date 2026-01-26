@@ -156,3 +156,27 @@ export function formatTimeFromMinutes(minutes: number): string {
   const mins = totalMinutes % 60;
   return timeToString(hours, mins);
 }
+
+/**
+ * Converts decimal hours to time string in format "HH:mm"
+ *
+ * @param value - Hours as decimal number
+ * @returns Time string in format "HH:mm", or empty string if null/undefined
+ *
+ * @example
+ * hoursToHHMM(8.5)   // "08:30"
+ * hoursToHHMM(12.75) // "12:45"
+ * hoursToHHMM(0.25)  // "00:15"
+ * hoursToHHMM(-2.5)  // "-02:30"
+ * hoursToHHMM(null)  // ""
+ */
+export function hoursToHHMM(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '';
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  const hours = Math.floor(absValue);
+  const minutes = Math.round((absValue - hours) * 60);
+  const hh = hours.toString().padStart(2, '0');
+  const mm = minutes.toString().padStart(2, '0');
+  return isNegative ? `-${hh}:${mm}` : `${hh}:${mm}`;
+}

@@ -63,3 +63,20 @@ export function invertColor(hex: string) {
 
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
 }
+
+/**
+ * Rounds a number to two decimal places (accounting rounding).
+ *
+ * @param value - Value to round
+ * @returns Rounded value as string with 2 decimal places, or empty string if null/undefined
+ *
+ * @example
+ * roundToTwoDecimals(8.345) // "8.35"
+ * roundToTwoDecimals(8) // "8.00"
+ * roundToTwoDecimals(null) // ""
+ */
+export function roundToTwoDecimals(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '';
+  return (Math.round(value * 100) / 100).toFixed(2);
+}
+
