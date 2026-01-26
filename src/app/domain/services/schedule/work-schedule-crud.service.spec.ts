@@ -229,7 +229,7 @@ describe('WorkScheduleCrudService', () => {
     it('should call deleteWorkById with correct workId', async () => {
       // Arrange
       const params: DeleteWorkScheduleEntryParams = {
-        workId: 'work-123',
+        sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -247,7 +247,7 @@ describe('WorkScheduleCrudService', () => {
     it('should refresh client schedule after deleting work', async () => {
       // Arrange
       const params: DeleteWorkScheduleEntryParams = {
-        workId: 'work-123',
+        sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -276,7 +276,7 @@ describe('WorkScheduleCrudService', () => {
       ];
 
       const params: DeleteWorkScheduleEntryParams = {
-        workId: 'work-123',
+        sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -306,7 +306,7 @@ describe('WorkScheduleCrudService', () => {
       ];
 
       const params: DeleteWorkScheduleEntryParams = {
-        workId: 'work-123',
+        sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',

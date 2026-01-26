@@ -737,7 +737,7 @@ export class ScheduleSectionComponent
       const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
       if (deleteInfo) {
         this.dataManagement.deleteWorkScheduleEntry(
-          deleteInfo.workId,
+          deleteInfo.sourceId,
           deleteInfo.clientId,
           deleteInfo.date,
           deleteInfo.shiftId
@@ -764,7 +764,7 @@ export class ScheduleSectionComponent
     if (!date) return null;
 
     return {
-      workId: entry.workId,
+      sourceId: entry.sourceId,
       clientId: client.id,
       date: date,
       shiftId: entry.shiftId,

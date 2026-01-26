@@ -1,7 +1,7 @@
 export interface IScheduleCell {
   id: string;
   entryType: number;
-  workId: string;
+  sourceId: string;
   clientId: string;
   entryDate: Date;
   startTime: string;
@@ -13,7 +13,7 @@ export interface IScheduleCell {
   toInvoice: boolean | null;
   taxable: boolean | null;
   shiftId: string;
-  shiftName: string | null;
+  entryName: string | null;
   abbreviation: string | null;
   replaceClientId: string | null;
   isReplacementEntry: boolean;
@@ -22,7 +22,7 @@ export interface IScheduleCell {
 export class ScheduleCell implements IScheduleCell {
   id = '';
   entryType = 0;
-  workId = '';
+  sourceId = '';
   clientId = '';
   entryDate: Date = new Date();
   startTime = '';
@@ -34,7 +34,7 @@ export class ScheduleCell implements IScheduleCell {
   toInvoice: boolean | null = null;
   taxable: boolean | null = null;
   shiftId = '';
-  shiftName: string | null = null;
+  entryName: string | null = null;
   abbreviation: string | null = null;
   replaceClientId: string | null = null;
   isReplacementEntry = false;
@@ -89,6 +89,7 @@ export enum WorkScheduleEntryType {
   Work = 0,
   WorkChange = 1,
   Expenses = 2,
+  Break = 3,
 }
 
 export type WorkScheduleByDate = Map<string, IScheduleCell[]>;

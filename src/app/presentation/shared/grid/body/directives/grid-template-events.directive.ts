@@ -815,7 +815,7 @@ export class GridTemplateEventsDirective {
     }
 
     const scheduleDataService = this.gridData as ScheduleDataService;
-    const entriesToDelete: { workId: string; clientId: string; date: Date; shiftId: string }[] = [];
+    const entriesToDelete: { sourceId: string; clientId: string; date: Date; shiftId: string }[] = [];
 
     const positionCollection = this.cellManipulation.PositionCollection;
     const currentPos = this.gridSurface.drawSchedule.position;
@@ -843,7 +843,7 @@ export class GridTemplateEventsDirective {
 
     if (entriesToDelete.length === 1) {
       const entry = entriesToDelete[0];
-      this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, entry.date, entry.shiftId);
+      this.dataManagementSchedule.deleteWorkScheduleEntry(entry.sourceId, entry.clientId, entry.date, entry.shiftId);
     } else {
       this.dataManagementSchedule.bulkDeleteWorkScheduleEntries(entriesToDelete);
     }
@@ -853,7 +853,7 @@ export class GridTemplateEventsDirective {
     scheduleDataService: ScheduleDataService,
     row: number,
     column: number
-  ): { workId: string; clientId: string; date: Date; shiftId: string } | null {
+  ): { sourceId: string; clientId: string; date: Date; shiftId: string } | null {
     const entry = scheduleDataService.getWorkScheduleEntryForCell(row, column);
     if (!entry) {
       return null;
@@ -865,7 +865,7 @@ export class GridTemplateEventsDirective {
     }
 
     return {
-      workId: entry.workId,
+      sourceId: entry.sourceId,
       clientId: entry.clientId,
       date,
       shiftId: entry.shiftId,

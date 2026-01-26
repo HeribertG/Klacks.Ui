@@ -19,7 +19,7 @@ export interface ScheduleCellParams {
 }
 
 export interface DeleteWorkScheduleEntryParams {
-  workId: string;
+  sourceId: string;
   clientId: string;
   date: Date;
   shiftId: string;
@@ -137,7 +137,7 @@ export class WorkScheduleCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(new Date());
 
-    this.workCrud.deleteWorkById(params.workId, periodStart, periodEnd).then((response) => {
+    this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
       if (response.periodHours) {
         this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
       }
@@ -149,7 +149,7 @@ export class WorkScheduleCrudService {
   bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[], workFilter: IWorkFilter): void {
     if (entries.length === 0) return;
 
-    const workIds = entries.map(e => e.workId);
+    const workIds = entries.map(e => e.sourceId);
 
     this.workCrud.bulkDeleteWorks(workIds).then(async (response) => {
       if (response.successCount === 0) return;
