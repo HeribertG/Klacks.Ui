@@ -36,6 +36,7 @@ export class AppSetting {
   public static APP_OUTGOING_SERVER_PASSWORD = 'outgoingserverPassword';
 
   public static OPENROUTESERVICE_API_KEY = 'OPENROUTESERVICE_API_KEY';
+  public static DEEPL_API_KEY = 'DEEPL_API_KEY';
 
   public static WORK_DEFAULT_WORKING_HOURS = 'defaultWorkingHours';
   public static WORK_OVERTIME_THRESHOLD = 'overtimeThreshold';

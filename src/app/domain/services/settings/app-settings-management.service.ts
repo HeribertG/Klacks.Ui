@@ -24,11 +24,13 @@ export class AppSettingsManagementService {
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
   public workSettings = signal<IWorkSettings>(new WorkSettings());
   public openRouteServiceApiKey = signal<string>('');
+  public deeplApiKey = signal<string>('');
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
   private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
+  private deeplApiKeyOriginal = signal<string>('');
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -43,6 +45,7 @@ export class AppSettingsManagementService {
       this.emailSettings();
       this.workSettings();
       this.openRouteServiceApiKey();
+      this.deeplApiKey();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -99,6 +102,7 @@ export class AppSettingsManagementService {
     const email = new EmailServerSettings();
     const work = new WorkSettings();
     let openRouteServiceApiKey = '';
+    let deeplApiKey = '';
 
     settings.forEach((setting) => {
       switch (setting.type) {
@@ -182,6 +186,9 @@ export class AppSettingsManagementService {
         case AppSetting.OPENROUTESERVICE_API_KEY:
           openRouteServiceApiKey = setting.value;
           break;
+        case AppSetting.DEEPL_API_KEY:
+          deeplApiKey = setting.value;
+          break;
 
         case AppSetting.WORK_DEFAULT_WORKING_HOURS:
           work.defaultWorkingHours = parseFloat(setting.value) || 8.5;
@@ -244,12 +251,14 @@ export class AppSettingsManagementService {
     this.emailSettings.set(email);
     this.workSettings.set(work);
     this.openRouteServiceApiKey.set(openRouteServiceApiKey);
+    this.deeplApiKey.set(deeplApiKey);
 
     // Save original state for dirty tracking
     this.contactSettingsOriginal.set(cloneObject(contact));
     this.emailSettingsOriginal.set(cloneObject(email));
     this.workSettingsOriginal.set(cloneObject(work));
     this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
+    this.deeplApiKeyOriginal.set(deeplApiKey);
   }
 
   save(): void {
@@ -313,6 +322,9 @@ export class AppSettingsManagementService {
 
     // Save OpenRouteService API Key
     this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
+
+    // Save DeepL API Key
+    this.saveSetting(this.deeplApiKey(), this.deeplApiKeyOriginal(), AppSetting.DEEPL_API_KEY);
   }
 
   private saveSetting(value: string, originalValue: string, type: string): void {
@@ -355,6 +367,7 @@ export class AppSettingsManagementService {
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
       this.workSettingsOriginal.set(cloneObject(this.workSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
+      this.deeplApiKeyOriginal.set(this.deeplApiKey());
     }
   }
 
@@ -370,7 +383,8 @@ export class AppSettingsManagementService {
       !compareComplexObjects(contact, contactOriginal) ||
       !compareComplexObjects(email, emailOriginal) ||
       !compareComplexObjects(work, workOriginal) ||
-      this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal()
+      this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
+      this.deeplApiKey() !== this.deeplApiKeyOriginal()
     );
   }
 

@@ -1,0 +1,62 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="deepl-form">
+  <div id="deepl-header" class="container-header">
+    {{ translate.instant("setting.deepl.headline") }}
+  </div>
+
+  <div id="deepl-line" class="container-line"></div>
+
+  <div class="deepl-info first">
+    <p class="info-text">
+      {{ translate.instant("setting.deepl.description") }}
+    </p>
+    <p class="info-text">
+      {{ translate.instant("setting.deepl.register") }}
+      <a
+        href="https://www.deepl.com/pro-api"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        deepl.com
+      </a>
+    </p>
+  </div>
+
+  <div class="form-group first">
+    <div class="input-group my-password">
+      <label for="deepl-apikey">{{
+        translate.instant("setting.deepl.apikey")
+      }}</label>
+      @if (showApiKey()) {
+        <input
+          id="deepl-apikey"
+          type="text"
+          class="form-control api-input"
+          [field]="apiKeyForm.apiKey"
+          aria-label="deeplApiKey"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
+        />
+      } @else {
+        <input
+          id="deepl-apikey"
+          type="password"
+          class="form-control api-input"
+          [field]="apiKeyForm.apiKey"
+          aria-label="deeplApiKey"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
+        />
+      }
+      <span
+        id="deepl-apikey-toggle"
+        class="input-group-text"
+        (click)="toggleShowApiKey()"
+      >
+        <fa-icon
+          [icon]="showApiKey() ? faEye : faEyeSlash"
+          class="password-icon"
+        ></fa-icon>
+      </span>
+    </div>
+  </div>
+</div>

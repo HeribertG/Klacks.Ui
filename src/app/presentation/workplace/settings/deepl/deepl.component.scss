@@ -1,0 +1,69 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.deepl-info {
+  .info-text {
+    font-size: 13px;
+    color: var(--colorSubHeadline);
+    margin-bottom: 8px;
+
+    a {
+      color: var(--colorLink, #e57373);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.my-password {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .api-input {
+    border-top-left-radius: 5px !important;
+    border-bottom-left-radius: 5px !important;
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    border: 1px solid #ced4da;
+    border-left: none;
+    background-color: #e9ecef;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #dee2e6;
+    }
+
+    &:focus {
+      outline: 2px solid var(--focusBorderColor);
+      outline-offset: 2px;
+    }
+  }
+
+  .password-icon {
+    font-size: 16px;
+    color: #464e5f;
+  }
+}

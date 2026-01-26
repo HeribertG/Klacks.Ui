@@ -29,6 +29,7 @@ import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
 import { OpenrouteComponent } from '../openroute/openroute.component';
+import { DeeplComponent } from '../deepl/deepl.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
@@ -59,6 +60,7 @@ import { AbsenceDetailComponent } from '../absence-detail/absence-detail.compone
     LLMModelsComponent,
     LLMProvidersComponent,
     OpenrouteComponent,
+    DeeplComponent,
     WorkSettingComponent,
     IdentityProvidersComponent,
     AbsenceDetailComponent,

@@ -419,6 +419,18 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   // =============================
+  // API Keys - Delegated
+  // =============================
+
+  get deeplApiKey(): string {
+    return this.appSettingsService.deeplApiKey();
+  }
+
+  set deeplApiKey(value: string) {
+    this.appSettingsService.deeplApiKey.set(value);
+  }
+
+  // =============================
   // Countries & States - Delegated
   // =============================
 
