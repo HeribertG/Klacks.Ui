@@ -6,62 +6,85 @@ import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
 import { OwnerAddressComponent } from './owner-address.component';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 
 describe('OwnerAddressComponent', () => {
     let component: OwnerAddressComponent;
     let fixture: ComponentFixture<OwnerAddressComponent>;
-    let mockSettingsService: any;
-    let _mockTranslateService: any;
-
-    let mockOwnerAddress: any;
 
     beforeEach(async () => {
-        mockOwnerAddress = {
-            companyName: 'Test Company GmbH',
-            street: 'Teststrasse 123',
-            zip: '12345',
-            city: 'Teststadt',
-            country: 'Deutschland',
-            phone: '+49 123 456789',
-            email: 'info@testcompany.de',
-            website: 'www.testcompany.de',
+        const mockAppSettingsService = {
+            workSettings: vi.fn().mockReturnValue({}),
+            invoiceSettings: vi.fn().mockReturnValue({
+                addressName: 'Test Company',
+                phone: '+49 123 456789',
+                supplementAddress: '',
+                email: 'info@test.de',
+                address: 'Teststrasse 123',
+                zip: '12345',
+                place: 'Teststadt',
+                selectedCountry: 'DE',
+                selectedState: 'BY',
+                selectedCalendarId: 'cal-1'
+            }),
+            contactSettings: vi.fn().mockReturnValue({
+                addressName: 'Test Company',
+                phone: '+49 123 456789',
+                supplementAddress: '',
+                email: 'info@test.de',
+                address: 'Teststrasse 123',
+                zip: '12345',
+                place: 'Teststadt',
+                country: 'DE',
+                state: 'BY',
+                globalCalendarCountry: 'DE',
+                globalCalendarState: 'BY',
+                globalCalendarSelectionId: 'cal-1'
+            }),
+            loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
+            settingsChangeTrigger: signal(0),
+            isReset: signal(false)
         };
 
-        const settingsServiceSpy: any = {
-            loadSettings: vi.fn(),
-            saveSettings: vi.fn(),
-            resetSettings: vi.fn(),
-            settingsChangeTrigger: signal(0),
-            isReset: signal(false),
-            ownerAddress: mockOwnerAddress
+        const mockClientConfigService = {
+            countryList: [{ code: 'DE', name: 'Germany' }],
+            stateList: [{ code: 'BY', name: 'Bavaria', country: 'DE' }],
+            calendars: [{ id: 'cal-1', name: 'Default' }],
+            countries: vi.fn().mockReturnValue([{ code: 'DE', name: 'Germany' }]),
+            states: vi.fn().mockReturnValue([{ code: 'BY', name: 'Bavaria', country: 'DE' }]),
+            init: vi.fn().mockResolvedValue(undefined)
+        };
+
+        const mockCalendarSelectionService = {
+            selectedCountry: signal('DE'),
+            selectedState: signal('BY'),
+            selectedCalendarId: signal('cal-1'),
+            setSelectedCountry: vi.fn(),
+            setSelectedState: vi.fn(),
+            setSelectedCalendarId: vi.fn(),
+            calendarChanged$: of(),
+            readData: vi.fn().mockResolvedValue(undefined)
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
-        };
-        translateServiceSpy.instant.mockReturnValue('Translated text');
-
-        const mockEventBus = {
-            emit: vi.fn(),
-            on: () => of()
+            instant: vi.fn().mockReturnValue('Translated text'),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onLangChange: of({ lang: 'de' }),
+            onTranslationChange: of(),
+            onDefaultLangChange: of()
         };
 
         await TestBed.configureTestingModule({
             imports: [OwnerAddressComponent, TranslateModule.forRoot(), FormsModule],
             providers: [
-                {
-                    provide: DataManagementSettingsService,
-                    useValue: settingsServiceSpy,
-                },
-                { provide: TranslateService, useValue: translateServiceSpy },
-                { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+                { provide: AppSettingsManagementService, useValue: mockAppSettingsService },
+                { provide: ClientConfigService, useValue: mockClientConfigService },
+                { provide: DataManagementCalendarSelectionService, useValue: mockCalendarSelectionService },
+                { provide: TranslateService, useValue: translateServiceSpy }
             ],
         }).compileComponents();
-
-        mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
-        _mockTranslateService = TestBed.inject(TranslateService) as any;
 
         fixture = TestBed.createComponent(OwnerAddressComponent);
         component = fixture.componentInstance;
@@ -72,154 +95,14 @@ describe('OwnerAddressComponent', () => {
     });
 
     describe('Initialization', () => {
-        it('should initialize with owner address from settings service', () => {
+        it('should initialize component with injected services', () => {
             // Arrange & Act
             fixture.detectChanges();
 
             // Assert
-            expect(mockOwnerAddress).toBeDefined();
-            expect(mockOwnerAddress.companyName).toBe('Test Company GmbH');
-        });
-    });
-
-    describe('Owner Address Editing', () => {
-        it('should allow editing company name', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newCompanyName = 'New Company Name GmbH';
-
-            // Act
-            mockOwnerAddress.companyName = newCompanyName;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.companyName).toBe(newCompanyName);
-        });
-
-        it('should allow editing street address', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newStreet = 'Neue Strasse 456';
-
-            // Act
-            mockOwnerAddress.street = newStreet;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.street).toBe(newStreet);
-        });
-
-        it('should allow editing zip code', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newZip = '54321';
-
-            // Act
-            mockOwnerAddress.zip = newZip;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.zip).toBe(newZip);
-        });
-
-        it('should allow editing city', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newCity = 'Neue Stadt';
-
-            // Act
-            mockOwnerAddress.city = newCity;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.city).toBe(newCity);
-        });
-
-        it('should allow editing phone number', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newPhone = '+49 987 654321';
-
-            // Act
-            mockOwnerAddress.phone = newPhone;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.phone).toBe(newPhone);
-        });
-
-        it('should allow editing email address', () => {
-            // Arrange
-            fixture.detectChanges();
-            const newEmail = 'contact@newcompany.de';
-
-            // Act
-            mockOwnerAddress.email = newEmail;
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.email).toBe(newEmail);
-        });
-    });
-
-    describe('Reset Functionality', () => {
-        it('should react to reset signal', () => {
-            // Arrange
-            fixture.detectChanges();
-
-            mockOwnerAddress.companyName = 'Modified Company';
-            mockOwnerAddress.street = 'Modified Street';
-
-            // Act
-            mockSettingsService.isReset.set(true);
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockSettingsService.isReset()).toBe(true);
-        });
-
-        it('should restore original values after reset', () => {
-            // Arrange
-            fixture.detectChanges();
-            const originalCompanyName = mockOwnerAddress.companyName;
-
-            // Modify values
-            mockOwnerAddress.companyName = 'Modified Company';
-
-            // Act - Simulate reset by restoring original data
-            mockOwnerAddress.companyName = originalCompanyName;
-            mockSettingsService.isReset.set(true);
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.companyName).toBe(originalCompanyName);
-        });
-    });
-
-    describe('Integration', () => {
-        it('should update multiple address fields', () => {
-            // Arrange
-            fixture.detectChanges();
-            const updatedAddress = {
-                companyName: 'Vollständig Neue GmbH',
-                street: 'Hauptstrasse 1',
-                zip: '80331',
-                city: 'München',
-                country: 'Germany',
-                phone: '+49 89 12345',
-                email: 'kontakt@neue.de',
-                website: 'www.neue.de',
-            };
-
-            // Act
-            Object.assign(mockOwnerAddress, updatedAddress);
-            fixture.detectChanges();
-
-            // Assert
-            expect(mockOwnerAddress.companyName).toBe(updatedAddress.companyName);
-            expect(mockOwnerAddress.street).toBe(updatedAddress.street);
-            expect(mockOwnerAddress.city).toBe(updatedAddress.city);
-            expect(mockOwnerAddress.zip).toBe(updatedAddress.zip);
+            expect(component.translate).toBeDefined();
+            expect(component.clientConfigService).toBeDefined();
+            expect(component.calendarSelectionService).toBeDefined();
         });
     });
 });
