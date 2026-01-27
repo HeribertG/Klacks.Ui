@@ -6,8 +6,14 @@
   <div class="container-line"></div>
 
   <div id="profile-custom-setting-content" class="custom-container">
-    <div id="profile-custom-setting-dark-mode-wrapper" class="main-switch-wrapper">
-      <label class="main-switch" for="profile-custom-setting-dark-mode-checkbox">
+    <div
+      id="profile-custom-setting-dark-mode-wrapper"
+      class="main-switch-wrapper"
+    >
+      <label
+        class="main-switch"
+        for="profile-custom-setting-dark-mode-checkbox"
+      >
         <input
           type="checkbox"
           name="isChecked"
@@ -31,9 +37,9 @@
         (ngModelChange)="onChange(); selectedLanguage = $event"
       >
         @for (language of languages; track language) {
-        <option [value]="language">
-          {{ flagMap[language] }}
-        </option>
+          <option [value]="language">
+            {{ flagMap[language] }}
+          </option>
         }
       </select>
     </div>
