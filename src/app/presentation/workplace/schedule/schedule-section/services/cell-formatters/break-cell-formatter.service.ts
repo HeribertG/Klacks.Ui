@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
-import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -11,7 +11,7 @@ import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 @Injectable()
 export class BreakCellFormatterService implements ICellFormatter {
   private emptyFormatter = inject(EmptyCellFormatterService);
-  private absenceMenuService = inject(AbsenceMenuService);
+  private absenceLookup = inject(AbsenceLookupService);
   private translateService = inject(TranslateService);
 
   formatCell(entry: IScheduleCell | undefined): GridCell {
@@ -20,7 +20,10 @@ export class BreakCellFormatterService implements ICellFormatter {
     }
 
     const language = this.translateService.currentLang || 'en';
-    const abbreviation = this.absenceMenuService.getAbbreviationForEntryId(entry.entryId, language);
+    const abbreviation = this.absenceLookup.getAbbreviationForEntryId(
+      entry.entryId,
+      language
+    );
 
     const cell = new GridCell();
     cell.cellType = CellTypeEnum.Standard;
@@ -29,7 +32,7 @@ export class BreakCellFormatterService implements ICellFormatter {
     cell.secondSubText =
       formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
 
-    const color = this.absenceMenuService.getColorForEntryId(entry.entryId);
+    const color = this.absenceLookup.getColorForEntryId(entry.entryId);
     if (color) {
       cell.backgroundColor = color;
     }

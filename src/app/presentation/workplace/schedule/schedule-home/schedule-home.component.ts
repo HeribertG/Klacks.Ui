@@ -22,6 +22,8 @@ import { ScheduleDataService } from '../schedule-section/services/schedule-data.
 import { EmptyCellFormatterService } from '../schedule-section/services/cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from '../schedule-section/services/cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from '../schedule-section/services/cell-formatters/break-cell-formatter.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -46,6 +48,8 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
     BaseSettingsService,
     AllScheduleStateService,
     ScheduleHorizontalScrollService,
+    AbsenceLookupService,
+    AbsenceMenuService,
     EmptyCellFormatterService,
     WorkCellFormatterService,
     BreakCellFormatterService,

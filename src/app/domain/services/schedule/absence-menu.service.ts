@@ -1,10 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
-import { IAbsence } from 'src/app/domain/models/absence-class';
-import { IAbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
-import { DataAbsenceDetailService } from 'src/app/infrastructure/api/data-absence-detail.service';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { inject, Injectable } from '@angular/core';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
+import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { AbsenceLookupService } from './absence-lookup.service';
 
 export interface AbsenceMenuItem {
   id: string;
@@ -20,47 +18,28 @@ export interface AbsenceMenuItem {
   defaultValue: number;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class AbsenceMenuService {
-  private dataAbsenceService = inject(DataAbsenceService);
-  private dataAbsenceDetailService = inject(DataAbsenceDetailService);
+  private absenceLookup = inject(AbsenceLookupService);
 
-  private absences = signal<IAbsence[]>([]);
-  private absenceDetails = signal<IAbsenceDetail[]>([]);
-  private isLoaded = signal(false);
-
-  async loadAbsencesIfNeeded(): Promise<void> {
-    if (this.isLoaded()) return;
-
-    try {
-      const [absences, details] = await Promise.all([
-        lastValueFrom(this.dataAbsenceService.readAbsenceList()),
-        lastValueFrom(this.dataAbsenceDetailService.readAbsenceDetailList()),
-      ]);
-
-      this.absences.set(absences || []);
-      this.absenceDetails.set(details || []);
-      this.isLoaded.set(true);
-    } catch (error) {
-      console.error('Error loading absences for menu:', error);
-    }
+  async loadIfNeeded(): Promise<void> {
+    await this.absenceLookup.loadIfNeeded();
   }
 
   getAbsenceMenuItems(language: string): AbsenceMenuItem[] {
     const items: AbsenceMenuItem[] = [];
-    const absences = this.absences();
-    const details = this.absenceDetails();
-
-    const absencesWithDetails = new Set(details.map(d => d.absenceId));
+    const absences = this.absenceLookup.absences();
+    const details = this.absenceLookup.absenceDetails();
 
     for (const absence of absences) {
       if (!absence.id) continue;
 
-      const absenceDetailsForThis = details.filter(d => d.absenceId === absence.id);
+      const absenceDetailsForThis = details.filter(
+        (d) => d.absenceId === absence.id
+      );
 
-      const absenceNameLocalized = this.getLocalizedName(absence.name, language) || '';
+      const absenceNameLocalized =
+        getLocalizedValue(absence.name as IMultiLanguage, language) || '';
 
       if (absenceDetailsForThis.length > 0) {
         for (const detail of absenceDetailsForThis) {
@@ -70,7 +49,9 @@ export class AbsenceMenuService {
             id: detail.id,
             absenceId: absence.id,
             absenceName: absenceNameLocalized,
-            name: this.getLocalizedName(detail.detailName, language) || absenceNameLocalized,
+            name:
+              getLocalizedValue(detail.detailName as IMultiLanguage, language) ||
+              absenceNameLocalized,
             color: absence.color || '',
             isDetail: true,
             startTime: detail.startTime,
@@ -96,42 +77,7 @@ export class AbsenceMenuService {
     return items;
   }
 
-  private getLocalizedName(name: MultiLanguage | undefined, language: string): string {
-    if (!name) return '';
-
-    switch (language.toLowerCase()) {
-      case 'de':
-        return name.de || name.en || '';
-      case 'fr':
-        return name.fr || name.en || '';
-      case 'it':
-        return name.it || name.en || '';
-      default:
-        return name.en || '';
-    }
-  }
-
   reload(): void {
-    this.isLoaded.set(false);
-  }
-
-  getColorForEntryId(entryId: string): string | undefined {
-    const absence = this.findAbsenceForEntryId(entryId);
-    return absence?.color;
-  }
-
-  getAbbreviationForEntryId(entryId: string, language: string): string {
-    const absence = this.findAbsenceForEntryId(entryId);
-    if (!absence) return '';
-    return this.getLocalizedName(absence.abbreviation, language);
-  }
-
-  private findAbsenceForEntryId(entryId: string): IAbsence | undefined {
-    const details = this.absenceDetails();
-    const detail = details.find(d => d.id === entryId);
-    if (detail) {
-      return this.absences().find(a => a.id === detail.absenceId);
-    }
-    return this.absences().find(a => a.id === entryId);
+    this.absenceLookup.reload();
   }
 }

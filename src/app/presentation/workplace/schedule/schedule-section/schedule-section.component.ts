@@ -148,7 +148,7 @@ export class ScheduleSectionComponent
   ngOnInit(): void {
     this.tooltipService.initLanguage();
     this.settings.editable = true;
-    this.absenceMenuService.loadAbsencesIfNeeded();
+    this.absenceMenuService.loadIfNeeded();
   }
 
   ngOnChanges(changes: SimpleChanges) {
