@@ -709,7 +709,7 @@ export class ScheduleSectionComponent
     const entry = dataService.getWorkScheduleEntryForCell(pos.row, pos.column);
     if (!entry) return;
 
-    this.showInShiftService.showShift(entry.shiftId, pos.column);
+    this.showInShiftService.showShift(entry.entryId, pos.column);
   }
 
   private deleteSelectedEntries(): void {
@@ -740,7 +740,8 @@ export class ScheduleSectionComponent
           deleteInfo.sourceId,
           deleteInfo.clientId,
           deleteInfo.date,
-          deleteInfo.shiftId
+          deleteInfo.entryId,
+          deleteInfo.entryType
         );
       }
     }
@@ -767,7 +768,8 @@ export class ScheduleSectionComponent
       sourceId: entry.sourceId,
       clientId: client.id,
       date: date,
-      shiftId: entry.shiftId,
+      entryId: entry.entryId,
+      entryType: entry.entryType,
     };
   }
 

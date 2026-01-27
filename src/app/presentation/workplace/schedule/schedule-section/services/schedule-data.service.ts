@@ -1,20 +1,23 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
+import {
+  IScheduleCell,
+  WorkScheduleEntryType,
+} from 'src/app/domain/models/work-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
-import { formatTime, hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
-import {
-  CellTypeEnum,
-  HeaderCellTypeEnum,
-} from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
+import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
+import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
+import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -22,6 +25,9 @@ export class ScheduleDataService extends BaseDataService {
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private emptyFormatter = inject(EmptyCellFormatterService);
+  private workFormatter = inject(WorkCellFormatterService);
+  private breakFormatter = inject(BreakCellFormatterService);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -39,33 +45,21 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   public override getCell(row: number, col: number): GridCell {
-    const c = new GridCell();
     const entry = this.getWorkScheduleEntryForCell(row, col);
 
-    if (entry) {
-      c.cellType = CellTypeEnum.Standard;
-      c.mainText = entry.abbreviation || '';
-      c.firstSubText = this.formatWorkTime(entry.changeTime);
-      c.secondSubText =
-        formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
-    } else {
-      c.cellType = CellTypeEnum.Empty;
-      c.mainText = '';
-      c.firstSubText = '';
-      c.secondSubText = '';
+    if (!entry) {
+      return this.emptyFormatter.formatCell(undefined);
     }
 
-    return c;
-  }
-
-  private formatWorkTime(hours: number | null): string {
-    if (hours === null || hours === 0) return '';
-    const wholeHours = Math.floor(Math.abs(hours));
-    const mins = Math.round((Math.abs(hours) - wholeHours) * 60);
-    const sign = hours < 0 ? '-' : '';
-    if (wholeHours === 0) return `${sign}${mins}m`;
-    if (mins === 0) return `${sign}${wholeHours}h`;
-    return `${sign}${wholeHours}h ${mins}m`;
+    switch (entry.entryType) {
+      case WorkScheduleEntryType.Break:
+        return this.breakFormatter.formatCell(entry);
+      case WorkScheduleEntryType.Work:
+      case WorkScheduleEntryType.WorkChange:
+      case WorkScheduleEntryType.Expenses:
+      default:
+        return this.workFormatter.formatCell(entry);
+    }
   }
 
   getWorkScheduleEntryForCell(
@@ -451,7 +445,7 @@ export class ScheduleDataService extends BaseDataService {
   findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {
     for (let row = 0; row < this.rows; row++) {
       const entry = this.getWorkScheduleEntryForCell(row, column);
-      if (entry && entry.shiftId === shiftId) {
+      if (entry && entry.entryId === shiftId) {
         return row;
       }
     }

@@ -114,4 +114,24 @@ export class AbsenceMenuService {
   reload(): void {
     this.isLoaded.set(false);
   }
+
+  getColorForEntryId(entryId: string): string | undefined {
+    const absence = this.findAbsenceForEntryId(entryId);
+    return absence?.color;
+  }
+
+  getAbbreviationForEntryId(entryId: string, language: string): string {
+    const absence = this.findAbsenceForEntryId(entryId);
+    if (!absence) return '';
+    return this.getLocalizedName(absence.abbreviation, language);
+  }
+
+  private findAbsenceForEntryId(entryId: string): IAbsence | undefined {
+    const details = this.absenceDetails();
+    const detail = details.find(d => d.id === entryId);
+    if (detail) {
+      return this.absences().find(a => a.id === detail.absenceId);
+    }
+    return this.absences().find(a => a.id === entryId);
+  }
 }

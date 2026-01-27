@@ -181,9 +181,21 @@ export class BaseCreateCellService {
     const canvas = this.getCellCanvas(weekDay, lastRowFlag, isOverlay || isHighlighted);
 
     this.drawImage(ctx, canvas);
+
+    if (gridCell.backgroundColor) {
+      this.drawBackgroundColor(ctx, gridCell.backgroundColor);
+    }
+
     this.drawCellTexts(ctx, gridCell);
 
     return tempCanvas;
+  }
+
+  private drawBackgroundColor(ctx: CanvasRenderingContext2D, color: string): void {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.fillRect(1, 1, this.settings.cellWidth - 2, this.settings.cellHeight - 2);
+    ctx.restore();
   }
 
   initializeTempCanvas(): HTMLCanvasElement | undefined {

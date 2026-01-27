@@ -1,6 +1,6 @@
 # Schedule Documentation
 
-**Letzte Aktualisierung:** 22.01.2026
+**Letzte Aktualisierung:** 26.01.2026
 
 ---
 
@@ -151,16 +151,19 @@ Der `WorksController` erbt von `BaseController` (nicht `InputBaseController`).
 
 ### Stored Procedure
 
-Die SP `get_work_schedule` kombiniert drei Entitäten:
+Die SP `get_work_schedule` kombiniert vier Entitäten:
 - **EntryType 0**: Work (Arbeitseinsätze)
 - **EntryType 1**: WorkChange (Zeitkorrekturen, Vertretungen)
 - **EntryType 2**: Expenses (Spesen)
+- **EntryType 3**: Break (Abwesenheiten: Urlaub, Krankheit, etc.)
 
 ```sql
 SELECT * FROM get_work_schedule(
-    '2025-01-01'::DATE,  -- start_date
-    '2025-01-31'::DATE,  -- end_date
-    ARRAY[]::UUID[]      -- visible_group_ids (optional)
+    '2026-01-01'::DATE,   -- start_date
+    '2026-01-31'::DATE,   -- end_date
+    ARRAY[]::UUID[],      -- visible_group_ids (optional)
+    'de'::TEXT,           -- current_language
+    ARRAY['de','en','fr','it']::TEXT[]  -- fallback_order (aus MultiLanguage.SupportedLanguages)
 )
 ```
 
@@ -169,18 +172,19 @@ SELECT * FROM get_work_schedule(
 | Feld | Typ | Beschreibung |
 |------|-----|--------------|
 | id | UUID | Eindeutige ID des Eintrags |
-| entry_type | INTEGER | 0=Work, 1=WorkChange, 2=Expenses |
-| work_id | UUID | Referenz zum Work-Eintrag |
+| entry_type | INTEGER | 0=Work, 1=WorkChange, 2=Expenses, 3=Break |
+| source_id | UUID | Referenz zum Quell-Eintrag (Work oder Break) |
 | client_id | UUID | Mitarbeiter-ID |
 | entry_date | DATE | Datum des Eintrags |
-| start_shift | TIME | Startzeit |
-| end_shift | TIME | Endzeit |
+| start_time | TIME | Startzeit |
+| end_time | TIME | Endzeit |
 | change_time | NUMERIC | Zeitänderung in Minuten |
 | work_change_type | INTEGER | Art der Änderung (0-3) |
 | description | TEXT | Beschreibung |
 | amount | NUMERIC | Betrag (Expenses) |
-| shift_id | UUID | Schicht-ID |
-| abbreviation | TEXT | Schicht-Kürzel |
+| shift_id | UUID | Schicht-ID (bei Break: Absence-ID) |
+| entry_name | TEXT | Name (Shift-Name oder lokalisierter Absence-Name) |
+| abbreviation | TEXT | Abkürzung (bei Break: lokalisiert)
 
 ### Backend Dateien
 
@@ -198,27 +202,32 @@ Presentation/DTOs/Schedules/WorkScheduleResponse.cs
 ### Frontend Model
 
 ```typescript
-export interface IWorkScheduleEntry {
+export interface IScheduleCell {
   id: string;
   entryType: number;
-  workId: string;
+  sourceId: string;           // Referenz auf Work oder Break
   clientId: string;
   entryDate: Date;
-  startShift: string;
-  endShift: string;
+  startTime: string;
+  endTime: string;
   changeTime: number | null;
   workChangeType: number | null;
   description: string | null;
   amount: number | null;
-  shiftId: string;
-  shiftName: string | null;
+  shiftId: string;            // Bei Break: AbsenceId
+  entryName: string | null;   // Shift-Name oder lokalisierter Absence-Name
   abbreviation: string | null;
+  toInvoice: boolean | null;
+  taxable: boolean | null;
+  replaceClientId: string | null;
+  isReplacementEntry: boolean;
 }
 
 export enum WorkScheduleEntryType {
   Work = 0,
   WorkChange = 1,
   Expenses = 2,
+  Break = 3,
 }
 ```
 
@@ -421,11 +430,13 @@ public enum PaymentInterval
 
 ### Frontend Row-Header
 
-| Slot | Inhalt |
-|------|--------|
-| Slot1 | Soll-Stunden (`guaranteedHours`) |
-| Slot2 | Geleistete Stunden (`hours`) |
-| Slot3 | Zuschläge (`+surcharges`) |
+| Slot | Inhalt | Format |
+|------|--------|--------|
+| Slot1 | Soll-Stunden (`guaranteedHours`) | HH:mm (z.B. `170:00`) |
+| Slot2 | Geleistete Stunden (`hours`) | HH:mm (z.B. `168:30`) |
+| Slot3 | Zuschläge (`surcharges`) | HH:mm (z.B. `05:15`) |
+
+Die Formatierung verwendet `hoursToHHMM()` aus `time-format.helper.ts`.
 
 ---
 
@@ -900,6 +911,35 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 26.01.2026 - Break Entry Type & HH:mm Formatierung
+
+**Neue Features:**
+
+1. **Break Entry Type (Type = 3):**
+   - Neuer Entry Type für Abwesenheiten (Urlaub, Krankheit, etc.)
+   - `WorkScheduleEntryType.Break = 3` im Frontend Enum
+   - Break-Einträge werden zusammen mit Work/WorkChange/Expenses angezeigt
+
+2. **Feld-Umbenennung in `IScheduleCell`:**
+   - `workId` → `sourceId` (generisch für Work und Break)
+   - `shiftName` → `entryName` (generisch für Shift-Name oder Absence-Name)
+
+3. **Row Header HH:mm Formatierung:**
+   - `guaranteedHours`, `hours`, `surcharges` werden als HH:mm angezeigt
+   - Neue Helper-Funktion `hoursToHHMM()` in `time-format.helper.ts`
+
+**Betroffene Dateien:**
+
+| Datei | Änderung |
+|-------|----------|
+| `work-schedule-class.ts` | `IScheduleCell`: `sourceId`, `entryName`; Enum: `Break = 3` |
+| `work-schedule-crud.service.ts` | `DeleteWorkScheduleEntryParams.sourceId` |
+| `schedule-data.service.ts` | Row Header: `hoursToHHMM` für HH:mm Format |
+| `time-format.helper.ts` | Neue Funktion `hoursToHHMM(value: number): string` |
+| `grid-template-events.directive.ts` | Lokale Type-Definitionen aktualisiert |
+
+---
 
 ### 22.01.2026 - Surcharges Berechnung & Cache Invalidierung Fix
 

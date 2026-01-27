@@ -14,6 +14,7 @@ export class GridCell {
   cellType: CellTypeEnum = CellTypeEnum.Standard;
   mainTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
   subTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
+  backgroundColor?: string;
 
   isEmpty(): boolean {
     return (

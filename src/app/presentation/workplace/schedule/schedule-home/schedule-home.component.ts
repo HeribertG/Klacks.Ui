@@ -19,6 +19,9 @@ import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-r
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
+import { EmptyCellFormatterService } from '../schedule-section/services/cell-formatters/empty-cell-formatter.service';
+import { WorkCellFormatterService } from '../schedule-section/services/cell-formatters/work-cell-formatter.service';
+import { BreakCellFormatterService } from '../schedule-section/services/cell-formatters/break-cell-formatter.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -43,6 +46,9 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
     BaseSettingsService,
     AllScheduleStateService,
     ScheduleHorizontalScrollService,
+    EmptyCellFormatterService,
+    WorkCellFormatterService,
+    BreakCellFormatterService,
   ],
 })
 export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {

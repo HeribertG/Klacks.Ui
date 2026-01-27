@@ -5,7 +5,7 @@ export interface FillHandleState {
   isDragging: boolean;
   startPosition: MyPosition | null;
   currentColumn: number;
-  sourceShiftId: string | null;
+  sourceEntryId: string | null;
   sourceWorkTime: number;
 }
 
@@ -20,7 +20,7 @@ export class FillHandleService {
     isDragging: false,
     startPosition: null,
     currentColumn: -1,
-    sourceShiftId: null,
+    sourceEntryId: null,
     sourceWorkTime: 0,
   };
 
@@ -38,12 +38,12 @@ export class FillHandleService {
     return this._state.isDragging;
   }
 
-  startDrag(position: MyPosition, shiftId: string, workTime: number): void {
+  startDrag(position: MyPosition, entryId: string, workTime: number): void {
     this._state = {
       isDragging: true,
       startPosition: position,
       currentColumn: position.column,
-      sourceShiftId: shiftId,
+      sourceEntryId: entryId,
       sourceWorkTime: workTime,
     };
     this.stateSignal.set({ ...this._state });
@@ -57,7 +57,7 @@ export class FillHandleService {
     this.stateSignal.set({ ...this._state });
   }
 
-  endDrag(): { startColumn: number; endColumn: number; row: number; shiftId: string; workTime: number } | null {
+  endDrag(): { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number } | null {
     if (!this._state.isDragging || !this._state.startPosition) {
       this.reset();
       return null;
@@ -67,7 +67,7 @@ export class FillHandleService {
       startColumn: this._state.startPosition.column,
       endColumn: this._state.currentColumn,
       row: this._state.startPosition.row,
-      shiftId: this._state.sourceShiftId!,
+      entryId: this._state.sourceEntryId!,
       workTime: this._state.sourceWorkTime,
     };
 
@@ -80,7 +80,7 @@ export class FillHandleService {
       isDragging: false,
       startPosition: null,
       currentColumn: -1,
-      sourceShiftId: null,
+      sourceEntryId: null,
       sourceWorkTime: 0,
     };
     this.stateSignal.set({ ...this._state });

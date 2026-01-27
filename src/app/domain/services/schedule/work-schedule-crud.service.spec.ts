@@ -14,6 +14,7 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
 import { IShiftSchedule } from '../../models/shift-schedule-class';
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 import { IWorkFilter } from '../../models/schedule-class';
+import { DataManagementBreakService } from '../break/data-management-break.service';
 
 function createMockWorkFilter(): IWorkFilter {
   return {
@@ -85,6 +86,10 @@ describe('WorkScheduleCrudService', () => {
     calculate: ReturnType<typeof vi.fn>;
   };
 
+  let breakServiceMock: {
+    deleteBreak: ReturnType<typeof vi.fn>;
+  };
+
   beforeEach(() => {
     // Arrange
     dataWorkScheduleMock = {
@@ -98,6 +103,9 @@ describe('WorkScheduleCrudService', () => {
     workScheduleLoaderMock = {
       replaceClientEntriesForDays: vi.fn(),
       updateClientNeededRows: vi.fn(),
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2025-01-31'),
+      periodHours: new Map(),
     };
 
     workCrudMock = {
@@ -115,6 +123,10 @@ describe('WorkScheduleCrudService', () => {
       calculate: vi.fn(),
     };
 
+    breakServiceMock = {
+      deleteBreak: vi.fn().mockReturnValue(of({})),
+    };
+
     TestBed.configureTestingModule({
       providers: [
         WorkScheduleCrudService,
@@ -123,6 +135,7 @@ describe('WorkScheduleCrudService', () => {
         { provide: WorkScheduleLoaderService, useValue: workScheduleLoaderMock },
         { provide: WorkCrudService, useValue: workCrudMock },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
+        { provide: DataManagementBreakService, useValue: breakServiceMock },
       ],
     });
 
@@ -233,6 +246,7 @@ describe('WorkScheduleCrudService', () => {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
+        entryType: 0,
       };
       const workFilter = createMockWorkFilter();
 
@@ -251,6 +265,7 @@ describe('WorkScheduleCrudService', () => {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
+        entryType: 0,
       };
       const workFilter = createMockWorkFilter();
 
@@ -280,6 +295,7 @@ describe('WorkScheduleCrudService', () => {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
+        entryType: 0,
       };
       const workFilter = createMockWorkFilter();
 
@@ -310,6 +326,7 @@ describe('WorkScheduleCrudService', () => {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
+        entryType: 0,
       };
       const workFilter = createMockWorkFilter();
 
@@ -339,9 +356,9 @@ describe('WorkScheduleCrudService', () => {
     it('should call bulkDeleteWorks with all workIds', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1' },
-        { workId: 'work-3', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-2' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -363,7 +380,7 @@ describe('WorkScheduleCrudService', () => {
     it('should not refresh when successCount is zero', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -385,8 +402,8 @@ describe('WorkScheduleCrudService', () => {
     it('should refresh schedule for each affected client', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-2', date: new Date('2025-01-16'), shiftId: 'shift-2' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-16'), shiftId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -408,7 +425,7 @@ describe('WorkScheduleCrudService', () => {
     it('should update neededRows after bulk delete', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -441,8 +458,8 @@ describe('WorkScheduleCrudService', () => {
       ];
 
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -464,9 +481,9 @@ describe('WorkScheduleCrudService', () => {
     it('should merge overlapping date ranges for same client and shift', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1' },
-        { workId: 'work-3', clientId: 'client-1', date: new Date('2025-01-17'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-17'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -541,9 +558,9 @@ describe('WorkScheduleCrudService', () => {
     it('should create single range for consecutive dates', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-13'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-1', date: new Date('2025-01-14'), shiftId: 'shift-1' },
-        { workId: 'work-3', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-13'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-14'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -565,8 +582,8 @@ describe('WorkScheduleCrudService', () => {
     it('should create separate ranges for non-consecutive dates', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-10'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-1', date: new Date('2025-01-20'), shiftId: 'shift-1' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-10'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-20'), shiftId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -588,8 +605,8 @@ describe('WorkScheduleCrudService', () => {
     it('should handle different shifts for same client separately', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { workId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1' },
-        { workId: 'work-2', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-2' },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 

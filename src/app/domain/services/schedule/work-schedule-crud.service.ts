@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IWorkScheduleFilter } from 'src/app/domain/models/work-schedule-class';
+import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
@@ -8,6 +8,7 @@ import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkFilter } from '../../models/schedule-class';
+import { DataManagementBreakService } from '../break/data-management-break.service';
 
 export interface ScheduleCellParams {
   clientId: string;
@@ -22,7 +23,8 @@ export interface DeleteWorkScheduleEntryParams {
   sourceId: string;
   clientId: string;
   date: Date;
-  shiftId: string;
+  entryId: string;
+  entryType: number;
 }
 
 @Injectable({
@@ -35,6 +37,7 @@ export class WorkScheduleCrudService {
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private workCrud = inject(WorkCrudService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
+  private breakService = inject(DataManagementBreakService);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -137,32 +140,78 @@ export class WorkScheduleCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(new Date());
 
-    this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
-      if (response.periodHours) {
-        this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
-      }
-      this.refreshClientScheduleForDays(params.clientId, params.date);
-      this.updateShiftEngagedLocally(params.shiftId, params.date, -1, workFilter);
-    });
+    if (params.entryType === WorkScheduleEntryType.Break) {
+      this.breakService.deleteBreak(params.sourceId, periodStart, periodEnd).subscribe({
+        next: (response) => {
+          if (response.periodHours) {
+            this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+          }
+          this.refreshClientScheduleForDays(params.clientId, params.date);
+        },
+        error: (err) => console.error('Error deleting break:', err),
+      });
+    } else {
+      this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
+        if (response.periodHours) {
+          this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+        }
+        this.refreshClientScheduleForDays(params.clientId, params.date);
+        this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
+      });
+    }
   }
 
   bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[], workFilter: IWorkFilter): void {
     if (entries.length === 0) return;
 
-    const workIds = entries.map(e => e.sourceId);
+    const workEntries = entries.filter(e => e.entryType !== WorkScheduleEntryType.Break);
+    const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
 
-    this.workCrud.bulkDeleteWorks(workIds).then(async (response) => {
-      if (response.successCount === 0) return;
+    const periodStart = this.workScheduleLoader.startDate
+      ? formatDateOnly(this.workScheduleLoader.startDate)
+      : formatDateOnly(new Date());
+    const periodEnd = this.workScheduleLoader.endDate
+      ? formatDateOnly(this.workScheduleLoader.endDate)
+      : formatDateOnly(new Date());
 
-      if (response.periodHours) {
-        for (const [clientId, hours] of Object.entries(response.periodHours)) {
-          this.workScheduleLoader.periodHours.set(clientId, hours);
-        }
-      }
+    const deletePromises: Promise<void>[] = [];
 
+    if (workEntries.length > 0) {
+      const workIds = workEntries.map(e => e.sourceId);
+      deletePromises.push(
+        this.workCrud.bulkDeleteWorks(workIds).then((response) => {
+          if (response.periodHours) {
+            for (const [clientId, hours] of Object.entries(response.periodHours)) {
+              this.workScheduleLoader.periodHours.set(clientId, hours);
+            }
+          }
+        })
+      );
+    }
+
+    for (const breakEntry of breakEntries) {
+      deletePromises.push(
+        new Promise<void>((resolve, reject) => {
+          this.breakService.deleteBreak(breakEntry.sourceId, periodStart, periodEnd).subscribe({
+            next: (response) => {
+              if (response.periodHours) {
+                this.workScheduleLoader.periodHours.set(breakEntry.clientId, response.periodHours);
+              }
+              resolve();
+            },
+            error: (err) => {
+              console.error('Error deleting break:', err);
+              reject(err);
+            },
+          });
+        })
+      );
+    }
+
+    Promise.all(deletePromises).then(async () => {
       const clientShiftDates = new Map<string, Set<number>>();
       for (const entry of entries) {
-        const key = `${entry.clientId}|${entry.shiftId}`;
+        const key = `${entry.clientId}|${entry.entryId}`;
         if (!clientShiftDates.has(key)) {
           clientShiftDates.set(key, new Set());
         }
@@ -246,13 +295,13 @@ export class WorkScheduleCrudService {
     this.recalculateAndTriggerShiftRefresh(workFilter);
   }
 
-  private bulkUpdateShiftEngagedLocally(entries: { shiftId: string; date: Date }[], workFilter: IWorkFilter): void {
+  private bulkUpdateShiftEngagedLocally(entries: { entryId: string; date: Date }[], workFilter: IWorkFilter): void {
     for (const entry of entries) {
       const normalizedDate = new Date(entry.date);
       normalizedDate.setHours(0, 0, 0, 0);
 
       for (const shift of this.shiftLoader.shiftSchedules) {
-        if (shift.shiftId !== entry.shiftId) continue;
+        if (shift.shiftId !== entry.entryId) continue;
 
         const shiftDate = new Date(shift.date);
         shiftDate.setHours(0, 0, 0, 0);

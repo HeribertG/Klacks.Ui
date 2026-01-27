@@ -286,10 +286,11 @@ export class DataManagementScheduleService implements ILoadable {
     sourceId: string,
     clientId: string,
     date: Date,
-    shiftId: string,
+    entryId: string,
+    entryType: number,
   ): void {
     this.workScheduleCrud.deleteWorkScheduleEntry(
-      { sourceId, clientId, date, shiftId },
+      { sourceId, clientId, date, entryId, entryType },
       this.workFilter,
     );
   }

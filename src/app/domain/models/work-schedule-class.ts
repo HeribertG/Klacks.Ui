@@ -12,7 +12,7 @@ export interface IScheduleCell {
   amount: number | null;
   toInvoice: boolean | null;
   taxable: boolean | null;
-  shiftId: string;
+  entryId: string;
   entryName: string | null;
   abbreviation: string | null;
   replaceClientId: string | null;
@@ -33,7 +33,7 @@ export class ScheduleCell implements IScheduleCell {
   amount: number | null = null;
   toInvoice: boolean | null = null;
   taxable: boolean | null = null;
-  shiftId = '';
+  entryId = '';
   entryName: string | null = null;
   abbreviation: string | null = null;
   replaceClientId: string | null = null;
