@@ -74,6 +74,9 @@ describe('WorkScheduleCrudService', () => {
   let workScheduleLoaderMock: {
     replaceClientEntriesForDays: ReturnType<typeof vi.fn>;
     updateClientNeededRows: ReturnType<typeof vi.fn>;
+    startDate: Date | null;
+    endDate: Date | null;
+    periodHours: Map<string, number>;
   };
 
   let workCrudMock: {
@@ -245,7 +248,7 @@ describe('WorkScheduleCrudService', () => {
         sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
-        shiftId: 'shift-1',
+        entryId: 'shift-1',
         entryType: 0,
       };
       const workFilter = createMockWorkFilter();
@@ -264,7 +267,7 @@ describe('WorkScheduleCrudService', () => {
         sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
-        shiftId: 'shift-1',
+        entryId: 'shift-1',
         entryType: 0,
       };
       const workFilter = createMockWorkFilter();
@@ -294,7 +297,7 @@ describe('WorkScheduleCrudService', () => {
         sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
-        shiftId: 'shift-1',
+        entryId: 'shift-1',
         entryType: 0,
       };
       const workFilter = createMockWorkFilter();
@@ -325,7 +328,7 @@ describe('WorkScheduleCrudService', () => {
         sourceId: 'work-123',
         clientId: 'client-1',
         date: new Date('2025-01-15'),
-        shiftId: 'shift-1',
+        entryId: 'shift-1',
         entryType: 0,
       };
       const workFilter = createMockWorkFilter();
@@ -356,9 +359,9 @@ describe('WorkScheduleCrudService', () => {
     it('should call bulkDeleteWorks with all workIds', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-3', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-2', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-2', date: new Date('2025-01-15'), entryId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -380,7 +383,7 @@ describe('WorkScheduleCrudService', () => {
     it('should not refresh when successCount is zero', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -402,8 +405,8 @@ describe('WorkScheduleCrudService', () => {
     it('should refresh schedule for each affected client', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-16'), shiftId: 'shift-2', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-16'), entryId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -425,7 +428,7 @@ describe('WorkScheduleCrudService', () => {
     it('should update neededRows after bulk delete', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -458,8 +461,8 @@ describe('WorkScheduleCrudService', () => {
       ];
 
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-2', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -481,9 +484,9 @@ describe('WorkScheduleCrudService', () => {
     it('should merge overlapping date ranges for same client and shift', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-17'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-16'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-17'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -558,9 +561,9 @@ describe('WorkScheduleCrudService', () => {
     it('should create single range for consecutive dates', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-13'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-14'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-13'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-14'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-3', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -582,8 +585,8 @@ describe('WorkScheduleCrudService', () => {
     it('should create separate ranges for non-consecutive dates', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-10'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-20'), shiftId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-10'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-20'), entryId: 'shift-1', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
@@ -605,8 +608,8 @@ describe('WorkScheduleCrudService', () => {
     it('should handle different shifts for same client separately', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
-        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-1', entryType: 0 },
-        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-15'), shiftId: 'shift-2', entryType: 0 },
+        { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
+        { sourceId: 'work-2', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-2', entryType: 0 },
       ];
       const workFilter = createMockWorkFilter();
 
