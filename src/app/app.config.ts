@@ -51,6 +51,8 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-pr
 import { WorkplaceStateService } from './application/services/workplace-state.service';
 import { LOADING_INDICATOR_TOKEN } from './domain/interfaces/loading-indicator.interface';
 import { SpinnerService } from './presentation/spinner/spinner.service';
+import { LanguageConfigService } from './application/services/language-config.service';
+import { initializeLanguageHelper } from './domain/helpers/multi-language.helper';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -69,6 +71,10 @@ export function initializeDomainEventHandler(handler: DomainEventHandler) {
   return () => handler;
 }
 
+export function initializeLanguageConfig(service: LanguageConfigService) {
+  return () => service.loadConfig().then(() => initializeLanguageHelper(service));
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter([]),
@@ -77,6 +83,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: initializeDomainEventHandler,
       deps: [DomainEventHandler],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeLanguageConfig,
+      deps: [LanguageConfigService],
       multi: true,
     },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

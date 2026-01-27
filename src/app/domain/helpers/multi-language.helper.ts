@@ -1,4 +1,11 @@
 import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
+
+let languageConfigService: LanguageConfigService | null = null;
+
+export function initializeLanguageHelper(service: LanguageConfigService): void {
+  languageConfigService = service;
+}
 
 export function getLocalizedValue(
   source: IMultiLanguage | undefined | null,
@@ -7,9 +14,9 @@ export function getLocalizedValue(
   if (!source) {
     return '';
   }
-  return (
-    [source[language as keyof IMultiLanguage], source.de, source.fr, source.it, source.en].find(
-      (x) => x || x === ''
-    ) ?? ''
-  );
+
+  const fallbackOrder = languageConfigService?.getFallbackOrder() ?? ['de', 'fr', 'it', 'en'];
+  const candidates = [source[language as keyof IMultiLanguage], ...fallbackOrder.map(lang => source[lang as keyof IMultiLanguage])];
+
+  return candidates.find((x) => x || x === '') ?? '';
 }

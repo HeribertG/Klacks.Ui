@@ -14,6 +14,7 @@ import {
 } from 'src/app/application/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
 @Component({
   selector: 'app-profile-custom-setting',
@@ -30,7 +31,6 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
 export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;
 
-  languages: Language[] = ['de', 'fr', 'it', 'en'];
   selectedLanguage: Language = MessageLibrary.DEFAULT_LANG;
   flagMap: Record<Language, string> = {
     de: 'Deutsch',
@@ -46,6 +46,11 @@ export class ProfileCustomSettingComponent implements OnInit {
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
   private themeService = inject(ThemeService);
+  private languageConfigService = inject(LanguageConfigService);
+
+  get languages(): Language[] {
+    return this.languageConfigService.getSupportedLanguages() as Language[];
+  }
 
   ngOnInit(): void {
     const lang =
