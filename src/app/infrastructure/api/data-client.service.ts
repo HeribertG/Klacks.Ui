@@ -24,9 +24,9 @@ export class DataClientService {
 
   readClientTypeTemplateList() {
     return this.httpClient
-      .get<IClientAttribute[]>(
-        `${environment.baseUrl}Clients/GetClientTypeTemplate`
-      )
+      .get<
+        IClientAttribute[]
+      >(`${environment.baseUrl}Clients/GetClientTypeTemplate`)
       .pipe(retry(3));
   }
 
@@ -36,7 +36,7 @@ export class DataClientService {
     return this.httpClient
       .post<ITruncatedClient>(
         `${environment.baseUrl}Clients/GetSimpleList`,
-        filter
+        filter,
       )
       .pipe();
   }
@@ -45,7 +45,7 @@ export class DataClientService {
     return this.httpClient
       .post<ITruncatedClient>(
         `${environment.baseUrl}Clients/ChangeList`,
-        filter
+        filter,
       )
       .pipe(retry(3));
   }
@@ -58,17 +58,17 @@ export class DataClientService {
 
   getStateTokenList(value: boolean) {
     return this.httpClient
-      .get<StateCountryToken[]>(
-        `${environment.baseUrl}Clients/GetStateTokenList?isSelected=` + value
-      )
+      .get<
+        StateCountryToken[]
+      >(`${environment.baseUrl}Clients/GetStateTokenList?isSelected=` + value)
       .pipe();
   }
 
   findClient(company: string, name: string, firstName: string) {
     return this.httpClient
-      .get<IClient[]>(
-        `${environment.baseUrl}Clients/FindClient/${company}/${name}/${firstName}/`
-      )
+      .get<
+        IClient[]
+      >(`${environment.baseUrl}Clients/FindClient/${company}/${name}/${firstName}/`)
       .pipe(retry(3));
   }
 
@@ -105,16 +105,16 @@ export class DataClientService {
 
   readCommunicationTypeList() {
     return this.httpClient
-      .get<ICommunicationType[]>(
-        `${environment.baseUrl}Communications/CommunicationTypes/`
-      )
+      .get<
+        ICommunicationType[]
+      >(`${environment.baseUrl}Communications/CommunicationTypes/`)
       .pipe();
   }
 
   getLastChangeMetaData() {
     return this.httpClient
       .get<ILastChangeMetaData>(
-        `${environment.baseUrl}Clients/LastChangeMetaData/`
+        `${environment.baseUrl}Clients/LastChangeMetaData/`,
       )
       .pipe();
   }
@@ -127,9 +127,9 @@ export class DataClientService {
 
   readClientAddressList(id: string) {
     return this.httpClient
-      .get<IAddress[]>(
-        `${environment.baseUrl}Addresses/ClientAddressList/` + id
-      )
+      .get<
+        IAddress[]
+      >(`${environment.baseUrl}Addresses/ClientAddressList/` + id)
       .pipe();
   }
 
@@ -141,7 +141,9 @@ export class DataClientService {
     }
 
     if (value.scopeUntil) {
-      value.scopeUntil = dateWithLocalTimeCorrection(new Date(value.scopeUntil));
+      value.scopeUntil = dateWithLocalTimeCorrection(
+        new Date(value.scopeUntil),
+      );
     } else {
       value.scopeUntil = undefined;
     }
@@ -156,13 +158,13 @@ export class DataClientService {
 
     if (value.membership?.validFrom) {
       value.membership.validFrom = dateWithLocalTimeCorrection(
-        new Date(value.membership.validFrom)
+        new Date(value.membership.validFrom),
       )!;
     }
 
     if (value.membership?.validUntil) {
       value.membership.validUntil = dateWithLocalTimeCorrection(
-        new Date(value.membership.validUntil)
+        new Date(value.membership.validUntil),
       )!;
     } else if (value.membership) {
       value.membership.validUntil = undefined;
