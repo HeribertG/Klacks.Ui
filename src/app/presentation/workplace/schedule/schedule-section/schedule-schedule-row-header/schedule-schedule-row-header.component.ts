@@ -42,7 +42,6 @@ import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.serv
   standalone: true,
   imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent],
   providers: [
-    ScrollService,
     BaseCreateRowHeaderService,
     BaseDrawRowHeaderService,
     ProgressBarAnimationService
