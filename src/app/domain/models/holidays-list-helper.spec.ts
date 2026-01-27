@@ -48,25 +48,26 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.add(rule);
 
         // Act & Assert
+        // computeHolidays() calculates for 3 years: currentYear-1, currentYear, currentYear+1
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
-        const easter2023 = holidaysHelper.holidayList[0]?.currentDate;
+        const easter2023 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2023)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER | Year: 2023 | Result: ${easter2023?.toLocaleDateString('de-DE')} (expected: 09.04.2023)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('4/9/2023'))).toBe(HolidayStatus.OfficialHoliday);
 
         holidaysHelper.currentYear = 2022;
         holidaysHelper.computeHolidays();
-        const easter2022 = holidaysHelper.holidayList[0]?.currentDate;
+        const easter2022 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2022)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER | Year: 2022 | Result: ${easter2022?.toLocaleDateString('de-DE')} (expected: 17.04.2022)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('4/17/2022'))).toBe(HolidayStatus.OfficialHoliday);
 
         holidaysHelper.currentYear = 1959;
         holidaysHelper.computeHolidays();
-        const easter1959 = holidaysHelper.holidayList[0]?.currentDate;
+        const easter1959 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 1959)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER | Year: 1959 | Result: ${easter1959?.toLocaleDateString('de-DE')} (expected: 30.03.1959)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('3/30/1959'))).toBe(HolidayStatus.OfficialHoliday);
     });
 
@@ -85,18 +86,19 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.add(rule);
 
         // Act & Assert
+        // computeHolidays() calculates for 3 years: currentYear-1, currentYear, currentYear+1
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
-        const pentecost2023 = holidaysHelper.holidayList[0]?.currentDate;
+        const pentecost2023 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2023)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER+49 (Pfingsten) | Year: 2023 | Result: ${pentecost2023?.toLocaleDateString('de-DE')} (expected: 28.05.2023)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('5/28/2023'))).toBe(HolidayStatus.OfficialHoliday);
 
         holidaysHelper.currentYear = 2022;
         holidaysHelper.computeHolidays();
-        const pentecost2022 = holidaysHelper.holidayList[0]?.currentDate;
+        const pentecost2022 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2022)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER+49 (Pfingsten) | Year: 2022 | Result: ${pentecost2022?.toLocaleDateString('de-DE')} (expected: 05.06.2022)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('6/05/2022'))).toBe(HolidayStatus.OfficialHoliday);
     });
 
@@ -115,25 +117,26 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.add(rule);
 
         // Act & Assert
+        // computeHolidays() calculates for 3 years: currentYear-1, currentYear, currentYear+1
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
-        const corpus2023 = holidaysHelper.holidayList[0]?.currentDate;
+        const corpus2023 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2023)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER+60 (Fronleichnam) | Year: 2023 | Result: ${corpus2023?.toLocaleDateString('de-DE')} (expected: 08.06.2023)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('6/08/2023'))).toBe(HolidayStatus.OfficialHoliday);
 
         holidaysHelper.currentYear = 2022;
         holidaysHelper.computeHolidays();
-        const corpus2022 = holidaysHelper.holidayList[0]?.currentDate;
+        const corpus2022 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2022)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER+60 (Fronleichnam) | Year: 2022 | Result: ${corpus2022?.toLocaleDateString('de-DE')} (expected: 16.06.2022)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('6/16/2022'))).toBe(HolidayStatus.OfficialHoliday);
 
         holidaysHelper.currentYear = 2018;
         holidaysHelper.computeHolidays();
-        const corpus2018 = holidaysHelper.holidayList[0]?.currentDate;
+        const corpus2018 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2018)?.currentDate;
         console.log(`[TEST-DATA] Rule: EASTER+60 (Fronleichnam) | Year: 2018 | Result: ${corpus2018?.toLocaleDateString('de-DE')} (expected: 31.05.2018)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('5/31/2018'))).toBe(HolidayStatus.OfficialHoliday);
     });
 
@@ -152,11 +155,12 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.add(rule);
 
         // Act & Assert
+        // computeHolidays() calculates for 3 years: currentYear-1, currentYear, currentYear+1
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
-        const silvester = holidaysHelper.holidayList[0]?.currentDate;
+        const silvester = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2023)?.currentDate;
         console.log(`[TEST-DATA] Rule: 12/31 (Silvester) | Year: 2023 | Result: ${silvester?.toLocaleDateString('de-DE')} (expected: 31.12.2023)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('12/31/2023'))).toBe(HolidayStatus.OfficialHoliday);
     });
 
@@ -175,11 +179,12 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.add(rule);
 
         // Act & Assert
+        // computeHolidays() calculates for 3 years: currentYear-1, currentYear, currentYear+1
         holidaysHelper.currentYear = 2023;
         holidaysHelper.computeHolidays();
-        const laborDay = holidaysHelper.holidayList[0]?.currentDate;
+        const laborDay = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 2023)?.currentDate;
         console.log(`[TEST-DATA] Rule: 05/01 (Tag der Arbeit) | Year: 2023 | Result: ${laborDay?.toLocaleDateString('de-DE')} (expected: 01.05.2023)`);
-        expect(holidaysHelper.holidayList.length).toBe(1);
+        expect(holidaysHelper.holidayList.length).toBe(3);
         expect(holidaysHelper.isHoliday(new Date('5/01/2023'))).toBe(HolidayStatus.OfficialHoliday);
     });
 

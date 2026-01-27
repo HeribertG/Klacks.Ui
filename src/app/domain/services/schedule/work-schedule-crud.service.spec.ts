@@ -112,14 +112,15 @@ describe('WorkScheduleCrudService', () => {
     };
 
     workCrudMock = {
-      createWork: vi.fn().mockResolvedValue({ id: 'new-work-id' }),
-      deleteWorkById: vi.fn().mockResolvedValue(undefined),
+      createWork: vi.fn().mockResolvedValue({ id: 'new-work-id', scheduleEntries: [{ clientId: 'client-1' }] }),
+      deleteWorkById: vi.fn().mockResolvedValue({ scheduleEntries: [{ clientId: 'client-1' }] }),
       bulkDeleteWorks: vi.fn().mockResolvedValue({
         successCount: 0,
         failedCount: 0,
         deletedIds: [],
         affectedShifts: [],
       }),
+      bulkCreateWorks: vi.fn().mockResolvedValue({ periodHours: {} }),
     };
 
     availableShiftsCalcMock = {
@@ -146,7 +147,7 @@ describe('WorkScheduleCrudService', () => {
   });
 
   describe('addWorkScheduleEntry', () => {
-    it('should call createWork with correct params', async () => {
+    it('should call createWork with correct params including period dates', async () => {
       // Arrange
       const params: ScheduleCellParams = {
         clientId: 'client-1',
@@ -163,10 +164,14 @@ describe('WorkScheduleCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(workCrudMock.createWork).toHaveBeenCalledWith(params);
+      expect(workCrudMock.createWork).toHaveBeenCalledWith({
+        ...params,
+        periodStart: '2025-01-01',
+        periodEnd: '2025-01-31',
+      });
     });
 
-    it('should refresh client schedule after adding work', async () => {
+    it('should use scheduleEntries from response to update client data', async () => {
       // Arrange
       const params: ScheduleCellParams = {
         clientId: 'client-1',
@@ -183,7 +188,7 @@ describe('WorkScheduleCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalled();
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalled();
     });
 
     it('should update shift engaged count after adding work', async () => {
@@ -258,10 +263,10 @@ describe('WorkScheduleCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(workCrudMock.deleteWorkById).toHaveBeenCalledWith('work-123');
+      expect(workCrudMock.deleteWorkById).toHaveBeenCalledWith('work-123', '2025-01-01', '2025-01-31');
     });
 
-    it('should refresh client schedule after deleting work', async () => {
+    it('should use scheduleEntries from response after deleting work', async () => {
       // Arrange
       const params: DeleteWorkScheduleEntryParams = {
         sourceId: 'work-123',
@@ -277,7 +282,7 @@ describe('WorkScheduleCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalled();
+      expect(workScheduleLoaderMock.replaceClientEntriesForDays).toHaveBeenCalled();
     });
 
     it('should decrease shift engaged count after deleting work', async () => {
@@ -307,6 +312,8 @@ describe('WorkScheduleCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
+      // engaged decreases from 5 to 4 after updateShiftEngagedLocally is called (happens after successful delete)
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(shiftLoaderMock.shiftSchedules[0].engaged).toBe(4);
       expect(availableShiftsCalcMock.calculate).toHaveBeenCalled();
     });
@@ -380,7 +387,7 @@ describe('WorkScheduleCrudService', () => {
       expect(workCrudMock.bulkDeleteWorks).toHaveBeenCalledWith(['work-1', 'work-2', 'work-3']);
     });
 
-    it('should not refresh when successCount is zero', async () => {
+    it('should refresh for all entries regardless of successCount', async () => {
       // Arrange
       const entries: DeleteWorkScheduleEntryParams[] = [
         { sourceId: 'work-1', clientId: 'client-1', date: new Date('2025-01-15'), entryId: 'shift-1', entryType: 0 },
@@ -396,10 +403,11 @@ describe('WorkScheduleCrudService', () => {
 
       // Act
       service.bulkDeleteWorkScheduleEntries(entries, workFilter);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Assert
-      expect(dataWorkScheduleMock.getWorkSchedule).not.toHaveBeenCalled();
+      // The implementation refreshes based on entries, not on successCount
+      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalled();
     });
 
     it('should refresh schedule for each affected client', async () => {

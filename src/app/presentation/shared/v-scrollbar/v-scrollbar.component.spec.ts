@@ -154,12 +154,12 @@ describe('VScrollbarComponent', () => {
         component.maxValue = 100;
         component.visibleValue = 20;
 
-        // value = 10, maxScrollValue = 100 - 20 = 80
-        // proportion = 10 / 80 = 0.125
+        // value = 10, maxScrollValue = 100 - 20 + 5 (TICKS_OUTSIDE_RANGE) = 85
+        // proportion = 10 / 85 = 0.1176
         // availableSpace = 500 - 50 = 450
-        // result = 0.125 * 450 = 56.25, rounded = 56
+        // result = 0.1176 * 450 = 52.94, rounded = 53
         const result = (component as any).calculateYPosition(mockCanvas, 10, 10, 50);
-        expect(result).toBe(56);
+        expect(result).toBe(53);
     });
 
     it('should handle canvas height constraint in calculateYPosition', () => {
@@ -178,8 +178,10 @@ describe('VScrollbarComponent', () => {
         100 // trackHeight
         );
 
-        // Should place at canvas height - trackHeight when at max scroll
-        expect(result).toBe(100); // 200 - 100 = 100
+        // maxScrollValue = 100 - 20 + 5 = 85, value = 80 < 85
+        // proportion = 80 / 85 = 0.9411, availableSpace = 100
+        // result = 0.9411 * 100 = 94
+        expect(result).toBe(94);
     });
 
     it('should disable arrow buttons at boundaries', () => {

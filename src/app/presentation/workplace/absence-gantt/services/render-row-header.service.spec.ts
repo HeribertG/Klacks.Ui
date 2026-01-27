@@ -147,7 +147,8 @@ describe('RenderRowHeaderService', () => {
             draw: vi.fn(),
             drawInRect: vi.fn(),
             reset: vi.fn(),
-            destroy: vi.fn()
+            destroy: vi.fn(),
+            setupWithLoader: vi.fn()
         };
 
         TestBed.configureTestingModule({

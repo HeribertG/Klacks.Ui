@@ -3,9 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 
 import { OwnerAddressComponent } from './owner-address.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 describe('OwnerAddressComponent', () => {
     let component: OwnerAddressComponent;
@@ -41,6 +43,11 @@ describe('OwnerAddressComponent', () => {
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 
+        const mockEventBus = {
+            emit: vi.fn(),
+            on: () => of()
+        };
+
         await TestBed.configureTestingModule({
             imports: [OwnerAddressComponent, TranslateModule.forRoot(), FormsModule],
             providers: [
@@ -49,6 +56,7 @@ describe('OwnerAddressComponent', () => {
                     useValue: settingsServiceSpy,
                 },
                 { provide: TranslateService, useValue: translateServiceSpy },
+                { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
             ],
         }).compileComponents();
 

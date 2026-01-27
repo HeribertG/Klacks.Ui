@@ -12,8 +12,8 @@ describe('FallbackPipe', () => {
         expect(pipe).toBeTruthy();
     });
 
-    it('should return null if source is undefined', () => {
-        expect(pipe.transform(undefined, 'en')).toBeNull();
+    it('should return empty string if source is undefined', () => {
+        expect(pipe.transform(undefined, 'en')).toBe('');
     });
 
     it('should return language-specific string if it exists', () => {

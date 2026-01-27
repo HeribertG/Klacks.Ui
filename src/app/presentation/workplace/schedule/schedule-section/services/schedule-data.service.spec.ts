@@ -6,6 +6,9 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
+import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
+import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
@@ -27,7 +30,10 @@ describe('ScheduleDataService', () => {
                     } },
                 { provide: AppSettingsManagementService, useValue: {
                         workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
-                    } }
+                    } },
+                { provide: EmptyCellFormatterService, useValue: { format: vi.fn() } },
+                { provide: WorkCellFormatterService, useValue: { format: vi.fn() } },
+                { provide: BreakCellFormatterService, useValue: { format: vi.fn() } }
             ]
         });
         service = TestBed.inject(ScheduleDataService);
