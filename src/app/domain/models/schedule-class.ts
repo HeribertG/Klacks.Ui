@@ -3,7 +3,6 @@ import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from './shift-class';
 import { IBaseFilter } from './general-class';
 import { IPeriodHours, IScheduleCell } from './work-schedule-class';
-import { PaymentInterval } from './contract-class';
 
 export interface IWork {
   client?: IClient;

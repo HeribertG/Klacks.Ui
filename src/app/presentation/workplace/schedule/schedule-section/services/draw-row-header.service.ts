@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector, effect, runInInjectionContext } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
@@ -58,13 +58,13 @@ export class BaseDrawRowHeaderService {
 
   public createCanvas() {
     this.canvas = document.getElementById(
-      'scheduleRowCanvas'
+      'scheduleRowCanvas',
     ) as HTMLCanvasElement;
     this.ctx = DrawHelper.createHiDPICanvas(
       this.canvas,
       this.width,
       this.height,
-      true
+      true,
     );
     DrawHelper.setAntiAliasing(this.ctx);
 
@@ -73,7 +73,7 @@ export class BaseDrawRowHeaderService {
       this.renderCanvas,
       this.width,
       this.height,
-      true
+      true,
     );
     DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
@@ -82,7 +82,7 @@ export class BaseDrawRowHeaderService {
       this.headerCanvas,
       this.width,
       this.settings.cellHeaderHeight,
-      true
+      true,
     );
     DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
@@ -90,7 +90,7 @@ export class BaseDrawRowHeaderService {
       this.headerCanvas,
       this.width,
       this.settings.cellHeaderHeight,
-      true
+      true,
     );
     DrawHelper.setAntiAliasing(this.headerCtx);
 
@@ -115,16 +115,25 @@ export class BaseDrawRowHeaderService {
 
     const loader = this.workScheduleLoader;
     this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
-      get isRead() { return loader.isRead; },
-      get loadingProgress() { return loader.clientLoadingProgress; },
-      get hasMore() { return loader.hasMoreClients; },
+      get isRead() {
+        return loader.isRead;
+      },
+      get loadingProgress() {
+        return loader.clientLoadingProgress;
+      },
+      get hasMore() {
+        return loader.hasMoreClients;
+      },
     });
   }
 
   private renderProgressBarOnly(): void {
     if (!this.isCanvasAvailable() || !this.headerCtx) return;
 
-    if (!this.workScheduleLoader.isLoadingMore && !this.workScheduleLoader.hasMoreClients) {
+    if (
+      !this.workScheduleLoader.isLoadingMore &&
+      !this.workScheduleLoader.hasMoreClients
+    ) {
       this.crateGridHeader();
       this.renderGrid();
       return;
@@ -153,7 +162,7 @@ export class BaseDrawRowHeaderService {
         0,
         0,
         width,
-        height
+        height,
       );
     }
   }
@@ -235,7 +244,7 @@ export class BaseDrawRowHeaderService {
         this.canvas!,
         this.width,
         this.height,
-        true
+        true,
       );
       DrawHelper.setAntiAliasing(this.ctx);
     }
@@ -256,7 +265,7 @@ export class BaseDrawRowHeaderService {
         this.headerCanvas,
         this.width,
         this.settings.cellHeaderHeight,
-        true
+        true,
       );
       DrawHelper.setAntiAliasing(this.headerCtx);
       this.crateGridHeader();
@@ -293,7 +302,7 @@ export class BaseDrawRowHeaderService {
       const result = this.createRowHeader.createRowHeaderHeader(
         this.headerCtx!,
         Math.floor(width),
-        this.filterImage
+        this.filterImage,
       );
 
       if (result) {
@@ -305,7 +314,7 @@ export class BaseDrawRowHeaderService {
         0,
         0,
         width,
-        this.settings.cellHeaderHeight
+        this.settings.cellHeaderHeight,
       );
     }
   }
@@ -320,7 +329,7 @@ export class BaseDrawRowHeaderService {
         this.renderCanvas!,
         width,
         height,
-        true
+        true,
       );
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
@@ -369,7 +378,7 @@ export class BaseDrawRowHeaderService {
         0,
         startY,
         this.renderCanvas.width,
-        this.renderCanvas.height - startY
+        this.renderCanvas.height - startY,
       );
 
       this.renderCanvasCtx.restore();
@@ -394,7 +403,7 @@ export class BaseDrawRowHeaderService {
       destX,
       destY,
       srcW / pixelRatio,
-      srcH / pixelRatio
+      srcH / pixelRatio,
     );
 
     this.ctx!.drawImage(
@@ -406,7 +415,7 @@ export class BaseDrawRowHeaderService {
       0,
       0,
       this.width,
-      this.settings.cellHeaderHeight
+      this.settings.cellHeaderHeight,
     );
   }
 
@@ -439,7 +448,7 @@ export class BaseDrawRowHeaderService {
             0,
             yPosition,
             logicalWidth,
-            groupLineHeight
+            groupLineHeight,
           );
 
           return result.lastRow;
@@ -520,13 +529,13 @@ export class BaseDrawRowHeaderService {
 
     // Create temp canvas with current content
     const tempCanvas: HTMLCanvasElement = document.createElement(
-      'canvas'
+      'canvas',
     ) as HTMLCanvasElement;
     const tempCtx = DrawHelper.createHiDPICanvas(
       tempCanvas,
       this.width,
       this.height,
-      true
+      true,
     );
 
     if (tempCtx) {
@@ -540,7 +549,7 @@ export class BaseDrawRowHeaderService {
         0,
         0,
         this.width,
-        this.height
+        this.height,
       );
     }
 
@@ -548,7 +557,7 @@ export class BaseDrawRowHeaderService {
       0,
       0,
       this.renderCanvas!.width,
-      this.renderCanvas!.height
+      this.renderCanvas!.height,
     );
 
     const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
@@ -563,13 +572,14 @@ export class BaseDrawRowHeaderService {
       0,
       scrollOffsetY,
       this.width,
-      this.height
+      this.height,
     );
 
     if (verticalDiff > 0) {
       // Scrolling down - add new rows at bottom
       // Calculate where the empty area starts based on actual canvas height
-      const emptyAreaStartY = this.height - (verticalDiff * this.settings.cellHeight);
+      const emptyAreaStartY =
+        this.height - verticalDiff * this.settings.cellHeight;
       const startRow = Math.floor(emptyAreaStartY / this.settings.cellHeight);
 
       for (let row = startRow; row < visibleRow; row++) {
@@ -600,7 +610,7 @@ export class BaseDrawRowHeaderService {
     minCol: number,
     maxCol: number,
     minRow: number,
-    maxRow: number
+    maxRow: number,
   ): void {
     if (this.isCanvasAvailable()) {
       let col: number =

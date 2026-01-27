@@ -1,9 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  DataTranslationService,
-  TranslationResponse,
-} from 'src/app/infrastructure/api/data-translation.service';
+import { DataTranslationService } from 'src/app/infrastructure/api/data-translation.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 
 @Injectable({
@@ -25,7 +22,9 @@ export class TranslationService {
 
   async checkStatus(): Promise<boolean> {
     try {
-      const status = await firstValueFrom(this.dataTranslationService.getStatus());
+      const status = await firstValueFrom(
+        this.dataTranslationService.getStatus(),
+      );
       this._isConfigured.set(status);
       return status;
     } catch {
@@ -36,7 +35,7 @@ export class TranslationService {
 
   async translateToMultiLanguage(
     text: string,
-    sourceLanguage: string
+    sourceLanguage: string,
   ): Promise<MultiLanguage | null> {
     if (!text?.trim()) {
       return null;
@@ -46,7 +45,7 @@ export class TranslationService {
 
     try {
       const response = await firstValueFrom(
-        this.dataTranslationService.translateToAll(text, sourceLanguage)
+        this.dataTranslationService.translateToAll(text, sourceLanguage),
       );
 
       const multiLang = new MultiLanguage();
@@ -66,7 +65,7 @@ export class TranslationService {
 
   async translateField(
     currentValue: MultiLanguage | undefined,
-    sourceLanguage: string
+    sourceLanguage: string,
   ): Promise<MultiLanguage | null> {
     if (!currentValue) {
       return null;

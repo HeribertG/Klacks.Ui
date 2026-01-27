@@ -53,11 +53,15 @@ export class WorkScheduleLoaderService {
     this.signalRService.periodHoursUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => {
-        if (notification.sourceConnectionId === this.signalRService.connectionId) {
+        if (
+          notification.sourceConnectionId === this.signalRService.connectionId
+        ) {
           return;
         }
 
-        const clientLoaded = this.clients.some(c => c.id === notification.clientId);
+        const clientLoaded = this.clients.some(
+          (c) => c.id === notification.clientId,
+        );
         if (!clientLoaded) {
           return;
         }
@@ -296,8 +300,7 @@ export class WorkScheduleLoaderService {
         );
       case 2:
       default:
-        const month = filter.currentMonth - 1;
-        return new Date(year, month, 1);
+        return new Date(year, filter.currentMonth - 1, 1);
     }
   }
 
@@ -315,8 +318,7 @@ export class WorkScheduleLoaderService {
         );
       case 2:
       default:
-        const month = filter.currentMonth - 1;
-        return new Date(year, month + 1, 0);
+        return new Date(year, filter.currentMonth, 0);
     }
   }
 

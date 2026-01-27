@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector, effect, runInInjectionContext, DestroyRef } from '@angular/core';
+import { inject, Injectable, Injector, DestroyRef } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -69,9 +69,15 @@ export class ShiftDrawRowHeaderService {
 
     const loader = this.shiftLoader;
     this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
-      get isRead() { return loader.isRead; },
-      get loadingProgress() { return loader.shiftLoadingProgress; },
-      get hasMore() { return loader.hasMoreShifts; },
+      get isRead() {
+        return loader.isRead;
+      },
+      get loadingProgress() {
+        return loader.shiftLoadingProgress;
+      },
+      get hasMore() {
+        return loader.hasMoreShifts;
+      },
     });
   }
 
@@ -158,7 +164,7 @@ export class ShiftDrawRowHeaderService {
       0,
       0,
       this.canvasManager.renderCanvas!.width,
-      this.canvasManager.renderCanvas!.height
+      this.canvasManager.renderCanvas!.height,
     );
 
     for (let i = 0; i < visibleRows + 1; i++) {
@@ -186,7 +192,7 @@ export class ShiftDrawRowHeaderService {
       0,
       0,
       this.canvasManager.canvas.width,
-      this.canvasManager.canvas.height
+      this.canvasManager.canvas.height,
     );
     ctx.drawImage(
       this.canvasManager.renderCanvas,
@@ -197,7 +203,7 @@ export class ShiftDrawRowHeaderService {
       0,
       0,
       srcW / pixelRatio,
-      srcH / pixelRatio
+      srcH / pixelRatio,
     );
 
     this.drawHighlightOnMainCanvas(ctx);
@@ -225,7 +231,7 @@ export class ShiftDrawRowHeaderService {
       0,
       yPosition,
       this.canvasManager.canvas!.width,
-      this.settings.cellHeight
+      this.settings.cellHeight,
     );
     ctx.globalAlpha = 1.0;
   }

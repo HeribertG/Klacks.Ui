@@ -1,7 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule-class';
-import { getDayIndex, getDaysInMonth } from 'src/app/shared/helpers/date.helper';
+import {
+  getDayIndex,
+  getDaysInMonth,
+} from 'src/app/shared/helpers/date.helper';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
@@ -41,14 +44,14 @@ export class AvailableShiftsCalculatorService {
     const isInRange = (entry: { dayIdx: number }) =>
       entry.dayIdx >= 0 && entry.dayIdx < totalDays;
 
-    const toUniqueAbbreviationsByDay = (entries: { dayIdx: number; abbreviation: string }[]) =>
-      Array.from({ length: totalDays }, (_, dayIdx) =>
-        [...new Set(
-          entries
-            .filter(s => s.dayIdx === dayIdx)
-            .map(s => s.abbreviation)
-        )]
-      );
+    const toUniqueAbbreviationsByDay = (
+      entries: { dayIdx: number; abbreviation: string }[],
+    ) =>
+      Array.from({ length: totalDays }, (_, dayIdx) => [
+        ...new Set(
+          entries.filter((s) => s.dayIdx === dayIdx).map((s) => s.abbreviation),
+        ),
+      ]);
 
     const availableShifts = shiftSchedules
       .filter(hasCapacity)
@@ -61,7 +64,9 @@ export class AvailableShiftsCalculatorService {
       .filter(isInRange);
 
     this._availableShiftsByDay.set(toUniqueAbbreviationsByDay(availableShifts));
-    this._overbookedShiftsByDay.set(toUniqueAbbreviationsByDay(overbookedShifts));
+    this._overbookedShiftsByDay.set(
+      toUniqueAbbreviationsByDay(overbookedShifts),
+    );
   }
 
   private calculateStartDate(filter: IWorkFilter): Date {
@@ -76,19 +81,28 @@ export class AvailableShiftsCalculatorService {
 
     switch (paymentInterval) {
       case 0:
-        return this.calendarUtil.getWeekStartDate(year, filter.currentWeek ?? 1);
+        return this.calendarUtil.getWeekStartDate(
+          year,
+          filter.currentWeek ?? 1,
+        );
       case 1:
-        return this.calendarUtil.getBiweeklyStartDate(year, filter.currentWeek ?? 1);
+        return this.calendarUtil.getBiweeklyStartDate(
+          year,
+          filter.currentWeek ?? 1,
+        );
       case 2:
       default:
-        const month = filter.currentMonth - 1;
-        return new Date(year, month, 1);
+        return new Date(year, filter.currentMonth - 1, 1);
     }
   }
 
   private getTotalDays(filter: IWorkFilter): number {
     const periodDays = this.getPeriodDays(filter);
-    return this.settingsService.dayVisibleBefore + periodDays + this.settingsService.dayVisibleAfter;
+    return (
+      this.settingsService.dayVisibleBefore +
+      periodDays +
+      this.settingsService.dayVisibleAfter
+    );
   }
 
   private getPeriodDays(filter: IWorkFilter): number {

@@ -17,7 +17,10 @@ import {
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 
 import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
-import { CalendarResetData, ScheduleHeaderCalendarMonthlyComponent } from './schedule-header-calendar-monthly/schedule-header-calendar-monthly.component';
+import {
+  CalendarResetData,
+  ScheduleHeaderCalendarMonthlyComponent,
+} from './schedule-header-calendar-monthly/schedule-header-calendar-monthly.component';
 import { ScheduleHeaderCalendarWeeklyComponent } from './schedule-header-calendar-weekly/schedule-header-calendar-weekly.component';
 import { ScheduleHeaderCalendarBiweeklyComponent } from './schedule-header-calendar-biweekly/schedule-header-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
@@ -67,7 +70,7 @@ export class ScheduleHeaderComponent implements OnInit {
 
   private holidayCollection = inject(HolidayCollectionService);
   private dataManagementCalendarSelectionService = inject(
-    DataManagementCalendarSelectionService
+    DataManagementCalendarSelectionService,
   );
   private gridSettingsService = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
@@ -89,16 +92,19 @@ export class ScheduleHeaderComponent implements OnInit {
       case 0:
         return `KW ${this.selectedWeek}`;
       case 1:
-        const endWeek = Math.min(this.selectedWeek + 1, this.getWeeksInYear(this.currentYear));
-        return `KW ${this.selectedWeek}-${endWeek}`;
+        return `KW ${this.selectedWeek}-${Math.min(this.selectedWeek + 1, this.getWeeksInYear(this.currentYear))}`;
       case 2:
       default:
-        return this.gridSettingsService.monthsName[this.dataManagementSchedule.workFilter.currentMonth - 1];
+        return this.gridSettingsService.monthsName[
+          this.dataManagementSchedule.workFilter.currentMonth - 1
+        ];
     }
   }
 
   get displayMonth(): string {
-    return this.gridSettingsService.monthsName[this.dataManagementSchedule.workFilter.currentMonth - 1];
+    return this.gridSettingsService.monthsName[
+      this.dataManagementSchedule.workFilter.currentMonth - 1
+    ];
   }
 
   private get selectedMonth(): number {
@@ -145,8 +151,7 @@ export class ScheduleHeaderComponent implements OnInit {
     this.holidayCollection.setSelection(chips);
   }
 
-  onCalendarReset(_data: CalendarResetData) {
-  }
+  onCalendarReset(_data: CalendarResetData) {}
 
   goToPrevious() {
     switch (this.paymentInterval) {

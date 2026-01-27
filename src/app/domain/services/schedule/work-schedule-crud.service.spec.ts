@@ -83,6 +83,7 @@ describe('WorkScheduleCrudService', () => {
     createWork: ReturnType<typeof vi.fn>;
     deleteWorkById: ReturnType<typeof vi.fn>;
     bulkDeleteWorks: ReturnType<typeof vi.fn>;
+    bulkCreateWorks: ReturnType<typeof vi.fn>;
   };
 
   let availableShiftsCalcMock: {

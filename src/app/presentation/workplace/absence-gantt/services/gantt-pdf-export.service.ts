@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
@@ -54,7 +53,8 @@ export class GanttPdfExportService {
             .find((absence) => absence.id === abs.id);
 
           const currentLang = this.translateService.currentLang;
-          const localizedName = getLocalizedValue(fullAbsence?.name, currentLang) || abs.name;
+          const localizedName =
+            getLocalizedValue(fullAbsence?.name, currentLang) || abs.name;
 
           return {
             id: abs.id,
@@ -72,7 +72,7 @@ export class GanttPdfExportService {
     pdf: jsPDF,
     title: string,
     pageNumber: number,
-    totalPages: number
+    totalPages: number,
   ): void {
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
@@ -91,7 +91,7 @@ export class GanttPdfExportService {
     pdf.text(
       pageString,
       this.A3_LANDSCAPE.width - this.MARGINS.right - 100,
-      this.MARGINS.top + 20
+      this.MARGINS.top + 20,
     );
   }
 
@@ -150,7 +150,7 @@ export class GanttPdfExportService {
         legendY,
         availableWidth,
         legendHeight,
-        selectedAbsenceTypes
+        selectedAbsenceTypes,
       );
 
       currentY += legendHeight + 3;
@@ -161,7 +161,7 @@ export class GanttPdfExportService {
       this.MARGINS.left,
       currentY,
       config,
-      monthHeaderHeight
+      monthHeaderHeight,
     );
 
     // Draw separator line under month headers
@@ -169,7 +169,7 @@ export class GanttPdfExportService {
       pdf,
       this.MARGINS.left,
       currentY + monthHeaderHeight,
-      config
+      config,
     );
 
     currentY += monthHeaderHeight + 2; // Some spacing after headers
@@ -195,7 +195,7 @@ export class GanttPdfExportService {
           pdf,
           title,
           Math.floor(clientIndex / maxRowsPerPage) + 1,
-          Math.ceil(totalClients / maxRowsPerPage)
+          Math.ceil(totalClients / maxRowsPerPage),
         );
 
         // Reset Y position and draw headers again
@@ -211,7 +211,7 @@ export class GanttPdfExportService {
             (total, type) => {
               return total + type.name.length * 5 + 30;
             },
-            0
+            0,
           );
           const needsMultipleLines = estimatedItemWidth > availableWidth;
           const legendHeight = needsMultipleLines ? 45 : 25;
@@ -222,7 +222,7 @@ export class GanttPdfExportService {
             currentY,
             availableWidth,
             legendHeight,
-            selectedAbsenceTypes
+            selectedAbsenceTypes,
           );
 
           currentY += legendHeight + 3;
@@ -233,14 +233,14 @@ export class GanttPdfExportService {
           this.MARGINS.left,
           currentY,
           config,
-          monthHeaderHeight
+          monthHeaderHeight,
         );
 
         this.ganttPdfDrawingService.drawRowSeparatorLine(
           pdf,
           this.MARGINS.left,
           currentY + monthHeaderHeight,
-          config
+          config,
         );
 
         currentY += monthHeaderHeight + 2;
@@ -261,7 +261,7 @@ export class GanttPdfExportService {
         20,
         !isLastRow && !isLastRowOnPage, // No separator after last row or last row on page
         isFirstRowAfterHeaders, // First row after headers has no top border
-        clientBreaks // Real break data for this client
+        clientBreaks, // Real break data for this client
       );
 
       currentY += rowHeight;
@@ -278,14 +278,14 @@ export class GanttPdfExportService {
       pdf.text(
         `Total ${totalClients} clients exported`,
         this.MARGINS.left,
-        currentY + 20
+        currentY + 20,
       );
       pdf.text(
         `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(
-          config.year
+          config.year,
         )} days)`,
         this.MARGINS.left,
-        currentY + 65
+        currentY + 65,
       );
     } else {
       pdf.setFontSize(12);
@@ -293,7 +293,7 @@ export class GanttPdfExportService {
       pdf.text(
         'Please ensure that data has been loaded',
         this.MARGINS.left,
-        currentY + 40
+        currentY + 40,
       );
     }
 
