@@ -51,7 +51,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
-import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/work-schedule-crud.service';
+import { DeleteWorkScheduleEntryParams, WorkScheduleCrudService } from 'src/app/domain/services/schedule/work-schedule-crud.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
 import { ShowInScheduleService } from '../services/show-in-schedule.service';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
@@ -65,7 +65,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
 import { Break } from 'src/app/domain/models/break-class';
-import { DataManagementBreakService } from 'src/app/domain/services/break/data-management-break.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -133,7 +132,7 @@ export class ScheduleSectionComponent
   private showInScheduleService = inject(ShowInScheduleService);
   private translateService = inject(TranslateService);
   private absenceMenuService = inject(AbsenceMenuService);
-  private dataManagementBreakService = inject(DataManagementBreakService);
+  private workScheduleCrud = inject(WorkScheduleCrudService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -674,17 +673,7 @@ export class ScheduleSectionComponent
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
 
-    this.dataManagementBreakService.addBreak(breakEntry).subscribe({
-      next: (response) => {
-        if (response.periodHours) {
-          this.dataManagement.periodHours.set(client.id!, response.periodHours);
-        }
-        this.scheduleSurface.Refresh(false);
-      },
-      error: (err) => {
-        console.error('Error creating break:', err);
-      }
-    });
+    this.workScheduleCrud.addBreakScheduleEntry(breakEntry);
   }
 
   private calculateBreakTimes(item: AbsenceMenuItem): { startTime: string; endTime: string } {

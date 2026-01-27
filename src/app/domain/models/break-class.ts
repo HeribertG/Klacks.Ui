@@ -1,7 +1,7 @@
 import { Absence } from './absence-class';
 import { Client } from './client-class';
 import { IBaseFilter } from './general-class';
-import { IPeriodHours } from './work-schedule-class';
+import { IPeriodHours, IScheduleCell } from './work-schedule-class';
 
 export interface IBreak {
   id: string | undefined;
@@ -18,6 +18,7 @@ export interface IBreak {
   periodHours: IPeriodHours | undefined;
   periodStart: string | undefined;
   periodEnd: string | undefined;
+  scheduleEntries: IScheduleCell[] | undefined;
 }
 
 export class Break implements IBreak {
@@ -35,6 +36,7 @@ export class Break implements IBreak {
   periodHours: IPeriodHours | undefined = undefined;
   periodStart: string | undefined = undefined;
   periodEnd: string | undefined = undefined;
+  scheduleEntries: IScheduleCell[] | undefined = undefined;
 }
 
 export interface IBreakPlaceholder {

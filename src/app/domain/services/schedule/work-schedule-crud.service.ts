@@ -9,6 +9,7 @@ import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkFilter } from '../../models/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
+import { Break } from '../../models/break-class';
 
 export interface ScheduleCellParams {
   clientId: string;
@@ -42,6 +43,29 @@ export class WorkScheduleCrudService {
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
 
+  addBreakScheduleEntry(breakEntry: Break): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.breakService.addBreak(breakEntry).subscribe({
+        next: (response) => {
+          if (response.periodHours) {
+            this.workScheduleLoader.periodHours.set(breakEntry.clientId, response.periodHours);
+          }
+          if (response.scheduleEntries && response.scheduleEntries.length > 0) {
+            const startDate = addDays(breakEntry.currentDate, -1);
+            const endDate = addDays(breakEntry.currentDate, 1);
+            this.workScheduleLoader.replaceClientEntriesForDays(breakEntry.clientId, startDate, endDate, response.scheduleEntries);
+            this.triggerScheduleRefresh();
+          }
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error creating break:', err);
+          reject(err);
+        },
+      });
+    });
+  }
+
   addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): Promise<void> {
     this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
 
@@ -52,11 +76,16 @@ export class WorkScheduleCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(new Date());
 
-    return this.workCrud.createWork({ ...params, periodStart, periodEnd }).then(async (response) => {
+    return this.workCrud.createWork({ ...params, periodStart, periodEnd }).then((response) => {
       if (response.periodHours) {
         this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
       }
-      await this.refreshClientScheduleForDays(params.clientId, params.date);
+      if (response.scheduleEntries && response.scheduleEntries.length > 0) {
+        const startDate = addDays(params.date, -1);
+        const endDate = addDays(params.date, 1);
+        this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
+        this.triggerScheduleRefresh();
+      }
     });
   }
 
@@ -146,7 +175,12 @@ export class WorkScheduleCrudService {
           if (response.periodHours) {
             this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
           }
-          this.refreshClientScheduleForDays(params.clientId, params.date);
+          if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
+            const startDate = addDays(params.date, -1);
+            const endDate = addDays(params.date, 1);
+            this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
+            this.triggerScheduleRefresh();
+          }
         },
         error: (err) => console.error('Error deleting break:', err),
       });
@@ -155,7 +189,12 @@ export class WorkScheduleCrudService {
         if (response.periodHours) {
           this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
         }
-        this.refreshClientScheduleForDays(params.clientId, params.date);
+        if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
+          const startDate = addDays(params.date, -1);
+          const endDate = addDays(params.date, 1);
+          this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
+          this.triggerScheduleRefresh();
+        }
         this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
       });
     }
