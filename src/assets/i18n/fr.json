@@ -101,6 +101,7 @@
   "address.edit-address.address-persona.intersexuality": "Salutation neutre",
   "address.edit-address.address-persona.legal-entity": "Personne morale",
   "address.edit-address.address-persona.mail": "Email",
+  "address.edit-address.address-persona.mail-type": "Type d'email",
   "address.edit-address.address-persona.maiden-name": "Nom de jeune fille",
   "address.edit-address.address-persona.male": "M.",
   "address.edit-address.address-persona.modal-address-typ.add": "Appliquer l'entrée",

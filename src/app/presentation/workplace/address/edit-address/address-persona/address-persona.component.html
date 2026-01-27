@@ -26,7 +26,7 @@
                 class="form-control"
                 name="addressValidFrom"
                 [ngModel]="addressValidFrom"
-                aria-label="Adresse gültig ab"
+                [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.valid-date' | translate"
                 (ngModelChange)="addressValidFrom = $event"
                 ngbDatepicker
                 #validFrom="ngbDatepicker"
@@ -60,7 +60,7 @@
             class="form-select"
             [(ngModel)]="editClientType"
             name="editClient.type"
-            aria-label="Adresstyp"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.type' | translate"
           >
             @for (c of dataManagementClientService.clientAttribute; track
             c.type) {
@@ -120,7 +120,7 @@
               class="form-control"
               name="newAddressValidFrom"
               [ngModel]="newAddressValidFrom"
-              aria-label="Adresse gültig ab"
+              [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.valid' | translate"
               (ngModelChange)="newAddressValidFrom = $event"
               ngbDatepicker
               #newAddressValidFrom1="ngbDatepicker"
@@ -150,7 +150,7 @@
             class="form-select"
             [(ngModel)]="newAddressType"
             name="newAddressType"
-            aria-label="Adressart"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.type' | translate"
           >
             <option value="0" [selected]="newAddressType === 0">
               {{ onAddressTypeName(0) }}
@@ -849,7 +849,7 @@
                   class="form-select gap-prefix"
                   [(ngModel)]="phoneData.prefix"
                   name="phonePrefix-{{ ii }}"
-                  aria-label="Vorwahl"
+                  [attr.aria-label]="'address.edit-address.address-persona.phone-prefix' | translate"
                   [disabled]="isDisabled()"
                 >
                   @for (c of
@@ -872,7 +872,7 @@
                   class="form-control medium-width-tel"
                   [(ngModel)]="phoneData.value"
                   name="phoneValue-{{ ii }}"
-                  aria-label="Telefon"
+                  [attr.aria-label]="'address.edit-address.address-persona.phone' | translate"
                   [disabled]="isDisabled()"
                   (keyup)="onKeyupPhoneNumber(ii, $event)"
                 />
@@ -932,7 +932,7 @@
                   type="email"
                   class="form-control medium-width"
                   [(ngModel)]="emailData.value"
-                  aria-label="E-Mail"
+                  [attr.aria-label]="'address.edit-address.address-persona.mail' | translate"
                   [disabled]="isDisabled()"
                   name="emailValue-{{ i }}"
                 />
@@ -942,7 +942,7 @@
                   class="form-select gap"
                   [(ngModel)]="emailData.type"
                   name="emailType-{{ i }}"
-                  aria-label="E-Mail Typ"
+                  [attr.aria-label]="'address.edit-address.address-persona.mail-type' | translate"
                   [disabled]="isDisabled()"
                 >
                   @for (c of
