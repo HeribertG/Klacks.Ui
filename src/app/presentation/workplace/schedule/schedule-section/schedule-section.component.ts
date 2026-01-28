@@ -672,6 +672,9 @@ export class ScheduleSectionComponent
     breakEntry.endTime = endTime;
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
+    if (selectedItem.description) {
+      breakEntry.description = { ...selectedItem.description };
+    }
 
     this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
   }

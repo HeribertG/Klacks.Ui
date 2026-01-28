@@ -16,6 +16,7 @@ export interface AbsenceMenuItem {
   duration?: number;
   mode?: AbsenceDetailMode;
   defaultValue: number;
+  description?: IMultiLanguage;
 }
 
 @Injectable()
@@ -59,6 +60,7 @@ export class AbsenceMenuService {
             duration: detail.duration,
             mode: detail.mode,
             defaultValue: absence.defaultValue,
+            description: detail.description as IMultiLanguage | undefined,
           });
         }
       } else {
