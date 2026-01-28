@@ -809,6 +809,7 @@
   "setting.absence-detail.modal.duration": "Durata",
   "setting.absence-detail.modal.hours": "Ore",
   "setting.absence-detail.modal.detail-name": "Nome",
+  "setting.absence-detail.modal.description": "Descrizione",
   "setting.absence-detail.title": "Dettagli assenza",
   "setting.absence-detail.validation.absence-required": "L'assenza è obbligatoria",
   "setting.absence-detail.validation.duration-min": "La durata deve essere di almeno 0 ore",

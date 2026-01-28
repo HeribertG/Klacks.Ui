@@ -42,6 +42,7 @@ import { transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper
 interface AbsenceDetailFormFields {
   absenceId: string;
   detailName: string;
+  description: string;
 }
 
 @Component({
@@ -91,11 +92,13 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
   private formFields = signal<AbsenceDetailFormFields>({
     absenceId: '',
     detailName: '',
+    description: '',
   });
 
   absenceDetailForm = form(this.formFields, f => {
     debounce(f.absenceId, 300);
     debounce(f.detailName, 300);
+    debounce(f.description, 300);
   });
 
   absenceDetailFormModel: AbsenceDetailFormModel | null = null;
@@ -191,6 +194,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     this.formFields.set({
       absenceId: absenceDetail.absenceId || '',
       detailName: getLocalizedValue(absenceDetail.detailName, this.currentLang),
+      description: getLocalizedValue(absenceDetail.description, this.currentLang),
     });
   }
 
@@ -205,6 +209,11 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       this.editingAbsenceDetail.detailName = new MultiLanguage();
     }
     this.editingAbsenceDetail.detailName[this.currentLang] = formData.detailName;
+
+    if (!this.editingAbsenceDetail.description) {
+      this.editingAbsenceDetail.description = new MultiLanguage();
+    }
+    this.editingAbsenceDetail.description[this.currentLang] = formData.description;
 
     this.absenceDetailFormModel.internalMode = this.selectedMode();
     this.absenceDetailFormModel.applyToAbsenceDetail();
@@ -222,6 +231,9 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     this.editingAbsenceDetail = { ...absenceDetail };
     if (absenceDetail.detailName) {
       this.editingAbsenceDetail.detailName = { ...absenceDetail.detailName };
+    }
+    if (absenceDetail.description) {
+      this.editingAbsenceDetail.description = { ...absenceDetail.description };
     }
     this.originalAbsenceDetail = absenceDetail;
     this.initFormFromAbsenceDetail(this.editingAbsenceDetail);

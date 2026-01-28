@@ -190,6 +190,21 @@
           </div>
         </div>
 
+        <!-- Description -->
+        <div id="absence-detail-modal-description-row" class="row-line-modal-inline">
+          <div class="model-field full-width">
+            <label for="description">{{
+              translate.instant("setting.absence-detail.modal.description")
+            }}</label>
+            <textarea
+              id="absence-detail-modal-description"
+              [field]="absenceDetailForm.description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
         <!-- Validation Errors -->
         @if (getValidationErrors().length > 0) {
           <div

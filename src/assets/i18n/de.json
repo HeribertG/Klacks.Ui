@@ -811,6 +811,7 @@
   "setting.absence-detail.modal.duration": "Dauer",
   "setting.absence-detail.modal.hours": "Stunden",
   "setting.absence-detail.modal.detail-name": "Name",
+  "setting.absence-detail.modal.description": "Beschreibung",
   "setting.absence-detail.title": "Abwesenheitsdetails",
   "setting.absence-detail.validation.absence-required": "Abwesenheit ist erforderlich",
   "setting.absence-detail.validation.duration-min": "Dauer muss mindestens 0 Stunden sein",
