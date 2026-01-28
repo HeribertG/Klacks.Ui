@@ -36,6 +36,7 @@ import {
   ScheduleEntryCrudService,
   DeleteWorkScheduleEntryParams,
   ScheduleCellParams,
+  BreakCellParams,
 } from './schedule-entry-crud.service';
 
 @Injectable({
@@ -309,6 +310,10 @@ export class DataManagementScheduleService implements ILoadable {
       entries,
       this.workFilter,
     );
+  }
+
+  bulkAddBreakScheduleEntries(entries: BreakCellParams[]): Promise<void> {
+    return this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
   }
 
   refreshClientScheduleForDays(

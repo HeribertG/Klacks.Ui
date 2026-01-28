@@ -228,14 +228,15 @@ export class BaseCreateCellService {
   }
 
   drawCellTexts(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {
+    const fontColor = gridCell.fontColor;
     if (gridCell.mainText) {
-      this.drawMainText(ctx, gridCell.mainText);
+      this.drawMainText(ctx, gridCell.mainText, fontColor);
     }
     if (gridCell.firstSubText) {
-      this.drawFirstSubText(ctx, gridCell.firstSubText);
+      this.drawFirstSubText(ctx, gridCell.firstSubText, fontColor);
     }
     if (gridCell.secondSubText) {
-      this.drawSecondSubText(ctx, gridCell.secondSubText);
+      this.drawSecondSubText(ctx, gridCell.secondSubText, fontColor);
     }
     if (gridCell.icons) {
       this.drawIcons(ctx, gridCell);
@@ -334,7 +335,7 @@ export class BaseCreateCellService {
     }
   }
 
-  private drawMainText(ctx: CanvasRenderingContext2D, text: string): void {
+  private drawMainText(ctx: CanvasRenderingContext2D, text: string, fontColor?: string): void {
     DrawHelper.drawText(
       ctx,
       text,
@@ -344,13 +345,13 @@ export class BaseCreateCellService {
       this.gridFonts.mainFontHeightZoom,
       this.gridFonts.mainFontStringZoom,
       +this.gridFonts.mainFontSizeZoom,
-      this.gridColors.mainFontColor,
+      fontColor || this.gridColors.mainFontColor,
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
   }
 
-  private drawFirstSubText(ctx: CanvasRenderingContext2D, text: string): void {
+  private drawFirstSubText(ctx: CanvasRenderingContext2D, text: string, fontColor?: string): void {
     DrawHelper.drawText(
       ctx,
       text,
@@ -362,13 +363,13 @@ export class BaseCreateCellService {
       this.gridFonts.firstSubFontHeightZoom,
       this.gridFonts.firstSubFontStringZoom,
       +this.gridFonts.firstSubFontSizeZoom,
-      this.gridColors.subFontColor,
+      fontColor || this.gridColors.subFontColor,
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
   }
 
-  private drawSecondSubText(ctx: CanvasRenderingContext2D, text: string): void {
+  private drawSecondSubText(ctx: CanvasRenderingContext2D, text: string, fontColor?: string): void {
     DrawHelper.drawText(
       ctx,
       text,
@@ -381,7 +382,7 @@ export class BaseCreateCellService {
       this.gridFonts.secondSubFontHeightZoom,
       this.gridFonts.secondSubFontStringZoom,
       +this.gridFonts.secondSubFontSizeZoom,
-      this.gridColors.subFontColor,
+      fontColor || this.gridColors.subFontColor,
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );

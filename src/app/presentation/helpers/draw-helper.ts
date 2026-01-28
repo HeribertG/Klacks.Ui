@@ -30,6 +30,12 @@ export abstract class DrawHelper {
     return new Color(r, g, b).toHex();
   }
 
+  public static getContrastTextColor(backgroundColor: string): string {
+    const c = new Color(backgroundColor);
+    const luminance = (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+    return luminance > 0.5 ? '#000000' : '#FFFFFF';
+  }
+
   public static GetLightColor(color: string, d: number): string {
     const maxBit = 255;
     let r = maxBit;

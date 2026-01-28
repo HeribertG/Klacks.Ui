@@ -1,10 +1,12 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import {
   IScheduleCell,
   WorkScheduleEntryType,
 } from 'src/app/domain/models/work-schedule-class';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
@@ -18,6 +20,7 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
+import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -28,6 +31,8 @@ export class ScheduleDataService extends BaseDataService {
   private emptyFormatter = inject(EmptyCellFormatterService);
   private workFormatter = inject(WorkCellFormatterService);
   private breakFormatter = inject(BreakCellFormatterService);
+  private absenceLookup = inject(AbsenceLookupService);
+  private translateService = inject(TranslateService);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -132,7 +137,14 @@ export class ScheduleDataService extends BaseDataService {
 
   public override getItemMainText(row: number, col: number): string {
     const entry = this.getWorkScheduleEntryForCell(row, col);
-    return entry?.abbreviation || '';
+    if (!entry) return '';
+
+    if (entry.entryType === WorkScheduleEntryType.Break) {
+      const language = this.translateService.currentLang || 'en';
+      return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
+    }
+
+    return entry.abbreviation || '';
   }
 
   public override isCellEditable(row: number, col: number): boolean {
@@ -336,7 +348,7 @@ export class ScheduleDataService extends BaseDataService {
     startCol: number,
     data: string[][],
   ): void {
-    const entriesToAdd: {
+    const workEntriesToAdd: {
       clientId: string;
       date: Date;
       shiftId: string;
@@ -344,6 +356,8 @@ export class ScheduleDataService extends BaseDataService {
       startTime: string;
       endTime: string;
     }[] = [];
+
+    const breakEntriesToAdd: BreakCellParams[] = [];
 
     for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
       const rowData = data[rowOffset];
@@ -383,23 +397,38 @@ export class ScheduleDataService extends BaseDataService {
           abbreviation,
           date,
         );
-        if (!matchingShift) {
+        if (matchingShift) {
+          workEntriesToAdd.push({
+            clientId: client.id,
+            date: date,
+            shiftId: matchingShift.shiftId,
+            workTime: matchingShift.workTime,
+            startTime: matchingShift.startShift,
+            endTime: matchingShift.endShift,
+          });
           continue;
         }
 
-        entriesToAdd.push({
-          clientId: client.id,
-          date: date,
-          shiftId: matchingShift.shiftId,
-          workTime: matchingShift.workTime,
-          startTime: matchingShift.startShift,
-          endTime: matchingShift.endShift,
-        });
+        const matchingAbsence = this.findAbsenceByAbbreviation(abbreviation);
+        if (matchingAbsence) {
+          breakEntriesToAdd.push({
+            clientId: client.id,
+            absenceId: matchingAbsence.absenceId,
+            date: date,
+            workTime: 0,
+            startTime: matchingAbsence.startTime || '00:00',
+            endTime: matchingAbsence.endTime || '00:00',
+          });
+        }
       }
     }
 
-    if (entriesToAdd.length > 0) {
-      this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
+    if (workEntriesToAdd.length > 0) {
+      this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntriesToAdd);
+    }
+
+    if (breakEntriesToAdd.length > 0) {
+      this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
     }
   }
 
@@ -440,6 +469,49 @@ export class ScheduleDataService extends BaseDataService {
       d1.getMonth() === d2.getMonth() &&
       d1.getDate() === d2.getDate()
     );
+  }
+
+  private findAbsenceByAbbreviation(
+    abbreviation: string,
+  ): { absenceId: string; startTime?: string; endTime?: string } | undefined {
+    const language = this.translateService.currentLang || 'en';
+    const upperAbbr = abbreviation.toUpperCase();
+    const absences = this.absenceLookup.absences();
+    const details = this.absenceLookup.absenceDetails();
+
+    for (const detail of details) {
+      if (!detail.id || !detail.absenceId) continue;
+      const absence = absences.find((a) => a.id === detail.absenceId);
+      if (!absence?.abbreviation) continue;
+
+      const detailAbbr = this.getLocalizedAbbreviation(absence.abbreviation, language);
+      if (detailAbbr.toUpperCase() === upperAbbr) {
+        return {
+          absenceId: detail.absenceId,
+          startTime: detail.startTime,
+          endTime: detail.endTime,
+        };
+      }
+    }
+
+    for (const absence of absences) {
+      if (!absence.id || !absence.abbreviation) continue;
+      const abbrValue = this.getLocalizedAbbreviation(absence.abbreviation, language);
+      if (abbrValue.toUpperCase() === upperAbbr) {
+        return { absenceId: absence.id };
+      }
+    }
+
+    return undefined;
+  }
+
+  private getLocalizedAbbreviation(
+    abbreviation: { de?: string; en?: string; fr?: string; it?: string } | undefined,
+    language: string,
+  ): string {
+    if (!abbreviation) return '';
+    const value = (abbreviation as Record<string, string | undefined>)[language];
+    return value || abbreviation.de || abbreviation.en || '';
   }
 
   findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {

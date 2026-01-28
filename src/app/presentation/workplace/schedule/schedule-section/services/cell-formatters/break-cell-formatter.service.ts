@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -35,6 +36,7 @@ export class BreakCellFormatterService implements ICellFormatter {
     const color = this.absenceLookup.getColorForEntryId(entry.entryId);
     if (color) {
       cell.backgroundColor = color;
+      cell.fontColor = DrawHelper.getContrastTextColor(color);
     }
 
     return cell;

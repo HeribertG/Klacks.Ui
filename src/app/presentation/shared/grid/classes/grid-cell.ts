@@ -15,6 +15,7 @@ export class GridCell {
   mainTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
   subTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
   backgroundColor?: string;
+  fontColor?: string;
 
   isEmpty(): boolean {
     return (
