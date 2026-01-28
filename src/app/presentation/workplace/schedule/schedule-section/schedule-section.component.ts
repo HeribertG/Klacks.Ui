@@ -51,7 +51,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
-import { DeleteWorkScheduleEntryParams, WorkScheduleCrudService } from 'src/app/domain/services/schedule/work-schedule-crud.service';
+import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
 import { ShowInScheduleService } from '../services/show-in-schedule.service';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
@@ -132,7 +132,7 @@ export class ScheduleSectionComponent
   private showInScheduleService = inject(ShowInScheduleService);
   private translateService = inject(TranslateService);
   private absenceMenuService = inject(AbsenceMenuService);
-  private workScheduleCrud = inject(WorkScheduleCrudService);
+  private scheduleEntryCrud = inject(ScheduleEntryCrudService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -673,7 +673,7 @@ export class ScheduleSectionComponent
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
 
-    this.workScheduleCrud.addBreakScheduleEntry(breakEntry);
+    this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
   }
 
   private calculateBreakTimes(item: AbsenceMenuItem): { startTime: string; endTime: string } {

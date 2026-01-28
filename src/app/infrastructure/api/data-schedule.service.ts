@@ -4,39 +4,9 @@ import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { HttpClient } from '@angular/common/http';
-
-export interface BulkDeleteWorksRequest {
-  workIds: string[];
-}
-
-export interface BulkAddWorkItem {
-  clientId: string;
-  shiftId: string;
-  currentDate: string;
-  workTime: number;
-  startTime: string;
-  endTime: string;
-}
-
-export interface BulkAddWorksRequest {
-  works: BulkAddWorkItem[];
-  periodStart: string;
-  periodEnd: string;
-}
-
-export interface ShiftDatePair {
-  shiftId: string;
-  date: string;
-}
-
-export interface BulkWorksResponse {
-  successCount: number;
-  failedCount: number;
-  createdIds: string[];
-  deletedIds: string[];
-  affectedShifts: ShiftDatePair[];
-  periodHours?: Record<string, { hours: number; surcharges: number; guaranteedHours: number }>;
-}
+import { BulkDeleteWorksRequest } from './dtos/bulk-delete-works-request.dto';
+import { BulkAddWorksRequest } from './dtos/bulk-add-works-request.dto';
+import { BulkWorksResponse } from './dtos/bulk-works-response.dto';
 
 @Injectable({
   providedIn: 'root',

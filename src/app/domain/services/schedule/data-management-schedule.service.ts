@@ -33,10 +33,10 @@ import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import {
-  WorkScheduleCrudService,
+  ScheduleEntryCrudService,
   DeleteWorkScheduleEntryParams,
   ScheduleCellParams,
-} from './work-schedule-crud.service';
+} from './schedule-entry-crud.service';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +49,7 @@ export class DataManagementScheduleService implements ILoadable {
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private workCrud = inject(WorkCrudService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
-  private workScheduleCrud = inject(WorkScheduleCrudService);
+  private scheduleEntryCrud = inject(ScheduleEntryCrudService);
 
   constructor() {
     this.registry.register(RouteName.SCHEDULE, DataManagementScheduleService);
@@ -59,7 +59,7 @@ export class DataManagementScheduleService implements ILoadable {
   private setupCrudEffects(): void {
     runInInjectionContext(this.injector, () => {
       effect(() => {
-        if (this.workScheduleCrud.scheduleRefreshed()) {
+        if (this.scheduleEntryCrud.scheduleRefreshed()) {
           this.isRead.set({ value: true, resetScroll: false });
           setTimeout(
             () => this.isRead.set({ value: false, resetScroll: false }),
@@ -69,7 +69,7 @@ export class DataManagementScheduleService implements ILoadable {
       });
 
       effect(() => {
-        if (this.workScheduleCrud.shiftScheduleRefreshed()) {
+        if (this.scheduleEntryCrud.shiftScheduleRefreshed()) {
           this.isShiftScheduleRead.set({ value: true, resetScroll: false });
           setTimeout(
             () =>
@@ -279,7 +279,7 @@ export class DataManagementScheduleService implements ILoadable {
     startTime: string;
     endTime: string;
   }): Promise<void> {
-    return this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
+    return this.scheduleEntryCrud.addWorkScheduleEntry(params, this.workFilter);
   }
 
   deleteWorkScheduleEntry(
@@ -289,7 +289,7 @@ export class DataManagementScheduleService implements ILoadable {
     entryId: string,
     entryType: number,
   ): void {
-    this.workScheduleCrud.deleteWorkScheduleEntry(
+    this.scheduleEntryCrud.deleteWorkScheduleEntry(
       { sourceId, clientId, date, entryId, entryType },
       this.workFilter,
     );
@@ -298,14 +298,14 @@ export class DataManagementScheduleService implements ILoadable {
   bulkDeleteWorkScheduleEntries(
     entries: DeleteWorkScheduleEntryParams[],
   ): void {
-    this.workScheduleCrud.bulkDeleteWorkScheduleEntries(
+    this.scheduleEntryCrud.bulkDeleteWorkScheduleEntries(
       entries,
       this.workFilter,
     );
   }
 
   bulkAddWorkScheduleEntries(entries: ScheduleCellParams[]): Promise<void> {
-    return this.workScheduleCrud.bulkAddWorkScheduleEntries(
+    return this.scheduleEntryCrud.bulkAddWorkScheduleEntries(
       entries,
       this.workFilter,
     );
@@ -315,7 +315,7 @@ export class DataManagementScheduleService implements ILoadable {
     clientId: string,
     centerDate: Date,
   ): Promise<void> {
-    return this.workScheduleCrud.refreshClientScheduleForDays(
+    return this.scheduleEntryCrud.refreshClientScheduleForDays(
       clientId,
       centerDate,
     );
