@@ -1,9 +1,4 @@
-import { IPeriodHours } from 'src/app/domain/models/work-schedule-class';
+import { BulkScheduleEntryResponse } from './bulk-schedule-entry-response.dto';
 
-export interface BulkBreaksResponse {
-  successCount: number;
-  failedCount: number;
-  createdIds: string[];
-  deletedIds: string[];
-  periodHours?: Record<string, IPeriodHours>;
+export interface BulkBreaksResponse extends BulkScheduleEntryResponse {
 }
