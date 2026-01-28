@@ -1,3 +1,5 @@
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+
 export interface BulkAddBreakItem {
   clientId: string;
   absenceId: string;
@@ -6,4 +8,5 @@ export interface BulkAddBreakItem {
   startTime: string;
   endTime: string;
   information?: string;
+  description?: MultiLanguage;
 }

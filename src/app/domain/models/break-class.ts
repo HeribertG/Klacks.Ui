@@ -1,6 +1,7 @@
 import { Absence } from './absence-class';
 import { Client } from './client-class';
 import { IBaseFilter } from './general-class';
+import { MultiLanguage } from './multi-language-class';
 import { IPeriodHours, IScheduleCell } from './work-schedule-class';
 
 export interface IBreak {
@@ -10,6 +11,7 @@ export interface IBreak {
   absenceId: string;
   currentDate: Date;
   information: string | undefined;
+  description?: MultiLanguage;
   isSealed: boolean;
   workTime: number;
   surcharges: number;
@@ -28,6 +30,7 @@ export class Break implements IBreak {
   absenceId = '';
   currentDate: Date = new Date();
   information: string | undefined = undefined;
+  description?: MultiLanguage = undefined;
   isSealed = false;
   workTime = 0;
   surcharges = 0;

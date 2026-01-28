@@ -28,6 +28,7 @@ export interface BreakCellParams {
   startTime: string;
   endTime: string;
   information?: string;
+  description?: { de?: string; en?: string; fr?: string; it?: string };
 }
 
 export interface DeleteWorkScheduleEntryParams {
@@ -95,6 +96,7 @@ export class ScheduleEntryCrudService {
         startTime: e.startTime,
         endTime: e.endTime,
         information: e.information,
+        description: e.description,
       })),
       periodStart,
       periodEnd,

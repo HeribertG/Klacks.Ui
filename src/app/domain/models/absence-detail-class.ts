@@ -13,6 +13,7 @@ export interface IAbsenceDetail {
   endTime: string;
   duration: number;
   detailName?: MultiLanguage | undefined;
+  description?: MultiLanguage | undefined;
 }
 
 export class AbsenceDetail implements IAbsenceDetail {
@@ -23,4 +24,5 @@ export class AbsenceDetail implements IAbsenceDetail {
   endTime = '23:59:00';
   duration = 0;
   detailName?: MultiLanguage | undefined = undefined;
+  description?: MultiLanguage | undefined = undefined;
 }
