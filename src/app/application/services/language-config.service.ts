@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguageConfigService } from 'src/app/infrastructure/api/data-language-config.service';
+import { LanguageMetadata } from 'src/app/domain/models/language-config';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageConfigService {
@@ -8,10 +9,12 @@ export class LanguageConfigService {
 
   private supportedLanguages = signal<string[]>(['de', 'en', 'fr', 'it']);
   private fallbackOrder = signal<string[]>(['de', 'fr', 'it', 'en']);
+  private metadata = signal<Record<string, LanguageMetadata>>({});
   private loaded = signal<boolean>(false);
 
   readonly supportedLanguages$ = this.supportedLanguages.asReadonly();
   readonly fallbackOrder$ = this.fallbackOrder.asReadonly();
+  readonly metadata$ = this.metadata.asReadonly();
   readonly loaded$ = this.loaded.asReadonly();
 
   loadConfig(): Promise<void> {
@@ -19,6 +22,7 @@ export class LanguageConfigService {
       .then(response => {
         this.supportedLanguages.set(response.supportedLanguages);
         this.fallbackOrder.set(response.fallbackOrder);
+        this.metadata.set(response.metadata ?? {});
         this.loaded.set(true);
       })
       .catch(() => {
@@ -32,5 +36,25 @@ export class LanguageConfigService {
 
   getSupportedLanguages(): string[] {
     return this.supportedLanguages();
+  }
+
+  getMetadata(): Record<string, LanguageMetadata> {
+    return this.metadata();
+  }
+
+  getLanguageMetadata(langCode: string): LanguageMetadata | undefined {
+    return this.metadata()[langCode];
+  }
+
+  getSpeechLocale(langCode: string): string {
+    return this.metadata()[langCode]?.speechLocale ?? 'de-CH';
+  }
+
+  getDisplayName(langCode: string): string {
+    return this.metadata()[langCode]?.displayName ?? langCode.toUpperCase();
+  }
+
+  isLanguageSupported(langCode: string): boolean {
+    return this.supportedLanguages().includes(langCode);
   }
 }
