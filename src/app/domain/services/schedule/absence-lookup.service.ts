@@ -74,4 +74,16 @@ export class AbsenceLookupService {
     }
     return this._absences().find((a) => a.id === entryId);
   }
+
+  findAbsenceDetailForEntryId(entryId: string): IAbsenceDetail | undefined {
+    return this._absenceDetails().find((d) => d.id === entryId);
+  }
+
+  getDescriptionForEntryId(entryId: string): { de?: string; en?: string; fr?: string; it?: string } | undefined {
+    const detail = this.findAbsenceDetailForEntryId(entryId);
+    if (detail?.description) {
+      return detail.description as { de?: string; en?: string; fr?: string; it?: string };
+    }
+    return undefined;
+  }
 }

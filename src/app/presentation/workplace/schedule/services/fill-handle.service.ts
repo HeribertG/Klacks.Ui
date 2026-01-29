@@ -7,6 +7,7 @@ export interface FillHandleState {
   currentColumn: number;
   sourceEntryId: string | null;
   sourceWorkTime: number;
+  sourceEntryType: number;
 }
 
 @Injectable({
@@ -22,6 +23,7 @@ export class FillHandleService {
     currentColumn: -1,
     sourceEntryId: null,
     sourceWorkTime: 0,
+    sourceEntryType: 0,
   };
 
   public stateSignal = signal<FillHandleState>(this._state);
@@ -38,13 +40,14 @@ export class FillHandleService {
     return this._state.isDragging;
   }
 
-  startDrag(position: MyPosition, entryId: string, workTime: number): void {
+  startDrag(position: MyPosition, entryId: string, workTime: number, entryType = 0): void {
     this._state = {
       isDragging: true,
       startPosition: position,
       currentColumn: position.column,
       sourceEntryId: entryId,
       sourceWorkTime: workTime,
+      sourceEntryType: entryType,
     };
     this.stateSignal.set({ ...this._state });
   }
@@ -57,7 +60,7 @@ export class FillHandleService {
     this.stateSignal.set({ ...this._state });
   }
 
-  endDrag(): { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number } | null {
+  endDrag(): { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number } | null {
     if (!this._state.isDragging || !this._state.startPosition) {
       this.reset();
       return null;
@@ -69,6 +72,7 @@ export class FillHandleService {
       row: this._state.startPosition.row,
       entryId: this._state.sourceEntryId!,
       workTime: this._state.sourceWorkTime,
+      entryType: this._state.sourceEntryType,
     };
 
     this.reset();
@@ -82,6 +86,7 @@ export class FillHandleService {
       currentColumn: -1,
       sourceEntryId: null,
       sourceWorkTime: 0,
+      sourceEntryType: 0,
     };
     this.stateSignal.set({ ...this._state });
   }

@@ -30,6 +30,9 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
+import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
 @Directive({
   selector: '[appGridTemplateEvents]',
@@ -48,6 +51,7 @@ export class GridTemplateEventsDirective {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private fillHandleService = inject(FillHandleService);
   private gridFonts = inject(GridFontsService);
+  private absenceLookup = inject(AbsenceLookupService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
 
@@ -883,7 +887,8 @@ export class GridTemplateEventsDirective {
     }
 
     const pos = this.cellManipulation.Position;
-    if (pos.isEmpty() || !this.gridData.isCellActive(pos.row, pos.column)) {
+
+    if (pos.isEmpty() || !this.gridData.isCellDraggable(pos.row, pos.column)) {
       return false;
     }
 
@@ -897,6 +902,7 @@ export class GridTemplateEventsDirective {
 
     const scheduleDataService = this.gridData as ScheduleDataService;
     const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+
     if (!entry) {
       return false;
     }
@@ -906,7 +912,8 @@ export class GridTemplateEventsDirective {
       (s) => s.shiftId === entry.entryId && date && this.isSameDay(s.date, date)
     );
     const workTime = shift?.workTime ?? 0;
-    this.fillHandleService.startDrag(pos, entry.entryId, workTime);
+
+    this.fillHandleService.startDrag(pos, entry.entryId, workTime, entry.entryType);
     this.el.nativeElement.style.cursor = 'e-resize';
     return true;
   }
@@ -1055,6 +1062,71 @@ export class GridTemplateEventsDirective {
     }
 
     const scheduleDataService = this.gridData as ScheduleDataService;
+
+    if (result.entryType === WorkScheduleEntryType.Break) {
+      await this.handleFillHandleDropForBreak(scheduleDataService, result);
+    } else {
+      await this.handleFillHandleDropForWork(scheduleDataService, result);
+    }
+
+    this.gridSurface.drawSchedule.refresh();
+  }
+
+  private async handleFillHandleDropForBreak(
+    scheduleDataService: ScheduleDataService,
+    result: { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number }
+  ): Promise<void> {
+    const sourceEntry = scheduleDataService.getWorkScheduleEntryForCell(result.row, result.startColumn);
+    if (!sourceEntry) {
+      return;
+    }
+
+    const breakEntriesToAdd: BreakCellParams[] = [];
+
+    for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
+      if (scheduleDataService.isColumnSealed(col)) {
+        continue;
+      }
+
+      if (scheduleDataService.isCellActive(result.row, col)) {
+        continue;
+      }
+
+      const date = scheduleDataService.getDateForColumn(col);
+      if (!date) {
+        continue;
+      }
+
+      const clientIndex = scheduleDataService.rowGroupIndex[result.row];
+      if (clientIndex === undefined) {
+        continue;
+      }
+
+      const client = this.dataManagementSchedule.clients[clientIndex];
+      if (!client?.id) {
+        continue;
+      }
+
+      breakEntriesToAdd.push({
+        clientId: client.id,
+        absenceId: result.entryId,
+        date: date,
+        workTime: 0,
+        startTime: sourceEntry.startTime ?? '00:00',
+        endTime: sourceEntry.endTime ?? '00:00',
+        description: sourceEntry.description ?? undefined,
+      });
+    }
+
+    if (breakEntriesToAdd.length > 0) {
+      await this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
+    }
+  }
+
+  private async handleFillHandleDropForWork(
+    scheduleDataService: ScheduleDataService,
+    result: { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number }
+  ): Promise<void> {
     const entriesToAdd: {
       clientId: string;
       date: Date;
@@ -1114,8 +1186,6 @@ export class GridTemplateEventsDirective {
     if (entriesToAdd.length > 0) {
       await this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
     }
-
-    this.gridSurface.drawSchedule.refresh();
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {
@@ -1138,7 +1208,7 @@ export class GridTemplateEventsDirective {
     }
 
     const pos = this.cellManipulation.Position;
-    if (pos.isEmpty() || !this.gridData.isCellActive(pos.row, pos.column)) {
+    if (pos.isEmpty() || !this.gridData.isCellDraggable(pos.row, pos.column)) {
       this.el.nativeElement.style.cursor = 'default';
       return;
     }

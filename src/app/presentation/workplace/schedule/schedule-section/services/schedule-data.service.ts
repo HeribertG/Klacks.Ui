@@ -41,6 +41,10 @@ export class ScheduleDataService extends BaseDataService {
   private rowsNumber = 0;
   private columnsNumber = 0;
 
+  private copiedCells: (IScheduleCell | undefined)[][] = [];
+  private copiedCellsMinRow = 0;
+  private copiedCellsMinCol = 0;
+
   public override setMetrics(): void {
     this.initializeDateAndColumns();
     this.initializeGroupIndices();
@@ -147,12 +151,45 @@ export class ScheduleDataService extends BaseDataService {
     return entry.abbreviation || '';
   }
 
+  override onCopy(minRow: number, minCol: number, maxRow: number, maxCol: number): void {
+    this.copiedCellsMinRow = minRow;
+    this.copiedCellsMinCol = minCol;
+    this.copiedCells = [];
+
+    for (let row = minRow; row <= maxRow; row++) {
+      const rowData: (IScheduleCell | undefined)[] = [];
+      for (let col = minCol; col <= maxCol; col++) {
+        const entry = this.getWorkScheduleEntryForCell(row, col);
+        rowData.push(entry ? { ...entry } : undefined);
+      }
+      this.copiedCells.push(rowData);
+    }
+  }
+
+  override onClearCopy(): void {
+    this.copiedCells = [];
+  }
+
   public override isCellEditable(row: number, col: number): boolean {
     if (this.isColumnSealed(col)) {
       return false;
     }
 
     return !this.isCellActive(row, col);
+  }
+
+  /**
+   * Only Work and Break entries can be dragged (Fill-Handle).
+   * WorkChange and Expenses are NOT draggable.
+   */
+  public override isCellDraggable(row: number, col: number): boolean {
+    const entry = this.getWorkScheduleEntryForCell(row, col);
+    if (!entry) return false;
+
+    return (
+      entry.entryType === WorkScheduleEntryType.Work ||
+      entry.entryType === WorkScheduleEntryType.Break
+    );
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
@@ -348,6 +385,24 @@ export class ScheduleDataService extends BaseDataService {
     startCol: number,
     data: string[][],
   ): void {
+    if (this.copiedCells.length > 0) {
+      this.handlePasteFromCopiedCells(startRow, startCol);
+      return;
+    }
+
+    this.handleExternalTextPaste(startRow, startCol, data);
+  }
+
+  /**
+   * Handles paste operation using internally stored copied cells.
+   *
+   * IMPORTANT - Availability check differences:
+   * - Work/Shift: REQUIRES availability check (quantity * sumEmployees limit)
+   *   The shift must have remaining capacity before a work entry can be created.
+   * - Break/Absence: NO availability check needed.
+   *   Breaks can be created without any capacity restrictions.
+   */
+  private handlePasteFromCopiedCells(startRow: number, startCol: number): void {
     const workEntriesToAdd: {
       clientId: string;
       date: Date;
@@ -359,66 +414,50 @@ export class ScheduleDataService extends BaseDataService {
 
     const breakEntriesToAdd: BreakCellParams[] = [];
 
-    for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
-      const rowData = data[rowOffset];
+    for (let rowOffset = 0; rowOffset < this.copiedCells.length; rowOffset++) {
+      const rowData = this.copiedCells[rowOffset];
       for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
-        const abbreviation = rowData[colOffset].trim();
-        if (!abbreviation) {
-          continue;
-        }
+        const copiedEntry = rowData[colOffset];
+        if (!copiedEntry) continue;
 
         const targetRow = startRow + rowOffset;
         const targetCol = startCol + colOffset;
 
-        if (this.isColumnSealed(targetCol)) {
-          continue;
-        }
-
-        if (this.isCellActive(targetRow, targetCol)) {
-          continue;
-        }
+        if (this.isColumnSealed(targetCol)) continue;
+        if (this.isCellActive(targetRow, targetCol)) continue;
 
         const clientIndex = this.rowGroupIndex[targetRow];
-        if (clientIndex === undefined) {
-          continue;
-        }
+        if (clientIndex === undefined) continue;
 
         const client = this.dataManagementSchedule.clients[clientIndex];
-        if (!client || !client.id) {
-          continue;
-        }
+        if (!client || !client.id) continue;
 
         const date = this.getDateForColumn(targetCol);
-        if (!date) {
-          continue;
-        }
+        if (!date) continue;
 
-        const matchingShift = this.findShiftByAbbreviationAndDate(
-          abbreviation,
-          date,
-        );
-        if (matchingShift) {
-          workEntriesToAdd.push({
-            clientId: client.id,
-            date: date,
-            shiftId: matchingShift.shiftId,
-            workTime: matchingShift.workTime,
-            startTime: matchingShift.startShift,
-            endTime: matchingShift.endShift,
-          });
-          continue;
-        }
-
-        const matchingAbsence = this.findAbsenceByAbbreviation(abbreviation);
-        if (matchingAbsence) {
+        if (copiedEntry.entryType === WorkScheduleEntryType.Break) {
+          // Break/Absence: No availability check needed
           breakEntriesToAdd.push({
             clientId: client.id,
-            absenceId: matchingAbsence.absenceId,
+            absenceId: copiedEntry.entryId,
             date: date,
             workTime: 0,
-            startTime: matchingAbsence.startTime || '00:00',
-            endTime: matchingAbsence.endTime || '00:00',
+            startTime: copiedEntry.startTime || '00:00',
+            endTime: copiedEntry.endTime || '00:00',
           });
+        } else {
+          // Work/Shift: Requires availability check (handled by findShiftByIdAndDate)
+          const matchingShift = this.findShiftByIdAndDate(copiedEntry.entryId, date);
+          if (matchingShift) {
+            workEntriesToAdd.push({
+              clientId: client.id,
+              date: date,
+              shiftId: matchingShift.shiftId,
+              workTime: matchingShift.workTime,
+              startTime: matchingShift.startShift,
+              endTime: matchingShift.endShift,
+            });
+          }
         }
       }
     }
@@ -429,6 +468,65 @@ export class ScheduleDataService extends BaseDataService {
 
     if (breakEntriesToAdd.length > 0) {
       this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
+    }
+  }
+
+  /**
+   * Handles paste from external sources (Excel, text).
+   * Only supports Work/Shift entries (by abbreviation).
+   * Break/Absence paste is NOT supported here - use internal copy/paste instead.
+   */
+  private handleExternalTextPaste(
+    startRow: number,
+    startCol: number,
+    data: string[][],
+  ): void {
+    const workEntriesToAdd: {
+      clientId: string;
+      date: Date;
+      shiftId: string;
+      workTime: number;
+      startTime: string;
+      endTime: string;
+    }[] = [];
+
+    for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
+      const rowData = data[rowOffset];
+      for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
+        const abbreviation = rowData[colOffset].trim();
+        if (!abbreviation) continue;
+
+        const targetRow = startRow + rowOffset;
+        const targetCol = startCol + colOffset;
+
+        if (this.isColumnSealed(targetCol)) continue;
+        if (this.isCellActive(targetRow, targetCol)) continue;
+
+        const clientIndex = this.rowGroupIndex[targetRow];
+        if (clientIndex === undefined) continue;
+
+        const client = this.dataManagementSchedule.clients[clientIndex];
+        if (!client || !client.id) continue;
+
+        const date = this.getDateForColumn(targetCol);
+        if (!date) continue;
+
+        const matchingShift = this.findShiftByAbbreviationAndDate(abbreviation, date);
+        if (matchingShift) {
+          workEntriesToAdd.push({
+            clientId: client.id,
+            date: date,
+            shiftId: matchingShift.shiftId,
+            workTime: matchingShift.workTime,
+            startTime: matchingShift.startShift,
+            endTime: matchingShift.endShift,
+          });
+        }
+      }
+    }
+
+    if (workEntriesToAdd.length > 0) {
+      this.dataManagementSchedule.bulkAddWorkScheduleEntries(workEntriesToAdd);
     }
   }
 
@@ -469,6 +567,25 @@ export class ScheduleDataService extends BaseDataService {
       d1.getMonth() === d2.getMonth() &&
       d1.getDate() === d2.getDate()
     );
+  }
+
+  private findShiftByIdAndDate(
+    shiftId: string,
+    date: Date,
+  ): { shiftId: string; workTime: number; startShift: string; endShift: string } | undefined {
+    const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
+      (shift) => shift.shiftId === shiftId && this.isSameDay(shift.date, date),
+    );
+
+    if (matchingShift) {
+      return {
+        shiftId: matchingShift.shiftId,
+        workTime: matchingShift.workTime,
+        startShift: matchingShift.startShift,
+        endShift: matchingShift.endShift,
+      };
+    }
+    return undefined;
   }
 
   private findAbsenceByAbbreviation(

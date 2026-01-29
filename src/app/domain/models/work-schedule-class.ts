@@ -8,7 +8,8 @@ export interface IScheduleCell {
   endTime: string;
   changeTime: number | null;
   workChangeType: number | null;
-  description: string | null;
+  description: { de?: string; en?: string; fr?: string; it?: string } | null;
+  information: string | null;
   amount: number | null;
   toInvoice: boolean | null;
   taxable: boolean | null;
@@ -29,7 +30,8 @@ export class ScheduleCell implements IScheduleCell {
   endTime = '';
   changeTime: number | null = null;
   workChangeType: number | null = null;
-  description: string | null = null;
+  description: { de?: string; en?: string; fr?: string; it?: string } | null = null;
+  information: string | null = null;
   amount: number | null = null;
   toInvoice: boolean | null = null;
   taxable: boolean | null = null;

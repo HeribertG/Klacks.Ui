@@ -227,7 +227,7 @@ export class BaseGridRenderService {
       this.settings.cellHeight + 1
     );
 
-    if (showFillHandle && isFocused && this.gridData.isCellActive(position.row, position.column)) {
+    if (showFillHandle && isFocused && this.gridData.isCellDraggable(position.row, position.column)) {
       this.drawFillHandle(ctx, col, row);
     }
 

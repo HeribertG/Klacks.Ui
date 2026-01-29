@@ -67,4 +67,14 @@ export abstract class BaseDataService {
   isCellEditable(_row: number, _col: number): boolean {
     return true;
   }
+
+  isCellDraggable(_row: number, _col: number): boolean {
+    return this.isCellActive(_row, _col);
+  }
+
+  onCopy(_minRow: number, _minCol: number, _maxRow: number, _maxCol: number): void {
+  }
+
+  onClearCopy(): void {
+  }
 }

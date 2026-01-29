@@ -90,6 +90,12 @@ export class BaseCellManipulationService {
           this.Position.column
         );
         this.setClipboardData(data);
+        this.gridData.onCopy(
+          this.Position.row,
+          this.Position.column,
+          this.Position.row,
+          this.Position.column
+        );
       }
     } else {
       const minCol: number = this.PositionCollection.minColumn();
@@ -103,6 +109,7 @@ export class BaseCellManipulationService {
         maxCol
       );
       this.setClipboardData(data);
+      this.gridData.onCopy(minRow, minCol, maxRow, maxCol);
     }
   }
 
