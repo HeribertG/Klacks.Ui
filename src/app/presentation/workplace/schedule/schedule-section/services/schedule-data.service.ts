@@ -21,6 +21,9 @@ import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatte
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -31,6 +34,7 @@ export class ScheduleDataService extends BaseDataService {
   private emptyFormatter = inject(EmptyCellFormatterService);
   private workFormatter = inject(WorkCellFormatterService);
   private breakFormatter = inject(BreakCellFormatterService);
+  private gridColorService = inject(GridColorService);
   private absenceLookup = inject(AbsenceLookupService);
   private translateService = inject(TranslateService);
 
@@ -63,9 +67,10 @@ export class ScheduleDataService extends BaseDataService {
     switch (entry.entryType) {
       case WorkScheduleEntryType.Break:
         return this.breakFormatter.formatCell(entry);
-      case WorkScheduleEntryType.Work:
       case WorkScheduleEntryType.WorkChange:
       case WorkScheduleEntryType.Expenses:
+        return this.formatWorkChangeCell(entry);
+      case WorkScheduleEntryType.Work:
       default:
         return this.workFormatter.formatCell(entry);
     }
@@ -639,5 +644,43 @@ export class ScheduleDataService extends BaseDataService {
       }
     }
     return -1;
+  }
+
+  private formatWorkChangeCell(entry: IScheduleCell): GridCell {
+    const cell = new GridCell();
+    cell.cellType = CellTypeEnum.Standard;
+    cell.mainText = this.getWorkChangeAbbreviation(entry);
+    cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
+    cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
+
+    if (entry.entryType === WorkScheduleEntryType.Expenses) {
+      cell.backgroundColor = this.gridColorService.surchargeColor;
+    } else {
+      cell.backgroundColor = this.gridColorService.workChangeColor;
+    }
+
+    return cell;
+  }
+
+  private getWorkChangeAbbreviation(entry: IScheduleCell): string {
+    if (entry.entryType === WorkScheduleEntryType.Expenses) {
+      return this.translateService.instant('workChange.abbr.surcharge');
+    }
+
+    if (entry.replaceClientId) {
+      return this.translateService.instant('workChange.abbr.replacement');
+    }
+
+    return this.translateService.instant('workChange.abbr.correction');
+  }
+
+  private formatWorkChangeTime(hours: number | null): string {
+    if (hours === null || hours === 0) return '';
+    const wholeHours = Math.floor(Math.abs(hours));
+    const mins = Math.round((Math.abs(hours) - wholeHours) * 60);
+    const sign = hours < 0 ? '-' : '';
+    if (wholeHours === 0) return `${sign}${mins}m`;
+    if (mins === 0) return `${sign}${wholeHours}h`;
+    return `${sign}${wholeHours}h ${mins}m`;
   }
 }

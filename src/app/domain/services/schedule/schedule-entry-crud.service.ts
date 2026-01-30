@@ -2,6 +2,7 @@ import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
@@ -32,6 +33,7 @@ export interface BreakCellParams {
 }
 
 export interface DeleteWorkScheduleEntryParams {
+  id: string;
   sourceId: string;
   clientId: string;
   date: Date;
@@ -45,6 +47,7 @@ export interface DeleteWorkScheduleEntryParams {
 export class ScheduleEntryCrudService {
   private destroyRef = inject(DestroyRef);
   private dataWorkSchedule = inject(DataWorkScheduleService);
+  private dataWorkChangeService = inject(DataWorkChangeService);
   private shiftLoader = inject(ShiftScheduleLoaderService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private workCrud = inject(WorkCrudService);
@@ -261,9 +264,49 @@ export class ScheduleEntryCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(new Date());
 
-    if (params.entryType === WorkScheduleEntryType.Break) {
-      this.breakService.deleteBreak(params.sourceId, periodStart, periodEnd).subscribe({
-        next: (response) => {
+    switch (params.entryType) {
+      case WorkScheduleEntryType.Break:
+        this.breakService.deleteBreak(params.sourceId, periodStart, periodEnd).subscribe({
+          next: (response) => {
+            if (response.periodHours) {
+              this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+            }
+            if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
+              const startDate = addDays(params.date, -1);
+              const endDate = addDays(params.date, 1);
+              this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
+              this.triggerScheduleRefresh();
+            }
+          },
+          error: (err) => console.error('Error deleting break:', err),
+        });
+        break;
+
+      case WorkScheduleEntryType.WorkChange:
+        this.dataWorkChangeService.delete(params.id).subscribe({
+          next: (response) => {
+            if (response.clientResults) {
+              const startDate = addDays(params.date, -1);
+              const endDate = addDays(params.date, 1);
+
+              for (const clientResult of response.clientResults) {
+                if (clientResult.periodHours) {
+                  this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+                }
+                if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0) {
+                  this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
+                }
+              }
+              this.triggerScheduleRefresh();
+            }
+          },
+          error: (err) => console.error('Error deleting work change:', err),
+        });
+        break;
+
+      case WorkScheduleEntryType.Work:
+      default:
+        this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
           if (response.periodHours) {
             this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
           }
@@ -273,29 +316,17 @@ export class ScheduleEntryCrudService {
             this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
             this.triggerScheduleRefresh();
           }
-        },
-        error: (err) => console.error('Error deleting break:', err),
-      });
-    } else {
-      this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
-        if (response.periodHours) {
-          this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
-        }
-        if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
-          const startDate = addDays(params.date, -1);
-          const endDate = addDays(params.date, 1);
-          this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
-          this.triggerScheduleRefresh();
-        }
-        this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
-      });
+          this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
+        });
+        break;
     }
   }
 
   bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[], workFilter: IWorkFilter): void {
     if (entries.length === 0) return;
 
-    const workEntries = entries.filter(e => e.entryType !== WorkScheduleEntryType.Break);
+    const workEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Work);
+    const workChangeEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.WorkChange);
     const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
 
     const periodStart = this.workScheduleLoader.startDate
@@ -318,6 +349,31 @@ export class ScheduleEntryCrudService {
           }
         })
       );
+    }
+
+    if (workChangeEntries.length > 0) {
+      for (const entry of workChangeEntries) {
+        deletePromises.push(
+          new Promise<void>((resolve, reject) => {
+            this.dataWorkChangeService.delete(entry.id).subscribe({
+              next: (response) => {
+                if (response.clientResults) {
+                  for (const clientResult of response.clientResults) {
+                    if (clientResult.periodHours) {
+                      this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+                    }
+                  }
+                }
+                resolve();
+              },
+              error: (err) => {
+                console.error('Error deleting work change:', err);
+                reject(err);
+              },
+            });
+          })
+        );
+      }
     }
 
     if (breakEntries.length > 0) {
@@ -454,7 +510,7 @@ export class ScheduleEntryCrudService {
     this.triggerShiftScheduleRefresh();
   }
 
-  private triggerScheduleRefresh(): void {
+  public triggerScheduleRefresh(): void {
     this.scheduleRefreshed.set(true);
     setTimeout(() => this.scheduleRefreshed.set(false), 100);
   }

@@ -105,4 +105,38 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static correction(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'correction',
+          MessageLibrary.CORRECTION,
+          false,
+          '',
+          'fa-solid fa-clock'
+        ),
+      ]
+    );
+
+    return value;
+  }
+
+  public static replacement(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'replacement',
+          MessageLibrary.REPLACEMENT,
+          false,
+          '',
+          'fa-solid fa-user-group'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

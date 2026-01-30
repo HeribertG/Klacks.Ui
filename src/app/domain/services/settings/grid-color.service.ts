@@ -43,6 +43,8 @@ export class GridColorService {
   toolTipBackGroundColor = '#ffffcc';
   scrollTrack = '#A9A9A9';
   backGroundSealedColor = '#424949';
+  workChangeColor = '#FFA500';
+  surchargeColor = '#FFFF00';
 
   private settingListDummy: ISetting[] = [];
 
@@ -193,6 +195,18 @@ export class GridColorService {
         ConstantKeys.BORDER_END_MONTH_COLOR_KEY
       )
     );
+    this.settingList.push(
+      this.resetSettingListSub(
+        this.workChangeColor,
+        ConstantKeys.WORK_CHANGE_COLOR_KEY
+      )
+    );
+    this.settingList.push(
+      this.resetSettingListSub(
+        this.surchargeColor,
+        ConstantKeys.SURCHARGE_COLOR_KEY
+      )
+    );
   }
   private resetSettingListSub(value: string, type: string): Setting {
     const s = new Setting();
@@ -275,6 +289,14 @@ export class GridColorService {
         break;
       case ConstantKeys.BORDER_END_MONTH_COLOR_KEY:
         this.borderColorEndMonth = value.value;
+        this.setCurrentSetting(value);
+        break;
+      case ConstantKeys.WORK_CHANGE_COLOR_KEY:
+        this.workChangeColor = value.value;
+        this.setCurrentSetting(value);
+        break;
+      case ConstantKeys.SURCHARGE_COLOR_KEY:
+        this.surchargeColor = value.value;
         this.setCurrentSetting(value);
         break;
     }

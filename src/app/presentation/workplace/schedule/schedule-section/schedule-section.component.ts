@@ -65,6 +65,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
 import { Break } from 'src/app/domain/models/break-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correction-dialog.component';
+import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
 
 @Component({
   selector: 'app-schedule-section',
@@ -76,6 +79,8 @@ import { Break } from 'src/app/domain/models/break-class';
     VScrollbarComponent,
     GridSurfaceTemplateComponent,
     ContextMenuComponent,
+    CorrectionDialogComponent,
+    ReplacementDialogComponent,
   ],
   providers: [
     BaseSettingsService,
@@ -106,6 +111,10 @@ export class ScheduleSectionComponent
   scheduleSurface!: GridSurfaceTemplateComponent;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+  @ViewChild(CorrectionDialogComponent)
+  correctionDialog!: CorrectionDialogComponent;
+  @ViewChild(ReplacementDialogComponent)
+  replacementDialog!: ReplacementDialogComponent;
 
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
@@ -119,7 +128,7 @@ export class ScheduleSectionComponent
   public vScrollbarSize = 17;
   public hScrollbarSize = 17;
 
-  private dataManagement = inject(DataManagementScheduleService);
+  protected dataManagement = inject(DataManagementScheduleService);
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
@@ -424,9 +433,18 @@ export class ScheduleSectionComponent
     const isCellFilled = dataService.isCellActive(row, column);
 
     if (isCellFilled) {
+      const entry = dataService.getWorkScheduleEntryForCell(row, column);
+
       menuData.list.push(...MenuDataTemplate.copyCutPaste());
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.delete());
+
+      if (entry?.entryType === WorkScheduleEntryType.Work) {
+        menuData.list.push(...MenuDataTemplate.divider());
+        menuData.list.push(...MenuDataTemplate.correction());
+        menuData.list.push(...MenuDataTemplate.replacement());
+      }
+
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.showInShift());
     } else {
@@ -603,6 +621,34 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.addBreakFromAbsenceMenu(keys[1]);
         break;
+      case 'correction':
+        this.contextMenu.closeMenu(true);
+        this.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn);
+        break;
+      case 'replacement':
+        this.contextMenu.closeMenu(true);
+        this.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn);
+        break;
+    }
+  }
+
+  private openCorrectionDialog(row: number, column: number): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.correctionDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
+    }
+  }
+
+  private openReplacementDialog(row: number, column: number): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.replacementDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
     }
   }
 
@@ -729,6 +775,7 @@ export class ScheduleSectionComponent
       const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
       if (deleteInfo) {
         this.dataManagement.deleteWorkScheduleEntry(
+          deleteInfo.id,
           deleteInfo.sourceId,
           deleteInfo.clientId,
           deleteInfo.date,
@@ -757,6 +804,7 @@ export class ScheduleSectionComponent
     if (!date) return null;
 
     return {
+      id: entry.id,
       sourceId: entry.sourceId,
       clientId: client.id,
       date: date,

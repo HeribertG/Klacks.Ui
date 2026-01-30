@@ -912,6 +912,66 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 
 ## Changelog
 
+### 30.01.2026 - WorkChange Dialoge (Korrektur & Ablösung)
+
+**Neue Features:**
+
+1. **Korrektur-Dialog:** Zeitkorrektur am Anfang/Ende einer Schicht erstellen
+2. **Ablösung-Dialog:** Zeit an anderen Client übertragen (Replacement)
+
+**Backend Änderungen:**
+
+| Datei | Änderung |
+|-------|----------|
+| `WorkChangeClientResult.cs` | Neue DTO-Klasse mit `ClientId`, `PeriodHours`, `ScheduleEntries` |
+| `WorkChangeResource.cs` | `PeriodHours`/`ScheduleEntries` entfernt → `ClientResults` Array |
+| `PostCommandHandler.cs` | Gibt `ClientResults` Array zurück (1 bei Korrektur, 2 bei Ablösung) |
+| `PutCommandHandler.cs` | Gleiche Änderung wie Post |
+| `DeleteCommandHandler.cs` | Gleiche Änderung wie Post |
+
+**Frontend Änderungen:**
+
+| Datei | Änderung |
+|-------|----------|
+| `work-change.ts` | `WorkChangeClientResult` Interface hinzugefügt |
+| `correction-dialog.component.ts` | Vollständiger Dialog mit Zeitauswahl |
+| `replacement-dialog.component.ts` | Dialog mit Client-Auswahl |
+| `schedule-entry-crud.service.ts` | `triggerScheduleRefresh()` ist jetzt public |
+| `schedule-section.component.ts` | Context-Menü "Korrektur..." und "Ablösung..." |
+
+**Wichtige Architektur-Details:**
+
+1. **Response-Struktur:**
+   - Korrektur: 1 `WorkChangeClientResult` im Array
+   - Ablösung: 2 `WorkChangeClientResult` im Array (Original-Client + Ersatz-Client)
+
+2. **UI-Refresh nach WorkChange:**
+   - Dialoge müssen `scheduleEntryCrud.triggerScheduleRefresh()` aufrufen
+   - NICHT `workScheduleLoader.isRead.set()` (falsches Signal!)
+   - `triggerScheduleRefresh()` setzt `scheduleRefreshed` Signal
+   - `DataManagementScheduleService` Effect reagiert darauf und setzt `isRead`
+
+3. **Schedule-Update nach Create:**
+   ```typescript
+   for (const clientResult of response.clientResults) {
+     if (clientResult.periodHours) {
+       this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+     }
+     if (clientResult.scheduleEntries) {
+       this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
+     }
+   }
+   this.workScheduleLoader.updateClientNeededRows();
+   this.scheduleEntryCrud.triggerScheduleRefresh();
+   ```
+
+**Noch zu erledigen (TODOs):**
+
+- [ ] WorkChange Delete: Frontend UI-Refresh für beide Clients bei Ablösung testen
+- [ ] Weitere Tests und Bugfixes nach Benutzer-Feedback
+
+---
+
 ### 26.01.2026 - Break Entry Type & HH:mm Formatierung
 
 **Neue Features:**

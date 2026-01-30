@@ -1,0 +1,144 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #replacementModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.replacement.title" | translate }}</div>
+    <span class="filler"></span>
+    <div class="close" (click)="onCancel()">&times;</div>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label>{{ "dialog.replacement.position" | translate }}</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="replacementMode"
+            [value]="CorrectionMode.AtStart"
+            [(ngModel)]="replacementMode"
+            (ngModelChange)="onModeChange()"
+          />
+          {{ "dialog.replacement.atStart" | translate }}
+        </label>
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="replacementMode"
+            [value]="CorrectionMode.AtEnd"
+            [(ngModel)]="replacementMode"
+            (ngModelChange)="onModeChange()"
+          />
+          {{ "dialog.replacement.atEnd" | translate }}
+        </label>
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="replacementMode"
+            [value]="CorrectionMode.Within"
+            [(ngModel)]="replacementMode"
+            (ngModelChange)="onModeChange()"
+          />
+          {{ "dialog.replacement.within" | translate }}
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group search-group">
+      <label for="replaceClient">{{
+        "dialog.replacement.replaceClient" | translate
+      }}</label>
+      <div class="search-container">
+        <input
+          type="search"
+          id="replaceClient"
+          class="form-control"
+          [(ngModel)]="searchText"
+          (keyup)="onSearchKeyup()"
+          autocomplete="off"
+          placeholder="{{ 'placeholder.search' | translate }}"
+        />
+        @if (searchResults.length > 0) {
+          <div class="search-results">
+            @for (client of searchResults; track client.id) {
+              <div class="search-result-item" (click)="onSelectClient(client)">
+                {{ getClientDisplayName(client) }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="form-group time-row">
+      <app-time-input
+        [label]="'dialog.replacement.startTime' | translate"
+        [value]="startTime"
+        (valueChange)="onStartTimeChange()"
+        [disabled]="isStartTimeDisabled"
+        [forDuration]="false"
+        hoursId="replStartHours"
+        minutesId="replStartMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.replacement.endTime' | translate"
+        [value]="endTime"
+        (valueChange)="onEndTimeChange()"
+        [disabled]="isEndTimeDisabled"
+        [forDuration]="false"
+        hoursId="replEndHours"
+        minutesId="replEndMinutes"
+      ></app-time-input>
+
+      <div class="duration-wrapper">
+        <app-time-input
+          [label]="'dialog.replacement.duration' | translate"
+          [value]="duration"
+          [disabled]="true"
+          [forDuration]="true"
+          hoursId="replDurationHours"
+          minutesId="replDurationMinutes"
+        ></app-time-input>
+      </div>
+    </div>
+
+    @if (validation.errorKey) {
+      <div class="error-message">{{ validation.errorKey | translate }}</div>
+    }
+
+    <div class="form-group">
+      <label for="description">{{
+        "dialog.replacement.description" | translate
+      }}</label>
+      <textarea
+        id="description"
+        [(ngModel)]="description"
+        class="form-control"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="toInvoice" />
+        {{ "dialog.replacement.toInvoice" | translate }}
+      </label>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+      [disabled]="!isValid()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

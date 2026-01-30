@@ -7,6 +7,7 @@ export interface IScheduleCell {
   startTime: string;
   endTime: string;
   changeTime: number | null;
+  surcharges: number | null;
   workChangeType: number | null;
   description: { de?: string; en?: string; fr?: string; it?: string } | null;
   information: string | null;
@@ -29,6 +30,7 @@ export class ScheduleCell implements IScheduleCell {
   startTime = '';
   endTime = '';
   changeTime: number | null = null;
+  surcharges: number | null = null;
   workChangeType: number | null = null;
   description: { de?: string; en?: string; fr?: string; it?: string } | null = null;
   information: string | null = null;
