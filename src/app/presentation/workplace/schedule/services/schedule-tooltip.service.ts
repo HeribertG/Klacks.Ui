@@ -40,7 +40,6 @@ export class ScheduleTooltipService {
     }
 
     if (hoveredCell.isHeader && showHeaderTooltips) {
-      console.log('[ScheduleTooltip] Header hover detected, column:', hoveredCell.column);
       return this.handleHeaderTooltip(hoveredCell, surface, state);
     }
 
@@ -81,14 +80,6 @@ export class ScheduleTooltipService {
 
     const available = availableShifts?.[column] ?? [];
     const overbooked = overbookedShifts?.[column] ?? [];
-
-    console.log('[ScheduleTooltip] handleHeaderTooltip:', {
-      column,
-      availableShiftsLength: availableShifts?.length ?? 0,
-      overbookedShiftsLength: overbookedShifts?.length ?? 0,
-      availableForColumn: available,
-      overbookedForColumn: overbooked,
-    });
 
     if (available.length === 0 && overbooked.length === 0) {
       surface.destroyToolTip();
