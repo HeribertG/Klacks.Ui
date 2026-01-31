@@ -1,6 +1,6 @@
 # Schedule Documentation
 
-**Letzte Aktualisierung:** 26.01.2026
+**Letzte Aktualisierung:** 30.01.2026
 
 ---
 
@@ -149,21 +149,45 @@ Der `WorksController` erbt von `BaseController` (nicht `InputBaseController`).
 
 ## WorkSchedule Implementation
 
+### Elementare Regel: WorkChange bei Mitternachtsschichten
+
+**WICHTIG:** Bei WorkChanges (Korrektur/Ablösung) für Schichten über Mitternacht gilt:
+
+| WorkChange.StartTime | entry_date |
+|---------------------|------------|
+| **VOR Mitternacht** (z.B. 22:45) | `Work.CurrentDate` |
+| **NACH Mitternacht** (z.B. 02:15) | `Work.CurrentDate + 1 Tag` |
+
+**Beispiel:** CN167 Schicht 22:00 - 06:00 am 15. Januar
+- ABL (22:45 - 02:15): StartTime 22:45 ist VOR Mitternacht → entry_date = 15. Januar
+- Korrektur (02:00 - 06:00): StartTime 02:00 ist NACH Mitternacht → entry_date = 16. Januar
+
+**SQL-Logik in Stored Procedure:**
+```sql
+CASE
+    WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift
+    THEN (w."current_date" + INTERVAL '1 day')::DATE
+    ELSE w."current_date"::DATE
+END AS entry_date
+```
+
+Die Bedingung `wc.start_time < s.start_shift` erkennt "nach Mitternacht":
+- `22:45 < 22:00` → NEIN → gleicher Tag ✓
+- `02:15 < 22:00` → JA → nächster Tag ✓
+
 ### Stored Procedure
 
-Die SP `get_work_schedule` kombiniert vier Entitäten:
+Die SP `get_schedule_entries` kombiniert vier Entitäten:
 - **EntryType 0**: Work (Arbeitseinsätze)
 - **EntryType 1**: WorkChange (Zeitkorrekturen, Vertretungen)
 - **EntryType 2**: Expenses (Spesen)
 - **EntryType 3**: Break (Abwesenheiten: Urlaub, Krankheit, etc.)
 
 ```sql
-SELECT * FROM get_work_schedule(
+SELECT * FROM get_schedule_entries(
     '2026-01-01'::DATE,   -- start_date
     '2026-01-31'::DATE,   -- end_date
-    ARRAY[]::UUID[],      -- visible_group_ids (optional)
-    'de'::TEXT,           -- current_language
-    ARRAY['de','en','fr','it']::TEXT[]  -- fallback_order (aus MultiLanguage.SupportedLanguages)
+    ARRAY[]::UUID[]       -- visible_group_ids (optional)
 )
 ```
 
@@ -189,7 +213,7 @@ SELECT * FROM get_work_schedule(
 ### Backend Dateien
 
 ```
-Infrastructure/Persistence/StoredProcedures/GetWorkSchedule.sql
+Infrastructure/Persistence/StoredProcedures/GetScheduleEntries.sql
 Domain/Models/Schedules/WorkScheduleEntry.cs
 Domain/Interfaces/IWorkScheduleService.cs
 Domain/Services/WorkSchedule/WorkScheduleService.cs
@@ -911,6 +935,43 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 30.01.2026 - DateOnly Konvertierung & Mitternachtsschichten Fix
+
+**Breaking Change: CurrentDate DateTime → DateOnly**
+
+Die `CurrentDate`-Felder in `Work` und `Break` wurden von `DateTime` auf `DateOnly` konvertiert, um UTC-Zeitzonen-Probleme zu eliminieren.
+
+| Komponente | Änderung |
+|------------|----------|
+| `ScheduleEntryBase.CurrentDate` | `DateTime` → `DateOnly` |
+| PostgreSQL-Spalten | `timestamp with time zone` → `date` |
+| DTOs | Alle `CurrentDate`-Felder auf `DateOnly` |
+| Migration | `20260130102421_ConvertCurrentDateToDateOnly` |
+
+**Fix: WorkChange entry_date bei Mitternachtsschichten**
+
+Die Stored Procedure `get_schedule_entries` berechnet jetzt das `entry_date` für WorkChanges korrekt:
+
+```sql
+-- Vorher (falsch): Immer +1 Tag bei Mitternachtsschicht
+WHEN s.end_shift < s.start_shift THEN ...
+
+-- Nachher (korrekt): Prüft ob WorkChange.StartTime nach Mitternacht
+WHEN s.end_shift < s.start_shift AND wc.start_time < s.start_shift THEN ...
+```
+
+Siehe "Elementare Regel: WorkChange bei Mitternachtsschichten" oben.
+
+**Betroffene CTEs in SP:**
+- `correction_end_entries`
+- `correction_start_entries`
+- `replacement_start_original`
+- `replacement_start_replacement`
+- `replacement_end_original`
+- `replacement_end_replacement`
+
+---
 
 ### 30.01.2026 - WorkChange Dialoge (Korrektur & Ablösung)
 
