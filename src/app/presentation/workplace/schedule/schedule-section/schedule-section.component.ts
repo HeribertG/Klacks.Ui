@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Main component displaying the employee schedule grid.
+ * Shows work entries, breaks, and work changes for all clients.
+ * Supports context menus, drag-drop, and keyboard navigation.
+ *
+ * @relations
+ * - Parent: ScheduleContainerComponent
+ * - Contains: GridSurfaceTemplateComponent, ContextMenuComponent, Dialog components
+ * - Uses: ScheduleDataService, ScheduleContextMenuService, ScheduleEntryActionsService
+ * - Uses: ScheduleDialogService, ScheduleDragDropService, ScheduleNavigationService
+ */
 import {
   Component,
   ViewChild,
@@ -49,25 +64,16 @@ import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
-import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { ShowInShiftService } from '../services/show-in-shift.service';
 import { ShowInScheduleService } from '../services/show-in-schedule.service';
-import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
-import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
-import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
-import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
-import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
-import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
-import { TranslateService } from '@ngx-translate/core';
-import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { Break } from 'src/app/domain/models/break-class';
-import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
+import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
+import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
+import { ScheduleDialogService } from './services/schedule-dialog.service';
+import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import { ScheduleNavigationService } from './services/schedule-navigation.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -97,6 +103,11 @@ import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replac
     CellIconsService,
     ContextMenuService,
     ProgressBarAnimationService,
+    ScheduleContextMenuService,
+    ScheduleEntryActionsService,
+    ScheduleDialogService,
+    ScheduleDragDropService,
+    ScheduleNavigationService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
@@ -137,11 +148,13 @@ export class ScheduleSectionComponent
   private cellManipulation = inject(BaseCellManipulationService);
   private tooltipService = inject(ScheduleTooltipService);
   private workNotificationService = inject(WorkNotificationService);
-  private showInShiftService = inject(ShowInShiftService);
   private showInScheduleService = inject(ShowInScheduleService);
-  private translateService = inject(TranslateService);
   private absenceMenuService = inject(AbsenceMenuService);
-  private scheduleEntryCrud = inject(ScheduleEntryCrudService);
+  private contextMenuService = inject(ScheduleContextMenuService);
+  private entryActionsService = inject(ScheduleEntryActionsService);
+  private dialogService = inject(ScheduleDialogService);
+  private dragDropService = inject(ScheduleDragDropService);
+  private navigationService = inject(ScheduleNavigationService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -174,6 +187,7 @@ export class ScheduleSectionComponent
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
     this.scheduleSurface.drawSchedule.showFillHandle = true;
+    this.dialogService.setDialogs(this.correctionDialog, this.replacementDialog);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
@@ -304,113 +318,17 @@ export class ScheduleSectionComponent
     mouseY: number,
     column: number
   ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
-    const scheduleElement = document.querySelector('app-schedule-section .box');
-    if (!scheduleElement) {
-      return null;
-    }
-
-    const rect = scheduleElement.getBoundingClientRect();
-    const relativeY = mouseY - rect.top - this.settings.cellHeaderHeight;
-
-    if (relativeY < 0) {
-      return null;
-    }
-
-    const row =
-      Math.floor(relativeY / this.settings.cellHeight) +
-      this.scrollService.verticalScrollPosition;
-
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-
-    if (row < 0 || row >= dataService.rows) {
-      return null;
-    }
-
-    const clientIndex = dataService.rowGroupIndex[row];
-    if (clientIndex === undefined) {
-      return null;
-    }
-
-    const client = this.dataManagement.clients[clientIndex];
-    if (!client || !client.id) {
-      return null;
-    }
-
-    const date = dataService.getDateForColumn(column);
-    if (!date) {
-      return null;
-    }
-
-    const isEmpty = !dataService.isCellActive(row, column);
-
-    return {
-      row,
-      clientId: client.id,
-      date,
-      isEmpty,
-    };
+    return this.dragDropService.getDropTargetInfo(mouseY, column, dataService);
   }
 
   handleShiftDrop(result: ShiftDropResult): void {
-    this.dataManagement.addWorkScheduleEntry({
-      clientId: result.targetClientId,
-      date: result.targetDate,
-      shiftId: result.shiftId,
-      workTime: result.workTime,
-      startTime: result.startShift,
-      endTime: result.endShift,
-    });
+    this.dragDropService.handleShiftDrop(result);
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-
-    const clientIndex = dataService.rowGroupIndex[event.row];
-    if (clientIndex === undefined) {
-      return;
-    }
-
-    const client = this.dataManagement.clients[clientIndex];
-    if (!client?.id) {
-      return;
-    }
-
-    const date = dataService.getDateForColumn(event.column);
-    if (!date) {
-      return;
-    }
-
-    const abbreviation = event.value.trim().toUpperCase();
-    if (!abbreviation) {
-      return;
-    }
-
-    const matchingShift = this.dataManagement.shiftSchedules.find(
-      (shift) =>
-        shift.abbreviation.toUpperCase() === abbreviation &&
-        this.isSameDay(shift.date, date)
-    );
-
-    if (matchingShift) {
-      this.dataManagement.addWorkScheduleEntry({
-        clientId: client.id,
-        date: date,
-        shiftId: matchingShift.shiftId,
-        workTime: matchingShift.workTime,
-        startTime: matchingShift.startShift,
-        endTime: matchingShift.endShift,
-      });
-    }
-  }
-
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
+    this.dragDropService.handleCellValueChange(event, dataService);
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
@@ -427,169 +345,17 @@ export class ScheduleSectionComponent
   private createContextMenu(row: number, column: number): void {
     this.contextMenuRow = row;
     this.contextMenuColumn = column;
-
-    const menuData = new Menu();
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const isCellFilled = dataService.isCellActive(row, column);
-
-    if (isCellFilled) {
-      const entry = dataService.getWorkScheduleEntryForCell(row, column);
-
-      menuData.list.push(...MenuDataTemplate.copyCutPaste());
-      menuData.list.push(...MenuDataTemplate.divider());
-      menuData.list.push(...MenuDataTemplate.delete());
-
-      if (entry?.entryType === WorkScheduleEntryType.Work) {
-        menuData.list.push(...MenuDataTemplate.divider());
-        menuData.list.push(...MenuDataTemplate.correction());
-        menuData.list.push(...MenuDataTemplate.replacement());
-      }
-
-      menuData.list.push(...MenuDataTemplate.divider());
-      menuData.list.push(...MenuDataTemplate.showInShift());
-    } else {
-      menuData.list.push(...MenuDataTemplate.paste());
-
-      const shiftsSubmenu = this.createShiftsSubmenu(column);
-      if (shiftsSubmenu && shiftsSubmenu.list.length > 0) {
-        menuData.list.push(...MenuDataTemplate.divider());
-        const dienstMenuItem = new MenuItem('dienste', this.translateService.instant('contextMenu.shifts'), false);
-        dienstMenuItem.hasMenu = true;
-        dienstMenuItem.menu = shiftsSubmenu;
-        menuData.list.push(dienstMenuItem);
-      }
-
-      const absencesSubmenu = this.createAbsencesSubmenu();
-      if (absencesSubmenu && absencesSubmenu.list.length > 0) {
-        if (!shiftsSubmenu || shiftsSubmenu.list.length === 0) {
-          menuData.list.push(...MenuDataTemplate.divider());
-        }
-        const absenceMenuItem = new MenuItem('absenzen', this.translateService.instant('contextMenu.absences'), false);
-        absenceMenuItem.hasMenu = true;
-        absenceMenuItem.menu = absencesSubmenu;
-        menuData.list.push(absenceMenuItem);
-      }
-    }
-
-    const pasteMenu = menuData.list.find((x) => x.key === 'paste');
-    if (pasteMenu) {
-      pasteMenu.disabled = !this.cellManipulation.hasClipboardData();
-    }
-
-    this.contextMenu.menuData = menuData;
-  }
-
-  private createShiftsSubmenu(column: number): Menu | undefined {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    if (!dataService.startDate) return undefined;
-
-    const targetDate = addDays(dataService.startDate, column);
-    const availableShifts = this.getAvailableShiftsForDate(targetDate);
-
-    if (availableShifts.length === 0) return undefined;
-
-    const seenAbbreviations = new Set<string>();
-    const submenu = new Menu();
-
-    for (const shift of availableShifts) {
-      if (seenAbbreviations.has(shift.abbreviation)) continue;
-      seenAbbreviations.add(shift.abbreviation);
-
-      const startTime = this.formatTimeHHMM(shift.startShift);
-      const endTime = this.formatTimeHHMM(shift.endShift);
-
-      const menuItem = new MenuItem(
-        'shift',
-        shift.abbreviation,
-        false
-      );
-      menuItem.valueKey = shift.shiftId;
-      menuItem.svgIcon = this.getShiftSvgIcon(shift);
-      menuItem.subText = `(${startTime} - ${endTime})`;
-      submenu.list.push(menuItem);
-    }
-
-    return submenu;
-  }
-
-  private getShiftSvgIcon(shift: IShiftSchedule): string {
-    const color = 'var(--standartTextColor)';
-    const isContainer = shift.shiftType === 1;
-
-    if (isContainer) {
-      return IconBoxContainerComponent.getSvg(color);
-    }
-    if (shift.isSporadic) {
-      return IconUnknownTimeComponent.getSvg(color);
-    }
-    if (shift.isTimeRange) {
-      return IconTimeWindowComponent.getSvg(color);
-    }
-    return IconShiftSegmentComponent.getSvg(color);
-  }
-
-  private formatTimeHHMM(time: string): string {
-    if (!time) return '';
-    const parts = time.split(':');
-    if (parts.length >= 2) {
-      return `${parts[0]}:${parts[1]}`;
-    }
-    return time;
-  }
-
-  private getAvailableShiftsForDate(date: Date): IShiftSchedule[] {
-    const shiftSchedules = this.dataManagement.shiftSchedules;
-    return shiftSchedules.filter((shift) => {
-      const shiftDate = new Date(shift.date);
-      const isSameDay =
-        shiftDate.getFullYear() === date.getFullYear() &&
-        shiftDate.getMonth() === date.getMonth() &&
-        shiftDate.getDate() === date.getDate();
-      const hasCapacity = shift.engaged < shift.sumEmployees * shift.quantity;
-      return isSameDay && hasCapacity;
+    this.contextMenu.menuData = this.contextMenuService.createContextMenu({
+      row,
+      column,
+      dataService,
     });
-  }
-
-  private createAbsencesSubmenu(): Menu | undefined {
-    const language = this.translateService.currentLang || 'en';
-    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
-
-    if (absenceItems.length === 0) return undefined;
-
-    const submenu = new Menu();
-
-    for (const item of absenceItems) {
-      const displayName = item.isDetail && item.name !== item.absenceName
-        ? `${item.absenceName} - ${item.name}`
-        : item.name;
-
-      const menuItem = new MenuItem('absence', displayName, false);
-      menuItem.valueKey = item.id;
-      menuItem.svgIcon = this.getAbsenceSvgIcon(item.color);
-
-      if (item.isDetail) {
-        if (item.mode === AbsenceDetailMode.TimeRange && item.startTime && item.endTime) {
-          const startTime = this.formatTimeHHMM(item.startTime);
-          const endTime = this.formatTimeHHMM(item.endTime);
-          menuItem.subText = `(${startTime} - ${endTime})`;
-        } else if (item.mode === AbsenceDetailMode.Duration && item.duration) {
-          menuItem.subText = `(${item.duration}h)`;
-        }
-      }
-
-      submenu.list.push(menuItem);
-    }
-
-    return submenu;
-  }
-
-  private getAbsenceSvgIcon(color: string): string {
-    const fillColor = color || 'transparent';
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 18" width="17" height="18"><rect width="17" height="18" fill="${fillColor}"/></svg>`;
   }
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
 
     switch (keys[0]) {
       case 'showInShift':
@@ -603,7 +369,7 @@ export class ScheduleSectionComponent
       case 'cut':
         this.contextMenu.closeMenu(true);
         this.cellManipulation.copy();
-        this.deleteSelectedEntries();
+        this.entryActionsService.deleteSelectedEntries(dataService);
         break;
       case 'paste':
         this.contextMenu.closeMenu(true);
@@ -611,222 +377,45 @@ export class ScheduleSectionComponent
         break;
       case 'del':
         this.contextMenu.closeMenu(true);
-        this.deleteSelectedEntries();
+        this.entryActionsService.deleteSelectedEntries(dataService);
         break;
       case 'shift':
         this.contextMenu.closeMenu(true);
-        this.addWorkFromShiftMenu(keys[1]);
+        this.entryActionsService.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'absence':
         this.contextMenu.closeMenu(true);
-        this.addBreakFromAbsenceMenu(keys[1]);
+        this.entryActionsService.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'correction':
         this.contextMenu.closeMenu(true);
-        this.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn);
+        this.dialogService.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'replacement':
         this.contextMenu.closeMenu(true);
-        this.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn);
+        this.dialogService.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
+        break;
+      case 'edit':
+        this.contextMenu.closeMenu(true);
+        this.dialogService.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
     }
   }
 
-  private openCorrectionDialog(row: number, column: number): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
-    const date = dataService.getDateForColumn(column);
-
-    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.correctionDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
-    }
-  }
-
-  private openReplacementDialog(row: number, column: number): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
-    const date = dataService.getDateForColumn(column);
-
-    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.replacementDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
-    }
-  }
-
-  private addWorkFromShiftMenu(shiftId: string): void {
-    if (!shiftId) return;
-
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    if (!dataService.startDate) return;
-
-    const clientIndex = dataService.rowGroupIndex[this.contextMenuRow];
-    if (clientIndex === undefined) return;
-
-    const client = dataService.getGroupIndex(clientIndex);
-    if (!client) return;
-
-    const targetDate = addDays(dataService.startDate, this.contextMenuColumn);
-    const shift = this.dataManagement.shiftSchedules.find(
-      (s) => s.shiftId === shiftId && this.isSameDay(new Date(s.date), targetDate)
-    );
-
-    if (!shift) return;
-
-    this.dataManagement.addWorkScheduleEntry({
-      clientId: client.id,
-      date: targetDate,
-      shiftId: shift.shiftId,
-      workTime: shift.workTime,
-      startTime: shift.startShift,
-      endTime: shift.endShift,
-    });
-  }
-
-  private addBreakFromAbsenceMenu(absenceItemId: string): void {
-    if (!absenceItemId) return;
-
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    if (!dataService.startDate) return;
-
-    const clientIndex = dataService.rowGroupIndex[this.contextMenuRow];
-    if (clientIndex === undefined) return;
-
-    const client = this.dataManagement.clients[clientIndex];
-    if (!client?.id) return;
-
-    const targetDate = addDays(dataService.startDate, this.contextMenuColumn);
-
-    const language = this.translateService.currentLang || 'en';
-    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
-    const selectedItem = absenceItems.find(item => item.id === absenceItemId);
-
-    if (!selectedItem) return;
-
-    const { startTime, endTime } = this.calculateBreakTimes(selectedItem);
-
-    const periodStart = this.dataManagement.visibleStartDate
-      ? formatDateOnly(this.dataManagement.visibleStartDate)
-      : formatDateOnly(new Date());
-    const periodEnd = this.dataManagement.visibleEndDate
-      ? formatDateOnly(this.dataManagement.visibleEndDate)
-      : formatDateOnly(new Date());
-
-    const breakEntry = new Break();
-    breakEntry.clientId = client.id;
-    breakEntry.absenceId = selectedItem.absenceId;
-    breakEntry.currentDate = targetDate;
-    breakEntry.startTime = startTime;
-    breakEntry.endTime = endTime;
-    breakEntry.periodStart = periodStart;
-    breakEntry.periodEnd = periodEnd;
-    if (selectedItem.description) {
-      breakEntry.description = { ...selectedItem.description };
-    }
-
-    this.scheduleEntryCrud.addBreakScheduleEntry(breakEntry);
-  }
-
-  private calculateBreakTimes(item: AbsenceMenuItem): { startTime: string; endTime: string } {
-    if (item.isDetail && item.mode === AbsenceDetailMode.TimeRange && item.startTime && item.endTime) {
-      return {
-        startTime: item.startTime,
-        endTime: item.endTime
-      };
-    }
-
-    return {
-      startTime: '00:00:00',
-      endTime: '23:59:00'
-    };
-  }
-
   private showSelectedShiftInShiftSection(): void {
-    const pos = this.cellManipulation.Position;
-    if (pos.isEmpty()) return;
-
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const entry = dataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-    if (!entry) return;
-
-    this.showInShiftService.showShift(entry.entryId, pos.column);
-  }
-
-  private deleteSelectedEntries(): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const positionCollection = this.cellManipulation.PositionCollection;
-
-    if (positionCollection.count() > 1) {
-      const entries: DeleteWorkScheduleEntryParams[] = [];
-
-      for (let i = 0; i < positionCollection.count(); i++) {
-        const pos = positionCollection.item(i);
-        const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
-        if (deleteInfo) {
-          entries.push(deleteInfo);
-        }
-      }
-
-      if (entries.length > 0) {
-        this.dataManagement.bulkDeleteWorkScheduleEntries(entries);
-      }
-    } else {
-      const pos = this.cellManipulation.Position;
-      if (pos.isEmpty()) return;
-
-      const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
-      if (deleteInfo) {
-        this.dataManagement.deleteWorkScheduleEntry(
-          deleteInfo.id,
-          deleteInfo.sourceId,
-          deleteInfo.clientId,
-          deleteInfo.date,
-          deleteInfo.entryId,
-          deleteInfo.entryType
-        );
-      }
-    }
-  }
-
-  private getDeleteInfoForPosition(
-    dataService: ScheduleDataService,
-    row: number,
-    column: number
-  ): DeleteWorkScheduleEntryParams | null {
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
-    if (!entry) return null;
-
-    const clientIndex = dataService.rowGroupIndex[row];
-    if (clientIndex === undefined) return null;
-
-    const client = this.dataManagement.clients[clientIndex];
-    if (!client?.id) return null;
-
-    const date = dataService.getDateForColumn(column);
-    if (!date) return null;
-
-    return {
-      id: entry.id,
-      sourceId: entry.sourceId,
-      clientId: client.id,
-      date: date,
-      entryId: entry.entryId,
-      entryType: entry.entryType,
-    };
+    this.navigationService.showSelectedShiftInShiftSection(dataService);
   }
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const rowIndex = dataService.findFirstRowByShiftIdAndColumn(shiftId, column);
-
-    if (rowIndex >= 0) {
-      const visibleRows = Math.floor(
-        (this.scheduleSurface.drawSchedule.height - this.settings.cellHeaderHeight) /
-          this.settings.cellHeight
-      );
-      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
-
-      this.vScrollbar.value = targetScroll;
-      this.scrollService.verticalScrollPosition = targetScroll;
-      this.scheduleSurface.drawSchedule.moveGrid();
-    }
+    this.navigationService.scrollToScheduleEntry(
+      shiftId,
+      column,
+      dataService,
+      this.scheduleSurface.drawSchedule.height,
+      this.vScrollbar,
+      () => this.scheduleSurface.drawSchedule.moveGrid()
+    );
   }
 }

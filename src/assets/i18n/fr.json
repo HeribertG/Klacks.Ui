@@ -38,6 +38,7 @@
   "contextMenu.cut": "Couper",
   "contextMenu.paste": "Coller",
   "contextMenu.delete": "Supprimer",
+  "contextMenu.edit": "Modifier...",
   "contextMenu.convert": "Convertir...",
   "contextMenu.showInShift": "Afficher dans le planning",
   "contextMenu.showInSchedule": "Afficher dans le planning de travail",

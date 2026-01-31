@@ -72,6 +72,23 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static edit(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'edit',
+          MessageLibrary.EDIT,
+          false,
+          '',
+          'fa-solid fa-pen'
+        ),
+      ]
+    );
+
+    return value;
+  }
+
   public static showInShift(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(

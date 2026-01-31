@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Component rendering the row headers for the schedule grid.
+ * Displays client information (name, ID, period hours) in a fixed left column.
+ * Handles scrolling synchronization with the main grid.
+ *
+ * @relations
+ * - Parent: ScheduleSectionComponent
+ * - Uses: BaseDrawRowHeaderService for rendering
+ * - Uses: BaseCreateRowHeaderService for content creation
+ */
 import {
   AfterViewInit,
   Component,

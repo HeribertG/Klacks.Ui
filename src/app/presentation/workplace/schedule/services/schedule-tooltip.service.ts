@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service handling tooltip display for schedule and shift grids.
+ * Shows tooltips for header cells (available/overbooked shifts) and
+ * body cells (holiday names). Supports multi-language content.
+ *
+ * @relations
+ * - Used by: ScheduleSectionComponent, ShiftSectionComponent
+ * - Uses: DataManagementScheduleService for shift availability data
+ * - Uses: TranslateService for localization
+ */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/application/helpers/sharedItems';

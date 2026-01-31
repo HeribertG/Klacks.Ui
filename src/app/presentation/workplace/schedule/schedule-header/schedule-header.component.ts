@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Header component for the Schedule page displaying navigation controls,
+ * calendar selection, and zoom slider. Supports weekly, biweekly, and
+ * monthly period navigation based on payment interval settings.
+ *
+ * @relations
+ * - Parent: ScheduleHomeComponent
+ * - Contains: CalendarSelectorComponent, ScheduleHeaderCalendar* components
+ * - Uses: DataManagementScheduleService for filter state
+ * - Uses: HolidayCollectionService for holiday data
+ */
 import {
   Component,
   EventEmitter,

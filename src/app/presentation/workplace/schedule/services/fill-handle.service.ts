@@ -1,3 +1,16 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing the fill handle drag operation in schedule grids.
+ * Allows users to drag the fill handle to copy schedule entries across
+ * multiple columns. Tracks drag state, source entry, and selected columns.
+ *
+ * @relations
+ * - Used by: GridSurfaceTemplateComponent, ScheduleDataService
+ * - Works with: BaseCellManipulationService for position tracking
+ */
 import { Injectable, signal } from '@angular/core';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 

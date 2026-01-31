@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service responsible for creating and rendering shift row header content.
+ * Draws shift information including name, abbreviation, and type icons.
+ * Creates cached canvas images for performance optimization.
+ *
+ * @relations
+ * - Used by: ShiftDrawRowHeaderService
+ * - Uses: ShiftRowHeaderIconsService for shift type icons
+ * - Uses: ShiftRowHeaderCanvasService for canvas management
+ */
 import { inject, Injectable } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';

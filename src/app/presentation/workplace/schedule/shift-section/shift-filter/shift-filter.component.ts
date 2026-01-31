@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Filter component for the shift section dropdown.
+ * Provides text search and toggle filters for shift types
+ * (sporadic, time range, container, standard shifts).
+ *
+ * @relations
+ * - Parent: ShiftSectionComponent
+ * - Uses: DataManagementScheduleService for filter state
+ * - Triggers: Shift data refresh on filter change
+ */
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

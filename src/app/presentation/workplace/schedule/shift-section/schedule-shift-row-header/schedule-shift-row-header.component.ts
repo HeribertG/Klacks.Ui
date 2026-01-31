@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Component rendering the row headers for the shift grid.
+ * Displays shift information (name, abbreviation, icons) in a fixed left column.
+ * Handles scrolling synchronization with the main shift grid.
+ *
+ * @relations
+ * - Parent: ShiftSectionComponent
+ * - Uses: ShiftDrawRowHeaderService for rendering
+ * - Uses: ShiftCreateRowHeaderService for content creation
+ */
 import {
   AfterViewInit,
   Component,

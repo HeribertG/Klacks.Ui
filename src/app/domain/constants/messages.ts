@@ -106,6 +106,7 @@ export class DomainMessages {
   public static CUT = 'contextMenu.cut';
   public static PASTE = 'contextMenu.paste';
   public static DELETE = 'contextMenu.delete';
+  public static EDIT = 'contextMenu.edit';
   public static CONVERT = 'contextMenu.convert';
   public static SHOW_IN_SHIFT = 'contextMenu.showInShift';
   public static SHOW_IN_SCHEDULE = 'contextMenu.showInSchedule';

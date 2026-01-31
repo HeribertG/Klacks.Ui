@@ -38,6 +38,7 @@
   "contextMenu.cut": "Ausschneiden",
   "contextMenu.paste": "Einfügen",
   "contextMenu.delete": "Löschen",
+  "contextMenu.edit": "Bearbeiten...",
   "contextMenu.convert": "Umwandeln...",
   "contextMenu.showInShift": "Im Dienstplan anzeigen",
   "contextMenu.showInSchedule": "Im Einsatzplan anzeigen",

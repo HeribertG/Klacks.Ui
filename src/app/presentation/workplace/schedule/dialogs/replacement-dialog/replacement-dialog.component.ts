@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Dialog component for creating and editing work replacements.
+ * Allows assigning a replacement worker for part of a shift.
+ * Includes client search and time range validation.
+ *
+ * @relations
+ * - Opened by: ScheduleDialogService
+ * - Uses: WorkChangeLogicService for time calculations
+ * - Uses: DataWorkChangeService for API communication
+ * - Counterpart: CorrectionDialogComponent
+ */
 import { Component, inject, Input, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +25,7 @@ import {
 } from 'src/app/infrastructure/services/work-change-logic.service';
 import {
   WorkChangeRequest,
+  WorkChangeResource,
   WorkChangeType,
   WorkChangeValidation,
   WorkTimeContext,
@@ -65,6 +81,8 @@ export class ReplacementDialogComponent {
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
 
   private modalRef: NgbModalRef | null = null;
+  private editMode = false;
+  private editId = '';
 
   CorrectionMode = CorrectionMode;
 
@@ -90,6 +108,8 @@ export class ReplacementDialogComponent {
   }
 
   open(workId: string, currentClientId: string, currentDate: Date, workStartTime: string, workEndTime: string): void {
+    this.editMode = false;
+    this.editId = '';
     this.workId = workId;
     this.currentClientId = currentClientId;
     this.currentDate = currentDate;
@@ -98,6 +118,44 @@ export class ReplacementDialogComponent {
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
+    });
+  }
+
+  openEdit(workChangeId: string, currentDate: Date): void {
+    this.editMode = true;
+    this.editId = workChangeId;
+    this.currentDate = currentDate;
+
+    this.workChangeService.get(workChangeId).subscribe({
+      next: (data) => {
+        this.workId = data.workId;
+        this.description = data.description || '';
+        this.toInvoice = data.toInvoice;
+        this.replaceClientId = data.replaceClientId;
+        this.startTime = this.logicService.parseTimeString(data.startTime);
+        this.endTime = this.logicService.parseTimeString(data.endTime);
+        this.replacementMode = data.type === WorkChangeType.ReplacementStart
+          ? CorrectionMode.AtStart
+          : CorrectionMode.AtEnd;
+        this.workContext = { workStartTime: data.startTime, workEndTime: data.endTime, crossesMidnight: false };
+
+        if (this.replaceClientId) {
+          const client = this.availableClients.find(c => c.id === this.replaceClientId);
+          if (client) {
+            this.searchText = this.getClientDisplayName(client);
+          }
+        }
+
+        this.recalculate();
+
+        this.modalRef = this.ngbModal.open(this.modalTemplate, {
+          centered: true,
+          backdrop: 'static',
+        });
+      },
+      error: (err) => {
+        console.error('Error loading WorkChange:', err);
+      },
     });
   }
 
@@ -214,6 +272,14 @@ export class ReplacementDialogComponent {
   onSave(): void {
     if (!this.isValid() || !this.workContext) return;
 
+    if (this.editMode) {
+      this.updateWorkChange();
+    } else {
+      this.createWorkChange();
+    }
+  }
+
+  private createWorkChange(): void {
     const request: WorkChangeRequest = {
       workId: this.workId,
       type: this.mapModeToWorkChangeType(),
@@ -228,27 +294,55 @@ export class ReplacementDialogComponent {
 
     this.workChangeService.create(request).subscribe({
       next: (response) => {
-        if (response.clientResults && this.currentDate) {
-          const startDate = addDays(this.currentDate, -1);
-          const endDate = addDays(this.currentDate, 1);
-
-          for (const clientResult of response.clientResults) {
-            if (clientResult.periodHours) {
-              this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
-            }
-            if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0) {
-              this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
-            }
-          }
-          this.workScheduleLoader.updateClientNeededRows();
-          this.scheduleEntryCrud.triggerScheduleRefresh();
-        }
-        this.modalRef?.close();
+        this.handleSaveResponse(response);
       },
       error: (err) => {
         console.error('Error creating replacement:', err);
       },
     });
+  }
+
+  private updateWorkChange(): void {
+    const resource: WorkChangeResource = {
+      id: this.editId,
+      workId: this.workId,
+      type: this.mapModeToWorkChangeType(),
+      changeTime: this.validation.changeTime,
+      surcharges: 0,
+      startTime: this.logicService.ownTimeToString(this.startTime),
+      endTime: this.logicService.ownTimeToString(this.endTime),
+      description: this.description,
+      toInvoice: this.toInvoice,
+      replaceClientId: this.replaceClientId,
+    };
+
+    this.workChangeService.update(resource).subscribe({
+      next: (response) => {
+        this.handleSaveResponse(response);
+      },
+      error: (err) => {
+        console.error('Error updating replacement:', err);
+      },
+    });
+  }
+
+  private handleSaveResponse(response: WorkChangeResource): void {
+    if (response.clientResults && this.currentDate) {
+      const startDate = addDays(this.currentDate, -1);
+      const endDate = addDays(this.currentDate, 1);
+
+      for (const clientResult of response.clientResults) {
+        if (clientResult.periodHours) {
+          this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+        }
+        if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0) {
+          this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
+        }
+      }
+      this.workScheduleLoader.updateClientNeededRows();
+      this.scheduleEntryCrud.triggerScheduleRefresh();
+    }
+    this.modalRef?.close();
   }
 
   onCancel(): void {

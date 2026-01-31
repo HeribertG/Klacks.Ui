@@ -98,6 +98,7 @@ export class MessageLibrary {
   public static CUT = DomainMessages.CUT;
   public static PASTE = DomainMessages.PASTE;
   public static DELETE = DomainMessages.DELETE;
+  public static EDIT = DomainMessages.EDIT;
   public static CONVERT = DomainMessages.CONVERT;
   public static SHOW_IN_SHIFT = DomainMessages.SHOW_IN_SHIFT;
   public static SHOW_IN_SCHEDULE = DomainMessages.SHOW_IN_SCHEDULE;

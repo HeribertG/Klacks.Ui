@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing the drawing of row headers in the shift grid.
+ * Handles scrolling, caching, and selective redrawing of shift row headers.
+ * Works with ShiftCreateRowHeaderService for content generation.
+ *
+ * @relations
+ * - Used by: ScheduleShiftRowHeaderComponent
+ * - Uses: ShiftCreateRowHeaderService for content creation
+ * - Uses: ShiftRowHeaderCanvasService for canvas management
+ * - Uses: ProgressBarAnimationService for loading indicators
+ */
 import { inject, Injectable, Injector, DestroyRef } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';

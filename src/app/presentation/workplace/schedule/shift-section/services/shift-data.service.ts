@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Data service providing shift grid data. Extends BaseDataService to supply
+ * cell content, formatting, and shift-row mappings. Manages shift schedules
+ * with capacity, engagement, and availability information.
+ *
+ * @relations
+ * - Extends: BaseDataService
+ * - Used by: ShiftSectionComponent, ShiftContextMenuService
+ * - Uses: DataManagementScheduleService for raw shift data
+ * - Provides: Drag data for ShiftToScheduleDragDropService
+ */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';

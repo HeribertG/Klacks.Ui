@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service responsible for creating and rendering row header content.
+ * Draws client information including name, ID, gender icon, and period hours.
+ * Creates cached canvas images for performance optimization.
+ *
+ * @relations
+ * - Used by: BaseDrawRowHeaderService
+ * - Uses: GridColorService, GridFontsService for styling
+ * - Uses: WorkScheduleLoaderService for period hours data
+ */
 import { inject, Injectable } from '@angular/core';
 
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';

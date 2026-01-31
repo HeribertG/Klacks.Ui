@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Container component that hosts both the ScheduleSection and ShiftSection.
+ * Manages the split view layout and coordinates drag-drop operations between
+ * the shift grid and schedule grid. Handles horizontal scroll synchronization.
+ *
+ * @relations
+ * - Contains: ScheduleSectionComponent, ShiftSectionComponent
+ * - Uses: ShiftToScheduleDragDropService for cross-section drag-drop
+ * - Parent: ScheduleHomeComponent
+ */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Component,

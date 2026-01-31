@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing the drawing of row headers in the schedule grid.
+ * Handles scrolling, caching, and selective redrawing of row headers.
+ * Works with BaseCreateRowHeaderService for content generation.
+ *
+ * @relations
+ * - Used by: ScheduleScheduleRowHeaderComponent
+ * - Uses: BaseCreateRowHeaderService for content creation
+ * - Uses: ScrollService for scroll position
+ * - Uses: ProgressBarAnimationService for loading indicators
+ */
 import { inject, Injectable, Injector } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

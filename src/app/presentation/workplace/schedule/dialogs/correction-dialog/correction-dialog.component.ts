@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Dialog component for creating and editing work time corrections.
+ * Allows adjustments at start, end, or within a work entry.
+ * Validates time ranges and calculates duration changes.
+ *
+ * @relations
+ * - Opened by: ScheduleDialogService
+ * - Uses: WorkChangeLogicService for time calculations
+ * - Uses: DataWorkChangeService for API communication
+ * - Counterpart: ReplacementDialogComponent
+ */
 import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +25,7 @@ import {
 } from 'src/app/infrastructure/services/work-change-logic.service';
 import {
   WorkChangeRequest,
+  WorkChangeResource,
   WorkChangeType,
   WorkChangeValidation,
   WorkTimeContext,
@@ -52,6 +68,8 @@ export class CorrectionDialogComponent {
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
 
   private modalRef: NgbModalRef | null = null;
+  private editMode = false;
+  private editId = '';
 
   CorrectionMode = CorrectionMode;
 
@@ -60,6 +78,8 @@ export class CorrectionDialogComponent {
   }
 
   open(workId: string, clientId: string, currentDate: Date, workStartTime: string, workEndTime: string): void {
+    this.editMode = false;
+    this.editId = '';
     this.workId = workId;
     this.clientId = clientId;
     this.currentDate = currentDate;
@@ -68,6 +88,35 @@ export class CorrectionDialogComponent {
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
+    });
+  }
+
+  openEdit(workChangeId: string, currentDate: Date): void {
+    this.editMode = true;
+    this.editId = workChangeId;
+    this.currentDate = currentDate;
+
+    this.workChangeService.get(workChangeId).subscribe({
+      next: (data) => {
+        this.workId = data.workId;
+        this.description = data.description || '';
+        this.toInvoice = data.toInvoice;
+        this.startTime = this.logicService.parseTimeString(data.startTime);
+        this.endTime = this.logicService.parseTimeString(data.endTime);
+        this.correctionMode = data.type === WorkChangeType.CorrectionStart
+          ? CorrectionMode.AtStart
+          : CorrectionMode.AtEnd;
+        this.workContext = { workStartTime: data.startTime, workEndTime: data.endTime, crossesMidnight: false };
+        this.recalculate();
+
+        this.modalRef = this.ngbModal.open(this.modalTemplate, {
+          centered: true,
+          backdrop: 'static',
+        });
+      },
+      error: (err) => {
+        console.error('Error loading WorkChange:', err);
+      },
     });
   }
 
@@ -131,6 +180,14 @@ export class CorrectionDialogComponent {
   onSave(): void {
     if (!this.isValid() || !this.workContext) return;
 
+    if (this.editMode) {
+      this.updateWorkChange();
+    } else {
+      this.createWorkChange();
+    }
+  }
+
+  private createWorkChange(): void {
     const request: WorkChangeRequest = {
       workId: this.workId,
       type: this.mapModeToWorkChangeType(),
@@ -164,6 +221,45 @@ export class CorrectionDialogComponent {
       },
       error: (err) => {
         console.error('Error creating correction:', err);
+      },
+    });
+  }
+
+  private updateWorkChange(): void {
+    const resource: WorkChangeResource = {
+      id: this.editId,
+      workId: this.workId,
+      type: this.mapModeToWorkChangeType(),
+      changeTime: this.validation.changeTime,
+      surcharges: 0,
+      startTime: this.logicService.ownTimeToString(this.startTime),
+      endTime: this.logicService.ownTimeToString(this.endTime),
+      description: this.description,
+      toInvoice: this.toInvoice,
+      replaceClientId: null,
+    };
+
+    this.workChangeService.update(resource).subscribe({
+      next: (response) => {
+        if (response.clientResults && this.currentDate) {
+          const startDate = addDays(this.currentDate, -1);
+          const endDate = addDays(this.currentDate, 1);
+
+          for (const clientResult of response.clientResults) {
+            if (clientResult.periodHours) {
+              this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+            }
+            if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0) {
+              this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
+            }
+          }
+          this.workScheduleLoader.updateClientNeededRows();
+          this.scheduleEntryCrud.triggerScheduleRefresh();
+        }
+        this.modalRef?.close();
+      },
+      error: (err) => {
+        console.error('Error updating correction:', err);
       },
     });
   }

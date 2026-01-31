@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing the complete state for the Schedule workplace.
+ * Extends BaseStateService to provide filter persistence and restoration.
+ * Integrates with AppSettings to apply work-specific settings like payment interval.
+ *
+ * @relations
+ * - Extends: BaseStateService
+ * - Used by: ScheduleHomeComponent
+ * - Uses: DataManagementScheduleService, AppSettingsManagementService
+ */
 import { Injectable, inject } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';

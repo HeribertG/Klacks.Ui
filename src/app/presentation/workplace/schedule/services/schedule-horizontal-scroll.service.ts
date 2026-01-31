@@ -1,3 +1,16 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service synchronizing horizontal scroll position between ScheduleSection
+ * and ShiftSection. Provides locking mechanism to prevent scroll updates
+ * during certain operations. Uses signals for reactive state management.
+ *
+ * @relations
+ * - Used by: ScheduleSectionComponent, ShiftSectionComponent
+ * - Provided in: ScheduleHomeComponent
+ */
 import { Injectable, signal } from '@angular/core';
 
 @Injectable()

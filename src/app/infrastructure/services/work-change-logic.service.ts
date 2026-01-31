@@ -40,6 +40,14 @@ export class WorkChangeLogicService {
     return ownTime.toString();
   }
 
+  parseTimeString(timeString: string): OwnTime {
+    if (!timeString) return OwnTime.forTime('00', '00');
+    const parts = timeString.split(':');
+    const hours = parts[0] || '00';
+    const minutes = parts[1] || '00';
+    return OwnTime.forTime(hours.padStart(2, '0'), minutes.padStart(2, '0'));
+  }
+
   detectMidnightCrossing(startTime: string, endTime: string): boolean {
     const startMinutes = this.parseTimeToMinutes(startTime);
     const endMinutes = this.parseTimeToMinutes(endTime);

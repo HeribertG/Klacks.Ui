@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Directive handling click events on schedule row headers.
+ * Enables navigation to client details via double-click.
+ * Calculates clicked row based on scroll position and cell height.
+ *
+ * @relations
+ * - Used by: ScheduleScheduleRowHeaderComponent
+ * - Uses: ScheduleDataService for client lookup
+ * - Uses: Router for navigation
+ */
 import {
   Directive,
   ElementRef,

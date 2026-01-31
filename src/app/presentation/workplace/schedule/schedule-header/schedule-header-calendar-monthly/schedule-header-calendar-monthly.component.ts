@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Calendar component for monthly period selection in the schedule header.
+ * Provides year and month selection with dropdown for month names.
+ * Triggers schedule data refresh on period change.
+ *
+ * @relations
+ * - Parent: ScheduleHeaderComponent
+ * - Uses: DataManagementScheduleService for filter state
+ * - Uses: AllScheduleStateService for state persistence
+ * - Uses: GridSettingsService for month names
+ */
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';

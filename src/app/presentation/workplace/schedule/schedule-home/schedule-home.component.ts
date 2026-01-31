@@ -1,4 +1,19 @@
-
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Root component for the Schedule workplace page. Orchestrates the initialization
+ * of the schedule view including loading holidays, calendar selection, and
+ * coordinating between header and container components. Manages zoom level
+ * and refresh triggers for the child components.
+ *
+ * @relations
+ * - Contains: ScheduleHeaderComponent, ScheduleContainerComponent
+ * - Uses: AllScheduleStateService for state management
+ * - Uses: HolidayCollectionService for holiday data
+ * - Part of: Workplace module routing
+ */
 import {
   Component,
   inject,

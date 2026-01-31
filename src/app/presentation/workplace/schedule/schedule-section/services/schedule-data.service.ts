@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Data service providing schedule grid data. Extends BaseDataService to supply
+ * cell content, formatting, and client-row mappings. Manages work schedule entries,
+ * breaks, and work changes. Core data provider for ScheduleSectionComponent.
+ *
+ * @relations
+ * - Extends: BaseDataService
+ * - Used by: ScheduleSectionComponent, ScheduleContextMenuService
+ * - Uses: DataManagementScheduleService for raw schedule data
+ * - Uses: Cell formatter services for display formatting
+ */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';

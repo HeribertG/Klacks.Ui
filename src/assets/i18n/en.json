@@ -38,6 +38,7 @@
   "contextMenu.cut": "Cut",
   "contextMenu.paste": "Paste",
   "contextMenu.delete": "Delete",
+  "contextMenu.edit": "Edit...",
   "contextMenu.convert": "Convert...",
   "contextMenu.showInShift": "Show in shift schedule",
   "contextMenu.showInSchedule": "Show in work schedule",

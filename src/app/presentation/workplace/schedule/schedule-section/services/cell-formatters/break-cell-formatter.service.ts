@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Formatter for break/absence schedule entry cells. Displays absence name,
+ * time range, and applies absence-specific coloring based on absence type.
+ *
+ * @relations
+ * - Implements: ICellFormatter
+ * - Uses: EmptyCellFormatterService for empty entries
+ * - Uses: AbsenceLookupService for absence details
+ * - Used by: ScheduleDataService
+ */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';

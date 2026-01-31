@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Directive handling click events on shift row headers.
+ * Enables navigation to shift details via double-click.
+ * Calculates clicked row based on scroll position and cell height.
+ *
+ * @relations
+ * - Used by: ScheduleShiftRowHeaderComponent
+ * - Uses: ShiftDataService for shift lookup
+ * - Uses: Router for navigation
+ */
 import {
   Directive,
   ElementRef,

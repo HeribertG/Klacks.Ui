@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Calendar component for biweekly period selection in the schedule header.
+ * Provides year selection and biweekly period dropdown (KW pairs).
+ * Triggers schedule data refresh on period change.
+ *
+ * @relations
+ * - Parent: ScheduleHeaderComponent
+ * - Uses: DataManagementScheduleService for filter state
+ * - Uses: AllScheduleStateService for state persistence
+ * - Uses: CalendarUtilService for week calculations
+ */
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { FormsModule } from '@angular/forms';

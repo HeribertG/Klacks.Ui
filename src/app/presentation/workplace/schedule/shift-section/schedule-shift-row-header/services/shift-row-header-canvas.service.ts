@@ -1,3 +1,16 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing canvas elements for shift row header rendering.
+ * Handles canvas creation, sizing, and double-buffering setup.
+ * Provides drawing context for ShiftDrawRowHeaderService.
+ *
+ * @relations
+ * - Used by: ShiftDrawRowHeaderService, ShiftCreateRowHeaderService
+ * - Uses: BaseSettingsService for dimensions
+ */
 import { Injectable, inject } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';

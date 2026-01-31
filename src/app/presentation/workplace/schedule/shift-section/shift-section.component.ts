@@ -1,3 +1,18 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Component displaying the shift grid showing available shifts per day.
+ * Shows shift capacity, engagement status, and supports drag to schedule.
+ * Includes filter functionality and context menu for navigation.
+ *
+ * @relations
+ * - Parent: ScheduleContainerComponent
+ * - Contains: GridSurfaceTemplateComponent, ShiftFilterComponent
+ * - Uses: ShiftDataService, ShiftContextMenuService, ShiftNavigationService
+ * - Coordinates with: ShiftToScheduleDragDropService for drag operations
+ */
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -50,11 +65,10 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
-import { ShowInScheduleService } from '../services/show-in-schedule.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { ShiftContextMenuService } from './services/shift-context-menu.service';
+import { ShiftNavigationService } from './services/shift-navigation.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -87,6 +101,8 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
     BaseGridRenderService,
     CellIconsService,
     ContextMenuService,
+    ShiftContextMenuService,
+    ShiftNavigationService,
   ],
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
@@ -110,7 +126,8 @@ export class ShiftSectionComponent
   private tooltipService = inject(ScheduleTooltipService);
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
-  private showInScheduleService = inject(ShowInScheduleService);
+  private contextMenuService = inject(ShiftContextMenuService);
+  private navigationService = inject(ShiftNavigationService);
 
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
@@ -270,20 +287,17 @@ export class ShiftSectionComponent
 
   private scrollToShift(shiftId: string, column: number): void {
     const shiftDataService = this.dataService as ShiftDataService;
-    const rowIndex = shiftDataService.findRowByShiftIdAndColumn(shiftId, column);
-
-    if (rowIndex >= 0) {
-      const visibleRows = Math.floor(
-        (this.shiftSurface.drawSchedule.height - this.settings.cellHeaderHeight) /
-          this.settings.cellHeight
-      );
-      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
-
-      this.vScrollbar.value = targetScroll;
-      this.scrollService.verticalScrollPosition = targetScroll;
-      this.shiftSurface.drawSchedule.moveGrid();
-      this.cdr.detectChanges();
-    }
+    this.navigationService.scrollToShift(
+      shiftId,
+      column,
+      shiftDataService,
+      this.shiftSurface.drawSchedule.height,
+      this.vScrollbar,
+      () => {
+        this.shiftSurface.drawSchedule.moveGrid();
+        this.cdr.detectChanges();
+      }
+    );
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
@@ -298,15 +312,8 @@ export class ShiftSectionComponent
   }
 
   private createContextMenu(row: number, column: number): void {
-    const menuData = new Menu();
     const shiftDataService = this.dataService as ShiftDataService;
-    const engagedCount = shiftDataService.getEngagedCount(row, column);
-
-    if (engagedCount > 0) {
-      menuData.list.push(...MenuDataTemplate.showInSchedule());
-    }
-
-    this.contextMenu.menuData = menuData;
+    this.contextMenu.menuData = this.contextMenuService.createContextMenu(row, column, shiftDataService);
   }
 
   private menuClicked(keys: string[]): void {
@@ -315,19 +322,9 @@ export class ShiftSectionComponent
     switch (keys[0]) {
       case 'showInSchedule':
         this.contextMenu.closeMenu(true);
-        this.showSelectedShiftInScheduleSection();
+        const shiftDataService = this.dataService as ShiftDataService;
+        this.contextMenuService.showSelectedShiftInScheduleSection(shiftDataService);
         break;
     }
-  }
-
-  private showSelectedShiftInScheduleSection(): void {
-    const pos = this.cellManipulation.Position;
-    if (pos.isEmpty()) return;
-
-    const shiftDataService = this.dataService as ShiftDataService;
-    const shiftId = shiftDataService.getShiftId(pos.row);
-    if (!shiftId) return;
-
-    this.showInScheduleService.showSchedule(shiftId, pos.column);
   }
 }

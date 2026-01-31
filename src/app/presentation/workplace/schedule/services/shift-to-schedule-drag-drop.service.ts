@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service managing drag-drop operations from ShiftSection to ScheduleSection.
+ * Tracks drag state, validates drop targets, and provides visual feedback
+ * signals for valid/invalid drop zones. Enables shift assignment by dragging.
+ *
+ * @relations
+ * - Used by: ScheduleContainerComponent (coordinates drag between sections)
+ * - Used by: ShiftSectionComponent (initiates drag)
+ * - Used by: ScheduleSectionComponent (receives drop)
+ */
 import { Injectable, signal, computed } from '@angular/core';
 
 export interface ShiftDragData {

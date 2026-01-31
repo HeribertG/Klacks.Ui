@@ -1,3 +1,16 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Formatter for work schedule entry cells. Displays shift abbreviation,
+ * time range, and applies appropriate styling including work change indicators.
+ *
+ * @relations
+ * - Implements: ICellFormatter
+ * - Uses: EmptyCellFormatterService for empty entries
+ * - Used by: ScheduleDataService
+ */
 import { inject, Injectable } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';

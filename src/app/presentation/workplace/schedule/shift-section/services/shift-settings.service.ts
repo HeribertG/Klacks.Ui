@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Settings service for the shift grid. Extends BaseSettingsService with
+ * shift-specific configurations like no header row and row-only selection mode.
+ * Adjusts cell height based on zoom level.
+ *
+ * @relations
+ * - Extends: BaseSettingsService
+ * - Used by: ShiftSectionComponent
+ * - Provided as: BaseSettingsService in shift section
+ */
 import { Injectable } from '@angular/core';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';

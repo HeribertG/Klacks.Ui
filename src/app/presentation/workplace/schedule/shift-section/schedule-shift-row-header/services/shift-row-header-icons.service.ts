@@ -1,3 +1,17 @@
+/**
+ * @copyright 2025 Heribert Gasparoli
+ * @license Proprietary
+ *
+ * @description
+ * Service providing cached icon images for shift type indicators.
+ * Pre-renders icons (sporadic, time window, shift segment, container)
+ * as canvas elements for efficient drawing in row headers.
+ *
+ * @relations
+ * - Used by: ShiftCreateRowHeaderService
+ * - Uses: Icon components for SVG sources
+ * - Uses: GridColorService for icon colors
+ */
 import { Injectable, inject } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
