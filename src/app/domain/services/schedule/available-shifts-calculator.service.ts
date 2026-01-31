@@ -30,6 +30,25 @@ export class AvailableShiftsCalculatorService {
     const startDate = this.calculateStartDate(workFilter);
     const totalDays = this.getTotalDays(workFilter);
 
+    console.log('[AvailableShiftsCalc] calculate() called:', {
+      shiftCount: shiftSchedules.length,
+      startDate,
+      totalDays,
+    });
+
+    if (shiftSchedules.length > 0) {
+      const sample = shiftSchedules.slice(0, 3).map(s => ({
+        abbr: s.abbreviation,
+        engaged: s.engaged,
+        sumEmployees: s.sumEmployees,
+        quantity: s.quantity,
+        capacity: s.sumEmployees * s.quantity,
+        hasCapacity: s.engaged < s.sumEmployees * s.quantity,
+        isOverbooked: s.engaged > s.sumEmployees * s.quantity,
+      }));
+      console.log('[AvailableShiftsCalc] Sample shifts:', sample);
+    }
+
     const hasCapacity = (shift: IShiftSchedule) =>
       shift.engaged < shift.sumEmployees * shift.quantity;
 
@@ -62,6 +81,11 @@ export class AvailableShiftsCalculatorService {
       .filter(isOverbooked)
       .map(toDayEntry)
       .filter(isInRange);
+
+    console.log('[AvailableShiftsCalc] Results:', {
+      availableCount: availableShifts.length,
+      overbookedCount: overbookedShifts.length,
+    });
 
     this._availableShiftsByDay.set(toUniqueAbbreviationsByDay(availableShifts));
     this._overbookedShiftsByDay.set(

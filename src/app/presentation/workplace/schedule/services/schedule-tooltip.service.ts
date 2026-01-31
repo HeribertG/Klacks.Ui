@@ -40,6 +40,7 @@ export class ScheduleTooltipService {
     }
 
     if (hoveredCell.isHeader && showHeaderTooltips) {
+      console.log('[ScheduleTooltip] Header hover detected, column:', hoveredCell.column);
       return this.handleHeaderTooltip(hoveredCell, surface, state);
     }
 
@@ -81,6 +82,14 @@ export class ScheduleTooltipService {
     const available = availableShifts?.[column] ?? [];
     const overbooked = overbookedShifts?.[column] ?? [];
 
+    console.log('[ScheduleTooltip] handleHeaderTooltip:', {
+      column,
+      availableShiftsLength: availableShifts?.length ?? 0,
+      overbookedShiftsLength: overbookedShifts?.length ?? 0,
+      availableForColumn: available,
+      overbookedForColumn: overbooked,
+    });
+
     if (available.length === 0 && overbooked.length === 0) {
       surface.destroyToolTip();
       return state.lastHeaderColumn;
@@ -106,23 +115,32 @@ export class ScheduleTooltipService {
     overbooked: readonly string[],
     available: readonly string[]
   ): string {
+    const MAX_ITEMS = 15;
     const lines: string[] = [];
 
     if (overbooked.length > 0) {
       const label = this.translateService.instant('schedule.tooltip.overbooked');
-      lines.push(`${label}:<br>${overbooked.join(', ')}`);
-    }
-
-    if (overbooked.length > 0 && available.length > 0) {
-      lines.push('<br>');
+      const display = overbooked.slice(0, MAX_ITEMS);
+      const remaining = overbooked.length - MAX_ITEMS;
+      let text = display.join(', ');
+      if (remaining > 0) {
+        text += ` (+${remaining})`;
+      }
+      lines.push(`${label}:\n${text}`);
     }
 
     if (available.length > 0) {
       const label = this.translateService.instant('schedule.tooltip.available');
-      lines.push(`${label}:<br>${available.join(', ')}`);
+      const display = available.slice(0, MAX_ITEMS);
+      const remaining = available.length - MAX_ITEMS;
+      let text = display.join(', ');
+      if (remaining > 0) {
+        text += ` (+${remaining})`;
+      }
+      lines.push(`${label}:\n${text}`);
     }
 
-    return lines.join('');
+    return lines.join('\n\n');
   }
 
   private getTranslatedText(multiLanguage: MultiLanguage): string {

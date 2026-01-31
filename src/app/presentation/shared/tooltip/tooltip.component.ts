@@ -58,8 +58,10 @@ export class TooltipComponent implements OnInit, OnDestroy {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    const estimatedWidth = config.text.length * 7 + 20;
-    const estimatedHeight = 30;
+    const lines = config.text.split('\n');
+    const maxLineLength = Math.max(...lines.map(l => l.length));
+    const estimatedWidth = Math.min(maxLineLength * 7 + 20, 400);
+    const estimatedHeight = lines.length * 18 + 12;
 
     if (x + estimatedWidth > viewportWidth) {
       x = config.x - estimatedWidth - offset;
