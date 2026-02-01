@@ -18,9 +18,17 @@ export interface WorkChangeClientResult {
   scheduleEntries?: IScheduleCell[];
 }
 
+export interface WorkChangeWorkInfo {
+  id: string;
+  clientId: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface WorkChangeResource {
   id: string;
   workId: string;
+  work?: WorkChangeWorkInfo;
   type: WorkChangeType;
   changeTime: number;
   surcharges: number;

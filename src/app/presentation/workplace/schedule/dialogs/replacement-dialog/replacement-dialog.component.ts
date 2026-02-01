@@ -129,6 +129,7 @@ export class ReplacementDialogComponent {
     this.workChangeService.get(workChangeId).subscribe({
       next: (data) => {
         this.workId = data.workId;
+        this.currentClientId = data.work?.clientId || '';
         this.description = data.description || '';
         this.toInvoice = data.toInvoice;
         this.replaceClientId = data.replaceClientId;
@@ -137,7 +138,10 @@ export class ReplacementDialogComponent {
         this.replacementMode = data.type === WorkChangeType.ReplacementStart
           ? CorrectionMode.AtStart
           : CorrectionMode.AtEnd;
-        this.workContext = { workStartTime: data.startTime, workEndTime: data.endTime, crossesMidnight: false };
+
+        const workStartTime = data.work?.startTime || data.startTime;
+        const workEndTime = data.work?.endTime || data.endTime;
+        this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
 
         if (this.replaceClientId) {
           const client = this.availableClients.find(c => c.id === this.replaceClientId);

@@ -99,6 +99,7 @@ export class CorrectionDialogComponent {
     this.workChangeService.get(workChangeId).subscribe({
       next: (data) => {
         this.workId = data.workId;
+        this.clientId = data.work?.clientId || '';
         this.description = data.description || '';
         this.toInvoice = data.toInvoice;
         this.startTime = this.logicService.parseTimeString(data.startTime);
@@ -106,7 +107,11 @@ export class CorrectionDialogComponent {
         this.correctionMode = data.type === WorkChangeType.CorrectionStart
           ? CorrectionMode.AtStart
           : CorrectionMode.AtEnd;
-        this.workContext = { workStartTime: data.startTime, workEndTime: data.endTime, crossesMidnight: false };
+
+        const workStartTime = data.work?.startTime || data.startTime;
+        const workEndTime = data.work?.endTime || data.endTime;
+        this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
+
         this.recalculate();
 
         this.modalRef = this.ngbModal.open(this.modalTemplate, {
