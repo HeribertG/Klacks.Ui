@@ -156,4 +156,21 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static editWork(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'editWork',
+          MessageLibrary.EDIT_WORK,
+          false,
+          '',
+          'fa-solid fa-pen-to-square'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

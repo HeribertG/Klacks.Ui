@@ -46,6 +46,7 @@
   "contextMenu.absences": "Absences...",
   "contextMenu.correction": "Correction...",
   "contextMenu.replacement": "Remplacement...",
+  "contextMenu.editWork": "Modifier...",
 
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",
@@ -76,6 +77,14 @@
   "dialog.replacement.toInvoice": "À facturer",
   "dialog.replacement.error.zeroTime": "Veuillez entrer une plage horaire valide",
   "dialog.replacement.error.outsideWork": "La plage horaire doit être à l'intérieur du service",
+
+  "dialog.workEdit.title": "Modifier le travail",
+  "dialog.workEdit.startTime": "De",
+  "dialog.workEdit.endTime": "À",
+  "dialog.workEdit.duration": "Durée",
+  "dialog.workEdit.description": "Description",
+  "dialog.workEdit.error.maxDuration": "La durée maximale est de 20 heures",
+  "dialog.workEdit.error.invalidTime": "Veuillez entrer une plage horaire valide",
 
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "REM",

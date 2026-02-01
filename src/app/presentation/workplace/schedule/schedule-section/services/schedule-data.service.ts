@@ -400,6 +400,28 @@ export class ScheduleDataService extends BaseDataService {
     return addDays(this.startDate, col);
   }
 
+  getAllEntriesForClientAndColumn(row: number, col: number): IScheduleCell[] {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) {
+      return [];
+    }
+
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client || !client.id) {
+      return [];
+    }
+
+    const date = this.getDateForColumn(col);
+    if (!date) {
+      return [];
+    }
+
+    return this.dataManagementSchedule.getWorkScheduleForClientAndDate(
+      client.id,
+      date,
+    );
+  }
+
   override handlePaste(
     startRow: number,
     startCol: number,

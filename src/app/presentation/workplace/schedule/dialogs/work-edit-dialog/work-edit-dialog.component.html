@@ -1,0 +1,70 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #workEditModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.workEdit.title" | translate }}</div>
+    <span class="filler"></span>
+    <div class="close" (click)="onCancel()">&times;</div>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group time-row">
+      <app-time-input
+        [label]="'dialog.workEdit.startTime' | translate"
+        [value]="startTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="weStartHours"
+        minutesId="weStartMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.workEdit.endTime' | translate"
+        [value]="endTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="weEndHours"
+        minutesId="weEndMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.workEdit.duration' | translate"
+        [value]="duration"
+        [disabled]="true"
+        [forDuration]="true"
+        hoursId="weDurationHours"
+        minutesId="weDurationMinutes"
+      ></app-time-input>
+    </div>
+
+    @if (validation.errorKey) {
+      <div class="error-message">{{ validation.errorKey | translate }}</div>
+    }
+
+    <div class="form-group">
+      <label for="description">{{
+        "dialog.workEdit.description" | translate
+      }}</label>
+      <textarea
+        id="description"
+        [(ngModel)]="description"
+        class="form-control"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+      [disabled]="!isValid()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

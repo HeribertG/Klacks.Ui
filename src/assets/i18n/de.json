@@ -46,6 +46,7 @@
   "contextMenu.absences": "Beschäftigungen...",
   "contextMenu.correction": "Korrektur...",
   "contextMenu.replacement": "Ablösung...",
+  "contextMenu.editWork": "Bearbeiten...",
 
   "dialog.correction.title": "Korrektur",
   "dialog.correction.position": "Position",
@@ -76,6 +77,14 @@
   "dialog.replacement.toInvoice": "Abrechnen",
   "dialog.replacement.error.zeroTime": "Bitte geben Sie eine gültige Zeitspanne ein",
   "dialog.replacement.error.outsideWork": "Zeitbereich muss innerhalb der Schicht liegen",
+
+  "dialog.workEdit.title": "Arbeit bearbeiten",
+  "dialog.workEdit.startTime": "Von",
+  "dialog.workEdit.endTime": "Bis",
+  "dialog.workEdit.duration": "Dauer",
+  "dialog.workEdit.description": "Beschreibung",
+  "dialog.workEdit.error.maxDuration": "Maximale Dauer ist 20 Stunden",
+  "dialog.workEdit.error.invalidTime": "Bitte geben Sie eine gültige Zeitspanne ein",
 
   "workChange.abbr.correction": "KOR",
   "workChange.abbr.replacement": "ABL",

@@ -16,19 +16,23 @@ import { Injectable } from '@angular/core';
 import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
 import { CorrectionDialogComponent } from '../../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/replacement-dialog.component';
+import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ScheduleDataService } from './schedule-data.service';
 
 @Injectable()
 export class ScheduleDialogService {
   private correctionDialog: CorrectionDialogComponent | null = null;
   private replacementDialog: ReplacementDialogComponent | null = null;
+  private workEditDialog: WorkEditDialogComponent | null = null;
 
   setDialogs(
     correctionDialog: CorrectionDialogComponent,
-    replacementDialog: ReplacementDialogComponent
+    replacementDialog: ReplacementDialogComponent,
+    workEditDialog: WorkEditDialogComponent,
   ): void {
     this.correctionDialog = correctionDialog;
     this.replacementDialog = replacementDialog;
+    this.workEditDialog = workEditDialog;
   }
 
   openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService): void {
@@ -64,6 +68,25 @@ export class ScheduleDialogService {
       } else if (this.replacementDialog) {
         this.replacementDialog.openEdit(entry.id, date);
       }
+    }
+  }
+
+  openWorkEditDialog(row: number, column: number, dataService: ScheduleDataService): void {
+    if (!this.workEditDialog) return;
+
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.workEditDialog.open(
+        entry.sourceId,
+        entry.clientId,
+        entry.entryId,
+        date,
+        entry.startTime,
+        entry.endTime,
+        entry.information,
+      );
     }
   }
 }

@@ -69,6 +69,7 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
+import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
@@ -87,6 +88,7 @@ import { ScheduleNavigationService } from './services/schedule-navigation.servic
     ContextMenuComponent,
     CorrectionDialogComponent,
     ReplacementDialogComponent,
+    WorkEditDialogComponent,
   ],
   providers: [
     BaseSettingsService,
@@ -126,6 +128,8 @@ export class ScheduleSectionComponent
   correctionDialog!: CorrectionDialogComponent;
   @ViewChild(ReplacementDialogComponent)
   replacementDialog!: ReplacementDialogComponent;
+  @ViewChild(WorkEditDialogComponent)
+  workEditDialog!: WorkEditDialogComponent;
 
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
@@ -187,7 +191,7 @@ export class ScheduleSectionComponent
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
     this.scheduleSurface.drawSchedule.showFillHandle = true;
-    this.dialogService.setDialogs(this.correctionDialog, this.replacementDialog);
+    this.dialogService.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
@@ -398,6 +402,10 @@ export class ScheduleSectionComponent
       case 'edit':
         this.contextMenu.closeMenu(true);
         this.dialogService.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
+        break;
+      case 'editWork':
+        this.contextMenu.closeMenu(true);
+        this.dialogService.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
     }
   }

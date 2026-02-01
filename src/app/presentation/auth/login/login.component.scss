@@ -1,5 +1,4 @@
 @use "../../../../assets/standard-styles/colors.scss";
-@use "../../../../assets/standard-styles/standard-modal.scss";
 
 $login-background: "../../../../assets/png/login-background.png" !default;
 
@@ -54,8 +53,8 @@ label {
 }
 
 .input-password {
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
   width: 355px;
 }
 

@@ -112,6 +112,7 @@ export class DomainMessages {
   public static SHOW_IN_SCHEDULE = 'contextMenu.showInSchedule';
   public static CORRECTION = 'contextMenu.correction';
   public static REPLACEMENT = 'contextMenu.replacement';
+  public static EDIT_WORK = 'contextMenu.editWork';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

@@ -1,13 +1,16 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #correctionModal let-modal>
   <div class="modal-header">
-    <div class="modal-title">{{ 'dialog.correction.title' | translate }}</div>
+    <div class="modal-title">{{ "dialog.correction.title" | translate }}</div>
     <span class="filler"></span>
     <div class="close" (click)="onCancel()">&times;</div>
   </div>
 
   <div class="modal-body">
     <div class="form-group">
-      <label>{{ 'dialog.correction.position' | translate }}</label>
+      <label>{{ "dialog.correction.position" | translate }}</label>
       <div class="radio-group">
         <label class="radio-label">
           <input
@@ -17,7 +20,7 @@
             [(ngModel)]="correctionMode"
             (ngModelChange)="onModeChange()"
           />
-          {{ 'dialog.correction.atStart' | translate }}
+          {{ "dialog.correction.atStart" | translate }}
         </label>
         <label class="radio-label">
           <input
@@ -27,7 +30,7 @@
             [(ngModel)]="correctionMode"
             (ngModelChange)="onModeChange()"
           />
-          {{ 'dialog.correction.atEnd' | translate }}
+          {{ "dialog.correction.atEnd" | translate }}
         </label>
         <label class="radio-label">
           <input
@@ -37,7 +40,7 @@
             [(ngModel)]="correctionMode"
             (ngModelChange)="onModeChange()"
           />
-          {{ 'dialog.correction.within' | translate }}
+          {{ "dialog.correction.within" | translate }}
         </label>
       </div>
     </div>
@@ -62,7 +65,7 @@
       ></app-time-input>
 
       <div class="duration-wrapper" [class.negative]="isWithinMode">
-        <span class="sign">{{ isWithinMode ? '-' : '+' }}</span>
+        <span class="sign">{{ isWithinMode ? "-" : "+" }}</span>
         <app-time-input
           [label]="'dialog.correction.duration' | translate"
           [value]="duration"
@@ -79,7 +82,9 @@
     }
 
     <div class="form-group">
-      <label for="description">{{ 'dialog.correction.description' | translate }}</label>
+      <label for="description">{{
+        "dialog.correction.description" | translate
+      }}</label>
       <textarea
         id="description"
         [(ngModel)]="description"
@@ -91,14 +96,14 @@
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
         <input type="checkbox" [(ngModel)]="toInvoice" />
-        {{ 'dialog.correction.toInvoice' | translate }}
+        {{ "dialog.correction.toInvoice" | translate }}
       </label>
     </div>
   </div>
 
   <div class="modal-footer">
     <span class="link-button red-font" (click)="onCancel()">
-      {{ 'cancel' | translate }}
+      {{ "cancel" | translate }}
     </span>
     <button
       type="button"
@@ -106,7 +111,7 @@
       (click)="onSave()"
       [disabled]="!isValid()"
     >
-      {{ 'save' | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
 </ng-template>

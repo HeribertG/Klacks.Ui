@@ -46,6 +46,7 @@
   "contextMenu.absences": "Absences...",
   "contextMenu.correction": "Correction...",
   "contextMenu.replacement": "Replacement...",
+  "contextMenu.editWork": "Edit...",
 
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",
@@ -76,6 +77,14 @@
   "dialog.replacement.toInvoice": "To invoice",
   "dialog.replacement.error.zeroTime": "Please enter a valid time range",
   "dialog.replacement.error.outsideWork": "Time range must be within the shift",
+
+  "dialog.workEdit.title": "Edit Work",
+  "dialog.workEdit.startTime": "From",
+  "dialog.workEdit.endTime": "To",
+  "dialog.workEdit.duration": "Duration",
+  "dialog.workEdit.description": "Description",
+  "dialog.workEdit.error.maxDuration": "Maximum duration is 20 hours",
+  "dialog.workEdit.error.invalidTime": "Please enter a valid time range",
 
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "REP",

@@ -46,6 +46,7 @@
   "contextMenu.absences": "Assenze...",
   "contextMenu.correction": "Correzione...",
   "contextMenu.replacement": "Sostituzione...",
+  "contextMenu.editWork": "Modifica...",
 
   "dialog.correction.title": "Correzione",
   "dialog.correction.position": "Posizione",
@@ -76,6 +77,14 @@
   "dialog.replacement.toInvoice": "Da fatturare",
   "dialog.replacement.error.zeroTime": "Inserire un intervallo di tempo valido",
   "dialog.replacement.error.outsideWork": "L'intervallo di tempo deve essere all'interno del turno",
+
+  "dialog.workEdit.title": "Modifica lavoro",
+  "dialog.workEdit.startTime": "Da",
+  "dialog.workEdit.endTime": "A",
+  "dialog.workEdit.duration": "Durata",
+  "dialog.workEdit.description": "Descrizione",
+  "dialog.workEdit.error.maxDuration": "La durata massima è di 20 ore",
+  "dialog.workEdit.error.invalidTime": "Inserire un intervallo di tempo valido",
 
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "SOS",

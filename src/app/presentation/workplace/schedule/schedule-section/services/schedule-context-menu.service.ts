@@ -72,6 +72,10 @@ export class ScheduleContextMenuService {
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.correction());
           menuData.list.push(...MenuDataTemplate.replacement());
+
+          if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
+            menuData.list.push(...MenuDataTemplate.editWork());
+          }
         }
 
         menuData.list.push(...MenuDataTemplate.divider());
@@ -230,5 +234,19 @@ export class ScheduleContextMenuService {
       return `${parts[0]}:${parts[1]}`;
     }
     return time;
+  }
+
+  private hasWorkChanges(
+    workId: string,
+    row: number,
+    column: number,
+    dataService: ScheduleDataService,
+  ): boolean {
+    const entries = dataService.getAllEntriesForClientAndColumn(row, column);
+    return entries.some(
+      (e) =>
+        e.entryType === WorkScheduleEntryType.WorkChange &&
+        e.sourceId === workId,
+    );
   }
 }
