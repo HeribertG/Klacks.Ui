@@ -235,49 +235,61 @@ export class BaseCreateRowHeaderService {
   ): void {
     const sectionHeight = height / 3;
     const symbolSize = 16 * this.settings.zoom;
+    const leftPadding = 4;
+    const fontHeight = this.gridFonts.headerFontHeightZoom;
+    const lineSpacing = 2;
+    const twoLinesHeight = fontHeight * 2 + lineSpacing;
+    const middleZoneStart = sectionHeight;
+    const middleZoneCenter = middleZoneStart + sectionHeight / 2;
+    const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
+    const secondLineY = firstLineY + fontHeight + lineSpacing;
 
-    // Oben: Vertragssymbol (wenn kein Vertrag)
+    // Zone Oben: Vertragssymbol (wenn kein Vertrag)
     if (client && !client.hasContract) {
       ctx.save();
       ctx.font = `${symbolSize}px Arial`;
       ctx.fillStyle = '#ef4444';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText('⊘', 4, sectionHeight / 2);
+      ctx.fillText('⊘', leftPadding, sectionHeight / 2);
       ctx.restore();
     }
 
-    // Mitte: Name mit Hintergrund
+    // Zone Mitte - Zeile 1: ID-Number
+    if (client) {
+      const idNumberText = client.idNumber.toString();
+      ctx.save();
+      ctx.font = this.gridFonts.headerFontStringZoom;
+      ctx.fillStyle = this.gridColors.headerForeGroundColor;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(idNumberText, leftPadding, firstLineY);
+      ctx.restore();
+    }
+
+    // Zone Mitte - Zeile 2: Name mit Hintergrund
     const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
-    const fontHeight = this.gridFonts.headerFontHeightZoom;
     const padding = 2;
     const idealBackgroundWidth = textWidth + padding * 2;
     const maxBackgroundWidth = width - 2;
     const backgroundWidth = Math.min(idealBackgroundWidth, maxBackgroundWidth);
     const backgroundHeight = fontHeight + padding * 2;
-    const backgroundY = sectionHeight + (sectionHeight - backgroundHeight) / 2;
+    const backgroundY = secondLineY - fontHeight / 2 - padding;
 
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
     ctx.fillRect(0, backgroundY, backgroundWidth, backgroundHeight);
     ctx.restore();
 
-    DrawHelper.drawText(
-      ctx,
-      text,
-      0,
-      sectionHeight,
-      width,
-      sectionHeight,
-      this.gridFonts.headerFontStringZoom,
-      this.gridFonts.headerFontHeightZoom,
-      this.gridColors.headerForeGroundColor,
-      TextAlignmentEnum.Left,
-      BaselineAlignmentEnum.Center
-    );
+    ctx.save();
+    ctx.font = this.gridFonts.headerFontStringZoom;
+    ctx.fillStyle = this.gridColors.headerForeGroundColor;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, leftPadding, secondLineY);
+    ctx.restore();
 
-    // Unten: Reserviert für zukünftige Angaben
-    // (aktuell leer)
+    // Zone Unten: (reserviert)
   }
 
   private drawGenderSymbols(
@@ -286,19 +298,22 @@ export class BaseCreateRowHeaderService {
     width: number,
     height: number
   ): void {
-    DrawHelper.drawText(
-      ctx,
-      text,
-      0,
-      0,
-      width,
-      height,
-      this.gridFonts.headerFontStringZoom,
-      this.gridFonts.headerFontHeightZoom,
-      this.gridColors.headerForeGroundColor,
-      TextAlignmentEnum.Right,
-      BaselineAlignmentEnum.Center
-    );
+    const sectionHeight = height / 3;
+    const fontHeight = this.gridFonts.headerFontHeightZoom;
+    const lineSpacing = 2;
+    const twoLinesHeight = fontHeight * 2 + lineSpacing;
+    const middleZoneStart = sectionHeight;
+    const middleZoneCenter = middleZoneStart + sectionHeight / 2;
+    const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
+    const secondLineY = firstLineY + fontHeight + lineSpacing;
+
+    ctx.save();
+    ctx.font = this.gridFonts.headerFontStringZoom;
+    ctx.fillStyle = this.gridColors.headerForeGroundColor;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, width, secondLineY);
+    ctx.restore();
   }
 
   private getName(value: ClientWork): string {
