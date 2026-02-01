@@ -25,7 +25,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
-import { GridTemplateEventsDirective, GridRightClickEvent } from '../directives/grid-template-events.directive';
+import { GridTemplateEventsDirective, GridRightClickEvent, GridDoubleClickEvent } from '../directives/grid-template-events.directive';
 import { CellInputEventsDirective, CellInputRightClickEvent } from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
@@ -69,6 +69,8 @@ export class GridSurfaceTemplateComponent
   @Output() visibleValueVScrollbar = new EventEmitter<number>();
   @Output() cellValueChange = new EventEmitter<CellValueChangeEvent>();
   @Output() rightClick = new EventEmitter<GridSurfaceRightClickEvent>();
+  @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  @Output() workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
@@ -435,6 +437,14 @@ export class GridSurfaceTemplateComponent
       clientY: event.clientY,
       source: 'canvas',
     });
+  }
+
+  onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
+    this.workChangeDoubleClick.emit(event);
+  }
+
+  onWorkDoubleClick(event: GridDoubleClickEvent): void {
+    this.workDoubleClick.emit(event);
   }
 
   onInputRightClick(event: CellInputRightClickEvent): void {

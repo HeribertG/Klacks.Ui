@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ScheduleDataService } from './schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -9,6 +11,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
@@ -33,7 +37,10 @@ describe('ScheduleDataService', () => {
                     } },
                 { provide: EmptyCellFormatterService, useValue: { format: vi.fn() } },
                 { provide: WorkCellFormatterService, useValue: { format: vi.fn() } },
-                { provide: BreakCellFormatterService, useValue: { format: vi.fn() } }
+                { provide: BreakCellFormatterService, useValue: { format: vi.fn() } },
+                { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
+                { provide: GridColorService, useValue: {} },
+                { provide: TranslateService, useValue: { currentLang: 'de' } }
             ]
         });
         service = TestBed.inject(ScheduleDataService);

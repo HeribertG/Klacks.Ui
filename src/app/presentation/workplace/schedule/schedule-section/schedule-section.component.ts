@@ -75,6 +75,7 @@ import { ScheduleEntryActionsService } from './services/schedule-entry-actions.s
 import { ScheduleDialogService } from './services/schedule-dialog.service';
 import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
+import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 
 @Component({
   selector: 'app-schedule-section',
@@ -425,5 +426,15 @@ export class ScheduleSectionComponent
       this.vScrollbar,
       () => this.scheduleSurface.drawSchedule.moveGrid()
     );
+  }
+
+  onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    this.dialogService.editWorkChange(event.row, event.column, dataService);
+  }
+
+  onWorkDoubleClick(event: GridDoubleClickEvent): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    this.dialogService.openWorkEditDialog(event.row, event.column, dataService);
   }
 }

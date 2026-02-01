@@ -133,6 +133,7 @@ export class WorkCrudService {
       workTime: number;
       startTime: string;
       endTime: string;
+      information?: string;
     }[];
     periodStart: string;
     periodEnd: string;
@@ -145,6 +146,7 @@ export class WorkCrudService {
         workTime: e.workTime,
         startTime: e.startTime,
         endTime: e.endTime,
+        information: e.information,
       })),
       periodStart: params.periodStart,
       periodEnd: params.periodEnd,

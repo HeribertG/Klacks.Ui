@@ -5,4 +5,5 @@ export interface BulkAddWorkItem {
   workTime: number;
   startTime: string;
   endTime: string;
+  information?: string;
 }

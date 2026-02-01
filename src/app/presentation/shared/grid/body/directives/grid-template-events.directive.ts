@@ -34,6 +34,11 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
+export interface GridDoubleClickEvent {
+  row: number;
+  column: number;
+}
+
 @Directive({
   selector: '[appGridTemplateEvents]',
   standalone: true,
@@ -54,6 +59,8 @@ export class GridTemplateEventsDirective {
   private absenceLookup = inject(AbsenceLookupService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
+  @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  @Output() workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;
@@ -93,7 +100,48 @@ export class GridTemplateEventsDirective {
       return;
     }
 
+    if (this.gridSurface.nameId === 'surface') {
+      if (this.handleWorkChangeDoubleClick(pos)) {
+        return;
+      }
+      if (this.handleWorkDoubleClick(pos)) {
+        return;
+      }
+    }
+
     this.cellManipulation.startEditing();
+  }
+
+  private handleWorkChangeDoubleClick(pos: MyPosition): boolean {
+    const scheduleDataService = this.gridData as ScheduleDataService;
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+
+    if (!entry || entry.entryType !== WorkScheduleEntryType.WorkChange) {
+      return false;
+    }
+
+    if (scheduleDataService.isColumnSealed(pos.column)) {
+      return false;
+    }
+
+    this.workChangeDoubleClick.emit({ row: pos.row, column: pos.column });
+    return true;
+  }
+
+  private handleWorkDoubleClick(pos: MyPosition): boolean {
+    const scheduleDataService = this.gridData as ScheduleDataService;
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+
+    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) {
+      return false;
+    }
+
+    if (scheduleDataService.isColumnSealed(pos.column)) {
+      return false;
+    }
+
+    this.workDoubleClick.emit({ row: pos.row, column: pos.column });
+    return true;
   }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
@@ -1128,6 +1176,8 @@ export class GridTemplateEventsDirective {
     scheduleDataService: ScheduleDataService,
     result: { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number }
   ): Promise<void> {
+    const sourceEntry = scheduleDataService.getWorkScheduleEntryForCell(result.row, result.startColumn);
+
     const entriesToAdd: {
       clientId: string;
       date: Date;
@@ -1135,6 +1185,7 @@ export class GridTemplateEventsDirective {
       workTime: number;
       startTime: string;
       endTime: string;
+      information?: string;
     }[] = [];
 
     for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
@@ -1179,8 +1230,9 @@ export class GridTemplateEventsDirective {
         date: date,
         shiftId: result.entryId,
         workTime: result.workTime,
-        startTime: shiftAvailable.startShift,
-        endTime: shiftAvailable.endShift,
+        startTime: sourceEntry?.startTime || shiftAvailable.startShift,
+        endTime: sourceEntry?.endTime || shiftAvailable.endShift,
+        information: sourceEntry?.information ?? undefined,
       });
     }
 

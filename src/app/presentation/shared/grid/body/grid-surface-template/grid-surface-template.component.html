@@ -7,6 +7,8 @@
     role="application"
     aria-label="grid canvas"
     (rightClick)="onCanvasRightClick($event)"
+    (workChangeDoubleClick)="onWorkChangeDoubleClick($event)"
+    (workDoubleClick)="onWorkDoubleClick($event)"
   ></canvas>
   <input
     #cellInput

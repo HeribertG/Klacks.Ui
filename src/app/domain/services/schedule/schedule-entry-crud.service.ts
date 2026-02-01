@@ -19,6 +19,7 @@ export interface ScheduleCellParams {
   workTime: number;
   startTime: string;
   endTime: string;
+  information?: string;
 }
 
 export interface BreakCellParams {
@@ -206,6 +207,7 @@ export class ScheduleEntryCrudService {
         workTime: e.workTime,
         startTime: e.startTime,
         endTime: e.endTime,
+        information: e.information,
       })),
       periodStart,
       periodEnd,
