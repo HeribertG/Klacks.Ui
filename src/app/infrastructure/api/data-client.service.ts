@@ -16,6 +16,15 @@ import { unformatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
+export interface IClientForReplacement {
+  id: string;
+  name?: string;
+  firstName?: string;
+  company?: string;
+  legalEntity: boolean;
+  idNumber: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -131,6 +140,12 @@ export class DataClientService {
         IAddress[]
       >(`${environment.baseUrl}Addresses/ClientAddressList/` + id)
       .pipe();
+  }
+
+  getClientsForReplacement() {
+    return this.httpClient
+      .get<IClientForReplacement[]>(`${environment.baseUrl}Clients/ForReplacement`)
+      .pipe(retry(3));
   }
 
   private setCorrectDateFilter(value: IFilter) {

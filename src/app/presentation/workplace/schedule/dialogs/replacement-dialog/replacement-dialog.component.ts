@@ -13,12 +13,13 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: CorrectionDialogComponent
  */
-import { Component, inject, Input, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
+import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/data-client.service';
 import {
   WorkChangeLogicService,
   CorrectionMode,
@@ -36,15 +37,6 @@ import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
 
-export interface IClientForReplacement {
-  id: string;
-  name?: string;
-  firstName?: string;
-  company?: string;
-  legalEntity: boolean;
-  idNumber: number;
-}
-
 @Component({
   selector: 'app-replacement-dialog',
   templateUrl: './replacement-dialog.component.html',
@@ -55,14 +47,16 @@ export interface IClientForReplacement {
 })
 export class ReplacementDialogComponent {
   @ViewChild('replacementModal') modalTemplate!: TemplateRef<unknown>;
-  @Input() clients: IClientForReplacement[] = [];
 
   private ngbModal = inject(NgbModal);
   private workChangeService = inject(DataWorkChangeService);
+  private clientService = inject(DataClientService);
   private logicService = inject(WorkChangeLogicService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   protected translate = inject(TranslateService);
+
+  clients: IClientForReplacement[] = [];
 
   workId = '';
   currentClientId = '';
@@ -115,9 +109,11 @@ export class ReplacementDialogComponent {
     this.currentDate = currentDate;
     this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
     this.reset();
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
-      centered: true,
-      backdrop: 'static',
+    this.loadClients(() => {
+      this.modalRef = this.ngbModal.open(this.modalTemplate, {
+        centered: true,
+        backdrop: 'static',
+      });
     });
   }
 
@@ -126,39 +122,55 @@ export class ReplacementDialogComponent {
     this.editId = workChangeId;
     this.currentDate = currentDate;
 
-    this.workChangeService.get(workChangeId).subscribe({
-      next: (data) => {
-        this.workId = data.workId;
-        this.currentClientId = data.work?.clientId || '';
-        this.description = data.description || '';
-        this.toInvoice = data.toInvoice;
-        this.replaceClientId = data.replaceClientId;
-        this.startTime = this.logicService.parseTimeString(data.startTime);
-        this.endTime = this.logicService.parseTimeString(data.endTime);
-        this.replacementMode = data.type === WorkChangeType.ReplacementStart
-          ? CorrectionMode.AtStart
-          : CorrectionMode.AtEnd;
+    this.loadClients(() => {
+      this.workChangeService.get(workChangeId).subscribe({
+        next: (data) => {
+          this.workId = data.workId;
+          this.currentClientId = data.work?.clientId || '';
+          this.description = data.description || '';
+          this.toInvoice = data.toInvoice;
+          this.replaceClientId = data.replaceClientId;
+          this.startTime = this.logicService.parseTimeString(data.startTime);
+          this.endTime = this.logicService.parseTimeString(data.endTime);
+          this.replacementMode = data.type === WorkChangeType.ReplacementStart
+            ? CorrectionMode.AtStart
+            : CorrectionMode.AtEnd;
 
-        const workStartTime = data.work?.startTime || data.startTime;
-        const workEndTime = data.work?.endTime || data.endTime;
-        this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
+          const workStartTime = data.work?.startTime || data.startTime;
+          const workEndTime = data.work?.endTime || data.endTime;
+          this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
 
-        if (this.replaceClientId) {
-          const client = this.availableClients.find(c => c.id === this.replaceClientId);
-          if (client) {
-            this.searchText = this.getClientDisplayName(client);
+          if (this.replaceClientId) {
+            const client = this.availableClients.find(c => c.id === this.replaceClientId);
+            if (client) {
+              this.searchText = this.getClientDisplayName(client);
+            }
           }
-        }
 
-        this.recalculate();
+          this.recalculate();
 
-        this.modalRef = this.ngbModal.open(this.modalTemplate, {
-          centered: true,
-          backdrop: 'static',
-        });
+          this.modalRef = this.ngbModal.open(this.modalTemplate, {
+            centered: true,
+            backdrop: 'static',
+          });
+        },
+        error: (err) => {
+          console.error('Error loading WorkChange:', err);
+        },
+      });
+    });
+  }
+
+  private loadClients(callback: () => void): void {
+    this.clientService.getClientsForReplacement().subscribe({
+      next: (clients) => {
+        this.clients = clients;
+        callback();
       },
       error: (err) => {
-        console.error('Error loading WorkChange:', err);
+        console.error('Error loading clients for replacement:', err);
+        this.clients = [];
+        callback();
       },
     });
   }
