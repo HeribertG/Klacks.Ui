@@ -244,14 +244,15 @@ export class BaseCreateRowHeaderService {
     const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
     const secondLineY = firstLineY + fontHeight + lineSpacing;
 
-    // Zone Oben: Vertragssymbol (wenn kein Vertrag)
+    // Zone Oben: Vertragssymbol (wenn kein Vertrag) - immer am oberen Rand
     if (client && !client.hasContract) {
+      const iconTopPadding = 2;
       ctx.save();
       ctx.font = `${symbolSize}px Arial`;
       ctx.fillStyle = '#ef4444';
       ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('⊘', leftPadding, sectionHeight / 2);
+      ctx.textBaseline = 'top';
+      ctx.fillText('⊘', leftPadding, iconTopPadding);
       ctx.restore();
     }
 
