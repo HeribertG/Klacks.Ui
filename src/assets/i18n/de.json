@@ -1081,6 +1081,8 @@
   "llm-chat.speech-not-available": "Spracherkennung nicht verfügbar - Aktivieren Sie Windows Spracherkennung",
   "llm-chat.stop-recording": "Aufnahme stoppen",
   "llm-chat.start-speech": "Spracherkennung starten",
+  "llm-chat.voice-mode-on": "Sprachmodus aktivieren",
+  "llm-chat.voice-mode-off": "Sprachmodus deaktivieren",
   "llm-chat.placeholder": "Schreiben Sie hier oder nutzen Sie das Mikrofon...",
   "llm-chat.send-message": "Nachricht senden",
   "llm-chat.error.generic": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
@@ -1098,6 +1100,7 @@
   "llm-chat.no-api-key.message": "Es ist kein API-Key für LLM-Provider konfiguriert. Bitte wenden Sie sich an den Administrator, um einen API-Key zu installieren.",
   "llm-chat.no-api-key.admin-link": "Zu den Einstellungen",
   "llm-chat.whisper-loading": "Sprachmodell wird geladen...",
+  "llm-chat.transcribing": "Transkription läuft...",
 
   "shift.container-template.header": "Schichtvorlage",
   "shift.container-template.from": "Von",

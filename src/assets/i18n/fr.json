@@ -1077,6 +1077,8 @@
   "llm-chat.speech-not-available": "Reconnaissance vocale non disponible - Activez la reconnaissance vocale Windows",
   "llm-chat.stop-recording": "Arrêter l'enregistrement",
   "llm-chat.start-speech": "Démarrer la reconnaissance vocale",
+  "llm-chat.voice-mode-on": "Activer le mode vocal",
+  "llm-chat.voice-mode-off": "Désactiver le mode vocal",
   "llm-chat.placeholder": "Écrivez ici ou utilisez le microphone...",
   "llm-chat.send-message": "Envoyer le message",
   "llm-chat.error.generic": "Désolé, une erreur s'est produite. Veuillez réessayer.",
@@ -1094,6 +1096,7 @@
   "llm-chat.no-api-key.message": "Aucune clé API pour les fournisseurs LLM n'est configurée. Veuillez contacter l'administrateur pour installer une clé API.",
   "llm-chat.no-api-key.admin-link": "Aller aux paramètres",
   "llm-chat.whisper-loading": "Chargement du modèle vocal...",
+  "llm-chat.transcribing": "Transcription en cours...",
 
   "shift.container-template.header": "Modèle de service",
   "shift.container-template.from": "De",

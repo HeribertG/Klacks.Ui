@@ -5,8 +5,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
-import { ISpeechTranscription } from 'src/app/domain/services/speech/speech-transcription.interface';
-import { WhisperTranscriptionService } from 'src/app/infrastructure/services/speech/whisper-transcription.service';
+import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 
 declare global {
   interface Window {
@@ -41,16 +40,22 @@ export class SpeechRecognitionService {
   public isListening = signal<boolean>(false);
   public isSupported$ = signal<boolean>(false);
   private results$ = new Subject<string>();
+  private interimResults$ = new Subject<string>();
   private errors$ = new Subject<string>();
   private languageMappingService = inject(LanguageMappingService);
-  private transcriptionService: ISpeechTranscription = inject(WhisperTranscriptionService);
+  private whisperStreamingService = inject(WhisperStreamingService);
   private diagnostics: SpeechDiagnostics;
   private useWhisperFallback = false;
   private whisperSubscription: Subscription | null = null;
+  private whisperInterimSubscription: Subscription | null = null;
 
-  public isWhisperLoading = this.transcriptionService.isLoading;
-  public whisperLoadProgress = this.transcriptionService.loadProgress;
-  public isWhisperModelLoaded = this.transcriptionService.isModelLoaded;
+  private accumulatedTranscript = '';
+  private shouldContinue = false;
+
+  public isWhisperLoading = this.whisperStreamingService.isLoading;
+  public whisperLoadProgress = this.whisperStreamingService.loadProgress;
+  public isWhisperModelLoaded = this.whisperStreamingService.isModelLoaded;
+  public isTranscribing = this.whisperStreamingService.isTranscribing;
 
   constructor() {
     this.diagnostics = this.collectDiagnostics();
@@ -185,7 +190,7 @@ export class SpeechRecognitionService {
     try {
       this.recognition = new SpeechRecognition();
 
-      this.recognition.continuous = false;
+      this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
 
@@ -206,12 +211,21 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onend = () => {
-      this.isListening.set(false);
+      if (this.shouldContinue && this.isListening()) {
+        try {
+          this.recognition.start();
+        } catch (e) {
+          this.isListening.set(false);
+          this.shouldContinue = false;
+        }
+      } else {
+        this.isListening.set(false);
+      }
     };
 
     this.recognition.onresult = (event: any) => {
-      let finalTranscript = '';
       let interimTranscript = '';
+      let finalTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
@@ -224,12 +238,31 @@ export class SpeechRecognitionService {
       }
 
       if (finalTranscript) {
-        this.results$.next(finalTranscript.trim());
+        if (this.accumulatedTranscript) {
+          this.accumulatedTranscript += ' ' + finalTranscript.trim();
+        } else {
+          this.accumulatedTranscript = finalTranscript.trim();
+        }
+        this.interimResults$.next(this.accumulatedTranscript);
+      } else if (interimTranscript) {
+        const displayText = this.accumulatedTranscript
+          ? this.accumulatedTranscript + ' ' + interimTranscript
+          : interimTranscript;
+        this.interimResults$.next(displayText);
       }
     };
 
     this.recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech' && this.shouldContinue) {
+        return;
+      }
+
+      if (event.error === 'aborted') {
+        return;
+      }
+
       this.isListening.set(false);
+      this.shouldContinue = false;
 
       let errorMessage = 'Speech recognition error occurred';
       switch (event.error) {
@@ -252,9 +285,6 @@ export class SpeechRecognitionService {
           errorMessage = this.diagnostics.isArmProcessor
             ? 'Speech recognition service not available. Windows on ARM may not support all speech recognition features. Please check Windows speech settings.'
             : 'Speech recognition service not available.';
-          break;
-        case 'aborted':
-          errorMessage = 'Speech recognition was aborted.';
           break;
         default:
           if (this.diagnostics.isArmProcessor) {
@@ -286,10 +316,14 @@ export class SpeechRecognitionService {
       return this.results$.asObservable();
     }
 
+    this.accumulatedTranscript = '';
+
     if (this.useWhisperFallback) {
-      this.startWhisperListening(language || 'de');
+      this.startWhisperStreaming(language || 'de');
       return this.results$.asObservable();
     }
+
+    this.shouldContinue = true;
 
     if (language) {
       this.tryStartWithLanguage(language);
@@ -300,22 +334,26 @@ export class SpeechRecognitionService {
     return this.results$.asObservable();
   }
 
-  private async startWhisperListening(language: string): Promise<void> {
+  private async startWhisperStreaming(language: string): Promise<void> {
     this.isListening.set(true);
 
     this.whisperSubscription?.unsubscribe();
+    this.whisperInterimSubscription?.unsubscribe();
 
-    this.whisperSubscription = this.transcriptionService.results.subscribe((text: string) => {
-      this.results$.next(text);
-      this.isListening.set(false);
+    this.whisperInterimSubscription = this.whisperStreamingService.interimResults.subscribe((text: string) => {
+      this.interimResults$.next(text);
     });
 
-    this.transcriptionService.errors.subscribe((error: string) => {
+    this.whisperSubscription = this.whisperStreamingService.results.subscribe((text: string) => {
+      this.results$.next(text);
+    });
+
+    this.whisperStreamingService.errors.subscribe((error: string) => {
       this.errors$.next(error);
       this.isListening.set(false);
     });
 
-    await this.transcriptionService.startRecording(language);
+    await this.whisperStreamingService.startStreaming(language);
   }
 
   private tryStartWithLanguage(primaryLanguage: string): void {
@@ -387,20 +425,32 @@ export class SpeechRecognitionService {
   }
 
   stopListening(): void {
+    this.shouldContinue = false;
+
     if (this.useWhisperFallback) {
-      this.transcriptionService.stopRecording();
-      this.isListening.set(false);
+      this.whisperStreamingService.stopStreaming().then((finalText) => {
+        if (finalText) {
+          this.results$.next(finalText);
+        }
+        this.isListening.set(false);
+      });
       return;
     }
 
     if (this.recognition && this.isListening()) {
       this.recognition.stop();
+      if (this.accumulatedTranscript) {
+        this.results$.next(this.accumulatedTranscript);
+      }
     }
   }
 
   abortListening(): void {
+    this.shouldContinue = false;
+    this.accumulatedTranscript = '';
+
     if (this.useWhisperFallback) {
-      this.transcriptionService.stopRecording();
+      this.whisperStreamingService.stopStreaming();
       this.isListening.set(false);
       return;
     }
@@ -437,6 +487,10 @@ export class SpeechRecognitionService {
 
   get errors(): Observable<string> {
     return this.errors$.asObservable();
+  }
+
+  get interimResults(): Observable<string> {
+    return this.interimResults$.asObservable();
   }
 
   async requestPermissions(): Promise<boolean> {

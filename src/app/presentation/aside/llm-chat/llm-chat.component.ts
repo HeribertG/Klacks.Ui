@@ -11,6 +11,8 @@ import {
   AfterViewChecked,
   signal,
   computed,
+  ChangeDetectorRef,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -71,6 +73,8 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
@@ -85,8 +89,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   messages: ChatMessage[] = [];
   inputText = '';
   isListening = false;
+  isTranscribing = false;
   isProcessing = false;
   conversationId = '';
+
+  voiceModeEnabled = false;
+  private silenceTimer: any = null;
+  private readonly SILENCE_AUTO_SEND_DELAY_MS = 3000;
 
   availableModels: ILLMModel[] = [];
   currentModel = '';
@@ -138,6 +147,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy(): void {
+    this.disableVoiceMode();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -221,29 +231,29 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  async startVoiceInput(): Promise<void> {
+  async toggleVoiceMode(): Promise<void> {
+    if (this.voiceModeEnabled) {
+      this.disableVoiceMode();
+    } else {
+      await this.enableVoiceMode();
+    }
+  }
+
+  private async enableVoiceMode(): Promise<void> {
     const diagnostics = this.speechService.getDiagnostics();
 
     if (!this.speechService.isSupported$()) {
       const errorMsg = diagnostics.isArmProcessor
-        ? 'Speech recognition may not be fully supported on Windows ARM devices. Please check Windows Speech settings.'
+        ? 'Speech recognition may not be fully supported on Windows ARM devices.'
         : 'Speech recognition is not supported in this browser.';
-      console.warn('Speech not supported:', errorMsg, diagnostics);
-      alert(errorMsg + '\n\nDiagnostics:\n' + JSON.stringify(diagnostics, null, 2));
-      return;
-    }
-
-    if (this.isListening) {
+      alert(errorMsg);
       return;
     }
 
     try {
       const hasPermission = await this.speechService.requestPermissions();
-
       if (!hasPermission) {
-        alert(
-          this.translateService.instant('llm-chat.error.microphone-permission')
-        );
+        alert(this.translateService.instant('llm-chat.error.microphone-permission'));
         return;
       }
     } catch {
@@ -251,45 +261,124 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return;
     }
 
-    const currentLang =
-      this.translateService.currentLang || this.translateService.defaultLang;
+    this.voiceModeEnabled = true;
+    this.startVoiceListening();
+  }
+
+  private disableVoiceMode(): void {
+    this.voiceModeEnabled = false;
+    this.clearSilenceTimer();
+    if (this.isListening) {
+      this.speechService.stopListening();
+      this.isListening = false;
+    }
+  }
+
+  private startVoiceListening(): void {
+    if (!this.voiceModeEnabled || this.isListening || this.isProcessing) {
+      return;
+    }
+
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
     const speechLang = this.getSpeechLanguageCode(currentLang);
 
+    this.inputText = '';
     this.isListening = true;
+
+    this.speechService.interimResults
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((text: string) => {
+        this.ngZone.run(() => {
+          this.inputText = text;
+          this.resetSilenceTimer();
+          this.cdr.detectChanges();
+        });
+      });
+
+    this.startSilenceTimer();
+
     this.speechService
       .startListening(speechLang)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (text: string) => {
-          this.inputText = text;
-          this.isListening = false;
+          this.ngZone.run(() => {
+            this.inputText = text;
+            this.isListening = false;
+            this.isTranscribing = false;
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.isListening = false;
+          this.ngZone.run(() => {
+            this.isListening = false;
+            this.isTranscribing = false;
+            this.cdr.detectChanges();
+          });
         },
       });
 
     this.speechService.errors
       .pipe(takeUntil(this.destroy$))
       .subscribe((error) => {
-        alert(
-          this.translateService.instant('llm-chat.error.speech-error') +
-            error +
-            '\n\n' +
-            this.translateService.instant('llm-chat.error.browser-language') +
-            (navigator.language || 'unknown') +
-            '\n' +
-            this.translateService.instant(
-              'llm-chat.error.available-languages'
-            ) +
-            (navigator.languages ? navigator.languages.join(', ') : 'unknown')
-        );
+        this.ngZone.run(() => {
+          this.isTranscribing = false;
+          if (this.voiceModeEnabled) {
+            setTimeout(() => this.startVoiceListening(), 1000);
+          }
+          this.cdr.detectChanges();
+        });
       });
   }
 
-  stopVoiceInput(): void {
+  private async handleSilenceTimeout(): Promise<void> {
+    if (!this.isListening || !this.inputText.trim()) {
+      if (this.voiceModeEnabled) {
+        this.startSilenceTimer();
+      }
+      return;
+    }
+
+    this.clearSilenceTimer();
+
+    if (this.isUsingWhisper()) {
+      this.isTranscribing = true;
+    }
+
     this.speechService.stopListening();
     this.isListening = false;
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (this.inputText.trim() && !this.isProcessing) {
+      await this.sendMessage();
+    }
+
+    if (this.voiceModeEnabled && !this.isProcessing) {
+      setTimeout(() => this.startVoiceListening(), 500);
+    }
+  }
+
+  private startSilenceTimer(): void {
+    this.clearSilenceTimer();
+    this.silenceTimer = setTimeout(() => {
+      this.ngZone.run(() => {
+        this.handleSilenceTimeout();
+      });
+    }, this.SILENCE_AUTO_SEND_DELAY_MS);
+  }
+
+  private resetSilenceTimer(): void {
+    if (this.isListening) {
+      this.startSilenceTimer();
+    }
+  }
+
+  private clearSilenceTimer(): void {
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = null;
+    }
   }
 
   onSuggestionClick(suggestion: string): void {
@@ -457,5 +546,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const currentProvider = providers.find(p => p.providerId === currentModelInfo.providerId);
 
     return !currentProvider || !currentProvider.apiKey || currentProvider.apiKey.trim() === '';
+  }
+
+  isUsingWhisper(): boolean {
+    return this.speechService.getDiagnostics().useWhisperFallback;
   }
 }

@@ -1079,6 +1079,8 @@
   "llm-chat.speech-not-available": "Speech recognition not available - Enable Windows Speech Recognition",
   "llm-chat.stop-recording": "Stop recording",
   "llm-chat.start-speech": "Start speech recognition",
+  "llm-chat.voice-mode-on": "Enable voice mode",
+  "llm-chat.voice-mode-off": "Disable voice mode",
   "llm-chat.placeholder": "Write here or use the microphone...",
   "llm-chat.send-message": "Send message",
   "llm-chat.error.generic": "Sorry, an error occurred. Please try again.",
@@ -1096,6 +1098,7 @@
   "llm-chat.no-api-key.message": "No API key for LLM providers is configured. Please contact the administrator to install an API key.",
   "llm-chat.no-api-key.admin-link": "Go to Settings",
   "llm-chat.whisper-loading": "Loading speech model...",
+  "llm-chat.transcribing": "Transcribing...",
 
   "shift.container-template.header": "Shift Template",
   "shift.container-template.from": "From",

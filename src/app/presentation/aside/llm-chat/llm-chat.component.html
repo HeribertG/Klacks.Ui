@@ -155,8 +155,8 @@
       {{ "llm-chat.whisper-loading" | translate }} {{ speechService.whisperLoadProgress() }}%
     </div>
     }
-    <!-- Voice input indicator -->
-    @if (isListening && !speechService.isWhisperLoading()) {
+    <!-- Voice input indicator - only for Web Speech API, not for Whisper -->
+    @if (isListening && !speechService.isWhisperLoading() && !isUsingWhisper()) {
     <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
     } @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">
@@ -165,25 +165,35 @@
     }
 
     <div class="input-wrapper">
-      <!-- Voice button - always visible for diagnostics -->
+      <!-- Voice toggle button -->
       <button
         type="button"
         class="btn-voice"
+        [class.voice-enabled]="voiceModeEnabled"
         [class.listening]="isListening"
+        [class.transcribing]="isTranscribing || speechService.isTranscribing()"
         [class.not-supported]="!speechService.isSupported$()"
-        [disabled]="isProcessing || hasNoApiKey()"
-        (click)="isListening ? stopVoiceInput() : startVoiceInput()"
+        [disabled]="isProcessing || isTranscribing || speechService.isTranscribing() || hasNoApiKey()"
+        (click)="toggleVoiceMode()"
         title="{{
           !speechService.isSupported$()
             ? ('llm-chat.speech-not-available' | translate)
-            : isListening
-            ? ('llm-chat.stop-recording' | translate)
-            : ('llm-chat.start-speech' | translate)
+            : voiceModeEnabled
+            ? ('llm-chat.voice-mode-off' | translate)
+            : ('llm-chat.voice-mode-on' | translate)
         }}"
       >
-        <fa-icon
-          [icon]="isListening ? faMicrophone : faMicrophoneSlash"
-        ></fa-icon>
+        @if (isTranscribing || speechService.isTranscribing()) {
+          <span class="transcribing-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        } @else {
+          <fa-icon
+            [icon]="voiceModeEnabled ? faMicrophone : faMicrophoneSlash"
+          ></fa-icon>
+        }
       </button>
 
       <!-- Text input -->
@@ -191,7 +201,7 @@
         class="input-field"
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
-        [disabled]="isProcessing || isListening || hasNoApiKey()"
+        [disabled]="isProcessing || hasNoApiKey()"
         placeholder="{{ 'llm-chat.placeholder' | translate }}"
         rows="1"
         #textInput
@@ -202,9 +212,7 @@
       <button
         type="button"
         class="btn-send"
-        [disabled]="
-          !inputText.trim() || isProcessing || isListening || hasNoApiKey()
-        "
+        [disabled]="!inputText.trim() || isProcessing || hasNoApiKey()"
         (click)="sendMessage()"
         [attr.aria-label]="'llm-chat.send-message' | translate"
       >
