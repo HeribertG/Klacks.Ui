@@ -475,6 +475,35 @@
   min-height: 80px;
 }
 
+.whisper-loading-indicator {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  .loading-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #c8e6c9;
+    border-top-color: #2e7d32;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .voice-indicator {
   background: #d1ecf1;
   color: #0c5460;

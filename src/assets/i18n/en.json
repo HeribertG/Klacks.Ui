@@ -1082,6 +1082,7 @@
   "llm-chat.no-api-key.title": "No API key configured",
   "llm-chat.no-api-key.message": "No API key for LLM providers is configured. Please contact the administrator to install an API key.",
   "llm-chat.no-api-key.admin-link": "Go to Settings",
+  "llm-chat.whisper-loading": "Loading speech model...",
 
   "shift.container-template.header": "Shift Template",
   "shift.container-template.from": "From",

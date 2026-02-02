@@ -1084,6 +1084,7 @@
   "llm-chat.no-api-key.title": "Kein API-Key konfiguriert",
   "llm-chat.no-api-key.message": "Es ist kein API-Key für LLM-Provider konfiguriert. Bitte wenden Sie sich an den Administrator, um einen API-Key zu installieren.",
   "llm-chat.no-api-key.admin-link": "Zu den Einstellungen",
+  "llm-chat.whisper-loading": "Sprachmodell wird geladen...",
 
   "shift.container-template.header": "Schichtvorlage",
   "shift.container-template.from": "Von",

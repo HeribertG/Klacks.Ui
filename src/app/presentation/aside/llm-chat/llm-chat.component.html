@@ -148,8 +148,15 @@
 
   <!-- Input Area -->
   <div class="input-container" [class.disabled]="hasNoApiKey()">
+    <!-- Whisper loading indicator -->
+    @if (speechService.isWhisperLoading()) {
+    <div class="whisper-loading-indicator">
+      <span class="loading-spinner"></span>
+      {{ "llm-chat.whisper-loading" | translate }} {{ speechService.whisperLoadProgress() }}%
+    </div>
+    }
     <!-- Voice input indicator -->
-    @if (isListening) {
+    @if (isListening && !speechService.isWhisperLoading()) {
     <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
     } @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">

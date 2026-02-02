@@ -1080,6 +1080,7 @@
   "llm-chat.no-api-key.title": "Nessuna chiave API configurata",
   "llm-chat.no-api-key.message": "Nessuna chiave API per i fornitori LLM è configurata. Si prega di contattare l'amministratore per installare una chiave API.",
   "llm-chat.no-api-key.admin-link": "Vai alle impostazioni",
+  "llm-chat.whisper-loading": "Caricamento del modello vocale...",
 
   "shift.container-template.header": "Modello di turno",
   "shift.container-template.from": "Da",

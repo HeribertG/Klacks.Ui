@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { WhisperService } from './whisper.service';
 
 declare global {
   interface Window {
@@ -28,6 +29,7 @@ export interface SpeechDiagnostics {
   webkitSpeechRecognitionAvailable: boolean;
   mediaDevicesAvailable: boolean;
   errorMessage?: string;
+  useWhisperFallback: boolean;
 }
 
 @Injectable({
@@ -40,12 +42,23 @@ export class SpeechRecognitionService {
   private results$ = new Subject<string>();
   private errors$ = new Subject<string>();
   private languageMappingService = inject(LanguageMappingService);
+  private whisperService = inject(WhisperService);
   private diagnostics: SpeechDiagnostics;
+  private useWhisperFallback = false;
+  private whisperSubscription: Subscription | null = null;
+
+  public isWhisperLoading = this.whisperService.isLoading;
+  public whisperLoadProgress = this.whisperService.loadProgress;
+  public isWhisperModelLoaded = this.whisperService.isModelLoaded;
 
   constructor() {
     this.diagnostics = this.collectDiagnostics();
     this.initializeSpeechRecognition();
-    if (this.isSupported$()) {
+
+    if (this.useWhisperFallback) {
+      this.isSupported$.set(true);
+      this.diagnostics.useWhisperFallback = true;
+    } else if (this.isSupported$()) {
       this.detectAvailableLanguages();
     }
   }
@@ -70,6 +83,7 @@ export class SpeechRecognitionService {
       speechRecognitionAvailable: !!window.SpeechRecognition,
       webkitSpeechRecognitionAvailable: !!window.webkitSpeechRecognition,
       mediaDevicesAvailable: !!navigator.mediaDevices?.getUserMedia,
+      useWhisperFallback: false,
     };
   }
 
@@ -80,7 +94,6 @@ export class SpeechRecognitionService {
   private availableLanguages: string[] = [];
 
   private async detectAvailableLanguages(): Promise<void> {
-    // Check if SpeechRecognition is actually available
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
@@ -89,7 +102,6 @@ export class SpeechRecognitionService {
       return;
     }
 
-    // Test which languages actually work on this system
     const testLanguages = this.languageMappingService.getAllSpeechLocales();
     const workingLanguages: string[] = [];
 
@@ -100,7 +112,6 @@ export class SpeechRecognitionService {
         testRecognition.continuous = false;
         testRecognition.interimResults = false;
 
-        // Try to start and immediately abort to test language support
         const isSupported = await new Promise<boolean>((resolve) => {
           testRecognition.onstart = () => {
             testRecognition.abort();
@@ -111,11 +122,11 @@ export class SpeechRecognitionService {
             if (event.error === 'language-not-supported') {
               resolve(false);
             } else {
-              resolve(true); // Other errors mean the language is supported but something else went wrong
+              resolve(true);
             }
           };
 
-          setTimeout(() => resolve(false), 2000); // Timeout after 2 seconds
+          setTimeout(() => resolve(false), 2000);
 
           try {
             testRecognition.start();
@@ -140,10 +151,26 @@ export class SpeechRecognitionService {
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const isEdge = /Edg/.test(navigator.userAgent);
+    const isFirefox = /Firefox/.test(navigator.userAgent);
 
-    if (!SpeechRecognition) {
-      this.isSupported$.set(false);
-      this.diagnostics.errorMessage = 'SpeechRecognition API not available in this browser';
+    if (isEdge || isFirefox || !SpeechRecognition) {
+      this.useWhisperFallback = true;
+      this.diagnostics.useWhisperFallback = true;
+
+      if (!window.isSecureContext) {
+        this.isSupported$.set(false);
+        this.diagnostics.errorMessage = 'Speech recognition requires HTTPS or localhost';
+        this.errors$.next('Speech recognition requires HTTPS or localhost');
+        return;
+      }
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        this.isSupported$.set(false);
+        this.diagnostics.errorMessage = 'Microphone access not available';
+        return;
+      }
+
+      this.isSupported$.set(true);
       return;
     }
 
@@ -161,19 +188,18 @@ export class SpeechRecognitionService {
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
 
-      if (isEdge || this.diagnostics.isArmProcessor) {
+      if (this.diagnostics.isArmProcessor) {
         this.recognition.lang = navigator.language || 'de-DE';
       }
 
       this.isSupported$.set(true);
     } catch (error: any) {
-      this.isSupported$.set(false);
-      this.diagnostics.errorMessage = `Failed to create SpeechRecognition: ${error?.message || 'Unknown error'}`;
-      console.error('SpeechRecognition initialization failed:', error);
+      this.useWhisperFallback = true;
+      this.diagnostics.useWhisperFallback = true;
+      this.isSupported$.set(true);
       return;
     }
 
-    // Event handlers
     this.recognition.onstart = () => {
       this.isListening.set(true);
     };
@@ -196,7 +222,6 @@ export class SpeechRecognitionService {
         }
       }
 
-      // Emit final result
       if (finalTranscript) {
         this.results$.next(finalTranscript.trim());
       }
@@ -250,9 +275,6 @@ export class SpeechRecognitionService {
     };
   }
 
-  /**
-   * Start listening for speech input
-   */
   startListening(language?: string): Observable<string> {
     if (!this.isSupported$()) {
       this.errors$.next('Speech recognition is not supported in this browser');
@@ -263,48 +285,40 @@ export class SpeechRecognitionService {
       return this.results$.asObservable();
     }
 
-    // Simple direct start for Edge - no complex language detection
-    const isEdge = /Edg/.test(navigator.userAgent);
-    if (isEdge) {
-      this.startDirectly(language || navigator.language || 'de');
+    if (this.useWhisperFallback) {
+      this.startWhisperListening(language || 'de');
+      return this.results$.asObservable();
+    }
+
+    if (language) {
+      this.tryStartWithLanguage(language);
     } else {
-      // Try multiple languages if one fails (for other browsers)
-      if (language) {
-        this.tryStartWithLanguage(language);
-      } else {
-        this.tryStartWithLanguage('de-DE'); // Default
-      }
+      this.tryStartWithLanguage('de-DE');
     }
 
     return this.results$.asObservable();
   }
 
-  private startDirectly(language: string): void {
-    if (this.recognition) {
-      try {
-        delete (this.recognition as any).lang;
-        this.recognition.start();
-      } catch {
-        this.recognition.lang = navigator.language;
+  private async startWhisperListening(language: string): Promise<void> {
+    this.isListening.set(true);
 
-        try {
-          this.recognition.start();
-        } catch {
-          this.errors$.next(
-            `Speech recognition could not be started. Browser: ${navigator.userAgent.substring(
-              0,
-              50
-            )}...`
-          );
-        }
-      }
-    }
+    this.whisperSubscription?.unsubscribe();
+
+    this.whisperSubscription = this.whisperService.results.subscribe((text) => {
+      this.results$.next(text);
+      this.isListening.set(false);
+    });
+
+    this.whisperService.errors.subscribe((error) => {
+      this.errors$.next(error);
+      this.isListening.set(false);
+    });
+
+    await this.whisperService.startRecording(language);
   }
 
   private tryStartWithLanguage(primaryLanguage: string): void {
-    // Use only languages that we've successfully tested
     if (this.availableLanguages.length === 0) {
-      // Fallback to old method if detection not done yet
       const languagesToTry = [
         primaryLanguage,
         'de-CH',
@@ -319,7 +333,6 @@ export class SpeechRecognitionService {
       return;
     }
 
-    // Prioritize the requested language if it's available
     let languagesToTry = [...this.availableLanguages];
     if (this.availableLanguages.includes(primaryLanguage)) {
       languagesToTry = [
@@ -343,18 +356,14 @@ export class SpeechRecognitionService {
 
     if (this.recognition) {
       this.recognition.lang = currentLang;
-
-      // Create a temporary error handler
       const originalErrorHandler = this.recognition.onerror;
 
       this.recognition.onerror = (event: any) => {
         if (event.error === 'language-not-supported') {
-          // Try next language
           setTimeout(() => {
             this.tryLanguages(languages, index + 1);
           }, 100);
         } else {
-          // Other error, use original handler
           if (originalErrorHandler) {
             originalErrorHandler(event);
           }
@@ -363,15 +372,12 @@ export class SpeechRecognitionService {
 
       try {
         this.recognition.start();
-
-        // If start succeeds, restore original error handler after a delay
         setTimeout(() => {
           if (this.recognition) {
             this.recognition.onerror = originalErrorHandler;
           }
         }, 1000);
       } catch {
-        // Try next language
         setTimeout(() => {
           this.tryLanguages(languages, index + 1);
         }, 100);
@@ -379,27 +385,30 @@ export class SpeechRecognitionService {
     }
   }
 
-  /**
-   * Stop listening for speech input
-   */
   stopListening(): void {
+    if (this.useWhisperFallback) {
+      this.whisperService.stopRecording();
+      this.isListening.set(false);
+      return;
+    }
+
     if (this.recognition && this.isListening()) {
       this.recognition.stop();
     }
   }
 
-  /**
-   * Abort current speech recognition session
-   */
   abortListening(): void {
+    if (this.useWhisperFallback) {
+      this.whisperService.stopRecording();
+      this.isListening.set(false);
+      return;
+    }
+
     if (this.recognition && this.isListening()) {
       this.recognition.abort();
     }
   }
 
-  /**
-   * Set the language for speech recognition
-   */
   setLanguage(language: string): void {
     if (this.recognition) {
       this.recognition.lang = language;
