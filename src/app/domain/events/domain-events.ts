@@ -4,6 +4,8 @@ export enum DomainEventType {
   WARNING = 'domain:warning',
   INFO = 'domain:info',
   NAVIGATE = 'domain:navigate',
+  SKILL_EXECUTED = 'domain:skill-executed',
+  SKILL_UI_ACTION = 'domain:skill-ui-action',
 }
 
 export interface ErrorEvent {
