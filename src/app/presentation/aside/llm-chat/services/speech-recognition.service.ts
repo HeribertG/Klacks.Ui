@@ -5,7 +5,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
-import { WhisperService } from './whisper.service';
+import { ISpeechTranscription } from 'src/app/domain/services/speech/speech-transcription.interface';
+import { WhisperTranscriptionService } from 'src/app/infrastructure/services/speech/whisper-transcription.service';
 
 declare global {
   interface Window {
@@ -42,14 +43,14 @@ export class SpeechRecognitionService {
   private results$ = new Subject<string>();
   private errors$ = new Subject<string>();
   private languageMappingService = inject(LanguageMappingService);
-  private whisperService = inject(WhisperService);
+  private transcriptionService: ISpeechTranscription = inject(WhisperTranscriptionService);
   private diagnostics: SpeechDiagnostics;
   private useWhisperFallback = false;
   private whisperSubscription: Subscription | null = null;
 
-  public isWhisperLoading = this.whisperService.isLoading;
-  public whisperLoadProgress = this.whisperService.loadProgress;
-  public isWhisperModelLoaded = this.whisperService.isModelLoaded;
+  public isWhisperLoading = this.transcriptionService.isLoading;
+  public whisperLoadProgress = this.transcriptionService.loadProgress;
+  public isWhisperModelLoaded = this.transcriptionService.isModelLoaded;
 
   constructor() {
     this.diagnostics = this.collectDiagnostics();
@@ -304,17 +305,17 @@ export class SpeechRecognitionService {
 
     this.whisperSubscription?.unsubscribe();
 
-    this.whisperSubscription = this.whisperService.results.subscribe((text) => {
+    this.whisperSubscription = this.transcriptionService.results.subscribe((text: string) => {
       this.results$.next(text);
       this.isListening.set(false);
     });
 
-    this.whisperService.errors.subscribe((error) => {
+    this.transcriptionService.errors.subscribe((error: string) => {
       this.errors$.next(error);
       this.isListening.set(false);
     });
 
-    await this.whisperService.startRecording(language);
+    await this.transcriptionService.startRecording(language);
   }
 
   private tryStartWithLanguage(primaryLanguage: string): void {
@@ -387,7 +388,7 @@ export class SpeechRecognitionService {
 
   stopListening(): void {
     if (this.useWhisperFallback) {
-      this.whisperService.stopRecording();
+      this.transcriptionService.stopRecording();
       this.isListening.set(false);
       return;
     }
@@ -399,7 +400,7 @@ export class SpeechRecognitionService {
 
   abortListening(): void {
     if (this.useWhisperFallback) {
-      this.whisperService.stopRecording();
+      this.transcriptionService.stopRecording();
       this.isListening.set(false);
       return;
     }
