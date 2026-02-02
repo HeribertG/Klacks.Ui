@@ -282,6 +282,9 @@ export class ResponseInterceptor implements HttpInterceptor {
     let errorMessage = '';
 
     switch (error.status) {
+      case 0:
+        errorMessage = `Error during ${operation}: Connection problem, CORS or server not reachable`;
+        break;
       case 400:
         errorMessage = `Error during ${operation}: Invalid data`;
         break;
@@ -438,8 +441,8 @@ export class ResponseInterceptor implements HttpInterceptor {
         break;
       case 0: // Network Error
         this.toastShowService.showError(
-          'Unknown Error ',
-          'Unknown Error',
+          MessageLibrary.CONNECTION_ERROR,
+          'CONNECTION_ERROR',
           error.message
         );
         this.navigationService.navigateToError();
@@ -452,8 +455,8 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
     if (error.statusText === 'Unknown Error') {
       this.toastShowService.showError(
-        'Unknown Error ',
-        'Unknown Error',
+        MessageLibrary.CONNECTION_ERROR,
+        'CONNECTION_ERROR',
         error.message
       );
       this.navigationService.navigateToError();

@@ -10,7 +10,6 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
   private pipeline: any = null;
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
-  private audioContext: AudioContext | null = null;
 
   public readonly isLoading = signal<boolean>(false);
   public readonly isRecording = signal<boolean>(false);
@@ -19,6 +18,7 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
 
   private results$ = new Subject<string>();
   private errors$ = new Subject<string>();
+  private currentLanguage = 'de';
 
   get results(): Observable<string> {
     return this.results$.asObservable();
@@ -65,12 +65,15 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
     } catch (error: unknown) {
       this.isLoading.set(false);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Whisper model load error:', error);
       this.errors$.next(`Failed to load Whisper model: ${errorMessage}`);
       return false;
     }
   }
 
   async startRecording(language: string = 'de'): Promise<Observable<string>> {
+    this.currentLanguage = language;
+
     if (!this.pipeline) {
       const loaded = await this.loadModel();
       if (!loaded) {
@@ -79,12 +82,16 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+        }
+      });
       this.audioChunks = [];
 
-      this.mediaRecorder = new MediaRecorder(stream, {
-        mimeType: this.getSupportedMimeType(),
-      });
+      const mimeType = this.getSupportedMimeType();
+      this.mediaRecorder = new MediaRecorder(stream, { mimeType });
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -94,13 +101,14 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
 
       this.mediaRecorder.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
-        await this.processAudio(language);
+        await this.processAudio();
       };
 
-      this.mediaRecorder.start();
+      this.mediaRecorder.start(100);
       this.isRecording.set(true);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Microphone access error:', error);
       this.errors$.next(`Microphone access error: ${errorMessage}`);
     }
 
@@ -115,7 +123,7 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
   }
 
   private getSupportedMimeType(): string {
-    const types = ['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'];
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
     for (const type of types) {
       if (MediaRecorder.isTypeSupported(type)) {
         return type;
@@ -124,68 +132,40 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
     return 'audio/webm';
   }
 
-  private async processAudio(language: string): Promise<void> {
+  private async processAudio(): Promise<void> {
     if (this.audioChunks.length === 0 || !this.pipeline) {
+      this.errors$.next('No audio recorded');
       return;
     }
 
     try {
       const audioBlob = new Blob(this.audioChunks, { type: this.getSupportedMimeType() });
-      const audioData = await this.convertBlobToFloat32Array(audioBlob);
 
-      const whisperLanguage = this.mapLanguageCode(language);
+      const audioUrl = URL.createObjectURL(audioBlob);
 
-      const result = await this.pipeline(audioData, {
-        language: whisperLanguage,
-        task: 'transcribe',
-      });
+      try {
+        const whisperLanguage = this.mapLanguageCode(this.currentLanguage);
 
-      if (result.text && result.text.trim()) {
-        this.results$.next(result.text.trim());
-      } else {
-        this.errors$.next('No speech detected');
+        const result = await this.pipeline(audioUrl, {
+          language: whisperLanguage,
+          task: 'transcribe',
+          chunk_length_s: 30,
+          stride_length_s: 5,
+        });
+
+        if (result && result.text && result.text.trim()) {
+          this.results$.next(result.text.trim());
+        } else {
+          this.errors$.next('No speech detected');
+        }
+      } finally {
+        URL.revokeObjectURL(audioUrl);
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Transcription error:', error);
       this.errors$.next(`Transcription error: ${errorMessage}`);
     }
-  }
-
-  private async convertBlobToFloat32Array(blob: Blob): Promise<Float32Array> {
-    const arrayBuffer = await blob.arrayBuffer();
-
-    if (!this.audioContext) {
-      this.audioContext = new AudioContext({ sampleRate: 16000 });
-    }
-
-    const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-    const channelData = audioBuffer.getChannelData(0);
-
-    if (audioBuffer.sampleRate !== 16000) {
-      return this.resampleAudio(channelData, audioBuffer.sampleRate, 16000);
-    }
-
-    return channelData;
-  }
-
-  private resampleAudio(
-    audioData: Float32Array,
-    fromSampleRate: number,
-    toSampleRate: number
-  ): Float32Array {
-    const ratio = fromSampleRate / toSampleRate;
-    const newLength = Math.round(audioData.length / ratio);
-    const result = new Float32Array(newLength);
-
-    for (let i = 0; i < newLength; i++) {
-      const srcIndex = i * ratio;
-      const srcIndexFloor = Math.floor(srcIndex);
-      const srcIndexCeil = Math.min(srcIndexFloor + 1, audioData.length - 1);
-      const t = srcIndex - srcIndexFloor;
-      result[i] = audioData[srcIndexFloor] * (1 - t) + audioData[srcIndexCeil] * t;
-    }
-
-    return result;
   }
 
   private mapLanguageCode(langCode: string): string {
@@ -226,10 +206,6 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
   }
 
   dispose(): void {
-    if (this.audioContext) {
-      this.audioContext.close();
-      this.audioContext = null;
-    }
     this.pipeline = null;
     this.isModelLoaded.set(false);
   }

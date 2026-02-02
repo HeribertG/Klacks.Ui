@@ -9,6 +9,8 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -89,6 +91,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   availableModels: ILLMModel[] = [];
   currentModel = '';
   showModelDropdown = false;
+  private providersLoaded = signal(false);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -117,6 +120,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.addWelcomeMessage(currentLang);
 
     await this.llmProviderService.loadProviders();
+    this.providersLoaded.set(true);
 
     this.llmService
       .getAvailableModels()
@@ -435,6 +439,10 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   hasNoApiKey(): boolean {
+    if (!this.providersLoaded()) {
+      return false;
+    }
+
     if (this.availableModels.length === 0 || !this.currentModel || this.currentModel === '') {
       return true;
     }

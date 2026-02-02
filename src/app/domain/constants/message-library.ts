@@ -20,6 +20,7 @@ export class MessageLibrary {
 
   public static SERVER_NOT_VALID = DomainMessages.SERVER_NOT_VALID;
   public static UNKNOWN_ERROR = DomainMessages.UNKNOWN_ERROR;
+  public static readonly CONNECTION_ERROR = DomainMessages.CONNECTION_ERROR;
   public static HTTP204 = DomainMessages.HTTP204;
   public static HTTP400 = DomainMessages.HTTP400;
   public static HTTP401 = DomainMessages.HTTP401;

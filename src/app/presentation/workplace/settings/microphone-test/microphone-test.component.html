@@ -1,0 +1,102 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="microphone-test-form">
+  <div id="microphone-test-header" class="container-header">
+    {{ translate.instant("setting.microphone-test.headline") }}
+  </div>
+
+  <div id="microphone-test-line" class="container-line"></div>
+
+  <div class="microphone-test-info first">
+    <p class="info-text">
+      {{ translate.instant("setting.microphone-test.description") }}
+    </p>
+  </div>
+
+  <div class="container-box">
+    <div class="button-group">
+      <button
+        class="btn btn-primary test-button"
+        (click)="runDiagnostics()"
+        [disabled]="isTestRunning()"
+      >
+        @if (isTestRunning()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <fa-icon [icon]="faPlay"></fa-icon>
+        }
+        {{ translate.instant("setting.microphone-test.run-diagnostics") }}
+      </button>
+
+      <button
+        class="btn test-button"
+        [class.btn-danger]="isRecording()"
+        [class.btn-success]="!isRecording()"
+        (click)="startRecording()"
+        [disabled]="isTestRunning() || isWhisperLoading()"
+      >
+        @if (isRecording()) {
+          <fa-icon [icon]="faStop"></fa-icon>
+          {{ translate.instant("setting.microphone-test.stop-recording") }}
+        } @else {
+          <fa-icon [icon]="faMicrophone"></fa-icon>
+          {{ translate.instant("setting.microphone-test.start-recording") }}
+        }
+      </button>
+    </div>
+
+    @if (isWhisperLoading()) {
+      <div class="whisper-loading">
+        <span class="spinner-border spinner-border-sm"></span>
+        {{ translate.instant("setting.microphone-test.loading-whisper") }}
+        {{ whisperLoadProgress() }}%
+      </div>
+    }
+
+    @if (testResults().length > 0) {
+      <div class="test-results">
+        <h4>{{ translate.instant("setting.microphone-test.diagnostics-results") }}</h4>
+        <ul class="result-list">
+          @for (result of testResults(); track result.name) {
+            <li class="result-item" [class]="result.status">
+              @switch (result.status) {
+                @case ('pending') {
+                  <span class="status-icon pending">-</span>
+                }
+                @case ('running') {
+                  <span class="spinner-border spinner-border-sm status-icon running"></span>
+                }
+                @case ('success') {
+                  <fa-icon [icon]="faCheck" class="status-icon success"></fa-icon>
+                }
+                @case ('error') {
+                  <fa-icon [icon]="faXmark" class="status-icon error"></fa-icon>
+                }
+              }
+              <span class="result-name">{{ translate.instant(result.name) }}</span>
+              @if (result.message) {
+                <span class="result-message">({{ result.message }})</span>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (transcribedText()) {
+      <div class="transcription-result">
+        <h4>{{ translate.instant("setting.microphone-test.transcription-result") }}</h4>
+        <div class="transcription-text">
+          {{ transcribedText() }}
+        </div>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="error-message">
+        <fa-icon [icon]="faXmark"></fa-icon>
+        {{ errorMessage() }}
+      </div>
+    }
+  </div>
+</div>
