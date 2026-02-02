@@ -74,6 +74,18 @@ export class ScheduleTooltipService {
           return state.lastHeaderColumn;
         }
       }
+    } else {
+      const cell = dataService.getCell(hoveredCell.row, hoveredCell.column);
+      if (cell?.tooltip) {
+        surface.showToolTip({
+          value: cell.tooltip,
+          event: {
+            clientX: hoveredCell.clientX,
+            clientY: hoveredCell.clientY,
+          } as MouseEvent,
+        });
+        return state.lastHeaderColumn;
+      }
     }
 
     surface.destroyToolTip();

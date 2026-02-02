@@ -173,4 +173,21 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static expenses(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'expenses',
+          MessageLibrary.EXPENSES,
+          false,
+          '',
+          'fa-solid fa-money-bill'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

@@ -687,13 +687,21 @@ export class ScheduleDataService extends BaseDataService {
     const cell = new GridCell();
     cell.cellType = CellTypeEnum.Standard;
     cell.mainText = this.getWorkChangeAbbreviation(entry);
-    cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
-    cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
 
     if (entry.entryType === WorkScheduleEntryType.Expenses) {
+      cell.firstSubText = '';
+      cell.secondSubText = this.formatAmount(entry.amount);
       cell.backgroundColor = this.gridColorService.surchargeColor;
+      cell.tooltip = entry.taxable
+        ? this.translateService.instant('workChange.tooltip.expenses')
+        : this.translateService.instant('workChange.tooltip.reimbursement');
     } else {
+      cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
+      cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
       cell.backgroundColor = this.gridColorService.workChangeColor;
+      cell.tooltip = entry.replaceClientId
+        ? this.translateService.instant('workChange.tooltip.replacement')
+        : this.translateService.instant('workChange.tooltip.correction');
     }
 
     return cell;
@@ -701,7 +709,9 @@ export class ScheduleDataService extends BaseDataService {
 
   private getWorkChangeAbbreviation(entry: IScheduleCell): string {
     if (entry.entryType === WorkScheduleEntryType.Expenses) {
-      return this.translateService.instant('workChange.abbr.surcharge');
+      return entry.taxable
+        ? this.translateService.instant('workChange.abbr.expenses')
+        : this.translateService.instant('workChange.abbr.reimbursement');
     }
 
     if (entry.replaceClientId) {
@@ -709,6 +719,11 @@ export class ScheduleDataService extends BaseDataService {
     }
 
     return this.translateService.instant('workChange.abbr.correction');
+  }
+
+  private formatAmount(amount: number | null): string {
+    if (amount === null || amount === 0) return '';
+    return amount.toFixed(2);
   }
 
   private formatWorkChangeTime(hours: number | null): string {

@@ -1,0 +1,14 @@
+export interface ExpensesRequest {
+  workId: string;
+  amount: number;
+  description: string;
+  taxable: boolean;
+}
+
+export interface ExpensesResource {
+  id: string;
+  workId: string;
+  amount: number;
+  description: string;
+  taxable: boolean;
+}

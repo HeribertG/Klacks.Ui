@@ -6,6 +6,7 @@ export class GridCell {
   mainText = '';
   firstSubText = '';
   secondSubText = '';
+  tooltip = '';
   frozen = false;
   confirmed = false;
   sealed = false;

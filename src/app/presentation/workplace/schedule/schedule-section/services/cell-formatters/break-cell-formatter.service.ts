@@ -53,6 +53,8 @@ export class BreakCellFormatterService implements ICellFormatter {
       cell.fontColor = DrawHelper.getContrastTextColor(color);
     }
 
+    cell.tooltip = this.absenceLookup.getNameForEntryId(entry.entryId, language);
+
     return cell;
   }
 

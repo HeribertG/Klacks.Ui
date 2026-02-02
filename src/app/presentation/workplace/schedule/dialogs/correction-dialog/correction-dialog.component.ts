@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
+import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
 import {
   WorkChangeLogicService,
   CorrectionMode,
@@ -48,7 +48,7 @@ export class CorrectionDialogComponent {
   @ViewChild('correctionModal') modalTemplate!: TemplateRef<unknown>;
 
   private ngbModal = inject(NgbModal);
-  private workChangeService = inject(DataWorkChangeService);
+  private workChangeService = inject(DataManagementWorkchangeService);
   private logicService = inject(WorkChangeLogicService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);

@@ -59,7 +59,7 @@ export class ScheduleContextMenuService {
         context.column,
       );
 
-      if (entry?.entryType === WorkScheduleEntryType.WorkChange) {
+      if (entry?.entryType === WorkScheduleEntryType.WorkChange || entry?.entryType === WorkScheduleEntryType.Expenses) {
         menuData.list.push(...MenuDataTemplate.edit());
         menuData.list.push(...MenuDataTemplate.divider());
         menuData.list.push(...MenuDataTemplate.delete());
@@ -72,6 +72,7 @@ export class ScheduleContextMenuService {
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.correction());
           menuData.list.push(...MenuDataTemplate.replacement());
+          menuData.list.push(...MenuDataTemplate.expenses());
 
           if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
             menuData.list.push(...MenuDataTemplate.editWork());

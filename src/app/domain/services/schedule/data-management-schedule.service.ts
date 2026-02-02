@@ -30,7 +30,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
-import { WorkCrudService } from './work-crud.service';
+import { DataManagementWorkService } from '../work/data-management-work.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import {
   ScheduleEntryCrudService,
@@ -48,7 +48,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   private shiftLoader = inject(ShiftScheduleLoaderService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
-  private workCrud = inject(WorkCrudService);
+  private workCrud = inject(DataManagementWorkService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
 

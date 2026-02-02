@@ -116,7 +116,7 @@ export class GridTemplateEventsDirective {
     const scheduleDataService = this.gridData as ScheduleDataService;
     const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
 
-    if (!entry || entry.entryType !== WorkScheduleEntryType.WorkChange) {
+    if (!entry || (entry.entryType !== WorkScheduleEntryType.WorkChange && entry.entryType !== WorkScheduleEntryType.Expenses)) {
       return false;
     }
 
@@ -337,6 +337,7 @@ export class GridTemplateEventsDirective {
   private updateHoveredCell(pos: MyPosition, event: MouseEvent): void {
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
       this.cellManipulation.hoveredCell.set(null);
+      this.gridSurface.hideToolTip();
       return;
     }
 
@@ -349,6 +350,13 @@ export class GridTemplateEventsDirective {
       clientX: event.clientX,
       clientY: event.clientY,
     });
+
+    const cell = this.gridData.getCell(pos.row, pos.column);
+    if (cell && cell.tooltip) {
+      this.gridSurface.showToolTip({ value: cell.tooltip, event });
+    } else {
+      this.gridSurface.hideToolTip();
+    }
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(

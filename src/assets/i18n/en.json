@@ -47,6 +47,7 @@
   "contextMenu.correction": "Correction...",
   "contextMenu.replacement": "Replacement...",
   "contextMenu.editWork": "Edit...",
+  "contextMenu.expenses": "Expenses...",
 
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",
@@ -86,9 +87,19 @@
   "dialog.workEdit.error.maxDuration": "Maximum duration is 20 hours",
   "dialog.workEdit.error.invalidTime": "Please enter a valid time range",
 
+  "dialog.expenses.title": "Expenses",
+  "dialog.expenses.amount": "Amount",
+  "dialog.expenses.description": "Description",
+  "dialog.expenses.taxable": "Taxable",
+
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "REP",
-  "workChange.abbr.surcharge": "EXP",
+  "workChange.abbr.expenses": "EXP",
+  "workChange.abbr.reimbursement": "REI",
+  "workChange.tooltip.expenses": "Expenses (taxable)",
+  "workChange.tooltip.reimbursement": "Reimbursement (non-taxable)",
+  "workChange.tooltip.correction": "Correction",
+  "workChange.tooltip.replacement": "Replacement",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Search",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Year: ",

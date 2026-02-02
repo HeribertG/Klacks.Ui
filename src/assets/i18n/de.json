@@ -47,6 +47,7 @@
   "contextMenu.correction": "Korrektur...",
   "contextMenu.replacement": "Ablösung...",
   "contextMenu.editWork": "Bearbeiten...",
+  "contextMenu.expenses": "Spesen...",
 
   "dialog.correction.title": "Korrektur",
   "dialog.correction.position": "Position",
@@ -86,9 +87,19 @@
   "dialog.workEdit.error.maxDuration": "Maximale Dauer ist 20 Stunden",
   "dialog.workEdit.error.invalidTime": "Bitte geben Sie eine gültige Zeitspanne ein",
 
+  "dialog.expenses.title": "Spesen",
+  "dialog.expenses.amount": "Betrag",
+  "dialog.expenses.description": "Beschreibung",
+  "dialog.expenses.taxable": "Steuerpflichtig",
+
   "workChange.abbr.correction": "KOR",
   "workChange.abbr.replacement": "ABL",
-  "workChange.abbr.surcharge": "SPE",
+  "workChange.abbr.expenses": "SPE",
+  "workChange.abbr.reimbursement": "VER",
+  "workChange.tooltip.expenses": "Spesen (steuerpflichtig)",
+  "workChange.tooltip.reimbursement": "Vergütung (nicht steuerpflichtig)",
+  "workChange.tooltip.correction": "Korrektur",
+  "workChange.tooltip.replacement": "Ablösung",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Suche",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Jahr: ",

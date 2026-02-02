@@ -2,14 +2,15 @@ import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
-import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
+import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
-import { WorkCrudService } from './work-crud.service';
+import { DataManagementWorkService } from '../work/data-management-work.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkFilter } from '../../models/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
+import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
 import { Break } from '../../models/break-class';
 
 export interface ScheduleCellParams {
@@ -48,12 +49,13 @@ export interface DeleteWorkScheduleEntryParams {
 export class ScheduleEntryCrudService {
   private destroyRef = inject(DestroyRef);
   private dataWorkSchedule = inject(DataWorkScheduleService);
-  private dataWorkChangeService = inject(DataWorkChangeService);
+  private dataWorkChangeService = inject(DataManagementWorkchangeService);
   private shiftLoader = inject(ShiftScheduleLoaderService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
-  private workCrud = inject(WorkCrudService);
+  private workCrud = inject(DataManagementWorkService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private breakService = inject(DataManagementBreakService);
+  private expensesService = inject(DataManagementExpensesService);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -306,6 +308,17 @@ export class ScheduleEntryCrudService {
         });
         break;
 
+      case WorkScheduleEntryType.Expenses:
+        this.expensesService.delete(params.id).subscribe({
+          next: () => {
+            this.refreshClientScheduleForDays(params.clientId, params.date).then(() => {
+              this.triggerScheduleRefresh();
+            });
+          },
+          error: (err) => console.error('Error deleting expenses:', err),
+        });
+        break;
+
       case WorkScheduleEntryType.Work:
       default:
         this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
@@ -329,6 +342,7 @@ export class ScheduleEntryCrudService {
 
     const workEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Work);
     const workChangeEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.WorkChange);
+    const expensesEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Expenses);
     const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
 
     const periodStart = this.workScheduleLoader.startDate
@@ -398,6 +412,22 @@ export class ScheduleEntryCrudService {
           });
         })
       );
+    }
+
+    if (expensesEntries.length > 0) {
+      for (const entry of expensesEntries) {
+        deletePromises.push(
+          new Promise<void>((resolve, reject) => {
+            this.expensesService.delete(entry.id).subscribe({
+              next: () => resolve(),
+              error: (err) => {
+                console.error('Error deleting expenses:', err);
+                reject(err);
+              },
+            });
+          })
+        );
+      }
     }
 
     Promise.all(deletePromises).then(async () => {

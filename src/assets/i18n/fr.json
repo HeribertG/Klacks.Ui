@@ -47,6 +47,7 @@
   "contextMenu.correction": "Correction...",
   "contextMenu.replacement": "Remplacement...",
   "contextMenu.editWork": "Modifier...",
+  "contextMenu.expenses": "Frais...",
 
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",
@@ -86,9 +87,19 @@
   "dialog.workEdit.error.maxDuration": "La durée maximale est de 20 heures",
   "dialog.workEdit.error.invalidTime": "Veuillez entrer une plage horaire valide",
 
+  "dialog.expenses.title": "Frais",
+  "dialog.expenses.amount": "Montant",
+  "dialog.expenses.description": "Description",
+  "dialog.expenses.taxable": "Imposable",
+
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "REM",
-  "workChange.abbr.surcharge": "FRA",
+  "workChange.abbr.expenses": "FRA",
+  "workChange.abbr.reimbursement": "RMB",
+  "workChange.tooltip.expenses": "Frais (imposable)",
+  "workChange.tooltip.reimbursement": "Remboursement (non imposable)",
+  "workChange.tooltip.correction": "Correction",
+  "workChange.tooltip.replacement": "Remplacement",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Chercher",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Année: ",

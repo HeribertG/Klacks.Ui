@@ -15,7 +15,7 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 @Injectable({
   providedIn: 'root',
 })
-export class WorkCrudService {
+export class DataManagementWorkService {
   private dataSchedule = inject(DataScheduleService);
   private destroyRef = inject(DestroyRef);
   private destroy$ = new Subject<void>();

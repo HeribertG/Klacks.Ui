@@ -47,6 +47,7 @@
   "contextMenu.correction": "Correzione...",
   "contextMenu.replacement": "Sostituzione...",
   "contextMenu.editWork": "Modifica...",
+  "contextMenu.expenses": "Spese...",
 
   "dialog.correction.title": "Correzione",
   "dialog.correction.position": "Posizione",
@@ -86,9 +87,19 @@
   "dialog.workEdit.error.maxDuration": "La durata massima è di 20 ore",
   "dialog.workEdit.error.invalidTime": "Inserire un intervallo di tempo valido",
 
+  "dialog.expenses.title": "Spese",
+  "dialog.expenses.amount": "Importo",
+  "dialog.expenses.description": "Descrizione",
+  "dialog.expenses.taxable": "Imponibile",
+
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "SOS",
-  "workChange.abbr.surcharge": "SPE",
+  "workChange.abbr.expenses": "SPE",
+  "workChange.abbr.reimbursement": "RIM",
+  "workChange.tooltip.expenses": "Spese (imponibile)",
+  "workChange.tooltip.reimbursement": "Rimborso (non imponibile)",
+  "workChange.tooltip.correction": "Correzione",
+  "workChange.tooltip.replacement": "Sostituzione",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Anno: ",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Anno: ",

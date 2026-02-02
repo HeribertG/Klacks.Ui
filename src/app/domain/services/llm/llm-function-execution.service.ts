@@ -92,11 +92,13 @@ export class LLMFunctionExecutionService {
       case 'create_client':
         return this.executeCreateClient(functionCall);
 
+      case 'navigate_to_page':
+        return this.executeNavigateToPageLegacy(functionCall);
+
       // Backend-executed functions (pass through)
       case 'search_clients':
       case 'create_contract':
       case 'get_system_info':
-      case 'navigate_to_page':
         return this.executeBackendFunction(functionCall);
 
       default:
@@ -141,6 +143,50 @@ export class LLMFunctionExecutionService {
         id: call.id,
         success: true,
         result: { navigated: true, route, params },
+      });
+    } catch (error: any) {
+      return of({
+        id: call.id,
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  private executeNavigateToPageLegacy(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    try {
+      const { page } = call.arguments;
+      let route = '/workplace/dashboard';
+
+      switch (page?.toLowerCase()) {
+        case 'dashboard':
+          route = '/workplace/dashboard';
+          break;
+        case 'clients':
+          route = '/workplace/client';
+          break;
+        case 'contracts':
+          route = '/workplace/client'; // Contracts are typically managed via clients
+          break;
+        case 'settings':
+          route = '/workplace/settings';
+          break;
+        case 'calendar':
+          route = '/workplace/schedule';
+          break;
+        case 'reports':
+          route = '/workplace/dashboard'; // Placeholder if no dedicated report route exists
+          break;
+      }
+
+      this.router.navigate([route]);
+
+      return of({
+        id: call.id,
+        success: true,
+        result: { navigated: true, route, page },
       });
     } catch (error: any) {
       return of({

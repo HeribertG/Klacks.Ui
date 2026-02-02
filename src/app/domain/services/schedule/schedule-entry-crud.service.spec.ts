@@ -9,7 +9,7 @@ import {
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
-import { WorkCrudService } from './work-crud.service';
+import { DataManagementWorkService } from '../work/data-management-work.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IShiftSchedule } from '../../models/shift-schedule-class';
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
@@ -154,7 +154,7 @@ describe('ScheduleEntryCrudService', () => {
         { provide: DataWorkChangeService, useValue: workChangeServiceMock },
         { provide: ShiftScheduleLoaderService, useValue: shiftLoaderMock },
         { provide: WorkScheduleLoaderService, useValue: workScheduleLoaderMock },
-        { provide: WorkCrudService, useValue: workCrudMock },
+        { provide: DataManagementWorkService, useValue: workCrudMock },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
         { provide: DataManagementBreakService, useValue: breakServiceMock },
       ],
