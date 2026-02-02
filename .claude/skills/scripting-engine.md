@@ -1,4 +1,4 @@
-# Scripting Macro Engine - Dokumentation
+# Scripting Macro Engine
 
 ## Übersicht
 
@@ -9,40 +9,47 @@ Die Scripting Macro Engine ist ein vollständiger BASIC-ähnlicher Interpreter, 
 ## Architektur
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           ScriptService                                  │
-│                    (Angular Injectable Service)                          │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-          ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
-          │   Lexer     │  │    Parser    │  │   Executor   │
-          │ (Tokenizer) │  │  (Compiler)  │  │ (Interpreter)│
-          └─────────────┘  └──────────────┘  └──────────────┘
-                │                  │                │
-                ▼                  ▼                ▼
-          StringInputStream   SyntaxAnalyser       Code
-                               (Hierarchy)      (Bytecode)
+ScriptService (Angular Injectable Service)
+        |
+        +--- Lexer (Tokenizer)
+        |        |
+        |        +--- StringInputStream
+        |
+        +--- Parser (Compiler)
+        |        |
+        |        +--- SyntaxAnalyser (Hierarchy)
+        |
+        +--- Executor (Interpreter)
+                 |
+                 +--- Code (Bytecode)
 ```
 
-## Komponenten
+## Parser-Hierarchie
 
-### 1. ScriptService (`script.service.ts`)
-
-Der Haupteinstiegspunkt für die Skriptausführung.
-
-```typescript
-@Injectable({ providedIn: 'root' })
-export class ScriptService {
-  compile(source: string, optionExplicit?: boolean, allowExternal?: boolean): boolean;
-  run(): boolean;
-  result(): Results[];
-  debugResult(): Results[];
-}
+```
+SyntaxAnalyserBase
+       |
+       v
+SyntaxAnalyserBuiltIns        (MsgBox, InputBox, Message)
+       |
+       v
+SyntaxAnalyserExpressions     (Ausdrücke, Bedingungen, Terme)
+       |
+       v
+SyntaxAnalyserDeclarations    (CONST, DIM, FUNCTION, SUB)
+       |
+       v
+SyntaxAnalyserControlFlow     (IF, FOR, DO)
+       |
+       v
+SyntaxAnalyserStatements      (Zuweisungen, Aufrufe)
+       |
+       v
+SyntaxAnalyser                (Hauptklasse mit parse())
 ```
 
-**Verwendung:**
+## ScriptService Verwendung
+
 ```typescript
 const service = inject(ScriptService);
 
@@ -56,11 +63,8 @@ if (service.compile('debugprint 10 + 5')) {
 }
 ```
 
-### 2. Lexikalische Analyse (`lexicalAnalyser.ts`)
+## Unterstützte Token-Typen
 
-Wandelt den Quellcode in Tokens um.
-
-**Unterstützte Token-Typen:**
 | Kategorie | Tokens |
 |-----------|--------|
 | Operatoren | `+`, `-`, `*`, `/`, `\`, `%`, `^`, `!` |
@@ -69,37 +73,8 @@ Wandelt den Quellcode in Tokens um.
 | Logik | `AND`, `OR`, `NOT` |
 | Literale | Zahlen, Strings (`"..."`), `TRUE`, `FALSE`, `PI` |
 
-### 3. Syntax Analyse (Parser)
+## Opcodes
 
-Die Parser-Hierarchie verwendet Vererbung für bessere Wartbarkeit:
-
-```
-SyntaxAnalyserBase
-       │
-       ▼
-SyntaxAnalyserBuiltIns        (MsgBox, InputBox, Message)
-       │
-       ▼
-SyntaxAnalyserExpressions     (Ausdrücke, Bedingungen, Terme)
-       │
-       ▼
-SyntaxAnalyserDeclarations    (CONST, DIM, FUNCTION, SUB)
-       │
-       ▼
-SyntaxAnalyserControlFlow     (IF, FOR, DO)
-       │
-       ▼
-SyntaxAnalyserStatements      (Zuweisungen, Aufrufe)
-       │
-       ▼
-SyntaxAnalyser                (Hauptklasse mit parse())
-```
-
-### 4. Code-Ausführung (`code.ts`)
-
-Führt den kompilierten Bytecode aus. Verwendet eine Stack-basierte virtuelle Maschine.
-
-**Opcodes:**
 | Kategorie | Opcodes |
 |-----------|---------|
 | Speicher | `AllocConst`, `AllocVar`, `PushValue`, `PushVariable`, `Pop`, `Assign` |
@@ -175,11 +150,6 @@ ELSE
     debugprint "klein"
 END IF
 
-' Alternative Syntax
-IF x > 10 THEN
-    debugprint "groß"
-ENDIF
-
 ' FOR-Schleife
 FOR i = 1 TO 10
     debugprint i
@@ -228,15 +198,6 @@ END SUB
 
 ' Aufruf
 PrintMessage("Hello")
-
-' EXIT in Funktion/Sub
-FUNCTION Calculate(x)
-    IF x < 0 THEN
-        Calculate = 0
-        EXIT FUNCTION
-    END IF
-    Calculate = x * 2
-END FUNCTION
 ```
 
 ### Eingebaute Funktionen
@@ -255,8 +216,6 @@ result = IIF(condition, trueValue, falseValue)
 debugprint PI        ' 3.141592654
 debugprint VBCRLF    ' Carriage Return + Line Feed
 debugprint VBTAB     ' Tab
-debugprint VBCR      ' Carriage Return
-debugprint VBLF      ' Line Feed
 debugprint TRUE      ' Boolean True
 debugprint FALSE     ' Boolean False
 ```
@@ -281,14 +240,14 @@ result = INPUTBOX("Frage", "Standardantwort")
 
 ## Externe Variablen
 
-Variablen können vor der Ausführung importiert werden:
-
 ```typescript
 // In Angular-Code
 service.code.importAdd('kundenName', 'Max Mustermann');
 service.code.importAdd('betrag', 100.50);
+```
 
-// Im Skript
+```basic
+' Im Skript
 IMPORT kundenName
 IMPORT betrag
 
@@ -298,8 +257,6 @@ debugprint kundenName & ": " & betrag & " EUR"
 ## Fehlerbehandlung
 
 ```typescript
-const service = inject(ScriptService);
-
 if (!service.compile(source)) {
   const error = service.interpreterError;
   console.error(`Fehler ${error.number}: ${error.description}`);
@@ -332,45 +289,29 @@ if (!service.run()) {
 
 ```
 src/app/infrastructure/scripting/
-├── script.service.ts              # Haupt-Service
-├── script.service.spec.ts         # Unit-Tests
-├── lexicalAnalyser.ts             # Tokenizer
-├── stringInput.ts                 # Eingabe-Stream
-├── symbol.ts                      # Token-Definitionen
-├── syntaxAnalyser.ts              # Parser (Hauptklasse)
-├── syntaxAnalyserBase.ts          # Basis-Klasse
-├── syntaxAnalyserBuiltIns.ts      # Built-in Funktionen
-├── syntaxAnalyserExpressions.ts   # Ausdruck-Parsing
-├── syntaxAnalyserDeclarations.ts  # Deklarationen
-├── syntaxAnalyserControlFlow.ts   # Kontrollstrukturen
-├── syntaxAnalyserStatements.ts    # Statements
-├── code.ts                        # Bytecode & Executor
-├── identifier.ts                  # Identifier-Typen
-├── scope.ts                       # Einzelner Scope
-├── scopes.ts                      # Scope-Stack
-└── interpreterError.ts            # Fehlerbehandlung
++-- script.service.ts              # Haupt-Service
++-- script.service.spec.ts         # Unit-Tests
++-- lexicalAnalyser.ts             # Tokenizer
++-- stringInput.ts                 # Eingabe-Stream
++-- symbol.ts                      # Token-Definitionen
++-- syntaxAnalyser.ts              # Parser (Hauptklasse)
++-- syntaxAnalyserBase.ts          # Basis-Klasse
++-- syntaxAnalyserBuiltIns.ts      # Built-in Funktionen
++-- syntaxAnalyserExpressions.ts   # Ausdruck-Parsing
++-- syntaxAnalyserDeclarations.ts  # Deklarationen
++-- syntaxAnalyserControlFlow.ts   # Kontrollstrukturen
++-- syntaxAnalyserStatements.ts    # Statements
++-- code.ts                        # Bytecode & Executor
++-- identifier.ts                  # Identifier-Typen
++-- scope.ts                       # Einzelner Scope
++-- scopes.ts                      # Scope-Stack
++-- interpreterError.ts            # Fehlerbehandlung
 ```
 
 ## Beispiele
 
-### Einfache Berechnung
-```basic
-DIM ergebnis
-ergebnis = (10 + 5) * 2 / 3
-debugprint ergebnis
-```
-
-### Schleifen mit Akkumulator
-```basic
-DIM summe, i
-summe = 0
-FOR i = 1 TO 100
-    summe = summe + i
-NEXT
-debugprint "Summe 1-100: " & summe
-```
-
 ### Rekursive Funktion
+
 ```basic
 FUNCTION Fibonacci(n)
     IF n <= 1 THEN
@@ -384,6 +325,7 @@ debugprint "Fib(10) = " & Fibonacci(10)
 ```
 
 ### Primzahl-Prüfung
+
 ```basic
 FUNCTION IstPrimzahl(n)
     DIM i
