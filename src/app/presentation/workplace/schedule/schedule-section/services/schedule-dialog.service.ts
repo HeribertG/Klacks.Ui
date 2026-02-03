@@ -81,7 +81,7 @@ export class ScheduleDialogService {
       if (isCorrection && this.correctionDialog) {
         this.correctionDialog.openEdit(entry.id, date);
       } else if (this.replacementDialog) {
-        this.replacementDialog.openEdit(entry.id, date);
+        this.replacementDialog.openEdit(entry.id, entry.clientId, date);
       }
     } else if (entry?.entryType === WorkScheduleEntryType.Expenses && date && this.expensesDialog) {
       this.expensesDialog.openEdit(entry.id, entry.clientId, date);

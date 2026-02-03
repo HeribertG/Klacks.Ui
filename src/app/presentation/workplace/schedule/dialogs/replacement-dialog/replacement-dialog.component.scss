@@ -16,6 +16,14 @@
   }
 
   &.search-group {
+    .readonly-client-name {
+      padding: 8px 12px;
+      border: 1px solid var(--cardBorderColor);
+      border-radius: 4px;
+      background-color: var(--standartTextBackgroundReadOnly);
+      color: var(--standartTextColor);
+    }
+
     .search-container {
       position: relative;
 

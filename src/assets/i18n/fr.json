@@ -70,6 +70,7 @@
   "dialog.replacement.atEnd": "À la fin",
   "dialog.replacement.within": "À l'intérieur",
   "dialog.replacement.replaceClient": "Employé remplaçant",
+  "dialog.replacement.workClient": "Employé",
   "dialog.replacement.selectClient": "Sélectionner",
   "dialog.replacement.startTime": "De",
   "dialog.replacement.endTime": "À",

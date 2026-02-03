@@ -77,6 +77,8 @@ export class ReplacementDialogComponent {
   private modalRef: NgbModalRef | null = null;
   private editMode = false;
   private editId = '';
+  isOpenedFromReplaceClient = false;
+  workClientName = '';
 
   CorrectionMode = CorrectionMode;
 
@@ -117,7 +119,7 @@ export class ReplacementDialogComponent {
     });
   }
 
-  openEdit(workChangeId: string, currentDate: Date): void {
+  openEdit(workChangeId: string, cellClientId: string, currentDate: Date): void {
     this.editMode = true;
     this.editId = workChangeId;
     this.currentDate = currentDate;
@@ -140,10 +142,19 @@ export class ReplacementDialogComponent {
           const workEndTime = data.work?.endTime || data.endTime;
           this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
 
+          this.isOpenedFromReplaceClient = cellClientId === this.replaceClientId;
+
           if (this.replaceClientId) {
-            const client = this.availableClients.find(c => c.id === this.replaceClientId);
-            if (client) {
-              this.searchText = this.getClientDisplayName(client);
+            const replaceClient = this.availableClients.find(c => c.id === this.replaceClientId);
+            if (replaceClient) {
+              this.searchText = this.getClientDisplayName(replaceClient);
+            }
+          }
+
+          if (this.isOpenedFromReplaceClient && this.currentClientId) {
+            const workClient = this.clients.find(c => c.id === this.currentClientId);
+            if (workClient) {
+              this.workClientName = this.getClientDisplayName(workClient);
             }
           }
 
@@ -182,6 +193,8 @@ export class ReplacementDialogComponent {
     this.searchResults = [];
     this.description = '';
     this.toInvoice = false;
+    this.isOpenedFromReplaceClient = false;
+    this.workClientName = '';
     this.onModeChange();
   }
 

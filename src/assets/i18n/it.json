@@ -70,6 +70,7 @@
   "dialog.replacement.atEnd": "Alla fine",
   "dialog.replacement.within": "All'interno",
   "dialog.replacement.replaceClient": "Dipendente sostituto",
+  "dialog.replacement.workClient": "Dipendente",
   "dialog.replacement.selectClient": "Seleziona",
   "dialog.replacement.startTime": "Da",
   "dialog.replacement.endTime": "A",
