@@ -6,6 +6,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
+import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
 import {
   IPeriodHoursNotification,
   IPeriodHoursRecalculatedNotification,
@@ -26,6 +27,7 @@ export class SignalRService implements OnDestroy {
   public workCreated$ = new Subject<IWorkNotification>();
   public workUpdated$ = new Subject<IWorkNotification>();
   public workDeleted$ = new Subject<IWorkNotification>();
+  public scheduleUpdated$ = new Subject<IScheduleNotification>();
   public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
   public periodHoursUpdated$ = new Subject<IPeriodHoursNotification>();
   public periodHoursRecalculated$ = new Subject<IPeriodHoursRecalculatedNotification>();
@@ -229,6 +231,10 @@ export class SignalRService implements OnDestroy {
 
     this.hubConnection.on('WorkDeleted', (notification: IWorkNotification) => {
       this.workDeleted$.next(notification);
+    });
+
+    this.hubConnection.on('ScheduleUpdated', (notification: IScheduleNotification) => {
+      this.scheduleUpdated$.next(notification);
     });
 
     this.hubConnection.on('ShiftStatsUpdated', (notification: IShiftStatsNotification) => {

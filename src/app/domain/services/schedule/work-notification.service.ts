@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
+import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
@@ -38,6 +39,10 @@ export class WorkNotificationService implements OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => this.handleWorkNotification(notification));
 
+    this.signalRService.scheduleUpdated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => this.handleScheduleNotification(notification));
+
     this.signalRService.shiftStatsUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => this.handleShiftStatsNotification(notification));
@@ -55,6 +60,18 @@ export class WorkNotificationService implements OnDestroy {
     }
 
     this.markShiftAsAffected(notification.shiftId);
+  }
+
+  private handleScheduleNotification(notification: IScheduleNotification): void {
+    console.log('Received schedule notification:', notification);
+
+    const clientDisplayed = this.isClientDisplayed(notification.clientId);
+
+    if (clientDisplayed) {
+      this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate));
+      this.scheduleUpdateSignal.set(notification.clientId);
+      setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
+    }
   }
 
   private handleShiftStatsNotification(notification: IShiftStatsNotification): void {
