@@ -21,6 +21,7 @@ export interface WorkChangeClientResult {
 export interface WorkChangeWorkInfo {
   id: string;
   clientId: string;
+  currentDate: string;
   startTime: string;
   endTime: string;
 }

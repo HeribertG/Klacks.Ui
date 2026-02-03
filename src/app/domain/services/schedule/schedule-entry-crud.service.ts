@@ -290,8 +290,13 @@ export class ScheduleEntryCrudService {
         this.dataWorkChangeService.delete(params.id).subscribe({
           next: (response) => {
             if (response.clientResults) {
-              const startDate = addDays(params.date, -1);
-              const endDate = addDays(params.date, 1);
+              let workDate = params.date;
+              if (response.work?.currentDate) {
+                const [year, month, day] = response.work.currentDate.split('-').map(Number);
+                workDate = new Date(year, month - 1, day);
+              }
+              const startDate = addDays(workDate, -1);
+              const endDate = addDays(workDate, 1);
 
               for (const clientResult of response.clientResults) {
                 if (clientResult.periodHours) {
