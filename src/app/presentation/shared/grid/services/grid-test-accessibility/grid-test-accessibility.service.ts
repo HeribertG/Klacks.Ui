@@ -16,6 +16,18 @@ import type {
   ITestCellInfo,
   ITestGridMetadata,
 } from './grid-test-accessibility.types';
+import type { MyPosition } from '../../classes/position';
+
+// Extended interfaces for test framework detection
+interface WindowWithTestFrameworks extends Window {
+  Cypress?: unknown;
+  __PLAYWRIGHT__?: unknown;
+}
+
+// Extended interface for scroll service with setter
+interface IScrollControllerWithVertical extends IScrollController {
+  verticalScrollPosition: number;
+}
 
 /**
  * Service that manages test accessibility for the Schedule Grid.
@@ -71,8 +83,8 @@ export class GridTestAccessibilityService {
     const urlParams = new URLSearchParams(window.location.search);
     const testMode =
       urlParams.has('testMode') ||
-      typeof (window as any).Cypress !== 'undefined' ||
-      typeof (window as any).__PLAYWRIGHT__ !== 'undefined';
+      typeof (window as WindowWithTestFrameworks).Cypress !== 'undefined' ||
+      typeof (window as WindowWithTestFrameworks).__PLAYWRIGHT__ !== 'undefined';
 
     if (testMode) {
       this.enabled.set(true);
@@ -102,7 +114,7 @@ export class GridTestAccessibilityService {
         column,
         isEmpty: () => false,
         isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
-      } as any;
+      } as unknown as MyPosition;
       this.testAccessibility.setSelectedCell(row, column);
       return { row, column };
     };
@@ -115,7 +127,7 @@ export class GridTestAccessibilityService {
           column,
           isEmpty: () => false,
           isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
-        } as any;
+        } as unknown as MyPosition;
         this.cellManipulationService.setIsEditing(true);
         this.testAccessibility.setEditingCell(row, column);
       }
@@ -124,7 +136,7 @@ export class GridTestAccessibilityService {
 
     // Scroll to row
     api.scrollToRow = (row: number) => {
-      (this.scrollService as any).verticalScrollPosition = row;
+      (this.scrollService as IScrollControllerWithVertical).verticalScrollPosition = row;
       this.drawScheduleService.moveGrid();
       // Update metadata after scroll with RAF for better sync
       requestAnimationFrame(() => this.updateMetadata());

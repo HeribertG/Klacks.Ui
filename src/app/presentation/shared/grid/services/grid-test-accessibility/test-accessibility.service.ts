@@ -195,7 +195,5 @@ export type GridMetadata = ITestGridMetadata;
 export type CellInfo = ITestCellInfo;
 export type CellPosition = ICellPosition;
 
-// Legacy interfaces - kept for compatibility
-export interface GhostCellInfo extends ITestCellInfo {
-  // Additional info for ghost DOM rendering
-}
+// Legacy type alias - kept for backward compatibility
+export type GhostCellInfo = ITestCellInfo;
