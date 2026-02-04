@@ -29,6 +29,7 @@ export class WorkScheduleLoaderService {
 
   private readonly INITIAL_CHUNK_SIZE = 50;
   private readonly LOAD_MORE_CHUNK_SIZE = 50;
+
   private _totalAvailableClients = 0;
   private _currentChunkSize = 50;
   private _autoLoadEnabled = true;
@@ -45,43 +46,66 @@ export class WorkScheduleLoaderService {
   public startDate: Date | null = null;
   public endDate: Date | null = null;
 
+  // Signal to notify UI when period hours are updated
+  public periodHoursUpdated = signal<number>(0);
+
   constructor() {
     this.subscribeToSignalREvents();
   }
 
   private subscribeToSignalREvents(): void {
+    // PeriodHours come directly from the backend via PeriodHoursUpdated notification
+    // The backend calculates them AFTER saving the work, so we can trust these values
     this.signalRService.periodHoursUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => {
-        if (
-          notification.sourceConnectionId === this.signalRService.connectionId
-        ) {
-          return;
-        }
-
-        const clientLoaded = this.clients.some(
-          (c) => c.id === notification.clientId,
-        );
-        if (!clientLoaded) {
-          return;
-        }
-
-        const periodHoursData: IPeriodHours = {
+        if (notification.sourceConnectionId === this.signalRService.connectionId) return;
+        
+        console.log(`[SignalR] PeriodHoursUpdated received for client ${notification.clientId}: Hours=${notification.hours}, Surcharges=${notification.surcharges}`);
+        
+        // Directly update periodHours from the notification data (already calculated by backend)
+        this.periodHours.set(notification.clientId.toString(), {
           hours: notification.hours,
           surcharges: notification.surcharges,
           guaranteedHours: notification.guaranteedHours,
-        };
-        this.periodHours.set(notification.clientId, periodHoursData);
-
-        this._isRead.set(true);
-        setTimeout(() => this._isRead.set(false), 100);
+        });
+        
+        // Notify UI to redraw
+        this.periodHoursUpdated.set(Date.now());
       });
 
     this.signalRService.periodHoursRecalculated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this._isRead.set(true);
-        setTimeout(() => this._isRead.set(false), 100);
+        this.refreshAllLoadedPeriodHours();
+      });
+  }
+
+  private refreshAllLoadedPeriodHours(): void {
+    if (this.clients.length === 0 || !this._currentFilter) return;
+
+    const clientIds = this.clients.map((c) => c.id);
+
+    this.dataWorkSchedule
+      .getPeriodHours({
+        clientIds,
+        startDate: this._currentFilter.startDate,
+        endDate: this._currentFilter.endDate,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          for (const [clientId, hours] of Object.entries(response)) {
+            this.periodHours.set(clientId, hours);
+          }
+          // Notify UI that period hours have been updated
+          this.periodHoursUpdated.set(Date.now());
+          this._isRead.set(true);
+          setTimeout(() => this._isRead.set(false), 100);
+        },
+        error: (err) => {
+          console.error('Error refreshing all period hours:', err);
+        },
       });
   }
 
@@ -182,6 +206,8 @@ export class WorkScheduleLoaderService {
 
           this._isRead.set(true);
           setTimeout(() => this._isRead.set(false), 100);
+
+          this.joinSignalRGroup(dates.startDate, dates.endDate);
 
           onLoaded?.();
 

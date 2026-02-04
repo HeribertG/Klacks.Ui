@@ -35,6 +35,7 @@ import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-head
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/create-row-header.service';
@@ -149,6 +150,7 @@ export class ScheduleSectionComponent
   public hScrollbarSize = 17;
 
   protected dataManagement = inject(DataManagementScheduleService);
+  private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
@@ -315,6 +317,15 @@ export class ScheduleSectionComponent
         }
       });
       this.effects.push(showInScheduleEffect);
+
+      const periodHoursEffect = effect(() => {
+        // React to period hours updates from SignalR
+        this.workScheduleLoader.periodHoursUpdated();
+        if (this.scheduleSurface) {
+          this.scheduleSurface.Refresh(false);
+        }
+      });
+      this.effects.push(periodHoursEffect);
     });
   }
 

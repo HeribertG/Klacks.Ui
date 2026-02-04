@@ -327,6 +327,14 @@ export class DataManagementScheduleService implements ILoadable {
     );
   }
 
+  refreshClientScheduleForDateRange(
+    clientId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<void> {
+    return this.scheduleEntryCrud.refreshClientScheduleForDateRange(clientId, startDate, endDate);
+  }
+
   private isFilter_Dirty(): boolean {
     const a = this.workFilter as IWorkFilter;
     const b = this.workFilterDummy as IWorkFilter;

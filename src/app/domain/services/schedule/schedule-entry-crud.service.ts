@@ -479,7 +479,7 @@ export class ScheduleEntryCrudService {
     return this.refreshClientScheduleForDateRange(clientId, startDate, endDate);
   }
 
-  private refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): Promise<void> {
+  public refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): Promise<void> {
     const filter: IWorkScheduleFilter = {
       startDate: formatDateOnly(startDate),
       endDate: formatDateOnly(endDate),

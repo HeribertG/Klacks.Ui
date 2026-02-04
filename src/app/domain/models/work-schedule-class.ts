@@ -89,6 +89,12 @@ export interface IPeriodHours {
   guaranteedHours: number;
 }
 
+export interface IPeriodHoursRequest {
+  clientIds: string[];
+  startDate: string;
+  endDate: string;
+}
+
 export enum WorkScheduleEntryType {
   Work = 0,
   WorkChange = 1,

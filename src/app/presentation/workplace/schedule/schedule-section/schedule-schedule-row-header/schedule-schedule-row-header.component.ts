@@ -45,6 +45,7 @@ import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
@@ -72,6 +73,7 @@ export class ScheduleScheduleRowHeaderComponent
   public scroll = inject(ScrollService);
   public drawRowHeader = inject(BaseDrawRowHeaderService);
   public dataManagementSchedule = inject(DataManagementScheduleService);
+  private workScheduleLoader = inject(WorkScheduleLoaderService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private scrollEventService = inject(ScrollEventService);
@@ -195,6 +197,15 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(scrollEffect);
+
+      const periodHoursEffect = effect(() => {
+        // React to period hours updates from SignalR
+        this.workScheduleLoader.periodHoursUpdated();
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(periodHoursEffect);
     });
   }
 

@@ -1196,23 +1196,45 @@ export class GridTemplateEventsDirective {
       information?: string;
     }[] = [];
 
+    console.log('FillHandle: Starting copy loop', {
+      startColumn: result.startColumn,
+      endColumn: result.endColumn,
+      row: result.row,
+      entryId: result.entryId,
+      shiftSchedulesCount: this.dataManagementSchedule.shiftSchedules.length,
+    });
+
     for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
+      const date = scheduleDataService.getDateForColumn(col);
+      console.log(`FillHandle: Processing col ${col}`, { date });
+
       if (scheduleDataService.isColumnSealed(col)) {
+        console.log(`FillHandle: col ${col} is sealed, skipping`);
         continue;
       }
 
       if (scheduleDataService.isCellActive(result.row, col)) {
+        console.log(`FillHandle: col ${col} cell is active, skipping`);
         continue;
       }
 
-      const date = scheduleDataService.getDateForColumn(col);
       if (!date) {
+        console.log(`FillHandle: col ${col} no date, skipping`);
         continue;
       }
 
       const shiftAvailable = this.dataManagementSchedule.shiftSchedules.find(
         (s) => s.shiftId === result.entryId && this.isSameDay(s.date, date)
       );
+
+      console.log(`FillHandle: col ${col} shiftAvailable`, {
+        found: !!shiftAvailable,
+        lookingForShiftId: result.entryId,
+        lookingForDate: date,
+        matchingShifts: this.dataManagementSchedule.shiftSchedules
+          .filter(s => s.shiftId === result.entryId)
+          .map(s => ({ shiftId: s.shiftId, date: s.date })),
+      });
 
       if (!shiftAvailable) {
         continue;

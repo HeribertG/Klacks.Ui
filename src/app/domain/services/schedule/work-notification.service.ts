@@ -18,6 +18,10 @@ export class WorkNotificationService implements OnDestroy {
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private destroyRef = inject(DestroyRef);
 
+  private readonly REFRESH_DEBOUNCE_MS = 500;
+  private _pendingRefreshes = new Map<string, { minDate: number; maxDate: number }>();
+  private _refreshDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   public affectedShifts = signal<Map<string, boolean>>(new Map());
   public scheduleUpdateSignal = signal<string | null>(null);
   public shiftUpdateSignal = signal<string | null>(null);
@@ -54,12 +58,53 @@ export class WorkNotificationService implements OnDestroy {
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
 
     if (clientDisplayed) {
-      this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate));
+      this.queueRefresh(notification.clientId, new Date(notification.currentDate));
       this.scheduleUpdateSignal.set(notification.workId);
       setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
     }
 
     this.markShiftAsAffected(notification.shiftId);
+  }
+
+  private queueRefresh(clientId: string, date: Date): void {
+    const timestamp = date.getTime();
+    const existing = this._pendingRefreshes.get(clientId);
+
+    if (existing) {
+      existing.minDate = Math.min(existing.minDate, timestamp);
+      existing.maxDate = Math.max(existing.maxDate, timestamp);
+    } else {
+      this._pendingRefreshes.set(clientId, { minDate: timestamp, maxDate: timestamp });
+    }
+
+    if (this._refreshDebounceTimer) {
+      clearTimeout(this._refreshDebounceTimer);
+    }
+
+    this._refreshDebounceTimer = setTimeout(() => {
+      this.executeQueuedRefreshes();
+    }, this.REFRESH_DEBOUNCE_MS);
+  }
+
+  private executeQueuedRefreshes(): void {
+    if (this._pendingRefreshes.size === 0) return;
+
+    console.log(`SignalR: Executing queued refreshes for ${this._pendingRefreshes.size} clients`);
+
+    for (const [clientId, range] of this._pendingRefreshes) {
+      const startDate = new Date(range.minDate);
+      const endDate = new Date(range.maxDate);
+      // Add +1 day buffer to cover overnight shifts that affect the next day
+      const bufferedStart = new Date(startDate);
+      bufferedStart.setDate(bufferedStart.getDate() - 1);
+      const bufferedEnd = new Date(endDate);
+      bufferedEnd.setDate(bufferedEnd.getDate() + 1);
+      
+      this.dataManagementSchedule.refreshClientScheduleForDateRange(clientId, bufferedStart, bufferedEnd);
+    }
+
+    this._pendingRefreshes.clear();
+    this._refreshDebounceTimer = null;
   }
 
   private handleScheduleNotification(notification: IScheduleNotification): void {
