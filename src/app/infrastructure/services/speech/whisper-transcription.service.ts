@@ -71,7 +71,7 @@ export class WhisperTranscriptionService implements ISpeechTranscription {
     }
   }
 
-  async startRecording(language: string = 'de'): Promise<Observable<string>> {
+  async startRecording(language = 'de'): Promise<Observable<string>> {
     this.currentLanguage = language;
 
     if (!this.pipeline) {

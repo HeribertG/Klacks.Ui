@@ -172,7 +172,7 @@ export class WorkChangeLogicService {
     wcStartTime: OwnTime,
     wcEndTime: OwnTime,
     workContext: WorkTimeContext,
-    type: WorkChangeType
+    _type: WorkChangeType
   ): WorkChangeValidation {
     const { start: workStart, end: workEnd } = this.getWorkBoundaries(workContext);
 
@@ -205,7 +205,7 @@ export class WorkChangeLogicService {
     wcStartTime: OwnTime,
     wcEndTime: OwnTime,
     workContext: WorkTimeContext,
-    mode: CorrectionMode
+    _mode: CorrectionMode
   ): WorkChangeValidation {
     const { start: workStart, end: workEnd } = this.getWorkBoundaries(workContext);
 

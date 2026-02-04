@@ -44,7 +44,7 @@ export class DataSkillService {
     );
   }
 
-  getAnalytics(days: number = 30): Observable<ISkillAnalytics> {
+  getAnalytics(days = 30): Observable<ISkillAnalytics> {
     return this.http
       .get<ISkillAnalytics>(`${this.apiUrl}/backend/skills/analytics`, {
         params: { days: days.toString() }

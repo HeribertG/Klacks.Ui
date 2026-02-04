@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import type { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
-import { ScheduleCellParams, BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+
 
 export interface FillHandleDropResult {
   startColumn: number;

@@ -320,11 +320,12 @@ export class ShiftSectionComponent
     if (!keys || keys.length === 0) return;
 
     switch (keys[0]) {
-      case 'showInSchedule':
+      case 'showInSchedule': {
         this.contextMenu.closeMenu(true);
         const shiftDataService = this.dataService as ShiftDataService;
         this.contextMenuService.showSelectedShiftInScheduleSection(shiftDataService);
         break;
+      }
     }
   }
 }

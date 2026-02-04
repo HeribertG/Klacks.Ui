@@ -84,7 +84,8 @@ export class GridTestAccessibilityService {
     const testMode =
       urlParams.has('testMode') ||
       typeof (window as WindowWithTestFrameworks).Cypress !== 'undefined' ||
-      typeof (window as WindowWithTestFrameworks).__PLAYWRIGHT__ !== 'undefined';
+      typeof (window as WindowWithTestFrameworks).__PLAYWRIGHT__ !==
+        'undefined';
 
     if (testMode) {
       this.enabled.set(true);
@@ -113,7 +114,8 @@ export class GridTestAccessibilityService {
         row,
         column,
         isEmpty: () => false,
-        isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
+        isSamePosition: (p: { row: number; column: number }) =>
+          p.row === row && p.column === column,
       } as unknown as MyPosition;
       this.testAccessibility.setSelectedCell(row, column);
       return { row, column };
@@ -126,7 +128,8 @@ export class GridTestAccessibilityService {
           row,
           column,
           isEmpty: () => false,
-          isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
+          isSamePosition: (p: { row: number; column: number }) =>
+            p.row === row && p.column === column,
         } as unknown as MyPosition;
         this.cellManipulationService.setIsEditing(true);
         this.testAccessibility.setEditingCell(row, column);
@@ -136,7 +139,9 @@ export class GridTestAccessibilityService {
 
     // Scroll to row
     api.scrollToRow = (row: number) => {
-      (this.scrollService as IScrollControllerWithVertical).verticalScrollPosition = row;
+      (
+        this.scrollService as IScrollControllerWithVertical
+      ).verticalScrollPosition = row;
       this.drawScheduleService.moveGrid();
       // Update metadata after scroll with RAF for better sync
       requestAnimationFrame(() => this.updateMetadata());
@@ -298,8 +303,7 @@ export class GridTestAccessibilityService {
     if (!this.drawScheduleService.isCanvasAvailable()) return 1;
 
     // Try to get actual canvas width, fallback to window width
-    const viewportWidth =
-      this.drawScheduleService.width || window.innerWidth;
+    const viewportWidth = this.drawScheduleService.width || window.innerWidth;
     return Math.ceil(viewportWidth / this.settings.cellWidth);
   }
 }

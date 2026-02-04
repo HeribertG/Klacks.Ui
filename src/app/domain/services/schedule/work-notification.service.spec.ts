@@ -38,7 +38,7 @@ describe('WorkNotificationService', () => {
     workUpdated$ = new Subject<IWorkNotification>();
     workDeleted$ = new Subject<IWorkNotification>();
     shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
-    const scheduleUpdated$ = new Subject<any>();
+    const scheduleUpdated$ = new Subject<unknown>();
 
     const signalRServiceMock = {
       workCreated$: workCreated$.asObservable(),

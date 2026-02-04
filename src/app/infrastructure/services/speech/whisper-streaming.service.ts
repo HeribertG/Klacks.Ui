@@ -89,7 +89,7 @@ export class WhisperStreamingService {
     }
   }
 
-  async startStreaming(language: string = 'de'): Promise<void> {
+  async startStreaming(language = 'de'): Promise<void> {
     this.currentLanguage = language;
     this.accumulatedText = '';
     this.audioChunks = [];
@@ -212,8 +212,8 @@ export class WhisperStreamingService {
         URL.revokeObjectURL(audioUrl);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Transcription error:', error);
+      const _errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Transcription error:', error, _errorMessage);
     } finally {
       this.isProcessingChunk = false;
       this.isTranscribing.set(false);
