@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Injectable,
   signal,
@@ -7,16 +6,17 @@ import {
   runInInjectionContext,
   Injector,
 } from '@angular/core';
-import {
-  TestAccessibilityService,
-  CellInfo,
-} from './test-accessibility.service';
-import { BaseSettingsService } from '../data-setting/settings.service';
+import { TestAccessibilityService } from './test-accessibility.service';
+import type {
+  ITestableGridDataSource,
+  IScrollController,
+  ICellManipulationController,
+  IDrawScheduleController,
+  IGridSettings,
+  ITestCellInfo,
+  ITestGridMetadata,
+} from './grid-test-accessibility.types';
 
-import { BaseDataService } from '../data-setting/data.service';
-import { MyPosition } from '../../classes/position';
-
-/**
 /**
  * Service that manages test accessibility for the Schedule Grid.
  *
@@ -25,12 +25,12 @@ import { MyPosition } from '../../classes/position';
  * - Ghost DOM metadata synchronization
  * - Scroll position tracking
  * - Cell selection and editing tracking
- * 
+ *
  * Usage:
  *   private testAccessibility = inject(GridTestAccessibilityService);
- *   
+ *
  *   // In component initialization:
- *   this.testAccessibility.initialize(this.dataService, this.scroll, this.cellManipulation, this.drawSchedule);
+ *   this.testAccessibility.initialize(dataService, scroll, cellManipulation, drawSchedule, settings);
  *
  * This service is NOT providedIn: 'root' to avoid loading test code in production.
  * It should be provided by the Schedule component/module when needed.
@@ -38,25 +38,14 @@ import { MyPosition } from '../../classes/position';
 @Injectable()
 export class GridTestAccessibilityService {
   private testAccessibility = inject(TestAccessibilityService);
-  private settings = inject(BaseSettingsService);
   private injector = inject(Injector);
 
   // References to grid components (set during initialization)
-  private dataService!: BaseDataService;
-  private scrollService!: {
-    horizontalScrollPosition: number;
-    verticalScrollPosition: number;
-  };
-  private cellManipulationService!: {
-    positionSignal: () => MyPosition | null;
-    isEditing: () => boolean;
-    Position: MyPosition;
-    setIsEditing: (value: boolean) => void;
-  };
-  private drawScheduleService!: {
-    moveGrid: () => void;
-    isCanvasAvailable: () => boolean;
-  };
+  private dataService!: ITestableGridDataSource;
+  private scrollService!: IScrollController;
+  private cellManipulationService!: ICellManipulationController;
+  private drawScheduleService!: IDrawScheduleController;
+  private settings!: IGridSettings;
 
   // Feature flag
   enabled = signal(false);
@@ -66,23 +55,17 @@ export class GridTestAccessibilityService {
    * Must be called before using any other methods.
    */
   initialize(
-    dataService: BaseDataService,
-    scroll: {
-      horizontalScrollPosition: number;
-      verticalScrollPosition: number;
-    },
-    cellManipulation: {
-      positionSignal: () => MyPosition | null;
-      isEditing: () => boolean;
-      Position: MyPosition;
-      setIsEditing: (value: boolean) => void;
-    },
-    drawSchedule: { moveGrid: () => void; isCanvasAvailable: () => boolean },
+    dataService: ITestableGridDataSource,
+    scroll: IScrollController,
+    cellManipulation: ICellManipulationController,
+    drawSchedule: IDrawScheduleController,
+    settings: IGridSettings,
   ): void {
     this.dataService = dataService;
     this.scrollService = scroll;
     this.cellManipulationService = cellManipulation;
     this.drawScheduleService = drawSchedule;
+    this.settings = settings;
 
     // Check if test mode should be enabled
     const urlParams = new URLSearchParams(window.location.search);
@@ -103,18 +86,23 @@ export class GridTestAccessibilityService {
     this.syncMetadata();
 
     // Initial metadata update
-    setTimeout(() => this.updateMetadata(), 0);
+    requestAnimationFrame(() => this.updateMetadata());
 
     console.log('[Grid] Test accessibility enabled');
   }
 
   private setupApiHooks(): void {
-    const api = (window as any).klacksScheduleGrid;
+    const api = window.klacksScheduleGrid;
     if (!api) return;
 
     // Cell selection
     api.selectCell = (row: number, column: number) => {
-      this.cellManipulationService.Position = new MyPosition(row, column);
+      this.cellManipulationService.Position = {
+        row,
+        column,
+        isEmpty: () => false,
+        isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
+      } as any;
       this.testAccessibility.setSelectedCell(row, column);
       return { row, column };
     };
@@ -122,7 +110,12 @@ export class GridTestAccessibilityService {
     // Start editing
     api.startEdit = (row: number, column: number) => {
       if (this.dataService.isCellEditable(row, column)) {
-        this.cellManipulationService.Position = new MyPosition(row, column);
+        this.cellManipulationService.Position = {
+          row,
+          column,
+          isEmpty: () => false,
+          isSamePosition: (p: { row: number; column: number }) => p.row === row && p.column === column,
+        } as any;
         this.cellManipulationService.setIsEditing(true);
         this.testAccessibility.setEditingCell(row, column);
       }
@@ -133,8 +126,8 @@ export class GridTestAccessibilityService {
     api.scrollToRow = (row: number) => {
       (this.scrollService as any).verticalScrollPosition = row;
       this.drawScheduleService.moveGrid();
-      // Update metadata after scroll
-      setTimeout(() => this.updateMetadata(), 100);
+      // Update metadata after scroll with RAF for better sync
+      requestAnimationFrame(() => this.updateMetadata());
     };
 
     // Get scroll position
@@ -185,7 +178,7 @@ export class GridTestAccessibilityService {
   updateMetadata(): void {
     if (!this.enabled()) return;
 
-    const cells = new Map<string, CellInfo>();
+    const cells = new Map<string, ITestCellInfo>();
     const visibleRows = this.calculateVisibleRows();
     const visibleCols = this.calculateVisibleColumns();
     const startRow = this.scrollService.verticalScrollPosition;
@@ -195,13 +188,10 @@ export class GridTestAccessibilityService {
     const getClientInfo = (
       row: number,
     ): { clientId?: string; clientName?: string } => {
-      const ds = this.dataService as any;
+      const ds = this.dataService;
       if (ds.rowGroupIndex && Array.isArray(ds.rowGroupIndex)) {
         const clientIndex = ds.rowGroupIndex[row];
-        if (
-          clientIndex !== undefined &&
-          typeof ds.getGroupIndex === 'function'
-        ) {
+        if (clientIndex !== undefined && ds.getGroupIndex) {
           const client = ds.getGroupIndex(clientIndex);
           if (client) {
             return { clientId: client.id, clientName: client.name };
@@ -212,8 +202,8 @@ export class GridTestAccessibilityService {
     };
 
     const getDateForColumn = (col: number): string | undefined => {
-      const ds = this.dataService as any;
-      if (typeof ds.getDateForColumn === 'function') {
+      const ds = this.dataService;
+      if (ds.getDateForColumn) {
         const date = ds.getDateForColumn(col);
         if (date instanceof Date) {
           return date.toISOString().split('T')[0];
@@ -266,22 +256,38 @@ export class GridTestAccessibilityService {
       }
     }
 
-    this.testAccessibility.updateGridMetadata({
+    const metadata: ITestGridMetadata = {
       rows: this.dataService.rows,
       columns: this.dataService.columns,
       cells,
-    });
+    };
+
+    this.testAccessibility.updateGridMetadata(metadata);
   }
 
+  /**
+   * Calculates visible rows based on viewport height and cell height.
+   * Uses window.innerHeight as fallback if canvas dimensions not available.
+   */
   private calculateVisibleRows(): number {
     if (!this.drawScheduleService.isCanvasAvailable()) return 1;
-    // Approximate - could be passed from component
-    return 20;
+
+    // Try to get actual canvas height, fallback to window height
+    const viewportHeight =
+      this.drawScheduleService.height || window.innerHeight;
+    return Math.ceil(viewportHeight / this.settings.cellHeight);
   }
 
+  /**
+   * Calculates visible columns based on viewport width and cell width.
+   * Uses window.innerWidth as fallback if canvas dimensions not available.
+   */
   private calculateVisibleColumns(): number {
     if (!this.drawScheduleService.isCanvasAvailable()) return 1;
-    // Approximate - could be passed from component
-    return 15;
+
+    // Try to get actual canvas width, fallback to window width
+    const viewportWidth =
+      this.drawScheduleService.width || window.innerWidth;
+    return Math.ceil(viewportWidth / this.settings.cellWidth);
   }
 }

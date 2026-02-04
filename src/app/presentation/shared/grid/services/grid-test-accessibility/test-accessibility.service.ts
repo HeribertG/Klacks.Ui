@@ -1,5 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, signal, computed } from '@angular/core';
+import type {
+  ITestGridMetadata,
+  ITestCellInfo,
+  ICellPosition,
+  IScheduleGridWindowApi,
+} from './grid-test-accessibility.types';
+
+export type { ITestGridMetadata, ITestCellInfo, ICellPosition, IScheduleGridWindowApi };
 
 /**
  * Enhanced Test Accessibility Service that works WITH the existing HTML input overlay.
@@ -8,23 +15,22 @@ import { Injectable, signal, computed } from '@angular/core';
  * - Non-editable cells: Ghost DOM divs for clicking/assertions
  * - Editable cells: Use existing .cell-input-overlay (just add test attributes)
  * - All cells: Expose metadata via window.klacksScheduleGrid
- */
-/**
+ *
  * This service is NOT providedIn: 'root' to avoid loading test code in production.
  * It should be provided by the Schedule component/module when needed.
  */
 @Injectable()
 export class TestAccessibilityService {
   private _enabled = signal(false);
-  private _gridMetadata = signal<GridMetadata>({
+  private _gridMetadata = signal<ITestGridMetadata>({
     rows: 0,
     columns: 0,
     cells: new Map(),
   });
 
   // Currently selected cell info
-  private _selectedCell = signal<CellPosition | null>(null);
-  private _editingCell = signal<CellPosition | null>(null);
+  private _selectedCell = signal<ICellPosition | null>(null);
+  private _editingCell = signal<ICellPosition | null>(null);
 
   isEnabled = computed(() => this._enabled());
 
@@ -33,9 +39,9 @@ export class TestAccessibilityService {
     if (!this._enabled()) return [];
 
     const metadata = this._gridMetadata();
-    const ghostCells: GhostCellInfo[] = [];
+    const ghostCells: ITestCellInfo[] = [];
 
-    metadata.cells.forEach((cell, key) => {
+    metadata.cells.forEach((cell) => {
       // Only create ghost elements for NON-EDITABLE cells
       // Editable cells use the existing .cell-input-overlay
       if (!cell.isEditable && cell.isVisible) {
@@ -56,11 +62,11 @@ export class TestAccessibilityService {
     }
   }
 
-  updateGridMetadata(metadata: GridMetadata) {
+  updateGridMetadata(metadata: ITestGridMetadata) {
     this._gridMetadata.set(metadata);
   }
 
-  updateCell(row: number, column: number, info: Partial<CellInfo>) {
+  updateCell(row: number, column: number, info: Partial<ITestCellInfo>) {
     const metadata = this._gridMetadata();
     const key = `${row}-${column}`;
     const existing = metadata.cells.get(key);
@@ -86,11 +92,11 @@ export class TestAccessibilityService {
     }
   }
 
-  getCellInfo(row: number, column: number): CellInfo | undefined {
+  getCellInfo(row: number, column: number): ITestCellInfo | undefined {
     return this._gridMetadata().cells.get(`${row}-${column}`);
   }
 
-  findCellByTestId(testId: string): CellInfo | undefined {
+  findCellByTestId(testId: string): ITestCellInfo | undefined {
     for (const cell of this._gridMetadata().cells.values()) {
       if (
         cell.testId === testId ||
@@ -102,7 +108,7 @@ export class TestAccessibilityService {
     return undefined;
   }
 
-  findCellByValue(value: string): CellInfo | undefined {
+  findCellByValue(value: string): ITestCellInfo | undefined {
     for (const cell of this._gridMetadata().cells.values()) {
       if (cell.value === value) {
         return cell;
@@ -114,7 +120,7 @@ export class TestAccessibilityService {
   findCellByClientAndDate(
     clientId: string,
     date: string,
-  ): CellInfo | undefined {
+  ): ITestCellInfo | undefined {
     for (const cell of this._gridMetadata().cells.values()) {
       if (cell.clientId === clientId && cell.date === date) {
         return cell;
@@ -123,22 +129,22 @@ export class TestAccessibilityService {
     return undefined;
   }
 
-  getAllCells(): CellInfo[] {
+  getAllCells(): ITestCellInfo[] {
     return Array.from(this._gridMetadata().cells.values());
   }
 
-  getVisibleCells(): CellInfo[] {
+  getVisibleCells(): ITestCellInfo[] {
     return this.getAllCells().filter((c) => c.isVisible);
   }
 
-  getEditableCells(): CellInfo[] {
+  getEditableCells(): ITestCellInfo[] {
     return this.getAllCells().filter((c) => c.isEditable);
   }
 
   private exposeTestApi() {
     if (typeof window === 'undefined') return;
 
-    (window as any).klacksScheduleGrid = {
+    const api: IScheduleGridWindowApi = {
       // Cell queries
       getCellAt: (row: number, column: number) => this.getCellInfo(row, column),
       getCellByTestId: (testId: string) => this.findCellByTestId(testId),
@@ -161,7 +167,6 @@ export class TestAccessibilityService {
 
       // Actions (these would need to be connected to actual grid actions)
       selectCell: (row: number, column: number) => {
-        // This will be overridden by the component to actually select
         console.log('[klacksScheduleGrid] Select cell:', row, column);
         return { row, column };
       },
@@ -181,73 +186,16 @@ export class TestAccessibilityService {
       isEnabled: () => this.isEnabled(),
     };
 
-    // Scroll position is provided by grid component via getScrollPosition hook
+    window.klacksScheduleGrid = api;
   }
 }
 
-// Interfaces
-export interface GridMetadata {
-  rows: number;
-  columns: number;
-  cells: Map<string, CellInfo>; // key: "row-col"
-}
+// Re-export types for backward compatibility
+export type GridMetadata = ITestGridMetadata;
+export type CellInfo = ITestCellInfo;
+export type CellPosition = ICellPosition;
 
-export interface CellInfo {
-  row: number;
-  column: number;
-  value: string;
-  testId: string;
-  isEditable: boolean;
-  isVisible: boolean;
-  isHeader?: boolean;
-  x?: number; // Screen position
-  y?: number;
-  width?: number;
-  height?: number;
-  // Schedule-specific metadata
-  clientId?: string;
-  clientName?: string;
-  date?: string;
-  entryType?: 'work' | 'break' | 'workChange' | 'expenses' | 'empty';
-  shiftId?: string;
-  // Styling info
-  backgroundColor?: string;
-  textColor?: string;
-}
-
-export interface GhostCellInfo extends CellInfo {
+// Legacy interfaces - kept for compatibility
+export interface GhostCellInfo extends ITestCellInfo {
   // Additional info for ghost DOM rendering
-}
-
-export interface CellPosition {
-  row: number;
-  column: number;
-}
-
-// Extend Window interface
-declare global {
-  interface Window {
-    klacksScheduleGrid?: {
-      getCellAt: (row: number, column: number) => CellInfo | undefined;
-      getCellByTestId: (testId: string) => CellInfo | undefined;
-      getCellByValue: (value: string) => CellInfo | undefined;
-      getCellByClientAndDate: (
-        clientId: string,
-        date: string,
-      ) => CellInfo | undefined;
-      getAllCells: () => CellInfo[];
-      getVisibleCells: () => CellInfo[];
-      getSelectedCell: () => CellPosition | null;
-      getEditingCell: () => CellPosition | null;
-      isEditing: () => boolean;
-      findCellsByClient: (clientId: string) => CellInfo[];
-      findCellsByDate: (date: string) => CellInfo[];
-      selectCell: (row: number, column: number) => CellPosition;
-      startEdit: (row: number, column: number) => CellPosition;
-      scrollToRow: (row: number) => void;
-      getScrollPosition: () => { horizontal: number; vertical: number };
-      setEnabled: (enabled: boolean) => void;
-      isEnabled: () => boolean;
-    };
-  }
 }

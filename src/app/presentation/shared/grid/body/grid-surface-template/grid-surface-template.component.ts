@@ -16,7 +16,6 @@ import {
   effect,
   inject,
   runInInjectionContext,
-  signal,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
@@ -152,9 +151,11 @@ export class GridSurfaceTemplateComponent
         positionSignal: () => this.cellManipulation.positionSignal(),
         isEditing: () => this.cellManipulation.isEditing(),
         Position: this.cellManipulation.Position,
-        setIsEditing: (value: boolean) => this.cellManipulation.isEditing.set(value),
+        setIsEditing: (value: boolean) =>
+          this.cellManipulation.isEditing.set(value),
       },
       this.drawSchedule,
+      this.settings,
     );
   }
 
