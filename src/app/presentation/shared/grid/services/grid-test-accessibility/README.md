@@ -41,27 +41,27 @@ Test accessibility system for the Schedule Grid. Enables E2E testing (Playwright
 
 ## Window API
 
-When test mode is enabled (`?testMode` URL parameter), `window.klacksScheduleGrid` is available:
+When test mode is enabled (`?testMode` URL parameter), `window.klacksGrid` is available:
 
 ```typescript
 // Get cell metadata
 const cell = await page.evaluate(() => {
-  return window.klacksScheduleGrid.getCellAt(2, 3);
+  return window.klacksGrid.getCellAt(2, 3);
 });
 
 // Find cells
 const cells = await page.evaluate(() => {
-  return window.klacksScheduleGrid.findCellsByClient('client-123');
+  return window.klacksGrid.findCellsByClient('client-123');
 });
 
 // Select cell
 await page.evaluate(() => {
-  window.klacksScheduleGrid.selectCell(2, 3);
+  window.klacksGrid.selectCell(2, 3);
 });
 
 // Scroll to row
 await page.evaluate(() => {
-  window.klacksScheduleGrid.scrollToRow(10);
+  window.klacksGrid.scrollToRow(10);
 });
 ```
 

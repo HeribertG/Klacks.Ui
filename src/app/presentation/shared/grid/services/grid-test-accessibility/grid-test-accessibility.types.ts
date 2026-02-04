@@ -225,6 +225,6 @@ export interface IScheduleGridWindowApi {
 
 declare global {
   interface Window {
-    klacksScheduleGrid?: IScheduleGridWindowApi;
+    klacksGrid?: IScheduleGridWindowApi;
   }
 }

@@ -21,7 +21,7 @@ import type {
  * Service that manages test accessibility for the Schedule Grid.
  *
  * This service encapsulates all test-mode functionality including:
- * - Window API exposure (window.klacksScheduleGrid)
+ * - Window API exposure (window.klacksGrid)
  * - Ghost DOM metadata synchronization
  * - Scroll position tracking
  * - Cell selection and editing tracking
@@ -92,7 +92,7 @@ export class GridTestAccessibilityService {
   }
 
   private setupApiHooks(): void {
-    const api = window.klacksScheduleGrid;
+    const api = window.klacksGrid;
     if (!api) return;
 
     // Cell selection

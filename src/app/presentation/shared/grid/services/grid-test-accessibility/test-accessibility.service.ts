@@ -167,15 +167,15 @@ export class TestAccessibilityService {
 
       // Actions (these would need to be connected to actual grid actions)
       selectCell: (row: number, column: number) => {
-        console.log('[klacksScheduleGrid] Select cell:', row, column);
+        console.log('[klacksGrid] Select cell:', row, column);
         return { row, column };
       },
       startEdit: (row: number, column: number) => {
-        console.log('[klacksScheduleGrid] Start edit:', row, column);
+        console.log('[klacksGrid] Start edit:', row, column);
         return { row, column };
       },
       scrollToRow: (row: number) => {
-        console.log('[klacksScheduleGrid] Scroll to row:', row);
+        console.log('[klacksGrid] Scroll to row:', row);
       },
 
       // Scroll position (to be overridden by component)
@@ -186,7 +186,7 @@ export class TestAccessibilityService {
       isEnabled: () => this.isEnabled(),
     };
 
-    window.klacksScheduleGrid = api;
+    window.klacksGrid = api;
   }
 }
 
