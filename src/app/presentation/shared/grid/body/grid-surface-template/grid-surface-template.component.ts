@@ -16,6 +16,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  signal,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
@@ -25,12 +26,21 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
-import { GridTemplateEventsDirective, GridRightClickEvent, GridDoubleClickEvent } from '../directives/grid-template-events.directive';
-import { CellInputEventsDirective, CellInputRightClickEvent } from '../directives/cell-input-events.directive';
+import {
+  GridTemplateEventsDirective,
+  GridRightClickEvent,
+  GridDoubleClickEvent,
+} from '../directives/grid-template-events.directive';
+import {
+  CellInputEventsDirective,
+  CellInputRightClickEvent,
+} from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
 import { MyPosition } from '../../classes/position';
 import { TooltipService } from '../../../tooltip/tooltip.service';
+import { TestAccessibilityService } from '../../services/grid-test-accessibility/test-accessibility.service';
+import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -52,6 +62,11 @@ export interface CellValueChangeEvent {
   styleUrl: './grid-surface-template.component.scss',
   standalone: true,
   imports: [GridTemplateEventsDirective, CellInputEventsDirective],
+  providers: [
+    // Test accessibility services - only instantiated when component is created
+    TestAccessibilityService,
+    GridTestAccessibilityService,
+  ],
 })
 export class GridSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -75,7 +90,8 @@ export class GridSurfaceTemplateComponent
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild(CellInputEventsDirective) cellInputDirective?: CellInputEventsDirective;
+  @ViewChild(CellInputEventsDirective)
+  cellInputDirective?: CellInputEventsDirective;
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
@@ -84,10 +100,17 @@ export class GridSurfaceTemplateComponent
   private cellManipulation = inject(BaseCellManipulationService);
   private gridFonts = inject(GridFontsService);
   private tooltipService = inject(TooltipService);
+  public testAccessibility = inject(TestAccessibilityService);
+  private gridTestAccessibility = inject(GridTestAccessibilityService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
+
+  // Test accessibility enabled state (delegated to GridTestAccessibilityService)
+  get testAccessibilityEnabled() {
+    return this.gridTestAccessibility.enabled;
+  }
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
@@ -96,8 +119,8 @@ export class GridSurfaceTemplateComponent
   public cellInputVisible = false;
   public cellInputX = 0;
   public cellInputY = 0;
-  private lastEditedRow = -1;
-  private lastEditedColumn = -1;
+  public lastEditedRow = -1;
+  public lastEditedColumn = -1;
 
   public get cellInputFontSize(): string {
     return this.gridFonts.mainFontSizeZoom + 'pt';
@@ -122,6 +145,17 @@ export class GridSurfaceTemplateComponent
   ngOnInit(): void {
     this.readSignals();
     this._pixelRatio = DrawHelper.pixelRatio();
+    this.gridTestAccessibility.initialize(
+      this.dataService,
+      this.scroll,
+      {
+        positionSignal: () => this.cellManipulation.positionSignal(),
+        isEditing: () => this.cellManipulation.isEditing(),
+        Position: this.cellManipulation.Position,
+        setIsEditing: (value: boolean) => this.cellManipulation.isEditing.set(value),
+      },
+      this.drawSchedule,
+    );
   }
 
   ngAfterViewInit(): void {
@@ -157,7 +191,7 @@ export class GridSurfaceTemplateComponent
         this.scroll.horizontalScrollPosition = currH;
         this.scroll.updateScrollPosition(
           currH,
-          this.scroll.verticalScrollPosition
+          this.scroll.verticalScrollPosition,
         );
         hDirection = true;
       }
@@ -170,7 +204,7 @@ export class GridSurfaceTemplateComponent
         this.scroll.verticalScrollPosition = currV;
         this.scroll.updateScrollPosition(
           this.scroll.horizontalScrollPosition,
-          currV
+          currV,
         );
         vDirection = true;
       }
@@ -236,7 +270,7 @@ export class GridSurfaceTemplateComponent
     } else {
       console.warn(
         '[TEMPLATE] ResizeObserver not available or no parent element:',
-        this.nameId
+        this.nameId,
       );
     }
   }
@@ -473,7 +507,11 @@ export class GridSurfaceTemplateComponent
     canvas.dispatchEvent(newEvent);
   }
 
-  private updateCellInputPosition(row: number, column: number, isEditing: boolean): void {
+  private updateCellInputPosition(
+    row: number,
+    column: number,
+    isEditing: boolean,
+  ): void {
     if (!this.settings.editable || row < 0 || column < 0) {
       this.hideCellInput();
       return;
@@ -506,13 +544,21 @@ export class GridSurfaceTemplateComponent
     }
 
     const x = (column - firstVisibleCol) * this.settings.cellWidth;
-    const y = (row - firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
+    const y =
+      (row - firstVisibleRow) * this.settings.cellHeight +
+      this.settings.cellHeaderHeight;
 
     this.showCellInput(x, y, row, column);
   }
 
-  private showCellInput(x: number, y: number, row: number, column: number): void {
-    const isNewCell = row !== this.lastEditedRow || column !== this.lastEditedColumn;
+  private showCellInput(
+    x: number,
+    y: number,
+    row: number,
+    column: number,
+  ): void {
+    const isNewCell =
+      row !== this.lastEditedRow || column !== this.lastEditedColumn;
 
     this.cellInputX = x;
     this.cellInputY = y;
@@ -546,7 +592,11 @@ export class GridSurfaceTemplateComponent
   }
 
   private saveCellInput(): void {
-    if (!this.cellInputVisible || this.lastEditedRow < 0 || this.lastEditedColumn < 0) {
+    if (
+      !this.cellInputVisible ||
+      this.lastEditedRow < 0 ||
+      this.lastEditedColumn < 0
+    ) {
       return;
     }
 
@@ -559,10 +609,22 @@ export class GridSurfaceTemplateComponent
   }
 
   private cancelCellInput(): void {
-    if (this.lastEditedRow >= 0 && this.lastEditedColumn >= 0 && this.cellInputDirective) {
-      const content = this.dataService.getItemMainText(this.lastEditedRow, this.lastEditedColumn);
+    if (
+      this.lastEditedRow >= 0 &&
+      this.lastEditedColumn >= 0 &&
+      this.cellInputDirective
+    ) {
+      const content = this.dataService.getItemMainText(
+        this.lastEditedRow,
+        this.lastEditedColumn,
+      );
       this.cellInputDirective.value = content;
     }
     this.cellInputDirective?.blur();
+  }
+
+  onGhostCellClick(event: { row: number; column: number }): void {
+    // Click on ghost cell (non-editable cell)
+    this.cellManipulation.Position = new MyPosition(event.row, event.column);
   }
 }
