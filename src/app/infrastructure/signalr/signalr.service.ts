@@ -50,11 +50,14 @@ export class SignalRService implements OnDestroy {
   }
 
   async startConnection(): Promise<void> {
+    console.log('SignalR: startConnection called');
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      console.log('SignalR: Already connected, skipping');
       return;
     }
 
     const token = this.localStorageService.get(StorageKeys.TOKEN);
+    console.log('SignalR: Token from storage:', token ? `${token.substring(0, 50)}...` : 'NULL');
     if (!token) {
       console.warn('SignalR: No token available, skipping connection');
       return;
@@ -71,9 +74,14 @@ export class SignalRService implements OnDestroy {
       return;
     }
 
+    const urlWithToken = `${this.hubUrl}?access_token=${encodeURIComponent(token)}`;
+    console.log('SignalR: Connecting to URL with token in query string');
+
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(this.hubUrl, {
+      .withUrl(urlWithToken, {
         accessTokenFactory: () => token,
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
@@ -119,6 +127,8 @@ export class SignalRService implements OnDestroy {
         this._connectionId.set(connectionId);
         this._isConnected.set(true);
         console.log('SignalR connected with ID:', connectionId);
+        console.log('SignalR: Checking for pending group to join, currentGroup:', this.currentGroup);
+        await this.rejoinCurrentGroup();
         return;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -175,7 +185,7 @@ export class SignalRService implements OnDestroy {
 
   private async performGroupSwitch(startDate: string, endDate: string): Promise<void> {
     if (!this.hubConnection || !this.isConnected) {
-      console.warn('SignalR: Cannot join group - not connected');
+      console.warn('SignalR: Cannot join group - not connected, saving for later:', { startDate, endDate });
       this.currentGroup = { startDate, endDate };
       return;
     }
@@ -187,7 +197,7 @@ export class SignalRService implements OnDestroy {
     try {
       await this.hubConnection.invoke('JoinScheduleGroup', startDate, endDate);
       this.currentGroup = { startDate, endDate };
-      console.log(`SignalR: Joined group schedule_${startDate}_${endDate}`);
+      console.log(`SignalR: Joined group schedule_${startDate}_${endDate}, connectionId=${this._connectionId()}`);
     } catch (error) {
       console.error('SignalR: Failed to join group', error);
       this.currentGroup = { startDate, endDate };
@@ -211,9 +221,11 @@ export class SignalRService implements OnDestroy {
   }
 
   async rejoinCurrentGroup(): Promise<void> {
+    console.log('SignalR rejoinCurrentGroup called, currentGroup:', this.currentGroup, 'isConnected:', this.isConnected);
     if (this.currentGroup && this.isConnected) {
       const { startDate, endDate } = this.currentGroup;
       this.currentGroup = null;
+      console.log('SignalR: Rejoining saved group:', { startDate, endDate });
       await this.joinScheduleGroup(startDate, endDate);
     }
   }
@@ -222,18 +234,22 @@ export class SignalRService implements OnDestroy {
     if (!this.hubConnection) return;
 
     this.hubConnection.on('WorkCreated', (notification: IWorkNotification) => {
+      console.log('SignalR RECEIVED: WorkCreated', notification);
       this.workCreated$.next(notification);
     });
 
     this.hubConnection.on('WorkUpdated', (notification: IWorkNotification) => {
+      console.log('SignalR RECEIVED: WorkUpdated', notification);
       this.workUpdated$.next(notification);
     });
 
     this.hubConnection.on('WorkDeleted', (notification: IWorkNotification) => {
+      console.log('SignalR RECEIVED: WorkDeleted', notification);
       this.workDeleted$.next(notification);
     });
 
     this.hubConnection.on('ScheduleUpdated', (notification: IScheduleNotification) => {
+      console.log('SignalR RECEIVED: ScheduleUpdated', notification);
       this.scheduleUpdated$.next(notification);
     });
 
@@ -308,12 +324,15 @@ export class SignalRService implements OnDestroy {
   private async validateTokenWithBackend(token: string): Promise<boolean> {
     try {
       const validateUrl = environment.baseUrl + 'Accounts/ValidateToken';
+      console.log('SignalR: Validating token with backend at:', validateUrl);
       const response = await fetch(validateUrl, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log('SignalR: Token validation response:', response.ok, response.status);
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error('SignalR: Token validation error:', error);
       return false;
     }
   }

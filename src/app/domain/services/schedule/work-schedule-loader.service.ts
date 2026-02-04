@@ -145,8 +145,6 @@ export class WorkScheduleLoaderService {
     this._isLoadingMore.set(false);
 
     const dates = this.calculateVisibleDates(workFilter);
-    const periodDates = this.calculatePeriodDates(workFilter);
-    this.joinSignalRGroup(periodDates.startDate, periodDates.endDate);
 
     this._currentFilter = {
       startDate: dates.startDate,
@@ -450,8 +448,6 @@ export class WorkScheduleLoaderService {
   }
 
   private joinSignalRGroup(startDate: string, endDate: string): void {
-    if (this.signalRService.isConnected) {
-      this.signalRService.joinScheduleGroup(startDate, endDate);
-    }
+    this.signalRService.joinScheduleGroup(startDate, endDate);
   }
 }
