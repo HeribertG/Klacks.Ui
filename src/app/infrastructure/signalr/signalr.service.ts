@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
+import { SignalRConstants } from './signalr.constants';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
@@ -38,7 +39,7 @@ export class SignalRService implements OnDestroy {
   private reconnectAttemptWithExpiredToken = false;
 
   constructor() {
-    this.hubUrl = environment.baseUrl.replace('/api/backend/', '/hubs/work-notifications');
+    this.hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
   }
 
   get connectionId(): string {
@@ -74,7 +75,7 @@ export class SignalRService implements OnDestroy {
       return;
     }
 
-    const urlWithToken = `${this.hubUrl}?access_token=${encodeURIComponent(token)}`;
+    const urlWithToken = `${this.hubUrl}?${SignalRConstants.QueryParams.AccessToken}=${encodeURIComponent(token)}`;
     console.log('SignalR: Connecting to URL with token in query string');
 
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -123,7 +124,7 @@ export class SignalRService implements OnDestroy {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         await this.hubConnection!.start();
-        const connectionId = await this.hubConnection!.invoke<string>('GetConnectionId');
+        const connectionId = await this.hubConnection!.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         this._connectionId.set(connectionId);
         this._isConnected.set(true);
         console.log('SignalR connected with ID:', connectionId);
@@ -195,9 +196,9 @@ export class SignalRService implements OnDestroy {
     }
 
     try {
-      await this.hubConnection.invoke('JoinScheduleGroup', startDate, endDate);
+      await this.hubConnection.invoke(SignalRConstants.HubMethods.JoinScheduleGroup, startDate, endDate);
       this.currentGroup = { startDate, endDate };
-      console.log(`SignalR: Joined group schedule_${startDate}_${endDate}, connectionId=${this._connectionId()}`);
+      console.log(`SignalR: Joined group ${SignalRConstants.Groups.schedule(startDate, endDate)}, connectionId=${this._connectionId()}`);
     } catch (error) {
       console.error('SignalR: Failed to join group', error);
       this.currentGroup = { startDate, endDate };
@@ -210,11 +211,11 @@ export class SignalRService implements OnDestroy {
     }
 
     try {
-      await this.hubConnection.invoke('LeaveScheduleGroup', startDate, endDate);
+      await this.hubConnection.invoke(SignalRConstants.HubMethods.LeaveScheduleGroup, startDate, endDate);
       if (this.currentGroup?.startDate === startDate && this.currentGroup?.endDate === endDate) {
         this.currentGroup = null;
       }
-      console.log(`SignalR: Left group schedule_${startDate}_${endDate}`);
+      console.log(`SignalR: Left group ${SignalRConstants.Groups.schedule(startDate, endDate)}`);
     } catch (error) {
       console.error('SignalR: Failed to leave group', error);
     }
@@ -233,35 +234,35 @@ export class SignalRService implements OnDestroy {
   private registerEventHandlers(): void {
     if (!this.hubConnection) return;
 
-    this.hubConnection.on('WorkCreated', (notification: IWorkNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.WorkCreated, (notification: IWorkNotification) => {
       console.log('SignalR RECEIVED: WorkCreated', notification);
       this.workCreated$.next(notification);
     });
 
-    this.hubConnection.on('WorkUpdated', (notification: IWorkNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.WorkUpdated, (notification: IWorkNotification) => {
       console.log('SignalR RECEIVED: WorkUpdated', notification);
       this.workUpdated$.next(notification);
     });
 
-    this.hubConnection.on('WorkDeleted', (notification: IWorkNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.WorkDeleted, (notification: IWorkNotification) => {
       console.log('SignalR RECEIVED: WorkDeleted', notification);
       this.workDeleted$.next(notification);
     });
 
-    this.hubConnection.on('ScheduleUpdated', (notification: IScheduleNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.ScheduleUpdated, (notification: IScheduleNotification) => {
       console.log('SignalR RECEIVED: ScheduleUpdated', notification);
       this.scheduleUpdated$.next(notification);
     });
 
-    this.hubConnection.on('ShiftStatsUpdated', (notification: IShiftStatsNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.ShiftStatsUpdated, (notification: IShiftStatsNotification) => {
       this.shiftStatsUpdated$.next(notification);
     });
 
-    this.hubConnection.on('PeriodHoursUpdated', (notification: IPeriodHoursNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.PeriodHoursUpdated, (notification: IPeriodHoursNotification) => {
       this.periodHoursUpdated$.next(notification);
     });
 
-    this.hubConnection.on('PeriodHoursRecalculated', (notification: IPeriodHoursRecalculatedNotification) => {
+    this.hubConnection.on(SignalRConstants.Events.PeriodHoursRecalculated, (notification: IPeriodHoursRecalculatedNotification) => {
       this.periodHoursRecalculated$.next(notification);
     });
   }
@@ -269,14 +270,15 @@ export class SignalRService implements OnDestroy {
   private registerConnectionEvents(): void {
     if (!this.hubConnection) return;
 
-    this.hubConnection.onreconnecting(() => {
+    this.hubConnection.onreconnecting(async () => {
       console.log('SignalR reconnecting...');
       this._isConnected.set(false);
 
       const token = this.localStorageService.get(StorageKeys.TOKEN);
       if (token && this.isTokenExpired(token)) {
-        console.warn('SignalR: Token expired during reconnect - connection may fail');
+        console.warn('SignalR: Token expired during reconnect - attempting silent refresh');
         this.reconnectAttemptWithExpiredToken = true;
+        await this.attemptTokenRefresh();
       }
     });
 
@@ -284,14 +286,18 @@ export class SignalRService implements OnDestroy {
       console.log('SignalR reconnected with ID:', connectionId);
 
       if (this.reconnectAttemptWithExpiredToken) {
-        console.warn('SignalR: Reconnected with potentially expired token - consider refreshing connection');
+        const token = this.localStorageService.get(StorageKeys.TOKEN);
+        if (token && this.isTokenExpired(token)) {
+          console.warn('SignalR: Token still expired after reconnect - scheduling full refresh');
+          this.scheduleConnectionRefresh();
+        }
         this.reconnectAttemptWithExpiredToken = false;
       }
 
       if (connectionId) {
         this._connectionId.set(connectionId);
       } else {
-        const newId = await this.hubConnection?.invoke<string>('GetConnectionId');
+        const newId = await this.hubConnection?.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         this._connectionId.set(newId || '');
       }
       this._isConnected.set(true);
@@ -304,10 +310,46 @@ export class SignalRService implements OnDestroy {
       this._isConnected.set(false);
 
       if (this.reconnectAttemptWithExpiredToken) {
-        console.warn('SignalR: Connection closed, possibly due to expired token');
+        console.warn('SignalR: Connection closed due to expired token - scheduling reconnect with fresh token');
         this.reconnectAttemptWithExpiredToken = false;
+        this.scheduleConnectionRefresh();
       }
     });
+  }
+
+  private async attemptTokenRefresh(): Promise<void> {
+    try {
+      const refreshUrl = environment.baseUrl + 'Accounts/RefreshToken';
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+
+      const response = await fetch(refreshUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) {
+          this.localStorageService.set(StorageKeys.TOKEN, data.token);
+          console.log('SignalR: Token refreshed successfully');
+        }
+      }
+    } catch (error) {
+      console.warn('SignalR: Token refresh failed:', error);
+    }
+  }
+
+  private scheduleConnectionRefresh(): void {
+    setTimeout(async () => {
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (token && !this.isTokenExpired(token)) {
+        console.log('SignalR: Refreshing connection with new token');
+        await this.refreshConnection();
+      }
+    }, 1000);
   }
 
   ngOnDestroy(): void {
