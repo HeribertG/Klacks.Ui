@@ -12,26 +12,26 @@ describe('TestAccessibilityService', () => {
   beforeEach(() => {
     service = new TestAccessibilityService();
     // Clean up window object before each test
-    delete (window as any).klacksScheduleGrid;
+    delete (window as any).klacksGrid;
   });
 
   afterEach(() => {
     // Clean up after tests
-    delete (window as any).klacksScheduleGrid;
+    delete (window as any).klacksGrid;
   });
 
   describe('setEnabled', () => {
     it('should expose Window API when enabled', () => {
       service.setEnabled(true);
 
-      expect((window as any).klacksScheduleGrid).toBeDefined();
-      expect(typeof (window as any).klacksScheduleGrid?.getCellAt).toBe(
+      expect((window as any).klacksGrid).toBeDefined();
+      expect(typeof (window as any).klacksGrid?.getCellAt).toBe(
         'function',
       );
-      expect(typeof (window as any).klacksScheduleGrid?.getAllCells).toBe(
+      expect(typeof (window as any).klacksGrid?.getAllCells).toBe(
         'function',
       );
-      expect(typeof (window as any).klacksScheduleGrid?.selectCell).toBe(
+      expect(typeof (window as any).klacksGrid?.selectCell).toBe(
         'function',
       );
     });
@@ -39,7 +39,7 @@ describe('TestAccessibilityService', () => {
     it('should not expose Window API when disabled', () => {
       service.setEnabled(false);
 
-      expect((window as any).klacksScheduleGrid).toBeUndefined();
+      expect((window as any).klacksGrid).toBeUndefined();
     });
   });
 
@@ -342,7 +342,7 @@ describe('TestAccessibilityService', () => {
       ]);
       service.updateGridMetadata({ rows: 3, columns: 3, cells });
 
-      const clientCells = (window as any).klacksScheduleGrid?.findCellsByClient(
+      const clientCells = (window as any).klacksGrid?.findCellsByClient(
         'client-123',
       );
       expect(clientCells).toHaveLength(2);
@@ -390,31 +390,31 @@ describe('TestAccessibilityService', () => {
     it('should track selected cell', () => {
       service.setSelectedCell(3, 4);
 
-      const selected = (window as any).klacksScheduleGrid?.getSelectedCell();
+      const selected = (window as any).klacksGrid?.getSelectedCell();
       expect(selected).toEqual({ row: 3, column: 4 });
     });
 
     it('should return null when no cell selected', () => {
       service.setSelectedCell(0, null);
 
-      const selected = (window as any).klacksScheduleGrid?.getSelectedCell();
+      const selected = (window as any).klacksGrid?.getSelectedCell();
       expect(selected).toBeNull();
     });
 
     it('should track editing cell', () => {
       service.setEditingCell(2, 5);
 
-      const editing = (window as any).klacksScheduleGrid?.getEditingCell();
+      const editing = (window as any).klacksGrid?.getEditingCell();
       expect(editing).toEqual({ row: 2, column: 5 });
-      expect((window as any).klacksScheduleGrid?.isEditing()).toBe(true);
+      expect((window as any).klacksGrid?.isEditing()).toBe(true);
     });
 
     it('should return null when not editing', () => {
       service.setEditingCell(0, null);
 
-      const editing = (window as any).klacksScheduleGrid?.getEditingCell();
+      const editing = (window as any).klacksGrid?.getEditingCell();
       expect(editing).toBeNull();
-      expect((window as any).klacksScheduleGrid?.isEditing()).toBe(false);
+      expect((window as any).klacksGrid?.isEditing()).toBe(false);
     });
   });
 
