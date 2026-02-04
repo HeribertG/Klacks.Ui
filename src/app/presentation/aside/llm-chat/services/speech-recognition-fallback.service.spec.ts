@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { SpeechRecognitionService, SpeechDiagnostics } from './speech-recognition.service';
-import { WhisperTranscriptionService } from 'src/app/infrastructure/services/speech/whisper-transcription.service';
+import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { Subject } from 'rxjs';
 import { signal } from '@angular/core';
@@ -11,11 +11,13 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
   let mockWhisperService: any;
   let mockLanguageMappingService: any;
   let resultsSubject: Subject<string>;
+  let interimResultsSubject: Subject<string>;
   let errorsSubject: Subject<string>;
 
   const setupMocks = (userAgent: string) => {
     // Arrange
     resultsSubject = new Subject<string>();
+    interimResultsSubject = new Subject<string>();
     errorsSubject = new Subject<string>();
 
     mockWhisperService = {
@@ -23,11 +25,13 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       isRecording: signal(false),
       loadProgress: signal(0),
       isModelLoaded: signal(false),
+      isTranscribing: signal(false),
       results: resultsSubject.asObservable(),
+      interimResults: interimResultsSubject.asObservable(),
       errors: errorsSubject.asObservable(),
       loadModel: vi.fn().mockResolvedValue(true),
-      startRecording: vi.fn().mockResolvedValue(resultsSubject.asObservable()),
-      stopRecording: vi.fn(),
+      startStreaming: vi.fn().mockResolvedValue(undefined),
+      stopStreaming: vi.fn().mockResolvedValue(''),
       dispose: vi.fn(),
     };
 
@@ -67,7 +71,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     TestBed.configureTestingModule({
       providers: [
         SpeechRecognitionService,
-        { provide: WhisperTranscriptionService, useValue: mockWhisperService },
+        { provide: WhisperStreamingService, useValue: mockWhisperService },
         { provide: LanguageMappingService, useValue: mockLanguageMappingService },
       ],
     });
@@ -94,16 +98,16 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       expect(service.isSupported$()).toBe(true);
     });
 
-    it('should start Whisper recording when startListening called', async () => {
+    it('should start Whisper streaming when startListening called', async () => {
       // Act
       service.startListening('de-DE');
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
-      expect(mockWhisperService.startRecording).toHaveBeenCalledWith('de-DE');
+      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('de-DE');
     });
 
-    it('should stop Whisper recording when stopListening called', async () => {
+    it('should stop Whisper streaming when stopListening called', async () => {
       // Arrange
       service.startListening('de-DE');
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -112,7 +116,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       service.stopListening();
 
       // Assert
-      expect(mockWhisperService.stopRecording).toHaveBeenCalled();
+      expect(mockWhisperService.stopStreaming).toHaveBeenCalled();
     });
 
     it('should emit results from Whisper service', async () => {
@@ -126,6 +130,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
 
       // Act
       resultsSubject.next('Hallo Welt');
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
       expect(receivedResults).toContain('Hallo Welt');
@@ -143,6 +148,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
 
       // Act
       errorsSubject.next('Transcription error');
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
       expect(receivedErrors).toContain('Transcription error');
@@ -150,9 +156,9 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
 
     it('should expose Whisper loading state', () => {
       // Assert
-      expect(service.isWhisperLoading).toBe(mockWhisperService.isLoading);
-      expect(service.whisperLoadProgress).toBe(mockWhisperService.loadProgress);
-      expect(service.isWhisperModelLoaded).toBe(mockWhisperService.isModelLoaded);
+      expect(service.isWhisperLoading()).toBe(mockWhisperService.isLoading());
+      expect(service.whisperLoadProgress()).toBe(mockWhisperService.loadProgress());
+      expect(service.isWhisperModelLoaded()).toBe(mockWhisperService.isModelLoaded());
     });
   });
 
@@ -181,14 +187,16 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
-      expect(mockWhisperService.startRecording).toHaveBeenCalledWith('en-US');
+      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('en-US');
     });
   });
 
+  // Skip: Service initializes in constructor before mocks can be properly applied
   describe.skip('Chrome browser (no fallback)', () => {
     beforeEach(() => {
       // Arrange
       resultsSubject = new Subject<string>();
+      interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
 
       mockWhisperService = {
@@ -196,11 +204,13 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
         isRecording: signal(false),
         loadProgress: signal(0),
         isModelLoaded: signal(false),
+        isTranscribing: signal(false),
         results: resultsSubject.asObservable(),
+        interimResults: interimResultsSubject.asObservable(),
         errors: errorsSubject.asObservable(),
         loadModel: vi.fn().mockResolvedValue(true),
-        startRecording: vi.fn().mockResolvedValue(resultsSubject.asObservable()),
-        stopRecording: vi.fn(),
+        startStreaming: vi.fn().mockResolvedValue(undefined),
+        stopStreaming: vi.fn().mockResolvedValue(''),
         dispose: vi.fn(),
       };
 
@@ -251,7 +261,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       TestBed.configureTestingModule({
         providers: [
           SpeechRecognitionService,
-          { provide: WhisperTranscriptionService, useValue: mockWhisperService },
+          { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });
@@ -279,14 +289,16 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
-      expect(mockWhisperService.startRecording).not.toHaveBeenCalled();
+      expect(mockWhisperService.startStreaming).not.toHaveBeenCalled();
     });
   });
 
+  // Skip: Service initializes in constructor - isSecureContext check happens before mock applied
   describe.skip('Insecure context handling', () => {
     beforeEach(() => {
       // Arrange
       resultsSubject = new Subject<string>();
+      interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
 
       mockWhisperService = {
@@ -294,11 +306,13 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
         isRecording: signal(false),
         loadProgress: signal(0),
         isModelLoaded: signal(false),
+        isTranscribing: signal(false),
         results: resultsSubject.asObservable(),
+        interimResults: interimResultsSubject.asObservable(),
         errors: errorsSubject.asObservable(),
         loadModel: vi.fn().mockResolvedValue(true),
-        startRecording: vi.fn().mockResolvedValue(resultsSubject.asObservable()),
-        stopRecording: vi.fn(),
+        startStreaming: vi.fn().mockResolvedValue(undefined),
+        stopStreaming: vi.fn().mockResolvedValue(''),
         dispose: vi.fn(),
       };
 
@@ -325,7 +339,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       TestBed.configureTestingModule({
         providers: [
           SpeechRecognitionService,
-          { provide: WhisperTranscriptionService, useValue: mockWhisperService },
+          { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });
@@ -347,10 +361,12 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     });
   });
 
+  // Skip: Service initializes in constructor - mediaDevices check happens before mock applied
   describe.skip('No microphone access', () => {
     beforeEach(() => {
       // Arrange
       resultsSubject = new Subject<string>();
+      interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
 
       mockWhisperService = {
@@ -358,11 +374,13 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
         isRecording: signal(false),
         loadProgress: signal(0),
         isModelLoaded: signal(false),
+        isTranscribing: signal(false),
         results: resultsSubject.asObservable(),
+        interimResults: interimResultsSubject.asObservable(),
         errors: errorsSubject.asObservable(),
         loadModel: vi.fn().mockResolvedValue(true),
-        startRecording: vi.fn().mockResolvedValue(resultsSubject.asObservable()),
-        stopRecording: vi.fn(),
+        startStreaming: vi.fn().mockResolvedValue(undefined),
+        stopStreaming: vi.fn().mockResolvedValue(''),
         dispose: vi.fn(),
       };
 
@@ -395,7 +413,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       TestBed.configureTestingModule({
         providers: [
           SpeechRecognitionService,
-          { provide: WhisperTranscriptionService, useValue: mockWhisperService },
+          { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });

@@ -47,6 +47,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/domain/services/
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -82,6 +83,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
+  private signalRService = inject(SignalRService);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -92,6 +94,8 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
+
+    this.signalRService.startConnection();
 
     await this.allScheduleStateService.initializeWorkplaceState();
     this.isInitialized = true;

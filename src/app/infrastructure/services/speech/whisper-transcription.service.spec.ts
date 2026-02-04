@@ -66,9 +66,15 @@ describe('WhisperTranscriptionService', () => {
       await service.startRecording('de');
 
       // Assert
-      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
     });
 
+    // Skip: MediaRecorder mock not properly intercepted - service creates new instance
     it.skip('should set isRecording to true when started', async () => {
       // Arrange
       (service as any).pipeline = vi.fn();
@@ -80,6 +86,7 @@ describe('WhisperTranscriptionService', () => {
       expect(service.isRecording()).toBe(true);
     });
 
+    // Skip: MediaRecorder mock not properly intercepted - service creates new instance
     it.skip('should start MediaRecorder', async () => {
       // Arrange
       (service as any).pipeline = vi.fn();
@@ -88,7 +95,7 @@ describe('WhisperTranscriptionService', () => {
       await service.startRecording('de');
 
       // Assert
-      expect(mockMediaRecorder.start).toHaveBeenCalled();
+      expect(mockMediaRecorder.start).toHaveBeenCalledWith(100);
     });
 
     it('should emit error when microphone access fails', async () => {
@@ -110,6 +117,7 @@ describe('WhisperTranscriptionService', () => {
   });
 
   describe('stopRecording', () => {
+    // Skip: MediaRecorder mock not properly intercepted - service creates new instance
     it.skip('should stop MediaRecorder when recording', async () => {
       // Arrange
       (service as any).pipeline = vi.fn();

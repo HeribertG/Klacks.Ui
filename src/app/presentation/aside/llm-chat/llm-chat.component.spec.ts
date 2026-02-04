@@ -112,13 +112,19 @@ describe('LLMChatComponent', () => {
             setLanguage: vi.fn(),
             getDiagnostics: vi.fn(),
             isSupported$: vi.fn().mockReturnValue(true),
-            errors: new BehaviorSubject('')
+            errors: new BehaviorSubject(''),
+            interimResults: new BehaviorSubject(''),
+            isWhisperLoading: vi.fn().mockReturnValue(false),
+            whisperLoadProgress: vi.fn().mockReturnValue(0),
+            isWhisperModelLoaded: vi.fn().mockReturnValue(false),
+            isTranscribing: vi.fn().mockReturnValue(false),
         };
         speechServiceSpy.getDiagnostics.mockReturnValue({
             isSupported: true,
             permissionStatus: 'granted',
             browserInfo: 'Chrome Headless',
-            error: null
+            error: null,
+            useWhisperFallback: false,
         });
 
         const routerSpy = {
@@ -330,45 +336,49 @@ describe('LLMChatComponent', () => {
     describe('voice input', () => {
         beforeEach(() => {
             fixture.detectChanges();
+            mockSpeechService.interimResults = new BehaviorSubject('');
         });
 
-        it('should call speech service methods when starting voice input', async () => {
+        it('should call speech service methods when enabling voice mode', async () => {
             // Arrange
-            component.isListening = false;
+            component.voiceModeEnabled = false;
             mockSpeechService.requestPermissions.mockReturnValue(Promise.resolve(true));
             mockSpeechService.startListening.mockReturnValue(of('Hello from voice'));
 
             // Act
-            await component.startVoiceInput();
+            await component.toggleVoiceMode();
 
             // Assert
             expect(mockSpeechService.requestPermissions).toHaveBeenCalled();
             expect(mockSpeechService.startListening).toHaveBeenCalled();
-            // Don't test isListening state due to async timing complexity
+            expect(component.voiceModeEnabled).toBe(true);
         });
 
-        it('should not start voice input when permission denied', async () => {
+        it('should not enable voice mode when permission denied', async () => {
             // Arrange
             mockSpeechService.requestPermissions.mockReturnValue(Promise.resolve(false));
             vi.spyOn(window, 'alert');
 
             // Act
-            await component.startVoiceInput();
+            await component.toggleVoiceMode();
 
             // Assert
             expect(window.alert).toHaveBeenCalled();
             expect(mockSpeechService.startListening).not.toHaveBeenCalled();
+            expect(component.voiceModeEnabled).toBe(false);
         });
 
-        it('should stop voice input', () => {
+        it('should disable voice mode when toggled off', async () => {
             // Arrange
+            component.voiceModeEnabled = true;
             component.isListening = true;
 
             // Act
-            component.stopVoiceInput();
+            await component.toggleVoiceMode();
 
             // Assert
             expect(mockSpeechService.stopListening).toHaveBeenCalled();
+            expect(component.voiceModeEnabled).toBe(false);
             expect(component.isListening).toBe(false);
         });
     });

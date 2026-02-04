@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div #boxTemplate class="box-template">
   <canvas
     #canvasTemplateRef
@@ -10,11 +12,50 @@
     (workChangeDoubleClick)="onWorkChangeDoubleClick($event)"
     (workDoubleClick)="onWorkDoubleClick($event)"
   ></canvas>
+
+  <!-- Ghost DOM overlay for E2E testing (non-editable cells only) -->
+  @if (testAccessibilityEnabled()) {
+    <div
+      class="test-overlay-container"
+      [attr.data-testid]="'grid-overlay'"
+      role="grid"
+    >
+      @for (cell of testAccessibility.ghostCells(); track cell.testId) {
+        <div
+          class="test-cell"
+          [class.header-cell]="cell.isHeader"
+          [attr.role]="cell.isHeader ? 'columnheader' : 'gridcell'"
+          [attr.data-testid]="cell.testId"
+          [attr.data-row]="cell.row"
+          [attr.data-column]="cell.column"
+          [attr.data-value]="cell.value"
+          [attr.data-client-id]="cell.clientId"
+          [attr.data-client-name]="cell.clientName"
+          [attr.data-date]="cell.date"
+          [attr.aria-label]="
+            'Row ' + cell.row + ', Column ' + cell.column + ': ' + cell.value
+          "
+          [style.left.px]="cell.x"
+          [style.top.px]="cell.y"
+          [style.width.px]="cell.width"
+          [style.height.px]="cell.height"
+          (click)="onGhostCellClick({ row: cell.row, column: cell.column })"
+        >
+          <span class="sr-only">{{ cell.value }}</span>
+        </div>
+      }
+    </div>
+  }
+
   <input
     #cellInput
     appCellInputEvents
     type="text"
     class="cell-input-overlay"
+    [attr.data-testid]="'cell-input'"
+    [attr.data-row]="lastEditedRow"
+    [attr.data-column]="lastEditedColumn"
+    [attr.aria-label]="'Editing cell ' + lastEditedRow + '-' + lastEditedColumn"
     [style.display]="cellInputVisible ? 'block' : 'none'"
     [style.left.px]="cellInputX"
     [style.top.px]="cellInputY"

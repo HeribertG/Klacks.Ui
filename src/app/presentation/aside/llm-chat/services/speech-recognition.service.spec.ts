@@ -1,11 +1,13 @@
-import type { Mock } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
+import { Subject } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { SpeechRecognitionService } from './speech-recognition.service';
+import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
+import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
-// Mock SpeechRecognition API
 class MockSpeechRecognition {
     continuous = false;
     interimResults = false;
@@ -43,13 +45,44 @@ class MockSpeechRecognition {
     }
 }
 
-describe.skip('SpeechRecognitionService', () => {
+describe('SpeechRecognitionService', () => {
     let service: SpeechRecognitionService;
-    let mockRecognition: MockSpeechRecognition;
+    let mockWhisperService: any;
+    let mockLanguageMappingService: any;
+    let resultsSubject: Subject<string>;
+    let interimResultsSubject: Subject<string>;
+    let errorsSubject: Subject<string>;
 
     beforeEach(() => {
-        // Mock the SpeechRecognition API
-        mockRecognition = new MockSpeechRecognition();
+        // Arrange
+        resultsSubject = new Subject<string>();
+        interimResultsSubject = new Subject<string>();
+        errorsSubject = new Subject<string>();
+
+        mockWhisperService = {
+            isLoading: signal(false),
+            isRecording: signal(false),
+            loadProgress: signal(0),
+            isModelLoaded: signal(false),
+            isTranscribing: signal(false),
+            results: resultsSubject.asObservable(),
+            interimResults: interimResultsSubject.asObservable(),
+            errors: errorsSubject.asObservable(),
+            loadModel: vi.fn().mockResolvedValue(true),
+            startStreaming: vi.fn().mockResolvedValue(undefined),
+            stopStreaming: vi.fn().mockResolvedValue(''),
+            dispose: vi.fn(),
+        };
+
+        mockLanguageMappingService = {
+            getAllSpeechLocales: vi.fn().mockReturnValue(['de-DE', 'en-US', 'fr-FR', 'it-IT']),
+            getAvailableLanguages: vi.fn().mockReturnValue([
+                { speechLocale: 'de-DE', displayName: 'Deutsch' },
+                { speechLocale: 'en-US', displayName: 'English' },
+                { speechLocale: 'fr-FR', displayName: 'Français' },
+                { speechLocale: 'it-IT', displayName: 'Italiano' },
+            ]),
+        };
 
         (window as any).SpeechRecognition = function () {
             return new MockSpeechRecognition();
@@ -58,29 +91,30 @@ describe.skip('SpeechRecognitionService', () => {
             return new MockSpeechRecognition();
         };
 
-        // Mock secure context
         Object.defineProperty(window, 'isSecureContext', {
             value: true,
             writable: true,
+            configurable: true,
         });
 
-        // Mock navigator
         Object.defineProperty(navigator, 'language', {
             value: 'de-DE',
             writable: true,
+            configurable: true,
         });
 
         Object.defineProperty(navigator, 'languages', {
             value: ['de-DE', 'de', 'en-US'],
             writable: true,
+            configurable: true,
         });
 
         Object.defineProperty(navigator, 'userAgent', {
             value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             writable: true,
+            configurable: true,
         });
 
-        // Mock MediaDevices
         Object.defineProperty(navigator, 'mediaDevices', {
             value: {
                 getUserMedia: vi.fn().mockReturnValue(Promise.resolve({
@@ -88,10 +122,15 @@ describe.skip('SpeechRecognitionService', () => {
                 })),
             },
             writable: true,
+            configurable: true,
         });
 
         TestBed.configureTestingModule({
-            providers: [SpeechRecognitionService],
+            providers: [
+                SpeechRecognitionService,
+                { provide: WhisperStreamingService, useValue: mockWhisperService },
+                { provide: LanguageMappingService, useValue: mockLanguageMappingService },
+            ],
         });
 
         service = TestBed.inject(SpeechRecognitionService);
@@ -104,169 +143,57 @@ describe.skip('SpeechRecognitionService', () => {
     });
 
     it('should be created', () => {
+        // Assert
         expect(service).toBeTruthy();
     });
 
     describe('browser support detection', () => {
-        it('should detect speech recognition support', async () => {
+        it('should detect speech recognition support', () => {
+            // Assert
             expect(service.isSupported$()).toBe(true);
-            ;
         });
 
-        it('should detect when speech recognition is not supported', () => {
-            // Remove speech recognition from window
-            (window as any).SpeechRecognition = undefined;
-            (window as any).webkitSpeechRecognition = undefined;
+        it('should return diagnostics', () => {
+            // Act
+            const diagnostics = service.getDiagnostics();
 
-            const serviceWithoutSupport = new SpeechRecognitionService();
-
-            expect(serviceWithoutSupport.isSupported$()).toBe(false);
-        });
-
-        it('should detect insecure context', () => {
-            Object.defineProperty(window, 'isSecureContext', {
-                value: false,
-                writable: true,
-            });
-
-            const serviceInsecure = new SpeechRecognitionService();
-
-            expect(serviceInsecure.isSupported$()).toBe(false);
-        });
-    });
-
-    describe('speech recognition functionality', () => {
-        it('should start listening and emit results', async () => {
-            // Mock successful speech recognition result
-            const mockResults = {
-                resultIndex: 0,
-                results: [[{ transcript: 'Hello world', confidence: 0.9 }]],
-            };
-
-            const recognitionStartSpy = vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onstart) {
-                        mockRecognition.onstart({});
-                    }
-                    setTimeout(() => {
-                        if (mockRecognition.onresult) {
-                            mockRecognition.onresult({
-                                ...mockResults,
-                                results: [
-                                    {
-                                        0: { transcript: 'Hello world' },
-                                        isFinal: true,
-                                        length: 1,
-                                    },
-                                ],
-                            });
-                        }
-                    }, 50);
-                }, 10);
-            });
-
-            service.startListening('de-DE').subscribe((result) => {
-                expect(result).toBe('Hello world');
-                expect(recognitionStartSpy).toHaveBeenCalled();
-                ;
-            });
-        });
-
-        it('should stop listening', async () => {
-            const stopSpy = vi.spyOn(mockRecognition, 'stop');
-
-            service.startListening().subscribe();
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-            service.stopListening();
-            expect(stopSpy).toHaveBeenCalled();
-        });
-
-        it('should abort listening', async () => {
-            const abortSpy = vi.spyOn(mockRecognition, 'abort');
-
-            service.startListening().subscribe();
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-            service.abortListening();
-            expect(abortSpy).toHaveBeenCalled();
-        });
-
-        it('should handle speech recognition errors', async () => {
-            vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onerror) {
-                        mockRecognition.onerror({
-                            error: 'no-speech',
-                        });
-                    }
-                }, 10);
-            });
-
-            service.errors.subscribe((error) => {
-                expect(error).toContain('Keine Sprache erkannt');
-                ;
-            });
-
-            service.startListening();
-        });
-
-        it('should handle microphone permission denied error', async () => {
-            vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onerror) {
-                        mockRecognition.onerror({
-                            error: 'not-allowed',
-                        });
-                    }
-                }, 10);
-            });
-
-            service.errors.subscribe((error) => {
-                expect(error).toContain('Mikrofonzugriff verweigert');
-                ;
-            });
-
-            service.startListening();
+            // Assert
+            expect(diagnostics).toBeDefined();
+            expect(diagnostics.browserName).toBe('Chrome');
         });
     });
 
     describe('language management', () => {
-        it('should set language', () => {
-            service.setLanguage('en-US');
-            // Cannot directly access private recognition object, but we can test the behavior
-            expect(service).toBeTruthy(); // Basic test that method doesn't throw
+        it('should set language without throwing', () => {
+            // Act & Assert
+            expect(() => service.setLanguage('en-US')).not.toThrow();
         });
 
-        it('should update language and restart if listening', async () => {
-            const stopSpy = vi.spyOn(service, 'stopListening');
-            const startSpy = vi.spyOn(service, 'startListening');
-
-            // Start listening first
-            service.startListening().subscribe();
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-            // Update language while listening
-            service.updateLanguage('fr-FR');
-
-            await new Promise(resolve => setTimeout(resolve, 600));
-            expect(stopSpy).toHaveBeenCalled();
+        it('should update language without throwing', () => {
+            // Act & Assert
+            expect(() => service.updateLanguage('fr-FR')).not.toThrow();
         });
 
         it('should provide supported languages list', () => {
+            // Act
             const languages = service.getSupportedLanguages();
 
-            expect(languages).toContain({ code: 'de-DE', name: 'Deutsch' });
-            expect(languages).toContain({ code: 'en-US', name: 'English' });
-            expect(languages).toContain({ code: 'fr-FR', name: 'Français' });
-            expect(languages).toContain({ code: 'it-IT', name: 'Italiano' });
+            // Assert
+            expect(languages).toEqual([
+                { code: 'de-DE', name: 'Deutsch' },
+                { code: 'en-US', name: 'English' },
+                { code: 'fr-FR', name: 'Français' },
+                { code: 'it-IT', name: 'Italiano' },
+            ]);
         });
     });
 
     describe('microphone permissions', () => {
         it('should request and receive microphone permissions', async () => {
+            // Act
             const result = await service.requestPermissions();
 
+            // Assert
             expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
                 audio: true,
             });
@@ -274,123 +201,78 @@ describe.skip('SpeechRecognitionService', () => {
         });
 
         it('should handle microphone permission denial', async () => {
-            (navigator.mediaDevices.getUserMedia as Mock).mockReturnValue(Promise.reject(new Error('Permission denied')));
+            // Arrange
+            (navigator.mediaDevices.getUserMedia as any).mockRejectedValue(new Error('Permission denied'));
 
+            // Act
             const result = await service.requestPermissions();
 
+            // Assert
             expect(result).toBe(false);
         });
     });
 
-    describe('browser-specific handling', () => {
-        it('should handle Edge browser specifically', () => {
-            Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
-                writable: true,
-            });
-
-            const edgeService = new SpeechRecognitionService();
-
-            // Should initialize without errors
-            expect(edgeService).toBeTruthy();
+    describe('listening state', () => {
+        it('should expose isListening signal', () => {
+            // Assert
+            expect(service.isListening()).toBe(false);
         });
 
-        it('should handle Safari browser', () => {
-            Object.defineProperty(navigator, 'userAgent', {
-                value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
-                writable: true,
-            });
+        it('should expose errors observable', () => {
+            // Assert
+            expect(service.errors).toBeDefined();
+        });
 
-            const safariService = new SpeechRecognitionService();
-
-            // Should initialize without errors
-            expect(safariService).toBeTruthy();
+        it('should expose interimResults observable', () => {
+            // Assert
+            expect(service.interimResults).toBeDefined();
         });
     });
 
-    describe('error handling', () => {
-        it('should handle language not supported error', async () => {
-            vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onerror) {
-                        mockRecognition.onerror({
-                            error: 'language-not-supported',
-                        });
-                    }
-                }, 10);
-            });
-
-            service.errors.subscribe((error) => {
-                expect(error).toContain('Sprache wird nicht unterstützt');
-                ;
-            });
-
-            service.startListening('invalid-language');
+    describe('Whisper integration', () => {
+        it('should expose isWhisperLoading signal', () => {
+            // Assert
+            expect(service.isWhisperLoading()).toBe(false);
         });
 
-        it('should handle network error', async () => {
-            vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onerror) {
-                        mockRecognition.onerror({
-                            error: 'network',
-                        });
-                    }
-                }, 10);
-            });
-
-            service.errors.subscribe((error) => {
-                expect(error).toContain('Netzwerkfehler');
-                ;
-            });
-
-            service.startListening();
+        it('should expose whisperLoadProgress signal', () => {
+            // Assert
+            expect(service.whisperLoadProgress()).toBe(0);
         });
 
-        it('should handle no match found', async () => {
-            vi.spyOn(mockRecognition, 'start').mockImplementation(() => {
-                setTimeout(() => {
-                    if (mockRecognition.onnomatch) {
-                        mockRecognition.onnomatch({});
-                    }
-                }, 10);
-            });
+        it('should expose isWhisperModelLoaded signal', () => {
+            // Assert
+            expect(service.isWhisperModelLoaded()).toBe(false);
+        });
 
-            service.errors.subscribe((error) => {
-                expect(error).toContain('Sprache nicht erkannt');
-                ;
-            });
-
-            service.startListening();
+        it('should expose isTranscribing signal', () => {
+            // Assert
+            expect(service.isTranscribing()).toBe(false);
         });
     });
 
-    describe('listening state management', () => {
-        it('should track listening state', async () => {
-            const states: boolean[] = [];
+    describe('startListening', () => {
+        it('should return observable', () => {
+            // Act
+            const result = service.startListening('de-DE');
 
-            service.isListeningObservable.subscribe((state) => {
-                states.push(state);
-            });
-
-            service.startListening().subscribe();
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-            service.stopListening();
-
-            await new Promise(resolve => setTimeout(resolve, 100));
-            expect(states).toContain(true); // Started listening
-            expect(states).toContain(false); // Stopped listening
+            // Assert
+            expect(result).toBeDefined();
+            expect(result.subscribe).toBeDefined();
         });
+    });
 
-        it('should not start listening when already active', () => {
-            const startSpy = vi.spyOn(mockRecognition, 'start');
+    describe('stopListening', () => {
+        it('should not throw when not listening', () => {
+            // Act & Assert
+            expect(() => service.stopListening()).not.toThrow();
+        });
+    });
 
-            service.startListening().subscribe();
-            service.startListening().subscribe(); // Second call
-
-            // Should only start once
-            expect(startSpy).toHaveBeenCalledTimes(1);
+    describe('abortListening', () => {
+        it('should not throw when not listening', () => {
+            // Act & Assert
+            expect(() => service.abortListening()).not.toThrow();
         });
     });
 });
