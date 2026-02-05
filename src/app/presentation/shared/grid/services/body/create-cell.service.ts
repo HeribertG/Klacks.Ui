@@ -183,7 +183,10 @@ export class BaseCreateCellService {
     this.drawImage(ctx, canvas);
 
     if (gridCell.backgroundColor) {
-      this.drawBackgroundColor(ctx, gridCell.backgroundColor);
+      const bgColor = gridCell.sealed
+        ? DrawHelper.GetDarkColor(gridCell.backgroundColor, 30)
+        : gridCell.backgroundColor;
+      this.drawBackgroundColor(ctx, bgColor);
     }
 
     this.drawCellTexts(ctx, gridCell);

@@ -8,25 +8,15 @@ import { Gradient3DBorderStyleEnum } from '../shared/grid/enums/gradient-3d-bord
 
 export abstract class DrawHelper {
   public static GetDarkColor(color: string, d: number): string {
-    const maxBit = 255;
-    let r = maxBit;
-    let g = maxBit;
-    let b = maxBit;
-
     if (!color) {
       throw new Error('color component is invalid.');
     }
     const c: Color = new Color(color);
 
-    if (c.r > d) {
-      r = c.r - d;
-    }
-    if (c.g > d) {
-      g = c.g - d;
-    }
-    if (c.b > d) {
-      b = c.b - d;
-    }
+    const r = Math.max(c.r - d, 0);
+    const g = Math.max(c.g - d, 0);
+    const b = Math.max(c.b - d, 0);
+
     return new Color(r, g, b).toHex();
   }
 

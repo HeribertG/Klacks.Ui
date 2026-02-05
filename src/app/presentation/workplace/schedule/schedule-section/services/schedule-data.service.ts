@@ -709,6 +709,8 @@ export class ScheduleDataService extends BaseDataService {
         : this.translateService.instant('workChange.tooltip.correction');
     }
 
+    cell.sealed = entry.lockLevel > 0;
+
     return cell;
   }
 
