@@ -195,6 +195,11 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
 
+    const entry = this.getWorkScheduleEntryForCell(row, col);
+    if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
+      return false;
+    }
+
     return !this.isCellActive(row, col);
   }
 

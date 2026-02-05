@@ -60,7 +60,7 @@ function createColumnContext(column: number, date: Date, clientId: string, overr
   return {
     column,
     date,
-    isSealed: false,
+    isLocked: false,
     isCellActive: false,
     clientId,
     ...overrides,
@@ -192,7 +192,7 @@ describe('FillHandleCopyService', () => {
         };
         const sourceEntry = createMockSourceEntry();
         const columnContexts = [
-          createColumnContext(1, new Date('2025-01-16'), 'client-1', { isSealed: true }),
+          createColumnContext(1, new Date('2025-01-16'), 'client-1', { isLocked: true }),
           createColumnContext(2, new Date('2025-01-17'), 'client-1'),
         ];
         const shiftSchedules = [
@@ -513,7 +513,7 @@ describe('FillHandleCopyService', () => {
           entryType: WorkScheduleEntryType.Break,
         });
         const columnContexts = [
-          createColumnContext(1, new Date('2025-01-16'), 'client-1', { isSealed: true }),
+          createColumnContext(1, new Date('2025-01-16'), 'client-1', { isLocked: true }),
           createColumnContext(2, new Date('2025-01-17'), 'client-1'),
         ];
 

@@ -13,15 +13,18 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
+import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
-import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
+import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';
+import { CellTypeEnum, IconCornerEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { ICellFormatter } from './cell-formatter.interface';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 
 @Injectable()
 export class WorkCellFormatterService implements ICellFormatter {
   private emptyFormatter = inject(EmptyCellFormatterService);
+  private lockLevelService = inject(WorkLockLevelService);
 
   formatCell(entry: IScheduleCell | undefined): GridCell {
     if (!entry) {
@@ -34,6 +37,16 @@ export class WorkCellFormatterService implements ICellFormatter {
     cell.firstSubText = this.formatWorkTime(entry.changeTime);
     cell.secondSubText =
       formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
+
+    const lockIcon = this.lockLevelService.getLockIcon(entry.lockLevel);
+    if (lockIcon) {
+      cell.icons = [new CellIcon(lockIcon, IconCornerEnum.TopRight, 12)];
+    }
+
+    const tooltip = this.lockLevelService.getLockTooltip(entry.lockLevel, entry.isGroupRestricted);
+    if (tooltip) {
+      cell.tooltip = tooltip;
+    }
 
     return cell;
   }

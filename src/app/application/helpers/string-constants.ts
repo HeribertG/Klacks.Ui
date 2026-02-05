@@ -107,6 +107,8 @@ export class MessageLibrary {
   public static REPLACEMENT = DomainMessages.REPLACEMENT;
   public static EDIT_WORK = DomainMessages.EDIT_WORK;
   public static EXPENSES = DomainMessages.EXPENSES;
+  public static CONFIRM = DomainMessages.CONFIRM;
+  public static UNCONFIRM = DomainMessages.UNCONFIRM;
 
   public static CALENDAR_SELECTION_ID = DomainMessages.CALENDAR_SELECTION_ID;
   public static CALENDAR_SELECTION_TYPE = DomainMessages.CALENDAR_SELECTION_TYPE;

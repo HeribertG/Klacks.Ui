@@ -1,3 +1,5 @@
+import { ReportSection } from './report-section.model';
+
 export interface ReportTemplate {
   id?: string;
   name: string;

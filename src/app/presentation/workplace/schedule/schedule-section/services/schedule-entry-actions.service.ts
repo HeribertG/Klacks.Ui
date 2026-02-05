@@ -18,8 +18,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
 import { Break } from 'src/app/domain/models/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleDataService } from './schedule-data.service';
@@ -31,6 +33,7 @@ export class ScheduleEntryActionsService {
   private absenceMenuService = inject(AbsenceMenuService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private cellManipulation = inject(BaseCellManipulationService);
+  private dataScheduleService = inject(DataScheduleService);
 
   addWorkFromShiftMenu(
     shiftId: string,
@@ -185,6 +188,34 @@ export class ScheduleEntryActionsService {
       startTime: '00:00:00',
       endTime: '23:59:00'
     };
+  }
+
+  confirmWork(row: number, column: number, dataService: ScheduleDataService): void {
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) return;
+
+    this.dataScheduleService.confirmWork(entry.id).subscribe({
+      next: () => {
+        this.dataManagement.readDatas();
+      },
+      error: (err) => {
+        console.error('Error confirming work:', err);
+      },
+    });
+  }
+
+  unconfirmWork(row: number, column: number, dataService: ScheduleDataService): void {
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) return;
+
+    this.dataScheduleService.unconfirmWork(entry.id).subscribe({
+      next: () => {
+        this.dataManagement.readDatas();
+      },
+      error: (err) => {
+        console.error('Error unconfirming work:', err);
+      },
+    });
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {

@@ -53,6 +53,18 @@ export class DataScheduleService {
       .pipe(retry(3));
   }
 
+  confirmWork(workId: string) {
+    return this.httpClient
+      .post<IWork>(`${environment.baseUrl}Works/${workId}/Confirm`, {})
+      .pipe(retry(3));
+  }
+
+  unconfirmWork(workId: string) {
+    return this.httpClient
+      .post<IWork>(`${environment.baseUrl}Works/${workId}/Unconfirm`, {})
+      .pipe(retry(3));
+  }
+
   private setCorrectDate(value: Work) {
     value.currentDate = dateWithLocalTimeCorrection(value.currentDate)!;
   }

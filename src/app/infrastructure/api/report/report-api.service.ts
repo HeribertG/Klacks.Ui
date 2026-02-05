@@ -14,7 +14,7 @@ export interface GenerateReportRequest {
 })
 export class ReportApiService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.baseUrl;
 
   generateScheduleReport(clientId: string, request: GenerateReportRequest): Observable<Blob> {
     const url = `${this.apiUrl}/reports/schedule/${clientId}`;

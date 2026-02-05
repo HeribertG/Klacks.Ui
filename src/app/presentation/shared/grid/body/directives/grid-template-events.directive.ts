@@ -124,6 +124,10 @@ export class GridTemplateEventsDirective {
       return false;
     }
 
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
+      return false;
+    }
+
     this.workChangeDoubleClick.emit({ row: pos.row, column: pos.column });
     return true;
   }
@@ -137,6 +141,10 @@ export class GridTemplateEventsDirective {
     }
 
     if (scheduleDataService.isColumnSealed(pos.column)) {
+      return false;
+    }
+
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
       return false;
     }
 

@@ -6,7 +6,6 @@ import { NgbModal, NgbModalRef, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
-import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
@@ -138,10 +137,10 @@ export class ReportRowComponent {
 
     this.reportService.previewScheduleReport(this.previewClientId, fromDate, toDate)
       .subscribe({
-        next: (blob) => {
+        next: (blob: Blob) => {
           this.reportService.openPdfPreview(blob);
         },
-        error: (err) => {
+        error: (err: unknown) => {
           console.error('Error generating preview:', err);
         }
       });

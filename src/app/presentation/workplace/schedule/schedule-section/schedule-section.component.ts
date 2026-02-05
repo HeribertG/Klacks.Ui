@@ -429,6 +429,14 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.dialogService.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
+      case 'confirm':
+        this.contextMenu.closeMenu(true);
+        this.entryActionsService.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
+        break;
+      case 'unconfirm':
+        this.contextMenu.closeMenu(true);
+        this.entryActionsService.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
+        break;
     }
   }
 

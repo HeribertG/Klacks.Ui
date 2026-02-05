@@ -48,6 +48,13 @@
   "contextMenu.replacement": "Sostituzione...",
   "contextMenu.editWork": "Modifica...",
   "contextMenu.expenses": "Spese...",
+  "contextMenu.confirm": "Confermare",
+  "contextMenu.unconfirm": "Annullare conferma",
+
+  "lockLevel.confirmed": "Confermato",
+  "lockLevel.approved": "Approvato",
+  "lockLevel.closed": "Chiuso",
+  "lockLevel.groupRestricted": "Restrizione di gruppo",
 
   "dialog.correction.title": "Correzione",
   "dialog.correction.position": "Posizione",

@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class DataReportApiService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.baseUrl;
 
   getAllTemplates(): Observable<ReportTemplate[]> {
     return this.http.get<ReportTemplate[]>(`${this.apiUrl}/reporttemplates`);

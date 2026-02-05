@@ -93,7 +93,6 @@ describe('DataScheduleService', () => {
         work.currentDate = new Date(2020, 0, 1);
         work.id = 'work-123';
         work.information = 'Test Information';
-        work.isSealed = false;
         work.shiftId = 'shift-123';
         work.workTime = 480;
         work.client = mockClient();

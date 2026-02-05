@@ -16,7 +16,7 @@ import {
 })
 export class DataSkillService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.baseUrl;
 
   getSkills(): Observable<ISkillDefinition[]> {
     return this.http

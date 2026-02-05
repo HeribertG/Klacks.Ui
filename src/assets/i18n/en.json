@@ -48,6 +48,13 @@
   "contextMenu.replacement": "Replacement...",
   "contextMenu.editWork": "Edit...",
   "contextMenu.expenses": "Expenses...",
+  "contextMenu.confirm": "Confirm",
+  "contextMenu.unconfirm": "Revoke confirmation",
+
+  "lockLevel.confirmed": "Confirmed",
+  "lockLevel.approved": "Approved",
+  "lockLevel.closed": "Closed",
+  "lockLevel.groupRestricted": "Group restricted",
 
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",

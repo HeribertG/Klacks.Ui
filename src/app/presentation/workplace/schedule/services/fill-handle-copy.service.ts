@@ -15,7 +15,7 @@ export interface FillHandleDropResult {
 export interface ColumnContext {
   column: number;
   date: Date | undefined;
-  isSealed: boolean;
+  isLocked: boolean;
   isCellActive: boolean;
   clientId: string | undefined;
 }
@@ -54,7 +54,7 @@ export class FillHandleCopyService {
     const entriesToAdd: WorkCopyEntry[] = [];
 
     for (const ctx of columnContexts) {
-      if (ctx.isSealed) {
+      if (ctx.isLocked) {
         continue;
       }
 
@@ -109,7 +109,7 @@ export class FillHandleCopyService {
     const entriesToAdd: BreakCopyEntry[] = [];
 
     for (const ctx of columnContexts) {
-      if (ctx.isSealed) {
+      if (ctx.isLocked) {
         continue;
       }
 

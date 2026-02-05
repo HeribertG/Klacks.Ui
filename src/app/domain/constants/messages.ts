@@ -115,6 +115,8 @@ export class DomainMessages {
   public static REPLACEMENT = 'contextMenu.replacement';
   public static EDIT_WORK = 'contextMenu.editWork';
   public static EXPENSES = 'contextMenu.expenses';
+  public static CONFIRM = 'contextMenu.confirm';
+  public static UNCONFIRM = 'contextMenu.unconfirm';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

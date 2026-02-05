@@ -190,4 +190,38 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static confirm(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'confirm',
+          MessageLibrary.CONFIRM,
+          false,
+          '',
+          'fa-solid fa-check'
+        ),
+      ]
+    );
+
+    return value;
+  }
+
+  public static unconfirm(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'unconfirm',
+          MessageLibrary.UNCONFIRM,
+          false,
+          '',
+          'fa-solid fa-rotate-left'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

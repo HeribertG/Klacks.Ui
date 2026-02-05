@@ -155,7 +155,6 @@ export class WorkEditDialogComponent {
     work.endTime = this.ownTimeToString(this.endTime);
     work.workTime = this.validation.durationMinutes / 60;
     work.information = this.description || undefined;
-    work.isSealed = false;
     work.surcharges = 0;
 
     if (this.workScheduleLoader.startDate && this.workScheduleLoader.endDate) {

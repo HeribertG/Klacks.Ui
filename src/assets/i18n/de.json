@@ -48,6 +48,13 @@
   "contextMenu.replacement": "Ablösung...",
   "contextMenu.editWork": "Bearbeiten...",
   "contextMenu.expenses": "Spesen...",
+  "contextMenu.confirm": "Bestätigen",
+  "contextMenu.unconfirm": "Bestätigung aufheben",
+
+  "lockLevel.confirmed": "Bestätigt",
+  "lockLevel.approved": "Freigegeben",
+  "lockLevel.closed": "Geschlossen",
+  "lockLevel.groupRestricted": "Gruppeneinschränkung",
 
   "dialog.correction.title": "Korrektur",
   "dialog.correction.position": "Position",

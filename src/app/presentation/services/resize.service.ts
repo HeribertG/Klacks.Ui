@@ -27,7 +27,7 @@ export class ResizeService {
     });
   }
 
-  onResize(): Observable<void> {
-    return this.resizeSubject$.pipe() as Observable<void>;
+  onResize(): Observable<number> {
+    return this.resizeSubject$;
   }
 }

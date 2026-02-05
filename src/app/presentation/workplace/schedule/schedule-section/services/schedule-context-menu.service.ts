@@ -26,6 +26,9 @@ import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-men
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
+import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
@@ -45,6 +48,8 @@ export class ScheduleContextMenuService {
   private cellManipulation = inject(BaseCellManipulationService);
   private dataManagement = inject(DataManagementScheduleService);
   private absenceMenuService = inject(AbsenceMenuService);
+  private lockLevelService = inject(WorkLockLevelService);
+  private authService = inject(AuthorizationService);
 
   createContextMenu(context: ContextMenuContext): Menu {
     const menuData = new Menu();
@@ -59,10 +64,17 @@ export class ScheduleContextMenuService {
         context.column,
       );
 
+      const isLocked = entry ? (entry.lockLevel >= WorkLockLevel.Approved || entry.isGroupRestricted) : false;
+      const canEdit = entry ? this.lockLevelService.canEditEntry(entry, this.authService.isAdmin) : true;
+
       if (entry?.entryType === WorkScheduleEntryType.WorkChange || entry?.entryType === WorkScheduleEntryType.Expenses) {
-        menuData.list.push(...MenuDataTemplate.edit());
-        menuData.list.push(...MenuDataTemplate.divider());
-        menuData.list.push(...MenuDataTemplate.delete());
+        if (canEdit) {
+          menuData.list.push(...MenuDataTemplate.edit());
+          menuData.list.push(...MenuDataTemplate.divider());
+          menuData.list.push(...MenuDataTemplate.delete());
+        }
+      } else if (isLocked) {
+        menuData.list.push(...MenuDataTemplate.showInShift());
       } else {
         menuData.list.push(...MenuDataTemplate.copyCutPaste());
         menuData.list.push(...MenuDataTemplate.divider());
@@ -76,6 +88,14 @@ export class ScheduleContextMenuService {
 
           if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
             menuData.list.push(...MenuDataTemplate.editWork());
+          }
+
+          menuData.list.push(...MenuDataTemplate.divider());
+          if (this.lockLevelService.canConfirm(entry)) {
+            menuData.list.push(...MenuDataTemplate.confirm());
+          }
+          if (this.lockLevelService.canUnconfirm(entry, this.authService.isAdmin)) {
+            menuData.list.push(...MenuDataTemplate.unconfirm());
           }
         }
 
