@@ -306,7 +306,7 @@ export class SpeechRecognitionService {
     };
   }
 
-  startListening(language?: string): Observable<string> {
+  startListening(language?: string, deviceId?: string): Observable<string> {
     if (!this.isSupported$()) {
       this.errors$.next('Speech recognition is not supported in this browser');
       return this.results$.asObservable();
@@ -319,7 +319,7 @@ export class SpeechRecognitionService {
     this.accumulatedTranscript = '';
 
     if (this.useWhisperFallback) {
-      this.startWhisperStreaming(language || 'de');
+      this.startWhisperStreaming(language || 'de', deviceId);
       return this.results$.asObservable();
     }
 
@@ -334,7 +334,7 @@ export class SpeechRecognitionService {
     return this.results$.asObservable();
   }
 
-  private async startWhisperStreaming(language: string): Promise<void> {
+  private async startWhisperStreaming(language: string, deviceId?: string): Promise<void> {
     this.isListening.set(true);
 
     this.whisperSubscription?.unsubscribe();
@@ -353,7 +353,7 @@ export class SpeechRecognitionService {
       this.isListening.set(false);
     });
 
-    await this.whisperStreamingService.startStreaming(language);
+    await this.whisperStreamingService.startStreaming(language, deviceId);
   }
 
   private tryStartWithLanguage(primaryLanguage: string): void {

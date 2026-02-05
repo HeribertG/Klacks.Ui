@@ -836,6 +836,8 @@
   "setting.deepl.apikey": "Chiave API",
   "setting.microphone-test.headline": "Test Microfono & Riconoscimento Vocale",
   "setting.microphone-test.description": "Testa qui il tuo microfono e la funzione di riconoscimento vocale. Il test verifica tutti i prerequisiti necessari.",
+  "setting.microphone-test.default-microphone": "Microfono attivo",
+  "setting.microphone-test.web-speech-device-info": "Nota: Il riconoscimento vocale integrato del browser utilizza sempre il microfono predefinito del sistema."
   "setting.microphone-test.run-diagnostics": "Avvia diagnostica",
   "setting.microphone-test.start-recording": "Avvia registrazione",
   "setting.microphone-test.stop-recording": "Ferma registrazione",

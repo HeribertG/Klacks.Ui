@@ -33,7 +33,6 @@ import { DeeplComponent } from '../deepl/deepl.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
-import { MicrophoneTestComponent } from '../microphone-test/microphone-test.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -65,7 +64,6 @@ import { MicrophoneTestComponent } from '../microphone-test/microphone-test.comp
     WorkSettingComponent,
     IdentityProvidersComponent,
     AbsenceDetailComponent,
-    MicrophoneTestComponent,
 ],
 })
 export class SettingsHomeComponent implements OnInit {

@@ -12,6 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProfilePictureComponent } from '../profile-picture/profile-picture.component';
 import { ProfileDataEditComponent } from '../profile-data-edit/profile-data-edit.component';
 import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile-custom-setting.component';
+import { ProfileMicrophoneTestComponent } from '../profile-microphone-test/profile-microphone-test.component';
 
 // Services
 import { DataManagementProfileService } from 'src/app/domain/services/schedule/data-management-profile.service';
@@ -29,7 +30,8 @@ import { SearchService } from 'src/app/application/services/search.service';
     TranslateModule,
     ProfilePictureComponent,
     ProfileDataEditComponent,
-    ProfileCustomSettingComponent
+    ProfileCustomSettingComponent,
+    ProfileMicrophoneTestComponent
 ],
 })
 export class ProfileHomeComponent implements OnInit {

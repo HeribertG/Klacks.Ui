@@ -89,7 +89,7 @@ export class WhisperStreamingService {
     }
   }
 
-  async startStreaming(language = 'de'): Promise<void> {
+  async startStreaming(language = 'de', deviceId?: string): Promise<void> {
     this.currentLanguage = language;
     this.accumulatedText = '';
     this.audioChunks = [];
@@ -103,13 +103,19 @@ export class WhisperStreamingService {
     }
 
     try {
+      const audioConstraints: MediaTrackConstraints = {
+        channelCount: 1,
+        sampleRate: 16000,
+        echoCancellation: true,
+        noiseSuppression: true,
+      };
+
+      if (deviceId) {
+        audioConstraints.deviceId = { exact: deviceId };
+      }
+
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-          echoCancellation: true,
-          noiseSuppression: true,
-        }
+        audio: audioConstraints
       });
 
       this.audioContext = new AudioContext({ sampleRate: 16000 });
