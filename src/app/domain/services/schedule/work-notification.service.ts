@@ -113,9 +113,16 @@ export class WorkNotificationService implements OnDestroy {
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
 
     if (clientDisplayed) {
-      this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate));
-      this.scheduleUpdateSignal.set(notification.clientId);
-      setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
+      // Wait for data to be loaded before triggering UI refresh
+      this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate))
+        .then(() => {
+          console.log(`[WorkNotification] Data refreshed for ${notification.clientId}, triggering UI update`);
+          this.scheduleUpdateSignal.set(notification.clientId);
+          setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
+        })
+        .catch((err) => {
+          console.error(`[WorkNotification] Failed to refresh data for ${notification.clientId}:`, err);
+        });
     }
   }
 
@@ -143,8 +150,8 @@ export class WorkNotificationService implements OnDestroy {
     return this.dataManagementSchedule.clients.some((c) => c.id === clientId);
   }
 
-  private refreshAffectedDays(clientId: string, centerDate: Date): void {
-    this.dataManagementSchedule.refreshClientScheduleForDays(clientId, centerDate);
+  private refreshAffectedDays(clientId: string, centerDate: Date): Promise<void> {
+    return this.dataManagementSchedule.refreshClientScheduleForDays(clientId, centerDate);
   }
 
   private markShiftAsAffected(shiftId: string): void {

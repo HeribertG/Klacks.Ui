@@ -320,8 +320,10 @@ export class ScheduleSectionComponent
 
       const periodHoursEffect = effect(() => {
         // React to period hours updates from SignalR
-        this.workScheduleLoader.periodHoursUpdated();
+        const timestamp = this.workScheduleLoader.periodHoursUpdated();
+        console.log(`[ScheduleSection] periodHoursUpdated effect triggered: ${timestamp}`);
         if (this.scheduleSurface) {
+          console.log(`[ScheduleSection] Calling Refresh(false)`);
           this.scheduleSurface.Refresh(false);
         }
       });

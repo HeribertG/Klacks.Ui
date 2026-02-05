@@ -61,17 +61,23 @@ export class WorkScheduleLoaderService {
       .subscribe((notification) => {
         if (notification.sourceConnectionId === this.signalRService.connectionId) return;
         
-        console.log(`[SignalR] PeriodHoursUpdated received for client ${notification.clientId}: Hours=${notification.hours}, Surcharges=${notification.surcharges}`);
+        const clientId = notification.clientId.toString();
+        console.log(`[SignalR] PeriodHoursUpdated received for client ${clientId}: Hours=${notification.hours}, Surcharges=${notification.surcharges}, Guaranteed=${notification.guaranteedHours}`);
+        console.log(`[SignalR] Current periodHours before update:`, Array.from(this.periodHours.entries()));
         
         // Directly update periodHours from the notification data (already calculated by backend)
-        this.periodHours.set(notification.clientId.toString(), {
+        this.periodHours.set(clientId, {
           hours: notification.hours,
           surcharges: notification.surcharges,
           guaranteedHours: notification.guaranteedHours,
         });
         
+        console.log(`[SignalR] periodHours AFTER update:`, Array.from(this.periodHours.entries()));
+        
         // Notify UI to redraw
-        this.periodHoursUpdated.set(Date.now());
+        const timestamp = Date.now();
+        this.periodHoursUpdated.set(timestamp);
+        console.log(`[SignalR] periodHoursUpdated signal SET to ${timestamp} for client ${clientId}`);
       });
 
     this.signalRService.periodHoursRecalculated$

@@ -259,6 +259,7 @@ export class SignalRService implements OnDestroy {
     });
 
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursUpdated, (notification: IPeriodHoursNotification) => {
+      console.log(`[SignalR] RAW PeriodHoursUpdated received:`, notification);
       this.periodHoursUpdated$.next(notification);
     });
 
