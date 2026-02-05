@@ -178,14 +178,24 @@ export class BaseCreateCellService {
     const isOverlay = this.gridData.isOverlayDay(col);
     const isHighlighted = this.gridData.isCellHighlighted(row, col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const canvas = this.getCellCanvas(weekDay, lastRowFlag, isOverlay || isHighlighted || gridCell.sealed);
+    const needsBaseDarkening = isOverlay || isHighlighted || gridCell.sealed;
+    const canvas = this.getCellCanvas(weekDay, lastRowFlag, needsBaseDarkening);
 
     this.drawImage(ctx, canvas);
 
+    const needsDoubleDarkening = isOverlay && gridCell.sealed;
+    if (needsDoubleDarkening && !gridCell.backgroundColor) {
+      this.drawSealedOverlay(ctx);
+    }
+
     if (gridCell.backgroundColor) {
-      const bgColor = gridCell.sealed
-        ? DrawHelper.GetDarkColor(gridCell.backgroundColor, 30)
-        : gridCell.backgroundColor;
+      let bgColor = gridCell.backgroundColor;
+      if (gridCell.sealed) {
+        bgColor = DrawHelper.GetDarkColor(bgColor, 30);
+      }
+      if (isOverlay && gridCell.sealed) {
+        bgColor = DrawHelper.GetDarkColor(bgColor, 30);
+      }
       this.drawBackgroundColor(ctx, bgColor);
     }
 
@@ -197,6 +207,13 @@ export class BaseCreateCellService {
   private drawBackgroundColor(ctx: CanvasRenderingContext2D, color: string): void {
     ctx.save();
     ctx.fillStyle = color;
+    ctx.fillRect(1, 1, this.settings.cellWidth - 2, this.settings.cellHeight - 2);
+    ctx.restore();
+  }
+
+  private drawSealedOverlay(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
     ctx.fillRect(1, 1, this.settings.cellWidth - 2, this.settings.cellHeight - 2);
     ctx.restore();
   }
