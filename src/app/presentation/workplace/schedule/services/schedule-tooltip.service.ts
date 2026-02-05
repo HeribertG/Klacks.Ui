@@ -78,7 +78,7 @@ export class ScheduleTooltipService {
       const cell = dataService.getCell(hoveredCell.row, hoveredCell.column);
       if (cell?.tooltip) {
         surface.showToolTip({
-          value: cell.tooltip,
+          value: this.translateService.instant(cell.tooltip),
           event: {
             clientX: hoveredCell.clientX,
             clientY: hoveredCell.clientY,
