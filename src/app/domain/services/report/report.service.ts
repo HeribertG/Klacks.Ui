@@ -1,21 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ReportApiService, GenerateReportRequest } from 'src/app/infrastructure/api/report/report-api.service';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReportService {
-  private apiService = inject(ReportApiService);
-
-  generateScheduleReport(clientId: string, request: GenerateReportRequest): Observable<Blob> {
-    return this.apiService.generateScheduleReport(clientId, request);
-  }
-
-  previewScheduleReport(clientId: string, fromDate: Date, toDate: Date): Observable<Blob> {
-    return this.apiService.previewScheduleReport(clientId, fromDate, toDate);
-  }
-
   downloadPdf(blob: Blob, fileName: string): void {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');

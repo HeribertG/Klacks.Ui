@@ -2,214 +2,135 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
-import { 
-  ReportTemplate, 
-  ReportOrientation,
-  ReportPageSize 
-} from 'src/app/domain/models/report/report-template.model';
-import { ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { 
-  ReportField, 
-  ReportFieldType, 
+import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
+import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
+import {
+  ReportField,
+  ReportFieldType,
+  DataBindingDefinition,
+  FieldCategory,
+  HEADER_FIELDS,
+  WORK_TABLE_FIELDS,
+  EXPENSES_TABLE_FIELDS,
+  FOOTER_FIELDS,
+  DEFAULT_FIELD_STYLE,
   TextAlignment,
-  AVAILABLE_DATA_BINDINGS,
-  DEFAULT_FIELD_STYLE 
 } from 'src/app/domain/models/report/report-field.model';
-import { FormulaEditorComponent } from '../formula-editor/formula-editor.component';
-import { ImageUploadComponent, ReportImage } from '../image-upload/image-upload.component';
-import { ReportSection } from 'src/app/domain/models/report/report-section.model';
+
+interface FieldPaletteGroup {
+  titleKey: string;
+  category: FieldCategory;
+  sectionType: ReportSectionType;
+  fields: DataBindingDefinition[];
+  collapsed: boolean;
+}
 
 @Component({
   selector: 'app-report-designer',
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, FormulaEditorComponent, ImageUploadComponent]
+  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList]
 })
 export class ReportDesignerComponent {
   @Input() template!: ReportTemplate;
   @Output() templateChange = new EventEmitter<ReportTemplate>();
 
-  public translate = inject(TranslateService);
+  translate = inject(TranslateService);
 
-  selectedField: ReportField | null = null;
-  selectedSection: ReportSection | null = null;
-
-  showFormulaEditor = false;
-  showImageManager = false;
-  images: ReportImage[] = [];
-
-  // Available data bindings for drag & drop
-  availableBindings = AVAILABLE_DATA_BINDINGS;
-
-  // Section types for UI
-  sectionTypes = [
-    { value: ReportSectionType.Header, label: 'Header' },
-    { value: ReportSectionType.PageHeader, label: 'Page Header' },
-    { value: ReportSectionType.Detail, label: 'Detail' },
-    { value: ReportSectionType.PageFooter, label: 'Page Footer' },
-    { value: ReportSectionType.Footer, label: 'Footer' },
+  paletteGroups: FieldPaletteGroup[] = [
+    { titleKey: 'setting.report.designer.headerFields', category: FieldCategory.Header, sectionType: ReportSectionType.Header, fields: HEADER_FIELDS, collapsed: false },
+    { titleKey: 'setting.report.designer.workFields', category: FieldCategory.WorkTable, sectionType: ReportSectionType.WorkTable, fields: WORK_TABLE_FIELDS, collapsed: false },
+    { titleKey: 'setting.report.designer.expensesFields', category: FieldCategory.ExpensesTable, sectionType: ReportSectionType.ExpensesTable, fields: EXPENSES_TABLE_FIELDS, collapsed: false },
+    { titleKey: 'setting.report.designer.footerFields', category: FieldCategory.Footer, sectionType: ReportSectionType.Footer, fields: FOOTER_FIELDS, collapsed: false },
   ];
 
-  // Field types for UI
-  fieldTypes = [
-    { value: ReportFieldType.Text, label: 'Text' },
-    { value: ReportFieldType.Date, label: 'Date' },
-    { value: ReportFieldType.Number, label: 'Number' },
-    { value: ReportFieldType.Currency, label: 'Currency' },
-    { value: ReportFieldType.Formula, label: 'Formula' },
-  ];
+  sectionLabels: Record<number, string> = {
+    [ReportSectionType.Header]: 'setting.report.designer.sectionHeader',
+    [ReportSectionType.WorkTable]: 'setting.report.designer.sectionWorkTable',
+    [ReportSectionType.ExpensesTable]: 'setting.report.designer.sectionExpensesTable',
+    [ReportSectionType.Footer]: 'setting.report.designer.sectionFooter',
+  };
 
-  // Alignments for UI
-  alignments = [
-    { value: TextAlignment.Left, label: 'Left' },
-    { value: TextAlignment.Center, label: 'Center' },
-    { value: TextAlignment.Right, label: 'Right' },
-  ];
-
-  // Orientations for UI
-  orientations = [
-    { value: ReportOrientation.Portrait, label: 'Portrait' },
-    { value: ReportOrientation.Landscape, label: 'Landscape' },
-  ];
-
-  // Page sizes for UI
-  pageSizes = [
-    { value: ReportPageSize.A4, label: 'A4' },
-    { value: ReportPageSize.A3, label: 'A3' },
-    { value: ReportPageSize.Letter, label: 'Letter' },
-  ];
-
-  getSectionTypeLabel(type: ReportSectionType): string {
-    const found = this.sectionTypes.find(s => s.value === type);
-    return found ? found.label : 'Unknown';
+  getSection(type: ReportSectionType): ReportSection | undefined {
+    return this.template.sections.find(s => s.type === type);
   }
 
-  onSectionClick(section: ReportSection): void {
-    this.selectedSection = section;
-    this.selectedField = null;
+  isFieldInSection(binding: DataBindingDefinition, sectionType: ReportSectionType): boolean {
+    const section = this.getSection(sectionType);
+    return section?.fields.some(f => f.dataBinding === binding.key) ?? false;
   }
 
-  onFieldClick(field: ReportField, section: ReportSection): void {
-    this.selectedField = field;
-    this.selectedSection = section;
+  getAvailableFields(group: FieldPaletteGroup): DataBindingDefinition[] {
+    return group.fields.filter(f => !this.isFieldInSection(f, group.sectionType));
   }
 
-  addField(section: ReportSection): void {
-    const newField: ReportField = {
-      name: 'New Field',
-      dataBinding: '',
-      type: ReportFieldType.Text,
-      x: 10,
-      y: 10,
-      width: 100,
-      height: 20,
+  toggleGroup(group: FieldPaletteGroup): void {
+    group.collapsed = !group.collapsed;
+  }
+
+  addFieldToSection(binding: DataBindingDefinition, sectionType: ReportSectionType): void {
+    const section = this.getSection(sectionType);
+    if (!section || this.isFieldInSection(binding, sectionType)) return;
+
+    const field: ReportField = {
+      name: binding.label,
+      dataBinding: binding.key,
+      type: binding.type,
+      width: binding.defaultWidth,
       style: { ...DEFAULT_FIELD_STYLE },
-      sortOrder: section.fields.length
+      sortOrder: section.fields.length,
     };
 
-    section.fields.push(newField);
-    this.selectedField = newField;
-    this.selectedSection = section;
+    section.fields = [...section.fields, field];
     this.emitChange();
   }
 
-  deleteField(section: ReportSection, field: ReportField): void {
-    const index = section.fields.indexOf(field);
-    if (index > -1) {
-      section.fields.splice(index, 1);
-      if (this.selectedField === field) {
-        this.selectedField = null;
-      }
-      this.emitChange();
-    }
-  }
+  removeFieldFromSection(field: ReportField, sectionType: ReportSectionType): void {
+    const section = this.getSection(sectionType);
+    if (!section) return;
 
-  addSection(): void {
-    const newSection: ReportSection = {
-      type: ReportSectionType.Detail,
-      height: 50,
-      fields: [],
-      visible: true,
-      sortOrder: this.template.sections.length
-    };
-
-    this.template.sections.push(newSection);
-    this.selectedSection = newSection;
-    this.selectedField = null;
+    section.fields = section.fields.filter(f => f.dataBinding !== field.dataBinding);
+    section.fields.forEach((f, i) => f.sortOrder = i);
     this.emitChange();
   }
 
-  deleteSection(section: ReportSection): void {
-    const index = this.template.sections.indexOf(section);
-    if (index > -1) {
-      this.template.sections.splice(index, 1);
-      if (this.selectedSection === section) {
-        this.selectedSection = null;
-      }
-      this.emitChange();
-    }
-  }
+  onFieldDrop(event: CdkDragDrop<ReportField[]>, sectionType: ReportSectionType): void {
+    const section = this.getSection(sectionType);
+    if (!section) return;
 
-  dropField(event: CdkDragDrop<ReportField[]>, section: ReportSection): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(section.fields, event.previousIndex, event.currentIndex);
+      section.fields.forEach((f, i) => f.sortOrder = i);
     } else {
-      // Create new field from binding
-      const binding = event.item.data as { key: string; label: string; type: ReportFieldType };
-      const newField: ReportField = {
-        name: binding.label,
-        dataBinding: binding.key,
-        type: binding.type,
-        x: 10,
-        y: 10,
-        width: 100,
-        height: 20,
-        style: { ...DEFAULT_FIELD_STYLE },
-        sortOrder: section.fields.length
-      };
-      section.fields.push(newField);
+      const binding = event.item.data as DataBindingDefinition;
+      if (binding && !this.isFieldInSection(binding, sectionType)) {
+        this.addFieldToSection(binding, sectionType);
+      }
     }
     this.emitChange();
   }
 
-  onFieldChange(): void {
+  onWidthChange(field: ReportField): void {
+    if (field.width < 5) field.width = 5;
+    if (field.width > 100) field.width = 100;
     this.emitChange();
   }
 
-  onPageSetupChange(): void {
+  toggleBold(field: ReportField): void {
+    field.style.bold = !field.style.bold;
     this.emitChange();
   }
 
-  onFieldTypeChange(field: ReportField): void {
-    // Field type change handler
+  setAlignment(field: ReportField, alignment: TextAlignment): void {
+    field.style.alignment = alignment;
+    this.emitChange();
   }
 
-  openFormulaEditor(field: ReportField): void {
-    this.selectedField = field;
-    this.showFormulaEditor = true;
-  }
-
-  closeFormulaEditor(): void {
-    this.showFormulaEditor = false;
-  }
-
-  onFormulaChange(formula: string): void {
-    if (this.selectedField) {
-      this.selectedField.formula = formula;
-      this.emitChange();
-    }
-  }
-
-  openImageManager(): void {
-    this.showImageManager = true;
-  }
-
-  closeImageManager(): void {
-    this.showImageManager = false;
-  }
+  TextAlignment = TextAlignment;
+  ReportSectionType = ReportSectionType;
 
   private emitChange(): void {
     this.templateChange.emit({ ...this.template });

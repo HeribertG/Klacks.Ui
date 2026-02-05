@@ -1,39 +1,23 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
-
-.first {
-  margin-left: 0;
-  padding-top: 2px;
-  display: flex;
-  flex-direction: row;
-}
-
-.form-group {
-  margin-left: 35px;
-  margin-bottom: 0;
-}
-
-.attribute-name {
-  width: 380px;
-  cursor: pointer;
-}
-
-.delete-button {
-  margin-left: 10px;
-  margin-top: 6px;
-  cursor: pointer;
-  color: var(--standartRedColor);
-  font-size: 16px;
-  font-weight: bold;
-
-  &:hover {
-    color: var(--standartRedColorHover);
-  }
-}
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/settings-list-card-modal.scss";
 
 .report-form {
   padding: 20px 0;
 }
 
+.designer-tab {
+  padding: 16px 0;
+}
+
 .preview-section {
   padding: 20px 0;
+}
+
+.nav {
+  font-size: 13px;
+  font-weight: 500;
 }

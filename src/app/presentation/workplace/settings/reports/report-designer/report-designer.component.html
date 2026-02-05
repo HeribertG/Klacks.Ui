@@ -1,258 +1,98 @@
 <div class="report-designer">
-  <!-- Toolbar -->
-  <div class="designer-toolbar">
-    <div class="toolbar-group">
-      <button class="btn btn-sm btn-outline-primary" (click)="addSection()">
-        <i class="fa fa-plus"></i> {{ 'setting.report.designer.addSection' | translate }}
-      </button>
-    </div>
-    
-    <div class="toolbar-group">
-      <label>{{ 'setting.report.designer.pageSize' | translate }}:</label>
-      <select class="form-select form-select-sm" [(ngModel)]="template.pageSetup.size" (change)="onPageSetupChange()">
-        <option *ngFor="let size of pageSizes" [value]="size.value">{{ size.label }}</option>
-      </select>
-    </div>
-    
-    <div class="toolbar-group">
-      <label>{{ 'setting.report.designer.orientation' | translate }}:</label>
-      <select class="form-select form-select-sm" [(ngModel)]="template.pageSetup.orientation" (change)="onPageSetupChange()">
-        <option *ngFor="let orient of orientations" [value]="orient.value">{{ orient.label }}</option>
-      </select>
-    </div>
+  <div class="designer-layout">
+    <div class="palette-panel">
+      <h6 class="palette-title">{{ 'setting.report.designer.availableFields' | translate }}</h6>
 
-    <div class="toolbar-group">
-      <button class="btn btn-sm btn-outline-secondary" (click)="openImageManager()">
-        <i class="fa fa-image"></i> {{ 'setting.report.designer.addImage' | translate }}
-      </button>
-    </div>
-  </div>
-
-  <div class="designer-content">
-    <!-- Left Panel: Available Fields -->
-    <div class="left-panel">
-      <h6>{{ 'setting.report.designer.availableFields' | translate }}</h6>
-      <div class="fields-palette" cdkDropList [cdkDropListData]="availableBindings" id="palette">
-        <div *ngFor="let binding of availableBindings" 
-             class="field-item" 
-             cdkDrag 
-             [cdkDragData]="binding">
-          <i class="fa fa-drag"></i>
-          {{ binding.label }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Center Panel: Report Canvas -->
-    <div class="canvas-panel">
-      <div class="report-page" 
-           [class.portrait]="template.pageSetup.orientation === 0"
-           [class.landscape]="template.pageSetup.orientation === 1">
-        
-        <div *ngFor="let section of template.sections; let i = index" 
-             class="report-section"
-             [class.selected]="selectedSection === section"
-             [style.height.px]="section.height"
-             (click)="onSectionClick(section)">
-          
-          <div class="section-header">
-            <span class="section-type">{{ getSectionTypeLabel(section.type) }}</span>
-            <div class="section-actions">
-              <button class="btn btn-xs btn-link" (click)="addField(section); $event.stopPropagation()">
-                <i class="fa fa-plus"></i>
-              </button>
-              <button class="btn btn-xs btn-link text-danger" (click)="deleteSection(section); $event.stopPropagation()">
-                <i class="fa fa-trash"></i>
-              </button>
-            </div>
+      @for (group of paletteGroups; track group.category) {
+        <div class="palette-group">
+          <div class="palette-group-header" (click)="toggleGroup(group)">
+            <i class="fa" [class.fa-chevron-right]="group.collapsed" [class.fa-chevron-down]="!group.collapsed"></i>
+            <span>{{ group.titleKey | translate }}</span>
+            <span class="badge">{{ getAvailableFields(group).length }}</span>
           </div>
 
-          <div class="section-content" 
-               cdkDropList 
+          @if (!group.collapsed) {
+            <div class="palette-fields"
+                 cdkDropList
+                 [cdkDropListData]="getAvailableFields(group)"
+                 [id]="'palette-' + group.category"
+                 [cdkDropListConnectedTo]="['section-' + group.sectionType]"
+                 [cdkDropListSortingDisabled]="true">
+              @for (field of getAvailableFields(group); track field.key) {
+                <div class="palette-field"
+                     cdkDrag
+                     [cdkDragData]="field"
+                     (dblclick)="addFieldToSection(field, group.sectionType)">
+                  <i class="fa fa-grip-vertical drag-handle"></i>
+                  <span class="field-label">{{ field.label }}</span>
+                </div>
+              }
+              @if (getAvailableFields(group).length === 0) {
+                <div class="palette-empty">{{ 'setting.report.designer.allFieldsUsed' | translate }}</div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="preview-panel">
+      <h6 class="preview-title">{{ 'setting.report.designer.reportPreview' | translate }}</h6>
+
+      @for (section of template.sections; track section.type) {
+        <div class="section-container">
+          <div class="section-label">
+            {{ sectionLabels[section.type] | translate }}
+          </div>
+
+          <div class="section-drop-zone"
+               cdkDropList
                [cdkDropListData]="section.fields"
-               [id]="'section-' + i"
-               (cdkDropListDropped)="dropField($event, section)">
-            
-            <div *ngFor="let field of section.fields" 
-                 class="report-field"
-                 [class.selected]="selectedField === field"
-                 [style.left.px]="field.x"
-                 [style.top.px]="field.y"
-                 [style.width.px]="field.width"
-                 [style.height.px]="field.height"
-                 [style.fontWeight]="field.style.bold ? 'bold' : 'normal'"
-                 [style.fontStyle]="field.style.italic ? 'italic' : 'normal'"
-                 [style.textDecoration]="field.style.underline ? 'underline' : 'none'"
-                 [style.textAlign]="field.style.alignment === 0 ? 'left' : field.style.alignment === 1 ? 'center' : 'right'"
-                 (click)="onFieldClick(field, section); $event.stopPropagation()">
-              {{ field.name }}
-              <button class="btn btn-xs btn-link field-delete" (click)="deleteField(section, field); $event.stopPropagation()">
-                <i class="fa fa-times"></i>
-              </button>
-            </div>
+               [id]="'section-' + section.type"
+               [cdkDropListConnectedTo]="['palette-' + paletteGroups[section.sortOrder]?.category]"
+               (cdkDropListDropped)="onFieldDrop($event, section.type)"
+               [class.is-table]="section.type === ReportSectionType.WorkTable || section.type === ReportSectionType.ExpensesTable">
+
+            @if (section.fields.length === 0) {
+              <div class="drop-placeholder">
+                <i class="fa fa-arrow-left"></i>
+                {{ 'setting.report.designer.dragFieldsHere' | translate }}
+              </div>
+            }
+
+            @if (section.type === ReportSectionType.Header || section.type === ReportSectionType.Footer) {
+              <div class="field-chips">
+                @for (field of section.fields; track field.dataBinding; let i = $index) {
+                  <div class="field-chip" cdkDrag>
+                    <span class="chip-label">{{ field.name }}</span>
+                    <div class="chip-actions">
+                      <button class="chip-btn" [class.active]="field.style.bold" (click)="toggleBold(field)" title="Bold">B</button>
+                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section.type)" title="Remove">✕</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (section.type === ReportSectionType.WorkTable || section.type === ReportSectionType.ExpensesTable) {
+              <div class="table-columns">
+                @for (field of section.fields; track field.dataBinding; let i = $index) {
+                  <div class="table-column" cdkDrag [style.flex]="'0 0 ' + field.width + '%'">
+                    <div class="column-header">
+                      <span class="column-name">{{ field.name }}</span>
+                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section.type)" title="Remove">✕</button>
+                    </div>
+                    <div class="column-settings">
+                      <input type="number" class="width-input" [(ngModel)]="field.width" (change)="onWidthChange(field)" min="5" max="100" title="Width %" />
+                      <span class="width-label">%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Right Panel: Properties -->
-    <div class="right-panel">
-      <div *ngIf="selectedField" class="properties-panel">
-        <h6>{{ 'setting.report.designer.fieldProperties' | translate }}</h6>
-        
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.fieldName' | translate }}</label>
-          <input type="text" class="form-control form-control-sm" [(ngModel)]="selectedField.name" (change)="onFieldChange()">
-        </div>
-
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.dataBinding' | translate }}</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedField.dataBinding" (change)="onFieldChange()">
-            <option value="">-- None --</option>
-            <option *ngFor="let binding of availableBindings" [value]="binding.key">{{ binding.label }}</option>
-          </select>
-        </div>
-
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.fieldType' | translate }}</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedField.type" (change)="onFieldChange()">
-            <option *ngFor="let type of fieldTypes" [value]="type.value">{{ type.label }}</option>
-          </select>
-        </div>
-
-        <div class="property-row">
-          <div class="property-group half">
-            <label>X</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="selectedField.x" (change)="onFieldChange()">
-          </div>
-          <div class="property-group half">
-            <label>Y</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="selectedField.y" (change)="onFieldChange()">
-          </div>
-        </div>
-
-        <div class="property-row">
-          <div class="property-group half">
-            <label>{{ 'setting.report.designer.width' | translate }}</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="selectedField.width" (change)="onFieldChange()">
-          </div>
-          <div class="property-group half">
-            <label>{{ 'setting.report.designer.height' | translate }}</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="selectedField.height" (change)="onFieldChange()">
-          </div>
-        </div>
-
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.fontSize' | translate }}</label>
-          <input type="number" class="form-control form-control-sm" [(ngModel)]="selectedField.style.fontSize" (change)="onFieldChange()">
-        </div>
-
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.alignment' | translate }}</label>
-          <div class="btn-group btn-group-sm w-100">
-            <button *ngFor="let align of alignments" 
-                    class="btn btn-outline-secondary"
-                    [class.active]="selectedField.style.alignment === align.value"
-                    (click)="selectedField.style.alignment = align.value; onFieldChange()">
-              <i class="fa" [class.fa-align-left]="align.value === 0" [class.fa-align-center]="align.value === 1" [class.fa-align-right]="align.value === 2"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="property-group">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" [(ngModel)]="selectedField.style.bold" (change)="onFieldChange()" id="boldCheck">
-            <label class="form-check-label" for="boldCheck">{{ 'setting.report.designer.bold' | translate }}</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" [(ngModel)]="selectedField.style.italic" (change)="onFieldChange()" id="italicCheck">
-            <label class="form-check-label" for="italicCheck">{{ 'setting.report.designer.italic' | translate }}</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" [(ngModel)]="selectedField.style.underline" (change)="onFieldChange()" id="underlineCheck">
-            <label class="form-check-label" for="underlineCheck">{{ 'setting.report.designer.underline' | translate }}</label>
-          </div>
-        </div>
-
-        <div class="property-group" *ngIf="selectedField.type === 5">
-          <label>{{ 'setting.report.designer.formula' | translate }}</label>
-          <div class="formula-preview">
-            <code *ngIf="selectedField.formula">{{ selectedField.formula }}</code>
-            <span *ngIf="!selectedField.formula" class="text-muted">{{ 'setting.report.designer.noFormula' | translate }}</span>
-          </div>
-          <button class="btn btn-sm btn-outline-primary w-100 mt-2" (click)="openFormulaEditor(selectedField)">
-            <i class="fa fa-calculator"></i> {{ 'setting.report.designer.editFormula' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="selectedSection && !selectedField" class="properties-panel">
-        <h6>{{ 'setting.report.designer.sectionProperties' | translate }}</h6>
-        
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.sectionType' | translate }}</label>
-          <select class="form-select form-select-sm" [(ngModel)]="selectedSection.type" (change)="onFieldChange()">
-            <option *ngFor="let type of sectionTypes" [value]="type.value">{{ type.label }}</option>
-          </select>
-        </div>
-
-        <div class="property-group">
-          <label>{{ 'setting.report.designer.height' | translate }}</label>
-          <input type="number" class="form-control form-select-sm" [(ngModel)]="selectedSection.height" (change)="onFieldChange()">
-        </div>
-
-        <div class="property-group">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" [(ngModel)]="selectedSection.visible" (change)="onFieldChange()" id="visibleCheck">
-            <label class="form-check-label" for="visibleCheck">{{ 'setting.report.designer.visible' | translate }}</label>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!selectedField && !selectedSection" class="properties-panel empty">
-        <p class="text-muted">{{ 'setting.report.designer.selectElement' | translate }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Formula Editor Modal -->
-  <div *ngIf="showFormulaEditor && selectedField" class="formula-modal-overlay" (click)="closeFormulaEditor()">
-    <div class="formula-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h5>{{ 'setting.report.formula.editor' | translate }}</h5>
-        <button class="btn-close" (click)="closeFormulaEditor()"></button>
-      </div>
-      <div class="modal-body">
-        <app-formula-editor 
-          [formula]="selectedField.formula || ''"
-          (formulaChange)="onFormulaChange($event)">
-        </app-formula-editor>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" (click)="closeFormulaEditor()">
-          {{ 'general.done' | translate }}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Image Manager Modal -->
-  <div *ngIf="showImageManager" class="formula-modal-overlay" (click)="closeImageManager()">
-    <div class="formula-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h5>{{ 'setting.report.image.manager' | translate }}</h5>
-        <button class="btn-close" (click)="closeImageManager()"></button>
-      </div>
-      <div class="modal-body">
-        <app-image-upload 
-          [(images)]="images">
-        </app-image-upload>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" (click)="closeImageManager()">
-          {{ 'general.done' | translate }}
-        </button>
-      </div>
+      }
     </div>
   </div>
 </div>
