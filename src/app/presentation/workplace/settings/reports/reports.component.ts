@@ -69,28 +69,19 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onClickAdd(): void {
-    const report: ReportTemplate = {
-      name: MessageLibrary.NOT_DEFINED,
-      description: '',
-      type: ReportType.Schedule,
-      pageSetup: {
-        orientation: 1, // Landscape
-        size: 0, // A4
-        margins: { top: 20, bottom: 20, left: 20, right: 20 }
-      },
-      sections: []
-    };
-    (report as any).isDirty = CreateEntriesEnum.new;
+  async onClickAdd(): Promise<void> {
+    const template = this.dataManagementReportService.createDefaultTemplate(ReportType.Schedule);
+    (template as any).isDirty = CreateEntriesEnum.new;
+    (template as any).isLocal = true; // Mark as not yet saved to server
 
-    this.pendingOpenReport = report;
-    this.dataManagementReportService.addTemplate(report);
+    this.pendingOpenReport = template;
+    this.dataManagementReportService.reportTemplateList.update(list => [...list, template]);
   }
 
   cancelNewReport(index: number): void {
     const reports = this.dataManagementReportService.reportTemplateList();
     const report = reports[index];
-    if (report && (report as any).isDirty === CreateEntriesEnum.new) {
+    if (report && (report as any).isDirty === CreateEntriesEnum.new && (report as any).isLocal) {
       this.dataManagementReportService.reportTemplateList.update(list =>
         list.filter((_, i) => i !== index)
       );
@@ -114,7 +105,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private deleteReport(indexStr: string): void {
+  private async deleteReport(indexStr: string): Promise<void> {
     const index = parseInt(indexStr, 10);
     const reports = this.dataManagementReportService.reportTemplateList();
 
@@ -122,12 +113,18 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
       const report = reports[index];
 
       if (report) {
-        if ((report as any).isDirty === CreateEntriesEnum.new) {
+        if ((report as any).isDirty === CreateEntriesEnum.new || (report as any).isLocal) {
+          // Local only, just remove from list
           this.dataManagementReportService.reportTemplateList.update(list =>
             list.filter((_, i) => i !== index)
           );
-        } else {
-          this.dataManagementReportService.deleteTemplate(report.id!);
+        } else if (report.id) {
+          // Delete from server
+          try {
+            await this.dataManagementReportService.deleteTemplate(report.id);
+          } catch (err) {
+            console.error('Failed to delete report:', err);
+          }
         }
       }
     }

@@ -12,7 +12,8 @@ export interface IBreak {
   currentDate: Date;
   information: string | undefined;
   description?: MultiLanguage;
-  isSealed: boolean;
+  confirmedAt?: string;
+  confirmedBy?: string;
   workTime: number;
   surcharges: number;
   startTime: string;
@@ -31,7 +32,8 @@ export class Break implements IBreak {
   currentDate: Date = new Date();
   information: string | undefined = undefined;
   description?: MultiLanguage = undefined;
-  isSealed = false;
+  confirmedAt?: string = undefined;
+  confirmedBy?: string = undefined;
   workTime = 0;
   surcharges = 0;
   startTime = '00:00:00';

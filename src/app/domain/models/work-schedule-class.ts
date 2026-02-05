@@ -19,6 +19,8 @@ export interface IScheduleCell {
   abbreviation: string | null;
   replaceClientId: string | null;
   isReplacementEntry: boolean;
+  lockLevel: number;
+  isGroupRestricted: boolean;
 }
 
 export class ScheduleCell implements IScheduleCell {
@@ -42,6 +44,8 @@ export class ScheduleCell implements IScheduleCell {
   abbreviation: string | null = null;
   replaceClientId: string | null = null;
   isReplacementEntry = false;
+  lockLevel = 0;
+  isGroupRestricted = false;
 }
 
 export interface IWorkScheduleFilter {

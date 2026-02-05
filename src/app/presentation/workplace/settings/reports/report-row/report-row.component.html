@@ -86,10 +86,13 @@
   </div>
 
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSaving">
       {{ 'general.cancel' | translate }}
     </button>
-    <button type="button" class="btn btn-primary" (click)="saveReport()">
+    <button type="button" class="btn btn-primary" (click)="saveReport()" [disabled]="isSaving">
+      @if (isSaving) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
       {{ 'general.save' | translate }}
     </button>
   </div>

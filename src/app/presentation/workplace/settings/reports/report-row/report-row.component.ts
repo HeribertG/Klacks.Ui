@@ -6,6 +6,7 @@ import { NgbModal, NgbModalRef, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
+import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
@@ -34,6 +35,7 @@ export class ReportRowComponent {
   editName = '';
   editDescription = '';
   editType: ReportType = ReportType.Schedule;
+  isSaving = false;
 
   // Preview data
   previewClientId = '';
@@ -41,7 +43,7 @@ export class ReportRowComponent {
   previewToDate: string = '';
 
   get isNew(): boolean {
-    return (this.data as any).isDirty === CreateEntriesEnum.new;
+    return (this.data as any).isDirty === CreateEntriesEnum.new || (this.data as any).isLocal;
   }
 
   get reportTypeLabel(): string {
@@ -85,28 +87,40 @@ export class ReportRowComponent {
     }
   }
 
-  saveReport(): void {
+  async saveReport(): Promise<void> {
     if (!this.editName.trim()) {
       return;
     }
 
-    const updated: ReportTemplate = {
-      ...this.data,
-      name: this.editName.trim(),
-      description: this.editDescription.trim(),
-      type: this.editType
-    };
+    this.isSaving = true;
 
-    if (this.isNew) {
-      (updated as any).isDirty = CreateEntriesEnum.update;
-    }
+    try {
+      const updated: ReportTemplate = {
+        ...this.data,
+        name: this.editName.trim(),
+        description: this.editDescription.trim(),
+        type: this.editType
+      };
 
-    this.dataManagementReportService.updateTemplate(updated);
-    this.reportChangedEvent.emit();
+      if (this.isNew) {
+        // Create new template
+        await this.dataManagementReportService.addTemplate(updated);
+      } else {
+        // Update existing template
+        await this.dataManagementReportService.updateTemplate(updated);
+      }
 
-    if (this.modalRef) {
-      this.modalRef.close();
-      this.modalRef = null;
+      this.reportChangedEvent.emit();
+
+      if (this.modalRef) {
+        this.modalRef.close();
+        this.modalRef = null;
+      }
+    } catch (err) {
+      console.error('Failed to save report:', err);
+      // TODO: Show error notification
+    } finally {
+      this.isSaving = false;
     }
   }
 

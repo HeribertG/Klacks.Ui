@@ -81,7 +81,6 @@ export class DataManagementWorkService {
       work.workTime = params.workTime;
       work.startTime = params.startTime;
       work.endTime = params.endTime;
-      work.isSealed = false;
       work.periodStart = params.periodStart;
       work.periodEnd = params.periodEnd;
 
