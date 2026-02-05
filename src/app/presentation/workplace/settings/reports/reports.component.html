@@ -1,0 +1,24 @@
+<app-settings-list-card
+  [headline]="translate.instant('setting.report.headline')"
+  [addLabel]="translate.instant('setting.report.add')"
+  [showAddButton]="true"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-report-header header></app-report-header>
+
+  <div rows>
+    @for (r of dataManagementReportService.reportTemplateList(); track r.id || $index; let i = $index) {
+      @if (!r.isDeleted) {
+        <app-report-row
+          [id]="'report-row-' + i"
+          [data]="r"
+          (isDeleteEvent)="openDeleteReport(i)"
+          (cancelNewEvent)="cancelNewReport(i)"
+          (reportChangedEvent)="onReportChanged(i)"
+        >
+        </app-report-row>
+      }
+    }
+  </div>
+</app-settings-list-card>

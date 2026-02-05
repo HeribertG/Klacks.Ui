@@ -1,0 +1,31 @@
+@use "../../../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.report-header {
+  display: flex;
+  flex-direction: row;
+  padding: 10px 0;
+  font-weight: 600;
+  color: var(--colorHeadline);
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.report-header-cell {
+  padding: 0 10px;
+}
+
+.report-header-name {
+  flex: 2;
+}
+
+.report-header-type {
+  flex: 1;
+}
+
+.report-header-description {
+  flex: 3;
+}
+
+.report-header-actions {
+  flex: 0 0 80px;
+  text-align: center;
+}

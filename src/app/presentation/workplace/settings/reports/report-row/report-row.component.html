@@ -1,0 +1,96 @@
+<div class="report-row" [class.report-row-new]="isNew" (click)="openModal()">
+  <div class="report-cell report-cell-name">
+    {{ data.name }}
+  </div>
+  <div class="report-cell report-cell-type">
+    {{ reportTypeLabel }}
+  </div>
+  <div class="report-cell report-cell-description">
+    {{ data.description }}
+  </div>
+  <div class="report-cell report-cell-actions" (click)="$event.stopPropagation()">
+    <button class="btn btn-sm btn-outline-danger" (click)="deleteReport()">
+      <i class="fa fa-trash"></i>
+    </button>
+  </div>
+</div>
+
+<ng-template id="reportModal-{{id}}" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">{{ isNew ? ('setting.report.modal.new' | translate) : ('setting.report.modal.edit' | translate) }}</h5>
+    <button type="button" class="btn-close" (click)="closeModal()"></button>
+  </div>
+
+  <div class="modal-body">
+    <ul ngbNav #nav="ngbNav" class="nav-tabs">
+      <li ngbNavItem>
+        <button ngbNavLink>{{ 'setting.report.tab.general' | translate }}</button>
+        <ng-template ngbNavContent>
+          <div class="report-form">
+            <div class="mb-3">
+              <label class="form-label">{{ 'setting.report.field.name' | translate }}</label>
+              <input type="text" class="form-control" [(ngModel)]="editName" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{ 'setting.report.field.type' | translate }}</label>
+              <select class="form-select" [(ngModel)]="editType">
+                <option [value]="0">{{ 'setting.report.type.schedule' | translate }}</option>
+                <option [value]="1">{{ 'setting.report.type.client' | translate }}</option>
+                <option [value]="2">{{ 'setting.report.type.invoice' | translate }}</option>
+                <option [value]="3">{{ 'setting.report.type.absence' | translate }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{ 'setting.report.field.description' | translate }}</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="editDescription"></textarea>
+            </div>
+          </div>
+        </ng-template>
+      </li>
+
+      <li ngbNavItem>
+        <button ngbNavLink>{{ 'setting.report.tab.preview' | translate }}</button>
+        <ng-template ngbNavContent>
+          <div class="preview-section">
+            <div class="mb-3">
+              <label class="form-label">{{ 'setting.report.preview.clientId' | translate }}</label>
+              <input type="text" class="form-control" [(ngModel)]="previewClientId" placeholder="Enter client ID" />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ 'setting.report.preview.fromDate' | translate }}</label>
+                <input type="date" class="form-control" [(ngModel)]="previewFromDate" />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">{{ 'setting.report.preview.toDate' | translate }}</label>
+                <input type="date" class="form-control" [(ngModel)]="previewToDate" />
+              </div>
+            </div>
+
+            <button class="btn btn-primary" (click)="generatePreview()">
+              {{ 'setting.report.preview.generate' | translate }}
+            </button>
+
+            <div class="mt-3 text-muted">
+              <small>{{ 'setting.report.preview.note' | translate }}</small>
+            </div>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
+
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+      {{ 'general.cancel' | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="saveReport()">
+      {{ 'general.save' | translate }}
+    </button>
+  </div>
+</ng-template>
