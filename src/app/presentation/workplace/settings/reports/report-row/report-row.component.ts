@@ -4,17 +4,19 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
+import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
+import { ReportDesignerComponent } from '../report-designer/report-designer.component';
+import { DEFAULT_SECTIONS } from 'src/app/domain/models/report/report-section.model';
 
 @Component({
   selector: 'app-report-row',
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgbModule]
+  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent]
 })
 export class ReportRowComponent {
   @Input() data!: ReportTemplate;
@@ -34,6 +36,13 @@ export class ReportRowComponent {
   editName = '';
   editDescription = '';
   editType: ReportType = ReportType.Schedule;
+  editTemplate: ReportTemplate = {
+    name: '',
+    description: '',
+    type: ReportType.Schedule,
+    pageSetup: { ...DEFAULT_PAGE_SETUP },
+    sections: [...DEFAULT_SECTIONS]
+  };
   isSaving = false;
 
   // Preview data
@@ -59,6 +68,11 @@ export class ReportRowComponent {
     this.editName = this.data.name;
     this.editDescription = this.data.description;
     this.editType = this.data.type;
+    this.editTemplate = { 
+      ...this.data,
+      pageSetup: this.data.pageSetup || { ...DEFAULT_PAGE_SETUP },
+      sections: this.data.sections?.length ? this.data.sections : [...DEFAULT_SECTIONS]
+    };
 
     // Set default preview dates
     const today = new Date();
@@ -86,6 +100,10 @@ export class ReportRowComponent {
     }
   }
 
+  onTemplateChange(template: ReportTemplate): void {
+    this.editTemplate = template;
+  }
+
   async saveReport(): Promise<void> {
     if (!this.editName.trim()) {
       return;
@@ -95,7 +113,7 @@ export class ReportRowComponent {
 
     try {
       const updated: ReportTemplate = {
-        ...this.data,
+        ...this.editTemplate,
         name: this.editName.trim(),
         description: this.editDescription.trim(),
         type: this.editType

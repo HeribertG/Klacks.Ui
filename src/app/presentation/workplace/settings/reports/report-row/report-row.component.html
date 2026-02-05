@@ -50,6 +50,16 @@
         </ng-template>
       </li>
 
+      <li ngbNavItem *ngIf="!isNew">
+        <button ngbNavLink>{{ 'setting.report.tab.designer' | translate }}</button>
+        <ng-template ngbNavContent>
+          <app-report-designer 
+            [template]="editTemplate" 
+            (templateChange)="onTemplateChange($event)">
+          </app-report-designer>
+        </ng-template>
+      </li>
+
       <li ngbNavItem>
         <button ngbNavLink>{{ 'setting.report.tab.preview' | translate }}</button>
         <ng-template ngbNavContent>
