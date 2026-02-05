@@ -10,8 +10,9 @@ export interface IWork {
   currentDate: Date;
   id?: string;
   information?: string;
-  confirmedAt?: string;
-  confirmedBy?: string;
+  lockLevel: number;
+  sealedAt?: string;
+  sealedBy?: string;
   shift?: IShift;
   shiftId: string;
   workTime: number;
@@ -30,8 +31,9 @@ export class Work implements IWork {
   currentDate: Date = new Date();
   id?: string;
   information?: string;
-  confirmedAt?: string;
-  confirmedBy?: string;
+  lockLevel = 0;
+  sealedAt?: string;
+  sealedBy?: string;
   shift?: IShift;
   shiftId = '';
   workTime = 0;

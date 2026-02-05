@@ -20,6 +20,12 @@
         <option *ngFor="let orient of orientations" [value]="orient.value">{{ orient.label }}</option>
       </select>
     </div>
+
+    <div class="toolbar-group">
+      <button class="btn btn-sm btn-outline-secondary" (click)="openImageManager()">
+        <i class="fa fa-image"></i> {{ 'setting.report.designer.addImage' | translate }}
+      </button>
+    </div>
   </div>
 
   <div class="designer-content">
@@ -170,8 +176,13 @@
 
         <div class="property-group" *ngIf="selectedField.type === 5">
           <label>{{ 'setting.report.designer.formula' | translate }}</label>
-          <textarea class="form-control form-control-sm" [(ngModel)]="selectedField.formula" (change)="onFieldChange()" rows="3"></textarea>
-          <small class="text-muted">Example: {{ '{' }}work.hours{{ '}' }} * 25.50</small>
+          <div class="formula-preview">
+            <code *ngIf="selectedField.formula">{{ selectedField.formula }}</code>
+            <span *ngIf="!selectedField.formula" class="text-muted">{{ 'setting.report.designer.noFormula' | translate }}</span>
+          </div>
+          <button class="btn btn-sm btn-outline-primary w-100 mt-2" (click)="openFormulaEditor(selectedField)">
+            <i class="fa fa-calculator"></i> {{ 'setting.report.designer.editFormula' | translate }}
+          </button>
         </div>
       </div>
 
@@ -200,6 +211,47 @@
 
       <div *ngIf="!selectedField && !selectedSection" class="properties-panel empty">
         <p class="text-muted">{{ 'setting.report.designer.selectElement' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formula Editor Modal -->
+  <div *ngIf="showFormulaEditor && selectedField" class="formula-modal-overlay" (click)="closeFormulaEditor()">
+    <div class="formula-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h5>{{ 'setting.report.formula.editor' | translate }}</h5>
+        <button class="btn-close" (click)="closeFormulaEditor()"></button>
+      </div>
+      <div class="modal-body">
+        <app-formula-editor 
+          [formula]="selectedField.formula || ''"
+          (formulaChange)="onFormulaChange($event)">
+        </app-formula-editor>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeFormulaEditor()">
+          {{ 'general.done' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Manager Modal -->
+  <div *ngIf="showImageManager" class="formula-modal-overlay" (click)="closeImageManager()">
+    <div class="formula-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h5>{{ 'setting.report.image.manager' | translate }}</h5>
+        <button class="btn-close" (click)="closeImageManager()"></button>
+      </div>
+      <div class="modal-body">
+        <app-image-upload 
+          [(images)]="images">
+        </app-image-upload>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeImageManager()">
+          {{ 'general.done' | translate }}
+        </button>
       </div>
     </div>
   </div>

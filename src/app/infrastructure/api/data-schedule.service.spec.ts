@@ -77,6 +77,106 @@ describe('DataScheduleService', () => {
         req.flush(deletedWork);
     });
 
+    it('should confirm a work item', () => {
+        // Arrange
+        const workId = 'work-123';
+        const mockWorkInstance = mockWork();
+
+        // Act
+        service.confirmWork(workId).subscribe((work) => {
+            // Assert
+            expect(work).toEqual(mockWorkInstance);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}/Confirm`);
+        expect(req.request.method).toEqual('POST');
+        req.flush(mockWorkInstance);
+    });
+
+    it('should unconfirm a work item', () => {
+        // Arrange
+        const workId = 'work-123';
+        const mockWorkInstance = mockWork();
+
+        // Act
+        service.unconfirmWork(workId).subscribe((work) => {
+            // Assert
+            expect(work).toEqual(mockWorkInstance);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}/Unconfirm`);
+        expect(req.request.method).toEqual('POST');
+        req.flush(mockWorkInstance);
+    });
+
+    it('should approve a day', () => {
+        // Arrange
+        const date = '2026-01-15';
+        const groupId = 'group-123';
+
+        // Act
+        service.approveDay(date, groupId).subscribe((count) => {
+            // Assert
+            expect(count).toBe(5);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/ApproveDay`);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual({ date, groupId });
+        req.flush(5);
+    });
+
+    it('should revoke day approval', () => {
+        // Arrange
+        const date = '2026-01-15';
+        const groupId = 'group-123';
+
+        // Act
+        service.revokeDayApproval(date, groupId).subscribe((count) => {
+            // Assert
+            expect(count).toBe(3);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/RevokeDayApproval`);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual({ date, groupId });
+        req.flush(3);
+    });
+
+    it('should close a period', () => {
+        // Arrange
+        const startDate = '2026-01-01';
+        const endDate = '2026-01-31';
+
+        // Act
+        service.closePeriod(startDate, endDate).subscribe((count) => {
+            // Assert
+            expect(count).toBe(10);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/ClosePeriod`);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual({ startDate, endDate });
+        req.flush(10);
+    });
+
+    it('should reopen a period', () => {
+        // Arrange
+        const startDate = '2026-01-01';
+        const endDate = '2026-01-31';
+
+        // Act
+        service.reopenPeriod(startDate, endDate).subscribe((count) => {
+            // Assert
+            expect(count).toBe(8);
+        });
+
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/ReopenPeriod`);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual({ startDate, endDate });
+        req.flush(8);
+    });
+
     const mockClient = (): Client => {
         const client = new Client();
         client.id = 'client-123';

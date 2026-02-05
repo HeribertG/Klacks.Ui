@@ -153,7 +153,7 @@ describe('WorkLockLevelService', () => {
       expect(result).toBe(true);
     });
 
-    it('should block unconfirm for non-admin when lockLevel is not Confirmed', () => {
+    it('should block unconfirm for non-admin when lockLevel is Approved', () => {
       // Arrange
       const entry = createEntry({ lockLevel: WorkLockLevel.Approved });
 
@@ -164,12 +164,123 @@ describe('WorkLockLevelService', () => {
       expect(result).toBe(false);
     });
 
-    it('should allow unconfirm for admin when lockLevel is Confirmed', () => {
+    it('should allow unconfirm for supervisor when lockLevel is Approved', () => {
       // Arrange
-      const entry = createEntry({ lockLevel: WorkLockLevel.Confirmed });
+      const entry = createEntry({ lockLevel: WorkLockLevel.Approved });
+
+      // Act
+      const result = service.canUnconfirm(entry, false, true);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should allow unconfirm for admin at any level', () => {
+      // Arrange
+      const entry = createEntry({ lockLevel: WorkLockLevel.Closed });
 
       // Act
       const result = service.canUnconfirm(entry, true);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('canSeal', () => {
+    it('should allow anyone to seal to Confirmed', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.None, WorkLockLevel.Confirmed, false, false);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should block user from sealing to Approved', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.None, WorkLockLevel.Approved, false, false);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should allow supervisor to seal to Approved', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.None, WorkLockLevel.Approved, false, true);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should block supervisor from sealing to Closed', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.None, WorkLockLevel.Closed, false, true);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should allow admin to seal to Closed', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.None, WorkLockLevel.Closed, true, false);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should block sealing to same or lower level', () => {
+      // Arrange & Act
+      const result = service.canSeal(WorkLockLevel.Approved, WorkLockLevel.Confirmed, true, true);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('canUnseal', () => {
+    it('should return false for None level', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.None, true, true);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should allow anyone to unseal Confirmed', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.Confirmed, false, false);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should block user from unsealing Approved', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.Approved, false, false);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should allow supervisor to unseal Approved', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.Approved, false, true);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should block supervisor from unsealing Closed', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.Closed, false, true);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should allow admin to unseal Closed', () => {
+      // Arrange & Act
+      const result = service.canUnseal(WorkLockLevel.Closed, true, false);
 
       // Assert
       expect(result).toBe(true);

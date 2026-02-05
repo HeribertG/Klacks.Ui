@@ -16,9 +16,36 @@ export class WorkLockLevelService {
     return entry.lockLevel === WorkLockLevel.None && !entry.isGroupRestricted;
   }
 
-  canUnconfirm(entry: IScheduleCell, isAdmin: boolean): boolean {
-    if (isAdmin) return entry.lockLevel <= WorkLockLevel.Confirmed;
-    return entry.lockLevel === WorkLockLevel.Confirmed;
+  canUnconfirm(entry: IScheduleCell, isAdmin: boolean, isAuthorised = false): boolean {
+    return this.canUnseal(entry.lockLevel, isAdmin, isAuthorised);
+  }
+
+  canSeal(currentLevel: number, targetLevel: number, isAdmin: boolean, isAuthorised: boolean): boolean {
+    if (targetLevel <= currentLevel) return false;
+    switch (targetLevel) {
+      case WorkLockLevel.Confirmed:
+        return true;
+      case WorkLockLevel.Approved:
+        return isAuthorised || isAdmin;
+      case WorkLockLevel.Closed:
+        return isAdmin;
+      default:
+        return false;
+    }
+  }
+
+  canUnseal(currentLevel: number, isAdmin: boolean, isAuthorised: boolean): boolean {
+    if (currentLevel === WorkLockLevel.None) return false;
+    switch (currentLevel) {
+      case WorkLockLevel.Confirmed:
+        return true;
+      case WorkLockLevel.Approved:
+        return isAuthorised || isAdmin;
+      case WorkLockLevel.Closed:
+        return isAdmin;
+      default:
+        return false;
+    }
   }
 
   getLockIcon(level: number): string {

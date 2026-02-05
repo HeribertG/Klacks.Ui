@@ -16,37 +16,36 @@ import {
 })
 export class DataSkillService {
   private http = inject(HttpClient);
-  private apiUrl = environment.baseUrl;
 
   getSkills(): Observable<ISkillDefinition[]> {
     return this.http
-      .get<ISkillDefinition[]>(`${this.apiUrl}/backend/skills`)
+      .get<ISkillDefinition[]>(`${environment.baseUrl}/backend/skills`)
       .pipe(retry(2));
   }
 
   getSkillByName(name: string): Observable<ISkillDefinition> {
     return this.http
-      .get<ISkillDefinition>(`${this.apiUrl}/backend/skills/${name}`)
+      .get<ISkillDefinition>(`${environment.baseUrl}/backend/skills/${name}`)
       .pipe(retry(2));
   }
 
   executeSkill(request: ISkillExecuteRequest): Observable<ISkillExecuteResponse> {
     return this.http.post<ISkillExecuteResponse>(
-      `${this.apiUrl}/backend/skills/execute`,
+      `${environment.baseUrl}/backend/skills/execute`,
       request
     );
   }
 
   executeSkillChain(request: ISkillChainExecuteRequest): Observable<ISkillExecuteResponse[]> {
     return this.http.post<ISkillExecuteResponse[]>(
-      `${this.apiUrl}/backend/skills/execute-chain`,
+      `${environment.baseUrl}/backend/skills/execute-chain`,
       request
     );
   }
 
   getAnalytics(days = 30): Observable<ISkillAnalytics> {
     return this.http
-      .get<ISkillAnalytics>(`${this.apiUrl}/backend/skills/analytics`, {
+      .get<ISkillAnalytics>(`${environment.baseUrl}/backend/skills/analytics`, {
         params: { days: days.toString() }
       })
       .pipe(retry(2));

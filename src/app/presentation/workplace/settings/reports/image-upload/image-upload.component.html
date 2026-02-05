@@ -1,0 +1,78 @@
+<div class="image-upload">
+  <div class="upload-area"
+       [class.dragging]="isDragging"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
+    <i class="fa fa-cloud-upload"></i>
+    <p>{{ 'setting.report.image.dropHint' | translate }}</p>
+    <span class="or-divider">{{ 'general.or' | translate }}</span>
+    <label class="btn btn-outline-primary btn-sm">
+      <input type="file" 
+             accept="image/*" 
+             multiple 
+             (change)="onFileSelected($event)"
+             hidden>
+      {{ 'setting.report.image.browse' | translate }}
+    </label>
+  </div>
+
+  <div *ngIf="images.length > 0" class="image-list">
+    <h6>{{ 'setting.report.image.uploaded' | translate }} ({{ images.length }})</h6>
+    
+    <div *ngFor="let image of images; let i = index" 
+         class="image-item"
+         [class.selected]="selectedImage === image"
+         (click)="selectImage(image)">
+      <img [src]="image.dataUrl" [alt]="image.name">
+      <div class="image-info">
+        <span class="image-name">{{ image.name }}</span>
+        <span class="image-size">{{ image.width }}x{{ image.height }}</span>
+      </div>
+      <button class="btn btn-sm btn-link text-danger delete-btn" 
+              (click)="deleteImage(i); $event.stopPropagation()">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="selectedImage" class="image-properties">
+    <h6>{{ 'setting.report.image.properties' | translate }}</h6>
+    
+    <div class="property-row">
+      <div class="property-group">
+        <label>{{ 'setting.report.image.posX' | translate }}</label>
+        <input type="number" class="form-control form-control-sm" 
+               [(ngModel)]="selectedImage.x" 
+               (change)="updateImage(selectedImage)">
+      </div>
+      <div class="property-group">
+        <label>{{ 'setting.report.image.posY' | translate }}</label>
+        <input type="number" class="form-control form-control-sm" 
+               [(ngModel)]="selectedImage.y" 
+               (change)="updateImage(selectedImage)">
+      </div>
+    </div>
+
+    <div class="property-row">
+      <div class="property-group">
+        <label>{{ 'setting.report.image.width' | translate }}</label>
+        <input type="number" class="form-control form-control-sm" 
+               [(ngModel)]="selectedImage.width" 
+               (change)="updateImage(selectedImage)">
+      </div>
+      <div class="property-group">
+        <label>{{ 'setting.report.image.height' | translate }}</label>
+        <input type="number" class="form-control form-control-sm" 
+               [(ngModel)]="selectedImage.height" 
+               (change)="updateImage(selectedImage)">
+      </div>
+    </div>
+
+    <div class="image-preview">
+      <img [src]="selectedImage.dataUrl" [alt]="selectedImage.name"
+           [style.width.px]="selectedImage.width"
+           [style.height.px]="selectedImage.height">
+    </div>
+  </div>
+</div>

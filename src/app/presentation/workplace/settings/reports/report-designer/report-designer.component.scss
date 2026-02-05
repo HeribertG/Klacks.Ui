@@ -239,6 +239,72 @@
     height: 200px;
     text-align: center;
   }
+
+  .formula-preview {
+    padding: 8px;
+    background-color: white;
+    border: 1px solid var(--colorLine);
+    border-radius: 4px;
+    font-size: 11px;
+    min-height: 60px;
+    max-height: 100px;
+    overflow: auto;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+}
+
+.formula-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formula-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 900px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--colorLine);
+
+    h5 {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+
+  .modal-body {
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--colorLine);
+    display: flex;
+    justify-content: flex-end;
+  }
 }
 
 .btn-group-sm .btn {

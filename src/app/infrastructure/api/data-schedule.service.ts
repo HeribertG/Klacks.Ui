@@ -65,6 +65,30 @@ export class DataScheduleService {
       .pipe(retry(3));
   }
 
+  approveDay(date: string, groupId: string) {
+    return this.httpClient
+      .post<number>(`${environment.baseUrl}Works/ApproveDay`, { date, groupId })
+      .pipe(retry(3));
+  }
+
+  revokeDayApproval(date: string, groupId: string) {
+    return this.httpClient
+      .post<number>(`${environment.baseUrl}Works/RevokeDayApproval`, { date, groupId })
+      .pipe(retry(3));
+  }
+
+  closePeriod(startDate: string, endDate: string) {
+    return this.httpClient
+      .post<number>(`${environment.baseUrl}Works/ClosePeriod`, { startDate, endDate })
+      .pipe(retry(3));
+  }
+
+  reopenPeriod(startDate: string, endDate: string) {
+    return this.httpClient
+      .post<number>(`${environment.baseUrl}Works/ReopenPeriod`, { startDate, endDate })
+      .pipe(retry(3));
+  }
+
   private setCorrectDate(value: Work) {
     value.currentDate = dateWithLocalTimeCorrection(value.currentDate)!;
   }

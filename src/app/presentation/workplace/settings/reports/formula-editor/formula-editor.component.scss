@@ -1,0 +1,219 @@
+.formula-editor {
+  height: 500px;
+}
+
+.editor-layout {
+  display: flex;
+  height: 100%;
+  gap: 15px;
+}
+
+.variables-panel {
+  width: 220px;
+  padding: 15px;
+  background-color: var(--backgroundColorSubCards);
+  border-right: 1px solid var(--colorLine);
+  overflow-y: auto;
+
+  h6 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--colorHeadline);
+    margin-bottom: 10px;
+  }
+}
+
+.variables-list {
+  .variable-item {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: white;
+    border: 1px solid var(--colorLine);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: var(--standartBlueColor);
+      color: white;
+      border-color: var(--standartBlueColor);
+
+      .variable-key {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    i {
+      font-size: 10px;
+      margin-bottom: 3px;
+    }
+
+    .variable-name {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .variable-key {
+      font-size: 9px;
+      color: var(--colorLabel);
+    }
+  }
+}
+
+.examples-list {
+  .example-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: white;
+    border: 1px solid var(--colorLine);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--standartBlueColor);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .example-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--colorHeadline);
+      margin-bottom: 3px;
+    }
+
+    .example-code {
+      display: block;
+      font-size: 9px;
+      color: var(--colorLabel);
+      background: none;
+      padding: 0;
+    }
+  }
+}
+
+.editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background-color: white;
+}
+
+.editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  .editor-hint {
+    font-size: 12px;
+    color: var(--colorLabel);
+  }
+}
+
+.editor-container {
+  flex: 1;
+  border: 1px solid var(--colorLine);
+  border-radius: 4px;
+  overflow: hidden;
+
+  ::ng-deep {
+    .cm-editor {
+      height: 100%;
+    }
+
+    .cm-gutters {
+      background-color: var(--backgroundColorSubCards);
+      border-right: 1px solid var(--colorLine);
+    }
+  }
+}
+
+.editor-help {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: var(--backgroundColorSubCards);
+  border-radius: 4px;
+
+  code {
+    background-color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+}
+
+.test-panel {
+  width: 250px;
+  padding: 15px;
+  background-color: var(--backgroundColorSubCards);
+  border-left: 1px solid var(--colorLine);
+  overflow-y: auto;
+
+  h6 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--colorHeadline);
+    margin-bottom: 10px;
+  }
+}
+
+.test-result {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+
+  &.success {
+    background-color: rgba(var(--standartGreenColorRGB), 0.1);
+    border: 1px solid var(--standartGreenColor);
+  }
+
+  &.error {
+    background-color: rgba(var(--standartRedColorRGB), 0.1);
+    border: 1px solid var(--standartRedColor);
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+
+    i {
+      font-size: 14px;
+    }
+  }
+
+  pre {
+    font-size: 11px;
+    margin: 0;
+    padding: 8px;
+    background-color: white;
+    border-radius: 3px;
+    max-height: 100px;
+    overflow: auto;
+  }
+}
+
+.test-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: var(--colorLabel);
+  font-size: 12px;
+}
+
+.functions-reference {
+  h6 {
+    margin-bottom: 8px;
+  }
+
+  .function-group {
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+}

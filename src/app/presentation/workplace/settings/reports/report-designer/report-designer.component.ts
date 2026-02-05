@@ -17,6 +17,8 @@ import {
   AVAILABLE_DATA_BINDINGS,
   DEFAULT_FIELD_STYLE 
 } from 'src/app/domain/models/report/report-field.model';
+import { FormulaEditorComponent } from '../formula-editor/formula-editor.component';
+import { ImageUploadComponent, ReportImage } from '../image-upload/image-upload.component';
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
 
 @Component({
@@ -24,7 +26,7 @@ import { ReportSection } from 'src/app/domain/models/report/report-section.model
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList]
+  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, FormulaEditorComponent, ImageUploadComponent]
 })
 export class ReportDesignerComponent {
   @Input() template!: ReportTemplate;
@@ -34,6 +36,10 @@ export class ReportDesignerComponent {
 
   selectedField: ReportField | null = null;
   selectedSection: ReportSection | null = null;
+
+  showFormulaEditor = false;
+  showImageManager = false;
+  images: ReportImage[] = [];
 
   // Available data bindings for drag & drop
   availableBindings = AVAILABLE_DATA_BINDINGS;
@@ -175,6 +181,34 @@ export class ReportDesignerComponent {
 
   onPageSetupChange(): void {
     this.emitChange();
+  }
+
+  onFieldTypeChange(field: ReportField): void {
+    // Field type change handler
+  }
+
+  openFormulaEditor(field: ReportField): void {
+    this.selectedField = field;
+    this.showFormulaEditor = true;
+  }
+
+  closeFormulaEditor(): void {
+    this.showFormulaEditor = false;
+  }
+
+  onFormulaChange(formula: string): void {
+    if (this.selectedField) {
+      this.selectedField.formula = formula;
+      this.emitChange();
+    }
+  }
+
+  openImageManager(): void {
+    this.showImageManager = true;
+  }
+
+  closeImageManager(): void {
+    this.showImageManager = false;
   }
 
   private emitChange(): void {

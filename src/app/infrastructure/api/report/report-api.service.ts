@@ -14,15 +14,14 @@ export interface GenerateReportRequest {
 })
 export class ReportApiService {
   private http = inject(HttpClient);
-  private apiUrl = environment.baseUrl;
 
   generateScheduleReport(clientId: string, request: GenerateReportRequest): Observable<Blob> {
-    const url = `${this.apiUrl}/reports/schedule/${clientId}`;
+    const url = `${environment.baseUrl}/reports/schedule/${clientId}`;
     return this.http.post(url, request, { responseType: 'blob' });
   }
 
   previewScheduleReport(clientId: string, fromDate: Date, toDate: Date): Observable<Blob> {
-    const url = `${this.apiUrl}/reports/schedule/${clientId}/preview`;
+    const url = `${environment.baseUrl}/reports/schedule/${clientId}/preview`;
     const params = new HttpParams()
       .set('fromDate', fromDate.toISOString())
       .set('toDate', toDate.toISOString());
