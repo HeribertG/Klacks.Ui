@@ -48,7 +48,7 @@ export class WorkCellFormatterService implements ICellFormatter {
       cell.tooltip = tooltip;
     }
 
-    cell.sealed = entry.lockLevel > 0;
+    cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
   }

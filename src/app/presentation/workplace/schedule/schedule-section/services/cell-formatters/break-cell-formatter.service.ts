@@ -55,7 +55,7 @@ export class BreakCellFormatterService implements ICellFormatter {
 
     cell.tooltip = this.absenceLookup.getNameForEntryId(entry.entryId, language);
 
-    cell.sealed = entry.lockLevel > 0;
+    cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
   }

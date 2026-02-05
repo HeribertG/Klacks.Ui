@@ -87,5 +87,27 @@ describe('WorkCellFormatterService', () => {
       // Assert
       expect(cell.sealed).toBe(true);
     });
+
+    it('should set sealed to true when isGroupRestricted is true', () => {
+      // Arrange
+      const entry = createEntry({ lockLevel: WorkLockLevel.None, isGroupRestricted: true });
+
+      // Act
+      const cell = service.formatCell(entry);
+
+      // Assert
+      expect(cell.sealed).toBe(true);
+    });
+
+    it('should set sealed to true when both lockLevel > 0 and isGroupRestricted', () => {
+      // Arrange
+      const entry = createEntry({ lockLevel: WorkLockLevel.Confirmed, isGroupRestricted: true });
+
+      // Act
+      const cell = service.formatCell(entry);
+
+      // Assert
+      expect(cell.sealed).toBe(true);
+    });
   });
 });

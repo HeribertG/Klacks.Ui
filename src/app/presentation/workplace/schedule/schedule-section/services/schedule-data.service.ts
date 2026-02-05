@@ -709,7 +709,7 @@ export class ScheduleDataService extends BaseDataService {
         : this.translateService.instant('workChange.tooltip.correction');
     }
 
-    cell.sealed = entry.lockLevel > 0;
+    cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
   }

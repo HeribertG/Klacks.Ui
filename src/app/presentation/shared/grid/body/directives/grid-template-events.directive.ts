@@ -101,6 +101,12 @@ export class GridTemplateEventsDirective {
     }
 
     if (this.gridSurface.nameId === 'surface') {
+      const scheduleDataService = this.gridData as ScheduleDataService;
+      const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+      if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
+        return;
+      }
+
       if (this.handleWorkChangeDoubleClick(pos)) {
         return;
       }
@@ -924,6 +930,10 @@ export class GridTemplateEventsDirective {
   ): { id: string; sourceId: string; clientId: string; date: Date; entryId: string; entryType: number } | null {
     const entry = scheduleDataService.getWorkScheduleEntryForCell(row, column);
     if (!entry) {
+      return null;
+    }
+
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
       return null;
     }
 
