@@ -1,18 +1,23 @@
-<div class="report-row" [class.report-row-new]="isNew" (click)="openModal()">
-  <div class="report-cell report-cell-name">
-    {{ data.name }}
+<div id="report-row-container-{{ data.id }}" class="first custom-control-inline">
+  <div id="report-row-name-group-{{ data.id }}" class="form-group">
+    <input
+      id="report-row-name-{{ data.id }}"
+      type="text"
+      [value]="data.name"
+      class="form-control attribute-name"
+      aria-label="name"
+      (click)="openModal()"
+      readonly
+    />
   </div>
-  <div class="report-cell report-cell-type">
-    {{ reportTypeLabel }}
-  </div>
-  <div class="report-cell report-cell-description">
-    {{ data.description }}
-  </div>
-  <div class="report-cell report-cell-actions" (click)="$event.stopPropagation()">
-    <button class="btn btn-sm btn-outline-danger" (click)="deleteReport()">
-      <i class="fa fa-trash"></i>
-    </button>
-  </div>
+
+  <span
+    id="report-row-delete-{{ data.id }}"
+    class="delete-button"
+    type="button"
+    (click)="deleteReport()"
+    >✕</span
+  >
 </div>
 
 <ng-template id="reportModal-{{id}}" let-modal>

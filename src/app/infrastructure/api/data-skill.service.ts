@@ -19,33 +19,33 @@ export class DataSkillService {
 
   getSkills(): Observable<ISkillDefinition[]> {
     return this.http
-      .get<ISkillDefinition[]>(`${environment.baseUrl}/backend/skills`)
+      .get<ISkillDefinition[]>(`${environment.baseUrl}skills`)
       .pipe(retry(2));
   }
 
   getSkillByName(name: string): Observable<ISkillDefinition> {
     return this.http
-      .get<ISkillDefinition>(`${environment.baseUrl}/backend/skills/${name}`)
+      .get<ISkillDefinition>(`${environment.baseUrl}skills/${name}`)
       .pipe(retry(2));
   }
 
   executeSkill(request: ISkillExecuteRequest): Observable<ISkillExecuteResponse> {
     return this.http.post<ISkillExecuteResponse>(
-      `${environment.baseUrl}/backend/skills/execute`,
+      `${environment.baseUrl}skills/execute`,
       request
     );
   }
 
   executeSkillChain(request: ISkillChainExecuteRequest): Observable<ISkillExecuteResponse[]> {
     return this.http.post<ISkillExecuteResponse[]>(
-      `${environment.baseUrl}/backend/skills/execute-chain`,
+      `${environment.baseUrl}skills/execute-chain`,
       request
     );
   }
 
   getAnalytics(days = 30): Observable<ISkillAnalytics> {
     return this.http
-      .get<ISkillAnalytics>(`${environment.baseUrl}/backend/skills/analytics`, {
+      .get<ISkillAnalytics>(`${environment.baseUrl}skills/analytics`, {
         params: { days: days.toString() }
       })
       .pipe(retry(2));

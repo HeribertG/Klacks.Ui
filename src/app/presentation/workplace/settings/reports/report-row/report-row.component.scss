@@ -1,45 +1,33 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 
-.report-row {
+.first {
+  margin-left: 0;
+  padding-top: 2px;
   display: flex;
   flex-direction: row;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--colorLine);
+}
+
+.form-group {
+  margin-left: 35px;
+  margin-bottom: 0;
+}
+
+.attribute-name {
+  width: 380px;
   cursor: pointer;
-  transition: background-color 0.2s;
+}
+
+.delete-button {
+  margin-left: 10px;
+  margin-top: 6px;
+  cursor: pointer;
+  color: var(--standartRedColor);
+  font-size: 16px;
+  font-weight: bold;
 
   &:hover {
-    background-color: var(--backgroundColorSubCards);
+    color: var(--standartRedColorHover);
   }
-}
-
-.report-row-new {
-  background-color: rgba(var(--standartBlueColorRGB), 0.1);
-}
-
-.report-cell {
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-}
-
-.report-cell-name {
-  flex: 2;
-  font-weight: 500;
-}
-
-.report-cell-type {
-  flex: 1;
-}
-
-.report-cell-description {
-  flex: 3;
-  color: var(--colorLabel);
-}
-
-.report-cell-actions {
-  flex: 0 0 80px;
-  justify-content: center;
 }
 
 .report-form {

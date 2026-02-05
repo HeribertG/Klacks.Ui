@@ -11,26 +11,26 @@ export class DataReportApiService {
   private http = inject(HttpClient);
 
   getAllTemplates(): Observable<ReportTemplate[]> {
-    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}/reporttemplates`);
+    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates`);
   }
 
   getTemplatesByType(type: number): Observable<ReportTemplate[]> {
-    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}/reporttemplates/by-type/${type}`);
+    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates/by-type/${type}`);
   }
 
   getTemplateById(id: string): Observable<ReportTemplate> {
-    return this.http.get<ReportTemplate>(`${environment.baseUrl}/reporttemplates/${id}`);
+    return this.http.get<ReportTemplate>(`${environment.baseUrl}reporttemplates/${id}`);
   }
 
   createTemplate(template: ReportTemplate): Observable<ReportTemplate> {
-    return this.http.post<ReportTemplate>(`${environment.baseUrl}/reporttemplates`, template);
+    return this.http.post<ReportTemplate>(`${environment.baseUrl}reporttemplates`, template);
   }
 
   updateTemplate(template: ReportTemplate): Observable<ReportTemplate> {
-    return this.http.put<ReportTemplate>(`${environment.baseUrl}/reporttemplates/${template.id}`, template);
+    return this.http.put<ReportTemplate>(`${environment.baseUrl}reporttemplates/${template.id}`, template);
   }
 
   deleteTemplate(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.baseUrl}/reporttemplates/${id}`);
+    return this.http.delete<void>(`${environment.baseUrl}reporttemplates/${id}`);
   }
 }

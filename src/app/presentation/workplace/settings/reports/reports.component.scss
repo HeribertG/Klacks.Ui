@@ -1,1 +1,14 @@
-// Styles are handled by settings-list-card component
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.container-box {
+  flex: 1;
+  height: 242px;
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
