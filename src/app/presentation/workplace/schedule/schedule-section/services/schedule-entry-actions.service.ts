@@ -19,6 +19,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { DataBreakService } from 'src/app/infrastructure/api/data-break.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
@@ -34,6 +35,7 @@ export class ScheduleEntryActionsService {
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private cellManipulation = inject(BaseCellManipulationService);
   private dataScheduleService = inject(DataScheduleService);
+  private dataBreakService = inject(DataBreakService);
 
   addWorkFromShiftMenu(
     shiftId: string,
@@ -192,30 +194,36 @@ export class ScheduleEntryActionsService {
 
   confirmWork(row: number, column: number, dataService: ScheduleDataService): void {
     const entry = dataService.getWorkScheduleEntryForCell(row, column);
-    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) return;
+    if (!entry) return;
 
-    this.dataScheduleService.confirmWork(entry.id).subscribe({
-      next: () => {
-        this.dataManagement.readDatas();
-      },
-      error: (err) => {
-        console.error('Error confirming work:', err);
-      },
-    });
+    if (entry.entryType === WorkScheduleEntryType.Work) {
+      this.dataScheduleService.confirmWork(entry.id).subscribe({
+        next: () => this.dataManagement.readDatas(),
+        error: (err) => console.error('Error confirming work:', err),
+      });
+    } else if (entry.entryType === WorkScheduleEntryType.Break) {
+      this.dataBreakService.confirmBreak(entry.id).subscribe({
+        next: () => this.dataManagement.readDatas(),
+        error: (err) => console.error('Error confirming break:', err),
+      });
+    }
   }
 
   unconfirmWork(row: number, column: number, dataService: ScheduleDataService): void {
     const entry = dataService.getWorkScheduleEntryForCell(row, column);
-    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) return;
+    if (!entry) return;
 
-    this.dataScheduleService.unconfirmWork(entry.id).subscribe({
-      next: () => {
-        this.dataManagement.readDatas();
-      },
-      error: (err) => {
-        console.error('Error unconfirming work:', err);
-      },
-    });
+    if (entry.entryType === WorkScheduleEntryType.Work) {
+      this.dataScheduleService.unconfirmWork(entry.id).subscribe({
+        next: () => this.dataManagement.readDatas(),
+        error: (err) => console.error('Error unconfirming work:', err),
+      });
+    } else if (entry.entryType === WorkScheduleEntryType.Break) {
+      this.dataBreakService.unconfirmBreak(entry.id).subscribe({
+        next: () => this.dataManagement.readDatas(),
+        error: (err) => console.error('Error unconfirming break:', err),
+      });
+    }
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {

@@ -48,4 +48,16 @@ export class DataBreakService {
       .delete<BulkBreaksResponse>(`${environment.baseUrl}Breaks/Bulk`, { body: request })
       .pipe(retry(3));
   }
+
+  confirmBreak(breakId: string) {
+    return this.httpClient
+      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Confirm`, {})
+      .pipe(retry(3));
+  }
+
+  unconfirmBreak(breakId: string) {
+    return this.httpClient
+      .post<IBreak>(`${environment.baseUrl}Breaks/${breakId}/Unconfirm`, {})
+      .pipe(retry(3));
+  }
 }

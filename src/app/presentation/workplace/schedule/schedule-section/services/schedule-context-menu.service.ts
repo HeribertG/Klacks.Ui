@@ -72,7 +72,7 @@ export class ScheduleContextMenuService {
           menuData.list.push(...MenuDataTemplate.delete());
         }
       } else if (isLocked) {
-        if (entry?.entryType === WorkScheduleEntryType.Work) {
+        if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
           if (this.lockLevelService.canUnconfirm(entry, this.authService.isAdmin)) {
             menuData.list.push(...MenuDataTemplate.unconfirm());
             menuData.list.push(...MenuDataTemplate.divider());
@@ -93,7 +93,9 @@ export class ScheduleContextMenuService {
           if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
             menuData.list.push(...MenuDataTemplate.editWork());
           }
+        }
 
+        if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
           menuData.list.push(...MenuDataTemplate.divider());
           if (this.lockLevelService.canConfirm(entry)) {
             menuData.list.push(...MenuDataTemplate.confirm());
