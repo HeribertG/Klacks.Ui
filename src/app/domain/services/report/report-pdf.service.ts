@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 
 import { ReportTemplate } from '../../models/report/report-template.model';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
-import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
+import { ReportField, ReportFieldType, TextAlignment, ALL_AVAILABLE_FIELDS } from '../../models/report/report-field.model';
 import { IScheduleCell, IWorkScheduleClient, WorkScheduleEntryType } from '../../models/work-schedule-class';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 
@@ -297,7 +297,7 @@ export class ReportPdfService {
     const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
 
     const columns = fields.map(f => ({
-      header: f.name,
+      header: this.translateFieldName(f),
       dataKey: f.dataBinding,
     }));
 
@@ -367,7 +367,7 @@ export class ReportPdfService {
         doc.setFont(fontFamily, fontStyle);
         this.applyTextColor(doc, field.style.textColor);
 
-        const fullText = `${field.name}: ${value}`;
+        const fullText = `${this.translateFieldName(field)}: ${value}`;
         doc.text(fullText, marginLeft, yPos);
 
         if (field.style.underline) {
@@ -376,6 +376,14 @@ export class ReportPdfService {
 
         yPos += field.style.fontSize * 0.5 + 2;
       });
+  }
+
+  private translateFieldName(field: ReportField): string {
+    const def = ALL_AVAILABLE_FIELDS.find(f => f.key === field.dataBinding);
+    if (def) {
+      return this.translate.instant(def.i18nKey);
+    }
+    return field.name;
   }
 
   // --- Formatting Helpers ---
@@ -538,7 +546,7 @@ export class ReportPdfService {
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-    return days[d.getDay()];
+    return this.translate.instant(days[d.getDay()]);
   }
 
   private getEntryTypeLabel(type: number): string {
