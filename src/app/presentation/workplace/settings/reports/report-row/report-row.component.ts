@@ -52,6 +52,7 @@ export class ReportRowComponent {
     sections: [...DEFAULT_SECTIONS]
   };
   isSaving = false;
+  imageCache = new Map<string, string>();
 
   previewGroupId = '';
   previewFromDate = '';
@@ -199,9 +200,10 @@ export class ReportRowComponent {
         groupName: selectedGroup?.name ?? '',
         startDate: response.startDate,
         endDate: response.endDate,
+        imageCache: this.imageCache,
       };
 
-      const blob = this.reportPdfService.generatePdf(pdfContext);
+      const blob = await this.reportPdfService.generatePdf(pdfContext);
       this.reportService.openPdfPreview(blob);
     } catch (err) {
       console.error('Error generating preview:', err);

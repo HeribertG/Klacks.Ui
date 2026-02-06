@@ -4,9 +4,18 @@ export interface ReportField {
   dataBinding: string;
   type: ReportFieldType;
   width: number;
+  height: number;
   style: FieldStyle;
   format?: string;
   sortOrder: number;
+  imageUrl?: string;
+}
+
+export interface HeaderRow {
+  rowIndex: number;
+  left: ReportField[];
+  center: ReportField[];
+  right: ReportField[];
 }
 
 export enum ReportFieldType {
@@ -15,7 +24,8 @@ export enum ReportFieldType {
   Number = 2,
   Currency = 3,
   Boolean = 4,
-  Time = 5
+  Time = 5,
+  Image = 6
 }
 
 export enum TextAlignment {
@@ -27,7 +37,12 @@ export enum TextAlignment {
 export interface FieldStyle {
   fontSize: number;
   bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  fontFamily: string;
   alignment: TextAlignment;
+  textColor: string;
+  backgroundColor: string;
 }
 
 export interface BorderStyle {
@@ -39,10 +54,21 @@ export interface BorderStyle {
   color: string;
 }
 
+export const AVAILABLE_FONTS = [
+  { value: 'helvetica', label: 'Helvetica' },
+  { value: 'times', label: 'Times' },
+  { value: 'courier', label: 'Courier' },
+];
+
 export const DEFAULT_FIELD_STYLE: FieldStyle = {
   fontSize: 10,
   bold: false,
-  alignment: TextAlignment.Left
+  italic: false,
+  underline: false,
+  fontFamily: 'helvetica',
+  alignment: TextAlignment.Left,
+  textColor: '#000000',
+  backgroundColor: '#FFFFFF',
 };
 
 export interface DataBindingDefinition {
@@ -69,6 +95,8 @@ export const HEADER_FIELDS: DataBindingDefinition[] = [
   { key: 'report.period', label: 'Zeitraum', i18nKey: 'setting.report.field.reportPeriod', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 40 },
   { key: 'report.date', label: 'Report-Datum', i18nKey: 'setting.report.field.reportDate', type: ReportFieldType.Date, category: FieldCategory.Header, defaultWidth: 25 },
   { key: 'report.groupName', label: 'Gruppe', i18nKey: 'setting.report.field.groupName', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'report.image', label: 'Bild', i18nKey: 'setting.report.field.reportImage', type: ReportFieldType.Image, category: FieldCategory.Header, defaultWidth: 30 },
+  { key: 'report.customText', label: 'Freitext', i18nKey: 'setting.report.field.customText', type: ReportFieldType.Text, category: FieldCategory.Header, defaultWidth: 40 },
 ];
 
 export const WORK_TABLE_FIELDS: DataBindingDefinition[] = [

@@ -57,6 +57,7 @@
           <div class="designer-tab">
             <app-report-designer
               [template]="editTemplate"
+              [imagePreviewCache]="imageCache"
               (templateChange)="onTemplateChange($event)">
             </app-report-designer>
           </div>

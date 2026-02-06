@@ -104,6 +104,95 @@
   max-height: 500px;
 }
 
+// --- Global Toolbar ---
+
+.global-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+  flex-wrap: wrap;
+}
+
+.tb-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--standartTextColor);
+  line-height: 1.2;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+
+  &.active {
+    background: var(--backgroundColorHover);
+    border-color: colors.$standartBlueColor;
+    color: colors.$standartBlueColor;
+  }
+
+  &.italic {
+    font-style: italic;
+  }
+
+  &.underline {
+    text-decoration: underline;
+  }
+}
+
+.tb-select {
+  font-size: 11px;
+  padding: 1px 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+  max-width: 100px;
+}
+
+.tb-size {
+  width: 44px;
+  font-size: 11px;
+  padding: 1px 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  text-align: center;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+}
+
+.tb-color {
+  width: 28px;
+  height: 24px;
+  padding: 1px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.tb-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--cardBorderColor);
+  margin: 0 4px;
+}
+
+.tb-label {
+  font-size: 11px;
+  color: var(--colorLabel);
+  margin: 0 2px;
+}
+
+// --- Sections ---
+
 .section-container {
   margin-bottom: 12px;
 }
@@ -146,6 +235,8 @@
   }
 }
 
+// --- Footer Chips ---
+
 .field-chips {
   display: flex;
   flex-wrap: wrap;
@@ -162,7 +253,13 @@
   border-radius: 4px;
   font-size: 11px;
   color: var(--standartTextColor);
-  cursor: grab;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &.chip-active {
+    border-color: colors.$standartBlueColor;
+    outline: 1px solid colors.$standartBlueColor;
+  }
 
   .chip-label {
     font-weight: 500;
@@ -204,6 +301,8 @@
   }
 }
 
+// --- Table Columns ---
+
 .table-columns {
   display: flex;
   gap: 4px;
@@ -216,8 +315,14 @@
   background: var(--backgroundColorFocus);
   padding: 4px 6px;
   min-width: 70px;
-  cursor: grab;
+  cursor: pointer;
   color: var(--standartTextColor);
+  transition: border-color 0.15s;
+
+  &.column-active {
+    border-color: colors.$standartBlueColor;
+    outline: 1px solid colors.$standartBlueColor;
+  }
 
   .column-header {
     display: flex;
@@ -254,6 +359,193 @@
   font-size: 10px;
   color: var(--colorSubHeadline);
 }
+
+// --- Header Section ---
+
+.header-section {
+  border: 1px dashed var(--cardBorderColor);
+  border-radius: 4px;
+  padding: 8px;
+  background: var(--backgroundColorCard);
+}
+
+.btn-add-row {
+  border: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorFocus);
+  color: var(--standartTextColor);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-bottom: 8px;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+
+  i {
+    font-size: 10px;
+    margin-right: 4px;
+  }
+}
+
+.header-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+}
+
+.header-zone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  flex-wrap: wrap;
+  min-width: 60px;
+  padding: 2px 4px;
+  border: 1px dashed transparent;
+  border-radius: 3px;
+  transition: border-color 0.15s, background 0.15s;
+
+  &.cdk-drop-list-dragging {
+    border-color: colors.$standartBlueColor;
+    background: rgba(colors.$standartBlueColor, 0.05);
+  }
+}
+
+.header-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// --- Zone Chips ---
+
+.zone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--standartTextColor);
+  transition: border-color 0.15s;
+
+  &.chip-active {
+    border-color: colors.$standartBlueColor;
+    outline: 1px solid colors.$standartBlueColor;
+  }
+
+  &.image-chip {
+    padding: 4px 8px;
+    min-height: 28px;
+    min-width: 40px;
+  }
+
+  &.custom-chip {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+
+.zone-placeholder {
+  font-size: 10px;
+  color: var(--colorSubHeadline);
+  font-style: italic;
+  padding: 2px 4px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-text-textarea {
+  flex: 1;
+  font-size: 11px;
+  padding: 2px 6px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+  min-width: 0;
+  resize: vertical;
+  min-height: 32px;
+}
+
+.image-upload-btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  color: var(--colorLabel);
+  font-size: 11px;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+}
+
+.header-image-preview {
+  max-height: 32px;
+  max-width: 64px;
+  object-fit: contain;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 2px;
+}
+
+.image-placeholder-icon {
+  font-size: 16px;
+  color: var(--colorLabel);
+}
+
+.image-upload-zone {
+  border-style: dashed;
+  cursor: pointer;
+  min-width: 100px;
+  justify-content: center;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+    border-color: var(--colorLabel);
+  }
+}
+
+.image-upload-text {
+  font-size: 11px;
+  color: var(--colorSubHeadline);
+}
+
+.image-filename {
+  font-size: 10px;
+  color: var(--colorSubHeadline);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.row-remove {
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+// --- CDK Drag ---
 
 .cdk-drag-preview {
   box-sizing: border-box;
