@@ -1,5 +1,4 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
 import { DEFAULT_SECTIONS } from '../../models/report/report-section.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
@@ -23,7 +22,7 @@ export class DataManagementReportService {
     this.error.set(null);
     
     try {
-      const templates = await firstValueFrom(this.apiService.getAllTemplates());
+      const templates = await this.apiService.getAllTemplates();
       this.reportTemplateList.set(templates);
     } catch (err) {
       this.error.set('Failed to load report templates');
@@ -39,7 +38,7 @@ export class DataManagementReportService {
 
   async addTemplate(template: ReportTemplate): Promise<void> {
     try {
-      const created = await firstValueFrom(this.apiService.createTemplate(template));
+      const created = await this.apiService.createTemplate(template);
       this.reportTemplateList.update(list => [...list, created]);
     } catch (err) {
       console.error('Error creating template:', err);
@@ -53,7 +52,7 @@ export class DataManagementReportService {
     }
 
     try {
-      const result = await firstValueFrom(this.apiService.updateTemplate(updated));
+      const result = await this.apiService.updateTemplate(updated);
       this.reportTemplateList.update(list =>
         list.map(t => t.id === result.id ? result : t)
       );
@@ -65,7 +64,7 @@ export class DataManagementReportService {
 
   async deleteTemplate(id: string): Promise<void> {
     try {
-      await firstValueFrom(this.apiService.deleteTemplate(id));
+      await this.apiService.deleteTemplate(id);
       this.reportTemplateList.update(list => list.filter(t => t.id !== id));
     } catch (err) {
       console.error('Error deleting template:', err);

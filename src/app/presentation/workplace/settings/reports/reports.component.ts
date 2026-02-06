@@ -1,7 +1,7 @@
-import { Component, inject, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, DestroyRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ReportRowComponent } from './report-row/report-row.component';
@@ -25,13 +25,13 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
     ReportRowComponent
   ]
 })
-export class ReportsComponent implements AfterViewInit, OnDestroy {
+export class ReportsComponent implements AfterViewInit {
   @ViewChildren(ReportRowComponent) reportRows!: QueryList<ReportRowComponent>;
 
   public translate = inject(TranslateService);
   public dataManagementReportService = inject(DataManagementReportService);
   private modalService = inject(ModalService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   message = MessageLibrary.DELETE_ENTRY;
   private reportToDeleteIndex: number | null = null;
@@ -39,7 +39,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x: ModalType) => {
         if (
           x === ModalType.Delete &&
@@ -52,7 +52,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
       });
 
     this.reportRows.changes
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.pendingOpenReport !== null) {
           const row = this.reportRows.find(r => r.data === this.pendingOpenReport);
@@ -62,11 +62,6 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
           this.pendingOpenReport = null;
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async onClickAdd(): Promise<void> {

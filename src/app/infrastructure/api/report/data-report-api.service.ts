@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,27 +10,27 @@ import { Observable } from 'rxjs';
 export class DataReportApiService {
   private http = inject(HttpClient);
 
-  getAllTemplates(): Observable<ReportTemplate[]> {
-    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates`);
+  getAllTemplates(): Promise<ReportTemplate[]> {
+    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates`));
   }
 
-  getTemplatesByType(type: number): Observable<ReportTemplate[]> {
-    return this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates/by-type/${type}`);
+  getTemplatesByType(type: number): Promise<ReportTemplate[]> {
+    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates/by-type/${type}`));
   }
 
-  getTemplateById(id: string): Observable<ReportTemplate> {
-    return this.http.get<ReportTemplate>(`${environment.baseUrl}reporttemplates/${id}`);
+  getTemplateById(id: string): Promise<ReportTemplate> {
+    return firstValueFrom(this.http.get<ReportTemplate>(`${environment.baseUrl}reporttemplates/${id}`));
   }
 
-  createTemplate(template: ReportTemplate): Observable<ReportTemplate> {
-    return this.http.post<ReportTemplate>(`${environment.baseUrl}reporttemplates`, template);
+  createTemplate(template: ReportTemplate): Promise<ReportTemplate> {
+    return firstValueFrom(this.http.post<ReportTemplate>(`${environment.baseUrl}reporttemplates`, template));
   }
 
-  updateTemplate(template: ReportTemplate): Observable<ReportTemplate> {
-    return this.http.put<ReportTemplate>(`${environment.baseUrl}reporttemplates/${template.id}`, template);
+  updateTemplate(template: ReportTemplate): Promise<ReportTemplate> {
+    return firstValueFrom(this.http.put<ReportTemplate>(`${environment.baseUrl}reporttemplates/${template.id}`, template));
   }
 
-  deleteTemplate(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.baseUrl}reporttemplates/${id}`);
+  deleteTemplate(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${environment.baseUrl}reporttemplates/${id}`));
   }
 }
