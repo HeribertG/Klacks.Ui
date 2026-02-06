@@ -3,7 +3,6 @@ import { ReportField } from './report-field.model';
 export interface ReportSection {
   id?: string;
   type: ReportSectionType;
-  name?: string;
   fields: ReportField[];
   visible: boolean;
   sortOrder: number;
@@ -25,7 +24,6 @@ export const DEFAULT_SECTIONS: ReportSection[] = [
   },
   {
     type: ReportSectionType.WorkTable,
-    name: 'Arbeitszeiten',
     fields: [],
     visible: true,
     sortOrder: 1

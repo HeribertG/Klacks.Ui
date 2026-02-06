@@ -73,6 +73,7 @@
             <label class="tb-label">H:</label>
             <input type="number" class="tb-size" [ngModel]="activeField.height" (ngModelChange)="setImageHeight(activeField, $event)" min="5" max="200" />
           }
+
         </div>
       }
 
@@ -274,7 +275,7 @@
               <span class="table-type-badge" [class.work-badge]="section.type === ReportSectionType.WorkTable" [class.expense-badge]="section.type === ReportSectionType.ExpensesTable">
                 {{ sectionLabels[section.type] | translate }}
               </span>
-              <input class="table-name-input" [(ngModel)]="section.name" (ngModelChange)="emitChange()" [placeholder]="'setting.report.designer.tableName' | translate" />
+              <span class="table-section-spacer"></span>
               <button class="chip-btn remove table-remove" (click)="removeBodyTable(section)" [disabled]="bodySections.length <= 1" [title]="'setting.report.designer.removeTable' | translate">&#10005;</button>
             </div>
 

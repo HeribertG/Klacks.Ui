@@ -613,19 +613,8 @@
   }
 }
 
-.table-name-input {
+.table-section-spacer {
   flex: 1;
-  font-size: 12px;
-  padding: 2px 8px;
-  border: 1px solid var(--cardBorderColor);
-  border-radius: 3px;
-  background: var(--backgroundColorCard);
-  color: var(--standartTextColor);
-
-  &:focus {
-    outline: none;
-    border-color: colors.$standartBlueColor;
-  }
 }
 
 .table-remove {

@@ -10,6 +10,7 @@ import { ReportTemplate } from '../../models/report/report-template.model';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { IScheduleCell, IWorkScheduleClient, WorkScheduleEntryType } from '../../models/work-schedule-class';
+import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -457,10 +458,10 @@ export class ReportPdfService {
       return this.formatTime(entry.endTime);
     }
     if (binding === 'entry.hours') {
-      return entry.changeTime != null ? this.formatHours(entry.changeTime) : '';
+      return hoursToHHMM(entry.changeTime);
     }
     if (binding === 'entry.surcharges') {
-      return entry.surcharges != null ? this.formatHours(entry.surcharges) : '';
+      return hoursToHHMM(entry.surcharges);
     }
     if (binding === 'entry.shiftName' || binding === 'expense.shiftName') {
       return entry.entryName ?? '';
@@ -495,11 +496,11 @@ export class ReportPdfService {
     switch (field.dataBinding) {
       case 'sum.hours': {
         const total = clientData.workEntries.reduce((sum, e) => sum + (e.changeTime ?? 0), 0);
-        return this.formatHours(total);
+        return hoursToHHMM(total);
       }
       case 'sum.surcharges': {
         const total = clientData.workEntries.reduce((sum, e) => sum + (e.surcharges ?? 0), 0);
-        return this.formatHours(total);
+        return hoursToHHMM(total);
       }
       case 'sum.expenses': {
         const total = clientData.expenseEntries.reduce((sum, e) => sum + (e.amount ?? 0), 0);
@@ -531,13 +532,6 @@ export class ReportPdfService {
     return time.substring(0, 5);
   }
 
-  private formatHours(minutes: number): string {
-    if (minutes == null) return '';
-    const h = Math.floor(Math.abs(minutes) / 60);
-    const m = Math.abs(minutes) % 60;
-    const sign = minutes < 0 ? '-' : '';
-    return `${sign}${h}:${m.toString().padStart(2, '0')}`;
-  }
 
   private getWeekday(date: Date | string): string {
     if (!date) return '';

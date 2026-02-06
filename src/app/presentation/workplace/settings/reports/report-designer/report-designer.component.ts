@@ -136,13 +136,8 @@ export class ReportDesignerComponent implements OnChanges {
       footerSection.sortOrder = newSortOrder + 1;
     }
 
-    const name = type === ReportSectionType.WorkTable
-      ? this.translate.instant('setting.report.designer.workTable')
-      : this.translate.instant('setting.report.designer.expensesTable');
-
     const newSection: ReportSection = {
       type,
-      name,
       fields: [],
       visible: true,
       sortOrder: newSortOrder,
@@ -207,6 +202,7 @@ export class ReportDesignerComponent implements OnChanges {
     const headerSection = this.getSection(ReportSectionType.Header);
     return headerSection?.fields.includes(field) ?? false;
   }
+
 
   // --- Toolbar Actions ---
 
