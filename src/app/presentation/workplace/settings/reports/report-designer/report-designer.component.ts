@@ -77,6 +77,95 @@ export class ReportDesignerComponent implements OnChanges {
     [ReportSectionType.Footer]: 'setting.report.designer.sectionFooter',
   };
 
+  // --- Body Section Helpers ---
+
+  get bodySections(): ReportSection[] {
+    return this.template.sections
+      .filter(s => s.type === ReportSectionType.WorkTable || s.type === ReportSectionType.ExpensesTable)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  get headerSection(): ReportSection | undefined {
+    return this.template.sections.find(s => s.type === ReportSectionType.Header);
+  }
+
+  get footerSection(): ReportSection | undefined {
+    return this.template.sections.find(s => s.type === ReportSectionType.Footer);
+  }
+
+  getBodyTableIndex(section: ReportSection): number {
+    return this.bodySections.indexOf(section);
+  }
+
+  getBodyTableDropId(section: ReportSection): string {
+    return 'body-table-' + this.getBodyTableIndex(section);
+  }
+
+  getBodyTableDropIds(sectionType: ReportSectionType): string[] {
+    return this.bodySections
+      .filter(s => s.type === sectionType)
+      .map(s => this.getBodyTableDropId(s));
+  }
+
+  getPaletteConnectedTo(group: FieldPaletteGroup): string[] {
+    if (group.sectionType === ReportSectionType.Header) {
+      return this.headerZoneIds;
+    }
+    if (group.sectionType === ReportSectionType.Footer) {
+      return ['section-footer'];
+    }
+    return this.getBodyTableDropIds(group.sectionType);
+  }
+
+  getTablePaletteId(section: ReportSection): string {
+    return section.type === ReportSectionType.WorkTable
+      ? 'palette-' + FieldCategory.WorkTable
+      : 'palette-' + FieldCategory.ExpensesTable;
+  }
+
+  addBodyTable(type: ReportSectionType): void {
+    const footerSection = this.footerSection;
+    const bodyTables = this.bodySections;
+    const lastBodySort = bodyTables.length > 0
+      ? Math.max(...bodyTables.map(s => s.sortOrder))
+      : (this.headerSection?.sortOrder ?? 0);
+
+    const newSortOrder = lastBodySort + 1;
+
+    if (footerSection && footerSection.sortOrder <= newSortOrder) {
+      footerSection.sortOrder = newSortOrder + 1;
+    }
+
+    const name = type === ReportSectionType.WorkTable
+      ? this.translate.instant('setting.report.designer.workTable')
+      : this.translate.instant('setting.report.designer.expensesTable');
+
+    const newSection: ReportSection = {
+      type,
+      name,
+      fields: [],
+      visible: true,
+      sortOrder: newSortOrder,
+    };
+
+    this.template.sections = [...this.template.sections, newSection];
+    this.emitChange();
+  }
+
+  removeBodyTable(section: ReportSection): void {
+    if (this.bodySections.length <= 1) return;
+
+    if (this.activeField && section.fields.includes(this.activeField)) {
+      this.activeField = null;
+    }
+
+    this.template.sections = this.template.sections.filter(s => s !== section);
+    this.template.sections
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .forEach((s, i) => s.sortOrder = i);
+    this.emitChange();
+  }
+
   // --- Section Helpers ---
 
   getSection(type: ReportSectionType): ReportSection | undefined {
@@ -91,8 +180,17 @@ export class ReportDesignerComponent implements OnChanges {
     return section.fields.some(f => f.dataBinding === binding.key);
   }
 
+  isFieldInSectionInstance(binding: DataBindingDefinition, section: ReportSection): boolean {
+    if (binding.type === ReportFieldType.Image) return false;
+    if (binding.key === 'report.customText') return false;
+    return section.fields.some(f => f.dataBinding === binding.key);
+  }
+
   getAvailableFields(group: FieldPaletteGroup): DataBindingDefinition[] {
-    return group.fields.filter(f => !this.isFieldInSection(f, group.sectionType));
+    if (group.sectionType === ReportSectionType.Header || group.sectionType === ReportSectionType.Footer) {
+      return group.fields.filter(f => !this.isFieldInSection(f, group.sectionType));
+    }
+    return group.fields;
   }
 
   toggleGroup(group: FieldPaletteGroup): void {
@@ -163,7 +261,7 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  // --- Table/Footer Drag & Drop ---
+  // --- Footer Drag & Drop ---
 
   addFieldToSection(binding: DataBindingDefinition, sectionType: ReportSectionType): void {
     const section = this.getSection(sectionType);
@@ -183,18 +281,15 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  removeFieldFromSection(field: ReportField, sectionType: ReportSectionType): void {
-    const section = this.getSection(sectionType);
-    if (!section) return;
-
-    section.fields = section.fields.filter(f => f.dataBinding !== field.dataBinding);
+  removeFieldFromSection(field: ReportField, section: ReportSection): void {
+    section.fields = section.fields.filter(f => f !== field);
     section.fields.forEach((f, i) => f.sortOrder = i);
     if (this.activeField === field) this.activeField = null;
     this.emitChange();
   }
 
-  onFieldDrop(event: CdkDragDrop<ReportField[]>, sectionType: ReportSectionType): void {
-    const section = this.getSection(sectionType);
+  onFooterFieldDrop(event: CdkDragDrop<ReportField[]>): void {
+    const section = this.footerSection;
     if (!section) return;
 
     if (event.previousContainer === event.container) {
@@ -202,8 +297,40 @@ export class ReportDesignerComponent implements OnChanges {
       section.fields.forEach((f, i) => f.sortOrder = i);
     } else {
       const binding = event.item.data as DataBindingDefinition;
-      if (binding && !this.isFieldInSection(binding, sectionType)) {
-        this.addFieldToSection(binding, sectionType);
+      if (binding && !this.isFieldInSection(binding, ReportSectionType.Footer)) {
+        this.addFieldToSection(binding, ReportSectionType.Footer);
+      }
+    }
+    this.emitChange();
+  }
+
+  // --- Body Table Drag & Drop ---
+
+  addFieldToBodyTable(binding: DataBindingDefinition, section: ReportSection): void {
+    if (this.isFieldInSectionInstance(binding, section)) return;
+
+    const field: ReportField = {
+      name: binding.label,
+      dataBinding: binding.key,
+      type: binding.type,
+      width: binding.defaultWidth,
+      height: 20,
+      style: { ...DEFAULT_FIELD_STYLE },
+      sortOrder: section.fields.length,
+    };
+
+    section.fields = [...section.fields, field];
+    this.emitChange();
+  }
+
+  onBodyTableFieldDrop(event: CdkDragDrop<ReportField[]>, section: ReportSection): void {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(section.fields, event.previousIndex, event.currentIndex);
+      section.fields.forEach((f, i) => f.sortOrder = i);
+    } else {
+      const binding = event.item.data as DataBindingDefinition;
+      if (binding && !this.isFieldInSectionInstance(binding, section)) {
+        this.addFieldToBodyTable(binding, section);
       }
     }
     this.emitChange();
@@ -419,7 +546,7 @@ export class ReportDesignerComponent implements OnChanges {
     });
   }
 
-  private emitChange(): void {
+  emitChange(): void {
     this.templateChange.emit({ ...this.template });
   }
 }

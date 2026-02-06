@@ -138,16 +138,21 @@ export class ReportPdfService {
       yPos += 5;
     }
 
-    const workSection = template.sections.find(s => s.type === ReportSectionType.WorkTable);
-    if (workSection?.visible && workSection.fields.length > 0 && clientData.workEntries.length > 0) {
-      yPos = this.renderTable(doc, workSection, clientData.workEntries, 'work', yPos, marginLeft, contentWidth);
-      yPos += 5;
-    }
+    const bodySections = template.sections
+      .filter(s => s.type === ReportSectionType.WorkTable || s.type === ReportSectionType.ExpensesTable)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const expenseSection = template.sections.find(s => s.type === ReportSectionType.ExpensesTable);
-    if (expenseSection?.visible && expenseSection.fields.length > 0 && clientData.expenseEntries.length > 0) {
-      yPos = this.renderTable(doc, expenseSection, clientData.expenseEntries, 'expense', yPos, marginLeft, contentWidth);
-      yPos += 5;
+    for (const section of bodySections) {
+      if (!section.visible || section.fields.length === 0) continue;
+
+      const isExpenses = section.type === ReportSectionType.ExpensesTable;
+      const entries = isExpenses ? clientData.expenseEntries : clientData.workEntries;
+      const prefix = isExpenses ? 'expense' : 'work';
+
+      if (entries.length > 0) {
+        yPos = this.renderTable(doc, section, entries, prefix, yPos, marginLeft, contentWidth);
+        yPos += 5;
+      }
     }
 
     const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);

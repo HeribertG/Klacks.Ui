@@ -545,6 +545,99 @@
   padding: 2px 6px;
 }
 
+// --- Body Section ---
+
+.body-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.body-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-add-table {
+  border: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorFocus);
+  color: var(--standartTextColor);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--backgroundColorHover);
+  }
+
+  i {
+    font-size: 10px;
+    margin-right: 4px;
+  }
+}
+
+.body-table-section {
+  margin-bottom: 10px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  padding: 8px;
+  background: var(--backgroundColorCard);
+}
+
+.table-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.table-type-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+
+  &.work-badge {
+    background: rgba(colors.$standartBlueColor, 0.12);
+    color: colors.$standartBlueColor;
+  }
+
+  &.expense-badge {
+    background: rgba(colors.$standartGreenColor, 0.12);
+    color: colors.$standartGreenColor;
+  }
+}
+
+.table-name-input {
+  flex: 1;
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+
+  &:focus {
+    outline: none;
+    border-color: colors.$standartBlueColor;
+  }
+}
+
+.table-remove {
+  font-size: 14px;
+  padding: 2px 6px;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
 // --- CDK Drag ---
 
 .cdk-drag-preview {

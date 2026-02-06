@@ -16,13 +16,12 @@
                  cdkDropList
                  [cdkDropListData]="getAvailableFields(group)"
                  [id]="'palette-' + group.category"
-                 [cdkDropListConnectedTo]="group.sectionType === ReportSectionType.Header ? headerZoneIds : ['section-' + group.sectionType]"
+                 [cdkDropListConnectedTo]="getPaletteConnectedTo(group)"
                  [cdkDropListSortingDisabled]="true">
               @for (field of getAvailableFields(group); track field.key) {
                 <div class="palette-field"
                      cdkDrag
-                     [cdkDragData]="field"
-                     (dblclick)="addFieldToSection(field, group.sectionType)">
+                     [cdkDragData]="field">
                   <i class="fa fa-grip-vertical drag-handle"></i>
                   <span class="field-label">{{ field.i18nKey | translate }}</span>
                 </div>
@@ -77,222 +76,214 @@
         </div>
       }
 
-      @for (section of template.sections; track section.type) {
+      <!-- Header Section -->
+      @if (headerSection; as hs) {
         <div class="section-container">
           <div class="section-label">
-            {{ sectionLabels[section.type] | translate }}
+            {{ sectionLabels[ReportSectionType.Header] | translate }}
           </div>
+          <div class="header-section">
+            <button class="btn-add-row" (click)="addHeaderRow(hs)">
+              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addRow' | translate }}
+            </button>
 
-          @if (section.type === ReportSectionType.Header) {
-            <div class="header-section">
-              <button class="btn-add-row" (click)="addHeaderRow(section)">
-                <i class="fa fa-plus"></i> {{ 'setting.report.designer.addRow' | translate }}
-              </button>
-
-              @let headerSection = getSection(ReportSectionType.Header);
-              @if (headerSection) {
-                <div class="header-rows">
-                  @for (row of getHeaderRows(headerSection); track row.rowIndex) {
-                    <div class="header-row">
-                      <div class="header-zone"
-                           cdkDropList
-                           [id]="'zone-' + row.rowIndex + '-0'"
-                           [cdkDropListData]="row.left"
-                           [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
-                           (cdkDropListDropped)="onHeaderFieldDrop($event, headerSection, row.rowIndex, TextAlignment.Left)">
-                        @for (field of row.left; track $index) {
-                          @if (field.dataBinding) {
-                            @if (field.type === ReportFieldType.Image) {
-                              @if (field.imageUrl) {
-                                <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                  @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                    <img [src]="preview" class="header-image-preview" />
-                                  } @else {
-                                    <i class="fa fa-image image-placeholder-icon"></i>
-                                    <span class="image-filename">{{ field.imageUrl }}</span>
-                                  }
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </div>
+            <div class="header-rows">
+              @for (row of getHeaderRows(hs); track row.rowIndex) {
+                <div class="header-row">
+                  <div class="header-zone"
+                       cdkDropList
+                       [id]="'zone-' + row.rowIndex + '-0'"
+                       [cdkDropListData]="row.left"
+                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Left)">
+                    @for (field of row.left; track $index) {
+                      @if (field.dataBinding) {
+                        @if (field.type === ReportFieldType.Image) {
+                          @if (field.imageUrl) {
+                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
+                                <img [src]="preview" class="header-image-preview" />
                               } @else {
-                                <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
-                                  <i class="fa fa-image image-placeholder-icon"></i>
-                                  <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                                  <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, headerSection, field)" />
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </label>
+                                <i class="fa fa-image image-placeholder-icon"></i>
+                                <span class="image-filename">{{ field.imageUrl }}</span>
                               }
-                            } @else if (isCustomText(field)) {
-                              <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <textarea class="custom-text-textarea"
-                                          [value]="field.name"
-                                          (focus)="selectField(field)"
-                                          (input)="onCustomTextChange(field, $any($event.target).value)"
-                                          [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                          rows="2"></textarea>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            } @else {
-                              <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <span class="chip-label">{{ field.name }}</span>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            }
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </div>
+                          } @else {
+                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                              <i class="fa fa-image image-placeholder-icon"></i>
+                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
+                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </label>
                           }
+                        } @else if (isCustomText(field)) {
+                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <textarea class="custom-text-textarea"
+                                      [value]="field.name"
+                                      (focus)="selectField(field)"
+                                      (input)="onCustomTextChange(field, $any($event.target).value)"
+                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
+                                      rows="2"></textarea>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
+                        } @else {
+                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <span class="chip-label">{{ field.name }}</span>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
                         }
-                        @if (row.left.length === 0 || (row.left.length === 1 && !row.left[0].dataBinding)) {
-                          <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
-                        }
-                      </div>
-
-                      <div class="header-zone"
-                           cdkDropList
-                           [id]="'zone-' + row.rowIndex + '-1'"
-                           [cdkDropListData]="row.center"
-                           [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
-                           (cdkDropListDropped)="onHeaderFieldDrop($event, headerSection, row.rowIndex, TextAlignment.Center)">
-                        @for (field of row.center; track $index) {
-                          @if (field.dataBinding) {
-                            @if (field.type === ReportFieldType.Image) {
-                              @if (field.imageUrl) {
-                                <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                  @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                    <img [src]="preview" class="header-image-preview" />
-                                  } @else {
-                                    <i class="fa fa-image image-placeholder-icon"></i>
-                                    <span class="image-filename">{{ field.imageUrl }}</span>
-                                  }
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </div>
-                              } @else {
-                                <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
-                                  <i class="fa fa-image image-placeholder-icon"></i>
-                                  <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                                  <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, headerSection, field)" />
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </label>
-                              }
-                            } @else if (isCustomText(field)) {
-                              <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <textarea class="custom-text-textarea"
-                                          [value]="field.name"
-                                          (focus)="selectField(field)"
-                                          (input)="onCustomTextChange(field, $any($event.target).value)"
-                                          [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                          rows="2"></textarea>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            } @else {
-                              <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <span class="chip-label">{{ field.name }}</span>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            }
-                          }
-                        }
-                        @if (row.center.length === 0) {
-                          <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
-                        }
-                      </div>
-
-                      <div class="header-zone"
-                           cdkDropList
-                           [id]="'zone-' + row.rowIndex + '-2'"
-                           [cdkDropListData]="row.right"
-                           [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
-                           (cdkDropListDropped)="onHeaderFieldDrop($event, headerSection, row.rowIndex, TextAlignment.Right)">
-                        @for (field of row.right; track $index) {
-                          @if (field.dataBinding) {
-                            @if (field.type === ReportFieldType.Image) {
-                              @if (field.imageUrl) {
-                                <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                  @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                    <img [src]="preview" class="header-image-preview" />
-                                  } @else {
-                                    <i class="fa fa-image image-placeholder-icon"></i>
-                                    <span class="image-filename">{{ field.imageUrl }}</span>
-                                  }
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </div>
-                              } @else {
-                                <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
-                                  <i class="fa fa-image image-placeholder-icon"></i>
-                                  <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                                  <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, headerSection, field)" />
-                                  <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                                </label>
-                              }
-                            } @else if (isCustomText(field)) {
-                              <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <textarea class="custom-text-textarea"
-                                          [value]="field.name"
-                                          (focus)="selectField(field)"
-                                          (input)="onCustomTextChange(field, $any($event.target).value)"
-                                          [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                          rows="2"></textarea>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            } @else {
-                              <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                                <span class="chip-label">{{ field.name }}</span>
-                                <button class="chip-btn remove" (click)="removeHeaderField(headerSection, field); $event.stopPropagation()">✕</button>
-                              </div>
-                            }
-                          }
-                        }
-                        @if (row.right.length === 0) {
-                          <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
-                        }
-                      </div>
-
-                      <div class="header-row-actions">
-                        <label class="image-upload-btn" title="{{ 'setting.report.designer.uploadImage' | translate }}">
-                          <i class="fa fa-image"></i>
-                          <input type="file" accept="image/*" hidden (change)="onImageUpload($event, headerSection, row.rowIndex, TextAlignment.Left)" />
-                        </label>
-                        <button class="chip-btn remove row-remove" (click)="removeHeaderRow(headerSection, row.rowIndex)">✕</button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          @if (section.type === ReportSectionType.Footer) {
-            <div class="section-drop-zone"
-                 cdkDropList
-                 [cdkDropListData]="section.fields"
-                 [id]="'section-' + section.type"
-                 [cdkDropListConnectedTo]="['palette-' + paletteGroups[section.sortOrder]?.category]"
-                 (cdkDropListDropped)="onFieldDrop($event, section.type)">
-
-              @if (section.fields.length === 0) {
-                <div class="drop-placeholder">
-                  <i class="fa fa-arrow-left"></i>
-                  {{ 'setting.report.designer.dragFieldsHere' | translate }}
-                </div>
-              }
-
-              <div class="field-chips">
-                @for (field of section.fields; track field.dataBinding; let i = $index) {
-                  <div class="field-chip" cdkDrag (click)="selectField(field)" [class.chip-active]="activeField === field">
-                    <span class="chip-label">{{ field.name }}</span>
-                    <div class="chip-actions">
-                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section.type); $event.stopPropagation()" title="Remove">✕</button>
-                    </div>
+                      }
+                    }
+                    @if (row.left.length === 0 || (row.left.length === 1 && !row.left[0].dataBinding)) {
+                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                    }
                   </div>
-                }
-              </div>
-            </div>
-          }
 
-          @if (section.type === ReportSectionType.WorkTable || section.type === ReportSectionType.ExpensesTable) {
+                  <div class="header-zone"
+                       cdkDropList
+                       [id]="'zone-' + row.rowIndex + '-1'"
+                       [cdkDropListData]="row.center"
+                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Center)">
+                    @for (field of row.center; track $index) {
+                      @if (field.dataBinding) {
+                        @if (field.type === ReportFieldType.Image) {
+                          @if (field.imageUrl) {
+                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
+                                <img [src]="preview" class="header-image-preview" />
+                              } @else {
+                                <i class="fa fa-image image-placeholder-icon"></i>
+                                <span class="image-filename">{{ field.imageUrl }}</span>
+                              }
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </div>
+                          } @else {
+                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                              <i class="fa fa-image image-placeholder-icon"></i>
+                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
+                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </label>
+                          }
+                        } @else if (isCustomText(field)) {
+                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <textarea class="custom-text-textarea"
+                                      [value]="field.name"
+                                      (focus)="selectField(field)"
+                                      (input)="onCustomTextChange(field, $any($event.target).value)"
+                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
+                                      rows="2"></textarea>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
+                        } @else {
+                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <span class="chip-label">{{ field.name }}</span>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
+                        }
+                      }
+                    }
+                    @if (row.center.length === 0) {
+                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                    }
+                  </div>
+
+                  <div class="header-zone"
+                       cdkDropList
+                       [id]="'zone-' + row.rowIndex + '-2'"
+                       [cdkDropListData]="row.right"
+                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Right)">
+                    @for (field of row.right; track $index) {
+                      @if (field.dataBinding) {
+                        @if (field.type === ReportFieldType.Image) {
+                          @if (field.imageUrl) {
+                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
+                                <img [src]="preview" class="header-image-preview" />
+                              } @else {
+                                <i class="fa fa-image image-placeholder-icon"></i>
+                                <span class="image-filename">{{ field.imageUrl }}</span>
+                              }
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </div>
+                          } @else {
+                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                              <i class="fa fa-image image-placeholder-icon"></i>
+                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
+                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
+                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            </label>
+                          }
+                        } @else if (isCustomText(field)) {
+                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <textarea class="custom-text-textarea"
+                                      [value]="field.name"
+                                      (focus)="selectField(field)"
+                                      (input)="onCustomTextChange(field, $any($event.target).value)"
+                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
+                                      rows="2"></textarea>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
+                        } @else {
+                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                            <span class="chip-label">{{ field.name }}</span>
+                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          </div>
+                        }
+                      }
+                    }
+                    @if (row.right.length === 0) {
+                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                    }
+                  </div>
+
+                  <div class="header-row-actions">
+                    <label class="image-upload-btn" title="{{ 'setting.report.designer.uploadImage' | translate }}">
+                      <i class="fa fa-image"></i>
+                      <input type="file" accept="image/*" hidden (change)="onImageUpload($event, hs, row.rowIndex, TextAlignment.Left)" />
+                    </label>
+                    <button class="chip-btn remove row-remove" (click)="removeHeaderRow(hs, row.rowIndex)">&#10005;</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Body Section -->
+      <div class="section-container">
+        <div class="body-header">
+          <div class="section-label">{{ 'setting.report.designer.sectionBody' | translate }}</div>
+          <div class="body-actions">
+            <button class="btn-add-table" (click)="addBodyTable(ReportSectionType.WorkTable)">
+              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addWorkTable' | translate }}
+            </button>
+            <button class="btn-add-table" (click)="addBodyTable(ReportSectionType.ExpensesTable)">
+              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addExpensesTable' | translate }}
+            </button>
+          </div>
+        </div>
+
+        @for (section of bodySections; track section.sortOrder; let idx = $index) {
+          <div class="body-table-section">
+            <div class="table-section-header">
+              <span class="table-type-badge" [class.work-badge]="section.type === ReportSectionType.WorkTable" [class.expense-badge]="section.type === ReportSectionType.ExpensesTable">
+                {{ sectionLabels[section.type] | translate }}
+              </span>
+              <input class="table-name-input" [(ngModel)]="section.name" (ngModelChange)="emitChange()" [placeholder]="'setting.report.designer.tableName' | translate" />
+              <button class="chip-btn remove table-remove" (click)="removeBodyTable(section)" [disabled]="bodySections.length <= 1" [title]="'setting.report.designer.removeTable' | translate">&#10005;</button>
+            </div>
+
             <div class="section-drop-zone is-table"
                  cdkDropList
                  [cdkDropListData]="section.fields"
-                 [id]="'section-' + section.type"
-                 [cdkDropListConnectedTo]="['palette-' + paletteGroups[section.sortOrder]?.category]"
-                 (cdkDropListDropped)="onFieldDrop($event, section.type)">
+                 [id]="getBodyTableDropId(section)"
+                 [cdkDropListConnectedTo]="[getTablePaletteId(section)]"
+                 (cdkDropListDropped)="onBodyTableFieldDrop($event, section)">
 
               @if (section.fields.length === 0) {
                 <div class="drop-placeholder">
@@ -307,7 +298,7 @@
                        (click)="selectField(field)" [class.column-active]="activeField === field">
                     <div class="column-header">
                       <span class="column-name">{{ field.name }}</span>
-                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section.type); $event.stopPropagation()" title="Remove">✕</button>
+                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section); $event.stopPropagation()" title="Remove">&#10005;</button>
                     </div>
                     <div class="column-settings">
                       <input type="number" class="width-input" [(ngModel)]="field.width" (change)="onWidthChange(field)" min="5" max="100" title="Width %" />
@@ -317,7 +308,41 @@
                 }
               </div>
             </div>
-          }
+          </div>
+        }
+      </div>
+
+      <!-- Footer Section -->
+      @if (footerSection; as fs) {
+        <div class="section-container">
+          <div class="section-label">
+            {{ sectionLabels[ReportSectionType.Footer] | translate }}
+          </div>
+          <div class="section-drop-zone"
+               cdkDropList
+               [cdkDropListData]="fs.fields"
+               [id]="'section-footer'"
+               [cdkDropListConnectedTo]="['palette-' + FieldCategory.Footer]"
+               (cdkDropListDropped)="onFooterFieldDrop($event)">
+
+            @if (fs.fields.length === 0) {
+              <div class="drop-placeholder">
+                <i class="fa fa-arrow-left"></i>
+                {{ 'setting.report.designer.dragFieldsHere' | translate }}
+              </div>
+            }
+
+            <div class="field-chips">
+              @for (field of fs.fields; track field.dataBinding; let i = $index) {
+                <div class="field-chip" cdkDrag (click)="selectField(field)" [class.chip-active]="activeField === field">
+                  <span class="chip-label">{{ field.name }}</span>
+                  <div class="chip-actions">
+                    <button class="chip-btn remove" (click)="removeFieldFromSection(field, fs); $event.stopPropagation()" title="Remove">&#10005;</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
         </div>
       }
     </div>
