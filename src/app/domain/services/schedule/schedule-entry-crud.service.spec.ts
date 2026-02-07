@@ -6,7 +6,7 @@ import {
   ScheduleCellParams,
   DeleteWorkScheduleEntryParams,
 } from './schedule-entry-crud.service';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { DataManagementWorkService } from '../work/data-management-work.service';
@@ -15,7 +15,7 @@ import { IShiftSchedule } from '../../models/shift-schedule-class';
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 import { IWorkFilter } from '../../models/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
-import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
+import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 
 function createMockWorkFilter(): IWorkFilter {
   return {

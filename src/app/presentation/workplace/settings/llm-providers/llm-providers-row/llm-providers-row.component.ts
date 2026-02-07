@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
 
 @Component({
   selector: 'app-llm-providers-row',

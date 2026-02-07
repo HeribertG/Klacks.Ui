@@ -6,7 +6,7 @@ import {
   ShiftScheduleFilter,
 } from 'src/app/domain/models/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule-class';
-import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
+import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 
 @Injectable({
   providedIn: 'root',

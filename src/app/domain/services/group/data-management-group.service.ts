@@ -17,16 +17,16 @@ import {
   IGroupTree,
   ITruncatedGroup,
 } from 'src/app/domain/models/group-class';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { Observable, catchError, map, throwError, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/shared/helpers/object.helper';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

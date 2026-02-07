@@ -7,7 +7,7 @@ import {
 } from 'src/app/domain/models/calendar-selection-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';

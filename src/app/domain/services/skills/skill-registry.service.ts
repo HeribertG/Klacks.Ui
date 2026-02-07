@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { DataSkillService } from '../../../infrastructure/api/data-skill.service';
+import { DataSkillService } from '../../../infrastructure/api/skills/data-skill.service';
 import {
   ISkillDefinition,
   ISkillImplementation,

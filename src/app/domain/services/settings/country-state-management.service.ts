@@ -2,7 +2,7 @@ import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angu
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';

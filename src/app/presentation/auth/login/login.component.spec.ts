@@ -13,7 +13,7 @@ import { AuthService } from '../auth.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 

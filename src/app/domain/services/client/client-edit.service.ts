@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   IClient,
   IAddress,

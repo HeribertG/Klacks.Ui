@@ -12,11 +12,11 @@ import { CommonModule } from '@angular/common';
 import { LLMChatComponent } from './llm-chat.component';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
-import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
+import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
 import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 

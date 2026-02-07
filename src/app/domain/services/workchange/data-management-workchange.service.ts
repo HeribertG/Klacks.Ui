@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DataWorkChangeService } from 'src/app/infrastructure/api/data-work-change.service';
+import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
 import {
   WorkChangeRequest,
   WorkChangeResource,

@@ -53,7 +53,7 @@ import {
   ContainerTransportModeEnum,
   TransportModeEnum,
 } from 'src/app/domain/enums/transport-mode.enum';
-import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';

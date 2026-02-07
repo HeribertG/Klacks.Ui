@@ -9,7 +9,7 @@ import {
   ISkillExecuteResponse,
   ISkillChainExecuteRequest,
   ISkillAnalytics
-} from '../../domain/services/skills/skill.interface';
+} from '../../../domain/services/skills/skill.interface';
 
 @Injectable({
   providedIn: 'root',

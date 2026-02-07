@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DataExpensesService } from 'src/app/infrastructure/api/data-expenses.service';
+import { DataExpensesService } from 'src/app/infrastructure/api/expenses/data-expenses.service';
 import {
   ExpensesRequest,
   ExpensesResource,

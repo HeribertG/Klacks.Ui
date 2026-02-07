@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { DataManagementGroupService } from './data-management-group.service';
-import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { GroupSelectionService } from './group-selection.service';
 import { Group } from 'src/app/domain/models/group-class';
 import { HttpClient } from '@angular/common/http';

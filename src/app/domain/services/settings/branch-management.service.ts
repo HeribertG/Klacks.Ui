@@ -2,7 +2,7 @@ import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angu
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
+import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { IBranch } from 'src/app/domain/models/branch';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';

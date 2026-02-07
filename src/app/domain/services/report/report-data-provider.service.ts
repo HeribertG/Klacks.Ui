@@ -4,12 +4,12 @@ import { firstValueFrom } from 'rxjs';
 
 import { ReportField, ReportFieldType } from '../../models/report/report-field.model';
 import { IScheduleCell, IWorkScheduleClient, WorkScheduleEntryType } from '../../models/work-schedule-class';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
-import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/data-break-placeholder.service';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
-import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
-import { DataContainerTemplateService } from 'src/app/infrastructure/api/data-container-template.service';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
+import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 
 export interface ReportFetchParams {

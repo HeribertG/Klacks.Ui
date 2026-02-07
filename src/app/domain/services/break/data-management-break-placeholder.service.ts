@@ -7,7 +7,7 @@ import {
   IBreakFilter,
 } from 'src/app/domain/models/break-class';
 import { IClientBreak } from 'src/app/domain/models/client-class';
-import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/data-break-placeholder.service';
+import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../enums/entity-names.enum';

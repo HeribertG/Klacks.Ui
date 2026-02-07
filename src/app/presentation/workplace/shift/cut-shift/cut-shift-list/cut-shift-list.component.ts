@@ -34,7 +34,7 @@ import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
-import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
+import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
 
 @Component({
   selector: 'app-cut-shift-list',

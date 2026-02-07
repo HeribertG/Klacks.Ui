@@ -29,7 +29,7 @@ import {
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
+import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
 import { IconUserComponent } from '../../icons/icon-user.component';

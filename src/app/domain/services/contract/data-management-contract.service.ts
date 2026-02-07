@@ -5,7 +5,7 @@ import { Contract, IContract } from 'src/app/domain/models/contract-class';
 import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
+import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

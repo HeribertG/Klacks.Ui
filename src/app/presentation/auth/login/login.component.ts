@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

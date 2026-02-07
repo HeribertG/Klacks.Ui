@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
+import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import {
   ILoadable,

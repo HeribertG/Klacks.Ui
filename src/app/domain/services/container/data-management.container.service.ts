@@ -12,7 +12,7 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from '../../models/container-template-slot';
-import { DataContainerTemplateService } from '../../../infrastructure/api/data-container-template.service';
+import { DataContainerTemplateService } from '../../../infrastructure/api/container/data-container-template.service';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
 import {
   ContainerTemplateShiftService,

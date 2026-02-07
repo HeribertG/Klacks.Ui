@@ -19,7 +19,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { BranchesHeaderComponent } from './branches-header/branches-header.component';
 import { BranchesRowComponent } from './branches-row/branches-row.component';
-import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
+import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IBranch } from 'src/app/domain/models/branch';
 import {

@@ -2,7 +2,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { UserAdministrationManagementService } from './user-administration-management.service';
-import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

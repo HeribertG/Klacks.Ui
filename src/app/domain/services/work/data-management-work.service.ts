@@ -7,7 +7,7 @@ import {
   IWork,
   Work,
 } from 'src/app/domain/models/schedule-class';
-import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { BulkAddWorksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from 'src/app/infrastructure/api/dtos/bulk-works-response.dto';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';

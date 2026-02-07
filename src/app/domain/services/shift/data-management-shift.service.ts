@@ -1,8 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
-import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
-import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
+import { DataMacroService } from 'src/app/infrastructure/api/settings/data-macro.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift-data-class';
@@ -15,8 +15,8 @@ import {
 } from 'src/app/domain/models/client-class';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';

@@ -4,9 +4,9 @@ import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { HttpClient } from '@angular/common/http';
-import { BulkDeleteWorksRequest } from './dtos/bulk-delete-works-request.dto';
-import { BulkAddWorksRequest } from './dtos/bulk-add-works-request.dto';
-import { BulkWorksResponse } from './dtos/bulk-works-response.dto';
+import { BulkDeleteWorksRequest } from '../dtos/bulk-delete-works-request.dto';
+import { BulkAddWorksRequest } from '../dtos/bulk-add-works-request.dto';
+import { BulkWorksResponse } from '../dtos/bulk-works-response.dto';
 
 @Injectable({
   providedIn: 'root',

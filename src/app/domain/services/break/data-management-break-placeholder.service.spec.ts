@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { DataManagementBreakPlaceholderService } from './data-management-break-placeholder.service';
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
-import { DataBreakPlaceholderService } from '../../../infrastructure/api/data-break-placeholder.service';
+import { DataBreakPlaceholderService } from '../../../infrastructure/api/break/data-break-placeholder.service';
 import { IClientBreak, IMembership } from '../../models/client-class';
 import { IBreakPlaceholder } from '../../models/break-class';
 

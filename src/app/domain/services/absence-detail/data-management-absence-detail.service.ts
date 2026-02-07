@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { AbsenceDetail, IAbsenceDetail } from 'src/app/domain/models/absence-detail-class';
-import { DataAbsenceDetailService } from 'src/app/infrastructure/api/data-absence-detail.service';
+import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
 
 @Injectable({
   providedIn: 'root',

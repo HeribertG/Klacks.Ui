@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DataIdentityProviderService } from 'src/app/infrastructure/api/data-identity-provider.service';
+import { DataIdentityProviderService } from 'src/app/infrastructure/api/settings/data-identity-provider.service';
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import {
   IIdentityProviderListItem,

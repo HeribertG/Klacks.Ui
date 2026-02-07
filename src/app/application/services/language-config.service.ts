@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { DataLanguageConfigService } from 'src/app/infrastructure/api/data-language-config.service';
+import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { LanguageMetadata } from 'src/app/domain/models/language-config';
 
 @Injectable({ providedIn: 'root' })

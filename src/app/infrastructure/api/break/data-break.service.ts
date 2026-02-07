@@ -3,9 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IBreak, Break } from 'src/app/domain/models/break-class';
-import { BulkAddBreaksRequest } from './dtos/bulk-add-breaks-request.dto';
-import { BulkDeleteBreaksRequest } from './dtos/bulk-delete-breaks-request.dto';
-import { BulkBreaksResponse } from './dtos/bulk-breaks-response.dto';
+import { BulkAddBreaksRequest } from '../dtos/bulk-add-breaks-request.dto';
+import { BulkDeleteBreaksRequest } from '../dtos/bulk-delete-breaks-request.dto';
+import { BulkBreaksResponse } from '../dtos/bulk-breaks-response.dto';
 
 @Injectable({
   providedIn: 'root',

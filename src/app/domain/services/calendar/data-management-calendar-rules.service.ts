@@ -12,7 +12,7 @@ import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/objec
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
+import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 
 @Injectable({
   providedIn: 'root',

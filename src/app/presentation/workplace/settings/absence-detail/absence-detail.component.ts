@@ -19,8 +19,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { AbsenceDetailHeaderComponent } from './absence-detail-header/absence-detail-header.component';
 import { AbsenceDetailRowComponent } from './absence-detail-row/absence-detail-row.component';
-import { DataAbsenceDetailService } from 'src/app/infrastructure/api/data-absence-detail.service';
-import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
+import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
+import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { IAbsenceDetail, AbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';

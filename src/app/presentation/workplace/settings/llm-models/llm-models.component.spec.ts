@@ -9,8 +9,8 @@ import { LLMModelsComponent } from './llm-models.component';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
+import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Subject } from 'rxjs';
 

@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, throwError, delay } from 'rxjs';
 
 import { DataManagementLLMService } from './data-management-llm.service';
-import { DataLLMService, ILLMModel, ILLMChatResponse, ILLMUsage, } from 'src/app/infrastructure/api/data-llm.service';
+import { DataLLMService, ILLMModel, ILLMChatResponse, ILLMUsage, } from 'src/app/infrastructure/api/llm/data-llm.service';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { LLMFunctionExecutionService } from './llm-function-execution.service';
 import { LLMSystemContextService } from './llm-system-context.service';

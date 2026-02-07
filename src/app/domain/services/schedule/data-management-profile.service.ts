@@ -5,7 +5,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';

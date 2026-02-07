@@ -1,6 +1,6 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { IGroup, IGroupVisibility } from 'src/app/domain/models/group-class';
-import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { Observable, Subject, tap } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
