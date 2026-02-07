@@ -86,6 +86,7 @@ export class LLMFunctionExecutionService {
       case 'getCurrentUser':
         return this.executeGetCurrentUser(functionCall);
       case 'getUserPermissions':
+      case 'get_user_permissions':
         return this.executeGetUserPermissions(functionCall);
 
       // Client creation via UI flow

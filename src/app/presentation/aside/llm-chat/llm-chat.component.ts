@@ -517,7 +517,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           if (lastMessage && !lastMessage.content) {
             lastMessage.content = `✅ ${result.result.message}`;
           }
-        } else if (!result.success) {
+        } else if (!result.success && result.error && !result.error.includes('not implemented')) {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
             lastMessage.content = `❌ ${result.error}`;
