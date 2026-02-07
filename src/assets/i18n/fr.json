@@ -50,6 +50,7 @@
   "contextMenu.expenses": "Frais...",
   "contextMenu.confirm": "Confirmer",
   "contextMenu.unconfirm": "Annuler la confirmation",
+  "contextMenu.goToAddress": "Afficher l'adresse",
 
   "lockLevel.confirmed": "Confirmé",
   "lockLevel.approved": "Approuvé",
@@ -1302,6 +1303,8 @@
   "llm-chat.welcome.suggestion-2": "Chercher des personnes de Zurich",
   "llm-chat.welcome.suggestion-3": "Montrez-moi l'aide",
   "llm-chat.welcome.suggestion-4": "Que pouvez-vous faire?",
+  "llm-chat.initializing.title": "Initialisation",
+  "llm-chat.initializing.message": "L'assistant s'initialise...",
   "llm-chat.no-api-key.title": "Aucune clé API configurée",
   "llm-chat.no-api-key.message": "Aucune clé API pour les fournisseurs LLM n'est configurée. Veuillez contacter l'administrateur pour installer une clé API.",
   "llm-chat.no-api-key.admin-link": "Aller aux paramètres",

@@ -14,6 +14,7 @@ export class DataManagementLLMProviderService {
 
   public providers = signal<ILLMProvider[]>([]);
   public isLoading = signal(false);
+  public providersInitialized = signal(false);
 
   private providers$ = toObservable(this.providers);
 
@@ -29,6 +30,7 @@ export class DataManagementLLMProviderService {
       return [];
     } finally {
       this.isLoading.set(false);
+      this.providersInitialized.set(true);
     }
   }
 

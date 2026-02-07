@@ -100,8 +100,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   availableModels: ILLMModel[] = [];
   currentModel = '';
   showModelDropdown = false;
-  private providersLoaded = signal(false);
-
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
@@ -110,7 +108,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.conversationId = this.generateConversationId();
 
     this.translateService.onLangChange
@@ -128,8 +126,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
 
-    await this.llmProviderService.loadProviders();
-    this.providersLoaded.set(true);
+    this.llmProviderService.loadProviders();
 
     this.llmService
       .getAvailableModels()
@@ -515,6 +512,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             ).join('\n');
             lastMessage.content = `${result.result.message}\n\n${itemList}`;
           }
+        } else if (result.success && result.result?.message) {
+          const lastMessage = this.messages[this.messages.length - 1];
+          if (lastMessage && !lastMessage.content) {
+            lastMessage.content = `✅ ${result.result.message}`;
+          }
         } else if (!result.success) {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
@@ -527,22 +529,32 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  isInitializing(): boolean {
+    return !this.llmService.modelsInitialized() || !this.llmProviderService.providersInitialized();
+  }
+
   hasNoApiKey(): boolean {
-    if (!this.providersLoaded()) {
+    if (this.isInitializing()) {
       return false;
     }
 
-    if (this.availableModels.length === 0 || !this.currentModel || this.currentModel === '') {
+    const models = this.llmService.availableModels();
+    const enabledModels = models.filter(m => m.isEnabled);
+    if (enabledModels.length === 0) {
       return true;
     }
 
-    const currentModelInfo = this.availableModels.find(m => m.modelId === this.currentModel);
+    const currentModelId = this.llmService.selectedModelId();
+    if (!currentModelId) {
+      return true;
+    }
+
+    const currentModelInfo = enabledModels.find(m => m.modelId === currentModelId);
     if (!currentModelInfo) {
       return true;
     }
 
     const providers = this.llmProviderService.getCurrentProviders();
-
     const currentProvider = providers.find(p => p.providerId === currentModelInfo.providerId);
 
     return !currentProvider || !currentProvider.apiKey || currentProvider.apiKey.trim() === '';

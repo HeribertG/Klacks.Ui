@@ -46,13 +46,18 @@ DU KANNST DEM BENUTZER HELFEN MIT:
 3. **Erstellen**: Neue Adressen, Dienste oder Gruppen anlegen
 4. **Bearbeiten**: Bestehende Einträge öffnen und bearbeiten
 5. **Systeminformationen**: Benutzerinformationen und Berechtigungen anzeigen
+6. **Einstellungen**: Allgemeine Einstellungen lesen und ändern (z.B. App-Name)
 
 WICHTIGE REGELN:
 - Führe nur Aktionen aus, die der Benutzer explizit anfordert
 - Bei kritischen Operationen (Löschen, Ändern) frage nach Bestätigung
 - Erkläre was du tust, bevor du Funktionen ausführst
 - Wenn du unsicher bist, frage nach mehr Details
-- Respektiere Benutzerberechtigungen - Admin-Seiten erfordern Admin-Rechte
+- Antworte immer in der Sprache des Benutzers
+- Respektiere Benutzerberechtigungen:
+  - Nur Admin-Benutzer können Einstellungen (Settings) einsehen und ändern
+  - Wenn ein Benutzer ohne Admin-Rechte Einstellungen sehen oder ändern möchte, erkläre freundlich, dass er keine Berechtigung hat und sich an einen Administrator wenden muss
+  - Prüfe vor Settings-Operationen ob der Benutzer die nötigen Rechte hat (CanViewSettings, CanEditSettings)
 
 KLACKS ENTITÄTEN:
 - **Adressen/Clients**: Alle Personen im System (Mitarbeiter, Externe, Kunden)
@@ -93,6 +98,8 @@ VERFÜGBARE NAVIGATION:
       'Zeige Benutzerberechtigungen an',
       'Navigiere zu Einstellungen (Admin-Bereich)',
       'Navigiere zu Container-Vorlagen für Dienste',
+      'Allgemeine Einstellungen lesen (App-Name)',
+      'Allgemeine Einstellungen ändern (App-Name)',
     ];
   }
 
@@ -259,6 +266,26 @@ VERFÜGBARE NAVIGATION:
           },
         ],
       },
+      {
+        userQuery: 'Wie heisst die Anwendung?',
+        assistantResponse: 'Ich hole die allgemeinen Einstellungen.',
+        functionCalls: [
+          {
+            name: 'get_general_settings',
+            arguments: {},
+          },
+        ],
+      },
+      {
+        userQuery: 'Ändere den App-Namen auf Klacks Pro',
+        assistantResponse: 'Ich ändere den Anwendungsnamen auf "Klacks Pro".',
+        functionCalls: [
+          {
+            name: 'update_general_settings',
+            arguments: { appName: 'Klacks Pro' },
+          },
+        ],
+      },
     ];
   }
 
@@ -303,9 +330,14 @@ VERFÜGBARE NAVIGATION:
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
 
+      const roles = decoded.roles || decoded.role || [];
+      const roleArray = Array.isArray(roles) ? roles : [roles];
+
       return {
         userId: decoded.sub || decoded.userId,
         userName: decoded.name || decoded.userName,
+        roles: roleArray,
+        isAdmin: roleArray.includes('Admin'),
       };
     } catch {
       return null;
@@ -323,7 +355,9 @@ ${context.availableTools
   .join('\n')}
 
 AKTUELLE SEITE: ${context.currentContext?.currentPage || 'Unbekannt'}
-BENUTZER: ${context.currentContext?.userInfo?.userName || 'Nicht angemeldet'}`;
+BENUTZER: ${context.currentContext?.userInfo?.userName || 'Nicht angemeldet'}
+ROLLEN: ${context.currentContext?.userInfo?.roles?.join(', ') || 'Keine'}
+ADMIN: ${context.currentContext?.userInfo?.isAdmin ? 'Ja' : 'Nein'}`;
   }
 
   getToolsForLLM(): ILLMToolDefinition[] {

@@ -2,8 +2,25 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Chat Container - Integrated -->
 <div class="chat-container-integrated">
+  <!-- Initializing -->
+  @if (isInitializing()) {
+  <div class="no-api-key-warning" role="status" aria-live="polite">
+    <div class="warning-icon">
+      <span class="loading-spinner"></span>
+    </div>
+    <div class="warning-content">
+      <h3 class="warning-title">
+        {{ "llm-chat.initializing.title" | translate }}
+      </h3>
+      <p class="warning-message">
+        {{ "llm-chat.initializing.message" | translate }}
+      </p>
+    </div>
+  </div>
+  }
+
   <!-- No API Key Warning -->
-  @if (hasNoApiKey()) {
+  @if (!isInitializing() && hasNoApiKey()) {
   <div class="no-api-key-warning" role="alert" aria-live="polite">
     <div class="warning-icon">⚠️</div>
     <div class="warning-content">
@@ -73,7 +90,7 @@
     </button>
   </div>
   <!-- Messages Area -->
-  <div class="messages-container" #messagesContainer>
+  <div id="llm-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
       @for (message of messages; track message.id) {
       <div class="message-wrapper" [class]="message.sender">
@@ -147,7 +164,7 @@
   </div>
 
   <!-- Input Area -->
-  <div class="input-container" [class.disabled]="hasNoApiKey()">
+  <div class="input-container" [class.disabled]="isInitializing() || hasNoApiKey()">
     <!-- Whisper loading indicator -->
     @if (speechService.isWhisperLoading()) {
     <div class="whisper-loading-indicator">
@@ -173,7 +190,7 @@
         [class.listening]="isListening"
         [class.transcribing]="isTranscribing || speechService.isTranscribing()"
         [class.not-supported]="!speechService.isSupported$()"
-        [disabled]="isProcessing || isTranscribing || speechService.isTranscribing() || hasNoApiKey()"
+        [disabled]="isProcessing || isTranscribing || speechService.isTranscribing() || isInitializing() || hasNoApiKey()"
         (click)="toggleVoiceMode()"
         title="{{
           !speechService.isSupported$()
@@ -198,10 +215,11 @@
 
       <!-- Text input -->
       <textarea
+        id="llm-chat-input"
         class="input-field"
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
-        [disabled]="isProcessing || hasNoApiKey()"
+        [disabled]="isProcessing || isInitializing() || hasNoApiKey()"
         placeholder="{{ 'llm-chat.placeholder' | translate }}"
         rows="1"
         #textInput
@@ -210,9 +228,10 @@
 
       <!-- Send button -->
       <button
+        id="llm-chat-send-btn"
         type="button"
         class="btn-send"
-        [disabled]="!inputText.trim() || isProcessing || hasNoApiKey()"
+        [disabled]="!inputText.trim() || isProcessing || isInitializing() || hasNoApiKey()"
         (click)="sendMessage()"
         [attr.aria-label]="'llm-chat.send-message' | translate"
       >

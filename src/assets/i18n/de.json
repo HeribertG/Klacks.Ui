@@ -50,6 +50,7 @@
   "contextMenu.expenses": "Spesen...",
   "contextMenu.confirm": "Bestätigen",
   "contextMenu.unconfirm": "Bestätigung aufheben",
+  "contextMenu.goToAddress": "Adresse anzeigen",
 
   "lockLevel.confirmed": "Bestätigt",
   "lockLevel.approved": "Freigegeben",
@@ -1305,6 +1306,8 @@
   "llm-chat.welcome.suggestion-2": "Suche nach Personen aus Zürich",
   "llm-chat.welcome.suggestion-3": "Zeige mir die Hilfe",
   "llm-chat.welcome.suggestion-4": "Was kannst du alles?",
+  "llm-chat.initializing.title": "Initialisierung",
+  "llm-chat.initializing.message": "Assistent wird initialisiert...",
   "llm-chat.no-api-key.title": "Kein API-Key konfiguriert",
   "llm-chat.no-api-key.message": "Es ist kein API-Key für LLM-Provider konfiguriert. Bitte wenden Sie sich an den Administrator, um einen API-Key zu installieren.",
   "llm-chat.no-api-key.admin-link": "Zu den Einstellungen",

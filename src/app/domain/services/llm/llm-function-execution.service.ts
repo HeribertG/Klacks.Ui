@@ -101,6 +101,14 @@ export class LLMFunctionExecutionService {
       case 'get_system_info':
         return this.executeBackendFunction(functionCall);
 
+      // UI-Aktionen: Settings General
+      case 'get_general_settings':
+      case 'settings_general_read':
+        return this.executeSettingsGeneralRead(functionCall);
+      case 'update_general_settings':
+      case 'settings_general_update':
+        return this.executeSettingsGeneralUpdate(functionCall);
+
       default:
         return of({
           id: functionCall.id,
@@ -714,6 +722,78 @@ export class LLMFunctionExecutionService {
         error: error.message,
       });
     }
+  }
+
+  private waitForElement(id: string, maxWaitMs = 3000): Promise<HTMLElement | null> {
+    return new Promise((resolve) => {
+      const existing = document.getElementById(id);
+      if (existing) {
+        resolve(existing);
+        return;
+      }
+      const interval = 200;
+      let elapsed = 0;
+      const timer = setInterval(() => {
+        elapsed += interval;
+        const el = document.getElementById(id);
+        if (el) {
+          clearInterval(timer);
+          resolve(el);
+        } else if (elapsed >= maxWaitMs) {
+          clearInterval(timer);
+          resolve(null);
+        }
+      }, interval);
+    });
+  }
+
+  private executeSettingsGeneralRead(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return from(this.doSettingsGeneralRead(call));
+  }
+
+  private async doSettingsGeneralRead(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
+    document.getElementById('open-settings')?.click();
+    const input = await this.waitForElement('setting-general-name') as HTMLInputElement;
+    if (!input) {
+      return { id: call.id, success: false, error: 'Settings page not loaded' };
+    }
+    const appName = input.value;
+    return {
+      id: call.id,
+      success: true,
+      result: { appName, message: `Der aktuelle App-Name ist "${appName}"` },
+    };
+  }
+
+  private executeSettingsGeneralUpdate(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    const { appName } = call.arguments;
+    if (!appName) {
+      return of({ id: call.id, success: false, error: 'appName parameter is required' });
+    }
+    return from(this.doSettingsGeneralUpdate(call, appName));
+  }
+
+  private async doSettingsGeneralUpdate(call: ILLMFunctionCall, appName: string): Promise<ILLMFunctionResult> {
+    document.getElementById('open-settings')?.click();
+    const input = await this.waitForElement('setting-general-name') as HTMLInputElement;
+    if (!input) {
+      return { id: call.id, success: false, error: 'Settings page not loaded' };
+    }
+    const previousName = input.value;
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    )?.set;
+    nativeInputValueSetter?.call(input, appName);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    return {
+      id: call.id,
+      success: true,
+      result: { previousName, newName: appName, message: `App-Name wurde von "${previousName}" auf "${appName}" geändert` },
+    };
   }
 
   private executeBackendFunction(

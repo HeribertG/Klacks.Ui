@@ -322,6 +322,22 @@ export class LLMFunctionRegistryService {
       ],
       category: 'backend',
     });
+
+    this.registerFunction({
+      name: 'get_general_settings',
+      description: 'Navigiert zu den Einstellungen und liest den aktuellen App-Namen',
+      parameters: [],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'update_general_settings',
+      description: 'Navigiert zu den Einstellungen und ändert den App-Namen direkt im Formular',
+      parameters: [
+        { name: 'appName', type: 'string', description: 'Neuer App-Name', required: true },
+      ],
+      category: 'ui',
+    });
   }
 
   registerFunction(definition: ILLMFunctionDefinition): void {

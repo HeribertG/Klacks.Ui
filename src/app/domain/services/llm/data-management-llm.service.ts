@@ -50,6 +50,7 @@ export class DataManagementLLMService {
   public isLoading = signal<boolean>(false);
   public currentLanguage = signal<string>('de');
   public isConnected = signal(true);
+  public modelsInitialized = signal(false);
 
   private availableModels$ = toObservable(this.availableModels);
   private selectedModelId$ = toObservable(this.selectedModelId);
@@ -86,12 +87,14 @@ export class DataManagementLLMService {
           } else {
             this.selectedModelId.set('');
           }
+          this.modelsInitialized.set(true);
         }),
         catchError(() => {
           this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.load', code: 'LLMModelError', context: 'DataManagementLLMService.initializeModels' });
           // Set empty array if backend fails
           this.availableModels.set([]);
           this.selectedModelId.set('');
+          this.modelsInitialized.set(true);
           return of([]);
         })
       )
