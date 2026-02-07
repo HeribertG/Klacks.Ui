@@ -5,6 +5,8 @@ export interface ReportTemplate {
   name: string;
   description: string;
   type: ReportType;
+  sourceId?: string;
+  dataSetIds?: string[];
   pageSetup: ReportPageSetup;
   sections: ReportSection[];
   isDeleted?: boolean;

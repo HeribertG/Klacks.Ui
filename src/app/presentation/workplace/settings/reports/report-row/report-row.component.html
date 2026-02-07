@@ -52,11 +52,49 @@
       </li>
 
       <li ngbNavItem>
+        <button ngbNavLink>{{ 'setting.report.tab.source' | translate }}</button>
+        <ng-template ngbNavContent>
+          <div class="source-tab">
+            <div class="source-grid">
+              @for (source of availableSources; track source.id) {
+                <div class="source-card"
+                     [class.active]="editSourceId === source.id"
+                     (click)="selectSource(source)">
+                  <div class="source-name">{{ source.i18nKey | translate }}</div>
+                  <div class="source-path">{{ source.path }}</div>
+                </div>
+              }
+            </div>
+
+            @if (selectedSourceDataSets.length > 1) {
+              <div class="dataset-selection">
+                <label class="form-label">{{ 'setting.report.source.selectDataSet' | translate }}</label>
+                <div class="dataset-grid">
+                  @for (ds of selectedSourceDataSets; track ds.id) {
+                    <div class="dataset-card"
+                         [class.active]="editDataSetIds.includes(ds.id)"
+                         (click)="toggleDataSet(ds)">
+                      @if (selectedSource?.multiSelect) {
+                        <input type="checkbox" [checked]="editDataSetIds.includes(ds.id)" class="me-2" />
+                      }
+                      {{ ds.i18nKey | translate }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </li>
+
+      <li ngbNavItem>
         <button ngbNavLink>{{ 'setting.report.tab.designer' | translate }}</button>
         <ng-template ngbNavContent>
           <div class="designer-tab">
             <app-report-designer
               [template]="editTemplate"
+              [sourceId]="editSourceId"
+              [dataSetIds]="editDataSetIds"
               [imagePreviewCache]="imageCache"
               (templateChange)="onTemplateChange($event)">
             </app-report-designer>
@@ -71,28 +109,38 @@
             <div class="mb-3">
               <label class="form-label">{{ 'setting.report.preview.group' | translate }}</label>
               <select class="form-select" [(ngModel)]="previewGroupId">
-                <option value="">{{ 'setting.report.preview.selectGroup' | translate }}</option>
+                <option value="">{{ 'setting.report.preview.allGroups' | translate }}</option>
                 @for (group of groups; track group.id) {
                   <option [value]="group.id">{{ group.name }}</option>
                 }
               </select>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ 'setting.report.preview.fromDate' | translate }}</label>
-                <input type="date" class="form-control" [(ngModel)]="previewFromDate" />
+            @if (sourcePreviewConfig.needsDateRange) {
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <app-date-input
+                    [label]="'setting.report.preview.fromDate' | translate"
+                    [(value)]="previewFromDate"
+                    inputId="previewFromDate"
+                    inputWidth="full-width">
+                  </app-date-input>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <app-date-input
+                    [label]="'setting.report.preview.toDate' | translate"
+                    [(value)]="previewToDate"
+                    inputId="previewToDate"
+                    inputWidth="full-width">
+                  </app-date-input>
+                </div>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">{{ 'setting.report.preview.toDate' | translate }}</label>
-                <input type="date" class="form-control" [(ngModel)]="previewToDate" />
-              </div>
-            </div>
+            }
 
             <button
               class="btn btn-primary"
               (click)="generatePreview()"
-              [disabled]="isGenerating || !previewGroupId || !previewFromDate || !previewToDate">
+              [disabled]="!canGeneratePreview">
               @if (isGenerating) {
                 <span class="spinner-border spinner-border-sm me-1"></span>
               }
@@ -123,6 +171,17 @@
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
       {{ translate.instant('general.save') }}
+    </button>
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="saveReport(true)"
+      [disabled]="isSaving"
+    >
+      @if (isSaving) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ translate.instant('setting.macro.save-close-btn') }}
     </button>
   </div>
 </ng-template>

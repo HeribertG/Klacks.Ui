@@ -2,26 +2,27 @@ import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject 
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { firstValueFrom } from 'rxjs';
-
+import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ReportTemplate, ReportType, ReportOrientation, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ReportDesignerComponent } from '../report-designer/report-designer.component';
-import { DEFAULT_SECTIONS } from 'src/app/domain/models/report/report-section.model';
+import { DEFAULT_SECTIONS, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
 import { Group } from 'src/app/domain/models/group-class';
+import { REPORT_DATA_SOURCES, ReportDataSource, ReportDataSet } from 'src/app/domain/models/report/report-data-source.model';
+import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Component({
   selector: 'app-report-row',
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent]
+  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent]
 })
 export class ReportRowComponent {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
@@ -36,7 +37,7 @@ export class ReportRowComponent {
   private reportService = inject(ReportService);
   private dataManagementReportService = inject(DataManagementReportService);
   private reportPdfService = inject(ReportPdfService);
-  private workScheduleService = inject(DataWorkScheduleService);
+  private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
 
   private modalRef: NgbModalRef | null = null;
@@ -54,10 +55,22 @@ export class ReportRowComponent {
   isSaving = false;
   imageCache = new Map<string, string>();
 
+  availableSources = REPORT_DATA_SOURCES;
+  editSourceId = 'schedule';
+  editDataSetIds: string[] = ['work'];
+
   previewGroupId = '';
-  previewFromDate = '';
-  previewToDate = '';
+  previewFromDate: NgbDateStruct | null = null;
+  previewToDate: NgbDateStruct | null = null;
   isGenerating = false;
+
+  get selectedSource(): ReportDataSource | undefined {
+    return this.availableSources.find(s => s.id === this.editSourceId);
+  }
+
+  get selectedSourceDataSets(): ReportDataSet[] {
+    return this.selectedSource?.dataSets ?? [];
+  }
 
   get isNew(): boolean {
     return (this.data as any).isDirty === CreateEntriesEnum.new || (this.data as any).isLocal;
@@ -69,19 +82,74 @@ export class ReportRowComponent {
 
   ReportOrientation = ReportOrientation;
 
+  get sourcePreviewConfig(): { needsGroup: boolean; needsDateRange: boolean } {
+    switch (this.editSourceId) {
+      case 'schedule': return { needsGroup: false, needsDateRange: true };
+      case 'absence-gantt': return { needsGroup: false, needsDateRange: true };
+      case 'all-address': return { needsGroup: false, needsDateRange: false };
+      case 'edit-address': return { needsGroup: false, needsDateRange: false };
+      case 'group': return { needsGroup: false, needsDateRange: false };
+      case 'shift-table': return { needsGroup: false, needsDateRange: false };
+      case 'container-template': return { needsGroup: false, needsDateRange: false };
+      default: return { needsGroup: false, needsDateRange: true };
+    }
+  }
+
+  get canGeneratePreview(): boolean {
+    if (this.isGenerating) return false;
+    const config = this.sourcePreviewConfig;
+    if (config.needsGroup && !this.previewGroupId) return false;
+    if (config.needsDateRange && (!this.previewFromDate || !this.previewToDate)) return false;
+    return true;
+  }
+
+  selectSource(source: ReportDataSource): void {
+    this.editSourceId = source.id;
+    this.editDataSetIds = [source.dataSets[0].id];
+    this.resetTemplateSections();
+  }
+
+  toggleDataSet(ds: ReportDataSet): void {
+    if (!this.selectedSource?.multiSelect) {
+      this.editDataSetIds = [ds.id];
+      this.resetTemplateSections();
+      return;
+    }
+    const idx = this.editDataSetIds.indexOf(ds.id);
+    if (idx >= 0 && this.editDataSetIds.length > 1) {
+      this.editDataSetIds = this.editDataSetIds.filter(id => id !== ds.id);
+    } else if (idx < 0) {
+      this.editDataSetIds = [...this.editDataSetIds, ds.id];
+    }
+    this.updateTemplateDataSetIds();
+  }
+
+  private updateTemplateDataSetIds(): void {
+    this.editTemplate = {
+      ...this.editTemplate,
+      dataSetIds: [...this.editDataSetIds],
+    };
+  }
+
   openModal(): void {
     this.editName = this.data.name;
     this.editDescription = this.data.description;
     this.editOrientation = this.data.pageSetup?.orientation ?? ReportOrientation.Landscape;
+    this.editSourceId = this.data.sourceId || 'schedule';
+    this.editDataSetIds = this.data.dataSetIds?.length
+      ? [...this.data.dataSetIds]
+      : [(this.data as any).dataSetId || 'work'];
     this.editTemplate = {
       ...this.data,
+      sourceId: this.editSourceId,
+      dataSetIds: this.editDataSetIds,
       pageSetup: this.data.pageSetup || { ...DEFAULT_PAGE_SETUP },
       sections: this.data.sections?.length ? this.data.sections : [...DEFAULT_SECTIONS]
     };
 
     const today = new Date();
-    this.previewFromDate = this.formatDateForInput(new Date(today.getFullYear(), today.getMonth(), 1));
-    this.previewToDate = this.formatDateForInput(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+    this.previewFromDate = transformDateToNgbDateStruct(new Date(today.getFullYear(), today.getMonth(), 1)) ?? null;
+    this.previewToDate = transformDateToNgbDateStruct(new Date(today.getFullYear(), today.getMonth() + 1, 0)) ?? null;
 
     if (this.groups.length === 0) {
       this.groupService.initTree();
@@ -124,7 +192,7 @@ export class ReportRowComponent {
     };
   }
 
-  async saveReport(): Promise<void> {
+  async saveReport(closeAfterSave = false): Promise<void> {
     if (!this.editName.trim()) {
       return;
     }
@@ -137,6 +205,8 @@ export class ReportRowComponent {
         name: this.editName.trim(),
         description: this.editDescription.trim(),
         type: ReportType.Schedule,
+        sourceId: this.editSourceId,
+        dataSetIds: [...this.editDataSetIds],
         pageSetup: {
           ...this.editTemplate.pageSetup,
           orientation: this.editOrientation
@@ -151,7 +221,7 @@ export class ReportRowComponent {
 
       this.reportChangedEvent.emit();
 
-      if (this.modalRef) {
+      if (closeAfterSave && this.modalRef) {
         this.modalRef.close();
         this.modalRef = null;
       }
@@ -167,22 +237,19 @@ export class ReportRowComponent {
   }
 
   async generatePreview(): Promise<void> {
-    if (!this.previewGroupId || !this.previewFromDate || !this.previewToDate) {
-      return;
-    }
+    if (!this.canGeneratePreview) return;
 
     this.isGenerating = true;
+    const fromDate = transformNgbDateStructToDate(this.previewFromDate ?? undefined)?.toISOString().split('T')[0];
+    const toDate = transformNgbDateStructToDate(this.previewToDate ?? undefined)?.toISOString().split('T')[0];
 
     try {
-      const response = await firstValueFrom(
-        this.workScheduleService.getWorkSchedule({
-          startDate: this.previewFromDate,
-          endDate: this.previewToDate,
-          selectedGroup: this.previewGroupId,
-          showEmployees: true,
-          showExtern: true,
-        })
-      );
+      const provider = this.dataProviderService.getProvider(this.editSourceId, this.editDataSetIds);
+      const data = await provider.fetchData({
+        groupId: this.previewGroupId || undefined,
+        startDate: fromDate || undefined,
+        endDate: toDate || undefined,
+      });
 
       const selectedGroup = this.groups.find(g => g.id === this.previewGroupId);
 
@@ -190,16 +257,18 @@ export class ReportRowComponent {
         template: {
           ...this.editTemplate,
           name: this.editName.trim(),
+          sourceId: this.editSourceId,
+          dataSetIds: [...this.editDataSetIds],
           pageSetup: {
             ...this.editTemplate.pageSetup,
             orientation: this.editOrientation
           }
         },
-        clients: response.clients,
-        entries: response.entries,
+        provider,
+        data,
         groupName: selectedGroup?.name ?? '',
-        startDate: response.startDate,
-        endDate: response.endDate,
+        startDate: data.metadata?.['startDate'] ?? fromDate,
+        endDate: data.metadata?.['endDate'] ?? toDate,
         imageCache: this.imageCache,
       };
 
@@ -212,7 +281,17 @@ export class ReportRowComponent {
     }
   }
 
-  private formatDateForInput(date: Date): string {
-    return date.toISOString().split('T')[0];
+  private resetTemplateSections(): void {
+    this.editTemplate = {
+      ...this.editTemplate,
+      sourceId: this.editSourceId,
+      dataSetIds: [...this.editDataSetIds],
+      sections: [
+        { type: ReportSectionType.Header, fields: [], visible: true, sortOrder: 0 },
+        { type: ReportSectionType.WorkTable, fields: [], visible: true, sortOrder: 1 },
+        { type: ReportSectionType.Footer, fields: [], visible: true, sortOrder: 2 },
+      ]
+    };
   }
+
 }

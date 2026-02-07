@@ -8,24 +8,18 @@ import { environment } from 'src/environments/environment';
 
 import { ReportTemplate } from '../../models/report/report-template.model';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
-import { ReportField, ReportFieldType, TextAlignment, ALL_AVAILABLE_FIELDS } from '../../models/report/report-field.model';
-import { IScheduleCell, IWorkScheduleClient, WorkScheduleEntryType } from '../../models/work-schedule-class';
-import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
+import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
+import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
-  clients: IWorkScheduleClient[];
-  entries: IScheduleCell[];
+  provider: ReportDataProvider;
+  data: ReportData;
   groupName: string;
   startDate: string;
   endDate: string;
   imageCache?: Map<string, string>;
-}
-
-interface ClientReportData {
-  client: IWorkScheduleClient;
-  workEntries: IScheduleCell[];
-  expenseEntries: IScheduleCell[];
 }
 
 @Injectable({
@@ -36,7 +30,7 @@ export class ReportPdfService {
   private http = inject(HttpClient);
 
   async generatePdf(context: ReportGenerationContext): Promise<Blob> {
-    const { template } = context;
+    const { template, provider, data } = context;
     const isLandscape = template.pageSetup.orientation === 1;
     const doc = new jsPDF({
       orientation: isLandscape ? 'landscape' : 'portrait',
@@ -46,16 +40,68 @@ export class ReportPdfService {
 
     const imageCache = await this.preloadImages(template, context.imageCache);
 
-    const clientDataList = this.buildClientData(context);
+    const clients = data.clients ?? [null];
+    const allRows = data.rows;
 
-    for (let index = 0; index < clientDataList.length; index++) {
+    for (let index = 0; index < clients.length; index++) {
       if (index > 0) {
         doc.addPage();
       }
-      this.renderClientReport(doc, template, clientDataList[index], context, imageCache);
+
+      const client = clients[index];
+      const clientRows = client
+        ? allRows.filter((r: any) => r.clientId === client.id)
+        : allRows;
+
+      const headerContext: ReportHeaderContext = {
+        client,
+        groupName: context.groupName,
+        startDate: data.metadata?.['startDate'] ?? context.startDate,
+        endDate: data.metadata?.['endDate'] ?? context.endDate,
+        metadata: data.metadata,
+      };
+
+      this.renderPage(doc, template, provider, clientRows, headerContext, imageCache);
     }
 
     return doc.output('blob');
+  }
+
+  private renderPage(
+    doc: jsPDF,
+    template: ReportTemplate,
+    provider: ReportDataProvider,
+    rows: any[],
+    headerContext: ReportHeaderContext,
+    imageCache: Map<string, string>
+  ): void {
+    let yPos = template.pageSetup.margins.top;
+    const marginLeft = template.pageSetup.margins.left;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const contentWidth = pageWidth - marginLeft - template.pageSetup.margins.right;
+
+    const headerSection = template.sections.find(s => s.type === ReportSectionType.Header);
+    if (headerSection?.visible && headerSection.fields.length > 0) {
+      yPos = this.renderHeader(doc, headerSection, provider, headerContext, yPos, marginLeft, contentWidth, imageCache);
+      yPos += 5;
+    }
+
+    const bodySections = template.sections
+      .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    for (const section of bodySections) {
+      if (!section.visible || section.fields.length === 0) continue;
+      if (rows.length > 0) {
+        yPos = this.renderTable(doc, section, rows, provider, template, yPos, marginLeft, contentWidth);
+        yPos += 5;
+      }
+    }
+
+    const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
+    if (footerSection?.visible && footerSection.fields.length > 0) {
+      this.renderFooter(doc, footerSection, rows, provider, template, yPos, marginLeft, contentWidth);
+    }
   }
 
   private async preloadImages(template: ReportTemplate, existingCache?: Map<string, string>): Promise<Map<string, string>> {
@@ -96,77 +142,11 @@ export class ReportPdfService {
     });
   }
 
-  private buildClientData(context: ReportGenerationContext): ClientReportData[] {
-    const { clients, entries } = context;
-    const entriesByClient = new Map<string, IScheduleCell[]>();
-
-    entries.forEach(entry => {
-      const clientId = entry.clientId;
-      if (!entriesByClient.has(clientId)) {
-        entriesByClient.set(clientId, []);
-      }
-      entriesByClient.get(clientId)!.push(entry);
-    });
-
-    return clients.map(client => {
-      const clientEntries = entriesByClient.get(client.id) ?? [];
-      const workEntries = clientEntries
-        .filter(e => e.entryType !== WorkScheduleEntryType.Expenses)
-        .sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
-      const expenseEntries = clientEntries
-        .filter(e => e.entryType === WorkScheduleEntryType.Expenses)
-        .sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
-
-      return { client, workEntries, expenseEntries };
-    });
-  }
-
-  private renderClientReport(
-    doc: jsPDF,
-    template: ReportTemplate,
-    clientData: ClientReportData,
-    context: ReportGenerationContext,
-    imageCache: Map<string, string>
-  ): void {
-    let yPos = template.pageSetup.margins.top;
-    const marginLeft = template.pageSetup.margins.left;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const contentWidth = pageWidth - marginLeft - template.pageSetup.margins.right;
-
-    const headerSection = template.sections.find(s => s.type === ReportSectionType.Header);
-    if (headerSection?.visible && headerSection.fields.length > 0) {
-      yPos = this.renderHeader(doc, headerSection, clientData, context, yPos, marginLeft, contentWidth, imageCache);
-      yPos += 5;
-    }
-
-    const bodySections = template.sections
-      .filter(s => s.type === ReportSectionType.WorkTable || s.type === ReportSectionType.ExpensesTable)
-      .sort((a, b) => a.sortOrder - b.sortOrder);
-
-    for (const section of bodySections) {
-      if (!section.visible || section.fields.length === 0) continue;
-
-      const isExpenses = section.type === ReportSectionType.ExpensesTable;
-      const entries = isExpenses ? clientData.expenseEntries : clientData.workEntries;
-      const prefix = isExpenses ? 'expense' : 'work';
-
-      if (entries.length > 0) {
-        yPos = this.renderTable(doc, section, entries, prefix, yPos, marginLeft, contentWidth);
-        yPos += 5;
-      }
-    }
-
-    const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
-    if (footerSection?.visible && footerSection.fields.length > 0) {
-      this.renderFooter(doc, footerSection, clientData, yPos, marginLeft, contentWidth);
-    }
-  }
-
   private renderHeader(
     doc: jsPDF,
     section: ReportSection,
-    clientData: ClientReportData,
-    context: ReportGenerationContext,
+    provider: ReportDataProvider,
+    headerContext: ReportHeaderContext,
     yPos: number,
     marginLeft: number,
     contentWidth: number,
@@ -181,7 +161,7 @@ export class ReportPdfService {
         const zoneFields = row.fields.filter(f => (f.style?.alignment ?? TextAlignment.Left) === alignment);
         if (zoneFields.length === 0) continue;
 
-        let xOffset = this.getZoneStartX(alignment, marginLeft, contentWidth, zoneFields, doc, clientData, context, imageCache);
+        let xOffset = this.getZoneStartX(alignment, marginLeft, contentWidth, zoneFields, doc, provider, headerContext, imageCache);
 
         for (const field of zoneFields) {
           if (field.type === ReportFieldType.Image && field.imageUrl) {
@@ -195,7 +175,7 @@ export class ReportPdfService {
               rowHeight = Math.max(rowHeight, imgHeight);
             }
           } else if (field.dataBinding) {
-            const value = this.resolveHeaderValue(field, clientData.client, context);
+            const value = provider.resolveHeaderValue(field, headerContext);
             if (!value) continue;
 
             doc.setFontSize(field.style.fontSize);
@@ -245,8 +225,8 @@ export class ReportPdfService {
     contentWidth: number,
     zoneFields: ReportField[],
     doc: jsPDF,
-    clientData: ClientReportData,
-    context: ReportGenerationContext,
+    provider: ReportDataProvider,
+    headerContext: ReportHeaderContext,
     imageCache: Map<string, string>
   ): number {
     if (alignment === TextAlignment.Left) return marginLeft;
@@ -256,7 +236,7 @@ export class ReportPdfService {
       if (field.type === ReportFieldType.Image && field.imageUrl && imageCache.has(field.imageUrl)) {
         totalWidth += (field.width || 30) + 2;
       } else if (field.dataBinding) {
-        const value = this.resolveHeaderValue(field, clientData.client, context);
+        const value = provider.resolveHeaderValue(field, headerContext);
         if (value) {
           doc.setFontSize(field.style.fontSize);
           doc.setFont(field.style.fontFamily || 'helvetica', this.getJsPdfFontStyle(field.style.bold, field.style.italic));
@@ -287,8 +267,9 @@ export class ReportPdfService {
   private renderTable(
     doc: jsPDF,
     section: ReportSection,
-    entries: IScheduleCell[],
-    prefix: string,
+    rows: any[],
+    provider: ReportDataProvider,
+    template: ReportTemplate,
     yPos: number,
     marginLeft: number,
     contentWidth: number
@@ -297,7 +278,7 @@ export class ReportPdfService {
     const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
 
     const columns = fields.map(f => ({
-      header: this.translateFieldName(f),
+      header: this.translateFieldName(f, template),
       dataKey: f.dataBinding,
     }));
 
@@ -311,10 +292,10 @@ export class ReportPdfService {
       };
     });
 
-    const rows = entries.map(entry => {
+    const tableRows = rows.map(entry => {
       const row: Record<string, string> = {};
       fields.forEach(f => {
-        row[f.dataBinding] = this.resolveEntryValue(f, entry, prefix);
+        row[f.dataBinding] = provider.resolveFieldValue(f, entry);
       });
       return row;
     });
@@ -324,7 +305,7 @@ export class ReportPdfService {
       margin: { left: marginLeft },
       tableWidth: contentWidth,
       columns,
-      body: rows,
+      body: tableRows,
       columnStyles: columnStyles as never,
       headStyles: {
         fillColor: [66, 66, 66],
@@ -347,7 +328,9 @@ export class ReportPdfService {
   private renderFooter(
     doc: jsPDF,
     section: ReportSection,
-    clientData: ClientReportData,
+    rows: any[],
+    provider: ReportDataProvider,
+    template: ReportTemplate,
     yPos: number,
     marginLeft: number,
     contentWidth: number
@@ -360,14 +343,14 @@ export class ReportPdfService {
     section.fields
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .forEach(field => {
-        const value = this.resolveFooterValue(field, clientData);
+        const value = provider.resolveFooterValue(field, rows);
         doc.setFontSize(field.style.fontSize);
         const fontFamily = field.style.fontFamily || 'helvetica';
         const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
         doc.setFont(fontFamily, fontStyle);
         this.applyTextColor(doc, field.style.textColor);
 
-        const fullText = `${this.translateFieldName(field)}: ${value}`;
+        const fullText = `${this.translateFieldName(field, template)}: ${value}`;
         doc.text(fullText, marginLeft, yPos);
 
         if (field.style.underline) {
@@ -378,10 +361,16 @@ export class ReportPdfService {
       });
   }
 
-  private translateFieldName(field: ReportField): string {
-    const def = ALL_AVAILABLE_FIELDS.find(f => f.key === field.dataBinding);
+  private translateFieldName(field: ReportField, template: ReportTemplate): string {
+    const sourceId = template.sourceId ?? 'schedule';
+    const dataSetIds = template.dataSetIds ?? ['work'];
+    const allFields = getAllFieldsForDataSets(sourceId, dataSetIds);
+    const def = allFields.find(f => f.key === field.dataBinding);
     if (def) {
-      return this.translate.instant(def.i18nKey);
+      const label = this.translate.instant(def.i18nKey);
+      const prefixMap = getFieldPrefixMap(sourceId, dataSetIds, k => this.translate.instant(k));
+      const prefix = prefixMap.get(field.dataBinding);
+      return prefix ? `${prefix}.${label}` : label;
     }
     return field.name;
   }
@@ -416,146 +405,5 @@ export class ReportPdfService {
     if (bold) return 'bold';
     if (italic) return 'italic';
     return 'normal';
-  }
-
-  private getAlignedTextX(alignment: TextAlignment, marginLeft: number, contentWidth: number): number {
-    if (alignment === TextAlignment.Center) return marginLeft + contentWidth / 2;
-    if (alignment === TextAlignment.Right) return marginLeft + contentWidth;
-    return marginLeft;
-  }
-
-  private getJsPdfAlign(alignment: TextAlignment): 'left' | 'center' | 'right' {
-    if (alignment === TextAlignment.Center) return 'center';
-    if (alignment === TextAlignment.Right) return 'right';
-    return 'left';
-  }
-
-  // --- Value Resolvers ---
-
-  private resolveHeaderValue(
-    field: ReportField,
-    client: IWorkScheduleClient,
-    context: ReportGenerationContext
-  ): string {
-    switch (field.dataBinding) {
-      case 'client.name': return client.name ?? '';
-      case 'client.firstName': return client.firstName ?? '';
-      case 'client.company': return client.company ?? '';
-      case 'client.idNumber': return client.idNumber?.toString() ?? '';
-      case 'report.period': return `${this.formatDate(context.startDate)} - ${this.formatDate(context.endDate)}`;
-      case 'report.date': return this.formatDate(new Date().toISOString());
-      case 'report.groupName': return context.groupName;
-      case 'report.customText': return field.name ?? '';
-      default: return '';
-    }
-  }
-
-  private resolveEntryValue(field: ReportField, entry: IScheduleCell, prefix: string): string {
-    const binding = field.dataBinding;
-
-    if (binding === 'entry.date' || binding === 'expense.date') {
-      return this.formatDate(entry.entryDate?.toString() ?? '');
-    }
-    if (binding === 'entry.weekday') {
-      return this.getWeekday(entry.entryDate);
-    }
-    if (binding === 'entry.startTime') {
-      return this.formatTime(entry.startTime);
-    }
-    if (binding === 'entry.endTime') {
-      return this.formatTime(entry.endTime);
-    }
-    if (binding === 'entry.hours') {
-      return hoursToHHMM(entry.changeTime);
-    }
-    if (binding === 'entry.surcharges') {
-      return hoursToHHMM(entry.surcharges);
-    }
-    if (binding === 'entry.shiftName' || binding === 'expense.shiftName') {
-      return entry.entryName ?? '';
-    }
-    if (binding === 'entry.shiftAbbr') {
-      return entry.abbreviation ?? '';
-    }
-    if (binding === 'entry.type') {
-      return this.getEntryTypeLabel(entry.entryType);
-    }
-    if (binding === 'entry.information') {
-      return entry.information ?? '';
-    }
-    if (binding === 'entry.description' || binding === 'expense.description') {
-      if (entry.description) {
-        const lang = this.translate.currentLang || 'de';
-        return (entry.description as Record<string, string>)[lang] ?? '';
-      }
-      return '';
-    }
-    if (binding === 'expense.amount') {
-      return entry.amount != null ? entry.amount.toFixed(2) : '';
-    }
-    if (binding === 'expense.taxable') {
-      return entry.taxable != null ? (entry.taxable ? this.translate.instant('general.yes') : this.translate.instant('general.no')) : '';
-    }
-
-    return '';
-  }
-
-  private resolveFooterValue(field: ReportField, clientData: ClientReportData): string {
-    switch (field.dataBinding) {
-      case 'sum.hours': {
-        const total = clientData.workEntries.reduce((sum, e) => sum + (e.changeTime ?? 0), 0);
-        return hoursToHHMM(total);
-      }
-      case 'sum.surcharges': {
-        const total = clientData.workEntries.reduce((sum, e) => sum + (e.surcharges ?? 0), 0);
-        return hoursToHHMM(total);
-      }
-      case 'sum.expenses': {
-        const total = clientData.expenseEntries.reduce((sum, e) => sum + (e.amount ?? 0), 0);
-        return total.toFixed(2);
-      }
-      case 'sum.workDays': {
-        const uniqueDates = new Set(
-          clientData.workEntries
-            .filter(e => e.entryType === WorkScheduleEntryType.Work)
-            .map(e => new Date(e.entryDate).toDateString())
-        );
-        return uniqueDates.size.toString();
-      }
-      default: return '';
-    }
-  }
-
-  // --- Format Helpers ---
-
-  private formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  private formatTime(time: string): string {
-    if (!time) return '';
-    return time.substring(0, 5);
-  }
-
-
-  private getWeekday(date: Date | string): string {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-    return this.translate.instant(days[d.getDay()]);
-  }
-
-  private getEntryTypeLabel(type: number): string {
-    switch (type) {
-      case WorkScheduleEntryType.Work: return this.translate.instant('schedule.entryType.work');
-      case WorkScheduleEntryType.WorkChange: return this.translate.instant('schedule.entryType.workChange');
-      case WorkScheduleEntryType.Break: return this.translate.instant('schedule.entryType.break');
-      case WorkScheduleEntryType.Expenses: return this.translate.instant('schedule.entryType.expenses');
-      default: return '';
-    }
   }
 }

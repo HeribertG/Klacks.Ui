@@ -14,18 +14,17 @@ import {
   ReportFieldType,
   DataBindingDefinition,
   FieldCategory,
-  HEADER_FIELDS,
-  WORK_TABLE_FIELDS,
-  EXPENSES_TABLE_FIELDS,
-  FOOTER_FIELDS,
   DEFAULT_FIELD_STYLE,
   AVAILABLE_FONTS,
   TextAlignment,
   HeaderRow,
 } from 'src/app/domain/models/report/report-field.model';
+import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
 
 interface FieldPaletteGroup {
+  id: string;
   titleKey: string;
+  title?: string;
   category: FieldCategory;
   sectionType: ReportSectionType;
   fields: DataBindingDefinition[];
@@ -41,6 +40,8 @@ interface FieldPaletteGroup {
 })
 export class ReportDesignerComponent implements OnChanges {
   @Input() template!: ReportTemplate;
+  @Input() sourceId = 'schedule';
+  @Input() dataSetIds: string[] = ['work'];
   @Input() imagePreviewCache = new Map<string, string>();
   @Output() templateChange = new EventEmitter<ReportTemplate>();
 
@@ -48,6 +49,7 @@ export class ReportDesignerComponent implements OnChanges {
   private http = inject(HttpClient);
 
   activeField: ReportField | null = null;
+  fieldPrefixMap = new Map<string, string>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['template'] && this.template?.sections) {
@@ -63,12 +65,86 @@ export class ReportDesignerComponent implements OnChanges {
   FieldCategory = FieldCategory;
   availableFonts = AVAILABLE_FONTS;
 
-  paletteGroups: FieldPaletteGroup[] = [
-    { titleKey: 'setting.report.designer.headerFields', category: FieldCategory.Header, sectionType: ReportSectionType.Header, fields: HEADER_FIELDS, collapsed: false },
-    { titleKey: 'setting.report.designer.workFields', category: FieldCategory.WorkTable, sectionType: ReportSectionType.WorkTable, fields: WORK_TABLE_FIELDS, collapsed: false },
-    { titleKey: 'setting.report.designer.expensesFields', category: FieldCategory.ExpensesTable, sectionType: ReportSectionType.ExpensesTable, fields: EXPENSES_TABLE_FIELDS, collapsed: false },
-    { titleKey: 'setting.report.designer.footerFields', category: FieldCategory.Footer, sectionType: ReportSectionType.Footer, fields: FOOTER_FIELDS, collapsed: false },
-  ];
+  get activeDataSets(): ReportDataSet[] {
+    const source = REPORT_DATA_SOURCES.find(s => s.id === this.sourceId);
+    return source?.dataSets.filter(ds => this.dataSetIds.includes(ds.id)) ?? [];
+  }
+
+  get paletteGroups(): FieldPaletteGroup[] {
+    const dataSets = this.activeDataSets;
+    if (dataSets.length === 0) {
+      this.fieldPrefixMap = new Map();
+      return [];
+    }
+
+    this.fieldPrefixMap = getFieldPrefixMap(this.sourceId, this.dataSetIds, k => this.translate.instant(k));
+
+    if (dataSets.length <= 1) {
+      return [
+        { id: 'header', titleKey: 'setting.report.designer.headerFields', category: FieldCategory.Header, sectionType: ReportSectionType.Header, fields: this.deduplicateFields(dataSets.flatMap(ds => ds.headerFields)), collapsed: false },
+        { id: 'table', titleKey: 'setting.report.designer.tableFields', category: FieldCategory.WorkTable, sectionType: ReportSectionType.WorkTable, fields: dataSets[0].tableFields, collapsed: false },
+        { id: 'footer', titleKey: 'setting.report.designer.footerFields', category: FieldCategory.Footer, sectionType: ReportSectionType.Footer, fields: dataSets[0].footerFields, collapsed: false },
+      ];
+    }
+
+    const groups: FieldPaletteGroup[] = [
+      { id: 'header', titleKey: 'setting.report.designer.headerFields', category: FieldCategory.Header, sectionType: ReportSectionType.Header, fields: this.deduplicateFields(dataSets.flatMap(ds => ds.headerFields)), collapsed: false },
+    ];
+
+    const dsGroups = this.groupDataSetsByFields(dataSets);
+    for (let i = 0; i < dsGroups.length; i++) {
+      const g = dsGroups[i];
+      const combinedTitle = g.dataSets.map(ds => this.translate.instant(ds.i18nKey)).join(' / ');
+      groups.push({
+        id: `table-${i}`,
+        titleKey: 'setting.report.designer.tableFields',
+        title: combinedTitle,
+        category: FieldCategory.WorkTable,
+        sectionType: ReportSectionType.WorkTable,
+        fields: g.dataSets[0].tableFields,
+        collapsed: false,
+      });
+    }
+
+    groups.push({
+      id: 'footer',
+      titleKey: 'setting.report.designer.footerFields',
+      category: FieldCategory.Footer,
+      sectionType: ReportSectionType.Footer,
+      fields: this.deduplicateFields(dataSets.flatMap(ds => ds.footerFields)),
+      collapsed: false,
+    });
+
+    return groups;
+  }
+
+  private groupDataSetsByFields(dataSets: ReportDataSet[]): { dataSets: ReportDataSet[] }[] {
+    const groups: { signature: string; dataSets: ReportDataSet[] }[] = [];
+    for (const ds of dataSets) {
+      const sig = ds.tableFields.map(f => f.key).join(',');
+      const existing = groups.find(g => g.signature === sig);
+      if (existing) {
+        existing.dataSets.push(ds);
+      } else {
+        groups.push({ signature: sig, dataSets: [ds] });
+      }
+    }
+    return groups;
+  }
+
+  private deduplicateFields(fields: DataBindingDefinition[]): DataBindingDefinition[] {
+    const map = new Map<string, DataBindingDefinition>();
+    for (const f of fields) {
+      if (!map.has(f.key)) map.set(f.key, f);
+    }
+    return Array.from(map.values());
+  }
+
+  getFieldDisplayLabel(field: DataBindingDefinition): string {
+    const prefix = this.fieldPrefixMap.get(field.key);
+    const label = this.translate.instant(field.i18nKey);
+    return prefix ? `${prefix}.${label}` : label;
+  }
 
   sectionLabels: Record<number, string> = {
     [ReportSectionType.Header]: 'setting.report.designer.sectionHeader',
@@ -81,7 +157,7 @@ export class ReportDesignerComponent implements OnChanges {
 
   get bodySections(): ReportSection[] {
     return this.template.sections
-      .filter(s => s.type === ReportSectionType.WorkTable || s.type === ReportSectionType.ExpensesTable)
+      .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
@@ -101,10 +177,8 @@ export class ReportDesignerComponent implements OnChanges {
     return 'body-table-' + this.getBodyTableIndex(section);
   }
 
-  getBodyTableDropIds(sectionType: ReportSectionType): string[] {
-    return this.bodySections
-      .filter(s => s.type === sectionType)
-      .map(s => this.getBodyTableDropId(s));
+  get allBodyTableDropIds(): string[] {
+    return this.bodySections.map(s => this.getBodyTableDropId(s));
   }
 
   getPaletteConnectedTo(group: FieldPaletteGroup): string[] {
@@ -114,16 +188,17 @@ export class ReportDesignerComponent implements OnChanges {
     if (group.sectionType === ReportSectionType.Footer) {
       return ['section-footer'];
     }
-    return this.getBodyTableDropIds(group.sectionType);
+    return this.allBodyTableDropIds;
   }
 
-  getTablePaletteId(section: ReportSection): string {
-    return section.type === ReportSectionType.WorkTable
-      ? 'palette-' + FieldCategory.WorkTable
-      : 'palette-' + FieldCategory.ExpensesTable;
+  get allTablePaletteIds(): string[] {
+    const dataSets = this.activeDataSets;
+    if (dataSets.length <= 1) return ['palette-table'];
+    return this.groupDataSetsByFields(dataSets).map((_, i) => `palette-table-${i}`);
   }
 
-  addBodyTable(type: ReportSectionType): void {
+  addBodyTable(): void {
+    const type = ReportSectionType.WorkTable;
     const footerSection = this.footerSection;
     const bodyTables = this.bodySections;
     const lastBodySort = bodyTables.length > 0
@@ -264,7 +339,7 @@ export class ReportDesignerComponent implements OnChanges {
     if (!section || this.isFieldInSection(binding, sectionType)) return;
 
     const field: ReportField = {
-      name: binding.label,
+      name: this.getFieldDisplayLabel(binding),
       dataBinding: binding.key,
       type: binding.type,
       width: binding.defaultWidth,
@@ -306,7 +381,7 @@ export class ReportDesignerComponent implements OnChanges {
     if (this.isFieldInSectionInstance(binding, section)) return;
 
     const field: ReportField = {
-      name: binding.label,
+      name: this.getFieldDisplayLabel(binding),
       dataBinding: binding.key,
       type: binding.type,
       width: binding.defaultWidth,
@@ -407,7 +482,7 @@ export class ReportDesignerComponent implements OnChanges {
     if (this.isFieldInSection(binding, ReportSectionType.Header)) return;
 
     const field: ReportField = {
-      name: binding.label,
+      name: this.getFieldDisplayLabel(binding),
       dataBinding: binding.key,
       type: binding.type,
       width: binding.defaultWidth,

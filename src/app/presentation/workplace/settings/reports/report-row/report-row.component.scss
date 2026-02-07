@@ -21,3 +21,57 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+.source-tab {
+  padding: 20px 0;
+}
+
+.source-grid,
+.dataset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.source-card,
+.dataset-card {
+  padding: 10px 16px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--backgroundColorCard);
+  transition: border-color 0.15s, background 0.15s;
+  min-width: 160px;
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+  }
+
+  &.active {
+    border-color: colors.$standartBlueColor;
+    background: rgba(colors.$standartBlueColor, 0.06);
+    outline: 1px solid colors.$standartBlueColor;
+  }
+}
+
+.source-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.source-path {
+  font-size: 11px;
+  color: var(--colorSubHeadline);
+  margin-top: 2px;
+}
+
+.dataset-selection {
+  margin-top: 16px;
+}
+
+.dataset-card {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--standartTextColor);
+}

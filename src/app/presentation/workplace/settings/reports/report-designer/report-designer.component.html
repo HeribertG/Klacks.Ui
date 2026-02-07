@@ -3,11 +3,11 @@
     <div class="palette-panel">
       <h6 class="palette-title">{{ 'setting.report.designer.availableFields' | translate }}</h6>
 
-      @for (group of paletteGroups; track group.category) {
+      @for (group of paletteGroups; track group.id) {
         <div class="palette-group">
           <div class="palette-group-header" (click)="toggleGroup(group)">
             <i class="fa" [class.fa-chevron-right]="group.collapsed" [class.fa-chevron-down]="!group.collapsed"></i>
-            <span>{{ group.titleKey | translate }}</span>
+            <span>{{ group.title ?? (group.titleKey | translate) }}</span>
             <span class="badge">{{ getAvailableFields(group).length }}</span>
           </div>
 
@@ -15,7 +15,7 @@
             <div class="palette-fields"
                  cdkDropList
                  [cdkDropListData]="getAvailableFields(group)"
-                 [id]="'palette-' + group.category"
+                 [id]="'palette-' + group.id"
                  [cdkDropListConnectedTo]="getPaletteConnectedTo(group)"
                  [cdkDropListSortingDisabled]="true">
               @for (field of getAvailableFields(group); track field.key) {
@@ -95,7 +95,7 @@
                        cdkDropList
                        [id]="'zone-' + row.rowIndex + '-0'"
                        [cdkDropListData]="row.left"
-                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       [cdkDropListConnectedTo]="['palette-header']"
                        (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Left)">
                     @for (field of row.left; track $index) {
                       @if (field.dataBinding) {
@@ -145,7 +145,7 @@
                        cdkDropList
                        [id]="'zone-' + row.rowIndex + '-1'"
                        [cdkDropListData]="row.center"
-                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       [cdkDropListConnectedTo]="['palette-header']"
                        (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Center)">
                     @for (field of row.center; track $index) {
                       @if (field.dataBinding) {
@@ -195,7 +195,7 @@
                        cdkDropList
                        [id]="'zone-' + row.rowIndex + '-2'"
                        [cdkDropListData]="row.right"
-                       [cdkDropListConnectedTo]="['palette-' + FieldCategory.Header]"
+                       [cdkDropListConnectedTo]="['palette-header']"
                        (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Right)">
                     @for (field of row.right; track $index) {
                       @if (field.dataBinding) {
@@ -260,11 +260,8 @@
         <div class="body-header">
           <div class="section-label">{{ 'setting.report.designer.sectionBody' | translate }}</div>
           <div class="body-actions">
-            <button class="btn-add-table" (click)="addBodyTable(ReportSectionType.WorkTable)">
-              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addWorkTable' | translate }}
-            </button>
-            <button class="btn-add-table" (click)="addBodyTable(ReportSectionType.ExpensesTable)">
-              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addExpensesTable' | translate }}
+            <button class="btn-add-table" (click)="addBodyTable()">
+              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addTable' | translate }}
             </button>
           </div>
         </div>
@@ -272,8 +269,8 @@
         @for (section of bodySections; track section.sortOrder; let idx = $index) {
           <div class="body-table-section">
             <div class="table-section-header">
-              <span class="table-type-badge" [class.work-badge]="section.type === ReportSectionType.WorkTable" [class.expense-badge]="section.type === ReportSectionType.ExpensesTable">
-                {{ sectionLabels[section.type] | translate }}
+              <span class="table-type-badge work-badge">
+                {{ 'setting.report.designer.sectionTable' | translate }} {{ idx + 1 }}
               </span>
               <span class="table-section-spacer"></span>
               <button class="chip-btn remove table-remove" (click)="removeBodyTable(section)" [disabled]="bodySections.length <= 1" [title]="'setting.report.designer.removeTable' | translate">&#10005;</button>
@@ -283,7 +280,7 @@
                  cdkDropList
                  [cdkDropListData]="section.fields"
                  [id]="getBodyTableDropId(section)"
-                 [cdkDropListConnectedTo]="[getTablePaletteId(section)]"
+                 [cdkDropListConnectedTo]="allTablePaletteIds"
                  (cdkDropListDropped)="onBodyTableFieldDrop($event, section)">
 
               @if (section.fields.length === 0) {
@@ -323,7 +320,7 @@
                cdkDropList
                [cdkDropListData]="fs.fields"
                [id]="'section-footer'"
-               [cdkDropListConnectedTo]="['palette-' + FieldCategory.Footer]"
+               [cdkDropListConnectedTo]="['palette-footer']"
                (cdkDropListDropped)="onFooterFieldDrop($event)">
 
             @if (fs.fields.length === 0) {
