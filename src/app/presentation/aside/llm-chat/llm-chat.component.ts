@@ -538,26 +538,8 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return false;
     }
 
-    const models = this.llmService.availableModels();
-    const enabledModels = models.filter(m => m.isEnabled);
-    if (enabledModels.length === 0) {
-      return true;
-    }
-
-    const currentModelId = this.llmService.selectedModelId();
-    if (!currentModelId) {
-      return true;
-    }
-
-    const currentModelInfo = enabledModels.find(m => m.modelId === currentModelId);
-    if (!currentModelInfo) {
-      return true;
-    }
-
     const providers = this.llmProviderService.getCurrentProviders();
-    const currentProvider = providers.find(p => p.providerId === currentModelInfo.providerId);
-
-    return !currentProvider || !currentProvider.apiKey || currentProvider.apiKey.trim() === '';
+    return !providers.some(p => p.apiKey && p.apiKey.trim() !== '');
   }
 
   isUsingWhisper(): boolean {
