@@ -19,19 +19,19 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { AbsenceDetailHeaderComponent } from './absence-detail-header/absence-detail-header.component';
 import { AbsenceDetailRowComponent } from './absence-detail-row/absence-detail-row.component';
-import { DataAbsenceDetailService } from 'src/app/infrastructure/api/data-absence-detail.service';
-import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
+import { DataAbsenceDetailService } from 'src/app/infrastructure/api/absence-detail/data-absence-detail.service';
+import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { IAbsenceDetail, AbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { IAbsence } from 'src/app/domain/models/absence-class';
+import { IAbsenceDetail, AbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { AbsenceDetailFormModel } from 'src/app/presentation/view-models/absence-detail-form.model';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';

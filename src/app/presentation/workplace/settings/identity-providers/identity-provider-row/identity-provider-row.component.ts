@@ -17,7 +17,7 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
+import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
 import {
   IIdentityProviderListItem,
   ITestConnectionResult,

@@ -3,8 +3,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
-import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
+import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
+import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import {
   ILoadable,
   IResettable,
@@ -15,7 +15,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
-import { CutOperation } from 'src/app/domain/models/cut-operation';
+import { CutOperation } from 'src/app/domain/models/shift/cut-operation';
 import { newGuid } from 'src/app/shared/helpers/guid.helper';
 
 @Injectable({

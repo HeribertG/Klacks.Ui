@@ -11,7 +11,7 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
-import { Group } from 'src/app/domain/models/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
 
 describe('TreeGroupComponent - Drag and Drop', () => {
     let component: TreeGroupComponent;

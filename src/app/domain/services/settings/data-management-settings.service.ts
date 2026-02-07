@@ -7,9 +7,9 @@ import { CountryStateManagementService } from './country-state-management.servic
 import { BranchManagementService } from './branch-management.service';
 import { GridColorService } from './grid-color.service';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
-import { IMacro } from 'src/app/domain/models/macro-class';
-import { ICountry, IState } from 'src/app/domain/models/client-class';
-import { IBranch } from 'src/app/domain/models/branch';
+import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { ICountry, IState } from 'src/app/domain/models/client/client-class';
+import { IBranch } from 'src/app/domain/models/settings/branch';
 
 /**
  * Facade service that coordinates all settings-related operations.

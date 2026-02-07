@@ -22,7 +22,7 @@ import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 

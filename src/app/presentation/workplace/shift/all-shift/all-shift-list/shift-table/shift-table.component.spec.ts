@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShiftTableComponent } from './shift-table.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
-import { Shift, ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
+import { Shift, ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
 
 describe('ShiftTableComponent', () => {
     let component: ShiftTableComponent;

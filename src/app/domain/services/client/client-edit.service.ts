@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   IClient,
   IAddress,
   Client,
   Membership,
   Annotation,
-} from 'src/app/domain/models/client-class';
+} from 'src/app/domain/models/client/client-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { AddressService } from './address.service';

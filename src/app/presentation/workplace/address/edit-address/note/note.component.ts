@@ -1,7 +1,7 @@
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IAnnotation } from 'src/app/domain/models/client-class';
+import { IAnnotation } from 'src/app/domain/models/client/client-class';
 import {
   AfterViewInit,
   Component,

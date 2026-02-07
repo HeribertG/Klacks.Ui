@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { IContract, Contract } from 'src/app/domain/models/contract-class';
+import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';
 
 @Component({
   selector: 'app-contract-row',

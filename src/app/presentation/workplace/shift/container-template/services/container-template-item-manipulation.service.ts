@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import {

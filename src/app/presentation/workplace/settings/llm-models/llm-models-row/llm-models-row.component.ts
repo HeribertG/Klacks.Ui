@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
+import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
 
 @Component({
   selector: 'app-llm-models-row',

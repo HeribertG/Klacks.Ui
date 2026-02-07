@@ -18,12 +18,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
-import { DataBreakService } from 'src/app/infrastructure/api/data-break.service';
+import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
+import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
-import { Break } from 'src/app/domain/models/break-class';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { Break } from 'src/app/domain/models/break/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleDataService } from './schedule-data.service';
 

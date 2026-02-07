@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DataExpensesService } from 'src/app/infrastructure/api/data-expenses.service';
+import { DataExpensesService } from 'src/app/infrastructure/api/expenses/data-expenses.service';
 import {
   ExpensesRequest,
   ExpensesResource,
-} from 'src/app/domain/models/expenses';
+} from 'src/app/domain/models/expenses/expenses';
 
 @Injectable({
   providedIn: 'root',

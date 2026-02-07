@@ -4,8 +4,8 @@ import {
   FillHandleDropResult,
   ColumnContext,
 } from './fill-handle-copy.service';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
-import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 
 function createMockShiftSchedule(overrides: Partial<IShiftSchedule> = {}): IShiftSchedule {

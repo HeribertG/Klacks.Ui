@@ -8,7 +8,7 @@ import { SimpleGroupSelectComponent } from './simple-group-select.component';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { Group } from 'src/app/domain/models/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';

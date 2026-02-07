@@ -12,9 +12,9 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { ModalService, ModalType, } from 'src/app/presentation/modal/modal.service';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
 import { ChipsComponent } from '../chips/chips.component';
-import { CalendarSelection, SelectedCalendar, } from 'src/app/domain/models/calendar-selection-class';
-import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { CalendarSelection, SelectedCalendar, } from 'src/app/domain/models/calendar/calendar-selection-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 describe('CalendarSelectorComponent', () => {
     let component: CalendarSelectorComponent;

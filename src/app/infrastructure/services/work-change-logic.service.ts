@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { WorkChangeType, WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/work-change';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { WorkChangeType, WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
 
 export enum CorrectionMode {
   AtStart = 0,

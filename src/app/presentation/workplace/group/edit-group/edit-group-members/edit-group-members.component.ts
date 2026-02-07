@@ -14,9 +14,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { CheckBoxValue, IClient } from 'src/app/domain/models/client-class';
-import { IGroupItem } from 'src/app/domain/models/group-class';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
+import { IGroupItem } from 'src/app/domain/models/group/group-class';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';

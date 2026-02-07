@@ -6,8 +6,8 @@ import {
   Client,
   ClientContract,
   Address,
-} from 'src/app/domain/models/client-class';
-import { ClientGroupItem } from 'src/app/domain/models/client-group-item-class';
+} from 'src/app/domain/models/client/client-class';
+import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import {
   EVENT_BUS_TOKEN,

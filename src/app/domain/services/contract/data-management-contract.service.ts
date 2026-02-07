@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
-import { Contract, IContract } from 'src/app/domain/models/contract-class';
-import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
+import { Contract, IContract } from 'src/app/domain/models/contract/contract-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
+import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,7 +19,7 @@ import {
   transformOwnTimeToNumber,
 } from '../../helpers/own-time.helper';
 import { TranslateService } from '@ngx-translate/core';
-import { OwnTime } from '../../models/schedule-class';
+import { OwnTime } from '../../models/schedule/schedule-class';
 import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 
 @Injectable({

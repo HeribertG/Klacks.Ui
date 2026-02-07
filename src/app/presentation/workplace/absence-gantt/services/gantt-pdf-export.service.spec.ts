@@ -5,7 +5,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/b
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 import { GanttPdfExportService, GanttExportOptions } from './gantt-pdf-export.service';
-import { BreakFilter } from 'src/app/domain/models/break-class';
+import { BreakFilter } from 'src/app/domain/models/break/break-class';
 
 describe('GanttPdfExportService', () => {
     let service: GanttPdfExportService;

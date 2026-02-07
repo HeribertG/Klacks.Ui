@@ -23,7 +23,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
-import { IContract } from 'src/app/domain/models/contract-class';
+import { IContract } from 'src/app/domain/models/contract/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
@@ -31,7 +31,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';

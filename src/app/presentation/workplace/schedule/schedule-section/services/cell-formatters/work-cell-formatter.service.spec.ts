@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkCellFormatterService } from './work-cell-formatter.service';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 
 function createEntry(overrides: Partial<IScheduleCell> = {}): IScheduleCell {
   return {

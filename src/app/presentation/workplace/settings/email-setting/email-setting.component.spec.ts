@@ -6,7 +6,7 @@ import { signal, WritableSignal } from '@angular/core';
 
 import { EmailSettingComponent } from './email-setting.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test.interface';
 

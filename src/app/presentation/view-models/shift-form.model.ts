@@ -1,6 +1,6 @@
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IShift } from 'src/app/domain/models/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,

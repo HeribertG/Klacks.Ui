@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ShiftCutOperationService, CutByDateParams, CutByTimeParams, CutByWeekdaysParams, CutByStaffParams, CutByTaskParams, } from './shift-cut-operation.service';
-import { Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { WorkTimeCalculationService } from '../work-time-calculation.service';
 
 describe('ShiftCutOperationService', () => {

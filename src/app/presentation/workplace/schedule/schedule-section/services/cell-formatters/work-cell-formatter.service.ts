@@ -12,7 +12,7 @@
  * - Used by: ScheduleDataService
  */
 import { inject, Injectable } from '@angular/core';
-import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';

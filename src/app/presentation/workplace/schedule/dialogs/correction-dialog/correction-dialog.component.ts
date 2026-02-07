@@ -29,8 +29,8 @@ import {
   WorkChangeType,
   WorkChangeValidation,
   WorkTimeContext,
-} from 'src/app/domain/models/work-change';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+} from 'src/app/domain/models/workchange/work-change';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';

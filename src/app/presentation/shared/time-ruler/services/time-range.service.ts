@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IShift } from 'src/app/domain/models/shift-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 
 @Injectable({
   providedIn: 'root',

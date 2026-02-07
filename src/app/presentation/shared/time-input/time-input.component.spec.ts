@@ -2,7 +2,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TimeInputComponent } from './time-input.component';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 
 describe('TimeInputComponent', () => {
     let component: TimeInputComponent;

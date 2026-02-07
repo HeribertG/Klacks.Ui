@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   IClient,
   ClientContract,
-} from 'src/app/domain/models/client-class';
+} from 'src/app/domain/models/client/client-class';
 
 @Injectable({
   providedIn: 'root',

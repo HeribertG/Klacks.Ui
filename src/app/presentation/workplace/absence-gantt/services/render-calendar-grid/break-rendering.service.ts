@@ -3,7 +3,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
-import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakLayerService } from '../break-layer.service';
 import { CalendarCalculationService } from './calendar-calculation.service';

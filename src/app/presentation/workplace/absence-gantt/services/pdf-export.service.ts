@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DatePipe } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 

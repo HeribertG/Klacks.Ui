@@ -6,7 +6,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
-import { Annotation } from 'src/app/domain/models/client-class';
+import { Annotation } from 'src/app/domain/models/client/client-class';
 
 describe('NoteComponent', () => {
     let component: NoteComponent;

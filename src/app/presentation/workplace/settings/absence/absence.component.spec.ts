@@ -8,9 +8,9 @@ import { of, Subject } from 'rxjs';
 import { AbsenceComponent } from './absence.component';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { Absence } from 'src/app/domain/models/absence-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { AbsenceFilter, TruncatedAbsence } from 'src/app/domain/models/absence-class';
+import { Absence } from 'src/app/domain/models/absence/absence-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { AbsenceFilter, TruncatedAbsence } from 'src/app/domain/models/absence/absence-class';
 
 describe('AbsenceComponent', () => {
   let component: AbsenceComponent;

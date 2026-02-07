@@ -14,7 +14,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { PaymentInterval } from 'src/app/domain/models/contract-class';
+import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 
 @Injectable()
 export class BaseCreateHeaderService {

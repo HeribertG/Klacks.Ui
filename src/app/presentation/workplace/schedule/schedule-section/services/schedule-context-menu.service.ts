@@ -23,9 +23,9 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
-import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';

@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Group } from 'src/app/domain/models/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { DataManagementBreakPlaceholderService } from '../break/data-management-break-placeholder.service';

@@ -37,23 +37,23 @@ import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-wi
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { newGuid } from 'src/app/shared/helpers/guid.helper';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IShift } from 'src/app/domain/models/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
-} from 'src/app/domain/models/container-template-slot';
+} from 'src/app/domain/models/container/container-template-slot';
 import {
   IContainerTemplate,
   IContainerTemplateItem,
   IRouteInfo,
-} from 'src/app/domain/models/container-template-class';
+} from 'src/app/domain/models/container/container-template-class';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,
 } from 'src/app/domain/enums/transport-mode.enum';
-import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';

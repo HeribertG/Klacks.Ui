@@ -5,7 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IdentityProviderHeaderComponent } from './identity-provider-header/identity-provider-header.component';
 import { IdentityProviderRowComponent } from './identity-provider-row/identity-provider-row.component';
-import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
+import { IdentityProvider } from 'src/app/domain/models/settings/identity-provider-class';
 import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider.interface';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';

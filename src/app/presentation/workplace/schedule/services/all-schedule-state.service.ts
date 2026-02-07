@@ -17,7 +17,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
-import { IWorkFilter } from 'src/app/domain/models/schedule-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 
 @Injectable()
 export class AllScheduleStateService extends BaseStateService<

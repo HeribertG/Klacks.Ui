@@ -27,12 +27,12 @@ import {
   StateCountryToken,
   HolidaysListHelper,
   ICalendarRule,
-} from 'src/app/domain/models/calendar-rule-class';
+} from 'src/app/domain/models/calendar/calendar-rule-class';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import {
   IMultiLanguage,
   MultiLanguage,
-} from 'src/app/domain/models/multi-language-class';
+} from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

@@ -7,7 +7,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
-import { IClientContract } from 'src/app/domain/models/client-class';
+import { IClientContract } from 'src/app/domain/models/client/client-class';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 

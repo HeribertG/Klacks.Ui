@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 
 export interface IBreakPlaceholderWithLayer extends IBreakPlaceholder {
   layer: number;

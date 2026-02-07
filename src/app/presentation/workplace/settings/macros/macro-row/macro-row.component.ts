@@ -23,12 +23,12 @@ import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setErr
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
-import { IMacro, Macro } from 'src/app/domain/models/macro-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { IMacro, Macro } from 'src/app/domain/models/settings/macro-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
-import { ShiftData } from 'src/app/domain/models/shift-data-class';
+import { ShiftData } from 'src/app/domain/models/shift/shift-data-class';
 import {
   ScriptService,
   ExternalVariables,

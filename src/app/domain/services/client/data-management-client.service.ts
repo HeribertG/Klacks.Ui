@@ -5,7 +5,7 @@ import {
   Filter,
   IClient,
   IClientAttribute,
-} from 'src/app/domain/models/client-class';
+} from 'src/app/domain/models/client/client-class';
 import {
   ILoadable,
   IResettable,
@@ -17,7 +17,7 @@ import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';
 import { ClientConfigService } from './client-config.service';
 import { ClientSearchService } from './client-search.service';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DateToString } from 'src/app/shared/helpers/date.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AddressService } from './address.service';

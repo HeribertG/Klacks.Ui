@@ -16,8 +16,8 @@ import {
   effect,
   Injector,
 } from '@angular/core';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';

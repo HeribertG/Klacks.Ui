@@ -1,5 +1,5 @@
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
-import { IContainerTemplateItem } from '../../models/container-template-class';
+import { IContainerTemplateItem } from '../../models/container/container-template-class';
 
 export interface IWeekdayContainerTemplateItemsMap {
   monday: IContainerTemplateItem[];

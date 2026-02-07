@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { DataSkillService } from '../../../infrastructure/api/data-skill.service';
+import { DataSkillService } from '../../../infrastructure/api/skills/data-skill.service';
 import { SkillRegistryService } from './skill-registry.service';
 import {
   ISkillExecuteRequest,

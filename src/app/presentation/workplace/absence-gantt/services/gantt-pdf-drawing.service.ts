@@ -2,9 +2,9 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { Absence } from 'src/app/domain/models/absence-class';
+import { Absence } from 'src/app/domain/models/absence/absence-class';
 
 export interface GanttDrawingConfig {
   pageWidth: number;

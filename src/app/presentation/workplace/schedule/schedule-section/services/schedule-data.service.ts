@@ -16,11 +16,11 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import {
   IScheduleCell,
   WorkScheduleEntryType,
-} from 'src/app/domain/models/work-schedule-class';
+} from 'src/app/domain/models/schedule/work-schedule-class';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';

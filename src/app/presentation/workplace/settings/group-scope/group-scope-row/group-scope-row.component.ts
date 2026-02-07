@@ -13,7 +13,7 @@ import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import {
   IGroupVisibility,
   GroupVisibility,
-} from 'src/app/domain/models/group-class';
+} from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

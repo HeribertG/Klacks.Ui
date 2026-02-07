@@ -5,7 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
-import { Macro } from 'src/app/domain/models/macro-class';
+import { Macro } from 'src/app/domain/models/settings/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

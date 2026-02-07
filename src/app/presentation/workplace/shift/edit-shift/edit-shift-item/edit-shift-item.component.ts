@@ -31,7 +31,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/shared/helpers/string.helper';
 import { LockComponent } from 'src/app/presentation/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/presentation/icons/icon-unlock.component';
-import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 
 @Component({

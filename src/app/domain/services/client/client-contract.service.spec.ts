@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ClientContractService } from './client-contract.service';
-import { Client, ClientContract } from 'src/app/domain/models/client-class';
+import { Client, ClientContract } from 'src/app/domain/models/client/client-class';
 
 describe('ClientContractService', () => {
     let service: ClientContractService;

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
-import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
+import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

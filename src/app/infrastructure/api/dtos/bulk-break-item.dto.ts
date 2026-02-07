@@ -1,4 +1,4 @@
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 export interface BulkAddBreakItem {
   clientId: string;

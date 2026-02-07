@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
-import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings-various-class';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
+import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
 import {
   IAppContactSettings,
   IEmailServerSettings,
@@ -10,7 +10,7 @@ import {
   AppContactSettings,
   EmailServerSettings,
   WorkSettings
-} from 'src/app/domain/models/app-settings.model';
+} from 'src/app/domain/models/settings/app-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 @Injectable({

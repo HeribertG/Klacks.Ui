@@ -8,8 +8,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { StateHeaderComponent } from './state-header/state-header.component';
 import { StateRowComponent } from './state-row/state-row.component';
 
-import { State } from 'src/app/domain/models/client-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { State } from 'src/app/domain/models/client/client-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';

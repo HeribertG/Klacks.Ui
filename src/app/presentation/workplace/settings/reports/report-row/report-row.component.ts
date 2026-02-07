@@ -12,7 +12,7 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ReportDesignerComponent } from '../report-designer/report-designer.component';
 import { DEFAULT_SECTIONS, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
-import { Group } from 'src/app/domain/models/group-class';
+import { Group } from 'src/app/domain/models/group/group-class';
 import { REPORT_DATA_SOURCES, ReportDataSource, ReportDataSet } from 'src/app/domain/models/report/report-data-source.model';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';

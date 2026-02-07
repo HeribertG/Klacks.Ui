@@ -17,7 +17,7 @@ import { ShiftFormService } from '../services/shift-form.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 @Component({

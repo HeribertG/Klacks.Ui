@@ -13,7 +13,7 @@ import {
 import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { ICountry } from 'src/app/domain/models/client-class';
+import { ICountry } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

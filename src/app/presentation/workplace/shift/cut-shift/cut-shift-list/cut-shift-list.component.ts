@@ -24,9 +24,9 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { faCalendar, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
-import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
+import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
@@ -34,7 +34,7 @@ import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
-import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
+import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
 
 @Component({
   selector: 'app-cut-shift-list',

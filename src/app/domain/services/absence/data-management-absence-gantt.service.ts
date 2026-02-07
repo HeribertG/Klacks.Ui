@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { IAbsence } from 'src/app/domain/models/absence-class';
-import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

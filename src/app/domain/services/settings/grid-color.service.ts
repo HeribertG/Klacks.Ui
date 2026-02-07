@@ -2,8 +2,8 @@ import { Injectable, signal, inject } from '@angular/core';
 import {
   ISetting,
   Setting,
-} from 'src/app/domain/models/settings-various-class';
-import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
+} from 'src/app/domain/models/settings/settings-various-class';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { Subject, firstValueFrom } from 'rxjs';

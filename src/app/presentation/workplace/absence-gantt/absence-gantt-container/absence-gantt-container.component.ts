@@ -6,7 +6,7 @@ import {
   viewChild,
   output,
 } from '@angular/core';
-import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';

@@ -3,7 +3,7 @@ import { Component, Input, inject, signal, effect, OnChanges } from '@angular/co
 import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ISetting } from 'src/app/domain/models/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({

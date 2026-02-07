@@ -1,5 +1,5 @@
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IAbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IAbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import {
   transformStringToOwnTimeStruct,
   transformOwnTimeToString,

@@ -4,13 +4,13 @@ import {
   IAddress,
   Address,
   IPostCodeCH,
-} from 'src/app/domain/models/client-class';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+} from 'src/app/domain/models/client/client-class';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
-import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

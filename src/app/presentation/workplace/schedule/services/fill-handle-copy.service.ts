@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import type { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
-import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
+import type { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 
 
 export interface FillHandleDropResult {

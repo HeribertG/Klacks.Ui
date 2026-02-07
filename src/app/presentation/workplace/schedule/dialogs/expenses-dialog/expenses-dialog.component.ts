@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementExpensesService } from 'src/app/domain/services/expenses/data-management-expenses.service';
-import { ExpensesRequest, ExpensesResource } from 'src/app/domain/models/expenses';
+import { ExpensesRequest, ExpensesResource } from 'src/app/domain/models/expenses/expenses';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 
 @Component({

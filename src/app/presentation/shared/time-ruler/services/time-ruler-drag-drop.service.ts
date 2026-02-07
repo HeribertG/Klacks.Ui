@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
-import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';

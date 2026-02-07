@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { GroupScopeRowComponent } from './group-scope-row.component';
 import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
-import { IGroup } from 'src/app/domain/models/group-class';
+import { IGroup } from 'src/app/domain/models/group/group-class';
 
 describe('GroupScopeRowComponent', () => {
   let component: GroupScopeRowComponent;

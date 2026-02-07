@@ -24,8 +24,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { CheckBoxValue } from 'src/app/domain/models/client-class';
-import { IGroup } from 'src/app/domain/models/group-class';
+import { CheckBoxValue } from 'src/app/domain/models/client/client-class';
+import { IGroup } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

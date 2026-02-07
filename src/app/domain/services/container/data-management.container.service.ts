@@ -1,18 +1,18 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { map, tap, catchError, takeUntil } from 'rxjs/operators';
-import { IShift } from '../../models/shift-class';
+import { IShift } from '../../models/shift/shift-class';
 import {
   IContainerTemplate,
   IContainerTemplateItem,
   IRouteInfo,
-} from '../../models/container-template-class';
+} from '../../models/container/container-template-class';
 import { ContainerTransportModeEnum } from '../../enums/transport-mode.enum';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
-} from '../../models/container-template-slot';
-import { DataContainerTemplateService } from '../../../infrastructure/api/data-container-template.service';
+} from '../../models/container/container-template-slot';
+import { DataContainerTemplateService } from '../../../infrastructure/api/container/data-container-template.service';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
 import {
   ContainerTemplateShiftService,

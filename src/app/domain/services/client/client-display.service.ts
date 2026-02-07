@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Address, Client } from '../../models/client-class';
+import { Address, Client } from '../../models/client/client-class';
 import { AddressTypeEnum, GenderEnum } from '../../enums/client-enum';
 
 @Injectable({

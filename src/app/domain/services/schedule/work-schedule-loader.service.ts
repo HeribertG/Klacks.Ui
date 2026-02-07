@@ -1,14 +1,14 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule-class';
+import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import {
   IPeriodHours,
   IWorkScheduleClient,
   IScheduleCell,
   IWorkScheduleFilter,
   WorkScheduleByClientAndDate,
-} from 'src/app/domain/models/work-schedule-class';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+} from 'src/app/domain/models/schedule/work-schedule-class';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import {

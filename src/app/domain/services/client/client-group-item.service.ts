@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ClientGroupItem } from 'src/app/domain/models/client-group-item-class';
-import { IClient } from 'src/app/domain/models/client-class';
+import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
+import { IClient } from 'src/app/domain/models/client/client-class';
 
 @Injectable({
   providedIn: 'root',

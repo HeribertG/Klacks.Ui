@@ -5,8 +5,8 @@ import {
   StateCountryToken,
   HolidaysListHelper,
   ICalendarRule,
-} from 'src/app/domain/models/calendar-rule-class';
-import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
+} from 'src/app/domain/models/calendar/calendar-rule-class';
+import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()

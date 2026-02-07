@@ -28,16 +28,16 @@ import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/abse
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import {
   Menu,

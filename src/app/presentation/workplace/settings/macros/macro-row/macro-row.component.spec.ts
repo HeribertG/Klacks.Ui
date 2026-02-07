@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MacroRowComponent } from './macro-row.component';
 import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
-import { IMacro } from 'src/app/domain/models/macro-class';
+import { IMacro } from 'src/app/domain/models/settings/macro-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes } from 'src/app/domain/enums/macro-type.enum';
 import { WritableSignal } from '@angular/core';

@@ -3,9 +3,9 @@ import { AfterViewInit, Component, EventEmitter, inject, Input, OnDestroy, OnIni
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { IMacro } from 'src/app/domain/models/macro-class';
-import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { IMacro } from 'src/app/domain/models/settings/macro-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

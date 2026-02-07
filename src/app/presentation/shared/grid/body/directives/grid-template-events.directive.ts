@@ -30,7 +30,7 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 

@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
-import { IGroup } from 'src/app/domain/models/group-class';
+import { IGroup } from 'src/app/domain/models/group/group-class';
 
 @Component({
   selector: 'app-dashboard-shifts-overview',

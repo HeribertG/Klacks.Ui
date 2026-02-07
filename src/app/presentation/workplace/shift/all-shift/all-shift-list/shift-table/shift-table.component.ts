@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IShift, Shift } from 'src/app/domain/models/shift-class';
+import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { IconBoxComponent } from 'src/app/presentation/icons/icon-box.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconScissorComponent } from 'src/app/presentation/icons/icon-scissor.component';

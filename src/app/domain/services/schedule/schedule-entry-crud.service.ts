@@ -1,17 +1,17 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/work-schedule-class';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { DataManagementWorkService } from '../work/data-management-work.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
-import { IWorkFilter } from '../../models/schedule-class';
+import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
-import { Break } from '../../models/break-class';
+import { Break } from '../../models/break/break-class';
 
 export interface ScheduleCellParams {
   clientId: string;

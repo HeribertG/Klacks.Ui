@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AbsenceLookupService } from './absence-lookup.service';
 

@@ -14,12 +14,12 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
-import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import {
   CalendarSelection,
   ICalendarSelection,
   SelectedCalendar,
-} from 'src/app/domain/models/calendar-selection-class';
+} from 'src/app/domain/models/calendar/calendar-selection-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

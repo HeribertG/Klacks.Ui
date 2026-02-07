@@ -10,7 +10,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
 import { signal } from '@angular/core';
-import { BreakPlaceholder } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break/break-class';
 
 describe('RowSelectionService', () => {
     let service: RowSelectionService;

@@ -16,14 +16,14 @@ import {
   ClientContract,
   Filter,
   ITruncatedClient,
-} from '../../models/client-class';
-import { ITruncatedShift, ShiftFilter } from '../../models/shift-data-class';
-import { GroupFilter, ITruncatedGroup } from '../../models/group-class';
+} from '../../models/client/client-class';
+import { ITruncatedShift, ShiftFilter } from '../../models/shift/shift-data-class';
+import { GroupFilter, ITruncatedGroup } from '../../models/group/group-class';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { DataManagementContractService } from '../contract/data-management-contract.service';
 import { DataManagementGroupService } from '../group/data-management-group.service';
-import { ClientGroupItem } from '../../models/client-group-item-class';
+import { ClientGroupItem } from '../../models/client/client-group-item-class';
 
 @Injectable({
   providedIn: 'root',

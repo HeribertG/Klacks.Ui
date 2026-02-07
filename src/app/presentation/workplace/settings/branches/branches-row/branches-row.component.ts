@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IBranch } from 'src/app/domain/models/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch';
 
 @Component({
   selector: 'app-branches-row',

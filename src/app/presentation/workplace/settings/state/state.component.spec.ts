@@ -7,8 +7,8 @@ import { signal } from '@angular/core';
 
 import { StateComponent } from './state.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { IState } from 'src/app/domain/models/client-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { IState } from 'src/app/domain/models/client/client-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 describe('StateComponent', () => {

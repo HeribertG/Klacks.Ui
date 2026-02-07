@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { BranchManagementService } from './branch-management.service';
-import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
+import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { of } from 'rxjs';
-import { IBranch } from 'src/app/domain/models/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 describe('BranchManagementService', () => {

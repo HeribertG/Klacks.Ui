@@ -7,9 +7,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ContractsComponent } from './contracts.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { IContract, PaymentInterval } from 'src/app/domain/models/contract-class';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
+import { IContract, PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { ICalendarSelection } from 'src/app/domain/models/calendar/calendar-selection-class';
 
 describe('ContractsComponent', () => {
   let component: ContractsComponent;

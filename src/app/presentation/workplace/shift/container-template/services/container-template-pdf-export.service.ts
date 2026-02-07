@@ -8,7 +8,7 @@ import {
   IContainerTemplateItem,
   IRouteInfo,
   IRouteLocation,
-} from 'src/app/domain/models/container-template-class';
+} from 'src/app/domain/models/container/container-template-class';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 import { DataRoutingService } from 'src/app/infrastructure/api/data-routing.service';
 

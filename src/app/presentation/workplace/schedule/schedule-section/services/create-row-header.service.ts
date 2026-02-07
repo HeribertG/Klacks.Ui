@@ -23,7 +23,7 @@ import {
   TextAlignmentEnum,
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
-import { ClientWork } from 'src/app/domain/models/schedule-class';
+import { ClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { GridRowHeader } from '../../classes/grid-row-header';

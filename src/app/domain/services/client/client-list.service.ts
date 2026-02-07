@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   ITruncatedClient,
   Filter,
@@ -8,7 +8,7 @@ import {
   CheckBoxValue,
   ExportClient,
   IClientAttribute,
-} from 'src/app/domain/models/client-class';
+} from 'src/app/domain/models/client/client-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';

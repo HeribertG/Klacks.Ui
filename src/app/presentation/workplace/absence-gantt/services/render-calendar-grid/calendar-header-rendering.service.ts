@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.service';

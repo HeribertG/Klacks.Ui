@@ -7,7 +7,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { IClientContract } from 'src/app/domain/models/client-class';
+import { IClientContract } from 'src/app/domain/models/client/client-class';
 import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,

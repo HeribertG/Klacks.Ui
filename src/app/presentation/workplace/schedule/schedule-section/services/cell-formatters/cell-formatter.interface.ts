@@ -10,7 +10,7 @@
  * - Implemented by: EmptyCellFormatterService, WorkCellFormatterService, BreakCellFormatterService
  * - Used by: ScheduleDataService
  */
-import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 
 export interface ICellFormatter {

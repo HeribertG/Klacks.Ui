@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

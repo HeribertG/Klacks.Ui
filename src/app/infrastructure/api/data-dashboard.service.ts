@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { IGroupTree } from 'src/app/domain/models/group-class';
+import { IGroupTree } from 'src/app/domain/models/group/group-class';
 import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
 
 @Injectable({

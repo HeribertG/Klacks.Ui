@@ -1,17 +1,17 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   ICountry,
   ICommunicationType,
   ICommunicationPrefix,
   CommunicationPrefix,
-} from 'src/app/domain/models/client-class';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
+} from 'src/app/domain/models/client/client-class';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
 import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-enum';
 import { EMPTY, forkJoin, Subject, tap, catchError } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

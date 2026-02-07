@@ -1,4 +1,4 @@
-import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
 let languageConfigService: LanguageConfigService | null = null;

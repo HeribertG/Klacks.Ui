@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { CountryStateManagementService } from './country-state-management.service';
-import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { of, throwError } from 'rxjs';
-import { ICountry, IState } from 'src/app/domain/models/client-class';
+import { ICountry, IState } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 describe('CountryStateManagementService', () => {

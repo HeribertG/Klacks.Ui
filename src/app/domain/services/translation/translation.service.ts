@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { DataTranslationService } from 'src/app/infrastructure/api/data-translation.service';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 @Injectable({
   providedIn: 'root',

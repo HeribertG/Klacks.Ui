@@ -5,7 +5,7 @@ import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
-import { IBreakPlaceholder, BreakPlaceholder } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder, BreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CalendarCalculationService } from './calendar-calculation.service';

@@ -3,7 +3,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
-import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

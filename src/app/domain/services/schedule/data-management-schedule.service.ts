@@ -11,16 +11,16 @@ import {
   IWork,
   IWorkFilter,
   WorkFilter,
-} from 'src/app/domain/models/schedule-class';
+} from 'src/app/domain/models/schedule/schedule-class';
 import {
   IShiftSchedule,
   IShiftScheduleFilter,
-} from 'src/app/domain/models/shift-schedule-class';
+} from 'src/app/domain/models/schedule/shift-schedule-class';
 import {
   IPeriodHours,
   IScheduleCell,
   WorkScheduleByClientAndDate,
-} from 'src/app/domain/models/work-schedule-class';
+} from 'src/app/domain/models/schedule/work-schedule-class';
 import {
   cloneObject,
   compareComplexObjects,

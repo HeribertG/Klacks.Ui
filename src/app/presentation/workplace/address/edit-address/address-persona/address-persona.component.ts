@@ -29,7 +29,7 @@ import {
   Address,
   ICommunication,
   IClient,
-} from 'src/app/domain/models/client-class';
+} from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import {

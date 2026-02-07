@@ -14,7 +14,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';

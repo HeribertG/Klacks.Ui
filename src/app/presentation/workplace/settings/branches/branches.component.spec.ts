@@ -6,9 +6,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, throwError, Subject } from 'rxjs';
 
 import { BranchesComponent } from './branches.component';
-import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
+import { DataBranchService } from 'src/app/infrastructure/api/settings/data-branch.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IBranch } from 'src/app/domain/models/branch';
+import { IBranch } from 'src/app/domain/models/settings/branch';
 import { ModalService, ModalType, } from 'src/app/presentation/modal/modal.service';
 
 describe('BranchesComponent', () => {

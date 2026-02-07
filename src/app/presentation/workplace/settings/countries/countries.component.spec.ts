@@ -7,8 +7,8 @@ import { signal } from '@angular/core';
 
 import { CountriesComponent } from './countries.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { Country, ICountry } from 'src/app/domain/models/client-class';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { Country, ICountry } from 'src/app/domain/models/client/client-class';
+import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 describe('CountriesComponent', () => {

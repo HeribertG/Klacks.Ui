@@ -22,12 +22,12 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
 import { OriginalTableComponent } from './original-table/original-table.component';
-import { Shift } from 'src/app/domain/models/shift-class';
+import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftTableComponent } from './shift-table/shift-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';

@@ -18,7 +18,7 @@ import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
-import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import {
