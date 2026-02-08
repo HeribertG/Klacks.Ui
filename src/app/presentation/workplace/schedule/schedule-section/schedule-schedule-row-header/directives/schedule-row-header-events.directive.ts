@@ -39,11 +39,6 @@ export class ScheduleRowHeaderEventsDirective {
     return this.dataService as ScheduleDataService;
   }
 
-  @HostListener('contextmenu', ['$event'])
-  onContextMenu(event: MouseEvent): void {
-    event.preventDefault();
-  }
-
   @HostListener('dblclick', ['$event'])
   onDoubleClick(event: MouseEvent): void {
     const canvas = this.elementRef.nativeElement as HTMLCanvasElement;

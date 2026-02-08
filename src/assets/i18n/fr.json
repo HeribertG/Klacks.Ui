@@ -1164,6 +1164,7 @@
   "settings.llm-providers.priority": "Priorité",
   "settings.llm-providers.api-key": "Clé API",
   "settings.llm-providers.api-key-info": "La clé API est stockée de manière cryptée et s'applique à tous les modèles de ce fournisseur.",
+  "settings.llm-providers.api-key-keep-existing": "Laisser vide pour conserver la clé existante.",
   "settings.llm-providers.is-enabled": "Activé",
   "settings.llm-providers.save": "Enregistrer",
   "settings.llm-providers.status.enabled": "Activé",

@@ -65,7 +65,7 @@ export class DataManagementLLMProviderService {
         return false;
       }
 
-      if (isEnabled && !provider.apiKey) {
+      if (isEnabled && !provider.hasApiKey) {
         this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.no-api-key', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
         return false;
       }

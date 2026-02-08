@@ -1166,6 +1166,7 @@
   "settings.llm-providers.priority": "Priority",
   "settings.llm-providers.api-key": "API Key",
   "settings.llm-providers.api-key-info": "The API key is stored encrypted and applies to all models of this provider.",
+  "settings.llm-providers.api-key-keep-existing": "Leave empty to keep the existing key.",
   "settings.llm-providers.is-enabled": "Enabled",
   "settings.llm-providers.save": "Save",
   "settings.llm-providers.status.enabled": "Enabled",

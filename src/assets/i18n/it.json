@@ -1164,6 +1164,7 @@
   "settings.llm-providers.priority": "Priorità",
   "settings.llm-providers.api-key": "Chiave API",
   "settings.llm-providers.api-key-info": "La chiave API è memorizzata crittografata e si applica a tutti i modelli di questo fornitore.",
+  "settings.llm-providers.api-key-keep-existing": "Lasciare vuoto per mantenere la chiave esistente.",
   "settings.llm-providers.is-enabled": "Abilitato",
   "settings.llm-providers.save": "Salva",
   "settings.llm-providers.status.enabled": "Abilitato",

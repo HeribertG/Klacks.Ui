@@ -9,6 +9,7 @@ export interface ILLMProvider {
   providerId: string;
   providerName: string;
   isEnabled: boolean;
+  hasApiKey?: boolean;
   apiKey?: string;
   baseUrl?: string;
   apiVersion?: string;

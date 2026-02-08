@@ -155,7 +155,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
     this.originalProvider = provider;
-    this.initFormFromProvider(this.editingProvider, provider.apiKey || '');
+    this.initFormFromProvider(this.editingProvider);
 
     setTimeout(() => {
       this.ngbModal.open(this.providerModal, {
@@ -292,17 +292,14 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.editingProvider) return false;
     const formData = this.formModel();
 
-    const baseValidation = !!(
-      formData.providerName &&
-      formData.baseUrl &&
-      formData.providerApiKey.trim()
-    );
+    const hasRequiredFields = !!(formData.providerName && formData.baseUrl);
 
     if (this.isNewProvider) {
-      return baseValidation && !!formData.providerId;
+      return hasRequiredFields && !!formData.providerId && !!formData.providerApiKey.trim();
     }
 
-    return baseValidation;
+    const apiKeyValid = !!this.editingProvider.hasApiKey || !!formData.providerApiKey.trim();
+    return hasRequiredFields && apiKeyValid;
   }
 
   getValidationErrors(): string[] {
@@ -332,7 +329,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
         )
       );
     }
-    if (!formData.providerApiKey.trim()) {
+    const needsApiKey = this.isNewProvider || !this.editingProvider?.hasApiKey;
+    if (needsApiKey && !formData.providerApiKey.trim()) {
       errors.push(
         this.translate.instant(
           'settings.llm-providers.validation.api-key-required'
@@ -362,6 +360,6 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   hasApiKey(provider: ILLMProvider): boolean {
-    return !!(provider.apiKey && provider.apiKey.trim());
+    return !!provider.hasApiKey;
   }
 }

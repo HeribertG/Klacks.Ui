@@ -6,6 +6,7 @@
  * Component rendering the row headers for the schedule grid.
  * Displays client information (name, ID, period hours) in a fixed left column.
  * Handles scrolling synchronization with the main grid.
+ * Supports context menu for navigation to client details.
  *
  * @relations
  * - Parent: ScheduleSectionComponent
@@ -29,7 +30,8 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
@@ -49,23 +51,30 @@ import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent],
+  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent, ContextMenuComponent],
   providers: [
     BaseCreateRowHeaderService,
     BaseDrawRowHeaderService,
-    ProgressBarAnimationService
+    ProgressBarAnimationService,
+    ContextMenuService,
   ],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('contextMenu', { static: false })
+  contextMenu!: ContextMenuComponent;
 
   @Input() valueChangeVScrollbar!: number;
 
@@ -79,12 +88,15 @@ export class ScheduleScheduleRowHeaderComponent
   private scrollEventService = inject(ScrollEventService);
   private translateService = inject(TranslateService);
   private tooltipService = inject(TooltipService);
+  private router = inject(Router);
+  private contextMenuService = inject(ContextMenuService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   private iconSize = 16;
+  private contextMenuRow = -1;
 
   private set currentCursor(cursor: CursorEnum) {
     document.body.style.cursor = cursor;
@@ -101,6 +113,12 @@ export class ScheduleScheduleRowHeaderComponent
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.readSignals();
+
+    this.contextMenu?.hasClicked
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((keys) => {
+        this.menuClicked(keys);
+      });
   }
 
   ngOnDestroy(): void {
@@ -356,6 +374,74 @@ export class ScheduleScheduleRowHeaderComponent
     }
   }
 
+  onRightClick(event: MouseEvent): void {
+    event.preventDefault();
+    if (!this.contextMenu) return;
+
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    const row = Math.floor((pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight) + this.scroll.verticalScrollPosition;
+    
+    if (row < 0 || row >= this.dataService.rows) {
+      return;
+    }
+
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    if (groupIndex === undefined) {
+      return;
+    }
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (!client?.id) {
+      return;
+    }
+
+    this.contextMenuRow = row;
+    this.createContextMenu();
+    
+    this.contextMenu.openMenu({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    } as MouseEvent);
+  }
+
+  private createContextMenu(): void {
+    const menuData = new Menu();
+    menuData.list.push(...MenuDataTemplate.goToAddress());
+    this.contextMenu.menuData = menuData;
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    switch (keys[0]) {
+      case 'goToAddress':
+        this.contextMenu.closeMenu(true);
+        this.navigateToAddress();
+        break;
+    }
+  }
+
+  private navigateToAddress(): void {
+    const row = this.contextMenuRow;
+    if (row < 0 || row >= this.dataService.rows) {
+      return;
+    }
+
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    if (groupIndex === undefined) {
+      return;
+    }
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (client?.id) {
+      this.router.navigate(['/workplace/edit-address', client.id], {
+        queryParams: { readonly: 'true', returnUrl: '/workplace/schedule' }
+      });
+    }
+  }
+
   onFilterMouseLeave(): void {
     this.destroyFilter();
   }
@@ -392,4 +478,5 @@ export class ScheduleScheduleRowHeaderComponent
       visibility: 'hidden',
     };
   }
+
 }

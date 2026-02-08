@@ -13,9 +13,11 @@
 <div #box id="box" class="box" appResize (resizeElement)="onResize($event)">
   <canvas
     id="scheduleRowCanvas"
-    appScheduleRowHeaderEvents
     (mousemove)="onMouseMove($event)"
     (mouseleave)="onCanvasMouseLeave()"
     (click)="onCanvasClick($event)"
+    (contextmenu)="onRightClick($event)"
   ></canvas>
 </div>
+
+<app-context-menu #contextMenu></app-context-menu>
