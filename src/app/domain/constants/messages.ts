@@ -111,6 +111,7 @@ export class DomainMessages {
   public static CONVERT = 'contextMenu.convert';
   public static SHOW_IN_SHIFT = 'contextMenu.showInShift';
   public static SHOW_IN_SCHEDULE = 'contextMenu.showInSchedule';
+  public static GO_TO_ADDRESS = 'contextMenu.goToAddress';
   public static CORRECTION = 'contextMenu.correction';
   public static REPLACEMENT = 'contextMenu.replacement';
   public static EDIT_WORK = 'contextMenu.editWork';

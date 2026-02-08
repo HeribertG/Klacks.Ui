@@ -123,6 +123,23 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static goToAddress(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'goToAddress',
+          MessageLibrary.GO_TO_ADDRESS,
+          false,
+          '',
+          'fa-solid fa-user'
+        ),
+      ]
+    );
+
+    return value;
+  }
+
   public static correction(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(
