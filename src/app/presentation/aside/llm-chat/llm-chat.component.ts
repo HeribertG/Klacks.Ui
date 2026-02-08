@@ -11,6 +11,7 @@ import {
   AfterViewChecked,
   signal,
   computed,
+  effect,
   ChangeDetectorRef,
   NgZone,
 } from '@angular/core';
@@ -38,6 +39,7 @@ import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconChatComponent } from '../../icons/icon-chat.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
+import { AsideService } from '../aside.service';
 
 export interface ChatMessage {
   id: string;
@@ -69,6 +71,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private llmService = inject(DataManagementLLMService);
   private llmProviderService = inject(DataManagementLLMProviderService);
   private functionExecutionService = inject(LLMFunctionExecutionService);
+  private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
@@ -78,6 +81,14 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
+
+  constructor() {
+    effect(() => {
+      if (this.asideService.isVisible()) {
+        this.llmProviderService.loadProviders();
+      }
+    });
+  }
 
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
@@ -125,8 +136,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.translateService.currentLang || this.translateService.defaultLang;
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
-
-    this.llmProviderService.loadProviders();
 
     this.llmService
       .getAvailableModels()
@@ -539,7 +548,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     const providers = this.llmProviderService.getCurrentProviders();
-    return !providers.some(p => p.apiKey && p.apiKey.trim() !== '');
+    return !providers.some(p => p.hasApiKey);
   }
 
   isUsingWhisper(): boolean {

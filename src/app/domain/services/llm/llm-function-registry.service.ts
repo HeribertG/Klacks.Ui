@@ -267,6 +267,13 @@ export class LLMFunctionRegistryService {
       category: 'system',
     });
 
+    this.registerFunction({
+      name: 'get_user_permissions',
+      description: 'Returns the current user permissions and role. Use this to understand what actions the user is allowed to perform.',
+      parameters: [],
+      category: 'system',
+    });
+
     // Backend-executed Functions
     this.registerFunction({
       name: 'create_client',
@@ -337,6 +344,42 @@ export class LLMFunctionRegistryService {
         { name: 'appName', type: 'string', description: 'Neuer App-Name', required: true },
       ],
       category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'get_owner_address',
+      description: 'Liest die aktuelle Firmen-/Inhaberadresse aus den Einstellungen. Gibt alle Felder zurück: Name, Zusatz, Strasse, PLZ, Ort, Kanton/State, Land, Telefon, E-Mail.',
+      parameters: [],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'update_owner_address',
+      description: 'Aktualisiert die Firmen-/Inhaberadresse in den Einstellungen. State und Country sind Pflichtfelder. Verwende validate_address vorher um die Adresse zu prüfen und den Kanton zu ermitteln.',
+      parameters: [
+        { name: 'addressName', type: 'string', description: 'Firmen- oder Inhabername', required: false },
+        { name: 'supplementAddress', type: 'string', description: 'Adresszusatz', required: false },
+        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
+        { name: 'zip', type: 'string', description: 'Postleitzahl', required: false },
+        { name: 'city', type: 'string', description: 'Ort', required: false },
+        { name: 'state', type: 'string', description: 'Kanton/Bundesland Abkürzung (z.B. BE, ZH)', required: true },
+        { name: 'country', type: 'string', description: 'Land Abkürzung (z.B. CH, DE, AT)', required: true },
+        { name: 'phone', type: 'string', description: 'Telefonnummer', required: false },
+        { name: 'email', type: 'string', description: 'E-Mail-Adresse', required: false },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'validate_address',
+      description: 'Prüft eine Adresse via Internet (Geocoding) und ermittelt den Kanton aus der PLZ. Verwende diese Funktion IMMER bevor du eine Adresse setzt.',
+      parameters: [
+        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
+        { name: 'postalCode', type: 'string', description: 'Postleitzahl', required: true },
+        { name: 'city', type: 'string', description: 'Ort', required: true },
+        { name: 'country', type: 'string', description: 'Land (Standard: Schweiz)', required: false },
+      ],
+      category: 'backend',
     });
   }
 

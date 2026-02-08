@@ -84,6 +84,8 @@ export class LLMFunctionExecutionService {
 
       // System functions
       case 'getCurrentUser':
+      case 'get_current_user':
+      case 'get_user_context':
         return this.executeGetCurrentUser(functionCall);
       case 'getUserPermissions':
       case 'get_user_permissions':
@@ -109,6 +111,16 @@ export class LLMFunctionExecutionService {
       case 'update_general_settings':
       case 'settings_general_update':
         return this.executeSettingsGeneralUpdate(functionCall);
+
+      // UI-Aktionen: Owner Address
+      case 'get_owner_address':
+        return this.executeOwnerAddressRead(functionCall);
+      case 'update_owner_address':
+        return this.executeOwnerAddressUpdate(functionCall);
+
+      // Backend-Validation
+      case 'validate_address':
+        return this.executeBackendFunction(functionCall);
 
       default:
         return of({
@@ -669,8 +681,7 @@ export class LLMFunctionExecutionService {
     call: ILLMFunctionCall
   ): Observable<ILLMFunctionResult> {
     try {
-      // Get user from token or session
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('JWT_TOKEN');
       if (!token) {
         throw new Error('User not authenticated');
       }
@@ -682,8 +693,8 @@ export class LLMFunctionExecutionService {
         id: call.id,
         success: true,
         result: {
-          userId: decoded.sub || decoded.userId,
-          userName: decoded.name || decoded.userName,
+          userId: decoded.sub || decoded.nameid,
+          userName: decoded.unique_name || decoded.name,
           email: decoded.email,
         },
       });
@@ -700,20 +711,20 @@ export class LLMFunctionExecutionService {
     call: ILLMFunctionCall
   ): Observable<ILLMFunctionResult> {
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        throw new Error('User not authenticated');
-      }
+      const isAdmin = localStorage.getItem('JWT_TOKEN_ADMIN') === 'true';
+      const isAuthorised = localStorage.getItem('JWT_AUTHORISED') === 'true';
 
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload));
+      const roles: string[] = [];
+      if (isAdmin) roles.push('Admin');
+      if (isAuthorised) roles.push('Authorised');
 
       return of({
         id: call.id,
         success: true,
         result: {
-          roles: decoded.roles || [],
-          permissions: decoded.permissions || [],
+          roles,
+          isAdmin,
+          isAuthorised,
         },
       });
     } catch (error: any) {
@@ -794,6 +805,100 @@ export class LLMFunctionExecutionService {
       id: call.id,
       success: true,
       result: { previousName, newName: appName, message: `App-Name wurde von "${previousName}" auf "${appName}" geändert` },
+    };
+  }
+
+  private executeOwnerAddressRead(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return from(this.doOwnerAddressRead(call));
+  }
+
+  private async doOwnerAddressRead(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
+    document.getElementById('open-settings')?.click();
+    const nameInput = await this.waitForElement('setting-owner-address-name', 5000) as HTMLInputElement;
+    if (!nameInput) {
+      return { id: call.id, success: false, error: 'Owner address form not loaded' };
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const getValue = (id: string) => (document.getElementById(id) as HTMLInputElement | HTMLSelectElement)?.value || '';
+    const address = {
+      addressName: getValue('setting-owner-address-name'),
+      phone: getValue('setting-owner-address-tel'),
+      supplementAddress: getValue('setting-owner-address-supplement'),
+      email: getValue('setting-owner-address-email'),
+      street: getValue('setting-owner-address-street'),
+      zip: getValue('setting-owner-address-zip'),
+      city: getValue('setting-owner-address-city'),
+      country: getValue('setting-owner-address-country'),
+      state: getValue('setting-owner-address-state'),
+    };
+
+    return {
+      id: call.id,
+      success: true,
+      result: address,
+    };
+  }
+
+  private executeOwnerAddressUpdate(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return from(this.doOwnerAddressUpdate(call));
+  }
+
+  private async doOwnerAddressUpdate(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
+    const args = call.arguments;
+
+    document.getElementById('open-settings')?.click();
+    const nameInput = await this.waitForElement('setting-owner-address-name', 5000) as HTMLInputElement;
+    if (!nameInput) {
+      return { id: call.id, success: false, error: 'Owner address form not loaded' };
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    )?.set;
+
+    const setInput = (id: string, value: string | undefined) => {
+      if (!value) return;
+      const input = document.getElementById(id) as HTMLInputElement;
+      if (!input) return;
+      nativeSetter?.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    const setSelect = (id: string, value: string | undefined) => {
+      if (!value) return;
+      const select = document.getElementById(id) as HTMLSelectElement;
+      if (!select) return;
+      select.value = value;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    setInput('setting-owner-address-name', args['addressName']);
+    setInput('setting-owner-address-tel', args['phone']);
+    setInput('setting-owner-address-supplement', args['supplementAddress']);
+    setInput('setting-owner-address-email', args['email']);
+    setInput('setting-owner-address-street', args['street']);
+    setInput('setting-owner-address-zip', args['zip']);
+    setInput('setting-owner-address-city', args['city']);
+
+    if (args['country']) {
+      setSelect('setting-owner-address-country', args['country']);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    if (args['state']) {
+      setSelect('setting-owner-address-state', args['state']);
+    }
+
+    return {
+      id: call.id,
+      success: true,
+      result: { message: 'Firmenadresse wurde in der Maske aktualisiert' },
     };
   }
 
