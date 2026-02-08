@@ -39,6 +39,7 @@ import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconChatComponent } from '../../icons/icon-chat.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
+import { LLMFunctionRegistryService } from 'src/app/domain/services/llm/llm-function-registry.service';
 import { AsideService } from '../aside.service';
 
 export interface ChatMessage {
@@ -71,6 +72,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private llmService = inject(DataManagementLLMService);
   private llmProviderService = inject(DataManagementLLMProviderService);
   private functionExecutionService = inject(LLMFunctionExecutionService);
+  private functionRegistry = inject(LLMFunctionRegistryService);
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
@@ -491,9 +493,15 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
     for (const call of functionCalls) {
+      const functionName = call.FunctionName || call.functionName;
+
+      if (!this.functionRegistry.getFunction(functionName)) {
+        continue;
+      }
+
       const functionCall = {
         id: this.generateMessageId(),
-        name: call.FunctionName || call.functionName,
+        name: functionName,
         arguments: call.Parameters || call.parameters || {},
       };
 
