@@ -33,9 +33,11 @@ export class RowSelectionService {
       this.selectedRow > -1 &&
       this.selectedRow < this.dataManagementBreak.rows
     ) {
-      const br = this.dataManagementBreak.readData(this.selectedRow)![
-        this._selectedBreakIndex
-      ];
+      const data = this.dataManagementBreak.readData(this.selectedRow);
+      if (!data || this._selectedBreakIndex < 0 || this._selectedBreakIndex >= data.length) {
+        return undefined;
+      }
+      const br = data[this._selectedBreakIndex];
       this.selectedBreak_dummy = undefined;
       if (br) {
         this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(br as BreakPlaceholder);
@@ -134,9 +136,13 @@ export class RowSelectionService {
 
   public drawBreaksIntern(): void {
     if (
-      this.selectedRow !== -1 ||
-      this.selectedRow >= this.dataManagementBreak.rows
+      this.selectedRow > -1 &&
+      this.selectedRow < this.dataManagementBreak.rows
     ) {
+      const data = this.dataManagementBreak.readData(this.selectedRow);
+      if (!data || this.selectedBreakIndex < 0 || this.selectedBreakIndex >= data.length) {
+        return;
+      }
       const dy =
         this.calendarSetting.cellHeaderHeight +
         (this.selectedRow - this.scroll.verticalScrollPosition) *
@@ -145,9 +151,7 @@ export class RowSelectionService {
         this.scroll.horizontalScrollPosition *
         this.calendarSetting.cellWidth *
         -1;
-      const tmpBreak = this.dataManagementBreak.readData(this.selectedRow)![
-        this.selectedBreakIndex
-      ];
+      const tmpBreak = data[this.selectedBreakIndex];
 
       if (tmpBreak) {
         const tmpRec = this.calculationService.calcDateRectangle(

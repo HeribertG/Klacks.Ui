@@ -36,6 +36,31 @@ export class GanttPdfExportService {
     bottom: 30,
   };
 
+  // Layout constants
+  private readonly HEADER_OFFSET = 60;
+  private readonly ROW_HEIGHT = 30;
+  private readonly MONTH_HEADER_HEIGHT = 25;
+  private readonly LEGEND_HEIGHT_SINGLE = 25;
+  private readonly LEGEND_HEIGHT_MULTI = 45;
+  private readonly LEGEND_CHAR_WIDTH_ESTIMATE = 5;
+  private readonly LEGEND_ITEM_EXTRA_WIDTH = 30;
+  private readonly SPACING_AFTER_LEGEND = 3;
+  private readonly SPACING_AFTER_HEADERS = 2;
+  private readonly PAGE_NUMBER_RIGHT_OFFSET = 100;
+  private readonly SUBTITLE_OFFSET = 20;
+  private readonly SAFETY_ROW_BUFFER = 1;
+  private readonly CLIENT_NAME_WIDTH = 20;
+  private readonly FOOTER_SPACING = 20;
+  private readonly FOOTER_YEAR_OFFSET = 65;
+
+  // Font
+  private readonly FONT_FAMILY = 'helvetica';
+  private readonly FONT_WEIGHT_BOLD = 'bold';
+  private readonly FONT_WEIGHT_NORMAL = 'normal';
+  private readonly FONT_SIZE_TITLE = 16;
+  private readonly FONT_SIZE_NORMAL = 10;
+  private readonly FONT_SIZE_NO_DATA = 12;
+
   /**
    * Collects all selected absence types with localized names and colors.
    */
@@ -63,7 +88,8 @@ export class GanttPdfExportService {
           };
         });
       return selectedTypes;
-    } catch {
+    } catch (error) {
+      console.error('Failed to collect selected absence types:', error);
       return [];
     }
   }
@@ -74,12 +100,12 @@ export class GanttPdfExportService {
     pageNumber: number,
     totalPages: number,
   ): void {
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(this.FONT_SIZE_TITLE);
+    pdf.setFont(this.FONT_FAMILY, this.FONT_WEIGHT_BOLD);
     pdf.text(title, this.MARGINS.left, this.MARGINS.top);
 
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(this.FONT_SIZE_NORMAL);
+    pdf.setFont(this.FONT_FAMILY, this.FONT_WEIGHT_NORMAL);
     const generatedText = this.translateService.instant('pdf.generated');
     const pageText = this.translateService.instant('pdf.page');
     const ofText = this.translateService.instant('pdf.of');
@@ -87,11 +113,11 @@ export class GanttPdfExportService {
     const dateString = `${generatedText}: ${new Date().toLocaleDateString()}`;
     const pageString = `${pageText} ${pageNumber} ${ofText} ${totalPages}`;
 
-    pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + 20);
+    pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + this.SUBTITLE_OFFSET);
     pdf.text(
       pageString,
-      this.A3_LANDSCAPE.width - this.MARGINS.right - 100,
-      this.MARGINS.top + 20,
+      this.A3_LANDSCAPE.width - this.MARGINS.right - this.PAGE_NUMBER_RIGHT_OFFSET,
+      this.MARGINS.top + this.SUBTITLE_OFFSET,
     );
   }
 
@@ -120,10 +146,8 @@ export class GanttPdfExportService {
     config.year = this.dataManagementBreak.breakFilter.currentYear;
     config.startDate = new Date(config.year, 0, 1);
 
-    let currentY = this.MARGINS.top + 60; // After header
-    const rowHeight = 30; // Slightly higher for better visibility
-    const monthHeaderHeight = 25; // Height for month headers
-    config.rowHeight = rowHeight;
+    let currentY = this.MARGINS.top + this.HEADER_OFFSET;
+    config.rowHeight = this.ROW_HEIGHT;
 
     // Collect selected absence types for legend
     const selectedAbsenceTypes = this.getSelectedAbsenceTypes();
@@ -135,11 +159,11 @@ export class GanttPdfExportService {
 
       // Dynamic legend height based on number and length of items
       const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
-        return total + type.name.length * 5 + 30; // Approximately 5pt per character + box + spacing
+        return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH; // Approximately 5pt per character + box + spacing
       }, 0);
 
       const needsMultipleLines = estimatedItemWidth > availableWidth;
-      const legendHeight = needsMultipleLines ? 45 : 25; // More height if multiple lines needed
+      const legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE; // More height if multiple lines needed
 
       const legendX = this.MARGINS.left;
       const legendY = currentY;
@@ -153,7 +177,7 @@ export class GanttPdfExportService {
         selectedAbsenceTypes,
       );
 
-      currentY += legendHeight + 3;
+      currentY += legendHeight + this.SPACING_AFTER_LEGEND;
     }
 
     this.ganttPdfDrawingService.drawMonthHeaders(
@@ -161,18 +185,18 @@ export class GanttPdfExportService {
       this.MARGINS.left,
       currentY,
       config,
-      monthHeaderHeight,
+      this.MONTH_HEADER_HEIGHT,
     );
 
     // Draw separator line under month headers
     this.ganttPdfDrawingService.drawRowSeparatorLine(
       pdf,
       this.MARGINS.left,
-      currentY + monthHeaderHeight,
+      currentY + this.MONTH_HEADER_HEIGHT,
       config,
     );
 
-    currentY += monthHeaderHeight + 2; // Some spacing after headers
+    currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
 
     // Use real client data
     const totalClients = this.dataManagementBreak.rows;
@@ -180,7 +204,7 @@ export class GanttPdfExportService {
     // Calculate how many rows fit on one page
     const availableHeight =
       this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
-    const maxRowsPerPage = Math.floor(availableHeight / rowHeight) - 1; // -1 for safety
+    const maxRowsPerPage = Math.floor(availableHeight / this.ROW_HEIGHT) - this.SAFETY_ROW_BUFFER;
 
     for (let clientIndex = 0; clientIndex < totalClients; clientIndex++) {
       // Get client name and break data
@@ -199,7 +223,7 @@ export class GanttPdfExportService {
         );
 
         // Reset Y position and draw headers again
-        currentY = this.MARGINS.top + 60;
+        currentY = this.MARGINS.top + this.HEADER_OFFSET;
 
         // Draw legend (ABOVE the month headers)
         if (selectedAbsenceTypes.length > 0) {
@@ -209,12 +233,12 @@ export class GanttPdfExportService {
           // Same dynamic height calculation as on first page
           const estimatedItemWidth = selectedAbsenceTypes.reduce(
             (total, type) => {
-              return total + type.name.length * 5 + 30;
+              return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
             },
             0,
           );
           const needsMultipleLines = estimatedItemWidth > availableWidth;
-          const legendHeight = needsMultipleLines ? 45 : 25;
+          const legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
 
           this.ganttPdfDrawingService.drawLegend(
             pdf,
@@ -225,7 +249,7 @@ export class GanttPdfExportService {
             selectedAbsenceTypes,
           );
 
-          currentY += legendHeight + 3;
+          currentY += legendHeight + this.SPACING_AFTER_LEGEND;
         }
 
         this.ganttPdfDrawingService.drawMonthHeaders(
@@ -233,17 +257,17 @@ export class GanttPdfExportService {
           this.MARGINS.left,
           currentY,
           config,
-          monthHeaderHeight,
+          this.MONTH_HEADER_HEIGHT,
         );
 
         this.ganttPdfDrawingService.drawRowSeparatorLine(
           pdf,
           this.MARGINS.left,
-          currentY + monthHeaderHeight,
+          currentY + this.MONTH_HEADER_HEIGHT,
           config,
         );
 
-        currentY += monthHeaderHeight + 2;
+        currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
       }
 
       const isLastRow = clientIndex === totalClients - 1;
@@ -256,44 +280,44 @@ export class GanttPdfExportService {
         this.MARGINS.left,
         currentY,
         config,
-        clientName || `Client ${clientIndex + 1}`, // Fallback if name is empty
-        false, // No month headers per row
-        20,
+        clientName || `Client ${clientIndex + 1}`,
+        false,
+        this.CLIENT_NAME_WIDTH,
         !isLastRow && !isLastRowOnPage, // No separator after last row or last row on page
         isFirstRowAfterHeaders, // First row after headers has no top border
         clientBreaks, // Real break data for this client
       );
 
-      currentY += rowHeight;
+      currentY += this.ROW_HEIGHT;
 
       // Reset Y for new page
       if (isLastRowOnPage && !isLastRow) {
-        currentY = this.MARGINS.top + 60;
+        currentY = this.MARGINS.top + this.HEADER_OFFSET;
       }
     }
 
     // Additional info (only on the last page)
     if (totalClients > 0) {
-      pdf.setFontSize(10);
+      pdf.setFontSize(this.FONT_SIZE_NORMAL);
       pdf.text(
         `Total ${totalClients} clients exported`,
         this.MARGINS.left,
-        currentY + 20,
+        currentY + this.FOOTER_SPACING,
       );
       pdf.text(
         `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(
           config.year,
         )} days)`,
         this.MARGINS.left,
-        currentY + 65,
+        currentY + this.FOOTER_YEAR_OFFSET,
       );
     } else {
-      pdf.setFontSize(12);
-      pdf.text('No client data available', this.MARGINS.left, currentY + 20);
+      pdf.setFontSize(this.FONT_SIZE_NO_DATA);
+      pdf.text('No client data available', this.MARGINS.left, currentY + this.FOOTER_SPACING);
       pdf.text(
         'Please ensure that data has been loaded',
         this.MARGINS.left,
-        currentY + 40,
+        currentY + this.FOOTER_SPACING * 2,
       );
     }
 

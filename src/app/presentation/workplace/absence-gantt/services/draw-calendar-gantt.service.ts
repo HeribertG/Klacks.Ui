@@ -329,13 +329,11 @@ export class DrawCalendarGanttService {
   }
 
   firstVisibleColumn(): number {
-    return this.scroll.horizontalScrollPosition;
+    return this.renderCalendarGrid.firstVisibleColumn();
   }
 
   lastVisibleColumn(): number {
-    const last = this.firstVisibleColumn() + this.visibleCol();
-    const max = isLeapYear(this.holidayCollection.currentYear) ? 366 : 365;
-    return last < max ? last : max;
+    return this.renderCalendarGrid.lastVisibleColumn();
   }
 
   public get selectedRow(): number {
@@ -412,21 +410,11 @@ export class DrawCalendarGanttService {
   }
 
   visibleCol(): number {
-    if (!this.isCanvasAvailable()) {
-      return 0;
-    }
-    return Math.ceil(
-      this.ganttCanvasManager.width / this.calendarSetting.cellWidth
-    );
+    return this.renderCalendarGrid.visibleCol();
   }
 
   visibleRow(): number {
-    if (!this.isCanvasAvailable()) {
-      return 0;
-    }
-    return Math.ceil(
-      this.ganttCanvasManager.height / this.calendarSetting.cellHeight
-    );
+    return this.renderCalendarGrid.visibleRow();
   }
 
   /* #endregion   metrics */

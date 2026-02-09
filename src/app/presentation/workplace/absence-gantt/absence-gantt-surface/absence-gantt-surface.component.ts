@@ -766,9 +766,11 @@ export class AbsenceGanttSurfaceComponent
   }
 
   showSelectedBreak() {
-    const tmpBreak = this.dataManagementBreak.readData(
-      this.drawCalendarGantt.selectedRow
-    )![this.drawCalendarGantt.selectedBreakIndex];
+    const data = this.dataManagementBreak.readData(this.drawCalendarGantt.selectedRow);
+    if (!data || this.drawCalendarGantt.selectedBreakIndex < 0 || this.drawCalendarGantt.selectedBreakIndex >= data.length) {
+      return;
+    }
+    const tmpBreak = data[this.drawCalendarGantt.selectedBreakIndex];
     if (tmpBreak) {
       const col1 = Math.floor(
         daysBetweenDates(this.drawCalendarGantt.startDate, tmpBreak.from!)
