@@ -138,40 +138,53 @@ export class GanttPdfExportService {
 
     const pdf = this.createPdfInstance();
 
-    this.addPageHeader(pdf, title, 1, 1);
-
     const config = this.ganttPdfDrawingService.createDefaultConfig();
 
     // Use the current year from the BreakFilter
     config.year = this.dataManagementBreak.breakFilter.currentYear;
     config.startDate = new Date(config.year, 0, 1);
 
-    let currentY = this.MARGINS.top + this.HEADER_OFFSET;
     config.rowHeight = this.ROW_HEIGHT;
 
     // Collect selected absence types for legend
     const selectedAbsenceTypes = this.getSelectedAbsenceTypes();
 
+    // Pre-compute legend height to calculate totalPages before drawing
+    const availableWidth =
+      this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
+    let legendHeight = 0;
+    if (selectedAbsenceTypes.length > 0) {
+      const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
+        return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH;
+      }, 0);
+      const needsMultipleLines = estimatedItemWidth > availableWidth;
+      legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE;
+    }
+
+    let currentY = this.MARGINS.top + this.HEADER_OFFSET;
+    if (legendHeight > 0) {
+      currentY += legendHeight + this.SPACING_AFTER_LEGEND;
+    }
+    currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
+
+    const totalClients = this.dataManagementBreak.rows;
+    const availableHeight =
+      this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
+    const maxRowsPerPage = Math.floor(availableHeight / this.ROW_HEIGHT) - this.SAFETY_ROW_BUFFER;
+    const totalPages = Math.max(1, Math.ceil(totalClients / maxRowsPerPage));
+
+    // Now draw first page header with correct totalPages
+    this.addPageHeader(pdf, title, 1, totalPages);
+
+    // Reset currentY for actual drawing
+    currentY = this.MARGINS.top + this.HEADER_OFFSET;
+
     // Draw legend ABOVE the month headers (if absence types are selected)
     if (selectedAbsenceTypes.length > 0) {
-      const availableWidth =
-        this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
-
-      // Dynamic legend height based on number and length of items
-      const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
-        return total + type.name.length * this.LEGEND_CHAR_WIDTH_ESTIMATE + this.LEGEND_ITEM_EXTRA_WIDTH; // Approximately 5pt per character + box + spacing
-      }, 0);
-
-      const needsMultipleLines = estimatedItemWidth > availableWidth;
-      const legendHeight = needsMultipleLines ? this.LEGEND_HEIGHT_MULTI : this.LEGEND_HEIGHT_SINGLE; // More height if multiple lines needed
-
-      const legendX = this.MARGINS.left;
-      const legendY = currentY;
-
       this.ganttPdfDrawingService.drawLegend(
         pdf,
-        legendX,
-        legendY,
+        this.MARGINS.left,
+        currentY,
         availableWidth,
         legendHeight,
         selectedAbsenceTypes,
@@ -198,14 +211,6 @@ export class GanttPdfExportService {
 
     currentY += this.MONTH_HEADER_HEIGHT + this.SPACING_AFTER_HEADERS;
 
-    // Use real client data
-    const totalClients = this.dataManagementBreak.rows;
-
-    // Calculate how many rows fit on one page
-    const availableHeight =
-      this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
-    const maxRowsPerPage = Math.floor(availableHeight / this.ROW_HEIGHT) - this.SAFETY_ROW_BUFFER;
-
     for (let clientIndex = 0; clientIndex < totalClients; clientIndex++) {
       // Get client name and break data
       const clientName = this.dataManagementBreak.readClientName(clientIndex);
@@ -219,7 +224,7 @@ export class GanttPdfExportService {
           pdf,
           title,
           Math.floor(clientIndex / maxRowsPerPage) + 1,
-          Math.ceil(totalClients / maxRowsPerPage),
+          totalPages,
         );
 
         // Reset Y position and draw headers again

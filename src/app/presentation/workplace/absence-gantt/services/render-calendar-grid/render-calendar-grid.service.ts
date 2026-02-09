@@ -393,8 +393,6 @@ export class RenderCalendarGridService {
       0
     );
 
-    this.ganttCanvasManager.rowCtx!.restore();
-
     this.validityPeriodRenderingService.drawPreValidFromGrayRectangle(index);
     this.validityPeriodRenderingService.drawPostValidUntilGrayRectangle(index);
 

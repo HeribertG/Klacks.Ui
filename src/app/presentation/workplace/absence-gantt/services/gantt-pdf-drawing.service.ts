@@ -371,19 +371,18 @@ export class GanttPdfDrawingService {
       return; // Break is not in this year
     }
 
-    // Calculate day of year for start and end
-    const yearStart = new Date(config.year, 0, 1);
+    // Calculate day of year for start and end (using UTC to avoid DST issues)
+    const yearStartUTC = Date.UTC(config.year, 0, 1);
+    const breakStartUTC = Date.UTC(breakStart.getFullYear(), breakStart.getMonth(), breakStart.getDate());
+    const breakEndUTC = Date.UTC(breakEnd.getFullYear(), breakEnd.getMonth(), breakEnd.getDate());
+
     const dayOfYearStart = Math.max(
       0,
-      Math.floor(
-        (breakStart.getTime() - yearStart.getTime()) / (24 * 60 * 60 * 1000)
-      )
+      Math.floor((breakStartUTC - yearStartUTC) / (24 * 60 * 60 * 1000))
     );
     const dayOfYearEnd = Math.min(
       daysInYear - 1,
-      Math.floor(
-        (breakEnd.getTime() - yearStart.getTime()) / (24 * 60 * 60 * 1000)
-      )
+      Math.floor((breakEndUTC - yearStartUTC) / (24 * 60 * 60 * 1000))
     );
 
     // Calculate position and width of break bar
