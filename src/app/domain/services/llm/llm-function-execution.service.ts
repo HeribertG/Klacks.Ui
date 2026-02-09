@@ -529,13 +529,13 @@ export class LLMFunctionExecutionService {
     const typeNum = typeof type === 'string' ? parseInt(type, 10) : type;
     switch (typeNum) {
       case 0:
-        return 'Mitarbeiter';
+        return 'Employee';
       case 1:
-        return 'Externe';
+        return 'External';
       case 2:
-        return 'Kunde';
+        return 'Customer';
       default:
-        return 'Unbekannt';
+        return 'Unknown';
     }
   }
 
@@ -582,7 +582,7 @@ export class LLMFunctionExecutionService {
         action: 'navigated_with_search',
         route,
         searchQuery,
-        message: `Navigiert zu Adressen und suche nach "${searchQuery}"`,
+        message: `Navigated to clients and searching for "${searchQuery}"`,
       },
     });
   }
@@ -609,7 +609,7 @@ export class LLMFunctionExecutionService {
         action: 'navigated_with_search',
         route,
         searchQuery,
-        message: `Navigiert zu Dienste und suche nach "${searchQuery}"`,
+        message: `Navigated to shifts and searching for "${searchQuery}"`,
       },
     });
   }
@@ -636,7 +636,7 @@ export class LLMFunctionExecutionService {
         action: 'navigated_with_search',
         route,
         searchQuery,
-        message: `Navigiert zu Gruppen und suche nach "${searchQuery}"`,
+        message: `Navigated to groups and searching for "${searchQuery}"`,
       },
     });
   }
@@ -832,7 +832,7 @@ export class LLMFunctionExecutionService {
     return {
       id: call.id,
       success: true,
-      result: { previousName, newName: appName, message: `App-Name wurde von "${previousName}" auf "${appName}" geändert` },
+      result: { previousName, newName: appName, message: `App name changed from "${previousName}" to "${appName}"` },
     };
   }
 
@@ -926,7 +926,7 @@ export class LLMFunctionExecutionService {
     return {
       id: call.id,
       success: true,
-      result: { message: 'Firmenadresse wurde in der Maske aktualisiert' },
+      result: { message: 'Owner address updated in form' },
     };
   }
 
@@ -1033,7 +1033,7 @@ export class LLMFunctionExecutionService {
       return {
         id: call.id,
         success: false,
-        error: `Benutzer '${firstName} ${lastName}' konnte nicht erstellt werden. Username: '${username}'`,
+        error: `User '${firstName} ${lastName}' could not be created. Username: '${username}'`,
       };
     }
 
@@ -1046,7 +1046,7 @@ export class LLMFunctionExecutionService {
         firstName,
         lastName,
         email,
-        message: `Benutzer '${firstName} ${lastName}' wurde erfolgreich erstellt. User-ID: ${userId}`,
+        message: `User '${firstName} ${lastName}' created successfully. User-ID: ${userId}`,
       },
     };
   }
@@ -1104,7 +1104,7 @@ export class LLMFunctionExecutionService {
         return {
           id: call.id,
           success: true,
-          result: { userId, message: `Benutzer mit ID ${userId} wurde erfolgreich gelöscht.` },
+          result: { userId, message: `User with ID ${userId} deleted successfully.` },
         };
       }
     }
@@ -1147,7 +1147,7 @@ export class LLMFunctionExecutionService {
     return {
       id: call.id,
       success: true,
-      result: { users, count: users.length, message: `${users.length} Benutzer gefunden:\n${userList}` },
+      result: { users, count: users.length, message: `${users.length} users found:\n${userList}` },
     };
   }
 
@@ -1235,7 +1235,7 @@ export class LLMFunctionExecutionService {
         address,
         phone: phone || '',
         email: email || '',
-        message: `Filiale "${name}" wurde erfolgreich erstellt.${branchId ? ` ID: ${branchId}` : ''}`,
+        message: `Branch "${name}" created successfully.${branchId ? ` ID: ${branchId}` : ''}`,
       },
     };
   }
@@ -1296,7 +1296,7 @@ export class LLMFunctionExecutionService {
         return {
           id: call.id,
           success: true,
-          result: { branchId, message: `Filiale mit ID ${branchId} wurde erfolgreich gelöscht.` },
+          result: { branchId, message: `Branch with ID ${branchId} deleted successfully.` },
         };
       }
     }
@@ -1337,7 +1337,7 @@ export class LLMFunctionExecutionService {
     return {
       id: call.id,
       success: true,
-      result: { branches, count: branches.length, message: `${branches.length} Filialen gefunden:\n${branchList}` },
+      result: { branches, count: branches.length, message: `${branches.length} branches found:\n${branchList}` },
     };
   }
 
@@ -1473,7 +1473,7 @@ export class LLMFunctionExecutionService {
         hasContent: !!content,
         checkResult,
         runResult,
-        message: `Macro "${name}" wurde erfolgreich erstellt.${macroId ? ` ID: ${macroId}` : ''}${content ? ` Script-Code eingefügt. Syntax-Check: ${checkResult || 'n/a'}. Test-Ergebnis: ${runResult || 'n/a'}` : ''}`,
+        message: `Macro "${name}" created successfully.${macroId ? ` ID: ${macroId}` : ''}${content ? ` Script code inserted. Syntax check: ${checkResult || 'n/a'}. Test result: ${runResult || 'n/a'}` : ''}`,
       },
     };
   }
@@ -1534,7 +1534,7 @@ export class LLMFunctionExecutionService {
         return {
           id: call.id,
           success: true,
-          result: { macroId, message: `Macro mit ID ${macroId} wurde erfolgreich gelöscht.` },
+          result: { macroId, message: `Macro with ID ${macroId} deleted successfully.` },
         };
       }
     }
@@ -1575,7 +1575,7 @@ export class LLMFunctionExecutionService {
     return {
       id: call.id,
       success: true,
-      result: { macros, count: macros.length, message: `${macros.length} Macros gefunden:\n${macroList}` },
+      result: { macros, count: macros.length, message: `${macros.length} macros found:\n${macroList}` },
     };
   }
 
@@ -1640,7 +1640,7 @@ export class LLMFunctionExecutionService {
       result: {
         userId,
         assignedGroups,
-        message: `Group scope für Benutzer wurde gesetzt auf: ${assignedGroups.join(', ')}`,
+        message: `Group scope set to: ${assignedGroups.join(', ')}`,
       },
     };
   }
@@ -1757,16 +1757,16 @@ export class LLMFunctionExecutionService {
               (g) => g.groupName
             );
 
-            let message = `Mitarbeiter ${firstName} ${lastName} wurde erfolgreich erstellt.`;
+            let message = `Client ${firstName} ${lastName} created successfully.`;
             if (assignedContract) {
-              message += ` Vertrag "${assignedContract.contract?.name}" wurde zugewiesen.`;
+              message += ` Contract "${assignedContract.contract?.name}" assigned.`;
             } else if (contractType) {
-              message += ` Vertrag "${contractType}" wurde zugewiesen.`;
+              message += ` Contract "${contractType}" assigned.`;
             }
             if (assignedGroup) {
-              message += ` Gruppe "${assignedGroup.groupName}" wurde zugewiesen.`;
+              message += ` Group "${assignedGroup.groupName}" assigned.`;
             } else if (groupPath) {
-              message += ` Gruppe aus Pfad "${groupPath}" wurde zugewiesen.`;
+              message += ` Group from path "${groupPath}" assigned.`;
             }
 
             observer.next({
