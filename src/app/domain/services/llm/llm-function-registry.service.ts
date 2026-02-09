@@ -394,6 +394,50 @@ export class LLMFunctionRegistryService {
     });
 
     this.registerFunction({
+      name: 'delete_system_user',
+      description: 'Löscht einen System-Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Benutzerverwaltung, klickt den Delete-Button und bestätigt.',
+      parameters: [
+        { name: 'userId', type: 'string', description: 'Die ID des zu löschenden Benutzers', required: true },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'list_system_users',
+      description: 'Listet alle System-Benutzer aus der Einstellungen-UI auf. Navigiert zu Einstellungen → Benutzerverwaltung und liest die User-Liste aus.',
+      parameters: [],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'create_branch',
+      description: 'Erstellt eine neue Filiale über die Einstellungen-UI. Navigiert zu Einstellungen → Filialen, öffnet das Modal, füllt es aus und speichert.',
+      parameters: [
+        { name: 'name', type: 'string', description: 'Name der Filiale', required: true },
+        { name: 'address', type: 'string', description: 'Adresse der Filiale', required: true },
+        { name: 'phone', type: 'string', description: 'Telefonnummer der Filiale', required: false },
+        { name: 'email', type: 'string', description: 'E-Mail-Adresse der Filiale', required: false },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'delete_branch',
+      description: 'Löscht eine Filiale über die Einstellungen-UI. Klickt den Delete-Button und bestätigt.',
+      parameters: [
+        { name: 'branchId', type: 'string', description: 'Die ID der zu löschenden Filiale', required: true },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'list_branches',
+      description: 'Listet alle Filialen aus der Einstellungen-UI auf. Navigiert zu Einstellungen und liest die Filial-Liste aus.',
+      parameters: [],
+      category: 'ui',
+    });
+
+    this.registerFunction({
       name: 'set_user_group_scope',
       description: 'Setzt den Group Scope (Gruppenbereich-Sichtbarkeit) für einen Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Group Scope, öffnet das Modal für den Benutzer und aktiviert die gewünschten Gruppen-Checkboxen.',
       parameters: [
