@@ -32,6 +32,8 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
+import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -67,6 +69,8 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
     GanttPdfExportService,
     GanttPdfDrawingService,
     ProgressBarAnimationService,
+    AbsenceGanttDragDropService,
+    AbsenceGanttContextMenuService,
   ],
 })
 export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {

@@ -41,7 +41,6 @@ import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/sched
 import { BaseDrawRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/draw-row-header.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
-import { ScheduleRowHeaderEventsDirective } from './directives/schedule-row-header-events.directive';
 import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -61,7 +60,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent, ContextMenuComponent],
+  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent],
   providers: [
     BaseCreateRowHeaderService,
     BaseDrawRowHeaderService,

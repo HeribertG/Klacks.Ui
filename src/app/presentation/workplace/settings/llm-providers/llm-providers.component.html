@@ -109,7 +109,7 @@
         <div class="provider-field full-width">
           <label for="apiKey">
             {{ translate.instant("settings.llm-providers.api-key") }}
-            @if (isNewProvider || !editingProvider?.hasApiKey) {
+            @if (isNewProvider || !editingProvider.hasApiKey) {
             <span class="required-marker">*</span>
             }</label
           >
@@ -118,10 +118,10 @@
             type="password"
             [field]="providerForm.providerApiKey"
             class="form-control"
-            [placeholder]="!isNewProvider && editingProvider?.hasApiKey ? '••••••••' : 'sk-...'"
+            [placeholder]="!isNewProvider && editingProvider.hasApiKey ? '••••••••' : 'sk-...'"
           />
           <small class="info-text">
-            @if (!isNewProvider && editingProvider?.hasApiKey) {
+            @if (!isNewProvider && editingProvider.hasApiKey) {
               {{ translate.instant("settings.llm-providers.api-key-keep-existing") }}
             } @else {
               {{ translate.instant("settings.llm-providers.api-key-info") }}
