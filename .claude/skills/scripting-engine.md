@@ -89,16 +89,18 @@ if (service.compile('debugprint 10 + 5')) {
 
 ### Variablen und Konstanten
 
+**WICHTIG:** `DIM` kann Variablen nur deklarieren, NICHT gleichzeitig initialisieren (wie in VB vor Version 6 / VBA). `DIM x = 10` ist ein Syntaxfehler!
+
 ```basic
-' Variablendeklaration
+' Variablendeklaration (nur Deklaration, keine Initialisierung!)
 DIM x
 DIM a, b, c
 
-' Konstantendeklaration
+' Konstantendeklaration (CONST darf mit Wert!)
 CONST PI_VALUE = 3.14159
 CONST GREETING = "Hallo"
 
-' Zuweisung
+' Zuweisung (separat nach DIM)
 x = 10
 x += 5      ' x = x + 5
 x -= 3      ' x = x - 3
@@ -252,6 +254,26 @@ IMPORT kundenName
 IMPORT betrag
 
 debugprint kundenName & ": " & betrag & " EUR"
+```
+
+### Macro-spezifische Import-Variablen
+
+| Variable | Beschreibung |
+|----------|-------------|
+| hour | Arbeitsstunden |
+| fromhour/untilhour | Start-/Endzeit als Dezimalstunden |
+| weekday | Wochentag ISO-8601 (1=Mo..7=So) |
+| holiday/holidaynextday | Feiertag boolean |
+| nightrate | Nachtzuschlag-Satz |
+| holidayrate | Feiertagszuschlag-Satz |
+| sarate | **Sa**mstags-Zuschlag (sa = Samstag/Saturday) |
+| sorate | **So**nntags-Zuschlag (so = Sonntag/Sunday) |
+| guaranteedhours | Garantierte Monatsstunden |
+| fulltime | Vollzeit-Stunden |
+
+```basic
+' Beispiel im Skript
+IMPORT weekday, sarate, sorate
 ```
 
 ## Fehlerbehandlung

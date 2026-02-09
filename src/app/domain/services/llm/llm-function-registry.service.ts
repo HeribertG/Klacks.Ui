@@ -438,6 +438,33 @@ export class LLMFunctionRegistryService {
     });
 
     this.registerFunction({
+      name: 'create_macro',
+      description: 'Erstellt ein neues Macro mit KlacksScript-Code über die Einstellungen-UI. Navigiert zu Einstellungen → Macros, öffnet das Modal, füllt Name, Typ und Script-Code aus und speichert.',
+      parameters: [
+        { name: 'name', type: 'string', description: 'Name des Macros', required: true },
+        { name: 'type', type: 'string', description: 'Typ des Macros (ShiftAndEmployments oder WorkRules, Standard: ShiftAndEmployments)', required: false, enum: ['ShiftAndEmployments', 'WorkRules'] },
+        { name: 'content', type: 'string', description: 'KlacksScript-Code für das Macro. Verwende \\n für Zeilenumbrüche.', required: false },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'delete_macro',
+      description: 'Löscht ein Macro über die Einstellungen-UI. Klickt den Delete-Button und bestätigt.',
+      parameters: [
+        { name: 'macroId', type: 'string', description: 'Die ID des zu löschenden Macros', required: true },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'list_macros',
+      description: 'Listet alle Macros aus der Einstellungen-UI auf. Navigiert zu Einstellungen und liest die Macro-Liste aus.',
+      parameters: [],
+      category: 'ui',
+    });
+
+    this.registerFunction({
       name: 'set_user_group_scope',
       description: 'Setzt den Group Scope (Gruppenbereich-Sichtbarkeit) für einen Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Group Scope, öffnet das Modal für den Benutzer und aktiviert die gewünschten Gruppen-Checkboxen.',
       parameters: [
