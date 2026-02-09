@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HolidayStatus, HolidaysListHelper, ICalendarRule, } from './calendar-rule-class';
+import { HolidayStatus, HolidaysListHelper, ICalendarRule, } from './calendar/calendar-rule-class';
 
 describe('HolidaysListHelper', () => {
     let holidaysHelper: HolidaysListHelper;

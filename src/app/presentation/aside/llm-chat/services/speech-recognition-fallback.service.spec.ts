@@ -104,7 +104,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
-      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('de-DE');
+      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('de-DE', undefined);
     });
 
     it('should stop Whisper streaming when stopListening called', async () => {
@@ -187,7 +187,7 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
-      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('en-US');
+      expect(mockWhisperService.startStreaming).toHaveBeenCalledWith('en-US', undefined);
     });
   });
 

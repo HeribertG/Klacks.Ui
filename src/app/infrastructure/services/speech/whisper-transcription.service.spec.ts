@@ -161,7 +161,7 @@ describe('WhisperTranscriptionService', () => {
   describe('loadModel', () => {
     it('should set isLoading to true during loading', async () => {
       // Arrange
-      const _loadingDuringCall = false;
+      let loadingDuringCall = false;
 
       vi.mock('@huggingface/transformers', () => ({
         pipeline: vi.fn().mockImplementation(async () => {

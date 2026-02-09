@@ -160,19 +160,6 @@ export class DataManagementLLMService {
             (conversation.totalCost || 0) + response.usage.cost;
         }
 
-        // Execute function calls if present
-        if (response.functionCalls && response.functionCalls.length > 0) {
-          return this.executeFunctionCalls(response.functionCalls).pipe(
-            map((functionResults) => {
-              // Add function results to response
-              return {
-                ...response,
-                functionResults,
-              };
-            })
-          );
-        }
-
         return of(response);
       }),
       tap(() => {

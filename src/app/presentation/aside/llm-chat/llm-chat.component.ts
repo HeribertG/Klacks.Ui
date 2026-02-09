@@ -556,6 +556,14 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     const providers = this.llmProviderService.getCurrentProviders();
+    if (!providers || providers.length === 0) return true;
+
+    const currentModelInfo = this.availableModels?.find(m => m.modelId === this.currentModel);
+    if (currentModelInfo) {
+      const provider = providers.find(p => p.providerId === currentModelInfo.providerId);
+      return !provider?.hasApiKey;
+    }
+
     return !providers.some(p => p.hasApiKey);
   }
 

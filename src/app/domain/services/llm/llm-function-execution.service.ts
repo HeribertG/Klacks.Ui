@@ -931,87 +931,101 @@ export class LLMFunctionExecutionService {
   private async doCreateSystemUser(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
     const { firstName, lastName, email } = call.arguments;
 
-    document.getElementById('open-settings')?.click();
-    const userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+    let userAdminSection = document.getElementById('settings-user-administration');
     if (!userAdminSection) {
-      return { id: call.id, success: false, error: 'User administration section not loaded' };
+      document.getElementById('open-settings')?.click();
+      userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+      if (!userAdminSection) {
+        return { id: call.id, success: false, error: 'User administration section not loaded' };
+      }
     }
     userAdminSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    (window as any).__capturedClipboard = '';
-    const origExecCommand = document.execCommand.bind(document);
-    (document as any).execCommand = function(cmd: string, ...args: any[]) {
-      if (cmd === 'copy') {
-        const activeEl = document.activeElement;
-        if (activeEl && activeEl.tagName === 'TEXTAREA') {
-          (window as any).__capturedClipboard = (activeEl as HTMLTextAreaElement).value;
-        }
-      }
-      return origExecCommand(cmd, ...args);
-    };
-
     document.getElementById('user-admin-add-user-btn')?.click();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const nativeSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype, 'value'
-    )?.set;
-
-    const setInput = (id: string, value: string) => {
-      const input = document.getElementById(id) as HTMLInputElement;
-      if (!input) return;
-      nativeSetter?.call(input, value);
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    };
-
-    setInput('user-firstname', firstName);
-    setInput('user-name', lastName);
-    setInput('setting-user-email', email);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const usernameInput = document.getElementById('user-userName') as HTMLInputElement;
-    const username = usernameInput?.value || '';
-
-    document.getElementById('user-admin-modal-save-btn')?.click();
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    const clipboardContent = (window as any).__capturedClipboard || '';
-    let password = '';
-    const lines = clipboardContent.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('Password:')) {
-        password = trimmed.replace('Password:', '').trim();
-      }
+    const modalForm = document.getElementById('user-admin-modal-form');
+    if (!modalForm) {
+      return { id: call.id, success: false, error: 'User creation modal did not open' };
     }
 
-    const cancelBtn = document.getElementById('user-admin-msg-modal-cancel-btn');
-    if (cancelBtn) {
-      cancelBtn.click();
+    const userAdminEl = document.querySelector('app-user-administration');
+    const ngGetComponent = (window as any).ng?.getComponent;
+    const component = ngGetComponent ? ngGetComponent(userAdminEl) : null;
+
+    if (component?.formModel) {
+      component.formModel.set({ firstName, lastName, userName: '', email });
+      component.onNameChange();
     } else {
-      document.getElementById('user-admin-msg-modal-ok-btn')?.click();
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype, 'value'
+      )?.set;
+
+      const setAngularInput = (id: string, value: string) => {
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (!input) return;
+        input.focus();
+        nativeSetter?.call(input, value);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
+      setAngularInput('user-firstname', firstName);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setAngularInput('user-name', lastName);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      document.getElementById('user-firstname')?.dispatchEvent(new FocusEvent('blur'));
+      document.getElementById('user-name')?.dispatchEvent(new FocusEvent('blur'));
+      setAngularInput('setting-user-email', email);
     }
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    document.execCommand = origExecCommand;
+    let username = '';
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const el = document.getElementById('user-userName') as HTMLInputElement;
+      username = el?.value || '';
+      if (username) break;
+    }
 
-    let userId = '';
-    const nameInputs = document.querySelectorAll('input[id^="user-admin-row-name-"]');
-    const fullName = `${firstName} ${lastName}`;
-    for (const input of Array.from(nameInputs)) {
-      const value = (input as HTMLInputElement).value;
-      if (value.toLowerCase().includes(fullName.toLowerCase())) {
-        userId = input.id.replace('user-admin-row-name-', '');
-        break;
+    const saveBtn = document.getElementById('user-admin-modal-save-btn') as HTMLButtonElement;
+    if (!saveBtn || saveBtn.disabled) {
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (saveBtn && !saveBtn.disabled) break;
       }
     }
 
-    if (!username || !password) {
+    if (saveBtn?.disabled) {
       return {
         id: call.id,
         success: false,
-        error: `User creation may have failed. Username: ${username}, Password captured: ${!!password}`,
+        error: `Form not valid. Username: '${username}', formModel may not have synced.`,
+      };
+    }
+
+    saveBtn?.click();
+
+    let userId = '';
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const nameInputs = document.querySelectorAll('input[id^="user-admin-row-name-"]');
+      const fullName = `${firstName} ${lastName}`;
+      for (const input of Array.from(nameInputs)) {
+        const value = (input as HTMLInputElement).value;
+        if (value.toLowerCase().includes(fullName.toLowerCase())) {
+          userId = input.id.replace('user-admin-row-name-', '');
+          break;
+        }
+      }
+      if (userId) break;
+    }
+
+    if (!userId) {
+      return {
+        id: call.id,
+        success: false,
+        error: `Benutzer '${firstName} ${lastName}' konnte nicht erstellt werden. Username: '${username}'`,
       };
     }
 
@@ -1020,12 +1034,11 @@ export class LLMFunctionExecutionService {
       success: true,
       result: {
         userId,
-        username,
-        password,
+        username: username || '',
         firstName,
         lastName,
         email,
-        message: `Benutzer wurde erfolgreich erstellt.\nUsername: ${username}\nPassword: ${password}`,
+        message: `Benutzer '${firstName} ${lastName}' wurde erfolgreich erstellt. User-ID: ${userId}`,
       },
     };
   }
@@ -1039,38 +1052,56 @@ export class LLMFunctionExecutionService {
   private async doDeleteSystemUser(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
     const { userId } = call.arguments;
 
+    for (let i = 0; i < 10; i++) {
+      const backdrop = document.querySelector('ngb-modal-backdrop, .modal-backdrop');
+      if (!backdrop) break;
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
     document.getElementById('open-settings')?.click();
-    const userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+    const userAdminSection = await this.waitForElement('settings-user-administration', 8000);
     if (!userAdminSection) {
       return { id: call.id, success: false, error: 'User administration section not loaded' };
     }
     userAdminSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const deleteBtn = document.getElementById(`user-admin-row-delete-${userId}`);
+    let deleteBtn: HTMLElement | null = null;
+    for (let i = 0; i < 20; i++) {
+      deleteBtn = document.getElementById(`user-admin-row-delete-${userId}`);
+      if (deleteBtn) break;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
     if (!deleteBtn) {
-      return { id: call.id, success: false, error: `Delete button for user ${userId} not found` };
+      return { id: call.id, success: false, error: `Delete button for user ${userId} not found. Available rows: ${Array.from(document.querySelectorAll('input[id^="user-admin-row-name-"]')).map(e => e.id).join(', ')}` };
     }
     deleteBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const confirmBtn = document.getElementById('modal-delete-confirm');
+    let confirmBtn: HTMLElement | null = null;
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      confirmBtn = document.getElementById('modal-delete-confirm');
+      if (confirmBtn) break;
+    }
     if (!confirmBtn) {
-      return { id: call.id, success: false, error: 'Delete confirmation modal not found' };
+      return { id: call.id, success: false, error: 'Delete confirmation modal not found after 6s' };
     }
+    await new Promise(resolve => setTimeout(resolve, 200));
     confirmBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const deletedUser = document.getElementById(`user-admin-row-name-${userId}`);
-    if (deletedUser) {
-      return { id: call.id, success: false, error: `User ${userId} still exists after deletion` };
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const stillExists = document.getElementById(`user-admin-row-name-${userId}`);
+      if (!stillExists) {
+        return {
+          id: call.id,
+          success: true,
+          result: { userId, message: `Benutzer mit ID ${userId} wurde erfolgreich gelöscht.` },
+        };
+      }
     }
 
-    return {
-      id: call.id,
-      success: true,
-      result: { userId, message: `Benutzer mit ID ${userId} wurde erfolgreich gelöscht.` },
-    };
+    return { id: call.id, success: false, error: `User ${userId} still exists after deletion (10s timeout)` };
   }
 
   private executeListSystemUsers(
@@ -1080,10 +1111,13 @@ export class LLMFunctionExecutionService {
   }
 
   private async doListSystemUsers(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
-    document.getElementById('open-settings')?.click();
-    const userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+    let userAdminSection = document.getElementById('settings-user-administration');
     if (!userAdminSection) {
-      return { id: call.id, success: false, error: 'User administration section not loaded' };
+      document.getElementById('open-settings')?.click();
+      userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+      if (!userAdminSection) {
+        return { id: call.id, success: false, error: 'User administration section not loaded' };
+      }
     }
     userAdminSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1118,16 +1152,33 @@ export class LLMFunctionExecutionService {
   private async doCreateBranch(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
     const { name, address, phone, email } = call.arguments;
 
-    document.getElementById('open-settings')?.click();
-    const addBtn = await this.waitForElement('settings-list-add-btn', 5000);
+    let branchHeader = document.getElementById('branches-table-header');
+    if (!branchHeader) {
+      document.getElementById('open-settings')?.click();
+      branchHeader = await this.waitForElement('branches-table-header', 5000);
+      if (!branchHeader) {
+        return { id: call.id, success: false, error: 'Branch section not loaded' };
+      }
+    }
+
+    const addBtn = document.getElementById('settings-list-add-btn');
     if (!addBtn) {
-      return { id: call.id, success: false, error: 'Branch section not loaded' };
+      return { id: call.id, success: false, error: 'Add branch button not found' };
     }
     addBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 500));
 
     addBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    let modalName: HTMLInputElement | null = null;
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      modalName = document.getElementById('branches-modal-name') as HTMLInputElement;
+      if (modalName) break;
+    }
+    if (!modalName) {
+      return { id: call.id, success: false, error: 'Branch modal did not open' };
+    }
 
     const nativeSetter = Object.getOwnPropertyDescriptor(
       window.HTMLInputElement.prototype, 'value'
@@ -1152,16 +1203,19 @@ export class LLMFunctionExecutionService {
       return { id: call.id, success: false, error: 'Save button not found in branch modal' };
     }
     saveBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 3500));
 
     let branchId = '';
-    const nameInputs = document.querySelectorAll('input[id^="branches-row-name-"]');
-    for (const input of Array.from(nameInputs)) {
-      const value = (input as HTMLInputElement).value;
-      if (value.toLowerCase().includes(name.toLowerCase())) {
-        branchId = input.id.replace('branches-row-name-', '');
-        break;
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const nameInputs = document.querySelectorAll('input[id^="branches-row-name-"]');
+      for (const input of Array.from(nameInputs)) {
+        const value = (input as HTMLInputElement).value;
+        if (value.toLowerCase().includes(name.toLowerCase())) {
+          branchId = input.id.replace('branches-row-name-', '');
+          break;
+        }
       }
+      if (branchId) break;
     }
 
     return {
@@ -1187,38 +1241,59 @@ export class LLMFunctionExecutionService {
   private async doDeleteBranch(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
     const { branchId } = call.arguments;
 
-    document.getElementById('open-settings')?.click();
-    const addBtn = await this.waitForElement('settings-list-add-btn', 5000);
-    if (!addBtn) {
-      return { id: call.id, success: false, error: 'Branch section not loaded' };
+    for (let i = 0; i < 10; i++) {
+      const backdrop = document.querySelector('ngb-modal-backdrop, .modal-backdrop');
+      if (!backdrop) break;
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
-    addBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const deleteBtn = document.getElementById(`branches-row-delete-${branchId}`);
+    let branchHeader = document.getElementById('branches-table-header');
+    if (!branchHeader) {
+      document.getElementById('open-settings')?.click();
+      branchHeader = await this.waitForElement('branches-table-header', 5000);
+      if (!branchHeader) {
+        return { id: call.id, success: false, error: 'Branch section not loaded' };
+      }
+    }
+    branchHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    let deleteBtn: HTMLElement | null = null;
+    for (let i = 0; i < 10; i++) {
+      deleteBtn = document.getElementById(`branches-row-delete-${branchId}`);
+      if (deleteBtn) break;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
     if (!deleteBtn) {
       return { id: call.id, success: false, error: `Delete button for branch ${branchId} not found` };
     }
     deleteBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const confirmBtn = document.getElementById('modal-delete-confirm');
+    let confirmBtn: HTMLElement | null = null;
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      confirmBtn = document.getElementById('modal-delete-confirm');
+      if (confirmBtn) break;
+    }
     if (!confirmBtn) {
-      return { id: call.id, success: false, error: 'Delete confirmation modal not found' };
+      return { id: call.id, success: false, error: 'Delete confirmation modal not found after 6s' };
     }
+    await new Promise(resolve => setTimeout(resolve, 200));
     confirmBtn.click();
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const deletedBranch = document.getElementById(`branches-row-name-${branchId}`);
-    if (deletedBranch) {
-      return { id: call.id, success: false, error: `Branch ${branchId} still exists after deletion` };
+    for (let i = 0; i < 20; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const stillExists = document.getElementById(`branches-row-name-${branchId}`);
+      if (!stillExists) {
+        return {
+          id: call.id,
+          success: true,
+          result: { branchId, message: `Filiale mit ID ${branchId} wurde erfolgreich gelöscht.` },
+        };
+      }
     }
 
-    return {
-      id: call.id,
-      success: true,
-      result: { branchId, message: `Filiale mit ID ${branchId} wurde erfolgreich gelöscht.` },
-    };
+    return { id: call.id, success: false, error: `Branch ${branchId} still exists after deletion (10s timeout)` };
   }
 
   private executeListBranches(
@@ -1228,12 +1303,15 @@ export class LLMFunctionExecutionService {
   }
 
   private async doListBranches(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
-    document.getElementById('open-settings')?.click();
-    const addBtn = await this.waitForElement('settings-list-add-btn', 5000);
-    if (!addBtn) {
-      return { id: call.id, success: false, error: 'Branch section not loaded' };
+    let branchHeader = document.getElementById('branches-table-header');
+    if (!branchHeader) {
+      document.getElementById('open-settings')?.click();
+      branchHeader = await this.waitForElement('branches-table-header', 5000);
+      if (!branchHeader) {
+        return { id: call.id, success: false, error: 'Branch section not loaded' };
+      }
     }
-    addBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    branchHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const nameInputs = document.querySelectorAll('input[id^="branches-row-name-"]');

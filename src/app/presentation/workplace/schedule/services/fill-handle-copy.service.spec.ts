@@ -52,6 +52,8 @@ function createMockSourceEntry(overrides: Partial<IScheduleCell> = {}): ISchedul
     abbreviation: 'TS',
     replaceClientId: null,
     isReplacementEntry: false,
+    lockLevel: 0,
+    isGroupRestricted: false,
     ...overrides,
   };
 }

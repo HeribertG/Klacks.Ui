@@ -7,7 +7,7 @@ import {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject, from } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, from, EMPTY } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -55,14 +55,14 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
           } else {
             this.authService.logOut();
             this.navigationService.navigateToRoot();
-            return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Token refresh failed' }));
+            return EMPTY;
           }
         }),
         catchError(() => {
           this.isRefreshing = false;
           this.authService.logOut();
           this.navigationService.navigateToRoot();
-          return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Token refresh failed' }));
+          return EMPTY;
         })
       );
     } else {

@@ -155,7 +155,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
     this.originalProvider = provider;
-    this.initFormFromProvider(this.editingProvider);
+    this.initFormFromProvider(this.editingProvider, provider.apiKey || '');
 
     setTimeout(() => {
       this.ngbModal.open(this.providerModal, {

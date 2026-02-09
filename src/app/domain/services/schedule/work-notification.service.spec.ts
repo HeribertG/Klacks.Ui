@@ -14,6 +14,7 @@ describe('WorkNotificationService', () => {
   let dataManagementMock: {
     readShiftSchedule: ReturnType<typeof vi.fn>;
     refreshClientScheduleForDays: ReturnType<typeof vi.fn>;
+    refreshClientScheduleForDateRange: ReturnType<typeof vi.fn>;
     clients: { id: string; name: string; neededRows: number }[];
     currentFilter: unknown;
   };
@@ -51,6 +52,7 @@ describe('WorkNotificationService', () => {
     dataManagementMock = {
       readShiftSchedule: vi.fn(),
       refreshClientScheduleForDays: vi.fn(),
+      refreshClientScheduleForDateRange: vi.fn(),
       clients: [{ id: 'client-1', name: 'Test Client', neededRows: 1 }],
       currentFilter: {},
     };
@@ -85,7 +87,7 @@ describe('WorkNotificationService', () => {
   });
 
   describe('handleWorkNotification', () => {
-    it('should call refreshClientScheduleForDays when WorkCreated notification is received for displayed client', async () => {
+    it('should call refreshClientScheduleForDateRange when WorkCreated notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -98,13 +100,13 @@ describe('WorkNotificationService', () => {
 
       // Act
       workCreated$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       // Assert
-      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDateRange).toHaveBeenCalled();
     });
 
-    it('should call refreshClientScheduleForDays when WorkUpdated notification is received for displayed client', async () => {
+    it('should call refreshClientScheduleForDateRange when WorkUpdated notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -117,13 +119,13 @@ describe('WorkNotificationService', () => {
 
       // Act
       workUpdated$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       // Assert
-      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDateRange).toHaveBeenCalled();
     });
 
-    it('should call refreshClientScheduleForDays when WorkDeleted notification is received for displayed client', async () => {
+    it('should call refreshClientScheduleForDateRange when WorkDeleted notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -136,10 +138,10 @@ describe('WorkNotificationService', () => {
 
       // Act
       workDeleted$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       // Assert
-      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDateRange).toHaveBeenCalled();
     });
 
     it('should refresh client schedule when client is displayed', async () => {
@@ -155,11 +157,12 @@ describe('WorkNotificationService', () => {
 
       // Act
       workCreated$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       // Assert
-      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalledWith(
+      expect(dataManagementMock.refreshClientScheduleForDateRange).toHaveBeenCalledWith(
         'client-1',
+        expect.any(Date),
         expect.any(Date)
       );
     });
@@ -177,10 +180,10 @@ describe('WorkNotificationService', () => {
 
       // Act
       workCreated$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       // Assert
-      expect(dataManagementMock.refreshClientScheduleForDays).not.toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDateRange).not.toHaveBeenCalled();
     });
 
     it('should mark shift as affected after notification', async () => {

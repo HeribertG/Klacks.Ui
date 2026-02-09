@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { LLMChatComponent } from './llm-chat.component';
@@ -73,7 +73,7 @@ describe('LLMChatComponent', () => {
             providerId: 'openai',
             providerName: 'OpenAI',
             isEnabled: true,
-            apiKey: 'sk-test-key-123',
+            hasApiKey: true,
             baseUrl: 'https://api.openai.com/v1',
             priority: 1,
         },
@@ -82,7 +82,7 @@ describe('LLMChatComponent', () => {
             providerId: 'anthropic',
             providerName: 'Anthropic',
             isEnabled: true,
-            apiKey: '',
+            hasApiKey: false,
             baseUrl: 'https://api.anthropic.com',
             priority: 2,
         },
@@ -96,12 +96,14 @@ describe('LLMChatComponent', () => {
             setCurrentModel: vi.fn(),
             getModelInfo: vi.fn(),
             setLanguage: vi.fn(),
-            clearConversation: vi.fn()
+            clearConversation: vi.fn(),
+            modelsInitialized: signal(true),
         };
 
         const llmProviderServiceSpy = {
             loadProviders: vi.fn(),
-            getCurrentProviders: vi.fn()
+            getCurrentProviders: vi.fn(),
+            providersInitialized: signal(true),
         };
 
         const speechServiceSpy = {
@@ -539,6 +541,7 @@ describe('LLMChatComponent', () => {
         it('should return true when no models available', () => {
             // Arrange
             component.availableModels = [];
+            mockLlmProviderService.getCurrentProviders.mockReturnValue([]);
 
             // Act
             const result = component.hasNoApiKey();
@@ -549,6 +552,8 @@ describe('LLMChatComponent', () => {
 
         it('should return true when currentModel is empty string', () => {
             // Arrange
+            const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
+            mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             component.availableModels = mockModels.filter(m => m.isEnabled);
             component.currentModel = '';
 
@@ -561,6 +566,8 @@ describe('LLMChatComponent', () => {
 
         it('should return true when currentModel is not set', () => {
             // Arrange
+            const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
+            mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             component.availableModels = mockModels.filter(m => m.isEnabled);
             component.currentModel = null as any;
 
@@ -573,6 +580,8 @@ describe('LLMChatComponent', () => {
 
         it('should return true when currentModel not found in availableModels', () => {
             // Arrange
+            const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
+            mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
             component.availableModels = mockModels.filter(m => m.isEnabled);
             component.currentModel = 'non-existent-model';
 
@@ -606,50 +615,12 @@ describe('LLMChatComponent', () => {
             const providersWithoutKey: ILLMProvider[] = [
                 {
                     ...mockProviders[0],
-                    apiKey: undefined,
+                    hasApiKey: false,
                 },
             ];
             component.availableModels = mockModels.filter(m => m.isEnabled);
             component.currentModel = 'gpt-4';
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
-
-            // Act
-            const result = component.hasNoApiKey();
-
-            // Assert
-            expect(result).toBe(true);
-        });
-
-        it('should return true when provider apiKey is empty string', () => {
-            // Arrange
-            const providersWithEmptyKey: ILLMProvider[] = [
-                {
-                    ...mockProviders[0],
-                    apiKey: '',
-                },
-            ];
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = 'gpt-4';
-            mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithEmptyKey);
-
-            // Act
-            const result = component.hasNoApiKey();
-
-            // Assert
-            expect(result).toBe(true);
-        });
-
-        it('should return true when provider apiKey is whitespace only', () => {
-            // Arrange
-            const providersWithWhitespaceKey: ILLMProvider[] = [
-                {
-                    ...mockProviders[0],
-                    apiKey: '   ',
-                },
-            ];
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = 'gpt-4';
-            mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithWhitespaceKey);
 
             // Act
             const result = component.hasNoApiKey();
