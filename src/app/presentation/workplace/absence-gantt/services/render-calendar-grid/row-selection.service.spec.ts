@@ -440,4 +440,85 @@ describe('RowSelectionService', () => {
             expect(service.isSelectedBreak_Dirty()).toBe(true);
         });
     });
+
+    describe('drawBreaksIntern - boundary checks (bugfix)', () => {
+        it('should not draw when selectedRow is -1', () => {
+            mockDataManagementBreak.readData.mockReturnValue([{ id: '1', from: new Date(), until: new Date() }]);
+
+            service.drawBreaksIntern();
+
+            expect(mockBreakRenderingService.drawBreakIntern).not.toHaveBeenCalled();
+        });
+
+        it('should not draw when selectedRow >= rows', () => {
+            mockRows = 10;
+            service.selectedRow = 10;
+
+            service.drawBreaksIntern();
+
+            expect(mockBreakRenderingService.drawBreakIntern).not.toHaveBeenCalled();
+        });
+
+        it('should return early when readData returns null', () => {
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+            mockDataManagementBreak.readData.mockReturnValue(null);
+
+            service.drawBreaksIntern();
+
+            expect(mockBreakRenderingService.drawBreakIntern).not.toHaveBeenCalled();
+        });
+
+        it('should return early when breakIndex is out of bounds', () => {
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 5;
+            mockDataManagementBreak.readData.mockReturnValue([
+                { id: '1', from: new Date(), until: new Date() }
+            ]);
+
+            service.drawBreaksIntern();
+
+            expect(mockBreakRenderingService.drawBreakIntern).not.toHaveBeenCalled();
+        });
+
+        it('should return early when breakIndex is negative', () => {
+            service.selectedRow = 5;
+            mockDataManagementBreak.readData.mockReturnValue([
+                { id: '1', from: new Date(), until: new Date() }
+            ]);
+
+            service.drawBreaksIntern();
+
+            expect(mockBreakRenderingService.drawBreakIntern).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('selectedBreak - boundary checks (bugfix)', () => {
+        it('should return undefined when readData returns null', () => {
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+            mockDataManagementBreak.readData.mockReturnValue(null);
+
+            expect(service.selectedBreak).toBeUndefined();
+        });
+
+        it('should return undefined when breakIndex is out of bounds', () => {
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 10;
+            mockDataManagementBreak.readData.mockReturnValue([
+                { id: '1', from: new Date(), until: new Date() }
+            ]);
+
+            expect(service.selectedBreak).toBeUndefined();
+        });
+
+        it('should return undefined when breakIndex is negative', () => {
+            service.selectedRow = 5;
+            mockDataManagementBreak.readData.mockReturnValue([
+                { id: '1', from: new Date(), until: new Date() }
+            ]);
+
+            expect(service.selectedBreak).toBeUndefined();
+        });
+    });
 });
