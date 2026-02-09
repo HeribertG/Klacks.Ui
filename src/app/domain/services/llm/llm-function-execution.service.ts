@@ -122,6 +122,14 @@ export class LLMFunctionExecutionService {
       case 'validate_address':
         return this.executeBackendFunction(functionCall);
 
+      // UI-Aktionen: User Administration
+      case 'create_system_user':
+        return this.executeCreateSystemUser(functionCall);
+
+      // UI-Aktionen: Group Scope
+      case 'set_user_group_scope':
+        return this.executeSetUserGroupScope(functionCall);
+
       default:
         return of({
           id: functionCall.id,
@@ -899,6 +907,180 @@ export class LLMFunctionExecutionService {
       id: call.id,
       success: true,
       result: { message: 'Firmenadresse wurde in der Maske aktualisiert' },
+    };
+  }
+
+  private executeCreateSystemUser(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return from(this.doCreateSystemUser(call));
+  }
+
+  private async doCreateSystemUser(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
+    const { firstName, lastName, email } = call.arguments;
+
+    document.getElementById('open-settings')?.click();
+    const userAdminSection = await this.waitForElement('settings-user-administration', 5000);
+    if (!userAdminSection) {
+      return { id: call.id, success: false, error: 'User administration section not loaded' };
+    }
+    userAdminSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    (window as any).__capturedClipboard = '';
+    const origExecCommand = document.execCommand.bind(document);
+    (document as any).execCommand = function(cmd: string, ...args: any[]) {
+      if (cmd === 'copy') {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.tagName === 'TEXTAREA') {
+          (window as any).__capturedClipboard = (activeEl as HTMLTextAreaElement).value;
+        }
+      }
+      return origExecCommand(cmd, ...args);
+    };
+
+    document.getElementById('user-admin-add-user-btn')?.click();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    )?.set;
+
+    const setInput = (id: string, value: string) => {
+      const input = document.getElementById(id) as HTMLInputElement;
+      if (!input) return;
+      nativeSetter?.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    setInput('user-firstname', firstName);
+    setInput('user-name', lastName);
+    setInput('setting-user-email', email);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const usernameInput = document.getElementById('user-userName') as HTMLInputElement;
+    const username = usernameInput?.value || '';
+
+    document.getElementById('user-admin-modal-save-btn')?.click();
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    const clipboardContent = (window as any).__capturedClipboard || '';
+    let password = '';
+    const lines = clipboardContent.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('Password:')) {
+        password = trimmed.replace('Password:', '').trim();
+      }
+    }
+
+    const cancelBtn = document.getElementById('user-admin-msg-modal-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.click();
+    } else {
+      document.getElementById('user-admin-msg-modal-ok-btn')?.click();
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    document.execCommand = origExecCommand;
+
+    let userId = '';
+    const nameInputs = document.querySelectorAll('input[id^="user-admin-row-name-"]');
+    const fullName = `${firstName} ${lastName}`;
+    for (const input of Array.from(nameInputs)) {
+      const value = (input as HTMLInputElement).value;
+      if (value.toLowerCase().includes(fullName.toLowerCase())) {
+        userId = input.id.replace('user-admin-row-name-', '');
+        break;
+      }
+    }
+
+    if (!username || !password) {
+      return {
+        id: call.id,
+        success: false,
+        error: `User creation may have failed. Username: ${username}, Password captured: ${!!password}`,
+      };
+    }
+
+    return {
+      id: call.id,
+      success: true,
+      result: {
+        userId,
+        username,
+        password,
+        firstName,
+        lastName,
+        email,
+        message: `Benutzer wurde erfolgreich erstellt.\nUsername: ${username}\nPassword: ${password}`,
+      },
+    };
+  }
+
+  private executeSetUserGroupScope(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return from(this.doSetUserGroupScope(call));
+  }
+
+  private async doSetUserGroupScope(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
+    const { userId, groupNames } = call.arguments;
+
+    document.getElementById('open-settings')?.click();
+    const groupScopeSection = await this.waitForElement('settings-group-scope', 5000);
+    if (!groupScopeSection) {
+      return { id: call.id, success: false, error: 'Group scope section not loaded' };
+    }
+    groupScopeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const countBtnId = `group-scope-row-count-btn-${userId}`;
+    const countBtn = await this.waitForElement(countBtnId, 3000);
+    if (!countBtn) {
+      return { id: call.id, success: false, error: `User with ID ${userId} not found in group scope list` };
+    }
+    countBtn.click();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const requestedGroups = groupNames.split(',').map((g: string) => g.trim());
+    const assignedGroups: string[] = [];
+
+    const allLabels = document.querySelectorAll('[id^="group-scope-modal-group-label-"]');
+    for (const label of Array.from(allLabels)) {
+      const labelText = label.textContent?.trim() || '';
+      for (const groupName of requestedGroups) {
+        if (labelText.toLowerCase() === groupName.toLowerCase()) {
+          const groupId = label.id.replace('group-scope-modal-group-label-', '');
+          const checkbox = document.getElementById(`group-${groupId}`) as HTMLInputElement;
+          if (checkbox && !checkbox.checked) {
+            checkbox.click();
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+          assignedGroups.push(labelText);
+        }
+      }
+    }
+
+    if (assignedGroups.length === 0) {
+      return {
+        id: call.id,
+        success: false,
+        error: `None of the requested groups found: ${groupNames}`,
+      };
+    }
+
+    document.getElementById('group-scope-modal-save-btn')?.click();
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    return {
+      id: call.id,
+      success: true,
+      result: {
+        userId,
+        assignedGroups,
+        message: `Group scope für Benutzer wurde gesetzt auf: ${assignedGroups.join(', ')}`,
+      },
     };
   }
 

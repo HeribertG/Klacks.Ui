@@ -381,6 +381,27 @@ export class LLMFunctionRegistryService {
       ],
       category: 'backend',
     });
+
+    this.registerFunction({
+      name: 'create_system_user',
+      description: 'Erstellt einen neuen System-Benutzer (Login-Account) über die Einstellungen-UI. Navigiert zu Einstellungen → Benutzerverwaltung, füllt das Formular aus und speichert. Gibt Username und Passwort zurück.',
+      parameters: [
+        { name: 'firstName', type: 'string', description: 'Vorname des neuen Benutzers', required: true },
+        { name: 'lastName', type: 'string', description: 'Nachname des neuen Benutzers', required: true },
+        { name: 'email', type: 'string', description: 'E-Mail-Adresse des neuen Benutzers', required: true },
+      ],
+      category: 'ui',
+    });
+
+    this.registerFunction({
+      name: 'set_user_group_scope',
+      description: 'Setzt den Group Scope (Gruppenbereich-Sichtbarkeit) für einen Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Group Scope, öffnet das Modal für den Benutzer und aktiviert die gewünschten Gruppen-Checkboxen.',
+      parameters: [
+        { name: 'userId', type: 'string', description: 'Die ID des Benutzers', required: true },
+        { name: 'groupNames', type: 'string', description: 'Komma-getrennte Liste der Gruppennamen (z.B. "Deutschweiz Mitte, Romandie")', required: true },
+      ],
+      category: 'ui',
+    });
   }
 
   registerFunction(definition: ILLMFunctionDefinition): void {
