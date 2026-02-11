@@ -24,7 +24,9 @@ export class LLMFunctionRegistryService {
   }
 
   loadFromBackend(): void {
-    if (this.backendLoaded) return;
+    if (this.backendLoaded) {
+      return;
+    }
 
     this.functionDefinitionApi.loadFunctionDefinitions().subscribe({
       next: (definitions) => {

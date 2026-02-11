@@ -227,7 +227,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.messages.push(assistantMessage);
       this.shouldScrollToBottom = true;
 
-      console.log('[sendMessage] Response functionCalls:', response?.functionCalls?.length ?? 0, JSON.stringify(response?.functionCalls?.map((c: any) => c.FunctionName || c.functionName) ?? []));
       if (response?.functionCalls && response.functionCalls.length > 0) {
         await this.executeFunctionCalls(response.functionCalls);
       } else if (response?.navigateTo && response?.actionPerformed) {
@@ -511,17 +510,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
-    console.log('[executeFunctionCalls] Called with', functionCalls.length, 'calls:', JSON.stringify(functionCalls.map((c: any) => c.FunctionName || c.functionName)));
-
     for (const call of functionCalls) {
       const functionName = call.FunctionName || call.functionName;
-
-      if (!this.functionRegistry.getFunction(functionName)) {
-        console.warn('[executeFunctionCalls] SKIPPED - not in registry:', functionName);
-        const allFns = this.functionRegistry.getAllFunctions().map(f => f.name);
-        console.warn('[executeFunctionCalls] Registry contains:', allFns.join(', '));
-        continue;
-      }
+      if (!functionName) continue;
 
       const functionCall = {
         id: this.generateMessageId(),
@@ -529,14 +520,10 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         arguments: call.Parameters || call.parameters || {},
       };
 
-      console.log('[executeFunctionCalls] Executing:', functionName, 'with args:', JSON.stringify(functionCall.arguments));
-
       try {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(functionCall)
         );
-
-        console.log('[executeFunctionCalls] Result:', functionName, result.success, result.error || result.result?.message || '');
 
         if (result.success && result.result?.action === 'navigated') {
           const lastMessage = this.messages[this.messages.length - 1];
@@ -569,10 +556,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         }
       } catch (error: any) {
-        console.error('[executeFunctionCalls] EXCEPTION:', error);
         const lastMsg = this.messages[this.messages.length - 1];
         if (lastMsg) {
-          lastMsg.content = `❌ FN_EXEC_ERROR: ${error?.message || JSON.stringify(error)}`;
+          lastMsg.content = `❌ ${error?.message || 'Function execution failed'}`;
         }
       }
     }

@@ -33,15 +33,6 @@ export class LLMFunctionExecutionService {
   executeFunction(
     functionCall: ILLMFunctionCall
   ): Observable<ILLMFunctionResult> {
-    const validation = this.functionRegistry.validateFunctionCall(functionCall);
-    if (!validation.valid) {
-      return of({
-        id: functionCall.id,
-        success: false,
-        error: validation.error,
-      });
-    }
-
     switch (functionCall.name) {
       case 'navigateToPage':
         return this.navigationService.executeNavigateToPage(functionCall);

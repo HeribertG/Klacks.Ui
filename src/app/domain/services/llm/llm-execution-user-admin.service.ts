@@ -87,7 +87,23 @@ export class LlmExecutionUserAdminService {
       };
     }
 
+    let password = '';
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          if (node instanceof HTMLTextAreaElement && node.value?.includes('Password:')) {
+            const match = node.value.match(/Password:\s*(.+)/);
+            if (match) password = match[1].trim();
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true });
+
     saveBtn?.click();
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    observer.disconnect();
 
     let userId = '';
     for (let attempt = 0; attempt < 20; attempt++) {
@@ -118,10 +134,13 @@ export class LlmExecutionUserAdminService {
       result: {
         userId,
         username: username || '',
+        password: password || '',
         firstName,
         lastName,
         email,
-        message: `User '${firstName} ${lastName}' created successfully. User-ID: ${userId}`,
+        message: `User '${firstName} ${lastName}' created successfully. User-ID: ${userId}` +
+          (username ? ` | Username: ${username}` : '') +
+          (password ? ` | Password: ${password}` : ''),
       },
     };
   }
@@ -131,7 +150,8 @@ export class LlmExecutionUserAdminService {
   }
 
   private async doDeleteSystemUser(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
-    const { userId } = call.arguments;
+    let { userId } = call.arguments;
+    const { firstName, lastName } = call.arguments;
 
     for (let i = 0; i < 10; i++) {
       const backdrop = document.querySelector('ngb-modal-backdrop, .modal-backdrop');
@@ -147,6 +167,21 @@ export class LlmExecutionUserAdminService {
     userAdminSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    if (!userId && firstName && lastName) {
+      const fullName = `${firstName} ${lastName}`;
+      const nameInputs = document.querySelectorAll('input[id^="user-admin-row-name-"]');
+      for (const input of Array.from(nameInputs)) {
+        const value = (input as HTMLInputElement).value;
+        if (value.toLowerCase().includes(fullName.toLowerCase())) {
+          userId = input.id.replace('user-admin-row-name-', '');
+          break;
+        }
+      }
+      if (!userId) {
+        return { id: call.id, success: false, error: `User '${fullName}' not found in user list` };
+      }
+    }
+
     let deleteBtn: HTMLElement | null = null;
     for (let i = 0; i < 20; i++) {
       deleteBtn = document.getElementById(`user-admin-row-delete-${userId}`);
@@ -154,7 +189,7 @@ export class LlmExecutionUserAdminService {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     if (!deleteBtn) {
-      return { id: call.id, success: false, error: `Delete button for user ${userId} not found. Available rows: ${Array.from(document.querySelectorAll('input[id^="user-admin-row-name-"]')).map(e => e.id).join(', ')}` };
+      return { id: call.id, success: false, error: `Delete button for user ${userId} not found` };
     }
     deleteBtn.click();
 
