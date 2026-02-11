@@ -40,6 +40,13 @@ import { IconChatComponent } from '../../icons/icon-chat.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
 import { LLMFunctionRegistryService } from 'src/app/domain/services/llm/llm-function-registry.service';
+import { LlmExecutionNavigationService } from 'src/app/domain/services/llm/llm-execution-navigation.service';
+import { LlmExecutionDataService } from 'src/app/domain/services/llm/llm-execution-data.service';
+import { LlmExecutionSettingsService } from 'src/app/domain/services/llm/llm-execution-settings.service';
+import { LlmExecutionUserAdminService } from 'src/app/domain/services/llm/llm-execution-user-admin.service';
+import { LlmExecutionBranchService } from 'src/app/domain/services/llm/llm-execution-branch.service';
+import { LlmExecutionMacroService } from 'src/app/domain/services/llm/llm-execution-macro.service';
+import { LlmExecutionClientService } from 'src/app/domain/services/llm/llm-execution-client.service';
 import { AsideService } from '../aside.service';
 
 export interface ChatMessage {
@@ -65,6 +72,16 @@ export interface ChatMessage {
   ],
   templateUrl: './llm-chat.component.html',
   styleUrls: ['./llm-chat.component.scss'],
+  providers: [
+    LLMFunctionExecutionService,
+    LlmExecutionNavigationService,
+    LlmExecutionDataService,
+    LlmExecutionSettingsService,
+    LlmExecutionUserAdminService,
+    LlmExecutionBranchService,
+    LlmExecutionMacroService,
+    LlmExecutionClientService,
+  ],
 })
 export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
@@ -210,6 +227,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.messages.push(assistantMessage);
       this.shouldScrollToBottom = true;
 
+      console.log('[sendMessage] Response functionCalls:', response?.functionCalls?.length ?? 0, JSON.stringify(response?.functionCalls?.map((c: any) => c.FunctionName || c.functionName) ?? []));
       if (response?.functionCalls && response.functionCalls.length > 0) {
         await this.executeFunctionCalls(response.functionCalls);
       } else if (response?.navigateTo && response?.actionPerformed) {
@@ -493,10 +511,15 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
+    console.log('[executeFunctionCalls] Called with', functionCalls.length, 'calls:', JSON.stringify(functionCalls.map((c: any) => c.FunctionName || c.functionName)));
+
     for (const call of functionCalls) {
       const functionName = call.FunctionName || call.functionName;
 
       if (!this.functionRegistry.getFunction(functionName)) {
+        console.warn('[executeFunctionCalls] SKIPPED - not in registry:', functionName);
+        const allFns = this.functionRegistry.getAllFunctions().map(f => f.name);
+        console.warn('[executeFunctionCalls] Registry contains:', allFns.join(', '));
         continue;
       }
 
@@ -506,10 +529,14 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         arguments: call.Parameters || call.parameters || {},
       };
 
+      console.log('[executeFunctionCalls] Executing:', functionName, 'with args:', JSON.stringify(functionCall.arguments));
+
       try {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(functionCall)
         );
+
+        console.log('[executeFunctionCalls] Result:', functionName, result.success, result.error || result.result?.message || '');
 
         if (result.success && result.result?.action === 'navigated') {
           const lastMessage = this.messages[this.messages.length - 1];
@@ -532,7 +559,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         } else if (result.success && result.result?.message) {
           const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage && !lastMessage.content) {
+          if (lastMessage) {
             lastMessage.content = `✅ ${result.result.message}`;
           }
         } else if (!result.success && result.error && !result.error.includes('not implemented')) {
@@ -542,7 +569,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         }
       } catch (error: any) {
-        console.error('Function execution error:', error);
+        console.error('[executeFunctionCalls] EXCEPTION:', error);
+        const lastMsg = this.messages[this.messages.length - 1];
+        if (lastMsg) {
+          lastMsg.content = `❌ FN_EXEC_ERROR: ${error?.message || JSON.stringify(error)}`;
+        }
       }
     }
   }

@@ -1,2 +1,2 @@
 cd /mnt/c/SourceCode/Klacks.Ui
-claude-code
+claude-code --dangerously-skip-permissions 

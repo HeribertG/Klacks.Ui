@@ -3,9 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { ISpeechTranscription } from 'src/app/domain/services/speech/speech-transcription.interface';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class WhisperTranscriptionService implements ISpeechTranscription {
   private pipeline: any = null;
   private mediaRecorder: MediaRecorder | null = null;

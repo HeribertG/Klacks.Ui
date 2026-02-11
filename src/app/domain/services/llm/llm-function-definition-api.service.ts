@@ -10,7 +10,7 @@ import { ILlmFunctionDefinitionDto } from '../../interfaces/llm-function-definit
 })
 export class LlmFunctionDefinitionApiService {
   private http = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}api/backend/assistant/chat`;
+  private readonly baseUrl = `${environment.baseUrl}assistant/chat`;
 
   loadFunctionDefinitions(): Observable<ILlmFunctionDefinitionDto[]> {
     return this.http

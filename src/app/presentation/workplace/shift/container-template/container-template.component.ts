@@ -122,6 +122,9 @@ import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
     TableSortingService,
     TimeRulerDragDropService,
     ContextMenuService,
+    ContainerTemplateItemManipulationService,
+    ContainerTemplatePdfExportService,
+    ShiftArrangementService,
   ],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {

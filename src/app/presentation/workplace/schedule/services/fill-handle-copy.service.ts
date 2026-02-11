@@ -40,9 +40,7 @@ export interface BreakCopyEntry {
   description?: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class FillHandleCopyService {
 
   buildWorkEntriesToCopy(

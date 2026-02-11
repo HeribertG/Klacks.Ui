@@ -42,7 +42,7 @@ export interface ReportDataProvider {
   resolveFooterValue(field: ReportField, rows: any[]): string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class ReportDataProviderService {
   private translate = inject(TranslateService);
   private workScheduleService = inject(DataWorkScheduleService);

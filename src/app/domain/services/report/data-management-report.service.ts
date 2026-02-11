@@ -3,9 +3,7 @@ import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/rep
 import { DEFAULT_SECTIONS } from '../../models/report/report-section.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DataManagementReportService {
   private apiService = inject(DataReportApiService);
 

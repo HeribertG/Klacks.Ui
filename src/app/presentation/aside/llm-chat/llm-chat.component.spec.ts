@@ -183,6 +183,7 @@ describe('LLMChatComponent', () => {
                     IconChatComponent,
                     IconMMLComponent,
                 ],
+                providers: [],
             },
         })
             .compileComponents();

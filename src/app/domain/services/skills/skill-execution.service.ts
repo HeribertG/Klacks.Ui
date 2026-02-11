@@ -12,9 +12,7 @@ import {
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { DomainEventType } from '../../events/domain-events';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class SkillExecutionService {
   private dataSkillService = inject(DataSkillService);
   private skillRegistry = inject(SkillRegistryService);

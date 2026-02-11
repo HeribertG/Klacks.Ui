@@ -14,8 +14,6 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { LLMSystemContextService } from './llm-system-context.service';
-import { LLMFunctionExecutionService } from './llm-function-execution.service';
-import { ILLMFunctionCall } from '../../interfaces/llm-function-definitions.interface';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -40,8 +38,6 @@ export class DataManagementLLMService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private systemContextService = inject(LLMSystemContextService);
-  private functionExecutionService = inject(LLMFunctionExecutionService);
-
   private conversations = new Map<string, IConversation>();
   private destroy$ = new Subject<void>();
 
@@ -385,17 +381,6 @@ export class DataManagementLLMService {
       catchError((error) => {
         this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementLLMService' });
         throw error;
-      })
-    );
-  }
-
-  private executeFunctionCalls(
-    functionCalls: ILLMFunctionCall[]
-  ): Observable<any> {
-    return this.functionExecutionService.executeFunctions(functionCalls).pipe(
-      catchError(() => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'Function execution failed', code: 'LLMFunctionError', context: 'DataManagementLLMService.executeFunctionCalls' });
-        return of([]);
       })
     );
   }

@@ -27,9 +27,7 @@ export interface RouteOptimizationData {
   distanceToEndBaseKm: number;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ContainerTemplateItemManipulationService {
   private timeRangeService = inject(TimeRangeService);
 

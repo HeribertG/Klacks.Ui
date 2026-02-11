@@ -118,9 +118,7 @@ const COLOR_TRANSPARENT = 'transparent';
 const OSM_SUBDOMAINS = ['a', 'b', 'c'];
 const OSM_ATTRIBUTION_TEXT = '© OpenStreetMap contributors';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ContainerTemplatePdfExportService {
   private translateService = inject(TranslateService);
   private dataRoutingService = inject(DataRoutingService);

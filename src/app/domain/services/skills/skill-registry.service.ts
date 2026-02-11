@@ -13,9 +13,7 @@ interface IRegisteredSkill {
   implementation?: ISkillImplementation;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class SkillRegistryService {
   private dataSkillService = inject(DataSkillService);
 

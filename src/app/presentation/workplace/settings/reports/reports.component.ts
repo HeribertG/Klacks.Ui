@@ -7,6 +7,9 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ReportRowComponent } from './report-row/report-row.component';
 import { ReportHeaderComponent } from './report-header/report-header.component';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
+import { ReportPdfService } from 'src/app/domain/services/report/report-pdf.service';
+import { ReportService } from 'src/app/domain/services/report/report.service';
+import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -23,7 +26,13 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
     SettingsListCardComponent,
     ReportHeaderComponent,
     ReportRowComponent
-  ]
+  ],
+  providers: [
+    DataManagementReportService,
+    ReportPdfService,
+    ReportService,
+    ReportDataProviderService,
+  ],
 })
 export class ReportsComponent implements AfterViewInit {
   @ViewChildren(ReportRowComponent) reportRows!: QueryList<ReportRowComponent>;

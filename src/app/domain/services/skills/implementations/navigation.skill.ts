@@ -6,9 +6,7 @@ import {
   SkillResultType
 } from '../skill.interface';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class NavigationSkillImplementation implements ISkillImplementation {
   private router = inject(Router);
 

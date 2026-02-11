@@ -22,9 +22,7 @@ export interface ReportGenerationContext {
   imageCache?: Map<string, string>;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ReportPdfService {
   private translate = inject(TranslateService);
   private http = inject(HttpClient);

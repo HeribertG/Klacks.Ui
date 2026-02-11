@@ -4,9 +4,7 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container/containe
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { formatTimeFromMinutes } from 'src/app/shared/helpers/time-format.helper';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ShiftArrangementService {
   private readonly MINUTES_PER_HOUR = 60;
   private readonly HALF_DIVISOR = 2;
