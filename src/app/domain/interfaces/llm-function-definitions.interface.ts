@@ -57,3 +57,15 @@ export interface ILLMToolResponse {
   tool_call_id: string;
   content: string;
 }
+
+export interface ILlmFunctionDefinitionDto {
+  id: string;
+  name: string;
+  description: string;
+  parametersJson: string;
+  requiredPermission: string | null;
+  executionType: string;
+  category: string;
+  isEnabled: boolean;
+  sortOrder: number;
+}

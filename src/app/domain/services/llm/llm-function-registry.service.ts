@@ -5,21 +5,53 @@ import {
   ILLMFunctionDefinition,
   ILLMFunctionCall,
   ILLMToolDefinition,
+  ILlmFunctionDefinitionDto,
+  ILLMFunctionParameter,
 } from '../../interfaces/llm-function-definitions.interface';
+import { LlmFunctionDefinitionApiService } from './llm-function-definition-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LLMFunctionRegistryService {
   private router = inject(Router);
+  private functionDefinitionApi = inject(LlmFunctionDefinitionApiService);
   private registeredFunctions = new Map<string, ILLMFunctionDefinition>();
+  private backendLoaded = false;
 
   constructor() {
     this.registerBuiltInFunctions();
   }
 
+  loadFromBackend(): void {
+    if (this.backendLoaded) return;
+
+    this.functionDefinitionApi.loadFunctionDefinitions().subscribe({
+      next: (definitions) => {
+        for (const def of definitions) {
+          this.registerFromBackendDefinition(def);
+        }
+        this.backendLoaded = true;
+      },
+      error: (err) => {
+        console.error('Failed to load function definitions from backend:', err);
+      },
+    });
+  }
+
+  private registerFromBackendDefinition(dto: ILlmFunctionDefinitionDto): void {
+    const parameters: ILLMFunctionParameter[] = JSON.parse(dto.parametersJson || '[]');
+    const category = dto.category as ILLMFunctionDefinition['category'];
+
+    this.registerFunction({
+      name: dto.name,
+      description: dto.description,
+      parameters,
+      category,
+    });
+  }
+
   private registerBuiltInFunctions(): void {
-    // Navigation Functions
     this.registerFunction({
       name: 'navigateToPage',
       description: 'Navigate to a specific page or route in the Klacks application',
@@ -90,7 +122,6 @@ export class LLMFunctionRegistryService {
       category: 'navigation',
     });
 
-    // Form Functions
     this.registerFunction({
       name: 'fillForm',
       description: 'Fill a form with provided data',
@@ -125,7 +156,6 @@ export class LLMFunctionRegistryService {
       category: 'form',
     });
 
-    // Data Functions
     this.registerFunction({
       name: 'searchData',
       description: 'Search for data in the Klacks application',
@@ -222,37 +252,6 @@ export class LLMFunctionRegistryService {
       category: 'data',
     });
 
-    // Combined convenience functions
-    this.registerFunction({
-      name: 'searchAndNavigate',
-      description:
-        'Search for an entity by name and navigate to it. Use this when the user wants to open/edit an entity by name (e.g., "Öffne den Kunden Max Müller"). Returns search results if multiple matches found.',
-      parameters: [
-        {
-          name: 'entityType',
-          type: 'string',
-          description: 'Type of entity to search and navigate to',
-          required: true,
-          enum: ['client', 'shift', 'group'],
-        },
-        {
-          name: 'searchQuery',
-          type: 'string',
-          description: 'Name or search term to find the entity',
-          required: true,
-        },
-        {
-          name: 'action',
-          type: 'string',
-          description: 'Action to perform after finding (edit is default)',
-          required: false,
-          enum: ['view', 'edit'],
-        },
-      ],
-      category: 'navigation',
-    });
-
-    // System Functions
     this.registerFunction({
       name: 'getCurrentUser',
       description: 'Get information about the current logged-in user',
@@ -272,206 +271,6 @@ export class LLMFunctionRegistryService {
       description: 'Returns the current user permissions and role. Use this to understand what actions the user is allowed to perform.',
       parameters: [],
       category: 'system',
-    });
-
-    // Backend-executed Functions
-    this.registerFunction({
-      name: 'create_client',
-      description: 'Erstellt einen neuen Mitarbeiter mit allen Daten (Name, Adresse, Geburtsdatum, Vertrag, Gruppe)',
-      parameters: [
-        { name: 'firstName', type: 'string', description: 'Vorname', required: true },
-        { name: 'lastName', type: 'string', description: 'Nachname', required: true },
-        { name: 'gender', type: 'string', description: 'Geschlecht', required: true, enum: ['Male', 'Female', 'Intersexuality', 'LegalEntity'] },
-        { name: 'birthdate', type: 'string', description: 'Geburtsdatum (YYYY-MM-DD)', required: false },
-        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
-        { name: 'postalCode', type: 'string', description: 'Postleitzahl', required: false },
-        { name: 'city', type: 'string', description: 'Stadt/Ort', required: false },
-        { name: 'canton', type: 'string', description: 'Kanton (z.B. BE, ZH, AG)', required: false },
-        { name: 'country', type: 'string', description: 'Land (z.B. Schweiz)', required: false },
-        { name: 'contractType', type: 'string', description: 'Vertragstyp (z.B. BE 180 Std)', required: false },
-        { name: 'groupPath', type: 'string', description: 'Gruppenpfad (z.B. Deutschweiz Mitte -> BERN -> Bern)', required: false },
-      ],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'search_clients',
-      description: 'Sucht nach Mitarbeitern oder Kunden',
-      parameters: [
-        { name: 'searchTerm', type: 'string', description: 'Suchbegriff', required: false },
-      ],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'create_contract',
-      description: 'Erstellt einen neuen Vertrag für einen Mitarbeiter',
-      parameters: [
-        { name: 'clientId', type: 'string', description: 'ID des Mitarbeiters', required: true },
-        { name: 'contractType', type: 'string', description: 'Vertragsart', required: true },
-        { name: 'canton', type: 'string', description: 'Kanton', required: true },
-      ],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'get_system_info',
-      description: 'Liefert Systeminformationen',
-      parameters: [],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'navigate_to_page',
-      description: 'Navigiert zu einer Seite',
-      parameters: [
-        { name: 'page', type: 'string', description: 'Zielseite', required: true },
-      ],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'get_general_settings',
-      description: 'Navigiert zu den Einstellungen und liest den aktuellen App-Namen',
-      parameters: [],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'update_general_settings',
-      description: 'Navigiert zu den Einstellungen und ändert den App-Namen direkt im Formular',
-      parameters: [
-        { name: 'appName', type: 'string', description: 'Neuer App-Name', required: true },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'get_owner_address',
-      description: 'Liest die aktuelle Firmen-/Inhaberadresse aus den Einstellungen. Gibt alle Felder zurück: Name, Zusatz, Strasse, PLZ, Ort, Kanton/State, Land, Telefon, E-Mail.',
-      parameters: [],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'update_owner_address',
-      description: 'Aktualisiert die Firmen-/Inhaberadresse in den Einstellungen. State und Country sind Pflichtfelder. Verwende validate_address vorher um die Adresse zu prüfen und den Kanton zu ermitteln.',
-      parameters: [
-        { name: 'addressName', type: 'string', description: 'Firmen- oder Inhabername', required: false },
-        { name: 'supplementAddress', type: 'string', description: 'Adresszusatz', required: false },
-        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
-        { name: 'zip', type: 'string', description: 'Postleitzahl', required: false },
-        { name: 'city', type: 'string', description: 'Ort', required: false },
-        { name: 'state', type: 'string', description: 'Kanton/Bundesland Abkürzung (z.B. BE, ZH)', required: true },
-        { name: 'country', type: 'string', description: 'Land Abkürzung (z.B. CH, DE, AT)', required: true },
-        { name: 'phone', type: 'string', description: 'Telefonnummer', required: false },
-        { name: 'email', type: 'string', description: 'E-Mail-Adresse', required: false },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'validate_address',
-      description: 'Prüft eine Adresse via Internet (Geocoding) und ermittelt den Kanton aus der PLZ. Verwende diese Funktion IMMER bevor du eine Adresse setzt.',
-      parameters: [
-        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
-        { name: 'postalCode', type: 'string', description: 'Postleitzahl', required: true },
-        { name: 'city', type: 'string', description: 'Ort', required: true },
-        { name: 'country', type: 'string', description: 'Land (Standard: Schweiz)', required: false },
-      ],
-      category: 'backend',
-    });
-
-    this.registerFunction({
-      name: 'create_system_user',
-      description: 'Erstellt einen neuen System-Benutzer (Login-Account) über die Einstellungen-UI. Navigiert zu Einstellungen → Benutzerverwaltung, füllt das Formular aus und speichert. Gibt Username und Passwort zurück.',
-      parameters: [
-        { name: 'firstName', type: 'string', description: 'Vorname des neuen Benutzers', required: true },
-        { name: 'lastName', type: 'string', description: 'Nachname des neuen Benutzers', required: true },
-        { name: 'email', type: 'string', description: 'E-Mail-Adresse des neuen Benutzers', required: true },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'delete_system_user',
-      description: 'Löscht einen System-Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Benutzerverwaltung, klickt den Delete-Button und bestätigt.',
-      parameters: [
-        { name: 'userId', type: 'string', description: 'Die ID des zu löschenden Benutzers', required: true },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'list_system_users',
-      description: 'Listet alle System-Benutzer aus der Einstellungen-UI auf. Navigiert zu Einstellungen → Benutzerverwaltung und liest die User-Liste aus.',
-      parameters: [],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'create_branch',
-      description: 'Erstellt eine neue Filiale über die Einstellungen-UI. Navigiert zu Einstellungen → Filialen, öffnet das Modal, füllt es aus und speichert.',
-      parameters: [
-        { name: 'name', type: 'string', description: 'Name der Filiale', required: true },
-        { name: 'address', type: 'string', description: 'Adresse der Filiale', required: true },
-        { name: 'phone', type: 'string', description: 'Telefonnummer der Filiale', required: false },
-        { name: 'email', type: 'string', description: 'E-Mail-Adresse der Filiale', required: false },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'delete_branch',
-      description: 'Löscht eine Filiale über die Einstellungen-UI. Klickt den Delete-Button und bestätigt.',
-      parameters: [
-        { name: 'branchId', type: 'string', description: 'Die ID der zu löschenden Filiale', required: true },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'list_branches',
-      description: 'Listet alle Filialen aus der Einstellungen-UI auf. Navigiert zu Einstellungen und liest die Filial-Liste aus.',
-      parameters: [],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'create_macro',
-      description: 'Erstellt ein neues Macro mit KlacksScript-Code über die Einstellungen-UI. Navigiert zu Einstellungen → Macros, öffnet das Modal, füllt Name, Typ und Script-Code aus und speichert.',
-      parameters: [
-        { name: 'name', type: 'string', description: 'Name des Macros', required: true },
-        { name: 'type', type: 'string', description: 'Typ des Macros (ShiftAndEmployments oder WorkRules, Standard: ShiftAndEmployments)', required: false, enum: ['ShiftAndEmployments', 'WorkRules'] },
-        { name: 'content', type: 'string', description: 'KlacksScript-Code für das Macro. Verwende \\n für Zeilenumbrüche.', required: false },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'delete_macro',
-      description: 'Löscht ein Macro über die Einstellungen-UI. Klickt den Delete-Button und bestätigt.',
-      parameters: [
-        { name: 'macroId', type: 'string', description: 'Die ID des zu löschenden Macros', required: true },
-      ],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'list_macros',
-      description: 'Listet alle Macros aus der Einstellungen-UI auf. Navigiert zu Einstellungen und liest die Macro-Liste aus.',
-      parameters: [],
-      category: 'ui',
-    });
-
-    this.registerFunction({
-      name: 'set_user_group_scope',
-      description: 'Setzt den Group Scope (Gruppenbereich-Sichtbarkeit) für einen Benutzer über die Einstellungen-UI. Navigiert zu Einstellungen → Group Scope, öffnet das Modal für den Benutzer und aktiviert die gewünschten Gruppen-Checkboxen.',
-      parameters: [
-        { name: 'userId', type: 'string', description: 'Die ID des Benutzers', required: true },
-        { name: 'groupNames', type: 'string', description: 'Komma-getrennte Liste der Gruppennamen (z.B. "Deutschweiz Mitte, Romandie")', required: true },
-      ],
-      category: 'ui',
     });
   }
 
@@ -524,7 +323,6 @@ export class LLMFunctionRegistryService {
       return { valid: false, error: `Function ${functionCall.name} not found` };
     }
 
-    // Validate required parameters
     for (const param of definition.parameters) {
       if (param.required && !(param.name in functionCall.arguments)) {
         return {
@@ -536,7 +334,6 @@ export class LLMFunctionRegistryService {
       if (param.name in functionCall.arguments) {
         const value = functionCall.arguments[param.name];
 
-        // Type validation
         if (param.type === 'string' && typeof value !== 'string') {
           return {
             valid: false,
@@ -556,7 +353,6 @@ export class LLMFunctionRegistryService {
           };
         }
 
-        // Enum validation
         if (param.enum && !param.enum.includes(value)) {
           return {
             valid: false,

@@ -122,6 +122,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnInit(): void {
+    this.functionRegistry.loadFromBackend();
     this.conversationId = this.generateConversationId();
 
     this.translateService.onLangChange
