@@ -7,6 +7,7 @@ import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
 import { Macro } from 'src/app/domain/models/settings/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
@@ -28,6 +29,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private macroManagementService = inject(MacroManagementService);
   private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
 
@@ -135,6 +137,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
             updatedMacro,
             ...macros.slice(index + 1)
           ];
+          this.macroManagementService.save();
         }
       }
     }
