@@ -512,6 +512,55 @@ describe('DataManagementLLMService', () => {
             });
         });
 
+        it('should initialize currentLanguage from translateService', () => {
+            expect(service.currentLanguage()).toBe('de');
+        });
+
+        it('should send language as top-level property in chat request', () => {
+            service.initializeLLMModels();
+            service.setLanguage('fr');
+
+            const mockResponse: ILLMChatResponse = {
+                message: 'Bonjour!',
+                conversationId: 'conv-lang',
+            };
+            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+
+            service.sendMessage('Salut', 'conv-lang').subscribe();
+
+            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    language: 'fr',
+                    message: 'Salut',
+                })
+            );
+        });
+
+        it('should update language in subsequent requests after setLanguage', () => {
+            service.initializeLLMModels();
+
+            const mockResponse: ILLMChatResponse = {
+                message: 'Response',
+                conversationId: 'conv-multi',
+            };
+            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+
+            service.setLanguage('de');
+            service.sendMessage('Hallo', 'conv-multi').subscribe();
+            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+                expect.objectContaining({ language: 'de' })
+            );
+
+            mockDataLLMService.chat.mockClear();
+            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+
+            service.setLanguage('it');
+            service.sendMessage('Ciao', 'conv-multi').subscribe();
+            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+                expect.objectContaining({ language: 'it' })
+            );
+        });
+
         it('should get help information', async () => {
             // Arrange
             const mockHelp = {

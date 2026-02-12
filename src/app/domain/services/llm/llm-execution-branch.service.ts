@@ -99,7 +99,7 @@ export class LlmExecutionBranchService {
   }
 
   private async doDeleteBranch(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
-    const { branchId } = call.arguments;
+    const { branchId, branchName } = call.arguments;
 
     for (let i = 0; i < 10; i++) {
       const backdrop = document.querySelector('ngb-modal-backdrop, .modal-backdrop');
@@ -118,15 +118,56 @@ export class LlmExecutionBranchService {
     branchHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    let resolvedId = branchId;
     let deleteBtn: HTMLElement | null = null;
-    for (let i = 0; i < 10; i++) {
+
+    if (branchId) {
       deleteBtn = document.getElementById(`branches-row-delete-${branchId}`);
-      if (deleteBtn) break;
-      await new Promise(resolve => setTimeout(resolve, 500));
     }
+
     if (!deleteBtn) {
-      return { id: call.id, success: false, error: `Delete button for branch ${branchId} not found` };
+      const searchName = branchName || branchId;
+      if (searchName) {
+        const nameInputs = document.querySelectorAll('input[id^="branches-row-name-"]');
+        for (const input of Array.from(nameInputs)) {
+          const value = (input as HTMLInputElement).value;
+          if (value.toLowerCase().includes(searchName.toLowerCase())) {
+            resolvedId = input.id.replace('branches-row-name-', '');
+            deleteBtn = document.getElementById(`branches-row-delete-${resolvedId}`);
+            break;
+          }
+        }
+      }
     }
+
+    if (!deleteBtn) {
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (branchId) {
+          deleteBtn = document.getElementById(`branches-row-delete-${branchId}`);
+          if (deleteBtn) { resolvedId = branchId; break; }
+        }
+        const searchName = branchName || branchId;
+        if (searchName) {
+          const nameInputs = document.querySelectorAll('input[id^="branches-row-name-"]');
+          for (const input of Array.from(nameInputs)) {
+            const value = (input as HTMLInputElement).value;
+            if (value.toLowerCase().includes(searchName.toLowerCase())) {
+              resolvedId = input.id.replace('branches-row-name-', '');
+              deleteBtn = document.getElementById(`branches-row-delete-${resolvedId}`);
+              break;
+            }
+          }
+        }
+        if (deleteBtn) break;
+      }
+    }
+
+    if (!deleteBtn) {
+      return { id: call.id, success: false, error: `Delete button for branch ${branchName || branchId} not found` };
+    }
+    deleteBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await new Promise(resolve => setTimeout(resolve, 300));
     deleteBtn.click();
 
     let confirmBtn: HTMLElement | null = null;
@@ -143,17 +184,17 @@ export class LlmExecutionBranchService {
 
     for (let i = 0; i < 20; i++) {
       await new Promise(resolve => setTimeout(resolve, 500));
-      const stillExists = document.getElementById(`branches-row-name-${branchId}`);
+      const stillExists = document.getElementById(`branches-row-name-${resolvedId}`);
       if (!stillExists) {
         return {
           id: call.id,
           success: true,
-          result: { branchId, message: `Branch with ID ${branchId} deleted successfully.` },
+          result: { branchId: resolvedId, message: `Branch '${branchName || resolvedId}' deleted successfully.` },
         };
       }
     }
 
-    return { id: call.id, success: false, error: `Branch ${branchId} still exists after deletion (10s timeout)` };
+    return { id: call.id, success: false, error: `Branch ${branchName || resolvedId} still exists after deletion (10s timeout)` };
   }
 
   executeListBranches(call: ILLMFunctionCall): Observable<ILLMFunctionResult> {

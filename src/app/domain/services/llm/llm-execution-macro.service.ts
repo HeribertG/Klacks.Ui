@@ -147,7 +147,7 @@ export class LlmExecutionMacroService {
   }
 
   private async doDeleteMacro(call: ILLMFunctionCall): Promise<ILLMFunctionResult> {
-    const { macroId } = call.arguments;
+    const { macroId, macroName } = call.arguments;
 
     for (let i = 0; i < 10; i++) {
       const backdrop = document.querySelector('ngb-modal-backdrop, .modal-backdrop');
@@ -166,15 +166,56 @@ export class LlmExecutionMacroService {
     macrosSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    let resolvedId = macroId;
     let deleteBtn: HTMLElement | null = null;
-    for (let i = 0; i < 10; i++) {
+
+    if (macroId) {
       deleteBtn = document.getElementById(`macro-row-delete-${macroId}`);
-      if (deleteBtn) break;
-      await new Promise(resolve => setTimeout(resolve, 500));
     }
+
     if (!deleteBtn) {
-      return { id: call.id, success: false, error: `Delete button for macro ${macroId} not found` };
+      const searchName = macroName || macroId;
+      if (searchName) {
+        const nameInputs = document.querySelectorAll('input[id^="macro-row-name-"]');
+        for (const input of Array.from(nameInputs)) {
+          const value = (input as HTMLInputElement).value;
+          if (value.toLowerCase().includes(searchName.toLowerCase())) {
+            resolvedId = input.id.replace('macro-row-name-', '');
+            deleteBtn = document.getElementById(`macro-row-delete-${resolvedId}`);
+            break;
+          }
+        }
+      }
     }
+
+    if (!deleteBtn) {
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (macroId) {
+          deleteBtn = document.getElementById(`macro-row-delete-${macroId}`);
+          if (deleteBtn) { resolvedId = macroId; break; }
+        }
+        const searchName = macroName || macroId;
+        if (searchName) {
+          const nameInputs = document.querySelectorAll('input[id^="macro-row-name-"]');
+          for (const input of Array.from(nameInputs)) {
+            const value = (input as HTMLInputElement).value;
+            if (value.toLowerCase().includes(searchName.toLowerCase())) {
+              resolvedId = input.id.replace('macro-row-name-', '');
+              deleteBtn = document.getElementById(`macro-row-delete-${resolvedId}`);
+              break;
+            }
+          }
+        }
+        if (deleteBtn) break;
+      }
+    }
+
+    if (!deleteBtn) {
+      return { id: call.id, success: false, error: `Delete button for macro ${macroName || macroId} not found` };
+    }
+    deleteBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await new Promise(resolve => setTimeout(resolve, 300));
     deleteBtn.click();
 
     let confirmBtn: HTMLElement | null = null;
@@ -191,17 +232,17 @@ export class LlmExecutionMacroService {
 
     for (let i = 0; i < 20; i++) {
       await new Promise(resolve => setTimeout(resolve, 500));
-      const stillExists = document.getElementById(`macro-row-name-${macroId}`);
+      const stillExists = document.getElementById(`macro-row-name-${resolvedId}`);
       if (!stillExists) {
         return {
           id: call.id,
           success: true,
-          result: { macroId, message: `Macro with ID ${macroId} deleted successfully.` },
+          result: { macroId: resolvedId, message: `Macro '${macroName || resolvedId}' deleted successfully.` },
         };
       }
     }
 
-    return { id: call.id, success: false, error: `Macro ${macroId} still exists after deletion (10s timeout)` };
+    return { id: call.id, success: false, error: `Macro ${macroName || resolvedId} still exists after deletion (10s timeout)` };
   }
 
   executeListMacros(call: ILLMFunctionCall): Observable<ILLMFunctionResult> {

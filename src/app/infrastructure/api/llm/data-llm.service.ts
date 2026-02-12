@@ -9,6 +9,7 @@ export interface ILLMChatRequest {
   message: string;
   conversationId?: string;
   modelId?: string;
+  language?: string;
   context?: any;
 }
 

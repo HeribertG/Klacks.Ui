@@ -130,6 +130,7 @@ export class DataManagementLLMService {
       message,
       conversationId: convId,
       modelId: modelId,
+      language: this.currentLanguage(),
       context: {
         conversationHistory: conversation.messages.slice(-10),
         language: this.currentLanguage(),
