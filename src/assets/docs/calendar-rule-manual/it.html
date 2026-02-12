@@ -13,18 +13,18 @@
 </table>
 
 <h4>Date fisse con spostamento giorno</h4>
-<p>Formato: <code>MM/DD+XXX+WW</code> o <code>MM/DD+XXX-WW</code></p>
+<p>Formato: <code>MM/DD+XX+WW</code> o <code>MM/DD+XX-WW</code></p>
 <ul>
-  <li><code>XXX</code> = Offset in giorni (000 a 999)</li>
+  <li><code>+XX</code> = Segno + offset in giorni (00 a 99)</li>
   <li><code>+</code> = prossimo giorno della settimana dopo la data</li>
   <li><code>-</code> = giorno della settimana precedente prima della data</li>
   <li><code>WW</code> = Giorno della settimana (SU, MO, TU, WE, TH, FR, SA)</li>
 </ul>
 <table>
   <tr><th>Esempio</th><th>Significato</th></tr>
-  <tr><td><code>11/01+000+TH</code></td><td>Primo giovedì di novembre</td></tr>
-  <tr><td><code>11/22+000+TH</code></td><td>Quarto giovedì di novembre (Thanksgiving)</td></tr>
-  <tr><td><code>05/25+000-MO</code></td><td>Ultimo lunedì di maggio (Memorial Day)</td></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Primo giovedì di novembre</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Quarto giovedì di novembre (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Ultimo lunedì di maggio (Memorial Day)</td></tr>
 </table>
 
 <h4>Date relative alla Pasqua</h4>

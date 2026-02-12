@@ -337,10 +337,12 @@ export class CalendarRulesComponent
       this.holidaysListHelper.add(this.currentRule);
       this.holidaysListHelper.computeHolidays();
 
-      this.currentResult =
-        this.holidaysListHelper.holidayList.length == 1
-          ? this.holidaysListHelper.holidayList[0].currentDate.toDateString()
-          : 'kein Ergebnis';
+      const currentYearEntry = this.holidaysListHelper.holidayList.find(
+        (h) => h.currentDate?.getFullYear() === this.holidaysListHelper.currentYear
+      );
+      this.currentResult = currentYearEntry
+        ? currentYearEntry.currentDate.toDateString()
+        : 'kein Ergebnis';
     }
   }
 

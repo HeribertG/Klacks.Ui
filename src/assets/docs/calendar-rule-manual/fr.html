@@ -13,18 +13,18 @@
 </table>
 
 <h4>Dates fixes avec décalage de jour</h4>
-<p>Format : <code>MM/DD+XXX+WW</code> ou <code>MM/DD+XXX-WW</code></p>
+<p>Format : <code>MM/DD+XX+WW</code> ou <code>MM/DD+XX-WW</code></p>
 <ul>
-  <li><code>XXX</code> = Décalage en jours (000 à 999)</li>
+  <li><code>+XX</code> = Signe + décalage en jours (00 à 99)</li>
   <li><code>+</code> = prochain jour de la semaine après la date</li>
   <li><code>-</code> = jour de la semaine précédent avant la date</li>
   <li><code>WW</code> = Jour de la semaine (SU, MO, TU, WE, TH, FR, SA)</li>
 </ul>
 <table>
   <tr><th>Exemple</th><th>Signification</th></tr>
-  <tr><td><code>11/01+000+TH</code></td><td>Premier jeudi de novembre</td></tr>
-  <tr><td><code>11/22+000+TH</code></td><td>Quatrième jeudi de novembre (Thanksgiving)</td></tr>
-  <tr><td><code>05/25+000-MO</code></td><td>Dernier lundi de mai (Memorial Day)</td></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>Premier jeudi de novembre</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Quatrième jeudi de novembre (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Dernier lundi de mai (Memorial Day)</td></tr>
 </table>
 
 <h4>Dates relatives à Pâques</h4>

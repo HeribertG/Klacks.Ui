@@ -379,4 +379,205 @@ describe('HolidaysListHelper', () => {
         console.log(`[TEST-DATA] Date: ${date.toLocaleDateString('de-DE')} | ISO Week: ${result} (expected: 52)`);
         expect(result).toEqual(52);
     });
+
+    it('should compute first monday in september (Labor Day)', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '09/01+00+MO',
+            name: { en: 'Labor Day' },
+            state: '',
+            country: 'US',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: Sep 1 (Fri) → next Mon = Sep 4
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('9/4/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2022: Sep 1 (Thu) → next Mon = Sep 5
+        holidaysHelper.currentYear = 2022;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('9/5/2022'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: Sep 1 (Sun) → next Mon = Sep 2
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('9/2/2024'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should compute fourth thursday in november (Thanksgiving)', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '11/01+21+TH',
+            name: { en: 'Thanksgiving' },
+            state: '',
+            country: 'US',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: Nov 1+21=Nov 22 (Wed) → next Thu = Nov 23
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('11/23/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2022: Nov 22 (Tue) → next Thu = Nov 24
+        holidaysHelper.currentYear = 2022;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('11/24/2022'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: Nov 22 (Fri) → next Thu = Nov 28
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('11/28/2024'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should compute third monday in january (MLK Day)', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '01/15+00+MO',
+            name: { en: 'Martin Luther King Jr. Day' },
+            state: '',
+            country: 'US',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: Jan 15 (Sun) → next Mon = Jan 16
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('1/16/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: Jan 15 (Mon) → stays Jan 15
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('1/15/2024'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2022: Jan 15 (Sat) → next Mon = Jan 17
+        holidaysHelper.currentYear = 2022;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('1/17/2022'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should compute first thursday in april (Näfelser Fahrt)', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '04/01+00+TH',
+            name: { en: 'Näfelser Fahrt' },
+            state: 'GL',
+            country: 'CH',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: Apr 1 (Sat) → next Thu = Apr 6
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('4/6/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: Apr 1 (Mon) → next Thu = Apr 4
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('4/4/2024'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should compute weekday rule with backward direction', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '05/25+00-MO',
+            name: { en: 'Test Backward Rule' },
+            state: '',
+            country: 'US',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: May 25 (Thu) → prev Mon = May 22
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('5/22/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2022: May 25 (Wed) → prev Mon = May 23
+        holidaysHelper.currentYear = 2022;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('5/23/2022'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: May 25 (Sat) → prev Mon = May 20
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('5/20/2024'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should compute wednesday between Nov 16-22 (Buß- und Bettag)', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '11/16+00+WE',
+            name: { en: 'Buß- und Bettag' },
+            state: 'SN',
+            country: 'DE',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert 2023: Nov 16 (Thu) → next Wed = Nov 22
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.holidayList.length).toBe(3);
+        expect(holidaysHelper.isHoliday(new Date('11/22/2023'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2022: Nov 16 (Wed) → stays Nov 16
+        holidaysHelper.currentYear = 2022;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('11/16/2022'))).toBe(HolidayStatus.OfficialHoliday);
+
+        // Act & Assert 2024: Nov 16 (Sat) → next Wed = Nov 20
+        holidaysHelper.currentYear = 2024;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('11/20/2024'))).toBe(HolidayStatus.OfficialHoliday);
+    });
+
+    it('should not report wrong date for weekday rule', () => {
+        // Arrange
+        const rule: ICalendarRule = {
+            id: 'test-id',
+            rule: '09/01+00+MO',
+            name: { en: 'Labor Day' },
+            state: '',
+            country: 'US',
+            isMandatory: true,
+            isPaid: true,
+            subRule: undefined,
+        };
+        holidaysHelper.add(rule);
+
+        // Act & Assert - Sep 1 2023 is NOT Labor Day (it's a Friday)
+        holidaysHelper.currentYear = 2023;
+        holidaysHelper.computeHolidays();
+        expect(holidaysHelper.isHoliday(new Date('9/1/2023'))).not.toBe(HolidayStatus.OfficialHoliday);
+    });
 });

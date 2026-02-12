@@ -13,18 +13,18 @@
 </table>
 
 <h4>Fixed Dates with Weekday Offset</h4>
-<p>Format: <code>MM/DD+XXX+WW</code> or <code>MM/DD+XXX-WW</code></p>
+<p>Format: <code>MM/DD+XX+WW</code> or <code>MM/DD+XX-WW</code></p>
 <ul>
-  <li><code>XXX</code> = Offset in days (000 to 999)</li>
+  <li><code>+XX</code> = Sign + offset in days (00 to 99)</li>
   <li><code>+</code> = next weekday after the date</li>
   <li><code>-</code> = previous weekday before the date</li>
   <li><code>WW</code> = Weekday (SU, MO, TU, WE, TH, FR, SA)</li>
 </ul>
 <table>
   <tr><th>Example</th><th>Meaning</th></tr>
-  <tr><td><code>11/01+000+TH</code></td><td>First Thursday in November</td></tr>
-  <tr><td><code>11/22+000+TH</code></td><td>Fourth Thursday in November (Thanksgiving)</td></tr>
-  <tr><td><code>05/25+000-MO</code></td><td>Last Monday in May (Memorial Day)</td></tr>
+  <tr><td><code>11/01+00+TH</code></td><td>First Thursday in November</td></tr>
+  <tr><td><code>11/22+00+TH</code></td><td>Fourth Thursday in November (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+00-MO</code></td><td>Last Monday in May (Memorial Day)</td></tr>
 </table>
 
 <h4>Easter-Related Dates</h4>
