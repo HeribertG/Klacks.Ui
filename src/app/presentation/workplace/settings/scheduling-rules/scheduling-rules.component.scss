@@ -1,0 +1,44 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.rule-name-section {
+  margin-left: 30px;
+  width: 250px;
+}
+
+.rule-config-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 30px;
+  margin-right: 30px;
+  gap: 30px;
+}
+
+.rule-config-item {
+  flex: 1;
+  max-width: 250px;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--colorWorkplaceHeadline);
+  }
+}
+
+.rule-input {
+  width: 120px;
+  height: 30px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+}

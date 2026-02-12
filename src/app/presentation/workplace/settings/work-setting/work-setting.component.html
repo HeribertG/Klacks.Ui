@@ -201,6 +201,97 @@
         />
       </div>
     </div>
+    <div id="work-setting-scheduling-header" class="container-header" style="margin-top: 16px;">
+      {{ 'settings.work.scheduling-header' | translate }}
+    </div>
+    <div id="work-setting-scheduling-line" class="container-line"></div>
+    <div id="work-setting-scheduling-workdays-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="schedulingMaxWorkDays">{{ 'settings.work.scheduling-max-work-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.schedulingMaxWorkDays"
+          aria-label="schedulingMaxWorkDays"
+          id="schedulingMaxWorkDays"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="schedulingMinRestDays">{{ 'settings.work.scheduling-min-rest-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.schedulingMinRestDays"
+          aria-label="schedulingMinRestDays"
+          id="schedulingMinRestDays"
+        />
+      </div>
+    </div>
+    <div id="work-setting-scheduling-pause-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="schedulingMinPauseHours">{{ 'settings.work.scheduling-min-pause-hours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="workForm.schedulingMinPauseHours"
+          aria-label="schedulingMinPauseHours"
+          id="schedulingMinPauseHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="schedulingMaxOptimalGap">{{ 'settings.work.scheduling-max-optimal-gap' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="workForm.schedulingMaxOptimalGap"
+          aria-label="schedulingMaxOptimalGap"
+          id="schedulingMaxOptimalGap"
+        />
+      </div>
+    </div>
+    <div id="work-setting-scheduling-hours-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="schedulingMaxDailyHours">{{ 'settings.work.scheduling-max-daily-hours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="workForm.schedulingMaxDailyHours"
+          aria-label="schedulingMaxDailyHours"
+          id="schedulingMaxDailyHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="schedulingMaxWeeklyHours">{{ 'settings.work.scheduling-max-weekly-hours' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.schedulingMaxWeeklyHours"
+          aria-label="schedulingMaxWeeklyHours"
+          id="schedulingMaxWeeklyHours"
+        />
+      </div>
+    </div>
+    <div id="work-setting-scheduling-consecutive-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="schedulingMaxConsecutiveDays">{{ 'settings.work.scheduling-max-consecutive-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.schedulingMaxConsecutiveDays"
+          aria-label="schedulingMaxConsecutiveDays"
+          id="schedulingMaxConsecutiveDays"
+        />
+      </div>
+      <div class="form-group secondColumn">
+      </div>
+    </div>
     <div class="bottom-border-space"></div>
   </form>
   }

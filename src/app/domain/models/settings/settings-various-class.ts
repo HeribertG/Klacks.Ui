@@ -55,6 +55,14 @@ export class AppSetting {
   public static WORK_DAY_VISIBLE_BEFORE = 'dayVisibleBefore';
   public static WORK_DAY_VISIBLE_AFTER = 'dayVisibleAfter';
 
+  public static SCHEDULING_MAX_WORK_DAYS = 'SCHEDULING_MAX_WORK_DAYS';
+  public static SCHEDULING_MIN_REST_DAYS = 'SCHEDULING_MIN_REST_DAYS';
+  public static SCHEDULING_MIN_PAUSE_HOURS = 'SCHEDULING_MIN_PAUSE_HOURS';
+  public static SCHEDULING_MAX_OPTIMAL_GAP = 'SCHEDULING_MAX_OPTIMAL_GAP';
+  public static SCHEDULING_MAX_DAILY_HOURS = 'SCHEDULING_MAX_DAILY_HOURS';
+  public static SCHEDULING_MAX_WEEKLY_HOURS = 'SCHEDULING_MAX_WEEKLY_HOURS';
+  public static SCHEDULING_MAX_CONSECUTIVE_DAYS = 'SCHEDULING_MAX_CONSECUTIVE_DAYS';
+
   public static GLOBAL_CALENDAR_COUNTRY = 'globalCalendarCountry';
   public static GLOBAL_CALENDAR_STATE = 'globalCalendarState';
   public static GLOBAL_CALENDAR_SELECTION_ID = 'globalCalendarSelectionId';

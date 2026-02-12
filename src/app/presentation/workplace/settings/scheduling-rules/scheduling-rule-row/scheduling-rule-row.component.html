@@ -1,0 +1,20 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="scheduling-rule-row-form-{{ data.id }}">
+  <div id="scheduling-rule-row-container-{{ data.id }}" class="first custom-control-inline">
+    <div id="scheduling-rule-row-name-group-{{ data.id }}" class="form-group">
+      <input
+        id="scheduling-rule-row-name-{{ data.id }}"
+        type="text"
+        [value]="data.name"
+        name="data.name"
+        class="form-control attribute-name"
+        aria-label="name"
+        (click)="onClickEdit()"
+        readonly
+      />
+    </div>
+
+    <span id="scheduling-rule-row-delete-{{ data.id }}" class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+  </div>
+</form>

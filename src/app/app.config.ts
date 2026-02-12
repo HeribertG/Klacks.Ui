@@ -53,6 +53,8 @@ import { LOADING_INDICATOR_TOKEN } from './domain/interfaces/loading-indicator.i
 import { SpinnerService } from './presentation/spinner/spinner.service';
 import { LanguageConfigService } from './application/services/language-config.service';
 import { initializeLanguageHelper } from './domain/helpers/multi-language.helper';
+import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
+import { ScriptService } from './infrastructure/scripting/script.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -130,6 +132,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: LOADING_INDICATOR_TOKEN,
       useClass: SpinnerService,
+    },
+    {
+      provide: SCRIPT_COMPILER,
+      useExisting: ScriptService,
     },
     importProvidersFrom(
       NgbModule,

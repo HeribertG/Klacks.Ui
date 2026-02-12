@@ -29,6 +29,13 @@ interface WorkSettingsFormModel {
   soRate: number;
   dayVisibleBefore: number;
   dayVisibleAfter: number;
+  schedulingMaxWorkDays: number;
+  schedulingMinRestDays: number;
+  schedulingMinPauseHours: number;
+  schedulingMaxOptimalGap: number;
+  schedulingMaxDailyHours: number;
+  schedulingMaxWeeklyHours: number;
+  schedulingMaxConsecutiveDays: number;
 }
 
 @Component({
@@ -62,6 +69,13 @@ export class WorkSettingComponent implements OnInit {
     soRate: 0,
     dayVisibleBefore: 0,
     dayVisibleAfter: 0,
+    schedulingMaxWorkDays: 5,
+    schedulingMinRestDays: 2,
+    schedulingMinPauseHours: 12,
+    schedulingMaxOptimalGap: 2,
+    schedulingMaxDailyHours: 10,
+    schedulingMaxWeeklyHours: 50,
+    schedulingMaxConsecutiveDays: 6,
   });
 
   workForm = form(this.formModel);
@@ -148,6 +162,13 @@ export class WorkSettingComponent implements OnInit {
       soRate: svc.soRate,
       dayVisibleBefore: svc.dayVisibleBefore,
       dayVisibleAfter: svc.dayVisibleAfter,
+      schedulingMaxWorkDays: svc.schedulingMaxWorkDays,
+      schedulingMinRestDays: svc.schedulingMinRestDays,
+      schedulingMinPauseHours: svc.schedulingMinPauseHours,
+      schedulingMaxOptimalGap: svc.schedulingMaxOptimalGap,
+      schedulingMaxDailyHours: svc.schedulingMaxDailyHours,
+      schedulingMaxWeeklyHours: svc.schedulingMaxWeeklyHours,
+      schedulingMaxConsecutiveDays: svc.schedulingMaxConsecutiveDays,
     });
   }
 
@@ -169,6 +190,13 @@ export class WorkSettingComponent implements OnInit {
     svc.soRate = data.soRate;
     svc.dayVisibleBefore = data.dayVisibleBefore;
     svc.dayVisibleAfter = data.dayVisibleAfter;
+    svc.schedulingMaxWorkDays = data.schedulingMaxWorkDays;
+    svc.schedulingMinRestDays = data.schedulingMinRestDays;
+    svc.schedulingMinPauseHours = data.schedulingMinPauseHours;
+    svc.schedulingMaxOptimalGap = data.schedulingMaxOptimalGap;
+    svc.schedulingMaxDailyHours = data.schedulingMaxDailyHours;
+    svc.schedulingMaxWeeklyHours = data.schedulingMaxWeeklyHours;
+    svc.schedulingMaxConsecutiveDays = data.schedulingMaxConsecutiveDays;
     svc.settingsChangeTrigger.update(v => v + 1);
   }
 

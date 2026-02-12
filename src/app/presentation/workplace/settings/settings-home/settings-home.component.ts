@@ -34,6 +34,7 @@ import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
 import { ReportsComponent } from '../reports/reports.component';
+import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -66,6 +67,7 @@ import { ReportsComponent } from '../reports/reports.component';
     IdentityProvidersComponent,
     AbsenceDetailComponent,
     ReportsComponent,
+    SchedulingRulesComponent,
 ],
 })
 export class SettingsHomeComponent implements OnInit {

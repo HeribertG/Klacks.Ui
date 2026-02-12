@@ -23,6 +23,7 @@ export interface IContract {
   validUntil: Date | undefined;
   calendarSelection: ICalendarSelection | undefined;
   calendarSelectionId: string | undefined;
+  schedulingRuleId: string | undefined;
 }
 
 export class Contract implements IContract {
@@ -42,4 +43,5 @@ export class Contract implements IContract {
   validUntil: Date | undefined = undefined;
   calendarSelection: ICalendarSelection | undefined = undefined;
   calendarSelectionId: string | undefined = undefined;
+  schedulingRuleId: string | undefined = undefined;
 }

@@ -54,6 +54,12 @@ export class LlmExecutionNavigationService {
         case 'reports':
           route = '/workplace/dashboard';
           break;
+        case 'shifts':
+          route = '/workplace/shift';
+          break;
+        case 'absences':
+          route = '/workplace/absence';
+          break;
       }
 
       this.router.navigate([route]);

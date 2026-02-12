@@ -77,6 +77,13 @@ export interface IWorkSettings {
   soRate: number;
   dayVisibleBefore: number;
   dayVisibleAfter: number;
+  schedulingMaxWorkDays: number;
+  schedulingMinRestDays: number;
+  schedulingMinPauseHours: number;
+  schedulingMaxOptimalGap: number;
+  schedulingMaxDailyHours: number;
+  schedulingMaxWeeklyHours: number;
+  schedulingMaxConsecutiveDays: number;
 }
 
 export class WorkSettings implements IWorkSettings {
@@ -96,4 +103,11 @@ export class WorkSettings implements IWorkSettings {
   soRate = 0.1;
   dayVisibleBefore = 3;
   dayVisibleAfter = 3;
+  schedulingMaxWorkDays = 5;
+  schedulingMinRestDays = 2;
+  schedulingMinPauseHours = 12;
+  schedulingMaxOptimalGap = 2;
+  schedulingMaxDailyHours = 10;
+  schedulingMaxWeeklyHours = 50;
+  schedulingMaxConsecutiveDays = 6;
 }

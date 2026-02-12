@@ -418,6 +418,62 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     this.appSettingsService.workSettings.update(s => ({ ...s, dayVisibleAfter: value }));
   }
 
+  get schedulingMaxWorkDays(): number {
+    return this.appSettingsService.workSettings().schedulingMaxWorkDays;
+  }
+
+  set schedulingMaxWorkDays(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxWorkDays: value }));
+  }
+
+  get schedulingMinRestDays(): number {
+    return this.appSettingsService.workSettings().schedulingMinRestDays;
+  }
+
+  set schedulingMinRestDays(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMinRestDays: value }));
+  }
+
+  get schedulingMinPauseHours(): number {
+    return this.appSettingsService.workSettings().schedulingMinPauseHours;
+  }
+
+  set schedulingMinPauseHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMinPauseHours: value }));
+  }
+
+  get schedulingMaxOptimalGap(): number {
+    return this.appSettingsService.workSettings().schedulingMaxOptimalGap;
+  }
+
+  set schedulingMaxOptimalGap(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxOptimalGap: value }));
+  }
+
+  get schedulingMaxDailyHours(): number {
+    return this.appSettingsService.workSettings().schedulingMaxDailyHours;
+  }
+
+  set schedulingMaxDailyHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxDailyHours: value }));
+  }
+
+  get schedulingMaxWeeklyHours(): number {
+    return this.appSettingsService.workSettings().schedulingMaxWeeklyHours;
+  }
+
+  set schedulingMaxWeeklyHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxWeeklyHours: value }));
+  }
+
+  get schedulingMaxConsecutiveDays(): number {
+    return this.appSettingsService.workSettings().schedulingMaxConsecutiveDays;
+  }
+
+  set schedulingMaxConsecutiveDays(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxConsecutiveDays: value }));
+  }
+
   // =============================
   // API Keys - Delegated
   // =============================

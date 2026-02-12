@@ -1,0 +1,204 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Scheduling Rule Modal -->
+<ng-template #ruleModal id="scheduling-rule-modal-template" let-modal>
+  <div id="scheduling-rule-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ translate.instant("setting.schedulingRule.headline-modal") }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="scheduling-rule-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="scheduling-rule-modal-body" class="modal-body">
+    @if (editingRule) {
+    <!-- Name -->
+    <div id="scheduling-rule-modal-name-row" class="row-line-modal-inline">
+      <div id="scheduling-rule-modal-name-section" class="rule-name-section">
+        <label for="ruleName">{{
+          translate.instant("setting.schedulingRule.name-modal")
+        }}</label>
+        <input
+          type="text"
+          [(ngModel)]="editingRule.name"
+          class="form-control"
+          id="ruleName"
+          aria-label="ruleName"
+        />
+      </div>
+    </div>
+
+    <!-- Max Work Days / Min Rest Days -->
+    <div id="scheduling-rule-modal-days-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-max-work-days-item" class="rule-config-item">
+        <label for="maxWorkDays">{{ translate.instant("setting.schedulingRule.maxWorkDays") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maxWorkDays"
+          class="form-control rule-input"
+          id="maxWorkDays"
+          aria-label="maxWorkDays"
+          min="0"
+          step="1"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-min-rest-days-item" class="rule-config-item">
+        <label for="minRestDays">{{ translate.instant("setting.schedulingRule.minRestDays") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.minRestDays"
+          class="form-control rule-input"
+          id="minRestDays"
+          aria-label="minRestDays"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
+    <!-- Min Pause Hours / Max Optimal Gap -->
+    <div id="scheduling-rule-modal-hours-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-min-pause-hours-item" class="rule-config-item">
+        <label for="minPauseHours">{{ translate.instant("setting.schedulingRule.minPauseHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.minPauseHours"
+          class="form-control rule-input"
+          id="minPauseHours"
+          aria-label="minPauseHours"
+          min="0"
+          step="0.5"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-max-optimal-gap-item" class="rule-config-item">
+        <label for="maxOptimalGap">{{ translate.instant("setting.schedulingRule.maxOptimalGap") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maxOptimalGap"
+          class="form-control rule-input"
+          id="maxOptimalGap"
+          aria-label="maxOptimalGap"
+          min="0"
+          step="0.5"
+        />
+      </div>
+    </div>
+
+    <!-- Max Daily Hours / Max Weekly Hours -->
+    <div id="scheduling-rule-modal-limits-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-max-daily-hours-item" class="rule-config-item">
+        <label for="maxDailyHours">{{ translate.instant("setting.schedulingRule.maxDailyHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maxDailyHours"
+          class="form-control rule-input"
+          id="maxDailyHours"
+          aria-label="maxDailyHours"
+          min="0"
+          step="0.5"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-max-weekly-hours-item" class="rule-config-item">
+        <label for="maxWeeklyHours">{{ translate.instant("setting.schedulingRule.maxWeeklyHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maxWeeklyHours"
+          class="form-control rule-input"
+          id="maxWeeklyHours"
+          aria-label="maxWeeklyHours"
+          min="0"
+          step="0.5"
+        />
+      </div>
+    </div>
+
+    <!-- Max Consecutive Days -->
+    <div id="scheduling-rule-modal-consecutive-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-max-consecutive-days-item" class="rule-config-item">
+        <label for="maxConsecutiveDays">{{ translate.instant("setting.schedulingRule.maxConsecutiveDays") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maxConsecutiveDays"
+          class="form-control rule-input"
+          id="maxConsecutiveDays"
+          aria-label="maxConsecutiveDays"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
+    <!-- Validation Errors -->
+    @if (getValidationErrors().length > 0) {
+    <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">
+      <div id="scheduling-rule-modal-validation-section" class="validation-errors-section">
+        <div id="scheduling-rule-modal-validation-alert" class="alert alert-danger">
+          <strong>{{ translate.instant("validation.errors") }}:</strong>
+          <ul id="scheduling-rule-modal-validation-list">
+            @for (error of getValidationErrors(); track error) {
+            <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+    } }
+  </div>
+
+  <div id="scheduling-rule-modal-footer" class="modal-footer">
+    <span
+      id="scheduling-rule-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      id="scheduling-rule-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="translate.instant('setting.schedulingRule.headline')"
+  [addLabel]="translate.instant('setting.schedulingRule.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-scheduling-rule-header header id="scheduling-rules-table-header"></app-scheduling-rule-header>
+  <div rows #containerBox>
+    @for (rule of dataManagementService.rules; track rule.id || $index; let i = $index) {
+      <app-scheduling-rule-row
+        [id]="'scheduling-rule-row-' + i"
+        [data]="rule"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteRule(i)"
+      />
+    }
+  </div>
+</app-settings-list-card>

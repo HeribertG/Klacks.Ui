@@ -244,6 +244,27 @@ export class AppSettingsManagementService {
           work.dayVisibleAfter = Number.isNaN(valAfter) ? 3 : valAfter;
           break;
         }
+        case AppSetting.SCHEDULING_MAX_WORK_DAYS:
+          work.schedulingMaxWorkDays = parseInt(setting.value, 10) || 5;
+          break;
+        case AppSetting.SCHEDULING_MIN_REST_DAYS:
+          work.schedulingMinRestDays = parseInt(setting.value, 10) || 2;
+          break;
+        case AppSetting.SCHEDULING_MIN_PAUSE_HOURS:
+          work.schedulingMinPauseHours = parseFloat(setting.value) || 12;
+          break;
+        case AppSetting.SCHEDULING_MAX_OPTIMAL_GAP:
+          work.schedulingMaxOptimalGap = parseFloat(setting.value) || 2;
+          break;
+        case AppSetting.SCHEDULING_MAX_DAILY_HOURS:
+          work.schedulingMaxDailyHours = parseFloat(setting.value) || 10;
+          break;
+        case AppSetting.SCHEDULING_MAX_WEEKLY_HOURS:
+          work.schedulingMaxWeeklyHours = parseFloat(setting.value) || 50;
+          break;
+        case AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS:
+          work.schedulingMaxConsecutiveDays = parseInt(setting.value, 10) || 6;
+          break;
       }
     });
 
@@ -319,6 +340,13 @@ export class AppSettingsManagementService {
     this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
     this.saveSetting(work.dayVisibleBefore.toString(), workOriginal.dayVisibleBefore.toString(), AppSetting.WORK_DAY_VISIBLE_BEFORE);
     this.saveSetting(work.dayVisibleAfter.toString(), workOriginal.dayVisibleAfter.toString(), AppSetting.WORK_DAY_VISIBLE_AFTER);
+    this.saveSetting(work.schedulingMaxWorkDays.toString(), workOriginal.schedulingMaxWorkDays.toString(), AppSetting.SCHEDULING_MAX_WORK_DAYS);
+    this.saveSetting(work.schedulingMinRestDays.toString(), workOriginal.schedulingMinRestDays.toString(), AppSetting.SCHEDULING_MIN_REST_DAYS);
+    this.saveSetting(work.schedulingMinPauseHours.toString(), workOriginal.schedulingMinPauseHours.toString(), AppSetting.SCHEDULING_MIN_PAUSE_HOURS);
+    this.saveSetting(work.schedulingMaxOptimalGap.toString(), workOriginal.schedulingMaxOptimalGap.toString(), AppSetting.SCHEDULING_MAX_OPTIMAL_GAP);
+    this.saveSetting(work.schedulingMaxDailyHours.toString(), workOriginal.schedulingMaxDailyHours.toString(), AppSetting.SCHEDULING_MAX_DAILY_HOURS);
+    this.saveSetting(work.schedulingMaxWeeklyHours.toString(), workOriginal.schedulingMaxWeeklyHours.toString(), AppSetting.SCHEDULING_MAX_WEEKLY_HOURS);
+    this.saveSetting(work.schedulingMaxConsecutiveDays.toString(), workOriginal.schedulingMaxConsecutiveDays.toString(), AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS);
 
     // Save OpenRouteService API Key
     this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
