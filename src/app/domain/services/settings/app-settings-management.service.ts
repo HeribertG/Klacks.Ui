@@ -7,9 +7,11 @@ import {
   IAppContactSettings,
   IEmailServerSettings,
   IWorkSettings,
+  ISchedulingDefaultSettings,
   AppContactSettings,
   EmailServerSettings,
-  WorkSettings
+  WorkSettings,
+  SchedulingDefaultSettings
 } from 'src/app/domain/models/settings/app-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -23,12 +25,14 @@ export class AppSettingsManagementService {
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
   public workSettings = signal<IWorkSettings>(new WorkSettings());
+  public schedulingDefaultSettings = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
   private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
+  private schedulingDefaultSettingsOriginal = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
 
@@ -44,6 +48,7 @@ export class AppSettingsManagementService {
       this.contactSettings();
       this.emailSettings();
       this.workSettings();
+      this.schedulingDefaultSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
 
@@ -101,6 +106,7 @@ export class AppSettingsManagementService {
     const contact = new AppContactSettings();
     const email = new EmailServerSettings();
     const work = new WorkSettings();
+    const schedulingDefaults = new SchedulingDefaultSettings();
     let openRouteServiceApiKey = '';
     let deeplApiKey = '';
 
@@ -190,12 +196,6 @@ export class AppSettingsManagementService {
           deeplApiKey = setting.value;
           break;
 
-        case AppSetting.WORK_DEFAULT_WORKING_HOURS:
-          work.defaultWorkingHours = parseFloat(setting.value) || 8.5;
-          break;
-        case AppSetting.WORK_OVERTIME_THRESHOLD:
-          work.overtimeThreshold = parseFloat(setting.value) || 42;
-          break;
         case AppSetting.WORK_VACATION_DAYS_PER_YEAR:
           work.vacationDaysPerYear = parseInt(setting.value, 10) || 25;
           break;
@@ -210,18 +210,6 @@ export class AppSettingsManagementService {
           work.paymentInterval = Number.isNaN(paymentVal) ? 2 : paymentVal;
           break;
         }
-        case AppSetting.WORK_GUARANTEED_HOURS:
-          work.guaranteedHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_MAXIMUM_HOURS:
-          work.maximumHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_MINIMUM_HOURS:
-          work.minimumHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_FULL_TIME:
-          work.fullTime = parseFloat(setting.value) || 0;
-          break;
         case AppSetting.WORK_NIGHT_RATE:
           work.nightRate = parseFloat(setting.value) || 0;
           break;
@@ -244,26 +232,45 @@ export class AppSettingsManagementService {
           work.dayVisibleAfter = Number.isNaN(valAfter) ? 3 : valAfter;
           break;
         }
+
+        case AppSetting.WORK_DEFAULT_WORKING_HOURS:
+          schedulingDefaults.defaultWorkingHours = parseFloat(setting.value) || 8.5;
+          break;
+        case AppSetting.WORK_OVERTIME_THRESHOLD:
+          schedulingDefaults.overtimeThreshold = parseFloat(setting.value) || 42;
+          break;
+        case AppSetting.WORK_GUARANTEED_HOURS:
+          schedulingDefaults.guaranteedHours = parseFloat(setting.value) || 0;
+          break;
+        case AppSetting.WORK_MAXIMUM_HOURS:
+          schedulingDefaults.maximumHours = parseFloat(setting.value) || 0;
+          break;
+        case AppSetting.WORK_MINIMUM_HOURS:
+          schedulingDefaults.minimumHours = parseFloat(setting.value) || 0;
+          break;
+        case AppSetting.WORK_FULL_TIME:
+          schedulingDefaults.fullTime = parseFloat(setting.value) || 0;
+          break;
         case AppSetting.SCHEDULING_MAX_WORK_DAYS:
-          work.schedulingMaxWorkDays = parseInt(setting.value, 10) || 5;
+          schedulingDefaults.schedulingMaxWorkDays = parseInt(setting.value, 10) || 5;
           break;
         case AppSetting.SCHEDULING_MIN_REST_DAYS:
-          work.schedulingMinRestDays = parseInt(setting.value, 10) || 2;
+          schedulingDefaults.schedulingMinRestDays = parseInt(setting.value, 10) || 2;
           break;
         case AppSetting.SCHEDULING_MIN_PAUSE_HOURS:
-          work.schedulingMinPauseHours = parseFloat(setting.value) || 12;
+          schedulingDefaults.schedulingMinPauseHours = parseFloat(setting.value) || 12;
           break;
         case AppSetting.SCHEDULING_MAX_OPTIMAL_GAP:
-          work.schedulingMaxOptimalGap = parseFloat(setting.value) || 2;
+          schedulingDefaults.schedulingMaxOptimalGap = parseFloat(setting.value) || 2;
           break;
         case AppSetting.SCHEDULING_MAX_DAILY_HOURS:
-          work.schedulingMaxDailyHours = parseFloat(setting.value) || 10;
+          schedulingDefaults.schedulingMaxDailyHours = parseFloat(setting.value) || 10;
           break;
         case AppSetting.SCHEDULING_MAX_WEEKLY_HOURS:
-          work.schedulingMaxWeeklyHours = parseFloat(setting.value) || 50;
+          schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(setting.value) || 50;
           break;
         case AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS:
-          work.schedulingMaxConsecutiveDays = parseInt(setting.value, 10) || 6;
+          schedulingDefaults.schedulingMaxConsecutiveDays = parseInt(setting.value, 10) || 6;
           break;
       }
     });
@@ -271,13 +278,14 @@ export class AppSettingsManagementService {
     this.contactSettings.set(contact);
     this.emailSettings.set(email);
     this.workSettings.set(work);
+    this.schedulingDefaultSettings.set(schedulingDefaults);
     this.openRouteServiceApiKey.set(openRouteServiceApiKey);
     this.deeplApiKey.set(deeplApiKey);
 
-    // Save original state for dirty tracking
     this.contactSettingsOriginal.set(cloneObject(contact));
     this.emailSettingsOriginal.set(cloneObject(email));
     this.workSettingsOriginal.set(cloneObject(work));
+    this.schedulingDefaultSettingsOriginal.set(cloneObject(schedulingDefaults));
     this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(deeplApiKey);
   }
@@ -324,29 +332,33 @@ export class AppSettingsManagementService {
     this.saveSetting(email.password, emailOriginal.password, AppSetting.APP_OUTGOING_SERVER_PASSWORD);
 
     // Save work settings
-    this.saveSetting(work.defaultWorkingHours.toString(), workOriginal.defaultWorkingHours.toString(), AppSetting.WORK_DEFAULT_WORKING_HOURS);
-    this.saveSetting(work.overtimeThreshold.toString(), workOriginal.overtimeThreshold.toString(), AppSetting.WORK_OVERTIME_THRESHOLD);
     this.saveSetting(work.vacationDaysPerYear.toString(), workOriginal.vacationDaysPerYear.toString(), AppSetting.WORK_VACATION_DAYS_PER_YEAR);
     this.saveSetting(work.probationPeriod.toString(), workOriginal.probationPeriod.toString(), AppSetting.WORK_PROBATION_PERIOD);
     this.saveSetting(work.noticePeriod.toString(), workOriginal.noticePeriod.toString(), AppSetting.WORK_NOTICE_PERIOD);
     this.saveSetting(work.paymentInterval.toString(), workOriginal.paymentInterval.toString(), AppSetting.WORK_PAYMENT_INTERVAL);
-    this.saveSetting(work.guaranteedHours.toString(), workOriginal.guaranteedHours.toString(), AppSetting.WORK_GUARANTEED_HOURS);
-    this.saveSetting(work.maximumHours.toString(), workOriginal.maximumHours.toString(), AppSetting.WORK_MAXIMUM_HOURS);
-    this.saveSetting(work.minimumHours.toString(), workOriginal.minimumHours.toString(), AppSetting.WORK_MINIMUM_HOURS);
-    this.saveSetting(work.fullTime.toString(), workOriginal.fullTime.toString(), AppSetting.WORK_FULL_TIME);
     this.saveSetting(work.nightRate.toString(), workOriginal.nightRate.toString(), AppSetting.WORK_NIGHT_RATE);
     this.saveSetting(work.holidayRate.toString(), workOriginal.holidayRate.toString(), AppSetting.WORK_HOLIDAY_RATE);
     this.saveSetting(work.saRate.toString(), workOriginal.saRate.toString(), AppSetting.WORK_SA_RATE);
     this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
     this.saveSetting(work.dayVisibleBefore.toString(), workOriginal.dayVisibleBefore.toString(), AppSetting.WORK_DAY_VISIBLE_BEFORE);
     this.saveSetting(work.dayVisibleAfter.toString(), workOriginal.dayVisibleAfter.toString(), AppSetting.WORK_DAY_VISIBLE_AFTER);
-    this.saveSetting(work.schedulingMaxWorkDays.toString(), workOriginal.schedulingMaxWorkDays.toString(), AppSetting.SCHEDULING_MAX_WORK_DAYS);
-    this.saveSetting(work.schedulingMinRestDays.toString(), workOriginal.schedulingMinRestDays.toString(), AppSetting.SCHEDULING_MIN_REST_DAYS);
-    this.saveSetting(work.schedulingMinPauseHours.toString(), workOriginal.schedulingMinPauseHours.toString(), AppSetting.SCHEDULING_MIN_PAUSE_HOURS);
-    this.saveSetting(work.schedulingMaxOptimalGap.toString(), workOriginal.schedulingMaxOptimalGap.toString(), AppSetting.SCHEDULING_MAX_OPTIMAL_GAP);
-    this.saveSetting(work.schedulingMaxDailyHours.toString(), workOriginal.schedulingMaxDailyHours.toString(), AppSetting.SCHEDULING_MAX_DAILY_HOURS);
-    this.saveSetting(work.schedulingMaxWeeklyHours.toString(), workOriginal.schedulingMaxWeeklyHours.toString(), AppSetting.SCHEDULING_MAX_WEEKLY_HOURS);
-    this.saveSetting(work.schedulingMaxConsecutiveDays.toString(), workOriginal.schedulingMaxConsecutiveDays.toString(), AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS);
+
+    // Save scheduling default settings
+    const sched = this.schedulingDefaultSettings();
+    const schedOriginal = this.schedulingDefaultSettingsOriginal();
+    this.saveSetting(sched.defaultWorkingHours.toString(), schedOriginal.defaultWorkingHours.toString(), AppSetting.WORK_DEFAULT_WORKING_HOURS);
+    this.saveSetting(sched.overtimeThreshold.toString(), schedOriginal.overtimeThreshold.toString(), AppSetting.WORK_OVERTIME_THRESHOLD);
+    this.saveSetting(sched.guaranteedHours.toString(), schedOriginal.guaranteedHours.toString(), AppSetting.WORK_GUARANTEED_HOURS);
+    this.saveSetting(sched.maximumHours.toString(), schedOriginal.maximumHours.toString(), AppSetting.WORK_MAXIMUM_HOURS);
+    this.saveSetting(sched.minimumHours.toString(), schedOriginal.minimumHours.toString(), AppSetting.WORK_MINIMUM_HOURS);
+    this.saveSetting(sched.fullTime.toString(), schedOriginal.fullTime.toString(), AppSetting.WORK_FULL_TIME);
+    this.saveSetting(sched.schedulingMaxWorkDays.toString(), schedOriginal.schedulingMaxWorkDays.toString(), AppSetting.SCHEDULING_MAX_WORK_DAYS);
+    this.saveSetting(sched.schedulingMinRestDays.toString(), schedOriginal.schedulingMinRestDays.toString(), AppSetting.SCHEDULING_MIN_REST_DAYS);
+    this.saveSetting(sched.schedulingMinPauseHours.toString(), schedOriginal.schedulingMinPauseHours.toString(), AppSetting.SCHEDULING_MIN_PAUSE_HOURS);
+    this.saveSetting(sched.schedulingMaxOptimalGap.toString(), schedOriginal.schedulingMaxOptimalGap.toString(), AppSetting.SCHEDULING_MAX_OPTIMAL_GAP);
+    this.saveSetting(sched.schedulingMaxDailyHours.toString(), schedOriginal.schedulingMaxDailyHours.toString(), AppSetting.SCHEDULING_MAX_DAILY_HOURS);
+    this.saveSetting(sched.schedulingMaxWeeklyHours.toString(), schedOriginal.schedulingMaxWeeklyHours.toString(), AppSetting.SCHEDULING_MAX_WEEKLY_HOURS);
+    this.saveSetting(sched.schedulingMaxConsecutiveDays.toString(), schedOriginal.schedulingMaxConsecutiveDays.toString(), AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS);
 
     // Save OpenRouteService API Key
     this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
@@ -390,10 +402,10 @@ export class AppSettingsManagementService {
 
   private checkSaveComplete(): void {
     if (this.saveCounter === 0) {
-      // Update original state after successful save
       this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
       this.workSettingsOriginal.set(cloneObject(this.workSettings()));
+      this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
     }
@@ -406,11 +418,14 @@ export class AppSettingsManagementService {
     const emailOriginal = this.emailSettingsOriginal();
     const work = this.workSettings();
     const workOriginal = this.workSettingsOriginal();
+    const sched = this.schedulingDefaultSettings();
+    const schedOriginal = this.schedulingDefaultSettingsOriginal();
 
     return (
       !compareComplexObjects(contact, contactOriginal) ||
       !compareComplexObjects(email, emailOriginal) ||
       !compareComplexObjects(work, workOriginal) ||
+      !compareComplexObjects(sched, schedOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal()
     );

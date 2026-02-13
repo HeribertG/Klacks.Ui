@@ -148,6 +148,93 @@
       </div>
     </div>
 
+    <!-- Default Working Hours / Overtime Threshold -->
+    <div id="scheduling-rule-modal-working-hours-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-default-working-hours-item" class="rule-config-item">
+        <label for="ruleDefaultWorkingHours">{{ translate.instant("setting.schedulingRule.defaultWorkingHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.defaultWorkingHours"
+          class="form-control rule-input"
+          id="ruleDefaultWorkingHours"
+          aria-label="ruleDefaultWorkingHours"
+          min="0"
+          step="0.5"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-overtime-threshold-item" class="rule-config-item">
+        <label for="ruleOvertimeThreshold">{{ translate.instant("setting.schedulingRule.overtimeThreshold") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.overtimeThreshold"
+          class="form-control rule-input"
+          id="ruleOvertimeThreshold"
+          aria-label="ruleOvertimeThreshold"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
+    <!-- Guaranteed Hours / Maximum Hours -->
+    <div id="scheduling-rule-modal-guaranteed-max-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-guaranteed-hours-item" class="rule-config-item">
+        <label for="ruleGuaranteedHours">{{ translate.instant("setting.schedulingRule.guaranteedHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.guaranteedHours"
+          class="form-control rule-input"
+          id="ruleGuaranteedHours"
+          aria-label="ruleGuaranteedHours"
+          min="0"
+          step="1"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-maximum-hours-item" class="rule-config-item">
+        <label for="ruleMaximumHours">{{ translate.instant("setting.schedulingRule.maximumHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.maximumHours"
+          class="form-control rule-input"
+          id="ruleMaximumHours"
+          aria-label="ruleMaximumHours"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
+    <!-- Minimum Hours / Full Time Hours -->
+    <div id="scheduling-rule-modal-minimum-fulltime-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-minimum-hours-item" class="rule-config-item">
+        <label for="ruleMinimumHours">{{ translate.instant("setting.schedulingRule.minimumHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.minimumHours"
+          class="form-control rule-input"
+          id="ruleMinimumHours"
+          aria-label="ruleMinimumHours"
+          min="0"
+          step="1"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-fulltime-hours-item" class="rule-config-item">
+        <label for="ruleFullTimeHours">{{ translate.instant("setting.schedulingRule.fullTimeHours") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.fullTimeHours"
+          class="form-control rule-input"
+          id="ruleFullTimeHours"
+          aria-label="ruleFullTimeHours"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
     <!-- Validation Errors -->
     @if (getValidationErrors().length > 0) {
     <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">

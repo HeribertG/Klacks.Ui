@@ -5,30 +5,6 @@
 
   @if (isDataLoaded) {
   <form id="work-setting-form">
-    <div id="work-setting-hours-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="defaultWorkingHours">{{ 'settings.work.default-working-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [field]="workForm.defaultWorkingHours"
-          aria-label="defaultWorkingHours"
-          id="defaultWorkingHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="overtimeThreshold">{{ 'settings.work.overtime-threshold' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.overtimeThreshold"
-          aria-label="overtimeThreshold"
-          id="overtimeThreshold"
-        />
-      </div>
-    </div>
     <div id="work-setting-vacation-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="vacationDaysPerYear">{{ 'settings.work.vacation-days-per-year' | translate }}</label>
@@ -79,54 +55,6 @@
           <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
           <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
         </select>
-      </div>
-    </div>
-    <div id="work-setting-guaranteed-maximum-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="guaranteedHours">{{ 'settings.work.guaranteed-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.guaranteedHours"
-          aria-label="guaranteedHours"
-          id="guaranteedHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="maximumHours">{{ 'settings.work.maximum-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.maximumHours"
-          aria-label="maximumHours"
-          id="maximumHours"
-        />
-      </div>
-    </div>
-    <div id="work-setting-minimum-fulltime-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="minimumHours">{{ 'settings.work.minimum-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.minimumHours"
-          aria-label="minimumHours"
-          id="minimumHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="fullTime">{{ 'settings.work.full-time' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.fullTime"
-          aria-label="fullTime"
-          id="fullTime"
-        />
       </div>
     </div>
     <div id="work-setting-night-holiday-row" class="row-line">
@@ -199,97 +127,6 @@
           aria-label="dayVisibleAfter"
           id="dayVisibleAfter"
         />
-      </div>
-    </div>
-    <div id="work-setting-scheduling-header" class="container-header" style="margin-top: 16px;">
-      {{ 'settings.work.scheduling-header' | translate }}
-    </div>
-    <div id="work-setting-scheduling-line" class="container-line"></div>
-    <div id="work-setting-scheduling-workdays-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="schedulingMaxWorkDays">{{ 'settings.work.scheduling-max-work-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.schedulingMaxWorkDays"
-          aria-label="schedulingMaxWorkDays"
-          id="schedulingMaxWorkDays"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="schedulingMinRestDays">{{ 'settings.work.scheduling-min-rest-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.schedulingMinRestDays"
-          aria-label="schedulingMinRestDays"
-          id="schedulingMinRestDays"
-        />
-      </div>
-    </div>
-    <div id="work-setting-scheduling-pause-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="schedulingMinPauseHours">{{ 'settings.work.scheduling-min-pause-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [field]="workForm.schedulingMinPauseHours"
-          aria-label="schedulingMinPauseHours"
-          id="schedulingMinPauseHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="schedulingMaxOptimalGap">{{ 'settings.work.scheduling-max-optimal-gap' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [field]="workForm.schedulingMaxOptimalGap"
-          aria-label="schedulingMaxOptimalGap"
-          id="schedulingMaxOptimalGap"
-        />
-      </div>
-    </div>
-    <div id="work-setting-scheduling-hours-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="schedulingMaxDailyHours">{{ 'settings.work.scheduling-max-daily-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [field]="workForm.schedulingMaxDailyHours"
-          aria-label="schedulingMaxDailyHours"
-          id="schedulingMaxDailyHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="schedulingMaxWeeklyHours">{{ 'settings.work.scheduling-max-weekly-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.schedulingMaxWeeklyHours"
-          aria-label="schedulingMaxWeeklyHours"
-          id="schedulingMaxWeeklyHours"
-        />
-      </div>
-    </div>
-    <div id="work-setting-scheduling-consecutive-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="schedulingMaxConsecutiveDays">{{ 'settings.work.scheduling-max-consecutive-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [field]="workForm.schedulingMaxConsecutiveDays"
-          aria-label="schedulingMaxConsecutiveDays"
-          id="schedulingMaxConsecutiveDays"
-        />
-      </div>
-      <div class="form-group secondColumn">
       </div>
     </div>
     <div class="bottom-border-space"></div>

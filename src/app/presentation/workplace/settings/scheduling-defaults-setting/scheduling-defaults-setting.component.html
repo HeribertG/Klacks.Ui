@@ -1,0 +1,170 @@
+<div id="scheduling-defaults-setting-container" class="container-dashboard">
+  <div id="scheduling-defaults-setting-header" class="container-header">{{ 'settings.schedulingDefaults.headline' | translate }}</div>
+
+  <div id="scheduling-defaults-setting-line" class="container-line"></div>
+
+  @if (isDataLoaded) {
+  <form id="scheduling-defaults-setting-form">
+    <div id="scheduling-defaults-hours-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdDefaultWorkingHours">{{ 'settings.work.default-working-hours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="schedulingForm.defaultWorkingHours"
+          aria-label="sdDefaultWorkingHours"
+          id="sdDefaultWorkingHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdOvertimeThreshold">{{ 'settings.work.overtime-threshold' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.overtimeThreshold"
+          aria-label="sdOvertimeThreshold"
+          id="sdOvertimeThreshold"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-guaranteed-maximum-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdGuaranteedHours">{{ 'settings.work.guaranteed-hours' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.guaranteedHours"
+          aria-label="sdGuaranteedHours"
+          id="sdGuaranteedHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdMaximumHours">{{ 'settings.work.maximum-hours' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.maximumHours"
+          aria-label="sdMaximumHours"
+          id="sdMaximumHours"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-minimum-fulltime-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdMinimumHours">{{ 'settings.work.minimum-hours' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.minimumHours"
+          aria-label="sdMinimumHours"
+          id="sdMinimumHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdFullTime">{{ 'settings.work.full-time' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.fullTime"
+          aria-label="sdFullTime"
+          id="sdFullTime"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-workdays-row" class="row-line" style="margin-top: 16px;">
+      <div class="form-group firstColumn">
+        <label for="sdSchedulingMaxWorkDays">{{ 'settings.work.scheduling-max-work-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.schedulingMaxWorkDays"
+          aria-label="sdSchedulingMaxWorkDays"
+          id="sdSchedulingMaxWorkDays"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdSchedulingMinRestDays">{{ 'settings.work.scheduling-min-rest-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.schedulingMinRestDays"
+          aria-label="sdSchedulingMinRestDays"
+          id="sdSchedulingMinRestDays"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-pause-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdSchedulingMinPauseHours">{{ 'settings.work.scheduling-min-pause-hours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="schedulingForm.schedulingMinPauseHours"
+          aria-label="sdSchedulingMinPauseHours"
+          id="sdSchedulingMinPauseHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdSchedulingMaxOptimalGap">{{ 'settings.work.scheduling-max-optimal-gap' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="schedulingForm.schedulingMaxOptimalGap"
+          aria-label="sdSchedulingMaxOptimalGap"
+          id="sdSchedulingMaxOptimalGap"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-daily-weekly-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdSchedulingMaxDailyHours">{{ 'settings.work.scheduling-max-daily-hours' | translate }}</label>
+        <input
+          type="number"
+          step="0.5"
+          class="form-control"
+          [field]="schedulingForm.schedulingMaxDailyHours"
+          aria-label="sdSchedulingMaxDailyHours"
+          id="sdSchedulingMaxDailyHours"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdSchedulingMaxWeeklyHours">{{ 'settings.work.scheduling-max-weekly-hours' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.schedulingMaxWeeklyHours"
+          aria-label="sdSchedulingMaxWeeklyHours"
+          id="sdSchedulingMaxWeeklyHours"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-consecutive-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdSchedulingMaxConsecutiveDays">{{ 'settings.work.scheduling-max-consecutive-days' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.schedulingMaxConsecutiveDays"
+          aria-label="sdSchedulingMaxConsecutiveDays"
+          id="sdSchedulingMaxConsecutiveDays"
+        />
+      </div>
+      <div class="form-group secondColumn">
+      </div>
+    </div>
+    <div class="bottom-border-space"></div>
+  </form>
+  }
+</div>

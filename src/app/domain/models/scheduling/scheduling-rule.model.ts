@@ -8,6 +8,12 @@ export interface ISchedulingRule {
   maxDailyHours: number | null;
   maxWeeklyHours: number | null;
   maxConsecutiveDays: number | null;
+  defaultWorkingHours: number | null;
+  overtimeThreshold: number | null;
+  guaranteedHours: number | null;
+  maximumHours: number | null;
+  minimumHours: number | null;
+  fullTimeHours: number | null;
 }
 
 export class SchedulingRule implements ISchedulingRule {
@@ -20,4 +26,10 @@ export class SchedulingRule implements ISchedulingRule {
   maxDailyHours: number | null = null;
   maxWeeklyHours: number | null = null;
   maxConsecutiveDays: number | null = null;
+  defaultWorkingHours: number | null = null;
+  overtimeThreshold: number | null = null;
+  guaranteedHours: number | null = null;
+  maximumHours: number | null = null;
+  minimumHours: number | null = null;
+  fullTimeHours: number | null = null;
 }

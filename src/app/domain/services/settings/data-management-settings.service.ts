@@ -275,19 +275,51 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   // =============================
 
   get defaultWorkingHours(): number {
-    return this.appSettingsService.workSettings().defaultWorkingHours;
+    return this.appSettingsService.schedulingDefaultSettings().defaultWorkingHours;
   }
 
   set defaultWorkingHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, defaultWorkingHours: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, defaultWorkingHours: value }));
   }
 
   get overtimeThreshold(): number {
-    return this.appSettingsService.workSettings().overtimeThreshold;
+    return this.appSettingsService.schedulingDefaultSettings().overtimeThreshold;
   }
 
   set overtimeThreshold(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, overtimeThreshold: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, overtimeThreshold: value }));
+  }
+
+  get guaranteedHours(): number {
+    return this.appSettingsService.schedulingDefaultSettings().guaranteedHours;
+  }
+
+  set guaranteedHours(value: number) {
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, guaranteedHours: value }));
+  }
+
+  get maximumHours(): number {
+    return this.appSettingsService.schedulingDefaultSettings().maximumHours;
+  }
+
+  set maximumHours(value: number) {
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, maximumHours: value }));
+  }
+
+  get minimumHours(): number {
+    return this.appSettingsService.schedulingDefaultSettings().minimumHours;
+  }
+
+  set minimumHours(value: number) {
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, minimumHours: value }));
+  }
+
+  get fullTime(): number {
+    return this.appSettingsService.schedulingDefaultSettings().fullTime;
+  }
+
+  set fullTime(value: number) {
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, fullTime: value }));
   }
 
   get vacationDaysPerYear(): number {
@@ -320,38 +352,6 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
   set paymentInterval(value: number) {
     this.appSettingsService.workSettings.update(s => ({ ...s, paymentInterval: value }));
-  }
-
-  get guaranteedHours(): number {
-    return this.appSettingsService.workSettings().guaranteedHours;
-  }
-
-  set guaranteedHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, guaranteedHours: value }));
-  }
-
-  get maximumHours(): number {
-    return this.appSettingsService.workSettings().maximumHours;
-  }
-
-  set maximumHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, maximumHours: value }));
-  }
-
-  get minimumHours(): number {
-    return this.appSettingsService.workSettings().minimumHours;
-  }
-
-  set minimumHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, minimumHours: value }));
-  }
-
-  get fullTime(): number {
-    return this.appSettingsService.workSettings().fullTime;
-  }
-
-  set fullTime(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, fullTime: value }));
   }
 
   get nightRate(): number {
@@ -419,59 +419,59 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   get schedulingMaxWorkDays(): number {
-    return this.appSettingsService.workSettings().schedulingMaxWorkDays;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMaxWorkDays;
   }
 
   set schedulingMaxWorkDays(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxWorkDays: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMaxWorkDays: value }));
   }
 
   get schedulingMinRestDays(): number {
-    return this.appSettingsService.workSettings().schedulingMinRestDays;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMinRestDays;
   }
 
   set schedulingMinRestDays(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMinRestDays: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMinRestDays: value }));
   }
 
   get schedulingMinPauseHours(): number {
-    return this.appSettingsService.workSettings().schedulingMinPauseHours;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMinPauseHours;
   }
 
   set schedulingMinPauseHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMinPauseHours: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMinPauseHours: value }));
   }
 
   get schedulingMaxOptimalGap(): number {
-    return this.appSettingsService.workSettings().schedulingMaxOptimalGap;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMaxOptimalGap;
   }
 
   set schedulingMaxOptimalGap(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxOptimalGap: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMaxOptimalGap: value }));
   }
 
   get schedulingMaxDailyHours(): number {
-    return this.appSettingsService.workSettings().schedulingMaxDailyHours;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMaxDailyHours;
   }
 
   set schedulingMaxDailyHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxDailyHours: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMaxDailyHours: value }));
   }
 
   get schedulingMaxWeeklyHours(): number {
-    return this.appSettingsService.workSettings().schedulingMaxWeeklyHours;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMaxWeeklyHours;
   }
 
   set schedulingMaxWeeklyHours(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxWeeklyHours: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMaxWeeklyHours: value }));
   }
 
   get schedulingMaxConsecutiveDays(): number {
-    return this.appSettingsService.workSettings().schedulingMaxConsecutiveDays;
+    return this.appSettingsService.schedulingDefaultSettings().schedulingMaxConsecutiveDays;
   }
 
   set schedulingMaxConsecutiveDays(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, schedulingMaxConsecutiveDays: value }));
+    this.appSettingsService.schedulingDefaultSettings.update(s => ({ ...s, schedulingMaxConsecutiveDays: value }));
   }
 
   // =============================

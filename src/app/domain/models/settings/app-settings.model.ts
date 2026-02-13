@@ -60,23 +60,13 @@ export class EmailServerSettings implements IEmailServerSettings {
   password = '';
 }
 
-export interface IWorkSettings {
+export interface ISchedulingDefaultSettings {
   defaultWorkingHours: number;
   overtimeThreshold: number;
-  vacationDaysPerYear: number;
-  probationPeriod: number;
-  noticePeriod: number;
-  paymentInterval: number;
   guaranteedHours: number;
   maximumHours: number;
   minimumHours: number;
   fullTime: number;
-  nightRate: number;
-  holidayRate: number;
-  saRate: number;
-  soRate: number;
-  dayVisibleBefore: number;
-  dayVisibleAfter: number;
   schedulingMaxWorkDays: number;
   schedulingMinRestDays: number;
   schedulingMinPauseHours: number;
@@ -86,23 +76,13 @@ export interface IWorkSettings {
   schedulingMaxConsecutiveDays: number;
 }
 
-export class WorkSettings implements IWorkSettings {
+export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   defaultWorkingHours = 8.5;
   overtimeThreshold = 42;
-  vacationDaysPerYear = 25;
-  probationPeriod = 3;
-  noticePeriod = 30;
-  paymentInterval = 2;
   guaranteedHours = 170;
   maximumHours = 200;
   minimumHours = 160;
   fullTime = 180;
-  nightRate = 0.1;
-  holidayRate = 0.1;
-  saRate = 0.1;
-  soRate = 0.1;
-  dayVisibleBefore = 3;
-  dayVisibleAfter = 3;
   schedulingMaxWorkDays = 5;
   schedulingMinRestDays = 2;
   schedulingMinPauseHours = 12;
@@ -110,4 +90,30 @@ export class WorkSettings implements IWorkSettings {
   schedulingMaxDailyHours = 10;
   schedulingMaxWeeklyHours = 50;
   schedulingMaxConsecutiveDays = 6;
+}
+
+export interface IWorkSettings {
+  vacationDaysPerYear: number;
+  probationPeriod: number;
+  noticePeriod: number;
+  paymentInterval: number;
+  nightRate: number;
+  holidayRate: number;
+  saRate: number;
+  soRate: number;
+  dayVisibleBefore: number;
+  dayVisibleAfter: number;
+}
+
+export class WorkSettings implements IWorkSettings {
+  vacationDaysPerYear = 25;
+  probationPeriod = 3;
+  noticePeriod = 30;
+  paymentInterval = 2;
+  nightRate = 0.1;
+  holidayRate = 0.1;
+  saRate = 0.1;
+  soRate = 0.1;
+  dayVisibleBefore = 3;
+  dayVisibleAfter = 3;
 }

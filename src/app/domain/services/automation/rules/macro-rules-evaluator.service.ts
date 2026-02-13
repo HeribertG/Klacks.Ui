@@ -195,13 +195,13 @@ export class MacroRulesEvaluatorService {
       existingCount: context.existingAssignments.length,
       workQuantCount: context.workQuants.length,
       workQuants: JSON.stringify(context.workQuants),
-      maxWorkDays: this.appSettings.workSettings().schedulingMaxWorkDays,
-      minRestDays: this.appSettings.workSettings().schedulingMinRestDays,
-      minPauseHours: this.appSettings.workSettings().schedulingMinPauseHours,
-      maxOptimalGap: this.appSettings.workSettings().schedulingMaxOptimalGap,
-      maxDailyHours: this.appSettings.workSettings().schedulingMaxDailyHours,
-      maxWeeklyHours: this.appSettings.workSettings().schedulingMaxWeeklyHours,
-      maxConsecutiveDays: this.appSettings.workSettings().schedulingMaxConsecutiveDays
+      maxWorkDays: this.appSettings.schedulingDefaultSettings().schedulingMaxWorkDays,
+      minRestDays: this.appSettings.schedulingDefaultSettings().schedulingMinRestDays,
+      minPauseHours: this.appSettings.schedulingDefaultSettings().schedulingMinPauseHours,
+      maxOptimalGap: this.appSettings.schedulingDefaultSettings().schedulingMaxOptimalGap,
+      maxDailyHours: this.appSettings.schedulingDefaultSettings().schedulingMaxDailyHours,
+      maxWeeklyHours: this.appSettings.schedulingDefaultSettings().schedulingMaxWeeklyHours,
+      maxConsecutiveDays: this.appSettings.schedulingDefaultSettings().schedulingMaxConsecutiveDays
     };
   }
 
