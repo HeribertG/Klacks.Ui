@@ -36,6 +36,10 @@ import { AbsenceDetailComponent } from '../absence-detail/absence-detail.compone
 import { ReportsComponent } from '../reports/reports.component';
 import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
 import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setting/scheduling-defaults-setting.component';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
+import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -47,6 +51,10 @@ import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setti
     FormsModule,
     NgbModule,
     SpinnerModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+    IconCollapseAllGreyComponent,
+    IconExpandAllGreyComponent,
     SettingsGeneralComponent,
     OwnerAddressComponent,
     CountriesComponent,
@@ -70,7 +78,7 @@ import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setti
     ReportsComponent,
     SchedulingRulesComponent,
     SchedulingDefaultsSettingComponent,
-],
+  ],
 })
 export class SettingsHomeComponent implements OnInit {
   public translate = inject(TranslateService);
@@ -82,6 +90,17 @@ export class SettingsHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+
+  sections: Record<string, boolean> = {
+    general: true,
+    users: true,
+    organization: true,
+    work: true,
+    absence: true,
+    communication: true,
+    appearance: true,
+    integrations: true,
+  };
 
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
@@ -100,6 +119,18 @@ export class SettingsHomeComponent implements OnInit {
     this.workplaceStateService.setActiveManagerByRoute('settings');
     this.savebarService.setSavebarVisibility(false);
     this.dataManagementSettingsService.readData();
+  }
+
+  toggleSection(section: string): void {
+    this.sections[section] = !this.sections[section];
+  }
+
+  expandAll(): void {
+    Object.keys(this.sections).forEach(key => this.sections[key] = true);
+  }
+
+  collapseAll(): void {
+    Object.keys(this.sections).forEach(key => this.sections[key] = false);
   }
 
   onIsChanging(event: any): void {

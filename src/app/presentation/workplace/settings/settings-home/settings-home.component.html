@@ -1,197 +1,316 @@
 <div id="settings-home-container" class="container-dashboard">
   <div id="settings-home-headline" class="container-headline">
     {{ translate.instant("setting.title") }}
+    <div class="headline-actions">
+      <button class="headline-action-button" (click)="expandAll()">
+        <app-expand-all-grey></app-expand-all-grey>
+      </button>
+      <button class="headline-action-button" (click)="collapseAll()">
+        <app-collapse-all-grey></app-collapse-all-grey>
+      </button>
+    </div>
   </div>
 
-  <div id="settings-home-general-row" class="container-profilline">
-    <app-settings-general
-      id="settings-general"
-      class="container-profile first border-right-card border-bottom-card"
-    >
-    </app-settings-general>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('general')">
+    <span>{{ translate.instant("setting.section.general") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['general']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-owner-row" class="container-profilline">
-    <app-owner-address
-      id="settings-owner-address"
-      class="container-profile container-owner-address first border-right-card border-bottom-card"
-      (click)="isfocused('app-setting-owner-address')"
-    >
-    </app-owner-address>
+  @if (sections['general']) {
+    <div id="settings-home-general-row" class="container-profilline">
+      <app-settings-general
+        id="settings-general"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-settings-general>
+    </div>
+
+    <div id="settings-home-owner-row" class="container-profilline">
+      <app-owner-address
+        id="settings-owner-address"
+        class="container-profile container-owner-address first border-right-card border-bottom-card"
+        (click)="isfocused('app-setting-owner-address')"
+      >
+      </app-owner-address>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('users')">
+    <span>{{ translate.instant("setting.section.users") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['users']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-user-admin-row" class="container-profilline">
-    <app-user-administration
-      id="settings-user-administration"
-      class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (click)="isfocused('app-user-administration')"
-    >
-    </app-user-administration>
+  @if (sections['users']) {
+    <div id="settings-home-user-admin-row" class="container-profilline">
+      <app-user-administration
+        id="settings-user-administration"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-user-administration')"
+      >
+      </app-user-administration>
+    </div>
+
+    <div id="settings-home-group-identity-row" class="container-profilline">
+      <app-group-scope
+        id="settings-group-scope"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-group-scope')"
+      ></app-group-scope>
+
+      <app-identity-providers
+        id="settings-identity-providers"
+        class="container-setting-small border-right-card border-bottom-card"
+        (click)="isfocused('app-identity-providers')"
+      ></app-identity-providers>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('organization')">
+    <span>{{ translate.instant("setting.section.organization") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['organization']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-group-branches-row" class="container-profilline">
-    <app-group-scope
-      id="settings-group-scope"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-group-scope')"
-    ></app-group-scope>
+  @if (sections['organization']) {
+    <div id="settings-home-branches-contracts-row" class="container-profilline">
+      <app-branches
+        id="settings-branches"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-branches')"
+      ></app-branches>
 
-    <app-branches
-      id="settings-branches"
-      class="container-setting-small border-right-card border-bottom-card"
-      (click)="isfocused('app-branches')"
-    ></app-branches>
+      <app-contracts
+        id="settings-contracts"
+        class="container-setting-small border-right-card border-bottom-card"
+        (click)="isfocused('app-contracts')"
+      ></app-contracts>
+    </div>
+
+    <div id="settings-home-state-countries-row" class="container-profilline">
+      <app-state
+        id="settings-state"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-state')"
+      >
+      </app-state>
+
+      <app-countries
+        id="settings-countries"
+        class="container-setting-small border-bottom-card"
+        (click)="isfocused('app-countries')"
+      >
+      </app-countries>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('work')">
+    <span>{{ translate.instant("setting.section.work") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['work']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-contracts-scheduling-row" class="container-profilline">
-    <app-contracts
-      id="settings-contracts"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-contracts')"
-    ></app-contracts>
+  @if (sections['work']) {
+    <div id="settings-home-work-row" class="container-profilline">
+      <app-work-setting
+        id="settings-work-setting"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-work-setting')"
+      >
+      </app-work-setting>
+    </div>
 
-    <app-scheduling-rules
-      id="settings-scheduling-rules"
-      class="container-setting-small border-right-card border-bottom-card"
-      (click)="isfocused('app-scheduling-rules')"
-    ></app-scheduling-rules>
+    <div id="settings-home-scheduling-defaults-row" class="container-profilline">
+      <app-scheduling-defaults-setting
+        id="settings-scheduling-defaults"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-scheduling-defaults-setting')"
+      >
+      </app-scheduling-defaults-setting>
+    </div>
+
+    <div id="settings-home-scheduling-rules-row" class="container-profilline">
+      <app-scheduling-rules
+        id="settings-scheduling-rules"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-scheduling-rules')"
+      ></app-scheduling-rules>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('absence')">
+    <span>{{ translate.instant("setting.section.absence") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['absence']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-identity-row" class="container-profilline">
-    <app-identity-providers
-      id="settings-identity-providers"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-identity-providers')"
-    ></app-identity-providers>
+  @if (sections['absence']) {
+    <div id="settings-home-absence-row" class="container-profilline">
+      <app-absence
+        id="settings-absence"
+        class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
+        (click)="isfocused('app-absence')"
+      >
+      </app-absence>
+    </div>
+
+    <div id="settings-home-calendar-row" class="container-profilline">
+      <app-calendar-rules
+        id="settings-calendar-rules"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-calendar-rules')"
+      >
+      </app-calendar-rules>
+    </div>
+
+    <div id="settings-home-absence-detail-row" class="container-profilline">
+      <app-absence-detail
+        id="settings-absence-detail"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-absence-detail')"
+      >
+      </app-absence-detail>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('communication')">
+    <span>{{ translate.instant("setting.section.communication") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['communication']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-email-row" class="container-profilline">
-    <app-email-setting
-      id="settings-email-setting"
-      class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (click)="isfocused('app-email-setting')"
-    >
-    </app-email-setting>
+  @if (sections['communication']) {
+    <div id="settings-home-email-row" class="container-profilline">
+      <app-email-setting
+        id="settings-email-setting"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-email-setting')"
+      >
+      </app-email-setting>
+    </div>
+
+    <div id="settings-home-reports-row" class="container-profilline">
+      <app-reports
+        id="settings-reports"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-reports')"
+      >
+      </app-reports>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('appearance')">
+    <span>{{ translate.instant("setting.section.appearance") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['appearance']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-work-row" class="container-profilline">
-    <app-work-setting
-      id="settings-work-setting"
-      class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (click)="isfocused('app-work-setting')"
-    >
-    </app-work-setting>
+  @if (sections['appearance']) {
+    <div id="settings-home-grid-macros-row" class="container-profilline">
+      <app-grid-color
+        id="settings-grid-color"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-grid-color')"
+      >
+      </app-grid-color>
+
+      <app-macros
+        id="settings-macros"
+        class="container-setting-small border-right-card border-bottom-card"
+        (click)="isfocused('app-macros')"
+      >
+      </app-macros>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-header first" (click)="toggleSection('integrations')">
+    <span>{{ translate.instant("setting.section.integrations") }}</span>
+    <button class="section-toggle-button">
+      @if (sections['integrations']) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
-  <div id="settings-home-scheduling-defaults-row" class="container-profilline">
-    <app-scheduling-defaults-setting
-      id="settings-scheduling-defaults"
-      class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (click)="isfocused('app-scheduling-defaults-setting')"
-    >
-    </app-scheduling-defaults-setting>
-  </div>
+  @if (sections['integrations']) {
+    <div id="settings-home-llm-row" class="container-profilline">
+      <app-llm-models
+        id="settings-llm-models"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-llm-models')"
+      >
+      </app-llm-models>
 
-  <div id="settings-home-grid-macros-row" class="container-profilline">
-    <app-grid-color
-      id="settings-grid-color"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-grid-color')"
-    >
-    </app-grid-color>
+      <app-llm-providers
+        id="settings-llm-providers"
+        class="container-setting-small border-bottom-card"
+        (click)="isfocused('app-llm-providers')"
+      >
+      </app-llm-providers>
+    </div>
 
-    <app-macros
-      id="settings-macros"
-      class="container-setting-small border-right-card border-bottom-card"
-      (click)="isfocused('app-macros')"
-    >
-    </app-macros>
-  </div>
+    <div id="settings-home-openroute-deepl-row" class="container-profilline">
+      <app-openroute
+        id="settings-openroute"
+        class="container-setting-small first border-right-card border-bottom-card"
+        (click)="isfocused('app-openroute')"
+      >
+      </app-openroute>
 
-  <div id="settings-home-state-countries-row" class="container-profilline">
-    <app-state
-      id="settings-state"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-state')"
-    >
-    </app-state>
-
-    <app-countries
-      id="settings-countries"
-      class="container-setting-small border-bottom-card"
-      (click)="isfocused('app-countries')"
-    >
-    </app-countries>
-  </div>
-
-  <div id="settings-home-absence-row" class="container-profilline">
-    <app-absence
-      id="settings-absence"
-      class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
-      (click)="isfocused('app-absence')"
-    >
-    </app-absence>
-  </div>
-
-  <div id="settings-home-absence-detail-row" class="container-profilline">
-    <app-absence-detail
-      id="settings-absence-detail"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-absence-detail')"
-    >
-    </app-absence-detail>
-  </div>
-
-  <div id="settings-home-calendar-row" class="container-profilline">
-    <app-calendar-rules
-      id="settings-calendar-rules"
-      class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (click)="isfocused('app-calendar-rules')"
-    >
-    </app-calendar-rules>
-  </div>
-
-  <div id="settings-home-llm-row" class="container-profilline">
-    <app-llm-models
-      id="settings-llm-models"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-llm-models')"
-    >
-    </app-llm-models>
-
-    <app-llm-providers
-      id="settings-llm-providers"
-      class="container-setting-small border-bottom-card"
-      (click)="isfocused('app-llm-models')"
-    >
-    </app-llm-providers>
-  </div>
-
-  <div id="settings-home-openroute-deepl-row" class="container-profilline">
-    <app-openroute
-      id="settings-openroute"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-openroute')"
-    >
-    </app-openroute>
-
-    <app-deepl
-      id="settings-deepl"
-      class="container-setting-small border-right-card border-bottom-card"
-      (click)="isfocused('app-deepl')"
-    >
-    </app-deepl>
-  </div>
-
-  <div id="settings-home-reports-row" class="container-profilline">
-    <app-reports
-      id="settings-reports"
-      class="container-setting-small first border-right-card border-bottom-card"
-      (click)="isfocused('app-reports')"
-    >
-    </app-reports>
-  </div>
+      <app-deepl
+        id="settings-deepl"
+        class="container-setting-small border-right-card border-bottom-card"
+        (click)="isfocused('app-deepl')"
+      >
+      </app-deepl>
+    </div>
+  }
 
   <div class="bottom-border-space"></div>
 </div>
-<p></p>

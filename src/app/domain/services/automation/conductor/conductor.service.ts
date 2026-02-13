@@ -6,7 +6,9 @@ import {
   IEvolutionResult,
   IEvolutionProgress,
   ISchedulingScenario,
-  DEFAULT_EVOLUTION_CONFIG
+  DEFAULT_EVOLUTION_CONFIG,
+  DEFAULT_PENALTY_WEIGHTS,
+  IPenaltyWeights
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent, IAgentDecision } from '../../../models/automation/agent/schedule-agent.model';
 import { EvolutionEngineService } from './evolution-engine.service';
@@ -15,8 +17,10 @@ import { RulesEngineService } from '../rules/rules-engine.service';
 
 export interface IConductorOptions {
   evolutionConfig?: Partial<IEvolutionConfig>;
+  penaltyWeights?: Partial<IPenaltyWeights>;
   onProgress?: (progress: IEvolutionProgress) => void;
   cancellationToken?: { isCancelled: boolean };
+  useWorker?: boolean;
 }
 
 export interface IAssignmentResult {
@@ -37,6 +41,10 @@ export interface IConductorResult {
   avgMotivation: number;
   generations: number;
   message: string;
+  stopReason?: string;
+  timeElapsedMs?: number;
+  penaltyScore?: number;
+  hardViolations?: number;
 }
 
 @Injectable({
@@ -48,6 +56,7 @@ export class ConductorService {
   private rulesEngine = inject(RulesEngineService);
 
   private isInitialized = false;
+  private activeWorker: Worker | null = null;
 
   initialize(): void {
     if (this.isInitialized) return;
@@ -88,6 +97,10 @@ export class ConductorService {
       };
     }
 
+    if (options.useWorker && typeof Worker !== 'undefined') {
+      return this.scheduleWithWorker(context, options);
+    }
+
     const evolutionResult = await this.evolutionEngine.evolve(
       shifts,
       agents,
@@ -96,6 +109,142 @@ export class ConductorService {
     );
 
     return this.convertToResult(evolutionResult, shifts, agents);
+  }
+
+  scheduleWithWorker(
+    context: IConductorContext,
+    options: IConductorOptions = {}
+  ): Promise<IConductorResult> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.terminateActiveWorker();
+
+        const worker = new Worker(new URL('./evolution.worker', import.meta.url));
+        this.activeWorker = worker;
+
+        const { shifts, agents } = context;
+        const config = { ...DEFAULT_EVOLUTION_CONFIG, ...options.evolutionConfig };
+        const penaltyWeights = { ...DEFAULT_PENALTY_WEIGHTS, ...options.penaltyWeights };
+
+        const workerShifts = shifts.map(s => ({
+          id: s.id,
+          name: s.name,
+          date: s.date instanceof Date ? s.date.toISOString() : String(s.date),
+          startTime: s.startTime,
+          endTime: s.endTime,
+          hours: s.hours,
+          requiredAssignments: s.requiredAssignments,
+          priority: s.priority
+        }));
+
+        const workerAgents = agents.map(a => ({
+          id: a.id,
+          currentHours: a.currentHours,
+          guaranteedHours: a.guaranteedHours,
+          maxConsecutiveDays: a.maxConsecutiveDays,
+          minRestHours: a.minRestHours,
+          motivation: a.currentState.motivation
+        }));
+
+        worker.onmessage = ({ data }) => {
+          if (data.type === 'progress' && options.onProgress) {
+            options.onProgress({
+              currentGeneration: data.data.currentGeneration,
+              maxGenerations: data.data.maxGenerations,
+              bestFitness: data.data.bestFitness,
+              avgFitness: data.data.avgFitness,
+              coverage: data.data.coverage,
+              isConverged: false,
+              improvement: 0,
+              timeElapsedMs: data.data.timeElapsedMs,
+              stagnationCount: data.data.stagnationCount
+            });
+          }
+
+          if (data.type === 'result') {
+            this.terminateActiveWorker();
+
+            const resultData = data.data;
+            const assignments: IAssignmentResult[] = resultData.assignments.map((a: { shiftId: string; agentId: string; motivationScore: number }) => {
+              const shift = shifts.find(s => s.id === a.shiftId);
+              const agent = agents.find(ag => ag.id === a.agentId);
+              return {
+                shiftId: a.shiftId,
+                shiftName: shift?.name || 'Unknown',
+                date: shift?.date || new Date(),
+                agentId: a.agentId,
+                agentName: agent
+                  ? `${agent.client.firstName} ${agent.client.name}`
+                  : 'Unknown',
+                motivation: a.motivationScore,
+                hours: shift?.hours || 0
+              };
+            });
+
+            const assignedShiftIds = new Set(resultData.assignments.map((a: { shiftId: string }) => a.shiftId));
+            const unassignedShifts = shifts.filter(s => !assignedShiftIds.has(s.id)).map(s => s.id);
+
+            resolve({
+              success: resultData.coverage > 0.8,
+              assignments,
+              unassignedShifts,
+              coverage: resultData.coverage,
+              avgMotivation: resultData.assignments.length > 0
+                ? resultData.assignments.reduce((sum: number, a: { motivationScore: number }) => sum + a.motivationScore, 0) / resultData.assignments.length
+                : 0,
+              generations: resultData.finalGeneration,
+              message: resultData.message,
+              stopReason: resultData.stopReason,
+              timeElapsedMs: resultData.timeElapsedMs,
+              penaltyScore: resultData.penaltyScore,
+              hardViolations: resultData.hardViolations
+            });
+          }
+        };
+
+        worker.onerror = (error) => {
+          this.terminateActiveWorker();
+          reject(new Error(`Worker error: ${error.message}`));
+        };
+
+        if (options.cancellationToken) {
+          const checkCancellation = setInterval(() => {
+            if (options.cancellationToken?.isCancelled) {
+              clearInterval(checkCancellation);
+              this.terminateActiveWorker();
+              resolve({
+                success: false,
+                assignments: [],
+                unassignedShifts: shifts.map(s => s.id),
+                coverage: 0,
+                avgMotivation: 0,
+                generations: 0,
+                message: 'Cancelled by user',
+                stopReason: 'cancelled'
+              });
+            }
+          }, 100);
+
+          worker.addEventListener('message', ({ data: msg }) => {
+            if (msg.type === 'result') clearInterval(checkCancellation);
+          }, { once: false });
+        }
+
+        worker.postMessage({
+          shifts: workerShifts,
+          agents: workerAgents,
+          config,
+          penaltyWeights
+        });
+      } catch (error) {
+        this.terminateActiveWorker();
+        reject(error);
+      }
+    });
+  }
+
+  cancelWorker(): void {
+    this.terminateActiveWorker();
   }
 
   scheduleGreedy(context: IConductorContext): IConductorResult {
@@ -197,7 +346,6 @@ export class ConductorService {
   }
 
   async applySchedule(result: IConductorResult): Promise<boolean> {
-    // TODO: Create Work entries via API
     console.log('Applying schedule:', result);
     return true;
   }
@@ -266,8 +414,19 @@ export class ConductorService {
       coverage: best.coverage,
       avgMotivation: best.avgMotivation,
       generations: evolutionResult.finalGeneration,
-      message: evolutionResult.message
+      message: evolutionResult.message,
+      stopReason: evolutionResult.progress.stopReason,
+      timeElapsedMs: evolutionResult.progress.timeElapsedMs,
+      penaltyScore: best.penaltyScore,
+      hardViolations: best.hardViolations
     };
+  }
+
+  private terminateActiveWorker(): void {
+    if (this.activeWorker) {
+      this.activeWorker.terminate();
+      this.activeWorker = null;
+    }
   }
 
   private ensureInitialized(): void {

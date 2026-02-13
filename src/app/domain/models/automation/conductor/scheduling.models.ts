@@ -27,6 +27,9 @@ export interface ISchedulingScenario {
   avgMotivation: number;
   violationCount: number;
   unassignedShifts: string[];
+  chromosome: Map<string, string | null>;
+  penaltyScore: number;
+  hardViolations: number;
 }
 
 export interface IEvolutionConfig {
@@ -37,15 +40,23 @@ export interface IEvolutionConfig {
   crossoverRate: number;
   convergenceThreshold: number;
   randomSeed?: number;
+  stagnationLimit: number;
+  targetFitness: number;
+  timeLimitMs: number;
+  warmStartRatio: number;
 }
 
 export const DEFAULT_EVOLUTION_CONFIG: IEvolutionConfig = {
   populationSize: 50,
-  maxGenerations: 100,
+  maxGenerations: 200,
   eliteCount: 5,
-  mutationRate: 0.1,
+  mutationRate: 0.15,
   crossoverRate: 0.8,
-  convergenceThreshold: 0.001
+  convergenceThreshold: 0.001,
+  stagnationLimit: 20,
+  targetFitness: 0.95,
+  timeLimitMs: 15000,
+  warmStartRatio: 0.2
 };
 
 export interface IEvolutionProgress {
@@ -56,6 +67,9 @@ export interface IEvolutionProgress {
   coverage: number;
   isConverged: boolean;
   improvement: number;
+  timeElapsedMs: number;
+  stagnationCount: number;
+  stopReason?: 'converged' | 'stagnation' | 'target' | 'timeout' | 'maxgen' | 'cancelled';
 }
 
 export interface IEvolutionResult {
@@ -79,6 +93,22 @@ export const DEFAULT_FITNESS_WEIGHTS: IFitnessWeights = {
   motivation: 0.3,
   fairness: 0.1,
   violations: -0.1
+};
+
+export interface IPenaltyWeights {
+  hardViolation: number;
+  softViolation: number;
+  coverageBonus: number;
+  motivationBonus: number;
+  fairnessBonus: number;
+}
+
+export const DEFAULT_PENALTY_WEIGHTS: IPenaltyWeights = {
+  hardViolation: -1000,
+  softViolation: -200,
+  coverageBonus: 100,
+  motivationBonus: 50,
+  fairnessBonus: 30
 };
 
 export interface IConductorContext {
