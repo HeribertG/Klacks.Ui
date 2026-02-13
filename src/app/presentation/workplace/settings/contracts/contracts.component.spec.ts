@@ -35,6 +35,7 @@ describe('ContractsComponent', () => {
     validUntil: new Date(2024, 11, 31),
     calendarSelection: undefined,
     calendarSelectionId: 'cal-1',
+    schedulingRuleId: undefined,
   };
 
   beforeEach(async () => {
