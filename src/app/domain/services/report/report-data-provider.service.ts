@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
-import { ReportField, ReportFieldType } from '../../models/report/report-field.model';
-import { IScheduleCell, IWorkScheduleClient, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { ReportField } from '../../models/report/report-field.model';
+import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';

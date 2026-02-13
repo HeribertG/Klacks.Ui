@@ -1,8 +1,7 @@
 import {
   DataBindingDefinition,
-  ReportFieldType,
   FieldCategory,
-  HEADER_FIELDS,
+  ReportFieldType,
   WORK_TABLE_FIELDS,
   EXPENSES_TABLE_FIELDS,
   FOOTER_FIELDS,

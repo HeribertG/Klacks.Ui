@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, DestroyRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -92,7 +93,7 @@ export class ReportsComponent implements AfterViewInit {
     }
   }
 
-  onReportChanged(index: number): void {
+  onReportChanged(_index: number): void {
     // Trigger change detection if needed
   }
 

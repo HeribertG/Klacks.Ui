@@ -126,7 +126,7 @@ export class LlmExecutionNavigationService {
 
   executeOpenDialog(call: ILLMFunctionCall): Observable<ILLMFunctionResult> {
     try {
-      const { dialogType, data } = call.arguments;
+      const { dialogType } = call.arguments;
       return of({
         id: call.id,
         success: true,

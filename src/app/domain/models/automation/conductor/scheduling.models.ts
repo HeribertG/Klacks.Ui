@@ -1,4 +1,4 @@
-import { IScheduleAgent, IAgentDecision } from '../agent/schedule-agent.model';
+import { IScheduleAgent } from '../agent/schedule-agent.model';
 
 export interface IShift {
   id: string;

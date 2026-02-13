@@ -11,17 +11,10 @@ import {
   CoreShift,
   CoreAgent,
   CoreScenario,
-  CoreAssignment,
-  CoreConfig,
   RngFn,
   createSeededRng,
   generateId,
-  mutateSwap as coreMutateSwap,
-  mutateRemove as coreMutateRemove,
-  mutateRepair as coreMutateRepair,
-  mutateHungryFirst as coreMutateHungryFirst,
   crossoverBlock as coreCrossoverBlock,
-  createRandomScenario as coreCreateRandomScenario,
   createGreedyScenario as coreCreateGreedyScenario
 } from './evolution-core';
 
@@ -149,7 +142,7 @@ export class MutationEngineService {
     shifts: IShift[],
     agents: IScheduleAgent[],
     generation: number,
-    variation: number = 0
+    variation = 0
   ): ISchedulingScenario {
     const coreShifts = shifts.map(s => this.toCoreShift(s));
     const coreAgents = agents.map(a => this.toCoreAgent(a));

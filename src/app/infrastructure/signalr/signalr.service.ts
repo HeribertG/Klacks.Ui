@@ -199,8 +199,8 @@ export class SignalRService implements OnDestroy {
       await this.hubConnection.invoke(SignalRConstants.HubMethods.JoinScheduleGroup, startDate, endDate);
       this.currentGroup = { startDate, endDate };
       
-    } catch (error) {
-      
+    } catch (_error) {
+
       this.currentGroup = { startDate, endDate };
     }
   }
@@ -216,8 +216,8 @@ export class SignalRService implements OnDestroy {
         this.currentGroup = null;
       }
       
-    } catch (error) {
-      
+    } catch (_error) {
+      // ignored
     }
   }
 
@@ -306,7 +306,7 @@ export class SignalRService implements OnDestroy {
       this.reconnected$.next();
     });
 
-    this.hubConnection.onclose((error) => {
+    this.hubConnection.onclose((_error) => {
       
       this._isConnected.set(false);
 
@@ -338,8 +338,8 @@ export class SignalRService implements OnDestroy {
           
         }
       }
-    } catch (error) {
-      
+    } catch (_error) {
+      // ignored
     }
   }
 
@@ -374,8 +374,8 @@ export class SignalRService implements OnDestroy {
       });
       
       return response.ok;
-    } catch (error) {
-      
+    } catch (_error) {
+
       return false;
     }
   }

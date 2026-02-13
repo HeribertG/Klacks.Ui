@@ -14,9 +14,7 @@ import {
   CoreScenario,
   calculateFitness as coreCalculateFitness,
   calculateFairness as coreCalculateFairness,
-  calculateCoverage as coreCalculateCoverage,
-  evaluateHardConstraints as coreEvaluateHardConstraints,
-  evaluateSoftConstraints as coreEvaluateSoftConstraints
+  calculateCoverage as coreCalculateCoverage
 } from './evolution-core';
 
 export interface IConstraintViolation {

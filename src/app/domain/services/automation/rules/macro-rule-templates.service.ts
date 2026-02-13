@@ -32,7 +32,7 @@ export class MacroRuleTemplatesService {
     return this.getTemplates().filter(t => t.category === category);
   }
 
-  createMacroFromTemplate(template: IMacroRuleTemplate, type: number = 0): Partial<IMacro> {
+  createMacroFromTemplate(template: IMacroRuleTemplate, type = 0): Partial<IMacro> {
     return {
       name: template.name,
       content: template.content,

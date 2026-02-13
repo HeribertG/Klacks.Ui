@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, Subject } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro } from 'src/app/domain/models/settings/macro-class';
 
 describe('MacrosComponent delete logic', () => {
   let mockMacroManagementService: any;
-  let mockModalService: ModalService;
   let macroListStore: IMacro[];
   let dataManagementSettingsService: any;
 
@@ -37,7 +35,6 @@ describe('MacrosComponent delete logic', () => {
       ],
     });
 
-    mockModalService = TestBed.inject(ModalService);
   });
 
   function deleteMacro(indexStr: string): void {

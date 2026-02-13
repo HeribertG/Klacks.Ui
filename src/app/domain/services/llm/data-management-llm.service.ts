@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, tap, switchMap, map, takeUntil } from 'rxjs/operators';
+import { catchError, tap, switchMap, takeUntil } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
   DataLLMService,

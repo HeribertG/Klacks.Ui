@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { ILLMFunctionCall, ILLMFunctionResult } from '../../interfaces/llm-function-definitions.interface';

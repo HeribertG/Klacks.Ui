@@ -1,4 +1,4 @@
-import { IWorkScheduleClient, IPeriodHours } from '../../schedule/work-schedule-class';
+import { IWorkScheduleClient } from '../../schedule/work-schedule-class';
 import { IRuleViolation } from '../rules/rule.model';
 
 export interface IWorkBlock {

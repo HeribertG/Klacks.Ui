@@ -5,7 +5,7 @@ import { EvolutionEngineService } from './evolution-engine.service';
 import {
   IShift,
   ISchedulingScenario,
-  IAssignment,
+  IEvolutionProgress,
   DEFAULT_PENALTY_WEIGHTS
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent, ScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
@@ -13,7 +13,6 @@ import { IWorkScheduleClient } from '../../../models/schedule/work-schedule-clas
 import {
   CoreShift,
   CoreAgent,
-  CorePenaltyWeights,
   CoreConfig,
   CoreResultData,
   CoreProgressData,
@@ -314,7 +313,7 @@ describe('Evolution Integration Tests', () => {
         makeScheduleAgent('a2', { guaranteedHours: 20 })
       ];
 
-      const progressCallbacks: any[] = [];
+      const progressCallbacks: IEvolutionProgress[] = [];
       const result = await service.evolve(
         shifts,
         agents,

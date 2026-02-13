@@ -66,8 +66,8 @@ export class RuleDefinition implements IRuleDefinition {
     public type: RuleType,
     public description: string,
     public severity: RuleSeverity = RuleSeverity.Violation,
-    public isActive: boolean = true,
-    public script: string = '',
+    public isActive = true,
+    public script = '',
     public parameters: Record<string, unknown> = {}
   ) {}
 }
@@ -84,8 +84,8 @@ export class RuleEvaluationResult implements IRuleEvaluationResult {
   constructor(
     public ruleId: string,
     public passed: boolean,
-    public severity: number = 0,
-    public message: string = '',
+    public severity = 0,
+    public message = '',
     public details?: Record<string, unknown>
   ) {}
 

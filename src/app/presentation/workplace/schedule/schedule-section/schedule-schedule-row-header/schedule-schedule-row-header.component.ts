@@ -217,7 +217,7 @@ export class ScheduleScheduleRowHeaderComponent
 
       const periodHoursEffect = effect(() => {
         // React to period hours updates from SignalR
-        const timestamp = this.workScheduleLoader.periodHoursUpdated();
+        const _timestamp = this.workScheduleLoader.periodHoursUpdated();
         
         if (this.drawRowHeader.isCanvasAvailable()) {
           

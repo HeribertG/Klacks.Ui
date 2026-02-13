@@ -5,7 +5,6 @@ import {
   IEvolutionConfig,
   IEvolutionResult,
   IEvolutionProgress,
-  ISchedulingScenario,
   DEFAULT_EVOLUTION_CONFIG,
   DEFAULT_PENALTY_WEIGHTS,
   IPenaltyWeights

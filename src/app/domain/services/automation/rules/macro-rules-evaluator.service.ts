@@ -1,15 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import {
   SCRIPT_COMPILER,
-  ICompiledScript,
-  IScriptCompiler
+  ICompiledScript
 } from '../../../models/automation/rules/script-compiler.interface';
 import { MacroManagementService } from '../../../services/settings/macro-management.service';
 import { AppSettingsManagementService } from '../../../services/settings/app-settings-management.service';
 import { IMacro } from '../../../models/settings/macro-class';
 import {
   IRuleViolation,
-  IScheduleContext
+  IScheduleContext,
+  RuleType
 } from '../../../models/automation/rules/rule.model';
 
 export interface IRuleEvaluationSummary {
@@ -91,7 +91,7 @@ export class MacroRulesEvaluatorService {
         violations.push({
           ruleId: macroId,
           ruleName: macro?.name || macroId,
-          ruleType: 'custom' as any,
+          ruleType: 'custom' as RuleType,
           severity: result.severity,
           description: result.message
         });
@@ -157,17 +157,17 @@ export class MacroRulesEvaluatorService {
 
   private prepareExternalVariables(
     context: IScheduleContext,
-    macro?: IMacro
+    _macro?: IMacro
   ): Record<string, unknown> {
     const existingDates: string[] = [];
-    const assignmentsArray: Array<{
+    const assignmentsArray: {
       shiftId: string;
       shiftName: string;
       date: string;
       startTime: string;
       endTime: string;
       hours: number;
-    }> = [];
+    }[] = [];
 
     for (const assign of context.existingAssignments) {
       existingDates.push(assign.date.toISOString().split('T')[0]);
@@ -208,7 +208,7 @@ export class MacroRulesEvaluatorService {
   private parseScriptResult(
     macroId: string,
     macroName: string,
-    messages: Array<{ type: number; message: string }>
+    messages: { type: number; message: string }[]
   ): IMacroRuleResult {
     let severity = 0;
     let outputMessage = 'OK';

@@ -22,6 +22,8 @@ import {
   CoreConfig,
   CorePenaltyWeights,
   CoreAssignment,
+  CoreProgressData,
+  CoreResultData,
   RngFn
 } from './evolution-core';
 
@@ -89,8 +91,6 @@ function makeWeights(overrides: Partial<CorePenaltyWeights> = {}): CorePenaltyWe
     ...overrides
   };
 }
-
-const FIXED_RNG: RngFn = createSeededRng(42);
 
 function freshRng(): RngFn {
   return createSeededRng(42);
@@ -643,8 +643,8 @@ describe('evolution-core', () => {
         timeLimitMs: 10000
       });
 
-      const progressCalls: any[] = [];
-      let resultData: any = null;
+      const progressCalls: CoreProgressData[] = [];
+      let resultData: CoreResultData | null = null;
 
       runEvolution(shifts, agents, config, makeWeights(), {
         onProgress: (data) => progressCalls.push(data),
@@ -656,12 +656,12 @@ describe('evolution-core', () => {
       expect(progressCalls[0].maxGenerations).toBe(15);
 
       expect(resultData).not.toBeNull();
-      expect(resultData.assignments.length).toBeGreaterThan(0);
-      expect(resultData.fitness).toBeGreaterThan(0);
-      expect(resultData.coverage).toBeGreaterThan(0);
-      expect(resultData.finalGeneration).toBeGreaterThan(0);
-      expect(resultData.stopReason).toBeTruthy();
-      expect(resultData.message).toBeTruthy();
+      expect(resultData!.assignments.length).toBeGreaterThan(0);
+      expect(resultData!.fitness).toBeGreaterThan(0);
+      expect(resultData!.coverage).toBeGreaterThan(0);
+      expect(resultData!.finalGeneration).toBeGreaterThan(0);
+      expect(resultData!.stopReason).toBeTruthy();
+      expect(resultData!.message).toBeTruthy();
     });
 
     it('should be deterministic with same seed', () => {
@@ -670,8 +670,8 @@ describe('evolution-core', () => {
       const config = makeConfig({ randomSeed: 99, populationSize: 10, maxGenerations: 10 });
       const weights = makeWeights();
 
-      let result1: any = null;
-      let result2: any = null;
+      let result1: CoreResultData | null = null;
+      let result2: CoreResultData | null = null;
 
       runEvolution(shifts, agents, config, weights, {
         onProgress: () => {},
@@ -702,14 +702,14 @@ describe('evolution-core', () => {
         randomSeed: 42
       });
 
-      let resultData: any = null;
+      let resultData: CoreResultData | null = null;
       runEvolution(shifts, agents, config, makeWeights(), {
         onProgress: () => {},
         onResult: (data) => { resultData = data; }
       });
 
       expect(resultData).not.toBeNull();
-      expect(resultData.timeElapsedMs).toBeLessThan(5000);
+      expect(resultData!.timeElapsedMs).toBeLessThan(5000);
     });
 
     it('should produce valid coverage value between 0 and 1', () => {
@@ -717,14 +717,14 @@ describe('evolution-core', () => {
       const agents = [makeAgent({ id: 'a1' })];
       const config = makeConfig({ randomSeed: 42, maxGenerations: 5 });
 
-      let resultData: any = null;
+      let resultData: CoreResultData | null = null;
       runEvolution(shifts, agents, config, makeWeights(), {
         onProgress: () => {},
         onResult: (data) => { resultData = data; }
       });
 
-      expect(resultData.coverage).toBeGreaterThanOrEqual(0);
-      expect(resultData.coverage).toBeLessThanOrEqual(1);
+      expect(resultData!.coverage).toBeGreaterThanOrEqual(0);
+      expect(resultData!.coverage).toBeLessThanOrEqual(1);
     });
   });
 });
