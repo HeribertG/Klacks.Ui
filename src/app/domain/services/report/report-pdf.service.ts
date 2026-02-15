@@ -279,7 +279,7 @@ export class ReportPdfService {
     const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
 
     const columns = fields.map(f => ({
-      header: this.translateFieldName(f, template),
+      header: this.translateFieldName(f, template, false),
       dataKey: f.dataBinding,
     }));
 
@@ -321,7 +321,8 @@ export class ReportPdfService {
             const val = provider.resolveFieldValue(tempField, entry);
             if (val) parts.push(val);
           }
-          row[f.dataBinding] = parts.filter(p => p).join(separator);
+          const unique = [...new Set(parts.filter(p => p))];
+          row[f.dataBinding] = unique.join(separator);
         } else {
           row[f.dataBinding] = primary;
         }
@@ -353,12 +354,11 @@ export class ReportPdfService {
           : footerField.sortOrder;
         const value = provider.resolveFooterValue(footerField, rows);
         if (colIndex >= 0 && colIndex < fields.length) {
-          if (footerField.hideLabel) {
-            footRow[colIndex] = value;
-          } else {
-            const label = this.translateFieldName(footerField, template);
-            footRow[colIndex] = `${label}: ${value}`;
-          }
+          const text = footerField.hideLabel
+            ? value
+            : `${this.translateFieldName(footerField, template)}: ${value}`;
+          const halign = footerField.style.alignment === 0 ? 'left' : footerField.style.alignment === 1 ? 'center' : 'right';
+          footRow[colIndex] = { content: text, styles: { halign } };
         }
       }
       foot = [footRow];
@@ -491,16 +491,19 @@ export class ReportPdfService {
       });
   }
 
-  private translateFieldName(field: ReportField, template: ReportTemplate): string {
+  private translateFieldName(field: ReportField, template: ReportTemplate, withPrefix = true): string {
     const sourceId = template.sourceId ?? 'schedule';
     const dataSetIds = template.dataSetIds ?? ['work'];
     const allFields = getAllFieldsForDataSets(sourceId, dataSetIds);
     const def = allFields.find(f => f.key === field.dataBinding);
     if (def) {
       const label = this.translate.instant(def.i18nKey);
-      const prefixMap = getFieldPrefixMap(sourceId, dataSetIds, k => this.translate.instant(k));
-      const prefix = prefixMap.get(field.dataBinding);
-      return prefix ? `${prefix}.${label}` : label;
+      if (withPrefix) {
+        const prefixMap = getFieldPrefixMap(sourceId, dataSetIds, k => this.translate.instant(k));
+        const prefix = prefixMap.get(field.dataBinding);
+        return prefix ? `${prefix}.${label}` : label;
+      }
+      return label;
     }
     return field.name;
   }

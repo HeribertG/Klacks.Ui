@@ -463,7 +463,9 @@
   padding: 2px 4px;
   border: 1px dashed transparent;
   border-radius: 3px;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 
   &.cdk-drop-list-dragging {
     border-color: colors.$standartBlueColor;
@@ -695,6 +697,43 @@
   transition: transform 200ms;
 }
 
+// --- Alignment Icons (CSS-only) ---
+
+.align-icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 14px;
+  height: 12px;
+  justify-content: center;
+
+  &::before,
+  &::after {
+    content: "";
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 1px;
+  }
+}
+
+.align-left-icon {
+  align-items: flex-start;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
+.align-center-icon {
+  align-items: center;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
+.align-right-icon {
+  align-items: flex-end;
+  &::before { width: 100%; }
+  &::after { width: 65%; }
+}
+
 // --- Border Toolbar ---
 
 .border-toolbar {
@@ -763,7 +802,6 @@
 .footer-field-select {
   max-width: 160px;
 }
-
 
 // --- Free Text Rows ---
 

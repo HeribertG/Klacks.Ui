@@ -1,33 +1,47 @@
+<!-- eslint-disable @angular-eslint/template/alt-text -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="report-designer">
   <div class="designer-layout">
     <div class="palette-panel">
-      <h6 class="palette-title">{{ 'setting.report.designer.availableFields' | translate }}</h6>
+      <h6 class="palette-title">
+        {{ "setting.report.designer.availableFields" | translate }}
+      </h6>
 
       @for (group of paletteGroups; track group.id) {
         <div class="palette-group">
           <div class="palette-group-header" (click)="toggleGroup(group)">
-            <i class="fa" [class.fa-chevron-right]="group.collapsed" [class.fa-chevron-down]="!group.collapsed"></i>
+            <i
+              class="fa"
+              [class.fa-chevron-right]="group.collapsed"
+              [class.fa-chevron-down]="!group.collapsed"
+            ></i>
             <span>{{ group.title ?? (group.titleKey | translate) }}</span>
             <span class="badge">{{ getAvailableFields(group).length }}</span>
           </div>
 
           @if (!group.collapsed) {
-            <div class="palette-fields"
-                 cdkDropList
-                 [cdkDropListData]="getAvailableFields(group)"
-                 [id]="'palette-' + group.id"
-                 [cdkDropListConnectedTo]="getPaletteConnectedTo(group)"
-                 [cdkDropListSortingDisabled]="true">
+            <div
+              class="palette-fields"
+              cdkDropList
+              [cdkDropListData]="getAvailableFields(group)"
+              [id]="'palette-' + group.id"
+              [cdkDropListConnectedTo]="getPaletteConnectedTo(group)"
+              [cdkDropListSortingDisabled]="true"
+            >
               @for (field of getAvailableFields(group); track field.key) {
-                <div class="palette-field"
-                     cdkDrag
-                     [cdkDragData]="field">
+                <div class="palette-field" cdkDrag [cdkDragData]="field">
                   <i class="fa fa-grip-vertical drag-handle"></i>
-                  <span class="field-label">{{ field.i18nKey | translate }}</span>
+                  <span class="field-label">{{
+                    field.i18nKey | translate
+                  }}</span>
                 </div>
               }
               @if (getAvailableFields(group).length === 0) {
-                <div class="palette-empty">{{ 'setting.report.designer.allFieldsUsed' | translate }}</div>
+                <div class="palette-empty">
+                  {{ "setting.report.designer.allFieldsUsed" | translate }}
+                </div>
               }
             </div>
           }
@@ -36,96 +50,221 @@
     </div>
 
     <div class="preview-panel">
-      <h6 class="preview-title">{{ 'setting.report.designer.reportPreview' | translate }}</h6>
+      <h6 class="preview-title">
+        {{ "setting.report.designer.reportPreview" | translate }}
+      </h6>
 
       @if (activeField) {
         <div class="global-toolbar">
-          <button class="tb-btn" [class.active]="activeField.style.bold" (click)="toggleBold(activeField)"><b>B</b></button>
-          <button class="tb-btn italic" [class.active]="activeField.style.italic" (click)="toggleItalic(activeField)"><i>I</i></button>
-          <button class="tb-btn underline" [class.active]="activeField.style.underline" (click)="toggleUnderline(activeField)"><u>U</u></button>
+          <button
+            class="tb-btn"
+            [class.active]="activeField.style.bold"
+            (click)="toggleBold(activeField)"
+          >
+            <b>B</b>
+          </button>
+          <button
+            class="tb-btn italic"
+            [class.active]="activeField.style.italic"
+            (click)="toggleItalic(activeField)"
+          >
+            <i>I</i>
+          </button>
+          <button
+            class="tb-btn underline"
+            [class.active]="activeField.style.underline"
+            (click)="toggleUnderline(activeField)"
+          >
+            <u>U</u>
+          </button>
           <span class="tb-separator"></span>
-          <select class="tb-select" [ngModel]="activeField.style.fontFamily" (ngModelChange)="setFontFamily(activeField, $event)">
+          <select
+            class="tb-select"
+            [ngModel]="activeField.style.fontFamily"
+            (ngModelChange)="setFontFamily(activeField, $event)"
+          >
             @for (font of availableFonts; track font.value) {
               <option [value]="font.value">{{ font.label }}</option>
             }
           </select>
-          <input type="number" class="tb-size" [ngModel]="activeField.style.fontSize" (ngModelChange)="setFontSize(activeField, $event)" min="6" max="48" />
+          <input
+            type="number"
+            class="tb-size"
+            [ngModel]="activeField.style.fontSize"
+            (ngModelChange)="setFontSize(activeField, $event)"
+            min="6"
+            max="48"
+          />
           <span class="tb-separator"></span>
-          <input type="color" class="tb-color" [ngModel]="activeField.style.textColor" (ngModelChange)="setTextColor(activeField, $event)" [title]="'setting.report.designer.textColor' | translate" />
+          <input
+            type="color"
+            class="tb-color"
+            [ngModel]="activeField.style.textColor"
+            (ngModelChange)="setTextColor(activeField, $event)"
+            [title]="'setting.report.designer.textColor' | translate"
+          />
           <span class="tb-separator"></span>
 
           @if (!isHeaderField(activeField)) {
-            <button class="tb-btn" [class.active]="activeField.style.alignment === TextAlignment.Left" (click)="setAlignment(activeField, TextAlignment.Left)">
-              <i class="fa fa-align-left"></i>
+            <button
+              class="tb-btn"
+              [class.active]="activeField.style.alignment === TextAlignment.Left"
+              (click)="setAlignment(activeField, TextAlignment.Left)"
+              title="Links"
+            >
+              <span class="align-icon align-left-icon"></span>
             </button>
-            <button class="tb-btn" [class.active]="activeField.style.alignment === TextAlignment.Center" (click)="setAlignment(activeField, TextAlignment.Center)">
-              <i class="fa fa-align-center"></i>
+            <button
+              class="tb-btn"
+              [class.active]="activeField.style.alignment === TextAlignment.Center"
+              (click)="setAlignment(activeField, TextAlignment.Center)"
+              title="Zentriert"
+            >
+              <span class="align-icon align-center-icon"></span>
             </button>
-            <button class="tb-btn" [class.active]="activeField.style.alignment === TextAlignment.Right" (click)="setAlignment(activeField, TextAlignment.Right)">
-              <i class="fa fa-align-right"></i>
+            <button
+              class="tb-btn"
+              [class.active]="activeField.style.alignment === TextAlignment.Right"
+              (click)="setAlignment(activeField, TextAlignment.Right)"
+              title="Rechts"
+            >
+              <span class="align-icon align-right-icon"></span>
             </button>
             <span class="tb-separator"></span>
           }
 
           @if (activeField.type === ReportFieldType.Image) {
             <label class="tb-label">W:</label>
-            <input type="number" class="tb-size" [ngModel]="activeField.width" (ngModelChange)="setImageWidth(activeField, $event)" min="5" max="200" />
+            <input
+              type="number"
+              class="tb-size"
+              [ngModel]="activeField.width"
+              (ngModelChange)="setImageWidth(activeField, $event)"
+              min="5"
+              max="200"
+            />
             <label class="tb-label">H:</label>
-            <input type="number" class="tb-size" [ngModel]="activeField.height" (ngModelChange)="setImageHeight(activeField, $event)" min="5" max="200" />
+            <input
+              type="number"
+              class="tb-size"
+              [ngModel]="activeField.height"
+              (ngModelChange)="setImageHeight(activeField, $event)"
+              min="5"
+              max="200"
+            />
           }
 
-          @if (!isHeaderField(activeField) && activeField.type !== ReportFieldType.Image) {
+          @if (
+            !isHeaderField(activeField) &&
+            activeField.type !== ReportFieldType.Image
+          ) {
             <span class="tb-separator"></span>
             <div class="border-toolbar">
-              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'top')" (click)="toggleBorderSide(activeField, 'top')" [title]="'setting.report.designer.borderTop' | translate">
+              <button
+                class="tb-btn border-side-btn"
+                [class.active]="getBorderSideActive(activeField, 'top')"
+                (click)="toggleBorderSide(activeField, 'top')"
+                [title]="'setting.report.designer.borderTop' | translate"
+              >
                 <span class="border-icon border-top-icon"></span>
               </button>
-              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'right')" (click)="toggleBorderSide(activeField, 'right')" [title]="'setting.report.designer.borderRight' | translate">
+              <button
+                class="tb-btn border-side-btn"
+                [class.active]="getBorderSideActive(activeField, 'right')"
+                (click)="toggleBorderSide(activeField, 'right')"
+                [title]="'setting.report.designer.borderRight' | translate"
+              >
                 <span class="border-icon border-right-icon"></span>
               </button>
-              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'bottom')" (click)="toggleBorderSide(activeField, 'bottom')" [title]="'setting.report.designer.borderBottom' | translate">
+              <button
+                class="tb-btn border-side-btn"
+                [class.active]="getBorderSideActive(activeField, 'bottom')"
+                (click)="toggleBorderSide(activeField, 'bottom')"
+                [title]="'setting.report.designer.borderBottom' | translate"
+              >
                 <span class="border-icon border-bottom-icon"></span>
               </button>
-              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'left')" (click)="toggleBorderSide(activeField, 'left')" [title]="'setting.report.designer.borderLeft' | translate">
+              <button
+                class="tb-btn border-side-btn"
+                [class.active]="getBorderSideActive(activeField, 'left')"
+                (click)="toggleBorderSide(activeField, 'left')"
+                [title]="'setting.report.designer.borderLeft' | translate"
+              >
                 <span class="border-icon border-left-icon"></span>
               </button>
-              <button class="tb-btn" (click)="setAllBorders(activeField, BorderLineStyle.Thin)" [title]="'setting.report.designer.allBorders' | translate">
+              <button
+                class="tb-btn"
+                (click)="setAllBorders(activeField, BorderLineStyle.Thin)"
+                [title]="'setting.report.designer.allBorders' | translate"
+              >
                 <i class="fa fa-border-all"></i>
               </button>
-              <select class="tb-select" [ngModel]="getActiveBorderLineStyle(activeField)" (ngModelChange)="setBorderLineStyle(activeField, +$event)">
+              <select
+                class="tb-select"
+                [ngModel]="getActiveBorderLineStyle(activeField)"
+                (ngModelChange)="setBorderLineStyle(activeField, +$event)"
+              >
                 @for (ls of borderLineStyles; track ls.value) {
-                  <option [value]="ls.value">{{ ls.labelKey | translate }}</option>
+                  <option [value]="ls.value">
+                    {{ ls.labelKey | translate }}
+                  </option>
                 }
               </select>
-              <input type="color" class="tb-color" [ngModel]="getActiveBorderColor(activeField)" (ngModelChange)="setBorderColor(activeField, $event)" [title]="'setting.report.designer.borderColor' | translate" />
+              <input
+                type="color"
+                class="tb-color"
+                [ngModel]="getActiveBorderColor(activeField)"
+                (ngModelChange)="setBorderColor(activeField, $event)"
+                [title]="'setting.report.designer.borderColor' | translate"
+              />
             </div>
           }
 
           @if (isTableFooterField(activeField)) {
             <span class="tb-separator"></span>
             <label class="tb-toggle">
-              <input type="checkbox" [checked]="activeField.hideLabel" (change)="toggleHideLabel(activeField)" />
-              {{ 'setting.report.designer.hideLabel' | translate }}
+              <input
+                type="checkbox"
+                [checked]="activeField.hideLabel"
+                (change)="toggleHideLabel(activeField)"
+              />
+              {{ "setting.report.designer.hideLabel" | translate }}
             </label>
           }
 
           @if (isBodyTableField(activeField)) {
             <span class="tb-separator"></span>
-            <select class="tb-select" (change)="addMergedBinding(activeField, $any($event.target).value); $any($event.target).value = ''">
-              <option value="">{{ 'setting.report.designer.addMergedField' | translate }}</option>
-              @for (def of getAvailableMergeFields(activeField); track def.key) {
-                <option [value]="def.key">{{ def.i18nKey | translate }}</option>
+            <select
+              class="tb-select"
+              (change)="
+                addMergedBinding(activeField, $any($event.target).value);
+                $any($event.target).value = ''
+              "
+            >
+              <option value="">
+                {{ "setting.report.designer.addMergedField" | translate }}
+              </option>
+              @for (
+                opt of getAvailableMergeFields(activeField);
+                track opt.key
+              ) {
+                <option [value]="opt.key">{{ opt.label }}</option>
               }
             </select>
             @if (activeField.additionalBindings?.length) {
-              <select class="tb-select" [ngModel]="activeField.bindingSeparator || '\n'" (ngModelChange)="setBindingSeparator(activeField, $event)">
+              <select
+                class="tb-select"
+                [ngModel]="activeField.bindingSeparator || '\n'"
+                (ngModelChange)="setBindingSeparator(activeField, $event)"
+              >
                 @for (sep of separatorOptions; track sep.value) {
-                  <option [value]="sep.value">{{ sep.labelKey | translate }}</option>
+                  <option [value]="sep.value">
+                    {{ sep.labelKey | translate }}
+                  </option>
                 }
               </select>
             }
           }
-
         </div>
       }
 
@@ -137,168 +276,455 @@
           </div>
           <div class="header-section">
             <button class="btn-add-row" (click)="addHeaderRow(hs)">
-              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addRow' | translate }}
+              <i class="fa fa-plus"></i>
+              {{ "setting.report.designer.addRow" | translate }}
             </button>
 
             <div class="header-rows">
               @for (row of getHeaderRows(hs); track row.rowIndex) {
                 <div class="header-row">
-                  <div class="header-zone"
-                       cdkDropList
-                       [id]="'zone-' + row.rowIndex + '-0'"
-                       [cdkDropListData]="row.left"
-                       [cdkDropListConnectedTo]="['palette-header']"
-                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Left)">
+                  <div
+                    class="header-zone"
+                    cdkDropList
+                    [id]="'zone-' + row.rowIndex + '-0'"
+                    [cdkDropListData]="row.left"
+                    [cdkDropListConnectedTo]="['palette-header']"
+                    (cdkDropListDropped)="
+                      onHeaderFieldDrop(
+                        $event,
+                        hs,
+                        row.rowIndex,
+                        TextAlignment.Left
+                      )
+                    "
+                  >
                     @for (field of row.left; track $index) {
                       @if (field.dataBinding) {
                         @if (field.type === ReportFieldType.Image) {
                           @if (field.imageUrl) {
-                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                <img [src]="preview" class="header-image-preview" />
+                            <div
+                              class="zone-chip image-chip"
+                              (click)="selectField(field)"
+                              [class.chip-active]="activeField === field"
+                            >
+                              @if (
+                                imagePreviewCache.get(field.imageUrl);
+                                as preview
+                              ) {
+                                <img
+                                  [src]="preview"
+                                  class="header-image-preview"
+                                />
                               } @else {
-                                <i class="fa fa-image image-placeholder-icon"></i>
-                                <span class="image-filename">{{ field.imageUrl }}</span>
+                                <i
+                                  class="fa fa-image image-placeholder-icon"
+                                ></i>
+                                <span class="image-filename">{{
+                                  field.imageUrl
+                                }}</span>
                               }
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </div>
                           } @else {
-                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                            <label
+                              class="zone-chip image-chip image-upload-zone"
+                              [class.chip-active]="activeField === field"
+                              (click)="selectField(field)"
+                            >
                               <i class="fa fa-image image-placeholder-icon"></i>
-                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <span class="image-upload-text">{{
+                                "setting.report.designer.uploadImage"
+                                  | translate
+                              }}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                (change)="onImageChipUpload($event, hs, field)"
+                              />
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </label>
                           }
                         } @else if (isCustomText(field)) {
-                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                            <textarea class="custom-text-textarea"
-                                      [value]="field.name"
-                                      (focus)="selectField(field)"
-                                      (input)="onCustomTextChange(field, $any($event.target).value)"
-                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                      rows="2"></textarea>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          <div
+                            class="zone-chip custom-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
+                            <textarea
+                              class="custom-text-textarea"
+                              [value]="field.name"
+                              (focus)="selectField(field)"
+                              (input)="
+                                onCustomTextChange(
+                                  field,
+                                  $any($event.target).value
+                                )
+                              "
+                              [placeholder]="
+                                'setting.report.designer.customTextPlaceholder'
+                                  | translate
+                              "
+                              rows="2"
+                            ></textarea>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         } @else {
-                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                          <div
+                            class="zone-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
                             <span class="chip-label">{{ field.name }}</span>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         }
                       }
                     }
-                    @if (row.left.length === 0 || (row.left.length === 1 && !row.left[0].dataBinding)) {
-                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                    @if (
+                      row.left.length === 0 ||
+                      (row.left.length === 1 && !row.left[0].dataBinding)
+                    ) {
+                      <div class="zone-placeholder">
+                        {{ "setting.report.designer.dropHere" | translate }}
+                      </div>
                     }
                   </div>
 
-                  <div class="header-zone"
-                       cdkDropList
-                       [id]="'zone-' + row.rowIndex + '-1'"
-                       [cdkDropListData]="row.center"
-                       [cdkDropListConnectedTo]="['palette-header']"
-                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Center)">
+                  <div
+                    class="header-zone"
+                    cdkDropList
+                    [id]="'zone-' + row.rowIndex + '-1'"
+                    [cdkDropListData]="row.center"
+                    [cdkDropListConnectedTo]="['palette-header']"
+                    (cdkDropListDropped)="
+                      onHeaderFieldDrop(
+                        $event,
+                        hs,
+                        row.rowIndex,
+                        TextAlignment.Center
+                      )
+                    "
+                  >
                     @for (field of row.center; track $index) {
                       @if (field.dataBinding) {
                         @if (field.type === ReportFieldType.Image) {
                           @if (field.imageUrl) {
-                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                <img [src]="preview" class="header-image-preview" />
+                            <div
+                              class="zone-chip image-chip"
+                              (click)="selectField(field)"
+                              [class.chip-active]="activeField === field"
+                            >
+                              @if (
+                                imagePreviewCache.get(field.imageUrl);
+                                as preview
+                              ) {
+                                <img
+                                  [src]="preview"
+                                  class="header-image-preview"
+                                />
                               } @else {
-                                <i class="fa fa-image image-placeholder-icon"></i>
-                                <span class="image-filename">{{ field.imageUrl }}</span>
+                                <i
+                                  class="fa fa-image image-placeholder-icon"
+                                ></i>
+                                <span class="image-filename">{{
+                                  field.imageUrl
+                                }}</span>
                               }
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </div>
                           } @else {
-                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                            <label
+                              class="zone-chip image-chip image-upload-zone"
+                              [class.chip-active]="activeField === field"
+                              (click)="selectField(field)"
+                            >
                               <i class="fa fa-image image-placeholder-icon"></i>
-                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <span class="image-upload-text">{{
+                                "setting.report.designer.uploadImage"
+                                  | translate
+                              }}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                (change)="onImageChipUpload($event, hs, field)"
+                              />
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </label>
                           }
                         } @else if (isCustomText(field)) {
-                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                            <textarea class="custom-text-textarea"
-                                      [value]="field.name"
-                                      (focus)="selectField(field)"
-                                      (input)="onCustomTextChange(field, $any($event.target).value)"
-                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                      rows="2"></textarea>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          <div
+                            class="zone-chip custom-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
+                            <textarea
+                              class="custom-text-textarea"
+                              [value]="field.name"
+                              (focus)="selectField(field)"
+                              (input)="
+                                onCustomTextChange(
+                                  field,
+                                  $any($event.target).value
+                                )
+                              "
+                              [placeholder]="
+                                'setting.report.designer.customTextPlaceholder'
+                                  | translate
+                              "
+                              rows="2"
+                            ></textarea>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         } @else {
-                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                          <div
+                            class="zone-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
                             <span class="chip-label">{{ field.name }}</span>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         }
                       }
                     }
                     @if (row.center.length === 0) {
-                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                      <div class="zone-placeholder">
+                        {{ "setting.report.designer.dropHere" | translate }}
+                      </div>
                     }
                   </div>
 
-                  <div class="header-zone"
-                       cdkDropList
-                       [id]="'zone-' + row.rowIndex + '-2'"
-                       [cdkDropListData]="row.right"
-                       [cdkDropListConnectedTo]="['palette-header']"
-                       (cdkDropListDropped)="onHeaderFieldDrop($event, hs, row.rowIndex, TextAlignment.Right)">
+                  <div
+                    class="header-zone"
+                    cdkDropList
+                    [id]="'zone-' + row.rowIndex + '-2'"
+                    [cdkDropListData]="row.right"
+                    [cdkDropListConnectedTo]="['palette-header']"
+                    (cdkDropListDropped)="
+                      onHeaderFieldDrop(
+                        $event,
+                        hs,
+                        row.rowIndex,
+                        TextAlignment.Right
+                      )
+                    "
+                  >
                     @for (field of row.right; track $index) {
                       @if (field.dataBinding) {
                         @if (field.type === ReportFieldType.Image) {
                           @if (field.imageUrl) {
-                            <div class="zone-chip image-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                              @if (imagePreviewCache.get(field.imageUrl); as preview) {
-                                <img [src]="preview" class="header-image-preview" />
+                            <div
+                              class="zone-chip image-chip"
+                              (click)="selectField(field)"
+                              [class.chip-active]="activeField === field"
+                            >
+                              @if (
+                                imagePreviewCache.get(field.imageUrl);
+                                as preview
+                              ) {
+                                <img
+                                  [src]="preview"
+                                  class="header-image-preview"
+                                />
                               } @else {
-                                <i class="fa fa-image image-placeholder-icon"></i>
-                                <span class="image-filename">{{ field.imageUrl }}</span>
+                                <i
+                                  class="fa fa-image image-placeholder-icon"
+                                ></i>
+                                <span class="image-filename">{{
+                                  field.imageUrl
+                                }}</span>
                               }
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </div>
                           } @else {
-                            <label class="zone-chip image-chip image-upload-zone" [class.chip-active]="activeField === field" (click)="selectField(field)">
+                            <label
+                              class="zone-chip image-chip image-upload-zone"
+                              [class.chip-active]="activeField === field"
+                              (click)="selectField(field)"
+                            >
                               <i class="fa fa-image image-placeholder-icon"></i>
-                              <span class="image-upload-text">{{ 'setting.report.designer.uploadImage' | translate }}</span>
-                              <input type="file" accept="image/*" hidden (change)="onImageChipUpload($event, hs, field)" />
-                              <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                              <span class="image-upload-text">{{
+                                "setting.report.designer.uploadImage"
+                                  | translate
+                              }}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                (change)="onImageChipUpload($event, hs, field)"
+                              />
+                              <button
+                                class="chip-btn remove"
+                                (click)="
+                                  removeHeaderField(hs, field);
+                                  $event.stopPropagation()
+                                "
+                              >
+                                &#10005;
+                              </button>
                             </label>
                           }
                         } @else if (isCustomText(field)) {
-                          <div class="zone-chip custom-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
-                            <textarea class="custom-text-textarea"
-                                      [value]="field.name"
-                                      (focus)="selectField(field)"
-                                      (input)="onCustomTextChange(field, $any($event.target).value)"
-                                      [placeholder]="'setting.report.designer.customTextPlaceholder' | translate"
-                                      rows="2"></textarea>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                          <div
+                            class="zone-chip custom-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
+                            <textarea
+                              class="custom-text-textarea"
+                              [value]="field.name"
+                              (focus)="selectField(field)"
+                              (input)="
+                                onCustomTextChange(
+                                  field,
+                                  $any($event.target).value
+                                )
+                              "
+                              [placeholder]="
+                                'setting.report.designer.customTextPlaceholder'
+                                  | translate
+                              "
+                              rows="2"
+                            ></textarea>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         } @else {
-                          <div class="zone-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                          <div
+                            class="zone-chip"
+                            (click)="selectField(field)"
+                            [class.chip-active]="activeField === field"
+                          >
                             <span class="chip-label">{{ field.name }}</span>
-                            <button class="chip-btn remove" (click)="removeHeaderField(hs, field); $event.stopPropagation()">&#10005;</button>
+                            <button
+                              class="chip-btn remove"
+                              (click)="
+                                removeHeaderField(hs, field);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </div>
                         }
                       }
                     }
                     @if (row.right.length === 0) {
-                      <div class="zone-placeholder">{{ 'setting.report.designer.dropHere' | translate }}</div>
+                      <div class="zone-placeholder">
+                        {{ "setting.report.designer.dropHere" | translate }}
+                      </div>
                     }
                   </div>
 
                   <div class="header-row-actions">
-                    <label class="image-upload-btn" title="{{ 'setting.report.designer.uploadImage' | translate }}">
+                    <label
+                      class="image-upload-btn"
+                      title="{{
+                        'setting.report.designer.uploadImage' | translate
+                      }}"
+                    >
                       <i class="fa fa-image"></i>
-                      <input type="file" accept="image/*" hidden (change)="onImageUpload($event, hs, row.rowIndex, TextAlignment.Left)" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        (change)="
+                          onImageUpload(
+                            $event,
+                            hs,
+                            row.rowIndex,
+                            TextAlignment.Left
+                          )
+                        "
+                      />
                     </label>
-                    <button class="chip-btn remove row-remove" (click)="removeHeaderRow(hs, row.rowIndex)">&#10005;</button>
+                    <button
+                      class="chip-btn remove row-remove"
+                      (click)="removeHeaderRow(hs, row.rowIndex)"
+                    >
+                      &#10005;
+                    </button>
                   </div>
                 </div>
               }
@@ -310,58 +736,111 @@
       <!-- Body Section -->
       <div class="section-container">
         <div class="body-header">
-          <div class="section-label">{{ 'setting.report.designer.sectionBody' | translate }}</div>
+          <div class="section-label">
+            {{ "setting.report.designer.sectionBody" | translate }}
+          </div>
           <div class="body-actions">
             <button class="btn-add-table" (click)="addBodyTable()">
-              <i class="fa fa-plus"></i> {{ 'setting.report.designer.addTable' | translate }}
+              <i class="fa fa-plus"></i>
+              {{ "setting.report.designer.addTable" | translate }}
             </button>
           </div>
         </div>
 
-        @for (section of bodySections; track section.sortOrder; let idx = $index) {
+        @for (
+          section of bodySections;
+          track section.sortOrder;
+          let idx = $index
+        ) {
           <div class="body-table-section">
             <div class="table-section-header">
               <span class="table-type-badge work-badge">
-                {{ 'setting.report.designer.sectionTable' | translate }} {{ idx + 1 }}
+                {{ "setting.report.designer.sectionTable" | translate }}
+                {{ idx + 1 }}
               </span>
               <span class="table-section-spacer"></span>
-              <button class="chip-btn remove table-remove" (click)="removeBodyTable(section)" [disabled]="bodySections.length <= 1" [title]="'setting.report.designer.removeTable' | translate">&#10005;</button>
+              <button
+                class="chip-btn remove table-remove"
+                (click)="removeBodyTable(section)"
+                [disabled]="bodySections.length <= 1"
+                [title]="'setting.report.designer.removeTable' | translate"
+              >
+                &#10005;
+              </button>
             </div>
 
-            <div class="section-drop-zone is-table"
-                 cdkDropList
-                 [cdkDropListData]="section.fields"
-                 [id]="getBodyTableDropId(section)"
-                 [cdkDropListConnectedTo]="allTablePaletteIds"
-                 (cdkDropListDropped)="onBodyTableFieldDrop($event, section)">
-
+            <div
+              class="section-drop-zone is-table"
+              cdkDropList
+              [cdkDropListData]="section.fields"
+              [id]="getBodyTableDropId(section)"
+              [cdkDropListConnectedTo]="allTablePaletteIds"
+              (cdkDropListDropped)="onBodyTableFieldDrop($event, section)"
+            >
               @if (section.fields.length === 0) {
                 <div class="drop-placeholder">
                   <i class="fa fa-arrow-left"></i>
-                  {{ 'setting.report.designer.dragFieldsHere' | translate }}
+                  {{ "setting.report.designer.dragFieldsHere" | translate }}
                 </div>
               }
 
               <div class="table-columns">
-                @for (field of section.fields; track field.dataBinding; let i = $index) {
-                  <div class="table-column" cdkDrag [style.flex]="'0 0 ' + field.width + '%'"
-                       (click)="selectField(field)" [class.column-active]="activeField === field">
+                @for (
+                  field of section.fields;
+                  track field.dataBinding;
+                  let i = $index
+                ) {
+                  <div
+                    class="table-column"
+                    cdkDrag
+                    [style.flex]="'0 0 ' + field.width + '%'"
+                    (click)="selectField(field)"
+                    [class.column-active]="activeField === field"
+                  >
                     <div class="column-header">
                       <span class="column-name">{{ field.name }}</span>
-                      <button class="chip-btn remove" (click)="removeFieldFromSection(field, section); $event.stopPropagation()" title="Remove">&#10005;</button>
+                      <button
+                        class="chip-btn remove"
+                        (click)="
+                          removeFieldFromSection(field, section);
+                          $event.stopPropagation()
+                        "
+                        title="Remove"
+                      >
+                        &#10005;
+                      </button>
                     </div>
                     @if (field.additionalBindings?.length) {
                       <div class="merged-fields-list">
-                        @for (binding of field.additionalBindings; track binding) {
+                        @for (
+                          binding of field.additionalBindings;
+                          track binding
+                        ) {
                           <span class="merged-field-tag">
                             {{ getMergedFieldLabel(binding) }}
-                            <button class="merged-remove" (click)="removeMergedBinding(field, binding); $event.stopPropagation()">&#10005;</button>
+                            <button
+                              class="merged-remove"
+                              (click)="
+                                removeMergedBinding(field, binding);
+                                $event.stopPropagation()
+                              "
+                            >
+                              &#10005;
+                            </button>
                           </span>
                         }
                       </div>
                     }
                     <div class="column-settings">
-                      <input type="number" class="width-input" [(ngModel)]="field.width" (change)="onWidthChange(field)" min="5" max="100" title="Width %" />
+                      <input
+                        type="number"
+                        class="width-input"
+                        [(ngModel)]="field.width"
+                        (change)="onWidthChange(field)"
+                        min="5"
+                        max="100"
+                        title="Width %"
+                      />
                       <span class="width-label">%</span>
                     </div>
                   </div>
@@ -372,24 +851,61 @@
             <!-- Table Footer -->
             <div class="table-footer-section">
               <label class="table-footer-toggle">
-                <input type="checkbox" [checked]="hasTableFooter(section)" (change)="toggleTableFooter(section)" />
-                {{ 'setting.report.designer.enableTableFooter' | translate }}
+                <input
+                  type="checkbox"
+                  [checked]="hasTableFooter(section)"
+                  (change)="toggleTableFooter(section)"
+                />
+                {{ "setting.report.designer.enableTableFooter" | translate }}
               </label>
 
               @if (hasTableFooter(section)) {
                 <div class="table-footer-fields">
-                  @for (field of section.tableFooterFields; track field.dataBinding) {
-                    <div class="field-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                  @for (
+                    field of section.tableFooterFields;
+                    track field.dataBinding
+                  ) {
+                    <div
+                      class="field-chip"
+                      (click)="selectField(field)"
+                      [class.chip-active]="activeField === field"
+                    >
                       <span class="chip-label">{{ field.name }}</span>
-                      <button class="chip-btn remove" (click)="removeTableFooterField(section, field); $event.stopPropagation()">&#10005;</button>
+                      <button
+                        class="chip-btn remove"
+                        (click)="
+                          removeTableFooterField(section, field);
+                          $event.stopPropagation()
+                        "
+                      >
+                        &#10005;
+                      </button>
                     </div>
                   }
 
                   @if (getFooterFieldNotYetAdded(section).length > 0) {
-                    <select class="tb-select footer-field-select" (change)="addTableFooterFieldByKey(section, $any($event.target).value); $any($event.target).value = ''">
-                      <option value="">{{ 'setting.report.designer.addFooterField' | translate }}</option>
-                      @for (def of getFooterFieldNotYetAdded(section); track def.key) {
-                        <option [value]="def.key">{{ def.i18nKey | translate }}</option>
+                    <select
+                      class="tb-select footer-field-select"
+                      (change)="
+                        addTableFooterFieldByKey(
+                          section,
+                          $any($event.target).value
+                        );
+                        $any($event.target).value = ''
+                      "
+                    >
+                      <option value="">
+                        {{
+                          "setting.report.designer.addFooterField" | translate
+                        }}
+                      </option>
+                      @for (
+                        def of getFooterFieldNotYetAdded(section);
+                        track def.key
+                      ) {
+                        <option [value]="def.key">
+                          {{ def.i18nKey | translate }}
+                        </option>
                       }
                     </select>
                   }
@@ -401,16 +917,38 @@
             <div class="free-text-section">
               @for (row of section.freeTextRows; track row.id) {
                 <div class="free-text-row">
-                  <input type="text" class="free-text-input" [value]="row.text" (input)="onFreeTextChange(row, $any($event.target).value)" [placeholder]="'setting.report.designer.freeTextPlaceholder' | translate" />
-                  <select class="tb-select" [ngModel]="row.position" (ngModelChange)="onFreeTextPositionChange(row, $event)">
-                    <option value="before">{{ 'setting.report.designer.positionBefore' | translate }}</option>
-                    <option value="after">{{ 'setting.report.designer.positionAfter' | translate }}</option>
+                  <input
+                    type="text"
+                    class="free-text-input"
+                    [value]="row.text"
+                    (input)="onFreeTextChange(row, $any($event.target).value)"
+                    [placeholder]="
+                      'setting.report.designer.freeTextPlaceholder' | translate
+                    "
+                  />
+                  <select
+                    class="tb-select"
+                    [ngModel]="row.position"
+                    (ngModelChange)="onFreeTextPositionChange(row, $event)"
+                  >
+                    <option value="before">
+                      {{ "setting.report.designer.positionBefore" | translate }}
+                    </option>
+                    <option value="after">
+                      {{ "setting.report.designer.positionAfter" | translate }}
+                    </option>
                   </select>
-                  <button class="chip-btn remove" (click)="removeFreeTextRow(section, row)">&#10005;</button>
+                  <button
+                    class="chip-btn remove"
+                    (click)="removeFreeTextRow(section, row)"
+                  >
+                    &#10005;
+                  </button>
                 </div>
               }
               <button class="btn-add-row" (click)="addFreeTextRow(section)">
-                <i class="fa fa-plus"></i> {{ 'setting.report.designer.addFreeTextRow' | translate }}
+                <i class="fa fa-plus"></i>
+                {{ "setting.report.designer.addFreeTextRow" | translate }}
               </button>
             </div>
           </div>
@@ -423,26 +961,45 @@
           <div class="section-label">
             {{ sectionLabels[ReportSectionType.Footer] | translate }}
           </div>
-          <div class="section-drop-zone"
-               cdkDropList
-               [cdkDropListData]="fs.fields"
-               [id]="'section-footer'"
-               [cdkDropListConnectedTo]="['palette-footer']"
-               (cdkDropListDropped)="onFooterFieldDrop($event)">
-
+          <div
+            class="section-drop-zone"
+            cdkDropList
+            [cdkDropListData]="fs.fields"
+            [id]="'section-footer'"
+            [cdkDropListConnectedTo]="['palette-footer']"
+            (cdkDropListDropped)="onFooterFieldDrop($event)"
+          >
             @if (fs.fields.length === 0) {
               <div class="drop-placeholder">
                 <i class="fa fa-arrow-left"></i>
-                {{ 'setting.report.designer.dragFieldsHere' | translate }}
+                {{ "setting.report.designer.dragFieldsHere" | translate }}
               </div>
             }
 
             <div class="field-chips">
-              @for (field of fs.fields; track field.dataBinding; let i = $index) {
-                <div class="field-chip" cdkDrag (click)="selectField(field)" [class.chip-active]="activeField === field">
+              @for (
+                field of fs.fields;
+                track field.dataBinding;
+                let i = $index
+              ) {
+                <div
+                  class="field-chip"
+                  cdkDrag
+                  (click)="selectField(field)"
+                  [class.chip-active]="activeField === field"
+                >
                   <span class="chip-label">{{ field.name }}</span>
                   <div class="chip-actions">
-                    <button class="chip-btn remove" (click)="removeFieldFromSection(field, fs); $event.stopPropagation()" title="Remove">&#10005;</button>
+                    <button
+                      class="chip-btn remove"
+                      (click)="
+                        removeFieldFromSection(field, fs);
+                        $event.stopPropagation()
+                      "
+                      title="Remove"
+                    >
+                      &#10005;
+                    </button>
                   </div>
                 </div>
               }
