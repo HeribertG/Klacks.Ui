@@ -1,0 +1,116 @@
+<h2>Manuale Report Designer</h2>
+
+<h3>Struttura del report</h3>
+<p>Un report è composto da tre aree:</p>
+<ul>
+  <li><strong>Intestazione</strong> &ndash; stampata in alto su ogni pagina</li>
+  <li><strong>Corpo</strong> &ndash; contiene le tabelle dati</li>
+  <li><strong>Piè di pagina</strong> &ndash; stampato in basso su ogni pagina</li>
+</ul>
+<p>Ogni area può essere modificata tramite la scheda <em>Design</em> nell'editor del report.</p>
+
+<hr>
+
+<h3>Area intestazione</h3>
+<p>L'intestazione ha tre zone: <strong>Sinistra</strong>, <strong>Centro</strong> e <strong>Destra</strong>.</p>
+<p>Ogni zona può contenere:</p>
+<ul>
+  <li><strong>Campi</strong> &ndash; campi del database compilati automaticamente</li>
+  <li><strong>Testo libero</strong> &ndash; testo inserito manualmente</li>
+  <li><strong>Immagini</strong> &ndash; ad es. un logo aziendale (caricare tramite il gestore immagini)</li>
+</ul>
+<p>Le righe possono essere aggiunte o rimosse tramite la barra degli strumenti.</p>
+
+<hr>
+
+<h3>Tabelle dati</h3>
+<p>Il corpo contiene una o più tabelle.</p>
+<table>
+  <tr><th>Azione</th><th>Descrizione</th></tr>
+  <tr><td>Aggiungere colonna</td><td>Tramite l'icona <strong>+</strong> o trascinamento dalla lista dei campi</td></tr>
+  <tr><td>Larghezza colonna</td><td>Regolare trascinando il bordo della colonna</td></tr>
+  <tr><td>Ordine colonne</td><td>Riordinare tramite trascinamento</td></tr>
+  <tr><td>Rimuovere colonna</td><td>Nell'editor colonna tramite l'icona elimina</td></tr>
+</table>
+<p>Ogni tabella è collegata a un DataSet (ad es. pianificazione, indirizzi).</p>
+
+<hr>
+
+<h3>Campi uniti (Merged Fields)</h3>
+<p>I campi uniti permettono più binding di dati in una singola colonna.</p>
+<ul>
+  <li>Nell'editor colonna, cliccare <strong>Aggiungi campo</strong> per aggiungere altri campi alla stessa colonna</li>
+  <li>I valori vengono visualizzati impilati o con un separatore</li>
+  <li>Il separatore può essere configurato nella finestra del campo (ad es. virgola, spazio, a capo)</li>
+</ul>
+
+<hr>
+
+<h3>Piè di pagina tabella</h3>
+<p>Sotto ogni tabella può essere visualizzato un piè di pagina.</p>
+<ul>
+  <li><strong>Campi SUM:</strong> Le colonne numeriche possono essere sommate automaticamente</li>
+  <li><strong>Etichetta:</strong> L'etichetta della somma può essere mostrata o nascosta</li>
+  <li>Attivazione tramite l'editor colonna nella scheda <em>Piè di pagina</em></li>
+</ul>
+
+<hr>
+
+<h3>Righe di testo libero</h3>
+<p>Le righe di testo libero possono essere inserite prima o dopo le tabelle dati.</p>
+<table>
+  <tr><th>Proprietà</th><th>Descrizione</th></tr>
+  <tr><td>Posizione</td><td>Scegliere <em>Prima dei dati</em> o <em>Dopo i dati</em></td></tr>
+  <tr><td>Contenuto</td><td>Qualsiasi testo, ad es. note, condizioni o campi firma</td></tr>
+  <tr><td>Stile</td><td>Carattere, dimensione e allineamento configurabili</td></tr>
+</table>
+
+<hr>
+
+<h3>Formattazione</h3>
+<p>Ogni cella e ogni testo libero può essere formattato individualmente:</p>
+<table>
+  <tr><th>Opzione</th><th>Descrizione</th></tr>
+  <tr><td>Carattere</td><td>Caratteri selezionabili per la cella</td></tr>
+  <tr><td>Dimensione</td><td>Dimensione in punti (pt)</td></tr>
+  <tr><td>Grassetto / Corsivo / Sottolineato</td><td>Tramite i pulsanti <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Colore del testo</td><td>Colore liberamente selezionabile</td></tr>
+  <tr><td>Allineamento</td><td>Sinistra, Centro o Destra</td></tr>
+</table>
+
+<hr>
+
+<h3>Bordi celle</h3>
+<p>Le linee di bordo possono essere configurate individualmente per ogni cella.</p>
+<table>
+  <tr><th>Proprietà</th><th>Opzioni</th></tr>
+  <tr><td>Lati</td><td>Sopra, Destra, Sotto, Sinistra (singolarmente o tutti)</td></tr>
+  <tr><td>Stile linea</td><td>Sottile, Medio, Spesso, Tratteggiato, Doppio</td></tr>
+  <tr><td>Colore linea</td><td>Liberamente selezionabile</td></tr>
+</table>
+<p>I bordi vengono configurati nell'editor colonna sotto <em>Bordi</em>.</p>
+
+<hr>
+
+<h3>Impostazioni pagina</h3>
+<p>Le impostazioni di stampa possono essere regolate nella scheda <em>Generale</em>:</p>
+<ul>
+  <li><strong>Orientamento:</strong> Verticale (Portrait) o Orizzontale (Landscape)</li>
+  <li><strong>Margini pagina:</strong> Sopra, Destra, Sotto, Sinistra in mm</li>
+</ul>
+
+<hr>
+
+<h3>Fonti dati</h3>
+<p>Fonti dati disponibili per i report:</p>
+<table>
+  <tr><th>Fonte dati</th><th>Descrizione</th></tr>
+  <tr><td>Pianificazione (Schedule)</td><td>Turni e orari di lavoro</td></tr>
+  <tr><td>Indirizzi (Lista)</td><td>Tutti gli indirizzi come tabella</td></tr>
+  <tr><td>Indirizzo (Dettaglio)</td><td>Singolo indirizzo</td></tr>
+  <tr><td>Assenze</td><td>Panoramica assenze</td></tr>
+  <tr><td>Turni (Shifts)</td><td>Tabella turni</td></tr>
+  <tr><td>Gruppi</td><td>Panoramica gruppi</td></tr>
+  <tr><td>Modello contenitore</td><td>Modello per report contenitore</td></tr>
+</table>
+<p><em>La fonte dati viene selezionata nella scheda «Fonte dati» e determina i campi disponibili.</em></p>

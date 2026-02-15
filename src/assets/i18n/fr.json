@@ -1097,6 +1097,7 @@
   "setting.report.source.selectDataSet": "Sélectionner le jeu de données",
   "setting.report.source.shiftTable": "Équipes",
   "setting.report.tab.source": "Source de données",
+  "setting.report.tab.manual": "Manuel",
   "setting.branches.add": "+ Ajouter une filiale",
   "setting.branches.confirm-delete": "Voulez-vous vraiment supprimer la filiale '{{name}}'?",
   "setting.branches.delete.title": "Supprimer la filiale",

@@ -1097,6 +1097,7 @@
   "setting.report.source.selectDataSet": "Select dataset",
   "setting.report.source.shiftTable": "Shifts",
   "setting.report.tab.source": "Data Source",
+  "setting.report.tab.manual": "Manual",
   "setting.branches.add": "+ Add Branch",
   "setting.branches.confirm-delete": "Do you really want to delete branch '{{name}}'?",
   "setting.branches.delete.title": "Delete Branch",

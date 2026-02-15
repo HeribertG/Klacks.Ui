@@ -1,0 +1,116 @@
+<h2>Manuel du Report Designer</h2>
+
+<h3>Structure du rapport</h3>
+<p>Un rapport se compose de trois zones :</p>
+<ul>
+  <li><strong>En-tête</strong> &ndash; imprimé en haut de chaque page</li>
+  <li><strong>Corps</strong> &ndash; contient les tableaux de données</li>
+  <li><strong>Pied de page</strong> &ndash; imprimé en bas de chaque page</li>
+</ul>
+<p>Chaque zone peut être modifiée via l'onglet <em>Design</em> dans l'éditeur de rapport.</p>
+
+<hr>
+
+<h3>Zone d'en-tête</h3>
+<p>L'en-tête comporte trois zones : <strong>Gauche</strong>, <strong>Centre</strong> et <strong>Droite</strong>.</p>
+<p>Chaque zone peut contenir :</p>
+<ul>
+  <li><strong>Champs</strong> &ndash; champs de base de données remplis automatiquement</li>
+  <li><strong>Texte libre</strong> &ndash; texte saisi manuellement</li>
+  <li><strong>Images</strong> &ndash; par ex. un logo d'entreprise (télécharger via le gestionnaire d'images)</li>
+</ul>
+<p>Les lignes peuvent être ajoutées ou supprimées via la barre d'outils.</p>
+
+<hr>
+
+<h3>Tableaux de données</h3>
+<p>Le corps contient un ou plusieurs tableaux.</p>
+<table>
+  <tr><th>Action</th><th>Description</th></tr>
+  <tr><td>Ajouter une colonne</td><td>Via l'icône <strong>+</strong> ou par glisser-déposer depuis la liste des champs</td></tr>
+  <tr><td>Largeur de colonne</td><td>Ajuster en faisant glisser le bord de la colonne</td></tr>
+  <tr><td>Ordre des colonnes</td><td>Réorganiser par glisser-déposer</td></tr>
+  <tr><td>Supprimer une colonne</td><td>Dans l'éditeur de colonne via l'icône de suppression</td></tr>
+</table>
+<p>Chaque tableau est lié à un DataSet (par ex. planning, adresses).</p>
+
+<hr>
+
+<h3>Champs fusionnés (Merged Fields)</h3>
+<p>Les champs fusionnés permettent plusieurs liaisons de données dans une seule colonne.</p>
+<ul>
+  <li>Dans l'éditeur de colonne, cliquer <strong>Ajouter un champ</strong> pour ajouter d'autres champs à la même colonne</li>
+  <li>Les valeurs sont affichées empilées ou avec un séparateur</li>
+  <li>Le séparateur peut être configuré dans le dialogue du champ (par ex. virgule, espace, saut de ligne)</li>
+</ul>
+
+<hr>
+
+<h3>Pied de tableau</h3>
+<p>Un pied de page peut être affiché sous chaque tableau.</p>
+<ul>
+  <li><strong>Champs SUM :</strong> Les colonnes numériques peuvent être automatiquement additionnées</li>
+  <li><strong>Libellé :</strong> Le libellé de la somme peut être affiché ou masqué</li>
+  <li>Activation via l'éditeur de colonne dans l'onglet <em>Pied de page</em></li>
+</ul>
+
+<hr>
+
+<h3>Lignes de texte libre</h3>
+<p>Les lignes de texte libre peuvent être insérées avant ou après les tableaux de données.</p>
+<table>
+  <tr><th>Propriété</th><th>Description</th></tr>
+  <tr><td>Position</td><td>Choisir <em>Avant les données</em> ou <em>Après les données</em></td></tr>
+  <tr><td>Contenu</td><td>Tout texte, par ex. notes, conditions ou champs de signature</td></tr>
+  <tr><td>Style</td><td>Police, taille et alignement configurables</td></tr>
+</table>
+
+<hr>
+
+<h3>Mise en forme</h3>
+<p>Chaque cellule et chaque texte libre peut être formaté individuellement :</p>
+<table>
+  <tr><th>Option</th><th>Description</th></tr>
+  <tr><td>Police</td><td>Polices sélectionnables pour la cellule</td></tr>
+  <tr><td>Taille</td><td>Taille en points (pt)</td></tr>
+  <tr><td>Gras / Italique / Souligné</td><td>Via les boutons <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Couleur du texte</td><td>Couleur librement sélectionnable</td></tr>
+  <tr><td>Alignement</td><td>Gauche, Centré ou Droite</td></tr>
+</table>
+
+<hr>
+
+<h3>Bordures de cellules</h3>
+<p>Les lignes de bordure peuvent être configurées individuellement pour chaque cellule.</p>
+<table>
+  <tr><th>Propriété</th><th>Options</th></tr>
+  <tr><td>Côtés</td><td>Haut, Droite, Bas, Gauche (individuellement ou tous)</td></tr>
+  <tr><td>Style de ligne</td><td>Fin, Moyen, Épais, Pointillé, Double</td></tr>
+  <tr><td>Couleur de ligne</td><td>Librement sélectionnable</td></tr>
+</table>
+<p>Les bordures sont configurées dans l'éditeur de colonne sous <em>Bordures</em>.</p>
+
+<hr>
+
+<h3>Mise en page</h3>
+<p>Les paramètres d'impression peuvent être ajustés dans l'onglet <em>Général</em> :</p>
+<ul>
+  <li><strong>Orientation :</strong> Portrait ou Paysage</li>
+  <li><strong>Marges de page :</strong> Haut, Droite, Bas, Gauche en mm</li>
+</ul>
+
+<hr>
+
+<h3>Sources de données</h3>
+<p>Sources de données disponibles pour les rapports :</p>
+<table>
+  <tr><th>Source de données</th><th>Description</th></tr>
+  <tr><td>Planning (Schedule)</td><td>Équipes et horaires de travail</td></tr>
+  <tr><td>Adresses (Liste)</td><td>Toutes les adresses sous forme de tableau</td></tr>
+  <tr><td>Adresse (Détail)</td><td>Adresse unique</td></tr>
+  <tr><td>Absences</td><td>Aperçu des absences</td></tr>
+  <tr><td>Équipes (Shifts)</td><td>Tableau des équipes</td></tr>
+  <tr><td>Groupes</td><td>Aperçu des groupes</td></tr>
+  <tr><td>Modèle de conteneur</td><td>Modèle pour rapports conteneur</td></tr>
+</table>
+<p><em>La source de données est sélectionnée dans l'onglet « Source de données » et détermine les champs disponibles.</em></p>

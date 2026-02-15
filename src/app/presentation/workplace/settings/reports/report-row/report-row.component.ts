@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, takeUntil } from 'rxjs';
 import { ReportTemplate, ReportType, ReportOrientation, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
@@ -25,7 +27,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
   standalone: true,
   imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent]
 })
-export class ReportRowComponent {
+export class ReportRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
   @Input() data!: ReportTemplate;
   @Input() id!: string;
@@ -34,6 +36,7 @@ export class ReportRowComponent {
   @Output() reportChangedEvent = new EventEmitter<void>();
 
   translate = inject(TranslateService);
+  private http = inject(HttpClient);
   private modalService = inject(NgbModal);
   private reportService = inject(ReportService);
   private dataManagementReportService = inject(DataManagementReportService);
@@ -42,6 +45,8 @@ export class ReportRowComponent {
   private groupService = inject(DataManagementGroupService);
 
   private modalRef: NgbModalRef | null = null;
+  private destroy$ = new Subject<void>();
+  manualContent = signal('');
 
   editName = '';
   editDescription = '';
@@ -155,6 +160,8 @@ export class ReportRowComponent {
     if (this.groups.length === 0) {
       this.groupService.initTree();
     }
+
+    this.loadManual();
 
     this.modalRef = this.modalService.open(this.contentTemplate, {
       size: 'xl',
@@ -280,6 +287,39 @@ export class ReportRowComponent {
     } finally {
       this.isGenerating = false;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    const supportedLangs = ['de', 'en', 'fr', 'it'];
+    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
+
+    this.http
+      .get(`assets/docs/report-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (content) => {
+          this.manualContent.set(content);
+        },
+        error: () => {
+          this.http
+            .get('assets/docs/report-manual/de.html', { responseType: 'text' })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (content) => {
+                this.manualContent.set(content);
+              },
+              error: () => {
+                this.manualContent.set('<p>Manual not available</p>');
+              },
+            });
+        },
+      });
   }
 
   private resetTemplateSections(): void {

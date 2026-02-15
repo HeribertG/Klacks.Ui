@@ -1,0 +1,116 @@
+<h2>Report Designer Handbuch</h2>
+
+<h3>Report-Struktur</h3>
+<p>Ein Report besteht aus drei Bereichen:</p>
+<ul>
+  <li><strong>Header</strong> &ndash; wird auf jeder Seite oben gedruckt</li>
+  <li><strong>Body</strong> &ndash; enthält die Datentabellen</li>
+  <li><strong>Footer</strong> &ndash; wird auf jeder Seite unten gedruckt</li>
+</ul>
+<p>Jeder Bereich kann über den Tab <em>Design</em> im Report-Editor bearbeitet werden.</p>
+
+<hr>
+
+<h3>Header-Bereich</h3>
+<p>Der Header hat drei Zonen: <strong>Links</strong>, <strong>Mitte</strong> und <strong>Rechts</strong>.</p>
+<p>Jede Zone kann enthalten:</p>
+<ul>
+  <li><strong>Felder</strong> &ndash; Datenbank-Felder, die automatisch befüllt werden</li>
+  <li><strong>Freitext</strong> &ndash; manuell eingegebener Text</li>
+  <li><strong>Bilder</strong> &ndash; z.B. ein Firmenlogo (über den Bild-Manager hochladen)</li>
+</ul>
+<p>Zeilen können über die Toolbar hinzugefügt oder entfernt werden.</p>
+
+<hr>
+
+<h3>Body-Tabellen</h3>
+<p>Der Body enthält eine oder mehrere Tabellen.</p>
+<table>
+  <tr><th>Aktion</th><th>Beschreibung</th></tr>
+  <tr><td>Spalte hinzufügen</td><td>Über das <strong>+</strong> Symbol oder per Drag &amp; Drop aus der Feldliste</td></tr>
+  <tr><td>Spaltenbreite</td><td>Per Drag am Spaltenrand anpassen</td></tr>
+  <tr><td>Spaltenreihenfolge</td><td>Per Drag &amp; Drop verschieben</td></tr>
+  <tr><td>Spalte entfernen</td><td>Im Spalten-Editor über das Löschen-Symbol</td></tr>
+</table>
+<p>Jede Tabelle ist mit einem DataSet verknüpft (z.B. Arbeitsplan, Adressen).</p>
+
+<hr>
+
+<h3>Felder zusammenlegen (Merged Fields)</h3>
+<p>Merged Fields erlauben mehrere Daten-Bindings in einer einzigen Spalte.</p>
+<ul>
+  <li>Im Spalten-Editor <strong>Feld hinzufügen</strong> klicken, um weitere Felder zur selben Spalte hinzuzufügen</li>
+  <li>Die Werte werden untereinander oder mit einem Separator angezeigt</li>
+  <li>Der Separator ist im Feld-Dialog konfigurierbar (z.B. Komma, Leerzeichen, Zeilenumbruch)</li>
+</ul>
+
+<hr>
+
+<h3>Tabellen-Fusszeile</h3>
+<p>Unter jeder Tabelle kann eine Fusszeile angezeigt werden.</p>
+<ul>
+  <li><strong>SUM-Felder:</strong> Numerische Spalten können automatisch summiert werden</li>
+  <li><strong>Label:</strong> Die Beschriftung der Summe kann ein- oder ausgeblendet werden</li>
+  <li>Aktivierung über den Spalten-Editor im Tab <em>Fusszeile</em></li>
+</ul>
+
+<hr>
+
+<h3>Freitext-Zeilen</h3>
+<p>Freitext-Zeilen können vor oder nach den Datentabellen eingefügt werden.</p>
+<table>
+  <tr><th>Eigenschaft</th><th>Beschreibung</th></tr>
+  <tr><td>Position</td><td><em>Vor Daten</em> oder <em>Nach Daten</em> wählbar</td></tr>
+  <tr><td>Inhalt</td><td>Beliebiger Text, z.B. Hinweise, Bedingungen oder Unterschriftsfelder</td></tr>
+  <tr><td>Styling</td><td>Schriftart, Grösse und Ausrichtung konfigurierbar</td></tr>
+</table>
+
+<hr>
+
+<h3>Formatierung</h3>
+<p>Jede Zelle und jeder Freitext kann individuell formatiert werden:</p>
+<table>
+  <tr><th>Option</th><th>Beschreibung</th></tr>
+  <tr><td>Schriftart</td><td>Wählbare Schriftarten für die Zelle</td></tr>
+  <tr><td>Schriftgrösse</td><td>Grösse in Punkt (pt)</td></tr>
+  <tr><td>Fett / Kursiv / Unterstrichen</td><td>Über die <strong>B</strong> / <strong>I</strong> / <strong>U</strong> Schaltflächen</td></tr>
+  <tr><td>Textfarbe</td><td>Frei wählbare Farbe</td></tr>
+  <tr><td>Ausrichtung</td><td>Links, Zentriert oder Rechts</td></tr>
+</table>
+
+<hr>
+
+<h3>Zellen-Rahmen</h3>
+<p>Für jede Zelle können die Rahmenlinien einzeln konfiguriert werden.</p>
+<table>
+  <tr><th>Eigenschaft</th><th>Optionen</th></tr>
+  <tr><td>Seiten</td><td>Oben, Rechts, Unten, Links (einzeln oder alle)</td></tr>
+  <tr><td>Linienstil</td><td>Dünn, Mittel, Dick, Gestrichelt, Doppelt</td></tr>
+  <tr><td>Linienfarbe</td><td>Frei wählbar</td></tr>
+</table>
+<p>Rahmen werden im Spalten-Editor unter <em>Rahmen</em> eingestellt.</p>
+
+<hr>
+
+<h3>Seiteneinstellungen</h3>
+<p>Im Tab <em>Allgemein</em> können die Druckeinstellungen angepasst werden:</p>
+<ul>
+  <li><strong>Ausrichtung:</strong> Hochformat (Portrait) oder Querformat (Landscape)</li>
+  <li><strong>Seitenränder:</strong> Oben, Rechts, Unten, Links in mm</li>
+</ul>
+
+<hr>
+
+<h3>Datenquellen</h3>
+<p>Verfügbare Datenquellen für Reports:</p>
+<table>
+  <tr><th>Datenquelle</th><th>Beschreibung</th></tr>
+  <tr><td>Arbeitsplan (Schedule)</td><td>Schichten und Arbeitszeiten</td></tr>
+  <tr><td>Adressen (Liste)</td><td>Alle Adressen als Tabelle</td></tr>
+  <tr><td>Adresse (Detail)</td><td>Einzelne Adresse</td></tr>
+  <tr><td>Abwesenheiten</td><td>Abwesenheitsübersicht</td></tr>
+  <tr><td>Schichten (Shifts)</td><td>Schichttabelle</td></tr>
+  <tr><td>Gruppen</td><td>Gruppenübersicht</td></tr>
+  <tr><td>Container Template</td><td>Vorlage für Container-Reports</td></tr>
+</table>
+<p><em>Die Datenquelle wird im Tab «Datenquelle» gewählt und bestimmt die verfügbaren Felder.</em></p>

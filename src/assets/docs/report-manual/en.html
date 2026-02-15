@@ -1,0 +1,116 @@
+<h2>Report Designer Manual</h2>
+
+<h3>Report Structure</h3>
+<p>A report consists of three areas:</p>
+<ul>
+  <li><strong>Header</strong> &ndash; printed at the top of every page</li>
+  <li><strong>Body</strong> &ndash; contains the data tables</li>
+  <li><strong>Footer</strong> &ndash; printed at the bottom of every page</li>
+</ul>
+<p>Each area can be edited via the <em>Design</em> tab in the report editor.</p>
+
+<hr>
+
+<h3>Header Area</h3>
+<p>The header has three zones: <strong>Left</strong>, <strong>Center</strong>, and <strong>Right</strong>.</p>
+<p>Each zone can contain:</p>
+<ul>
+  <li><strong>Fields</strong> &ndash; database fields that are filled automatically</li>
+  <li><strong>Free text</strong> &ndash; manually entered text</li>
+  <li><strong>Images</strong> &ndash; e.g. a company logo (upload via the image manager)</li>
+</ul>
+<p>Rows can be added or removed via the toolbar.</p>
+
+<hr>
+
+<h3>Body Tables</h3>
+<p>The body contains one or more tables.</p>
+<table>
+  <tr><th>Action</th><th>Description</th></tr>
+  <tr><td>Add column</td><td>Via the <strong>+</strong> icon or drag &amp; drop from the field list</td></tr>
+  <tr><td>Column width</td><td>Adjust by dragging the column border</td></tr>
+  <tr><td>Column order</td><td>Rearrange via drag &amp; drop</td></tr>
+  <tr><td>Remove column</td><td>In the column editor via the delete icon</td></tr>
+</table>
+<p>Each table is linked to a DataSet (e.g. schedule, addresses).</p>
+
+<hr>
+
+<h3>Merged Fields</h3>
+<p>Merged Fields allow multiple data bindings in a single column.</p>
+<ul>
+  <li>In the column editor, click <strong>Add Field</strong> to add more fields to the same column</li>
+  <li>Values are displayed stacked or with a separator</li>
+  <li>The separator can be configured in the field dialog (e.g. comma, space, line break)</li>
+</ul>
+
+<hr>
+
+<h3>Table Footer</h3>
+<p>A footer can be displayed below each table.</p>
+<ul>
+  <li><strong>SUM fields:</strong> Numeric columns can be automatically summed</li>
+  <li><strong>Label:</strong> The sum label can be shown or hidden</li>
+  <li>Activation via the column editor in the <em>Footer</em> tab</li>
+</ul>
+
+<hr>
+
+<h3>Free Text Rows</h3>
+<p>Free text rows can be inserted before or after the data tables.</p>
+<table>
+  <tr><th>Property</th><th>Description</th></tr>
+  <tr><td>Position</td><td>Choose <em>Before Data</em> or <em>After Data</em></td></tr>
+  <tr><td>Content</td><td>Any text, e.g. notes, conditions, or signature fields</td></tr>
+  <tr><td>Styling</td><td>Font, size, and alignment are configurable</td></tr>
+</table>
+
+<hr>
+
+<h3>Formatting</h3>
+<p>Each cell and free text element can be individually formatted:</p>
+<table>
+  <tr><th>Option</th><th>Description</th></tr>
+  <tr><td>Font</td><td>Selectable fonts for the cell</td></tr>
+  <tr><td>Font size</td><td>Size in points (pt)</td></tr>
+  <tr><td>Bold / Italic / Underline</td><td>Via the <strong>B</strong> / <strong>I</strong> / <strong>U</strong> buttons</td></tr>
+  <tr><td>Text color</td><td>Freely selectable color</td></tr>
+  <tr><td>Alignment</td><td>Left, Center, or Right</td></tr>
+</table>
+
+<hr>
+
+<h3>Cell Borders</h3>
+<p>Border lines can be configured individually for each cell.</p>
+<table>
+  <tr><th>Property</th><th>Options</th></tr>
+  <tr><td>Sides</td><td>Top, Right, Bottom, Left (individually or all)</td></tr>
+  <tr><td>Line style</td><td>Thin, Medium, Thick, Dashed, Double</td></tr>
+  <tr><td>Line color</td><td>Freely selectable</td></tr>
+</table>
+<p>Borders are configured in the column editor under <em>Borders</em>.</p>
+
+<hr>
+
+<h3>Page Setup</h3>
+<p>Print settings can be adjusted in the <em>General</em> tab:</p>
+<ul>
+  <li><strong>Orientation:</strong> Portrait or Landscape</li>
+  <li><strong>Page margins:</strong> Top, Right, Bottom, Left in mm</li>
+</ul>
+
+<hr>
+
+<h3>Data Sources</h3>
+<p>Available data sources for reports:</p>
+<table>
+  <tr><th>Data Source</th><th>Description</th></tr>
+  <tr><td>Schedule</td><td>Shifts and work times</td></tr>
+  <tr><td>Addresses (List)</td><td>All addresses as a table</td></tr>
+  <tr><td>Address (Detail)</td><td>Single address</td></tr>
+  <tr><td>Absences</td><td>Absence overview</td></tr>
+  <tr><td>Shifts</td><td>Shift table</td></tr>
+  <tr><td>Groups</td><td>Group overview</td></tr>
+  <tr><td>Container Template</td><td>Template for container reports</td></tr>
+</table>
+<p><em>The data source is selected in the "Data Source" tab and determines the available fields.</em></p>

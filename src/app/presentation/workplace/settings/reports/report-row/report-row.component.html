@@ -1,9 +1,14 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #content let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title">
-      {{ isNew ? translate.instant('setting.report.modal.new') : translate.instant('setting.report.modal.edit') }}
+      {{
+        isNew
+          ? translate.instant("setting.report.modal.new")
+          : translate.instant("setting.report.modal.edit")
+      }}
     </div>
     <span class="filler"></span>
     <div
@@ -27,24 +32,44 @@
   <div class="modal-body">
     <ul ngbNav #nav="ngbNav" class="nav-tabs">
       <li ngbNavItem>
-        <button ngbNavLink>{{ 'setting.report.tab.general' | translate }}</button>
+        <button ngbNavLink>
+          {{ "setting.report.tab.general" | translate }}
+        </button>
         <ng-template ngbNavContent>
           <div class="report-form">
             <div class="mb-3">
-              <label class="form-label">{{ 'setting.report.field.name' | translate }}</label>
+              <label class="form-label">{{
+                "setting.report.field.name" | translate
+              }}</label>
               <input type="text" class="form-control" [(ngModel)]="editName" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">{{ 'setting.report.field.description' | translate }}</label>
-              <textarea class="form-control" rows="3" [(ngModel)]="editDescription"></textarea>
+              <label class="form-label">{{
+                "setting.report.field.description" | translate
+              }}</label>
+              <textarea
+                class="form-control"
+                rows="3"
+                [(ngModel)]="editDescription"
+              ></textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">{{ 'setting.report.field.orientation' | translate }}</label>
-              <select class="form-select" [(ngModel)]="editOrientation" (ngModelChange)="onOrientationChange()">
-                <option [ngValue]="ReportOrientation.Portrait">{{ 'setting.report.orientation.portrait' | translate }}</option>
-                <option [ngValue]="ReportOrientation.Landscape">{{ 'setting.report.orientation.landscape' | translate }}</option>
+              <label class="form-label">{{
+                "setting.report.field.orientation" | translate
+              }}</label>
+              <select
+                class="form-select"
+                [(ngModel)]="editOrientation"
+                (ngModelChange)="onOrientationChange()"
+              >
+                <option [ngValue]="ReportOrientation.Portrait">
+                  {{ "setting.report.orientation.portrait" | translate }}
+                </option>
+                <option [ngValue]="ReportOrientation.Landscape">
+                  {{ "setting.report.orientation.landscape" | translate }}
+                </option>
               </select>
             </div>
           </div>
@@ -52,15 +77,21 @@
       </li>
 
       <li ngbNavItem>
-        <button ngbNavLink>{{ 'setting.report.tab.source' | translate }}</button>
+        <button ngbNavLink>
+          {{ "setting.report.tab.source" | translate }}
+        </button>
         <ng-template ngbNavContent>
           <div class="source-tab">
             <div class="source-grid">
               @for (source of availableSources; track source.id) {
-                <div class="source-card"
-                     [class.active]="editSourceId === source.id"
-                     (click)="selectSource(source)">
-                  <div class="source-name">{{ source.i18nKey | translate }}</div>
+                <div
+                  class="source-card"
+                  [class.active]="editSourceId === source.id"
+                  (click)="selectSource(source)"
+                >
+                  <div class="source-name">
+                    {{ source.i18nKey | translate }}
+                  </div>
                   <div class="source-path">{{ source.path }}</div>
                 </div>
               }
@@ -68,14 +99,22 @@
 
             @if (selectedSourceDataSets.length > 1) {
               <div class="dataset-selection">
-                <label class="form-label">{{ 'setting.report.source.selectDataSet' | translate }}</label>
+                <label class="form-label">{{
+                  "setting.report.source.selectDataSet" | translate
+                }}</label>
                 <div class="dataset-grid">
                   @for (ds of selectedSourceDataSets; track ds.id) {
-                    <div class="dataset-card"
-                         [class.active]="editDataSetIds.includes(ds.id)"
-                         (click)="toggleDataSet(ds)">
+                    <div
+                      class="dataset-card"
+                      [class.active]="editDataSetIds.includes(ds.id)"
+                      (click)="toggleDataSet(ds)"
+                    >
                       @if (selectedSource?.multiSelect) {
-                        <input type="checkbox" [checked]="editDataSetIds.includes(ds.id)" class="me-2" />
+                        <input
+                          type="checkbox"
+                          [checked]="editDataSetIds.includes(ds.id)"
+                          class="me-2"
+                        />
                       }
                       {{ ds.i18nKey | translate }}
                     </div>
@@ -88,7 +127,9 @@
       </li>
 
       <li ngbNavItem>
-        <button ngbNavLink>{{ 'setting.report.tab.designer' | translate }}</button>
+        <button ngbNavLink>
+          {{ "setting.report.tab.designer" | translate }}
+        </button>
         <ng-template ngbNavContent>
           <div class="designer-tab">
             <app-report-designer
@@ -96,20 +137,27 @@
               [sourceId]="editSourceId"
               [dataSetIds]="editDataSetIds"
               [imagePreviewCache]="imageCache"
-              (templateChange)="onTemplateChange($event)">
+              (templateChange)="onTemplateChange($event)"
+            >
             </app-report-designer>
           </div>
         </ng-template>
       </li>
 
       <li ngbNavItem>
-        <button ngbNavLink>{{ 'setting.report.tab.preview' | translate }}</button>
+        <button ngbNavLink>
+          {{ "setting.report.tab.preview" | translate }}
+        </button>
         <ng-template ngbNavContent>
           <div class="preview-section">
             <div class="mb-3">
-              <label class="form-label">{{ 'setting.report.preview.group' | translate }}</label>
+              <label class="form-label">{{
+                "setting.report.preview.group" | translate
+              }}</label>
               <select class="form-select" [(ngModel)]="previewGroupId">
-                <option value="">{{ 'setting.report.preview.allGroups' | translate }}</option>
+                <option value="">
+                  {{ "setting.report.preview.allGroups" | translate }}
+                </option>
                 @for (group of groups; track group.id) {
                   <option [value]="group.id">{{ group.name }}</option>
                 }
@@ -118,20 +166,22 @@
 
             @if (sourcePreviewConfig.needsDateRange) {
               <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="date-input">
                   <app-date-input
                     [label]="'setting.report.preview.fromDate' | translate"
                     [(value)]="previewFromDate"
                     inputId="previewFromDate"
-                    inputWidth="full-width">
+                    inputWidth="full-width"
+                  >
                   </app-date-input>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="date-input">
                   <app-date-input
                     [label]="'setting.report.preview.toDate' | translate"
                     [(value)]="previewToDate"
                     inputId="previewToDate"
-                    inputWidth="full-width">
+                    inputWidth="full-width"
+                  >
                   </app-date-input>
                 </div>
               </div>
@@ -140,13 +190,22 @@
             <button
               class="btn btn-primary"
               (click)="generatePreview()"
-              [disabled]="!canGeneratePreview">
+              [disabled]="!canGeneratePreview"
+            >
               @if (isGenerating) {
                 <span class="spinner-border spinner-border-sm me-1"></span>
               }
-              {{ 'setting.report.preview.generate' | translate }}
+              {{ "setting.report.preview.generate" | translate }}
             </button>
           </div>
+        </ng-template>
+      </li>
+      <li ngbNavItem>
+        <button ngbNavLink>
+          {{ "setting.report.tab.manual" | translate }}
+        </button>
+        <ng-template ngbNavContent>
+          <div class="manual-content" [innerHTML]="manualContent()"></div>
         </ng-template>
       </li>
     </ul>
@@ -159,7 +218,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant('cancel') }}</span
+      >{{ translate.instant("cancel") }}</span
     >
     <button
       type="button"
@@ -170,7 +229,7 @@
       @if (isSaving) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
-      {{ translate.instant('general.save') }}
+      {{ translate.instant("general.save") }}
     </button>
     <button
       type="button"
@@ -181,7 +240,7 @@
       @if (isSaving) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
-      {{ translate.instant('setting.macro.save-close-btn') }}
+      {{ translate.instant("setting.macro.save-close-btn") }}
     </button>
   </div>
 </ng-template>
@@ -198,10 +257,7 @@
     />
   </div>
 
-  <span
-    class="delete-button"
-    type="button"
-    (click)="deleteReport()"
+  <span class="delete-button" type="button" (click)="deleteReport()"
     >&#10005;</span
   >
 </div>

@@ -1097,6 +1097,7 @@
   "setting.report.source.selectDataSet": "Seleziona set di dati",
   "setting.report.source.shiftTable": "Turni",
   "setting.report.tab.source": "Fonte dati",
+  "setting.report.tab.manual": "Manuale",
   "setting.branches.add": "+ Aggiungi filiale",
   "setting.branches.confirm-delete": "Vuoi davvero eliminare la filiale '{{name}}'?",
   "setting.branches.delete.title": "Elimina filiale",
