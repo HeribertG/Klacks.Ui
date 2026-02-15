@@ -1,4 +1,5 @@
 import { ReportField } from './report-field.model';
+import { FreeTextRow } from './free-text-row.model';
 
 export interface ReportSection {
   id?: string;
@@ -6,6 +7,8 @@ export interface ReportSection {
   fields: ReportField[];
   visible: boolean;
   sortOrder: number;
+  tableFooterFields?: ReportField[];
+  freeTextRows?: FreeTextRow[];
 }
 
 export enum ReportSectionType {

@@ -12,6 +12,8 @@ import { ReportSection, ReportSectionType } from '../../models/report/report-sec
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
+import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
+import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -291,20 +293,86 @@ export class ReportPdfService {
       };
     });
 
-    const tableRows = rows.map(entry => {
+    const bodyData: any[] = [];
+
+    const beforeRows = (section.freeTextRows ?? []).filter(r => r.position === 'before');
+    for (const freeRow of beforeRows) {
+      bodyData.push([{
+        content: freeRow.text,
+        colSpan: fields.length,
+        styles: {
+          fontStyle: this.getJsPdfFontStyle(freeRow.style.bold, freeRow.style.italic),
+          fontSize: freeRow.style.fontSize,
+          textColor: this.hexToRgbArray(freeRow.style.textColor),
+          halign: freeRow.style.alignment === 0 ? 'left' : freeRow.style.alignment === 1 ? 'center' : 'right',
+        },
+      }]);
+    }
+
+    for (const entry of rows) {
       const row: Record<string, string> = {};
       fields.forEach(f => {
-        row[f.dataBinding] = provider.resolveFieldValue(f, entry);
+        const primary = provider.resolveFieldValue(f, entry);
+        if (f.additionalBindings?.length) {
+          const separator = f.bindingSeparator ?? '\n';
+          const parts = [primary];
+          for (const binding of f.additionalBindings) {
+            const tempField: ReportField = { ...f, dataBinding: binding };
+            const val = provider.resolveFieldValue(tempField, entry);
+            if (val) parts.push(val);
+          }
+          row[f.dataBinding] = parts.filter(p => p).join(separator);
+        } else {
+          row[f.dataBinding] = primary;
+        }
       });
-      return row;
-    });
+      bodyData.push(row);
+    }
+
+    const afterRows = (section.freeTextRows ?? []).filter(r => r.position === 'after');
+    for (const freeRow of afterRows) {
+      bodyData.push([{
+        content: freeRow.text,
+        colSpan: fields.length,
+        styles: {
+          fontStyle: this.getJsPdfFontStyle(freeRow.style.bold, freeRow.style.italic),
+          fontSize: freeRow.style.fontSize,
+          textColor: this.hexToRgbArray(freeRow.style.textColor),
+          halign: freeRow.style.alignment === 0 ? 'left' : freeRow.style.alignment === 1 ? 'center' : 'right',
+        },
+      }]);
+    }
+
+    let foot: any[][] | undefined;
+    if (section.tableFooterFields && section.tableFooterFields.length > 0) {
+      const footRow: any[] = fields.map(() => '');
+      for (const footerField of section.tableFooterFields) {
+        const targetColumn = FOOTER_TO_COLUMN_MAP[footerField.dataBinding];
+        const colIndex = targetColumn
+          ? fields.findIndex(f => f.dataBinding === targetColumn)
+          : footerField.sortOrder;
+        const value = provider.resolveFooterValue(footerField, rows);
+        if (colIndex >= 0 && colIndex < fields.length) {
+          if (footerField.hideLabel) {
+            footRow[colIndex] = value;
+          } else {
+            const label = this.translateFieldName(footerField, template);
+            footRow[colIndex] = `${label}: ${value}`;
+          }
+        }
+      }
+      foot = [footRow];
+    }
+
+    const hasBorders = fields.some(f => f.style.cellBorder);
 
     autoTable(doc, {
       startY: yPos,
       margin: { left: marginLeft },
       tableWidth: contentWidth,
       columns,
-      body: tableRows,
+      body: bodyData,
+      foot,
       columnStyles: columnStyles as never,
       headStyles: {
         fillColor: [66, 66, 66],
@@ -315,13 +383,76 @@ export class ReportPdfService {
       bodyStyles: {
         fontSize: 9,
       },
+      footStyles: {
+        fillColor: [230, 230, 230],
+        textColor: [0, 0, 0],
+        fontSize: 9,
+        fontStyle: 'bold',
+      },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
       },
       theme: 'grid',
+      didDrawCell: hasBorders ? (data: any) => {
+        if (data.section !== 'body') return;
+        const colIndex = data.column.index;
+        if (colIndex < 0 || colIndex >= fields.length) return;
+        const field = fields[colIndex];
+        if (!field.style.cellBorder) return;
+        this.drawCellBorders(doc, field, data.cell);
+      } : undefined,
     });
 
     return (doc as never as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  }
+
+  private drawCellBorders(doc: jsPDF, field: ReportField, cell: any): void {
+    const border = field.style.cellBorder!;
+    const x = cell.x;
+    const y = cell.y;
+    const w = cell.width;
+    const h = cell.height;
+
+    const sides: { key: 'top' | 'right' | 'bottom' | 'left'; x1: number; y1: number; x2: number; y2: number }[] = [
+      { key: 'top', x1: x, y1: y, x2: x + w, y2: y },
+      { key: 'right', x1: x + w, y1: y, x2: x + w, y2: y + h },
+      { key: 'bottom', x1: x, y1: y + h, x2: x + w, y2: y + h },
+      { key: 'left', x1: x, y1: y, x2: x, y2: y + h },
+    ];
+
+    for (const side of sides) {
+      const sideStyle = border[side.key];
+      if (!sideStyle || sideStyle.lineStyle === BorderLineStyle.None) continue;
+
+      const rgb = this.hexToRgb(sideStyle.color);
+      doc.setDrawColor(rgb.r, rgb.g, rgb.b);
+      const lineWidth = BORDER_LINE_WIDTHS[sideStyle.lineStyle] ?? 0.1;
+
+      if (sideStyle.lineStyle === BorderLineStyle.Dashed) {
+        doc.setLineWidth(lineWidth);
+        (doc as any).setLineDashPattern([1, 1], 0);
+        doc.line(side.x1, side.y1, side.x2, side.y2);
+        (doc as any).setLineDashPattern([], 0);
+      } else if (sideStyle.lineStyle === BorderLineStyle.Double) {
+        doc.setLineWidth(0.1);
+        const offset = 0.4;
+        if (side.key === 'top' || side.key === 'bottom') {
+          doc.line(side.x1, side.y1 - offset, side.x2, side.y2 - offset);
+          doc.line(side.x1, side.y1 + offset, side.x2, side.y2 + offset);
+        } else {
+          doc.line(side.x1 - offset, side.y1, side.x2 - offset, side.y2);
+          doc.line(side.x1 + offset, side.y1, side.x2 + offset, side.y2);
+        }
+      } else {
+        doc.setLineWidth(lineWidth);
+        doc.line(side.x1, side.y1, side.x2, side.y2);
+      }
+    }
+  }
+
+  private hexToRgbArray(hex: string | undefined): [number, number, number] {
+    const rgb = this.hexToRgb(hex || '#000000');
+    return [rgb.r, rgb.g, rgb.b];
   }
 
   private renderFooter(

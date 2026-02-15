@@ -74,6 +74,58 @@
             <input type="number" class="tb-size" [ngModel]="activeField.height" (ngModelChange)="setImageHeight(activeField, $event)" min="5" max="200" />
           }
 
+          @if (!isHeaderField(activeField) && activeField.type !== ReportFieldType.Image) {
+            <span class="tb-separator"></span>
+            <div class="border-toolbar">
+              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'top')" (click)="toggleBorderSide(activeField, 'top')" [title]="'setting.report.designer.borderTop' | translate">
+                <span class="border-icon border-top-icon"></span>
+              </button>
+              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'right')" (click)="toggleBorderSide(activeField, 'right')" [title]="'setting.report.designer.borderRight' | translate">
+                <span class="border-icon border-right-icon"></span>
+              </button>
+              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'bottom')" (click)="toggleBorderSide(activeField, 'bottom')" [title]="'setting.report.designer.borderBottom' | translate">
+                <span class="border-icon border-bottom-icon"></span>
+              </button>
+              <button class="tb-btn border-side-btn" [class.active]="getBorderSideActive(activeField, 'left')" (click)="toggleBorderSide(activeField, 'left')" [title]="'setting.report.designer.borderLeft' | translate">
+                <span class="border-icon border-left-icon"></span>
+              </button>
+              <button class="tb-btn" (click)="setAllBorders(activeField, BorderLineStyle.Thin)" [title]="'setting.report.designer.allBorders' | translate">
+                <i class="fa fa-border-all"></i>
+              </button>
+              <select class="tb-select" [ngModel]="getActiveBorderLineStyle(activeField)" (ngModelChange)="setBorderLineStyle(activeField, +$event)">
+                @for (ls of borderLineStyles; track ls.value) {
+                  <option [value]="ls.value">{{ ls.labelKey | translate }}</option>
+                }
+              </select>
+              <input type="color" class="tb-color" [ngModel]="getActiveBorderColor(activeField)" (ngModelChange)="setBorderColor(activeField, $event)" [title]="'setting.report.designer.borderColor' | translate" />
+            </div>
+          }
+
+          @if (isTableFooterField(activeField)) {
+            <span class="tb-separator"></span>
+            <label class="tb-toggle">
+              <input type="checkbox" [checked]="activeField.hideLabel" (change)="toggleHideLabel(activeField)" />
+              {{ 'setting.report.designer.hideLabel' | translate }}
+            </label>
+          }
+
+          @if (isBodyTableField(activeField)) {
+            <span class="tb-separator"></span>
+            <select class="tb-select" (change)="addMergedBinding(activeField, $any($event.target).value); $any($event.target).value = ''">
+              <option value="">{{ 'setting.report.designer.addMergedField' | translate }}</option>
+              @for (def of getAvailableMergeFields(activeField); track def.key) {
+                <option [value]="def.key">{{ def.i18nKey | translate }}</option>
+              }
+            </select>
+            @if (activeField.additionalBindings?.length) {
+              <select class="tb-select" [ngModel]="activeField.bindingSeparator || '\n'" (ngModelChange)="setBindingSeparator(activeField, $event)">
+                @for (sep of separatorOptions; track sep.value) {
+                  <option [value]="sep.value">{{ sep.labelKey | translate }}</option>
+                }
+              </select>
+            }
+          }
+
         </div>
       }
 
@@ -298,6 +350,16 @@
                       <span class="column-name">{{ field.name }}</span>
                       <button class="chip-btn remove" (click)="removeFieldFromSection(field, section); $event.stopPropagation()" title="Remove">&#10005;</button>
                     </div>
+                    @if (field.additionalBindings?.length) {
+                      <div class="merged-fields-list">
+                        @for (binding of field.additionalBindings; track binding) {
+                          <span class="merged-field-tag">
+                            {{ getMergedFieldLabel(binding) }}
+                            <button class="merged-remove" (click)="removeMergedBinding(field, binding); $event.stopPropagation()">&#10005;</button>
+                          </span>
+                        }
+                      </div>
+                    }
                     <div class="column-settings">
                       <input type="number" class="width-input" [(ngModel)]="field.width" (change)="onWidthChange(field)" min="5" max="100" title="Width %" />
                       <span class="width-label">%</span>
@@ -305,6 +367,51 @@
                   </div>
                 }
               </div>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="table-footer-section">
+              <label class="table-footer-toggle">
+                <input type="checkbox" [checked]="hasTableFooter(section)" (change)="toggleTableFooter(section)" />
+                {{ 'setting.report.designer.enableTableFooter' | translate }}
+              </label>
+
+              @if (hasTableFooter(section)) {
+                <div class="table-footer-fields">
+                  @for (field of section.tableFooterFields; track field.dataBinding) {
+                    <div class="field-chip" (click)="selectField(field)" [class.chip-active]="activeField === field">
+                      <span class="chip-label">{{ field.name }}</span>
+                      <button class="chip-btn remove" (click)="removeTableFooterField(section, field); $event.stopPropagation()">&#10005;</button>
+                    </div>
+                  }
+
+                  @if (getFooterFieldNotYetAdded(section).length > 0) {
+                    <select class="tb-select footer-field-select" (change)="addTableFooterFieldByKey(section, $any($event.target).value); $any($event.target).value = ''">
+                      <option value="">{{ 'setting.report.designer.addFooterField' | translate }}</option>
+                      @for (def of getFooterFieldNotYetAdded(section); track def.key) {
+                        <option [value]="def.key">{{ def.i18nKey | translate }}</option>
+                      }
+                    </select>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Free Text Rows -->
+            <div class="free-text-section">
+              @for (row of section.freeTextRows; track row.id) {
+                <div class="free-text-row">
+                  <input type="text" class="free-text-input" [value]="row.text" (input)="onFreeTextChange(row, $any($event.target).value)" [placeholder]="'setting.report.designer.freeTextPlaceholder' | translate" />
+                  <select class="tb-select" [ngModel]="row.position" (ngModelChange)="onFreeTextPositionChange(row, $event)">
+                    <option value="before">{{ 'setting.report.designer.positionBefore' | translate }}</option>
+                    <option value="after">{{ 'setting.report.designer.positionAfter' | translate }}</option>
+                  </select>
+                  <button class="chip-btn remove" (click)="removeFreeTextRow(section, row)">&#10005;</button>
+                </div>
+              }
+              <button class="btn-add-row" (click)="addFreeTextRow(section)">
+                <i class="fa fa-plus"></i> {{ 'setting.report.designer.addFreeTextRow' | translate }}
+              </button>
             </div>
           </div>
         }

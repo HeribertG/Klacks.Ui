@@ -1,3 +1,5 @@
+import { CellBorderStyle } from './cell-border-style.model';
+
 export interface ReportField {
   id?: string;
   name: string;
@@ -9,6 +11,9 @@ export interface ReportField {
   format?: string;
   sortOrder: number;
   imageUrl?: string;
+  hideLabel?: boolean;
+  additionalBindings?: string[];
+  bindingSeparator?: string;
 }
 
 export interface HeaderRow {
@@ -43,15 +48,7 @@ export interface FieldStyle {
   alignment: TextAlignment;
   textColor: string;
   backgroundColor: string;
-}
-
-export interface BorderStyle {
-  left: boolean;
-  right: boolean;
-  top: boolean;
-  bottom: boolean;
-  width: number;
-  color: string;
+  cellBorder?: CellBorderStyle;
 }
 
 export const AVAILABLE_FONTS = [

@@ -20,6 +20,9 @@ import {
   HeaderRow,
 } from 'src/app/domain/models/report/report-field.model';
 import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
+import { BorderLineStyle, CellBorderStyle, DEFAULT_BORDER_SIDE } from 'src/app/domain/models/report/cell-border-style.model';
+import { FreeTextRow } from 'src/app/domain/models/report/free-text-row.model';
+import { FOOTER_TO_COLUMN_MAP } from 'src/app/domain/models/report/report-footer-mapping.constants';
 
 interface FieldPaletteGroup {
   id: string;
@@ -63,7 +66,22 @@ export class ReportDesignerComponent implements OnChanges {
   ReportSectionType = ReportSectionType;
   ReportFieldType = ReportFieldType;
   FieldCategory = FieldCategory;
+  BorderLineStyle = BorderLineStyle;
   availableFonts = AVAILABLE_FONTS;
+  separatorOptions = [
+    { value: '\n', labelKey: 'setting.report.designer.separatorNewline' },
+    { value: ', ', labelKey: 'setting.report.designer.separatorComma' },
+    { value: ' ', labelKey: 'setting.report.designer.separatorSpace' },
+    { value: ' - ', labelKey: 'setting.report.designer.separatorDash' },
+  ];
+  borderLineStyles = [
+    { value: BorderLineStyle.None, labelKey: 'setting.report.designer.borderNone' },
+    { value: BorderLineStyle.Thin, labelKey: 'setting.report.designer.borderThin' },
+    { value: BorderLineStyle.Medium, labelKey: 'setting.report.designer.borderMedium' },
+    { value: BorderLineStyle.Thick, labelKey: 'setting.report.designer.borderThick' },
+    { value: BorderLineStyle.Dashed, labelKey: 'setting.report.designer.borderDashed' },
+    { value: BorderLineStyle.Double, labelKey: 'setting.report.designer.borderDouble' },
+  ];
 
   get activeDataSets(): ReportDataSet[] {
     const source = REPORT_DATA_SOURCES.find(s => s.id === this.sourceId);
@@ -615,6 +633,230 @@ export class ReportDesignerComponent implements OnChanges {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  // --- Border Methods ---
+
+  private ensureCellBorder(field: ReportField): CellBorderStyle {
+    if (!field.style.cellBorder) {
+      field.style.cellBorder = {
+        top: { ...DEFAULT_BORDER_SIDE },
+        right: { ...DEFAULT_BORDER_SIDE },
+        bottom: { ...DEFAULT_BORDER_SIDE },
+        left: { ...DEFAULT_BORDER_SIDE },
+      };
+    }
+    return field.style.cellBorder;
+  }
+
+  getBorderSideActive(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): boolean {
+    return (field.style.cellBorder?.[side]?.lineStyle ?? BorderLineStyle.None) !== BorderLineStyle.None;
+  }
+
+  toggleBorderSide(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): void {
+    const border = this.ensureCellBorder(field);
+    if (border[side].lineStyle === BorderLineStyle.None) {
+      border[side].lineStyle = BorderLineStyle.Thin;
+    } else {
+      border[side].lineStyle = BorderLineStyle.None;
+    }
+    this.emitChange();
+  }
+
+  setBorderLineStyle(field: ReportField, style: BorderLineStyle): void {
+    const border = this.ensureCellBorder(field);
+    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
+    for (const side of sides) {
+      if (border[side].lineStyle !== BorderLineStyle.None) {
+        border[side].lineStyle = style;
+      }
+    }
+    this.emitChange();
+  }
+
+  setBorderColor(field: ReportField, color: string): void {
+    const border = this.ensureCellBorder(field);
+    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
+    for (const side of sides) {
+      border[side].color = color;
+    }
+    this.emitChange();
+  }
+
+  setAllBorders(field: ReportField, lineStyle: BorderLineStyle): void {
+    const border = this.ensureCellBorder(field);
+    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
+    for (const side of sides) {
+      border[side].lineStyle = lineStyle;
+    }
+    this.emitChange();
+  }
+
+  getActiveBorderLineStyle(field: ReportField): BorderLineStyle {
+    const border = field.style.cellBorder;
+    if (!border) return BorderLineStyle.None;
+    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
+    for (const side of sides) {
+      if (border[side].lineStyle !== BorderLineStyle.None) {
+        return border[side].lineStyle;
+      }
+    }
+    return BorderLineStyle.None;
+  }
+
+  getActiveBorderColor(field: ReportField): string {
+    const border = field.style.cellBorder;
+    if (!border) return '#000000';
+    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
+    for (const side of sides) {
+      if (border[side].lineStyle !== BorderLineStyle.None) {
+        return border[side].color;
+      }
+    }
+    return '#000000';
+  }
+
+  // --- Table Footer Methods ---
+
+  hasTableFooter(section: ReportSection): boolean {
+    return section.tableFooterFields !== undefined;
+  }
+
+  toggleTableFooter(section: ReportSection): void {
+    if (this.hasTableFooter(section)) {
+      section.tableFooterFields = undefined;
+    } else {
+      section.tableFooterFields = [];
+    }
+    this.emitChange();
+  }
+
+  getAvailableFooterFields(): DataBindingDefinition[] {
+    const dataSets = this.activeDataSets;
+    return dataSets.flatMap(ds => ds.footerFields);
+  }
+
+  addTableFooterField(section: ReportSection, binding: DataBindingDefinition): void {
+    if (!section.tableFooterFields) section.tableFooterFields = [];
+    if (section.tableFooterFields.some(f => f.dataBinding === binding.key)) return;
+
+    const targetColumn = FOOTER_TO_COLUMN_MAP[binding.key];
+    const columnIndex = targetColumn
+      ? section.fields.findIndex(f => f.dataBinding === targetColumn)
+      : -1;
+
+    const field: ReportField = {
+      name: this.getFieldDisplayLabel(binding),
+      dataBinding: binding.key,
+      type: binding.type,
+      width: binding.defaultWidth,
+      height: 20,
+      style: { ...DEFAULT_FIELD_STYLE, bold: true },
+      sortOrder: columnIndex >= 0 ? columnIndex : section.tableFooterFields.length,
+    };
+
+    section.tableFooterFields = [...section.tableFooterFields, field];
+    this.emitChange();
+  }
+
+  isTableFooterField(field: ReportField): boolean {
+    return this.bodySections.some(s => s.tableFooterFields?.includes(field));
+  }
+
+  toggleHideLabel(field: ReportField): void {
+    field.hideLabel = !field.hideLabel;
+    this.emitChange();
+  }
+
+  removeTableFooterField(section: ReportSection, field: ReportField): void {
+    if (!section.tableFooterFields) return;
+    section.tableFooterFields = section.tableFooterFields.filter(f => f !== field);
+    if (this.activeField === field) this.activeField = null;
+    this.emitChange();
+  }
+
+  addTableFooterFieldByKey(section: ReportSection, key: string): void {
+    if (!key) return;
+    const binding = this.getAvailableFooterFields().find(f => f.key === key);
+    if (binding) this.addTableFooterField(section, binding);
+  }
+
+  getFooterFieldNotYetAdded(section: ReportSection): DataBindingDefinition[] {
+    const all = this.getAvailableFooterFields();
+    const used = section.tableFooterFields ?? [];
+    return all.filter(f => !used.some(u => u.dataBinding === f.key));
+  }
+
+  // --- Free Text Row Methods ---
+
+  addFreeTextRow(section: ReportSection): void {
+    if (!section.freeTextRows) section.freeTextRows = [];
+    const row: FreeTextRow = {
+      id: crypto.randomUUID(),
+      text: '',
+      position: 'after',
+      style: { ...DEFAULT_FIELD_STYLE },
+    };
+    section.freeTextRows = [...section.freeTextRows, row];
+    this.emitChange();
+  }
+
+  removeFreeTextRow(section: ReportSection, row: FreeTextRow): void {
+    if (!section.freeTextRows) return;
+    section.freeTextRows = section.freeTextRows.filter(r => r !== row);
+    this.emitChange();
+  }
+
+  onFreeTextChange(row: FreeTextRow, text: string): void {
+    row.text = text;
+    this.emitChange();
+  }
+
+  onFreeTextPositionChange(row: FreeTextRow, position: 'before' | 'after'): void {
+    row.position = position;
+    this.emitChange();
+  }
+
+  // --- Merged Fields Methods ---
+
+  isBodyTableField(field: ReportField): boolean {
+    return this.bodySections.some(s => s.fields.includes(field));
+  }
+
+  getAvailableMergeFields(field: ReportField): DataBindingDefinition[] {
+    const allTableFields = this.activeDataSets.flatMap(ds => ds.tableFields);
+    const usedBindings = [field.dataBinding, ...(field.additionalBindings ?? [])];
+    return allTableFields.filter(f => !usedBindings.includes(f.key) && f.type !== ReportFieldType.Image);
+  }
+
+  addMergedBinding(field: ReportField, key: string): void {
+    if (!key) return;
+    if (!field.additionalBindings) field.additionalBindings = [];
+    if (field.additionalBindings.includes(key)) return;
+    field.additionalBindings = [...field.additionalBindings, key];
+    if (!field.bindingSeparator) field.bindingSeparator = '\n';
+    this.emitChange();
+  }
+
+  removeMergedBinding(field: ReportField, key: string): void {
+    if (!field.additionalBindings) return;
+    field.additionalBindings = field.additionalBindings.filter(b => b !== key);
+    if (field.additionalBindings.length === 0) {
+      field.additionalBindings = undefined;
+      field.bindingSeparator = undefined;
+    }
+    this.emitChange();
+  }
+
+  setBindingSeparator(field: ReportField, separator: string): void {
+    field.bindingSeparator = separator;
+    this.emitChange();
+  }
+
+  getMergedFieldLabel(key: string): string {
+    const allFields = this.activeDataSets.flatMap(ds => ds.tableFields);
+    const def = allFields.find(f => f.key === key);
+    return def ? this.getFieldDisplayLabel(def) : key;
   }
 
   emitChange(): void {

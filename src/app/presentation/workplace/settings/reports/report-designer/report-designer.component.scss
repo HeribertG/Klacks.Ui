@@ -191,6 +191,20 @@
   margin: 0 2px;
 }
 
+.tb-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--standartTextColor);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+}
+
 // --- Sections ---
 
 .section-container {
@@ -343,6 +357,39 @@
     display: flex;
     align-items: center;
     gap: 2px;
+  }
+}
+
+.merged-fields-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px 4px;
+}
+
+.merged-field-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  padding: 1px 4px;
+  background: rgba(100, 149, 237, 0.2);
+  border: 1px solid rgba(100, 149, 237, 0.4);
+  border-radius: 3px;
+  color: var(--standartTextColor);
+
+  .merged-remove {
+    background: none;
+    border: none;
+    color: var(--colorSubHeadline);
+    cursor: pointer;
+    font-size: 9px;
+    padding: 0 1px;
+    line-height: 1;
+
+    &:hover {
+      color: #e74c3c;
+    }
   }
 }
 
@@ -646,4 +693,99 @@
 
 .cdk-drag-animating {
   transition: transform 200ms;
+}
+
+// --- Border Toolbar ---
+
+.border-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.border-side-btn {
+  padding: 2px 4px !important;
+}
+
+.border-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--cardBorderColor);
+  position: relative;
+  background: transparent;
+}
+
+.border-top-icon {
+  border-top: 2px solid var(--standartTextColor);
+}
+
+.border-right-icon {
+  border-right: 2px solid var(--standartTextColor);
+}
+
+.border-bottom-icon {
+  border-bottom: 2px solid var(--standartTextColor);
+}
+
+.border-left-icon {
+  border-left: 2px solid var(--standartTextColor);
+}
+
+// --- Table Footer ---
+
+.table-footer-section {
+  margin-top: 6px;
+  padding: 6px 0;
+}
+
+.table-footer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--standartTextColor);
+
+  input[type="checkbox"] {
+    margin: 0;
+  }
+}
+
+.table-footer-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+}
+
+.footer-field-select {
+  max-width: 160px;
+}
+
+
+// --- Free Text Rows ---
+
+.free-text-section {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--cardBorderColor);
+}
+
+.free-text-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.free-text-input {
+  flex: 1;
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 3px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
 }

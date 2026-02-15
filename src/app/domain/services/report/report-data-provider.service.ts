@@ -12,6 +12,7 @@ import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.se
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
 export interface ReportFetchParams {
   groupId?: string;
@@ -52,6 +53,7 @@ export class ReportDataProviderService {
   private groupService = inject(DataGroupService);
   private shiftService = inject(DataShiftService);
   private containerTemplateService = inject(DataContainerTemplateService);
+  private absenceLookup = inject(AbsenceLookupService);
 
   getProvider(sourceId: string, dataSetIds: string[]): ReportDataProvider {
     if (sourceId === 'schedule') return this.scheduleProvider(dataSetIds);
@@ -95,6 +97,7 @@ export class ReportDataProviderService {
     const entryTypes = this.mapDataSetIdsToEntryTypes(dataSetIds);
     return {
       fetchData: async (params) => {
+        await this.absenceLookup.loadIfNeeded();
         const response = await firstValueFrom(
           this.workScheduleService.getWorkSchedule({
             startDate: params.startDate!,
@@ -435,7 +438,7 @@ export class ReportDataProviderService {
       case 'expense.shiftName':
         return entry.entryName ?? '';
       case 'entry.shiftAbbr':
-        return entry.abbreviation ?? '';
+        return this.getScheduleAbbreviation(entry);
       case 'entry.type':
         return this.getEntryTypeLabel(entry.entryType);
       case 'entry.information':
@@ -500,5 +503,24 @@ export class ReportDataProviderService {
       case WorkScheduleEntryType.Expenses: return this.translate.instant('schedule.entryType.expenses');
       default: return '';
     }
+  }
+
+  private getScheduleAbbreviation(entry: IScheduleCell): string {
+    if (entry.entryType === WorkScheduleEntryType.Expenses) {
+      return entry.taxable
+        ? this.translate.instant('workChange.abbr.expenses')
+        : this.translate.instant('workChange.abbr.reimbursement');
+    }
+    if (entry.entryType === WorkScheduleEntryType.WorkChange) {
+      if (entry.replaceClientId) {
+        return this.translate.instant('workChange.abbr.replacement');
+      }
+      return this.translate.instant('workChange.abbr.correction');
+    }
+    if (entry.entryType === WorkScheduleEntryType.Break) {
+      const lang = this.translate.currentLang || 'de';
+      return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, lang);
+    }
+    return entry.abbreviation ?? '';
   }
 }

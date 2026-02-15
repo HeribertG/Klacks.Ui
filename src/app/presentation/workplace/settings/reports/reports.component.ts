@@ -15,6 +15,7 @@ import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
 @Component({
   selector: 'app-reports',
@@ -33,6 +34,7 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
     ReportPdfService,
     ReportService,
     ReportDataProviderService,
+    AbsenceLookupService,
   ],
 })
 export class ReportsComponent implements AfterViewInit {
