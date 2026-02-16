@@ -682,10 +682,10 @@ describe('evolution-core', () => {
         onResult: (data) => { result2 = data; }
       });
 
-      expect(result1.fitness).toBe(result2.fitness);
-      expect(result1.coverage).toBe(result2.coverage);
-      expect(result1.finalGeneration).toBe(result2.finalGeneration);
-      expect(result1.stopReason).toBe(result2.stopReason);
+      expect(result1!.fitness).toBe(result2!.fitness);
+      expect(result1!.coverage).toBe(result2!.coverage);
+      expect(result1!.finalGeneration).toBe(result2!.finalGeneration);
+      expect(result1!.stopReason).toBe(result2!.stopReason);
     });
 
     it('should stop at time limit', () => {

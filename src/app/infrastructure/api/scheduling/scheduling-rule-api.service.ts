@@ -19,7 +19,7 @@ export class SchedulingRuleApiService {
   }
 
   create(rule: ISchedulingRule): Promise<ISchedulingRule> {
-    const { id, ...payload } = rule;
+    const { id: _id, ...payload } = rule;
     return firstValueFrom(this.http.post<ISchedulingRule>(`${environment.baseUrl}schedulingrules`, payload));
   }
 
