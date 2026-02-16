@@ -823,10 +823,26 @@ export class ReportDesignerComponent implements OnChanges {
     return this.bodySections.some(s => s.fields.includes(field));
   }
 
-  getAvailableMergeFields(field: ReportField): DataBindingDefinition[] {
-    const allTableFields = this.activeDataSets.flatMap(ds => ds.tableFields);
-    const usedBindings = [field.dataBinding, ...(field.additionalBindings ?? [])];
-    return allTableFields.filter(f => !usedBindings.includes(f.key) && f.type !== ReportFieldType.Image);
+  private mergeFieldLabelCache = new Map<string, string>();
+
+  getAvailableMergeFields(field: ReportField): { key: string; label: string }[] {
+    this.mergeFieldLabelCache.clear();
+    const usedBindings = new Set([field.dataBinding, ...(field.additionalBindings ?? [])]);
+    const seen = new Set<string>();
+    const result: { key: string; label: string }[] = [];
+
+    for (const ds of this.activeDataSets) {
+      const dsLabel = this.translate.instant(ds.i18nKey);
+      for (const f of ds.tableFields) {
+        if (seen.has(f.key) || usedBindings.has(f.key) || f.type === ReportFieldType.Image) continue;
+        seen.add(f.key);
+        const fieldLabel = this.translate.instant(f.i18nKey);
+        const fullLabel = `${dsLabel}.${fieldLabel}`;
+        this.mergeFieldLabelCache.set(f.key, fullLabel);
+        result.push({ key: f.key, label: fullLabel });
+      }
+    }
+    return result;
   }
 
   addMergedBinding(field: ReportField, key: string): void {
@@ -854,9 +870,17 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   getMergedFieldLabel(key: string): string {
-    const allFields = this.activeDataSets.flatMap(ds => ds.tableFields);
-    const def = allFields.find(f => f.key === key);
-    return def ? this.getFieldDisplayLabel(def) : key;
+    const cached = this.mergeFieldLabelCache.get(key);
+    if (cached) return cached;
+    for (const ds of this.activeDataSets) {
+      const def = ds.tableFields.find(f => f.key === key);
+      if (def) {
+        const label = `${this.translate.instant(ds.i18nKey)}.${this.translate.instant(def.i18nKey)}`;
+        this.mergeFieldLabelCache.set(key, label);
+        return label;
+      }
+    }
+    return key;
   }
 
   emitChange(): void {

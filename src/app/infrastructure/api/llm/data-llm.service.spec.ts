@@ -318,7 +318,7 @@ describe('DataLLMService', () => {
             // Arrange
             const expectedFunctions: ILLMFunction[] = [
                 {
-                    name: 'search_clients',
+                    name: 'search_employees',
                     description: 'Search for clients in the database',
                     parameters: {
                         type: 'object',
@@ -348,7 +348,7 @@ describe('DataLLMService', () => {
                 // Assert
                 expect(functions).toEqual(expectedFunctions);
                 expect(functions.length).toBe(2);
-                expect(functions[0].name).toBe('search_clients');
+                expect(functions[0].name).toBe('search_employees');
             });
 
             // Assert
@@ -380,7 +380,7 @@ describe('DataLLMService', () => {
                     }
                 ],
                 availableFunctions: [
-                    'search_clients',
+                    'search_employees',
                     'create_employee',
                     'manage_contracts'
                 ],

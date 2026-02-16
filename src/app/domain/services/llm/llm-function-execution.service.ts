@@ -40,6 +40,7 @@ export class LLMFunctionExecutionService {
         return this.navigationService.executeNavigateToEntity(functionCall);
       case 'openDialog':
         return this.navigationService.executeOpenDialog(functionCall);
+      case 'navigate_to':
       case 'navigate_to_page':
         return this.navigationService.executeNavigateToPageLegacy(functionCall);
       case 'searchAndNavigate':
@@ -65,13 +66,16 @@ export class LLMFunctionExecutionService {
       case 'get_user_permissions':
         return this.dataService.executeGetUserPermissions(functionCall);
 
+      case 'create_employee':
       case 'create_client':
         return this.clientService.executeCreateClient(functionCall);
 
+      case 'search_employees':
       case 'search_clients':
       case 'create_contract':
       case 'get_system_info':
       case 'validate_address':
+      case 'validate_calendar_rule':
         return this.executeBackendFunction(functionCall);
 
       case 'get_general_settings':

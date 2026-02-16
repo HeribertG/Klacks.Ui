@@ -22,7 +22,7 @@ export class LlmExecutionBranchService {
       }
     }
 
-    const addBtn = document.getElementById('settings-list-add-btn');
+    const addBtn = document.getElementById('branches-add-btn');
     if (!addBtn) {
       return { id: call.id, success: false, error: 'Add branch button not found' };
     }
