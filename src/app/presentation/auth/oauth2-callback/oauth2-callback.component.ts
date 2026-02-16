@@ -6,6 +6,7 @@ import { AuthService } from '../auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule } from '@ngx-translate/core';
@@ -64,6 +65,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
   private signalRService = inject(SignalRService);
+  private assistantSignalRService = inject(AssistantSignalRService);
   private toastService = inject(ToastShowService);
 
   isLoading = true;
@@ -111,6 +113,7 @@ export class OAuth2CallbackComponent implements OnInit {
         this.localStorageService.remove('oauth2_state');
         this.localStorageService.remove('oauth2_redirect_uri');
         this.signalRService.startConnection();
+        this.assistantSignalRService.startConnection();
         this.navigationService.navigateToWorkplace();
       } else {
         this.error = 'Login failed';

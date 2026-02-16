@@ -48,6 +48,7 @@ import { LlmExecutionBranchService } from 'src/app/domain/services/llm/llm-execu
 import { LlmExecutionMacroService } from 'src/app/domain/services/llm/llm-execution-macro.service';
 import { LlmExecutionClientService } from 'src/app/domain/services/llm/llm-execution-client.service';
 import { AsideService } from '../aside.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
 export interface ChatMessage {
   id: string;
@@ -97,6 +98,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  private assistantSignalR = inject(AssistantSignalRService);
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
@@ -169,6 +171,36 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(takeUntil(this.destroy$))
       .subscribe((modelId) => {
         this.currentModel = modelId;
+      });
+
+    this.assistantSignalR.proactiveMessage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((msg) => {
+        this.ngZone.run(() => {
+          this.messages.push({
+            id: msg.messageId,
+            sender: 'assistant',
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+          });
+          this.shouldScrollToBottom = true;
+          this.cdr.detectChanges();
+        });
+      });
+
+    this.assistantSignalR.onboardingPrompt$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((msg) => {
+        this.ngZone.run(() => {
+          this.messages.push({
+            id: msg.messageId,
+            sender: 'assistant',
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+          });
+          this.shouldScrollToBottom = true;
+          this.cdr.detectChanges();
+        });
       });
   }
 

@@ -32,3 +32,20 @@ export const SignalRConstants = {
     AccessToken: 'access_token',
   },
 } as const;
+
+export const AssistantSignalRConstants = {
+  HubPath: '/hubs/assistant-notifications',
+
+  Events: {
+    ProactiveMessage: 'ProactiveMessage',
+    OnboardingPrompt: 'OnboardingPrompt',
+  },
+
+  HubMethods: {
+    GetConnectionId: 'GetConnectionId',
+  },
+
+  QueryParams: {
+    AccessToken: 'access_token',
+  },
+} as const;

@@ -17,6 +17,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -55,6 +56,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
   private signalRService = inject(SignalRService);
+  private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
 
   private destroy$ = new Subject<void>();
@@ -143,6 +145,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (await this.auth.logIn(this.username, this.password)) {
       this.signalRService.startConnection();
+      this.assistantSignalRService.startConnection();
       this.navigationService.navigateToWorkplace();
       this.isClicked = false;
     } else {
