@@ -12,7 +12,7 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('general')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('general')" (keydown.enter)="toggleSection('general')">
     <span>{{ translate.instant("setting.section.general") }}</span>
     <button class="section-toggle-button">
       @if (sections['general']) {
@@ -43,7 +43,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('users')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('users')" (keydown.enter)="toggleSection('users')">
     <span>{{ translate.instant("setting.section.users") }}</span>
     <button class="section-toggle-button">
       @if (sections['users']) {
@@ -80,7 +80,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('organization')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('organization')" (keydown.enter)="toggleSection('organization')">
     <span>{{ translate.instant("setting.section.organization") }}</span>
     <button class="section-toggle-button">
       @if (sections['organization']) {
@@ -124,7 +124,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('work')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('work')" (keydown.enter)="toggleSection('work')">
     <span>{{ translate.instant("setting.section.work") }}</span>
     <button class="section-toggle-button">
       @if (sections['work']) {
@@ -164,7 +164,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('absence')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('absence')" (keydown.enter)="toggleSection('absence')">
     <span>{{ translate.instant("setting.section.absence") }}</span>
     <button class="section-toggle-button">
       @if (sections['absence']) {
@@ -205,7 +205,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('communication')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('communication')" (keydown.enter)="toggleSection('communication')">
     <span>{{ translate.instant("setting.section.communication") }}</span>
     <button class="section-toggle-button">
       @if (sections['communication']) {
@@ -237,7 +237,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('appearance')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('appearance')" (keydown.enter)="toggleSection('appearance')">
     <span>{{ translate.instant("setting.section.appearance") }}</span>
     <button class="section-toggle-button">
       @if (sections['appearance']) {
@@ -267,7 +267,7 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" (click)="toggleSection('integrations')">
+  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('integrations')" (keydown.enter)="toggleSection('integrations')">
     <span>{{ translate.instant("setting.section.integrations") }}</span>
     <button class="section-toggle-button">
       @if (sections['integrations']) {

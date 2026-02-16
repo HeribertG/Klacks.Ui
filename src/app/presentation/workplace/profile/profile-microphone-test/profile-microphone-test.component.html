@@ -14,7 +14,7 @@
 
     @if (defaultMicrophone()) {
       <div class="microphone-info">
-        <label>{{ translate.instant("setting.microphone-test.default-microphone") }}</label>
+        <span class="microphone-label-title">{{ translate.instant("setting.microphone-test.default-microphone") }}</span>
         <span class="microphone-label">{{ defaultMicrophone() }}</span>
       </div>
     }
