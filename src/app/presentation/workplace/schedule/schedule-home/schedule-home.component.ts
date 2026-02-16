@@ -48,6 +48,8 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
+import { SchedulePdfDrawingService } from '../schedule-section/services/schedule-pdf-drawing.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -69,6 +71,8 @@ import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
     EmptyCellFormatterService,
     WorkCellFormatterService,
     BreakCellFormatterService,
+    SchedulePdfExportService,
+    SchedulePdfDrawingService,
   ],
 })
 export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -84,6 +88,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
   private signalRService = inject(SignalRService);
+  private schedulePdfExportService = inject(SchedulePdfExportService);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -159,6 +164,10 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementSchedule.holidayDates = holidays.map(
       (h) => h.currentDate
     );
+  }
+
+  onPdfExport() {
+    this.schedulePdfExportService.exportSchedule();
   }
 
   onZoomChange(zoomValue: number) {

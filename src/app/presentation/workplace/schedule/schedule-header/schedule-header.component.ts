@@ -19,6 +19,7 @@ import {
   inject,
   OnInit,
   Output,
+  output,
   ViewChild,
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
@@ -43,6 +44,7 @@ import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calen
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
@@ -67,6 +69,7 @@ import { CalendarUtilService } from 'src/app/domain/services/calendar-util.servi
     ScheduleHeaderCalendarBiweeklyComponent,
     IconAngleLeftComponent,
     IconAngleRightComponent,
+    PdfIconComponent,
   ],
   providers: [],
 })
@@ -82,6 +85,7 @@ export class ScheduleHeaderComponent implements OnInit {
   };
 
   @Output() zoomChange = new EventEmitter<number>();
+  pdfExportRequested = output<void>();
 
   private holidayCollection = inject(HolidayCollectionService);
   private dataManagementCalendarSelectionService = inject(
@@ -167,6 +171,10 @@ export class ScheduleHeaderComponent implements OnInit {
   }
 
   onCalendarReset(_data: CalendarResetData) {}
+
+  onPdfExport() {
+    this.pdfExportRequested.emit();
+  }
 
   goToPrevious() {
     switch (this.paymentInterval) {
