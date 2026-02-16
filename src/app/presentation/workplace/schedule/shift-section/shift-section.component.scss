@@ -13,6 +13,8 @@
 
 .shift-tabs-header {
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
   background-color: var(--backgroundColorCard);
   border-bottom: 1px solid var(--colorLine);
   padding: 0.5rem 1rem 0;
@@ -21,6 +23,7 @@
     border-bottom: none;
     display: flex;
     gap: 0.25rem;
+    flex: 1;
 
     .nav-item {
       .nav-link {
@@ -44,6 +47,19 @@
           border-bottom: 1px solid var(--backgroundColoPaginationSelected);
         }
       }
+    }
+  }
+
+  .shift-pdf-button {
+    margin-bottom: 4px;
+    margin-left: 8px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 3px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: rgba(30, 144, 255, 0.2);
     }
   }
 }

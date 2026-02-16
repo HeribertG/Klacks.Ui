@@ -69,6 +69,8 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { ShiftContextMenuService } from './services/shift-context-menu.service';
 import { ShiftNavigationService } from './services/shift-navigation.service';
+import { ShiftPdfExportService } from './services/shift-pdf-export.service';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 
 @Component({
   selector: 'app-shift-section',
@@ -85,6 +87,7 @@ import { ShiftNavigationService } from './services/shift-navigation.service';
     IconFilterComponent,
     ShiftFilterComponent,
     ContextMenuComponent,
+    PdfIconComponent,
   ],
   providers: [
     { provide: BaseDataService, useClass: ShiftDataService },
@@ -128,6 +131,7 @@ export class ShiftSectionComponent
   private showInShiftService = inject(ShowInShiftService);
   private contextMenuService = inject(ShiftContextMenuService);
   private navigationService = inject(ShiftNavigationService);
+  private shiftPdfExportService = inject(ShiftPdfExportService);
 
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
@@ -298,6 +302,10 @@ export class ShiftSectionComponent
         this.cdr.detectChanges();
       }
     );
+  }
+
+  onShiftPdfExport(): void {
+    this.shiftPdfExportService.exportShiftSchedule();
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {

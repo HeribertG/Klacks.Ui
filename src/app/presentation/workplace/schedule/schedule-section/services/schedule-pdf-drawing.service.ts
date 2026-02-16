@@ -93,6 +93,7 @@ export class SchedulePdfDrawingService {
 
     const centerY = y + height / 2;
     const nameX = x + 4;
+    const hasSlots = !!(slot1 || slot2 || slot3);
 
     pdf.setFont(config.fontFamily, 'bold');
     pdf.setFontSize(7);
@@ -100,20 +101,22 @@ export class SchedulePdfDrawingService {
 
     const maxNameWidth = config.rowHeaderWidth - 8;
     const truncatedName = this.truncateText(pdf, name, maxNameWidth);
-    pdf.text(truncatedName, nameX, centerY - 5);
+    pdf.text(truncatedName, nameX, hasSlots ? centerY - 5 : centerY + 2);
 
-    pdf.setFont(config.fontFamily, 'normal');
-    pdf.setFontSize(6);
-    pdf.setTextColor('#404040');
+    if (hasSlots) {
+      pdf.setFont(config.fontFamily, 'normal');
+      pdf.setFontSize(6);
+      pdf.setTextColor('#404040');
 
-    if (slot1) {
-      pdf.text(slot1, nameX, centerY + 2);
-    }
-    if (slot2) {
-      pdf.text(slot2, nameX + 30, centerY + 2);
-    }
-    if (slot3) {
-      pdf.text(slot3, nameX + 60, centerY + 2);
+      if (slot1) {
+        pdf.text(slot1, nameX, centerY + 2);
+      }
+      if (slot2) {
+        pdf.text(slot2, nameX + 30, centerY + 2);
+      }
+      if (slot3) {
+        pdf.text(slot3, nameX + 60, centerY + 2);
+      }
     }
   }
 
@@ -204,6 +207,17 @@ export class SchedulePdfDrawingService {
       const lineX = startX + i * colWidth;
       pdf.line(lineX, startY, lineX, startY + height);
     }
+  }
+
+  darkenColor(color: string, amount: number): string {
+    let hex = color.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    const r = Math.max(parseInt(hex.substring(0, 2), 16) - amount, 0);
+    const g = Math.max(parseInt(hex.substring(2, 4), 16) - amount, 0);
+    const b = Math.max(parseInt(hex.substring(4, 6), 16) - amount, 0);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
 
   private getWeekdayBackgroundColor(weekdayType: number): string {

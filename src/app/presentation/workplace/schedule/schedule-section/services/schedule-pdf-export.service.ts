@@ -136,21 +136,30 @@ export class SchedulePdfExportService {
 
           for (let col = 0; col < coreDays; col++) {
             const cellData = subRow[col];
-            if (!cellData || cellData.isEmpty) continue;
+            if (!cellData) continue;
 
             const cellX = scheduleX + col * colWidth;
-            this.drawingService.drawCellContent(
-              pdf,
-              cellX,
-              subRowY,
-              colWidth,
-              config.subRowHeight,
-              cellData.mainText,
-              '',
-              '',
-              cellData.backgroundColor,
-              cellData.fontColor,
-            );
+
+            if (cellData.sealed && !cellData.backgroundColor) {
+              const dayBg = this.drawingService.darkenColor('#ffffff', 30);
+              pdf.setFillColor(dayBg);
+              pdf.rect(cellX, subRowY, colWidth, config.subRowHeight, 'F');
+            }
+
+            if (!cellData.isEmpty) {
+              this.drawingService.drawCellContent(
+                pdf,
+                cellX,
+                subRowY,
+                colWidth,
+                config.subRowHeight,
+                cellData.mainText,
+                '',
+                '',
+                cellData.backgroundColor,
+                cellData.fontColor,
+              );
+            }
           }
         }
 
@@ -183,10 +192,25 @@ export class SchedulePdfExportService {
 
   private buildTitle(): string {
     const filter = this.dataManagementSchedule.workFilter;
-    const monthName = this.gridSettingsService.monthsName[filter.currentMonth - 1];
+    const workSettings = this.appSettingsService.workSettings();
     const groupName = this.groupSelectionService.selectedGroup?.name;
     const groupSuffix = groupName ? ` - ${groupName}` : '';
-    return `Einsatzplan - ${monthName} ${filter.currentYear}${groupSuffix}`;
+    const period = this.buildPeriodLabel(workSettings.paymentInterval, filter);
+    return `Einsatzplan - ${period} ${filter.currentYear}${groupSuffix}`;
+  }
+
+  private buildPeriodLabel(paymentInterval: number, filter: { currentMonth: number; currentWeek?: number }): string {
+    switch (paymentInterval) {
+      case 0:
+        return `KW ${filter.currentWeek ?? 1}`;
+      case 1: {
+        const week = filter.currentWeek ?? 1;
+        return `KW ${week}-${week + 1}`;
+      }
+      case 2:
+      default:
+        return this.gridSettingsService.monthsName[filter.currentMonth - 1];
+    }
   }
 
   private addPageHeader(
@@ -269,13 +293,19 @@ export class SchedulePdfExportService {
           const col = coreStartCol + colOffset;
           const cell = this.dataService.getCell(row, col);
 
+          let backgroundColor = cell.backgroundColor;
+          if (cell.sealed && backgroundColor) {
+            backgroundColor = this.drawingService.darkenColor(backgroundColor, 30);
+          }
+
           rowCells.push({
             mainText: cell.mainText,
             firstSubText: cell.firstSubText,
             secondSubText: cell.secondSubText,
-            backgroundColor: cell.backgroundColor,
+            backgroundColor,
             fontColor: cell.fontColor,
             isEmpty: cell.isEmpty(),
+            sealed: cell.sealed,
           });
         }
 
@@ -337,6 +367,7 @@ interface CellData {
   backgroundColor?: string;
   fontColor?: string;
   isEmpty: boolean;
+  sealed: boolean;
 }
 
 interface ClientBlock {
