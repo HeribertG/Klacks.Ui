@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
-import { DEFAULT_SECTIONS } from '../../models/report/report-section.model';
+import { DEFAULT_SECTIONS, ReportSectionType } from '../../models/report/report-section.model';
+import { DEFAULT_FIELD_STYLE, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 
 @Injectable()
@@ -18,15 +19,27 @@ export class DataManagementReportService {
   async loadTemplates(): Promise<void> {
     this.isLoading.set(true);
     this.error.set(null);
-    
+
     try {
       const templates = await this.apiService.getAllTemplates();
       this.reportTemplateList.set(templates);
+      await this.ensureDefaultTemplates(templates);
     } catch (err) {
       this.error.set('Failed to load report templates');
       console.error('Error loading templates:', err);
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  private async ensureDefaultTemplates(templates: ReportTemplate[]): Promise<void> {
+    const hasAbsence = templates.some(t => t.type === ReportType.Absence);
+    if (!hasAbsence) {
+      try {
+        await this.addTemplate(this.createDefaultAbsenceTemplate());
+      } catch {
+        // ignore - template creation is best-effort
+      }
     }
   }
 
@@ -71,12 +84,63 @@ export class DataManagementReportService {
   }
 
   createDefaultTemplate(type: ReportType = ReportType.Schedule): ReportTemplate {
+    if (type === ReportType.Absence) {
+      return this.createDefaultAbsenceTemplate();
+    }
     return {
       name: 'New Report Template',
       description: '',
       type: type,
       pageSetup: { ...DEFAULT_PAGE_SETUP },
       sections: [...DEFAULT_SECTIONS]
+    };
+  }
+
+  private createDefaultAbsenceTemplate(): ReportTemplate {
+    const headerStyle = { ...DEFAULT_FIELD_STYLE, fontSize: 14, bold: true };
+    const dateStyle = { ...DEFAULT_FIELD_STYLE, fontSize: 10 };
+    const tableStyle = { ...DEFAULT_FIELD_STYLE, fontSize: 10 };
+    const footerStyle = { ...DEFAULT_FIELD_STYLE, fontSize: 10, bold: true };
+
+    return {
+      name: 'Absence Report',
+      description: '',
+      type: ReportType.Absence,
+      sourceId: 'absence-gantt',
+      dataSetIds: ['absences'],
+      pageSetup: { ...DEFAULT_PAGE_SETUP },
+      sections: [
+        {
+          type: ReportSectionType.Header,
+          visible: true,
+          sortOrder: 0,
+          fields: [
+            { name: 'Name', dataBinding: 'client.name', type: ReportFieldType.Text, width: 30, height: 0, style: headerStyle, sortOrder: 0 },
+            { name: 'Vorname', dataBinding: 'client.firstName', type: ReportFieldType.Text, width: 30, height: 0, style: headerStyle, sortOrder: 0 },
+            { name: 'Report-Datum', dataBinding: 'report.date', type: ReportFieldType.Date, width: 25, height: 0, style: dateStyle, sortOrder: 1 },
+          ],
+        },
+        {
+          type: ReportSectionType.WorkTable,
+          visible: true,
+          sortOrder: 1,
+          fields: [
+            { name: 'Von', dataBinding: 'absence.from', type: ReportFieldType.Date, width: 15, height: 0, style: tableStyle, sortOrder: 0 },
+            { name: 'Bis', dataBinding: 'absence.until', type: ReportFieldType.Date, width: 15, height: 0, style: tableStyle, sortOrder: 1 },
+            { name: 'Abwesenheit', dataBinding: 'absence.absenceName', type: ReportFieldType.Text, width: 25, height: 0, style: tableStyle, sortOrder: 2 },
+            { name: 'Wert', dataBinding: 'absence.value', type: ReportFieldType.Number, width: 10, height: 0, style: { ...tableStyle, alignment: TextAlignment.Center }, sortOrder: 3 },
+            { name: 'Information', dataBinding: 'absence.information', type: ReportFieldType.Text, width: 30, height: 0, style: tableStyle, sortOrder: 4 },
+          ],
+        },
+        {
+          type: ReportSectionType.Footer,
+          visible: true,
+          sortOrder: 2,
+          fields: [
+            { name: 'Anzahl', dataBinding: 'absence.totalCount', type: ReportFieldType.Number, width: 25, height: 0, style: footerStyle, sortOrder: 0 },
+          ],
+        },
+      ],
     };
   }
 }

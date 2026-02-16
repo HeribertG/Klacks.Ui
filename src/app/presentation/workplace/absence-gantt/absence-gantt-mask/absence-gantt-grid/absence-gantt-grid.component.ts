@@ -23,7 +23,13 @@ import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { PdfExportService } from '../../services/pdf-export.service';
+import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
+import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
+import { ReportDataProviderService, ReportData } from 'src/app/domain/services/report/report-data-provider.service';
+import { ReportService } from 'src/app/domain/services/report/report.service';
+import { ReportType } from 'src/app/domain/models/report/report-template.model';
+import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
@@ -33,7 +39,15 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrls: ['./absence-gantt-grid.component.scss'],
   standalone: true,
   imports: [DatePipe, TranslateModule],
-  providers: [TableSortingService],
+  providers: [
+    TableSortingService,
+    ReportPdfService,
+    ReportDataProviderService,
+    ReportService,
+    DataManagementReportService,
+    DataReportApiService,
+    AbsenceLookupService,
+  ],
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -48,7 +62,10 @@ export class AbsenceGanttGridComponent
   public sortingService = inject(TableSortingService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
-  private pdfExportService = inject(PdfExportService);
+  private reportManagement = inject(DataManagementReportService);
+  private reportPdfService = inject(ReportPdfService);
+  private reportDataProvider = inject(ReportDataProviderService);
+  private reportService = inject(ReportService);
   private textFormatterService = inject(TextFormatterService);
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
@@ -194,21 +211,59 @@ export class AbsenceGanttGridComponent
     });
   }
 
-  exportToPDF(): void {
+  async exportToPDF(): Promise<void> {
     if (!this.selectedRowData || this.selectedRowData.length === 0) {
       return;
     }
 
     const clientName = this.getClientName();
-    
-    this.pdfExportService.exportBreaksTableToPdf(
-      this.selectedRowData,
-      clientName,
-      (breakItem) => this.onAbsenceName(breakItem),
-      (breakItem) => this.onAbsenceValue(breakItem)
+    const client = this.getSelectedClient();
+
+    const templates = this.reportManagement.getTemplatesByType(ReportType.Absence);
+    const template = templates.length > 0 ? templates[0] : this.reportManagement.createDefaultTemplate(ReportType.Absence);
+
+    if (!template.sourceId) {
+      template.sourceId = 'absence-gantt';
+      template.dataSetIds = ['absences'];
+    }
+
+    const provider = this.reportDataProvider.getProvider(
+      template.sourceId ?? 'absence-gantt',
+      template.dataSetIds ?? ['absences']
     );
-    
+
+    const rows = this.selectedRowData.map(bp => ({
+      ...bp,
+      clientId: client?.id,
+      clientName: client?.name ?? '',
+      clientFirstName: client?.firstName ?? '',
+      absence: this.absence.find(a => a.id === bp.absenceId),
+    }));
+
+    const data: ReportData = { rows };
+
+    const context: ReportGenerationContext = {
+      template,
+      provider,
+      data,
+      groupName: '',
+      startDate: '',
+      endDate: '',
+    };
+
+    const blob = await this.reportPdfService.generatePdf(context);
+    const fileName = `absence-report-${clientName}-${new Date().getTime()}.pdf`;
+    this.reportService.downloadPdf(blob, fileName);
+
     this.exportPDF.emit();
+  }
+
+  private getSelectedClient(): { id?: string; name?: string; firstName?: string } | undefined {
+    if (this.selectedRow >= 0 && this.selectedRow < this.dataManagementBreak.clients.length) {
+      const c = this.dataManagementBreak.clients[this.selectedRow];
+      return { id: c.id, name: c.name, firstName: c.firstName };
+    }
+    return undefined;
   }
 
   private getClientName(): string {

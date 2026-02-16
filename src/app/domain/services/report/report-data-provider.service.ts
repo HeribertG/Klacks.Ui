@@ -12,6 +12,7 @@ import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.se
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
+import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
 export interface ReportFetchParams {
@@ -143,7 +144,8 @@ export class ReportDataProviderService {
   private absenceProvider(): ReportDataProvider {
     return {
       fetchData: async (params) => {
-        const year = params.year ?? new Date().getFullYear();
+        const year = params.year
+          ?? (params.startDate ? new Date(params.startDate).getFullYear() : new Date().getFullYear());
         const response = await firstValueFrom(
           this.breakPlaceholderService.getClientList({
             currentYear: year,
@@ -163,7 +165,10 @@ export class ReportDataProviderService {
             hoursSortOrder: undefined,
           })
         );
-        const rows = response.clients.flatMap(client =>
+        const clients = params.clientId
+          ? response.clients.filter((c: any) => c.id === params.clientId)
+          : response.clients;
+        const rows = clients.flatMap(client =>
           (client.breakPlaceholders ?? []).map((bp: any) => ({
             ...bp,
             clientName: client.name,
@@ -179,6 +184,14 @@ export class ReportDataProviderService {
           case 'absence.absenceName': return row.absence?.name?.[this.translate.currentLang] ?? row.absence?.name?.de ?? '';
           case 'absence.from': return this.formatDate(row.from);
           case 'absence.until': return this.formatDate(row.until);
+          case 'absence.value': {
+            const defaultValue = row.absence?.defaultValue;
+            if (defaultValue && defaultValue > 0 && row.from && row.until) {
+              const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+              return (diff * defaultValue).toString();
+            }
+            return '';
+          }
           case 'absence.information': return row.information ?? '';
           default: return '';
         }

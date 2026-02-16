@@ -164,6 +164,24 @@
               </select>
             </div>
 
+            @if (sourcePreviewConfig.needsClient) {
+              <div class="mb-3">
+                <label class="form-label">{{
+                  "setting.report.preview.client" | translate
+                }}</label>
+                <select class="form-select" [(ngModel)]="previewClientId">
+                  <option value="">
+                    {{ "setting.report.preview.allClients" | translate }}
+                  </option>
+                  @for (client of previewClients; track client.id) {
+                    <option [value]="client.id">
+                      {{ client.name }} {{ client.firstName }}
+                    </option>
+                  }
+                </select>
+              </div>
+            }
+
             @if (sourcePreviewConfig.needsDateRange) {
               <div class="row">
                 <div class="date-input">

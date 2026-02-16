@@ -12,6 +12,7 @@ import { DataManagementReportService } from 'src/app/domain/services/report/data
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ReportDesignerComponent } from '../report-designer/report-designer.component';
 import { DEFAULT_SECTIONS, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
@@ -43,6 +44,7 @@ export class ReportRowComponent implements OnDestroy {
   private reportPdfService = inject(ReportPdfService);
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
+  private clientService = inject(DataClientService);
 
   private modalRef: NgbModalRef | null = null;
   private destroy$ = new Subject<void>();
@@ -66,6 +68,8 @@ export class ReportRowComponent implements OnDestroy {
   editDataSetIds: string[] = ['work'];
 
   previewGroupId = '';
+  previewClientId = '';
+  previewClients: IClientForReplacement[] = [];
   previewFromDate: NgbDateStruct | null = null;
   previewToDate: NgbDateStruct | null = null;
   isGenerating = false;
@@ -88,16 +92,16 @@ export class ReportRowComponent implements OnDestroy {
 
   ReportOrientation = ReportOrientation;
 
-  get sourcePreviewConfig(): { needsGroup: boolean; needsDateRange: boolean } {
+  get sourcePreviewConfig(): { needsGroup: boolean; needsDateRange: boolean; needsClient: boolean } {
     switch (this.editSourceId) {
-      case 'schedule': return { needsGroup: false, needsDateRange: true };
-      case 'absence-gantt': return { needsGroup: false, needsDateRange: true };
-      case 'all-address': return { needsGroup: false, needsDateRange: false };
-      case 'edit-address': return { needsGroup: false, needsDateRange: false };
-      case 'group': return { needsGroup: false, needsDateRange: false };
-      case 'shift-table': return { needsGroup: false, needsDateRange: false };
-      case 'container-template': return { needsGroup: false, needsDateRange: false };
-      default: return { needsGroup: false, needsDateRange: true };
+      case 'schedule': return { needsGroup: false, needsDateRange: true, needsClient: false };
+      case 'absence-gantt': return { needsGroup: false, needsDateRange: true, needsClient: true };
+      case 'all-address': return { needsGroup: false, needsDateRange: false, needsClient: false };
+      case 'edit-address': return { needsGroup: false, needsDateRange: false, needsClient: false };
+      case 'group': return { needsGroup: false, needsDateRange: false, needsClient: false };
+      case 'shift-table': return { needsGroup: false, needsDateRange: false, needsClient: false };
+      case 'container-template': return { needsGroup: false, needsDateRange: false, needsClient: false };
+      default: return { needsGroup: false, needsDateRange: true, needsClient: false };
     }
   }
 
@@ -161,6 +165,7 @@ export class ReportRowComponent implements OnDestroy {
       this.groupService.initTree();
     }
 
+    this.loadPreviewClients();
     this.loadManual();
 
     this.modalRef = this.modalService.open(this.contentTemplate, {
@@ -257,6 +262,7 @@ export class ReportRowComponent implements OnDestroy {
         groupId: this.previewGroupId || undefined,
         startDate: fromDate || undefined,
         endDate: toDate || undefined,
+        clientId: this.previewClientId || undefined,
       });
 
       const selectedGroup = this.groups.find(g => g.id === this.previewGroupId);
@@ -320,6 +326,13 @@ export class ReportRowComponent implements OnDestroy {
             });
         },
       });
+  }
+
+  private loadPreviewClients(): void {
+    if (this.previewClients.length > 0) return;
+    this.clientService.getClientsForReplacement()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(clients => this.previewClients = clients);
   }
 
   private resetTemplateSections(): void {

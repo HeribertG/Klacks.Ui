@@ -44,6 +44,7 @@ const ABSENCE_TABLE_FIELDS: DataBindingDefinition[] = [
   { key: 'absence.absenceName', label: 'Abwesenheit', i18nKey: 'setting.report.field.absenceName', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 20 },
   { key: 'absence.from', label: 'Von', i18nKey: 'setting.report.field.absenceFrom', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 15 },
   { key: 'absence.until', label: 'Bis', i18nKey: 'setting.report.field.absenceUntil', type: ReportFieldType.Date, category: FieldCategory.WorkTable, defaultWidth: 15 },
+  { key: 'absence.value', label: 'Wert', i18nKey: 'setting.report.field.absenceValue', type: ReportFieldType.Number, category: FieldCategory.WorkTable, defaultWidth: 10 },
   { key: 'absence.information', label: 'Information', i18nKey: 'setting.report.field.absenceInformation', type: ReportFieldType.Text, category: FieldCategory.WorkTable, defaultWidth: 25 },
 ];
 
@@ -173,7 +174,7 @@ export const REPORT_DATA_SOURCES: ReportDataSource[] = [
       {
         id: 'absences',
         i18nKey: 'setting.report.dataset.absences',
-        headerFields: [...COMMON_HEADER_FIELDS],
+        headerFields: [...CLIENT_HEADER_FIELDS, ...COMMON_HEADER_FIELDS],
         tableFields: ABSENCE_TABLE_FIELDS,
         footerFields: ABSENCE_FOOTER_FIELDS,
       },
