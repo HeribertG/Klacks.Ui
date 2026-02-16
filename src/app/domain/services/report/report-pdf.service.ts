@@ -14,6 +14,8 @@ import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
+import { FormulaEvaluationService } from './formula-evaluation.service';
+import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
 
 export interface ReportGenerationContext {
   template: ReportTemplate;
@@ -29,6 +31,7 @@ export interface ReportGenerationContext {
 export class ReportPdfService {
   private translate = inject(TranslateService);
   private http = inject(HttpClient);
+  private formulaService = inject(FormulaEvaluationService);
 
   async generatePdf(context: ReportGenerationContext): Promise<Blob> {
     const { template, provider, data } = context;
@@ -293,6 +296,12 @@ export class ReportPdfService {
       };
     });
 
+    const formulaFields = fields.filter(f => f.type === ReportFieldType.Formula && f.formula);
+    const compiledFormulas = new Map<string, CompiledScript>();
+    for (const f of formulaFields) {
+      compiledFormulas.set(f.dataBinding, this.formulaService.compileFormula(f.formula!));
+    }
+
     const bodyData: any[] = [];
 
     const beforeRows = (section.freeTextRows ?? []).filter(r => r.position === 'before');
@@ -311,7 +320,24 @@ export class ReportPdfService {
 
     for (const entry of rows) {
       const row: Record<string, string> = {};
+      const formulaVars = compiledFormulas.size > 0 && provider.buildFormulaVariables
+        ? provider.buildFormulaVariables(entry) : undefined;
+
       fields.forEach(f => {
+        if (f.type === ReportFieldType.Formula && f.formula) {
+          const compiled = compiledFormulas.get(f.dataBinding);
+          if (compiled && formulaVars) {
+            try {
+              row[f.dataBinding] = this.formulaService.executeCompiled(compiled, formulaVars);
+            } catch {
+              row[f.dataBinding] = '#ERR';
+            }
+          } else {
+            row[f.dataBinding] = '';
+          }
+          return;
+        }
+
         const primary = provider.resolveFieldValue(f, entry);
         if (f.additionalBindings?.length) {
           const separator = f.bindingSeparator ?? '\n';
@@ -347,12 +373,26 @@ export class ReportPdfService {
     let foot: any[][] | undefined;
     if (section.tableFooterFields && section.tableFooterFields.length > 0) {
       const footRow: any[] = fields.map(() => '');
+      const footerFormulaVars = provider.buildFooterFormulaVariables
+        ? provider.buildFooterFormulaVariables(rows) : undefined;
+
       for (const footerField of section.tableFooterFields) {
         const targetColumn = FOOTER_TO_COLUMN_MAP[footerField.dataBinding];
         const colIndex = targetColumn
           ? fields.findIndex(f => f.dataBinding === targetColumn)
           : footerField.sortOrder;
-        const value = provider.resolveFooterValue(footerField, rows);
+
+        let value: string;
+        if (footerField.type === ReportFieldType.Formula && footerField.formula) {
+          try {
+            value = this.formulaService.evaluateFormula(footerField.formula, footerFormulaVars ?? {});
+          } catch {
+            value = '#ERR';
+          }
+        } else {
+          value = provider.resolveFooterValue(footerField, rows);
+        }
+
         if (colIndex >= 0 && colIndex < fields.length) {
           const text = footerField.hideLabel
             ? value
@@ -470,10 +510,22 @@ export class ReportPdfService {
     doc.line(marginLeft, yPos, marginLeft + contentWidth, yPos);
     yPos += 5;
 
+    const sectionFooterFormulaVars = provider.buildFooterFormulaVariables
+      ? provider.buildFooterFormulaVariables(rows) : undefined;
+
     section.fields
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .forEach(field => {
-        const value = provider.resolveFooterValue(field, rows);
+        let value: string;
+        if (field.type === ReportFieldType.Formula && field.formula) {
+          try {
+            value = this.formulaService.evaluateFormula(field.formula, sectionFooterFormulaVars ?? {});
+          } catch {
+            value = '#ERR';
+          }
+        } else {
+          value = provider.resolveFooterValue(field, rows);
+        }
         doc.setFontSize(field.style.fontSize);
         const fontFamily = field.style.fontFamily || 'helvetica';
         const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);

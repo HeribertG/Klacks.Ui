@@ -23,6 +23,11 @@ import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/d
 import { BorderLineStyle, CellBorderStyle, DEFAULT_BORDER_SIDE } from 'src/app/domain/models/report/cell-border-style.model';
 import { FreeTextRow } from 'src/app/domain/models/report/free-text-row.model';
 import { FOOTER_TO_COLUMN_MAP } from 'src/app/domain/models/report/report-footer-mapping.constants';
+import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
+import { getFormulaVariables, getFooterFormulaVariables, FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
+import { createFormulaTestData, createFooterFormulaTestData } from 'src/app/domain/models/report/formula-test-data';
+import { PropertyGridComponent } from 'src/app/presentation/workplace/settings/macros/property-grid/property-grid.component';
+import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
 
 interface FieldPaletteGroup {
   id: string;
@@ -39,7 +44,7 @@ interface FieldPaletteGroup {
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList]
+  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent]
 })
 export class ReportDesignerComponent implements OnChanges {
   @Input() template!: ReportTemplate;
@@ -50,6 +55,7 @@ export class ReportDesignerComponent implements OnChanges {
 
   translate = inject(TranslateService);
   private http = inject(HttpClient);
+  private formulaService = inject(FormulaEvaluationService);
 
   activeField: ReportField | null = null;
   fieldPrefixMap = new Map<string, string>();
@@ -881,6 +887,108 @@ export class ReportDesignerComponent implements OnChanges {
       }
     }
     return key;
+  }
+
+  // --- Formula Field Methods ---
+
+  isFormulaField(field: ReportField): boolean {
+    return field.type === ReportFieldType.Formula;
+  }
+
+  addFormulaField(section: ReportSection): void {
+    const field: ReportField = {
+      name: this.translate.instant('setting.report.designer.formulaField'),
+      dataBinding: `formula.${crypto.randomUUID()}`,
+      type: ReportFieldType.Formula,
+      width: 15,
+      height: 20,
+      style: { ...DEFAULT_FIELD_STYLE },
+      formula: '',
+      sortOrder: section.fields.length,
+    };
+
+    section.fields = [...section.fields, field];
+    this.activeField = field;
+    this.emitChange();
+  }
+
+  addFormulaFooterField(section: ReportSection): void {
+    if (!section.tableFooterFields) section.tableFooterFields = [];
+
+    const field: ReportField = {
+      name: this.translate.instant('setting.report.designer.formulaField'),
+      dataBinding: `formula.${crypto.randomUUID()}`,
+      type: ReportFieldType.Formula,
+      width: 15,
+      height: 20,
+      style: { ...DEFAULT_FIELD_STYLE, bold: true },
+      formula: '',
+      sortOrder: section.tableFooterFields.length,
+    };
+
+    section.tableFooterFields = [...section.tableFooterFields, field];
+    this.activeField = field;
+    this.emitChange();
+  }
+
+  getFormulaStatus(field: ReportField): 'empty' | 'valid' | 'error' {
+    if (!field.formula) return 'empty';
+    const result = this.formulaService.validateFormula(field.formula);
+    return result.valid ? 'valid' : 'error';
+  }
+
+  onFormulaChange(field: ReportField, formula: string): void {
+    field.formula = formula;
+    this.formulaService.clearCache();
+    this.emitChange();
+  }
+
+  onFormulaNameChange(field: ReportField, name: string): void {
+    field.name = name;
+    this.emitChange();
+  }
+
+  getFormulaVariableDefs(): FormulaVariableDefinition[] {
+    return getFormulaVariables(this.sourceId, this.dataSetIds);
+  }
+
+  getFooterFormulaVariableDefs(): FormulaVariableDefinition[] {
+    return getFooterFormulaVariables(this.sourceId, this.dataSetIds);
+  }
+
+  testFormula(field: ReportField): string {
+    if (!field.formula) return '';
+    return this.formulaService.evaluateFormula(field.formula, { ...this.formulaTestData });
+  }
+
+  showFormulaEditor = false;
+  formulaEditorField: ReportField | null = null;
+  formulaTestResult = '';
+  formulaTestData: any = {};
+  formulaTestMetadata?: PropertyMetadata;
+
+  openFormulaEditor(field: ReportField): void {
+    this.formulaEditorField = field;
+    this.showFormulaEditor = true;
+    this.formulaTestResult = '';
+    const isFooter = this.bodySections.some(s => s.tableFooterFields?.includes(field));
+    const testObj = isFooter
+      ? createFooterFormulaTestData(this.sourceId)
+      : createFormulaTestData(this.sourceId, this.dataSetIds);
+    this.formulaTestData = testObj;
+    this.formulaTestMetadata = (testObj.constructor as { metadata?: PropertyMetadata }).metadata;
+  }
+
+  closeFormulaEditor(): void {
+    this.showFormulaEditor = false;
+    this.formulaEditorField = null;
+    this.formulaTestResult = '';
+  }
+
+  runFormulaTest(): void {
+    if (this.formulaEditorField) {
+      this.formulaTestResult = this.testFormula(this.formulaEditorField);
+    }
   }
 
   emitChange(): void {

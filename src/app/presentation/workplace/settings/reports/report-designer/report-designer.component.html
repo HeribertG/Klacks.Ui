@@ -232,6 +232,43 @@
             </label>
           }
 
+          @if (isFormulaField(activeField)) {
+            <span class="tb-separator"></span>
+            <input
+              type="text"
+              class="tb-select"
+              style="max-width: 140px"
+              [value]="activeField.name"
+              (input)="onFormulaNameChange(activeField, $any($event.target).value)"
+              [placeholder]="'setting.report.designer.formulaName' | translate"
+            />
+            <button
+              class="tb-btn formula-edit-btn"
+              (click)="openFormulaEditor(activeField)"
+              [title]="'setting.report.designer.editFormula' | translate"
+            >
+              f(x)
+            </button>
+            <span
+              class="formula-status"
+              [class.status-empty]="getFormulaStatus(activeField) === 'empty'"
+              [class.status-valid]="getFormulaStatus(activeField) === 'valid'"
+              [class.status-error]="getFormulaStatus(activeField) === 'error'"
+            >
+              @switch (getFormulaStatus(activeField)) {
+                @case ('empty') {
+                  {{ 'setting.report.designer.noFormula' | translate }}
+                }
+                @case ('valid') {
+                  {{ 'setting.report.designer.formulaValid' | translate }}
+                }
+                @case ('error') {
+                  {{ 'setting.report.designer.formulaError' | translate }}
+                }
+              }
+            </span>
+          }
+
           @if (isBodyTableField(activeField)) {
             <span class="tb-separator"></span>
             <select
@@ -792,12 +829,16 @@
                 ) {
                   <div
                     class="table-column"
+                    [class.formula-column]="isFormulaField(field)"
                     cdkDrag
                     [style.flex]="'0 0 ' + field.width + '%'"
                     (click)="selectField(field)"
                     [class.column-active]="activeField === field"
                   >
                     <div class="column-header">
+                      @if (isFormulaField(field)) {
+                        <span class="formula-prefix">f(x)</span>
+                      }
                       <span class="column-name">{{ field.name }}</span>
                       <button
                         class="chip-btn remove"
@@ -845,6 +886,15 @@
                     </div>
                   </div>
                 }
+
+                <button
+                  class="table-column add-formula-column"
+                  (click)="addFormulaField(section)"
+                  [title]="'setting.report.designer.addFormulaField' | translate"
+                >
+                  <span class="formula-icon">f(x)</span>
+                  <span class="add-formula-label">{{ "setting.report.designer.addFormulaField" | translate }}</span>
+                </button>
               </div>
             </div>
 
@@ -867,9 +917,13 @@
                   ) {
                     <div
                       class="field-chip"
+                      [class.formula-chip]="isFormulaField(field)"
                       (click)="selectField(field)"
                       [class.chip-active]="activeField === field"
                     >
+                      @if (isFormulaField(field)) {
+                        <span class="formula-prefix">f(x)</span>
+                      }
                       <span class="chip-label">{{ field.name }}</span>
                       <button
                         class="chip-btn remove"
@@ -909,6 +963,9 @@
                       }
                     </select>
                   }
+                  <button class="btn-add-row formula-add-btn" (click)="addFormulaFooterField(section)">
+                    <span class="formula-icon">f(x)</span>
+                  </button>
                 </div>
               }
             </div>
@@ -1009,4 +1066,74 @@
       }
     </div>
   </div>
+
+  @if (showFormulaEditor && formulaEditorField) {
+    <div class="formula-editor-overlay" (click)="closeFormulaEditor()">
+      <div class="formula-editor-modal" (click)="$event.stopPropagation()">
+        <div class="formula-editor-header">
+          <h6>{{ 'setting.report.designer.editFormula' | translate }}</h6>
+          <button class="chip-btn remove" (click)="closeFormulaEditor()">&#10005;</button>
+        </div>
+
+        <div class="formula-editor-body">
+          <div class="formula-editor-name">
+            <label>{{ 'setting.report.designer.formulaName' | translate }}</label>
+            <input
+              type="text"
+              [value]="formulaEditorField.name"
+              (input)="onFormulaNameChange(formulaEditorField, $any($event.target).value)"
+            />
+          </div>
+
+          <div class="formula-editor-tabs">
+            <div class="formula-tab">
+              <label>{{ 'setting.report.designer.formula' | translate }}</label>
+              <textarea
+                class="formula-textarea"
+                [value]="formulaEditorField.formula ?? ''"
+                (input)="onFormulaChange(formulaEditorField, $any($event.target).value)"
+                rows="8"
+                spellcheck="false"
+              ></textarea>
+            </div>
+
+            <div class="formula-tab">
+              <label>{{ 'setting.report.designer.formulaVariables' | translate }}</label>
+              <app-property-grid
+                [object]="formulaTestData"
+                [metadata]="formulaTestMetadata"
+              ></app-property-grid>
+            </div>
+          </div>
+
+          <div class="formula-editor-test">
+            <button class="btn-add-row" (click)="runFormulaTest()">
+              {{ 'setting.report.designer.formulaTest' | translate }}
+            </button>
+            <span
+              class="formula-status"
+              [class.status-valid]="getFormulaStatus(formulaEditorField) === 'valid'"
+              [class.status-error]="getFormulaStatus(formulaEditorField) === 'error'"
+              [class.status-empty]="getFormulaStatus(formulaEditorField) === 'empty'"
+            >
+              @switch (getFormulaStatus(formulaEditorField)) {
+                @case ('empty') {
+                  {{ 'setting.report.designer.noFormula' | translate }}
+                }
+                @case ('valid') {
+                  {{ 'setting.report.designer.formulaValid' | translate }}
+                }
+                @case ('error') {
+                  {{ 'setting.report.designer.formulaError' | translate }}
+                }
+              }
+            </span>
+            @if (formulaTestResult) {
+              <span class="formula-test-result">= {{ formulaTestResult }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

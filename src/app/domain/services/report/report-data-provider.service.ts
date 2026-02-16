@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { ReportField } from '../../models/report/report-field.model';
+import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
@@ -43,6 +44,8 @@ export interface ReportDataProvider {
   resolveFieldValue(field: ReportField, row: any): string;
   resolveHeaderValue(field: ReportField, context: ReportHeaderContext): string;
   resolveFooterValue(field: ReportField, rows: any[]): string;
+  buildFormulaVariables?(row: any): ExternalVariables;
+  buildFooterFormulaVariables?(rows: any[]): ExternalVariables;
 }
 
 @Injectable()
@@ -138,6 +141,32 @@ export class ReportDataProviderService {
           default: return '';
         }
       },
+      buildFormulaVariables: (row: IScheduleCell) => ({
+        hours: row.changeTime ?? 0,
+        surcharges: row.surcharges ?? 0,
+        startTime: row.startTime ?? '',
+        endTime: row.endTime ?? '',
+        weekday: row.entryDate ? new Date(row.entryDate).getDay() : 0,
+        entryType: row.entryType ?? 0,
+        information: row.information ?? '',
+        amount: row.amount ?? 0,
+        taxable: row.taxable ?? false,
+      }),
+      buildFooterFormulaVariables: (rows: IScheduleCell[]) => {
+        const uniqueDates = new Set(
+          rows.filter(e => e.entryType === WorkScheduleEntryType.Work)
+            .map(e => new Date(e.entryDate).toDateString())
+        );
+        return {
+          totalRows: rows.length,
+          totalHours: rows.reduce((s, e) => s + (e.changeTime ?? 0), 0),
+          totalSurcharges: rows.reduce((s, e) => s + (e.surcharges ?? 0), 0),
+          totalWorkDays: uniqueDates.size,
+          totalExpenses: rows
+            .filter(e => e.entryType === WorkScheduleEntryType.Expenses)
+            .reduce((s, e) => s + (e.amount ?? 0), 0),
+        };
+      },
     };
   }
 
@@ -203,6 +232,17 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'absence.totalCount') return rows.length.toString();
         return '';
       },
+      buildFormulaVariables: (row: any) => ({
+        fromDate: row.from ?? '',
+        untilDate: row.until ?? '',
+        absenceName: row.absence?.name?.de ?? '',
+        defaultValue: row.absence?.defaultValue ?? 0,
+        clientName: row.clientName ?? '',
+        clientFirstName: row.clientFirstName ?? '',
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+      }),
     };
   }
 
@@ -270,6 +310,17 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'client.totalCount') return rows.length.toString();
         return '';
       },
+      buildFormulaVariables: (row: any) => ({
+        idNumber: row.idNumber ?? 0,
+        name: row.name ?? '',
+        firstName: row.firstName ?? '',
+        company: row.company ?? '',
+        birthdate: row.birthdate ?? '',
+        gender: row.gender ?? 0,
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+      }),
     };
   }
 
@@ -343,6 +394,13 @@ export class ReportDataProviderService {
         if (field.dataBinding === 'group.totalCount') return rows.length.toString();
         return '';
       },
+      buildFormulaVariables: (row: any) => ({
+        name: row.name ?? '',
+        parentName: row.parentName ?? '',
+      }),
+      buildFooterFormulaVariables: (rows: any[]) => ({
+        totalRows: rows.length,
+      }),
     };
   }
 

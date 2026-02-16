@@ -827,3 +827,252 @@
   background: var(--backgroundColorCard);
   color: var(--standartTextColor);
 }
+
+// --- Formula Fields ---
+
+.formula-column {
+  border-left: 3px solid #9b59b6;
+
+  .formula-prefix {
+    font-size: 9px;
+    font-weight: 600;
+    color: #9b59b6;
+    margin-right: 4px;
+  }
+}
+
+.add-formula-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 70px;
+  flex: 0 0 auto !important;
+  border-style: dashed !important;
+  border-color: #9b59b6 !important;
+  background: transparent !important;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(155, 89, 182, 0.06) !important;
+  }
+
+  .formula-icon {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9b59b6;
+  }
+
+  .add-formula-label {
+    font-size: 9px;
+    color: #9b59b6;
+    text-align: center;
+    line-height: 1.2;
+  }
+}
+
+.formula-chip {
+  border-left: 3px solid #9b59b6;
+
+  .formula-prefix {
+    font-size: 9px;
+    font-weight: 600;
+    color: #9b59b6;
+    margin-right: 4px;
+  }
+}
+
+.formula-add-btn {
+  margin-left: 6px;
+
+  .formula-icon {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9b59b6;
+    margin-right: 4px;
+  }
+}
+
+.formula-edit-btn {
+  font-weight: 600;
+  color: #9b59b6 !important;
+  font-size: 11px !important;
+}
+
+.formula-status {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+
+  &.status-empty {
+    color: var(--colorSubHeadline);
+  }
+
+  &.status-valid {
+    color: colors.$standartGreenColor;
+    background: rgba(colors.$standartGreenColor, 0.1);
+  }
+
+  &.status-error {
+    color: var(--standartRedColor);
+    background: rgba(255, 0, 0, 0.08);
+  }
+}
+
+// --- Formula Editor Modal ---
+
+.formula-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.formula-editor-modal {
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.formula-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cardBorderColor);
+
+  h6 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--standartTextColor);
+  }
+}
+
+.formula-editor-body {
+  padding: 16px;
+}
+
+.formula-editor-name {
+  margin-bottom: 12px;
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    margin-bottom: 4px;
+  }
+
+  input {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid var(--cardBorderColor);
+    border-radius: 4px;
+    background: var(--backgroundColorFocus);
+    color: var(--standartTextColor);
+  }
+}
+
+.formula-editor-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formula-tab {
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    margin-bottom: 4px;
+  }
+}
+
+.formula-textarea {
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 8px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+  color: var(--standartTextColor);
+  resize: vertical;
+  min-height: 120px;
+}
+
+.formula-var-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorFocus);
+}
+
+.formula-var-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--cardBorderColor);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .var-name {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #9b59b6;
+    min-width: 100px;
+  }
+
+  .var-type {
+    font-size: 10px;
+    color: var(--colorSubHeadline);
+    min-width: 50px;
+  }
+
+  .var-desc {
+    color: var(--standartTextColor);
+  }
+}
+
+.formula-editor-test {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cardBorderColor);
+}
+
+.formula-test-result {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--standartTextColor);
+  padding: 2px 8px;
+  background: var(--backgroundColorFocus);
+  border-radius: 3px;
+}

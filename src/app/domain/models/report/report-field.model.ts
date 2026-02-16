@@ -9,6 +9,7 @@ export interface ReportField {
   height: number;
   style: FieldStyle;
   format?: string;
+  formula?: string;
   sortOrder: number;
   imageUrl?: string;
   hideLabel?: boolean;
@@ -30,7 +31,8 @@ export enum ReportFieldType {
   Currency = 3,
   Boolean = 4,
   Time = 5,
-  Image = 6
+  Image = 6,
+  Formula = 7
 }
 
 export enum TextAlignment {
