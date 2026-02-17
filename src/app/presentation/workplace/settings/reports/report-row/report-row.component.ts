@@ -66,6 +66,8 @@ export class ReportRowComponent implements OnDestroy {
   availableSources = REPORT_DATA_SOURCES;
   editSourceId = 'schedule';
   editDataSetIds: string[] = ['work'];
+  editMergeRows = false;
+  editShowFullPeriod = false;
 
   previewGroupId = '';
   previewClientId = '';
@@ -146,6 +148,8 @@ export class ReportRowComponent implements OnDestroy {
     this.editDescription = this.data.description;
     this.editOrientation = this.data.pageSetup?.orientation ?? ReportOrientation.Landscape;
     this.editSourceId = this.data.sourceId || 'schedule';
+    this.editMergeRows = this.data.mergeRows ?? false;
+    this.editShowFullPeriod = this.data.showFullPeriod ?? false;
     this.editDataSetIds = this.data.dataSetIds?.length
       ? [...this.data.dataSetIds]
       : [(this.data as any).dataSetId || 'work'];
@@ -220,6 +224,8 @@ export class ReportRowComponent implements OnDestroy {
         type: ReportType.Schedule,
         sourceId: this.editSourceId,
         dataSetIds: [...this.editDataSetIds],
+        mergeRows: this.editMergeRows,
+        showFullPeriod: this.editShowFullPeriod,
         pageSetup: {
           ...this.editTemplate.pageSetup,
           orientation: this.editOrientation
@@ -273,6 +279,8 @@ export class ReportRowComponent implements OnDestroy {
           name: this.editName.trim(),
           sourceId: this.editSourceId,
           dataSetIds: [...this.editDataSetIds],
+          mergeRows: this.editMergeRows,
+          showFullPeriod: this.editShowFullPeriod,
           pageSetup: {
             ...this.editTemplate.pageSetup,
             orientation: this.editOrientation

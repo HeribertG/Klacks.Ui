@@ -72,6 +72,23 @@
                 </option>
               </select>
             </div>
+
+            @if (editSourceId === 'schedule') {
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="mergeRows"
+                       [(ngModel)]="editMergeRows" />
+                <label class="form-check-label" for="mergeRows">
+                  {{ "setting.report.field.mergeRows" | translate }}
+                </label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="showFullPeriod"
+                       [(ngModel)]="editShowFullPeriod" />
+                <label class="form-check-label" for="showFullPeriod">
+                  {{ "setting.report.field.showFullPeriod" | translate }}
+                </label>
+              </div>
+            }
           </div>
         </ng-template>
       </li>

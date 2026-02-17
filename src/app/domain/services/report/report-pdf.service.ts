@@ -13,6 +13,7 @@ import { ReportField, ReportFieldType, TextAlignment } from '../../models/report
 import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
+import { IScheduleCell } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
@@ -90,21 +91,26 @@ export class ReportPdfService {
       yPos += 5;
     }
 
+    let effectiveRows = rows;
+    if (template.sourceId === 'schedule' && template.showFullPeriod) {
+      effectiveRows = this.fillFullPeriod(effectiveRows, headerContext.startDate!, headerContext.endDate!);
+    }
+
     const bodySections = template.sections
       .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
       .sort((a, b) => a.sortOrder - b.sortOrder);
 
     for (const section of bodySections) {
       if (!section.visible || section.fields.length === 0) continue;
-      if (rows.length > 0) {
-        yPos = this.renderTable(doc, section, rows, provider, template, yPos, marginLeft, contentWidth);
+      if (effectiveRows.length > 0) {
+        yPos = this.renderTable(doc, section, effectiveRows, provider, template, yPos, marginLeft, contentWidth);
         yPos += 5;
       }
     }
 
     const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
     if (footerSection?.visible && footerSection.fields.length > 0) {
-      this.renderFooter(doc, footerSection, rows, provider, template, yPos, marginLeft, contentWidth);
+      this.renderFooter(doc, footerSection, effectiveRows, provider, template, yPos, marginLeft, contentWidth);
     }
   }
 
@@ -318,6 +324,7 @@ export class ReportPdfService {
       }]);
     }
 
+    const resolvedRows: { row: Record<string, string>; sourceEntry: any }[] = [];
     for (const entry of rows) {
       const row: Record<string, string> = {};
       const formulaVars = compiledFormulas.size > 0 && provider.buildFormulaVariables
@@ -353,7 +360,43 @@ export class ReportPdfService {
           row[f.dataBinding] = primary;
         }
       });
-      bodyData.push(row);
+      resolvedRows.push({ row, sourceEntry: entry });
+    }
+
+    const shouldMerge = (template.mergeRows || template.showFullPeriod) && template.sourceId === 'schedule';
+    if (shouldMerge) {
+      const groups = new Map<string, Record<string, string>[]>();
+      const groupOrder: string[] = [];
+      for (const { row, sourceEntry } of resolvedRows) {
+        const key = sourceEntry.entryDate ? new Date(sourceEntry.entryDate).toDateString() : '';
+        if (!groups.has(key)) {
+          groups.set(key, []);
+          groupOrder.push(key);
+        }
+        groups.get(key)!.push(row);
+      }
+      for (const key of groupOrder) {
+        const groupRows = groups.get(key)!;
+        if (groupRows.length === 1) {
+          bodyData.push(groupRows[0]);
+        } else {
+          const merged: Record<string, string> = {};
+          for (const f of fields) {
+            const values = groupRows.map(r => r[f.dataBinding]);
+            const unique = [...new Set(values.filter(v => v))];
+            if (unique.length <= 1) {
+              merged[f.dataBinding] = unique[0] ?? '';
+            } else {
+              merged[f.dataBinding] = values.filter(v => v).join('\n');
+            }
+          }
+          bodyData.push(merged);
+        }
+      }
+    } else {
+      for (const { row } of resolvedRows) {
+        bodyData.push(row);
+      }
     }
 
     const afterRows = (section.freeTextRows ?? []).filter(r => r.position === 'after');
@@ -590,5 +633,42 @@ export class ReportPdfService {
     if (bold) return 'bold';
     if (italic) return 'italic';
     return 'normal';
+  }
+
+  private fillFullPeriod(rows: any[], startDate: string, endDate: string): any[] {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const rowsByDate = new Map<string, any[]>();
+
+    for (const row of rows) {
+      const key = new Date(row.entryDate).toDateString();
+      if (!rowsByDate.has(key)) rowsByDate.set(key, []);
+      rowsByDate.get(key)!.push(row);
+    }
+
+    const result: any[] = [];
+    const current = new Date(start);
+    while (current <= end) {
+      const key = current.toDateString();
+      const dayRows = rowsByDate.get(key);
+      if (dayRows) {
+        result.push(...dayRows);
+      } else {
+        result.push({
+          entryDate: new Date(current),
+          startTime: '',
+          endTime: '',
+          changeTime: null,
+          surcharges: null,
+          amount: null,
+          entryName: null,
+          abbreviation: null,
+          information: null,
+        } as Partial<IScheduleCell>);
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    return result;
   }
 }

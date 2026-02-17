@@ -9,6 +9,8 @@ export interface ReportTemplate {
   dataSetIds?: string[];
   pageSetup: ReportPageSetup;
   sections: ReportSection[];
+  mergeRows?: boolean;
+  showFullPeriod?: boolean;
   isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

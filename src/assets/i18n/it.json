@@ -906,6 +906,8 @@
   "setting.report.field.type": "Tipo",
   "setting.report.field.description": "Descrizione",
   "setting.report.field.orientation": "Orientamento",
+  "setting.report.field.mergeRows": "Raggruppare le voci per giorno",
+  "setting.report.field.showFullPeriod": "Mostra periodo completo (tutti i giorni)",
   "setting.report.orientation.portrait": "Verticale",
   "setting.report.orientation.landscape": "Orizzontale",
   "setting.report.preview.group": "Gruppo",

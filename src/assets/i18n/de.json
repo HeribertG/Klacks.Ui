@@ -897,6 +897,8 @@
   "setting.report.field.type": "Typ",
   "setting.report.field.description": "Beschreibung",
   "setting.report.field.orientation": "Ausrichtung",
+  "setting.report.field.mergeRows": "Einträge pro Tag zusammenfassen",
+  "setting.report.field.showFullPeriod": "Volle Periode anzeigen (alle Tage)",
   "setting.report.orientation.portrait": "Hochformat",
   "setting.report.orientation.landscape": "Querformat",
   "setting.report.preview.group": "Gruppe",

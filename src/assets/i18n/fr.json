@@ -906,6 +906,8 @@
   "setting.report.field.type": "Type",
   "setting.report.field.description": "Description",
   "setting.report.field.orientation": "Orientation",
+  "setting.report.field.mergeRows": "Regrouper les entrées par jour",
+  "setting.report.field.showFullPeriod": "Afficher la période complète (tous les jours)",
   "setting.report.orientation.portrait": "Portrait",
   "setting.report.orientation.landscape": "Paysage",
   "setting.report.preview.group": "Groupe",
