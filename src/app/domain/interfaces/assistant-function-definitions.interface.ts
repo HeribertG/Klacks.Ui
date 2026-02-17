@@ -1,37 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export interface ILLMFunctionParameter {
+export interface IAssistantFunctionParameter {
   name: string;
   type: 'string' | 'number' | 'boolean' | 'array' | 'object';
   description: string;
   required: boolean;
   enum?: string[];
-  properties?: Record<string, ILLMFunctionParameter>;
-  items?: ILLMFunctionParameter;
+  properties?: Record<string, IAssistantFunctionParameter>;
+  items?: IAssistantFunctionParameter;
 }
 
-export interface ILLMFunctionDefinition {
+export interface IAssistantFunctionDefinition {
   name: string;
   description: string;
-  parameters: ILLMFunctionParameter[];
+  parameters: IAssistantFunctionParameter[];
   category: 'navigation' | 'form' | 'data' | 'system' | 'utility' | 'backend' | 'ui';
   requiresAuth?: boolean;
   permissions?: string[];
 }
 
-export interface ILLMFunctionCall {
+export interface IAssistantFunctionCall {
   id: string;
   name: string;
   arguments: Record<string, any>;
 }
 
-export interface ILLMFunctionResult {
+export interface IAssistantFunctionResult {
   id: string;
   success: boolean;
   result?: any;
   error?: string;
 }
 
-export interface ILLMToolDefinition {
+export interface IAssistantToolDefinition {
   type: 'function';
   function: {
     name: string;
@@ -44,7 +44,7 @@ export interface ILLMToolDefinition {
   };
 }
 
-export interface ILLMToolCall {
+export interface IAssistantToolCall {
   id: string;
   type: 'function';
   function: {
@@ -53,12 +53,12 @@ export interface ILLMToolCall {
   };
 }
 
-export interface ILLMToolResponse {
+export interface IAssistantToolResponse {
   tool_call_id: string;
   content: string;
 }
 
-export interface ILlmFunctionDefinitionDto {
+export interface IAssistantFunctionDefinitionDto {
   id: string;
   name: string;
   description: string;

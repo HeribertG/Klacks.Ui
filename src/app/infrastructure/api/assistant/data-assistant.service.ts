@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-export interface ILLMChatRequest {
+export interface IAssistantChatRequest {
   message: string;
   conversationId?: string;
   modelId?: string;
@@ -13,7 +13,7 @@ export interface ILLMChatRequest {
   context?: any;
 }
 
-export interface ILLMChatResponse {
+export interface IAssistantChatResponse {
   message: string;
   conversationId: string;
   suggestions?: string[];
@@ -29,7 +29,7 @@ export interface ILLMChatResponse {
   };
 }
 
-export interface ILLMModel {
+export interface IAssistantModel {
   id?: string;
   modelId: string;
   apiModelId?: string;
@@ -51,7 +51,7 @@ export interface ILLMModel {
   maxOutputTokens?: number;
 }
 
-export interface ILLMUsage {
+export interface IAssistantUsage {
   totalCost: number;
   totalInputTokens: number;
   totalOutputTokens: number;
@@ -64,14 +64,14 @@ export interface ILLMUsage {
   }[];
 }
 
-export interface ILLMFunction {
+export interface IAssistantFunction {
   name: string;
   description: string;
   parameters: any;
   isAvailable: boolean;
 }
 
-export interface ILLMHelp {
+export interface IAssistantHelp {
   description: string;
   examples: {
     title: string;
@@ -84,26 +84,26 @@ export interface ILLMHelp {
 @Injectable({
   providedIn: 'root',
 })
-export class DataLLMService {
+export class DataAssistantService {
   private httpClient = inject(HttpClient);
   private readonly baseUrl =
     environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
-  chat(request: ILLMChatRequest): Observable<ILLMChatResponse> {
+  chat(request: IAssistantChatRequest): Observable<IAssistantChatResponse> {
     return this.httpClient
-      .post<ILLMChatResponse>(`${this.baseUrl}chat`, request)
+      .post<IAssistantChatResponse>(`${this.baseUrl}chat`, request)
       .pipe(retry(3));
   }
 
-  getModels(): Observable<ILLMModel[]> {
+  getModels(): Observable<IAssistantModel[]> {
     return this.httpClient
-      .get<ILLMModel[]>(`${this.baseUrl}models`)
+      .get<IAssistantModel[]>(`${this.baseUrl}models`)
       .pipe(retry(3));
   }
 
-  updateModel(id: string, updates: Partial<ILLMModel>): Observable<ILLMModel> {
+  updateModel(id: string, updates: Partial<IAssistantModel>): Observable<IAssistantModel> {
     return this.httpClient
-      .put<ILLMModel>(`${this.baseUrl}models/${id}`, updates)
+      .put<IAssistantModel>(`${this.baseUrl}models/${id}`, updates)
       .pipe(retry(3));
   }
 
@@ -125,29 +125,29 @@ export class DataLLMService {
       .pipe(retry(3));
   }
 
-  getUsage(days = 30): Observable<ILLMUsage> {
+  getUsage(days = 30): Observable<IAssistantUsage> {
     return this.httpClient
-      .get<ILLMUsage>(`${this.baseUrl}usage`, {
+      .get<IAssistantUsage>(`${this.baseUrl}usage`, {
         params: { days: days.toString() },
       })
       .pipe(retry(3));
   }
 
-  getFunctions(): Observable<ILLMFunction[]> {
+  getFunctions(): Observable<IAssistantFunction[]> {
     return this.httpClient
-      .get<ILLMFunction[]>(`${this.baseUrl}chat/functions`)
+      .get<IAssistantFunction[]>(`${this.baseUrl}chat/functions`)
       .pipe(retry(3));
   }
 
-  getHelp(): Observable<ILLMHelp> {
+  getHelp(): Observable<IAssistantHelp> {
     return this.httpClient
-      .get<ILLMHelp>(`${this.baseUrl}chat/help`)
+      .get<IAssistantHelp>(`${this.baseUrl}chat/help`)
       .pipe(retry(3));
   }
 
-  createModel(model: ILLMModel): Observable<ILLMModel> {
+  createModel(model: IAssistantModel): Observable<IAssistantModel> {
     return this.httpClient
-      .post<ILLMModel>(`${this.baseUrl}models`, model)
+      .post<IAssistantModel>(`${this.baseUrl}models`, model)
       .pipe(retry(3));
   }
 

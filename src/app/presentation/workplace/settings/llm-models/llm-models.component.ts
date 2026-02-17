@@ -15,10 +15,10 @@ import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
@@ -61,19 +61,19 @@ interface LLMModelFormModel {
 export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
 
-  private llmService = inject(DataManagementLLMService);
-  private providerService = inject(DataManagementLLMProviderService);
+  private llmService = inject(DataManagementAssistantService);
+  private providerService = inject(DataManagementAssistantProviderService);
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
-  models: ILLMModel[] = [];
-  availableProviders: ILLMProvider[] = [];
+  models: IAssistantModel[] = [];
+  availableProviders: IAssistantProvider[] = [];
   isLoading = false;
-  editingModel: ILLMModel | null = null;
-  private originalModel: ILLMModel | null = null;
+  editingModel: IAssistantModel | null = null;
+  private originalModel: IAssistantModel | null = null;
 
   isNewModel = false;
   message = MessageLibrary.DELETE_ENTRY;
@@ -166,22 +166,22 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
               providerId: 'openai',
               providerName: 'OpenAI',
               isEnabled: true,
-            } as ILLMProvider,
+            } as IAssistantProvider,
             {
               providerId: 'anthropic',
               providerName: 'Anthropic',
               isEnabled: true,
-            } as ILLMProvider,
+            } as IAssistantProvider,
             {
               providerId: 'google',
               providerName: 'Google',
               isEnabled: true,
-            } as ILLMProvider,
+            } as IAssistantProvider,
             {
               providerId: 'deepseek',
               providerName: 'DeepSeek',
               isEnabled: true,
-            } as ILLMProvider,
+            } as IAssistantProvider,
           ];
         },
       });
@@ -215,7 +215,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 0);
   }
 
-  private initFormFromModel(model: ILLMModel): void {
+  private initFormFromModel(model: IAssistantModel): void {
     this.formModel.set({
       modelId: model.modelId || '',
       modelName: model.modelName || '',
@@ -258,7 +258,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onClickEdit(model: ILLMModel): void {
+  onClickEdit(model: IAssistantModel): void {
     this.isNewModel = false;
     this.editingModel = { ...model };
     this.originalModel = model;
@@ -272,7 +272,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 0);
   }
 
-  openDeleteModel(model: ILLMModel): void {
+  openDeleteModel(model: IAssistantModel): void {
     if (model.id) {
       this.modalService.Filing = '';
       this.modalService.componentContext = 'llm-models';

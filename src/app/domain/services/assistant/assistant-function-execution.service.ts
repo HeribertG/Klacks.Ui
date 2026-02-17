@@ -4,35 +4,35 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import {
-  ILLMFunctionCall,
-  ILLMFunctionResult,
-} from '../../interfaces/llm-function-definitions.interface';
-import { LLMFunctionRegistryService } from './llm-function-registry.service';
-import { LlmExecutionNavigationService } from './llm-execution-navigation.service';
-import { LlmExecutionDataService } from './llm-execution-data.service';
-import { LlmExecutionSettingsService } from './llm-execution-settings.service';
-import { LlmExecutionUserAdminService } from './llm-execution-user-admin.service';
-import { LlmExecutionBranchService } from './llm-execution-branch.service';
-import { LlmExecutionMacroService } from './llm-execution-macro.service';
-import { LlmExecutionClientService } from './llm-execution-client.service';
+  IAssistantFunctionCall,
+  IAssistantFunctionResult,
+} from '../../interfaces/assistant-function-definitions.interface';
+import { AssistantFunctionRegistryService } from './assistant-function-registry.service';
+import { AssistantExecutionNavigationService } from './assistant-execution-navigation.service';
+import { AssistantExecutionDataService } from './assistant-execution-data.service';
+import { AssistantExecutionSettingsService } from './assistant-execution-settings.service';
+import { AssistantExecutionUserAdminService } from './assistant-execution-user-admin.service';
+import { AssistantExecutionBranchService } from './assistant-execution-branch.service';
+import { AssistantExecutionMacroService } from './assistant-execution-macro.service';
+import { AssistantExecutionClientService } from './assistant-execution-client.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
-export class LLMFunctionExecutionService {
+export class AssistantFunctionExecutionService {
   private httpClient = inject(HttpClient);
-  private functionRegistry = inject(LLMFunctionRegistryService);
-  private navigationService = inject(LlmExecutionNavigationService);
-  private dataService = inject(LlmExecutionDataService);
-  private settingsService = inject(LlmExecutionSettingsService);
-  private userAdminService = inject(LlmExecutionUserAdminService);
-  private branchService = inject(LlmExecutionBranchService);
-  private macroService = inject(LlmExecutionMacroService);
-  private clientService = inject(LlmExecutionClientService);
+  private functionRegistry = inject(AssistantFunctionRegistryService);
+  private navigationService = inject(AssistantExecutionNavigationService);
+  private dataService = inject(AssistantExecutionDataService);
+  private settingsService = inject(AssistantExecutionSettingsService);
+  private userAdminService = inject(AssistantExecutionUserAdminService);
+  private branchService = inject(AssistantExecutionBranchService);
+  private macroService = inject(AssistantExecutionMacroService);
+  private clientService = inject(AssistantExecutionClientService);
   private readonly apiBaseUrl = environment.baseUrl;
 
   executeFunction(
-    functionCall: ILLMFunctionCall
-  ): Observable<ILLMFunctionResult> {
+    functionCall: IAssistantFunctionCall
+  ): Observable<IAssistantFunctionResult> {
     switch (functionCall.name) {
       case 'navigateToPage':
         return this.navigationService.executeNavigateToPage(functionCall);
@@ -122,8 +122,8 @@ export class LLMFunctionExecutionService {
   }
 
   executeFunctions(
-    functionCalls: ILLMFunctionCall[]
-  ): Observable<ILLMFunctionResult[]> {
+    functionCalls: IAssistantFunctionCall[]
+  ): Observable<IAssistantFunctionResult[]> {
     return from(functionCalls).pipe(
       switchMap((call) => this.executeFunction(call)),
       map((result) => [result]),
@@ -140,8 +140,8 @@ export class LLMFunctionExecutionService {
   }
 
   private executeBackendFunction(
-    call: ILLMFunctionCall
-  ): Observable<ILLMFunctionResult> {
+    call: IAssistantFunctionCall
+  ): Observable<IAssistantFunctionResult> {
     return this.httpClient
       .post<{
         success: boolean;

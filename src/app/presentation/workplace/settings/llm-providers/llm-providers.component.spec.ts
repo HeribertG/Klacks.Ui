@@ -6,10 +6,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { LLMProvidersComponent } from './llm-providers.component';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { signal } from '@angular/core';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
@@ -23,7 +23,7 @@ describe('LLMProvidersComponent', () => {
     let mockModalService: ModalService;
     let mockTranslateService: any;
 
-    const mockProviders: ILLMProvider[] = [
+    const mockProviders: IAssistantProvider[] = [
         {
             id: '1',
             providerId: 'openai',
@@ -96,10 +96,10 @@ describe('LLMProvidersComponent', () => {
             imports: [LLMProvidersComponent, TranslateModule.forRoot()],
             providers: [
                 {
-                    provide: DataManagementLLMProviderService,
+                    provide: DataManagementAssistantProviderService,
                     useValue: providerServiceSpy,
                 },
-                { provide: DataManagementLLMService, useValue: llmServiceSpy },
+                { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: NgbModal, useValue: ngbModalSpy },
                 ModalService,
@@ -107,8 +107,8 @@ describe('LLMProvidersComponent', () => {
             ],
         }).compileComponents();
 
-        mockProviderService = TestBed.inject(DataManagementLLMProviderService) as any;
-        mockLLMService = TestBed.inject(DataManagementLLMService) as any;
+        mockProviderService = TestBed.inject(DataManagementAssistantProviderService) as any;
+        mockLLMService = TestBed.inject(DataManagementAssistantService) as any;
         mockToastService = TestBed.inject(ToastShowService) as any;
         mockNgbModal = TestBed.inject(NgbModal) as any;
         mockModalService = TestBed.inject(ModalService);
@@ -217,7 +217,7 @@ describe('LLMProvidersComponent', () => {
 
         it('should not open delete modal if provider has no id', () => {
             // Arrange
-            const providerWithoutId: ILLMProvider = {
+            const providerWithoutId: IAssistantProvider = {
                 id: '',
                 providerId: 'test',
                 providerName: 'Test',

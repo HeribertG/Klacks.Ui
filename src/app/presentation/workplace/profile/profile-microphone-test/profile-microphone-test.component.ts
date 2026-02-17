@@ -9,7 +9,7 @@ import {
   faPlay,
   faStop,
 } from '@fortawesome/free-solid-svg-icons';
-import { SpeechRecognitionService } from 'src/app/presentation/aside/llm-chat/services/speech-recognition.service';
+import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { Subscription } from 'rxjs';
 
 interface TestResult {

@@ -2,21 +2,21 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  ILLMFunctionDefinition,
-  ILLMFunctionCall,
-  ILLMToolDefinition,
-  ILlmFunctionDefinitionDto,
-  ILLMFunctionParameter,
-} from '../../interfaces/llm-function-definitions.interface';
-import { LlmFunctionDefinitionApiService } from './llm-function-definition-api.service';
+  IAssistantFunctionDefinition,
+  IAssistantFunctionCall,
+  IAssistantToolDefinition,
+  IAssistantFunctionDefinitionDto,
+  IAssistantFunctionParameter,
+} from '../../interfaces/assistant-function-definitions.interface';
+import { AssistantFunctionDefinitionApiService } from './assistant-function-definition-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class LLMFunctionRegistryService {
+export class AssistantFunctionRegistryService {
   private router = inject(Router);
-  private functionDefinitionApi = inject(LlmFunctionDefinitionApiService);
-  private registeredFunctions = new Map<string, ILLMFunctionDefinition>();
+  private functionDefinitionApi = inject(AssistantFunctionDefinitionApiService);
+  private registeredFunctions = new Map<string, IAssistantFunctionDefinition>();
   private backendLoaded = false;
 
   constructor() {
@@ -41,9 +41,9 @@ export class LLMFunctionRegistryService {
     });
   }
 
-  private registerFromBackendDefinition(dto: ILlmFunctionDefinitionDto): void {
-    const parameters: ILLMFunctionParameter[] = JSON.parse(dto.parametersJson || '[]');
-    const category = dto.category as ILLMFunctionDefinition['category'];
+  private registerFromBackendDefinition(dto: IAssistantFunctionDefinitionDto): void {
+    const parameters: IAssistantFunctionParameter[] = JSON.parse(dto.parametersJson || '[]');
+    const category = dto.category as IAssistantFunctionDefinition['category'];
 
     this.registerFunction({
       name: dto.name,
@@ -276,23 +276,23 @@ export class LLMFunctionRegistryService {
     });
   }
 
-  registerFunction(definition: ILLMFunctionDefinition): void {
+  registerFunction(definition: IAssistantFunctionDefinition): void {
     this.registeredFunctions.set(definition.name, definition);
   }
 
-  getFunction(name: string): ILLMFunctionDefinition | undefined {
+  getFunction(name: string): IAssistantFunctionDefinition | undefined {
     return this.registeredFunctions.get(name);
   }
 
-  getAllFunctions(): ILLMFunctionDefinition[] {
+  getAllFunctions(): IAssistantFunctionDefinition[] {
     return Array.from(this.registeredFunctions.values());
   }
 
-  getFunctionsByCategory(category: string): ILLMFunctionDefinition[] {
+  getFunctionsByCategory(category: string): IAssistantFunctionDefinition[] {
     return this.getAllFunctions().filter((f) => f.category === category);
   }
 
-  convertToToolDefinitions(): ILLMToolDefinition[] {
+  convertToToolDefinitions(): IAssistantToolDefinition[] {
     return this.getAllFunctions().map((func) => ({
       type: 'function',
       function: {
@@ -316,7 +316,7 @@ export class LLMFunctionRegistryService {
     }));
   }
 
-  validateFunctionCall(functionCall: ILLMFunctionCall): {
+  validateFunctionCall(functionCall: IAssistantFunctionCall): {
     valid: boolean;
     error?: string;
   } {

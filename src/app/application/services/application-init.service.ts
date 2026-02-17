@@ -5,7 +5,7 @@ import { DataSettingsVariousService } from '../../infrastructure/api/settings/da
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-various-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -17,7 +17,7 @@ export class ApplicationInitService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
-  private llmService = inject(DataManagementLLMService);
+  private assistantService = inject(DataManagementAssistantService);
   private destroy$ = new Subject<void>();
 
   public initialize(): void {
@@ -25,7 +25,7 @@ export class ApplicationInitService {
     this.loadIconsAndTitle();
     
     // Initialize LLM models after successful authentication
-    this.llmService.initializeLLMModels();
+    this.assistantService.initializeAssistantModels();
   }
 
   public initializeBasics(): void {

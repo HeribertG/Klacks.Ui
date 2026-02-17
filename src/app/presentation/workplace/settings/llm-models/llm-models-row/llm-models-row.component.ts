@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
+import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 
 @Component({
   selector: 'app-llm-models-row',
@@ -14,9 +14,9 @@ import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
 export class LLMModelsRowComponent {
   translate = inject(TranslateService);
 
-  @Input() data!: ILLMModel;
-  @Output() editEvent = new EventEmitter<ILLMModel>();
-  @Output() isDeleteEvent = new EventEmitter<ILLMModel>();
+  @Input() data!: IAssistantModel;
+  @Output() editEvent = new EventEmitter<IAssistantModel>();
+  @Output() isDeleteEvent = new EventEmitter<IAssistantModel>();
 
   onClickEdit(): void {
     this.editEvent.emit(this.data);

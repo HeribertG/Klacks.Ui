@@ -1,4 +1,4 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+﻿<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Chat Container - Integrated -->
 <div class="chat-container-integrated">
@@ -10,10 +10,10 @@
     </div>
     <div class="warning-content">
       <h3 class="warning-title">
-        {{ "llm-chat.initializing.title" | translate }}
+        {{ "assistant-chat.initializing.title" | translate }}
       </h3>
       <p class="warning-message">
-        {{ "llm-chat.initializing.message" | translate }}
+        {{ "assistant-chat.initializing.message" | translate }}
       </p>
     </div>
   </div>
@@ -22,13 +22,13 @@
   <!-- No API Key Warning -->
   @if (!isInitializing() && hasNoApiKey()) {
   <div class="no-api-key-warning" role="alert" aria-live="polite">
-    <div class="warning-icon">⚠️</div>
+    <div class="warning-icon">âš ï¸</div>
     <div class="warning-content">
       <h3 class="warning-title">
-        {{ "llm-chat.no-api-key.title" | translate }}
+        {{ "assistant-chat.no-api-key.title" | translate }}
       </h3>
       <p class="warning-message">
-        {{ "llm-chat.no-api-key.message" | translate }}
+        {{ "assistant-chat.no-api-key.message" | translate }}
       </p>
     </div>
   </div>
@@ -40,13 +40,13 @@
       type="button"
       class="model-dropdown"
       (click)="toggleModelDropdown()"
-      [attr.aria-label]="'llm-chat.select-model' | translate"
+      [attr.aria-label]="'assistant-chat.select-model' | translate"
       [attr.aria-expanded]="showModelDropdown"
     >
       <div class="current-model">
         <span class="model-name">{{
           getCurrentModelInfo()?.displayName ||
-            ("llm-chat.select-model" | translate)
+            ("assistant-chat.select-model" | translate)
         }}</span>
         @if (getCurrentModelInfo()) {
         <span class="model-cost">
@@ -90,7 +90,7 @@
     </button>
   </div>
   <!-- Messages Area -->
-  <div id="llm-chat-messages" class="messages-container" #messagesContainer>
+  <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
       @for (message of messages; track message.id) {
       <div class="message-wrapper" [class]="message.sender">
@@ -118,9 +118,9 @@
             type="button"
             class="action-btn navigate-btn"
             (click)="onNavigateClick(message.navigateTo!)"
-            [attr.aria-label]="'llm-chat.open' | translate"
+            [attr.aria-label]="'assistant-chat.open' | translate"
           >
-            📍 {{ "llm-chat.open" | translate }}
+            ðŸ“ {{ "assistant-chat.open" | translate }}
           </button>
           }
 
@@ -169,15 +169,15 @@
     @if (speechService.isWhisperLoading()) {
     <div class="whisper-loading-indicator">
       <span class="loading-spinner"></span>
-      {{ "llm-chat.whisper-loading" | translate }} {{ speechService.whisperLoadProgress() }}%
+      {{ "assistant-chat.whisper-loading" | translate }} {{ speechService.whisperLoadProgress() }}%
     </div>
     }
     <!-- Voice input indicator - only for Web Speech API, not for Whisper -->
     @if (isListening && !speechService.isWhisperLoading() && !isUsingWhisper()) {
-    <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
+    <div class="voice-indicator">ðŸŽ¤ {{ "assistant-chat.speak-now" | translate }}</div>
     } @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">
-      ⚠️ {{ "llm-chat.speech-not-supported" | translate }}
+      âš ï¸ {{ "assistant-chat.speech-not-supported" | translate }}
     </div>
     }
 
@@ -194,10 +194,10 @@
         (click)="toggleVoiceMode()"
         title="{{
           !speechService.isSupported$()
-            ? ('llm-chat.speech-not-available' | translate)
+            ? ('assistant-chat.speech-not-available' | translate)
             : voiceModeEnabled
-            ? ('llm-chat.voice-mode-off' | translate)
-            : ('llm-chat.voice-mode-on' | translate)
+            ? ('assistant-chat.voice-mode-off' | translate)
+            : ('assistant-chat.voice-mode-on' | translate)
         }}"
       >
         @if (isTranscribing || speechService.isTranscribing()) {
@@ -215,12 +215,12 @@
 
       <!-- Text input -->
       <textarea
-        id="llm-chat-input"
+        id="assistant-chat-input"
         class="input-field"
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
         [disabled]="isProcessing || isInitializing() || hasNoApiKey()"
-        placeholder="{{ 'llm-chat.placeholder' | translate }}"
+        placeholder="{{ 'assistant-chat.placeholder' | translate }}"
         rows="1"
         #textInput
       >
@@ -228,15 +228,16 @@
 
       <!-- Send button -->
       <button
-        id="llm-chat-send-btn"
+        id="assistant-chat-send-btn"
         type="button"
         class="btn-send"
         [disabled]="!inputText.trim() || isProcessing || isInitializing() || hasNoApiKey()"
         (click)="sendMessage()"
-        [attr.aria-label]="'llm-chat.send-message' | translate"
+        [attr.aria-label]="'assistant-chat.send-message' | translate"
       >
         <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
       </button>
     </div>
   </div>
 </div>
+

@@ -20,9 +20,9 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
 import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { IAssistantProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
@@ -60,14 +60,14 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
-  private providerService = inject(DataManagementLLMProviderService);
-  private llmService = inject(DataManagementLLMService);
+  private providerService = inject(DataManagementAssistantProviderService);
+  private llmService = inject(DataManagementAssistantService);
   private destroy$ = new Subject<void>();
 
-  providers: ILLMProvider[] = [];
+  providers: IAssistantProvider[] = [];
   isLoading = this.providerService.isLoading;
-  editingProvider: ILLMProvider | null = null;
-  private originalProvider: ILLMProvider | null = null;
+  editingProvider: IAssistantProvider | null = null;
+  private originalProvider: IAssistantProvider | null = null;
 
   isNewProvider = false;
   message = MessageLibrary.DELETE_ENTRY;
@@ -151,7 +151,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 0);
   }
 
-  onClickEdit(provider: ILLMProvider): void {
+  onClickEdit(provider: IAssistantProvider): void {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
     this.originalProvider = provider;
@@ -165,7 +165,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 0);
   }
 
-  private initFormFromProvider(provider: ILLMProvider, apiKey = ''): void {
+  private initFormFromProvider(provider: IAssistantProvider, apiKey = ''): void {
     this.formModel.set({
       providerId: provider.providerId || '',
       providerName: provider.providerName || '',
@@ -195,7 +195,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  openDeleteProvider(provider: ILLMProvider): void {
+  openDeleteProvider(provider: IAssistantProvider): void {
     if (provider.id) {
       this.modalService.Filing = '';
       this.modalService.componentContext = 'llm-providers';
@@ -283,7 +283,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  canDeleteProvider(provider: ILLMProvider): boolean {
+  canDeleteProvider(provider: IAssistantProvider): boolean {
     const defaultModel = this.llmService.getDefaultModel();
     return !defaultModel || defaultModel.providerId !== provider.providerId;
   }
@@ -359,7 +359,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.translate.instant('settings.llm-providers.status.disabled');
   }
 
-  hasApiKey(provider: ILLMProvider): boolean {
+  hasApiKey(provider: IAssistantProvider): boolean {
     return !!provider.hasApiKey;
   }
 }

@@ -1,20 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { DataLLMService, ILLMChatRequest, ILLMChatResponse, ILLMModel, ILLMUsage, ILLMFunction, ILLMHelp } from './data-llm.service';
+import { DataAssistantService, IAssistantChatRequest, IAssistantChatResponse, IAssistantModel, IAssistantUsage, IAssistantFunction, IAssistantHelp } from './data-assistant.service';
 import { environment } from 'src/environments/environment';
 
-describe('DataLLMService', () => {
-    let service: DataLLMService;
+describe('DataAssistantService', () => {
+    let service: DataAssistantService;
     let httpMock: HttpTestingController;
     let baseUrl: string;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [DataLLMService]
+            providers: [DataAssistantService]
         });
-        service = TestBed.inject(DataLLMService);
+        service = TestBed.inject(DataAssistantService);
         httpMock = TestBed.inject(HttpTestingController);
         baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
     });
@@ -30,12 +30,12 @@ describe('DataLLMService', () => {
     describe('chat', () => {
         it('should send chat request and return response', () => {
             // Arrange
-            const request: ILLMChatRequest = {
+            const request: IAssistantChatRequest = {
                 message: 'Hello AI',
                 conversationId: 'conv-123',
                 modelId: 'gpt-4'
             };
-            const expectedResponse: ILLMChatResponse = {
+            const expectedResponse: IAssistantChatResponse = {
                 message: 'Hello human!',
                 conversationId: 'conv-123',
                 suggestions: ['How can I help?'],
@@ -62,7 +62,7 @@ describe('DataLLMService', () => {
 
         it('should retry on failure', async () => {
             // Arrange
-            const request: ILLMChatRequest = { message: 'Hello' };
+            const request: IAssistantChatRequest = { message: 'Hello' };
 
             // Act
             service.chat(request).subscribe({
@@ -84,7 +84,7 @@ describe('DataLLMService', () => {
     describe('getModels', () => {
         it('should fetch available models', () => {
             // Arrange
-            const expectedModels: ILLMModel[] = [
+            const expectedModels: IAssistantModel[] = [
                 {
                     id: '1',
                     modelId: 'gpt-4',
@@ -132,11 +132,11 @@ describe('DataLLMService', () => {
         it('should update model configuration', () => {
             // Arrange
             const modelId = '1';
-            const updates: Partial<ILLMModel> = {
+            const updates: Partial<IAssistantModel> = {
                 isEnabled: false,
                 maxTokens: 4000
             };
-            const expectedResponse: ILLMModel = {
+            const expectedResponse: IAssistantModel = {
                 id: '1',
                 modelId: 'gpt-4',
                 modelName: 'GPT-4',
@@ -218,7 +218,7 @@ describe('DataLLMService', () => {
 
         it('should create new model', () => {
             // Arrange
-            const newModel: ILLMModel = {
+            const newModel: IAssistantModel = {
                 modelId: 'custom-model',
                 modelName: 'Custom Model',
                 providerId: 'custom',
@@ -264,7 +264,7 @@ describe('DataLLMService', () => {
     describe('getUsage', () => {
         it('should fetch usage statistics with default days', () => {
             // Arrange
-            const expectedUsage: ILLMUsage = {
+            const expectedUsage: IAssistantUsage = {
                 totalCost: 12.50,
                 totalInputTokens: 50000,
                 totalOutputTokens: 30000,
@@ -316,7 +316,7 @@ describe('DataLLMService', () => {
     describe('getFunctions', () => {
         it('should fetch available functions', () => {
             // Arrange
-            const expectedFunctions: ILLMFunction[] = [
+            const expectedFunctions: IAssistantFunction[] = [
                 {
                     name: 'search_employees',
                     description: 'Search for clients in the database',
@@ -361,7 +361,7 @@ describe('DataLLMService', () => {
     describe('getHelp', () => {
         it('should fetch help information', () => {
             // Arrange
-            const expectedHelp: ILLMHelp = {
+            const expectedHelp: IAssistantHelp = {
                 description: 'AI Assistant for Klacks application',
                 examples: [
                     {

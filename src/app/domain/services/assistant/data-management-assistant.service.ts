@@ -4,16 +4,16 @@ import { Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, tap, switchMap, takeUntil } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  DataLLMService,
-  ILLMChatRequest,
-  ILLMChatResponse,
-  ILLMModel,
-  ILLMUsage,
-} from 'src/app/infrastructure/api/llm/data-llm.service';
+  DataAssistantService,
+  IAssistantChatRequest,
+  IAssistantChatResponse,
+  IAssistantModel,
+  IAssistantUsage,
+} from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { LLMSystemContextService } from './llm-system-context.service';
+import { AssistantSystemContextService } from './assistant-system-context.service';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -33,15 +33,15 @@ export interface IConversation {
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementLLMService {
-  private dataLLMService = inject(DataLLMService);
+export class DataManagementAssistantService {
+  private dataAssistantService = inject(DataAssistantService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
-  private systemContextService = inject(LLMSystemContextService);
+  private systemContextService = inject(AssistantSystemContextService);
   private conversations = new Map<string, IConversation>();
   private destroy$ = new Subject<void>();
 
-  public availableModels = signal<ILLMModel[]>([]);
+  public availableModels = signal<IAssistantModel[]>([]);
   public selectedModelId = signal<string>('');
   public isLoading = signal<boolean>(false);
   public currentLanguage = signal<string>('de');
@@ -57,22 +57,20 @@ export class DataManagementLLMService {
     this.currentLanguage.set(this.translateService.currentLang);
   }
 
-  public initializeLLMModels(): void {
+  public initializeAssistantModels(): void {
     this.initializeModels();
   }
 
   private initializeModels(): void {
-    this.dataLLMService
+    this.dataAssistantService
       .getModels()
       .pipe(
         tap((models) => {
           if (models && models.length > 0) {
             this.availableModels.set(models);
 
-            // Find enabled models first
             const enabledModels = models.filter((m) => m.isEnabled);
 
-            // Try to find default enabled model, otherwise take first enabled
             const defaultModel =
               enabledModels.find((m) => m.isDefault) || enabledModels[0];
             if (defaultModel) {
@@ -86,8 +84,7 @@ export class DataManagementLLMService {
           this.modelsInitialized.set(true);
         }),
         catchError(() => {
-          this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.load', code: 'LLMModelError', context: 'DataManagementLLMService.initializeModels' });
-          // Set empty array if backend fails
+          this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.load', code: 'LLMModelError', context: 'DataManagementAssistantService.initializeModels' });
           this.availableModels.set([]);
           this.selectedModelId.set('');
           this.modelsInitialized.set(true);
@@ -101,11 +98,10 @@ export class DataManagementLLMService {
   sendMessage(
     message: string,
     conversationId?: string
-  ): Observable<ILLMChatResponse> {
+  ): Observable<IAssistantChatResponse> {
     const convId = conversationId || this.generateConversationId();
     const conversation = this.getOrCreateConversation(convId);
 
-    // Add system context on first message
     if (conversation.messages.length === 0) {
       const systemMessage = this.systemContextService.formatSystemMessage();
       conversation.messages.push({
@@ -126,7 +122,7 @@ export class DataManagementLLMService {
       return throwError(() => new Error('Please select a model first.'));
     }
 
-    const request: ILLMChatRequest = {
+    const request: IAssistantChatRequest = {
       message,
       conversationId: convId,
       modelId: modelId,
@@ -142,7 +138,7 @@ export class DataManagementLLMService {
 
     this.isLoading.set(true);
 
-    return this.dataLLMService.chat(request).pipe(
+    return this.dataAssistantService.chat(request).pipe(
       switchMap((response) => {
         conversation.messages.push({
           role: 'assistant',
@@ -167,14 +163,14 @@ export class DataManagementLLMService {
         this.eventBus.emit(DomainEventType.ERROR, {
           message: 'settings.llm-models.error.communication',
           code: 'LLMCommunicationError',
-          context: 'DataManagementLLMService.sendMessage'
+          context: 'DataManagementAssistantService.sendMessage'
         });
         return throwError(() => error);
       })
     );
   }
 
-  getAvailableModels(): Observable<ILLMModel[]> {
+  getAvailableModels(): Observable<IAssistantModel[]> {
     return this.availableModels$;
   }
 
@@ -190,36 +186,36 @@ export class DataManagementLLMService {
     }
   }
 
-  getModelInfo(modelId: string): ILLMModel | undefined {
+  getModelInfo(modelId: string): IAssistantModel | undefined {
     return this.availableModels().find((m) => m.modelId === modelId);
   }
 
   enableModel(modelId: string): Observable<any> {
-    return this.dataLLMService.enableModel(modelId).pipe(
+    return this.dataAssistantService.enableModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.enable', code: 'LLMModelError', context: 'DataManagementLLMService.enableModel' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.enable', code: 'LLMModelError', context: 'DataManagementAssistantService.enableModel' });
         throw error;
       })
     );
   }
 
   disableModel(modelId: string): Observable<any> {
-    return this.dataLLMService.disableModel(modelId).pipe(
+    return this.dataAssistantService.disableModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.disable', code: 'LLMModelError', context: 'DataManagementLLMService.disableModel' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.disable', code: 'LLMModelError', context: 'DataManagementAssistantService.disableModel' });
         throw error;
       })
     );
   }
 
   setDefaultModel(modelId: string): Observable<any> {
-    return this.dataLLMService.setDefaultModel(modelId).pipe(
+    return this.dataAssistantService.setDefaultModel(modelId).pipe(
       tap(() => {
         this.initializeModels();
       }),
@@ -227,7 +223,7 @@ export class DataManagementLLMService {
         this.eventBus.emit(DomainEventType.ERROR, {
           message: 'settings.llm-models.error.set-default',
           code: 'LLMModelError',
-          context: 'DataManagementLLMService.setDefaultModel'
+          context: 'DataManagementAssistantService.setDefaultModel'
         });
         throw error;
       })
@@ -264,8 +260,8 @@ export class DataManagementLLMService {
     );
   }
 
-  getUsageStatistics(days = 30): Observable<ILLMUsage> {
-    return this.dataLLMService.getUsage(days).pipe(
+  getUsageStatistics(days = 30): Observable<IAssistantUsage> {
+    return this.dataAssistantService.getUsage(days).pipe(
       catchError(() => {
         return of({
           totalCost: 0,
@@ -282,7 +278,7 @@ export class DataManagementLLMService {
     return this.isLoading$;
   }
 
-  getDefaultModel(): ILLMModel | undefined {
+  getDefaultModel(): IAssistantModel | undefined {
     return this.availableModels().find((m) => m.isDefault);
   }
 
@@ -327,7 +323,7 @@ export class DataManagementLLMService {
   }
 
   getHelp(): Observable<any> {
-    return this.dataLLMService.getHelp().pipe(
+    return this.dataAssistantService.getHelp().pipe(
       catchError(() => {
         return of({
           description: 'AI assistant',
@@ -340,47 +336,47 @@ export class DataManagementLLMService {
   }
 
   getFunctions(): Observable<any[]> {
-    return this.dataLLMService.getFunctions().pipe(
+    return this.dataAssistantService.getFunctions().pipe(
       catchError(() => {
         return of([]);
       })
     );
   }
 
-  createModel(model: ILLMModel): Observable<ILLMModel> {
-    return this.dataLLMService.createModel(model).pipe(
+  createModel(model: IAssistantModel): Observable<IAssistantModel> {
+    return this.dataAssistantService.createModel(model).pipe(
       tap(() => {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementLLMService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementAssistantService' });
         throw error;
       })
     );
   }
 
   deleteModel(id: string): Observable<any> {
-    return this.dataLLMService.deleteModel(id).pipe(
+    return this.dataAssistantService.deleteModel(id).pipe(
       tap(() => {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.delete', code: 'LLMModelError', context: 'DataManagementLLMService.deleteModel' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.delete', code: 'LLMModelError', context: 'DataManagementAssistantService.deleteModel' });
         throw error;
       })
     );
   }
 
-  updateModel(model: ILLMModel): Observable<ILLMModel> {
+  updateModel(model: IAssistantModel): Observable<IAssistantModel> {
     if (!model.id) {
       return throwError(() => new Error('Model ID is required for update'));
     }
-    return this.dataLLMService.updateModel(model.id, model).pipe(
+    return this.dataAssistantService.updateModel(model.id, model).pipe(
       tap(() => {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementLLMService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementAssistantService' });
         throw error;
       })
     );

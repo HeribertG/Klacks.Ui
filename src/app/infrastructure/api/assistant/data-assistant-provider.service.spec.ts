@@ -1,15 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, } from '@angular/common/http/testing';
 
-import { DataLLMProviderService, ILLMProvider, ICreateProviderRequest, IUpdateProviderRequest, } from './data-llm-provider.service';
+import { DataAssistantProviderService, IAssistantProvider, ICreateProviderRequest, IUpdateProviderRequest, } from './data-assistant-provider.service';
 import { environment } from 'src/environments/environment';
 
-describe('DataLLMProviderService', () => {
-    let service: DataLLMProviderService;
+describe('DataAssistantProviderService', () => {
+    let service: DataAssistantProviderService;
     let httpMock: HttpTestingController;
     let apiUrl: string;
 
-    const mockProvider: ILLMProvider = {
+    const mockProvider: IAssistantProvider = {
         id: '1',
         providerId: 'test',
         providerName: 'Test Provider',
@@ -23,9 +23,9 @@ describe('DataLLMProviderService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
-            providers: [DataLLMProviderService],
+            providers: [DataAssistantProviderService],
         });
-        service = TestBed.inject(DataLLMProviderService);
+        service = TestBed.inject(DataAssistantProviderService);
         httpMock = TestBed.inject(HttpTestingController);
         apiUrl = `${environment.baseAssistantUrl}providers`;
     });
@@ -41,7 +41,7 @@ describe('DataLLMProviderService', () => {
     describe('getProviders', () => {
         it('should fetch all providers', () => {
             // Arrange
-            const expectedProviders: ILLMProvider[] = [
+            const expectedProviders: IAssistantProvider[] = [
                 {
                     id: '1',
                     providerId: 'openai',
@@ -98,7 +98,7 @@ describe('DataLLMProviderService', () => {
         it('should fetch specific provider', () => {
             // Arrange
             const providerId = '1';
-            const expectedProvider: ILLMProvider = {
+            const expectedProvider: IAssistantProvider = {
                 id: '1',
                 providerId: 'openai',
                 providerName: 'OpenAI',
@@ -134,7 +134,7 @@ describe('DataLLMProviderService', () => {
                 isEnabled: true,
                 priority: 3,
             };
-            const expectedResponse: ILLMProvider = {
+            const expectedResponse: IAssistantProvider = {
                 id: '3',
                 ...createRequest,
             };
@@ -165,7 +165,7 @@ describe('DataLLMProviderService', () => {
                 isEnabled: false,
                 priority: 5,
             };
-            const expectedResponse: ILLMProvider = {
+            const expectedResponse: IAssistantProvider = {
                 id: '1',
                 providerId: 'openai',
                 providerName: 'OpenAI',

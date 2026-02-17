@@ -8,7 +8,7 @@ import {
   effect,
 } from '@angular/core';
 import { AsideService } from './aside.service';
-import { LLMChatComponent } from './llm-chat/llm-chat.component';
+import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
@@ -19,14 +19,14 @@ import { FocusTrapDirective } from '../directives/focus-trap.directive';
   styleUrls: ['./aside.component.scss'],
   standalone: true,
   imports: [
-    LLMChatComponent,
+    AssistantChatComponent,
     TrashIconRedComponent,
     TranslateModule,
     FocusTrapDirective
 ],
 })
 export class AsideComponent {
-  @ViewChild(LLMChatComponent) llmChatComponent!: LLMChatComponent;
+  @ViewChild(AssistantChatComponent) assistantChatComponent!: AssistantChatComponent;
 
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
@@ -52,8 +52,8 @@ export class AsideComponent {
 
   clearChat(): void {
     setTimeout(() => {
-      if (this.llmChatComponent) {
-        this.llmChatComponent.clearChat();
+      if (this.assistantChatComponent) {
+        this.assistantChatComponent.clearChat();
       }
     }, 0);
   }

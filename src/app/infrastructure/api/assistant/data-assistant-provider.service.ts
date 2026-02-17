@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-export interface ILLMProvider {
+export interface IAssistantProvider {
   id: string;
   providerId: string;
   providerName: string;
@@ -38,31 +38,31 @@ export interface IUpdateProviderRequest {
 @Injectable({
   providedIn: 'root'
 })
-export class DataLLMProviderService {
+export class DataAssistantProviderService {
   private httpClient = inject(HttpClient);
   private readonly apiUrl = `${environment.baseAssistantUrl}providers`;
 
-  getProviders(): Observable<ILLMProvider[]> {
+  getProviders(): Observable<IAssistantProvider[]> {
     return this.httpClient
-      .get<ILLMProvider[]>(this.apiUrl)
+      .get<IAssistantProvider[]>(this.apiUrl)
       .pipe(retry(3));
   }
 
-  getProvider(id: string): Observable<ILLMProvider> {
+  getProvider(id: string): Observable<IAssistantProvider> {
     return this.httpClient
-      .get<ILLMProvider>(`${this.apiUrl}/${id}`)
+      .get<IAssistantProvider>(`${this.apiUrl}/${id}`)
       .pipe(retry(3));
   }
 
-  createProvider(request: ICreateProviderRequest): Observable<ILLMProvider> {
+  createProvider(request: ICreateProviderRequest): Observable<IAssistantProvider> {
     return this.httpClient
-      .post<ILLMProvider>(this.apiUrl, request)
+      .post<IAssistantProvider>(this.apiUrl, request)
       .pipe(retry(3));
   }
 
-  updateProvider(id: string, request: IUpdateProviderRequest): Observable<ILLMProvider> {
+  updateProvider(id: string, request: IUpdateProviderRequest): Observable<IAssistantProvider> {
     return this.httpClient
-      .put<ILLMProvider>(`${this.apiUrl}/${id}`, request)
+      .put<IAssistantProvider>(`${this.apiUrl}/${id}`, request)
       .pipe(retry(3));
   }
 

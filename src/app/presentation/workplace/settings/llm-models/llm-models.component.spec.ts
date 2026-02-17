@@ -6,11 +6,11 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, throwError } from 'rxjs';
 
 import { LLMModelsComponent } from './llm-models.component';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Subject } from 'rxjs';
 
@@ -24,7 +24,7 @@ describe('LLMModelsComponent', () => {
     let mockModalService: any;
     let mockTranslateService: any;
 
-    const mockModels: ILLMModel[] = [
+    const mockModels: IAssistantModel[] = [
         {
             id: '1',
             modelId: 'gpt-4',
@@ -56,7 +56,7 @@ describe('LLMModelsComponent', () => {
         },
     ];
 
-    const mockProviders: ILLMProvider[] = [
+    const mockProviders: IAssistantProvider[] = [
         {
             id: '1',
             providerId: 'openai',
@@ -112,9 +112,9 @@ describe('LLMModelsComponent', () => {
         await TestBed.configureTestingModule({
             imports: [LLMModelsComponent, TranslateModule.forRoot()],
             providers: [
-                { provide: DataManagementLLMService, useValue: llmServiceSpy },
+                { provide: DataManagementAssistantService, useValue: llmServiceSpy },
                 {
-                    provide: DataManagementLLMProviderService,
+                    provide: DataManagementAssistantProviderService,
                     useValue: providerServiceSpy,
                 },
                 { provide: ToastShowService, useValue: toastServiceSpy },
@@ -124,10 +124,10 @@ describe('LLMModelsComponent', () => {
             ],
         }).compileComponents();
 
-        mockLLMService = TestBed.inject(DataManagementLLMService) as any;
+        mockLLMService = TestBed.inject(DataManagementAssistantService) as any;
         mockNgbModal = TestBed.inject(NgbModal) as any;
         mockModalService = TestBed.inject(ModalService) as any;
-        mockProviderService = TestBed.inject(DataManagementLLMProviderService) as any;
+        mockProviderService = TestBed.inject(DataManagementAssistantProviderService) as any;
         mockToastService = TestBed.inject(ToastShowService) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
 
@@ -243,7 +243,7 @@ describe('LLMModelsComponent', () => {
         });
 
         it('should not delete if model has no id', () => {
-            const invalidModel = { id: undefined } as ILLMModel;
+            const invalidModel = { id: undefined } as IAssistantModel;
             component.openDeleteModel(invalidModel);
 
             expect(mockModalService.openModel).not.toHaveBeenCalled();

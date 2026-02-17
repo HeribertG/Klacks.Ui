@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { LLMFunctionRegistryService } from './llm-function-registry.service';
-import { ILLMToolDefinition } from '../../interfaces/llm-function-definitions.interface';
+import { AssistantFunctionRegistryService } from './assistant-function-registry.service';
+import { IAssistantToolDefinition } from '../../interfaces/assistant-function-definitions.interface';
 
-export interface ILLMSystemContext {
+export interface IAssistantSystemContext {
   systemPrompt: string;
   capabilities: string[];
-  availableTools: ILLMToolDefinition[];
+  availableTools: IAssistantToolDefinition[];
   examples: {
     userQuery: string;
     assistantResponse: string;
@@ -23,10 +23,10 @@ export interface ILLMSystemContext {
 @Injectable({
   providedIn: 'root',
 })
-export class LLMSystemContextService {
-  private functionRegistry = inject(LLMFunctionRegistryService);
+export class AssistantSystemContextService {
+  private functionRegistry = inject(AssistantFunctionRegistryService);
 
-  getSystemContext(): ILLMSystemContext {
+  getSystemContext(): IAssistantSystemContext {
     return {
       systemPrompt: this.getSystemPrompt(),
       capabilities: this.getCapabilities(),
@@ -334,7 +334,6 @@ VERFÜGBARE NAVIGATION:
   }
 
   private getOpenDialogs(): string[] {
-    // Would integrate with your dialog service
     const dialogs: string[] = [];
     document.querySelectorAll('.dialog-container, .modal').forEach((el) => {
       const id = el.getAttribute('id') || el.getAttribute('data-dialog-type');
@@ -395,7 +394,7 @@ ROLLEN: ${context.currentContext?.userInfo?.roles?.join(', ') || 'Keine'}
 ADMIN: ${context.currentContext?.userInfo?.isAdmin ? 'Ja' : 'Nein'}`;
   }
 
-  getToolsForLLM(): ILLMToolDefinition[] {
+  getToolsForLLM(): IAssistantToolDefinition[] {
     return this.functionRegistry.convertToToolDefinitions();
   }
 }

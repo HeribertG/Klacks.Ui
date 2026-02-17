@@ -1,32 +1,32 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { DataAssistantProviderService, IAssistantProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DataManagementLLMProviderService {
-  private dataLLMProviderService = inject(DataLLMProviderService);
+export class DataManagementAssistantProviderService {
+  private dataAssistantProviderService = inject(DataAssistantProviderService);
   private eventBus = inject(EVENT_BUS_TOKEN);
 
-  public providers = signal<ILLMProvider[]>([]);
+  public providers = signal<IAssistantProvider[]>([]);
   public isLoading = signal(false);
   public providersInitialized = signal(false);
 
   private providers$ = toObservable(this.providers);
 
-  async loadProviders(): Promise<ILLMProvider[]> {
+  async loadProviders(): Promise<IAssistantProvider[]> {
     try {
       this.isLoading.set(true);
-      const providers = await firstValueFrom(this.dataLLMProviderService.getProviders(), { defaultValue: [] });
+      const providers = await firstValueFrom(this.dataAssistantProviderService.getProviders(), { defaultValue: [] });
       this.providers.set(providers);
       return providers;
     } catch (error) {
       console.error('Error loading providers:', error);
-      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.load', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.load', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return [];
     } finally {
       this.isLoading.set(false);
@@ -34,10 +34,10 @@ export class DataManagementLLMProviderService {
     }
   }
 
-  async updateProvider(id: string, request: IUpdateProviderRequest): Promise<ILLMProvider | undefined> {
+  async updateProvider(id: string, request: IUpdateProviderRequest): Promise<IAssistantProvider | undefined> {
     try {
       const updatedProvider = await firstValueFrom(
-        this.dataLLMProviderService.updateProvider(id, request)
+        this.dataAssistantProviderService.updateProvider(id, request)
       );
 
       const currentProviders = this.providers();
@@ -50,7 +50,7 @@ export class DataManagementLLMProviderService {
       return updatedProvider;
     } catch (error) {
       console.error('Error updating provider:', error);
-      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.save', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.save', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return undefined;
     }
   }
@@ -59,14 +59,14 @@ export class DataManagementLLMProviderService {
     try {
       const currentProviders = this.providers();
       const provider = currentProviders.find(p => p.id === id);
-      
+
       if (!provider) {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.not-found', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.not-found', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
         return false;
       }
 
       if (isEnabled && !provider.hasApiKey) {
-        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.no-api-key', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.no-api-key', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
         return false;
       }
 
@@ -79,27 +79,27 @@ export class DataManagementLLMProviderService {
       };
 
       const updatedProvider = await this.updateProvider(id, request);
-      
+
       if (updatedProvider) {
-        const successKey = isEnabled 
+        const successKey = isEnabled
           ? 'settings.llm-providers.success.enable'
           : 'settings.llm-providers.success.disable';
         this.eventBus.emit(DomainEventType.SUCCESS, { message: successKey, context: 'Success' });
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error toggling provider status:', error);
-      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.toggle', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.toggle', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return false;
     }
   }
 
-  async createProvider(request: ICreateProviderRequest): Promise<ILLMProvider | undefined> {
+  async createProvider(request: ICreateProviderRequest): Promise<IAssistantProvider | undefined> {
     try {
       const newProvider = await firstValueFrom(
-        this.dataLLMProviderService.createProvider(request)
+        this.dataAssistantProviderService.createProvider(request)
       );
 
       const currentProviders = this.providers();
@@ -109,14 +109,14 @@ export class DataManagementLLMProviderService {
       return newProvider;
     } catch (error) {
       console.error('Error creating provider:', error);
-      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.create', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.create', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return undefined;
     }
   }
 
   async deleteProvider(id: string): Promise<boolean> {
     try {
-      await firstValueFrom(this.dataLLMProviderService.deleteProvider(id));
+      await firstValueFrom(this.dataAssistantProviderService.deleteProvider(id));
 
       const currentProviders = this.providers();
       const updatedProviders = currentProviders.filter(provider => provider.id !== id);
@@ -126,16 +126,16 @@ export class DataManagementLLMProviderService {
       return true;
     } catch (error) {
       console.error('Error deleting provider:', error);
-      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.delete', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.delete', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return false;
     }
   }
 
-  getCurrentProviders(): ILLMProvider[] {
+  getCurrentProviders(): IAssistantProvider[] {
     return this.providers();
   }
 
-  getProviders(): Observable<ILLMProvider[]> {
+  getProviders(): Observable<IAssistantProvider[]> {
     return this.providers$;
   }
 }

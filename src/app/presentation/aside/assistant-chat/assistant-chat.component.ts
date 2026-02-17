@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+﻿/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
@@ -29,24 +29,24 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
-import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconChatComponent } from '../../icons/icon-chat.component';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
-import { LLMFunctionRegistryService } from 'src/app/domain/services/llm/llm-function-registry.service';
-import { LlmExecutionNavigationService } from 'src/app/domain/services/llm/llm-execution-navigation.service';
-import { LlmExecutionDataService } from 'src/app/domain/services/llm/llm-execution-data.service';
-import { LlmExecutionSettingsService } from 'src/app/domain/services/llm/llm-execution-settings.service';
-import { LlmExecutionUserAdminService } from 'src/app/domain/services/llm/llm-execution-user-admin.service';
-import { LlmExecutionBranchService } from 'src/app/domain/services/llm/llm-execution-branch.service';
-import { LlmExecutionMacroService } from 'src/app/domain/services/llm/llm-execution-macro.service';
-import { LlmExecutionClientService } from 'src/app/domain/services/llm/llm-execution-client.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
+import { AssistantFunctionRegistryService } from 'src/app/domain/services/assistant/assistant-function-registry.service';
+import { AssistantExecutionNavigationService } from 'src/app/domain/services/assistant/assistant-execution-navigation.service';
+import { AssistantExecutionDataService } from 'src/app/domain/services/assistant/assistant-execution-data.service';
+import { AssistantExecutionSettingsService } from 'src/app/domain/services/assistant/assistant-execution-settings.service';
+import { AssistantExecutionUserAdminService } from 'src/app/domain/services/assistant/assistant-execution-user-admin.service';
+import { AssistantExecutionBranchService } from 'src/app/domain/services/assistant/assistant-execution-branch.service';
+import { AssistantExecutionMacroService } from 'src/app/domain/services/assistant/assistant-execution-macro.service';
+import { AssistantExecutionClientService } from 'src/app/domain/services/assistant/assistant-execution-client.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
@@ -61,7 +61,7 @@ export interface ChatMessage {
 }
 
 @Component({
-  selector: 'app-llm-chat',
+  selector: 'app-assistant-chat',
   standalone: true,
   imports: [
     CommonModule,
@@ -71,26 +71,26 @@ export interface ChatMessage {
     IconMMLComponent,
     IconUserComponent,
   ],
-  templateUrl: './llm-chat.component.html',
-  styleUrls: ['./llm-chat.component.scss'],
+  templateUrl: './assistant-chat.component.html',
+  styleUrls: ['./assistant-chat.component.scss'],
   providers: [
-    LLMFunctionExecutionService,
-    LlmExecutionNavigationService,
-    LlmExecutionDataService,
-    LlmExecutionSettingsService,
-    LlmExecutionUserAdminService,
-    LlmExecutionBranchService,
-    LlmExecutionMacroService,
-    LlmExecutionClientService,
+    AssistantFunctionExecutionService,
+    AssistantExecutionNavigationService,
+    AssistantExecutionDataService,
+    AssistantExecutionSettingsService,
+    AssistantExecutionUserAdminService,
+    AssistantExecutionBranchService,
+    AssistantExecutionMacroService,
+    AssistantExecutionClientService,
   ],
 })
-export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
-  private llmService = inject(DataManagementLLMService);
-  private llmProviderService = inject(DataManagementLLMProviderService);
-  private functionExecutionService = inject(LLMFunctionExecutionService);
-  private functionRegistry = inject(LLMFunctionRegistryService);
+  private assistantService = inject(DataManagementAssistantService);
+  private assistantProviderService = inject(DataManagementAssistantProviderService);
+  private functionExecutionService = inject(AssistantFunctionExecutionService);
+  private functionRegistry = inject(AssistantFunctionRegistryService);
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
@@ -106,7 +106,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor() {
     effect(() => {
       if (this.asideService.isVisible()) {
-        this.llmProviderService.loadProviders();
+        this.assistantProviderService.loadProviders();
       }
     });
   }
@@ -129,7 +129,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private silenceTimer: any = null;
   private readonly SILENCE_AUTO_SEND_DELAY_MS = 3000;
 
-  availableModels: ILLMModel[] = [];
+  availableModels: IAssistantModel[] = [];
   currentModel = '';
   showModelDropdown = false;
   @HostListener('document:click', ['$event'])
@@ -159,14 +159,14 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
 
-    this.llmService
+    this.assistantService
       .getAvailableModels()
       .pipe(takeUntil(this.destroy$))
       .subscribe((models) => {
         this.availableModels = models.filter((model) => model.isEnabled);
       });
 
-    this.llmService
+    this.assistantService
       .getCurrentModelId()
       .pipe(takeUntil(this.destroy$))
       .subscribe((modelId) => {
@@ -243,7 +243,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     try {
       const response = await firstValueFrom(
-        this.llmService.sendMessage(messageText, this.conversationId)
+        this.assistantService.sendMessage(messageText, this.conversationId)
       );
 
       const assistantMessage: ChatMessage = {
@@ -273,13 +273,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       } else if (error?.message) {
         errorContent = error.message;
       } else {
-        errorContent = this.translateService.instant('llm-chat.error.generic');
+        errorContent = this.translateService.instant('assistant-chat.error.generic');
       }
 
       const errorMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
-        content: '❌ ' + errorContent,
+        content: 'âŒ ' + errorContent,
         timestamp: new Date(),
       };
       this.messages.push(errorMessage);
@@ -311,11 +311,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     try {
       const hasPermission = await this.speechService.requestPermissions();
       if (!hasPermission) {
-        alert(this.translateService.instant('llm-chat.error.microphone-permission'));
+        alert(this.translateService.instant('assistant-chat.error.microphone-permission'));
         return;
       }
     } catch {
-      alert(this.translateService.instant('llm-chat.error.microphone-access'));
+      alert(this.translateService.instant('assistant-chat.error.microphone-access'));
       return;
     }
 
@@ -453,17 +453,17 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   selectModel(modelId: string): void {
-    this.llmService.setCurrentModel(modelId);
+    this.assistantService.setCurrentModel(modelId);
     this.currentModel = modelId;
     this.showModelDropdown = false;
   }
 
-  getCurrentModelInfo(): ILLMModel | undefined {
-    return this.llmService.getModelInfo(this.currentModel);
+  getCurrentModelInfo(): IAssistantModel | undefined {
+    return this.assistantService.getModelInfo(this.currentModel);
   }
 
   formatCost(cost: number): string {
-    return `€${cost.toFixed(4)}/1K tokens`;
+    return `â‚¬${cost.toFixed(4)}/1K tokens`;
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
@@ -477,13 +477,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const welcomeMessage: ChatMessage = {
       id: this.generateMessageId(),
       sender: 'assistant',
-      content: this.translateService.instant('llm-chat.welcome.content'),
+      content: this.translateService.instant('assistant-chat.welcome.content'),
       timestamp: new Date(),
       suggestions: [
-        this.translateService.instant('llm-chat.welcome.suggestion-1'),
-        this.translateService.instant('llm-chat.welcome.suggestion-2'),
-        this.translateService.instant('llm-chat.welcome.suggestion-3'),
-        this.translateService.instant('llm-chat.welcome.suggestion-4'),
+        this.translateService.instant('assistant-chat.welcome.suggestion-1'),
+        this.translateService.instant('assistant-chat.welcome.suggestion-2'),
+        this.translateService.instant('assistant-chat.welcome.suggestion-3'),
+        this.translateService.instant('assistant-chat.welcome.suggestion-4'),
       ],
     };
     this.messages.push(welcomeMessage);
@@ -520,7 +520,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private updateLLMLanguage(langCode: string): void {
-    this.llmService.setLanguage(langCode);
+    this.assistantService.setLanguage(langCode);
   }
 
   private getSpeechLanguageCode(langCode: string): string {
@@ -530,7 +530,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   clearChat(): void {
     this.messages = [];
 
-    this.llmService.clearConversation(this.conversationId);
+    this.assistantService.clearConversation(this.conversationId);
 
     this.conversationId = this.generateConversationId();
 
@@ -560,44 +560,44 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (result.success && result.result?.action === 'navigated') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `✅ Navigiert zu: ${result.result.entity?.name || result.result.route}`;
+            lastMessage.content = `âœ… Navigiert zu: ${result.result.entity?.name || result.result.route}`;
           }
         } else if (result.success && result.result?.action === 'navigated_with_search') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `✅ ${result.result.message}`;
+            lastMessage.content = `âœ… ${result.result.message}`;
           }
         } else if (result.success && result.result?.action === 'multiple_results') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
             const items = result.result.items as any[];
             const itemList = items.map((item: any) =>
-              `• ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
+              `â€¢ ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
             ).join('\n');
             lastMessage.content = `${result.result.message}\n\n${itemList}`;
           }
         } else if (result.success && result.result?.message) {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `✅ ${result.result.message}`;
+            lastMessage.content = `âœ… ${result.result.message}`;
           }
         } else if (!result.success && result.error && !result.error.includes('not implemented')) {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `❌ ${result.error}`;
+            lastMessage.content = `âŒ ${result.error}`;
           }
         }
       } catch (error: any) {
         const lastMsg = this.messages[this.messages.length - 1];
         if (lastMsg) {
-          lastMsg.content = `❌ ${error?.message || 'Function execution failed'}`;
+          lastMsg.content = `âŒ ${error?.message || 'Function execution failed'}`;
         }
       }
     }
   }
 
   isInitializing(): boolean {
-    return !this.llmService.modelsInitialized() || !this.llmProviderService.providersInitialized();
+    return !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized();
   }
 
   hasNoApiKey(): boolean {
@@ -605,7 +605,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return false;
     }
 
-    const providers = this.llmProviderService.getCurrentProviders();
+    const providers = this.assistantProviderService.getCurrentProviders();
     if (!providers || providers.length === 0) return true;
 
     const currentModelInfo = this.availableModels?.find(m => m.modelId === this.currentModel);
@@ -621,3 +621,4 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.speechService.getDiagnostics().useWhisperFallback;
   }
 }
+

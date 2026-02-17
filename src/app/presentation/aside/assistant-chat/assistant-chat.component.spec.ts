@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -9,15 +9,15 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { LLMChatComponent } from './llm-chat.component';
-import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
+import { AssistantChatComponent } from './assistant-chat.component';
+import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
-import { ILLMModel } from 'src/app/infrastructure/api/llm/data-llm.service';
+import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
-import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
-import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
 @Pipe({ name: 'translate' })
@@ -27,9 +27,9 @@ class MockTranslatePipe implements PipeTransform {
     }
 }
 
-describe('LLMChatComponent', () => {
-    let component: LLMChatComponent;
-    let fixture: ComponentFixture<LLMChatComponent>;
+describe('AssistantChatComponent', () => {
+    let component: AssistantChatComponent;
+    let fixture: ComponentFixture<AssistantChatComponent>;
     let mockLlmService: any;
     let mockLlmProviderService: any;
     let mockSpeechService: any;
@@ -38,7 +38,7 @@ describe('LLMChatComponent', () => {
     let mockFunctionExecutionService: any;
     let mockLanguageMappingService: any;
 
-    const mockModels: ILLMModel[] = [
+    const mockModels: IAssistantModel[] = [
         {
             id: '1',
             modelId: 'gpt-4',
@@ -67,7 +67,7 @@ describe('LLMChatComponent', () => {
         },
     ];
 
-    const mockProviders: ILLMProvider[] = [
+    const mockProviders: IAssistantProvider[] = [
         {
             id: '1',
             providerId: 'openai',
@@ -159,21 +159,21 @@ describe('LLMChatComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [
-                LLMChatComponent,
+                AssistantChatComponent,
                 FontAwesomeModule,
                 FormsModule,
                 TranslateModule.forRoot(),
             ],
             providers: [
-                { provide: DataManagementLLMService, useValue: llmServiceSpy },
-                { provide: DataManagementLLMProviderService, useValue: llmProviderServiceSpy },
+                { provide: DataManagementAssistantService, useValue: llmServiceSpy },
+                { provide: DataManagementAssistantProviderService, useValue: llmProviderServiceSpy },
                 { provide: SpeechRecognitionService, useValue: speechServiceSpy },
                 { provide: Router, useValue: routerSpy },
-                { provide: LLMFunctionExecutionService, useValue: functionExecutionServiceSpy },
+                { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
                 { provide: LanguageMappingService, useValue: languageMappingServiceSpy },
             ],
         })
-            .overrideComponent(LLMChatComponent, {
+            .overrideComponent(AssistantChatComponent, {
             set: {
                 imports: [
                     CommonModule,
@@ -188,20 +188,20 @@ describe('LLMChatComponent', () => {
         })
             .compileComponents();
 
-        mockLlmService = TestBed.inject(DataManagementLLMService) as any;
-        mockLlmProviderService = TestBed.inject(DataManagementLLMProviderService) as any;
+        mockLlmService = TestBed.inject(DataManagementAssistantService) as any;
+        mockLlmProviderService = TestBed.inject(DataManagementAssistantProviderService) as any;
         mockSpeechService = TestBed.inject(SpeechRecognitionService) as any;
         mockRouter = TestBed.inject(Router) as any;
-        mockFunctionExecutionService = TestBed.inject(LLMFunctionExecutionService) as any;
+        mockFunctionExecutionService = TestBed.inject(AssistantFunctionExecutionService) as any;
         mockLanguageMappingService = TestBed.inject(LanguageMappingService) as any;
 
         const translateService = TestBed.inject(TranslateService);
         vi.spyOn(translateService, 'instant').mockImplementation((key: string | string[]) => {
             const k = Array.isArray(key) ? key[0] : key;
-            if (k === 'llm-chat.welcome.content') {
-                return '👋 Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\n• Mitarbeiter zu erstellen\n• Nach Personen zu suchen\n• Verträge zu verwalten\n\nSie können mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"';
+            if (k === 'assistant-chat.welcome.content') {
+                return 'ðŸ‘‹ Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\nâ€¢ Mitarbeiter zu erstellen\nâ€¢ Nach Personen zu suchen\nâ€¢ VertrÃ¤ge zu verwalten\n\nSie kÃ¶nnen mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"';
             }
-            if (k.startsWith('llm-chat.welcome.suggestion-')) {
+            if (k.startsWith('assistant-chat.welcome.suggestion-')) {
                 return 'Test suggestion';
             }
             return 'Error message';
@@ -217,7 +217,7 @@ describe('LLMChatComponent', () => {
         mockLlmProviderService.loadProviders.mockReturnValue(Promise.resolve(mockProviders));
         mockLlmProviderService.getCurrentProviders.mockReturnValue(mockProviders);
 
-        fixture = TestBed.createComponent(LLMChatComponent);
+        fixture = TestBed.createComponent(AssistantChatComponent);
         component = fixture.componentInstance;
     });
 
@@ -233,7 +233,7 @@ describe('LLMChatComponent', () => {
         // Assert
         expect(component.messages.length).toBeGreaterThan(0);
         expect(component.messages[0].sender).toBe('assistant');
-        expect(component.messages[0].content).toContain('👋');
+        expect(component.messages[0].content).toContain('ðŸ‘‹');
     });
 
     it('should load available models on init', async () => {
@@ -309,7 +309,7 @@ describe('LLMChatComponent', () => {
 
             // Assert
             expect(component.messages.length).toBe(3); // Welcome + User + Error
-            expect(component.messages[2].content).toContain('❌');
+            expect(component.messages[2].content).toContain('âŒ');
             expect(component.messages[2].content).toContain('API Error');
             expect(component.isProcessing).toBe(false);
         });
@@ -463,8 +463,8 @@ describe('LLMChatComponent', () => {
     describe('utility functions', () => {
         it('should format cost correctly', () => {
             // Act & Assert
-            expect(component.formatCost(0.01)).toBe('€0.0100/1K tokens');
-            expect(component.formatCost(0.1234)).toBe('€0.1234/1K tokens');
+            expect(component.formatCost(0.01)).toBe('â‚¬0.0100/1K tokens');
+            expect(component.formatCost(0.1234)).toBe('â‚¬0.1234/1K tokens');
         });
 
         it('should format message content', () => {
@@ -613,7 +613,7 @@ describe('LLMChatComponent', () => {
 
         it('should return true when provider has no apiKey', () => {
             // Arrange
-            const providersWithoutKey: ILLMProvider[] = [
+            const providersWithoutKey: IAssistantProvider[] = [
                 {
                     ...mockProviders[0],
                     hasApiKey: false,
@@ -645,12 +645,12 @@ describe('LLMChatComponent', () => {
 
         it('should check provider for newly selected model', () => {
             // Arrange
-            const modelWithValidKey: ILLMModel = {
+            const modelWithValidKey: IAssistantModel = {
                 ...mockModels[0],
                 modelId: 'model-with-key',
                 providerId: 'openai',
             };
-            const modelWithoutValidKey: ILLMModel = {
+            const modelWithoutValidKey: IAssistantModel = {
                 ...mockModels[1],
                 modelId: 'model-without-key',
                 providerId: 'anthropic',
@@ -675,3 +675,4 @@ describe('LLMChatComponent', () => {
         });
     });
 });
+

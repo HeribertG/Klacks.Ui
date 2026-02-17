@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.service';
+import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 
 @Component({
   selector: 'app-llm-providers-row',
@@ -12,10 +12,10 @@ import { ILLMProvider } from 'src/app/infrastructure/api/llm/data-llm-provider.s
   styleUrls: ['./llm-providers-row.component.scss']
 })
 export class LLMProvidersRowComponent {
-  @Input() data!: ILLMProvider;
+  @Input() data!: IAssistantProvider;
   @Input() canDelete = true;
-  @Output() editEvent = new EventEmitter<ILLMProvider>();
-  @Output() deleteEvent = new EventEmitter<ILLMProvider>();
+  @Output() editEvent = new EventEmitter<IAssistantProvider>();
+  @Output() deleteEvent = new EventEmitter<IAssistantProvider>();
 
   public translate = inject(TranslateService);
 

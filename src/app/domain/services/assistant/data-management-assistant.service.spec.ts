@@ -1,25 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+﻿/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError, delay } from 'rxjs';
 
-import { DataManagementLLMService } from './data-management-llm.service';
-import { DataLLMService, ILLMModel, ILLMChatResponse, ILLMUsage, } from 'src/app/infrastructure/api/llm/data-llm.service';
+import { DataManagementAssistantService } from './data-management-assistant.service';
+import { DataAssistantService, IAssistantModel, IAssistantChatResponse, IAssistantUsage, } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { LLMFunctionExecutionService } from './llm-function-execution.service';
-import { LLMSystemContextService } from './llm-system-context.service';
+import { AssistantFunctionExecutionService } from './assistant-function-execution.service';
+import { AssistantSystemContextService } from './assistant-system-context.service';
 
-describe('DataManagementLLMService', () => {
-    let service: DataManagementLLMService;
-    let mockDataLLMService: any;
+describe('DataManagementAssistantService', () => {
+    let service: DataManagementAssistantService;
+    let mockDataAssistantService: any;
     let mockEventBus: any;
     let mockTranslateService: any;
     let mockFunctionExecutionService: any;
     let mockSystemContextService: any;
 
-    const mockModels: ILLMModel[] = [
+    const mockModels: IAssistantModel[] = [
         {
             id: '1',
             modelId: 'gpt-4',
@@ -49,7 +49,7 @@ describe('DataManagementLLMService', () => {
     ];
 
     beforeEach(() => {
-        const dataLLMServiceSpy = {
+        const DataAssistantServiceSpy = {
             getModels: vi.fn(),
             chat: vi.fn(),
             enableModel: vi.fn(),
@@ -102,25 +102,25 @@ describe('DataManagementLLMService', () => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [
-                DataManagementLLMService,
-                { provide: DataLLMService, useValue: dataLLMServiceSpy },
+                DataManagementAssistantService,
+                { provide: DataAssistantService, useValue: DataAssistantServiceSpy },
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
-                { provide: LLMFunctionExecutionService, useValue: functionExecutionServiceSpy },
-                { provide: LLMSystemContextService, useValue: systemContextServiceSpy },
+                { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
+                { provide: AssistantSystemContextService, useValue: systemContextServiceSpy },
             ],
         });
 
-        service = TestBed.inject(DataManagementLLMService);
-        mockDataLLMService = TestBed.inject(DataLLMService) as any;
+        service = TestBed.inject(DataManagementAssistantService);
+        mockDataAssistantService = TestBed.inject(DataAssistantService) as any;
         mockEventBus = TestBed.inject(EVENT_BUS_TOKEN) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
-        mockFunctionExecutionService = TestBed.inject(LLMFunctionExecutionService) as any;
-        mockSystemContextService = TestBed.inject(LLMSystemContextService) as any;
+        mockFunctionExecutionService = TestBed.inject(AssistantFunctionExecutionService) as any;
+        mockSystemContextService = TestBed.inject(AssistantSystemContextService) as any;
 
-        mockDataLLMService.getModels.mockReturnValue(of(mockModels));
+        mockDataAssistantService.getModels.mockReturnValue(of(mockModels));
         // Default mock for chat method to prevent undefined.pipe() errors
-        mockDataLLMService.chat.mockReturnValue(of({
+        mockDataAssistantService.chat.mockReturnValue(of({
             message: 'Default response',
             conversationId: 'default-conv',
         }));
@@ -133,10 +133,10 @@ describe('DataManagementLLMService', () => {
     describe('initialization', () => {
         it('should initialize models on startup', () => {
             // Act
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
 
             // Assert
-            expect(mockDataLLMService.getModels).toHaveBeenCalled();
+            expect(mockDataAssistantService.getModels).toHaveBeenCalled();
 
             service.getAvailableModels().subscribe((models) => {
                 expect(models).toEqual(mockModels);
@@ -145,7 +145,7 @@ describe('DataManagementLLMService', () => {
 
         it('should set default model from enabled models', () => {
             // Act
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
 
             // Assert
             service.getCurrentModelId().subscribe((modelId) => {
@@ -155,10 +155,10 @@ describe('DataManagementLLMService', () => {
 
         it('should handle model loading error', () => {
             // Arrange
-            mockDataLLMService.getModels.mockReturnValue(throwError(() => new Error('API Error')));
+            mockDataAssistantService.getModels.mockReturnValue(throwError(() => new Error('API Error')));
 
             // Act
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
 
             // Assert
             expect(mockEventBus.emit).toHaveBeenCalled();
@@ -171,12 +171,12 @@ describe('DataManagementLLMService', () => {
 
     describe('sendMessage', () => {
         beforeEach(() => {
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
         });
 
         it('should send message and create conversation', async () => {
             // Arrange
-            const mockResponse: ILLMChatResponse = {
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Hello back!',
                 conversationId: 'conv-123',
                 suggestions: ['How can I help?'],
@@ -187,13 +187,13 @@ describe('DataManagementLLMService', () => {
                     cost: 0.001,
                 },
             };
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             // Act
             service.sendMessage('Hello', 'conv-123').subscribe((response) => {
                 // Assert
                 expect(response).toEqual(mockResponse);
-                expect(mockDataLLMService.chat).toHaveBeenCalled();
+                expect(mockDataAssistantService.chat).toHaveBeenCalled();
 
                 const conversation = service.getConversation('conv-123');
                 expect(conversation).toBeTruthy();
@@ -206,8 +206,8 @@ describe('DataManagementLLMService', () => {
 
         it('should return error when no model selected', async () => {
             // Arrange
-            mockDataLLMService.getModels.mockReturnValue(of([])); // No models
-            service.initializeLLMModels();
+            mockDataAssistantService.getModels.mockReturnValue(of([])); // No models
+            service.initializeAssistantModels();
 
             await new Promise(resolve => setTimeout(resolve, 60));
             // Act
@@ -224,9 +224,9 @@ describe('DataManagementLLMService', () => {
 
         it('should handle chat error', async () => {
             // Arrange
-            service.initializeLLMModels(); // Ensure models are loaded
+            service.initializeAssistantModels(); // Ensure models are loaded
             await new Promise(resolve => setTimeout(resolve, 60));
-            mockDataLLMService.chat.mockReturnValue(throwError(() => new Error('Chat failed')));
+            mockDataAssistantService.chat.mockReturnValue(throwError(() => new Error('Chat failed')));
 
             // Act
             service.sendMessage('Hello').subscribe({
@@ -244,7 +244,7 @@ describe('DataManagementLLMService', () => {
 
     describe('model management', () => {
         beforeEach(() => {
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
         });
 
         it('should set current model', () => {
@@ -285,46 +285,46 @@ describe('DataManagementLLMService', () => {
 
         it('should enable model', async () => {
             // Arrange
-            mockDataLLMService.enableModel.mockReturnValue(of({}));
+            mockDataAssistantService.enableModel.mockReturnValue(of({}));
 
             // Act
             service.enableModel('claude-3').subscribe(() => {
                 // Assert
-                expect(mockDataLLMService.enableModel).toHaveBeenCalledWith('claude-3');
-                expect(mockDataLLMService.getModels).toHaveBeenCalled(); // Reinitialize
+                expect(mockDataAssistantService.enableModel).toHaveBeenCalledWith('claude-3');
+                expect(mockDataAssistantService.getModels).toHaveBeenCalled(); // Reinitialize
                 ;
             });
         });
 
         it('should disable model', async () => {
             // Arrange
-            mockDataLLMService.disableModel.mockReturnValue(of({}));
+            mockDataAssistantService.disableModel.mockReturnValue(of({}));
 
             // Act
             service.disableModel('gpt-4').subscribe(() => {
                 // Assert
-                expect(mockDataLLMService.disableModel).toHaveBeenCalledWith('gpt-4');
-                expect(mockDataLLMService.getModels).toHaveBeenCalled(); // Reinitialize
+                expect(mockDataAssistantService.disableModel).toHaveBeenCalledWith('gpt-4');
+                expect(mockDataAssistantService.getModels).toHaveBeenCalled(); // Reinitialize
                 ;
             });
         });
 
         it('should set default model', async () => {
             // Arrange
-            mockDataLLMService.setDefaultModel.mockReturnValue(of({}));
+            mockDataAssistantService.setDefaultModel.mockReturnValue(of({}));
 
             // Act
             service.setDefaultModel('claude-3').subscribe(() => {
                 // Assert
-                expect(mockDataLLMService.setDefaultModel).toHaveBeenCalledWith('claude-3');
-                expect(mockDataLLMService.getModels).toHaveBeenCalled(); // Reinitialize
+                expect(mockDataAssistantService.setDefaultModel).toHaveBeenCalledWith('claude-3');
+                expect(mockDataAssistantService.getModels).toHaveBeenCalled(); // Reinitialize
                 ;
             });
         });
 
         it('should create model', async () => {
             // Arrange
-            const newModel: ILLMModel = {
+            const newModel: IAssistantModel = {
                 modelId: 'new-model',
                 modelName: 'New Model',
                 providerId: 'test',
@@ -336,12 +336,12 @@ describe('DataManagementLLMService', () => {
                 isDefault: false,
                 capabilities: ['text'],
             };
-            mockDataLLMService.createModel.mockReturnValue(of(newModel));
+            mockDataAssistantService.createModel.mockReturnValue(of(newModel));
 
             // Act
             service.createModel(newModel).subscribe((result) => {
                 // Assert
-                expect(mockDataLLMService.createModel).toHaveBeenCalledWith(newModel);
+                expect(mockDataAssistantService.createModel).toHaveBeenCalledWith(newModel);
                 expect(result).toEqual(newModel);
                 ;
             });
@@ -349,13 +349,13 @@ describe('DataManagementLLMService', () => {
 
         it('should delete model', async () => {
             // Arrange
-            mockDataLLMService.deleteModel.mockReturnValue(of({}));
+            mockDataAssistantService.deleteModel.mockReturnValue(of({}));
 
             // Act
             service.deleteModel('1').subscribe(() => {
                 // Assert
-                expect(mockDataLLMService.deleteModel).toHaveBeenCalledWith('1');
-                expect(mockDataLLMService.getModels).toHaveBeenCalled(); // Reinitialize
+                expect(mockDataAssistantService.deleteModel).toHaveBeenCalledWith('1');
+                expect(mockDataAssistantService.getModels).toHaveBeenCalled(); // Reinitialize
                 ;
             });
         });
@@ -363,12 +363,12 @@ describe('DataManagementLLMService', () => {
         it('should update model', async () => {
             // Arrange
             const updatedModel = { ...mockModels[0], maxTokens: 16000 };
-            mockDataLLMService.updateModel.mockReturnValue(of(updatedModel));
+            mockDataAssistantService.updateModel.mockReturnValue(of(updatedModel));
 
             // Act
             service.updateModel(updatedModel).subscribe((result) => {
                 // Assert
-                expect(mockDataLLMService.updateModel).toHaveBeenCalledWith('1', updatedModel);
+                expect(mockDataAssistantService.updateModel).toHaveBeenCalledWith('1', updatedModel);
                 expect(result).toEqual(updatedModel);
                 ;
             });
@@ -392,7 +392,7 @@ describe('DataManagementLLMService', () => {
 
     describe('conversation management', () => {
         beforeEach(() => {
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
         });
 
         it('should clear specific conversation', () => {
@@ -423,11 +423,11 @@ describe('DataManagementLLMService', () => {
 
         it('should get conversation IDs', () => {
             // Arrange
-            const mockResponse: ILLMChatResponse = {
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Response',
                 conversationId: 'conv-123',
             };
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             // Act
             service.sendMessage('Hello', 'conv-1').subscribe();
@@ -441,11 +441,11 @@ describe('DataManagementLLMService', () => {
 
         it('should get all conversations sorted by last activity', async () => {
             // Arrange
-            const mockResponse: ILLMChatResponse = {
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Response',
                 conversationId: 'conv-123',
             };
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             // Act
             service.sendMessage('Hello 1', 'conv-1').subscribe({
@@ -469,19 +469,19 @@ describe('DataManagementLLMService', () => {
     describe('usage and statistics', () => {
         it('should get usage statistics', async () => {
             // Arrange
-            const mockUsage: ILLMUsage = {
+            const mockUsage: IAssistantUsage = {
                 totalCost: 15.5,
                 totalInputTokens: 10000,
                 totalOutputTokens: 8000,
                 conversationCount: 50,
                 modelBreakdown: [],
             };
-            mockDataLLMService.getUsage.mockReturnValue(of(mockUsage));
+            mockDataAssistantService.getUsage.mockReturnValue(of(mockUsage));
 
             // Act
             service.getUsageStatistics(7).subscribe((usage) => {
                 // Assert
-                expect(mockDataLLMService.getUsage).toHaveBeenCalledWith(7);
+                expect(mockDataAssistantService.getUsage).toHaveBeenCalledWith(7);
                 expect(usage).toEqual(mockUsage);
                 ;
             });
@@ -489,7 +489,7 @@ describe('DataManagementLLMService', () => {
 
         it('should handle usage statistics error', async () => {
             // Arrange
-            mockDataLLMService.getUsage.mockReturnValue(throwError(() => new Error('Failed')));
+            mockDataAssistantService.getUsage.mockReturnValue(throwError(() => new Error('Failed')));
 
             // Act
             service.getUsageStatistics().subscribe((usage) => {
@@ -517,18 +517,18 @@ describe('DataManagementLLMService', () => {
         });
 
         it('should send language as top-level property in chat request', () => {
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
             service.setLanguage('fr');
 
-            const mockResponse: ILLMChatResponse = {
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Bonjour!',
                 conversationId: 'conv-lang',
             };
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             service.sendMessage('Salut', 'conv-lang').subscribe();
 
-            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+            expect(mockDataAssistantService.chat).toHaveBeenCalledWith(
                 expect.objectContaining({
                     language: 'fr',
                     message: 'Salut',
@@ -537,26 +537,26 @@ describe('DataManagementLLMService', () => {
         });
 
         it('should update language in subsequent requests after setLanguage', () => {
-            service.initializeLLMModels();
+            service.initializeAssistantModels();
 
-            const mockResponse: ILLMChatResponse = {
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Response',
                 conversationId: 'conv-multi',
             };
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             service.setLanguage('de');
             service.sendMessage('Hallo', 'conv-multi').subscribe();
-            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+            expect(mockDataAssistantService.chat).toHaveBeenCalledWith(
                 expect.objectContaining({ language: 'de' })
             );
 
-            mockDataLLMService.chat.mockClear();
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse));
+            mockDataAssistantService.chat.mockClear();
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse));
 
             service.setLanguage('it');
             service.sendMessage('Ciao', 'conv-multi').subscribe();
-            expect(mockDataLLMService.chat).toHaveBeenCalledWith(
+            expect(mockDataAssistantService.chat).toHaveBeenCalledWith(
                 expect.objectContaining({ language: 'it' })
             );
         });
@@ -569,7 +569,7 @@ describe('DataManagementLLMService', () => {
                 availableFunctions: [],
                 tips: [],
             };
-            mockDataLLMService.getHelp.mockReturnValue(of(mockHelp));
+            mockDataAssistantService.getHelp.mockReturnValue(of(mockHelp));
 
             // Act
             service.getHelp().subscribe((help) => {
@@ -589,7 +589,7 @@ describe('DataManagementLLMService', () => {
                     isAvailable: true,
                 },
             ];
-            mockDataLLMService.getFunctions.mockReturnValue(of(mockFunctions));
+            mockDataAssistantService.getFunctions.mockReturnValue(of(mockFunctions));
 
             // Act
             service.getFunctions().subscribe((functions) => {
@@ -603,8 +603,8 @@ describe('DataManagementLLMService', () => {
     describe('loading state', () => {
         it('should track loading state', async () => {
             // Arrange
-            service.initializeLLMModels();
-            const mockResponse: ILLMChatResponse = {
+            service.initializeAssistantModels();
+            const mockResponse: IAssistantChatResponse = {
                 message: 'Response',
                 conversationId: 'conv-123',
             };
@@ -618,7 +618,7 @@ describe('DataManagementLLMService', () => {
 
             // Use a delayed observable to simulate async API call
             // This ensures signal changes have time to propagate
-            mockDataLLMService.chat.mockReturnValue(of(mockResponse).pipe(delay(50)));
+            mockDataAssistantService.chat.mockReturnValue(of(mockResponse).pipe(delay(50)));
 
             await new Promise(resolve => setTimeout(resolve, 60));
             // Act
@@ -642,13 +642,14 @@ describe('DataManagementLLMService', () => {
     describe('reload functionality', () => {
         it('should reload models', () => {
             // Arrange
-            mockDataLLMService.getModels.mockClear();
+            mockDataAssistantService.getModels.mockClear();
 
             // Act
             service.reloadModels();
 
             // Assert
-            expect(mockDataLLMService.getModels).toHaveBeenCalled();
+            expect(mockDataAssistantService.getModels).toHaveBeenCalled();
         });
     });
 });
+
