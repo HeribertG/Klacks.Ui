@@ -7,13 +7,6 @@
         </a>
       </li>
     </ul>
-    <div
-      class="shift-pdf-button"
-      (click)="onShiftPdfExport()"
-      ngbTooltip="{{ 'schedule.pdf.shifts' | translate }}"
-    >
-      <app-icon-pdf-icon></app-icon-pdf-icon>
-    </div>
   </div>
 
   <div class="shift-tabs-content">
@@ -39,6 +32,14 @@
         </div>
       </div>
       <span class="shift-row-count">({{ shiftRowCount }})</span>
+      <span class="filler"></span>
+      <div
+        class="shift-pdf-button"
+        (click)="onShiftPdfExport()"
+        ngbTooltip="{{ 'schedule.pdf.shifts' | translate }}"
+      >
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </div>
     </div>
     <as-split
       direction="horizontal"

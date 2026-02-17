@@ -50,18 +50,6 @@
     }
   }
 
-  .shift-pdf-button {
-    margin-bottom: 4px;
-    margin-left: 8px;
-    cursor: pointer;
-    display: inline-block;
-    padding: 3px;
-    border-radius: 4px;
-
-    &:hover {
-      background-color: rgba(30, 144, 255, 0.2);
-    }
-  }
 }
 
 .shift-tabs-content {
@@ -100,6 +88,18 @@
       margin-left: 8px;
       font-size: 13px;
       color: var(--colorLabel);
+    }
+
+    .shift-pdf-button {
+      margin-right: 8px;
+      cursor: pointer;
+      display: inline-block;
+      padding: 3px;
+      border-radius: 4px;
+
+      &:hover {
+        background-color: rgba(30, 144, 255, 0.2);
+      }
     }
   }
 
