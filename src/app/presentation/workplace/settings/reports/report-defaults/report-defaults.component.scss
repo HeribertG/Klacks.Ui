@@ -1,0 +1,21 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.defaults-grid {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.source-label {
+  min-width: 140px;
+}
+
+select {
+  max-width: 280px;
+}

@@ -55,6 +55,7 @@ import { ContextMenuService } from 'src/app/presentation/shared/context-menu/con
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
+import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Component({
@@ -92,6 +93,7 @@ export class ScheduleScheduleRowHeaderComponent
   private router = inject(Router);
   private contextMenuService = inject(ContextMenuService);
   private scheduleReportCtx = inject(ScheduleReportContextService);
+  private reportDefaults = inject(ReportDefaultsService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -110,6 +112,7 @@ export class ScheduleScheduleRowHeaderComponent
       new Size(this.iconSize, this.iconSize),
       'assets/svg/sorting.svg'
     );
+    this.reportDefaults.load();
   }
 
   ngAfterViewInit(): void {
@@ -411,7 +414,9 @@ export class ScheduleScheduleRowHeaderComponent
   private createContextMenu(): void {
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
-    menuData.list.push(...MenuDataTemplate.staffSchedule());
+    if (this.reportDefaults.hasDefault('schedule')) {
+      menuData.list.push(...MenuDataTemplate.staffSchedule());
+    }
     this.contextMenu.menuData = menuData;
   }
 

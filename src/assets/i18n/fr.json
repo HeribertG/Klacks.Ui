@@ -53,7 +53,6 @@
   "contextMenu.goToAddress": "Afficher l'adresse",
   "contextMenu.staffSchedule": "Planning du personnel",
   "contextMenu.noScheduleTemplates": "Aucun modèle de planning disponible",
-  "contextMenu.selectTemplate": "Sélectionner un modèle",
 
   "lockLevel.confirmed": "Confirmé",
   "lockLevel.approved": "Approuvé",
@@ -887,6 +886,8 @@
   "setting.microphone-test.test-media-devices": "API Media Devices",
   "setting.microphone-test.test-microphone-access": "Accès au microphone",
   "setting.microphone-test.test-speech-api": "API de reconnaissance vocale",
+  "setting.report.defaults.headline": "Modèles par défaut (Quick Print)",
+  "setting.report.defaults.none": "-- Non défini --",
   "setting.report.headline": "Modèles de rapport",
   "setting.report.add": "Ajouter un rapport",
   "setting.report.header.name": "Nom",

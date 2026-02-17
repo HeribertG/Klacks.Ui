@@ -53,7 +53,6 @@
   "contextMenu.goToAddress": "Mostra indirizzo",
   "contextMenu.staffSchedule": "Piano turni",
   "contextMenu.noScheduleTemplates": "Nessun modello di piano turni disponibile",
-  "contextMenu.selectTemplate": "Seleziona modello",
 
   "lockLevel.confirmed": "Confermato",
   "lockLevel.approved": "Approvato",
@@ -887,6 +886,8 @@
   "setting.microphone-test.test-media-devices": "API Media Devices",
   "setting.microphone-test.test-microphone-access": "Accesso al microfono",
   "setting.microphone-test.test-speech-api": "API riconoscimento vocale",
+  "setting.report.defaults.headline": "Modelli predefiniti (Quick Print)",
+  "setting.report.defaults.none": "-- Non impostato --",
   "setting.report.headline": "Modelli di rapporto",
   "setting.report.add": "Aggiungi rapporto",
   "setting.report.header.name": "Nome",

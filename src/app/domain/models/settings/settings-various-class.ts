@@ -63,6 +63,8 @@ export class AppSetting {
   public static SCHEDULING_MAX_WEEKLY_HOURS = 'SCHEDULING_MAX_WEEKLY_HOURS';
   public static SCHEDULING_MAX_CONSECUTIVE_DAYS = 'SCHEDULING_MAX_CONSECUTIVE_DAYS';
 
+  public static REPORT_DEFAULT_TEMPLATES = 'REPORT_DEFAULT_TEMPLATES';
+
   public static GLOBAL_CALENDAR_COUNTRY = 'globalCalendarCountry';
   public static GLOBAL_CALENDAR_STATE = 'globalCalendarState';
   public static GLOBAL_CALENDAR_SELECTION_ID = 'globalCalendarSelectionId';

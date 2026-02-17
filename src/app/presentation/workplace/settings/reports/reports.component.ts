@@ -27,7 +27,7 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
     TranslateModule,
     SettingsListCardComponent,
     ReportHeaderComponent,
-    ReportRowComponent
+    ReportRowComponent,
   ],
   providers: [
     DataManagementReportService,

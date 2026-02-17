@@ -1,0 +1,26 @@
+<app-settings-list-card
+  [headline]="translate.instant('setting.report.defaults.headline')"
+  [showAddButton]="false"
+  [showHeader]="false"
+  idPrefix="report-defaults"
+>
+  <div rows>
+    <div class="defaults-grid">
+      @for (source of dataSources; track source.id) {
+        <div class="default-row d-flex align-items-center gap-2 mb-2">
+          <label class="source-label text-nowrap">{{ source.i18nKey | translate }}:</label>
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="getDefault(source.id)"
+            (ngModelChange)="onDefaultChange(source.id, $event)"
+          >
+            <option value="">{{ 'setting.report.defaults.none' | translate }}</option>
+            @for (t of getTemplatesForSource(source.id); track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+  </div>
+</app-settings-list-card>

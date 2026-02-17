@@ -34,6 +34,7 @@ import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
 import { ReportsComponent } from '../reports/reports.component';
+import { ReportDefaultsComponent } from '../reports/report-defaults/report-defaults.component';
 import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
 import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setting/scheduling-defaults-setting.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
@@ -76,6 +77,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     IdentityProvidersComponent,
     AbsenceDetailComponent,
     ReportsComponent,
+    ReportDefaultsComponent,
     SchedulingRulesComponent,
     SchedulingDefaultsSettingComponent,
   ],

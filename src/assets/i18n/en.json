@@ -53,7 +53,6 @@
   "contextMenu.goToAddress": "Show address",
   "contextMenu.staffSchedule": "Staff Schedule",
   "contextMenu.noScheduleTemplates": "No schedule template available",
-  "contextMenu.selectTemplate": "Select template",
 
   "lockLevel.confirmed": "Confirmed",
   "lockLevel.approved": "Approved",
@@ -887,6 +886,8 @@
   "setting.microphone-test.test-media-devices": "Media Devices API",
   "setting.microphone-test.test-microphone-access": "Microphone Access",
   "setting.microphone-test.test-speech-api": "Speech Recognition API",
+  "setting.report.defaults.headline": "Default Templates (Quick Print)",
+  "setting.report.defaults.none": "-- Not set --",
   "setting.report.headline": "Report Templates",
   "setting.report.add": "Add Report",
   "setting.report.header.name": "Name",

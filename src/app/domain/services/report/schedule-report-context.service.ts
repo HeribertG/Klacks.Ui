@@ -1,36 +1,23 @@
 import { Injectable, inject, EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
-import { ReportTemplate } from '../../models/report/report-template.model';
 import { ReportDataProviderService } from './report-data-provider.service';
 import { ReportPdfService, ReportGenerationContext } from './report-pdf.service';
 import { ReportService } from './report.service';
 import { AbsenceLookupService } from '../schedule/absence-lookup.service';
-import { ScheduleTemplateSelectComponent } from 'src/app/presentation/shared/schedule-template-select/schedule-template-select.component';
+import { ReportDefaultsService } from './report-defaults.service';
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleReportContextService {
   private reportApi = inject(DataReportApiService);
   private parentInjector = inject(EnvironmentInjector);
-  private modalService = inject(NgbModal);
+  private reportDefaults = inject(ReportDefaultsService);
 
   async generateForClient(clientId: string, clientName: string, startDate: string, endDate: string): Promise<void> {
-    const allTemplates = await this.reportApi.getAllTemplates();
-    const scheduleTemplates = allTemplates.filter(t => t.sourceId === 'schedule');
+    const templateId = this.reportDefaults.getDefaultTemplateId('schedule');
+    if (!templateId) return;
 
-    if (scheduleTemplates.length === 0) {
-      alert('No schedule report template available');
-      return;
-    }
-
-    let template: ReportTemplate;
-    if (scheduleTemplates.length === 1) {
-      template = scheduleTemplates[0];
-    } else {
-      const selected = await this.selectTemplate(scheduleTemplates);
-      if (!selected) return;
-      template = selected;
-    }
+    const template = await this.reportApi.getTemplateById(templateId);
+    if (!template) return;
 
     const childInjector = createEnvironmentInjector(
       [ReportDataProviderService, ReportPdfService, ReportService, AbsenceLookupService],
@@ -59,11 +46,5 @@ export class ScheduleReportContextService {
     } finally {
       childInjector.destroy();
     }
-  }
-
-  private selectTemplate(templates: ReportTemplate[]): Promise<ReportTemplate | null> {
-    const modalRef = this.modalService.open(ScheduleTemplateSelectComponent, { centered: true });
-    modalRef.componentInstance.templates = templates;
-    return modalRef.result.catch(() => null);
   }
 }
