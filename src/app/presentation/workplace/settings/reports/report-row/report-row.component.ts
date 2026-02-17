@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
-import { ReportTemplate, ReportType, ReportOrientation, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
+import { ReportTemplate, ReportType, ReportOrientation, ReportPageSize, DEFAULT_PAGE_SETUP } from 'src/app/domain/models/report/report-template.model';
 import { ReportService } from 'src/app/domain/services/report/report.service';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
@@ -66,8 +66,7 @@ export class ReportRowComponent implements OnDestroy {
   availableSources = REPORT_DATA_SOURCES;
   editSourceId = 'schedule';
   editDataSetIds: string[] = ['work'];
-  editMergeRows = false;
-  editShowFullPeriod = false;
+  editPageSize: ReportPageSize = ReportPageSize.A4;
 
   previewGroupId = '';
   previewClientId = '';
@@ -93,6 +92,7 @@ export class ReportRowComponent implements OnDestroy {
   }
 
   ReportOrientation = ReportOrientation;
+  ReportPageSize = ReportPageSize;
 
   get sourcePreviewConfig(): { needsGroup: boolean; needsDateRange: boolean; needsClient: boolean } {
     switch (this.editSourceId) {
@@ -147,9 +147,8 @@ export class ReportRowComponent implements OnDestroy {
     this.editName = this.data.name;
     this.editDescription = this.data.description;
     this.editOrientation = this.data.pageSetup?.orientation ?? ReportOrientation.Landscape;
+    this.editPageSize = this.data.pageSetup?.size ?? ReportPageSize.A4;
     this.editSourceId = this.data.sourceId || 'schedule';
-    this.editMergeRows = this.data.mergeRows ?? false;
-    this.editShowFullPeriod = this.data.showFullPeriod ?? false;
     this.editDataSetIds = this.data.dataSetIds?.length
       ? [...this.data.dataSetIds]
       : [(this.data as any).dataSetId || 'work'];
@@ -199,12 +198,13 @@ export class ReportRowComponent implements OnDestroy {
     this.editTemplate = template;
   }
 
-  onOrientationChange(): void {
+  onPageSetupChange(): void {
     this.editTemplate = {
       ...this.editTemplate,
       pageSetup: {
         ...this.editTemplate.pageSetup,
-        orientation: this.editOrientation
+        orientation: this.editOrientation,
+        size: this.editPageSize
       }
     };
   }
@@ -224,11 +224,12 @@ export class ReportRowComponent implements OnDestroy {
         type: ReportType.Schedule,
         sourceId: this.editSourceId,
         dataSetIds: [...this.editDataSetIds],
-        mergeRows: this.editMergeRows,
-        showFullPeriod: this.editShowFullPeriod,
+        mergeRows: this.editTemplate.mergeRows,
+        showFullPeriod: this.editTemplate.showFullPeriod,
         pageSetup: {
           ...this.editTemplate.pageSetup,
-          orientation: this.editOrientation
+          orientation: this.editOrientation,
+          size: this.editPageSize
         }
       };
 
@@ -279,11 +280,12 @@ export class ReportRowComponent implements OnDestroy {
           name: this.editName.trim(),
           sourceId: this.editSourceId,
           dataSetIds: [...this.editDataSetIds],
-          mergeRows: this.editMergeRows,
-          showFullPeriod: this.editShowFullPeriod,
+          mergeRows: this.editTemplate.mergeRows,
+          showFullPeriod: this.editTemplate.showFullPeriod,
           pageSetup: {
             ...this.editTemplate.pageSetup,
-            orientation: this.editOrientation
+            orientation: this.editOrientation,
+            size: this.editPageSize
           }
         },
         provider,

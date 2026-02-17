@@ -37,8 +37,18 @@ export enum ReportOrientation {
 export enum ReportPageSize {
   A4 = 0,
   A3 = 1,
-  Letter = 2
+  Letter = 2,
+  B4 = 3,
+  B5 = 4
 }
+
+export const PAGE_SIZE_FORMATS: Record<ReportPageSize, string | [number, number]> = {
+  [ReportPageSize.A4]: 'a4',
+  [ReportPageSize.A3]: 'a3',
+  [ReportPageSize.Letter]: 'letter',
+  [ReportPageSize.B4]: [250, 353],
+  [ReportPageSize.B5]: [176, 250],
+};
 
 export interface ReportMargins {
   top: number;

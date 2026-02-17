@@ -991,6 +991,16 @@ export class ReportDesignerComponent implements OnChanges {
     }
   }
 
+  onMergeRowsChange(value: boolean): void {
+    this.template.mergeRows = value;
+    this.emitChange();
+  }
+
+  onShowFullPeriodChange(value: boolean): void {
+    this.template.showFullPeriod = value;
+    this.emitChange();
+  }
+
   emitChange(): void {
     this.templateChange.emit({ ...this.template });
   }

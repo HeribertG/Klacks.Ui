@@ -62,7 +62,7 @@
               <select
                 class="form-select"
                 [(ngModel)]="editOrientation"
-                (ngModelChange)="onOrientationChange()"
+                (ngModelChange)="onPageSetupChange()"
               >
                 <option [ngValue]="ReportOrientation.Portrait">
                   {{ "setting.report.orientation.portrait" | translate }}
@@ -73,22 +73,22 @@
               </select>
             </div>
 
-            @if (editSourceId === 'schedule') {
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="mergeRows"
-                       [(ngModel)]="editMergeRows" />
-                <label class="form-check-label" for="mergeRows">
-                  {{ "setting.report.field.mergeRows" | translate }}
-                </label>
-              </div>
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="showFullPeriod"
-                       [(ngModel)]="editShowFullPeriod" />
-                <label class="form-check-label" for="showFullPeriod">
-                  {{ "setting.report.field.showFullPeriod" | translate }}
-                </label>
-              </div>
-            }
+            <div class="mb-3">
+              <label class="form-label">{{
+                "setting.report.field.pageSize" | translate
+              }}</label>
+              <select
+                class="form-select"
+                [(ngModel)]="editPageSize"
+                (ngModelChange)="onPageSetupChange()"
+              >
+                <option [ngValue]="ReportPageSize.A4">A4</option>
+                <option [ngValue]="ReportPageSize.A3">A3</option>
+                <option [ngValue]="ReportPageSize.B4">B4 (JIS)</option>
+                <option [ngValue]="ReportPageSize.B5">B5 (JIS)</option>
+                <option [ngValue]="ReportPageSize.Letter">Letter</option>
+              </select>
+            </div>
           </div>
         </ng-template>
       </li>

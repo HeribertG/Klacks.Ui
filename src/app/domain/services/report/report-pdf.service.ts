@@ -7,7 +7,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { environment } from 'src/environments/environment';
 
-import { ReportTemplate } from '../../models/report/report-template.model';
+import { ReportTemplate, PAGE_SIZE_FORMATS, ReportPageSize } from '../../models/report/report-template.model';
 import { ReportSection, ReportSectionType } from '../../models/report/report-section.model';
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
@@ -37,10 +37,11 @@ export class ReportPdfService {
   async generatePdf(context: ReportGenerationContext): Promise<Blob> {
     const { template, provider, data } = context;
     const isLandscape = template.pageSetup.orientation === 1;
+    const pageFormat = PAGE_SIZE_FORMATS[template.pageSetup.size ?? ReportPageSize.A4] ?? 'a4';
     const doc = new jsPDF({
       orientation: isLandscape ? 'landscape' : 'portrait',
       unit: 'mm',
-      format: 'a4'
+      format: pageFormat
     });
 
     const imageCache = await this.preloadImages(template, context.imageCache);
