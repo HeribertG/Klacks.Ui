@@ -51,6 +51,9 @@
   "contextMenu.confirm": "Confirmer",
   "contextMenu.unconfirm": "Annuler la confirmation",
   "contextMenu.goToAddress": "Afficher l'adresse",
+  "contextMenu.staffSchedule": "Planning du personnel",
+  "contextMenu.noScheduleTemplates": "Aucun modèle de planning disponible",
+  "contextMenu.selectTemplate": "Sélectionner un modèle",
 
   "lockLevel.confirmed": "Confirmé",
   "lockLevel.approved": "Approuvé",

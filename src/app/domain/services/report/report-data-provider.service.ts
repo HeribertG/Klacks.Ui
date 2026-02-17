@@ -111,10 +111,15 @@ export class ReportDataProviderService {
             showExtern: true,
           })
         );
-        const filtered = response.entries.filter(e => entryTypes.includes(e.entryType));
+        let filtered = response.entries.filter(e => entryTypes.includes(e.entryType));
+        let clients = response.clients;
+        if (params.clientId) {
+          filtered = filtered.filter(e => e.clientId === params.clientId);
+          clients = clients.filter(c => c.id === params.clientId);
+        }
         return {
           rows: filtered,
-          clients: response.clients,
+          clients,
           metadata: { startDate: response.startDate, endDate: response.endDate },
         };
       },

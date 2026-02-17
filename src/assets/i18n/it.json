@@ -51,6 +51,9 @@
   "contextMenu.confirm": "Confermare",
   "contextMenu.unconfirm": "Annullare conferma",
   "contextMenu.goToAddress": "Mostra indirizzo",
+  "contextMenu.staffSchedule": "Piano turni",
+  "contextMenu.noScheduleTemplates": "Nessun modello di piano turni disponibile",
+  "contextMenu.selectTemplate": "Seleziona modello",
 
   "lockLevel.confirmed": "Confermato",
   "lockLevel.approved": "Approvato",

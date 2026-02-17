@@ -241,4 +241,16 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static staffSchedule(): MenuItem[] {
+    return [
+      new MenuItem(
+        'staffSchedule',
+        MessageLibrary.STAFF_SCHEDULE,
+        false,
+        '',
+        'fa-solid fa-print'
+      ),
+    ];
+  }
 }

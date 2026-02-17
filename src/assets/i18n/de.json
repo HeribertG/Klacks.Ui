@@ -51,6 +51,9 @@
   "contextMenu.confirm": "Bestätigen",
   "contextMenu.unconfirm": "Bestätigung aufheben",
   "contextMenu.goToAddress": "Adresse anzeigen",
+  "contextMenu.staffSchedule": "Dienstplan",
+  "contextMenu.noScheduleTemplates": "Kein Dienstplan-Template vorhanden",
+  "contextMenu.selectTemplate": "Template auswählen",
 
   "lockLevel.confirmed": "Bestätigt",
   "lockLevel.approved": "Freigegeben",

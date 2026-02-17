@@ -51,6 +51,9 @@
   "contextMenu.confirm": "Confirm",
   "contextMenu.unconfirm": "Revoke confirmation",
   "contextMenu.goToAddress": "Show address",
+  "contextMenu.staffSchedule": "Staff Schedule",
+  "contextMenu.noScheduleTemplates": "No schedule template available",
+  "contextMenu.selectTemplate": "Select template",
 
   "lockLevel.confirmed": "Confirmed",
   "lockLevel.approved": "Approved",

@@ -110,6 +110,7 @@ export class MessageLibrary {
   public static EXPENSES = DomainMessages.EXPENSES;
   public static CONFIRM = DomainMessages.CONFIRM;
   public static UNCONFIRM = DomainMessages.UNCONFIRM;
+  public static readonly STAFF_SCHEDULE = DomainMessages.STAFF_SCHEDULE;
 
   public static CALENDAR_SELECTION_ID = DomainMessages.CALENDAR_SELECTION_ID;
   public static CALENDAR_SELECTION_TYPE = DomainMessages.CALENDAR_SELECTION_TYPE;

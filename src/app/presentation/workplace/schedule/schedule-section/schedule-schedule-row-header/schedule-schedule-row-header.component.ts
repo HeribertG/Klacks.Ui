@@ -54,6 +54,8 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -89,6 +91,7 @@ export class ScheduleScheduleRowHeaderComponent
   private tooltipService = inject(TooltipService);
   private router = inject(Router);
   private contextMenuService = inject(ContextMenuService);
+  private scheduleReportCtx = inject(ScheduleReportContextService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -408,6 +411,7 @@ export class ScheduleScheduleRowHeaderComponent
   private createContextMenu(): void {
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
+    menuData.list.push(...MenuDataTemplate.staffSchedule());
     this.contextMenu.menuData = menuData;
   }
 
@@ -418,6 +422,10 @@ export class ScheduleScheduleRowHeaderComponent
       case 'goToAddress':
         this.contextMenu.closeMenu(true);
         this.navigateToAddress();
+        break;
+      case 'staffSchedule':
+        this.contextMenu.closeMenu(true);
+        this.generateStaffSchedule();
         break;
     }
   }
@@ -439,6 +447,26 @@ export class ScheduleScheduleRowHeaderComponent
         queryParams: { readonly: 'true', returnUrl: '/workplace/schedule' }
       });
     }
+  }
+
+  private generateStaffSchedule(): void {
+    const row = this.contextMenuRow;
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    const client = this.dataService.getGroupIndex(groupIndex);
+
+    if (!client?.id) return;
+
+    const startDate = this.dataManagementSchedule.visibleStartDate;
+    const endDate = this.dataManagementSchedule.visibleEndDate;
+
+    if (!startDate || !endDate) return;
+
+    this.scheduleReportCtx.generateForClient(
+      client.id,
+      `${client.firstName} ${client.name}`,
+      formatDateOnly(startDate),
+      formatDateOnly(endDate)
+    );
   }
 
   onFilterMouseLeave(): void {
