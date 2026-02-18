@@ -390,6 +390,8 @@ export class WorkScheduleLoaderService {
       }
       client.displayRows = client.neededRows;
     }
+
+    this.applyBreakPlaceholderRows();
   }
 
   public resetToNeededRows(): void {

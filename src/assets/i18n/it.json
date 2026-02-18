@@ -53,6 +53,8 @@
   "contextMenu.goToAddress": "Mostra indirizzo",
   "contextMenu.staffSchedule": "Piano turni",
   "contextMenu.noScheduleTemplates": "Nessun modello di piano turni disponibile",
+  "contextMenu.deleteBreakPlaceholder": "Eliminare",
+  "contextMenu.adoptAbsence": "Riprendere l'assenza",
 
   "lockLevel.confirmed": "Confermato",
   "lockLevel.approved": "Approvato",
@@ -407,6 +409,8 @@
   "NOT_DEFINED": "non definito",
   "NOTE_NEW": "aggiungi nuova nota",
   "PASTE": "Incolla",
+  "DELETE_BREAK_PLACEHOLDER": "Eliminare",
+  "ADOPT_ABSENCE": "Riprendere l'assenza",
   "REGISTERUSER_MAILTEXT": "<h2><strong>La sua password per la nostra applicazione {appName}.</strong></h2><p>{password}</p><p>Si prega di utilizzare questa password generata automaticamente solo una volta.</p><p>Può cambiare la sua password in qualsiasi momento nel suo profilo.</p><p>&nbsp;</p><p>Distinti saluti,</p><p>La sua amministrazione</p>",
   "REGISTERUSER_TITLE": "Nuova Registrazione",
   "SELECTED_ROW_ORDER": "SELECTED_ROW_ORDER",

@@ -17,7 +17,8 @@ import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
-import { DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { BreakCellParams, DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
@@ -224,6 +225,48 @@ export class ScheduleEntryActionsService {
         error: (err) => console.error('Error unconfirming break:', err),
       });
     }
+  }
+
+  async adoptBreakPlaceholder(bp: IBreakPlaceholder, absenceItemId: string | undefined): Promise<void> {
+    if (!bp.from || !bp.until || !bp.clientId) return;
+
+    const language = this.translateService.currentLang || 'en';
+    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
+
+    let selectedItem: AbsenceMenuItem | undefined;
+    if (absenceItemId) {
+      selectedItem = absenceItems.find(item => item.id === absenceItemId);
+    } else {
+      selectedItem = absenceItems.find(item => item.absenceId === bp.absenceId && !item.isDetail);
+    }
+
+    const absenceId = selectedItem?.absenceId ?? bp.absenceId;
+    const { startTime, endTime } = selectedItem
+      ? this.calculateBreakTimes(selectedItem)
+      : { startTime: '00:00:00', endTime: '23:59:00' };
+    const description = selectedItem?.description ? { ...selectedItem.description } : undefined;
+
+    const from = new Date(bp.from);
+    from.setHours(0, 0, 0, 0);
+    const until = new Date(bp.until);
+    until.setHours(0, 0, 0, 0);
+
+    const entries: BreakCellParams[] = [];
+    const current = new Date(from);
+    while (current <= until) {
+      entries.push({
+        clientId: bp.clientId,
+        absenceId,
+        date: new Date(current),
+        workTime: 0,
+        startTime,
+        endTime,
+        description,
+      });
+      current.setDate(current.getDate() + 1);
+    }
+
+    await this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {

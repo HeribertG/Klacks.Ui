@@ -111,6 +111,8 @@ export class MessageLibrary {
   public static CONFIRM = DomainMessages.CONFIRM;
   public static UNCONFIRM = DomainMessages.UNCONFIRM;
   public static readonly STAFF_SCHEDULE = DomainMessages.STAFF_SCHEDULE;
+  public static DELETE_BREAK_PLACEHOLDER = DomainMessages.DELETE_BREAK_PLACEHOLDER;
+  public static ADOPT_ABSENCE = DomainMessages.ADOPT_ABSENCE;
 
   public static CALENDAR_SELECTION_ID = DomainMessages.CALENDAR_SELECTION_ID;
   public static CALENDAR_SELECTION_TYPE = DomainMessages.CALENDAR_SELECTION_TYPE;

@@ -57,6 +57,14 @@ export class BreakPlaceholderScheduleLoaderService {
       });
   }
 
+  removeBreakPlaceholder(id: string): void {
+    for (const client of this.clients) {
+      if (client.breakPlaceholders) {
+        client.breakPlaceholders = client.breakPlaceholders.filter(bp => bp.id !== id);
+      }
+    }
+  }
+
   getBreakPlaceholdersForClient(clientId: string): IBreakPlaceholder[] {
     const client = this.clients.find((c) => c.id === clientId);
     return client?.breakPlaceholders ?? [];

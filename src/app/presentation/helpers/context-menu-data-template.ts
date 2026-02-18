@@ -253,4 +253,17 @@ export class MenuDataTemplate {
       ),
     ];
   }
+
+  public static deleteBreakPlaceholder(): MenuItem[] {
+    return [
+      new MenuItem(
+        'deleteBreakPlaceholder',
+        MessageLibrary.DELETE_BREAK_PLACEHOLDER,
+        false,
+        '',
+        'fa-solid fa-trash'
+      ),
+    ];
+  }
+
 }

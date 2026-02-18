@@ -268,5 +268,11 @@ export class TranslateStringConstantsService {
       .subscribe((x: string) => {
         MessageLibrary.SHIFT_SPORADIC_CONTRACTUALTERM = x;
       });
+    this.translateService.get('DELETE_BREAK_PLACEHOLDER').subscribe((x: string) => {
+      MessageLibrary.DELETE_BREAK_PLACEHOLDER = x;
+    });
+    this.translateService.get('ADOPT_ABSENCE').subscribe((x: string) => {
+      MessageLibrary.ADOPT_ABSENCE = x;
+    });
   }
 }

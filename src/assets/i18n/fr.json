@@ -53,6 +53,8 @@
   "contextMenu.goToAddress": "Afficher l'adresse",
   "contextMenu.staffSchedule": "Planning du personnel",
   "contextMenu.noScheduleTemplates": "Aucun modèle de planning disponible",
+  "contextMenu.deleteBreakPlaceholder": "Supprimer",
+  "contextMenu.adoptAbsence": "Reprendre l'absence",
 
   "lockLevel.confirmed": "Confirmé",
   "lockLevel.approved": "Approuvé",
@@ -407,6 +409,8 @@
   "NOT_DEFINED": "non défini",
   "NOTE_NEW": "ajouter une nouvelle note",
   "PASTE": "Coller",
+  "DELETE_BREAK_PLACEHOLDER": "Supprimer",
+  "ADOPT_ABSENCE": "Reprendre l'absence",
   "REGISTERUSER_MAILTEXT": "<h2><strong>Votre mot de passe pour notre application {appName}.</strong></h2><p>{password}</p><p>Veuillez utiliser ce mot de passe généré automatiquement une seule fois.</p><p>Vous pouvez changer votre mot de passe à tout moment dans votre profil.</p><p>&nbsp;</p><p>Cordialement,</p><p>Votre administration</p>",
   "REGISTERUSER_TITLE": "Nouvelle inscription",
   "SELECTED_ROW_ORDER": "SELECTED_ROW_ORDER",

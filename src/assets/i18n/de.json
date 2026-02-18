@@ -53,6 +53,8 @@
   "contextMenu.goToAddress": "Adresse anzeigen",
   "contextMenu.staffSchedule": "Dienstplan",
   "contextMenu.noScheduleTemplates": "Kein Dienstplan-Template vorhanden",
+  "contextMenu.deleteBreakPlaceholder": "Löschen",
+  "contextMenu.adoptAbsence": "Absenz übernehmen",
 
   "lockLevel.confirmed": "Bestätigt",
   "lockLevel.approved": "Freigegeben",
@@ -407,6 +409,8 @@
   "NOT_DEFINED": "nicht definiert",
   "NOTE_NEW": "neue Notiz hinzufügen",
   "PASTE": "Einfügen",
+  "DELETE_BREAK_PLACEHOLDER": "Löschen",
+  "ADOPT_ABSENCE": "Absenz übernehmen",
   "REGISTERUSER_MAILTEXT": "<h2><strong>Ihr Passwort f&uuml;r unsere Applikation&nbsp;{appName}.</strong></h2><p>{password}</p><p>Bitte benutzen sie dieses automatisch generierte Passwort nur einmal.</p><p>Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p>&nbsp;</p><p>Freundliche Gr&uuml;sse</p><p>Ihre Administration</p>",
   "REGISTERUSER_TITLE": "Neuregistrierung",
   "SELECTED_ROW_ORDER": "SELECTED_ROW_ORDER",

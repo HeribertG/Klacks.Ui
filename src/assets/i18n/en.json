@@ -53,6 +53,8 @@
   "contextMenu.goToAddress": "Show address",
   "contextMenu.staffSchedule": "Staff Schedule",
   "contextMenu.noScheduleTemplates": "No schedule template available",
+  "contextMenu.deleteBreakPlaceholder": "Delete",
+  "contextMenu.adoptAbsence": "Adopt absence",
 
   "lockLevel.confirmed": "Confirmed",
   "lockLevel.approved": "Approved",
@@ -407,6 +409,8 @@
   "NOT_DEFINED": "not defined",
   "NOTE_NEW": "add new note",
   "PASTE": "Paste",
+  "DELETE_BREAK_PLACEHOLDER": "Delete",
+  "ADOPT_ABSENCE": "Adopt absence",
   "REGISTERUSER_MAILTEXT": "<h2><strong>Your password for our application {appName}.</strong></h2><p>{password}</p><p>Please use this automatically generated password only once.</p><p>You can change your password at any time under Profile.</p><p>&nbsp;</p><p>Kind regards</p><p>Your Administration</p>",
   "REGISTERUSER_TITLE": "Registration",
   "SELECTED_ROW_ORDER": "SELECTED_ROW_ORDER",

@@ -79,6 +79,9 @@ import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
+import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -170,12 +173,15 @@ export class ScheduleSectionComponent
   private navigationService = inject(ScheduleNavigationService);
   private breakBarRender = inject(ScheduleBreakBarRenderService);
   private gridRender = inject(BaseGridRenderService);
+  private dataBreakPlaceholder = inject(DataBreakPlaceholderService);
+  private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private contextMenuRow = -1;
   private contextMenuColumn = -1;
+  private contextMenuBreakPlaceholder: IBreakPlaceholder | null = null;
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -363,7 +369,16 @@ export class ScheduleSectionComponent
     if (!this.contextMenu) return;
 
     this.contextMenu.closeMenu();
-    this.createContextMenu(event.row, event.column);
+
+    const bp = this.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
+    if (bp) {
+      this.contextMenuBreakPlaceholder = bp;
+      this.contextMenu.menuData = this.contextMenuService.createBreakPlaceholderContextMenu(bp);
+    } else {
+      this.contextMenuBreakPlaceholder = null;
+      this.createContextMenu(event.row, event.column);
+    }
+
     this.contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
@@ -443,6 +458,14 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.entryActionsService.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
+      case 'deleteBreakPlaceholder':
+        this.contextMenu.closeMenu(true);
+        this.deleteBreakPlaceholder();
+        break;
+      case 'adoptAbsence':
+        this.contextMenu.closeMenu(true);
+        this.adoptBreakPlaceholder(keys[1]);
+        break;
     }
   }
 
@@ -466,6 +489,37 @@ export class ScheduleSectionComponent
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
     this.dialogService.editWorkChange(event.row, event.column, dataService);
+  }
+
+  private deleteBreakPlaceholder(): void {
+    if (!this.contextMenuBreakPlaceholder?.id) return;
+
+    const id = this.contextMenuBreakPlaceholder.id;
+    this.dataBreakPlaceholder.deleteBreak(id).subscribe({
+      next: () => {
+        this.breakPlaceholderLoader.removeBreakPlaceholder(id);
+        this.workScheduleLoader.applyBreakPlaceholderRows();
+        this.dataManagement.isRead.set({ value: true, resetScroll: false });
+        setTimeout(() => this.dataManagement.isRead.set({ value: false, resetScroll: false }), 100);
+      },
+    });
+  }
+
+  private adoptBreakPlaceholder(absenceItemId?: string): void {
+    if (!this.contextMenuBreakPlaceholder) return;
+    const bp = this.contextMenuBreakPlaceholder;
+
+    this.entryActionsService.adoptBreakPlaceholder(bp, absenceItemId).then(() => {
+      if (!bp.id) return;
+      this.dataBreakPlaceholder.deleteBreak(bp.id).subscribe({
+        next: () => {
+          this.breakPlaceholderLoader.removeBreakPlaceholder(bp.id!);
+          this.workScheduleLoader.applyBreakPlaceholderRows();
+          this.dataManagement.isRead.set({ value: true, resetScroll: false });
+          setTimeout(() => this.dataManagement.isRead.set({ value: false, resetScroll: false }), 100);
+        },
+      });
+    });
   }
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {

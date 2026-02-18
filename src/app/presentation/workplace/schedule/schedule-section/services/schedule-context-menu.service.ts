@@ -24,7 +24,9 @@ import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/se
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -49,6 +51,38 @@ export class ScheduleContextMenuService {
   private absenceMenuService = inject(AbsenceMenuService);
   private lockLevelService = inject(WorkLockLevelService);
   private authService = inject(AuthorizationService);
+
+  createBreakPlaceholderContextMenu(bp: IBreakPlaceholder): Menu {
+    const menuData = new Menu();
+    menuData.list.push(...MenuDataTemplate.deleteBreakPlaceholder());
+    menuData.list.push(...MenuDataTemplate.divider());
+
+    const language = this.translateService.currentLang || 'en';
+    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
+    const detailItems = absenceItems.filter(item => item.absenceId === bp.absenceId && item.isDetail);
+
+    if (detailItems.length > 0) {
+      const adoptItem = new MenuItem('adoptAbsence', MessageLibrary.ADOPT_ABSENCE, false);
+      adoptItem.hasMenu = true;
+      adoptItem.menu = new Menu();
+      for (const detail of detailItems) {
+        const subItem = new MenuItem('adoptAbsence', detail.name, false);
+        subItem.valueKey = detail.id;
+        subItem.svgIcon = this.getAbsenceSvgIcon(detail.color);
+        if (detail.mode === AbsenceDetailMode.TimeRange && detail.startTime && detail.endTime) {
+          subItem.subText = `(${this.formatTimeHHMM(detail.startTime)} - ${this.formatTimeHHMM(detail.endTime)})`;
+        } else if (detail.mode === AbsenceDetailMode.Duration && detail.duration) {
+          subItem.subText = `(${detail.duration}h)`;
+        }
+        adoptItem.menu.list.push(subItem);
+      }
+      menuData.list.push(adoptItem);
+    } else {
+      menuData.list.push(new MenuItem('adoptAbsence', MessageLibrary.ADOPT_ABSENCE, false));
+    }
+
+    return menuData;
+  }
 
   createContextMenu(context: ContextMenuContext): Menu {
     const menuData = new Menu();

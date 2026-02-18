@@ -27,8 +27,10 @@ export class ScheduleBreakBarRenderService {
   private translateService = inject(TranslateService);
   private gridFonts = inject(GridFontsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private lastRenderedLayouts = new Map<number, BreakBarLayout[]>();
 
   renderBreakBars(ctx: CanvasRenderingContext2D): void {
+    this.lastRenderedLayouts.clear();
     if (!this.dataManagementSchedule.showBreakPlaceholders()) return;
     if (!this.dataService.startDate) return;
 
@@ -73,6 +75,7 @@ export class ScheduleBreakBarRenderService {
       if (!breakPlaceholders.length) continue;
 
       const layouts = this.assignSubRows(breakPlaceholders);
+      this.lastRenderedLayouts.set(clientIndex, layouts);
 
       for (const layout of layouts) {
         const clampedStartCol = Math.max(layout.startCol, firstVisibleCol);
@@ -145,6 +148,27 @@ export class ScheduleBreakBarRenderService {
     }
 
     return layouts;
+  }
+
+  getBreakPlaceholderAt(row: number, col: number): IBreakPlaceholder | null {
+    const clientIndex = this.dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) return null;
+
+    const clientStartRow = this.dataService.indexGroupRow[clientIndex];
+    const neededRows = this.dataService.getNeededRowsForClient(clientIndex);
+    const displayRows = this.dataService.getDisplayRowsForClient(clientIndex);
+
+    if (displayRows <= neededRows) return null;
+
+    const rowWithinClient = row - clientStartRow;
+    if (rowWithinClient < neededRows) return null;
+
+    const subRow = rowWithinClient - neededRows;
+    const layouts = this.lastRenderedLayouts.get(clientIndex);
+    if (!layouts) return null;
+
+    const hit = layouts.find(l => l.subRow === subRow && col >= l.startCol && col <= l.endCol);
+    return hit?.bp ?? null;
   }
 
   private daysBetween(start: Date, end: Date): number {
