@@ -45,6 +45,15 @@
   >
     <app-icon-angle-right />
   </button>
+  <button
+    type="button"
+    class="icon-button break-placeholder-toggle"
+    [class.active]="showBreakPlaceholders"
+    (click)="toggleBreakPlaceholders()"
+    ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
+  >
+    <app-icon-break-placeholder #breakPlaceholderIcon />
+  </button>
   <span class="filler"></span>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button

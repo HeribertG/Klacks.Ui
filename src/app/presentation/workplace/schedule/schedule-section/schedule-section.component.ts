@@ -78,6 +78,7 @@ import { ScheduleDialogService } from './services/schedule-dialog.service';
 import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
+import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -114,6 +115,7 @@ import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/dire
     ScheduleDialogService,
     ScheduleDragDropService,
     ScheduleNavigationService,
+    ScheduleBreakBarRenderService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
@@ -166,6 +168,8 @@ export class ScheduleSectionComponent
   private dialogService = inject(ScheduleDialogService);
   private dragDropService = inject(ScheduleDragDropService);
   private navigationService = inject(ScheduleNavigationService);
+  private breakBarRender = inject(ScheduleBreakBarRenderService);
+  private gridRender = inject(BaseGridRenderService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -199,6 +203,7 @@ export class ScheduleSectionComponent
     this.dataManagement.readDatas();
     this.scheduleSurface.drawSchedule.showFillHandle = true;
     this.dialogService.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog);
+    this.gridRender.overlayRenderer = (ctx) => this.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
@@ -235,6 +240,7 @@ export class ScheduleSectionComponent
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.gridRender.overlayRenderer = undefined;
 
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];

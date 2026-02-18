@@ -37,6 +37,8 @@ import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
+import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 
@@ -51,6 +53,7 @@ export class ScheduleDataService extends BaseDataService {
   private breakFormatter = inject(BreakCellFormatterService);
   private gridColorService = inject(GridColorService);
   private absenceLookup = inject(AbsenceLookupService);
+  private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private translateService = inject(TranslateService);
 
   public override rowGroupIndex: number[] = new Array<number>();
@@ -113,6 +116,22 @@ export class ScheduleDataService extends BaseDataService {
 
   public getGroupIndex(index: number) {
     return this.dataManagementSchedule.clients[index];
+  }
+
+  public getBreakPlaceholdersForClient(clientIndex: number): IBreakPlaceholder[] {
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client?.id) return [];
+    return this.breakPlaceholderLoader.getBreakPlaceholdersForClient(client.id);
+  }
+
+  public getNeededRowsForClient(clientIndex: number): number {
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    return client?.neededRows ?? 0;
+  }
+
+  public getDisplayRowsForClient(clientIndex: number): number {
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    return client?.displayRows ?? 0;
   }
 
   public getRowHeaderSlot1Text(index: number): string {
@@ -279,7 +298,7 @@ export class ScheduleDataService extends BaseDataService {
 
       for (
         let row = 0;
-        row < this.dataManagementSchedule.clients[client].neededRows;
+        row < this.dataManagementSchedule.clients[client].displayRows;
         row++
       ) {
         this.rowGroupIndex.push(client);

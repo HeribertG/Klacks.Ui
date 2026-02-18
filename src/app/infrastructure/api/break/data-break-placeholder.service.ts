@@ -38,6 +38,15 @@ export class DataBreakPlaceholderService {
       .pipe(retry(3));
   }
 
+  getScheduleList(filter: IBreakFilter): Observable<IClientBreak[]> {
+    return this.httpClient
+      .post<IClientBreak[]>(
+        `${environment.baseUrl}BreakPlaceholders/GetScheduleList/`,
+        filter,
+      )
+      .pipe(retry(3));
+  }
+
   getClientList(filter: IBreakFilter): Observable<{ clients: IClientBreak[], totalCount: number }> {
     return this.httpClient
       .post<IClientBreak[]>(

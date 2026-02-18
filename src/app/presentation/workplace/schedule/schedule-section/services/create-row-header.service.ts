@@ -502,8 +502,8 @@ export class BaseCreateRowHeaderService {
     const index: number = this.gridData.rowGroupIndex[row];
     cell.firstRow = this.gridData.indexGroupRow[index];
     const client = this.gridData.getGroupIndex(index) as ClientWork;
-    const neededRows = client?.neededRows ?? 0;
-    cell.lastRow = cell.firstRow + neededRows - 1;
+    const displayRows = client?.displayRows ?? 0;
+    cell.lastRow = cell.firstRow + displayRows - 1;
   }
 
   private drawCell(
@@ -513,8 +513,8 @@ export class BaseCreateRowHeaderService {
     clientIndex: number
   ): void {
     const tempCanvas = document.createElement('canvas');
-    const neededRows = client.neededRows;
-    const height = this.settings.getGroupLineHeight(neededRows);
+    const displayRows = client.displayRows;
+    const height = this.settings.getGroupLineHeight(displayRows);
 
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);

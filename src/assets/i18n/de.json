@@ -628,6 +628,7 @@
   "pdf.directions": "Wegbeschreibung",
   "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
 
+  "schedule.breakPlaceholder.toggle": "Gewünschte Absenzen ein-/ausblenden",
   "schedule.pdf.schedule": "Einsatzplan PDF",
   "schedule.pdf.shifts": "Schichtplan PDF",
 

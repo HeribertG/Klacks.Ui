@@ -626,6 +626,7 @@
   "pdf.directions": "Itinéraire",
   "pdf.no-directions-available": "Aucune indication détaillée disponible",
 
+  "schedule.breakPlaceholder.toggle": "Afficher/masquer les barres d'absence",
   "schedule.pdf.schedule": "Planning PDF",
   "schedule.pdf.shifts": "Plan de service PDF",
 

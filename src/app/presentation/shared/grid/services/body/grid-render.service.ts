@@ -23,6 +23,8 @@ export class BaseGridRenderService {
   protected gridData = inject(BaseDataService);
   protected scroll = inject(ScrollService);
 
+  public overlayRenderer?: (ctx: CanvasRenderingContext2D) => void;
+
   public drawGrid(
     visibleRow: number,
     visibleCol: number,
@@ -74,6 +76,8 @@ export class BaseGridRenderService {
       renderWidth,
       renderHeight
     );
+
+    this.overlayRenderer?.(ctx);
   }
 
   public renderHeader() {

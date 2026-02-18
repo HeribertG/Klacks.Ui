@@ -16,6 +16,7 @@ import {
   getDateKeysBetween,
 } from 'src/app/shared/helpers/date.helper';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,7 @@ export class WorkScheduleLoaderService {
   private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
   private signalRService = inject(SignalRService);
+  private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -209,6 +211,7 @@ export class WorkScheduleLoaderService {
           this.startDate = new Date(response.startDate);
           this.endDate = new Date(response.endDate);
           this.updateClientNeededRows();
+          this.applyBreakPlaceholderRows();
 
           this._isRead.set(true);
           setTimeout(() => this._isRead.set(false), 100);
@@ -266,6 +269,7 @@ export class WorkScheduleLoaderService {
           }
 
           this.updateClientNeededRows();
+          this.applyBreakPlaceholderRows();
 
           if (newClients.length < this._currentChunkSize) {
             this._totalAvailableClients = this.clients.length;
@@ -367,6 +371,7 @@ export class WorkScheduleLoaderService {
       type: c.type,
       membershipId: '',
       neededRows: 2,
+      displayRows: 2,
       works: [],
       hasContract: c.hasContract ?? false,
     }));
@@ -378,10 +383,34 @@ export class WorkScheduleLoaderService {
 
     for (const client of this.clients) {
       if (client.id) {
-        const maxEntries = (maxEntriesMap.get(client.id) || 0) + 1;
-        client.neededRows = Math.max(MIN_ROWS, maxEntries);
+        const workMax = (maxEntriesMap.get(client.id) || 0) + 1;
+        client.neededRows = Math.max(MIN_ROWS, workMax);
       } else {
         client.neededRows = MIN_ROWS;
+      }
+      client.displayRows = client.neededRows;
+    }
+  }
+
+  public resetToNeededRows(): void {
+    for (const client of this.clients) {
+      client.displayRows = client.neededRows;
+    }
+  }
+
+  public applyBreakPlaceholderRows(): void {
+    if (!this.startDate || !this.endDate) return;
+
+    const breakMaxMap =
+      this.breakPlaceholderLoader.getMaxBreakPlaceholdersPerClientAndDay(
+        formatDateOnly(this.startDate),
+        formatDateOnly(this.endDate),
+      );
+
+    for (const client of this.clients) {
+      if (client.id) {
+        const breakMax = breakMaxMap.get(client.id) || 0;
+        client.displayRows = client.neededRows + breakMax;
       }
     }
   }

@@ -61,6 +61,7 @@ export interface IClientWork {
   title?: string;
   type: number;
   neededRows: number;
+  displayRows: number;
   works: Work[];
   hasContract: boolean;
 }
@@ -81,6 +82,7 @@ export class ClientWork implements IClientWork {
   title = '';
   type!: number;
   neededRows = 3;
+  displayRows = 3;
   works: Work[] = [];
   hasContract = false;
 }

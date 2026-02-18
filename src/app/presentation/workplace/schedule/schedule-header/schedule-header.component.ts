@@ -14,6 +14,7 @@
  * - Uses: HolidayCollectionService for holiday data
  */
 import {
+  AfterViewInit,
   Component,
   EventEmitter,
   inject,
@@ -45,6 +46,7 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
@@ -70,11 +72,13 @@ import { CalendarUtilService } from 'src/app/domain/services/calendar-util.servi
     IconAngleLeftComponent,
     IconAngleRightComponent,
     PdfIconComponent,
+    IconBreakPlaceholderComponent,
   ],
   providers: [],
 })
-export class ScheduleHeaderComponent implements OnInit {
+export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
+  @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
   value = 100;
   options: Options = {
     floor: 50,
@@ -147,8 +151,27 @@ export class ScheduleHeaderComponent implements OnInit {
     this.dataManagementSchedule.workFilter.currentYear = value;
   }
 
+  get showBreakPlaceholders(): boolean {
+    return this.dataManagementSchedule.showBreakPlaceholders();
+  }
+
+  toggleBreakPlaceholders(): void {
+    this.dataManagementSchedule.toggleBreakPlaceholders();
+    this.updateBreakPlaceholderIcon();
+  }
+
   ngOnInit(): void {
     this.emitZoomChange();
+  }
+
+  ngAfterViewInit(): void {
+    this.updateBreakPlaceholderIcon();
+  }
+
+  private updateBreakPlaceholderIcon(): void {
+    if (this.breakPlaceholderIcon) {
+      this.breakPlaceholderIcon.ChangeColor(this.showBreakPlaceholders);
+    }
   }
 
   onChange() {

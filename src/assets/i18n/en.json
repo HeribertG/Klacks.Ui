@@ -626,6 +626,7 @@
   "pdf.directions": "Directions",
   "pdf.no-directions-available": "No detailed directions available",
 
+  "schedule.breakPlaceholder.toggle": "Show/hide absence bars",
   "schedule.pdf.schedule": "Schedule PDF",
   "schedule.pdf.shifts": "Shift schedule PDF",
 

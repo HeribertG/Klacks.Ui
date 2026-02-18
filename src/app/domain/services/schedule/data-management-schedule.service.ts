@@ -28,6 +28,7 @@ import {
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { DataManagementWorkService } from '../work/data-management-work.service';
@@ -46,6 +47,7 @@ export class DataManagementScheduleService implements ILoadable {
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private injector = inject(Injector);
 
+  private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private shiftLoader = inject(ShiftScheduleLoaderService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private workCrud = inject(DataManagementWorkService);
@@ -82,8 +84,23 @@ export class DataManagementScheduleService implements ILoadable {
           );
         }
       });
+
+      effect(() => {
+        if (this.breakPlaceholderLoader.isLoaded()) {
+          if (this.showBreakPlaceholders()) {
+            this.workScheduleLoader.applyBreakPlaceholderRows();
+          }
+          this.isRead.set({ value: true, resetScroll: false });
+          setTimeout(
+            () => this.isRead.set({ value: false, resetScroll: false }),
+            100,
+          );
+        }
+      });
     });
   }
+
+  public showBreakPlaceholders = signal(true);
 
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean {
@@ -184,6 +201,11 @@ export class DataManagementScheduleService implements ILoadable {
     );
     this.readWorkSchedule();
     this.readShiftSchedule(true, dates.startDate, dates.endDate);
+    this.breakPlaceholderLoader.load(
+      dates.startDate,
+      dates.endDate,
+      this.workFilter,
+    );
   }
 
   readShiftSchedule(resetScroll = true, startDate?: string, endDate?: string) {
@@ -343,6 +365,23 @@ export class DataManagementScheduleService implements ILoadable {
       return true;
     }
     return false;
+  }
+
+  toggleBreakPlaceholders(): void {
+    const newValue = !this.showBreakPlaceholders();
+    this.showBreakPlaceholders.set(newValue);
+
+    if (newValue) {
+      this.workScheduleLoader.applyBreakPlaceholderRows();
+    } else {
+      this.workScheduleLoader.resetToNeededRows();
+    }
+
+    this.isRead.set({ value: true, resetScroll: false });
+    setTimeout(
+      () => this.isRead.set({ value: false, resetScroll: false }),
+      100,
+    );
   }
 
   public destroy(): void {

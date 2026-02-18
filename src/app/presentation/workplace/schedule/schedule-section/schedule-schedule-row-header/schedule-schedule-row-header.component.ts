@@ -318,7 +318,7 @@ export class ScheduleScheduleRowHeaderComponent
 
     const firstRow = this.dataService.indexGroupRow[clientIndex];
     const client = this.dataService.getGroupIndex(clientIndex);
-    const lastRow = firstRow + (client?.neededRows ?? 1) - 1;
+    const lastRow = firstRow + (client?.displayRows ?? 1) - 1;
 
     if (row < firstRow || row > lastRow) {
       this.tooltipService.hide();

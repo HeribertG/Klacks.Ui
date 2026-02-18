@@ -448,9 +448,9 @@ export class BaseDrawRowHeaderService {
           if (!groupIndex) {
             return undefined;
           }
-          const neededRows: number = groupIndex.neededRows;
+          const displayRows: number = groupIndex.displayRows;
           const groupLineHeight: number =
-            this.settings.getGroupLineHeight(neededRows);
+            this.settings.getGroupLineHeight(displayRows);
 
           const yPosition = diffRow * this.settings.cellHeight;
 
@@ -497,7 +497,7 @@ export class BaseDrawRowHeaderService {
       return;
     }
 
-    let neededRows: number = groupIndex.neededRows;
+    let displayRows: number = groupIndex.displayRows;
     if (redraw && firstRow === this.lastSelection) {
       return;
     }
@@ -510,10 +510,10 @@ export class BaseDrawRowHeaderService {
       (this.firstVisibleRow * -1 + firstRow) * this.settings.cellHeight;
     if (top < this.settings.cellHeaderHeight) {
       correction = firstRow - this.firstVisibleRow;
-      neededRows += correction;
+      displayRows += correction;
       top = this.settings.cellHeaderHeight;
     }
-    const height: number = this.settings.cellHeight * neededRows;
+    const height: number = this.settings.cellHeight * displayRows;
     if (height < this.settings.cellHeaderHeight) {
       return;
     }
