@@ -631,6 +631,7 @@
   "pdf.no-directions-available": "Nessuna indicazione dettagliata disponibile",
 
   "schedule.breakPlaceholder.toggle": "Mostra/nascondi barre assenza",
+  "schedule.sendEmail.tooltip": "Invia e-mail",
   "schedule.pdf.schedule": "Pianificazione PDF",
   "schedule.pdf.shifts": "Piano turni PDF",
 

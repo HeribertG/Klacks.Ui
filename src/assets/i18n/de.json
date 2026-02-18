@@ -633,6 +633,7 @@
   "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
 
   "schedule.breakPlaceholder.toggle": "Gewünschte Absenzen ein-/ausblenden",
+  "schedule.sendEmail.tooltip": "E-Mail senden",
   "schedule.pdf.schedule": "Einsatzplan PDF",
   "schedule.pdf.shifts": "Schichtplan PDF",
 

@@ -100,7 +100,7 @@ export class DataManagementScheduleService implements ILoadable {
     });
   }
 
-  public showBreakPlaceholders = signal(true);
+  public showBreakPlaceholders = signal(false);
 
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean {

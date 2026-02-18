@@ -16,6 +16,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   EventEmitter,
   inject,
   OnInit,
@@ -47,7 +48,9 @@ import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-le
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
+import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -73,6 +76,7 @@ import { CalendarUtilService } from 'src/app/domain/services/calendar-util.servi
     IconAngleRightComponent,
     PdfIconComponent,
     IconBreakPlaceholderComponent,
+    IconFlyComponent,
   ],
   providers: [],
 })
@@ -101,6 +105,12 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private allScheduleStateService = inject(AllScheduleStateService);
   private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
+  private appSettings = inject(AppSettingsManagementService);
+
+  isEmailConfigured = computed(() => {
+    const e = this.appSettings.emailSettings();
+    return !!e.outgoingServer && !!e.outgoingServerPort && !!e.username && !!e.password;
+  });
 
   get paymentInterval(): number {
     return this.settingsService.paymentInterval;

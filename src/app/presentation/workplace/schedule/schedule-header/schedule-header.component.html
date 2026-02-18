@@ -45,6 +45,17 @@
   >
     <app-icon-angle-right />
   </button>
+
+  @if (isEmailConfigured()) {
+    <button
+      type="button"
+      class="send-email-button disabled"
+      ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
+    >
+      <app-icon-fly />
+    </button>
+  }
+
   <button
     type="button"
     class="icon-button break-placeholder-toggle"
@@ -54,6 +65,7 @@
   >
     <app-icon-break-placeholder #breakPlaceholderIcon />
   </button>
+
   <span class="filler"></span>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
@@ -79,7 +91,11 @@
     </div>
   </div>
 
-  <div class="pdf-export-button" (click)="onPdfExport()" ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}">
+  <div
+    class="pdf-export-button"
+    (click)="onPdfExport()"
+    ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"
+  >
     <app-icon-pdf-icon></app-icon-pdf-icon>
   </div>
 

@@ -631,6 +631,7 @@
   "pdf.no-directions-available": "No detailed directions available",
 
   "schedule.breakPlaceholder.toggle": "Show/hide absence bars",
+  "schedule.sendEmail.tooltip": "Send email",
   "schedule.pdf.schedule": "Schedule PDF",
   "schedule.pdf.shifts": "Shift schedule PDF",
 

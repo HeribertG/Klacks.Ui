@@ -119,6 +119,33 @@
   }
 }
 
+.send-email-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  margin-left: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:not(.disabled):hover {
+    opacity: 0.8;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+}
+
 .pdf-export-button {
   margin-top: 5px;
   margin-right: 10px;
