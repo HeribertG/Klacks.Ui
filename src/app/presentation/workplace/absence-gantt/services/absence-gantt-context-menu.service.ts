@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateService } from '@ngx-translate/core';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
@@ -32,8 +33,9 @@ export class AbsenceGanttContextMenuService {
 
   createContextMenu(event: MouseEvent, isOverSelection: boolean): void {
     const menuData = new Menu();
+    const isScheduleBreak = this.drawCalendarGantt.selectedBreak?.entrySource === EntrySource.Schedule;
 
-    if (isOverSelection) {
+    if (isOverSelection && !isScheduleBreak) {
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.copyCutPaste());
       menuData.list.push(...MenuDataTemplate.delete());

@@ -16,6 +16,7 @@ import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
@@ -195,6 +196,10 @@ export class AbsenceGanttMaskComponent
       }
     }
     return undefined;
+  }
+
+  get isScheduleBreak(): boolean {
+    return this.selectedBreak?.entrySource === EntrySource.Schedule;
   }
 
   onChange() {

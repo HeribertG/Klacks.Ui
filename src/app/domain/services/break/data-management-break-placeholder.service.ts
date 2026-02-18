@@ -6,6 +6,7 @@ import {
   IBreakPlaceholder,
   IBreakFilter,
 } from 'src/app/domain/models/break/break-class';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -239,6 +240,9 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   }
 
   addBreak(index: number, value: IBreakPlaceholder): boolean {
+    if (value.entrySource === EntrySource.Schedule) {
+      return false;
+    }
     if (index < this.clients.length) {
       const client = this.clients[index];
 
@@ -265,6 +269,9 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   }
 
   deleteBreak(index: number, value: IBreakPlaceholder) {
+    if (value.entrySource === EntrySource.Schedule) {
+      return;
+    }
     if (value.id) {
       this.dataBreakPlaceholderService
         .deleteBreak(value.id!)
@@ -291,6 +298,9 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   }
 
   async updateBreak(index: number, value: IBreakPlaceholder) {
+    if (value.entrySource === EntrySource.Schedule) {
+      return;
+    }
     if (index < 0 || index >= this.clients.length) {
       return;
     }

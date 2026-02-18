@@ -8,6 +8,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { IBreakPlaceholder, BreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
 
@@ -169,9 +170,11 @@ export class RowSelectionService {
           .absenceList()
           .find((as) => as.id === tmpBreak.absenceId);
         if (abs) {
-          this.breakRenderingService.drawBreakIntern(rec, abs.color!);
+          this.breakRenderingService.drawBreakIntern(rec, abs.color!, tmpBreak.entrySource);
           this.breakRenderingService.drawBreakSelectBorderIntern(this.selectedBreakRec);
-          this.breakRenderingService.drawBreakSelectBorderInternAnchor(this.selectedBreakRec);
+          if (tmpBreak.entrySource !== EntrySource.Schedule) {
+            this.breakRenderingService.drawBreakSelectBorderInternAnchor(this.selectedBreakRec);
+          }
         }
       }
     }

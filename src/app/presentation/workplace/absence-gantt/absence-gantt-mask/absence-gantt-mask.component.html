@@ -89,6 +89,7 @@
                   (ngModelChange)="internalFrom = $event; onChange()"
                   ngbDatepicker
                   #internalFromPicker="ngbDatepicker"
+                  [disabled]="isScheduleBreak"
                 />
                 <span
                   id="absence-mask-internal-from-icon"
@@ -123,6 +124,7 @@
                   (ngModelChange)="internalUntil = $event; onChange()"
                   ngbDatepicker
                   #internalUntilPicker="ngbDatepicker"
+                  [disabled]="isScheduleBreak"
                 />
                 <span
                   id="absence-mask-internal-until-icon"
@@ -159,6 +161,7 @@
                       onChange(); selectedBreak!.absenceId = $event
                     "
                     aria-label="type"
+                    [disabled]="isScheduleBreak"
                   >
                     @for (c of dataManagementAbsence.absenceList(); track c.id)
                     {
@@ -177,6 +180,7 @@
           }
         </div>
 
+        @if (!isScheduleBreak) {
         <div id="absence-mask-description-container" class="container-mask-description">
           <div class="form-group">
             <label for="absence-mask-information">
@@ -189,15 +193,17 @@
               <app-rich-text-editor
                 id="absence-mask-information"
                 [content]="selectedBreak.information || ''"
-                [showToolbar]="true"
+                [showToolbar]="!isScheduleBreak"
                 [showToolbarOnlyOnFocus]="false"
                 [height]="'54px'"
                 editorId="absence-information-editor"
+                [disabled]="isScheduleBreak"
                 (contentChange)="onInformationChange($event)"
               ></app-rich-text-editor>
             </div>
           </div>
         </div>
+        }
       </div>
     </div>
     }
@@ -233,6 +239,7 @@
     <button
       id="absence-mask-delete-button"
       class="btn delete-btn"
+      [disabled]="isScheduleBreak"
       (click)="dataManagementBreak.deleteBreak(selectedRow, selectedBreak)"
     >
       {{ "button.delete" | translate }}

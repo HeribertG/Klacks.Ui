@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
+import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
@@ -58,7 +60,8 @@ export class BreakRenderingService {
               this.drawRowBreakWithLayer(
                 adjustedRec,
                 abs.color,
-                breakWithLayer.layer
+                breakWithLayer.layer,
+                breakWithLayer.entrySource
               );
             }
           } catch (error) {
@@ -75,37 +78,42 @@ export class BreakRenderingService {
   private drawRowBreakWithLayer(
     rec: Rectangle,
     color: string,
-    layer: number
+    layer: number,
+    entrySource: EntrySource
   ): void {
     if (!this.ganttCanvasManager.rowCtx!) {
       return;
     }
 
-    this.ganttCanvasManager.rowCtx!.save();
+    const ctx = this.ganttCanvasManager.rowCtx!;
+    ctx.save();
 
     if (layer === 0) {
-      this.ganttCanvasManager.rowCtx!.globalAlpha = 1.0;
+      ctx.globalAlpha = 1.0;
     } else {
-      this.ganttCanvasManager.rowCtx!.globalAlpha = 0.85;
+      ctx.globalAlpha = 0.85;
     }
 
-    DrawHelper.fillRectangle(this.ganttCanvasManager.rowCtx!, color, rec);
+    DrawHelper.fillRectangle(ctx, color, rec);
 
-    if (layer > 0) {
-      this.ganttCanvasManager.rowCtx!.strokeStyle = DrawHelper.GetDarkColor(
-        color,
-        180
-      );
-      this.ganttCanvasManager.rowCtx!.lineWidth = 0.5;
-      this.ganttCanvasManager.rowCtx!.strokeRect(
+    if (entrySource === EntrySource.Schedule) {
+      DrawHelper.drawBorder(
+        ctx,
         rec.left,
         rec.top,
         rec.width,
-        rec.height
+        rec.bottom,
+        color,
+        3,
+        Gradient3DBorderStyleEnum.Raised
       );
+    } else if (layer > 0) {
+      ctx.strokeStyle = DrawHelper.GetDarkColor(color, 180);
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(rec.left, rec.top, rec.width, rec.height);
     }
 
-    this.ganttCanvasManager.rowCtx!.restore();
+    ctx.restore();
   }
 
   public getRecommendedRowHeight(index: number, cellHeight: number): number {
@@ -125,8 +133,20 @@ export class BreakRenderingService {
     );
   }
 
-  public drawBreakIntern(rec: Rectangle, color: string): void {
+  public drawBreakIntern(rec: Rectangle, color: string, entrySource?: EntrySource): void {
     DrawHelper.fillRectangle(this.ganttCanvasManager.ctx!, color, rec);
+    if (entrySource === EntrySource.Schedule) {
+      DrawHelper.drawBorder(
+        this.ganttCanvasManager.ctx!,
+        rec.left,
+        rec.top,
+        rec.width,
+        rec.bottom,
+        color,
+        3,
+        Gradient3DBorderStyleEnum.Raised
+      );
+    }
   }
 
   public drawBreakSelectBorderIntern(rec: Rectangle): void {

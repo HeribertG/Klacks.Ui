@@ -1,5 +1,6 @@
 import { Absence } from '../absence/absence-class';
 import { Client } from '../client/client-class';
+import { EntrySource } from '../../enums/entry-source.enum';
 import { IBaseFilter } from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';
 import { IPeriodHours, IScheduleCell } from '../schedule/work-schedule-class';
@@ -55,6 +56,7 @@ export interface IBreakPlaceholder {
   absenceId: string;
   absence: Absence | undefined;
   information: string | undefined;
+  entrySource: EntrySource;
 }
 
 export class BreakPlaceholder implements IBreakPlaceholder {
@@ -66,6 +68,7 @@ export class BreakPlaceholder implements IBreakPlaceholder {
   absenceId = '';
   absence: Absence | undefined = undefined;
   information: string | undefined = undefined;
+  entrySource: EntrySource = EntrySource.Placeholder;
 }
 
 
@@ -89,6 +92,8 @@ export interface IBreakFilter extends IBaseFilter {
   showEmployees: boolean;
   showExtern: boolean;
   hoursSortOrder: string | undefined;
+  startDate?: string;
+  endDate?: string;
 }
 
 export class BreakFilter implements IBreakFilter {
@@ -109,4 +114,6 @@ export class BreakFilter implements IBreakFilter {
   showEmployees = true;
   showExtern = true;
   hoursSortOrder: string | undefined = undefined;
+  startDate?: string;
+  endDate?: string;
 }

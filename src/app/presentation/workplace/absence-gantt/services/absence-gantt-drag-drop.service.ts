@@ -8,6 +8,7 @@ import { CalendarSettingService } from 'src/app/presentation/workplace/absence-g
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -40,6 +41,10 @@ export class AbsenceGanttDragDropService {
   onMouseDown(event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
+
+    if (this.drawCalendarGantt.selectedBreak?.entrySource === EntrySource.Schedule) {
+      return;
+    }
 
     const x = event.offsetX;
     const y = event.offsetY;
@@ -190,6 +195,11 @@ export class AbsenceGanttDragDropService {
   }
 
   existActiveSelection(event: MouseEvent): void {
+    if (this.drawCalendarGantt.selectedBreak?.entrySource === EntrySource.Schedule) {
+      this.selectedArea = SelectedArea.None;
+      return;
+    }
+
     const x = event.offsetX;
     const y = event.offsetY;
 
