@@ -60,7 +60,7 @@
       <td [id]="'absence-grid-cell-until-' + i" class="table-cell">{{ data.until | date : "dd.MM.yyyy" }}</td>
       <td [id]="'absence-grid-cell-absence-' + i" class="table-cell">{{ onAbsenceName(data) }}</td>
       <td [id]="'absence-grid-cell-value-' + i" class="table-cell">{{ onAbsenceValue(data) }}</td>
-      <td [id]="'absence-grid-cell-note-' + i" class="table-cell">{{ getPlainTextNote(data) }}</td>
+      <td [id]="'absence-grid-cell-note-' + i" class="table-cell">{{ isScheduleBreak(data) ? ("absence-gantt.absence-gantt-mask.absence-gantt-mask.list.booked" | translate) : getPlainTextNote(data) }}</td>
     </tr>
     }
   </tbody>

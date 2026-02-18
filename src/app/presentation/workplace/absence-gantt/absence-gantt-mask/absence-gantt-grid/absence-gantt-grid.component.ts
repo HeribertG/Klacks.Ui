@@ -17,6 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
+import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
@@ -131,6 +132,10 @@ export class AbsenceGanttGridComponent
       }
     }
     return '';
+  }
+
+  isScheduleBreak(value: IBreakPlaceholder): boolean {
+    return value?.entrySource === EntrySource.Schedule;
   }
 
   getPlainTextNote(value: IBreakPlaceholder): string {

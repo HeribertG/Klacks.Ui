@@ -117,6 +117,7 @@
   "absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday": "Seleziona i giorni festivi",
   "absence-gantt.absence-gantt-mask.absence-gantt-mask.from": "Da",
   "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.absence": "ASSENZA",
+  "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.booked": "Prenotato",
   "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.from": "DA",
   "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.note": "NOTA",
   "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.until": "A",
