@@ -8,6 +8,7 @@ import {
   DEFAULT_PENALTY_WEIGHTS
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import {
   CoreShift,
   CoreAgent,
@@ -16,12 +17,7 @@ import {
   calculateFairness as coreCalculateFairness,
   calculateCoverage as coreCalculateCoverage
 } from './evolution-core';
-
-export interface IConstraintViolation {
-  type: 'hard' | 'soft';
-  agentId: string;
-  description: string;
-}
+import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -122,7 +118,7 @@ export class FitnessEvaluatorService {
       });
     }
 
-    const MAX_DAILY_HOURS = 10;
+    const MAX_DAILY_HOURS = SCHEDULING_CONSTANTS.MAX_DAILY_HOURS;
     for (const [agentId, dailyMap] of agentDailyHours) {
       for (const [dateKey, hours] of dailyMap) {
         if (hours > MAX_DAILY_HOURS) {
@@ -144,7 +140,7 @@ export class FitnessEvaluatorService {
       for (let i = 1; i < workedDates.length; i++) {
         const prev = new Date(workedDates[i - 1]);
         const curr = new Date(workedDates[i]);
-        const diffDays = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+        const diffDays = (curr.getTime() - prev.getTime()) / EVOLUTION_CONSTANTS.MS_PER_DAY;
 
         if (diffDays === 1) {
           consecutive++;
@@ -190,7 +186,7 @@ export class FitnessEvaluatorService {
 
         const prevEndTime = new Date(`${prev.date}T${prev.end}`);
         const currStartTime = new Date(`${curr.date}T${curr.start}`);
-        const pauseHours = (currStartTime.getTime() - prevEndTime.getTime()) / (1000 * 60 * 60);
+        const pauseHours = (currStartTime.getTime() - prevEndTime.getTime()) / EVOLUTION_CONSTANTS.MS_PER_HOUR;
 
         if (pauseHours > 0 && pauseHours < agent.minRestHours && prev.date !== curr.date) {
           violations.push({
@@ -224,7 +220,7 @@ export class FitnessEvaluatorService {
       const hours = Array.from(agentHours.values());
       const avg = hours.reduce((s, h) => s + h, 0) / hours.length;
       const maxDeviation = Math.max(...hours.map(h => Math.abs(h - avg)));
-      if (avg > 0 && maxDeviation / avg > 0.5) {
+      if (avg > 0 && maxDeviation / avg > SCHEDULING_CONSTANTS.FAIRNESS_MAX_DEVIATION_RATIO) {
         const worstAgent = Array.from(agentHours.entries())
           .sort((a, b) => Math.abs(b[1] - avg) - Math.abs(a[1] - avg))[0];
         violations.push({
@@ -237,7 +233,7 @@ export class FitnessEvaluatorService {
 
     for (const agent of agents) {
       const totalHours = (agentHours.get(agent.id) || 0) + agent.currentHours;
-      if (agent.guaranteedHours > 0 && totalHours > agent.guaranteedHours * 1.2) {
+      if (agent.guaranteedHours > 0 && totalHours > agent.guaranteedHours * SCHEDULING_CONSTANTS.OVERTIME_THRESHOLD_FACTOR) {
         violations.push({
           type: 'soft',
           agentId: agent.id,
@@ -247,7 +243,7 @@ export class FitnessEvaluatorService {
     }
 
     for (const assignment of scenario.assignments) {
-      if (assignment.motivationScore < 0.2) {
+      if (assignment.motivationScore < SCHEDULING_CONSTANTS.LOW_MOTIVATION_THRESHOLD) {
         violations.push({
           type: 'soft',
           agentId: assignment.agentId,

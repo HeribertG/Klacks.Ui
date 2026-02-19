@@ -1,3 +1,5 @@
+import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS, AGENT_STATE_CONSTANTS } from '../../../models/automation/automation-constants';
+
 export interface CoreShift {
   id: string;
   name: string;
@@ -82,13 +84,13 @@ export type RngFn = () => number;
 export function createSeededRng(seed: number): RngFn {
   let state = seed;
   return () => {
-    state = (state * 1664525 + 1013904223) % 4294967296;
-    return state / 4294967296;
+    state = (state * EVOLUTION_CONSTANTS.RNG_MULTIPLIER + EVOLUTION_CONSTANTS.RNG_INCREMENT) % EVOLUTION_CONSTANTS.RNG_MODULUS;
+    return state / EVOLUTION_CONSTANTS.RNG_MODULUS;
   };
 }
 
 export function generateId(rng: RngFn): string {
-  return 'evo_' + Date.now() + '_' + Math.floor(rng() * 10000);
+  return 'evo_' + Date.now() + '_' + Math.floor(rng() * EVOLUTION_CONSTANTS.ID_RANDOM_RANGE);
 }
 
 function timeSlotsOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
@@ -128,10 +130,9 @@ export function evaluateHardConstraints(
     });
   }
 
-  const MAX_DAILY_HOURS = 10;
   for (const [, dailyMap] of agentDailyHours) {
     for (const [, hours] of dailyMap) {
-      if (hours > MAX_DAILY_HOURS) violations++;
+      if (hours > SCHEDULING_CONSTANTS.MAX_DAILY_HOURS) violations++;
     }
   }
 
@@ -146,7 +147,7 @@ export function evaluateHardConstraints(
     for (let i = 1; i < workedDates.length; i++) {
       const prev = new Date(workedDates[i - 1]);
       const curr = new Date(workedDates[i]);
-      const diffDays = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+      const diffDays = (curr.getTime() - prev.getTime()) / EVOLUTION_CONSTANTS.MS_PER_DAY;
       if (diffDays === 1) {
         consecutive++;
         if (consecutive > agent.maxConsecutiveDays) violations++;
@@ -179,7 +180,7 @@ export function evaluateHardConstraints(
       const curr = sortedSlots[i];
       const prevEnd = new Date(`${prev.date}T${prev.end}`);
       const currStart = new Date(`${curr.date}T${curr.start}`);
-      const pauseHours = (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60);
+      const pauseHours = (currStart.getTime() - prevEnd.getTime()) / EVOLUTION_CONSTANTS.MS_PER_HOUR;
       if (pauseHours > 0 && pauseHours < agent.minRestHours && prev.date !== curr.date) {
         violations++;
       }
@@ -209,18 +210,18 @@ export function evaluateSoftConstraints(
     const hours = Array.from(agentHours.values());
     const avg = hours.reduce((s, h) => s + h, 0) / hours.length;
     const maxDev = Math.max(...hours.map(h => Math.abs(h - avg)));
-    if (avg > 0 && maxDev / avg > 0.5) violations++;
+    if (avg > 0 && maxDev / avg > SCHEDULING_CONSTANTS.FAIRNESS_MAX_DEVIATION_RATIO) violations++;
   }
 
   for (const agent of agents) {
     const totalHours = (agentHours.get(agent.id) || 0) + agent.currentHours;
-    if (agent.guaranteedHours > 0 && totalHours > agent.guaranteedHours * 1.2) {
+    if (agent.guaranteedHours > 0 && totalHours > agent.guaranteedHours * SCHEDULING_CONSTANTS.OVERTIME_THRESHOLD_FACTOR) {
       violations++;
     }
   }
 
   for (const a of scenario.assignments) {
-    if (a.motivationScore < 0.2) violations++;
+    if (a.motivationScore < SCHEDULING_CONSTANTS.LOW_MOTIVATION_THRESHOLD) violations++;
   }
 
   return violations;
@@ -309,12 +310,12 @@ export function createRandomScenario(
 ): CoreScenario {
   const assignments: CoreAssignment[] = [];
   for (const shift of shifts) {
-    if (rng() < 0.7) {
+    if (rng() < SCHEDULING_CONSTANTS.RANDOM_ASSIGNMENT_PROBABILITY) {
       const agent = agents[Math.floor(rng() * agents.length)];
       assignments.push({
         shiftId: shift.id,
         agentId: agent.id,
-        motivationScore: agent.motivation * (0.5 + rng() * 0.5)
+        motivationScore: agent.motivation * (AGENT_STATE_CONSTANTS.DEFAULT_SATISFACTION + rng() * AGENT_STATE_CONSTANTS.DEFAULT_SATISFACTION)
       });
     }
   }
@@ -334,7 +335,7 @@ export function createGreedyScenario(
   const sortedShifts = [...shifts].sort((a, b) => b.priority - a.priority);
   if (variation > 0) {
     for (let i = sortedShifts.length - 1; i > 0; i--) {
-      if (rng() < variation * 0.3) {
+      if (rng() < variation * EVOLUTION_CONSTANTS.GREEDY_SHUFFLE_FACTOR) {
         const j = Math.floor(rng() * (i + 1));
         [sortedShifts[i], sortedShifts[j]] = [sortedShifts[j], sortedShifts[i]];
       }
@@ -350,10 +351,10 @@ export function createGreedyScenario(
       const currentHours = agentScheduledHours.get(agent.id) || 0;
       const dailyKey = `${agent.id}_${dateKey}`;
       if (agentDailyShifts.has(dailyKey) && agentDailyShifts.get(dailyKey)!.size > 0) continue;
-      if (currentHours + shift.hours > 10) continue;
+      if (currentHours + shift.hours > SCHEDULING_CONSTANTS.MAX_DAILY_HOURS) continue;
 
       const hourDeficit = agent.guaranteedHours - (agent.currentHours + currentHours);
-      const score = hourDeficit * 2 + agent.motivation * 10 - currentHours;
+      const score = hourDeficit * EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT + agent.motivation * EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT - currentHours;
       if (score > bestScore) {
         bestScore = score;
         bestAgent = agent;
@@ -489,11 +490,11 @@ export function mutate(
   const newAssignments = [...scenario.assignments];
   const roll = rng();
 
-  if (roll < 0.25 && newAssignments.length > 0) {
+  if (roll < EVOLUTION_CONSTANTS.MUTATION_SWAP_THRESHOLD && newAssignments.length > 0) {
     mutateSwap(newAssignments, agents, rng);
-  } else if (roll < 0.40 && newAssignments.length > 0) {
+  } else if (roll < EVOLUTION_CONSTANTS.MUTATION_REMOVE_THRESHOLD && newAssignments.length > 0) {
     mutateRemove(newAssignments, rng);
-  } else if (roll < 0.70) {
+  } else if (roll < EVOLUTION_CONSTANTS.MUTATION_REPAIR_THRESHOLD) {
     mutateRepair(newAssignments, agents, rng);
   } else {
     mutateHungryFirst(newAssignments, shifts, agents, rng);
@@ -519,7 +520,7 @@ export function crossoverBlock(
   const dates = Array.from(uniqueDates);
   const swapDates = new Set<string>();
   for (const d of dates) {
-    if (rng() < 0.5) swapDates.add(d);
+    if (rng() < EVOLUTION_CONSTANTS.CROSSOVER_SWAP_PROBABILITY) swapDates.add(d);
   }
   if (swapDates.size === 0 && dates.length > 0) {
     swapDates.add(dates[Math.floor(rng() * dates.length)]);
@@ -553,7 +554,7 @@ export function crossoverBlock(
 
 export function tournamentSelect(population: CoreScenario[], rng: RngFn): CoreScenario {
   let best = population[Math.floor(rng() * population.length)];
-  for (let i = 1; i < 3; i++) {
+  for (let i = 1; i < SCHEDULING_CONSTANTS.TOURNAMENT_SIZE; i++) {
     const candidate = population[Math.floor(rng() * population.length)];
     if (candidate.fitness > best.fitness) best = candidate;
   }
@@ -616,7 +617,7 @@ export function runEvolution(
 
     const avgFitness = population.reduce((s, sc) => s + sc.fitness, 0) / population.length;
 
-    if (gen % 5 === 0 || gen === 1) {
+    if (gen % EVOLUTION_CONSTANTS.PROGRESS_REPORT_INTERVAL === 0 || gen === 1) {
       callbacks.onProgress({
         currentGeneration: gen,
         maxGenerations: config.maxGenerations,
@@ -638,8 +639,8 @@ export function runEvolution(
       return;
     }
 
-    if (bestFitnessHistory.length >= 10) {
-      const recent = bestFitnessHistory.slice(-10);
+    if (bestFitnessHistory.length >= EVOLUTION_CONSTANTS.CONVERGENCE_HISTORY_SIZE) {
+      const recent = bestFitnessHistory.slice(-EVOLUTION_CONSTANTS.CONVERGENCE_HISTORY_SIZE);
       const improvement = recent[0] === 0 ? 1 : (recent[recent.length - 1] - recent[0]) / recent[0];
       if (improvement < config.convergenceThreshold) {
         sendResult(population, gen, 'Converged', 'converged', startTime, callbacks);

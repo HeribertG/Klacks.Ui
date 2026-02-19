@@ -3,16 +3,11 @@ import {
   ScheduleAgent,
   IScheduleAgent
 } from '../../../models/automation/agent/schedule-agent.model';
+import { IAgentFactoryConfig } from '../../../models/automation/agent/agent-factory-config.model';
 import {
   IWorkScheduleClient,
   IPeriodHours
 } from '../../../models/schedule/work-schedule-class';
-
-export interface IAgentFactoryConfig {
-  maxConsecutiveDays?: number;
-  minRestDays?: number;
-  minRestHours?: number;
-}
 
 @Injectable({
   providedIn: 'root'

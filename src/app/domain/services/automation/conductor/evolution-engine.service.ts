@@ -11,6 +11,7 @@ import {
 import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
 import { FitnessEvaluatorService } from './fitness-evaluator.service';
 import { MutationEngineService } from './mutation-engine.service';
+import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -144,7 +145,7 @@ export class EvolutionEngineService {
         return this.createResult(gen, 'Converged', startTime, 'converged');
       }
 
-      if (gen % 10 === 0) {
+      if (gen % SCHEDULING_CONSTANTS.YIELD_INTERVAL_GENERATIONS === 0) {
         await new Promise(resolve => setTimeout(resolve, 0));
       }
     }
@@ -218,7 +219,7 @@ export class EvolutionEngineService {
   }
 
   private tournamentSelect(): ISchedulingScenario {
-    const tournamentSize = 3;
+    const tournamentSize = SCHEDULING_CONSTANTS.TOURNAMENT_SIZE;
     let best = this.population[Math.floor(Math.random() * this.population.length)];
 
     for (let i = 1; i < tournamentSize; i++) {
@@ -288,7 +289,7 @@ export class EvolutionEngineService {
         stagnationCount: this.stagnationCount,
         stopReason
       },
-      success: best !== null && best.coverage > 0.8,
+      success: best !== null && best.coverage > SCHEDULING_CONSTANTS.SUCCESS_COVERAGE_THRESHOLD,
       message
     };
   }

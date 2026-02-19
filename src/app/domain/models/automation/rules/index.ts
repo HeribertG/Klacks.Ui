@@ -1,2 +1,11 @@
-export * from './rule.model';
+export { RuleType } from './rule-type.enum';
+export { RuleSeverity } from './rule-severity.enum';
+export { IRuleViolation } from './rule-violation.model';
+export { IWorkQuant } from './work-quant.model';
+export { IShiftAssignment } from './shift-assignment.model';
+export { IScheduleContext } from './schedule-context.model';
+export { IRuleDefinition, RuleDefinition } from './rule-definition.model';
+export { IRuleEvaluationResult, RuleEvaluationResult } from './rule-evaluation-result.model';
+export { IRuleEvaluationSummary } from './rule-evaluation-summary.model';
+export { IMacroRuleResult } from './macro-rule-result.model';
 export * from './script-compiler.interface';

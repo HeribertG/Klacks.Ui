@@ -1,38 +1,7 @@
 import { IWorkScheduleClient } from '../../schedule/work-schedule-class';
-import { IRuleViolation } from '../rules/rule.model';
-
-export interface IWorkBlock {
-  id: string;
-  startDate: Date;
-  endDate: Date;
-  hours: number;
-  shiftIds: string[];
-}
-
-export interface IShiftHistory {
-  shiftId: string;
-  shiftName: string;
-  count: number;
-  lastDate: Date | null;
-  totalHours: number;
-  averageSatisfaction: number;
-}
-
-export interface IAgentPhysiology {
-  hunger: number;
-  satiety: number;
-}
-
-export interface IAgentPsychology {
-  greed: number;
-  disgust: number;
-}
-
-export interface IAgentState {
-  physiology: IAgentPhysiology;
-  psychology: IAgentPsychology;
-  motivation: number;
-}
+import { IWorkBlock } from './work-block.model';
+import { IShiftHistory } from './shift-history.model';
+import { IAgentState } from './agent-state.model';
 
 export interface IScheduleAgent {
   id: string;
@@ -136,13 +105,4 @@ export class ScheduleAgent implements IScheduleAgent {
     if (this.guaranteedHours === 0) return 1;
     return Math.min(1, this.currentHours / this.guaranteedHours);
   }
-}
-
-export interface IAgentDecision {
-  agent: IScheduleAgent;
-  shiftId: string;
-  shiftName: string;
-  motivationScore: number;
-  ruleViolations: IRuleViolation[];
-  acceptanceProbability: number;
 }

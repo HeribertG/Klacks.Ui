@@ -5,6 +5,7 @@ import {
 } from '../../../models/automation/agent/schedule-agent.model';
 import { IRuleViolation, IScheduleContext, IShiftAssignment } from '../../../models/automation/rules/rule.model';
 import { RulesEngineService } from '../rules/rules-engine.service';
+import { AGENT_STATE_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -60,11 +61,15 @@ export class AgentStateService {
     const history = agent.getShiftHistory(shiftId);
     if (!history || history.count === 0) return 0;
 
-    const frequencyFactor = Math.min(1, history.count / 10);
+    const frequencyFactor = Math.min(1, history.count / AGENT_STATE_CONSTANTS.MAX_FREQUENCY_COUNT);
     const recencyFactor = this.calculateRecencyFactor(history.lastDate);
     const satisfactionFactor = history.averageSatisfaction;
 
-    return Math.min(1, frequencyFactor * 0.4 + recencyFactor * 0.3 + satisfactionFactor * 0.3);
+    return Math.min(1,
+      frequencyFactor * AGENT_STATE_CONSTANTS.FREQUENCY_WEIGHT +
+      recencyFactor * AGENT_STATE_CONSTANTS.RECENCY_WEIGHT +
+      satisfactionFactor * AGENT_STATE_CONSTANTS.SATISFACTION_WEIGHT
+    );
   }
 
   calculateDisgust(ruleViolations: IRuleViolation[]): number {
@@ -73,13 +78,18 @@ export class AgentStateService {
     const maxSeverity = Math.max(...ruleViolations.map(v => v.severity));
     const avgSeverity = ruleViolations.reduce((sum, v) => sum + v.severity, 0) / ruleViolations.length;
 
-    return Math.min(1, maxSeverity * 0.7 + avgSeverity * 0.3);
+    return Math.min(1,
+      maxSeverity * AGENT_STATE_CONSTANTS.MAX_SEVERITY_WEIGHT +
+      avgSeverity * AGENT_STATE_CONSTANTS.AVG_SEVERITY_WEIGHT
+    );
   }
 
-  // Disgust suppresses hunger and greed entirely
   calculateMotivation(hunger: number, satiety: number, greed: number, disgust: number): number {
     const disgustSuppression = 1 - disgust;
-    const baseMotivation = hunger * 0.6 + greed * 0.3 + (1 - satiety) * 0.1;
+    const baseMotivation =
+      hunger * AGENT_STATE_CONSTANTS.HUNGER_WEIGHT +
+      greed * AGENT_STATE_CONSTANTS.GREED_WEIGHT +
+      (1 - satiety) * AGENT_STATE_CONSTANTS.SATIETY_WEIGHT;
 
     return Math.min(1, Math.max(0, baseMotivation * disgustSuppression));
   }
@@ -89,22 +99,22 @@ export class AgentStateService {
       ? agent.getRemainingHours() / agent.guaranteedHours
       : 0;
 
-    if (agent.periodProgress < 0.5) {
-      return remainingRatio * 0.5;
+    if (agent.periodProgress < AGENT_STATE_CONSTANTS.TIME_PRESSURE_MIDPOINT) {
+      return remainingRatio * AGENT_STATE_CONSTANTS.TIME_PRESSURE_MIDPOINT;
     }
 
-    const progressFactor = (agent.periodProgress - 0.5) * 2;
-    return Math.min(1, remainingRatio * (0.5 + progressFactor));
+    const progressFactor = (agent.periodProgress - AGENT_STATE_CONSTANTS.TIME_PRESSURE_MIDPOINT) * 2;
+    return Math.min(1, remainingRatio * (AGENT_STATE_CONSTANTS.TIME_PRESSURE_MIDPOINT + progressFactor));
   }
 
   private calculateRecencyFactor(lastDate: Date | null): number {
     if (!lastDate) return 0;
 
-    const daysSince = Math.floor((Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysSince = Math.floor((Date.now() - lastDate.getTime()) / EVOLUTION_CONSTANTS.MS_PER_DAY);
 
-    if (daysSince < 7) return 0;
-    if (daysSince < 14) return 0.3;
-    if (daysSince < 30) return 0.6;
+    if (daysSince < AGENT_STATE_CONSTANTS.RECENCY_THRESHOLD_DAYS_7) return 0;
+    if (daysSince < AGENT_STATE_CONSTANTS.RECENCY_THRESHOLD_DAYS_14) return AGENT_STATE_CONSTANTS.RECENCY_FACTOR_SHORT;
+    if (daysSince < AGENT_STATE_CONSTANTS.RECENCY_THRESHOLD_DAYS_30) return AGENT_STATE_CONSTANTS.RECENCY_FACTOR_MEDIUM;
     return 1;
   }
 
@@ -124,7 +134,7 @@ export class AgentStateService {
         existingAssignments.push({
           shiftId: block.shiftIds[i],
           shiftName: '',
-          date: new Date(block.startDate.getTime() + i * 24 * 60 * 60 * 1000),
+          date: new Date(block.startDate.getTime() + i * EVOLUTION_CONSTANTS.MS_PER_DAY),
           startTime: '00:00',
           endTime: '00:00',
           hours: block.hours / block.shiftIds.length

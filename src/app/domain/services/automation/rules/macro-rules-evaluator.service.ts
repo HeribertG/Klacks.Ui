@@ -11,23 +11,9 @@ import {
   IScheduleContext,
   RuleType
 } from '../../../models/automation/rules/rule.model';
-
-export interface IRuleEvaluationSummary {
-  totalRules: number;
-  passed: number;
-  warnings: number;
-  violations: number;
-  maxSeverity: number;
-  allPassed: boolean;
-}
-
-export interface IMacroRuleResult {
-  macroId: string;
-  macroName: string;
-  passed: boolean;
-  severity: number;
-  message: string;
-}
+import { IRuleEvaluationSummary } from '../../../models/automation/rules/rule-evaluation-summary.model';
+import { IMacroRuleResult } from '../../../models/automation/rules/macro-rule-result.model';
+import { AGENT_STATE_CONSTANTS } from '../../../models/automation/automation-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +47,6 @@ export class MacroRulesEvaluatorService {
       const compiled = this.scriptCompiler.compile(macro.content, true, true);
 
       if (compiled.hasError) {
-        console.error(`Failed to compile macro ${macro.id}:`, compiled.error);
         continue;
       }
 
@@ -125,7 +110,7 @@ export class MacroRulesEvaluatorService {
         macroId,
         macroName: macro?.name || 'Unknown',
         passed: false,
-        severity: 0.5,
+        severity: AGENT_STATE_CONSTANTS.DEFAULT_SATISFACTION,
         message: `Script error: ${scriptResult.error?.description || 'Unknown error'}`
       };
     }
@@ -214,7 +199,6 @@ export class MacroRulesEvaluatorService {
     let outputMessage = 'OK';
     let hasOutput = false;
 
-    // OUTPUT 1 = info/message, OUTPUT 2 = severity (0-1)
     for (const msg of messages) {
       if (msg.type === 2) {
         const parsedSeverity = parseFloat(msg.message);
@@ -248,7 +232,7 @@ export class MacroRulesEvaluatorService {
     for (const result of results) {
       if (result.passed) {
         passed++;
-      } else if (result.severity < 0.5) {
+      } else if (result.severity < AGENT_STATE_CONSTANTS.DEFAULT_SATISFACTION) {
         warnings++;
       } else {
         violations++;

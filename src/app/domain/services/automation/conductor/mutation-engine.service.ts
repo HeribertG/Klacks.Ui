@@ -6,7 +6,7 @@ import {
   IShift
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
-import { IConstraintViolation } from './fitness-evaluator.service';
+import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';
 import {
   CoreShift,
   CoreAgent,

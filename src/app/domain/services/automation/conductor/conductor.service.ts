@@ -10,41 +10,13 @@ import {
   IPenaltyWeights
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent, IAgentDecision } from '../../../models/automation/agent/schedule-agent.model';
+import { IConductorOptions } from '../../../models/automation/conductor/conductor-options.model';
+import { IAssignmentResult } from '../../../models/automation/conductor/assignment-result.model';
+import { IConductorResult } from '../../../models/automation/conductor/conductor-result.model';
 import { EvolutionEngineService } from './evolution-engine.service';
 import { AgentStateService } from '../agent/agent-state.service';
 import { RulesEngineService } from '../rules/rules-engine.service';
-
-export interface IConductorOptions {
-  evolutionConfig?: Partial<IEvolutionConfig>;
-  penaltyWeights?: Partial<IPenaltyWeights>;
-  onProgress?: (progress: IEvolutionProgress) => void;
-  cancellationToken?: { isCancelled: boolean };
-  useWorker?: boolean;
-}
-
-export interface IAssignmentResult {
-  shiftId: string;
-  shiftName: string;
-  date: Date;
-  agentId: string;
-  agentName: string;
-  motivation: number;
-  hours: number;
-}
-
-export interface IConductorResult {
-  success: boolean;
-  assignments: IAssignmentResult[];
-  unassignedShifts: string[];
-  coverage: number;
-  avgMotivation: number;
-  generations: number;
-  message: string;
-  stopReason?: string;
-  timeElapsedMs?: number;
-  penaltyScore?: number;
-  hardViolations?: number;
-}
+import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -184,7 +156,7 @@ export class ConductorService {
             const unassignedShifts = shifts.filter(s => !assignedShiftIds.has(s.id)).map(s => s.id);
 
             resolve({
-              success: resultData.coverage > 0.8,
+              success: resultData.coverage > SCHEDULING_CONSTANTS.SUCCESS_COVERAGE_THRESHOLD,
               assignments,
               unassignedShifts,
               coverage: resultData.coverage,
@@ -222,7 +194,7 @@ export class ConductorService {
                 stopReason: 'cancelled'
               });
             }
-          }, 100);
+          }, SCHEDULING_CONSTANTS.CANCELLATION_CHECK_INTERVAL_MS);
 
           worker.addEventListener('message', ({ data: msg }) => {
             if (msg.type === 'result') clearInterval(checkCancellation);
@@ -344,9 +316,8 @@ export class ConductorService {
     return this.schedule(context, options);
   }
 
-  async applySchedule(result: IConductorResult): Promise<boolean> {
-    console.log('Applying schedule:', result);
-    return true;
+  async applySchedule(_result: IConductorResult): Promise<boolean> {
+    throw new Error('applySchedule is not yet implemented');
   }
 
   private findBestAgent(
