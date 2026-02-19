@@ -11,6 +11,7 @@ export interface IAssistantChatRequest {
   modelId?: string;
   language?: string;
   context?: any;
+  agentId?: string;
 }
 
 export interface IAssistantChatResponse {
