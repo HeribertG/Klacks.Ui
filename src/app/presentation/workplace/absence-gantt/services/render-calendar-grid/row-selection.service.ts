@@ -187,14 +187,20 @@ export class RowSelectionService {
   }
 
   public isSelectedBreak_Dirty(): boolean {
-    if (this.selectedBreak) {
-      const a = this.selectedBreak as BreakPlaceholder;
-      const b = this.selectedBreak_dummy as BreakPlaceholder;
-
-      if (!compareComplexObjects(a, b)) {
-        return true;
-      }
+    if (this._selectedRow < 0 || this._selectedRow >= this.dataManagementBreak.rows) {
+      return false;
     }
-    return false;
+    const data = this.dataManagementBreak.readData(this._selectedRow);
+    if (!data || this._selectedBreakIndex < 0 || this._selectedBreakIndex >= data.length) {
+      return false;
+    }
+    const currentBreak = data[this._selectedBreakIndex] as BreakPlaceholder;
+    if (!currentBreak && !this.selectedBreak_dummy) {
+      return false;
+    }
+    if (!currentBreak || !this.selectedBreak_dummy) {
+      return true;
+    }
+    return !compareComplexObjects(currentBreak, this.selectedBreak_dummy);
   }
 }

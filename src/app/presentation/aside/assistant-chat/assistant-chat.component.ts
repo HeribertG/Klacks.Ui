@@ -1,6 +1,4 @@
-﻿/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
+﻿import {
   Component,
   OnInit,
   OnDestroy,
@@ -9,8 +7,6 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
-  signal,
-  computed,
   effect,
   ChangeDetectorRef,
   NgZone,
@@ -36,7 +32,6 @@ import { Router } from '@angular/router';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
-import { IconChatComponent } from '../../icons/icon-chat.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AssistantFunctionRegistryService } from 'src/app/domain/services/assistant/assistant-function-registry.service';
@@ -126,7 +121,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   conversationId = '';
 
   voiceModeEnabled = false;
-  private silenceTimer: any = null;
+  private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly SILENCE_AUTO_SEND_DELAY_MS = 3000;
 
   availableModels: IAssistantModel[] = [];
@@ -266,6 +261,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
           this.router.navigate([response.navigateTo!]);
         }, 2000);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       let errorContent = '';
       if (error?.error?.message) {
@@ -541,6 +537,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.shouldScrollToBottom = true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
     for (const call of functionCalls) {
       const functionName = call.FunctionName || call.functionName;
@@ -570,7 +567,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         } else if (result.success && result.result?.action === 'multiple_results') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const items = result.result.items as any[];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const itemList = items.map((item: any) =>
               `â€¢ ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
             ).join('\n');
@@ -587,6 +586,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             lastMessage.content = `âŒ ${result.error}`;
           }
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         const lastMsg = this.messages[this.messages.length - 1];
         if (lastMsg) {
