@@ -1,9 +1,9 @@
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-import { LanguageConfigService } from 'src/app/application/services/language-config.service';
+import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
 
-let languageConfigService: LanguageConfigService | null = null;
+let languageConfigService: ILanguageConfig | null = null;
 
-export function initializeLanguageHelper(service: LanguageConfigService): void {
+export function initializeLanguageHelper(service: ILanguageConfig): void {
   languageConfigService = service;
 }
 

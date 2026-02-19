@@ -1,5 +1,5 @@
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 export class MessageLibrary {
   public static UPDATE_NOT_DONE = DomainMessages.UPDATE_NOT_DONE;

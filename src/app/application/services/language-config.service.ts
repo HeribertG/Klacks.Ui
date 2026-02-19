@@ -2,9 +2,10 @@ import { Injectable, signal, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguageConfigService } from 'src/app/infrastructure/api/settings/data-language-config.service';
 import { LanguageMetadata } from 'src/app/domain/models/settings/language-config';
+import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
 
 @Injectable({ providedIn: 'root' })
-export class LanguageConfigService {
+export class LanguageConfigService implements ILanguageConfig {
   private dataService = inject(DataLanguageConfigService);
 
   private supportedLanguages = signal<string[]>(['de', 'en', 'fr', 'it']);

@@ -4,13 +4,13 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { IAssistantFunctionCall, IAssistantFunctionResult } from '../../interfaces/assistant-function-definitions.interface';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
-import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
+import { SEARCH_STRATEGY, ISearchStrategy } from '../../interfaces/search-strategy.interface';
 
 @Injectable()
 export class AssistantExecutionNavigationService {
   private router = inject(Router);
   private searchStateService = inject(SearchStateService);
-  private searchStrategyService = inject(SearchStrategyService);
+  private searchStrategyService = inject<ISearchStrategy>(SEARCH_STRATEGY);
 
   executeNavigateToPage(call: IAssistantFunctionCall): Observable<IAssistantFunctionResult> {
     try {

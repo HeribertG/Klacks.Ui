@@ -55,6 +55,8 @@ import { LanguageConfigService } from './application/services/language-config.se
 import { initializeLanguageHelper } from './domain/helpers/multi-language.helper';
 import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compiler.interface';
 import { ScriptService } from './infrastructure/scripting/script.service';
+import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
+import { SearchStrategyService } from './presentation/search/search-strategy.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -136,6 +138,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: SCRIPT_COMPILER,
       useExisting: ScriptService,
+    },
+    {
+      provide: SEARCH_STRATEGY,
+      useExisting: SearchStrategyService,
     },
     importProvidersFrom(
       NgbModule,
