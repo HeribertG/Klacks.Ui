@@ -89,12 +89,12 @@ export class DataManagementScheduleService implements ILoadable {
         if (this.breakPlaceholderLoader.isLoaded()) {
           if (this.showBreakPlaceholders()) {
             this.workScheduleLoader.applyBreakPlaceholderRows();
+            this.isRead.set({ value: true, resetScroll: false });
+            setTimeout(
+              () => this.isRead.set({ value: false, resetScroll: false }),
+              100,
+            );
           }
-          this.isRead.set({ value: true, resetScroll: false });
-          setTimeout(
-            () => this.isRead.set({ value: false, resetScroll: false }),
-            100,
-          );
         }
       });
     });
