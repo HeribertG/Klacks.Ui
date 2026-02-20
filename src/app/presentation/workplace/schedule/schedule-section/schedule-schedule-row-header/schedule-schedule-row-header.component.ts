@@ -60,6 +60,7 @@ import { ReportDefaultsService } from 'src/app/domain/services/report/report-def
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -99,6 +100,7 @@ export class ScheduleScheduleRowHeaderComponent
   private reportDefaults = inject(ReportDefaultsService);
   private scheduleChangeService = inject(ScheduleChangeService);
   private appSettings = inject(AppSettingsManagementService);
+  private toastShowService = inject(ToastShowService);
 
   private isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -539,7 +541,7 @@ export class ScheduleScheduleRowHeaderComponent
     );
   }
 
-  private sendStaffSchedule(): void {
+  private async sendStaffSchedule(): Promise<void> {
     const row = this.contextMenuRow;
     const groupIndex = this.dataService.rowGroupIndex[row];
     const client = this.dataService.getGroupIndex(groupIndex);
@@ -551,12 +553,32 @@ export class ScheduleScheduleRowHeaderComponent
 
     if (!startDate || !endDate) return;
 
-    this.scheduleReportCtx.sendForClient(
-      client.id,
-      `${client.firstName} ${client.name}`,
-      formatDateOnly(startDate),
-      formatDateOnly(endDate)
-    );
+    const clientName = `${client.firstName} ${client.name}`;
+
+    try {
+      const response = await this.scheduleReportCtx.sendForClient(
+        client.id,
+        clientName,
+        formatDateOnly(startDate),
+        formatDateOnly(endDate),
+      );
+
+      if (!response) return;
+
+      if (response.success) {
+        const msg = this.translateService.instant('schedule.send.success', { email: response.clientEmail });
+        this.toastShowService.showSuccess(msg, this.translateService.instant('schedule.send.title'), '', TOAST_ICONS.SUCCESS);
+      } else if (response.errorMessage === 'No email address found for client') {
+        const msg = this.translateService.instant('schedule.send.error.noEmail', { clientName });
+        this.toastShowService.showError(msg, 'send-schedule', '', TOAST_ICONS.ERROR);
+      } else {
+        const msg = this.translateService.instant('schedule.send.error.failed', { clientName });
+        this.toastShowService.showError(msg, 'send-schedule', response.errorMessage ?? '', TOAST_ICONS.ERROR);
+      }
+    } catch {
+      const msg = this.translateService.instant('schedule.send.error.failed', { clientName });
+      this.toastShowService.showError(msg, 'send-schedule', '', TOAST_ICONS.ERROR);
+    }
   }
 
   onFilterMouseLeave(): void {

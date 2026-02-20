@@ -51,10 +51,16 @@
   @if (isEmailConfigured()) {
     <button
       type="button"
-      class="send-email-button disabled"
+      class="send-email-button"
+      [class.disabled]="isSending()"
+      (click)="onSendAllSchedules()"
       ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
     >
-      <app-icon-fly />
+      @if (isSending()) {
+        <span class="spinner-border spinner-border-sm"></span>
+      } @else {
+        <app-icon-fly />
+      }
     </button>
   }
 

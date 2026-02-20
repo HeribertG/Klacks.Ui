@@ -22,6 +22,7 @@ import {
   OnInit,
   Output,
   output,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
@@ -55,6 +56,10 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
+import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateService } from '@ngx-translate/core';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-schedule-header',
@@ -106,6 +111,11 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
   private appSettings = inject(AppSettingsManagementService);
+  private scheduleReportCtx = inject(ScheduleReportContextService);
+  private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
+
+  isSending = signal(false);
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -207,6 +217,48 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onPdfExport() {
     this.pdfExportRequested.emit();
+  }
+
+  async onSendAllSchedules(): Promise<void> {
+    if (this.isSending()) return;
+
+    const clients = this.dataManagementSchedule.clients;
+    if (!clients?.length) return;
+
+    const startDate = this.dataManagementSchedule.visibleStartDate;
+    const endDate = this.dataManagementSchedule.visibleEndDate;
+    if (!startDate || !endDate) return;
+
+    this.isSending.set(true);
+
+    try {
+      const clientList = clients
+        .filter(c => !!c.id)
+        .map(c => ({
+          id: c.id,
+          name: `${c.firstName ?? ''} ${c.name ?? ''}`.trim(),
+        }));
+
+      const result = await this.scheduleReportCtx.sendForAllClients(
+        clientList,
+        formatDateOnly(startDate),
+        formatDateOnly(endDate),
+      );
+
+      const msg = this.translateService.instant('schedule.send.bulk.summary', {
+        success: result.success,
+        failed: result.failed,
+        noEmail: result.noEmail,
+      });
+      this.toastShowService.showInfo(msg, 'bulk-send', '', TOAST_ICONS.INFO);
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant('schedule.send.error.failed', { clientName: 'Bulk' }),
+        'bulk-send',
+      );
+    } finally {
+      this.isSending.set(false);
+    }
   }
 
   goToPrevious() {
