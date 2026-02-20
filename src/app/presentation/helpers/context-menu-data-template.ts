@@ -1,5 +1,7 @@
 import { MenuItem } from '../shared/context-menu/context-menu-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { PdfIconComponent } from '../icons/pdf-icon.component';
+import { IconFlyComponent } from '../icons/icon-fly.component';
 
 export class MenuDataTemplate {
   public static copyCutPaste(): MenuItem[] {
@@ -243,15 +245,23 @@ export class MenuDataTemplate {
   }
 
   public static staffSchedule(): MenuItem[] {
-    return [
-      new MenuItem(
-        'staffSchedule',
-        MessageLibrary.STAFF_SCHEDULE,
-        false,
-        '',
-        'fa-solid fa-print'
-      ),
-    ];
+    const item = new MenuItem(
+      'staffSchedule',
+      MessageLibrary.STAFF_SCHEDULE,
+      false
+    );
+    item.svgIcon = PdfIconComponent.getSvg();
+    return [item];
+  }
+
+  public static sendStaffSchedule(): MenuItem[] {
+    const item = new MenuItem(
+      'sendStaffSchedule',
+      MessageLibrary.SEND_STAFF_SCHEDULE,
+      false
+    );
+    item.svgIcon = IconFlyComponent.getSvg('var(--standartTextColor)');
+    return [item];
   }
 
   public static deleteBreakPlaceholder(): MenuItem[] {

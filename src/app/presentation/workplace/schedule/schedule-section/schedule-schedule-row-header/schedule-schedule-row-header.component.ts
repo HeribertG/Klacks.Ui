@@ -28,6 +28,7 @@ import {
   EffectRef,
   Injector,
   runInInjectionContext,
+  computed,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -58,6 +59,7 @@ import { ScheduleReportContextService } from 'src/app/domain/services/report/sch
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -96,6 +98,12 @@ export class ScheduleScheduleRowHeaderComponent
   private scheduleReportCtx = inject(ScheduleReportContextService);
   private reportDefaults = inject(ReportDefaultsService);
   private scheduleChangeService = inject(ScheduleChangeService);
+  private appSettings = inject(AppSettingsManagementService);
+
+  private isEmailConfigured = computed(() => {
+    const e = this.appSettings.emailSettings();
+    return !!e.outgoingServer && !!e.outgoingServerPort && !!e.username && !!e.password;
+  });
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -271,6 +279,10 @@ export class ScheduleScheduleRowHeaderComponent
       return;
     }
 
+    if (this.checkDirtyDotTooltip(event, pos)) {
+      return;
+    }
+
     this.checkInfoSpotTooltip(event, pos);
   }
 
@@ -294,6 +306,43 @@ export class ScheduleScheduleRowHeaderComponent
 
     if (localY >= 0 && localY <= sectionHeight && pos.x >= 0 && pos.x <= 24) {
       const tooltipText = this.translateService.instant('schedule.row-header.no-contract.tooltip');
+      this.tooltipService.show({
+        text: tooltipText,
+        x: event.clientX,
+        y: event.clientY,
+      });
+      return true;
+    }
+
+    return false;
+  }
+
+  private checkDirtyDotTooltip(event: MouseEvent, pos: { x: number; y: number }): boolean {
+    const canvas = this.drawRowHeader.canvas;
+    if (!canvas) return false;
+
+    const row = Math.floor((pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight) + this.scroll.verticalScrollPosition;
+    if (row < 0 || row >= this.dataService.rows) return false;
+
+    const clientIndex = this.dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) return false;
+
+    const client = this.dataService.getGroupIndex(clientIndex);
+    if (!client || !this.scheduleChangeService.isDirty(client.id)) return false;
+
+    const firstRow = this.dataService.indexGroupRow[clientIndex];
+    const localY = pos.y - this.settings.cellHeaderHeight - ((firstRow - this.scroll.verticalScrollPosition) * this.settings.cellHeight);
+    const sectionHeight = this.settings.cellHeight / 3;
+
+    const textAreaWidth = canvas.getBoundingClientRect().width - this.settings.InfoSpotWidth;
+    const dotRadius = 4.5 * this.settings.zoom;
+    const dotX = textAreaWidth - dotRadius - 4;
+    const dotY = dotRadius + 2;
+    const hitRadius = dotRadius + 4;
+
+    if (localY >= 0 && localY <= sectionHeight &&
+        Math.abs(pos.x - dotX) <= hitRadius && Math.abs(localY - dotY) <= hitRadius) {
+      const tooltipText = this.translateService.instant('schedule.row-header.dirty.tooltip');
       this.tooltipService.show({
         text: tooltipText,
         x: event.clientX,
@@ -425,6 +474,9 @@ export class ScheduleScheduleRowHeaderComponent
     menuData.list.push(...MenuDataTemplate.goToAddress());
     if (this.reportDefaults.hasDefault('schedule')) {
       menuData.list.push(...MenuDataTemplate.staffSchedule());
+      if (this.isEmailConfigured()) {
+        menuData.list.push(...MenuDataTemplate.sendStaffSchedule());
+      }
     }
     this.contextMenu.menuData = menuData;
   }
@@ -440,6 +492,10 @@ export class ScheduleScheduleRowHeaderComponent
       case 'staffSchedule':
         this.contextMenu.closeMenu(true);
         this.generateStaffSchedule();
+        break;
+      case 'sendStaffSchedule':
+        this.contextMenu.closeMenu(true);
+        this.sendStaffSchedule();
         break;
     }
   }
@@ -476,6 +532,26 @@ export class ScheduleScheduleRowHeaderComponent
     if (!startDate || !endDate) return;
 
     this.scheduleReportCtx.generateForClient(
+      client.id,
+      `${client.firstName} ${client.name}`,
+      formatDateOnly(startDate),
+      formatDateOnly(endDate)
+    );
+  }
+
+  private sendStaffSchedule(): void {
+    const row = this.contextMenuRow;
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    const client = this.dataService.getGroupIndex(groupIndex);
+
+    if (!client?.id) return;
+
+    const startDate = this.dataManagementSchedule.visibleStartDate;
+    const endDate = this.dataManagementSchedule.visibleEndDate;
+
+    if (!startDate || !endDate) return;
+
+    this.scheduleReportCtx.sendForClient(
       client.id,
       `${client.firstName} ${client.name}`,
       formatDateOnly(startDate),

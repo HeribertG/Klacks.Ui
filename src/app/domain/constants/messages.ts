@@ -119,6 +119,7 @@ export class DomainMessages {
   public static CONFIRM = 'contextMenu.confirm';
   public static UNCONFIRM = 'contextMenu.unconfirm';
   public static readonly STAFF_SCHEDULE = 'contextMenu.staffSchedule';
+  public static readonly SEND_STAFF_SCHEDULE = 'contextMenu.sendStaffSchedule';
   public static DELETE_BREAK_PLACEHOLDER = 'contextMenu.deleteBreakPlaceholder';
   public static ADOPT_ABSENCE = 'contextMenu.adoptAbsence';
 

@@ -31,6 +31,7 @@ import { BaseDataService } from '../../../../shared/grid/services/data-setting/d
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
 import { TranslateService } from '@ngx-translate/core';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
+import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 
 export interface FilterIconResult {
   recFilterIcon: Rectangle;
@@ -45,6 +46,7 @@ export class BaseCreateRowHeaderService {
   private gridFonts = inject(GridFontsService);
   private translateService = inject(TranslateService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
+  private scheduleChangeService = inject(ScheduleChangeService);
 
   private backgroundCollection = new Map<string, HTMLCanvasElement>();
   private oldWidth = 0;
@@ -253,6 +255,18 @@ export class BaseCreateRowHeaderService {
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       ctx.fillText('⊘', leftPadding, iconTopPadding);
+      ctx.restore();
+    }
+
+    if (client && this.scheduleChangeService.isDirty(client.id)) {
+      const dotRadius = 4.5 * this.settings.zoom;
+      const dotX = width - dotRadius - 4;
+      const dotY = dotRadius + 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#000000';
+      ctx.fill();
       ctx.restore();
     }
 
