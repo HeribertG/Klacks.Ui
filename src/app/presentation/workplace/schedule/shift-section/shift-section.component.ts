@@ -71,6 +71,7 @@ import { ShiftContextMenuService } from './services/shift-context-menu.service';
 import { ShiftNavigationService } from './services/shift-navigation.service';
 import { ShiftPdfExportService } from './services/shift-pdf-export.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { ScheduleErrorListComponent } from './schedule-error-list/schedule-error-list.component';
 
 @Component({
   selector: 'app-shift-section',
@@ -88,6 +89,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
     ShiftFilterComponent,
     ContextMenuComponent,
     PdfIconComponent,
+    ScheduleErrorListComponent,
   ],
   providers: [
     { provide: BaseDataService, useClass: ShiftDataService },
