@@ -82,7 +82,6 @@ import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-ren
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
-
 @Component({
   selector: 'app-schedule-section',
   standalone: true,
@@ -175,7 +174,6 @@ export class ScheduleSectionComponent
   private gridRender = inject(BaseGridRenderService);
   private dataBreakPlaceholder = inject(DataBreakPlaceholderService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
-
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
@@ -333,13 +331,14 @@ export class ScheduleSectionComponent
       const periodHoursEffect = effect(() => {
         // React to period hours updates from SignalR
         const _timestamp = this.workScheduleLoader.periodHoursUpdated();
-        
+
         if (this.scheduleSurface) {
-          
+
           this.scheduleSurface.Refresh(false);
         }
       });
       this.effects.push(periodHoursEffect);
+
     });
   }
 

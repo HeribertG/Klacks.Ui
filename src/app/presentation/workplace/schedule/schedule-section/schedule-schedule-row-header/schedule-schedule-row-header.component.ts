@@ -57,6 +57,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -94,6 +95,7 @@ export class ScheduleScheduleRowHeaderComponent
   private contextMenuService = inject(ContextMenuService);
   private scheduleReportCtx = inject(ScheduleReportContextService);
   private reportDefaults = inject(ReportDefaultsService);
+  private scheduleChangeService = inject(ScheduleChangeService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -222,15 +224,22 @@ export class ScheduleScheduleRowHeaderComponent
       this.effects.push(scrollEffect);
 
       const periodHoursEffect = effect(() => {
-        // React to period hours updates from SignalR
         const _timestamp = this.workScheduleLoader.periodHoursUpdated();
-        
+
         if (this.drawRowHeader.isCanvasAvailable()) {
-          
+
           this.drawRowHeader.redraw();
         }
       });
       this.effects.push(periodHoursEffect);
+
+      const dirtyStateEffect = effect(() => {
+        const _timestamp = this.scheduleChangeService.dirtyStateUpdated();
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(dirtyStateEffect);
     });
   }
 

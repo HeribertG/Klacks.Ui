@@ -12,7 +12,6 @@ import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
 import { Break } from '../../models/break/break-class';
-
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -281,6 +280,7 @@ export class ScheduleEntryCrudService {
               this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
               this.triggerScheduleRefresh();
             }
+
           },
           error: (err) => console.error('Error deleting break:', err),
         });
@@ -308,6 +308,7 @@ export class ScheduleEntryCrudService {
               }
               this.triggerScheduleRefresh();
             }
+
           },
           error: (err) => console.error('Error deleting work change:', err),
         });
@@ -318,6 +319,7 @@ export class ScheduleEntryCrudService {
           next: () => {
             this.refreshClientScheduleForDays(params.clientId, params.date).then(() => {
               this.triggerScheduleRefresh();
+  
             });
           },
           error: (err) => console.error('Error deleting expenses:', err),

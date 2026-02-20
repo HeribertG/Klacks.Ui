@@ -9,6 +9,7 @@ export const SignalRConstants = {
     ShiftStatsUpdated: 'ShiftStatsUpdated',
     PeriodHoursUpdated: 'PeriodHoursUpdated',
     PeriodHoursRecalculated: 'PeriodHoursRecalculated',
+    ScheduleChangeTracked: 'ScheduleChangeTracked',
   },
 
   HubMethods: {

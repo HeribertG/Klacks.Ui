@@ -12,6 +12,7 @@ import {
   IPeriodHoursNotification,
   IPeriodHoursRecalculatedNotification,
 } from 'src/app/domain/interfaces/period-hours-notification.interface';
+import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,7 @@ export class SignalRService implements OnDestroy {
   public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
   public periodHoursUpdated$ = new Subject<IPeriodHoursNotification>();
   public periodHoursRecalculated$ = new Subject<IPeriodHoursRecalculatedNotification>();
+  public scheduleChangeTracked$ = new Subject<IScheduleChangeNotification>();
   public reconnected$ = new Subject<void>();
 
   private currentGroup: { startDate: string; endDate: string } | null = null;
@@ -265,6 +267,10 @@ export class SignalRService implements OnDestroy {
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursRecalculated, (notification: IPeriodHoursRecalculatedNotification) => {
       this.periodHoursRecalculated$.next(notification);
     });
+
+    this.hubConnection.on(SignalRConstants.Events.ScheduleChangeTracked, (notification: IScheduleChangeNotification) => {
+      this.scheduleChangeTracked$.next(notification);
+    });
   }
 
   private registerConnectionEvents(): void {
@@ -360,6 +366,7 @@ export class SignalRService implements OnDestroy {
     this.shiftStatsUpdated$.complete();
     this.periodHoursUpdated$.complete();
     this.periodHoursRecalculated$.complete();
+    this.scheduleChangeTracked$.complete();
     this.reconnected$.complete();
   }
 
