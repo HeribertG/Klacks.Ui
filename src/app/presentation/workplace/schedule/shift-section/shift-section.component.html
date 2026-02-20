@@ -2,89 +2,115 @@
   <div class="shift-tabs-header">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a class="nav-link active" role="tab" aria-selected="true" tabindex="0">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'shifts'"
+          role="tab"
+          [attr.aria-selected]="activeTab === 'shifts'"
+          tabindex="0"
+          (click)="onTabChange('shifts')"
+        >
           {{ "schedule.shift-section.tab.shifts" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'errors'"
+          role="tab"
+          [attr.aria-selected]="activeTab === 'errors'"
+          tabindex="0"
+          (click)="onTabChange('errors')"
+        >
+          {{ "schedule.shift-section.tab.errors" | translate }}
         </a>
       </li>
     </ul>
   </div>
 
-  <div class="shift-tabs-content">
-    <div class="shift-content-header">
-      <div
-        ngbDropdown
-        #dropdownFilter="ngbDropdown"
-        display="dynamic"
-        container="body"
-      >
-        <button
-          class="btn btn-sm btn-filter"
-          [class.filtered]="isShiftFiltered"
-          id="dropdownFilter"
-          ngbDropdownToggle
-          aria-label="shift filter"
-          ngbTooltip="{{ 'schedule.shift-section.filter' | translate }}"
+  <div class="tab-body">
+    <div class="shift-tabs-content">
+      <div class="shift-content-header">
+        <div
+          ngbDropdown
+          #dropdownFilter="ngbDropdown"
+          display="dynamic"
+          container="body"
         >
-          <app-icon-filter />
-        </button>
-        <div ngbDropdownMenu class="shift-filter-menu">
-          <app-shift-filter />
-        </div>
-      </div>
-      <span class="shift-row-count">({{ shiftRowCount }})</span>
-      <span class="filler"></span>
-      <div
-        class="shift-pdf-button"
-        (click)="onShiftPdfExport()"
-        ngbTooltip="{{ 'schedule.pdf.shifts' | translate }}"
-      >
-        <app-icon-pdf-icon></app-icon-pdf-icon>
-      </div>
-    </div>
-    <as-split
-      direction="horizontal"
-      [disabled]="true"
-      [gutterSize]="1"
-      unit="pixel"
-    >
-      <as-split-area [size]="horizontalSize" [minSize]="100">
-        <app-schedule-shift-row-header
-          [valueChangeVScrollbar]="vScrollbarShift.value"
-          [selectedRow]="selectedRow"
-          [isSelectedRowActive]="isSelectedRowActive"
-        ></app-schedule-shift-row-header>
-      </as-split-area>
-
-      <as-split-area>
-        <div class="container-box-shift">
-          <div class="surface-shift">
-            <app-grid-surface-template
-              [nameId]="'shift'"
-              #shiftSurface
-              class="box-shift"
-              [valueChangeHScrollbar]="hScrollPositionValue"
-              (valueHScrollbar)="onHScrollChange($event)"
-              [valueChangeVScrollbar]="vScrollbarShift.value"
-              (valueVScrollbar)="vScrollbarShift.value = $event"
-              (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
-              (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
-              (rightClick)="onRightClick($event)"
-            >
-            </app-grid-surface-template>
-
-            <app-context-menu #contextMenu></app-context-menu>
-
-            <app-v-scrollbar
-              class="vScrollAreaShift"
-              [class.hidden]="vScrollbarSize === 0"
-              [(value)]="vScrollbarShift.value"
-              [maxValue]="vScrollbarShift.maxValue"
-              [visibleValue]="vScrollbarShift.visibleValue"
-            >
-            </app-v-scrollbar>
+          <button
+            class="btn btn-sm btn-filter"
+            [class.filtered]="isShiftFiltered"
+            id="dropdownFilter"
+            ngbDropdownToggle
+            aria-label="shift filter"
+            ngbTooltip="{{ 'schedule.shift-section.filter' | translate }}"
+          >
+            <app-icon-filter />
+          </button>
+          <div ngbDropdownMenu class="shift-filter-menu">
+            <app-shift-filter />
           </div>
         </div>
-      </as-split-area>
-    </as-split>
+        <span class="shift-row-count">({{ shiftRowCount }})</span>
+        <span class="filler"></span>
+        <div
+          class="shift-pdf-button"
+          (click)="onShiftPdfExport()"
+          ngbTooltip="{{ 'schedule.pdf.shifts' | translate }}"
+        >
+          <app-icon-pdf-icon></app-icon-pdf-icon>
+        </div>
+      </div>
+      <as-split
+        direction="horizontal"
+        [disabled]="true"
+        [gutterSize]="1"
+        unit="pixel"
+      >
+        <as-split-area [size]="horizontalSize" [minSize]="100">
+          <app-schedule-shift-row-header
+            [valueChangeVScrollbar]="vScrollbarShift.value"
+            [selectedRow]="selectedRow"
+            [isSelectedRowActive]="isSelectedRowActive"
+          ></app-schedule-shift-row-header>
+        </as-split-area>
+
+        <as-split-area>
+          <div class="container-box-shift">
+            <div class="surface-shift">
+              <app-grid-surface-template
+                [nameId]="'shift'"
+                #shiftSurface
+                class="box-shift"
+                [valueChangeHScrollbar]="hScrollPositionValue"
+                (valueHScrollbar)="onHScrollChange($event)"
+                [valueChangeVScrollbar]="vScrollbarShift.value"
+                (valueVScrollbar)="vScrollbarShift.value = $event"
+                (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
+                (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
+                (rightClick)="onRightClick($event)"
+              >
+              </app-grid-surface-template>
+
+              <app-context-menu #contextMenu></app-context-menu>
+
+              <app-v-scrollbar
+                class="vScrollAreaShift"
+                [class.hidden]="vScrollbarSize === 0"
+                [(value)]="vScrollbarShift.value"
+                [maxValue]="vScrollbarShift.maxValue"
+                [visibleValue]="vScrollbarShift.visibleValue"
+              >
+              </app-v-scrollbar>
+            </div>
+          </div>
+        </as-split-area>
+      </as-split>
+    </div>
+
+    @if (activeTab === 'errors') {
+      <div class="error-list-content">
+      </div>
+    }
   </div>
 </div>

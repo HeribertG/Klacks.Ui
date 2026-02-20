@@ -141,6 +141,12 @@ export class ShiftSectionComponent
   @Input() refreshTrigger = false;
   @Input() hScrollPosition = 0;
 
+  public activeTab: 'shifts' | 'errors' = 'shifts';
+
+  onTabChange(tab: 'shifts' | 'errors'): void {
+    this.activeTab = tab;
+  }
+
   public hScrollPositionValue = 0;
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarShift = { value: 0, maxValue: 0, visibleValue: 0 };

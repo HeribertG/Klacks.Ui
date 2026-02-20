@@ -52,11 +52,21 @@
 
 }
 
+.tab-body {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .shift-tabs-content {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 
   .shift-content-header {
     height: 35px;
@@ -106,6 +116,14 @@
   as-split {
     flex: 1;
   }
+}
+
+.error-list-content {
+  position: absolute;
+  inset: 0;
+  background-color: var(--backgroundColorSubCards);
+  overflow: auto;
+  z-index: 1;
 }
 
 .container-box-shift {
