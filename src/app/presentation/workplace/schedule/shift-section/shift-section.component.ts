@@ -72,6 +72,7 @@ import { ShiftNavigationService } from './services/shift-navigation.service';
 import { ShiftPdfExportService } from './services/shift-pdf-export.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { ScheduleErrorListComponent } from './schedule-error-list/schedule-error-list.component';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -134,6 +135,7 @@ export class ShiftSectionComponent
   private contextMenuService = inject(ShiftContextMenuService);
   private navigationService = inject(ShiftNavigationService);
   private shiftPdfExportService = inject(ShiftPdfExportService);
+  public collisionService = inject(CollisionDetectionService);
 
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();

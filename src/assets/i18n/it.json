@@ -658,6 +658,7 @@
   "schedule.error-list.column.client": "Collaboratore",
   "schedule.error-list.column.comment": "Commento",
   "schedule.error-list.empty": "Nessuna voce disponibile",
+  "schedule.error-list.collision": "Collisione oraria: {{timeRange1}} e {{timeRange2}} si sovrappongono",
   "schedule.shift-filter.title": "Filtro turni",
   "schedule.shift-filter.search-placeholder": "Cerca nome/abbreviazione",
   "schedule.shift-filter.type": "Tipo",

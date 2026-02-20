@@ -47,7 +47,7 @@
             </td>
             <td class="col-date">{{ entry.date }}</td>
             <td class="col-client">{{ entry.clientName }}</td>
-            <td class="col-comment">{{ entry.comment }}</td>
+            <td class="col-comment">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
           </tr>
         } @empty {
           <tr>

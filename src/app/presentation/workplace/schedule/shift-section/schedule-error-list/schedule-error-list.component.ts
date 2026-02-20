@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, effect, inject, Injector, OnInit, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -7,6 +7,7 @@ import {
   faTriangleExclamation,
   faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons';
+import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 
 export type ErrorListFilterType = 'error' | 'warning' | 'info';
 
@@ -15,6 +16,7 @@ export interface ScheduleErrorEntry {
   date: string;
   clientName: string;
   comment: string;
+  commentParams?: Record<string, string>;
 }
 
 @Component({
@@ -24,7 +26,10 @@ export interface ScheduleErrorEntry {
   templateUrl: './schedule-error-list.component.html',
   styleUrls: ['./schedule-error-list.component.scss'],
 })
-export class ScheduleErrorListComponent {
+export class ScheduleErrorListComponent implements OnInit {
+  private injector = inject(Injector);
+  private collisionService = inject(CollisionDetectionService);
+
   readonly faError = faCircleExclamation;
   readonly faWarning = faTriangleExclamation;
   readonly faInfo = faCircleInfo;
@@ -36,6 +41,15 @@ export class ScheduleErrorListComponent {
   ]);
 
   entries: ScheduleErrorEntry[] = [];
+
+  ngOnInit(): void {
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        this.collisionService.collisionsUpdated();
+        this.entries = this.collisionService.getErrorEntries();
+      });
+    });
+  }
 
   get filteredEntries(): ScheduleErrorEntry[] {
     return this.entries.filter((e) => this.activeFilters.has(e.type));

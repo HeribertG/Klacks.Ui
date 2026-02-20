@@ -658,6 +658,7 @@
   "schedule.error-list.column.client": "Employee",
   "schedule.error-list.column.comment": "Comment",
   "schedule.error-list.empty": "No entries available",
+  "schedule.error-list.collision": "Time collision: {{timeRange1}} and {{timeRange2}} overlap",
   "schedule.shift-filter.title": "Shift Filter",
   "schedule.shift-filter.search-placeholder": "Search Name/Abbreviation",
   "schedule.shift-filter.type": "Type",

@@ -660,6 +660,7 @@
   "schedule.error-list.column.client": "Mitarbeiter",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.empty": "Keine Einträge vorhanden",
+  "schedule.error-list.collision": "Zeitkollision: {{timeRange1}} und {{timeRange2}} überschneiden sich",
   "schedule.shift-filter.title": "Dienst-Filter",
   "schedule.shift-filter.search-placeholder": "Suche Name/Abkürzung",
   "schedule.shift-filter.type": "Typ",

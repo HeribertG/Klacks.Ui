@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <div class="shift-section-container">
   <div class="shift-tabs-header">
     <ul class="nav nav-tabs">
@@ -23,6 +25,11 @@
           (click)="onTabChange('errors')"
         >
           {{ "schedule.shift-section.tab.errors" | translate }}
+          @if (collisionService.collisionCount > 0) {
+            <span class="badge bg-danger ms-1">{{
+              collisionService.collisionCount
+            }}</span>
+          }
         </a>
       </li>
     </ul>
@@ -108,7 +115,7 @@
       </as-split>
     </div>
 
-    @if (activeTab === 'errors') {
+    @if (activeTab === "errors") {
       <div class="error-list-content">
         <app-schedule-error-list />
       </div>

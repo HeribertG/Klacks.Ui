@@ -658,6 +658,7 @@
   "schedule.error-list.column.client": "Collaborateur",
   "schedule.error-list.column.comment": "Commentaire",
   "schedule.error-list.empty": "Aucune entrée disponible",
+  "schedule.error-list.collision": "Collision horaire : {{timeRange1}} et {{timeRange2}} se chevauchent",
   "schedule.shift-filter.title": "Filtre de services",
   "schedule.shift-filter.search-placeholder": "Rechercher nom/abréviation",
   "schedule.shift-filter.type": "Type",
