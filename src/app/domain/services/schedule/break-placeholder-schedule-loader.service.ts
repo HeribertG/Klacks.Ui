@@ -15,6 +15,7 @@ export class BreakPlaceholderScheduleLoaderService {
 
   private _isLoaded = signal(false);
 
+  public visible = false;
   public clients: IClientBreak[] = [];
 
   get isLoaded() {

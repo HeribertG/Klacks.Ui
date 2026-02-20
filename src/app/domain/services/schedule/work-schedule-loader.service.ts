@@ -17,6 +17,7 @@ import {
 } from 'src/app/shared/helpers/date.helper';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
+import { ScheduleChangeService } from './schedule-change.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,7 @@ export class WorkScheduleLoaderService {
   private calendarUtil = inject(CalendarUtilService);
   private signalRService = inject(SignalRService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
+  private scheduleChangeService = inject(ScheduleChangeService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -167,6 +169,7 @@ export class WorkScheduleLoaderService {
     this._autoLoadEnabled = true;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._isLoadingMore.set(false);
+    this.scheduleChangeService.clear();
 
     const dates = this.calculateVisibleDates(workFilter);
 
@@ -209,6 +212,7 @@ export class WorkScheduleLoaderService {
           setTimeout(() => this._isRead.set(false), 100);
 
           this.joinSignalRGroup(dates.startDate, dates.endDate);
+          this.scheduleChangeService.loadDirtyClients(dates.startDate, dates.endDate);
 
           onLoaded?.();
 
@@ -393,6 +397,7 @@ export class WorkScheduleLoaderService {
   }
 
   public applyBreakPlaceholderRows(): void {
+    if (!this.breakPlaceholderLoader.visible) return;
     if (!this.startDate || !this.endDate) return;
 
     const breakMaxMap =

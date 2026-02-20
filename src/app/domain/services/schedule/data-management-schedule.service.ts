@@ -370,6 +370,7 @@ export class DataManagementScheduleService implements ILoadable {
   toggleBreakPlaceholders(): void {
     const newValue = !this.showBreakPlaceholders();
     this.showBreakPlaceholders.set(newValue);
+    this.breakPlaceholderLoader.visible = newValue;
 
     if (newValue) {
       this.workScheduleLoader.applyBreakPlaceholderRows();
