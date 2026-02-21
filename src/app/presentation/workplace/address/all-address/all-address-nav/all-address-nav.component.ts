@@ -16,7 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -68,12 +68,12 @@ export class AllAddressNavComponent
   public isComboBoxOpen = false;
 
   public objectForUnsubscribe: any;
-  public clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
+  public clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
 
   public iterableDiffer: any;
   public isInitFinished = false;
   public defaultTop = 0;
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
 
@@ -204,7 +204,7 @@ export class AllAddressNavComponent
 
   private setEntityName(index?: number) {
     if (index === null || index === -1) {
-      this.clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
+      this.clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
     } else {
       this.clientTypeName =
         this.dataManagementClientService.clientAttribute[index!].name;

@@ -17,10 +17,8 @@ import {
   AfterViewInit,
   Component,
   computed,
-  EventEmitter,
   inject,
   OnInit,
-  Output,
   output,
   signal,
   ViewChild,
@@ -97,7 +95,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     showSelectionBar: false,
   };
 
-  @Output() zoomChange = new EventEmitter<number>();
+  zoomChange = output<number>();
   pdfExportRequested = output<void>();
 
   private holidayCollection = inject(HolidayCollectionService);

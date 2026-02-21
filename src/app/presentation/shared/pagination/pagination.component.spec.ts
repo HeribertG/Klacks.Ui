@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaginationComponent } from './pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { By } from '@angular/platform-browser';
 
 describe('PaginationComponent', () => {
@@ -92,7 +92,7 @@ describe('PaginationComponent', () => {
 
             component.ngOnInit();
 
-            expect(mockLocalStorageService.get).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER);
+            expect(mockLocalStorageService.get).toHaveBeenCalledWith(DomainMessages.SELECTED_ROW_ORDER);
             expect(component.realRow).toBe(10);
             expect(component.numberOfItemsPerPage).toBe(10);
         });
@@ -207,7 +207,7 @@ describe('PaginationComponent', () => {
             expect(component.realRow).toBe(15);
             expect(component.page).toBe(1);
             expect(component.numberOfItemsPerPage).toBe(15);
-            expect(mockLocalStorageService.set).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER, '15');
+            expect(mockLocalStorageService.set).toHaveBeenCalledWith(DomainMessages.SELECTED_ROW_ORDER, '15');
             expect(component.numberOfItemsPerPageChange.emit).toHaveBeenCalledWith(15);
             expect(component.pageChange.emit).toHaveBeenCalledWith(1);
             expect(component.rowSizeChange.emit).toHaveBeenCalledWith(mockEvent);
@@ -222,7 +222,7 @@ describe('PaginationComponent', () => {
 
             expect(component.realRow).toBe(-1);
             expect(component.page).toBe(1);
-            expect(mockLocalStorageService.set).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER, '-1');
+            expect(mockLocalStorageService.set).toHaveBeenCalledWith(DomainMessages.SELECTED_ROW_ORDER, '-1');
             expect(component.rowSizeChange.emit).toHaveBeenCalledWith(mockEvent);
             expect(component.pageChange.emit).toHaveBeenCalledWith(1);
         });

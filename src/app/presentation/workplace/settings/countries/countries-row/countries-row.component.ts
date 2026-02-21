@@ -16,7 +16,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 interface CountryModel {
   abbreviation: string;
@@ -39,7 +39,7 @@ export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
   @Output() isDeleteEvent = new EventEmitter<void>();
   @Output() isChangingEvent = new EventEmitter<void>();
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   public translate = inject(TranslateService);
   private translateService = inject(TranslateService);

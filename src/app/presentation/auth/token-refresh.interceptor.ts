@@ -11,7 +11,7 @@ import { Observable, throwError, BehaviorSubject, from, EMPTY } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { NavigationService } from '../services/navigation.service';
 
 @Injectable()
@@ -87,7 +87,7 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
   }
 
   private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
-    const token = this.localStorageService.get(MessageLibrary.TOKEN);
+    const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (token) {
       return req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`),

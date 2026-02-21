@@ -8,7 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -116,7 +116,7 @@ export class SettingsHomeComponent implements OnInit {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
 
-    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
+    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
     this.workplaceStateService.setActiveManagerByRoute('settings');
     this.savebarService.setSavebarVisibility(false);

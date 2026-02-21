@@ -25,7 +25,7 @@ import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 interface LLMModelFormModel {
   modelId: string;
@@ -76,7 +76,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private originalModel: IAssistantModel | null = null;
 
   isNewModel = false;
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   private isSaving = false;
 
   private formModel = signal<LLMModelFormModel>({

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 @Injectable({ providedIn: 'root' })
 export class AuthorizationService {
@@ -14,8 +14,8 @@ export class AuthorizationService {
   }
 
   private loadFromStorage() {
-    const adminToken = this.localStorage.get(MessageLibrary.TOKEN_ADMIN);
-    const authToken = this.localStorage.get(MessageLibrary.TOKEN_AUTHORISED);
+    const adminToken = this.localStorage.get(StorageKeys.TOKEN_ADMIN);
+    const authToken = this.localStorage.get(StorageKeys.TOKEN_AUTHORISED);
 
     this._isAdmin.set(JSON.parse(adminToken ?? 'false'));
     this._isAuthorised.set(JSON.parse(authToken ?? 'false'));

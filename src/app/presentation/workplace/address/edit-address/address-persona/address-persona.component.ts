@@ -37,7 +37,7 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,
   ModalType,
@@ -105,10 +105,10 @@ export class AddressPersonaComponent
   public newAddressValidFrom: NgbDateStruct = transformDateToNgbDateStruct(
     new Date()
   )!;
-  public message = MessageLibrary.DEACTIVE_ADDRESS;
-  public title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
-  public newAddressString = MessageLibrary.NEW_ADDRESS;
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public message = DomainMessages.DEACTIVE_ADDRESS;
+  public title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
+  public newAddressString = DomainMessages.NEW_ADDRESS;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   public isPhoneValueSeals = false;
 
@@ -141,11 +141,11 @@ export class AddressPersonaComponent
   }
 
   ngOnInit(): void {
-    this.locale = MessageLibrary.DEFAULT_LANG;
+    this.locale = DomainMessages.DEFAULT_LANG;
     this.currentLang = this.translateService.currentLang as Language;
-    this.message = MessageLibrary.DEACTIVE_ADDRESS;
-    this.title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
-    this.newAddressString = MessageLibrary.NEW_ADDRESS;
+    this.message = DomainMessages.DEACTIVE_ADDRESS;
+    this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
+    this.newAddressString = DomainMessages.NEW_ADDRESS;
     this.readSignals();
   }
 
@@ -184,9 +184,9 @@ export class AddressPersonaComponent
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
         setTimeout(() => {
-          this.message = MessageLibrary.DEACTIVE_ADDRESS;
-          this.title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
-          this.newAddressString = MessageLibrary.NEW_ADDRESS;
+          this.message = DomainMessages.DEACTIVE_ADDRESS;
+          this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
+          this.newAddressString = DomainMessages.NEW_ADDRESS;
         }, 200);
       });
 
@@ -484,11 +484,11 @@ export class AddressPersonaComponent
   onAddressTypeName(index: number): string {
     switch (index) {
       case 0:
-        return MessageLibrary.ADDRES_TYPE0_NAME;
+        return DomainMessages.ADDRES_TYPE0_NAME;
       case 1:
-        return MessageLibrary.ADDRES_TYPE1_NAME;
+        return DomainMessages.ADDRES_TYPE1_NAME;
       case 2:
-        return MessageLibrary.ADDRES_TYPE2_NAME;
+        return DomainMessages.ADDRES_TYPE2_NAME;
     }
     return '';
   }

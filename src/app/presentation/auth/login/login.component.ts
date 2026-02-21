@@ -11,7 +11,8 @@ import {
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -61,7 +62,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  public currentLang = MessageLibrary.CURRENT_LANG;
+  public currentLang = StorageKeys.CURRENT_LANG;
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
   public isClicked = false;
@@ -79,14 +80,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   public oauth2Loading = false;
 
   ngOnInit(): void {
-    this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
+    this.translateService.setDefaultLang(DomainMessages.DEFAULT_LANG);
 
     const lang =
-      this.localStorageService.get(MessageLibrary.CURRENT_LANG) !== null;
+      this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
 
     if (lang) {
       this.translateService.use(
-        this.localStorageService.get(MessageLibrary.CURRENT_LANG) as string
+        this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
       );
     }
 

@@ -3,7 +3,8 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MyToken } from 'src/app/domain/models/authentification-class';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from 'src/app/shared/helpers/date.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -30,7 +31,7 @@ export class AuthService {
     ).then((tok) => {
         if (!tok) {
           this.toastShowService.showError(
-            MessageLibrary.AUTH_USER_ERROR + MessageLibrary.RESPONSE_ERROR,
+            DomainMessages.AUTH_USER_ERROR + DomainMessages.RESPONSE_ERROR,
             'AUTH_USER_ERROR'
           );
           return false;
@@ -41,7 +42,7 @@ export class AuthService {
           typeof tok === 'object' &&
           tok.hasOwnProperty('user not exist')
         ) {
-          this.toastShowService.showInfo(MessageLibrary.AUTH_USER_NOT_EXIST!);
+          this.toastShowService.showInfo(DomainMessages.AUTH_USER_NOT_EXIST!);
           return false;
         } else {
           this.storeToken(tok);
@@ -50,7 +51,7 @@ export class AuthService {
       })
       .catch((err) => {
         this.toastShowService.showError(
-          MessageLibrary.AUTH_USER_ERROR,
+          DomainMessages.AUTH_USER_ERROR,
           'AUTH_USER_ERROR'
         );
         console.log(err);
@@ -104,7 +105,7 @@ export class AuthService {
   }
 
   authenticated(): boolean {
-    const res = this.localStorageService.get(MessageLibrary.TOKEN) !== null;
+    const res = this.localStorageService.get(StorageKeys.TOKEN) !== null;
     return res;
   }
 
@@ -119,11 +120,11 @@ export class AuthService {
   }
 
   checkIfTokenIsValid(): void {
-    const token = this.localStorageService.get(MessageLibrary.TOKEN);
+    const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (token !== null) {
       const currentDate = new Date();
       const tokenDate = new Date(
-        this.localStorageService.get(MessageLibrary.TOKEN_EXP)!
+        this.localStorageService.get(StorageKeys.TOKEN_EXP)!
       );
 
       const res = EqualDate(currentDate, tokenDate);
@@ -138,7 +139,7 @@ export class AuthService {
           });
         } catch {
           this.navigationService.navigateToRoot();
-          this.toastShowService.showInfo(MessageLibrary.EXPIRED_TOKEN);
+          this.toastShowService.showInfo(DomainMessages.EXPIRED_TOKEN);
         }
       } else {
         this.navigationService.navigateToWorkplace();
@@ -151,29 +152,29 @@ export class AuthService {
   private storeToken(token: MyToken, isRefresh?: boolean): void {
     this.removeToken(isRefresh);
 
-    this.localStorageService.set(MessageLibrary.TOKEN, token.token);
-    this.localStorageService.set(MessageLibrary.TOKEN_SUBJECT, token.subject);
-    this.localStorageService.set(MessageLibrary.TOKEN_USERNAME, token.username);
-    this.localStorageService.set(MessageLibrary.TOKEN_USERID, token.id);
+    this.localStorageService.set(StorageKeys.TOKEN, token.token);
+    this.localStorageService.set(StorageKeys.TOKEN_SUBJECT, token.subject);
+    this.localStorageService.set(StorageKeys.TOKEN_USERNAME, token.username);
+    this.localStorageService.set(StorageKeys.TOKEN_USERID, token.id);
     this.localStorageService.set(
-      MessageLibrary.TOKEN_EXP,
+      StorageKeys.TOKEN_EXP,
       token.expTime!.toString()
     );
     this.localStorageService.set(
-      MessageLibrary.TOKEN_ADMIN,
+      StorageKeys.TOKEN_ADMIN,
       token.isAdmin.toString()
     );
     this.localStorageService.set(
-      MessageLibrary.TOKEN_AUTHORISED,
+      StorageKeys.TOKEN_AUTHORISED,
       token.isAuthorised.toString()
     );
     this.localStorageService.set(
-      MessageLibrary.TOKEN_APPVERSION,
+      StorageKeys.TOKEN_APPVERSION,
       token.version
     );
     if (token.refreshToken) {
       this.localStorageService.set(
-        MessageLibrary.TOKEN_REFRESHTOKEN,
+        StorageKeys.TOKEN_REFRESHTOKEN,
         token.refreshToken
       );
     }
@@ -181,17 +182,17 @@ export class AuthService {
 
   private removeToken(isRefresh?: boolean) {
     try {
-      this.localStorageService.remove(MessageLibrary.TOKEN);
-      this.localStorageService.remove(MessageLibrary.TOKEN_EXP);
-      this.localStorageService.remove(MessageLibrary.TOKEN_USERNAME);
-      this.localStorageService.remove(MessageLibrary.TOKEN_USERID);
-      this.localStorageService.remove(MessageLibrary.TOKEN_ADMIN);
-      this.localStorageService.remove(MessageLibrary.TOKEN_AUTHORISED);
-      this.localStorageService.remove(MessageLibrary.TOKEN_APPVERSION);
-      this.localStorageService.remove(MessageLibrary.TOKEN_SUBJECT);
+      this.localStorageService.remove(StorageKeys.TOKEN);
+      this.localStorageService.remove(StorageKeys.TOKEN_EXP);
+      this.localStorageService.remove(StorageKeys.TOKEN_USERNAME);
+      this.localStorageService.remove(StorageKeys.TOKEN_USERID);
+      this.localStorageService.remove(StorageKeys.TOKEN_ADMIN);
+      this.localStorageService.remove(StorageKeys.TOKEN_AUTHORISED);
+      this.localStorageService.remove(StorageKeys.TOKEN_APPVERSION);
+      this.localStorageService.remove(StorageKeys.TOKEN_SUBJECT);
 
       if (!isRefresh) {
-        this.localStorageService.remove(MessageLibrary.TOKEN_REFRESHTOKEN);
+        this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
         this.removeStateValue();
       }
     } catch (e: unknown) {
@@ -202,9 +203,9 @@ export class AuthService {
   private isAdmin(): boolean {
     let admin = false;
 
-    if (this.localStorageService.get(MessageLibrary.TOKEN_ADMIN)) {
+    if (this.localStorageService.get(StorageKeys.TOKEN_ADMIN)) {
       let tmp: string | null = this.localStorageService.get(
-        MessageLibrary.TOKEN_ADMIN
+        StorageKeys.TOKEN_ADMIN
       );
       if (!tmp) {
         tmp = 'false';
@@ -222,9 +223,9 @@ export class AuthService {
   public isAuthorisedUser(): boolean {
     let authorised = false;
 
-    if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
+    if (this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)) {
       let tmp: string | null = this.localStorageService.get(
-        MessageLibrary.TOKEN_AUTHORISED
+        StorageKeys.TOKEN_AUTHORISED
       );
       if (!tmp) {
         tmp = 'false';
@@ -245,7 +246,7 @@ export class AuthService {
     switch (error) {
       case 'Unknown Error':
         this.navigationService.navigateToError();
-        this.toastShowService.showError(MessageLibrary.SERVER_NOT_VALID);
+        this.toastShowService.showError(DomainMessages.SERVER_NOT_VALID);
 
         break;
 
@@ -254,41 +255,41 @@ export class AuthService {
         break;
 
       case '204':
-        this.toastShowService.showInfo(MessageLibrary.HTTP204);
+        this.toastShowService.showInfo(DomainMessages.HTTP204);
         break;
 
       case '400':
-        this.toastShowService.showError(MessageLibrary.HTTP400);
+        this.toastShowService.showError(DomainMessages.HTTP400);
 
         break;
 
       case '401':
         this.logOut();
         this.navigationService.navigateToRoot();
-        this.toastShowService.showError(MessageLibrary.HTTP401);
+        this.toastShowService.showError(DomainMessages.HTTP401);
 
         break;
 
       case '403':
-        this.toastShowService.showError(MessageLibrary.HTTP403);
+        this.toastShowService.showError(DomainMessages.HTTP403);
 
         break;
 
       case '404':
         this.navigationService.navigateToError();
-        this.toastShowService.showError(MessageLibrary.HTTP404);
+        this.toastShowService.showError(DomainMessages.HTTP404);
 
         break;
 
       default:
         this.navigationService.navigateToError();
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.toastShowService.showError(DomainMessages.UNKNOWN_ERROR);
     }
   }
 
   async refreshToken(): Promise<boolean> {
     const refreshToken = this.localStorageService.get(
-      MessageLibrary.TOKEN_REFRESHTOKEN
+      StorageKeys.TOKEN_REFRESHTOKEN
     );
 
     if (!refreshToken) {

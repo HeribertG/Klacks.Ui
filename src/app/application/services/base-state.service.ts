@@ -3,7 +3,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import { SearchService } from 'src/app/application/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
 import { IBaseFilter } from 'src/app/domain/models/general-class';
@@ -55,7 +55,7 @@ export abstract class BaseStateService<
 
   async saveCurrentFilter(key = this.editRouteName): Promise<void> {
     const storedRowOrder = this.localStorageService.get(
-      MessageLibrary.SELECTED_ROW_ORDER
+      DomainMessages.SELECTED_ROW_ORDER
     );
     const isAutoMode = storedRowOrder === '-1';
 

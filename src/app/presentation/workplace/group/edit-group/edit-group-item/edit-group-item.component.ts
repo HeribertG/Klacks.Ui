@@ -18,7 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -57,7 +57,7 @@ export class EditGroupItemComponent
 
   @ViewChild('groupForm', { static: false }) groupForm: NgForm | undefined;
 
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   public faCalendar = faCalendar;
 
   private ngUnsubscribe = new Subject<void>();
@@ -72,7 +72,7 @@ export class EditGroupItemComponent
   public internalValidUntil: NgbDateStruct | undefined;
 
   ngOnInit(): void {
-    this.locale = MessageLibrary.DEFAULT_LANG;
+    this.locale = DomainMessages.DEFAULT_LANG;
     this.readSignals();
 
     this.currentLang = this.translateService.currentLang as Language;

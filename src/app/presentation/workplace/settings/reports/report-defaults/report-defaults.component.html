@@ -8,8 +8,9 @@
     <div class="defaults-grid">
       @for (source of dataSources; track source.id) {
         <div class="default-row d-flex align-items-center gap-2 mb-2">
-          <label class="source-label text-nowrap">{{ source.i18nKey | translate }}:</label>
+          <label class="source-label text-nowrap" [for]="'default-select-' + source.id">{{ source.i18nKey | translate }}:</label>
           <select
+            [id]="'default-select-' + source.id"
             class="form-select form-select-sm"
             [ngModel]="getDefault(source.id)"
             (ngModelChange)="onDefaultChange(source.id, $event)"

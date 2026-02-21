@@ -8,7 +8,7 @@ import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
@@ -44,7 +44,7 @@ export class EditShiftMacroComponent
     | undefined;
 
   visibleTable = 'inline';
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
   private macro: IMacro | undefined;
   macroDescription = '';
   objectForUnsubscribe: Subscription | undefined;

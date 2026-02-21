@@ -3,20 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import {
-  IAgent,
-  IAgentMemory,
-  IAgentSession,
-  IAgentSessionMessage,
-  IAgentSkillSummary,
-  IAgentSoulHistory,
-  IAgentSoulSection,
-  ICreateAgentRequest,
-  ICreateMemoryRequest,
-  IUpdateAgentRequest,
-  IUpdateMemoryRequest,
-  IUpsertSoulRequest,
-} from 'src/app/domain/interfaces/agent.interface';
+import { IAgent } from 'src/app/domain/interfaces/agent.interface';
+import { IAgentMemory, ICreateMemoryRequest, IUpdateMemoryRequest } from 'src/app/domain/interfaces/agent-memory.interface';
+import { ICreateAgentRequest, IUpdateAgentRequest } from 'src/app/domain/interfaces/agent-request.interface';
+import { IAgentSession, IAgentSessionMessage } from 'src/app/domain/interfaces/agent-session.interface';
+import { IAgentSkillSummary } from 'src/app/domain/interfaces/agent-skill.interface';
+import { IAgentSoulSection, IAgentSoulHistory, IUpsertSoulRequest } from 'src/app/domain/interfaces/agent-soul.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -24,8 +16,6 @@ import {
 export class DataAgentService {
   private httpClient = inject(HttpClient);
   private readonly baseUrl = `${environment.baseUrl}assistant/agents`;
-
-  // ── Agents ────────────────────────────────────────────
 
   getAll(): Observable<IAgent[]> {
     return this.httpClient.get<IAgent[]>(this.baseUrl).pipe(retry(3));
@@ -51,8 +41,6 @@ export class DataAgentService {
       .put<IAgent>(`${this.baseUrl}/${id}`, request)
       .pipe(retry(3));
   }
-
-  // ── Soul Sections ─────────────────────────────────────
 
   getSoulSections(agentId: string): Observable<IAgentSoulSection[]> {
     return this.httpClient
@@ -94,8 +82,6 @@ export class DataAgentService {
       )
       .pipe(retry(3));
   }
-
-  // ── Memories ──────────────────────────────────────────
 
   getMemories(
     agentId: string,
@@ -158,15 +144,11 @@ export class DataAgentService {
       .pipe(retry(3));
   }
 
-  // ── Skills ────────────────────────────────────────────
-
   getSkills(agentId: string): Observable<IAgentSkillSummary[]> {
     return this.httpClient
       .get<IAgentSkillSummary[]>(`${this.baseUrl}/${agentId}/skills`)
       .pipe(retry(3));
   }
-
-  // ── Sessions ──────────────────────────────────────────
 
   getSessions(agentId: string): Observable<IAgentSession[]> {
     return this.httpClient

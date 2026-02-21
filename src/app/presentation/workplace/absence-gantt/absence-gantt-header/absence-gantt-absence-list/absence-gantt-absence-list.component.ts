@@ -15,7 +15,7 @@ import { CalendarSettingService } from 'src/app/presentation/workplace/absence-g
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { invertColor } from 'src/app/shared/helpers/number.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
@@ -33,7 +33,7 @@ export class AbsenceGanttAbsenceListComponent
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
   checkmark = '&#10003;';
 
   private imageMap = new Map<string, HTMLImageElement>();

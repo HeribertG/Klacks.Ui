@@ -6,7 +6,7 @@
 
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 /**
  * Compares two dates and returns a comparison result.
@@ -29,12 +29,12 @@ export function EqualDate(
  * Formats a date as a localized long date string.
  *
  * @param date - Date to format
- * @param locale - Locale code (default: MessageLibrary.DEFAULT_LANG)
+ * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
  * @returns Formatted date string (e.g., "Montag 15.03.2025")
  */
 export function DateToString(
   date: Date | string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'dddd DD.MM.yyyy', locale);
 }
@@ -43,12 +43,12 @@ export function DateToString(
  * Formats a date as a short date string.
  *
  * @param date - Date to format
- * @param locale - Locale code (default: MessageLibrary.DEFAULT_LANG)
+ * @param locale - Locale code (default: DomainMessages.DEFAULT_LANG)
  * @returns Formatted date string (e.g., "15.03.2025")
  */
 export function DateToStringShort(
   date: Date | string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'DD.MM.yyyy', locale);
 }
@@ -58,13 +58,13 @@ export function DateToStringShort(
  *
  * @param date - The date to format
  * @param dateFormat - The format string to use
- * @param locale - The locale to use for formatting (default: MessageLibrary.DEFAULT_LANG)
+ * @param locale - The locale to use for formatting (default: DomainMessages.DEFAULT_LANG)
  * @returns The formatted date string
  */
 function formatDate(
   date: Date | string,
   dateFormat: string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   const localeObj = locale === 'de' ? de : enUS;

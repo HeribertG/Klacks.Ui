@@ -964,7 +964,7 @@ export class ReportDesignerComponent implements OnChanges {
   showFormulaEditor = false;
   formulaEditorField: ReportField | null = null;
   formulaTestResult = '';
-  formulaTestData: any = {};
+  formulaTestData: Record<string, unknown> = {};
   formulaTestMetadata?: PropertyMetadata;
 
   openFormulaEditor(field: ReportField): void {

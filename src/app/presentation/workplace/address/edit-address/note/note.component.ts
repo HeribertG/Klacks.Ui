@@ -1,5 +1,5 @@
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IAnnotation } from 'src/app/domain/models/client/client-class';
 import {
@@ -51,7 +51,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
-  public note_new = MessageLibrary.NOTE_NEW;
+  public note_new = DomainMessages.NOTE_NEW;
   public expandedNotes: boolean[] = [];
 
   public dataManagementClientService = inject(DataManagementClientService);
@@ -66,7 +66,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   public sortedAnnotations: IAnnotation[] = [];
 
   ngOnInit(): void {
-    this.note_new = MessageLibrary.NOTE_NEW;
+    this.note_new = DomainMessages.NOTE_NEW;
     this.initializeExpandedNotes();
 
     effect(
@@ -98,7 +98,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
-        this.note_new = MessageLibrary.NOTE_NEW;
+        this.note_new = DomainMessages.NOTE_NEW;
       }, 200);
     });
   }

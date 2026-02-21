@@ -1,7 +1,7 @@
 import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
@@ -16,9 +16,9 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
   private isAdmin = false;
 
   ngOnInit() {
-    if (this.localStorageService.get(MessageLibrary.TOKEN_ADMIN)) {
+    if (this.localStorageService.get(StorageKeys.TOKEN_ADMIN)) {
       this.isAdmin = JSON.parse(
-        this.localStorageService.get(MessageLibrary.TOKEN_ADMIN)!
+        this.localStorageService.get(StorageKeys.TOKEN_ADMIN)!
       );
     }
 

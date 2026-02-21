@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Component({
   selector: 'app-all-group-nav',
@@ -24,7 +24,7 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     | undefined;
   navClient: HTMLElement | undefined;
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
   isComboBoxOpen = false;

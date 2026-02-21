@@ -26,7 +26,7 @@ import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,
   ModalType,
@@ -82,13 +82,13 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   private translate = inject(TranslateService);
 
   public currentAbsence = new Absence();
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   public firstItemOnLastPage: number | undefined = undefined;
   public highlightRowId: string | undefined = undefined;
   public isComboBoxOpen = false;
   public isNextPage: boolean | undefined = undefined;
   public isPreviousPage: boolean | undefined = undefined;
-  public message = MessageLibrary.DELETE_ENTRY;
+  public message = DomainMessages.DELETE_ENTRY;
   public numberOfItemsPerPage = 7;
   public numberOfItemsPerPageMap = new Map<number, number>();
   public page = 1;

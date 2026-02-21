@@ -10,7 +10,7 @@ import {
   Menu,
   MenuItem,
 } from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
@@ -43,7 +43,7 @@ export class AbsenceGanttContextMenuService {
 
       const convertMenu = new MenuItem(
         'convert',
-        MessageLibrary.CONVERT,
+        DomainMessages.CONVERT,
         false
       );
       convertMenu.hasMenu = true;

@@ -9,7 +9,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { catchError } from 'rxjs/operators';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
@@ -320,7 +320,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private handlePasswordChangeError(
     error: HttpErrorResponse
   ): Observable<never> {
-    let msg = MessageLibrary.NOT_REGISTER + '\n\r';
+    let msg = DomainMessages.NOT_REGISTER + '\n\r';
 
     const passwordError =
       error.error?.modelState?.PasswordMismatch?.errors?.[0];
@@ -333,23 +333,23 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleRegistrationError(error: HttpErrorResponse): Observable<never> {
-    let msg = MessageLibrary.NOT_REGISTER + '\n\r';
+    let msg = DomainMessages.NOT_REGISTER + '\n\r';
 
     try {
       const modelState = error.error?.modelState;
       const errorMappings = [
         {
           check: modelState?.PasswordRequiresDigit?.errors?.length > 0,
-          message: MessageLibrary.NOT_REGISTER_DIGIT,
+          message: DomainMessages.NOT_REGISTER_DIGIT,
         },
         {
           check: modelState?.PasswordRequiresUpper?.errors?.length > 0,
-          message: MessageLibrary.NOT_REGISTER_UPERCASECHARACTER,
+          message: DomainMessages.NOT_REGISTER_UPERCASECHARACTER,
         },
         {
           check:
             modelState?.PasswordRequiresNonAlphanumeric?.errors?.length > 0,
-          message: MessageLibrary.NOT_REGISTER_ALPHANUMERICCHARACTER,
+          message: DomainMessages.NOT_REGISTER_ALPHANUMERICCHARACTER,
         },
       ];
 
@@ -375,7 +375,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleImageLoadingError(): Observable<never> {
-    const msg = MessageLibrary.ERROR_LOADIMAGE_HTTP500 + '\n\r';
+    const msg = DomainMessages.ERROR_LOADIMAGE_HTTP500 + '\n\r';
     this.toastShowService.showInfo(msg, 'DownLoadImage');
     return throwError(
       () =>
@@ -389,7 +389,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private handleClientListError(): Observable<never> {
     try {
       this.toastShowService.showError(
-        MessageLibrary.CLIENTLIST_ERROR_500 + '\n\r',
+        DomainMessages.CLIENTLIST_ERROR_500 + '\n\r',
         'CLIENTLIST_ERROR_500'
       );
     } catch (e) {
@@ -441,7 +441,7 @@ export class ResponseInterceptor implements HttpInterceptor {
         break;
       case 0: // Network Error
         this.toastShowService.showError(
-          MessageLibrary.CONNECTION_ERROR,
+          DomainMessages.CONNECTION_ERROR,
           'CONNECTION_ERROR',
           error.message
         );
@@ -455,7 +455,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
     if (error.statusText === 'Unknown Error') {
       this.toastShowService.showError(
-        MessageLibrary.CONNECTION_ERROR,
+        DomainMessages.CONNECTION_ERROR,
         'CONNECTION_ERROR',
         error.message
       );

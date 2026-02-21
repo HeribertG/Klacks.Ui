@@ -4,7 +4,8 @@ import { DataLoadFileService } from '../../infrastructure/api/data-load-file.ser
 import { DataSettingsVariousService } from '../../infrastructure/api/settings/data-settings-various.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-various-class';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -35,10 +36,10 @@ export class ApplicationInitService {
   }
 
   private setDefaults(): void {
-    if (!this.localStorageService.get(MessageLibrary.CURRENT_LANG)) {
+    if (!this.localStorageService.get(StorageKeys.CURRENT_LANG)) {
       this.localStorageService.set(
-        MessageLibrary.CURRENT_LANG,
-        MessageLibrary.DEFAULT_LANG
+        StorageKeys.CURRENT_LANG,
+        DomainMessages.DEFAULT_LANG
       );
     }
   }

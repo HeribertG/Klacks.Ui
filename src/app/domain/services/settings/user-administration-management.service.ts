@@ -11,7 +11,7 @@ import {
   ChangeRole,
 } from 'src/app/domain/models/authentification-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +40,7 @@ export class UserAdministrationManagementService {
   }
 
   private initializeCurrentAccountId(): void {
-    const userId = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    const userId = this.localStorageService.get(StorageKeys.TOKEN_USERID);
     if (userId) {
       this.currentAccountId.set(userId);
     }

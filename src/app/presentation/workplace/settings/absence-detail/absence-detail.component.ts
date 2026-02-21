@@ -29,7 +29,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { Language } from 'src/app/application/helpers/sharedItems';
@@ -83,8 +83,8 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
 
   isNewAbsenceDetail = false;
   private isSaving = false;
-  message = MessageLibrary.DELETE_ENTRY;
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  message = DomainMessages.DELETE_ENTRY;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   selectedMode = signal<AbsenceDetailMode>(AbsenceDetailMode.TimeRange);
   AbsenceDetailMode = AbsenceDetailMode;

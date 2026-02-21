@@ -23,7 +23,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 // Services und Utilities
 import { DataManagementProfileService } from 'src/app/domain/services/schedule/data-management-profile.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   checkPasswordStrength,
   PasswordCheckStrength,
@@ -90,23 +90,23 @@ export class ProfileDataEditComponent implements OnInit, DoCheck {
 
       switch (res) {
         case PasswordCheckStrength.Short:
-          this.passwordStrength = MessageLibrary.PASSWORD_STRENGTH_SHORT;
+          this.passwordStrength = DomainMessages.PASSWORD_STRENGTH_SHORT;
           this.passwordStrengthFlag = false;
           break;
         case PasswordCheckStrength.Weak:
-          this.passwordStrength = MessageLibrary.PASSWORD_STRENGTH_WEAK;
+          this.passwordStrength = DomainMessages.PASSWORD_STRENGTH_WEAK;
           this.passwordStrengthFlag = false;
           break;
         case PasswordCheckStrength.Common:
-          this.passwordStrength = MessageLibrary.PASSWORD_STRENGTH_WEAK;
+          this.passwordStrength = DomainMessages.PASSWORD_STRENGTH_WEAK;
           this.passwordStrengthFlag = false;
           break;
         case PasswordCheckStrength.Ok:
-          this.passwordStrength = MessageLibrary.PASSWORD_STRENGTH_COMMON;
+          this.passwordStrength = DomainMessages.PASSWORD_STRENGTH_COMMON;
           this.passwordStrengthFlag = false;
           break;
         case PasswordCheckStrength.Strong:
-          this.passwordStrength = MessageLibrary.PASSWORD_STRENGTH_STRONG;
+          this.passwordStrength = DomainMessages.PASSWORD_STRENGTH_STRONG;
           this.passwordStrengthFlag = true;
           break;
       }

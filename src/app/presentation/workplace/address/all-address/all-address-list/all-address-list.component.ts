@@ -15,7 +15,8 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   ModalService,
@@ -85,7 +86,7 @@ export class AllAddressListComponent
   public isFirstRead = true;
   public isNextPage: boolean | undefined = undefined;
   public isPreviousPage: boolean | undefined = undefined;
-  public message = MessageLibrary.DELETE_ENTRY;
+  public message = DomainMessages.DELETE_ENTRY;
   public monthList = [];
   public numberOfItemsPerPage = 5;
   public numberOfItemsPerPageMap = new Map();
@@ -100,9 +101,9 @@ export class AllAddressListComponent
 
   // Lifecycle hooks
   async ngOnInit(): Promise<void> {
-    if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
+    if (this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)) {
       this.isAuthorised = JSON.parse(
-        this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)!
+        this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)!
       );
     }
 
@@ -377,7 +378,7 @@ export class AllAddressListComponent
     const readEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
         if (this.dataManagementClientService.isRead()) {
-          this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
+          this.localStorageService.get(DomainMessages.SELECTED_ROW_ORDER);
 
           if (this.isFirstRead) {
             this.isFirstRead = false;

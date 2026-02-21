@@ -22,7 +22,7 @@ import {
 } from 'src/app/domain/models/calendar/calendar-selection-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -245,7 +245,7 @@ export class CalendarSelectorComponent
   }
 
   private get calendarSelectionStorageKey(): string {
-    return `${MessageLibrary.CALENDAR_SELECTION_TYPE}-${MessageLibrary.CALENDAR_SELECTION_ID}`;
+    return `${DomainMessages.CALENDAR_SELECTION_TYPE}-${DomainMessages.CALENDAR_SELECTION_ID}`;
   }
 
   getChipDisplayName(chip: StateCountryToken): string {

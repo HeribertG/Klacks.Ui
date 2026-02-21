@@ -20,7 +20,7 @@ import { DataClientService } from 'src/app/infrastructure/api/client/data-client
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -72,7 +72,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   ngOnInit(): void {
-    this.locale = MessageLibrary.DEFAULT_LANG;
+    this.locale = DomainMessages.DEFAULT_LANG;
 
     this.sortingService.initialize({
       columns: ['idNumber', 'company', 'firstName', 'name'],
@@ -213,7 +213,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
         this.onIsChanging(true);
       } else {
         this.toastShowService.showInfo(
-          MessageLibrary.CLIENT_DOUBLETS,
+          DomainMessages.CLIENT_DOUBLETS,
           'CLIENT_DOUBLETS'
         );
       }

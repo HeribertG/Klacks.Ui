@@ -26,7 +26,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 interface BranchFormModel {
   name: string;
@@ -69,7 +69,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isNewBranch = false;
   private isSaving = false;
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
 
   private formModel = signal<BranchFormModel>({
     name: '',

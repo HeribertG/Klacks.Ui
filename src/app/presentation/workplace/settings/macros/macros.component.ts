@@ -9,7 +9,7 @@ import { Macro } from 'src/app/domain/models/settings/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 @Component({
@@ -33,7 +33,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   private macroToDeleteIndex: number | null = null;
   private pendingOpenMacro: Macro | null = null;
 
@@ -71,7 +71,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
 
   onClickAdd(): void {
     const macro = new Macro();
-    macro.name = MessageLibrary.NOT_DEFINED;
+    macro.name = DomainMessages.NOT_DEFINED;
     macro.isDirty = CreateEntriesEnum.new;
 
     this.pendingOpenMacro = macro;

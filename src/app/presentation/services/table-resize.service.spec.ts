@@ -2,7 +2,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TableResizeService } from './table-resize.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { of } from 'rxjs';
 
 describe('TableResizeService', () => {
@@ -170,7 +170,7 @@ describe('TableResizeService', () => {
 
             // Assert
             expect(result).toBe(10);
-            expect(mockLocalStorageService.get).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER);
+            expect(mockLocalStorageService.get).toHaveBeenCalledWith(DomainMessages.SELECTED_ROW_ORDER);
         });
 
         it('should return null for invalid saved row size', () => {
@@ -189,7 +189,7 @@ describe('TableResizeService', () => {
             service.saveRowSize(15);
 
             // Assert
-            expect(mockLocalStorageService.set).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER, '15');
+            expect(mockLocalStorageService.set).toHaveBeenCalledWith(DomainMessages.SELECTED_ROW_ORDER, '15');
         });
     });
 

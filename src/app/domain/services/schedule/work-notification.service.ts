@@ -1,6 +1,6 @@
 import { inject, Injectable, OnDestroy, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notification.interface';
@@ -12,7 +12,7 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
   providedIn: 'root',
 })
 export class WorkNotificationService implements OnDestroy {
-  private signalRService = inject(SignalRService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private shiftScheduleLoader = inject(ShiftScheduleLoaderService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);

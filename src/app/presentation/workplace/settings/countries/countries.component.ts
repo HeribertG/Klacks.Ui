@@ -11,7 +11,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { CountriesHeaderComponent } from './countries-header/countries-header.component';
 import { CountriesRowComponent } from './countries-row/countries-row.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Component({
   selector: 'app-countries',
@@ -34,7 +34,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent

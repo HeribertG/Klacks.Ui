@@ -24,7 +24,7 @@ import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStruct
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-grid.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
@@ -78,7 +78,7 @@ export class AbsenceGanttMaskComponent
 
   public page = 1;
   public tabId = 'mask';
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   public faCalendar = faCalendar;
 
   private selectedBreak_dummy: IBreakPlaceholder | undefined;
@@ -242,7 +242,7 @@ export class AbsenceGanttMaskComponent
             this.UpdateEvent.emit();
           });
       } else {
-        this.ErrorMessageEvent.emit(MessageLibrary.ERROR_DATE);
+        this.ErrorMessageEvent.emit(DomainMessages.ERROR_DATE);
       }
     }
   }

@@ -7,17 +7,9 @@ import {
   faTriangleExclamation,
   faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
-
-export type ErrorListFilterType = 'error' | 'warning' | 'info';
-
-export interface ScheduleErrorEntry {
-  type: ErrorListFilterType;
-  date: string;
-  clientName: string;
-  comment: string;
-  commentParams?: Record<string, string>;
-}
+import { ScheduleErrorEntry, ErrorListFilterType } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 @Component({
   selector: 'app-schedule-error-list',
@@ -34,7 +26,7 @@ export class ScheduleErrorListComponent implements OnInit {
   readonly faWarning = faTriangleExclamation;
   readonly faInfo = faCircleInfo;
 
-  activeFilters: Set<ErrorListFilterType> = new Set([
+  activeFilters = new Set<ErrorListFilterType>([
     'error',
     'warning',
     'info',
@@ -67,7 +59,7 @@ export class ScheduleErrorListComponent implements OnInit {
     return this.activeFilters.has(type);
   }
 
-  getEntryIcon(type: ErrorListFilterType) {
+  getEntryIcon(type: ErrorListFilterType): IconDefinition {
     switch (type) {
       case 'error':
         return this.faError;

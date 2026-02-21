@@ -374,7 +374,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
     this.speechService.errors
       .pipe(takeUntil(this.destroy$))
-      .subscribe((error) => {
+      .subscribe((_error) => {
         this.ngZone.run(() => {
           this.isTranscribing = false;
           if (this.voiceModeEnabled) {
@@ -469,7 +469,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     }
   }
 
-  private addWelcomeMessage(langCode: string): void {
+  private addWelcomeMessage(_langCode: string): void {
     const welcomeMessage: ChatMessage = {
       id: this.generateMessageId(),
       sender: 'assistant',

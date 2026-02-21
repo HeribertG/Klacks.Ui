@@ -6,7 +6,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   LocaleService,
@@ -31,7 +32,7 @@ import { LanguageConfigService } from 'src/app/application/services/language-con
 export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;
 
-  selectedLanguage: Language = MessageLibrary.DEFAULT_LANG;
+  selectedLanguage: Language = DomainMessages.DEFAULT_LANG;
   flagMap: Record<Language, string> = {
     de: 'Deutsch',
     fr: 'Français',
@@ -54,11 +55,11 @@ export class ProfileCustomSettingComponent implements OnInit {
 
   ngOnInit(): void {
     const lang =
-      this.localStorageService.get(MessageLibrary.CURRENT_LANG) !== null;
+      this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
 
     if (lang) {
       this.onChangeLanguage(
-        this.localStorageService.get(MessageLibrary.CURRENT_LANG) as string
+        this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
       );
     }
     this.setTheme();
@@ -73,7 +74,7 @@ export class ProfileCustomSettingComponent implements OnInit {
   onChangeLanguage(lang: string) {
     this.selectedLanguage = lang as Language;
     this.translate.use(lang);
-    this.localStorageService.set(MessageLibrary.CURRENT_LANG, lang);
+    this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang as SupportedLocales);
   }

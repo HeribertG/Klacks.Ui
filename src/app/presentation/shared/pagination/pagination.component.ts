@@ -14,7 +14,7 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
@@ -56,8 +56,8 @@ export class PaginationComponent implements OnInit {
     }
 
     const storageKey = this.paginationType === 'shift'
-      ? MessageLibrary.SELECTED_ROW_ORDER_SHIFT
-      : MessageLibrary.SELECTED_ROW_ORDER;
+      ? DomainMessages.SELECTED_ROW_ORDER_SHIFT
+      : DomainMessages.SELECTED_ROW_ORDER;
 
     this.visibleRow = this.paginationType === 'shift'
       ? visibleShiftRow()
@@ -110,8 +110,8 @@ export class PaginationComponent implements OnInit {
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
     const storageKey = this.paginationType === 'shift'
-      ? MessageLibrary.SELECTED_ROW_ORDER_SHIFT
-      : MessageLibrary.SELECTED_ROW_ORDER;
+      ? DomainMessages.SELECTED_ROW_ORDER_SHIFT
+      : DomainMessages.SELECTED_ROW_ORDER;
 
     this.realRow = value;
     this.page = 1;

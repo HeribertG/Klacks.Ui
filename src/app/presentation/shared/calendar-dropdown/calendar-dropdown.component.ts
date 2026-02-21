@@ -20,7 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
@@ -50,7 +50,7 @@ export class CalendarDropdownComponent
 
   private translateService = inject(TranslateService);
 
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   public faSearch = faSearch;
 
   private ngUnsubscribe = new Subject<void>();

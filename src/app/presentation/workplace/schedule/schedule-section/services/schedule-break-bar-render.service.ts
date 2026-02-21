@@ -44,7 +44,6 @@ export class ScheduleBreakBarRenderService {
     const language = this.translateService.currentLang || 'en';
 
     const totalColumns = this.dataService.columns;
-    const totalRows = this.dataService.rows;
     const visibleRows = Math.ceil((canvasHeight - cellHeaderHeight) / cellHeight);
     const visibleCols = Math.ceil(canvasWidth / cellWidth);
     const lastVisibleRow = firstVisibleRow + visibleRows;

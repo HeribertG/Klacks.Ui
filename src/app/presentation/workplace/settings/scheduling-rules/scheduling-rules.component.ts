@@ -23,7 +23,7 @@ import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rul
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Component({
   selector: 'app-scheduling-rules',
@@ -57,7 +57,7 @@ export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestro
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
 
   async ngOnInit(): Promise<void> {
     try {

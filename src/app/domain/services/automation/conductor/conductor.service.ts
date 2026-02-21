@@ -2,12 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import {
   IShift,
   IConductorContext,
-  IEvolutionConfig,
   IEvolutionResult,
-  IEvolutionProgress,
   DEFAULT_EVOLUTION_CONFIG,
   DEFAULT_PENALTY_WEIGHTS,
-  IPenaltyWeights
 } from '../../../models/automation/conductor/scheduling.models';
 import { IScheduleAgent, IAgentDecision } from '../../../models/automation/agent/schedule-agent.model';
 import { IConductorOptions } from '../../../models/automation/conductor/conductor-options.model';

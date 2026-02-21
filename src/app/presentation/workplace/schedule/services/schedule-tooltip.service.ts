@@ -17,7 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { HoveredCellInfo } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
@@ -34,7 +34,7 @@ export class ScheduleTooltipService {
   private translateService = inject(TranslateService);
   private dataManagement = inject(DataManagementScheduleService);
 
-  private currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  private currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   initLanguage(): void {
     this.currentLang = this.translateService.currentLang as Language;

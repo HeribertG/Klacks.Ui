@@ -14,11 +14,12 @@ import {
 } from 'src/app/domain/interfaces/period-hours-notification.interface';
 import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
+import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SignalRService implements OnDestroy {
+export class SignalRService implements OnDestroy, IScheduleSignalR {
   private localStorageService = inject(LocalStorageService);
 
   private hubConnection: signalR.HubConnection | null = null;
@@ -41,6 +42,8 @@ export class SignalRService implements OnDestroy {
   private currentGroup: { startDate: string; endDate: string } | null = null;
   private pendingGroupSwitch: Promise<void> | null = null;
   private reconnectAttemptWithExpiredToken = false;
+  private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
+  private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
@@ -358,10 +361,10 @@ export class SignalRService implements OnDestroy {
     setTimeout(async () => {
       const token = this.localStorageService.get(StorageKeys.TOKEN);
       if (token && !this.isTokenExpired(token)) {
-        
+
         await this.refreshConnection();
       }
-    }, 1000);
+    }, SignalRService.CONNECTION_REFRESH_DELAY_MS);
   }
 
   ngOnDestroy(): void {
@@ -369,10 +372,12 @@ export class SignalRService implements OnDestroy {
     this.workCreated$.complete();
     this.workUpdated$.complete();
     this.workDeleted$.complete();
+    this.scheduleUpdated$.complete();
     this.shiftStatsUpdated$.complete();
     this.periodHoursUpdated$.complete();
     this.periodHoursRecalculated$.complete();
     this.scheduleChangeTracked$.complete();
+    this.collisionsDetected$.complete();
     this.reconnected$.complete();
   }
 
@@ -400,8 +405,7 @@ export class SignalRService implements OnDestroy {
       if (!decoded.exp) return false;
 
       const expirationTime = decoded.exp * 1000;
-      const bufferMs = 30000;
-      return Date.now() > expirationTime - bufferMs;
+      return Date.now() > expirationTime - SignalRService.TOKEN_EXPIRY_BUFFER_MS;
     } catch {
       return true;
     }

@@ -26,7 +26,7 @@ import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-men
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -62,7 +62,7 @@ export class ScheduleContextMenuService {
     const detailItems = absenceItems.filter(item => item.absenceId === bp.absenceId && item.isDetail);
 
     if (detailItems.length > 0) {
-      const adoptItem = new MenuItem('adoptAbsence', MessageLibrary.ADOPT_ABSENCE, false);
+      const adoptItem = new MenuItem('adoptAbsence', DomainMessages.ADOPT_ABSENCE, false);
       adoptItem.hasMenu = true;
       adoptItem.menu = new Menu();
       for (const detail of detailItems) {
@@ -78,7 +78,7 @@ export class ScheduleContextMenuService {
       }
       menuData.list.push(adoptItem);
     } else {
-      menuData.list.push(new MenuItem('adoptAbsence', MessageLibrary.ADOPT_ABSENCE, false));
+      menuData.list.push(new MenuItem('adoptAbsence', DomainMessages.ADOPT_ABSENCE, false));
     }
 
     return menuData;

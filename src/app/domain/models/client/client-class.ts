@@ -1,4 +1,4 @@
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   BaseEntity,
   BaseFilter,
@@ -511,7 +511,7 @@ export interface IClientAttribute {
 export class ClientAttribute implements IClientAttribute {
   id = undefined;
   type = 0;
-  name = MessageLibrary.NOT_DEFINED;
+  name = DomainMessages.NOT_DEFINED;
 }
 
 export interface ILastChangeMetaData {

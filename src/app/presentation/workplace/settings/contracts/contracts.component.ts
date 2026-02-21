@@ -30,7 +30,7 @@ import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calen
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
@@ -119,7 +119,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   validUntil = signal<NgbDateStruct | null | undefined>(undefined);
   calendarSelectionId = signal<string | undefined>(undefined);
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
 
   private initFormSignals(contract: IContract): void {
     this.formModel.set({

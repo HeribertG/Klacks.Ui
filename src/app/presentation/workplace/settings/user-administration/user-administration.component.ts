@@ -26,7 +26,7 @@ import {
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { generatePassword } from 'src/app/shared/helpers/password.helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,
   ModalType,
@@ -66,7 +66,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   pendingDeleteIndex = -1;
   isEditMode = false;
 
@@ -165,8 +165,8 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   open(content: unknown): void {
     this.isEditMode = false;
     this.newUser = new Authentication();
-    this.newUser.message = MessageLibrary.REGISTERUSER_MAILTEXT;
-    this.newUser.title = MessageLibrary.REGISTERUSER_TITLE;
+    this.newUser.message = DomainMessages.REGISTERUSER_MAILTEXT;
+    this.newUser.title = DomainMessages.REGISTERUSER_TITLE;
     this.newUser.appName = this.dataManagementSettingsService.appName;
     this.newUser.sendEmail = true;
 

@@ -28,7 +28,7 @@ import { CheckBoxValue } from 'src/app/domain/models/client/client-class';
 import { IGroup } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
@@ -94,7 +94,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   isPreviousPage: boolean | undefined = undefined;
   isNextPage: boolean | undefined = undefined;
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   checkBoxIndeterminate = false;
   isAuthorised = false;
   monthList = [];

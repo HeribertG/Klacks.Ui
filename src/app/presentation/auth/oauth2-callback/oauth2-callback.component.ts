@@ -8,7 +8,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 
@@ -131,14 +131,14 @@ export class OAuth2CallbackComponent implements OnInit {
   }
 
   private storeToken(token: OAuth2Token, state: string): void {
-    this.localStorageService.set(MessageLibrary.TOKEN, token.token);
-    this.localStorageService.set(MessageLibrary.TOKEN_USERNAME, token.userName || token.username);
-    this.localStorageService.set(MessageLibrary.TOKEN_USERID, token.id);
-    this.localStorageService.set(MessageLibrary.TOKEN_EXP, token.expires?.toString() || '');
-    this.localStorageService.set(MessageLibrary.TOKEN_ADMIN, (token.isAdmin || false).toString());
-    this.localStorageService.set(MessageLibrary.TOKEN_AUTHORISED, (token.isAuthorised || false).toString());
+    this.localStorageService.set(StorageKeys.TOKEN, token.token);
+    this.localStorageService.set(StorageKeys.TOKEN_USERNAME, token.userName || token.username);
+    this.localStorageService.set(StorageKeys.TOKEN_USERID, token.id);
+    this.localStorageService.set(StorageKeys.TOKEN_EXP, token.expires?.toString() || '');
+    this.localStorageService.set(StorageKeys.TOKEN_ADMIN, (token.isAdmin || false).toString());
+    this.localStorageService.set(StorageKeys.TOKEN_AUTHORISED, (token.isAuthorised || false).toString());
     if (token.refreshToken) {
-      this.localStorageService.set(MessageLibrary.TOKEN_REFRESHTOKEN, token.refreshToken);
+      this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
     }
 
     const providerId = state.split('_')[0];

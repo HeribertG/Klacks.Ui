@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WorkNotificationService } from './work-notification.service';
-import { SignalRService } from '../../../infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from '../../../domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
@@ -69,7 +69,7 @@ describe('WorkNotificationService', () => {
     TestBed.configureTestingModule({
       providers: [
         WorkNotificationService,
-        { provide: SignalRService, useValue: signalRServiceMock },
+        { provide: SCHEDULE_SIGNALR, useValue: signalRServiceMock },
         { provide: DataManagementScheduleService, useValue: dataManagementMock },
         { provide: ShiftScheduleLoaderService, useValue: shiftScheduleLoaderMock },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },

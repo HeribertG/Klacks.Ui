@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { SendScheduleReportResponse } from './send-schedule-report-response.model';
+import { SendScheduleReportResponse } from 'src/app/domain/models/report/send-schedule-report-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +30,7 @@ export class DataScheduleReportApiService {
       this.http.post<SendScheduleReportResponse>(
         `${environment.baseUrl}ScheduleReport/send`,
         formData,
-      ),
+      ).pipe(retry(3)),
     );
   }
 }

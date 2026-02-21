@@ -1,14 +1,14 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataScheduleChangeService } from 'src/app/infrastructure/api/schedule/data-schedule-change.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ScheduleChangeService {
   private dataScheduleChange = inject(DataScheduleChangeService);
-  private signalRService = inject(SignalRService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
   private destroyRef = inject(DestroyRef);
 
   private dirtyClientIds = new Set<string>();

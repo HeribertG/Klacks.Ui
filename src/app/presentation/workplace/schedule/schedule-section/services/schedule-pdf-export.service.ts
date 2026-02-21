@@ -266,7 +266,7 @@ export class SchedulePdfExportService {
   private buildClientBlocks(
     coreStartCol: number,
     coreDays: number,
-    config: ScheduleDrawingConfig,
+    _config: ScheduleDrawingConfig,
   ): ClientBlock[] {
     const clients = this.dataManagementSchedule.clients;
     const blocks: ClientBlock[] = [];

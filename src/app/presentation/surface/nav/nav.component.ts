@@ -18,7 +18,8 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { IconClientsComponent } from 'src/app/presentation/icons/icon-clients.component';
 import { IconGanttComponent } from 'src/app/presentation/icons/icon-gantt.component';
 import { IconGroupComponent } from 'src/app/presentation/icons/icon-group.component';
@@ -88,7 +89,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   private urlParameterService = inject(UrlParameterService);
   private injector = inject(Injector);
 
-  private currentLanguage = signal<string>(MessageLibrary.DEFAULT_LANG);
+  private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
   private currentPage = signal<NavigationPage>('');
   private iconsInitialized = signal<boolean>(false);
@@ -119,12 +120,12 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   });
 
-  absence = MessageLibrary.ABSENCE;
-  all_schedule = MessageLibrary.ALL_SCHEDULE;
-  all_employee = MessageLibrary.ALL_EMPLOYEE;
-  all_group = MessageLibrary.ALL_GROUP;
-  all_shift = MessageLibrary.ALL_SHIFT;
-  statistic = MessageLibrary.STATISTIC;
+  absence = DomainMessages.ABSENCE;
+  all_schedule = DomainMessages.ALL_SCHEDULE;
+  all_employee = DomainMessages.ALL_EMPLOYEE;
+  all_group = DomainMessages.ALL_GROUP;
+  all_shift = DomainMessages.ALL_SHIFT;
+  statistic = DomainMessages.STATISTIC;
 
   private ngUnsubscribe = new Subject<void>();
   private effectRefs: EffectRef[] = [];
@@ -139,12 +140,12 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tryLoadProfileImage();
     this.updateCurrentPage();
 
-    this.absence = MessageLibrary.ABSENCE;
-    this.all_schedule = MessageLibrary.ALL_SCHEDULE;
-    this.all_employee = MessageLibrary.ALL_EMPLOYEE;
-    this.all_group = MessageLibrary.ALL_GROUP;
-    this.all_shift = MessageLibrary.ALL_SHIFT;
-    this.statistic = MessageLibrary.STATISTIC;
+    this.absence = DomainMessages.ABSENCE;
+    this.all_schedule = DomainMessages.ALL_SCHEDULE;
+    this.all_employee = DomainMessages.ALL_EMPLOYEE;
+    this.all_group = DomainMessages.ALL_GROUP;
+    this.all_shift = DomainMessages.ALL_SHIFT;
+    this.statistic = DomainMessages.STATISTIC;
   }
 
   ngAfterViewInit(): void {
@@ -166,7 +167,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       const langEffect = effect(() => {
         const lang = this.currentLanguage();
         this.translateService.use(lang);
-        this.localStorageService.set(MessageLibrary.CURRENT_LANG, lang);
+        this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
         this.translateStringConstantsService.translate();
         this.localeService.setLocale(lang as SupportedLocales);
       });
@@ -218,20 +219,20 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private updateTranslations(): void {
     // Original approach - aktualisiere properties direkt
-    this.absence = MessageLibrary.ABSENCE;
-    this.all_schedule = MessageLibrary.ALL_SCHEDULE;
-    this.all_employee = MessageLibrary.ALL_EMPLOYEE;
-    this.all_group = MessageLibrary.ALL_GROUP;
-    this.all_shift = MessageLibrary.ALL_SHIFT;
-    this.statistic = MessageLibrary.STATISTIC;
+    this.absence = DomainMessages.ABSENCE;
+    this.all_schedule = DomainMessages.ALL_SCHEDULE;
+    this.all_employee = DomainMessages.ALL_EMPLOYEE;
+    this.all_group = DomainMessages.ALL_GROUP;
+    this.all_shift = DomainMessages.ALL_SHIFT;
+    this.statistic = DomainMessages.STATISTIC;
   }
 
   private initializeTranslation(): void {
-    this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
+    this.translateService.setDefaultLang(DomainMessages.DEFAULT_LANG);
   }
 
   private loadSavedLanguage(): void {
-    const savedLang = this.localStorageService.get(MessageLibrary.CURRENT_LANG);
+    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
     if (savedLang) {
       this.onChangeLanguage(savedLang);
     }
@@ -244,7 +245,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private tryLoadProfileImage(): void {
-    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
     if (id) {
       const imgId = `${id}profile`;
       this.dataLoadFileService.downLoadFile(imgId);
@@ -294,7 +295,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onChangeLanguage(lang: string): void {
     this.translateService.use(lang);
-    localStorage.setItem(MessageLibrary.CURRENT_LANG, lang);
+    localStorage.setItem(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang as SupportedLocales);
     this.currentLanguage.set(lang);

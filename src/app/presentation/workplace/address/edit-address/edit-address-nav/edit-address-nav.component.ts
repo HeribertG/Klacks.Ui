@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -16,18 +16,18 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, FormsModule, TranslateModule, NgbTooltipModule],
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
-  public validFrom = MessageLibrary.VALID_FROM;
+  public validFrom = DomainMessages.VALID_FROM;
   public faCalendar = faCalendar;
 
   public dataManagementClientService = inject(DataManagementClientService);
 
   ngOnInit(): void {
-    this.validFrom = MessageLibrary.VALID_FROM;
+    this.validFrom = DomainMessages.VALID_FROM;
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.validFrom = MessageLibrary.VALID_FROM;
+      this.validFrom = DomainMessages.VALID_FROM;
     }, 200);
   }
 
@@ -44,16 +44,16 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
     let name = '';
     switch (type) {
       case 0:
-        name = MessageLibrary.ADDRES_TYPE0_NAME;
+        name = DomainMessages.ADDRES_TYPE0_NAME;
         break;
       case 1:
-        name = MessageLibrary.ADDRES_TYPE1_NAME;
+        name = DomainMessages.ADDRES_TYPE1_NAME;
         break;
       case 2:
-        name = MessageLibrary.ADDRES_TYPE2_NAME;
+        name = DomainMessages.ADDRES_TYPE2_NAME;
         break;
       default:
-        name = MessageLibrary.ADDRES_TYPE_UNDEFINED;
+        name = DomainMessages.ADDRES_TYPE_UNDEFINED;
     }
 
     if (

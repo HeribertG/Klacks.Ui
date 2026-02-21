@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Filter } from 'src/app/domain/models/client/client-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -60,10 +60,10 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public isComboBoxOpen = false;
 
   public objectForUnsubscribe: any;
-  public clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
+  public clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
 
   public isInitFinished = false;
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
   public scopeFromValue: NgbDateStruct | undefined;

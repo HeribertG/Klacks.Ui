@@ -57,6 +57,8 @@ import { SCRIPT_COMPILER } from './domain/models/automation/rules/script-compile
 import { ScriptService } from './infrastructure/scripting/script.service';
 import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
 import { SearchStrategyService } from './presentation/search/search-strategy.service';
+import { SCHEDULE_SIGNALR } from './domain/interfaces/schedule-signalr.interface';
+import { SignalRService } from './infrastructure/signalr/signalr.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -142,6 +144,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: SEARCH_STRATEGY,
       useExisting: SearchStrategyService,
+    },
+    {
+      provide: SCHEDULE_SIGNALR,
+      useExisting: SignalRService,
     },
     importProvidersFrom(
       NgbModule,

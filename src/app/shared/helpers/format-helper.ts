@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { MessageLibrary } from '../../domain/constants/message-library';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 export function EqualDate(
   firstDate: Date | string,
@@ -18,13 +18,13 @@ export function EqualDate(
 
 export function DateToString(
   date: Date | string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'dddd DD.MM.yyyy', locale);
 }
 export function DateToStringShort(
   date: Date | string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   return formatDate(date, 'DD.MM.yyyy', locale);
 }
@@ -34,13 +34,13 @@ export function DateToStringShort(
  *
  * @param {Date | string} date - The date to format.
  * @param {string} dateFormat - The format string to use.
- * @param {string} locale - The locale to use for formatting. Default is MessageLibrary.DEFAULT_LANG.
+ * @param {string} locale - The locale to use for formatting. Default is DomainMessages.DEFAULT_LANG.
  * @returns {string} - The formatted date string.
  */
 function formatDate(
   date: Date | string,
   dateFormat: string,
-  locale: string = MessageLibrary.DEFAULT_LANG
+  locale: string = DomainMessages.DEFAULT_LANG
 ): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   const localeObj = locale === 'de' ? de : enUS;

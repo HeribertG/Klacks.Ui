@@ -147,66 +147,6 @@ export class BaseCreateRowHeaderService {
     );
   }
 
-  private drawIcon(
-    ctx: CanvasRenderingContext2D,
-    client: ClientWork,
-    width: number,
-    height: number
-  ) {
-    let tmpWidth = 0;
-
-    if (client.gender === GenderEnum.male) {
-      const malePicto = this.rowIcons.malePicto;
-      if (malePicto) {
-        tmpWidth += this.iconWidth + this.margin;
-        const tmpHeight = height / 2 - this.iconHeight / 2 - this.margin / 2;
-        ctx.drawImage(malePicto, width - tmpWidth, tmpHeight);
-      }
-    }
-    if (client.gender === GenderEnum.female) {
-      const femalePicto = this.rowIcons.femalePicto;
-      if (femalePicto) {
-        tmpWidth += this.iconWidth + this.margin;
-        const tmpHeight = height / 2 - this.iconHeight / 2 - this.margin / 2;
-        ctx.drawImage(femalePicto, width - tmpWidth, tmpHeight);
-      }
-    }
-
-    if (client.gender === GenderEnum.legalEntity && !client.company) {
-      const diversSexPicto = this.rowIcons.diversSexPicto;
-      if (diversSexPicto) {
-        tmpWidth += this.iconWidth + this.margin;
-        const tmpHeight = height / 2 - this.iconHeight / 2 - this.margin / 2;
-        ctx.drawImage(diversSexPicto, width - tmpWidth, tmpHeight);
-      }
-    }
-
-    // const rowIcons1 = this.rowIcons.malePicto;
-    // ctx.drawImage(rowIcons1, width - (this.iconWidth + 4), 2);
-    // const rowIcons2 = this.rowIcons.femalePicto;
-    // ctx.drawImage(rowIcons2, width - (this.iconWidth * 2 + 4), 2);
-    // const rowIcons3 = this.rowIcons.paperClipPicto;
-    // ctx.drawImage(rowIcons3, width - (this.iconWidth * 3 + 4), 2);
-    // const rowIcons4 = this.rowIcons.paperPlanePicto;
-    // ctx.drawImage(rowIcons4, width - (this.iconWidth * 4 + 4), 2);
-    // const rowIcons5 = this.rowIcons.paperPlaneExpiredPicto;
-    // ctx.drawImage(rowIcons5, width - (this.iconWidth * 5 + 4), 2);
-    // const rowIcons6 = this.rowIcons.palmtreePicto;
-    // ctx.drawImage(rowIcons6, width - (this.iconWidth * 6 + 4), 2);
-    // const rowIcons7 = this.rowIcons.filterPicto;
-    // ctx.drawImage(rowIcons7, width - (this.iconWidth * 7 + 4), 2);
-    // const rowIcons8 = this.rowIcons.gearPicto;
-    // ctx.drawImage(rowIcons8, width - (this.iconWidth * 8 + 4), 2);
-    // const rowIcons9 = this.rowIcons.dogPicto;
-    // ctx.drawImage(rowIcons9, width - (this.iconWidth * 9 + 4), 2);
-    // const rowIcons10 = this.rowIcons.batonPicto;
-    // ctx.drawImage(rowIcons10, width - (this.iconWidth * 10 + 4), 2);
-    // const rowIcons11 = this.rowIcons.gunPicto;
-    // ctx.drawImage(rowIcons11, width - (this.iconWidth * 11 + 4), 2);
-    // const rowIcons12 = this.rowIcons.govermentPicto;
-    // ctx.drawImage(rowIcons12, width - (this.iconWidth * 11 + 4), 2);
-  }
-
   private drawTitle(
     ctx: CanvasRenderingContext2D,
     text: string,
@@ -246,7 +186,6 @@ export class BaseCreateRowHeaderService {
     const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
     const secondLineY = firstLineY + fontHeight + lineSpacing;
 
-    // Zone Oben: Vertragssymbol (wenn kein Vertrag) - immer am oberen Rand
     if (client && !client.hasContract) {
       const iconTopPadding = 2;
       ctx.save();
@@ -270,7 +209,6 @@ export class BaseCreateRowHeaderService {
       ctx.restore();
     }
 
-    // Zone Mitte - Zeile 1: ID-Number
     if (client) {
       const idNumberText = client.idNumber.toString();
       ctx.save();
@@ -282,7 +220,6 @@ export class BaseCreateRowHeaderService {
       ctx.restore();
     }
 
-    // Zone Mitte - Zeile 2: Name mit Hintergrund
     const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
     const padding = 2;
     const idealBackgroundWidth = textWidth + padding * 2;
@@ -304,7 +241,6 @@ export class BaseCreateRowHeaderService {
     ctx.fillText(text, leftPadding, secondLineY);
     ctx.restore();
 
-    // Zone Unten: (reserviert)
   }
 
   private drawGenderSymbols(
@@ -368,7 +304,7 @@ export class BaseCreateRowHeaderService {
     return '';
   }
 
-  private FillHeaderBackground(
+  private fillCellBackground(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number
@@ -533,7 +469,7 @@ export class BaseCreateRowHeaderService {
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
       if (ctx) {
-        this.FillHeaderBackground(ctx, width, height);
+        this.fillCellBackground(ctx, width, height);
         this.drawBorder(
           ctx,
           width - this.settings.InfoSpotWidth - this.settings.increaseBorder,
@@ -560,9 +496,6 @@ export class BaseCreateRowHeaderService {
           height,
           clientIndex
         );
-
-        //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
-        // this.drawIcon(ctx, client, widthWithoutInfoSpot, tempCanvas.height);
 
         cell.img = tempCanvas;
       }

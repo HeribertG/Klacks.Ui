@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Filter } from 'src/app/domain/models/client/client-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
@@ -62,12 +62,12 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public isComboBoxOpen = false;
 
   public objectForUnsubscribe: any;
-  public clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
+  public clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
 
   public iterableDiffer: any;
   public isInitFinished = false;
   public defaultTop = 0;
-  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
   public scopeFromValue: NgbDateStruct | undefined;
@@ -196,7 +196,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private setEntityName(index?: number) {
     if (index === null || index === -1) {
-      this.clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
+      this.clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
     } else {
       this.clientTypeName =
         this.dataManagementGroupService.clientAttribute[index!].name;

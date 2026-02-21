@@ -1,5 +1,5 @@
 import { MenuItem } from '../shared/context-menu/context-menu-class';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PdfIconComponent } from '../icons/pdf-icon.component';
 import { IconFlyComponent } from '../icons/icon-fly.component';
 
@@ -10,21 +10,21 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'copy',
-          MessageLibrary.COPY,
+          DomainMessages.COPY,
           false,
           'Ctr+C',
           'fa-regular fa-copy'
         ),
         new MenuItem(
           'cut',
-          MessageLibrary.CUT,
+          DomainMessages.CUT,
           false,
           'Ctr+X',
           'fa-solid fa-scissors fa-rotate-270'
         ),
         new MenuItem(
           'paste',
-          MessageLibrary.PASTE,
+          DomainMessages.PASTE,
           false,
           'Ctr-V',
           'fa-solid fa-paste'
@@ -41,7 +41,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'paste',
-          MessageLibrary.PASTE,
+          DomainMessages.PASTE,
           false,
           'Ctr-V',
           'fa-solid fa-paste'
@@ -63,7 +63,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'del',
-          MessageLibrary.DELETE,
+          DomainMessages.DELETE,
           false,
           'Delete',
           'fa-solid fa-trash'
@@ -80,7 +80,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'edit',
-          MessageLibrary.EDIT,
+          DomainMessages.EDIT,
           false,
           '',
           'fa-solid fa-pen'
@@ -97,7 +97,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'showInShift',
-          MessageLibrary.SHOW_IN_SHIFT,
+          DomainMessages.SHOW_IN_SHIFT,
           false,
           '',
           'fa-solid fa-arrow-up'
@@ -114,7 +114,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'showInSchedule',
-          MessageLibrary.SHOW_IN_SCHEDULE,
+          DomainMessages.SHOW_IN_SCHEDULE,
           false,
           '',
           'fa-solid fa-arrow-down'
@@ -131,7 +131,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'goToAddress',
-          MessageLibrary.GO_TO_ADDRESS,
+          DomainMessages.GO_TO_ADDRESS,
           false,
           '',
           'fa-solid fa-user'
@@ -148,7 +148,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'correction',
-          MessageLibrary.CORRECTION,
+          DomainMessages.CORRECTION,
           false,
           '',
           'fa-solid fa-clock'
@@ -165,7 +165,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'replacement',
-          MessageLibrary.REPLACEMENT,
+          DomainMessages.REPLACEMENT,
           false,
           '',
           'fa-solid fa-user-group'
@@ -182,7 +182,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'editWork',
-          MessageLibrary.EDIT_WORK,
+          DomainMessages.EDIT_WORK,
           false,
           '',
           'fa-solid fa-pen-to-square'
@@ -199,7 +199,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'expenses',
-          MessageLibrary.EXPENSES,
+          DomainMessages.EXPENSES,
           false,
           '',
           'fa-solid fa-money-bill'
@@ -216,7 +216,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'confirm',
-          MessageLibrary.CONFIRM,
+          DomainMessages.CONFIRM,
           false,
           '',
           'fa-solid fa-check'
@@ -233,7 +233,7 @@ export class MenuDataTemplate {
       ...[
         new MenuItem(
           'unconfirm',
-          MessageLibrary.UNCONFIRM,
+          DomainMessages.UNCONFIRM,
           false,
           '',
           'fa-solid fa-rotate-left'
@@ -247,7 +247,7 @@ export class MenuDataTemplate {
   public static staffSchedule(): MenuItem[] {
     const item = new MenuItem(
       'staffSchedule',
-      MessageLibrary.STAFF_SCHEDULE,
+      DomainMessages.STAFF_SCHEDULE,
       false
     );
     item.svgIcon = PdfIconComponent.getSvg();
@@ -257,7 +257,7 @@ export class MenuDataTemplate {
   public static sendStaffSchedule(): MenuItem[] {
     const item = new MenuItem(
       'sendStaffSchedule',
-      MessageLibrary.SEND_STAFF_SCHEDULE,
+      DomainMessages.SEND_STAFF_SCHEDULE,
       false
     );
     item.svgIcon = IconFlyComponent.getSvg('var(--standartTextColor)');
@@ -268,7 +268,7 @@ export class MenuDataTemplate {
     return [
       new MenuItem(
         'deleteBreakPlaceholder',
-        MessageLibrary.DELETE_BREAK_PLACEHOLDER,
+        DomainMessages.DELETE_BREAK_PLACEHOLDER,
         false,
         '',
         'fa-solid fa-trash'

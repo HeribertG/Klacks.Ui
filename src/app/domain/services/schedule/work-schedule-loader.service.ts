@@ -15,7 +15,7 @@ import {
   formatDateOnly,
   getDateKeysBetween,
 } from 'src/app/shared/helpers/date.helper';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';
 
@@ -26,7 +26,7 @@ export class WorkScheduleLoaderService {
   private dataWorkSchedule = inject(DataWorkScheduleService);
   private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
-  private signalRService = inject(SignalRService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private scheduleChangeService = inject(ScheduleChangeService);
   private destroyRef = inject(DestroyRef);

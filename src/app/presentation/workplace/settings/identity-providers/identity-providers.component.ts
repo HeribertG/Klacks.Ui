@@ -9,7 +9,7 @@ import { IdentityProvider } from 'src/app/domain/models/settings/identity-provid
 import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider.interface';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 @Component({
@@ -32,7 +32,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
   private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   private pendingOpenProvider: IdentityProvider | null = null;
 
   ngOnInit(): void {
@@ -73,7 +73,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
 
   onClickAdd(): void {
     const provider = new IdentityProvider();
-    provider.name = MessageLibrary.NOT_DEFINED;
+    provider.name = DomainMessages.NOT_DEFINED;
     provider.isDirty = CreateEntriesEnum.new;
 
     this.pendingOpenProvider = provider;

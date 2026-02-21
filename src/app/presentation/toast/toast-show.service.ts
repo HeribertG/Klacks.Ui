@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 export const TOAST_ICONS = {
   INFO: 'ℹ️',
@@ -45,7 +45,7 @@ export class ToastShowService {
       delay: 8000,
       name: errorName,
       autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
+      headertext: DomainMessages.ERROR_TOASTTITLE,
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
       icon: icon,

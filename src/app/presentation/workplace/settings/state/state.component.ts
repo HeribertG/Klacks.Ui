@@ -13,7 +13,7 @@ import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Component({
   selector: 'app-state',
@@ -36,7 +36,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent

@@ -9,7 +9,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { getFileExtension } from 'src/app/shared/helpers/string.helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -45,7 +45,7 @@ export class ProfilePictureComponent implements OnDestroy {
   }
 
   private upload(): void {
-    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
 
     if (id) {
       const ext = getFileExtension(this.selectedFile!.name);
@@ -70,7 +70,7 @@ export class ProfilePictureComponent implements OnDestroy {
   }
 
   onDeleteImg(): void {
-    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
 
     if (id) {
       const type = `${id}profile`;
@@ -89,7 +89,7 @@ export class ProfilePictureComponent implements OnDestroy {
   }
 
   private tryLoadProfileImage(): void {
-    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
     const imgId = `${id}profile`;
     this.dataLoadFileService.downLoadFile(imgId);
   }

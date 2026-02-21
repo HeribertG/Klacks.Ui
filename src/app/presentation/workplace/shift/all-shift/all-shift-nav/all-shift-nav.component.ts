@@ -14,7 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 
@@ -36,7 +36,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private translateService = inject(TranslateService);
   private workplaceStateService = inject(WorkplaceStateService);
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
   objectForUnsubscribe: any;
 

@@ -13,7 +13,7 @@ import {
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Directive({
   selector: '[appResizeTable]',
@@ -39,7 +39,7 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const savedRow = this.localStorageService.get(
-      MessageLibrary.SELECTED_ROW_ORDER
+      DomainMessages.SELECTED_ROW_ORDER
     );
     if (savedRow && isNumeric(savedRow)) {
       this.realRow = +savedRow;
@@ -127,10 +127,10 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
     this.realRow = value;
 
     if (value === -1) {
-      localStorage.removeItem(MessageLibrary.SELECTED_ROW_ORDER);
+      localStorage.removeItem(DomainMessages.SELECTED_ROW_ORDER);
       setTimeout(() => this.recalcHeight(), 100);
     } else {
-      localStorage.setItem(MessageLibrary.SELECTED_ROW_ORDER, value.toString());
+      localStorage.setItem(DomainMessages.SELECTED_ROW_ORDER, value.toString());
       this.itemsPerPageChange.emit(value);
     }
   }

@@ -18,7 +18,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
@@ -40,7 +40,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
   availableParents: Group[] = [];
   groupPath: Group[] = [];
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   private ngUnsubscribe = new Subject<void>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -15,7 +15,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 describe('LoginComponent', () => {
     let component: LoginComponent;
@@ -107,7 +107,7 @@ describe('LoginComponent', () => {
 
         component.ngOnInit();
 
-        expect(translateService.setDefaultLang).toHaveBeenCalledWith(MessageLibrary.DEFAULT_LANG);
+        expect(translateService.setDefaultLang).toHaveBeenCalledWith(DomainMessages.DEFAULT_LANG);
     });
 
     it('should use saved language if available', () => {

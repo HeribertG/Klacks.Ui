@@ -10,7 +10,6 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { SchedulePdfDrawingService, ScheduleDrawingConfig } from '../../schedule-section/services/schedule-pdf-drawing.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 

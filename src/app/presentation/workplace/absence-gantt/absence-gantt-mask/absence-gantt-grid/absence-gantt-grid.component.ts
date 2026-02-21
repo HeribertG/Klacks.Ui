@@ -22,7 +22,7 @@ import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absen
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';
 import { ReportPdfService, ReportGenerationContext } from 'src/app/domain/services/report/report-pdf.service';
@@ -69,7 +69,7 @@ export class AbsenceGanttGridComponent
   private reportService = inject(ReportService);
   private textFormatterService = inject(TextFormatterService);
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   highlightRowId: string | undefined = undefined;
 

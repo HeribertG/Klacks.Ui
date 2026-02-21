@@ -13,7 +13,7 @@ import { ReportService } from 'src/app/domain/services/report/report.service';
 import { ReportDataProviderService } from 'src/app/domain/services/report/report-data-provider.service';
 import { ReportTemplate, ReportType } from 'src/app/domain/models/report/report-template.model';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 
@@ -45,7 +45,7 @@ export class ReportsComponent implements AfterViewInit {
   private modalService = inject(ModalService);
   private destroyRef = inject(DestroyRef);
 
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   private reportToDeleteIndex: number | null = null;
   private pendingOpenReport: ReportTemplate | null = null;
 

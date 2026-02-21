@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { BaseTableResizeService } from './base-table-resize.service';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class TableResizeService extends BaseTableResizeService {
   }
 
   protected getStorageKey(): string {
-    return MessageLibrary.SELECTED_ROW_ORDER;
+    return DomainMessages.SELECTED_ROW_ORDER;
   }
 
   protected measureAverageRowHeight(tableElement: HTMLElement): number {

@@ -14,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { ShiftFormService } from '../services/shift-form.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
@@ -74,17 +74,17 @@ export class EditShiftSpecialFeatureComponent
   onSporadicTypeName(index: number): string {
     switch (index) {
       case 0:
-        return MessageLibrary.SHIFT_SPORADIC_WEEK;
+        return DomainMessages.SHIFT_SPORADIC_WEEK;
       case 1:
-        return MessageLibrary.SHIFT_SPORADIC_MONTH;
+        return DomainMessages.SHIFT_SPORADIC_MONTH;
       case 2:
-        return MessageLibrary.SHIFT_SPORADIC_QUARTER;
+        return DomainMessages.SHIFT_SPORADIC_QUARTER;
       case 3:
-        return MessageLibrary.SHIFT_SPORADIC_SEMESTER;
+        return DomainMessages.SHIFT_SPORADIC_SEMESTER;
       case 4:
-        return MessageLibrary.SHIFT_SPORADIC_YEAR;
+        return DomainMessages.SHIFT_SPORADIC_YEAR;
       case 5:
-        return MessageLibrary.SHIFT_SPORADIC_CONTRACTUALTERM;
+        return DomainMessages.SHIFT_SPORADIC_CONTRACTUALTERM;
     }
     return '';
   }

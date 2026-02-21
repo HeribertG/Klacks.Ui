@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { BaseTableResizeService } from './base-table-resize.service';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class ShiftTableResizeService extends BaseTableResizeService {
   }
 
   protected getStorageKey(): string {
-    return MessageLibrary.SELECTED_ROW_ORDER_SHIFT;
+    return DomainMessages.SELECTED_ROW_ORDER_SHIFT;
   }
 
   protected measureAverageRowHeight(tableElement: HTMLElement): number {

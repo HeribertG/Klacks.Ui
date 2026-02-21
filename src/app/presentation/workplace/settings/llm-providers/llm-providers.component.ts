@@ -24,7 +24,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 interface LLMProviderFormModel {
   providerId: string;
@@ -70,7 +70,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   private originalProvider: IAssistantProvider | null = null;
 
   isNewProvider = false;
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   private isSaving = false;
 
   private formModel = signal<LLMProviderFormModel>({

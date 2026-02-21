@@ -1,17 +1,17 @@
 import { inject, Injectable, signal, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import {
   ICollisionListNotification,
   ICollisionNotification,
 } from 'src/app/domain/interfaces/collision-notification.interface';
-import { ScheduleErrorEntry } from 'src/app/presentation/workplace/schedule/shift-section/schedule-error-list/schedule-error-list.component';
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CollisionDetectionService implements OnDestroy {
-  private signalRService = inject(SignalRService);
+  private signalRService = inject(SCHEDULE_SIGNALR);
   private collisions = new Map<string, ICollisionNotification>();
   private subscription: Subscription;
 

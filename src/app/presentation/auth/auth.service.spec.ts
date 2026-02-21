@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from './auth.service';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { provideHttpClient, withInterceptorsFromDi, } from '@angular/common/http';
 
 describe('AuthService', () => {
@@ -62,15 +62,15 @@ describe('AuthService', () => {
 
         const result = await loginPromise;
         expect(result).toBe(true);
-        expect(localStorage.getItem(MessageLibrary.TOKEN)).toEqual(mockToken.token);
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toEqual(mockToken.token);
     });
 
     it('should remove token on logout', () => {
         // Setup a dummy token
-        localStorage.setItem(MessageLibrary.TOKEN, 'dummyToken');
+        localStorage.setItem(StorageKeys.TOKEN, 'dummyToken');
 
         service.logOut();
 
-        expect(localStorage.getItem(MessageLibrary.TOKEN)).toBeNull();
+        expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
     });
 });

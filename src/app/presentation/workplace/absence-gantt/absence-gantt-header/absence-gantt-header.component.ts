@@ -21,7 +21,7 @@ import {
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
@@ -61,7 +61,7 @@ export class AbsenceGanttHeaderComponent implements OnInit {
     DataManagementCalendarSelectionService
   );
 
-  currentLang = signal<Language>(MessageLibrary.DEFAULT_LANG);
+  currentLang = signal<Language>(DomainMessages.DEFAULT_LANG);
   value = signal<number>(100);
   currentYear = signal<number>(new Date().getFullYear());
 

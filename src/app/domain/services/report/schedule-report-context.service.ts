@@ -1,7 +1,7 @@
 import { Injectable, inject, EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { DataScheduleReportApiService } from 'src/app/infrastructure/api/report/data-schedule-report-api.service';
-import { SendScheduleReportResponse } from 'src/app/infrastructure/api/report/send-schedule-report-response.model';
+import { SendScheduleReportResponse } from 'src/app/domain/models/report/send-schedule-report-response.model';
 import { BulkSendResult } from 'src/app/domain/models/report/bulk-send-result.model';
 import { ReportDataProviderService } from './report-data-provider.service';
 import { ReportPdfService, ReportGenerationContext } from './report-pdf.service';

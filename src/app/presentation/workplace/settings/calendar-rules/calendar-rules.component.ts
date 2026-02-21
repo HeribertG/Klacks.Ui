@@ -35,7 +35,7 @@ import {
 } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,
   ModalType,
@@ -121,9 +121,9 @@ export class CalendarRulesComponent
 
   // State properties
   holidaysListHelper = new HolidaysListHelper();
-  message = MessageLibrary.DELETE_ENTRY;
+  message = DomainMessages.DELETE_ENTRY;
   checkBoxIndeterminate = false;
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang: Language = DomainMessages.DEFAULT_LANG;
   selectedCountry = '';
   headerCalendarDropdown = '';
   isComboBoxOpen = false;

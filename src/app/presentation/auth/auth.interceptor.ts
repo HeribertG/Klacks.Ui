@@ -8,7 +8,7 @@ import {
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const token = this.localStorageService.get(MessageLibrary.TOKEN);
+    const token = this.localStorageService.get(StorageKeys.TOKEN);
     const connectionId = this.signalRService.connectionId;
 
     if (token) {
