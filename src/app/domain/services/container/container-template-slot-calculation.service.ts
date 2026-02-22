@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable } from '@angular/core';
 import { IShift } from '../../models/shift/shift-class';
 import { IContainerTemplateSlot, IContainerTemplateGrid } from '../../models/container/container-template-slot';

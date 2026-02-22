@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum DomainEventType {
   ERROR = 'domain:error',
   SUCCESS = 'domain:success',

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, computed, signal } from '@angular/core';
 import {
   HeaderDirection,

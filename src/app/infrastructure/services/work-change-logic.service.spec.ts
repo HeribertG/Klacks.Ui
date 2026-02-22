@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkChangeLogicService, CorrectionMode } from './work-change-logic.service';
 import { WorkTimeContext } from 'src/app/domain/models/workchange/work-change';

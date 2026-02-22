@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 
 export interface IShiftSchedule {

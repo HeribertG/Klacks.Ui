@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.interface';
 

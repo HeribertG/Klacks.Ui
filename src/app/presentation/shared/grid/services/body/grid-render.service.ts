@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /**
  * @copyright 2025 Heribert Gasparoli
  * @license Proprietary

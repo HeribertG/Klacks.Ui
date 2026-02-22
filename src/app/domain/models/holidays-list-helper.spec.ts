@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { HolidayStatus, HolidaysListHelper, ICalendarRule, } from './calendar/calendar-rule-class';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { MenuItem } from '../shared/context-menu/context-menu-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PdfIconComponent } from '../icons/pdf-icon.component';

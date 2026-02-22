@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ReportSection } from './report-section.model';
 
 export interface ReportTemplate {

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { MyPosition, MyPositionCollection } from './position';
 
 describe('MyPosition', function () {

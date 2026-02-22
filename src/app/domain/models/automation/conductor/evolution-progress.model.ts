@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface IEvolutionProgress {
   currentGeneration: number;
   maxGenerations: number;

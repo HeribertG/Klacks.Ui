@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum ScriptValueType {
   Null = 0,
   Number = 1,

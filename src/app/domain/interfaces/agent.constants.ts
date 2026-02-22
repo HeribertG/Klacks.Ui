@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export const SOUL_SECTION_TYPES = [
   { value: 'identity', label: 'Identity', description: 'Who is the agent? Name, role, purpose' },
   { value: 'personality', label: 'Personality', description: 'Character, humor, behavior' },

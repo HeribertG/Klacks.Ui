@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ElementRef } from '@angular/core';
 
 export function measureTableHeight(

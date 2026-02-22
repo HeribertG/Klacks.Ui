@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { CellTypeEnum, TextAlignmentEnum } from '../enums/cell-settings.enum';
 import { CellBadge } from './cell-badge';
 import { CellIcon } from './cell-icon';

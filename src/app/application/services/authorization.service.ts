@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';

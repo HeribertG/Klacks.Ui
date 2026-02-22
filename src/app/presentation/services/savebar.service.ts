@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';

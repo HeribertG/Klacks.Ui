@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { ShiftFormModel } from 'src/app/presentation/view-models/shift-form.model';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export * from './conductor.service';
 export * from './evolution-engine.service';
 export * from './fitness-evaluator.service';

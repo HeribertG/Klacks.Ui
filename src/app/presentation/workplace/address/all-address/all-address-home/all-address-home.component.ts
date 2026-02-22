@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, inject, OnInit } from '@angular/core';
 import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.component';
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';

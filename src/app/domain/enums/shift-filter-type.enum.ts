@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum ShiftFilterType {
   Original = 0,
   Shift = 1,

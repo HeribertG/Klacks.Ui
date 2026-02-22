@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable } from '@angular/core';
 import { IGroup, IGroupVisibility } from 'src/app/domain/models/group/group-class';

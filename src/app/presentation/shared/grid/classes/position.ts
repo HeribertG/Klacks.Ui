@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class MyPosition {
   private _col = -1;
   private _row = -1;

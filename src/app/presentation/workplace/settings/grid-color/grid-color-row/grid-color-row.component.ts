@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, Input, inject, signal, effect, OnChanges } from '@angular/core';
 
 import { form, Field, debounce } from '@angular/forms/signals';

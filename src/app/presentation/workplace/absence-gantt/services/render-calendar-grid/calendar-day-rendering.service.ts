@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';

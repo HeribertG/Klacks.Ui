@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { CalendarIconComponent } from 'src/app/presentation/icons/calendar-icon.component';

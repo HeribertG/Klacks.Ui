@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 
 export interface BulkAddBreakItem {

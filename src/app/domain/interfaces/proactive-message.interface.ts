@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface IProactiveMessage {
   messageId: string;
   content: string;

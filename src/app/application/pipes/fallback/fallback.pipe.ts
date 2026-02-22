@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Pipe, PipeTransform } from '@angular/core';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';

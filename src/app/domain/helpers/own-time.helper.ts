@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /**
  * OwnTime Helper (Domain-Specific)
  *

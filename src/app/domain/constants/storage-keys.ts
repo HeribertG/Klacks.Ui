@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class StorageKeys {
   public static readonly TOKEN = 'JWT_TOKEN';
   public static readonly TOKEN_EXP = 'JWT_TOKEN_EXP';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import {
   BaseFilter,

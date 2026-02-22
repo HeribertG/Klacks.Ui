@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

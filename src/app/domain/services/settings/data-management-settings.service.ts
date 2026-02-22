@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { ILoadable, IResettable, ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 import { UserAdministrationManagementService } from './user-administration-management.service';

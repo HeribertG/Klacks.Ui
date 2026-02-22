@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { ScriptService, ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';

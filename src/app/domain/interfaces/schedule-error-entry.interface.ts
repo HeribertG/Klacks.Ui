@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export type ErrorListFilterType = 'error' | 'warning' | 'info';
 
 export interface ScheduleErrorEntry {

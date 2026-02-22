@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum TransportModeEnum {
   byCar = 0,
   byBicycle = 1,

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ReportField } from './report-field.model';
 import { FreeTextRow } from './free-text-row.model';
 

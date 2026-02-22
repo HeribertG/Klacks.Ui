@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IShiftAssignment } from './shift-assignment.model';
 import { IWorkQuant } from './work-quant.model';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface ISelectedCalendar {
   id: string | undefined;
   calendarSelection: CalendarSelection | undefined;

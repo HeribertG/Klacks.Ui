@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Group } from '../group/group-class';
 import { IClient } from '../client/client-class';
 

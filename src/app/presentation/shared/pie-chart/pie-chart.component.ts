@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 

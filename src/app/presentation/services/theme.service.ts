@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 // theme.service.ts
 import { inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

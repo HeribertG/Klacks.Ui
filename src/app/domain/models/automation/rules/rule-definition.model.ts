@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { RuleType } from './rule-type.enum';
 import { RuleSeverity } from './rule-severity.enum';
 

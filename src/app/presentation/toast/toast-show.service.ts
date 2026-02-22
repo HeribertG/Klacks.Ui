@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';

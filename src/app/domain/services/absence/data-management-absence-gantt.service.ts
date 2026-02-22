@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';

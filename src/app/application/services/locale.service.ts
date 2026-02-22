@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 // locale.service.ts
 import { Injectable, signal } from '@angular/core';
 

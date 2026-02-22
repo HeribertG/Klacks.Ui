@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';

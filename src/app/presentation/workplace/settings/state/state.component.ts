@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

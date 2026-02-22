@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';

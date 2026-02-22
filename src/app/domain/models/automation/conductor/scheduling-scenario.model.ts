@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IAssignment } from './assignment.model';
 
 export interface ISchedulingScenario {

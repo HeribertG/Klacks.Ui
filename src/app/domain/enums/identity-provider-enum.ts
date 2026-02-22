@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum IdentityProviderType {
   Ldap = 0,
   ActiveDirectory = 1,

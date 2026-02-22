@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { BulkAddBreakItem } from './bulk-break-item.dto';
 
 export interface BulkAddBreaksRequest {

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataExpensesService } from 'src/app/infrastructure/api/expenses/data-expenses.service';

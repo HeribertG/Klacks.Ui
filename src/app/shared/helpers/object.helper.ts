@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export function cloneObject<T>(o: T): T {
   return structuredClone(o);
 }

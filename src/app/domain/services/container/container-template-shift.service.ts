@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { IContainerTemplateItem } from '../../models/container/container-template-class';
 

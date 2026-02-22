@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ISchedulingScenario } from './scheduling-scenario.model';
 import { IEvolutionProgress } from './evolution-progress.model';
 

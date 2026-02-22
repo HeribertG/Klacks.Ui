@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';

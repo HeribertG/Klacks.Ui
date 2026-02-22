@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IClient, Membership } from '../client/client-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from '../shift/shift-class';

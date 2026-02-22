@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable prefer-const */
 import {
   BaseFilter,

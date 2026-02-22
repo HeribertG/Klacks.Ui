@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 

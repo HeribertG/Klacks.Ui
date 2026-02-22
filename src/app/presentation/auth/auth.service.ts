@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
 import { inject, Injectable } from '@angular/core';

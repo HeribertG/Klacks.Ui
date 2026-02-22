@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 
 @Injectable({

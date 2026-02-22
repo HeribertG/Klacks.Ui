@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { InjectionToken } from '@angular/core';
 
 export interface ICompiledScript {

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';

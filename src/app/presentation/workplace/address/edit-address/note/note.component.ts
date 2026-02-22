@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

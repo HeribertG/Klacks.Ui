@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { Break, IBreak } from 'src/app/domain/models/break/break-class';
 import { DataBreakService } from 'src/app/infrastructure/api/break/data-break.service';

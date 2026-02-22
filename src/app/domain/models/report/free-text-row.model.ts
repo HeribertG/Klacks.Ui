@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { FieldStyle } from './report-field.model';
 
 export interface FreeTextRow {

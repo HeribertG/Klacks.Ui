@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 

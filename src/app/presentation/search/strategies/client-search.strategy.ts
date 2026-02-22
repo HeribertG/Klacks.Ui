@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';

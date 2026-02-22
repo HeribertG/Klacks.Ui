@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';

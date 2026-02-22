@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { CompiledScript } from './compiled-script';
 import { Identifier, IdentifierTypes } from './identifier';
 import { Opcodes } from './opcodes';

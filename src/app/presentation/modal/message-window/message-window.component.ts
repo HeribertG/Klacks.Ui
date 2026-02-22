@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

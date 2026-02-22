@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Type, InjectionToken } from '@angular/core';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { ILoadable } from './manageable.interface';

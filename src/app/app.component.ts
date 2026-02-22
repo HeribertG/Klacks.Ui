@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 // Version: 1.0.1-deploy-test
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';

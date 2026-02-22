@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
 import { DataScheduleReportApiService } from 'src/app/infrastructure/api/report/data-schedule-report-api.service';

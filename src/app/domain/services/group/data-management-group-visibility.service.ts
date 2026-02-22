@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { IGroup, IGroupVisibility } from 'src/app/domain/models/group/group-class';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';

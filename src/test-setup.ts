@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Global test setup for Vitest
 // This file is loaded before any test file runs

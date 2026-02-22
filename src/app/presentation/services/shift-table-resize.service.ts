@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { SCHEDULING_CONSTANTS, EVOLUTION_CONSTANTS, AGENT_STATE_CONSTANTS } from '../../../models/automation/automation-constants';
 
 export interface CoreShift {

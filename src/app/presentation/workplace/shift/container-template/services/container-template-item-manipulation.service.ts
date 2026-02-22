@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';

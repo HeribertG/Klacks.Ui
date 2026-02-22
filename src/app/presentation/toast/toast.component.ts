@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, TemplateRef, inject } from '@angular/core';
 import { ToastService } from './toast.service';
 import { CommonModule } from '@angular/common';

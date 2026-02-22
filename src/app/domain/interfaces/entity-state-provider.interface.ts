@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Signal, InjectionToken } from '@angular/core';
 import { EntityName } from '../enums/entity-names.enum';
 

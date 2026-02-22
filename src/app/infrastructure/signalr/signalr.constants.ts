@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export const SignalRConstants = {
   HubPath: '/hubs/work-notifications',
 

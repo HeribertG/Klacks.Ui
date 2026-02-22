@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import {
     isOwnTimeStructOk,

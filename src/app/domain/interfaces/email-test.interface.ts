@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface EmailTestRequest {
   server: string;
   port: string;

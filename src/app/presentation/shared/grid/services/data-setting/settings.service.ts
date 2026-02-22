@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, signal, inject } from '@angular/core';
 import { ClipboardModeEnum, GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';

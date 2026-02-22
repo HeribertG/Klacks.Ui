@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventBus } from 'src/app/application/services/event-bus.service';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';

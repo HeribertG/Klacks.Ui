@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import {

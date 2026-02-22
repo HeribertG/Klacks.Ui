@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IShift } from './shift.model';
 import { IScheduleAgent } from '../agent/schedule-agent.model';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { TextFormatterService } from './text-formatter.service';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { IShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';

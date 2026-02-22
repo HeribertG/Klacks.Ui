@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { FallbackPipe } from './fallback.pipe';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { EventEmitter, Injectable, Output } from '@angular/core';
 
 @Injectable()

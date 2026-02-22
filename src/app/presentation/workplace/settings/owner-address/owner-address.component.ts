@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, OnInit, effect, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, Field } from '@angular/forms/signals';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';

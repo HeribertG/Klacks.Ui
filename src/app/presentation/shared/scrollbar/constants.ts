@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export const SCROLLBAR_CONSTANTS = {
   MAX_FRAME_MODULO: 10,
   FIRST_STEP_BAR: 3,

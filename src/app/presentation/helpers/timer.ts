@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class Timer {
   private timerId: number | undefined = undefined;
 

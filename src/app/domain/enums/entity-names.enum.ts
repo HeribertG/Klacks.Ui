@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum EntityName {
   CLIENT = 'DataManagementClientService',
   CLIENT_EDIT = 'DataManagementClientService_Edit',

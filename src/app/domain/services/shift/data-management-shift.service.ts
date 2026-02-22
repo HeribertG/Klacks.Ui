@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';

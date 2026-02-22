@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface FormulaVariableDefinition {
   name: string;
   i18nKey: string;

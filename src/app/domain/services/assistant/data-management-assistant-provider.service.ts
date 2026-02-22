@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';

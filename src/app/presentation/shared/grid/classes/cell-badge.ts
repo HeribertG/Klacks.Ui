@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IconCornerEnum } from '../enums/cell-settings.enum';
 
 export const DEFAULT_BADGE_HEIGHT = 12;

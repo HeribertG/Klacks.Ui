@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';

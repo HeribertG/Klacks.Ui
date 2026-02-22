@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export { RenderCalendarGridService } from './render-calendar-grid.service';
 export { CalendarCalculationService } from './calendar-calculation.service';
 export { CalendarDayRenderingService } from './calendar-day-rendering.service';

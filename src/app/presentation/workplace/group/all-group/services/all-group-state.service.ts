@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { IGroupFilter } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';

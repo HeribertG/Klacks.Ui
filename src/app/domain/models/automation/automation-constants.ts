@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export const SCHEDULING_CONSTANTS = {
   MAX_DAILY_HOURS: 10,
   SUCCESS_COVERAGE_THRESHOLD: 0.8,

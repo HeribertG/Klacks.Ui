@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Tokens } from './symbol';
 import { Code } from './code';
 import { parsErrors } from './interpreterError';

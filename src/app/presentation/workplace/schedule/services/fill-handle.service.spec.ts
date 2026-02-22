@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FillHandleService } from './fill-handle.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';

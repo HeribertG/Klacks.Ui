@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, signal, inject } from '@angular/core';
 import { ScrollEventService } from './scroll-event.service';
 

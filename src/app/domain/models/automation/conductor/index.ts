@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export { IShift } from './shift.model';
 export { IAssignment } from './assignment.model';
 export { ISchedulingScenario } from './scheduling-scenario.model';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum MacroTypes {
   ShiftAndEmployments = 0,
   WorkRules = 1,

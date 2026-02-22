@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, inject, computed, OnDestroy, OnInit, effect, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { form, Field } from '@angular/forms/signals';

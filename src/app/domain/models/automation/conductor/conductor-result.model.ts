@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IAssignmentResult } from './assignment-result.model';
 
 export interface IConductorResult {

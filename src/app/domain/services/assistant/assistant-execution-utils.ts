@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export function waitForElement(id: string, maxWaitMs = 3000): Promise<HTMLElement | null> {
   return new Promise((resolve) => {
     const existing = document.getElementById(id);

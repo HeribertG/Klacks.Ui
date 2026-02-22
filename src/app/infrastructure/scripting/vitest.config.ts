@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
 

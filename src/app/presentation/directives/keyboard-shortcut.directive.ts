@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';

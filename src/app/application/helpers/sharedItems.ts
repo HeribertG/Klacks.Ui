@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export function visibleRow(
   includeAuto = true
 ): { text: string; value: number }[] {

@@ -1,3 +1,6 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+
 import { Component } from '@angular/core';
 
 @Component({

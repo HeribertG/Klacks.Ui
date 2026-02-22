@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class ConstantKeys {
   public static BACKGROUND_COLOR_KEY = 'BACKGROUND_COLOR_KEY';
   public static BACKGROUND_COLOR_SATURDAY_KEY = 'BACKGROUND_COLOR_SATURDAY_KEY';

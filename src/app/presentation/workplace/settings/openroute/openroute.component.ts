@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

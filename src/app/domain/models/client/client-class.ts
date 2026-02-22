@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   BaseEntity,

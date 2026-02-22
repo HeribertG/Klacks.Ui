@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';

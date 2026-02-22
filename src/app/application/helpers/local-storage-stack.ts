@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /**
  * Class representing a stack structure stored in the browser's localStorage.
  */

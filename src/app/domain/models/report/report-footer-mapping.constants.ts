@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export const FOOTER_TO_COLUMN_MAP: Record<string, string> = {
   'sum.hours': 'entry.hours',
   'sum.surcharges': 'entry.surcharges',

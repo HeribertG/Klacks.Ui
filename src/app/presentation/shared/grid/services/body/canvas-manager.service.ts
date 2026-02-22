@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';

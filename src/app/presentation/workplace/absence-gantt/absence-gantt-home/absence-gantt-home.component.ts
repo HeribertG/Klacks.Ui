@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';

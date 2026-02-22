@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ErrorHandler, Injectable } from '@angular/core';
 
 @Injectable({

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum Opcodes {
   AllocConst = 0,
   AllocVar = 1,

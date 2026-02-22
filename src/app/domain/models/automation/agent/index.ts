@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export { IWorkBlock } from './work-block.model';
 export { IShiftHistory } from './shift-history.model';
 export { IAgentPhysiology } from './agent-physiology.model';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';

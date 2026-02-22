@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';

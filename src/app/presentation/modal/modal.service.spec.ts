@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { ModalService, ModalType } from './modal.service';
 import { firstValueFrom } from 'rxjs';

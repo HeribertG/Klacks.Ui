@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';

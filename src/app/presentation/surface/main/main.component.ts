@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component } from '@angular/core';
 
 import { RouterOutlet } from '@angular/router';

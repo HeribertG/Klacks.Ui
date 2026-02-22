@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 // Production environment configuration
 export const environment = {
   production: true,

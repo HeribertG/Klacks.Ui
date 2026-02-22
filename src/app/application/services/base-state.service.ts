@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject } from '@angular/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchService } from 'src/app/application/services/search.service';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 

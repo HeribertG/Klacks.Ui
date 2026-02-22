@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Scope, Entry } from './scope';
 import { Identifier, IdentifierTypes } from './identifier';
 import { ScriptValue } from './script-value';

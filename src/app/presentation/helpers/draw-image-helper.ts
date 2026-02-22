@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { DrawHelper } from './draw-helper';
 
 export abstract class DrawImageHelper {

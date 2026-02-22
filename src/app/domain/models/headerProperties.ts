@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum HeaderDirection {
   Up = 'arrow_upward',
   Down = 'arrow_downward',

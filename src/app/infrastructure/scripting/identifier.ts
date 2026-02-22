@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ScriptValue } from './script-value';
 
 export class Identifier {

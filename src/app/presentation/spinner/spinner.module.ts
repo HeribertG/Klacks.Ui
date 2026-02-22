@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { NgModule } from '@angular/core';
 import { SpinnerComponent } from './spinner.component';
 import { SpinnerWrapperComponent } from './spinner-wrapper/spinner-wrapper.component';

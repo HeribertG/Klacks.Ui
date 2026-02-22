@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum WeekDaysEnum {
   Workday = 0,
   Saturday = 1,

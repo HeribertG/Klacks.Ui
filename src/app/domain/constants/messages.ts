@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class DomainMessages {
   public static UPDATE_NOT_DONE =
     'Änderungen wurden von der Datenbank nicht übernommen';

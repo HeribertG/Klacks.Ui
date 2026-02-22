@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { BaseEntity, IBaseEntity } from '../general-class';
 
 export interface IAttributeValue extends IBaseEntity {

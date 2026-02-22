@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 describe('LocalStorageService', () => {

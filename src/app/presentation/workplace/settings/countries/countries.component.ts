@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 import { Country } from 'src/app/domain/models/client/client-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';

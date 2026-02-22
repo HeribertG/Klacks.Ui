@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { MultiLanguage } from '../translation/multi-language-class';
 
 export enum AbsenceDetailMode {

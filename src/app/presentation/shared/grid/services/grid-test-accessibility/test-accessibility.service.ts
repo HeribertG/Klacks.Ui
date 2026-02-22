@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, signal, computed } from '@angular/core';
 import type {
   ITestGridMetadata,

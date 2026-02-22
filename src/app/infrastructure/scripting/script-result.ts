@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ScriptError } from './script-error';
 
 export interface ResultMessage {

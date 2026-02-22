@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export class PaperDimensions {
   private readonly INCHES_TO_MM = 25.4;
   private readonly NON_PRINTABLE_MARGIN_MM = 5; // assumed value

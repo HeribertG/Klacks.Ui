@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Identifier } from './identifier';
 import { InterpreterError } from './interpreterError';
 import { LexicalAnalyser } from './lexicalAnalyser';

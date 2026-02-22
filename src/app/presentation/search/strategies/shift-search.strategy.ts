@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';

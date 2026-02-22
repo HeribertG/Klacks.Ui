@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ScriptService } from './script.service';
 import { ScriptExecutionContext } from './script-execution-context';
 

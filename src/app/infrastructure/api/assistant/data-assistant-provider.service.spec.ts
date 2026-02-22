@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, } from '@angular/common/http/testing';
 

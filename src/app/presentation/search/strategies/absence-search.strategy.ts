@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';

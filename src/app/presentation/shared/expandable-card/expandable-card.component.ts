@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconAngleDownComponent } from '../../icons/icon-angle-down.component';

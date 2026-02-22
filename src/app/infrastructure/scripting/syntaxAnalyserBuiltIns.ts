@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Opcodes } from './code';
 import { SyntaxAnalyserBase } from './syntaxAnalyserBase';
 import { Tokens } from './symbol';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { BaseEntity, IBaseEntity } from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';

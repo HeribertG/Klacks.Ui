@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IdentityProviderType } from '../../enums/identity-provider-enum';
 import { IIdentityProvider } from '../../interfaces/identity-provider.interface';
 

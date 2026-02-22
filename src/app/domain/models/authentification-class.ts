@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export type IModelState = Record<string, string[]>;
 
 export interface IModelStateDictionary {

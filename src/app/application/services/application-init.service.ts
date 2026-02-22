@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';

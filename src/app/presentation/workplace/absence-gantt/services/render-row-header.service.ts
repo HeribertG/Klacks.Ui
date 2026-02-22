@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, Injector } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';

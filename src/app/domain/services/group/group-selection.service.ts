@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';

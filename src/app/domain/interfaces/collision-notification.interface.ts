@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export interface ICollisionNotification {
   workId1: string;
   workId2: string;

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable } from '@angular/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { BaseTableResizeService } from './base-table-resize.service';

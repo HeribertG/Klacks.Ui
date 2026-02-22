@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MenuItem } from '../context-menu-class';

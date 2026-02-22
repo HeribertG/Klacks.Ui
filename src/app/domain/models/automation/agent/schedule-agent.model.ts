@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IWorkScheduleClient } from '../../schedule/work-schedule-class';
 import { IWorkBlock } from './work-block.model';
 import { IShiftHistory } from './shift-history.model';

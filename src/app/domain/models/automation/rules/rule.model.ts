@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export { RuleType } from './rule-type.enum';
 export { RuleSeverity } from './rule-severity.enum';
 export { IRuleViolation } from './rule-violation.model';

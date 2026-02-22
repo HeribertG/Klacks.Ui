@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal } from '@angular/core';
 import { ReportTemplate, ReportType, DEFAULT_PAGE_SETUP } from '../../models/report/report-template.model';
 import { DEFAULT_SECTIONS, ReportSectionType } from '../../models/report/report-section.model';

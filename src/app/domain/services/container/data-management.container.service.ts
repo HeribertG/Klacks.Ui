@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { map, tap, catchError, takeUntil } from 'rxjs/operators';

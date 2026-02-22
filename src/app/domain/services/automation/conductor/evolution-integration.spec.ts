@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { FitnessEvaluatorService } from './fitness-evaluator.service';
 import { MutationEngineService } from './mutation-engine.service';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { InterpreterError, inputStreamErrors } from './interpreterError';
 
 export class StringInputStream {

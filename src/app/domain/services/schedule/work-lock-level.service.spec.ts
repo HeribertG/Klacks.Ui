@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import { WorkLockLevelService } from './work-lock-level.service';
 import { WorkLockLevel } from 'src/app/domain/enums/work-lock-level.enum';

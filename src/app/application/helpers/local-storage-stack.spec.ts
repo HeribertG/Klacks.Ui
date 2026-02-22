@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { LocalStorageStack, countItemInStack, deleteStack, popFromStack, pushOnStack, } from './local-storage-stack';
 
 describe('LocalStorageStack', () => {

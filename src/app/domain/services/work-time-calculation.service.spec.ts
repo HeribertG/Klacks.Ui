@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { WorkTimeCalculationService } from './work-time-calculation.service';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';

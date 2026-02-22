@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { isNumeric } from './number.helper';
 
 describe('Number Helper Functions', () => {

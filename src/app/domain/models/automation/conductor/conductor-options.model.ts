@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IEvolutionConfig } from './evolution-config.model';
 import { IPenaltyWeights } from './penalty-weights.model';
 import { IEvolutionProgress } from './evolution-progress.model';

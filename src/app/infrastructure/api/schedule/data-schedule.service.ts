@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { IWork, Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';

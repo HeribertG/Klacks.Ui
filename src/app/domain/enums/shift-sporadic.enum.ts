@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum ShiftSporadic {
   Week = 0,
   Month = 1,

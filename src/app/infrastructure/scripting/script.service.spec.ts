@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ScriptService } from './script.service';
 import { CancellationToken } from './script-execution-context';

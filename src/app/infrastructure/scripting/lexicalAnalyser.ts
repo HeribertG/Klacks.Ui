@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-case-declarations */
 import { Symbol, Tokens } from './symbol';

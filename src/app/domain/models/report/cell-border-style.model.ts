@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum BorderLineStyle {
   None = 0,
   Thin = 1,

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /**
  * Type definitions for Grid Test Accessibility
  * 

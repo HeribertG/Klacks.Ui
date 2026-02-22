@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 const ObjectError = -2147221504;
 
 export class InterpreterError {

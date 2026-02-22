@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IPeriodHours, IScheduleCell } from '../schedule/work-schedule-class';
 
 export interface WorkChangeRequest {

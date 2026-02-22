@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Signal } from '@angular/core';
 
 export interface ISaveable {

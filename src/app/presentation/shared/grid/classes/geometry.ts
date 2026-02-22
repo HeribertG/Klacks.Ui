@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export { Rectangle, Size, ISize } from 'src/app/shared/helpers/geometry.helper';
 export interface ClientRect {
   bottom: number;

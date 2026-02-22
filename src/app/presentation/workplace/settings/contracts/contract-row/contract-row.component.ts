@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';

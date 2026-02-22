@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';

@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject, timer, of } from 'rxjs';

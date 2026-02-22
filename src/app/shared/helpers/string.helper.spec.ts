@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { replaceUmlaud, validateEmail } from './string.helper';
 
 describe('String Helper Functions', () => {

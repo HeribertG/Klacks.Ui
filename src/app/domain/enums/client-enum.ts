@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum EntityTypeEnum {
   employee = 0,
   externEmp = 1,

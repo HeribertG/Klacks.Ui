@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ApplicationConfig, importProvidersFrom, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';

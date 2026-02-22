@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { PropertyMetadata } from '../shift/shift-data-class';
 
 export class ScheduleWorkTestData {

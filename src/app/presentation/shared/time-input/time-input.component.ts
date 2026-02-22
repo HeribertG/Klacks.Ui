@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';

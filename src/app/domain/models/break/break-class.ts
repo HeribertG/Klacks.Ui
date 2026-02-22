@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Absence } from '../absence/absence-class';
 import { Client } from '../client/client-class';
 import { EntrySource } from '../../enums/entry-source.enum';

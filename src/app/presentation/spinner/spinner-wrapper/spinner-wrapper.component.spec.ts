@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SpinnerWrapperComponent } from './spinner-wrapper.component';
 import { SpinnerService } from '../spinner.service';

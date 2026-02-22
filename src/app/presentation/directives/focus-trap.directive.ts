@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Directive, ElementRef, OnDestroy, AfterViewInit, inject } from '@angular/core';
 
 @Directive({

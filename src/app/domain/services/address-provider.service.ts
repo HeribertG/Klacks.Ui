@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject, computed } from '@angular/core';
 import { AppSettingsManagementService } from './settings/app-settings-management.service';
 import { BranchManagementService } from './settings/branch-management.service';

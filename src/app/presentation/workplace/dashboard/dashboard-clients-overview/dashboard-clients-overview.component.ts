@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';

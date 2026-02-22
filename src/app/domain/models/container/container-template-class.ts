@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { IShift } from '../shift/shift-class';
 import { ContainerTransportModeEnum, TransportModeEnum } from '../../enums/transport-mode.enum';
 

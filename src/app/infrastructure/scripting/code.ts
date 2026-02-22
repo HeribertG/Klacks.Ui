@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Scope } from './scope';
 import { InterpreterError } from './interpreterError';
 import { Identifier, IdentifierTypes } from './identifier';

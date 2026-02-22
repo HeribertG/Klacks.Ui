@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { ISetting, Setting } from 'src/app/domain/models/settings/settings-various-class';

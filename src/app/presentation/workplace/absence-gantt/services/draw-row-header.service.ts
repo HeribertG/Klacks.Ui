@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';

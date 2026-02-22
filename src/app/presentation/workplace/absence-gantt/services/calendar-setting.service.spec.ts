@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { CalendarSettingService } from './calendar-setting.service';
 
 describe('CalendarSettingService', () => {

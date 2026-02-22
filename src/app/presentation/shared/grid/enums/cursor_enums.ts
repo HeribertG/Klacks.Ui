@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 export enum CursorEnum {
   alias = 'alias', //  This cursor position defined as the element that is an alias of an element to be created.
   allScroll = 'all-scroll', //  Whenever we want to show something can be scrolled in any direction then it’s helpful to use all-scroll cursor value.

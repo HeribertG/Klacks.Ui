@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 import { Injectable, inject } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateService } from '@ngx-translate/core';
