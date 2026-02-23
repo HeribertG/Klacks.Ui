@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { computed, inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataScheduleChangeService } from 'src/app/infrastructure/api/schedule/data-schedule-change.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
@@ -16,6 +16,11 @@ export class ScheduleChangeService {
   private dirtyClientIds = new Set<string>();
 
   public dirtyStateUpdated = signal<number>(0);
+
+  hasDirtyClients = computed(() => {
+    this.dirtyStateUpdated();
+    return this.dirtyClientIds.size > 0;
+  });
 
   constructor() {
     this.signalRService.scheduleChangeTracked$
@@ -54,5 +59,6 @@ export class ScheduleChangeService {
 
   clear(): void {
     this.dirtyClientIds.clear();
+    this.dirtyStateUpdated.set(Date.now());
   }
 }

@@ -60,6 +60,7 @@ import { ScheduleReportContextService } from 'src/app/domain/services/report/sch
 import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 
 @Component({
   selector: 'app-schedule-header',
@@ -114,12 +115,17 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private scheduleReportCtx = inject(ScheduleReportContextService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private scheduleChangeService = inject(ScheduleChangeService);
 
   isSending = signal(false);
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
     return !!e.outgoingServer && !!e.outgoingServerPort && !!e.username && !!e.password;
+  });
+
+  isSendDisabled = computed(() => {
+    return this.isSending() || !this.scheduleChangeService.hasDirtyClients();
   });
 
   get paymentInterval(): number {
@@ -220,7 +226,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   async onSendAllSchedules(): Promise<void> {
-    if (this.isSending()) return;
+    if (this.isSendDisabled()) return;
 
     const clients = this.dataManagementSchedule.clients;
     if (!clients?.length) return;

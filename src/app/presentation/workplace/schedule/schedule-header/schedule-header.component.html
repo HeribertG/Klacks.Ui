@@ -52,7 +52,7 @@
     <button
       type="button"
       class="send-email-button"
-      [class.disabled]="isSending()"
+      [class.disabled]="isSendDisabled()"
       (click)="onSendAllSchedules()"
       ngbTooltip="{{ 'schedule.sendEmail.tooltip' | translate }}"
     >
