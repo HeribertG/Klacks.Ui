@@ -9,9 +9,11 @@ import {
   AfterViewInit,
   ViewChild,
   TemplateRef,
+  signal,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +26,10 @@ import { DataManagementSchedulingRuleService } from 'src/app/domain/services/sch
 import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Component({
@@ -43,7 +48,9 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
     SettingsListCardComponent,
   ],
 })
-export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SchedulingRulesComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @ViewChild('ruleModal', { read: TemplateRef })
   ruleModal!: TemplateRef<unknown>;
   @ViewChild('containerBox') containerBox?: ElementRef;
@@ -52,12 +59,15 @@ export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestro
   public dataManagementService = inject(DataManagementSchedulingRuleService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
+  private http = inject(HttpClient);
 
   public editingRule: ISchedulingRule | null = null;
   public originalRule: ISchedulingRule | null = null;
   public isNewRule = false;
   private isSaving = false;
   private destroy$ = new Subject<void>();
+  tabId = signal<'form' | 'help'>('form');
+  manualContent = signal('');
 
   message = DomainMessages.DELETE_ENTRY;
 
@@ -93,13 +103,7 @@ export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestro
     this.editingRule = this.dataManagementService.createRule();
     this.originalRule = null;
     this.isNewRule = true;
-
-    setTimeout(() => {
-      this.ngbModal.open(this.ruleModal, {
-        ariaLabelledBy: 'modal-title',
-        size: 'lg',
-      });
-    }, 0);
+    this.openModal();
   }
 
   onClickEdit(rule: ISchedulingRule): void {
@@ -107,11 +111,19 @@ export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestro
     this.editingRule = clonedRule;
     this.originalRule = rule;
     this.isNewRule = false;
+    this.openModal();
+  }
 
-    this.ngbModal.open(this.ruleModal, {
-      ariaLabelledBy: 'modal-title',
-      size: 'lg',
-    });
+  private openModal(): void {
+    this.tabId.set('form');
+    this.loadManual();
+
+    setTimeout(() => {
+      this.ngbModal.open(this.ruleModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
   }
 
   openDeleteRule(index: number): void {
@@ -199,11 +211,41 @@ export class SchedulingRulesComponent implements OnInit, AfterViewInit, OnDestro
 
   isFormValid(): boolean {
     if (!this.editingRule) return false;
-    return this.dataManagementService.validateRule(this.editingRule).length === 0;
+    return (
+      this.dataManagementService.validateRule(this.editingRule).length === 0
+    );
   }
 
   getValidationErrors(): string[] {
     if (!this.editingRule) return [];
     return this.dataManagementService.validateRule(this.editingRule);
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    const supportedLangs = ['de', 'en', 'fr', 'it'];
+    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
+
+    this.http
+      .get(`assets/docs/scheduling-rule-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (content) => {
+          this.manualContent.set(content);
+        },
+        error: () => {
+          this.http
+            .get('assets/docs/scheduling-rule-manual/de.html', { responseType: 'text' })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (content) => {
+                this.manualContent.set(content);
+              },
+              error: () => {
+                this.manualContent.set('<p>Manual not available</p>');
+              },
+            });
+        },
+      });
   }
 }

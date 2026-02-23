@@ -7,6 +7,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateService } from '@ngx-translate/core';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class DataManagementSchedulingRuleService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private apiService = inject(SchedulingRuleApiService);
   private translate = inject(TranslateService);
+  private settingsService = inject(DataManagementSettingsService);
 
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
@@ -61,6 +63,20 @@ export class DataManagementSchedulingRuleService {
   createRule(): SchedulingRule {
     const rule = new SchedulingRule();
     rule.name = '';
+    rule.maxWorkDays = this.settingsService.schedulingMaxWorkDays;
+    rule.minRestDays = this.settingsService.schedulingMinRestDays;
+    rule.minPauseHours = this.settingsService.schedulingMinPauseHours;
+    rule.maxOptimalGap = this.settingsService.schedulingMaxOptimalGap;
+    rule.maxDailyHours = this.settingsService.schedulingMaxDailyHours;
+    rule.maxWeeklyHours = this.settingsService.schedulingMaxWeeklyHours;
+    rule.maxConsecutiveDays = this.settingsService.schedulingMaxConsecutiveDays;
+    rule.defaultWorkingHours = this.settingsService.defaultWorkingHours;
+    rule.overtimeThreshold = this.settingsService.overtimeThreshold;
+    rule.guaranteedHours = this.settingsService.guaranteedHours;
+    rule.maximumHours = this.settingsService.maximumHours;
+    rule.minimumHours = this.settingsService.minimumHours;
+    rule.fullTimeHours = this.settingsService.fullTime;
+    rule.vacationDaysPerYear = this.settingsService.vacationDaysPerYear;
     return rule;
   }
 

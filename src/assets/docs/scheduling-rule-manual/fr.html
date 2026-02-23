@@ -1,0 +1,51 @@
+<h2>Règles de planification - Explications</h2>
+
+<p>Les règles de planification définissent les contraintes pour la planification automatique des horaires. Chaque règle spécifie comment les heures de travail, les périodes de repos et les capacités sont réparties pour un groupe ou une configuration spécifique.</p>
+
+<hr>
+
+<h3>Jours de travail &amp; périodes de repos</h3>
+<table>
+  <tr><th>Champ</th><th>Description</th></tr>
+  <tr><td><strong>Max. jours de travail</strong></td><td>Nombre maximum de jours de travail par semaine.</td></tr>
+  <tr><td><strong>Min. jours de repos entre deux blocs de travail</strong></td><td>Nombre minimum de jours de repos entre deux blocs de travail consécutifs.</td></tr>
+  <tr><td><strong>Min. heures libres entre deux jours de travail</strong></td><td>Temps de repos minimum (en heures) entre la fin d'un jour de travail et le début du suivant.</td></tr>
+  <tr><td><strong>Max. écart optimal entre quarts (h)</strong></td><td>Écart de temps maximum (en heures) entre deux quarts consécutifs considéré comme optimal.</td></tr>
+  <tr><td><strong>Max. jours de travail consécutifs</strong></td><td>Nombre maximum de jours de travail consécutifs sans jour de repos.</td></tr>
+</table>
+
+<hr>
+
+<h3>Limites d'heures</h3>
+<table>
+  <tr><th>Champ</th><th>Description</th></tr>
+  <tr><td><strong>Max. heures journalières</strong></td><td>Heures de travail maximales par jour.</td></tr>
+  <tr><td><strong>Max. heures hebdomadaires</strong></td><td>Heures de travail maximales par semaine.</td></tr>
+  <tr><td><strong>Heures de travail quotidiennes</strong></td><td>Heures de travail standard par jour (temps cible).</td></tr>
+  <tr><td><strong>Seuil heures supp. (h/semaine)</strong></td><td>Les heures au-delà de ce seuil hebdomadaire sont considérées comme des heures supplémentaires.</td></tr>
+</table>
+
+<hr>
+
+<h3>Heures mensuelles</h3>
+<table>
+  <tr><th>Champ</th><th>Description</th></tr>
+  <tr><td><strong>Heures garanties</strong></td><td>Nombre minimum d'heures par mois garanti à l'employé.</td></tr>
+  <tr><td><strong>Heures maximales</strong></td><td>Nombre maximum d'heures de travail autorisées par mois.</td></tr>
+  <tr><td><strong>Heures minimales</strong></td><td>Nombre minimum d'heures de travail par mois.</td></tr>
+  <tr><td><strong>Temps plein (heures)</strong></td><td>Heures mensuelles correspondant à un emploi à temps plein.</td></tr>
+</table>
+
+<hr>
+
+<h3>Vacances</h3>
+<table>
+  <tr><th>Champ</th><th>Description</th></tr>
+  <tr><td><strong>Jours de vacances par an</strong></td><td>Nombre de jours de vacances par année civile.</td></tr>
+</table>
+
+<hr>
+
+<h3>Utilisation</h3>
+<p>Les règles de planification sont attribuées à un <strong>contrat</strong>. Les limites définies s'appliquent ainsi à tous les employés ayant ce contrat lors de la planification automatique.</p>
+<p>Les valeurs par défaut proviennent des <strong>Règles de planification (valeurs par défaut)</strong> dans les paramètres. Lors de la création d'une nouvelle règle, celles-ci sont automatiquement appliquées et peuvent être ajustées individuellement.</p>

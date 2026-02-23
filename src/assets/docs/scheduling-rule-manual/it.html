@@ -1,0 +1,51 @@
+<h2>Regole di pianificazione - Spiegazioni</h2>
+
+<p>Le regole di pianificazione definiscono i vincoli per la pianificazione automatica dei turni. Ogni regola specifica come le ore lavorative, i periodi di riposo e le capacità vengono distribuiti per un gruppo o una configurazione specifica.</p>
+
+<hr>
+
+<h3>Giorni lavorativi &amp; periodi di riposo</h3>
+<table>
+  <tr><th>Campo</th><th>Descrizione</th></tr>
+  <tr><td><strong>Max. giorni lavorativi</strong></td><td>Numero massimo di giorni lavorativi per settimana.</td></tr>
+  <tr><td><strong>Min. giorni di riposo tra due blocchi lavorativi</strong></td><td>Numero minimo di giorni di riposo tra due blocchi lavorativi consecutivi.</td></tr>
+  <tr><td><strong>Min. ore libere tra due giorni lavorativi</strong></td><td>Tempo minimo di riposo (in ore) tra la fine di un giorno lavorativo e l'inizio del successivo.</td></tr>
+  <tr><td><strong>Max. intervallo ottimale tra turni (ore)</strong></td><td>Intervallo di tempo massimo (in ore) tra due turni consecutivi considerato ottimale.</td></tr>
+  <tr><td><strong>Max. giorni lavorativi consecutivi</strong></td><td>Numero massimo di giorni lavorativi consecutivi senza giorno di riposo.</td></tr>
+</table>
+
+<hr>
+
+<h3>Limiti orari</h3>
+<table>
+  <tr><th>Campo</th><th>Descrizione</th></tr>
+  <tr><td><strong>Max. ore giornaliere</strong></td><td>Ore lavorative massime al giorno.</td></tr>
+  <tr><td><strong>Max. ore settimanali</strong></td><td>Ore lavorative massime alla settimana.</td></tr>
+  <tr><td><strong>Ore lavorative giornaliere</strong></td><td>Ore lavorative standard al giorno (ore target).</td></tr>
+  <tr><td><strong>Soglia straordinari (ore/sett.)</strong></td><td>Le ore oltre questa soglia settimanale sono considerate straordinari.</td></tr>
+</table>
+
+<hr>
+
+<h3>Ore mensili</h3>
+<table>
+  <tr><th>Campo</th><th>Descrizione</th></tr>
+  <tr><td><strong>Ore garantite</strong></td><td>Numero minimo di ore al mese garantite al dipendente.</td></tr>
+  <tr><td><strong>Ore massime</strong></td><td>Numero massimo di ore lavorative consentite al mese.</td></tr>
+  <tr><td><strong>Ore minime</strong></td><td>Ore lavorative minime al mese.</td></tr>
+  <tr><td><strong>Tempo pieno (ore)</strong></td><td>Ore mensili corrispondenti a un impiego a tempo pieno.</td></tr>
+</table>
+
+<hr>
+
+<h3>Ferie</h3>
+<table>
+  <tr><th>Campo</th><th>Descrizione</th></tr>
+  <tr><td><strong>Giorni di ferie all'anno</strong></td><td>Numero di giorni di ferie per anno solare.</td></tr>
+</table>
+
+<hr>
+
+<h3>Utilizzo</h3>
+<p>Le regole di pianificazione vengono assegnate a un <strong>contratto</strong>. I limiti definiti si applicano quindi a tutti i dipendenti con quel contratto durante la pianificazione automatica dei turni.</p>
+<p>I valori predefiniti provengono dalle <strong>Regole di pianificazione (valori predefiniti)</strong> nelle impostazioni. Quando si crea una nuova regola, questi vengono applicati automaticamente e possono essere adattati individualmente.</p>

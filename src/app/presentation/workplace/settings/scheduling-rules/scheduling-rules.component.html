@@ -28,7 +28,31 @@
     </div>
   </div>
   <div id="scheduling-rule-modal-body" class="modal-body">
+    <div id="scheduling-rule-modal-tabs-container">
+      <ul id="scheduling-rule-modal-tabs" class="nav nav-tabs">
+        <li id="scheduling-rule-modal-tab-form-item" class="nav-item">
+          <a
+            id="scheduling-rule-modal-tab-form-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'form' }"
+            (click)="tabId.set('form')"
+            >{{ translate.instant("setting.schedulingRule.tab-form") }}</a
+          >
+        </li>
+        <li id="scheduling-rule-modal-tab-help-item" class="nav-item">
+          <a
+            id="scheduling-rule-modal-tab-help-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'help' }"
+            (click)="tabId.set('help')"
+            >{{ translate.instant("setting.schedulingRule.tab-help") }}</a
+          >
+        </li>
+      </ul>
+    </div>
+
     @if (editingRule) {
+    <div [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
     <!-- Name -->
     <div id="scheduling-rule-modal-name-row" class="row-line-modal-inline">
       <div id="scheduling-rule-modal-name-section" class="rule-name-section">
@@ -235,6 +259,22 @@
       </div>
     </div>
 
+    <!-- Vacation Days Per Year -->
+    <div id="scheduling-rule-modal-vacation-row" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-vacation-days-item" class="rule-config-item">
+        <label for="ruleVacationDaysPerYear">{{ translate.instant("setting.schedulingRule.vacationDaysPerYear") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.vacationDaysPerYear"
+          class="form-control rule-input"
+          id="ruleVacationDaysPerYear"
+          aria-label="ruleVacationDaysPerYear"
+          min="0"
+          step="1"
+        />
+      </div>
+    </div>
+
     <!-- Validation Errors -->
     @if (getValidationErrors().length > 0) {
     <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">
@@ -249,7 +289,21 @@
         </div>
       </div>
     </div>
-    } }
+    }
+    </div>
+
+    <div
+      id="scheduling-rule-modal-help-content"
+      class="collapse tab-content-box"
+      [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+    >
+      <div
+        id="scheduling-rule-modal-manual-content"
+        class="manual-content"
+        [innerHTML]="manualContent()"
+      ></div>
+    </div>
+    }
   </div>
 
   <div id="scheduling-rule-modal-footer" class="modal-footer">

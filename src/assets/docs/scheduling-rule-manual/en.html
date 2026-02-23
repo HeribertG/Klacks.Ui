@@ -1,0 +1,51 @@
+<h2>Scheduling Rules - Explanations</h2>
+
+<p>Scheduling rules define the constraints for automatic shift planning. Each rule specifies how working hours, rest periods, and capacities are distributed for a specific group or configuration.</p>
+
+<hr>
+
+<h3>Work Days &amp; Rest Periods</h3>
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><strong>Max. Work Days</strong></td><td>Maximum number of work days per week.</td></tr>
+  <tr><td><strong>Min. Rest Days Between Two Work Blocks</strong></td><td>Minimum number of days off between two consecutive work blocks.</td></tr>
+  <tr><td><strong>Min. Free Hours Between Two Work Days</strong></td><td>Minimum rest time (in hours) between the end of one work day and the start of the next.</td></tr>
+  <tr><td><strong>Max. Optimal Gap Between Shifts (hrs)</strong></td><td>Maximum time gap (in hours) between two consecutive shifts considered optimal.</td></tr>
+  <tr><td><strong>Max. Consecutive Work Days</strong></td><td>Maximum number of consecutive work days without a rest day.</td></tr>
+</table>
+
+<hr>
+
+<h3>Hour Limits</h3>
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><strong>Max. Daily Hours</strong></td><td>Maximum working hours per day.</td></tr>
+  <tr><td><strong>Max. Weekly Hours</strong></td><td>Maximum working hours per week.</td></tr>
+  <tr><td><strong>Daily Working Hours</strong></td><td>Standard working hours per day (target time).</td></tr>
+  <tr><td><strong>Overtime Threshold (hrs/week)</strong></td><td>Weekly hours above this threshold count as overtime.</td></tr>
+</table>
+
+<hr>
+
+<h3>Monthly Hours</h3>
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><strong>Guaranteed Hours</strong></td><td>Minimum hours per month guaranteed to the employee.</td></tr>
+  <tr><td><strong>Maximum Hours</strong></td><td>Maximum allowed working hours per month.</td></tr>
+  <tr><td><strong>Minimum Hours</strong></td><td>Minimum working hours per month.</td></tr>
+  <tr><td><strong>Full Time (Hours)</strong></td><td>Monthly hours that correspond to full-time employment.</td></tr>
+</table>
+
+<hr>
+
+<h3>Vacation</h3>
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><strong>Vacation Days Per Year</strong></td><td>Number of vacation days per calendar year.</td></tr>
+</table>
+
+<hr>
+
+<h3>Usage</h3>
+<p>Scheduling rules are assigned to a <strong>contract</strong>. This means the defined limits apply to all employees with that contract during automatic shift planning.</p>
+<p>The default values shown here come from the <strong>Scheduling Rules (Defaults)</strong> in the settings. When creating a new rule, these are automatically applied and can be individually adjusted.</p>

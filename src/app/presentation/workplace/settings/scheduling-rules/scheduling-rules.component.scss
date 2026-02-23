@@ -3,6 +3,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
 
 :host {
   display: block;
@@ -10,7 +11,6 @@
 }
 
 .rule-name-section {
-  margin-left: 30px;
   width: 250px;
 }
 
