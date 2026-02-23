@@ -147,14 +147,23 @@
 }
 
 .pdf-export-button {
-  margin-top: 5px;
-  margin-right: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  margin-left: 30px;
   cursor: pointer;
-  display: inline-block;
-  padding: 5px;
-  border-radius: 4px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.pdf-export-button:hover {
-  background-color: rgba(30, 144, 255, 0.2);
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
 }

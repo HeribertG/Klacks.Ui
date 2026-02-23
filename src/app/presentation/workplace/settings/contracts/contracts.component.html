@@ -29,222 +29,308 @@
   </div>
   <div id="contract-modal-body" class="modal-body">
     @if (editingContract) {
-    <div id="contract-modal-name-row" class="row-line-modal-inline">
-      <div id="contract-modal-name-section" class="contract-name-section">
-        <label for="contractName">{{
-          translate.instant("setting.contract.name-modal")
-        }}</label>
-        <input
-          type="text"
-          [field]="contractForm.name"
-          class="form-control"
-          id="contractName"
-          aria-label="contractName"
-        />
-      </div>
-    </div>
-
-    <!-- Hours Configuration -->
-    <div id="contract-modal-hours-config-row" class="row-line-modal-inline hours-config-row">
-      <div id="contract-modal-guaranteed-hours-item" class="hours-config-item">
-        <app-time-input
-          id="contract-modal-guaranteed-hours-input"
-          [label]="
-            translate.instant('setting.contract.guaranteedHours-modal')
-          "
-          [value]="guaranteedHours()"
-          (valueChange)="onGuaranteedHoursChange($event)"
-          hoursName="guaranteedHoursHours"
-          minutesName="guaranteedHoursMinutes"
-          hoursId="guaranteedHours"
-          [forDuration]="true"
-          labelAlign="left"
-        ></app-time-input>
-      </div>
-
-      <div id="contract-modal-min-hours-item" class="hours-config-item">
-        <app-time-input
-          id="contract-modal-min-hours-input"
-          [label]="translate.instant('setting.contract.minHours-modal')"
-          [value]="minimumHours()"
-          (valueChange)="onMinimumHoursChange($event)"
-          hoursName="minHoursHours"
-          minutesName="minHoursMinutes"
-          hoursId="minHours"
-          [forDuration]="true"
-          labelAlign="center"
-        ></app-time-input>
-      </div>
-
-      <div id="contract-modal-max-hours-item" class="hours-config-item">
-        <app-time-input
-          id="contract-modal-max-hours-input"
-          [label]="translate.instant('setting.contract.maxHours-modal')"
-          [value]="maximumHours()"
-          (valueChange)="onMaximumHoursChange($event)"
-          hoursName="maxHoursHours"
-          minutesName="maxHoursMinutes"
-          hoursId="maxHours"
-          [forDuration]="true"
-          labelAlign="center"
-        ></app-time-input>
-      </div>
-
-      <div id="contract-modal-fulltime-item" class="hours-config-item">
-        <app-time-input
-          id="contract-modal-fulltime-input"
-          [label]="translate.instant('setting.contract.fullTime-modal')"
-          [value]="fullTime()"
-          (valueChange)="onFullTimeChange($event)"
-          hoursName="fullTimeHours"
-          minutesName="fullTimeMinutes"
-          hoursId="fullTime"
-          [forDuration]="true"
-          labelAlign="right"
-        ></app-time-input>
-      </div>
-    </div>
-
-    <!-- Rate Configuration -->
-    <div id="contract-modal-rates-row" class="row-line-modal-inline rates-config-row">
-      <div id="contract-modal-night-rate-item" class="rate-config-item align-left">
-        <label for="nightRate">{{ translate.instant("setting.contract.nightRate-modal") }}</label>
-        <div class="rate-input-group">
+      <div id="contract-modal-name-row" class="contract-name">
+        <div id="contract-modal-name-section" class="contract-name-section">
+          <label for="contractName">{{
+            translate.instant("setting.contract.name-modal")
+          }}</label>
           <input
-            type="number"
-            [field]="contractForm.nightRate"
-            class="form-control rate-input"
-            id="nightRate"
-            aria-label="nightRate"
+            type="text"
+            [field]="contractForm.name"
+            class="form-control"
+            id="contractName"
+            aria-label="contractName"
           />
-          <span class="rate-unit">%</span>
         </div>
       </div>
 
-      <div id="contract-modal-holiday-rate-item" class="rate-config-item align-center">
-        <label for="holidayRate">{{ translate.instant("setting.contract.holidayRate-modal") }}</label>
-        <div class="rate-input-group">
-          <input
-            type="number"
-            [field]="contractForm.holidayRate"
-            class="form-control rate-input"
-            id="holidayRate"
-            aria-label="holidayRate"
-          />
-          <span class="rate-unit">%</span>
+      <!-- Hours Configuration -->
+      <div
+        id="contract-modal-hours-config-row"
+        class="row-line-modal-inline hours-config-row"
+      >
+        <div
+          id="contract-modal-guaranteed-hours-item"
+          class="hours-config-item"
+        >
+          <app-time-input
+            id="contract-modal-guaranteed-hours-input"
+            [label]="
+              translate.instant('setting.contract.guaranteedHours-modal')
+            "
+            [value]="guaranteedHours()"
+            (valueChange)="onGuaranteedHoursChange($event)"
+            hoursName="guaranteedHoursHours"
+            minutesName="guaranteedHoursMinutes"
+            hoursId="guaranteedHours"
+            [forDuration]="true"
+            labelAlign="left"
+          ></app-time-input>
+        </div>
+
+        <div id="contract-modal-min-hours-item" class="hours-config-item">
+          <app-time-input
+            id="contract-modal-min-hours-input"
+            [label]="translate.instant('setting.contract.minHours-modal')"
+            [value]="minimumHours()"
+            (valueChange)="onMinimumHoursChange($event)"
+            hoursName="minHoursHours"
+            minutesName="minHoursMinutes"
+            hoursId="minHours"
+            [forDuration]="true"
+            labelAlign="center"
+          ></app-time-input>
+        </div>
+
+        <div id="contract-modal-max-hours-item" class="hours-config-item">
+          <app-time-input
+            id="contract-modal-max-hours-input"
+            [label]="translate.instant('setting.contract.maxHours-modal')"
+            [value]="maximumHours()"
+            (valueChange)="onMaximumHoursChange($event)"
+            hoursName="maxHoursHours"
+            minutesName="maxHoursMinutes"
+            hoursId="maxHours"
+            [forDuration]="true"
+            labelAlign="center"
+          ></app-time-input>
+        </div>
+
+        <div id="contract-modal-fulltime-item" class="hours-config-item">
+          <app-time-input
+            id="contract-modal-fulltime-input"
+            [label]="translate.instant('setting.contract.fullTime-modal')"
+            [value]="fullTime()"
+            (valueChange)="onFullTimeChange($event)"
+            hoursName="fullTimeHours"
+            minutesName="fullTimeMinutes"
+            hoursId="fullTime"
+            [forDuration]="true"
+            labelAlign="right"
+          ></app-time-input>
         </div>
       </div>
 
-      <div id="contract-modal-sa-rate-item" class="rate-config-item align-center">
-        <label for="saRate">{{ translate.instant("setting.contract.saRate-modal") }}</label>
-        <div class="rate-input-group">
-          <input
-            type="number"
-            [field]="contractForm.saRate"
-            class="form-control rate-input"
-            id="saRate"
-            aria-label="saRate"
-          />
-          <span class="rate-unit">%</span>
+      <!-- Rate Configuration -->
+      <div
+        id="contract-modal-rates-row"
+        class="row-line-modal-inline rates-config-row"
+      >
+        <div
+          id="contract-modal-night-rate-item"
+          class="rate-config-item align-left"
+        >
+          <label for="nightRate">{{
+            translate.instant("setting.contract.nightRate-modal")
+          }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [field]="contractForm.nightRate"
+              class="form-control rate-input"
+              id="nightRate"
+              aria-label="nightRate"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div
+          id="contract-modal-holiday-rate-item"
+          class="rate-config-item align-center"
+        >
+          <label for="holidayRate">{{
+            translate.instant("setting.contract.holidayRate-modal")
+          }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [field]="contractForm.holidayRate"
+              class="form-control rate-input"
+              id="holidayRate"
+              aria-label="holidayRate"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div
+          id="contract-modal-sa-rate-item"
+          class="rate-config-item align-center"
+        >
+          <label for="saRate">{{
+            translate.instant("setting.contract.saRate-modal")
+          }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [field]="contractForm.saRate"
+              class="form-control rate-input"
+              id="saRate"
+              aria-label="saRate"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div
+          id="contract-modal-so-rate-item"
+          class="rate-config-item align-right"
+        >
+          <label for="soRate">{{
+            translate.instant("setting.contract.soRate-modal")
+          }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [field]="contractForm.soRate"
+              class="form-control rate-input"
+              id="soRate"
+              aria-label="soRate"
+            />
+            <span class="rate-unit">%</span>
+          </div>
         </div>
       </div>
 
-      <div id="contract-modal-so-rate-item" class="rate-config-item align-right">
-        <label for="soRate">{{ translate.instant("setting.contract.soRate-modal") }}</label>
-        <div class="rate-input-group">
-          <input
-            type="number"
-            [field]="contractForm.soRate"
-            class="form-control rate-input"
-            id="soRate"
-            aria-label="soRate"
-          />
-          <span class="rate-unit">%</span>
+      <!-- Validity Period -->
+      <div id="contract-modal-validity-row" class="contract-date">
+        <div id="contract-modal-valid-from-section" class="validity-section">
+          <app-date-input
+            id="contract-modal-valid-from-input"
+            [label]="translate.instant('setting.contract.validFrom-modal')"
+            [value]="validFrom()"
+            (valueChange)="onValidFromChange($event)"
+            inputName="validFrom"
+            inputId="validFrom"
+            inputWidth="small-width"
+          ></app-date-input>
+        </div>
+
+        <div id="contract-modal-valid-until-section" class="validity-section">
+          <app-date-input
+            id="contract-modal-valid-until-input"
+            [label]="translate.instant('setting.contract.validUntil-modal')"
+            [value]="validUntil()"
+            (valueChange)="onValidUntilChange($event)"
+            inputName="validUntil"
+            inputId="validUntil"
+            inputWidth="small-width"
+            labelAlign="right"
+          ></app-date-input>
         </div>
       </div>
-    </div>
 
-    <!-- Validity Period -->
-    <div id="contract-modal-validity-row" class="row-line-modal-inline">
-      <div id="contract-modal-valid-from-section" class="validity-section">
-        <app-date-input
-          id="contract-modal-valid-from-input"
-          [label]="translate.instant('setting.contract.validFrom-modal')"
-          [value]="validFrom()"
-          (valueChange)="onValidFromChange($event)"
-          inputName="validFrom"
-          inputId="validFrom"
-          inputWidth="small-width"
-        ></app-date-input>
-      </div>
-
-      <div id="contract-modal-valid-until-section" class="validity-section">
-        <app-date-input
-          id="contract-modal-valid-until-input"
-          [label]="translate.instant('setting.contract.validUntil-modal')"
-          [value]="validUntil()"
-          (valueChange)="onValidUntilChange($event)"
-          inputName="validUntil"
-          inputId="validUntil"
-          inputWidth="small-width"
-        ></app-date-input>
-      </div>
-    </div>
-
-    <!-- Calendar Selection -->
-    <div id="contract-modal-calendar-row" class="row-line-modal-inline">
-      <div id="contract-modal-calendar-section" class="calendar-section">
-        <span class="calendar-label">{{ translate.instant("setting.contract.calendarSelection-modal") }}</span>
-        <div class="calendar-selector-container">
-          <div ngbDropdown #calendarDropdown="ngbDropdown">
-            <button
-              class="btn btn-sm btn-calendar-selector"
-              id="contract-calendar-dropdown"
-              ngbDropdownToggle
-              aria-label="calendar selection"
-              type="button"
-            >
-              <app-choose-calendar></app-choose-calendar>
-              <span class="calendar-name">{{ getSelectedCalendarName() }}</span>
-            </button>
-            <div ngbDropdownMenu class="calendar-dropdown-menu">
+      <!-- Calendar & Scheduling Rule Selection -->
+      <div id="contract-modal-selections-row" class="contract-selections">
+        <div id="contract-modal-calendar-section" class="selection-section">
+          <span class="selection-label">{{
+            translate.instant("setting.contract.calendarSelection-modal")
+          }}</span>
+          <div class="selector-container">
+            <div ngbDropdown #calendarDropdown="ngbDropdown">
               <button
-                ngbDropdownItem
-                (click)="onCalendarSelectionChange('')"
-                [class.active]="!calendarSelectionId()"
+                class="btn btn-sm btn-selector"
+                id="contract-calendar-dropdown"
+                ngbDropdownToggle
+                aria-label="calendar selection"
+                type="button"
               >
-                {{ translate.instant("setting.contract.noCalendar") }}
+                <app-choose-calendar></app-choose-calendar>
+                <span class="selector-name">{{
+                  getSelectedCalendarName()
+                }}</span>
               </button>
-              @for (calendar of dataManagementContractService.availableCalendars; track calendar.id) {
+              <div ngbDropdownMenu class="selector-dropdown-menu">
                 <button
                   ngbDropdownItem
-                  (click)="onCalendarSelectionChange(calendar.id!)"
-                  [class.active]="calendarSelectionId() === calendar.id"
+                  (click)="onCalendarSelectionChange('')"
+                  [class.active]="!calendarSelectionId()"
                 >
-                  {{ calendar.name }}
+                  {{ translate.instant("setting.contract.noCalendar") }}
                 </button>
-              }
+                @for (
+                  calendar of dataManagementContractService.availableCalendars;
+                  track calendar.id
+                ) {
+                  <button
+                    ngbDropdownItem
+                    (click)="onCalendarSelectionChange(calendar.id!)"
+                    [class.active]="calendarSelectionId() === calendar.id"
+                  >
+                    {{ calendar.name }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="contract-modal-scheduling-rule-section" class="selection-section">
+          <span class="selection-label">{{
+            translate.instant("setting.contract.schedulingRuleSelection-modal")
+          }}</span>
+          <div class="selector-container">
+            <div ngbDropdown #schedulingRuleDropdown="ngbDropdown">
+              <button
+                class="btn btn-sm btn-selector"
+                id="contract-scheduling-rule-dropdown"
+                ngbDropdownToggle
+                aria-label="scheduling rule selection"
+                type="button"
+              >
+                <span class="selector-name">{{
+                  getSelectedSchedulingRuleName()
+                }}</span>
+              </button>
+              <div ngbDropdownMenu class="selector-dropdown-menu">
+                <button
+                  ngbDropdownItem
+                  (click)="onSchedulingRuleSelectionChange('')"
+                  [class.active]="!schedulingRuleId()"
+                >
+                  {{ translate.instant("setting.contract.noSchedulingRule") }}
+                </button>
+                @for (
+                  rule of dataManagementContractService.availableSchedulingRules;
+                  track rule.id
+                ) {
+                  <button
+                    ngbDropdownItem
+                    (click)="onSchedulingRuleSelectionChange(rule.id)"
+                    [class.active]="schedulingRuleId() === rule.id"
+                  >
+                    {{ rule.name }}
+                  </button>
+                }
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Validation Errors -->
-    @if (getValidationErrors().length > 0) {
-    <div id="contract-modal-validation-row" class="row-line-modal-inline">
-      <div id="contract-modal-validation-section" class="validation-errors-section">
-        <div id="contract-modal-validation-alert" class="alert alert-danger">
-          <strong>{{ translate.instant("validation.errors") }}:</strong>
-          <ul id="contract-modal-validation-list">
-            @for (error of getValidationErrors(); track error) {
-            <li>{{ error }}</li>
-            }
-          </ul>
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+        <div id="contract-modal-validation-row" class="row-line-modal-inline">
+          <div
+            id="contract-modal-validation-section"
+            class="validation-errors-section"
+          >
+            <div
+              id="contract-modal-validation-alert"
+              class="alert alert-danger"
+            >
+              <strong>{{ translate.instant("validation.errors") }}:</strong>
+              <ul id="contract-modal-validation-list">
+                @for (error of getValidationErrors(); track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    } }
+      }
+    }
   </div>
 
   <div id="contract-modal-footer" class="modal-footer">
@@ -275,7 +361,11 @@
 >
   <app-contract-header header id="contracts-table-header"></app-contract-header>
   <div rows #containerBox>
-    @for (contract of dataManagementContractService.contracts; track contract.id || $index; let i = $index) {
+    @for (
+      contract of dataManagementContractService.contracts;
+      track contract.id || $index;
+      let i = $index
+    ) {
       <app-contract-row
         [id]="'contract-row-' + i"
         [data]="contract"

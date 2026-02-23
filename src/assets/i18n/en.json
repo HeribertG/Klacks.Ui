@@ -752,6 +752,8 @@
   "setting.contract.saRate-modal": "Saturday Surcharge",
   "setting.contract.soRate-modal": "Sunday Surcharge",
   "setting.contract.noCalendar": "No Calendar",
+  "setting.contract.schedulingRuleSelection-modal": "Scheduling Rules",
+  "setting.contract.noSchedulingRule": "No Scheduling Rule",
   "setting.contract.save": "Save",
   "setting.contract.validFrom-modal": "Valid From",
   "setting.contract.validUntil-modal": "Valid Until",

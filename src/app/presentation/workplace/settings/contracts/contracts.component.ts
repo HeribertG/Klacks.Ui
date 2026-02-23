@@ -120,6 +120,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   validFrom = signal<NgbDateStruct | null | undefined>(undefined);
   validUntil = signal<NgbDateStruct | null | undefined>(undefined);
   calendarSelectionId = signal<string | undefined>(undefined);
+  schedulingRuleId = signal<string | undefined>(undefined);
 
   message = DomainMessages.DELETE_ENTRY;
 
@@ -138,6 +139,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.validFrom.set(contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined);
     this.validUntil.set(contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined);
     this.calendarSelectionId.set(contract.calendarSelectionId);
+    this.schedulingRuleId.set(contract.schedulingRuleId);
   }
 
   private applySignalsToContract(): void {
@@ -343,6 +345,24 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
       (cal) => cal.id === selectedId
     );
     return calendar?.name || this.translate.instant('setting.contract.noCalendar');
+  }
+
+  onSchedulingRuleSelectionChange(ruleId: string): void {
+    this.schedulingRuleId.set(ruleId || undefined);
+    if (this.editingContract) {
+      this.editingContract.schedulingRuleId = ruleId || undefined;
+    }
+  }
+
+  getSelectedSchedulingRuleName(): string {
+    const selectedId = this.schedulingRuleId();
+    if (!selectedId) {
+      return this.translate.instant('setting.contract.noSchedulingRule');
+    }
+    const rule = this.dataManagementContractService.availableSchedulingRules.find(
+      (r) => r.id === selectedId
+    );
+    return rule?.name || this.translate.instant('setting.contract.noSchedulingRule');
   }
 
   isFormValid(): boolean {

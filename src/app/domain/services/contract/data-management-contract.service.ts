@@ -9,6 +9,8 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/contract/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
+import { DataManagementSchedulingRuleService } from '../scheduling/data-management-scheduling-rule.service';
+import { ISchedulingRule } from '../../models/scheduling/scheduling-rule.model';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -35,6 +37,7 @@ export class DataManagementContractService {
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
+  private schedulingRuleService = inject(DataManagementSchedulingRuleService);
   private destroy$ = new Subject<void>();
 
   constructor() {}
@@ -90,6 +93,7 @@ export class DataManagementContractService {
     }
   }
   public availableCalendars: ICalendarSelection[] = [];
+  public availableSchedulingRules: ISchedulingRule[] = [];
 
   private editContractDummy: IContract | undefined;
 
@@ -99,6 +103,7 @@ export class DataManagementContractService {
     this.updateEmptyPlaceholder();
     await this.readContracts();
     await this.loadCalendarSelections();
+    await this.loadSchedulingRules();
 
     this.translate.onLangChange
       .pipe(takeUntil(this.destroy$))
@@ -119,6 +124,18 @@ export class DataManagementContractService {
     } catch (error) {
       console.error('Error loading calendar selections:', error);
       this.availableCalendars = [];
+    }
+  }
+
+  private async loadSchedulingRules(): Promise<void> {
+    try {
+      if (!this.schedulingRuleService.isRead()) {
+        await this.schedulingRuleService.readRules();
+      }
+      this.availableSchedulingRules = this.schedulingRuleService.rules;
+    } catch (error) {
+      console.error('Error loading scheduling rules:', error);
+      this.availableSchedulingRules = [];
     }
   }
 

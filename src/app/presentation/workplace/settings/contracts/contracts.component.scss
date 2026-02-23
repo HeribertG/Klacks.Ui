@@ -20,10 +20,75 @@
 }
 
 .contract-name,
-.contract-hours,
-.contract-date {
+.contract-hours {
   display: inline-block;
   margin-right: 10px;
+  padding-bottom: 10px;
+}
+
+.contract-date {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 30px;
+  margin-right: 30px;
+  padding-bottom: 10px;
+}
+
+.contract-selections {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+.selection-section {
+  &:last-child {
+    text-align: right;
+  }
+}
+
+.selection-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.selector-container {
+  display: flex;
+  align-items: center;
+}
+
+.btn-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px;
+  background-color: var(--colorCardBackground);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: var(--colorWorkplaceHeadline);
+  min-width: 200px;
+
+  &:hover {
+    background-color: var(--colorCardBackgroundHover);
+  }
+
+  .selector-name {
+    flex: 1;
+    text-align: left;
+  }
+}
+
+.selector-dropdown-menu {
+  min-width: 200px;
+
+  button {
+    &.active {
+      background-color: colors.$standartGreenColor;
+      color: colors.$standartWhiteColor;
+    }
+  }
 }
 
 .hours-config-row {
@@ -51,56 +116,11 @@
 }
 
 .validity-section {
-  margin-left: 30px;
-}
-
-.calendar-section {
-  margin-left: 30px;
-
-  label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 5px;
-    color: var(--colorWorkplaceHeadline);
+  &:last-child {
+    text-align: right;
   }
 }
 
-.calendar-selector-container {
-  display: flex;
-  align-items: center;
-}
-
-.btn-calendar-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 15px;
-  background-color: var(--colorCardBackground);
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  color: var(--colorWorkplaceHeadline);
-  min-width: 200px;
-
-  &:hover {
-    background-color: var(--colorCardBackgroundHover);
-  }
-
-  .calendar-name {
-    flex: 1;
-    text-align: left;
-  }
-}
-
-.calendar-dropdown-menu {
-  min-width: 200px;
-
-  button {
-    &.active {
-      background-color: colors.$standartGreenColor;
-      color: colors.$standartWhiteColor;
-    }
-  }
-}
 
 .red-font-disabled {
   margin-top: 10px;

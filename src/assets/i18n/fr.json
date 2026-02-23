@@ -752,6 +752,8 @@
   "setting.contract.saRate-modal": "Supplément samedi",
   "setting.contract.soRate-modal": "Supplément dimanche",
   "setting.contract.noCalendar": "Aucun calendrier",
+  "setting.contract.schedulingRuleSelection-modal": "Règles de planification",
+  "setting.contract.noSchedulingRule": "Aucune règle de planification",
   "setting.contract.save": "Enregistrer",
   "setting.contract.validFrom-modal": "Valide à partir de",
   "setting.contract.validUntil-modal": "Valide jusqu'à",
