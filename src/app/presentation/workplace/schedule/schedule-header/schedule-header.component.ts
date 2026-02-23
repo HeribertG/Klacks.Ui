@@ -50,7 +50,9 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
+import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
@@ -83,6 +85,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     PdfIconComponent,
     IconBreakPlaceholderComponent,
     IconFlyComponent,
+    IconRefreshScheduleComponent,
   ],
   providers: [],
 })
@@ -116,8 +119,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private scheduleChangeService = inject(ScheduleChangeService);
+  private dataWorkScheduleService = inject(DataWorkScheduleService);
 
   isSending = signal(false);
+  isRecalculating = signal(false);
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -264,6 +269,42 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
       );
     } finally {
       this.isSending.set(false);
+    }
+  }
+
+  async onRecalculatePeriodHours(): Promise<void> {
+    if (this.isRecalculating()) return;
+
+    const startDate = this.dataManagementSchedule.visibleStartDate;
+    const endDate = this.dataManagementSchedule.visibleEndDate;
+    if (!startDate || !endDate) return;
+
+    this.isRecalculating.set(true);
+
+    try {
+      await new Promise<boolean>((resolve, reject) => {
+        this.dataWorkScheduleService
+          .recalculatePeriodHours(
+            formatDateOnly(startDate),
+            formatDateOnly(endDate),
+            this.dataManagementSchedule.workFilter.selectedGroup,
+          )
+          .subscribe({ next: resolve, error: reject });
+      });
+
+      this.toastShowService.showInfo(
+        this.translateService.instant('schedule.recalculate.success'),
+        'recalculate',
+        '',
+        TOAST_ICONS.INFO,
+      );
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant('schedule.recalculate.error'),
+        'recalculate',
+      );
+    } finally {
+      this.isRecalculating.set(false);
     }
   }
 

@@ -640,6 +640,9 @@
   "schedule.send.bulk.summary": "{{success}} sent, {{failed}} failed, {{noEmail}} no email",
   "schedule.pdf.schedule": "Schedule PDF",
   "schedule.pdf.shifts": "Shift schedule PDF",
+  "schedule.recalculate.tooltip": "Recalculate hours",
+  "schedule.recalculate.success": "Hours have been recalculated",
+  "schedule.recalculate.error": "Error recalculating hours",
 
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Employees",

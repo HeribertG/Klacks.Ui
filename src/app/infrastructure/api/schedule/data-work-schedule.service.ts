@@ -28,4 +28,13 @@ export class DataWorkScheduleService {
       .post<Record<string, IPeriodHours>>(`${environment.baseUrl}Works/PeriodHours`, request)
       .pipe(retry(2));
   }
+
+  recalculatePeriodHours(startDate: string, endDate: string, selectedGroup?: string) {
+    return this.httpClient
+      .post<boolean>(`${environment.baseUrl}Works/RecalculatePeriodHours`, {
+        startDate,
+        endDate,
+        selectedGroup: selectedGroup || null,
+      });
+  }
 }

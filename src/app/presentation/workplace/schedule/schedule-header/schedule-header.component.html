@@ -83,6 +83,20 @@
     <app-icon-break-placeholder #breakPlaceholderIcon />
   </button>
 
+  <button
+    type="button"
+    class="icon-button recalculate-button"
+    [class.disabled]="isRecalculating()"
+    (click)="onRecalculatePeriodHours()"
+    ngbTooltip="{{ 'schedule.recalculate.tooltip' | translate }}"
+  >
+    @if (isRecalculating()) {
+      <span class="spinner-border spinner-border-sm"></span>
+    } @else {
+      <app-icon-refresh-schedule />
+    }
+  </button>
+
   <span class="filler"></span>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button

@@ -642,6 +642,9 @@
   "schedule.send.bulk.summary": "{{success}} gesendet, {{failed}} fehlgeschlagen, {{noEmail}} ohne E-Mail",
   "schedule.pdf.schedule": "Einsatzplan PDF",
   "schedule.pdf.shifts": "Schichtplan PDF",
+  "schedule.recalculate.tooltip": "Stunden neu berechnen",
+  "schedule.recalculate.success": "Stunden wurden neu berechnet",
+  "schedule.recalculate.error": "Fehler beim Neuberechnen der Stunden",
 
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Mitarbeiter",
