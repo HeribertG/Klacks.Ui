@@ -221,6 +221,41 @@
         </div>
       </div>
 
+      <!-- Payment Interval -->
+      <div id="contract-modal-payment-interval-row" class="payment-interval-section">
+        <div id="contract-modal-payment-interval" class="selection-section">
+          <span class="selection-label">{{
+            translate.instant("setting.contract.paymentInterval-modal")
+          }}</span>
+          <div class="selector-container">
+            <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
+              <button
+                class="btn btn-sm btn-selector"
+                id="contract-payment-interval-dropdown"
+                ngbDropdownToggle
+                aria-label="payment interval selection"
+                type="button"
+              >
+                <span class="selector-name">{{
+                  getPaymentIntervalLabel()
+                }}</span>
+              </button>
+              <div ngbDropdownMenu class="selector-dropdown-menu">
+                @for (option of paymentIntervalOptions; track option) {
+                  <button
+                    ngbDropdownItem
+                    (click)="onPaymentIntervalChange(option)"
+                    [class.active]="paymentInterval() === option"
+                  >
+                    {{ getPaymentIntervalLabel(option) }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Calendar & Scheduling Rule Selection -->
       <div id="contract-modal-selections-row" class="contract-selections">
         <div id="contract-modal-calendar-section" class="selection-section">

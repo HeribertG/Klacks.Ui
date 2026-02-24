@@ -755,6 +755,7 @@
   "setting.contract.saRate-modal": "Supplemento sabato",
   "setting.contract.soRate-modal": "Supplemento domenica",
   "setting.contract.noCalendar": "Nessun calendario",
+  "setting.contract.paymentInterval-modal": "Intervallo di pagamento",
   "setting.contract.schedulingRuleSelection-modal": "Regole di pianificazione",
   "setting.contract.noSchedulingRule": "Nessuna regola di pianificazione",
   "setting.contract.save": "Salva",

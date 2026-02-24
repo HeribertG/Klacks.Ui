@@ -97,6 +97,24 @@
     cursor: pointer;
   }
 
+  select {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--standartTextColor);
+    background-color: var(--standartTextBackground);
+
+    &:focus {
+      color: var(--standartTextColor);
+      background-color: var(--standartTextBackground);
+    }
+
+    &:disabled {
+      color: var(--standartTextColor);
+      background-color: var(--standartTextBackgroundReadOnly);
+      caret-color: var(--standartTextCaretColor);
+    }
+  }
+
   textarea.form-control {
     resize: vertical;
     min-height: 60px;

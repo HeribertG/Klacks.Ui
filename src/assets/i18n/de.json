@@ -757,6 +757,7 @@
   "setting.contract.saRate-modal": "Samstagszuschlag",
   "setting.contract.soRate-modal": "Sonntagszuschlag",
   "setting.contract.noCalendar": "Kein Kalender",
+  "setting.contract.paymentInterval-modal": "Zahlungsintervall",
   "setting.contract.schedulingRuleSelection-modal": "Planungsregeln",
   "setting.contract.noSchedulingRule": "Keine Planungsregel",
   "setting.contract.save": "Speichern",

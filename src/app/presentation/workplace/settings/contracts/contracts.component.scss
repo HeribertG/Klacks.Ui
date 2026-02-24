@@ -34,6 +34,12 @@
   padding-bottom: 10px;
 }
 
+.payment-interval-section {
+  margin-left: 30px;
+  margin-right: 30px;
+  padding-bottom: 10px;
+}
+
 .contract-selections {
   display: flex;
   justify-content: space-between;
@@ -64,14 +70,16 @@
   align-items: center;
   gap: 10px;
   padding: 8px 15px;
-  background-color: var(--colorCardBackground);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
   border: 1px solid #ccc;
   border-radius: 4px;
-  color: var(--colorWorkplaceHeadline);
   min-width: 200px;
 
   &:hover {
-    background-color: var(--colorCardBackgroundHover);
+    background-color: var(--standartTextBackground);
   }
 
   .selector-name {
@@ -82,8 +90,18 @@
 
 .selector-dropdown-menu {
   min-width: 200px;
+  background-color: var(--standartTextBackground);
 
   button {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--standartTextColor);
+
+    &:hover {
+      background-color: var(--standartTextBackgroundReadOnly);
+      color: var(--standartTextColor);
+    }
+
     &.active {
       background-color: colors.$standartGreenColor;
       color: colors.$standartWhiteColor;

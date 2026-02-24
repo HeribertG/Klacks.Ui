@@ -25,7 +25,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
-import { IContract } from 'src/app/domain/models/contract/contract-class';
+import { IContract, PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
@@ -121,6 +121,21 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   validUntil = signal<NgbDateStruct | null | undefined>(undefined);
   calendarSelectionId = signal<string | undefined>(undefined);
   schedulingRuleId = signal<string | undefined>(undefined);
+  paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
+
+  paymentIntervalOptions = [
+    PaymentInterval.Weekly,
+    PaymentInterval.Biweekly,
+    PaymentInterval.Monthly,
+    PaymentInterval.Individual,
+  ];
+
+  private paymentIntervalLabelKeys: Record<PaymentInterval, string> = {
+    [PaymentInterval.Weekly]: 'settings.work.payment-weekly',
+    [PaymentInterval.Biweekly]: 'settings.work.payment-biweekly',
+    [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
+    [PaymentInterval.Individual]: 'settings.work.payment-individual',
+  };
 
   message = DomainMessages.DELETE_ENTRY;
 
@@ -140,6 +155,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.validUntil.set(contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined);
     this.calendarSelectionId.set(contract.calendarSelectionId);
     this.schedulingRuleId.set(contract.schedulingRuleId);
+    this.paymentInterval.set(contract.paymentInterval);
   }
 
   private applySignalsToContract(): void {
@@ -165,6 +181,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editingContract.validUntil = validUntilValue
       ? transformNgbDateStructToDate(validUntilValue)
       : undefined;
+    this.editingContract.paymentInterval = this.paymentInterval();
   }
 
   async ngOnInit(): Promise<void> {
@@ -417,6 +434,18 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.editingContract.validFrom = date;
       }
     }
+  }
+
+  onPaymentIntervalChange(value: PaymentInterval): void {
+    this.paymentInterval.set(value);
+    if (this.editingContract) {
+      this.editingContract.paymentInterval = value;
+    }
+  }
+
+  getPaymentIntervalLabel(value?: PaymentInterval): string {
+    const interval = value ?? this.paymentInterval();
+    return this.translate.instant(this.paymentIntervalLabelKeys[interval]);
   }
 
   onValidUntilChange(value: NgbDateStruct | null | undefined): void {
