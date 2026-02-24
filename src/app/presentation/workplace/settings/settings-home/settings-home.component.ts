@@ -39,6 +39,7 @@ import { ReportsComponent } from '../reports/reports.component';
 import { ReportDefaultsComponent } from '../reports/report-defaults/report-defaults.component';
 import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
 import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setting/scheduling-defaults-setting.component';
+import { GlobalAgentRulesComponent } from '../global-agent-rules/global-agent-rules.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -82,6 +83,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     ReportDefaultsComponent,
     SchedulingRulesComponent,
     SchedulingDefaultsSettingComponent,
+    GlobalAgentRulesComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {

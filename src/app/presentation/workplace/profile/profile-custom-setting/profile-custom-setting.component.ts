@@ -11,10 +11,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import {
-  LocaleService,
-  SupportedLocales,
-} from 'src/app/application/services/locale.service';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
@@ -35,12 +32,6 @@ export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;
 
   selectedLanguage: Language = DomainMessages.DEFAULT_LANG;
-  flagMap: Record<Language, string> = {
-    de: 'Deutsch',
-    fr: 'Français',
-    it: 'Italiano',
-    en: 'English',
-  };
 
   public translate = inject(TranslateService);
   private translateStringConstantsService = inject(
@@ -53,6 +44,10 @@ export class ProfileCustomSettingComponent implements OnInit {
 
   get languages(): Language[] {
     return this.languageConfigService.getSupportedLanguages() as Language[];
+  }
+
+  getDisplayName(lang: string): string {
+    return this.languageConfigService.getDisplayName(lang);
   }
 
   ngOnInit(): void {
@@ -78,7 +73,7 @@ export class ProfileCustomSettingComponent implements OnInit {
     this.translate.use(lang);
     this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
-    this.localeService.setLocale(lang as SupportedLocales);
+    this.localeService.setLocale(lang);
   }
 
   onDarkModeChecked(): void {

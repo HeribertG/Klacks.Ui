@@ -1,0 +1,109 @@
+@use "sass:color";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.rule-header-row,
+.rule-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.rule-header-row {
+  font-weight: 600;
+  color: var(--colorLabel);
+  border-bottom: 1px solid var(--cardBorderColor);
+}
+
+.rule-row {
+  border-bottom: 1px solid var(--cardBorderColor);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+  }
+}
+
+.col-name {
+  flex: 0 0 150px;
+  min-width: 150px;
+}
+
+.col-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-version {
+  flex: 0 0 50px;
+  text-align: center;
+  color: var(--colorSubHeadline);
+}
+
+.col-actions {
+  flex: 0 0 60px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.rule-name-badge {
+  font-family: monospace;
+  font-weight: 600;
+  color: colors.$standartGreenColor;
+  font-size: 11px;
+}
+
+.rule-content-preview {
+  color: var(--colorLabel);
+  font-size: 12px;
+}
+
+.action-button {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--colorLabel);
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    color: var(--colorHeadline);
+  }
+
+  &.delete-button:hover {
+    color: colors.$standartRedColor;
+  }
+}
+
+.rule-content-textarea {
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 150px;
+}
+
+.info-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--colorSubHeadline);
+}

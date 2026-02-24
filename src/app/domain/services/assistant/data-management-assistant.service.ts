@@ -16,6 +16,9 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { AssistantSystemContextService } from './assistant-system-context.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -40,13 +43,14 @@ export class DataManagementAssistantService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private systemContextService = inject(AssistantSystemContextService);
+  private localStorageService = inject(LocalStorageService);
   private conversations = new Map<string, IConversation>();
   private destroy$ = new Subject<void>();
 
   public availableModels = signal<IAssistantModel[]>([]);
   public selectedModelId = signal<string>('');
   public isLoading = signal<boolean>(false);
-  public currentLanguage = signal<string>('de');
+  public currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   public isConnected = signal(true);
   public modelsInitialized = signal(false);
 
@@ -56,7 +60,8 @@ export class DataManagementAssistantService {
   private isLoading$ = toObservable(this.isLoading);
 
   constructor() {
-    this.currentLanguage.set(this.translateService.currentLang);
+    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
+    this.currentLanguage.set(savedLang || this.translateService.currentLang || DomainMessages.DEFAULT_LANG);
   }
 
   public initializeAssistantModels(): void {
