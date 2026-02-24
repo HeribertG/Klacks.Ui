@@ -7,6 +7,8 @@ import {
   IBaseTruncated,
 } from '../general-class';
 import { Client, IClient } from '../client/client-class';
+import { PaymentInterval } from '../contract/contract-class';
+import { ICalendarSelection } from '../calendar/calendar-selection-class';
 
 export interface IGroup {
   id?: string;
@@ -25,6 +27,9 @@ export interface IGroup {
   customersCount: number;
   children?: IGroup[];
   clientIds?: string[];
+  paymentInterval: PaymentInterval;
+  calendarSelectionId?: string;
+  calendarSelection?: ICalendarSelection;
 }
 
 export class Group implements IGroup {
@@ -44,6 +49,9 @@ export class Group implements IGroup {
   children: Group[] = [];
   clientIds?: string[] = [];
   groupItems: GroupItem[] = [];
+  paymentInterval: PaymentInterval = PaymentInterval.Monthly;
+  calendarSelectionId?: string;
+  calendarSelection?: ICalendarSelection;
 
   constructor(data?: Partial<IGroup>) {
     if (!data) return;
@@ -70,6 +78,9 @@ export class Group implements IGroup {
     this.clientsCount = data.clientsCount || 0;
     this.shiftsCount = data.shiftsCount || 0;
     this.customersCount = data.customersCount || 0;
+    this.paymentInterval = data.paymentInterval ?? PaymentInterval.Monthly;
+    this.calendarSelectionId = data.calendarSelectionId;
+    this.calendarSelection = data.calendarSelection;
     this.clientIds = data.clientIds || [];
     this.groupItems = data.groupItems
       ? data.groupItems.map((item) => {

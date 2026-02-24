@@ -59,7 +59,7 @@ export class ScheduleContextMenuService {
     menuData.list.push(...MenuDataTemplate.deleteBreakPlaceholder());
     menuData.list.push(...MenuDataTemplate.divider());
 
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
     const detailItems = absenceItems.filter(item => item.absenceId === bp.absenceId && item.isDetail);
 
@@ -219,7 +219,7 @@ export class ScheduleContextMenuService {
   }
 
   private createAbsencesSubmenu(): Menu | undefined {
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
 
     if (absenceItems.length === 0) return undefined;

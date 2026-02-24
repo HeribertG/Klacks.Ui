@@ -17,6 +17,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { BreakCellParams, DeleteWorkScheduleEntryParams, ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
@@ -89,7 +90,7 @@ export class ScheduleEntryActionsService {
 
     const targetDate = addDays(dataService.startDate, column);
 
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
     const selectedItem = absenceItems.find(item => item.id === absenceItemId);
 
@@ -232,7 +233,7 @@ export class ScheduleEntryActionsService {
   async adoptBreakPlaceholder(bp: IBreakPlaceholder, absenceItemId: string | undefined): Promise<void> {
     if (!bp.from || !bp.until || !bp.clientId) return;
 
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
 
     let selectedItem: AbsenceMenuItem | undefined;

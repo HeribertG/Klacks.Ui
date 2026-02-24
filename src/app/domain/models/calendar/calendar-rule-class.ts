@@ -9,6 +9,7 @@ import {
 } from '../general-class';
 import { format } from 'date-fns';
 import { MultiLanguage } from '../translation/multi-language-class';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 export interface ICalendarRulesFilter extends IBaseFilter {
   list: StateCountryToken[];
@@ -35,7 +36,7 @@ export class CalendarRulesFilter
   implements ICalendarRulesFilter
 {
   list: StateCountryToken[] = [];
-  language = 'en';
+  language = DomainMessages.DEFAULT_LANG;
   countries: string[] = [];
 }
 

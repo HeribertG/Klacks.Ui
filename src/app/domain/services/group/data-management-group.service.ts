@@ -29,6 +29,8 @@ import {
 } from 'src/app/shared/helpers/object.helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/group/data-group-visibility.service';
+import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
+import { ICalendarSelection } from '../../models/calendar/calendar-selection-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -48,6 +50,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
+  private dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
   private httpClient = inject(HttpClient);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
@@ -92,6 +95,8 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public listWrapper: ITruncatedGroup | undefined;
   public currentFilter: GroupFilter = new GroupFilter();
   public editGroup: IGroup | undefined;
+
+  public availableCalendars: ICalendarSelection[] = [];
 
   public groupTree: GroupTree = new GroupTree();
   public flatNodeList: Group[] = [];
@@ -139,6 +144,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         this.hasRootGroups.set(rootGroups.length > 0);
       });
 
+    this.loadCalendarSelections();
     this.readPage();
   }
 
@@ -176,6 +182,20 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           setTimeout(() => this._showProgressSpinner.set(false), 0);
         },
       });
+  }
+
+  private async loadCalendarSelections(): Promise<void> {
+    try {
+      if (!this.dataManagementCalendarSelectionService.isRead()) {
+        await this.dataManagementCalendarSelectionService.readData();
+      }
+      this.availableCalendars =
+        this.dataManagementCalendarSelectionService.calendarsSelections.filter(
+          (cal) => !cal.internal
+        );
+    } catch {
+      this.availableCalendars = [];
+    }
   }
 
   /* #endregion   init */

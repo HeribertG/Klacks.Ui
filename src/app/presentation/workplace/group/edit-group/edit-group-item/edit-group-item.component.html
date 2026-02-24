@@ -1,86 +1,174 @@
 <form #groupForm="ngForm" id="edit-group-item-form">
   <app-expandable-card
     id="edit-group-item-card"
-    [headerTitle]="'group.edit-group.edit-group-item.headline' | translate">
-
-  @if (dataManagementGroupService.editGroup !== undefined) {
-  <div class="firstColumn first-row">
-    <!-- Name -->
-    <label for="edit-group-item-name">{{
-      "group.edit-group.edit-group-item.name" | translate
-    }}</label>
-    <div class="custom-control-inline default-width">
-      <input
-        type="text"
-        class="form-control"
-        autocomplete="off"
-        [(ngModel)]="dataManagementGroupService.editGroup.name"
-        id="edit-group-item-name"
-        name="name"
-        required
-        [disabled]="!authorizationService.isAuthorised"
-      />
-    </div>
-  </div>
-
-  <!-- Valid From and Until -->
-  <div class="container-bank-box">
-    <div class="form-group firstColumn">
-      <div class="firstColumContainer">
-        <div class="form-group">
-          <app-date-input
-            id="edit-group-item-valid-from"
-            [label]="'group.edit-group.edit-group-item.from' | translate"
-            inputId="edit-group-item-from"
-            inputName="validFrom"
-            inputWidth="medium-width"
-            [value]="internalValidFrom"
-            (valueChange)="internalValidFrom = $event || undefined; onValidFromChange()"
+    [headerTitle]="'group.edit-group.edit-group-item.headline' | translate"
+  >
+    @if (dataManagementGroupService.editGroup !== undefined) {
+      <div class="firstColumn first-row">
+        <!-- Name -->
+        <label for="edit-group-item-name">{{
+          "group.edit-group.edit-group-item.name" | translate
+        }}</label>
+        <div class="custom-control-inline default-width">
+          <input
+            type="text"
+            class="form-control"
+            autocomplete="off"
+            [(ngModel)]="dataManagementGroupService.editGroup.name"
+            id="edit-group-item-name"
+            name="name"
+            required
             [disabled]="!authorizationService.isAuthorised"
-            [isValid]="validFromValid"
-            [touched]="validFromTouched"
-          ></app-date-input>
+          />
         </div>
       </div>
-    </div>
 
-    <div class="secondColumnContainer firstColumn">
-      <div class="form-group">
-        <app-date-input
-          id="edit-group-item-valid-until"
-          [label]="'group.edit-group.edit-group-item.until' | translate"
-          inputId="edit-group-item-until"
-          inputName="validUntil"
-          inputWidth="medium-width"
-          [value]="internalValidUntil"
-          (valueChange)="internalValidUntil = $event || undefined; onValidUntilChange()"
-          [disabled]="!authorizationService.isAuthorised"
-          [isValid]="validUntilValid"
-          [touched]="validUntilTouched"
-        ></app-date-input>
+      <!-- Valid From and Until -->
+      <div class="container-bank-box">
+        <div class="form-group firstColumn">
+          <div class="firstColumContainer">
+            <div class="form-group">
+              <app-date-input
+                id="edit-group-item-valid-from"
+                [label]="'group.edit-group.edit-group-item.from' | translate"
+                inputId="edit-group-item-from"
+                inputName="validFrom"
+                inputWidth="medium-width"
+                [value]="internalValidFrom"
+                (valueChange)="
+                  internalValidFrom = $event || undefined; onValidFromChange()
+                "
+                [disabled]="!authorizationService.isAuthorised"
+                [isValid]="validFromValid"
+                [touched]="validFromTouched"
+              ></app-date-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="secondColumnContainer firstColumn">
+          <div class="form-group">
+            <app-date-input
+              id="edit-group-item-valid-until"
+              [label]="'group.edit-group.edit-group-item.until' | translate"
+              inputId="edit-group-item-until"
+              inputName="validUntil"
+              inputWidth="medium-width"
+              [value]="internalValidUntil"
+              (valueChange)="
+                internalValidUntil = $event || undefined; onValidUntilChange()
+              "
+              [disabled]="!authorizationService.isAuthorised"
+              [isValid]="validUntilValid"
+              [touched]="validUntilTouched"
+            ></app-date-input>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="firstColumn endColumn">
-    <div class="form-group">
-      <label for="description">{{
-        "absence-gantt.absence-gantt-mask.absence-gantt-mask.note" | translate
-      }}</label>
-      <div class="input-text">
-        <app-rich-text-editor
-          [content]="dataManagementGroupService.editGroup.description"
-          [disabled]="!authorizationService.isAuthorised"
-          [showToolbar]="true"
-          [showToolbarOnlyOnFocus]="false"
-          [height]="'auto'"
-          editorId="group-description-editor"
-          (contentChange)="onDescriptionChange($event)"
-        ></app-rich-text-editor>
+      <!-- Payment Interval & Calendar Selection -->
+      <div class="group-selections">
+        <div class="form-group firstColumn">
+          <div class="firstColumContainer">
+            <span class="selection-label">{{
+              "setting.contract.paymentInterval-modal" | translate
+            }}</span>
+            <div class="selector-container">
+              <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
+                <button
+                  class="btn-selector"
+                  id="group-payment-interval-dropdown"
+                  ngbDropdownToggle
+                  aria-label="payment interval selection"
+                  type="button"
+                  [disabled]="!authorizationService.isAuthorised"
+                >
+                  <span class="selector-name">{{
+                    getPaymentIntervalLabel()
+                  }}</span>
+                </button>
+                <div ngbDropdownMenu class="selector-dropdown-menu">
+                  @for (option of paymentIntervalOptions; track option) {
+                    <button
+                      ngbDropdownItem
+                      (click)="onPaymentIntervalChange(option)"
+                      [class.active]="paymentInterval() === option"
+                    >
+                      {{ getPaymentIntervalLabel(option) }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="secondColumnContainer">
+          <div class="selection-section">
+            <span class="selection-label">{{
+              "setting.contract.calendarSelection-modal" | translate
+            }}</span>
+            <div class="selector-container">
+              <div ngbDropdown #calendarDropdown="ngbDropdown">
+                <button
+                  class="btn-selector"
+                  id="group-calendar-dropdown"
+                  ngbDropdownToggle
+                  aria-label="calendar selection"
+                  type="button"
+                  [disabled]="!authorizationService.isAuthorised"
+                >
+                  <app-choose-calendar></app-choose-calendar>
+                  <span class="selector-name">{{
+                    getSelectedCalendarName()
+                  }}</span>
+                </button>
+                <div ngbDropdownMenu class="selector-dropdown-menu">
+                  <button
+                    ngbDropdownItem
+                    (click)="onCalendarSelectionChange('')"
+                    [class.active]="!calendarSelectionId()"
+                  >
+                    {{ "setting.contract.noCalendar" | translate }}
+                  </button>
+                  @for (
+                    calendar of dataManagementGroupService.availableCalendars;
+                    track calendar.id
+                  ) {
+                    <button
+                      ngbDropdownItem
+                      (click)="onCalendarSelectionChange(calendar.id!)"
+                      [class.active]="calendarSelectionId() === calendar.id"
+                    >
+                      {{ calendar.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  }
 
+      <div class="firstColumn endColumn">
+        <div class="form-group">
+          <label for="description">{{
+            "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+              | translate
+          }}</label>
+          <div class="input-text">
+            <app-rich-text-editor
+              [content]="dataManagementGroupService.editGroup.description"
+              [disabled]="!authorizationService.isAuthorised"
+              [showToolbar]="true"
+              [showToolbarOnlyOnFocus]="false"
+              [height]="'auto'"
+              editorId="group-description-editor"
+              (contentChange)="onDescriptionChange($event)"
+            ></app-rich-text-editor>
+          </div>
+        </div>
+      </div>
+    }
   </app-expandable-card>
 </form>

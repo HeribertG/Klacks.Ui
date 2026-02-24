@@ -13,20 +13,23 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  signal,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
+import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -39,11 +42,13 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
   imports: [
     FormsModule,
     NgbDatepickerModule,
+    NgbDropdownModule,
     TranslateModule,
     FontAwesomeModule,
     DateInputComponent,
     RichTextEditorComponent,
-    ExpandableCardComponent
+    ExpandableCardComponent,
+    ChooseCalendarComponent,
 ],
 })
 export class EditGroupItemComponent
@@ -72,6 +77,23 @@ export class EditGroupItemComponent
 
   public internalValidFrom: NgbDateStruct | undefined;
   public internalValidUntil: NgbDateStruct | undefined;
+
+  calendarSelectionId = signal<string | undefined>(undefined);
+  paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
+
+  paymentIntervalOptions = [
+    PaymentInterval.Weekly,
+    PaymentInterval.Biweekly,
+    PaymentInterval.Monthly,
+    PaymentInterval.Individual,
+  ];
+
+  private paymentIntervalLabelKeys: Record<PaymentInterval, string> = {
+    [PaymentInterval.Weekly]: 'settings.work.payment-weekly',
+    [PaymentInterval.Biweekly]: 'settings.work.payment-biweekly',
+    [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
+    [PaymentInterval.Individual]: 'settings.work.payment-individual',
+  };
 
   ngOnInit(): void {
     this.locale = DomainMessages.DEFAULT_LANG;
@@ -118,6 +140,8 @@ export class EditGroupItemComponent
         if (group) {
           this.internalValidFrom = group.validFrom ? transformDateToNgbDateStruct(group.validFrom) : undefined;
           this.internalValidUntil = group.validUntil ? transformDateToNgbDateStruct(group.validUntil) : undefined;
+          this.paymentInterval.set(group.paymentInterval ?? PaymentInterval.Monthly);
+          this.calendarSelectionId.set(group.calendarSelectionId);
           this.calcValidation();
         }
       });
@@ -172,5 +196,47 @@ export class EditGroupItemComponent
       this.dataManagementGroupService.editGroup.description = content;
       this.isChangingEvent.emit(true);
     }
+  }
+
+  public onPaymentIntervalChange(value: PaymentInterval): void {
+    this.paymentInterval.set(value);
+    if (this.dataManagementGroupService.editGroup) {
+      this.dataManagementGroupService.editGroup.paymentInterval = value;
+      this.isChangingEvent.emit(true);
+    }
+  }
+
+  public getPaymentIntervalLabel(value?: PaymentInterval): string {
+    const interval = value ?? this.paymentInterval();
+    return this.translateService.instant(this.paymentIntervalLabelKeys[interval]);
+  }
+
+  public onCalendarSelectionChange(calendarId: string): void {
+    this.calendarSelectionId.set(calendarId || undefined);
+    if (this.dataManagementGroupService.editGroup) {
+      if (calendarId) {
+        const selectedCalendar =
+          this.dataManagementGroupService.availableCalendars.find(
+            (cal) => cal.id === calendarId
+          );
+        this.dataManagementGroupService.editGroup.calendarSelection = selectedCalendar;
+        this.dataManagementGroupService.editGroup.calendarSelectionId = calendarId;
+      } else {
+        this.dataManagementGroupService.editGroup.calendarSelection = undefined;
+        this.dataManagementGroupService.editGroup.calendarSelectionId = undefined;
+      }
+      this.isChangingEvent.emit(true);
+    }
+  }
+
+  public getSelectedCalendarName(): string {
+    const selectedId = this.calendarSelectionId();
+    if (!selectedId) {
+      return this.translateService.instant('setting.contract.noCalendar');
+    }
+    const calendar = this.dataManagementGroupService.availableCalendars.find(
+      (cal) => cal.id === selectedId
+    );
+    return calendar?.name || this.translateService.instant('setting.contract.noCalendar');
   }
 }

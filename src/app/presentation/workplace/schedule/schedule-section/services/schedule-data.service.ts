@@ -18,6 +18,7 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import {
   IScheduleCell,
@@ -185,7 +186,7 @@ export class ScheduleDataService extends BaseDataService {
     if (!entry) return '';
 
     if (entry.entryType === WorkScheduleEntryType.Break) {
-      const language = this.translateService.currentLang || 'en';
+      const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
       return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
     }
 
@@ -659,7 +660,7 @@ export class ScheduleDataService extends BaseDataService {
   private findAbsenceByAbbreviation(
     abbreviation: string,
   ): { absenceId: string; startTime?: string; endTime?: string } | undefined {
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const upperAbbr = abbreviation.toUpperCase();
     const absences = this.absenceLookup.absences();
     const details = this.absenceLookup.absenceDetails();

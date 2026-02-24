@@ -90,7 +90,7 @@ export class DomainMessages {
 
   public static ERROR_DATE = 'Datum kann nicht interpretiert werden';
 
-  public static readonly DEFAULT_LANG = 'de';
+  public static readonly DEFAULT_LANG = 'en';
   public static NEW_ADDRESS = 'Neue Adresse erstellen';
   public static VALID_FROM = 'Gültig ab:';
 

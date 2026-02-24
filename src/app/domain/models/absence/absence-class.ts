@@ -8,13 +8,14 @@ import {
   IBaseTruncated,
 } from '../general-class';
 import { MultiLanguage } from '../translation/multi-language-class';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 export interface IAbsenceFilter extends IBaseFilter {
   language: string | undefined;
 }
 
 export class AbsenceFilter extends BaseFilter implements IAbsenceFilter {
-  language = 'en';
+  language = DomainMessages.DEFAULT_LANG;
 }
 
 export interface ITruncatedAbsence extends IBaseTruncated {

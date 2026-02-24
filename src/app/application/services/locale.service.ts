@@ -1,13 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-// locale.service.ts
 import { Injectable, signal } from '@angular/core';
-
-export type SupportedLocales = 'en' | 'de' | 'fr' | 'it';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 @Injectable({ providedIn: 'root' })
 export class LocaleService {
-  public locale = signal<string>('en');
+  public locale = signal<string>(DomainMessages.DEFAULT_LANG);
 
   setLocale(locale: string) {
     this.locale.set(locale);

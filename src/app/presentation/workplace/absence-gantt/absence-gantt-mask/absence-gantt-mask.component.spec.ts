@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { AbsenceGanttMaskComponent } from './absence-gantt-mask.component';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 
 describe('AbsenceGanttMaskComponent', () => {
     let component: AbsenceGanttMaskComponent;
@@ -67,7 +68,7 @@ describe('AbsenceGanttMaskComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should have initial currentLang as "de"', () => {
-        expect(component.currentLang).toEqual('de');
+    it('should have initial currentLang as DEFAULT_LANG', () => {
+        expect(component.currentLang).toEqual(DomainMessages.DEFAULT_LANG);
     });
 });

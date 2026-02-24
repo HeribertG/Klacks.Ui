@@ -1,99 +1,27 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject } from '@angular/core';
+import { FormStyle, TranslationWidth, getLocaleDayNames, getLocaleMonthNames } from '@angular/common';
 import { NgbDatepickerI18n, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { LocaleService } from './locale.service';
-
-type SupportedLocales = 'en' | 'de' | 'fr' | 'it';
-
-const I18N_VALUES: Record<SupportedLocales, { weekdays: string[]; months: string[] }> = {
-  en: {
-    weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    months: [
-      'Jan.',
-      'Feb.',
-      'Mar.',
-      'Apr.',
-      'May',
-      'Jun.',
-      'Jul.',
-      'Aug.',
-      'Sep.',
-      'Oct.',
-      'Nov.',
-      'Dec.',
-    ],
-  },
-  de: {
-    weekdays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-    months: [
-      'Jan.',
-      'Feb.',
-      'Mär.',
-      'Apr.',
-      'Mai',
-      'Jun.',
-      'Jul.',
-      'Aug.',
-      'Sep.',
-      'Okt.',
-      'Nov.',
-      'Dez.',
-    ],
-  },
-  fr: {
-    weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
-    months: [
-      'Janv.',
-      'Févr.',
-      'Mars',
-      'Avr.',
-      'Mai',
-      'Juin',
-      'Juil.',
-      'Août',
-      'Sept.',
-      'Oct.',
-      'Nov.',
-      'Déc.',
-    ],
-  },
-  it: {
-    weekdays: ['Lu', 'Ma', 'Me', 'Gi', 'Ve', 'Sa', 'Do'],
-    months: [
-      'Gen.',
-      'Feb.',
-      'Mar.',
-      'Apr.',
-      'Mag.',
-      'Giu.',
-      'Lug.',
-      'Ago.',
-      'Set.',
-      'Ott.',
-      'Nov.',
-      'Dic.',
-    ],
-  },
-};
 
 @Injectable()
 export class CustomDatepickerI18n extends NgbDatepickerI18n {
   private localeService = inject(LocaleService);
 
-
   getWeekdayShortName(weekday: number): string {
-    const locale = this.localeService.getLocale() as SupportedLocales;
-    return I18N_VALUES[locale].weekdays[weekday - 1];
+    const locale = this.localeService.getLocale();
+    const weekdays = getLocaleDayNames(locale, FormStyle.Standalone, TranslationWidth.Abbreviated);
+    return weekdays[(weekday % 7)] as string;
   }
 
   getMonthShortName(month: number): string {
-    const locale = this.localeService.getLocale() as SupportedLocales;
-    return I18N_VALUES[locale].months[month - 1];
+    const locale = this.localeService.getLocale();
+    const months = getLocaleMonthNames(locale, FormStyle.Standalone, TranslationWidth.Abbreviated);
+    return months[month - 1] as string;
   }
 
   getMonthFullName(month: number): string {
-    // Wenn Sie die abgekürzten Monatsnamen verwenden möchten
     return this.getMonthShortName(month);
   }
 

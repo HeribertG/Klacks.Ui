@@ -31,10 +31,7 @@ import { IconTimeScheduleComponent } from 'src/app/presentation/icons/icon-time-
 import { IconUserComponent } from 'src/app/presentation/icons/icon-user.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import {
-  LocaleService,
-  SupportedLocales,
-} from 'src/app/application/services/locale.service';
+import { LocaleService } from 'src/app/application/services/locale.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
@@ -171,7 +168,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         this.translateService.use(lang);
         this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
         this.translateStringConstantsService.translate();
-        this.localeService.setLocale(lang as SupportedLocales);
+        this.localeService.setLocale(lang);
       });
       this.effectRefs.push(langEffect);
 
@@ -299,7 +296,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.translateService.use(lang);
     localStorage.setItem(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
-    this.localeService.setLocale(lang as SupportedLocales);
+    this.localeService.setLocale(lang);
     this.currentLanguage.set(lang);
   }
 

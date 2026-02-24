@@ -55,9 +55,11 @@ label {
 
 .firstColumn {
   margin-left: 30px;
+  padding-bottom: 10px;
 }
 .endColumn {
   margin-right: 30px;
+  padding-bottom: 10px;
 }
 
 .gap {
@@ -95,7 +97,7 @@ label {
 }
 
 .container-bank-box {
-  display: inline-flex;
+  display: flex;
 }
 
 .container-bank-value {
@@ -158,4 +160,14 @@ btn-outline-secondary {
 
 input.ng-invalid.ng-dirty {
   border: 1px solid red;
+}
+
+.group-selections {
+  display: flex;
+  margin-left: 30px;
+  padding-bottom: 10px;
+
+  .btn-selector {
+    width: 200px;
+  }
 }

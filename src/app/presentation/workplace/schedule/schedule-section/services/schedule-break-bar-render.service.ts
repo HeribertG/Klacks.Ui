@@ -2,6 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
@@ -43,7 +44,7 @@ export class ScheduleBreakBarRenderService {
     const cellHeaderHeight = this.settings.hasHeader ? this.settings.cellHeaderHeight : 0;
     const canvasWidth = this.canvasManager.canvas?.width ?? 0;
     const canvasHeight = this.canvasManager.canvas?.height ?? 0;
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
 
     const totalColumns = this.dataService.columns;
     const visibleRows = Math.ceil((canvasHeight - cellHeaderHeight) / cellHeight);

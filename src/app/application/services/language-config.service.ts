@@ -22,7 +22,7 @@ export class LanguageConfigService implements ILanguageConfig {
 
   loadConfig(): Promise<void> {
     return firstValueFrom(this.dataService.getLanguageConfig())
-      .then(response => {
+      .then((response) => {
         this.supportedLanguages.set(response.supportedLanguages);
         this.fallbackOrder.set(response.fallbackOrder);
         this.metadata.set(response.metadata ?? {});
@@ -50,7 +50,7 @@ export class LanguageConfigService implements ILanguageConfig {
   }
 
   getSpeechLocale(langCode: string): string {
-    return this.metadata()[langCode]?.speechLocale ?? 'de-CH';
+    return this.metadata()[langCode]?.speechLocale ?? 'en-GB';
   }
 
   getDisplayName(langCode: string): string {

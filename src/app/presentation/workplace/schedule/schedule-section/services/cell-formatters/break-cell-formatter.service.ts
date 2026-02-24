@@ -16,6 +16,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -36,7 +37,7 @@ export class BreakCellFormatterService implements ICellFormatter {
       return this.emptyFormatter.formatCell(entry);
     }
 
-    const language = this.translateService.currentLang || 'en';
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
     const abbreviation = this.absenceLookup.getAbbreviationForEntryId(
       entry.entryId,
       language
