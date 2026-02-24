@@ -3,10 +3,10 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
   Injector,
   LOCALE_ID,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
@@ -15,10 +15,10 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDatepickerModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -52,13 +52,14 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 ],
 })
 export class EditGroupItemComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit
 {
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   private locale: string = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -66,9 +67,6 @@ export class EditGroupItemComponent
 
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
   public faCalendar = faCalendar;
-
-  private ngUnsubscribe = new Subject<void>();
-  private objectForUnsubscribe: Subscription | undefined;
 
   public validFromValid: boolean | undefined = undefined;
   public validUntilValid: boolean | undefined = undefined;
@@ -96,7 +94,6 @@ export class EditGroupItemComponent
   };
 
   ngOnInit(): void {
-    this.locale = DomainMessages.DEFAULT_LANG;
     this.readSignals();
 
     this.currentLang = this.translateService.currentLang as Language;
@@ -104,26 +101,19 @@ export class EditGroupItemComponent
   }
 
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.groupForm!.valueChanges!.subscribe(() => {
-      if (this.groupForm!.dirty) {
-        setTimeout(() => this.isChangingEvent.emit(true), 100);
-      }
-    });
+    this.groupForm!.valueChanges!
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.groupForm!.dirty) {
+          setTimeout(() => this.isChangingEvent.emit(true), 100);
+        }
+      });
 
     this.translateService.onLangChange
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
-        setTimeout(() => {}, 200);
       });
-  }
-
-  ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   private readSignals(): void {

@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable prefer-const */
 import {
   BaseFilter,
   BaseTruncated,
@@ -189,14 +188,11 @@ export class HolidaysListHelper {
   }
 
   private computeHolidaysForYear(year: number) {
-    let easterDate: Date;
-    let ruleString: string;
-
-    easterDate = this.easter(year);
+    const easterDate = this.easter(year);
 
     for (let i = 0; i < this.count(); i++) {
       const item: ICalendarRule = this.item(i);
-      ruleString = item.rule!;
+      const ruleString = item.rule!;
       const c = new HolidayDate();
       c.currentName = item.name!;
       c.currentDate = this.convertDate(easterDate, year, ruleString);
@@ -336,43 +332,37 @@ export class HolidaysListHelper {
     currentYear: number,
     ruleString: string
   ): Date {
-    let calcDate: Date;
-    let dayOfWeek: number;
-    let alternativeDayOfWeek: number;
-    let ruleToken: string;
-
     if (
       ruleString.substring(0, this.EASTER_STRING_LENGTH) === this.EASTER_STRING
     ) {
-      calcDate = this.calcEasternRelatedDate(easterDate, ruleString);
-    } else {
-      const month: number = Number.parseInt(
-        ruleString.substring(this.MONTH_START_INDEX, this.MONTH_END_INDEX)
-      );
-      const day: number = Number.parseInt(
-        ruleString.substring(this.DAY_START_INDEX, this.DAY_END_INDEX)
-      );
-      calcDate = new Date(currentYear, month - 1, day);
+      return this.calcEasternRelatedDate(easterDate, ruleString);
+    }
 
-      if (ruleString.length > 5) {
-        dayOfWeek = this.calcDayOfWeek(ruleString);
-        alternativeDayOfWeek = calcDate.getDay() + 1;
+    const month: number = Number.parseInt(
+      ruleString.substring(this.MONTH_START_INDEX, this.MONTH_END_INDEX)
+    );
+    const day: number = Number.parseInt(
+      ruleString.substring(this.DAY_START_INDEX, this.DAY_END_INDEX)
+    );
+    let calcDate = new Date(currentYear, month - 1, day);
 
-        ruleToken = ruleString.substring(8, 9);
+    if (ruleString.length > 5) {
+      const dayOfWeek = this.calcDayOfWeek(ruleString);
+      const alternativeDayOfWeek = calcDate.getDay() + 1;
+      const ruleToken = ruleString.substring(8, 9);
 
-        if (dayOfWeek !== alternativeDayOfWeek) {
-          calcDate = this.constructedDate(
-            calcDate,
-            ruleToken,
-            dayOfWeek,
-            alternativeDayOfWeek
-          );
-        }
-        calcDate = this.addDays(
+      if (dayOfWeek !== alternativeDayOfWeek) {
+        calcDate = this.constructedDate(
           calcDate,
-          Number.parseInt(ruleString.substring(5, 8))
+          ruleToken,
+          dayOfWeek,
+          alternativeDayOfWeek
         );
       }
+      calcDate = this.addDays(
+        calcDate,
+        Number.parseInt(ruleString.substring(5, 8))
+      );
     }
 
     return calcDate;

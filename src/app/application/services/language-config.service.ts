@@ -8,10 +8,13 @@ import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.inter
 
 @Injectable({ providedIn: 'root' })
 export class LanguageConfigService implements ILanguageConfig {
+  private static readonly DEFAULT_SUPPORTED_LANGUAGES = ['de', 'en', 'fr', 'it'];
+  private static readonly DEFAULT_FALLBACK_ORDER = ['de', 'fr', 'it', 'en'];
+
   private dataService = inject(DataLanguageConfigService);
 
-  private supportedLanguages = signal<string[]>(['de', 'en', 'fr', 'it']);
-  private fallbackOrder = signal<string[]>(['de', 'fr', 'it', 'en']);
+  private supportedLanguages = signal<string[]>([...LanguageConfigService.DEFAULT_SUPPORTED_LANGUAGES]);
+  private fallbackOrder = signal<string[]>([...LanguageConfigService.DEFAULT_FALLBACK_ORDER]);
   private metadata = signal<Record<string, LanguageMetadata>>({});
   private loaded = signal<boolean>(false);
 
