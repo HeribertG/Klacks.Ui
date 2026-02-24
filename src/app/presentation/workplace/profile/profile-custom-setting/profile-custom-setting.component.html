@@ -32,6 +32,7 @@
         {{ translate.instant("header.selected-language") }}</label
       >
       <select
+        class="form-select lang-select"
         id="profile-custom-setting-language-select"
         [ngModel]="selectedLanguage"
         (ngModelChange)="onChange(); selectedLanguage = $event"
