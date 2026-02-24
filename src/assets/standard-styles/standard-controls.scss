@@ -101,3 +101,100 @@ span[type="button"] {
   -moz-appearance: none;
   -webkit-appearance: none;
 }
+
+.btn-selector {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  border: 1px solid var(--standartBorderColor, #ced4da);
+  border-radius: 4px;
+  padding: 6px 12px;
+  height: 38px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  &:focus {
+    color: var(--standartTextColor);
+    background-color: var(--standartTextBackground);
+    border-color: var(--standartFocusBorderColor, #86b7fe);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  &:disabled {
+    color: var(--standartTextColor);
+    background-color: var(--standartTextBackgroundReadOnly);
+    opacity: 1;
+    cursor: not-allowed;
+  }
+
+  /* Dropdown arrow styling */
+  &::after {
+    margin-left: 8px;
+  }
+}
+
+/* Selector container for dropdown alignment */
+.selector-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Dropdown menu styling */
+.selector-dropdown-menu {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  border: 1px solid var(--standartBorderColor, #ced4da);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+
+  .dropdown-item {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--standartTextColor);
+    padding: 8px 16px;
+
+    &:hover,
+    &:focus {
+      background-color: var(--standartHoverBackground, #e9ecef);
+    }
+
+    &.active {
+      background-color: var(--standartActiveBackground, #0d6efd);
+      color: var(--standartActiveColor, #fff);
+    }
+  }
+}
+
+/* Selection label styling */
+.selection-label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Group selections layout */
+.group-selections {
+  display: flex;
+  gap: 20px;
+
+  .form-group,
+  .selection-section {
+    flex: 1;
+  }
+}
+
+/* Selector name text */
+.selector-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
