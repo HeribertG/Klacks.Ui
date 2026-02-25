@@ -201,7 +201,7 @@ describe('AssistantChatComponent', () => {
         vi.spyOn(translateService, 'instant').mockImplementation((key: string | string[]) => {
             const k = Array.isArray(key) ? key[0] : key;
             if (k === 'assistant-chat.welcome.content') {
-                return 'ðŸ‘‹ Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\nâ€¢ Mitarbeiter zu erstellen\nâ€¢ Nach Personen zu suchen\nâ€¢ VertrÃ¤ge zu verwalten\n\nSie kÃ¶nnen mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"';
+                return '👋 Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\n• Mitarbeiter zu erstellen\n• Nach Personen zu suchen\n• Verträge zu verwalten\n\nSie können mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"';
             }
             if (k.startsWith('assistant-chat.welcome.suggestion-')) {
                 return 'Test suggestion';
@@ -235,7 +235,7 @@ describe('AssistantChatComponent', () => {
         // Assert
         expect(component.messages.length).toBeGreaterThan(0);
         expect(component.messages[0].sender).toBe('assistant');
-        expect(component.messages[0].content).toContain('ðŸ‘‹');
+        expect(component.messages[0].content).toContain('👋');
     });
 
     it('should load available models on init', async () => {
@@ -465,8 +465,8 @@ describe('AssistantChatComponent', () => {
     describe('utility functions', () => {
         it('should format cost correctly', () => {
             // Act & Assert
-            expect(component.formatCost(0.01)).toBe('â‚¬0.0100/1K tokens');
-            expect(component.formatCost(0.1234)).toBe('â‚¬0.1234/1K tokens');
+            expect(component.formatCost(0.01)).toBe('€0.0100/1K tokens');
+            expect(component.formatCost(0.1234)).toBe('€0.1234/1K tokens');
         });
 
         it('should format message content', () => {

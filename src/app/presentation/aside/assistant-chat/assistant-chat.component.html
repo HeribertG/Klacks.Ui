@@ -22,7 +22,7 @@
   <!-- No API Key Warning -->
   @if (!isInitializing() && hasNoApiKey()) {
   <div class="no-api-key-warning" role="alert" aria-live="polite">
-    <div class="warning-icon">âš ï¸</div>
+    <div class="warning-icon">⚠️</div>
     <div class="warning-content">
       <h3 class="warning-title">
         {{ "assistant-chat.no-api-key.title" | translate }}
@@ -120,7 +120,7 @@
             (click)="onNavigateClick(message.navigateTo!)"
             [attr.aria-label]="'assistant-chat.open' | translate"
           >
-            ðŸ“ {{ "assistant-chat.open" | translate }}
+            📍 {{ "assistant-chat.open" | translate }}
           </button>
           }
 
@@ -174,10 +174,10 @@
     }
     <!-- Voice input indicator - only for Web Speech API, not for Whisper -->
     @if (isListening && !speechService.isWhisperLoading() && !isUsingWhisper()) {
-    <div class="voice-indicator">ðŸŽ¤ {{ "assistant-chat.speak-now" | translate }}</div>
+    <div class="voice-indicator">🎤 {{ "assistant-chat.speak-now" | translate }}</div>
     } @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">
-      âš ï¸ {{ "assistant-chat.speech-not-supported" | translate }}
+      ⚠️ {{ "assistant-chat.speech-not-supported" | translate }}
     </div>
     }
 

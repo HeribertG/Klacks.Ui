@@ -46,6 +46,8 @@ import { AssistantExecutionMacroService } from 'src/app/domain/services/assistan
 import { AssistantExecutionClientService } from 'src/app/domain/services/assistant/assistant-execution-client.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
+import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
 
 export interface ChatMessage {
   id: string;
@@ -96,6 +98,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
+  private uiActionEngine = inject(UiActionEngineService);
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
@@ -461,7 +464,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   formatCost(cost: number): string {
-    return `â‚¬${cost.toFixed(4)}/1K tokens`;
+    return `€${cost.toFixed(4)}/1K tokens`;
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
@@ -545,6 +548,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       const functionName = call.FunctionName || call.functionName;
       if (!functionName) continue;
 
+      const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
+      if (uiActionSteps && uiActionSteps !== '{}') {
+        await this.executeUiActionSteps(uiActionSteps, call);
+        continue;
+      }
+
       const functionCall = {
         id: this.generateMessageId(),
         name: functionName,
@@ -559,12 +568,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         if (result.success && result.result?.action === 'navigated') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `âœ… Navigiert zu: ${result.result.entity?.name || result.result.route}`;
+            lastMessage.content = `✅ Navigiert zu: ${result.result.entity?.name || result.result.route}`;
           }
         } else if (result.success && result.result?.action === 'navigated_with_search') {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `âœ… ${result.result.message}`;
+            lastMessage.content = `✅ ${result.result.message}`;
           }
         } else if (result.success && result.result?.action === 'multiple_results') {
           const lastMessage = this.messages[this.messages.length - 1];
@@ -573,14 +582,14 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             const items = result.result.items as any[];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const itemList = items.map((item: any) =>
-              `â€¢ ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
+              `• ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
             ).join('\n');
             lastMessage.content = `${result.result.message}\n\n${itemList}`;
           }
         } else if (result.success && result.result?.message) {
           const lastMessage = this.messages[this.messages.length - 1];
           if (lastMessage) {
-            lastMessage.content = `âœ… ${result.result.message}`;
+            lastMessage.content = `✅ ${result.result.message}`;
           }
         } else if (!result.success && result.error && !result.error.includes('not implemented')) {
           const lastMessage = this.messages[this.messages.length - 1];
@@ -594,6 +603,33 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         if (lastMsg) {
           lastMsg.content = `âŒ ${error?.message || 'Function execution failed'}`;
         }
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async executeUiActionSteps(stepsJson: string, call: any): Promise<void> {
+    try {
+      const config: IUiActionConfig = JSON.parse(stepsJson);
+      if (!config.steps || config.steps.length === 0) return;
+
+      const context = {
+        params: call.Parameters || call.parameters || {},
+        results: {},
+        callId: this.generateMessageId(),
+      };
+
+      await this.uiActionEngine.executeConfig(config, context);
+
+      const lastMessage = this.messages[this.messages.length - 1];
+      if (lastMessage && lastMessage.content) {
+        lastMessage.content = `\u2705 ${lastMessage.content}`;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const lastMsg = this.messages[this.messages.length - 1];
+      if (lastMsg) {
+        lastMsg.content = `\u274C ${error?.message || 'UI action execution failed'}`;
       }
     }
   }

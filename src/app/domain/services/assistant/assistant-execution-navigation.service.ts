@@ -34,41 +34,14 @@ export class AssistantExecutionNavigationService {
 
   executeNavigateToPageLegacy(call: IAssistantFunctionCall): Observable<IAssistantFunctionResult> {
     try {
-      const { page } = call.arguments;
-      let route = '/workplace/dashboard';
-
-      switch (page?.toLowerCase()) {
-        case 'dashboard':
-          route = '/workplace/dashboard';
-          break;
-        case 'clients':
-          route = '/workplace/client';
-          break;
-        case 'contracts':
-          route = '/workplace/client';
-          break;
-        case 'settings':
-          route = '/workplace/settings';
-          break;
-        case 'calendar':
-          route = '/workplace/schedule';
-          break;
-        case 'reports':
-          route = '/workplace/dashboard';
-          break;
-        case 'shifts':
-          route = '/workplace/shift';
-          break;
-        case 'absences':
-          route = '/workplace/absence';
-          break;
-      }
+      const { page, Route: backendRoute } = call.arguments;
+      const route = backendRoute || `/workplace/${page?.toLowerCase() || 'dashboard'}`;
 
       this.router.navigate([route]);
       return of({
         id: call.id,
         success: true,
-        result: { navigated: true, route, page },
+        result: { action: 'navigated', navigated: true, route, page },
       });
     } catch (error: any) {
       return of({
