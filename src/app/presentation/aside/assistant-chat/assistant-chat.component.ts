@@ -36,9 +36,6 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
-import { AssistantExecutionDataService } from 'src/app/domain/services/assistant/assistant-execution-data.service';
-import { AssistantExecutionUserAdminService } from 'src/app/domain/services/assistant/assistant-execution-user-admin.service';
-import { AssistantExecutionMacroService } from 'src/app/domain/services/assistant/assistant-execution-macro.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
@@ -69,9 +66,6 @@ export interface ChatMessage {
   styleUrls: ['./assistant-chat.component.scss'],
   providers: [
     AssistantFunctionExecutionService,
-    AssistantExecutionDataService,
-    AssistantExecutionUserAdminService,
-    AssistantExecutionMacroService,
   ],
 })
 export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
