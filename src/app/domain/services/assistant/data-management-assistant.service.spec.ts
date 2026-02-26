@@ -11,7 +11,6 @@ import { DataManagementAssistantService } from './data-management-assistant.serv
 import { DataAssistantService, IAssistantModel, IAssistantChatResponse, IAssistantUsage, } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { AssistantFunctionExecutionService } from './assistant-function-execution.service';
-import { AssistantSystemContextService } from './assistant-system-context.service';
 
 describe('DataManagementAssistantService', () => {
     let service: DataManagementAssistantService;
@@ -19,7 +18,6 @@ describe('DataManagementAssistantService', () => {
     let mockEventBus: any;
     let mockTranslateService: any;
     let mockFunctionExecutionService: any;
-    let mockSystemContextService: any;
 
     const mockModels: IAssistantModel[] = [
         {
@@ -84,21 +82,6 @@ describe('DataManagementAssistantService', () => {
         functionExecutionServiceSpy.executeFunction.mockReturnValue(of({ success: true }));
         functionExecutionServiceSpy.executeFunctions.mockReturnValue(of([]));
 
-        const systemContextServiceSpy = {
-            getSystemContext: vi.fn(),
-            formatSystemMessage: vi.fn(),
-            getToolsForLLM: vi.fn()
-        };
-        systemContextServiceSpy.getSystemContext.mockReturnValue({
-            systemPrompt: 'Test prompt',
-            capabilities: [],
-            availableTools: [],
-            examples: [],
-            currentContext: {}
-        });
-        systemContextServiceSpy.formatSystemMessage.mockReturnValue('System message');
-        systemContextServiceSpy.getToolsForLLM.mockReturnValue([]);
-
         translateServiceSpy.get.mockReturnValue(of('Translated text'));
 
         TestBed.configureTestingModule({
@@ -109,7 +92,6 @@ describe('DataManagementAssistantService', () => {
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
-                { provide: AssistantSystemContextService, useValue: systemContextServiceSpy },
             ],
         });
 
@@ -118,7 +100,6 @@ describe('DataManagementAssistantService', () => {
         mockEventBus = TestBed.inject(EVENT_BUS_TOKEN) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
         mockFunctionExecutionService = TestBed.inject(AssistantFunctionExecutionService) as any;
-        mockSystemContextService = TestBed.inject(AssistantSystemContextService) as any;
 
         mockDataAssistantService.getModels.mockReturnValue(of(mockModels));
         // Default mock for chat method to prevent undefined.pipe() errors

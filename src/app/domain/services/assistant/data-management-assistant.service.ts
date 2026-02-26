@@ -15,7 +15,6 @@ import {
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { AssistantSystemContextService } from './assistant-system-context.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -42,7 +41,6 @@ export class DataManagementAssistantService {
   private dataAssistantService = inject(DataAssistantService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
-  private systemContextService = inject(AssistantSystemContextService);
   private localStorageService = inject(LocalStorageService);
   private conversations = new Map<string, IConversation>();
   private destroy$ = new Subject<void>();
@@ -109,15 +107,6 @@ export class DataManagementAssistantService {
     const convId = conversationId || this.generateConversationId();
     const conversation = this.getOrCreateConversation(convId);
 
-    if (conversation.messages.length === 0) {
-      const systemMessage = this.systemContextService.formatSystemMessage();
-      conversation.messages.push({
-        role: 'system',
-        content: systemMessage,
-        timestamp: new Date(),
-      });
-    }
-
     conversation.messages.push({
       role: 'user',
       content: message,
@@ -138,8 +127,6 @@ export class DataManagementAssistantService {
         conversationHistory: conversation.messages.slice(-10),
         language: this.currentLanguage(),
         userContext: this.getUserContext(),
-        availableTools: this.systemContextService.getToolsForLLM(),
-        systemContext: this.systemContextService.getSystemContext(),
       },
     };
 

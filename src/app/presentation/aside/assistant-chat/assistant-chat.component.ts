@@ -36,14 +36,9 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
-import { AssistantFunctionRegistryService } from 'src/app/domain/services/assistant/assistant-function-registry.service';
-import { AssistantExecutionNavigationService } from 'src/app/domain/services/assistant/assistant-execution-navigation.service';
 import { AssistantExecutionDataService } from 'src/app/domain/services/assistant/assistant-execution-data.service';
-import { AssistantExecutionSettingsService } from 'src/app/domain/services/assistant/assistant-execution-settings.service';
 import { AssistantExecutionUserAdminService } from 'src/app/domain/services/assistant/assistant-execution-user-admin.service';
-import { AssistantExecutionBranchService } from 'src/app/domain/services/assistant/assistant-execution-branch.service';
 import { AssistantExecutionMacroService } from 'src/app/domain/services/assistant/assistant-execution-macro.service';
-import { AssistantExecutionClientService } from 'src/app/domain/services/assistant/assistant-execution-client.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
@@ -74,13 +69,9 @@ export interface ChatMessage {
   styleUrls: ['./assistant-chat.component.scss'],
   providers: [
     AssistantFunctionExecutionService,
-    AssistantExecutionNavigationService,
     AssistantExecutionDataService,
-    AssistantExecutionSettingsService,
     AssistantExecutionUserAdminService,
-    AssistantExecutionBranchService,
     AssistantExecutionMacroService,
-    AssistantExecutionClientService,
   ],
 })
 export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -89,7 +80,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private functionExecutionService = inject(AssistantFunctionExecutionService);
-  private functionRegistry = inject(AssistantFunctionRegistryService);
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
@@ -141,7 +131,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnInit(): void {
-    this.functionRegistry.loadFromBackend();
     this.conversationId = this.generateConversationId();
 
     this.translateService.onLangChange

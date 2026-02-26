@@ -9,27 +9,23 @@ import {
   IAssistantFunctionCall,
   IAssistantFunctionResult,
 } from '../../interfaces/assistant-function-definitions.interface';
-import { AssistantFunctionRegistryService } from './assistant-function-registry.service';
-import { AssistantExecutionNavigationService } from './assistant-execution-navigation.service';
 import { AssistantExecutionDataService } from './assistant-execution-data.service';
-import { AssistantExecutionSettingsService } from './assistant-execution-settings.service';
 import { AssistantExecutionUserAdminService } from './assistant-execution-user-admin.service';
-import { AssistantExecutionBranchService } from './assistant-execution-branch.service';
 import { AssistantExecutionMacroService } from './assistant-execution-macro.service';
-import { AssistantExecutionClientService } from './assistant-execution-client.service';
+import { Router } from '@angular/router';
+import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SEARCH_STRATEGY, ISearchStrategy } from '../../interfaces/search-strategy.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class AssistantFunctionExecutionService {
   private httpClient = inject(HttpClient);
-  private functionRegistry = inject(AssistantFunctionRegistryService);
-  private navigationService = inject(AssistantExecutionNavigationService);
+  private router = inject(Router);
+  private searchStateService = inject(SearchStateService);
+  private searchStrategyService = inject<ISearchStrategy>(SEARCH_STRATEGY);
   private dataService = inject(AssistantExecutionDataService);
-  private settingsService = inject(AssistantExecutionSettingsService);
   private userAdminService = inject(AssistantExecutionUserAdminService);
-  private branchService = inject(AssistantExecutionBranchService);
   private macroService = inject(AssistantExecutionMacroService);
-  private clientService = inject(AssistantExecutionClientService);
   private readonly apiBaseUrl = environment.baseUrl;
 
   executeFunction(
@@ -37,16 +33,15 @@ export class AssistantFunctionExecutionService {
   ): Observable<IAssistantFunctionResult> {
     switch (functionCall.name) {
       case 'navigateToPage':
-        return this.navigationService.executeNavigateToPage(functionCall);
-      case 'navigateToEntity':
-        return this.navigationService.executeNavigateToEntity(functionCall);
-      case 'openDialog':
-        return this.navigationService.executeOpenDialog(functionCall);
       case 'navigate_to':
       case 'navigate_to_page':
-        return this.navigationService.executeNavigateToPageLegacy(functionCall);
+        return this.executeNavigate(functionCall);
+      case 'navigateToEntity':
+        return this.executeNavigateToEntity(functionCall);
       case 'searchAndNavigate':
-        return this.navigationService.executeSearchAndNavigate(functionCall);
+        return this.executeSearchAndNavigate(functionCall);
+      case 'openDialog':
+        return this.executeBackendFunction(functionCall);
 
       case 'fillForm':
         return this.dataService.executeFillForm(functionCall);
@@ -70,26 +65,19 @@ export class AssistantFunctionExecutionService {
 
       case 'create_employee':
       case 'create_client':
-        return this.clientService.executeCreateClient(functionCall);
-
       case 'search_employees':
       case 'search_clients':
       case 'create_contract':
       case 'get_system_info':
       case 'validate_address':
       case 'validate_calendar_rule':
-        return this.executeBackendFunction(functionCall);
-
       case 'get_general_settings':
       case 'settings_general_read':
-        return this.settingsService.executeSettingsGeneralRead(functionCall);
       case 'update_general_settings':
       case 'settings_general_update':
-        return this.settingsService.executeSettingsGeneralUpdate(functionCall);
       case 'get_owner_address':
-        return this.settingsService.executeOwnerAddressRead(functionCall);
       case 'update_owner_address':
-        return this.settingsService.executeOwnerAddressUpdate(functionCall);
+        return this.executeBackendFunction(functionCall);
 
       case 'create_system_user':
         return this.userAdminService.executeCreateSystemUser(functionCall);
@@ -101,11 +89,9 @@ export class AssistantFunctionExecutionService {
         return this.userAdminService.executeSetUserGroupScope(functionCall);
 
       case 'create_branch':
-        return this.branchService.executeCreateBranch(functionCall);
       case 'delete_branch':
-        return this.branchService.executeDeleteBranch(functionCall);
       case 'list_branches':
-        return this.branchService.executeListBranches(functionCall);
+        return this.executeBackendFunction(functionCall);
 
       case 'create_macro':
         return this.macroService.executeCreateMacro(functionCall);
@@ -139,6 +125,82 @@ export class AssistantFunctionExecutionService {
         ])
       )
     );
+  }
+
+  private executeNavigate(
+    call: IAssistantFunctionCall
+  ): Observable<IAssistantFunctionResult> {
+    try {
+      const route = call.arguments['route'] || call.arguments['Route']
+        || `/workplace/${(call.arguments['page'] || 'dashboard').toLowerCase()}`;
+      this.router.navigate([route], { queryParams: call.arguments['params'] });
+      return of({
+        id: call.id,
+        success: true,
+        result: { action: 'navigated', navigated: true, route },
+      });
+    } catch (error: any) {
+      return of({ id: call.id, success: false, error: error.message });
+    }
+  }
+
+  private executeNavigateToEntity(
+    call: IAssistantFunctionCall
+  ): Observable<IAssistantFunctionResult> {
+    try {
+      const { entityType, entityId, action } = call.arguments;
+      const routeMap: Record<string, string> = {
+        client: action === 'edit' || !action ? `/workplace/edit-address/${entityId}` : '/workplace/client',
+        group: action === 'edit' || !action ? `/workplace/edit-group/${entityId}` : '/workplace/group',
+        shift: action === 'cut' ? `/workplace/cut-shift/${entityId}` : `/workplace/edit-shift/${entityId}`,
+        'container-template': `/workplace/container-template/${entityId}`,
+      };
+      const route = routeMap[entityType];
+      if (!route) {
+        return of({ id: call.id, success: false, error: `Unknown entity type: ${entityType}` });
+      }
+      this.router.navigate([route]);
+      return of({
+        id: call.id,
+        success: true,
+        result: { action: 'navigated', navigated: true, route, entityType, entityId },
+      });
+    } catch (error: any) {
+      return of({ id: call.id, success: false, error: error.message });
+    }
+  }
+
+  private executeSearchAndNavigate(
+    call: IAssistantFunctionCall
+  ): Observable<IAssistantFunctionResult> {
+    const { entityType, searchQuery } = call.arguments;
+    const routeMap: Record<string, string> = {
+      client: '/workplace/client',
+      shift: '/workplace/shift',
+      group: '/workplace/group',
+    };
+    const route = routeMap[entityType];
+    if (!route) {
+      return of({ id: call.id, success: false, error: `Unknown entity type: ${entityType}` });
+    }
+    const isClient = entityType === 'client';
+    const isShift = entityType === 'shift';
+    this.searchStateService.setRestoreSearch(searchQuery);
+    this.router.navigate([route]).then(() => {
+      setTimeout(() => {
+        this.searchStrategyService.globalSearch(searchQuery, isClient, isShift);
+      }, 500);
+    });
+    return of({
+      id: call.id,
+      success: true,
+      result: {
+        action: 'navigated_with_search',
+        route,
+        searchQuery,
+        message: `Navigated to ${entityType} and searching for "${searchQuery}"`,
+      },
+    });
   }
 
   private executeBackendFunction(

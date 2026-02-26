@@ -21,6 +21,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -173,6 +174,7 @@ describe('AssistantChatComponent', () => {
                 { provide: Router, useValue: routerSpy },
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
                 { provide: LanguageMappingService, useValue: languageMappingServiceSpy },
+                { provide: SEARCH_STRATEGY, useValue: { globalSearch: vi.fn(), resetFilter: vi.fn(), restoreSearch: vi.fn(), setRestoreSearch: vi.fn() } },
             ],
         })
             .overrideComponent(AssistantChatComponent, {
