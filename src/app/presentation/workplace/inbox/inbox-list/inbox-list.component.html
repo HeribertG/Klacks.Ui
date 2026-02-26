@@ -1,0 +1,47 @@
+<div class="inbox-list-header">
+  <span class="inbox-title">Inbox</span>
+  <span class="inbox-count">{{ inboxService.totalCount() }}</span>
+  <button
+    type="button"
+    class="refresh-button"
+    (click)="onRefresh()"
+    [attr.aria-label]="'Refresh inbox'"
+  >
+    &#8635;
+  </button>
+</div>
+
+@if (inboxService.isLoading()) {
+  <div class="loading-indicator">
+    <span>Loading...</span>
+  </div>
+}
+
+<div class="email-list">
+  @for (email of inboxService.emails(); track email.id) {
+    <div
+      class="email-item"
+      [class.unread]="!email.isRead"
+      [class.selected]="isSelected(email)"
+      (click)="onSelectEmail(email)"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="onSelectEmail(email)"
+    >
+      <div class="email-from">{{ getDisplayName(email) }}</div>
+      <div class="email-subject">{{ email.subject }}</div>
+      <div class="email-meta">
+        <span class="email-date">{{ email.receivedDate | date: 'dd.MM.yyyy HH:mm' }}</span>
+        @if (email.hasAttachments) {
+          <span class="email-attachment">&#128206;</span>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!inboxService.isLoading() && inboxService.emails().length === 0) {
+    <div class="empty-state">
+      <span>No emails</span>
+    </div>
+  }
+</div>

@@ -108,6 +108,11 @@ const routes: Routes = [
       {
         path: 'container-template/:id',
         loadComponent: () => import('./presentation/workplace/shift/container-template/container-template.component').then(m => m.ContainerTemplateComponent)
+      },
+      {
+        path: 'inbox',
+        loadComponent: () => import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(m => m.InboxHomeComponent),
+        canActivate: [AdminGuard]
       }
     ]
   }

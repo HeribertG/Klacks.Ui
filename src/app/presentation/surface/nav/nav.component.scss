@@ -95,6 +95,30 @@ $adjustment_constant_height: 5px;
   border-radius: 50%;
 }
 
+.inbox-icon-wrapper {
+  position: relative;
+
+  .icon-button {
+    position: relative;
+  }
+}
+
+.unread-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: #dc3545;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
 ngbTooltip {
   opacity: 50%;
 }

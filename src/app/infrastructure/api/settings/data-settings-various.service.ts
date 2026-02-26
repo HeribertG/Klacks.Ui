@@ -8,6 +8,7 @@ import { ISetting } from 'src/app/domain/models/settings/settings-various-class'
 import {
   EmailTestRequest,
   EmailTestResult,
+  ImapTestRequest,
 } from 'src/app/domain/interfaces/email-test.interface';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
@@ -57,6 +58,15 @@ export class DataSettingsVariousService {
       .post<EmailTestResult>(
         `${environment.baseUrl}GeneralSettings/TestEmailConfiguration`,
         emailTestRequest
+      )
+      .pipe(retry(1));
+  }
+
+  testImapConfiguration(config: ImapTestRequest): Observable<EmailTestResult> {
+    return this.httpClient
+      .post<EmailTestResult>(
+        `${environment.baseUrl}ReceivedEmail/TestImapConnection`,
+        config
       )
       .pipe(retry(1));
   }

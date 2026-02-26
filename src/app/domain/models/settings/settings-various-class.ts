@@ -37,6 +37,14 @@ export class AppSetting {
   public static APP_OUTGOING_SERVER_USERNAME = 'outgoingserverUsername';
   public static APP_OUTGOING_SERVER_PASSWORD = 'outgoingserverPassword';
 
+  public static APP_INCOMING_SERVER = 'incomingserver';
+  public static APP_INCOMING_SERVER_PORT = 'incomingserverPort';
+  public static APP_INCOMING_SERVER_USERNAME = 'incomingserverUsername';
+  public static APP_INCOMING_SERVER_PASSWORD = 'incomingserverPassword';
+  public static APP_INCOMING_SERVER_SSL = 'incomingserverSSL';
+  public static APP_INCOMING_SERVER_FOLDER = 'incomingserverFolder';
+  public static APP_INCOMING_SERVER_POLL_INTERVAL = 'incomingserverPollInterval';
+
   public static OPENROUTESERVICE_API_KEY = 'OPENROUTESERVICE_API_KEY';
   public static DEEPL_API_KEY = 'DEEPL_API_KEY';
 

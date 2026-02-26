@@ -15,3 +15,12 @@ export interface EmailTestResult {
   message: string;
   errorDetails?: string;
 }
+
+export interface ImapTestRequest {
+  server: string;
+  port: number;
+  username: string;
+  password: string;
+  enableSSL: boolean;
+  folder: string;
+}

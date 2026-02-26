@@ -36,6 +36,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
+import { InboxService } from 'src/app/domain/services/email/inbox.service';
 
 type NavigationPage =
   | 'absence'
@@ -47,6 +48,7 @@ type NavigationPage =
   | 'settings'
   | 'edit-address'
   | 'edit-group'
+  | 'inbox'
   | '';
 
 @Component({
@@ -88,6 +90,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   private urlParameterService = inject(UrlParameterService);
   private injector = inject(Injector);
 
+  public inboxService = inject(InboxService);
+
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
   private currentPage = signal<NavigationPage>('');
@@ -114,6 +118,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'absence';
       case 'schedule':
         return 'schedule';
+      case 'inbox':
+        return 'inbox';
       default:
         return '';
     }
@@ -138,6 +144,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadSavedLanguage();
     this.tryLoadProfileImage();
     this.updateCurrentPage();
+    this.inboxService.refreshUnreadCount();
 
     this.absence = DomainMessages.ABSENCE;
     this.all_schedule = DomainMessages.ALL_SCHEDULE;
@@ -290,6 +297,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickSettings(): void {
     this.currentPage.set('settings');
     this.navigationService.navigateToSettings();
+  }
+
+  onClickInbox(): void {
+    this.currentPage.set('inbox');
+    this.navigationService.navigateToInbox();
   }
 
   onChangeLanguage(lang: string): void {

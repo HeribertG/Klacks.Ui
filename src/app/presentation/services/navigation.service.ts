@@ -102,6 +102,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/group-structure']);
   }
 
+  navigateToInbox(): void {
+    this.router.navigate(['/workplace/inbox']);
+  }
+
   navigateToRouterToken(routerToken: string): void {
     this.router.navigate([routerToken]);
   }

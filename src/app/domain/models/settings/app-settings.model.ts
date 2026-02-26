@@ -62,6 +62,26 @@ export class EmailServerSettings implements IEmailServerSettings {
   password = '';
 }
 
+export interface IImapServerSettings {
+  server: string;
+  port: string;
+  username: string;
+  password: string;
+  enableSSL: string;
+  folder: string;
+  pollInterval: string;
+}
+
+export class ImapServerSettings implements IImapServerSettings {
+  server = '';
+  port = '993';
+  username = '';
+  password = '';
+  enableSSL = 'true';
+  folder = 'INBOX';
+  pollInterval = '300';
+}
+
 export interface ISchedulingDefaultSettings {
   defaultWorkingHours: number;
   overtimeThreshold: number;

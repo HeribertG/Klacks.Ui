@@ -8,10 +8,12 @@ import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings/se
 import {
   IAppContactSettings,
   IEmailServerSettings,
+  IImapServerSettings,
   IWorkSettings,
   ISchedulingDefaultSettings,
   AppContactSettings,
   EmailServerSettings,
+  ImapServerSettings,
   WorkSettings,
   SchedulingDefaultSettings
 } from 'src/app/domain/models/settings/app-settings.model';
@@ -26,6 +28,7 @@ export class AppSettingsManagementService {
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
+  public imapSettings = signal<IImapServerSettings>(new ImapServerSettings());
   public workSettings = signal<IWorkSettings>(new WorkSettings());
   public schedulingDefaultSettings = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   public openRouteServiceApiKey = signal<string>('');
@@ -33,6 +36,7 @@ export class AppSettingsManagementService {
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
+  private imapSettingsOriginal = signal<IImapServerSettings>(new ImapServerSettings());
   private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
   private schedulingDefaultSettingsOriginal = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
@@ -49,6 +53,7 @@ export class AppSettingsManagementService {
     effect(() => {
       this.contactSettings();
       this.emailSettings();
+      this.imapSettings();
       this.workSettings();
       this.schedulingDefaultSettings();
       this.openRouteServiceApiKey();
@@ -107,6 +112,7 @@ export class AppSettingsManagementService {
   private applySettingsToModels(settings: ISetting[]): void {
     const contact = new AppContactSettings();
     const email = new EmailServerSettings();
+    const imap = new ImapServerSettings();
     const work = new WorkSettings();
     const schedulingDefaults = new SchedulingDefaultSettings();
     let openRouteServiceApiKey = '';
@@ -189,6 +195,28 @@ export class AppSettingsManagementService {
           break;
         case AppSetting.APP_OUTGOING_SERVER_PASSWORD:
           email.password = setting.value;
+          break;
+
+        case AppSetting.APP_INCOMING_SERVER:
+          imap.server = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_PORT:
+          imap.port = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_USERNAME:
+          imap.username = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_PASSWORD:
+          imap.password = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_SSL:
+          imap.enableSSL = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_FOLDER:
+          imap.folder = setting.value;
+          break;
+        case AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL:
+          imap.pollInterval = setting.value;
           break;
 
         case AppSetting.OPENROUTESERVICE_API_KEY:
@@ -279,6 +307,7 @@ export class AppSettingsManagementService {
 
     this.contactSettings.set(contact);
     this.emailSettings.set(email);
+    this.imapSettings.set(imap);
     this.workSettings.set(work);
     this.schedulingDefaultSettings.set(schedulingDefaults);
     this.openRouteServiceApiKey.set(openRouteServiceApiKey);
@@ -286,6 +315,7 @@ export class AppSettingsManagementService {
 
     this.contactSettingsOriginal.set(cloneObject(contact));
     this.emailSettingsOriginal.set(cloneObject(email));
+    this.imapSettingsOriginal.set(cloneObject(imap));
     this.workSettingsOriginal.set(cloneObject(work));
     this.schedulingDefaultSettingsOriginal.set(cloneObject(schedulingDefaults));
     this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
@@ -332,6 +362,16 @@ export class AppSettingsManagementService {
     this.saveSetting(email.dispositionNotification, emailOriginal.dispositionNotification, AppSetting.APP_DISPOSITION_NOTIFICATION);
     this.saveSetting(email.username, emailOriginal.username, AppSetting.APP_OUTGOING_SERVER_USERNAME);
     this.saveSetting(email.password, emailOriginal.password, AppSetting.APP_OUTGOING_SERVER_PASSWORD);
+
+    const imap = this.imapSettings();
+    const imapOriginal = this.imapSettingsOriginal();
+    this.saveSetting(imap.server, imapOriginal.server, AppSetting.APP_INCOMING_SERVER);
+    this.saveSetting(imap.port, imapOriginal.port, AppSetting.APP_INCOMING_SERVER_PORT);
+    this.saveSetting(imap.username, imapOriginal.username, AppSetting.APP_INCOMING_SERVER_USERNAME);
+    this.saveSetting(imap.password, imapOriginal.password, AppSetting.APP_INCOMING_SERVER_PASSWORD);
+    this.saveSetting(imap.enableSSL, imapOriginal.enableSSL, AppSetting.APP_INCOMING_SERVER_SSL);
+    this.saveSetting(imap.folder, imapOriginal.folder, AppSetting.APP_INCOMING_SERVER_FOLDER);
+    this.saveSetting(imap.pollInterval, imapOriginal.pollInterval, AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL);
 
     // Save work settings
     this.saveSetting(work.vacationDaysPerYear.toString(), workOriginal.vacationDaysPerYear.toString(), AppSetting.WORK_VACATION_DAYS_PER_YEAR);
@@ -406,6 +446,7 @@ export class AppSettingsManagementService {
     if (this.saveCounter === 0) {
       this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
+      this.imapSettingsOriginal.set(cloneObject(this.imapSettings()));
       this.workSettingsOriginal.set(cloneObject(this.workSettings()));
       this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
@@ -418,6 +459,8 @@ export class AppSettingsManagementService {
     const contactOriginal = this.contactSettingsOriginal();
     const email = this.emailSettings();
     const emailOriginal = this.emailSettingsOriginal();
+    const imap = this.imapSettings();
+    const imapOriginal = this.imapSettingsOriginal();
     const work = this.workSettings();
     const workOriginal = this.workSettingsOriginal();
     const sched = this.schedulingDefaultSettings();
@@ -426,6 +469,7 @@ export class AppSettingsManagementService {
     return (
       !compareComplexObjects(contact, contactOriginal) ||
       !compareComplexObjects(email, emailOriginal) ||
+      !compareComplexObjects(imap, imapOriginal) ||
       !compareComplexObjects(work, workOriginal) ||
       !compareComplexObjects(sched, schedOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||

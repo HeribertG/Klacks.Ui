@@ -1,0 +1,61 @@
+@if (email()) {
+  <div class="detail-header">
+    <div class="detail-subject">{{ email()!.subject }}</div>
+    <div class="detail-actions">
+      <button
+        type="button"
+        class="action-button"
+        (click)="onToggleRead()"
+        [attr.aria-label]="email()!.isRead ? 'Mark as unread' : 'Mark as read'"
+      >
+        {{ email()!.isRead ? 'Mark unread' : 'Mark read' }}
+      </button>
+      <button
+        type="button"
+        class="action-button action-button--danger"
+        (click)="onDelete()"
+        [attr.aria-label]="'Delete email'"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="detail-meta">
+    <div class="meta-row">
+      <span class="meta-label">From:</span>
+      <span class="meta-value">
+        {{ email()!.fromName }}
+        @if (email()!.fromName) {
+          &lt;{{ email()!.fromAddress }}&gt;
+        } @else {
+          {{ email()!.fromAddress }}
+        }
+      </span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">To:</span>
+      <span class="meta-value">{{ email()!.toAddress }}</span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">Date:</span>
+      <span class="meta-value">{{ email()!.receivedDate | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">Folder:</span>
+      <span class="meta-value">{{ email()!.folder }}</span>
+    </div>
+  </div>
+
+  <div class="detail-body">
+    @if (sanitizedBody()) {
+      <div [innerHTML]="sanitizedBody()"></div>
+    } @else {
+      <div class="no-body">No content</div>
+    }
+  </div>
+} @else {
+  <div class="no-selection">
+    <span>Select an email to view</span>
+  </div>
+}

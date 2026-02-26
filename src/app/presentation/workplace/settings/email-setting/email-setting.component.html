@@ -196,6 +196,147 @@
         </button>
       </div>
     </div>
+
+    <div id="imap-setting-header" class="container-header imap-section-header">
+      {{ "settings.imap-setting.title" | translate }}
+    </div>
+    <div id="imap-setting-line" class="container-line"></div>
+
+    <div id="imap-setting-form">
+      <div id="imap-setting-server-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="imapServer">{{ "settings.imap-setting.server" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [field]="imapForm.server"
+            aria-label="imapServer"
+            id="imapServer"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="imapPort">{{ "settings.imap-setting.port" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [field]="imapForm.port"
+            aria-label="imapPort"
+            id="imapPort"
+          />
+        </div>
+      </div>
+      <div id="imap-setting-ssl-folder-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="imapEnableSSL">{{ "settings.imap-setting.ssl" | translate }}</label>
+          <select
+            class="form-select"
+            [field]="imapForm.enableSSL"
+            aria-label="imapEnableSSL"
+            id="imapEnableSSL"
+          >
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <div class="form-group secondColumn">
+          <label for="imapFolder">{{ "settings.imap-setting.folder" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [field]="imapForm.folder"
+            aria-label="imapFolder"
+            id="imapFolder"
+          />
+        </div>
+      </div>
+      <div id="imap-setting-poll-row" class="row-line-single">
+        <div class="form-group firstColumn">
+          <label for="imapPollInterval">{{ "settings.imap-setting.poll-interval" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [field]="imapForm.pollInterval"
+            aria-label="imapPollInterval"
+            id="imapPollInterval"
+          />
+        </div>
+      </div>
+      <div id="imap-setting-auth-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="imapUsername">{{ "settings.imap-setting.username" | translate }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [field]="imapForm.username"
+            aria-label="imapUsername"
+            id="imapUsername"
+            autocomplete="new-password"
+            role="textbox"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <div class="input-group my-password">
+            <label class="password-label" for="imapPassword">{{ "settings.imap-setting.password" | translate }}</label>
+            @if (showImapPassword()) {
+              <input
+                type="text"
+                class="form-control password-input"
+                [field]="imapForm.password"
+                id="imapPassword"
+                aria-label="imapPassword"
+                autocomplete="new-password"
+              />
+            } @else {
+              <input
+                type="password"
+                class="form-control password-input"
+                [field]="imapForm.password"
+                id="imapPassword"
+                aria-label="imapPassword"
+                autocomplete="new-password"
+              />
+            }
+            <span
+              id="setting-imap-password-toggle"
+              class="input-group-text"
+              (click)="toggleShowImapPassword()"
+            >
+              <fa-icon
+                [icon]="showImapPassword() ? faEye : faEyeSlash"
+                class="password-icon"
+              ></fa-icon>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div id="imap-setting-test-section" class="test-email-section">
+        <div
+          id="imap-setting-test-button-container"
+          class="test-button-container"
+        >
+          <button
+            id="setting-imap-test-btn"
+            type="button"
+            class="btn btn-primary test-email-button"
+            (click)="testImapConfiguration()"
+            [disabled]="isTestingImap"
+          >
+            @if (!isTestingImap) {
+              <span>{{ "settings.imap-setting.button.test-connection" | translate }}</span>
+            } @else {
+              <span>
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                {{ "settings.imap-setting.button.testing" | translate }}
+              </span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="bottom-border-space"></div>
   </div>
 </div>
