@@ -1,0 +1,127 @@
+@use "../../../../../assets/standard-styles/dragDropFileUpLoad.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/toggle-switch.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.my-password {
+  display: flex;
+  flex-wrap: wrap;
+  width: 420px;
+
+  label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .form-control {
+    flex: 1;
+    height: 32px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 32px;
+    border: 1px solid #ced4da;
+    border-left: none;
+    background-color: #e9ecef;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #dee2e6;
+    }
+
+    &:focus {
+      outline: 2px solid var(--focusBorderColor);
+      outline-offset: 2px;
+    }
+  }
+
+  .password-icon {
+    font-size: 16px;
+    color: #464e5f;
+  }
+}
+
+input {
+  width: 420px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--standartTextBackground) inset !important;
+  -webkit-text-fill-color: var(--standartTextColor) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+select {
+  width: 420px;
+}
+
+.test-email-section {
+  margin-top: 15px;
+  position: relative;
+
+  .test-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 40px;
+  }
+
+  .test-email-button {
+    background-color: colors.$standartGreenColor;
+    border-color: colors.$standartGreenColor;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: colors.$splitButtonGreenColor;
+      border-color: colors.$splitButtonGreenColor;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+.row-line-single {
+  margin-top: 5px;
+}
+
+.firstColumn {
+  margin-left: 30px;
+}
+
+.secondColumn {
+  margin-left: 40px;
+}
+
+.password-input {
+  border-top-left-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
+}
+
+.password-label {
+  margin-bottom: 0 !important;
+}
