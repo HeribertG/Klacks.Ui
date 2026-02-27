@@ -1,0 +1,71 @@
+<div id="spam-rules-container" class="container-dashboard">
+  <div id="spam-rules-header" class="container-header">
+    {{ "settings.spam-rules.title" | translate }}
+  </div>
+
+  <div id="spam-rules-line" class="container-line"></div>
+
+  <div id="spam-rules-content" class="rules-content">
+    <table class="rules-table">
+      <thead>
+        <tr>
+          <th class="col-type">{{ "settings.spam-rules.column.rule-type" | translate }}</th>
+          <th class="col-pattern">{{ "settings.spam-rules.column.pattern" | translate }}</th>
+          <th class="col-active">{{ "settings.spam-rules.column.active" | translate }}</th>
+          <th class="col-actions">{{ "settings.spam-rules.column.actions" | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (rule of spamRuleService.rules(); track rule.id) {
+          <tr>
+            <td class="col-type">{{ ruleTypeLabels[rule.ruleType] }}</td>
+            <td class="col-pattern">{{ rule.pattern }}</td>
+            <td class="col-active">
+              <input
+                type="checkbox"
+                [checked]="rule.isActive"
+                (change)="toggleActive(rule)"
+              />
+            </td>
+            <td class="col-actions">
+              <button
+                class="btn-delete"
+                type="button"
+                (click)="deleteRule(rule.id)"
+              >
+                &times;
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="add-rule-form">
+      <select
+        class="form-select rule-type-select"
+        [(ngModel)]="newRuleType"
+      >
+        @for (type of ruleTypes; track type) {
+          <option [ngValue]="type">{{ ruleTypeLabels[type] }}</option>
+        }
+      </select>
+      <input
+        type="text"
+        class="form-control pattern-input"
+        [(ngModel)]="newPattern"
+        [placeholder]="'settings.spam-rules.placeholder.pattern' | translate"
+        (keydown.enter)="addRule()"
+      />
+      <button
+        class="btn btn-primary add-button"
+        type="button"
+        (click)="addRule()"
+      >
+        {{ "settings.spam-rules.button.add" | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="bottom-border-space"></div>
+</div>

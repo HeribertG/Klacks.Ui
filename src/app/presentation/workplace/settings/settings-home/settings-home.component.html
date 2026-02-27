@@ -235,6 +235,15 @@
       </app-imap-setting>
     </div>
 
+    <div id="settings-home-spam-rules-row" class="container-profilline">
+      <app-spam-rules
+        id="settings-spam-rules"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-spam-rules')"
+      >
+      </app-spam-rules>
+    </div>
+
     <div id="settings-home-reports-row" class="container-profilline">
       <app-reports
         id="settings-reports"
