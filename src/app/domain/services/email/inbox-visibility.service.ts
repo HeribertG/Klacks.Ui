@@ -10,9 +10,12 @@ export class InboxVisibilityService {
   private appSettingsService = inject(AppSettingsManagementService);
 
   public isAvailable = computed(() => {
-    //const imap = this.appSettingsService.imapSettings();
-    //return !!imap.server?.trim() && !!imap.username?.trim() && !!imap.password?.trim();
-    return true;
+    const imap = this.appSettingsService.imapSettings();
+    return (
+      !!imap.server?.trim() &&
+      !!imap.username?.trim() &&
+      !!imap.password?.trim()
+    );
   });
 
   public async ensureSettingsLoaded(): Promise<void> {

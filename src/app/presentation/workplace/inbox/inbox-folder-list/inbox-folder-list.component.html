@@ -1,0 +1,49 @@
+<div class="folder-list-header">
+  <span class="folder-title">Folders</span>
+  @if (isAuthorised) {
+    <button
+      type="button"
+      class="add-folder-button"
+      (click)="onCreateFolder()"
+      [attr.aria-label]="'Create folder'"
+    >
+      +
+    </button>
+  }
+</div>
+
+<div class="folder-list">
+  @for (folder of inboxService.folders(); track folder.id) {
+    <div
+      class="folder-item"
+      [class.active]="isActive(folder)"
+      (click)="onSelectFolder(folder)"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="onSelectFolder(folder)"
+    >
+      <span class="folder-name">{{ folder.name }}</span>
+      <div class="folder-actions">
+        @if (folder.unreadCount > 0) {
+          <span class="folder-badge">{{ folder.unreadCount }}</span>
+        }
+        @if (isAuthorised && !folder.isSystem) {
+          <button
+            type="button"
+            class="delete-folder-button"
+            (click)="onDeleteFolder(folder); $event.stopPropagation()"
+            [attr.aria-label]="'Delete folder ' + folder.name"
+          >
+            &#10005;
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (inboxService.folders().length === 0) {
+    <div class="empty-state">
+      <span>No folders</span>
+    </div>
+  }
+</div>

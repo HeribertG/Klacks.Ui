@@ -2,6 +2,7 @@
 
 import { Component, inject, OnInit } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
+import { InboxFolderListComponent } from '../inbox-folder-list/inbox-folder-list.component';
 import { InboxListComponent } from '../inbox-list/inbox-list.component';
 import { InboxDetailComponent } from '../inbox-detail/inbox-detail.component';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
@@ -14,7 +15,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   templateUrl: './inbox-home.component.html',
   styleUrls: ['./inbox-home.component.scss'],
   standalone: true,
-  imports: [AngularSplitModule, InboxListComponent, InboxDetailComponent],
+  imports: [AngularSplitModule, InboxFolderListComponent, InboxListComponent, InboxDetailComponent],
 })
 export class InboxHomeComponent implements OnInit {
   private inboxService = inject(InboxService);
@@ -26,6 +27,6 @@ export class InboxHomeComponent implements OnInit {
     this.layoutService.setContainerToFullSize();
     this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(false);
-    this.inboxService.loadEmails();
+    this.inboxService.loadFolders();
   }
 }

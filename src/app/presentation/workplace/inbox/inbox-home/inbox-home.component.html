@@ -1,9 +1,13 @@
 <as-split direction="horizontal" [gutterSize]="6" unit="percent">
-  <as-split-area [size]="33" [minSize]="20">
+  <as-split-area [size]="15" [minSize]="10" [maxSize]="25">
+    <app-inbox-folder-list></app-inbox-folder-list>
+  </as-split-area>
+
+  <as-split-area [size]="30" [minSize]="15">
     <app-inbox-list></app-inbox-list>
   </as-split-area>
 
-  <as-split-area [size]="67" [minSize]="30">
+  <as-split-area [size]="55" [minSize]="30">
     <app-inbox-detail></app-inbox-detail>
   </as-split-area>
 </as-split>
