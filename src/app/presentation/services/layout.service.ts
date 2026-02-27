@@ -29,7 +29,7 @@ export class LayoutService {
   }
 
   setContainerSizeForRoute(url: string): void {
-    const fullWidthRoutes = ['absence', 'schedule'];
+    const fullWidthRoutes = ['absence', 'schedule', 'inbox'];
     const shouldUseFullWidth = fullWidthRoutes.some((route) =>
       url.includes(route)
     );

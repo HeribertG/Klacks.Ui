@@ -1,3 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 .inbox-list-header {
   display: flex;
   align-items: center;
@@ -48,6 +55,7 @@
 }
 
 .email-list {
+  flex: 1;
   overflow-y: auto;
 }
 

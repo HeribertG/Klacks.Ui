@@ -1,8 +1,9 @@
-<div class="inbox-container">
-  <div class="inbox-list-panel">
+<as-split direction="horizontal" [gutterSize]="6" unit="percent">
+  <as-split-area [size]="33" [minSize]="20">
     <app-inbox-list></app-inbox-list>
-  </div>
-  <div class="inbox-detail-panel">
+  </as-split-area>
+
+  <as-split-area [size]="67" [minSize]="30">
     <app-inbox-detail></app-inbox-detail>
-  </div>
-</div>
+  </as-split-area>
+</as-split>

@@ -1,3 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 .detail-header {
   display: flex;
   align-items: center;
@@ -78,12 +85,14 @@
 }
 
 .detail-body {
+  flex: 1;
   padding: 20px;
   font-size: 14px;
   line-height: 1.6;
   color: var(--standartTextColor, #333);
   overflow-wrap: break-word;
   word-break: break-word;
+  overflow-y: auto;
 }
 
 .no-body {

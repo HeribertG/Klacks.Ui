@@ -1,18 +1,13 @@
-.inbox-container {
-  display: flex;
-  height: calc(100vh - 80px);
-  gap: 1px;
-  background-color: var(--borderColor, #e0e0e0);
+$header_height: 65px;
+$nav_width: 100px;
+
+:host {
+  display: block;
+  height: calc(100vh - #{$header_height});
+  width: calc(100vw - #{$nav_width});
+  overflow: hidden;
 }
 
-.inbox-list-panel {
-  flex: 0 0 35%;
-  overflow-y: auto;
-  background-color: var(--standartTextBackground, #fff);
-}
-
-.inbox-detail-panel {
-  flex: 1;
-  overflow-y: auto;
+as-split-area {
   background-color: var(--standartTextBackground, #fff);
 }

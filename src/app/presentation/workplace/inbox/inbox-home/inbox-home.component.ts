@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, inject, OnInit } from '@angular/core';
+import { AngularSplitModule } from 'angular-split';
 import { InboxListComponent } from '../inbox-list/inbox-list.component';
 import { InboxDetailComponent } from '../inbox-detail/inbox-detail.component';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
@@ -13,7 +14,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   templateUrl: './inbox-home.component.html',
   styleUrls: ['./inbox-home.component.scss'],
   standalone: true,
-  imports: [InboxListComponent, InboxDetailComponent],
+  imports: [AngularSplitModule, InboxListComponent, InboxDetailComponent],
 })
 export class InboxHomeComponent implements OnInit {
   private inboxService = inject(InboxService);
