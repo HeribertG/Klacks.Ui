@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
@@ -15,12 +15,20 @@ import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-ema
 export class InboxListComponent {
   inboxService = inject(InboxService);
 
+  currentFolderName = computed(() => {
+    const selectedImapFolder = this.inboxService.selectedFolder();
+    const folder = this.inboxService
+      .folders()
+      .find((f) => f.imapFolderName === selectedImapFolder);
+    return folder?.name ?? 'Inbox';
+  });
+
   onSelectEmail(email: IReceivedEmailListItem): void {
     this.inboxService.selectEmail(email.id);
   }
 
   onRefresh(): void {
-    this.inboxService.loadEmails();
+    this.inboxService.fetchAndReload();
   }
 
   isSelected(email: IReceivedEmailListItem): boolean {
@@ -29,5 +37,18 @@ export class InboxListComponent {
 
   getDisplayName(email: IReceivedEmailListItem): string {
     return email.fromName || email.fromAddress;
+  }
+
+  onReadFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value as 'all' | 'read' | 'unread';
+    this.inboxService.setReadFilter(value);
+  }
+
+  onToggleSort(): void {
+    this.inboxService.toggleSortDirection();
+  }
+
+  onRelevanceFilter(filter: 'all' | 'relevant' | 'other'): void {
+    this.inboxService.setRelevanceFilter(filter);
   }
 }

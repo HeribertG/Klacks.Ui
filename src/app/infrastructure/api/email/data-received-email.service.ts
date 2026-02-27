@@ -17,11 +17,19 @@ const API_PATH = 'ReceivedEmail/';
 export class DataReceivedEmailService {
   private httpClient = inject(HttpClient);
 
-  getList(skip: number, take: number) {
+  getList(skip: number, take: number, folder?: string, readFilter?: string, sortDirection?: string) {
+    let url = `${environment.baseUrl}${API_PATH}List?skip=${skip}&take=${take}`;
+    if (folder) {
+      url += `&folder=${encodeURIComponent(folder)}`;
+    }
+    if (readFilter) {
+      url += `&readFilter=${encodeURIComponent(readFilter)}`;
+    }
+    if (sortDirection) {
+      url += `&sortDirection=${encodeURIComponent(sortDirection)}`;
+    }
     return this.httpClient
-      .get<IReceivedEmailListResponse>(
-        `${environment.baseUrl}${API_PATH}List?skip=${skip}&take=${take}`
-      )
+      .get<IReceivedEmailListResponse>(url)
       .pipe(retry(3));
   }
 
@@ -50,5 +58,13 @@ export class DataReceivedEmailService {
     return this.httpClient
       .delete<void>(`${environment.baseUrl}${API_PATH}${id}`)
       .pipe(retry(3));
+  }
+
+  fetchNow() {
+    return this.httpClient
+      .post<{ success: boolean; fetchedCount?: number; error?: string }>(
+        `${environment.baseUrl}${API_PATH}FetchNow`,
+        {}
+      );
   }
 }
