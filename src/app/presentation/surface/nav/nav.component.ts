@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
 import {
   AfterViewInit,
   Component,
@@ -37,6 +36,8 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
+import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
+import { IconMailComponent } from '../../icons/icon-mail.component';
 
 type NavigationPage =
   | 'absence'
@@ -63,8 +64,9 @@ type NavigationPage =
     IconTimeScheduleComponent,
     IconClientsComponent,
     IconUserComponent,
-    IconSettingComponent
-],
+    IconSettingComponent,
+    IconMailComponent,
+  ],
 })
 export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
@@ -74,6 +76,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
   @ViewChild('userIcon') userIcon!: IconUserComponent;
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
+  @ViewChild('mailIcon') mailIcon!: IconMailComponent;
 
   // Services
   public authorizationService = inject(AuthorizationService);
@@ -82,7 +85,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
   private translateStringConstantsService = inject(
-    TranslateStringConstantsService
+    TranslateStringConstantsService,
   );
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
@@ -91,6 +94,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   private injector = inject(Injector);
 
   public inboxService = inject(InboxService);
+  public inboxVisibilityService = inject(InboxVisibilityService);
 
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
@@ -131,6 +135,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   all_group = DomainMessages.ALL_GROUP;
   all_shift = DomainMessages.ALL_SHIFT;
   statistic = DomainMessages.STATISTIC;
+  inbox = DomainMessages.INBOX;
 
   private ngUnsubscribe = new Subject<void>();
   private effectRefs: EffectRef[] = [];
@@ -144,6 +149,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadSavedLanguage();
     this.tryLoadProfileImage();
     this.updateCurrentPage();
+    this.inboxVisibilityService.ensureSettingsLoaded();
     this.inboxService.refreshUnreadCount();
 
     this.absence = DomainMessages.ABSENCE;
@@ -152,6 +158,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.all_group = DomainMessages.ALL_GROUP;
     this.all_shift = DomainMessages.ALL_SHIFT;
     this.statistic = DomainMessages.STATISTIC;
+    this.inbox = DomainMessages.INBOX;
   }
 
   ngAfterViewInit(): void {
@@ -231,6 +238,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.all_group = DomainMessages.ALL_GROUP;
     this.all_shift = DomainMessages.ALL_SHIFT;
     this.statistic = DomainMessages.STATISTIC;
+    this.inbox = DomainMessages.INBOX;
   }
 
   private initializeTranslation(): void {
@@ -322,6 +330,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.employeesIcon,
       this.userIcon,
       this.settingsIcon,
+      this.mailIcon,
     ];
 
     icons.forEach((icon) => {
@@ -340,6 +349,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       employees: this.employeesIcon,
       user: this.userIcon,
       settings: this.settingsIcon,
+      inbox: this.mailIcon,
     };
 
     const icon = iconMap[iconName as keyof typeof iconMap];

@@ -71,39 +71,26 @@
         <app-icon-clients #employeesIcon></app-icon-clients>
       </button>
     </div>
-  </div>
 
-  @if (isAdmin()) {
-    <div class="icon inbox-icon-wrapper">
-      <button
-        type="button"
-        class="icon-button"
-        id="open-inbox"
-        (click)="onClickInbox()"
-        [attr.aria-label]="'Open Inbox (Alt+9)'"
-        placement="right"
-        ngbTooltip="Inbox (Alt+9)"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+    @if (inboxVisibilityService.isAvailable()) {
+      <div class="icon">
+        <button
+          type="button"
+          class="icon-button"
+          id="open-inbox"
+          (click)="onClickInbox()"
+          [attr.aria-label]="'Open Inbox (Alt+9)'"
+          placement="right"
+          ngbTooltip="{{ inbox }} (Alt+9)"
         >
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-        </svg>
-        @if (inboxService.unreadCount() > 0) {
-          <span class="unread-badge">{{ inboxService.unreadCount() }}</span>
-        }
-      </button>
-    </div>
-  }
+          <app-icon-mail #mailIcon></app-icon-mail>
+          @if (inboxService.unreadCount() > 0) {
+            <span class="unread-badge">{{ inboxService.unreadCount() }}</span>
+          }
+        </button>
+      </div>
+    }
+  </div>
 
   <div class="main-bottomcell">
     @if (!hasProfileImage()) {

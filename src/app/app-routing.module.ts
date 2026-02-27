@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './presentation/auth/auth.guard';
 import { AdminGuard } from './presentation/auth/admin.guard';
+import { InboxGuard } from './presentation/auth/inbox.guard';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
@@ -112,7 +113,7 @@ const routes: Routes = [
       {
         path: 'inbox',
         loadComponent: () => import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(m => m.InboxHomeComponent),
-        canActivate: [AdminGuard]
+        canActivate: [InboxGuard]
       }
     ]
   }

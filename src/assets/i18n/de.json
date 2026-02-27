@@ -387,6 +387,7 @@
   "ALL_GROUP": "Alle Gruppen",
   "ALL_SCHEDULE": "Alle Planungen",
   "ALL_SHIFT": "Alle Dienste",
+  "INBOX": "Posteingang",
   "CANCEL_NOT_DONE": "Änderungen können nicht rückgängig gemacht werden",
   "CHANGEPASSWORD_MAILTEXT": "<h2><strong>Ihr Passwort wurde ge&auml;ndert.</strong></h2><p> {password}</p><p> Bitte benutzen sie dieses automatisch generierte Passwort nur einmal.</p><p> Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p> &nbsp;</p><p> Freundliche Gr&uuml;sse </p><p> Ihre Administration</p>",
   "CHANGEPASSWORD_TITLE": "Passwortänderung",
