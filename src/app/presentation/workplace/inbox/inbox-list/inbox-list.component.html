@@ -12,26 +12,44 @@
 </div>
 
 <div class="inbox-toolbar">
-  <div class="relevance-tabs">
-    <button
-      type="button"
-      class="relevance-tab"
-      [class.active]="inboxService.relevanceFilter() === 'relevant'"
-      (click)="onRelevanceFilter('relevant')"
-    >{{ 'inbox.list.filter.relevant' | translate }}</button>
-    <button
-      type="button"
-      class="relevance-tab"
-      [class.active]="inboxService.relevanceFilter() === 'other'"
-      (click)="onRelevanceFilter('other')"
-    >{{ 'inbox.list.filter.other' | translate }}</button>
-    <button
-      type="button"
-      class="relevance-tab"
-      [class.active]="inboxService.relevanceFilter() === 'all'"
-      (click)="onRelevanceFilter('all')"
-    >{{ 'inbox.list.filter.all' | translate }}</button>
-  </div>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [ngClass]="{ active: inboxService.relevanceFilter() === 'relevant' }"
+        (click)="onRelevanceFilter('relevant')"
+        (keydown.enter)="onRelevanceFilter('relevant')"
+        (keydown.space)="onRelevanceFilter('relevant')"
+        role="tab"
+        [attr.aria-selected]="inboxService.relevanceFilter() === 'relevant'"
+        tabindex="0"
+      >{{ 'inbox.list.filter.relevant' | translate }}</a>
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [ngClass]="{ active: inboxService.relevanceFilter() === 'other' }"
+        (click)="onRelevanceFilter('other')"
+        (keydown.enter)="onRelevanceFilter('other')"
+        (keydown.space)="onRelevanceFilter('other')"
+        role="tab"
+        [attr.aria-selected]="inboxService.relevanceFilter() === 'other'"
+        tabindex="0"
+      >{{ 'inbox.list.filter.other' | translate }}</a>
+    </li>
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [ngClass]="{ active: inboxService.relevanceFilter() === 'all' }"
+        (click)="onRelevanceFilter('all')"
+        (keydown.enter)="onRelevanceFilter('all')"
+        (keydown.space)="onRelevanceFilter('all')"
+        role="tab"
+        [attr.aria-selected]="inboxService.relevanceFilter() === 'all'"
+        tabindex="0"
+      >{{ 'inbox.list.filter.all' | translate }}</a>
+    </li>
+  </ul>
   <div class="filter-sort-row">
     <select
       class="read-filter"

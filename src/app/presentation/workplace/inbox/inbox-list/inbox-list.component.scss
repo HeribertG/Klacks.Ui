@@ -55,32 +55,8 @@
   padding: 0;
 }
 
-.relevance-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--colorLine);
-}
-
-.relevance-tab {
-  flex: 1;
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
+.nav-tabs {
   font-size: 13px;
-  font-weight: 500;
-  color: var(--colorLabel);
-  transition: all 0.15s ease;
-
-  &:hover {
-    background-color: var(--backgroundColorHover);
-  }
-
-  &.active {
-    color: var(--focusBorderColor);
-    border-bottom-color: var(--focusBorderColor);
-    font-weight: 600;
-  }
 }
 
 .filter-sort-row {

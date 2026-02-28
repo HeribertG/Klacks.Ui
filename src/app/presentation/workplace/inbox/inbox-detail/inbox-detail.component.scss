@@ -11,13 +11,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--emailReaderBorder);
+  background-color: var(--backgroundColorWorkplace);
+  color: var(--colorHeadline);
+  border-bottom: 1px solid var(--colorLine);
 }
 
 .detail-subject {
   font-size: 18px;
   font-weight: 600;
-  color: var(--emailReaderHeadline);
+  color: var(--colorHeadline);
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -58,6 +60,14 @@
       background-color: var(--standartRedColor);
       color: white;
     }
+  }
+
+  &--icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border: none;
   }
 }
 
@@ -106,6 +116,7 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: var(--emailReaderMuted);
+  background-color: var(--backgroundColorWorkplace);
+  color: var(--colorLabel);
   font-size: 15px;
 }

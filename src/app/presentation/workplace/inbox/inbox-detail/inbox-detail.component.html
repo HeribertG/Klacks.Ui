@@ -4,11 +4,11 @@
     <div class="detail-actions">
       <button
         type="button"
-        class="action-button"
+        class="action-button action-button--icon"
         (click)="onToggleRead()"
         [attr.aria-label]="(email()!.isRead ? 'inbox.detail.mark-unread' : 'inbox.detail.mark-read') | translate"
       >
-        {{ (email()!.isRead ? 'inbox.detail.mark-unread' : 'inbox.detail.mark-read') | translate }}
+        <app-icon-eye-closed [disabled]="!email()!.isRead" aria-hidden="true"></app-icon-eye-closed>
       </button>
       @if (isTrashFolder()) {
         <button
@@ -30,11 +30,11 @@
       } @else {
         <button
           type="button"
-          class="action-button action-button--danger"
+          class="action-button action-button--icon"
           (click)="onDelete()"
           [attr.aria-label]="'inbox.detail.delete' | translate"
         >
-          {{ 'inbox.detail.delete' | translate }}
+          <app-icon-trash-red aria-hidden="true"></app-icon-trash-red>
         </button>
       }
     </div>

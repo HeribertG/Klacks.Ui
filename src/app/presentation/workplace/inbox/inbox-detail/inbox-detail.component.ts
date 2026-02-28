@@ -5,13 +5,15 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-closed.component';
 
 @Component({
   selector: 'app-inbox-detail',
   templateUrl: './inbox-detail.component.html',
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, DatePipe, TranslateModule],
+  imports: [CommonModule, DatePipe, TranslateModule, TrashIconRedComponent, IconEyeClosedComponent],
 })
 export class InboxDetailComponent {
   inboxService = inject(InboxService);
