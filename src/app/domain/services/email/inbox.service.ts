@@ -37,6 +37,13 @@ export class InboxService {
 
   isTrashFolder = computed(() => this.selectedFolder() === TRASH_FOLDER);
 
+  inboxUnreadCount = computed(() => {
+    const folders = this.folders();
+    if (folders.length === 0) return 0;
+    const inboxFolder = folders.find(f => f.imapFolderName !== TRASH_FOLDER);
+    return inboxFolder?.unreadCount ?? 0;
+  });
+
   displayEmails = computed(() => {
     const emails = this.emails();
     const filter = this.relevanceFilter();

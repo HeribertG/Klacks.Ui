@@ -84,8 +84,8 @@
           ngbTooltip="{{ inbox }} (Alt+9)"
         >
           <app-icon-mail #mailIcon></app-icon-mail>
-          @if (inboxService.unreadCount() > 0) {
-            <span class="unread-badge">{{ inboxService.unreadCount() }}</span>
+          @if (inboxService.inboxUnreadCount() > 0) {
+            <span class="unread-badge">{{ inboxService.inboxUnreadCount() }}</span>
           }
         </button>
       </div>
