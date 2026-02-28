@@ -1,11 +1,11 @@
 <div class="inbox-list-header">
   <span class="inbox-title">{{ currentFolderName() }}</span>
-  <span class="inbox-count">{{ inboxService.totalCount() }}</span>
+  <span class="inbox-count">{{ inboxService.unreadCount() }}</span>
   <button
     type="button"
     class="refresh-button"
     (click)="onRefresh()"
-    [attr.aria-label]="'Refresh inbox'"
+    [attr.aria-label]="'inbox.list.refresh' | translate"
   >
     &#8635;
   </button>
@@ -18,19 +18,19 @@
       class="relevance-tab"
       [class.active]="inboxService.relevanceFilter() === 'relevant'"
       (click)="onRelevanceFilter('relevant')"
-    >Relevant</button>
+    >{{ 'inbox.list.filter.relevant' | translate }}</button>
     <button
       type="button"
       class="relevance-tab"
       [class.active]="inboxService.relevanceFilter() === 'other'"
       (click)="onRelevanceFilter('other')"
-    >Sonstiges</button>
+    >{{ 'inbox.list.filter.other' | translate }}</button>
     <button
       type="button"
       class="relevance-tab"
       [class.active]="inboxService.relevanceFilter() === 'all'"
       (click)="onRelevanceFilter('all')"
-    >Alle</button>
+    >{{ 'inbox.list.filter.all' | translate }}</button>
   </div>
   <div class="filter-sort-row">
     <select
@@ -38,24 +38,24 @@
       [value]="inboxService.readFilter()"
       (change)="onReadFilterChange($event)"
     >
-      <option value="all">Alle</option>
-      <option value="unread">Ungelesen</option>
-      <option value="read">Gelesen</option>
+      <option value="all">{{ 'inbox.list.filter.all' | translate }}</option>
+      <option value="unread">{{ 'inbox.list.filter.unread' | translate }}</option>
+      <option value="read">{{ 'inbox.list.filter.read' | translate }}</option>
     </select>
     <button
       type="button"
       class="sort-button"
       (click)="onToggleSort()"
-      [attr.aria-label]="'Sort by date'"
+      [attr.aria-label]="'inbox.list.sort-by-date' | translate"
     >
-      Datum {{ inboxService.sortDirection() === 'desc' ? '&#8595;' : '&#8593;' }}
+      {{ 'inbox.list.sort.date' | translate }} {{ inboxService.sortDirection() === 'desc' ? '&#8595;' : '&#8593;' }}
     </button>
   </div>
 </div>
 
 @if (inboxService.isLoading()) {
   <div class="loading-indicator">
-    <span>Loading...</span>
+    <span>{{ 'inbox.list.loading' | translate }}</span>
   </div>
 }
 
@@ -66,6 +66,7 @@
       [class.unread]="!email.isRead"
       [class.selected]="isSelected(email)"
       (click)="onSelectEmail(email)"
+      (contextmenu)="onRightClick($event, email)"
       role="button"
       tabindex="0"
       (keydown.enter)="onSelectEmail(email)"
@@ -88,7 +89,9 @@
 
   @if (!inboxService.isLoading() && inboxService.displayEmails().length === 0) {
     <div class="empty-state">
-      <span>No emails</span>
+      <span>{{ 'inbox.list.empty' | translate }}</span>
     </div>
   }
 </div>
+
+<app-context-menu #contextMenu></app-context-menu>

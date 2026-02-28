@@ -7,11 +7,11 @@ export enum SpamRuleType {
   BodyContains = 3,
 }
 
-export const SPAM_RULE_TYPE_LABELS: Record<SpamRuleType, string> = {
-  [SpamRuleType.SenderContains]: 'Sender Contains',
-  [SpamRuleType.SenderDomain]: 'Sender Domain',
-  [SpamRuleType.SubjectContains]: 'Subject Contains',
-  [SpamRuleType.BodyContains]: 'Body Contains',
+export const SPAM_RULE_TYPE_TRANSLATION_KEYS: Record<SpamRuleType, string> = {
+  [SpamRuleType.SenderContains]: 'settings.spam-rules.type.sender-contains',
+  [SpamRuleType.SenderDomain]: 'settings.spam-rules.type.sender-domain',
+  [SpamRuleType.SubjectContains]: 'settings.spam-rules.type.subject-contains',
+  [SpamRuleType.BodyContains]: 'settings.spam-rules.type.body-contains',
 };
 
 export interface ISpamRule {

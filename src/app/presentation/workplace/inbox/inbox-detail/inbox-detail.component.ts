@@ -3,6 +3,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { TranslateModule } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 
 @Component({
@@ -10,13 +11,14 @@ import { InboxService } from 'src/app/domain/services/email/inbox.service';
   templateUrl: './inbox-detail.component.html',
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, TranslateModule],
 })
 export class InboxDetailComponent {
-  private inboxService = inject(InboxService);
+  inboxService = inject(InboxService);
   private sanitizer = inject(DomSanitizer);
 
   email = this.inboxService.selectedEmail;
+  isTrashFolder = this.inboxService.isTrashFolder;
 
   sanitizedBody = computed<SafeHtml | undefined>(() => {
     const e = this.email();
@@ -36,6 +38,20 @@ export class InboxDetailComponent {
     const e = this.email();
     if (e) {
       this.inboxService.deleteEmail(e.id);
+    }
+  }
+
+  onRestore(): void {
+    const e = this.email();
+    if (e) {
+      this.inboxService.restoreEmail(e.id);
+    }
+  }
+
+  onPermanentlyDelete(): void {
+    const e = this.email();
+    if (e) {
+      this.inboxService.permanentlyDeleteEmail(e.id);
     }
   }
 

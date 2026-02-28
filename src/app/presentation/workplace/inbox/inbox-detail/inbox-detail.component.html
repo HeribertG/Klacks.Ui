@@ -6,24 +6,43 @@
         type="button"
         class="action-button"
         (click)="onToggleRead()"
-        [attr.aria-label]="email()!.isRead ? 'Mark as unread' : 'Mark as read'"
+        [attr.aria-label]="(email()!.isRead ? 'inbox.detail.mark-unread' : 'inbox.detail.mark-read') | translate"
       >
-        {{ email()!.isRead ? 'Mark unread' : 'Mark read' }}
+        {{ (email()!.isRead ? 'inbox.detail.mark-unread' : 'inbox.detail.mark-read') | translate }}
       </button>
-      <button
-        type="button"
-        class="action-button action-button--danger"
-        (click)="onDelete()"
-        [attr.aria-label]="'Delete email'"
-      >
-        Delete
-      </button>
+      @if (isTrashFolder()) {
+        <button
+          type="button"
+          class="action-button"
+          (click)="onRestore()"
+          [attr.aria-label]="'inbox.detail.restore' | translate"
+        >
+          {{ 'inbox.detail.restore' | translate }}
+        </button>
+        <button
+          type="button"
+          class="action-button action-button--danger"
+          (click)="onPermanentlyDelete()"
+          [attr.aria-label]="'inbox.detail.permanently-delete' | translate"
+        >
+          {{ 'inbox.detail.permanently-delete' | translate }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="action-button action-button--danger"
+          (click)="onDelete()"
+          [attr.aria-label]="'inbox.detail.delete' | translate"
+        >
+          {{ 'inbox.detail.delete' | translate }}
+        </button>
+      }
     </div>
   </div>
 
   <div class="detail-meta">
     <div class="meta-row">
-      <span class="meta-label">From:</span>
+      <span class="meta-label">{{ 'inbox.detail.from' | translate }}</span>
       <span class="meta-value">
         {{ email()!.fromName }}
         @if (email()!.fromName) {
@@ -34,15 +53,15 @@
       </span>
     </div>
     <div class="meta-row">
-      <span class="meta-label">To:</span>
+      <span class="meta-label">{{ 'inbox.detail.to' | translate }}</span>
       <span class="meta-value">{{ email()!.toAddress }}</span>
     </div>
     <div class="meta-row">
-      <span class="meta-label">Date:</span>
+      <span class="meta-label">{{ 'inbox.detail.date' | translate }}</span>
       <span class="meta-value">{{ email()!.receivedDate | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
     </div>
     <div class="meta-row">
-      <span class="meta-label">Folder:</span>
+      <span class="meta-label">{{ 'inbox.detail.folder' | translate }}</span>
       <span class="meta-value">{{ email()!.folder }}</span>
     </div>
   </div>
@@ -51,11 +70,11 @@
     @if (sanitizedBody()) {
       <div [innerHTML]="sanitizedBody()"></div>
     } @else {
-      <div class="no-body">No content</div>
+      <div class="no-body">{{ 'inbox.detail.no-content' | translate }}</div>
     }
   </div>
 } @else {
   <div class="no-selection">
-    <span>Select an email to view</span>
+    <span>{{ 'inbox.detail.no-selection' | translate }}</span>
   </div>
 }

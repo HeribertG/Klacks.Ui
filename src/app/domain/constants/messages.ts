@@ -125,6 +125,12 @@ export class DomainMessages {
   public static readonly SEND_STAFF_SCHEDULE = 'contextMenu.sendStaffSchedule';
   public static DELETE_BREAK_PLACEHOLDER = 'contextMenu.deleteBreakPlaceholder';
   public static ADOPT_ABSENCE = 'contextMenu.adoptAbsence';
+  public static EMAIL_MARK_READ = 'contextMenu.email.markRead';
+  public static EMAIL_MARK_UNREAD = 'contextMenu.email.markUnread';
+  public static EMAIL_DELETE = 'contextMenu.email.delete';
+  public static EMAIL_RESTORE = 'contextMenu.email.restore';
+  public static EMAIL_PERMANENTLY_DELETE = 'contextMenu.email.permanentlyDelete';
+  public static EMAIL_MOVE_TO_FOLDER = 'contextMenu.email.moveToFolder';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

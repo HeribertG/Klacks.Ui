@@ -7,7 +7,7 @@ import { SpamRuleService } from 'src/app/domain/services/email/spam-rule.service
 import {
   ISpamRule,
   SpamRuleType,
-  SPAM_RULE_TYPE_LABELS,
+  SPAM_RULE_TYPE_TRANSLATION_KEYS,
 } from 'src/app/domain/models/email/spam-rule.model';
 
 const SPAM_RULE_TYPES = [
@@ -29,7 +29,7 @@ export class SpamRulesComponent implements OnInit {
   protected spamRuleService = inject(SpamRuleService);
 
   protected ruleTypes = SPAM_RULE_TYPES;
-  protected ruleTypeLabels = SPAM_RULE_TYPE_LABELS;
+  protected ruleTypeKeys = SPAM_RULE_TYPE_TRANSLATION_KEYS;
   protected newRuleType: SpamRuleType = SpamRuleType.SenderContains;
   protected newPattern = '';
 

@@ -60,6 +60,24 @@ export class DataReceivedEmailService {
       .pipe(retry(3));
   }
 
+  restore(id: string) {
+    return this.httpClient
+      .put<boolean>(`${environment.baseUrl}${API_PATH}${id}/Restore`, {})
+      .pipe(retry(3));
+  }
+
+  permanentlyDelete(id: string) {
+    return this.httpClient
+      .delete<boolean>(`${environment.baseUrl}${API_PATH}${id}/Permanent`)
+      .pipe(retry(3));
+  }
+
+  moveToFolder(id: string, folder: string) {
+    return this.httpClient
+      .put<boolean>(`${environment.baseUrl}${API_PATH}${id}/MoveToFolder?folder=${encodeURIComponent(folder)}`, {})
+      .pipe(retry(3));
+  }
+
   fetchNow() {
     return this.httpClient
       .post<{ success: boolean; fetchedCount?: number; error?: string }>(

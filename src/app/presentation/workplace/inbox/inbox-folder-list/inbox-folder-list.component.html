@@ -1,11 +1,11 @@
 <div class="folder-list-header">
-  <span class="folder-title">Folders</span>
+  <span class="folder-title">{{ 'inbox.folder-list.title' | translate }}</span>
   @if (isAuthorised) {
     <button
       type="button"
       class="add-folder-button"
       (click)="onCreateFolder()"
-      [attr.aria-label]="'Create folder'"
+      [attr.aria-label]="'inbox.folder-list.create' | translate"
     >
       +
     </button>
@@ -22,7 +22,7 @@
       tabindex="0"
       (keydown.enter)="onSelectFolder(folder)"
     >
-      <span class="folder-name">{{ folder.name }}</span>
+      <span class="folder-name">{{ getFolderDisplayName(folder) }}</span>
       <div class="folder-actions">
         @if (folder.unreadCount > 0) {
           <span class="folder-badge">{{ folder.unreadCount }}</span>
@@ -32,7 +32,7 @@
             type="button"
             class="delete-folder-button"
             (click)="onDeleteFolder(folder); $event.stopPropagation()"
-            [attr.aria-label]="'Delete folder ' + folder.name"
+            [attr.aria-label]="'inbox.folder-list.delete' | translate"
           >
             &#10005;
           </button>
@@ -43,7 +43,7 @@
 
   @if (inboxService.folders().length === 0) {
     <div class="empty-state">
-      <span>No folders</span>
+      <span>{{ 'inbox.folder-list.empty' | translate }}</span>
     </div>
   }
 </div>

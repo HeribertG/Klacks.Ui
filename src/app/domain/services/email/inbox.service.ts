@@ -8,6 +8,7 @@ import {
   IReceivedEmailListItem,
 } from 'src/app/domain/models/email/received-email.model';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
+import { TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -33,6 +34,8 @@ export class InboxService {
   readFilter = signal<'all' | 'read' | 'unread'>('all');
   sortDirection = signal<'asc' | 'desc'>('desc');
   relevanceFilter = signal<'all' | 'relevant' | 'other'>('all');
+
+  isTrashFolder = computed(() => this.selectedFolder() === TRASH_FOLDER);
 
   displayEmails = computed(() => {
     const emails = this.emails();
@@ -126,6 +129,45 @@ export class InboxService {
 
   deleteEmail(id: string): void {
     this.dataReceivedEmailService.delete(id).subscribe({
+      next: () => {
+        this.emails.update((list) => list.filter((e) => e.id !== id));
+        if (this.selectedEmail()?.id === id) {
+          this.selectedEmail.set(undefined);
+        }
+        this.totalCount.update((c) => c - 1);
+        this.refreshUnreadCount();
+      },
+    });
+  }
+
+  restoreEmail(id: string): void {
+    this.dataReceivedEmailService.restore(id).subscribe({
+      next: () => {
+        this.emails.update((list) => list.filter((e) => e.id !== id));
+        if (this.selectedEmail()?.id === id) {
+          this.selectedEmail.set(undefined);
+        }
+        this.totalCount.update((c) => c - 1);
+        this.refreshUnreadCount();
+      },
+    });
+  }
+
+  permanentlyDeleteEmail(id: string): void {
+    this.dataReceivedEmailService.permanentlyDelete(id).subscribe({
+      next: () => {
+        this.emails.update((list) => list.filter((e) => e.id !== id));
+        if (this.selectedEmail()?.id === id) {
+          this.selectedEmail.set(undefined);
+        }
+        this.totalCount.update((c) => c - 1);
+        this.refreshUnreadCount();
+      },
+    });
+  }
+
+  moveEmailToFolder(id: string, folder: string): void {
+    this.dataReceivedEmailService.moveToFolder(id, folder).subscribe({
       next: () => {
         this.emails.update((list) => list.filter((e) => e.id !== id));
         if (this.selectedEmail()?.id === id) {

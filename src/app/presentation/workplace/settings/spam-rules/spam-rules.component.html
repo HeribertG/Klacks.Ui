@@ -18,7 +18,7 @@
       <tbody>
         @for (rule of spamRuleService.rules(); track rule.id) {
           <tr>
-            <td class="col-type">{{ ruleTypeLabels[rule.ruleType] }}</td>
+            <td class="col-type">{{ ruleTypeKeys[rule.ruleType] | translate }}</td>
             <td class="col-pattern">{{ rule.pattern }}</td>
             <td class="col-active">
               <input
@@ -47,7 +47,7 @@
         [(ngModel)]="newRuleType"
       >
         @for (type of ruleTypes; track type) {
-          <option [ngValue]="type">{{ ruleTypeLabels[type] }}</option>
+          <option [ngValue]="type">{{ ruleTypeKeys[type] | translate }}</option>
         }
       </select>
       <input
