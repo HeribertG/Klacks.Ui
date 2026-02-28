@@ -43,6 +43,13 @@ export class InboxFolderListComponent {
     this.inboxService.createFolder(name, imapFolderName);
   }
 
+  getFolderBadgeCount(folder: IEmailFolder): number {
+    if (folder.imapFolderName === TRASH_FOLDER) {
+      return folder.totalCount;
+    }
+    return folder.unreadCount;
+  }
+
   getFolderDisplayName(folder: IEmailFolder): string {
     if (folder.imapFolderName === TRASH_FOLDER) {
       return this.translateService.instant('inbox.folder-list.trash-name');

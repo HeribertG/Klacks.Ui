@@ -24,8 +24,8 @@
     >
       <span class="folder-name">{{ getFolderDisplayName(folder) }}</span>
       <div class="folder-actions">
-        @if (folder.unreadCount > 0) {
-          <span class="folder-badge">{{ folder.unreadCount }}</span>
+        @if (getFolderBadgeCount(folder) > 0) {
+          <span class="folder-badge">{{ getFolderBadgeCount(folder) }}</span>
         }
         @if (isAuthorised && !folder.isSystem) {
           <button

@@ -94,6 +94,18 @@ $splitButtonBlueColor: #5e84e6;
   --colorFindCustomerList: white;
 
   --colorHoverOnCalenderDay: black;
+
+  --emailReaderBackground: #fafafa;
+  --emailReaderText: #1a1a1a;
+  --emailReaderHeadline: #111111;
+  --emailReaderMetaLabel: #555555;
+  --emailReaderMetaValue: #333333;
+  --emailReaderMuted: #777777;
+  --emailReaderBorder: #e0e0e0;
+  --emailReaderMetaBackground: #f0f0f0;
+  --emailReaderButtonBorder: #d0d0d0;
+  --emailReaderButtonHover: #e8e8e8;
+  --emailReaderFocusOutline: #4a90d9;
 }
 
 :root[data-theme="dark"] {
@@ -164,4 +176,16 @@ $splitButtonBlueColor: #5e84e6;
   --standartRedColor: #e74c3c;
   --waveColor: #283747;
   --waveBackgroundColor: #1bc5bd;
+
+  --emailReaderBackground: #fafafa;
+  --emailReaderText: #1a1a1a;
+  --emailReaderHeadline: #111111;
+  --emailReaderMetaLabel: #555555;
+  --emailReaderMetaValue: #333333;
+  --emailReaderMuted: #777777;
+  --emailReaderBorder: #e0e0e0;
+  --emailReaderMetaBackground: #f0f0f0;
+  --emailReaderButtonBorder: #d0d0d0;
+  --emailReaderButtonHover: #e8e8e8;
+  --emailReaderFocusOutline: #4a90d9;
 }

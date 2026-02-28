@@ -1,11 +1,9 @@
-@use "../../../../../assets/standard-styles/colors.scss";
-@use "../../../../../assets/standard-styles/standard-controls.scss";
-
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background-color: var(--emailReaderBackground);
 }
 
 .detail-header {
@@ -13,13 +11,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--colorLine);
+  border-bottom: 1px solid var(--emailReaderBorder);
 }
 
 .detail-subject {
   font-size: 18px;
   font-weight: 600;
-  color: var(--colorHeadline);
+  color: var(--emailReaderHeadline);
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -35,20 +33,20 @@
 
 .action-button {
   background: none;
-  border: 1px solid var(--cardBorderColor);
+  border: 1px solid var(--emailReaderButtonBorder);
   border-radius: 4px;
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
-  color: var(--standartTextColor);
+  color: var(--emailReaderMetaValue);
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: var(--backgroundColorHover);
+    background-color: var(--emailReaderButtonHover);
   }
 
   &:focus {
-    outline: 2px solid var(--focusBorderColor);
+    outline: 2px solid var(--emailReaderFocusOutline);
     outline-offset: 2px;
   }
 
@@ -65,8 +63,8 @@
 
 .detail-meta {
   padding: 12px 20px;
-  border-bottom: 1px solid var(--colorLine);
-  background-color: var(--backgroundColorHover);
+  border-bottom: 1px solid var(--emailReaderBorder);
+  background-color: var(--emailReaderMetaBackground);
 }
 
 .meta-row {
@@ -78,13 +76,13 @@
 
 .meta-label {
   font-weight: 600;
-  color: var(--colorLabel);
+  color: var(--emailReaderMetaLabel);
   min-width: 60px;
   margin-right: 8px;
 }
 
 .meta-value {
-  color: var(--standartTextColor);
+  color: var(--emailReaderMetaValue);
 }
 
 .detail-body {
@@ -92,14 +90,14 @@
   padding: 20px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--standartTextColor);
+  color: var(--emailReaderText);
   overflow-wrap: break-word;
   word-break: break-word;
   overflow-y: auto;
 }
 
 .no-body {
-  color: var(--colorLabel);
+  color: var(--emailReaderMuted);
   font-style: italic;
 }
 
@@ -108,6 +106,6 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: var(--colorLabel);
+  color: var(--emailReaderMuted);
   font-size: 15px;
 }
