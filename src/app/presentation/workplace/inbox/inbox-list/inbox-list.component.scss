@@ -135,6 +135,11 @@
 
     .email-subject {
       font-weight: 600;
+      color: var(--gridColorTextUpdate);
+    }
+
+    .email-date {
+      color: var(--gridColorTextUpdate);
     }
   }
 }

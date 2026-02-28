@@ -44,6 +44,12 @@ export class InboxService {
     return inboxFolder?.unreadCount ?? 0;
   });
 
+  selectedFolderUnreadCount = computed(() => {
+    const selected = this.selectedFolder();
+    const folder = this.folders().find(f => f.imapFolderName === selected);
+    return folder?.unreadCount ?? 0;
+  });
+
   displayEmails = computed(() => {
     const emails = this.emails();
     const filter = this.relevanceFilter();
@@ -119,16 +125,14 @@ export class InboxService {
   }
 
   markAsRead(id: string, isRead: boolean): void {
+    this.emails.update((list) =>
+      list.map((e) => (e.id === id ? { ...e, isRead } : e)),
+    );
+    if (this.selectedEmail()?.id === id) {
+      this.selectedEmail.update((e) => (e ? { ...e, isRead } : e));
+    }
     this.dataReceivedEmailService.markAsRead(id, isRead).subscribe({
-      next: (updated) => {
-        this.emails.update((list) =>
-          list.map((e) => (e.id === id ? { ...e, isRead: updated.isRead } : e)),
-        );
-        if (this.selectedEmail()?.id === id) {
-          this.selectedEmail.update((e) =>
-            e ? { ...e, isRead: updated.isRead } : e,
-          );
-        }
+      next: () => {
         this.refreshUnreadCount();
       },
     });
