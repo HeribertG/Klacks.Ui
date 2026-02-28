@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataReceivedEmailService } from 'src/app/infrastructure/api/email/data-received-email.service';
 import { DataEmailFolderService } from 'src/app/infrastructure/api/email/data-email-folder.service';
 import {
@@ -9,6 +10,7 @@ import {
 } from 'src/app/domain/models/email/received-email.model';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
+import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -23,6 +25,8 @@ const AUTOMATED_SENDER_PATTERNS = [
 export class InboxService {
   private dataReceivedEmailService = inject(DataReceivedEmailService);
   private dataEmailFolderService = inject(DataEmailFolderService);
+  private emailSignalRService = inject(EmailSignalRService);
+  private destroyRef = inject(DestroyRef);
 
   emails = signal<IReceivedEmailListItem[]>([]);
   selectedEmail = signal<IReceivedEmail | undefined>(undefined);
@@ -34,6 +38,7 @@ export class InboxService {
   readFilter = signal<'all' | 'read' | 'unread'>('all');
   sortDirection = signal<'asc' | 'desc'>('desc');
   relevanceFilter = signal<'all' | 'relevant' | 'other'>('all');
+  private signalRInitialized = false;
 
   isTrashFolder = computed(() => this.selectedFolder() === TRASH_FOLDER);
 
@@ -57,6 +62,36 @@ export class InboxService {
     if (filter === 'relevant') return emails.filter(e => !this.isAutomatedSender(e.fromAddress));
     return emails.filter(e => this.isAutomatedSender(e.fromAddress));
   });
+
+  initSignalR(): void {
+    if (this.signalRInitialized) return;
+    this.signalRInitialized = true;
+
+    this.emailSignalRService.startConnection();
+
+    this.emailSignalRService.newEmailsReceived$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadFolders();
+      });
+
+    this.emailSignalRService.emailReadStateChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => {
+        this.emails.update((list) =>
+          list.map((e) => (e.id === notification.emailId ? { ...e, isRead: notification.isRead } : e)),
+        );
+        if (this.selectedEmail()?.id === notification.emailId) {
+          this.selectedEmail.update((e) => (e ? { ...e, isRead: notification.isRead } : e));
+        }
+        this.refreshUnreadCount();
+      });
+
+    this.destroyRef.onDestroy(() => {
+      this.emailSignalRService.stopConnection();
+      this.signalRInitialized = false;
+    });
+  }
 
   loadFolders(): void {
     this.dataEmailFolderService.getFolders().subscribe({

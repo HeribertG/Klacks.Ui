@@ -27,6 +27,7 @@ export class InboxHomeComponent implements OnInit {
     this.layoutService.setContainerToFullSize();
     this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(false);
+    this.inboxService.initSignalR();
     this.inboxService.loadFolders();
   }
 }

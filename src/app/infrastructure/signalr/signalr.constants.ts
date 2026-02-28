@@ -37,6 +37,19 @@ export const SignalRConstants = {
   },
 } as const;
 
+export const EmailSignalRConstants = {
+  HubPath: '/hubs/email-notifications',
+
+  Events: {
+    NewEmailsReceived: 'NewEmailsReceived',
+    EmailReadStateChanged: 'EmailReadStateChanged',
+  },
+
+  QueryParams: {
+    AccessToken: 'access_token',
+  },
+} as const;
+
 export const AssistantSignalRConstants = {
   HubPath: '/hubs/assistant-notifications',
 
