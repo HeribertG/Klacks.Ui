@@ -37,6 +37,7 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
+import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
 import { IconMailComponent } from '../../icons/icon-mail.component';
 
 type NavigationPage =
@@ -45,6 +46,7 @@ type NavigationPage =
   | 'shift'
   | 'schedule'
   | 'client'
+  | 'client-availability'
   | 'profile'
   | 'settings'
   | 'edit-address'
@@ -65,6 +67,7 @@ type NavigationPage =
     IconClientsComponent,
     IconUserComponent,
     IconSettingComponent,
+    IconAvailabilityComponent,
     IconMailComponent,
   ],
 })
@@ -76,6 +79,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
   @ViewChild('userIcon') userIcon!: IconUserComponent;
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
+  @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
   @ViewChild('mailIcon') mailIcon!: IconMailComponent;
 
   // Services
@@ -122,6 +126,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'absence';
       case 'schedule':
         return 'schedule';
+      case 'client-availability':
+        return 'availability';
       case 'inbox':
         return 'inbox';
       default:
@@ -307,6 +313,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationService.navigateToSettings();
   }
 
+  onClickAvailability(): void {
+    this.currentPage.set('client-availability');
+    this.navigationService.navigateToClientAvailability();
+  }
+
   onClickInbox(): void {
     this.currentPage.set('inbox');
     this.navigationService.navigateToInbox();
@@ -330,6 +341,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.employeesIcon,
       this.userIcon,
       this.settingsIcon,
+      this.availabilityIcon,
       this.mailIcon,
     ];
 
@@ -349,6 +361,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       employees: this.employeesIcon,
       user: this.userIcon,
       settings: this.settingsIcon,
+      availability: this.availabilityIcon,
       inbox: this.mailIcon,
     };
 

@@ -1,0 +1,39 @@
+.availability-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  gap: 8px;
+  border-bottom: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+
+    .period-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .zoom-slider {
+      width: 120px;
+    }
+
+    .save-btn {
+      white-space: nowrap;
+    }
+  }
+}

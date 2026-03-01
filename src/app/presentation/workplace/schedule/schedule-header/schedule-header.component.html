@@ -66,6 +66,17 @@
 
   <button
     type="button"
+    class="icon-button wizard-button"
+    (click)="onWizardClick()"
+    ngbTooltip="{{ 'wizard.dialog.title' | translate }}"
+  >
+    <app-icon-wizard />
+  </button>
+
+  <app-wizard-dialog #wizardDialog />
+
+  <button
+    type="button"
     class="icon-button pdf-export-button"
     (click)="onPdfExport()"
     ngbTooltip="{{ 'schedule.pdf.schedule' | translate }}"

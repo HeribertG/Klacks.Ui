@@ -33,7 +33,6 @@
   "accessibility.checked": "checked",
   "accessibility.unchecked": "unchecked",
   "accessibility.new-window": "Opens in new window",
-
   "contextMenu.copy": "Copy",
   "contextMenu.cut": "Cut",
   "contextMenu.paste": "Paste",
@@ -62,12 +61,10 @@
   "contextMenu.email.restore": "Restore",
   "contextMenu.email.permanentlyDelete": "Permanently delete",
   "contextMenu.email.moveToFolder": "Move to folder...",
-
   "lockLevel.confirmed": "Confirmed",
   "lockLevel.approved": "Approved",
   "lockLevel.closed": "Closed",
   "lockLevel.groupRestricted": "Group restricted",
-
   "dialog.correction.title": "Correction",
   "dialog.correction.position": "Position",
   "dialog.correction.atStart": "At start",
@@ -82,7 +79,6 @@
   "dialog.correction.error.atStartInvalid": "End time must equal shift start",
   "dialog.correction.error.atEndInvalid": "Start time must equal shift end",
   "dialog.correction.error.withinInvalid": "Time range must be within the shift",
-
   "dialog.replacement.title": "Replacement",
   "dialog.replacement.position": "Position",
   "dialog.replacement.atStart": "At start",
@@ -98,7 +94,6 @@
   "dialog.replacement.toInvoice": "To invoice",
   "dialog.replacement.error.zeroTime": "Please enter a valid time range",
   "dialog.replacement.error.outsideWork": "Time range must be within the shift",
-
   "dialog.workEdit.title": "Edit Work",
   "dialog.workEdit.startTime": "From",
   "dialog.workEdit.endTime": "To",
@@ -106,12 +101,10 @@
   "dialog.workEdit.description": "Description",
   "dialog.workEdit.error.maxDuration": "Maximum duration is 20 hours",
   "dialog.workEdit.error.invalidTime": "Please enter a valid time range",
-
   "dialog.expenses.title": "Expenses",
   "dialog.expenses.amount": "Amount",
   "dialog.expenses.description": "Description",
   "dialog.expenses.taxable": "Taxable",
-
   "workChange.abbr.correction": "COR",
   "workChange.abbr.replacement": "REP",
   "workChange.abbr.expenses": "EXP",
@@ -120,7 +113,6 @@
   "workChange.tooltip.reimbursement": "Reimbursement (non-taxable)",
   "workChange.tooltip.correction": "Correction",
   "workChange.tooltip.replacement": "Replacement",
-
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Search",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Year: ",
   "absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday": "Select holidays",
@@ -139,7 +131,6 @@
   "absence-gantt.validation.membership.after-end": "The absence cannot be created after the membership end date ({0}).",
   "absence-gantt.validation.membership.before-start": "The absence cannot be created before the membership start date ({0}).",
   "absence-gantt.validation.membership.outside-period": "The absence must be within the membership period ({0} - {1}).",
-
   "address.all-address.all-address-home.header": "All Addresses",
   "address.all-address.all-address-list.header": "Addresses",
   "address.all-address.all-address-list.table.company": "COMPANY",
@@ -262,7 +253,6 @@
   "address.edit-address.note.toolbar.list": "List",
   "address.edit-address.note.toolbar.paste": "Paste",
   "address.edit-address.note.toolbar.underline": "Underline",
-
   "auth.forgot-password.email-address": "Email Address",
   "auth.forgot-password.email-placeholder": "your-email@example.com",
   "auth.forgot-password.error": "Error sending reset email.",
@@ -282,7 +272,6 @@
   "login.oauth2.processing": "Authenticating...",
   "login.oauth2.back-to-login": "Back to login",
   "login.oauth2.error": "SSO login failed",
-
   "April": "April",
   "August": "August",
   "Di": "Tue",
@@ -315,10 +304,8 @@
   "tuesday": "Tuesday",
   "wednesday": "Wednesday",
   "weekday-or-holiday": "Holiday on a selected weekday",
-
   "client.validation.duplicate": "The selected person is already in the list",
   "search.inc.client": "Include client name",
-
   "active": "Active",
   "all": "<all>",
   "alumni": "Alumni",
@@ -382,7 +369,6 @@
   "selecting": "selecting",
   "store": "Save entries",
   "store.as": "Save as...",
-
   "ABSENCE": "Absence Calendar",
   "ADDRES_TYPE0_NAME": "Main address",
   "ADDRES_TYPE1_NAME": "Business Address",
@@ -431,7 +417,6 @@
   "STATISTIC": "Statistics",
   "UPDATE_NOT_DONE": "Changes were not adopted by the database",
   "VALID_FROM": "Valid from:",
-
   "EMAIL_EXIST": "The email address has already been used for registration",
   "EMAIL_TEST_ERROR": "Email test error",
   "EMAIL_TEST_INVALID_ADDRESS": "Please enter a valid email address in the Username field.",
@@ -454,7 +439,6 @@
   "email-templates.change-password.title": "Change Password",
   "email-templates.register-user.body": "<h2><strong>Your password for our application {appName}.</strong></h2><p>{password}</p><p>Please use this automatically generated password only once.</p><p>You can change your password at any time under Profile.</p><p>&nbsp;</p><p>Kind regards</p><p>Your Administration</p>",
   "email-templates.register-user.title": "Registration",
-
   "ADDRESS_NOT_VALID": "Address is incomplete",
   "AUTH_USER_ERROR": "Authorization failed!",
   "AUTH_USER_NOT_EXIST": "An incorrect password or username was entered. Please try again!",
@@ -579,7 +563,6 @@
   "error.message": "Please try again...",
   "no-access.message": "You do not have permission to access this feature.",
   "page-not-found.message": "Page not found",
-
   "edit-group-structure": "Create Group Structures",
   "group.all-group.all-group-home.header": "All groups",
   "group.all-group.all-group-list.header": "Groups",
@@ -620,12 +603,10 @@
   "group.tree.no-groups": "No groups found",
   "group.tree.refresh": "Refresh",
   "group.validation.valid-until-must-be-after-valid-from": "Valid until must be after valid from",
-
   "navigation.absence-calendar": "Absence Calendar",
   "navigation.all-employee": "All Addresses",
   "navigation.all-schedule": "All Schedules",
   "navigation.statistics": "Statistics",
-
   "pdf.generated": "Generated",
   "pdf.of": "of",
   "pdf.page": "Page",
@@ -642,7 +623,6 @@
   "pdf.distance": "Distance",
   "pdf.directions": "Directions",
   "pdf.no-directions-available": "No detailed directions available",
-
   "schedule.breakPlaceholder.toggle": "Show/hide absence bars",
   "schedule.sendEmail.tooltip": "Send email",
   "schedule.send.title": "Send Staff Schedule",
@@ -655,7 +635,6 @@
   "schedule.recalculate.tooltip": "Recalculate hours",
   "schedule.recalculate.success": "Hours have been recalculated",
   "schedule.recalculate.error": "Error recalculating hours",
-
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Employees",
   "schedule.filter.extern": "Ext",
@@ -690,7 +669,6 @@
   "schedule.entryType.workChange": "Change",
   "schedule.entryType.break": "Break",
   "schedule.entryType.expenses": "Expenses",
-
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",
   "setting.absence.modal.add": "Apply Entry",
@@ -824,7 +802,7 @@
   "settings.llm-models.success.create": "Model created successfully",
   "settings.llm-models.success.delete": "Model deleted successfully",
   "settings.llm-models.success.update": "Model updated successfully",
-  "settings.llm-models.title": "LLM Models",
+  "settings.llm-models.title": "LLM Models Configuration",
   "settings.llm-models.validation.context-window-positive": "Context window must be positive",
   "settings.llm-models.validation.display-name-required": "Display name is required",
   "settings.llm-models.validation.max-tokens-positive": "Max tokens must be positive",
@@ -835,6 +813,23 @@
   "settings.llm-models.validation.api-model-id-required": "API Model ID is required",
   "settings.llm-models.validation.provider-required": "Provider is required",
   "settings.llm-models.cannot-delete-default": "Default model cannot be deleted",
+  "settings.language-plugins.title": "Language Packs",
+  "settings.language-plugins.header.language": "Language",
+  "settings.language-plugins.header.display-name": "Display Name",
+  "settings.language-plugins.header.author": "Author",
+  "settings.language-plugins.header.version": "Version",
+  "settings.language-plugins.header.coverage": "Coverage",
+  "settings.language-plugins.header.status": "Status",
+  "settings.language-plugins.status.installed": "Installed",
+  "settings.language-plugins.status.available": "Available",
+  "settings.language-plugins.status.core": "Built-in",
+  "settings.language-plugins.action.install": "Install",
+  "settings.language-plugins.action.uninstall": "Uninstall",
+  "settings.language-plugins.success.install": "Language pack installed successfully",
+  "settings.language-plugins.success.uninstall": "Language pack uninstalled successfully",
+  "settings.language-plugins.error.load": "Error loading language packs",
+  "settings.language-plugins.error.install": "Error installing language pack",
+  "settings.language-plugins.error.uninstall": "Error uninstalling language pack",
   "setting.country.add": "+ Add Countries",
   "setting.country.header.abbreviation": "Abbr.",
   "setting.country.header.name": "Name",
@@ -1299,19 +1294,15 @@
   "aside.llm.error.enable_model": "Error enabling model",
   "aside.llm.error.disable_model": "Error disabling model",
   "aside.llm.error.set_default_model": "Error setting default model",
-  "settings.llm-models.title": "LLM Models Configuration",
-  "settings.llm-models.description": "Description",
   "settings.llm-models.api-model-id": "API Model ID",
   "settings.llm-models.usage-stats": "Usage Statistics (Last 30 Days)",
   "settings.llm-models.total-cost-30d": "Total Cost",
   "settings.llm-models.available-models": "Available Models",
   "settings.llm-models.input-tokens": "Input",
   "settings.llm-models.output-tokens": "Output",
-  "settings.llm-models.max-tokens": "Max Tokens",
   "settings.llm-models.set-as-default": "Set as Default",
   "settings.llm-models.default-model": "Default Model",
   "settings.llm-models.loading": "Loading models...",
-
   "settings.llm-providers.title": "LLM Providers",
   "settings.llm-providers.header.name": "Providers",
   "settings.llm-providers.headline-modal": "Edit LLM Provider",
@@ -1350,9 +1341,7 @@
   "settings.llm-providers.validation.api-key-required": "API key is required",
   "settings.llm-providers.cannot-delete-default-provider": "Provider of default model cannot be deleted",
   "settings.llm-providers.add": "+ New Provider",
-
   "validation.errors": "Validation Errors",
-
   "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",
   "list.all-list.all-shift-list.table.Fry": "FRI",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
@@ -1428,18 +1417,15 @@
   "shift.edit-shift.weekday.time-range": "Service within the time frame (From Time hh:mm - Until Time hh:mm). Please specify the duration of the service in the Duration field.",
   "shift.edit-shift.weekday.until": "Until Time hh:mm",
   "shift.edit-shift.weekday.work-hour": "Duration",
-
   "surface.home.modal.del": "Discard changes",
   "surface.home.modal.description": "Do you want to discard your changes if you leave this page?",
   "surface.home.modal.header": "Discard changes?",
   "surface.home.modal.save": "Save entries",
-
   "REGISTER": "The account data has been saved to the clipboard",
   "REGISTER_CHANGE_PASSWORD": "The account data has been saved to the clipboard",
   "REGISTER_CHANGE_PASSWORD_HEADER": "The account data has been saved to the clipboard",
   "REGISTER_SEND_PASSWORD": "The password has been successfully reset and sent to the email address",
   "settings.group.Sum": "Number",
-
   "assistant-chat.select-model": "Select Model",
   "assistant-chat.open": "Open",
   "assistant-chat.speak-now": "Speak now...",
@@ -1469,7 +1455,6 @@
   "assistant-chat.no-api-key.admin-link": "Go to Settings",
   "assistant-chat.whisper-loading": "Loading speech model...",
   "assistant-chat.transcribing": "Transcribing...",
-
   "shift.container-template.header": "Shift Template",
   "shift.container-template.from": "From",
   "shift.container-template.until": "Until",
@@ -1545,7 +1530,6 @@
   "shift.container-template.tooltip.export-route-pdf": "Export route to PDF",
   "shift.container-template.tooltip.export-shifts-pdf": "Export shifts to PDF",
   "shift.container-template.tooltip.compact-shifts": "Compact shifts",
-
   "settings.identity-provider.headline": "Identity Provider",
   "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
@@ -1636,5 +1620,19 @@
   "settings.spam-rules.type.sender-contains": "Sender Contains",
   "settings.spam-rules.type.sender-domain": "Sender Domain",
   "settings.spam-rules.type.subject-contains": "Subject Contains",
-  "settings.spam-rules.type.body-contains": "Body Contains"
+  "settings.spam-rules.type.body-contains": "Body Contains",
+  "wizard.dialog.title": "Schedule Wizard",
+  "wizard.dialog.generation": "Generation",
+  "wizard.dialog.fitness": "Fitness",
+  "wizard.dialog.coverage": "Coverage",
+  "wizard.dialog.avgMotivation": "Avg. Motivation",
+  "wizard.dialog.generations": "Generations",
+  "wizard.dialog.unassigned": "Unassigned",
+  "wizard.dialog.initializing": "Initializing...",
+  "wizard.dialog.cancelled": "The calculation was cancelled.",
+  "wizard.dialog.col.date": "Date",
+  "wizard.dialog.col.shift": "Shift",
+  "wizard.dialog.col.agent": "Employee",
+  "wizard.dialog.col.motivation": "Motivation",
+  "wizard.dialog.col.hours": "Hours"
 }

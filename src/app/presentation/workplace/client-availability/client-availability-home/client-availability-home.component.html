@@ -1,0 +1,12 @@
+<div class="availability-main-header">
+  <app-client-availability-header
+    #header
+    (saveRequested)="onSaveRequested()"
+    (periodChanged)="onPeriodChanged()">
+  </app-client-availability-header>
+</div>
+<div class="availability-body">
+  <app-client-availability-container
+    #container>
+  </app-client-availability-container>
+</div>

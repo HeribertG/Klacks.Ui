@@ -51,6 +51,8 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
+import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
+import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -86,12 +88,15 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     IconBreakPlaceholderComponent,
     IconFlyComponent,
     IconRefreshScheduleComponent,
+    IconWizardComponent,
+    WizardDialogComponent,
   ],
   providers: [],
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
+  @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   value = 100;
   options: Options = {
     floor: 50,
@@ -228,6 +233,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onPdfExport() {
     this.pdfExportRequested.emit();
+  }
+
+  onWizardClick(): void {
+    this.wizardDialog.open();
   }
 
   async onSendAllSchedules(): Promise<void> {

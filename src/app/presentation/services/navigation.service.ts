@@ -102,6 +102,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/group-structure']);
   }
 
+  navigateToClientAvailability(): void {
+    this.router.navigate(['/workplace/client-availability']);
+  }
+
   navigateToInbox(): void {
     this.router.navigate(['/workplace/inbox']);
   }

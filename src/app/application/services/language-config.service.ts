@@ -8,6 +8,7 @@ import { ILanguageConfig } from 'src/app/domain/interfaces/language-config.inter
 
 @Injectable({ providedIn: 'root' })
 export class LanguageConfigService implements ILanguageConfig {
+  static readonly CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
   private static readonly DEFAULT_SUPPORTED_LANGUAGES = ['de', 'en', 'fr', 'it'];
   private static readonly DEFAULT_FALLBACK_ORDER = ['de', 'fr', 'it', 'en'];
 
@@ -62,5 +63,13 @@ export class LanguageConfigService implements ILanguageConfig {
 
   isLanguageSupported(langCode: string): boolean {
     return this.supportedLanguages().includes(langCode);
+  }
+
+  isCoreLanguage(langCode: string): boolean {
+    return LanguageConfigService.CORE_LANGUAGES.includes(langCode);
+  }
+
+  async reloadConfig(): Promise<void> {
+    return this.loadConfig();
   }
 }

@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.availability-main-header {
+  flex-shrink: 0;
+}
+
+.availability-body {
+  flex: 1;
+  overflow: hidden;
+}

@@ -1,0 +1,7 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+
+:host {
+  display: block;
+  height: 100%;
+}

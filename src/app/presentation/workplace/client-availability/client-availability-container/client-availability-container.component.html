@@ -1,0 +1,44 @@
+<as-split direction="horizontal" [gutterSize]="6" unit="pixel">
+  <as-split-area [size]="200" [minSize]="100">
+    <app-client-availability-row-header
+      #rowHeader
+      [valueChangeVScrollbar]="vScrollbarValue()">
+    </app-client-availability-row-header>
+  </as-split-area>
+
+  <as-split-area [minSize]="100">
+    <div class="container-box">
+      <div class="surface">
+        <div class="box">
+          <app-client-availability-surface
+            #surface
+            class="grid-canvas"
+            tabindex="0"
+            [valueChangeHScrollbar]="hScrollbarValue()"
+            (valueHScrollbar)="onHScrollbarValueChange($event)"
+            (maxValueHScrollbar)="onHScrollbarMaxValueChange($event)"
+            (visibleValueHScrollbar)="onHScrollbarVisibleValueChange($event)"
+            [valueChangeVScrollbar]="vScrollbarValue()"
+            (valueVScrollbar)="onVScrollbarValueChange($event)"
+            (maxValueVScrollbar)="onVScrollbarMaxValueChange($event)"
+            (visibleValueVScrollbar)="onVScrollbarVisibleValueChange($event)">
+          </app-client-availability-surface>
+        </div>
+        <app-v-scrollbar
+          class="vScrollArea"
+          [(value)]="vScrollbarValue"
+          [maxValue]="vScrollbarMaxValue()"
+          [visibleValue]="vScrollbarVisibleValue()"
+          (valueChange)="onVScrollbarValueChange($event)">
+        </app-v-scrollbar>
+      </div>
+      <app-h-scrollbar
+        class="hScrollArea"
+        [(value)]="hScrollbarValue"
+        [maxValue]="hScrollbarMaxValue()"
+        [visibleValue]="hScrollbarVisibleValue()"
+        (valueChange)="onHScrollbarValueChange($event)">
+      </app-h-scrollbar>
+    </div>
+  </as-split-area>
+</as-split>

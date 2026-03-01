@@ -1,0 +1,116 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+
+.first {
+  padding-left: 30px;
+}
+
+.custom-control-inline {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--cardBorderColor);
+  min-height: 36px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+span {
+  font-size: 13px;
+  color: var(--colorLabel);
+  margin-right: 15px;
+}
+
+.col-language {
+  width: 80px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.col-display-name {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.col-author {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.col-version {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.col-coverage {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.col-status {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.col-actions {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 20px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-core {
+  background-color: colors.$standartGreenColor;
+  color: white;
+}
+
+.status-installed {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.status-available {
+  background-color: var(--cardBorderColor);
+  color: var(--colorLabel);
+}
+
+.action-btn {
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid;
+  cursor: pointer;
+  background: transparent;
+}
+
+.install-btn {
+  border-color: colors.$standartGreenColor;
+  color: colors.$standartGreenColor;
+
+  &:hover {
+    background: colors.$standartGreenColor;
+    color: white;
+  }
+}
+
+.uninstall-btn {
+  border-color: #ef4444;
+  color: #ef4444;
+
+  &:hover {
+    background: #ef4444;
+    color: white;
+  }
+}

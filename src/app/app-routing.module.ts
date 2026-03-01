@@ -51,9 +51,13 @@ const routes: Routes = [
         path: 'schedule', 
         loadComponent: () => import('./presentation/workplace/schedule/schedule-home/schedule-home.component').then(m => m.ScheduleHomeComponent)
       },
-      { 
-        path: 'absence', 
+      {
+        path: 'absence',
         loadComponent: () => import('./presentation/workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component').then(m => m.AbsenceGanttHomeComponent)
+      },
+      {
+        path: 'client-availability',
+        loadComponent: () => import('./presentation/workplace/client-availability/client-availability-home/client-availability-home.component').then(m => m.ClientAvailabilityHomeComponent)
       },
       { 
         path: 'profile', 

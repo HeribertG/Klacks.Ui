@@ -1,0 +1,119 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #wizardModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "wizard.dialog.title" | translate }}</div>
+    <span class="filler"></span>
+    @if (phase() !== 'running') {
+      <div class="close" (click)="onClose()">&times;</div>
+    }
+  </div>
+
+  <div class="modal-body">
+    @switch (phase()) {
+      @case ('running') {
+        <div class="progress-section">
+          @if (progress(); as p) {
+            <div class="progress-info">
+              <span>{{ "wizard.dialog.generation" | translate }}: {{ p.currentGeneration }} / {{ p.maxGenerations }}</span>
+              <span>{{ "wizard.dialog.fitness" | translate }}: {{ (p.bestFitness * 100).toFixed(1) }}%</span>
+              <span>{{ "wizard.dialog.coverage" | translate }}: {{ (p.coverage * 100).toFixed(1) }}%</span>
+            </div>
+            <div class="progress">
+              <div
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                [style.width.%]="progressPercent"
+                [attr.aria-valuenow]="progressPercent"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {{ progressPercent }}%
+              </div>
+            </div>
+          } @else {
+            <div class="progress-info">
+              <span>{{ "wizard.dialog.initializing" | translate }}</span>
+            </div>
+            <div class="progress">
+              <div
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                style="width: 100%"
+              ></div>
+            </div>
+          }
+        </div>
+      }
+      @case ('done') {
+        @if (result(); as r) {
+          <div class="summary-badges">
+            <span class="badge" [class.bg-success]="r.coverage >= 0.9" [class.bg-warning]="r.coverage < 0.9 && r.coverage >= 0.5" [class.bg-danger]="r.coverage < 0.5">
+              {{ "wizard.dialog.coverage" | translate }}: {{ (r.coverage * 100).toFixed(1) }}%
+            </span>
+            <span class="badge bg-info">
+              {{ "wizard.dialog.avgMotivation" | translate }}: {{ (r.avgMotivation * 100).toFixed(0) }}%
+            </span>
+            <span class="badge bg-secondary">
+              {{ "wizard.dialog.generations" | translate }}: {{ r.generations }}
+            </span>
+            @if (r.unassignedShifts.length > 0) {
+              <span class="badge bg-warning">
+                {{ "wizard.dialog.unassigned" | translate }}: {{ r.unassignedShifts.length }}
+              </span>
+            }
+          </div>
+
+          @if (sortedAssignments().length > 0) {
+            <div class="result-table-wrapper">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>{{ "wizard.dialog.col.date" | translate }}</th>
+                    <th>{{ "wizard.dialog.col.shift" | translate }}</th>
+                    <th>{{ "wizard.dialog.col.agent" | translate }}</th>
+                    <th class="text-end">{{ "wizard.dialog.col.motivation" | translate }}</th>
+                    <th class="text-end">{{ "wizard.dialog.col.hours" | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of sortedAssignments(); track a.shiftId + a.agentId) {
+                    <tr>
+                      <td>{{ formatDate(a.date) }}</td>
+                      <td>{{ a.shiftName }}</td>
+                      <td>{{ a.agentName }}</td>
+                      <td class="text-end">{{ formatMotivation(a.motivation) }}%</td>
+                      <td class="text-end">{{ formatHours(a.hours) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      }
+      @case ('error') {
+        <div class="alert alert-danger">
+          {{ errorMessage() }}
+        </div>
+      }
+      @case ('cancelled') {
+        <div class="alert alert-warning">
+          {{ "wizard.dialog.cancelled" | translate }}
+        </div>
+      }
+    }
+  </div>
+
+  <div class="modal-footer">
+    @if (phase() === 'running') {
+      <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+        {{ "cancel" | translate }}
+      </button>
+    } @else {
+      <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+        {{ "close" | translate }}
+      </button>
+    }
+  </div>
+</ng-template>

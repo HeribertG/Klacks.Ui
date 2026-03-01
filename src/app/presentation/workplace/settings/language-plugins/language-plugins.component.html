@@ -1,0 +1,18 @@
+<app-settings-list-card
+  [headline]="translate.instant('settings.language-plugins.title')"
+  [showAddButton]="false"
+  idPrefix="language-plugins"
+  [showHeader]="true"
+>
+  <app-language-plugins-header header id="language-plugins-table-header"></app-language-plugins-header>
+  <div rows>
+    @for (plugin of plugins; track plugin.code; let i = $index) {
+      <app-language-plugins-row
+        [id]="'language-plugins-row-' + i"
+        [data]="plugin"
+        (installEvent)="onInstall($event)"
+        (uninstallEvent)="onUninstall($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

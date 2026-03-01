@@ -1,0 +1,53 @@
+<div class="availability-header">
+  <div class="header-left">
+    <div class="view-mode-group" ngbDropdown>
+      <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
+        @switch (viewMode) {
+          @case (PaymentInterval.Weekly) { Woche }
+          @case (PaymentInterval.Biweekly) { 2 Wochen }
+          @case (PaymentInterval.Monthly) { Monat }
+        }
+      </button>
+      <div ngbDropdownMenu>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Weekly)">Woche</button>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Biweekly)">2 Wochen</button>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Monthly)">Monat</button>
+      </div>
+    </div>
+
+    <div class="hour-group" ngbDropdown>
+      <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
+        @switch (hourGroupingMode) {
+          @case (HourGroupingMode.OneHour) { 1h }
+          @case (HourGroupingMode.TwoHour) { 2h }
+          @case (HourGroupingMode.FourHour) { 4h }
+          @case (HourGroupingMode.AmPm) { AM/PM }
+        }
+      </button>
+      <div ngbDropdownMenu>
+        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.OneHour)">1h</button>
+        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.TwoHour)">2h</button>
+        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.FourHour)">4h</button>
+        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.AmPm)">AM/PM</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <span class="period-label">{{ periodLabel() }}</span>
+  </div>
+
+  <div class="header-right">
+    <div class="zoom-slider">
+      <ngx-slider [(value)]="zoom" [options]="zoomOptions"></ngx-slider>
+    </div>
+
+    <button
+      class="btn btn-sm btn-primary save-btn"
+      (click)="onSave()"
+      ngbTooltip="Speichern">
+      <i class="bi bi-floppy"></i>
+      {{ 'common.save' | translate }}
+    </button>
+  </div>
+</div>

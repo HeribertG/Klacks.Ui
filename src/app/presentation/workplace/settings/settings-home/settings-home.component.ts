@@ -42,6 +42,7 @@ import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setti
 import { GlobalAgentRulesComponent } from '../global-agent-rules/global-agent-rules.component';
 import { ImapSettingComponent } from '../imap-setting/imap-setting.component';
 import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
+import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -88,6 +89,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     GlobalAgentRulesComponent,
     ImapSettingComponent,
     SpamRulesComponent,
+    LanguagePluginsComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {

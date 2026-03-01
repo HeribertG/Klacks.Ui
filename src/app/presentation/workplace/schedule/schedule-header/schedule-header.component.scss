@@ -146,6 +146,28 @@
   }
 }
 
+.wizard-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  margin-left: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:focus {
+    outline: 2px solid var(--focusBorderColor);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+}
+
 .pdf-export-button {
   background: none;
   border: none;

@@ -33,7 +33,6 @@
   "accessibility.checked": "aktiviert",
   "accessibility.unchecked": "deaktiviert",
   "accessibility.new-window": "Öffnet in neuem Fenster",
-
   "contextMenu.copy": "Kopieren",
   "contextMenu.cut": "Ausschneiden",
   "contextMenu.paste": "Einfügen",
@@ -62,12 +61,10 @@
   "contextMenu.email.restore": "Wiederherstellen",
   "contextMenu.email.permanentlyDelete": "Endgültig löschen",
   "contextMenu.email.moveToFolder": "In Ordner verschieben...",
-
   "lockLevel.confirmed": "Bestätigt",
   "lockLevel.approved": "Freigegeben",
   "lockLevel.closed": "Geschlossen",
   "lockLevel.groupRestricted": "Gruppeneinschränkung",
-
   "dialog.correction.title": "Korrektur",
   "dialog.correction.position": "Position",
   "dialog.correction.atStart": "Am Anfang",
@@ -82,7 +79,6 @@
   "dialog.correction.error.atStartInvalid": "Endzeit muss gleich Schichtbeginn sein",
   "dialog.correction.error.atEndInvalid": "Startzeit muss gleich Schichtende sein",
   "dialog.correction.error.withinInvalid": "Zeitbereich muss innerhalb der Schicht liegen",
-
   "dialog.replacement.title": "Ablösung",
   "dialog.replacement.position": "Position",
   "dialog.replacement.atStart": "Am Anfang",
@@ -98,7 +94,6 @@
   "dialog.replacement.toInvoice": "Abrechnen",
   "dialog.replacement.error.zeroTime": "Bitte geben Sie eine gültige Zeitspanne ein",
   "dialog.replacement.error.outsideWork": "Zeitbereich muss innerhalb der Schicht liegen",
-
   "dialog.workEdit.title": "Arbeit bearbeiten",
   "dialog.workEdit.startTime": "Von",
   "dialog.workEdit.endTime": "Bis",
@@ -106,12 +101,10 @@
   "dialog.workEdit.description": "Beschreibung",
   "dialog.workEdit.error.maxDuration": "Maximale Dauer ist 20 Stunden",
   "dialog.workEdit.error.invalidTime": "Bitte geben Sie eine gültige Zeitspanne ein",
-
   "dialog.expenses.title": "Spesen",
   "dialog.expenses.amount": "Betrag",
   "dialog.expenses.description": "Beschreibung",
   "dialog.expenses.taxable": "Steuerpflichtig",
-
   "workChange.abbr.correction": "KOR",
   "workChange.abbr.replacement": "ABL",
   "workChange.abbr.expenses": "SPE",
@@ -120,7 +113,6 @@
   "workChange.tooltip.reimbursement": "Vergütung (nicht steuerpflichtig)",
   "workChange.tooltip.correction": "Korrektur",
   "workChange.tooltip.replacement": "Ablösung",
-
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Suche",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Jahr: ",
   "absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday": "Wähle Feiertage aus",
@@ -139,7 +131,6 @@
   "absence-gantt.validation.membership.after-end": "Die Abwesenheit kann nicht nach dem Mitgliedschaftsende ({0}) erstellt werden.",
   "absence-gantt.validation.membership.before-start": "Die Abwesenheit kann nicht vor dem Mitgliedschaftsbeginn ({0}) erstellt werden.",
   "absence-gantt.validation.membership.outside-period": "Die Abwesenheit muss innerhalb der Mitgliedschaftsperiode ({0} - {1}) liegen.",
-
   "address.all-address.all-address-home.header": "Alle Adressen",
   "address.all-address.all-address-list.header": "Adressen",
   "address.all-address.all-address-list.table.company": "FIRMA",
@@ -262,7 +253,6 @@
   "address.edit-address.note.toolbar.list": "Liste",
   "address.edit-address.note.toolbar.paste": "Einfügen",
   "address.edit-address.note.toolbar.underline": "Unterstrichen",
-
   "auth.forgot-password.email-address": "E-Mail-Adresse",
   "auth.forgot-password.email-placeholder": "ihre-email@beispiel.de",
   "auth.forgot-password.error": "Fehler beim Senden der Zurücksetzungs-E-Mail.",
@@ -282,7 +272,6 @@
   "login.oauth2.processing": "Authentifizierung läuft...",
   "login.oauth2.back-to-login": "Zurück zur Anmeldung",
   "login.oauth2.error": "SSO-Anmeldung fehlgeschlagen",
-
   "April": "April",
   "August": "August",
   "Di": "Di",
@@ -315,10 +304,8 @@
   "tuesday": "Dienstag",
   "wednesday": "Mittwoch",
   "weekday-or-holiday": "Feiertag an selektiertem Wochentag",
-
   "client.validation.duplicate": "Die ausgewählte Person ist in der Liste schon vorhanden",
   "search.inc.client": "inklusive Kundenname",
-
   "active": "Aktive",
   "all": "<alle>",
   "alumni": "Ehemalige",
@@ -382,7 +369,6 @@
   "selecting": "selektieren",
   "store": "Eingaben speichern",
   "store.as": "Speichern als...",
-
   "ABSENCE": "Absenzen Kalender",
   "ADDRES_TYPE0_NAME": "Hauptadresse",
   "ADDRES_TYPE1_NAME": "Geschäftsadresse",
@@ -433,7 +419,6 @@
   "STATISTIC": "Statistiken",
   "UPDATE_NOT_DONE": "Änderungen wurden von der Datenbank nicht übernommen",
   "VALID_FROM": "Gültig ab:",
-
   "EMAIL_EXIST": "Die MailAdresse wurde schon für eine Registrierung verwendet",
   "EMAIL_TEST_ERROR": "E-Mail-Test-Fehler",
   "EMAIL_TEST_INVALID_ADDRESS": "Bitte geben Sie eine gültige E-Mail-Adresse im Benutzername-Feld ein.",
@@ -456,7 +441,6 @@
   "email-templates.change-password.title": "Passwortänderung",
   "email-templates.register-user.body": "<h2><strong>Ihr Passwort f&uuml;r unsere Applikation&nbsp;{appName}.</strong></h2><p>{password}</p><p>Bitte benutzen sie dieses automatisch generierte Passwort nur einmal.</p><p>Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p>&nbsp;</p><p>Freundliche Gr&uuml;sse</p><p>Ihre Administration</p>",
   "email-templates.register-user.title": "Neuregistrierung",
-
   "ADDRESS_NOT_VALID": "Anschrift ist nicht vollständig",
   "AUTH_USER_ERROR": "Zugangsberechtigung fehlgeschlagen!",
   "AUTH_USER_NOT_EXIST": "Es wurde ein falsches Passwort oder falscher Benutzername eingegeben. Bitte versuchen Sie es erneut!",
@@ -581,7 +565,6 @@
   "error.message": "Bitte versuchen sie es nochmals...",
   "no-access.message": "Sie haben keine Rechte, auf diese Funktion zuzugreifen.",
   "page-not-found.message": "Seite nicht gefunden",
-
   "edit-group-structure": "Gruppen Strukturen erfassen",
   "group.all-group.all-group-home.header": "Alle Gruppen",
   "group.all-group.all-group-list.header": "Gruppen",
@@ -622,12 +605,10 @@
   "group.tree.no-groups": "Keine Gruppen gefunden",
   "group.tree.refresh": "Aktualisieren",
   "group.validation.valid-until-must-be-after-valid-from": "Gültig-Bis muss nach Gültig-Von liegen",
-
   "navigation.absence-calendar": "Absenzen Kalender",
   "navigation.all-employee": "Alle Adressen",
   "navigation.all-schedule": "Alle Planungen",
   "navigation.statistics": "Statistiken",
-
   "pdf.generated": "Erstellt",
   "pdf.of": "von",
   "pdf.page": "Seite",
@@ -644,7 +625,6 @@
   "pdf.distance": "Distanz",
   "pdf.directions": "Wegbeschreibung",
   "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
-
   "schedule.breakPlaceholder.toggle": "Gewünschte Absenzen ein-/ausblenden",
   "schedule.sendEmail.tooltip": "E-Mail senden",
   "schedule.send.title": "Dienstplan versenden",
@@ -657,7 +637,6 @@
   "schedule.recalculate.tooltip": "Stunden neu berechnen",
   "schedule.recalculate.success": "Stunden wurden neu berechnet",
   "schedule.recalculate.error": "Fehler beim Neuberechnen der Stunden",
-
   "schedule.row-header.headline": "Name",
   "schedule.filter.employees": "Mitarbeiter",
   "schedule.filter.extern": "Extern",
@@ -692,7 +671,6 @@
   "schedule.entryType.workChange": "Änderung",
   "schedule.entryType.break": "Pause",
   "schedule.entryType.expenses": "Spesen",
-
   "setting.absence.add": "+ Absenz hinzufügen",
   "setting.absence.headline": "Absenzen",
   "setting.absence.modal.add": "Eingabe übernehmen",
@@ -826,7 +804,7 @@
   "settings.llm-models.success.create": "Model erfolgreich erstellt",
   "settings.llm-models.success.delete": "Model erfolgreich gelöscht",
   "settings.llm-models.success.update": "Model erfolgreich aktualisiert",
-  "settings.llm-models.title": "LLM Modelle",
+  "settings.llm-models.title": "LLM Modelle Konfiguration",
   "settings.llm-models.validation.context-window-positive": "Context Window muss positiv sein",
   "settings.llm-models.validation.display-name-required": "Anzeigename ist erforderlich",
   "settings.llm-models.validation.max-tokens-positive": "Max. Tokens müssen positiv sein",
@@ -837,6 +815,23 @@
   "settings.llm-models.validation.api-model-id-required": "API Model ID ist erforderlich",
   "settings.llm-models.validation.provider-required": "Anbieter ist erforderlich",
   "settings.llm-models.cannot-delete-default": "Standard-Model kann nicht gelöscht werden",
+  "settings.language-plugins.title": "Sprachpakete",
+  "settings.language-plugins.header.language": "Sprache",
+  "settings.language-plugins.header.display-name": "Bezeichnung",
+  "settings.language-plugins.header.author": "Autor",
+  "settings.language-plugins.header.version": "Version",
+  "settings.language-plugins.header.coverage": "Abdeckung",
+  "settings.language-plugins.header.status": "Status",
+  "settings.language-plugins.status.installed": "Installiert",
+  "settings.language-plugins.status.available": "Verfügbar",
+  "settings.language-plugins.status.core": "Integriert",
+  "settings.language-plugins.action.install": "Installieren",
+  "settings.language-plugins.action.uninstall": "Deinstallieren",
+  "settings.language-plugins.success.install": "Sprachpaket erfolgreich installiert",
+  "settings.language-plugins.success.uninstall": "Sprachpaket erfolgreich deinstalliert",
+  "settings.language-plugins.error.load": "Fehler beim Laden der Sprachpakete",
+  "settings.language-plugins.error.install": "Fehler beim Installieren des Sprachpakets",
+  "settings.language-plugins.error.uninstall": "Fehler beim Deinstallieren des Sprachpakets",
   "setting.country.add": "+ Staaten hinzufügen",
   "setting.country.header.abbreviation": "Kürzel",
   "setting.country.header.name": "Name",
@@ -1300,19 +1295,15 @@
   "aside.llm.error.enable_model": "Fehler beim Aktivieren des Modells",
   "aside.llm.error.disable_model": "Fehler beim Deaktivieren des Modells",
   "aside.llm.error.set_default_model": "Fehler beim Setzen des Standard-Modells",
-  "settings.llm-models.title": "LLM Modelle Konfiguration",
-  "settings.llm-models.description": "Beschreibung",
   "settings.llm-models.api-model-id": "API Model ID",
   "settings.llm-models.usage-stats": "Nutzungsstatistiken (Letzte 30 Tage)",
   "settings.llm-models.total-cost-30d": "Gesamtkosten",
   "settings.llm-models.available-models": "Verfügbare Modelle",
   "settings.llm-models.input-tokens": "Eingabe",
   "settings.llm-models.output-tokens": "Ausgabe",
-  "settings.llm-models.max-tokens": "Max. Tokens",
   "settings.llm-models.set-as-default": "Als Standard setzen",
   "settings.llm-models.default-model": "Standard-Modell",
   "settings.llm-models.loading": "Modelle werden geladen...",
-
   "settings.llm-providers.title": "LLM Anbieter",
   "settings.llm-providers.header.name": "Anbieter",
   "settings.llm-providers.headline-modal": "LLM Anbieter bearbeiten",
@@ -1351,9 +1342,7 @@
   "settings.llm-providers.validation.api-key-required": "API Schlüssel ist erforderlich",
   "settings.llm-providers.cannot-delete-default-provider": "Provider des Standard-Models kann nicht gelöscht werden",
   "settings.llm-providers.add": "+ Neuer Provider",
-
   "validation.errors": "Validierungsfehler",
-
   "list.all-list.all-shift-list.table.Abbreviation": "ABK.",
   "list.all-list.all-shift-list.table.Fry": "FR",
   "list.all-list.all-shift-list.table.description": "BESCHREIBUNG",
@@ -1429,18 +1418,15 @@
   "shift.edit-shift.weekday.time-range": "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm - Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben",
   "shift.edit-shift.weekday.until": "Bis Zeit hh:mm",
   "shift.edit-shift.weekday.work-hour": "Dauer",
-
   "surface.home.modal.del": "Änderungen verwerfen",
   "surface.home.modal.description": "Möchten Sie Ihre Änderungen verwerfen wenn sie diese Seite verlassen?",
   "surface.home.modal.header": "Änderungen verwerfen?",
   "surface.home.modal.save": "Eingaben speichern",
-
   "REGISTER": "Die Account Daten wurden in der Zwischenablage gespeichert",
   "REGISTER_CHANGE_PASSWORD": "Die Account Daten wurden in der Zwischenablage gespeichert",
   "REGISTER_CHANGE_PASSWORD_HEADER": "Die Account Daten wurden in der Zwischenablage gespeichert",
   "REGISTER_SEND_PASSWORD": "Das Passwort wurde erfolgreich zurückgesetzt und an die Mailadresse versendet",
   "settings.group.Sum": "Anzahl",
-
   "assistant-chat.select-model": "Modell auswählen",
   "assistant-chat.open": "Öffnen",
   "assistant-chat.speak-now": "Sprechen Sie jetzt...",
@@ -1470,7 +1456,6 @@
   "assistant-chat.no-api-key.admin-link": "Zu den Einstellungen",
   "assistant-chat.whisper-loading": "Sprachmodell wird geladen...",
   "assistant-chat.transcribing": "Transkription läuft...",
-
   "shift.container-template.header": "Schichtvorlage",
   "shift.container-template.from": "Von",
   "shift.container-template.until": "Bis",
@@ -1546,7 +1531,6 @@
   "shift.container-template.tooltip.export-route-pdf": "Route als PDF exportieren",
   "shift.container-template.tooltip.export-shifts-pdf": "Dienste als PDF exportieren",
   "shift.container-template.tooltip.compact-shifts": "Dienste komprimieren",
-
   "settings.identity-provider.headline": "Identity Provider",
   "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
@@ -1637,5 +1621,19 @@
   "settings.spam-rules.type.sender-contains": "Absender enthält",
   "settings.spam-rules.type.sender-domain": "Absender-Domain",
   "settings.spam-rules.type.subject-contains": "Betreff enthält",
-  "settings.spam-rules.type.body-contains": "Inhalt enthält"
+  "settings.spam-rules.type.body-contains": "Inhalt enthält",
+  "wizard.dialog.title": "Schichtplanung-Assistent",
+  "wizard.dialog.generation": "Generation",
+  "wizard.dialog.fitness": "Fitness",
+  "wizard.dialog.coverage": "Abdeckung",
+  "wizard.dialog.avgMotivation": "Ø Motivation",
+  "wizard.dialog.generations": "Generationen",
+  "wizard.dialog.unassigned": "Nicht zugewiesen",
+  "wizard.dialog.initializing": "Initialisierung...",
+  "wizard.dialog.cancelled": "Die Berechnung wurde abgebrochen.",
+  "wizard.dialog.col.date": "Datum",
+  "wizard.dialog.col.shift": "Schicht",
+  "wizard.dialog.col.agent": "Mitarbeiter",
+  "wizard.dialog.col.motivation": "Motivation",
+  "wizard.dialog.col.hours": "Stunden"
 }

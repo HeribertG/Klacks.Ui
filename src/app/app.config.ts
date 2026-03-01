@@ -33,7 +33,7 @@ import {
 } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SpinnerModule } from './presentation/spinner/spinner.module';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { KlacksTranslateLoaderFactory } from './infrastructure/i18n/klacks-translate-loader';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
@@ -68,7 +68,7 @@ registerLocaleData(localeEn);
 registerLocaleData(localeIt);
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient, './assets/i18n/', '.json');
+  return KlacksTranslateLoaderFactory(httpClient);
 }
 
 export function localeFactory(localeService: LocaleService) {

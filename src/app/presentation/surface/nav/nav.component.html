@@ -72,6 +72,20 @@
       </button>
     </div>
 
+    <div class="icon">
+      <button
+        type="button"
+        class="icon-button"
+        id="open-availability"
+        (click)="onClickAvailability()"
+        [attr.aria-label]="'Manage availability (Alt+6)'"
+        placement="right"
+        ngbTooltip="Availability (Alt+6)"
+      >
+        <app-icon-availability #availabilityIcon></app-icon-availability>
+      </button>
+    </div>
+
     @if (inboxVisibilityService.isAvailable()) {
       <div class="icon">
         <button
