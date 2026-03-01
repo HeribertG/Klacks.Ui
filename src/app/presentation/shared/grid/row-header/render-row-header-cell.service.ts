@@ -11,9 +11,7 @@ import {
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 
 @Injectable()
-export class RenderRowHeaderCellService {
-  constructor() {}
-
+export class SharedRenderRowHeaderCellService {
   public drawImage(
     ctx: CanvasRenderingContext2D,
     sourceCanvas: HTMLCanvasElement,

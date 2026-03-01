@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { EventEmitter, Injectable, Output } from '@angular/core';
+import { IRowHeaderSettings } from 'src/app/presentation/shared/grid/row-header/row-header-settings.interface';
 
 @Injectable()
-export class CalendarSettingService {
+export class CalendarSettingService implements IRowHeaderSettings {
   @Output() zoomChangingEvent = new EventEmitter();
 
   private readonly BASE_CELL_WIDTH = 8;

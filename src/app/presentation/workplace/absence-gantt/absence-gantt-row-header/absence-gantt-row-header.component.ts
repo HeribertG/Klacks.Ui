@@ -83,6 +83,13 @@ export class AbsenceGanttRowHeaderComponent
       'assets/svg/sorting.svg'
     );
 
+    const loader = this.dataManagementBreak;
+    this.drawRowHeader.setProgressBarLoader({
+      get isRead() { return loader.isRead; },
+      get loadingProgress() { return loader.loadingProgress; },
+      get hasMore() { return loader.hasMoreRows; },
+    });
+
     this.drawRowHeader.createCanvas();
   }
 
@@ -113,6 +120,7 @@ export class AbsenceGanttRowHeaderComponent
     });
     this.effects = [];
 
+    this.drawRowHeader.destroy();
     this.drawRowHeader.deleteCanvas();
   }
 

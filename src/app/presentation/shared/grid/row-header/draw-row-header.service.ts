@@ -1,26 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject } from '@angular/core';
-import { ScrollService } from '../../../shared/scrollbar/scroll.service';
+import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { CalendarSettingService } from './calendar-setting.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import { SharedRowHeaderCanvasManagerService } from 'src/app/presentation/shared/grid/row-header/row-header-canvas-manager.service';
+import { SharedRowHeaderCanvasManagerService } from './row-header-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
-import { SharedRenderRowHeaderCellService } from 'src/app/presentation/shared/grid/row-header/render-row-header-cell.service';
-import { SharedRenderRowHeaderService } from 'src/app/presentation/shared/grid/row-header/render-row-header.service';
+import { SharedRenderRowHeaderCellService } from './render-row-header-cell.service';
+import { SharedRenderRowHeaderService } from './render-row-header.service';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
+import { ROW_HEADER_SETTINGS, ROW_HEADER_DATA } from './row-header-tokens';
 import { IProgressLoader } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Injectable()
-export class DrawRowHeaderService {
+export class SharedDrawRowHeaderService {
   scroll = inject(ScrollService);
   gridColorService = inject(GridColorService);
   gridFontsService = inject(GridFontsService);
-  calendarSetting = inject(CalendarSettingService);
-  dataManagementBreak = inject(DataManagementBreakPlaceholderService);
+  private settings = inject(ROW_HEADER_SETTINGS);
+  private dataProvider = inject(ROW_HEADER_DATA);
   rowHeaderCanvasManager = inject(SharedRowHeaderCanvasManagerService);
   private drawRowHeaderCell = inject(SharedRenderRowHeaderCellService);
   private renderRowHeaderService = inject(SharedRenderRowHeaderService);
@@ -69,8 +68,8 @@ export class DrawRowHeaderService {
     this.rowHeaderCanvasManager.deleteCanvas();
   }
 
-  public createCanvas(): void {
-    this.rowHeaderCanvasManager.createCanvas('absence-row-header-canvas');
+  public createCanvas(canvasId: string): void {
+    this.rowHeaderCanvasManager.createCanvas(canvasId);
   }
 
   public isCanvasAvailable(): boolean {
@@ -85,8 +84,8 @@ export class DrawRowHeaderService {
     this.unDrawSelectionRow();
     if (value < 0) {
       this._selectedRow = 0;
-    } else if (value > this.dataManagementBreak.rows) {
-      this._selectedRow = this.dataManagementBreak.rows;
+    } else if (value > this.dataProvider.getRowCount()) {
+      this._selectedRow = this.dataProvider.getRowCount();
     } else {
       this._selectedRow = value;
     }
@@ -105,9 +104,9 @@ export class DrawRowHeaderService {
         this.gridColorService.focusBorderColor
       );
       const dy = this.selectedRow - this.scroll.verticalScrollPosition;
-      const height = this.calendarSetting.cellHeight;
+      const height = this.settings.cellHeight;
       const top =
-        Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
+        Math.floor(dy * height) + this.settings.cellHeaderHeight;
 
       this.rowHeaderCanvasManager.fillRect(
         0,
@@ -131,7 +130,6 @@ export class DrawRowHeaderService {
 
   public set height(value: number) {
     this.rowHeaderCanvasManager.height = value;
-
     this.renderRowHeader();
   }
 
@@ -141,7 +139,7 @@ export class DrawRowHeaderService {
 
   @CanvasAvailable()
   public visibleRow(): number {
-    return Math.ceil(this.height / this.calendarSetting.cellHeight);
+    return Math.ceil(this.height / this.settings.cellHeight);
   }
 
   public firstVisibleRow(): number {
@@ -167,7 +165,7 @@ export class DrawRowHeaderService {
         this.rowHeaderCanvasManager.renderCanvasCtx!,
         this.rowHeaderCanvasManager.renderCanvas!,
         0,
-        this.calendarSetting.cellHeaderHeight
+        this.settings.cellHeaderHeight
       );
     }
   }
@@ -196,7 +194,7 @@ export class DrawRowHeaderService {
         this.rowHeaderCanvasManager.ctx!,
         this.rowHeaderCanvasManager.renderCanvas,
         0,
-        this.calendarSetting.cellHeaderHeight
+        this.settings.cellHeaderHeight
       );
     }
   }

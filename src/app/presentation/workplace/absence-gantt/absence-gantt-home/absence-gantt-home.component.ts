@@ -17,11 +17,13 @@ import {
   RowSelectionService
 } from '../services/render-calendar-grid';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
-import { RenderRowHeaderService } from '../services/render-row-header.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
-import { RowHeaderCanvasManagerService } from '../services/row-header-canvas.service';
-import { RenderRowHeaderCellService } from '../services/render-row-header-cell.service';
+import { SharedRowHeaderCanvasManagerService } from 'src/app/presentation/shared/grid/row-header/row-header-canvas-manager.service';
+import { SharedRenderRowHeaderCellService } from 'src/app/presentation/shared/grid/row-header/render-row-header-cell.service';
+import { SharedRenderRowHeaderService } from 'src/app/presentation/shared/grid/row-header/render-row-header.service';
+import { ROW_HEADER_SETTINGS, ROW_HEADER_DATA } from 'src/app/presentation/shared/grid/row-header/row-header-tokens';
+import { GanttRowHeaderDataAdapter } from '../services/gantt-row-header-data-adapter.service';
 import { BreakLayerService } from '../services/break-layer.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -60,10 +62,12 @@ import { AbsenceGanttContextMenuService } from '../services/absence-gantt-contex
     BreakRenderingService,
     RowSelectionService,
     DrawRowHeaderService,
-    RenderRowHeaderService,
+    SharedRenderRowHeaderService,
     ScrollService,
-    RowHeaderCanvasManagerService,
-    RenderRowHeaderCellService,
+    SharedRowHeaderCanvasManagerService,
+    SharedRenderRowHeaderCellService,
+    { provide: ROW_HEADER_SETTINGS, useExisting: CalendarSettingService },
+    { provide: ROW_HEADER_DATA, useClass: GanttRowHeaderDataAdapter },
     BreakLayerService,
     AllAbsenceStateService,
     DataManagementAbsenceGanttService,
