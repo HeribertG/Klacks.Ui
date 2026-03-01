@@ -41,7 +41,7 @@
           class="delete-button delete-button-icon"
           type="button"
           (click)="onClickDeleteIcon()"
-          >Icon entfernen
+          >{{ translate.instant("setting.setting-general.remove-icon") }}
         </span>
       </div>
     </div>
@@ -49,7 +49,7 @@
     <div
       id="settings-general-icon-upload-container"
       class="image-container"
-      ngbTooltip="ico Datei 32px x 32px"
+      [ngbTooltip]="translate.instant('setting.setting-general.tooltip-icon')"
       autoClose="true"
     >
       <label id="settings-general-icon-label" class="first">{{
@@ -106,7 +106,7 @@
     <div
       id="settings-general-logo-upload-container"
       class="image-container"
-      ngbTooltip="png Datei 32px x 32px"
+      [ngbTooltip]="translate.instant('setting.setting-general.tooltip-logo')"
       autoClose="true"
     >
       <label id="settings-general-logo-label" class="first">{{

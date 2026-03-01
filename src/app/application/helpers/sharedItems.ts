@@ -10,7 +10,7 @@ export function visibleRow(
     { text: '20', value: 20 },
   ];
 
-  return includeAuto ? [{ text: 'auto', value: -1 }, ...rows] : rows;
+  return includeAuto ? [{ text: 'pagination.auto', value: -1 }, ...rows] : rows;
 }
 
 export type Language = 'de' | 'fr' | 'it' | 'en';

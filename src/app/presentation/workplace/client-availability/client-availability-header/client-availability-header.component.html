@@ -3,15 +3,15 @@
     <div class="view-mode-group" ngbDropdown>
       <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
         @switch (viewMode) {
-          @case (PaymentInterval.Weekly) { Woche }
-          @case (PaymentInterval.Biweekly) { 2 Wochen }
-          @case (PaymentInterval.Monthly) { Monat }
+          @case (PaymentInterval.Weekly) { {{ "client-availability.view-mode.week" | translate }} }
+          @case (PaymentInterval.Biweekly) { {{ "client-availability.view-mode.biweekly" | translate }} }
+          @case (PaymentInterval.Monthly) { {{ "client-availability.view-mode.monthly" | translate }} }
         }
       </button>
       <div ngbDropdownMenu>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Weekly)">Woche</button>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Biweekly)">2 Wochen</button>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Monthly)">Monat</button>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Weekly)">{{ "client-availability.view-mode.week" | translate }}</button>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Biweekly)">{{ "client-availability.view-mode.biweekly" | translate }}</button>
+        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Monthly)">{{ "client-availability.view-mode.monthly" | translate }}</button>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
     <button
       class="btn btn-sm btn-primary save-btn"
       (click)="onSave()"
-      ngbTooltip="Speichern">
+      [ngbTooltip]="'common.save' | translate">
       <i class="bi bi-floppy"></i>
       {{ 'common.save' | translate }}
     </button>

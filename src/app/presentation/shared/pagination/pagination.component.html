@@ -12,7 +12,7 @@
     >
       @for (c of visibleRow; track c.value) {
       <option [value]="c.value" [selected]="c.value === realRow">
-        {{ c.text }}
+        {{ c.value === -1 ? translate.instant(c.text) : c.text }}
       </option>
       }
     </select>
