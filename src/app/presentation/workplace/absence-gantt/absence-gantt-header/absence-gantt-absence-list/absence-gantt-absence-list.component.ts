@@ -16,7 +16,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/b
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { invertColor } from 'src/app/shared/helpers/number.helper';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 

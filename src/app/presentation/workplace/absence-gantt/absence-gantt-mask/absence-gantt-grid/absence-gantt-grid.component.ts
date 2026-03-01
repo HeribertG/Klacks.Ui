@@ -23,7 +23,7 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementReportService } from 'src/app/domain/services/report/data-management-report.service';

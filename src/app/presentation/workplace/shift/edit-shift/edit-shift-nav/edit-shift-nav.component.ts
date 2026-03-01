@@ -18,7 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Filter } from 'src/app/domain/models/client/client-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';

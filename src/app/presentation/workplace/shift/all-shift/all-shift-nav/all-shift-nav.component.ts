@@ -15,7 +15,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';

@@ -48,7 +48,7 @@ import { ContextMenuService } from 'src/app/presentation/shared/context-menu/con
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 
 @Component({
   selector: 'app-absence-gantt-surface',

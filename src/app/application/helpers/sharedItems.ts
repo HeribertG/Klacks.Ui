@@ -12,5 +12,3 @@ export function visibleRow(
 
   return includeAuto ? [{ text: 'pagination.auto', value: -1 }, ...rows] : rows;
 }
-
-export type Language = 'de' | 'fr' | 'it' | 'en';

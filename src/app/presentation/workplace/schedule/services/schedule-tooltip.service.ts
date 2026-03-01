@@ -16,7 +16,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';

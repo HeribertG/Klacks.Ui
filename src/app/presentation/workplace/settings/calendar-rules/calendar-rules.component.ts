@@ -36,7 +36,7 @@ import {
   MultiLanguage,
 } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,

@@ -38,7 +38,7 @@ import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   ModalService,

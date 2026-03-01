@@ -25,7 +25,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-grid.component';

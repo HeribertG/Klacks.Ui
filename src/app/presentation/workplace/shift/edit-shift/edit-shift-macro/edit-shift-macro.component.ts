@@ -9,7 +9,7 @@ import { IMacro } from 'src/app/domain/models/settings/macro-class';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { Language } from 'src/app/application/helpers/sharedItems';
+import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
