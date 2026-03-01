@@ -20,6 +20,7 @@ export class GroupSelectionService {
   private dataManagementClientService = inject(DataManagementClientService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
+  private clientAvailabilityGroupCallback: ((groupId: string | undefined) => void) | null = null;
 
   public get selectedGroup(): Group | undefined {
     return this._selectedGroup();
@@ -66,10 +67,21 @@ export class GroupSelectionService {
           this.selectedGroupId;
         this.dataManagementShiftService.readPage();
         break;
+      case EntityName.CLIENT_AVAILABILITY:
+        this.clientAvailabilityGroupCallback?.(this.selectedGroupId);
+        break;
     }
   }
 
   public get selectedGroupId(): string | undefined {
     return this._selectedGroup()?.id;
+  }
+
+  public registerClientAvailabilityCallback(cb: (groupId: string | undefined) => void): void {
+    this.clientAvailabilityGroupCallback = cb;
+  }
+
+  public unregisterClientAvailabilityCallback(): void {
+    this.clientAvailabilityGroupCallback = null;
   }
 }

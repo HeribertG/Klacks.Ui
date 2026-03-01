@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
 import { ClientAvailabilityContainerComponent } from '../client-availability-container/client-availability-container.component';
@@ -27,9 +27,14 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
-import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -59,9 +64,10 @@ import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollba
     ProgressBarAnimationService,
     ScrollService,
     ScrollbarService,
+    ClientAvailabilityFilterService,
   ],
 })
-export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit {
+export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private gridColors = inject(GridColorService);
@@ -71,6 +77,11 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit {
   private renderGrid = inject(RenderAvailabilityGridService);
   private calculation = inject(AvailabilityCalculationService);
   private settings = inject(AvailabilitySettingService);
+  private workplaceState = inject(WorkplaceStateService);
+  private searchStrategy = inject(SearchStrategyService);
+  private groupSelection = inject(GroupSelectionService);
+  private filterService = inject(ClientAvailabilityFilterService);
+  private searchService = inject(SearchService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -78,6 +89,27 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
+    this.searchService.setSearchVisibility(true);
+
+    this.workplaceState.setNameOfVisibleEntity(EntityName.CLIENT_AVAILABILITY);
+    this.workplaceState.isFocusChanged.set(true);
+
+    this.searchStrategy.addStrategy(EntityName.CLIENT_AVAILABILITY, {
+      search: (value: string) => {
+        this.filterService.searchString = value;
+        this.applyFilterAndRender();
+      },
+      resetFilter: () => {
+        this.filterService.searchString = '';
+        this.applyFilterAndRender();
+      },
+      getEntityName: () => EntityName.CLIENT_AVAILABILITY,
+    });
+
+    this.groupSelection.registerClientAvailabilityCallback((groupId) => {
+      this.filterService.selectedGroupId = groupId;
+      this.applyFilterAndRender();
+    });
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -93,16 +125,28 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit {
       this.dataClientService.getClientsForReplacement()
     );
 
+    const mapped = clients.map((c: IClientForReplacement) => ({
+      id: c.id,
+      displayName: c.legalEntity
+        ? (c.company ?? '')
+        : `${c.name ?? ''}, ${c.firstName ?? ''}`.trim(),
+      groupIds: c.groupIds ?? [],
+    }));
+
+    this.filterService.setAllClients(mapped);
+    this.filterService.selectedGroupId = this.groupSelection.selectedGroupId;
+
+    const filtered = this.filterService.getFilteredClients();
     this.renderGrid.setClients(
-      clients.map((c: IClientForReplacement) => ({
-        id: c.id,
-        displayName: c.legalEntity
-          ? (c.company ?? '')
-          : `${c.name ?? ''}, ${c.firstName ?? ''}`.trim(),
-      }))
+      filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
     );
 
     await this.loadAvailabilityData();
+  }
+
+  ngOnDestroy(): void {
+    this.searchStrategy.removeStrategy(EntityName.CLIENT_AVAILABILITY);
+    this.groupSelection.unregisterClientAvailabilityCallback();
   }
 
   async onSaveRequested(): Promise<void> {
@@ -112,6 +156,14 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit {
   async onPeriodChanged(): Promise<void> {
     this.setStartDate();
     await this.loadAvailabilityData();
+  }
+
+  private applyFilterAndRender(): void {
+    const filtered = this.filterService.getFilteredClients();
+    this.renderGrid.setClients(
+      filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
+    );
+    this.filterService.applyFilters();
   }
 
   private setStartDate(): void {

@@ -402,6 +402,7 @@ export class GroupSelectComponent
         return this.dataManagementGroupService.hasRootGroups();
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
+      case EntityName.CLIENT_AVAILABILITY:
         return true;
       case EntityName.SHIFT:
         const filter = this.dataManagementShiftService.currentFilter;

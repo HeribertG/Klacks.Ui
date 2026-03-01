@@ -17,6 +17,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { DrawAvailabilityRowHeaderService } from '../services/draw-availability-row-header.service';
+import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 
 @Component({
   selector: 'app-client-availability-row-header',
@@ -31,6 +32,7 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   private gridColorService = inject(GridColorService);
   private gridFontsService = inject(GridFontsService);
   private injector = inject(Injector);
+  private filterService = inject(ClientAvailabilityFilterService);
 
   private effects: EffectRef[] = [];
 
@@ -107,6 +109,14 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
         }
       });
       this.effects.push(fontResetEffect);
+
+      const filterEffect = effect(() => {
+        const changed = this.filterService.clientsChanged();
+        if (changed && this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.drawRowHeader();
+        }
+      });
+      this.effects.push(filterEffect);
     });
   }
 }

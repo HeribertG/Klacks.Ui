@@ -25,6 +25,7 @@ export interface IClientForReplacement {
   company?: string;
   legalEntity: boolean;
   idNumber: number;
+  groupIds?: string[];
 }
 
 @Injectable({

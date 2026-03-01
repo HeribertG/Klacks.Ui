@@ -71,6 +71,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
     [RouteName.CONTAINER_TEMPLATE]: EntityName.SHIFT_CONTAINER_TEMPLATE,
     [RouteName.SCHEDULE]: EntityName.SCHEDULE,
     [RouteName.ABSENCE]: EntityName.ABSENCE,
+    [RouteName.CLIENT_AVAILABILITY]: EntityName.CLIENT_AVAILABILITY,
   };
 
   public showProgressSpinnerNew = computed(

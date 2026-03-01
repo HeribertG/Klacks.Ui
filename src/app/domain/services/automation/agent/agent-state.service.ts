@@ -1,10 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject } from '@angular/core';
-import {
-  IScheduleAgent,
-  IAgentState
-} from '../../../models/automation/agent/schedule-agent.model';
+import { IScheduleAgent } from '../../../models/automation/agent/schedule-agent.model';
+import { IAgentState } from '../../../models/automation/agent/agent-state.model';
 import { IRuleViolation, IScheduleContext, IShiftAssignment } from '../../../models/automation/rules/rule.model';
 import { RulesEngineService } from '../rules/rules-engine.service';
 import { AGENT_STATE_CONSTANTS, EVOLUTION_CONSTANTS } from '../../../models/automation/automation-constants';

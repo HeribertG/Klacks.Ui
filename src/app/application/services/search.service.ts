@@ -54,7 +54,8 @@ export class SearchService {
     EntityName.SCHEDULE,
     EntityName.SHIFT,
     EntityName.SHIFT_CONTAINER_TEMPLATE,
-    EntityName.GROUP
+    EntityName.GROUP,
+    EntityName.CLIENT_AVAILABILITY,
   ];
   
   constructor() {
