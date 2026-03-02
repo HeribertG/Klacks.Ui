@@ -26,6 +26,7 @@
         </div>
         <app-v-scrollbar
           class="vScrollArea"
+          [class.hidden]="vScrollbarMaxValue() <= vScrollbarVisibleValue()"
           [(value)]="vScrollbarValue"
           [maxValue]="vScrollbarMaxValue()"
           [visibleValue]="vScrollbarVisibleValue()"
@@ -34,6 +35,7 @@
       </div>
       <app-h-scrollbar
         class="hScrollArea"
+        [class.hidden]="hScrollbarMaxValue() <= hScrollbarVisibleValue()"
         [(value)]="hScrollbarValue"
         [maxValue]="hScrollbarMaxValue()"
         [visibleValue]="hScrollbarVisibleValue()"

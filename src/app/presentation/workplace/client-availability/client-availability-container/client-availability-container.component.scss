@@ -4,6 +4,10 @@
   height: 100%;
 }
 
+:host {
+  --v-scrollbar-size: 17px;
+}
+
 .container-box {
   display: flex;
   flex-direction: column;
@@ -23,11 +27,20 @@
     }
 
     .vScrollArea {
-      width: 17px;
+      width: var(--v-scrollbar-size);
+
+      &.hidden {
+        display: none;
+      }
     }
   }
 
   .hScrollArea {
     height: 17px;
+    width: calc(100% - var(--v-scrollbar-size));
+
+    &.hidden {
+      display: none;
+    }
   }
 }

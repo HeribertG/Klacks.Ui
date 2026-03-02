@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AvailabilitySettingService } from '../availability-setting.service';
 import {
   HourGroupingMode,
@@ -9,6 +10,8 @@ import {
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { compareDate } from 'src/app/shared/helpers/date.helper';
+
+const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 export interface DateHourRange {
   date: Date;
@@ -21,6 +24,7 @@ export interface DateHourRange {
 export class AvailabilityCalculationService {
   private settings = inject(AvailabilitySettingService);
   private holidayCollection = inject(HolidayCollectionService);
+  private translateService = inject(TranslateService);
 
   public startDate: Date = new Date();
 
@@ -104,7 +108,9 @@ export class AvailabilityCalculationService {
       case HourGroupingMode.FourHour:
         return `${startHour}-${startHour + 3}`;
       case HourGroupingMode.AmPm:
-        return slotIndex === 0 ? 'VM' : 'NM';
+        return slotIndex === 0
+          ? this.translateService.instant('client-availability.slot.am')
+          : this.translateService.instant('client-availability.slot.pm');
       default:
         return `${startHour}`;
     }
@@ -118,8 +124,7 @@ export class AvailabilityCalculationService {
   }
 
   public formatDayLabel(date: Date, isMonthly: boolean): string {
-    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-    const dayName = days[date.getDay()];
+    const dayName = this.translateService.instant(WEEKDAY_KEYS[date.getDay()]);
     const day = date.getDate();
     const month = date.getMonth() + 1;
 

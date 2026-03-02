@@ -3,12 +3,18 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 
-const GROUPING_LABELS = ['1h', '2h', '4h', 'VM/NM', 'Tag'];
+const GROUPING_LABEL_KEYS = [
+  'client-availability.grouping.1h',
+  'client-availability.grouping.2h',
+  'client-availability.grouping.4h',
+  'client-availability.grouping.am-pm',
+  'client-availability.grouping.full-day',
+];
 
 @Component({
   selector: 'app-client-availability-header',
@@ -24,6 +30,7 @@ const GROUPING_LABELS = ['1h', '2h', '4h', 'VM/NM', 'Tag'];
 })
 export class ClientAvailabilityHeaderComponent {
   private settings = inject(AvailabilitySettingService);
+  private translateService = inject(TranslateService);
 
   saveRequested = output<void>();
   periodChanged = output<void>();
@@ -36,7 +43,8 @@ export class ClientAvailabilityHeaderComponent {
     step: 1,
     showSelectionBarEnd: false,
     showSelectionBar: false,
-    translate: (value: number): string => GROUPING_LABELS[value],
+    translate: (value: number): string =>
+      this.translateService.instant(GROUPING_LABEL_KEYS[value]),
   };
 
   get hourGrouping(): number {

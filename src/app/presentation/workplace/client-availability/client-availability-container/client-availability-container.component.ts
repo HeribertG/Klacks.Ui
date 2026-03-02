@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, computed, signal, viewChild } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
@@ -12,6 +12,9 @@ import { ClientAvailabilityRowHeaderComponent } from '../client-availability-row
   templateUrl: './client-availability-container.component.html',
   styleUrls: ['./client-availability-container.component.scss'],
   standalone: true,
+  host: {
+    '[style.--v-scrollbar-size]': 'vScrollbarCssSize()',
+  },
   imports: [
     AngularSplitModule,
     ClientAvailabilityRowHeaderComponent,
@@ -23,6 +26,10 @@ import { ClientAvailabilityRowHeaderComponent } from '../client-availability-row
 export class ClientAvailabilityContainerComponent {
   surface = viewChild.required<ClientAvailabilitySurfaceComponent>('surface');
   rowHeader = viewChild.required<ClientAvailabilityRowHeaderComponent>('rowHeader');
+
+  vScrollbarCssSize = computed(() =>
+    this.vScrollbarMaxValue() <= this.vScrollbarVisibleValue() ? '0px' : '17px'
+  );
 
   public hScrollbarValue = signal(0);
   public vScrollbarValue = signal(0);
