@@ -5,6 +5,7 @@ export enum HourGroupingMode {
   TwoHour = 1,
   FourHour = 2,
   AmPm = 3,
+  FullDay = 4,
 }
 
 export const HOUR_GROUPING_SIZES: Record<HourGroupingMode, number> = {
@@ -12,6 +13,7 @@ export const HOUR_GROUPING_SIZES: Record<HourGroupingMode, number> = {
   [HourGroupingMode.TwoHour]: 2,
   [HourGroupingMode.FourHour]: 4,
   [HourGroupingMode.AmPm]: 12,
+  [HourGroupingMode.FullDay]: 24,
 };
 
 export const COLUMNS_PER_DAY: Record<HourGroupingMode, number> = {
@@ -19,4 +21,5 @@ export const COLUMNS_PER_DAY: Record<HourGroupingMode, number> = {
   [HourGroupingMode.TwoHour]: 12,
   [HourGroupingMode.FourHour]: 6,
   [HourGroupingMode.AmPm]: 2,
+  [HourGroupingMode.FullDay]: 1,
 };

@@ -15,22 +15,6 @@
       </div>
     </div>
 
-    <div class="hour-group" ngbDropdown>
-      <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
-        @switch (hourGroupingMode) {
-          @case (HourGroupingMode.OneHour) { 1h }
-          @case (HourGroupingMode.TwoHour) { 2h }
-          @case (HourGroupingMode.FourHour) { 4h }
-          @case (HourGroupingMode.AmPm) { AM/PM }
-        }
-      </button>
-      <div ngbDropdownMenu>
-        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.OneHour)">1h</button>
-        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.TwoHour)">2h</button>
-        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.FourHour)">4h</button>
-        <button ngbDropdownItem (click)="setHourGrouping(HourGroupingMode.AmPm)">AM/PM</button>
-      </div>
-    </div>
   </div>
 
   <div class="header-center">
@@ -38,8 +22,8 @@
   </div>
 
   <div class="header-right">
-    <div class="zoom-slider">
-      <ngx-slider [(value)]="zoom" [options]="zoomOptions"></ngx-slider>
+    <div class="grouping-slider">
+      <ngx-slider [(value)]="hourGrouping" [options]="groupingOptions"></ngx-slider>
     </div>
 
     <button

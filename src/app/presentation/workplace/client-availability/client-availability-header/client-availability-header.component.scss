@@ -28,12 +28,41 @@
     align-items: center;
     gap: 12px;
 
-    .zoom-slider {
-      width: 120px;
+    .grouping-slider {
+      width: 180px;
+      height: 40px !important;
+      padding-right: 20px;
     }
 
     .save-btn {
       white-space: nowrap;
     }
   }
+}
+
+::ng-deep {
+  .grouping-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto;
+    bottom: 0;
+    background-color: #333;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .grouping-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .grouping-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+}
+
+.grouping-slider {
+  height: 30px;
+  margin-right: 10px;
+  margin-top: 8px;
+  background-color: transparent;
 }

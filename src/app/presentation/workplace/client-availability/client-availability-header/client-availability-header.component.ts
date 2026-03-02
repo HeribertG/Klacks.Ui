@@ -8,6 +8,8 @@ import { AvailabilitySettingService } from '../services/availability-setting.ser
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 
+const GROUPING_LABELS = ['1h', '2h', '4h', 'VM/NM', 'Tag'];
+
 @Component({
   selector: 'app-client-availability-header',
   templateUrl: './client-availability-header.component.html',
@@ -28,37 +30,30 @@ export class ClientAvailabilityHeaderComponent {
 
   periodLabel = signal('');
 
-  zoomOptions: Options = {
-    floor: 0.5,
-    ceil: 3,
-    step: 0.1,
-    showTicks: false,
-    showSelectionBar: true,
+  groupingOptions: Options = {
+    floor: 0,
+    ceil: 4,
+    step: 1,
+    showSelectionBarEnd: false,
+    showSelectionBar: false,
+    translate: (value: number): string => GROUPING_LABELS[value],
   };
 
-  get zoom(): number {
-    return this.settings.zoom;
+  get hourGrouping(): number {
+    return this.settings.hourGroupingMode();
   }
 
-  set zoom(value: number) {
-    this.settings.zoom = value;
+  set hourGrouping(value: number) {
+    this.settings.hourGroupingMode.set(value as HourGroupingMode);
+    this.periodChanged.emit();
   }
 
   get viewMode(): PaymentInterval {
     return this.settings.viewMode();
   }
 
-  get hourGroupingMode(): HourGroupingMode {
-    return this.settings.hourGroupingMode();
-  }
-
   setViewMode(mode: PaymentInterval): void {
     this.settings.viewMode.set(mode);
-    this.periodChanged.emit();
-  }
-
-  setHourGrouping(mode: HourGroupingMode): void {
-    this.settings.hourGroupingMode.set(mode);
     this.periodChanged.emit();
   }
 
@@ -75,5 +70,4 @@ export class ClientAvailabilityHeaderComponent {
   }
 
   readonly PaymentInterval = PaymentInterval;
-  readonly HourGroupingMode = HourGroupingMode;
 }
