@@ -7,6 +7,8 @@ import {
   HOUR_GROUPING_SIZES,
 } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { compareDate } from 'src/app/shared/helpers/date.helper';
 
 export interface DateHourRange {
   date: Date;
@@ -18,6 +20,7 @@ export interface DateHourRange {
 @Injectable()
 export class AvailabilityCalculationService {
   private settings = inject(AvailabilitySettingService);
+  private holidayCollection = inject(HolidayCollectionService);
 
   public startDate: Date = new Date();
 
@@ -129,5 +132,26 @@ export class AvailabilityCalculationService {
   public isWeekend(date: Date): boolean {
     const day = date.getDay();
     return day === 0 || day === 6;
+  }
+
+  public isSunday(date: Date): boolean {
+    return date.getDay() === 0;
+  }
+
+  public isHoliday(date: Date): boolean {
+    const holidays = this.holidayCollection.holidays;
+    if (!holidays || holidays.holidayList.length === 0) {
+      return false;
+    }
+    return holidays.holidayList.some((x) => compareDate(x.currentDate, date));
+  }
+
+  public isOfficialHoliday(date: Date): boolean {
+    const holidays = this.holidayCollection.holidays;
+    if (!holidays || holidays.holidayList.length === 0) {
+      return false;
+    }
+    const found = holidays.holidayList.find((x) => compareDate(x.currentDate, date));
+    return found?.officially === true;
   }
 }

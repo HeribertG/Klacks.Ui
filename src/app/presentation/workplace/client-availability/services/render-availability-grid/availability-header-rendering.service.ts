@@ -35,10 +35,7 @@ export class AvailabilityHeaderRenderingService {
 
       if (x > width) break;
 
-      const bg = this.calculation.isWeekend(date)
-        ? this.gridColors.backGroundColorSaturday
-        : this.gridColors.controlBackGroundColor;
-      this.fillRect(ctx, x, 0, dayWidth, dayHeaderHeight, bg);
+      this.fillRect(ctx, x, 0, dayWidth, dayHeaderHeight, this.gridColors.controlBackGroundColor);
 
       ctx.strokeStyle = this.gridColors.borderColor;
       ctx.lineWidth = 1;
@@ -70,11 +67,24 @@ export class AvailabilityHeaderRenderingService {
     const font = this.gridFonts.firstSubFontString;
 
     for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
+      const date = new Date(this.calculation.startDate);
+      date.setDate(date.getDate() + dayIdx);
+      const isHoliday = this.calculation.isHoliday(date);
+      const holidayBg = isHoliday
+        ? this.calculation.isOfficialHoliday(date)
+          ? this.gridColors.backGroundColorOfficiallyHoliday
+          : this.gridColors.backGroundColorHolyday
+        : undefined;
+
       for (let slotIdx = 0; slotIdx < columnsPerDay; slotIdx++) {
         const col = dayIdx * columnsPerDay + slotIdx;
         const x = col * cellWidth;
 
         if (x > width) break;
+
+        if (holidayBg) {
+          this.fillRect(ctx, x, dayHeaderHeight, cellWidth, hourHeaderHeight, holidayBg);
+        }
 
         ctx.strokeStyle = this.gridColors.borderColor;
         ctx.lineWidth = 0.5;

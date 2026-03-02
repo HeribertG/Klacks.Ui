@@ -29,6 +29,7 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -65,6 +66,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     ScrollService,
     ScrollbarService,
     ClientAvailabilityFilterService,
+    HolidayCollectionService,
   ],
 })
 export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -82,6 +84,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private groupSelection = inject(GroupSelectionService);
   private filterService = inject(ClientAvailabilityFilterService);
   private searchService = inject(SearchService);
+  private holidayCollection = inject(HolidayCollectionService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -116,6 +119,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     await Promise.all([
       this.gridColors.readDataAsync(),
       this.gridFonts.readDataAsync(),
+      this.holidayCollection.readDataAsync(),
     ]);
 
     this.renderGrid.initialize();

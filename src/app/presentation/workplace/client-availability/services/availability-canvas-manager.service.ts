@@ -45,6 +45,17 @@ export class AvailabilityCanvasManagerService {
     }
   }
 
+  public clearRenderCanvas(): void {
+    if (this.renderCanvas && this.renderCanvasCtx) {
+      this.renderCanvasCtx.clearRect(
+        0,
+        0,
+        this.renderCanvas.width,
+        this.renderCanvas.height
+      );
+    }
+  }
+
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
     if (this.renderCanvas && this.renderCanvasCtx) {
       this.renderCanvas.height = visibleRow * this.settings.cellHeight;
