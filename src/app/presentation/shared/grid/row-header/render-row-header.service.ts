@@ -38,6 +38,9 @@ export class SharedRenderRowHeaderService {
 
   private progressBarLoader: IProgressLoader | null = null;
 
+  private rowCellTemplate: HTMLCanvasElement | undefined;
+  private templateWidth = 0;
+
   public setProgressBarLoader(loader: IProgressLoader): void {
     this.progressBarLoader = loader;
   }
@@ -88,6 +91,7 @@ export class SharedRenderRowHeaderService {
   public renderRowHeader(): void {
     this.ShapeRenderCanvasSurface();
     this.ClearRenderCanvasSurface();
+    this.ensureRowCellTemplate();
 
     const first = this.scroll.verticalScrollPosition;
     const last =
@@ -105,39 +109,56 @@ export class SharedRenderRowHeaderService {
     const dy = index - this.scroll.verticalScrollPosition;
     const height = this.settings.cellHeight;
     const top = Math.floor(dy * height);
-    const rec = new Rectangle(
-      0,
-      top,
-      this.rowHeaderCanvasManager.renderCanvas!.width,
-      top + height
-    );
+    const ctx = this.rowHeaderCanvasManager.renderCanvasCtx!;
+    const logicalWidth = this.rowHeaderCanvasManager.width;
 
     if (index < this.dataProvider.getRowCount()) {
-      this.renderRowHeaderCell.fillRectangle(
-        this.rowHeaderCanvasManager.renderCanvasCtx!,
-        isMoveGrid ? 'red' : this.gridColors.controlBackGroundColor,
-        rec
-      );
+      if (!isMoveGrid && this.rowCellTemplate) {
+        ctx.drawImage(
+          this.rowCellTemplate,
+          0,
+          0,
+          this.rowCellTemplate.width,
+          this.rowCellTemplate.height,
+          0,
+          top,
+          logicalWidth,
+          height
+        );
+      } else {
+        const rec = new Rectangle(
+          0,
+          top,
+          this.rowHeaderCanvasManager.renderCanvas!.width,
+          top + height
+        );
 
-      const diff = directionDown ? 0 : this.settings.borderWidth;
-      this.renderRowHeaderCell.drawBorder(
-        this.rowHeaderCanvasManager.renderCanvasCtx!,
-        rec.left,
-        rec.top,
-        rec.width,
-        rec.top + rec.height - diff - 1,
-        this.gridColors.controlBackGroundColor,
-        2,
-        Gradient3DBorderStyleEnum.Raised
-      );
+        this.renderRowHeaderCell.fillRectangle(
+          ctx,
+          isMoveGrid ? 'red' : this.gridColors.controlBackGroundColor,
+          rec
+        );
+
+        const diff = directionDown ? 0 : this.settings.borderWidth;
+        this.renderRowHeaderCell.drawBorder(
+          ctx,
+          rec.left,
+          rec.top,
+          rec.width,
+          rec.top + rec.height - diff - 1,
+          this.gridColors.controlBackGroundColor,
+          2,
+          Gradient3DBorderStyleEnum.Raised
+        );
+      }
 
       this.renderRowHeaderCell.drawText(
-        this.rowHeaderCanvasManager.renderCanvasCtx!,
+        ctx,
         this.dataProvider.getClientName(index),
-        rec.left,
-        rec.top,
-        rec.width,
-        rec.height - 2,
+        0,
+        top,
+        logicalWidth,
+        height - 2,
         this.gridFonts.mainFontString,
         +this.gridFonts.mainFontSize,
         this.gridColors.foreGroundColor,
@@ -145,8 +166,15 @@ export class SharedRenderRowHeaderService {
         BaselineAlignmentEnum.Center
       );
     } else {
+      const rec = new Rectangle(
+        0,
+        top,
+        this.rowHeaderCanvasManager.renderCanvas!.width,
+        top + height
+      );
+
       this.renderRowHeaderCell.fillRectangle(
-        this.rowHeaderCanvasManager.renderCanvasCtx!,
+        ctx,
         this.gridColors.backGroundContainerColor,
         rec
       );
@@ -184,6 +212,40 @@ export class SharedRenderRowHeaderService {
     for (let row = firstRow; row < lastRow; row++) {
       this.drawName(row, directionDown, true);
     }
+  }
+
+  private ensureRowCellTemplate(): void {
+    const logicalWidth = this.rowHeaderCanvasManager.width;
+    if (this.rowCellTemplate && this.templateWidth === logicalWidth) {
+      return;
+    }
+
+    const height = this.settings.cellHeight;
+    const ratio = DrawHelper.pixelRatio();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = logicalWidth * ratio;
+    canvas.height = height * ratio;
+    const ctx = canvas.getContext('2d')!;
+    ctx.scale(ratio, ratio);
+
+    const bg = this.gridColors.controlBackGroundColor;
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, logicalWidth, height);
+
+    DrawHelper.drawBorder(
+      ctx,
+      0,
+      0,
+      logicalWidth,
+      height - 1,
+      bg,
+      2,
+      Gradient3DBorderStyleEnum.Raised
+    );
+
+    this.rowCellTemplate = canvas;
+    this.templateWidth = logicalWidth;
   }
 
   private ShapeRenderCanvasSurface(): void {
@@ -295,6 +357,8 @@ export class SharedRenderRowHeaderService {
     this.progressEffectRef?.destroy();
     this.progressEffectRef = null;
     this.progressBar.destroy();
+    this.rowCellTemplate = undefined;
+    this.templateWidth = 0;
   }
 
   private drawFilterIcon(rec: Rectangle) {
