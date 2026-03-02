@@ -4,4 +4,8 @@ export interface IAvailabilityClient {
   id: string;
   displayName: string;
   groupIds: string[];
+  legalEntity: boolean;
+  name: string;
+  firstName: string;
+  company: string;
 }

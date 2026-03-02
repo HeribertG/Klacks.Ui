@@ -8,6 +8,7 @@ import { ROW_HEADER_SETTINGS } from 'src/app/presentation/shared/grid/row-header
 import { IRowHeaderSettings } from 'src/app/presentation/shared/grid/row-header/row-header-settings.interface';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ROW_HEADER_DATA } from 'src/app/presentation/shared/grid/row-header/row-header-tokens';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 
 @Injectable()
 export class DrawAvailabilityRowHeaderService {
@@ -16,6 +17,20 @@ export class DrawAvailabilityRowHeaderService {
   private renderService = inject(SharedRenderRowHeaderService);
   private scroll = inject(ScrollService);
   private dataProvider = inject(ROW_HEADER_DATA);
+
+  public readonly iconSize = 24;
+
+  public set filterImage(image: HTMLImageElement | undefined) {
+    this.renderService.filterImage = image;
+  }
+
+  public get recFilterIcon(): Rectangle {
+    return this.renderService.recFilterIcon;
+  }
+
+  public get rowHeaderCanvasManager(): SharedRowHeaderCanvasManagerService {
+    return this.canvasManager;
+  }
 
   public createCanvas(canvasId: string): void {
     this.canvasManager.createCanvas(canvasId);

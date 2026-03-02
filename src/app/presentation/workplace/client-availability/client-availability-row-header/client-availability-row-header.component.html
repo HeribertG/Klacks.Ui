@@ -1,3 +1,18 @@
+<div
+  class="gantt-filter-windows"
+  [ngStyle]="filterStyle"
+  (mouseleave)="onMouseLeave()"
+>
+  <app-client-filter
+    [filter]="filterService"
+    (filterChange)="onFilterChange()"
+  ></app-client-filter>
+</div>
+
 <div class="row-header-container" appResize (resizeElement)="onResize($event)">
-  <canvas id="availability-row-header-canvas"></canvas>
+  <canvas
+    id="availability-row-header-canvas"
+    (mousemove)="onMouseMove($event)"
+    (click)="onClick($event)"
+  ></canvas>
 </div>

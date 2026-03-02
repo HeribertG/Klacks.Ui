@@ -36,6 +36,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
+import { AvailabilitySelectionService } from '../services/availability-selection.service';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -67,6 +68,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     ScrollbarService,
     ClientAvailabilityFilterService,
     HolidayCollectionService,
+    AvailabilitySelectionService,
   ],
 })
 export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -135,6 +137,10 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
         ? (c.company ?? '')
         : `${c.name ?? ''}, ${c.firstName ?? ''}`.trim(),
       groupIds: c.groupIds ?? [],
+      legalEntity: c.legalEntity,
+      name: c.name ?? '',
+      firstName: c.firstName ?? '',
+      company: c.company ?? '',
     }));
 
     this.filterService.setAllClients(mapped);
