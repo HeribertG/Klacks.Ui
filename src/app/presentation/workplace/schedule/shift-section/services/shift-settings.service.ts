@@ -23,6 +23,7 @@ export class ShiftSettingsService extends BaseSettingsService {
   override hasHeader = false;
   override cellHeight = 38;
   override cellHeaderHeight = 0;
+  override increaseBorder = 0;
   override selectionMode: GridSelectionModeEnum =
     GridSelectionModeEnum.RowActiveOnly;
 

@@ -78,8 +78,7 @@ export class ProgressBarAnimationService {
   draw(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     if (this.displayedProgress <= 0) return;
 
-    const dpr = DrawHelper.pixelRatio();
-    const barHeight = this.config.height * dpr;
+    const barHeight = this.config.height;
     const progressWidth = (width * this.displayedProgress) / 100;
 
     const y = this.config.position === 'top' ? 0 : height - barHeight - 1;
@@ -99,8 +98,7 @@ export class ProgressBarAnimationService {
   ): void {
     if (this.displayedProgress <= 0) return;
 
-    const dpr = DrawHelper.pixelRatio();
-    const barHeight = this.config.height * dpr;
+    const barHeight = this.config.height;
     const progressWidth = (width * this.displayedProgress) / 100;
 
     const y =

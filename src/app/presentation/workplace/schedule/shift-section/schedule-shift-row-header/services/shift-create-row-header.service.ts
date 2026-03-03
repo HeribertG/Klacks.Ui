@@ -64,16 +64,14 @@ export class ShiftCreateRowHeaderService {
     this.shiftIcons.reset(this.iconWidth, this.iconHeight);
   }
 
-  drawRow(row: number, yPosition: number, isFirstVisibleRow: boolean): void {
+  drawRow(row: number, yPosition: number): void {
     if (!this.canvasManager.renderCanvasCtx) return;
 
     const ctx = this.canvasManager.renderCanvasCtx;
     const width = this.canvasManager.width;
     const height = this.settings.cellHeight;
 
-    const topOffset = isFirstVisibleRow ? 2 : 0;
-    const adjustedY = yPosition + topOffset;
-    const rec = new Rectangle(0, adjustedY, width, adjustedY + height - 1);
+    const rec = new Rectangle(0, yPosition, width, yPosition + height);
 
     if (row < this.shiftData.rows) {
       this.fillBackground(ctx, rec);
@@ -99,7 +97,7 @@ export class ShiftCreateRowHeaderService {
       rec.left,
       rec.top,
       rec.width,
-      rec.height,
+      rec.bottom,
       this.gridColors.controlBackGroundColor,
       this.borderWidth,
       Gradient3DBorderStyleEnum.Raised

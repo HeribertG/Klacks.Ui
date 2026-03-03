@@ -110,12 +110,11 @@ export class ShiftDrawRowHeaderService {
     const ctx = this.canvasManager.ctx;
     const width = this.canvasManager.width;
     const height = this.height;
-    const dpr = DrawHelper.pixelRatio();
-    const barHeight = this.canvasManager.progressBarHeight * dpr;
+    const barHeight = this.canvasManager.progressBarHeight;
 
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
-    ctx.fillRect(0, 0, width * dpr, barHeight + 2);
+    ctx.fillRect(0, 0, width, barHeight + 2);
     ctx.restore();
 
     this.progressBar.draw(ctx, width, height);
@@ -187,8 +186,7 @@ export class ShiftDrawRowHeaderService {
     for (let i = 0; i < visibleRows + 1; i++) {
       const row = firstRow + i;
       const yPosition = i * this.settings.cellHeight;
-      const isFirstVisibleRow = i === 0;
-      this.createRowHeader.drawRow(row, yPosition, isFirstVisibleRow);
+      this.createRowHeader.drawRow(row, yPosition);
     }
   }
 
