@@ -43,15 +43,11 @@ export class InboxService {
   groupTree = signal<IEmailGroupNode[]>([]);
   selectedGroupId = signal<string | null>(null);
   selectedClientId = signal<string | null>(null);
+  private _totalUnreadCount = signal<number>(0);
 
   isTrashFolder = computed(() => this.selectedFolder() === TRASH_FOLDER);
 
-  inboxUnreadCount = computed(() => {
-    const folders = this.folders();
-    if (folders.length === 0) return 0;
-    const inboxFolder = folders.find(f => f.imapFolderName !== TRASH_FOLDER);
-    return inboxFolder?.unreadCount ?? 0;
-  });
+  inboxUnreadCount = computed(() => this._totalUnreadCount());
 
   selectedFolderUnreadCount = computed(() => {
     const selected = this.selectedFolder();
@@ -266,6 +262,7 @@ export class InboxService {
     this.dataReceivedEmailService.getUnreadCount().subscribe({
       next: (count) => {
         this.unreadCount.set(count);
+        this._totalUnreadCount.set(count);
       },
     });
     this.dataEmailFolderService.getFolders().subscribe({
