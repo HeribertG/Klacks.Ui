@@ -13,10 +13,10 @@ const GRID_THEME_DEFAULTS: Record<'light' | 'dark', Record<string, string>> = {
   },
   dark: {
     '--gridContainerBackground': '#2c3e50',
-    '--gridHeaderBackground': '#ecf0f1',
-    '--gridHeaderColor': '#34495e',
-    '--gridHeaderBorderColor': '#ecf0f1',
-    '--gridRowHeaderColor': '#34495e',
+    '--gridHeaderBackground': '#34495e',
+    '--gridHeaderColor': '#ecf0f1',
+    '--gridHeaderBorderColor': '#2c3e50',
+    '--gridRowHeaderColor': '#ecf0f1',
   },
 };
 

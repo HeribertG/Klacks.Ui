@@ -31,6 +31,7 @@ import {
   Injector,
   runInInjectionContext,
   computed,
+  viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -64,6 +65,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -105,6 +107,7 @@ export class ScheduleScheduleRowHeaderComponent
   private appSettings = inject(AppSettingsManagementService);
   private toastShowService = inject(ToastShowService);
   private gridColorService = inject(GridColorService);
+  private rowHeaderIcons = inject(RowHeaderIconsService);
 
   private isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -115,6 +118,7 @@ export class ScheduleScheduleRowHeaderComponent
   private effects: EffectRef[] = [];
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
+  private filterEl = viewChild<ElementRef>('filterEl');
   private iconSize = 16;
   private contextMenuRow = -1;
 
@@ -124,10 +128,7 @@ export class ScheduleScheduleRowHeaderComponent
 
   ngOnInit(): void {
     this.destroyFilter();
-    this.drawRowHeader.filterImage = DrawHelper.createImage(
-      new Size(this.iconSize, this.iconSize),
-      'assets/svg/sorting.svg'
-    );
+    this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
     this.reportDefaults.load();
   }
 
@@ -257,6 +258,10 @@ export class ScheduleScheduleRowHeaderComponent
 
       const colorResetEffect = effect(() => {
         if (this.gridColorService.isReset()) {
+          const icon = this.rowHeaderIcons.sortingPicto;
+          if (icon) {
+            this.drawRowHeader.filterImage = icon;
+          }
           this.drawRowHeader.redraw();
         }
       });
@@ -609,18 +614,19 @@ export class ScheduleScheduleRowHeaderComponent
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
+    const icon = this.drawRowHeader.recFilterIcon;
+    const iconRight = rect.left + icon.left + icon.width;
+    const iconBottom = rect.top + icon.top + icon.height;
 
-    const leftPos = rect.left;
+    this.filterStyle = { visibility: 'hidden', left: '0px', top: iconBottom + 'px' };
 
-    this.filterStyle = {
-      visibility: 'visible',
-      left: leftPos + 'px',
-      top:
-        this.drawRowHeader.recFilterIcon.top +
-        this.drawRowHeader.recFilterIcon.height +
-        rect.top +
-        'px',
-    };
+    requestAnimationFrame(() => {
+      const el = this.filterEl()?.nativeElement;
+      const popupWidth = el?.offsetWidth ?? 0;
+      let left = iconRight - popupWidth;
+      if (left < 0) left = 0;
+      this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+    });
   }
 
   private destroyFilter(): void {

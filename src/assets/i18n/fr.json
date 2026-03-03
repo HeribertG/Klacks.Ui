@@ -1666,5 +1666,6 @@
   "wizard.dialog.col.shift": "Quart",
   "wizard.dialog.col.agent": "Employé",
   "wizard.dialog.col.motivation": "Motivation",
-  "wizard.dialog.col.hours": "Heures"
+  "wizard.dialog.col.hours": "Heures",
+  "shared.row-header.headline": "Nom"
 }

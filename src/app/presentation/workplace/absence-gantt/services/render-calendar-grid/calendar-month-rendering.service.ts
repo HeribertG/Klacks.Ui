@@ -116,7 +116,7 @@ export class CalendarMonthRenderingService {
         monthRec.height,
         this.gridFonts.mainFontString,
         +this.gridFonts.mainFontSize,
-        this.gridColors.mainFontColor,
+        this.gridColors.headerForeGroundColor,
         TextAlignmentEnum.Center,
         BaselineAlignmentEnum.Center
       );

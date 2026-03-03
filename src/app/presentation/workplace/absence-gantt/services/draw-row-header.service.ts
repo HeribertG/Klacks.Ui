@@ -33,7 +33,7 @@ export class DrawRowHeaderService {
 
   private _selectedRow = -1;
 
-  public set filterImage(image: HTMLImageElement | undefined) {
+  public set filterImage(image: HTMLImageElement | HTMLCanvasElement | undefined) {
     this.renderRowHeaderService.filterImage = image;
   }
 

@@ -7,10 +7,12 @@ import {
   Injector,
   OnDestroy,
   OnInit,
+  ElementRef,
   effect,
   inject,
   input,
   runInInjectionContext,
+  viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
@@ -24,6 +26,7 @@ import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-
 import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { RenderAvailabilityGridService } from '../services/render-availability-grid';
+import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 
 @Component({
   selector: 'app-client-availability-row-header',
@@ -39,6 +42,7 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   private gridFontsService = inject(GridFontsService);
   private injector = inject(Injector);
   private renderGrid = inject(RenderAvailabilityGridService);
+  private rowHeaderIcons = inject(RowHeaderIconsService);
 
   public filterService = inject(ClientAvailabilityFilterService);
 
@@ -46,7 +50,8 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
 
   valueChangeVScrollbar = input(0);
 
-  filterStyle: Record<string, string> = {};
+  filterStyle: Record<string, string> = { visibility: 'hidden' };
+  private filterEl = viewChild<ElementRef>('filterEl');
 
   private set currentCursor(cursor: CursorEnum) {
     document.body.style.cursor = cursor;
@@ -60,10 +65,7 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
     this.readSignals();
     this.destroyFilter();
 
-    this.drawRowHeader.filterImage = DrawHelper.createImage(
-      new Size(this.drawRowHeader.iconSize, this.drawRowHeader.iconSize),
-      'assets/svg/sorting.svg'
-    );
+    this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
   }
 
   ngAfterViewInit(): void {
@@ -135,17 +137,19 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const leftPos = rect.left;
+    const icon = this.drawRowHeader.recFilterIcon;
+    const iconRight = rect.left + icon.left + icon.width;
+    const iconBottom = rect.top + icon.top + icon.height;
 
-    this.filterStyle = {
-      visibility: 'visible',
-      left: leftPos + 'px',
-      top:
-        this.drawRowHeader.recFilterIcon.top +
-        this.drawRowHeader.recFilterIcon.height +
-        rect.top +
-        'px',
-    };
+    this.filterStyle = { visibility: 'hidden', left: '0px', top: iconBottom + 'px' };
+
+    requestAnimationFrame(() => {
+      const el = this.filterEl()?.nativeElement;
+      const popupWidth = el?.offsetWidth ?? 0;
+      let left = iconRight - popupWidth;
+      if (left < 0) left = 0;
+      this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+    });
   }
 
   destroyFilter(): void {
@@ -192,6 +196,10 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
       const colorResetEffect = effect(() => {
         const isReset = this.gridColorService.isReset();
         if (isReset) {
+          const icon = this.rowHeaderIcons.sortingPicto;
+          if (icon) {
+            this.drawRowHeader.filterImage = icon;
+          }
           this.redrawComponents();
         }
       });

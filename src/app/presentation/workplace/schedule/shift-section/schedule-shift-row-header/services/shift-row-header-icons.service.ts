@@ -33,6 +33,7 @@ export class ShiftRowHeaderIconsService {
   private _timeWindowPicto: HTMLCanvasElement | undefined;
   private _shiftSegmentPicto: HTMLCanvasElement | undefined;
   private _containerPicto: HTMLCanvasElement | undefined;
+  private _iconColor = '';
 
   reset(width: number, height: number): void {
     if (this._width === width && this._height === height) {
@@ -40,6 +41,18 @@ export class ShiftRowHeaderIconsService {
     }
     this._width = width;
     this._height = height;
+    this.clearIcons();
+  }
+
+  private ensureColor(): void {
+    const color = this.gridColors.headerForeGroundColor;
+    if (this._iconColor !== color) {
+      this._iconColor = color;
+      this.clearIcons();
+    }
+  }
+
+  private clearIcons(): void {
     this._unknownTimePicto = undefined;
     this._timeWindowPicto = undefined;
     this._shiftSegmentPicto = undefined;
@@ -47,36 +60,40 @@ export class ShiftRowHeaderIconsService {
   }
 
   get unknownTimePicto(): HTMLCanvasElement | undefined {
+    this.ensureColor();
     if (this._unknownTimePicto === undefined) {
       this._unknownTimePicto = this.createFromSvg(
-        IconUnknownTimeComponent.getSvg(this.gridColors.mainFontColor)
+        IconUnknownTimeComponent.getSvg(this._iconColor)
       );
     }
     return this._unknownTimePicto;
   }
 
   get timeWindowPicto(): HTMLCanvasElement | undefined {
+    this.ensureColor();
     if (this._timeWindowPicto === undefined) {
       this._timeWindowPicto = this.createFromSvg(
-        IconTimeWindowComponent.getSvg(this.gridColors.mainFontColor)
+        IconTimeWindowComponent.getSvg(this._iconColor)
       );
     }
     return this._timeWindowPicto;
   }
 
   get shiftSegmentPicto(): HTMLCanvasElement | undefined {
+    this.ensureColor();
     if (this._shiftSegmentPicto === undefined) {
       this._shiftSegmentPicto = this.createFromSvg(
-        IconShiftSegmentComponent.getSvg(this.gridColors.mainFontColor)
+        IconShiftSegmentComponent.getSvg(this._iconColor)
       );
     }
     return this._shiftSegmentPicto;
   }
 
   get containerPicto(): HTMLCanvasElement | undefined {
+    this.ensureColor();
     if (this._containerPicto === undefined) {
       this._containerPicto = this.createFromSvg(
-        IconBoxContainerComponent.getSvg(this.gridColors.mainFontColor)
+        IconBoxContainerComponent.getSvg(this._iconColor)
       );
     }
     return this._containerPicto;

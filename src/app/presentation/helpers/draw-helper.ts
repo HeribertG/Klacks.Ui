@@ -532,7 +532,7 @@ export abstract class DrawHelper {
 
   public static drawImage(
     ctx: CanvasRenderingContext2D,
-    image: HTMLImageElement,
+    image: HTMLImageElement | HTMLCanvasElement,
     rec: Rectangle,
     opacity: number | undefined
   ): void {

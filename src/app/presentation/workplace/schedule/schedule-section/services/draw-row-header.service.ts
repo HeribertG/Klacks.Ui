@@ -58,7 +58,7 @@ export class BaseDrawRowHeaderService {
   public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
 
   public recFilterIcon!: Rectangle;
-  public filterImage: HTMLImageElement | undefined;
+  public filterImage: HTMLImageElement | HTMLCanvasElement | undefined;
   public isFocused = true;
   public isBusy = false;
 

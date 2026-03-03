@@ -16,6 +16,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 import { IProgressLoader, ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { ROW_HEADER_SETTINGS, ROW_HEADER_DATA } from './row-header-tokens';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class SharedRenderRowHeaderService {
@@ -28,9 +29,10 @@ export class SharedRenderRowHeaderService {
   private renderRowHeaderCell = inject(SharedRenderRowHeaderCellService);
   private progressBar = inject(ProgressBarAnimationService);
   private injector = inject(Injector);
+  private translateService = inject(TranslateService);
 
   public recFilterIcon!: Rectangle;
-  public filterImage: HTMLImageElement | undefined;
+  public filterImage: HTMLImageElement | HTMLCanvasElement | undefined;
 
   public readonly iconSize = 16;
   private isProgressBarInitialized = false;
@@ -40,6 +42,7 @@ export class SharedRenderRowHeaderService {
 
   private rowCellTemplate: HTMLCanvasElement | undefined;
   private templateWidth = 0;
+  private templateBgColor = '';
 
   public setProgressBarLoader(loader: IProgressLoader): void {
     this.progressBarLoader = loader;
@@ -216,7 +219,8 @@ export class SharedRenderRowHeaderService {
 
   private ensureRowCellTemplate(): void {
     const logicalWidth = this.rowHeaderCanvasManager.width;
-    if (this.rowCellTemplate && this.templateWidth === logicalWidth) {
+    const currentBg = this.gridColors.controlBackGroundColor;
+    if (this.rowCellTemplate && this.templateWidth === logicalWidth && this.templateBgColor === currentBg) {
       return;
     }
 
@@ -246,6 +250,7 @@ export class SharedRenderRowHeaderService {
 
     this.rowCellTemplate = canvas;
     this.templateWidth = logicalWidth;
+    this.templateBgColor = currentBg;
   }
 
   private ShapeRenderCanvasSurface(): void {
@@ -302,7 +307,7 @@ export class SharedRenderRowHeaderService {
 
   private DrawHeaderCanvas(rec: Rectangle): void {
     const displayCount = this.dataProvider.getTotalCount();
-    const headerText = `Name (${displayCount})`;
+    const headerText = this.translateService.instant('shared.row-header.headline') + ` (${displayCount})`;
 
     this.renderRowHeaderCell.drawText(
       this.rowHeaderCanvasManager.headerCtx!,

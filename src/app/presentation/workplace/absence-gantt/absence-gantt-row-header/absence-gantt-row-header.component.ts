@@ -15,6 +15,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  viewChild,
 } from '@angular/core';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -27,6 +28,7 @@ import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { NgStyle } from '@angular/common';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
@@ -54,12 +56,14 @@ export class AbsenceGanttRowHeaderComponent
   private gridFontsService = inject(GridFontsService);
   private drawCalendarGanttService = inject(DrawCalendarGanttService);
   private drawRowHeader = inject(DrawRowHeaderService);
+  private rowHeaderIcons = inject(RowHeaderIconsService);
   private injector = inject(Injector);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  filterStyle = {};
+  filterStyle: Record<string, string> = { visibility: 'hidden' };
+  private filterEl = viewChild<ElementRef>('filterEl');
 
   /* #region dom */
   private set currentCursor(cursor: CursorEnum) {
@@ -78,10 +82,7 @@ export class AbsenceGanttRowHeaderComponent
     this.destroyFilter();
     this.drawCalendarGanttService.pixelRatio = DrawHelper.pixelRatio();
 
-    this.drawRowHeader.filterImage = DrawHelper.createImage(
-      new Size(this.drawRowHeader.iconSize, this.drawRowHeader.iconSize),
-      'assets/svg/sorting.svg'
-    );
+    this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
 
     const loader = this.dataManagementBreak;
     this.drawRowHeader.setProgressBarLoader({
@@ -222,18 +223,19 @@ export class AbsenceGanttRowHeaderComponent
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
+    const icon = this.drawRowHeader.recFilterIcon;
+    const iconRight = rect.left + icon.left + icon.width;
+    const iconBottom = rect.top + icon.top + icon.height;
 
-    const leftPos = rect.left;
+    this.filterStyle = { visibility: 'hidden', left: '0px', top: iconBottom + 'px' };
 
-    this.filterStyle = {
-      visibility: 'visible',
-      left: leftPos + 'px',
-      top:
-        this.drawRowHeader.recFilterIcon.top +
-        this.drawRowHeader.recFilterIcon.height +
-        rect.top +
-        'px',
-    };
+    requestAnimationFrame(() => {
+      const el = this.filterEl()?.nativeElement;
+      const popupWidth = el?.offsetWidth ?? 0;
+      let left = iconRight - popupWidth;
+      if (left < 0) left = 0;
+      this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+    });
   }
 
   destroyFilter() {
@@ -267,6 +269,10 @@ export class AbsenceGanttRowHeaderComponent
       const effect2 = effect(() => {
         const isReset = this.gridColorService.isReset();
         if (isReset) {
+          const icon = this.rowHeaderIcons.sortingPicto;
+          if (icon) {
+            this.drawRowHeader.filterImage = icon;
+          }
           this.onResize([]);
         }
       });

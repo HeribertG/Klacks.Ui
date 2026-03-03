@@ -20,7 +20,7 @@ export class DrawAvailabilityRowHeaderService {
 
   public readonly iconSize = 24;
 
-  public set filterImage(image: HTMLImageElement | undefined) {
+  public set filterImage(image: HTMLImageElement | HTMLCanvasElement | undefined) {
     this.renderService.filterImage = image;
   }
 

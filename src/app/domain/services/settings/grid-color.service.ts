@@ -69,17 +69,20 @@ export class GridColorService {
   private applyThemeDefaults(headerBg: string, headerColor: string, containerBg: string, rowColor: string, borderColor: string): void {
     let changed = false;
 
-    if (!this.hasDbOverride(ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY)) {
+    const dbOverrideControl = this.hasDbOverride(ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY);
+    const dbOverrideHeaderFg = this.hasDbOverride(ConstantKeys.HEADER_FOREGROUND_COLOR_KEY);
+    const dbOverrideFg = this.hasDbOverride(ConstantKeys.FOREGROUND_COLOR_KEY);
+    if (!dbOverrideControl) {
       this.controlBackGroundColor = headerBg;
       changed = true;
     }
 
-    if (!this.hasDbOverride(ConstantKeys.HEADER_FOREGROUND_COLOR_KEY)) {
+    if (!dbOverrideHeaderFg) {
       this.headerForeGroundColor = headerColor;
       changed = true;
     }
 
-    if (!this.hasDbOverride(ConstantKeys.FOREGROUND_COLOR_KEY)) {
+    if (!dbOverrideFg) {
       this.foreGroundColor = rowColor;
       changed = true;
     }
@@ -117,7 +120,8 @@ export class GridColorService {
     this.resetSettingList();
 
     if (settings) {
-      (settings as ISetting[]).forEach((x) => {
+      const dbSettings = settings as ISetting[];
+      dbSettings.forEach((x) => {
         if (x) {
           this.setSetting(x);
         }
