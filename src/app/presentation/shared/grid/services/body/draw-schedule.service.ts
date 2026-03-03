@@ -150,28 +150,10 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   private growGrid() {
-    const oldVisibleRow = this.nominalVisibleRow();
-    const oldVisibleCol = this.nominalVisibleCol();
-
     const visibleRow = this.updateVisibleRow();
     const visibleCol = this.updateVisibleCol();
-
-    if (oldVisibleRow < visibleRow || oldVisibleCol < visibleCol) {
-      const tempCanvas = this.createTempCanvas();
-      this.drawOnTempCanvas(tempCanvas, 0, 0);
-
-      this.resizeRenderCanvas(visibleRow, visibleCol);
-
-      this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
-
-      if (oldVisibleRow < visibleRow && oldVisibleCol < visibleCol) {
-        this.addNewCells(oldVisibleRow, oldVisibleCol, visibleRow, visibleCol);
-      } else if (oldVisibleRow === visibleRow && oldVisibleCol < visibleCol) {
-        this.addNewCells(0, oldVisibleCol, visibleRow, visibleCol);
-      } else if (oldVisibleRow < visibleRow && oldVisibleCol === visibleCol) {
-        this.addNewCells(oldVisibleRow, 0, visibleRow, visibleCol);
-      }
-    }
+    this.resizeRenderCanvas(visibleRow, visibleCol);
+    this.redrawGrid();
   }
 
   private addNewCells(
