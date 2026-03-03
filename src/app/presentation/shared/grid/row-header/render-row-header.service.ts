@@ -142,13 +142,12 @@ export class SharedRenderRowHeaderService {
           rec
         );
 
-        const diff = directionDown ? 0 : this.settings.borderWidth;
         this.renderRowHeaderCell.drawBorder(
           ctx,
           rec.left,
           rec.top,
           rec.width,
-          rec.top + rec.height - diff - 1,
+          rec.top + rec.height,
           this.gridColors.controlBackGroundColor,
           2,
           Gradient3DBorderStyleEnum.Raised
@@ -242,7 +241,7 @@ export class SharedRenderRowHeaderService {
       0,
       0,
       logicalWidth,
-      height - 1,
+      height,
       bg,
       2,
       Gradient3DBorderStyleEnum.Raised
