@@ -284,6 +284,10 @@ export class GridSurfaceTemplateComponent
       const newWidth = Math.round(entry.contentRect.width);
       const newHeight = Math.round(entry.contentRect.height);
 
+      if (newWidth <= 0 || newHeight <= 0) {
+        return;
+      }
+
       if (!this.drawSchedule.isCanvasAvailable()) {
         this.pendingResize = { width: newWidth, height: newHeight };
         return;
