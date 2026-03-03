@@ -37,6 +37,7 @@ import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
+import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -133,9 +134,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
     const mapped = clients.map((c: IClientForReplacement) => ({
       id: c.id,
-      displayName: c.legalEntity
-        ? (c.company ?? '')
-        : `${c.name ?? ''}, ${c.firstName ?? ''}`.trim(),
+      displayName: formatClientDisplayName(c),
       groupIds: c.groupIds ?? [],
       legalEntity: c.legalEntity,
       name: c.name ?? '',

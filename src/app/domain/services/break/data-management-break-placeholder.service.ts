@@ -12,6 +12,7 @@ import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../enums/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -216,15 +217,10 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
   }
 
   readClientName(index: number): string {
-    let result = '';
     if (index < this.clients.length) {
-      const client = this.clients[index];
-      result = `${client.firstName} ${client.name}`;
-      if (!result.replace(/\s+/g, '')) {
-        result = client.company;
-      }
+      return formatClientDisplayName(this.clients[index]);
     }
-    return result;
+    return '';
   }
 
   readData(index: number): IBreakPlaceholder[] | undefined {
