@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -60,6 +60,7 @@ type NavigationPage =
   styleUrls: ['./nav.component.scss'],
   imports: [
     NgbTooltipModule,
+    TranslateModule,
     IconGanttComponent,
     IconGroupComponent,
     IconOrderComponent,

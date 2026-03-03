@@ -2,23 +2,24 @@
 
 import { Injectable, signal } from '@angular/core';
 import { IAvailabilityClient } from 'src/app/domain/models/client-availability/availability-client.interface';
-import { IClientTypeFilter } from 'src/app/presentation/shared/client-filter/client-filter.interface';
 
 const ALL_GROUPS_VIRTUAL_ID = 'all-groups-virtual';
 
 @Injectable()
-export class ClientAvailabilityFilterService implements IClientTypeFilter {
+export class ClientAvailabilityFilterService {
   private allClients: IAvailabilityClient[] = [];
 
   public searchString = '';
   public selectedGroupId: string | undefined;
   public clientsChanged = signal(false);
 
-  public orderBy = 'name';
-  public sortOrder = 'asc';
-  public showEmployees = true;
-  public showExtern = true;
-  public hoursSortOrder: string | undefined = undefined;
+  public clientFilter = {
+    orderBy: 'name',
+    sortOrder: 'asc',
+    showEmployees: true,
+    showExtern: true,
+    hoursSortOrder: undefined as string | undefined,
+  };
 
   public setAllClients(clients: IAvailabilityClient[]): void {
     this.allClients = clients;
@@ -43,11 +44,11 @@ export class ClientAvailabilityFilterService implements IClientTypeFilter {
       );
     }
 
-    if (!this.showEmployees) {
+    if (!this.clientFilter.showEmployees) {
       result = result.filter((c) => c.legalEntity);
     }
 
-    if (!this.showExtern) {
+    if (!this.clientFilter.showExtern) {
       result = result.filter((c) => !c.legalEntity);
     }
 
@@ -56,34 +57,50 @@ export class ClientAvailabilityFilterService implements IClientTypeFilter {
     return result;
   }
 
+  public reFilter(updateClients: (clients: IAvailabilityClient[]) => void): void {
+    const filtered = this.getFilteredClients();
+    updateClients(filtered);
+    this.applyFilters();
+  }
+
   public applyFilters(): void {
     this.clientsChanged.set(true);
     setTimeout(() => this.clientsChanged.set(false), 100);
   }
 
   private sortClients(clients: IAvailabilityClient[]): IAvailabilityClient[] {
-    const direction = this.sortOrder === 'asc' ? 1 : -1;
+    const direction = this.clientFilter.sortOrder === 'asc' ? 1 : -1;
 
     return [...clients].sort((a, b) => {
-      let valueA = '';
-      let valueB = '';
+      let primaryA = '';
+      let primaryB = '';
+      let secondaryA = '';
+      let secondaryB = '';
 
-      switch (this.orderBy) {
+      switch (this.clientFilter.orderBy) {
         case 'firstName':
-          valueA = a.firstName;
-          valueB = b.firstName;
+          primaryA = a.firstName;
+          primaryB = b.firstName;
+          secondaryA = a.name;
+          secondaryB = b.name;
           break;
         case 'company':
-          valueA = a.company;
-          valueB = b.company;
+          primaryA = a.company;
+          primaryB = b.company;
+          secondaryA = a.name;
+          secondaryB = b.name;
           break;
         default:
-          valueA = a.name;
-          valueB = b.name;
+          primaryA = a.name;
+          primaryB = b.name;
+          secondaryA = a.firstName;
+          secondaryB = b.firstName;
           break;
       }
 
-      return valueA.localeCompare(valueB) * direction;
+      const primaryCompare = primaryA.localeCompare(primaryB) * direction;
+      if (primaryCompare !== 0) return primaryCompare;
+      return secondaryA.localeCompare(secondaryB) * direction;
     });
   }
 }

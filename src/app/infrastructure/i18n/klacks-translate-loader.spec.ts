@@ -60,23 +60,41 @@ describe('KlacksTranslateLoader', () => {
     req.flush({});
   });
 
-  it('should load plugin language from API', () => {
-    const mockTranslations = { 'test.key': 'Valor de prueba' };
+  it('should load plugin language merged with english base', () => {
+    // Arrange
+    const baseTranslations = { 'base.key': 'Base value', 'shared.key': 'English' };
+    const pluginTranslations = { 'test.key': 'Valor de prueba', 'shared.key': 'Español' };
 
+    // Act
     loader.getTranslation('es').subscribe((translations) => {
-      expect(translations).toEqual(mockTranslations);
+      // Assert
+      expect(translations).toEqual({
+        'base.key': 'Base value',
+        'test.key': 'Valor de prueba',
+        'shared.key': 'Español',
+      });
     });
 
-    const req = httpTestingController.expectOne(`${apiUrl}config/translations/es`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockTranslations);
+    const baseReq = httpTestingController.expectOne('./assets/i18n/en.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/es`);
+    baseReq.flush(baseTranslations);
+    pluginReq.flush(pluginTranslations);
   });
 
-  it('should load unknown language from API', () => {
-    loader.getTranslation('pt').subscribe();
+  it('should use english fallback for missing plugin keys', () => {
+    // Arrange
+    const baseTranslations = { 'base.key': 'Base value' };
+    const pluginTranslations = {};
 
-    const req = httpTestingController.expectOne(`${apiUrl}config/translations/pt`);
-    expect(req.request.method).toBe('GET');
-    req.flush({});
+    // Act
+    loader.getTranslation('pt').subscribe((translations) => {
+      // Assert
+      expect(translations).toEqual({ 'base.key': 'Base value' });
+    });
+
+    const baseReq = httpTestingController.expectOne('./assets/i18n/en.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/pt`);
+    baseReq.flush(baseTranslations);
+    pluginReq.flush(pluginTranslations);
   });
 });

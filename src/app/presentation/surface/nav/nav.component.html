@@ -78,9 +78,9 @@
         class="icon-button"
         id="open-availability"
         (click)="onClickAvailability()"
-        [attr.aria-label]="'Manage availability (Alt+6)'"
+        [attr.aria-label]="('client-availability.nav.tooltip' | translate) + ' (Alt+6)'"
         placement="right"
-        ngbTooltip="Availability (Alt+6)"
+        ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+6)"
       >
         <app-icon-availability #availabilityIcon></app-icon-availability>
       </button>

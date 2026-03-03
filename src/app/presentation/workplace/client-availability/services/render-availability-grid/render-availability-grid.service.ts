@@ -9,8 +9,10 @@ import { AvailabilityCellRenderingService } from './availability-cell-rendering.
 import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { HOUR_GROUPING_SIZES } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 const OVERLAP = 1;
+const DAY_BORDER_WIDTH = 2;
 
 @Injectable()
 export class RenderAvailabilityGridService {
@@ -21,6 +23,7 @@ export class RenderAvailabilityGridService {
   private cellRendering = inject(AvailabilityCellRenderingService);
   private checkboxDrawing = inject(CheckboxDrawingService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
+  private gridColors = inject(GridColorService);
 
   private clients: { id: string; displayName: string }[] = [];
 
@@ -64,6 +67,7 @@ export class RenderAvailabilityGridService {
     if (!this.canvasManager.renderCanvasCtx) return;
 
     this.renderCellRange(this.canvasManager.renderCanvasCtx, 0, visibleCols, 0, visibleRows, startCol, startRow);
+    this.renderDayBorders(this.canvasManager.renderCanvasCtx, 0, visibleCols, 0, visibleRows, startCol, startRow);
   }
 
   public renderCellsForHorizontalScroll(
@@ -88,6 +92,7 @@ export class RenderAvailabilityGridService {
     }
 
     this.renderCellRange(ctx, colStart, colEnd, 0, visibleRows, startCol, startRow);
+    this.renderDayBorders(ctx, colStart, colEnd, 0, visibleRows, startCol, startRow);
   }
 
   public renderCellsForVerticalScroll(
@@ -112,6 +117,7 @@ export class RenderAvailabilityGridService {
     }
 
     this.renderCellRange(ctx, 0, visibleCols, rowStart, rowEnd, startCol, startRow);
+    this.renderDayBorders(ctx, 0, visibleCols, rowStart, rowEnd, startCol, startRow);
   }
 
   private renderCellRange(
@@ -164,5 +170,36 @@ export class RenderAvailabilityGridService {
 
   public get totalRows(): number {
     return this.clients.length;
+  }
+
+  private renderDayBorders(
+    ctx: CanvasRenderingContext2D,
+    colFrom: number,
+    colTo: number,
+    rowFrom: number,
+    rowTo: number,
+    startCol: number,
+    startRow: number
+  ): void {
+    const cellWidth = this.settings.cellWidth;
+    const cellHeight = this.settings.cellHeight;
+    const columnsPerDay = this.settings.columnsPerDay;
+
+    ctx.strokeStyle = this.gridColors.borderColor;
+    ctx.lineWidth = DAY_BORDER_WIDTH;
+
+    for (let col = colFrom; col < colTo && (startCol + col) < this.calculation.totalColumns; col++) {
+      const absoluteCol = startCol + col;
+      // Draw thick border at the start of each day (except the first column)
+      if (absoluteCol > 0 && absoluteCol % columnsPerDay === 0) {
+        const x = col * cellWidth;
+        const rowCount = Math.min(rowTo, this.clients.length - startRow);
+        
+        ctx.beginPath();
+        ctx.moveTo(x, rowFrom * cellHeight);
+        ctx.lineTo(x, rowCount * cellHeight);
+        ctx.stroke();
+      }
+    }
   }
 }

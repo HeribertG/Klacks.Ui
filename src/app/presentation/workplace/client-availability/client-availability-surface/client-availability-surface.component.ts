@@ -15,6 +15,7 @@ import { AvailabilityCanvasManagerService } from '../services/availability-canva
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
+import { AvailabilitySelectionService } from '../services/availability-selection.service';
 
 @Component({
   selector: 'app-client-availability-surface',
@@ -85,6 +86,15 @@ export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDest
         this.updateScrollbarValues();
       });
     });
+  }
+
+  notifyScrollChanged(): void {
+    this.valueHScrollbar.emit(this.drawGrid.getScrollX());
+    this.valueVScrollbar.emit(this.drawGrid.getScrollY());
+    this.maxValueHScrollbar.emit(this.drawGrid.getMaxScrollX());
+    this.maxValueVScrollbar.emit(this.drawGrid.getMaxScrollY());
+    this.visibleValueHScrollbar.emit(this.drawGrid.getVisibleWidth());
+    this.visibleValueVScrollbar.emit(this.drawGrid.getVisibleHeight());
   }
 
   private updateScrollbarValues(): void {

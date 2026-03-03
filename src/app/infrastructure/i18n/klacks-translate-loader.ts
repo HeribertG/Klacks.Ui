@@ -2,10 +2,11 @@
 
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
+const FALLBACK_LANGUAGE = 'en';
 
 export class KlacksTranslateLoader implements TranslateLoader {
   private readonly apiUrl: string;
@@ -19,7 +20,12 @@ export class KlacksTranslateLoader implements TranslateLoader {
       return this.httpClient.get<Record<string, string>>(`./assets/i18n/${lang}.json`);
     }
 
-    return this.httpClient.get<Record<string, string>>(`${this.apiUrl}config/translations/${lang}`);
+    return forkJoin({
+      base: this.httpClient.get<Record<string, string>>(`./assets/i18n/${FALLBACK_LANGUAGE}.json`),
+      plugin: this.httpClient.get<Record<string, string>>(`${this.apiUrl}config/translations/${lang}`),
+    }).pipe(
+      map(({ base, plugin }) => ({ ...base, ...plugin }))
+    );
   }
 }
 

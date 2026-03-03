@@ -14,7 +14,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, Field } from '@angular/forms/signals';
-import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -38,6 +37,7 @@ import {
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import {
   ModalService,
   ModalType,
@@ -94,7 +94,7 @@ export class CalendarRulesComponent
 
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
-  private http = inject(HttpClient);
+  private manualLoader = inject(ManualLoaderService);
 
   // Pagination properties
   highlightRowId: string | undefined = undefined;
@@ -496,30 +496,9 @@ export class CalendarRulesComponent
   /* #region Help */
   loadManual(): void {
     const lang = this.translate.currentLang || 'de';
-    const supportedLangs = ['de', 'en', 'fr', 'it'];
-    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
-
-    this.http
-      .get(`assets/docs/calendar-rule-manual/${effectiveLang}.html`, { responseType: 'text' })
+    this.manualLoader.loadManual('calendar-rule-manual', lang)
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe({
-        next: (content) => {
-          this.manualContent.set(content);
-        },
-        error: () => {
-          this.http
-            .get('assets/docs/calendar-rule-manual/de.html', { responseType: 'text' })
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe({
-              next: (content) => {
-                this.manualContent.set(content);
-              },
-              error: () => {
-                this.manualContent.set('<p>Manual not available</p>');
-              },
-            });
-        },
-      });
+      .subscribe(content => this.manualContent.set(content));
   }
   /* #endregion Help */
 }

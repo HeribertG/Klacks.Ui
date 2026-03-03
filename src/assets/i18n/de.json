@@ -306,6 +306,7 @@
   "weekday-or-holiday": "Feiertag an selektiertem Wochentag",
   "client-availability.view-mode.week": "Woche",
   "client-availability.view-mode.biweekly": "2 Wochen",
+  "client-availability.nav.tooltip": "Verfügbarkeit",
   "client-availability.view-mode.monthly": "Monat",
   "client-availability.slot.am": "VM",
   "client-availability.slot.pm": "NM",

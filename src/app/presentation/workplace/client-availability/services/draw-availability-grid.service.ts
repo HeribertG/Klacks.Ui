@@ -5,7 +5,9 @@ import { AvailabilitySettingService } from './availability-setting.service';
 import { AvailabilityCanvasManagerService } from './availability-canvas-manager.service';
 import { RenderAvailabilityGridService } from './render-availability-grid';
 import { AvailabilityCalculationService } from './render-availability-grid/availability-calculation.service';
+import { AvailabilitySelectionService } from './availability-selection.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Injectable()
 export class DrawAvailabilityGridService {
@@ -13,9 +15,12 @@ export class DrawAvailabilityGridService {
   private canvasManager = inject(AvailabilityCanvasManagerService);
   private renderGrid = inject(RenderAvailabilityGridService);
   private calculation = inject(AvailabilityCalculationService);
+  private selection = inject(AvailabilitySelectionService);
+  private gridColors = inject(GridColorService);
 
   public vScrollbarRefreshTrigger = signal(0);
   public hScrollbarRefreshTrigger = signal(0);
+  public isFocused = false;
 
   private scrollX = 0;
   private scrollY = 0;
@@ -29,6 +34,7 @@ export class DrawAvailabilityGridService {
     this.renderGrid.renderHeader();
     this.renderGrid.renderGrid(this.scrollX, this.scrollY);
     this.compositeToMain();
+    this.drawSelectedCell();
 
     this.prevStartCol = this.calculation.visibleCol(this.scrollX);
     this.prevStartRow = this.calculation.visibleRow(this.scrollY);
@@ -95,6 +101,7 @@ export class DrawAvailabilityGridService {
     }
 
     this.compositeToMain();
+    this.drawSelectedCell();
   }
 
   public getScrollX(): number {
@@ -119,6 +126,32 @@ export class DrawAvailabilityGridService {
 
   public getVisibleHeight(): number {
     return this.canvasManager.height - this.settings.cellHeaderHeight;
+  }
+
+  public drawSelectedCell(): void {
+    const ctx = this.canvasManager.ctx;
+    if (!ctx || !this.selection.hasSelection()) return;
+
+    const firstVisibleCol = this.calculation.visibleCol(this.scrollX);
+    const firstVisibleRow = this.calculation.visibleRow(this.scrollY);
+
+    const col = (this.selection.selectedCol() - firstVisibleCol) * this.settings.cellWidth;
+    const row = (this.selection.selectedRow() - firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
+
+    ctx.save();
+    ctx.rect(0, this.settings.cellHeaderHeight, this.canvasManager.width, this.canvasManager.height - this.settings.cellHeaderHeight);
+    ctx.clip();
+
+    if (this.isFocused) {
+      ctx.strokeStyle = this.gridColors.focusBorderColor;
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = 'grey';
+      ctx.setLineDash([1, 2]);
+    }
+
+    ctx.strokeRect(col - 1, row - 1, this.settings.cellWidth + 3, this.settings.cellHeight + 1);
+    ctx.restore();
   }
 
   private compositeToMain(): void {

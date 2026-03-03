@@ -123,7 +123,11 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   }
 
   onFilterChange(): void {
-    this.applyFilterAndRender();
+    this.filterService.reFilter((filtered) => {
+      this.renderGrid.setClients(
+        filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
+      );
+    });
   }
 
   showFilter(): void {
@@ -159,14 +163,6 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
     };
-  }
-
-  private applyFilterAndRender(): void {
-    const filtered = this.filterService.getFilteredClients();
-    this.renderGrid.setClients(
-      filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
-    );
-    this.filterService.applyFilters();
   }
 
   private redrawComponents(): void {

@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -22,6 +21,7 @@ import { Group } from 'src/app/domain/models/group/group-class';
 import { REPORT_DATA_SOURCES, ReportDataSource, ReportDataSet } from 'src/app/domain/models/report/report-data-source.model';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
   selector: 'app-report-row',
@@ -39,7 +39,7 @@ export class ReportRowComponent implements OnDestroy {
   @Output() reportChangedEvent = new EventEmitter<void>();
 
   translate = inject(TranslateService);
-  private http = inject(HttpClient);
+  private manualLoader = inject(ManualLoaderService);
   private modalService = inject(NgbModal);
   private reportService = inject(ReportService);
   private dataManagementReportService = inject(DataManagementReportService);
@@ -314,30 +314,9 @@ export class ReportRowComponent implements OnDestroy {
 
   loadManual(): void {
     const lang = this.translate.currentLang || 'de';
-    const supportedLangs = ['de', 'en', 'fr', 'it'];
-    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
-
-    this.http
-      .get(`assets/docs/report-manual/${effectiveLang}.html`, { responseType: 'text' })
+    this.manualLoader.loadManual('report-manual', lang)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (content) => {
-          this.manualContent.set(content);
-        },
-        error: () => {
-          this.http
-            .get('assets/docs/report-manual/de.html', { responseType: 'text' })
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (content) => {
-                this.manualContent.set(content);
-              },
-              error: () => {
-                this.manualContent.set('<p>Manual not available</p>');
-              },
-            });
-        },
-      });
+      .subscribe(content => this.manualContent.set(content));
   }
 
   private loadPreviewClients(): void {

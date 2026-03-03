@@ -12,7 +12,6 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -31,6 +30,7 @@ import {
 } from 'src/app/domain/enums/identity-provider-enum';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
   selector: 'app-identity-provider-row',
@@ -54,7 +54,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   public providerService = inject(DataManagementIdentityProviderService);
-  private http = inject(HttpClient);
+  private manualLoader = inject(ManualLoaderService);
 
   private wasSaved = false;
   private destroy$ = new Subject<void>();
@@ -192,29 +192,8 @@ export class IdentityProviderRowComponent implements OnDestroy {
 
   loadManual(): void {
     const lang = this.translate.currentLang || 'de';
-    const supportedLangs = ['de', 'en', 'fr', 'it'];
-    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
-
-    this.http
-      .get(`assets/docs/identity-provider-manual/${effectiveLang}.html`, { responseType: 'text' })
+    this.manualLoader.loadManual('identity-provider-manual', lang)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (content) => {
-          this.manualContent.set(content);
-        },
-        error: () => {
-          this.http
-            .get('assets/docs/identity-provider-manual/de.html', { responseType: 'text' })
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (content) => {
-                this.manualContent.set(content);
-              },
-              error: () => {
-                this.manualContent.set('<p>Manual not available</p>');
-              },
-            });
-        },
-      });
+      .subscribe(content => this.manualContent.set(content));
   }
 }

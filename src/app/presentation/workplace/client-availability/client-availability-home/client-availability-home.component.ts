@@ -169,11 +169,11 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   private applyFilterAndRender(): void {
-    const filtered = this.filterService.getFilteredClients();
-    this.renderGrid.setClients(
-      filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
-    );
-    this.filterService.applyFilters();
+    this.filterService.reFilter((filtered) => {
+      this.renderGrid.setClients(
+        filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
+      );
+    });
   }
 
   private setStartDate(): void {

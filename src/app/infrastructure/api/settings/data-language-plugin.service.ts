@@ -26,4 +26,8 @@ export class DataLanguagePluginService {
   uninstall(code: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}config/language-plugins/${code}/uninstall`);
   }
+
+  getPluginDoc(code: string, manualName: string): Observable<string> {
+    return this.httpClient.get(`${this.apiUrl}config/language-plugins/${code}/docs/${manualName}`, { responseType: 'text' });
+  }
 }

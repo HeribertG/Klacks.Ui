@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -31,6 +30,7 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
   selector: 'app-scheduling-rules',
@@ -59,7 +59,7 @@ export class SchedulingRulesComponent
   public dataManagementService = inject(DataManagementSchedulingRuleService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
-  private http = inject(HttpClient);
+  private manualLoader = inject(ManualLoaderService);
 
   public editingRule: ISchedulingRule | null = null;
   public originalRule: ISchedulingRule | null = null;
@@ -223,29 +223,8 @@ export class SchedulingRulesComponent
 
   loadManual(): void {
     const lang = this.translate.currentLang || 'de';
-    const supportedLangs = ['de', 'en', 'fr', 'it'];
-    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
-
-    this.http
-      .get(`assets/docs/scheduling-rule-manual/${effectiveLang}.html`, { responseType: 'text' })
+    this.manualLoader.loadManual('scheduling-rule-manual', lang)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (content) => {
-          this.manualContent.set(content);
-        },
-        error: () => {
-          this.http
-            .get('assets/docs/scheduling-rule-manual/de.html', { responseType: 'text' })
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (content) => {
-                this.manualContent.set(content);
-              },
-              error: () => {
-                this.manualContent.set('<p>Manual not available</p>');
-              },
-            });
-        },
-      });
+      .subscribe(content => this.manualContent.set(content));
   }
 }

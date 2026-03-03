@@ -4,7 +4,7 @@
   (mouseleave)="onMouseLeave()"
 >
   <app-client-filter
-    [filter]="filterService"
+    [filter]="filterService.clientFilter"
     (filterChange)="onFilterChange()"
   ></app-client-filter>
 </div>

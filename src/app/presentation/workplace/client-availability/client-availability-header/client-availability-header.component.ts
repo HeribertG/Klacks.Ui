@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,24 +29,37 @@ const GROUPING_LABEL_KEYS = [
     TranslateModule,
   ],
 })
-export class ClientAvailabilityHeaderComponent {
+export class ClientAvailabilityHeaderComponent implements OnInit {
   private settings = inject(AvailabilitySettingService);
   private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   saveRequested = output<void>();
   periodChanged = output<void>();
 
   periodLabel = signal('');
 
-  groupingOptions: Options = {
-    floor: 0,
-    ceil: 4,
-    step: 1,
-    showSelectionBarEnd: false,
-    showSelectionBar: false,
-    translate: (value: number): string =>
-      this.translateService.instant(GROUPING_LABEL_KEYS[value]),
-  };
+  groupingOptions: Options = this.buildGroupingOptions();
+
+  ngOnInit(): void {
+    this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.groupingOptions = this.buildGroupingOptions();
+      });
+  }
+
+  private buildGroupingOptions(): Options {
+    return {
+      floor: 0,
+      ceil: 4,
+      step: 1,
+      showSelectionBarEnd: false,
+      showSelectionBar: false,
+      translate: (value: number): string =>
+        this.translateService.instant(GROUPING_LABEL_KEYS[value]),
+    };
+  }
 
   get hourGrouping(): number {
     return this.settings.hourGroupingMode();
