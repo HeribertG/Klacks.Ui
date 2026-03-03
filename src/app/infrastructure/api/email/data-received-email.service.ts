@@ -8,6 +8,8 @@ import {
   IReceivedEmail,
   IReceivedEmailListResponse,
 } from 'src/app/domain/models/email/received-email.model';
+import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
+import { Observable } from 'rxjs';
 
 const API_PATH = 'ReceivedEmail/';
 
@@ -84,5 +86,25 @@ export class DataReceivedEmailService {
         `${environment.baseUrl}${API_PATH}FetchNow`,
         {}
       );
+  }
+
+  getEmailGroupTree(): Observable<IEmailGroupNode[]> {
+    return this.httpClient.get<IEmailGroupNode[]>(`${environment.baseUrl}${API_PATH}GroupTree`).pipe(retry(3));
+  }
+
+  getEmailsByGroup(groupId: string, skip: number, take: number): Observable<IReceivedEmailListResponse> {
+    return this.httpClient
+      .get<IReceivedEmailListResponse>(
+        `${environment.baseUrl}${API_PATH}ByGroup/${groupId}?skip=${skip}&take=${take}`
+      )
+      .pipe(retry(3));
+  }
+
+  getEmailsByClient(clientId: string, skip: number, take: number): Observable<IReceivedEmailListResponse> {
+    return this.httpClient
+      .get<IReceivedEmailListResponse>(
+        `${environment.baseUrl}${API_PATH}ByClient/${clientId}?skip=${skip}&take=${take}`
+      )
+      .pipe(retry(3));
   }
 }

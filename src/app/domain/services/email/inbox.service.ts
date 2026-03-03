@@ -11,6 +11,7 @@ import {
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
+import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -39,6 +40,9 @@ export class InboxService {
   sortDirection = signal<'asc' | 'desc'>('desc');
   relevanceFilter = signal<'all' | 'relevant' | 'other'>('all');
   private signalRInitialized = false;
+  groupTree = signal<IEmailGroupNode[]>([]);
+  selectedGroupId = signal<string | null>(null);
+  selectedClientId = signal<string | null>(null);
 
   isTrashFolder = computed(() => this.selectedFolder() === TRASH_FOLDER);
 
@@ -66,6 +70,7 @@ export class InboxService {
   initSignalR(): void {
     if (this.signalRInitialized) return;
     this.signalRInitialized = true;
+    this.loadGroupTree();
 
     this.emailSignalRService.startConnection();
 
@@ -108,11 +113,23 @@ export class InboxService {
 
   selectFolder(imapFolderName: string): void {
     this.selectedFolder.set(imapFolderName);
+    this.selectedGroupId.set(null);
+    this.selectedClientId.set(null);
     this.selectedEmail.set(undefined);
     this.loadEmails();
   }
 
   loadEmails(skip = 0, take = DEFAULT_PAGE_SIZE): void {
+    const groupId = this.selectedGroupId();
+    if (groupId) {
+      this.loadGroupEmails(groupId, skip, take);
+      return;
+    }
+    const clientId = this.selectedClientId();
+    if (clientId) {
+      this.loadClientEmails(clientId, skip, take);
+      return;
+    }
     this.isLoading.set(true);
     const folder = this.selectedFolder() ?? undefined;
     const readFilter = this.readFilter() === 'all' ? undefined : this.readFilter();
@@ -256,6 +273,7 @@ export class InboxService {
         this.folders.set(folders);
       },
     });
+    this.loadGroupTree();
   }
 
   setReadFilter(filter: 'all' | 'read' | 'unread'): void {
@@ -275,6 +293,60 @@ export class InboxService {
 
   setRelevanceFilter(filter: 'all' | 'relevant' | 'other'): void {
     this.relevanceFilter.set(filter);
+  }
+
+  loadGroupTree(): void {
+    this.dataReceivedEmailService.getEmailGroupTree().subscribe({
+      next: (tree) => {
+        this.groupTree.set(tree);
+      },
+    });
+  }
+
+  selectGroupFolder(groupId: string): void {
+    this.selectedGroupId.set(groupId);
+    this.selectedClientId.set(null);
+    this.selectedFolder.set(null);
+    this.selectedEmail.set(undefined);
+    this.loadGroupEmails(groupId);
+  }
+
+  selectClientFolder(clientId: string): void {
+    this.selectedClientId.set(clientId);
+    this.selectedGroupId.set(null);
+    this.selectedFolder.set(null);
+    this.selectedEmail.set(undefined);
+    this.loadClientEmails(clientId);
+  }
+
+  private loadGroupEmails(groupId: string, skip = 0, take = DEFAULT_PAGE_SIZE): void {
+    this.isLoading.set(true);
+    this.dataReceivedEmailService.getEmailsByGroup(groupId, skip, take).subscribe({
+      next: (response) => {
+        this.emails.set(response.items);
+        this.totalCount.set(response.totalCount);
+        this.unreadCount.set(response.unreadCount);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadClientEmails(clientId: string, skip = 0, take = DEFAULT_PAGE_SIZE): void {
+    this.isLoading.set(true);
+    this.dataReceivedEmailService.getEmailsByClient(clientId, skip, take).subscribe({
+      next: (response) => {
+        this.emails.set(response.items);
+        this.totalCount.set(response.totalCount);
+        this.unreadCount.set(response.unreadCount);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
   }
 
   private isAutomatedSender(address: string): boolean {

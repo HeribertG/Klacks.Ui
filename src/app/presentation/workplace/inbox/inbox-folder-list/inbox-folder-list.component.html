@@ -46,4 +46,49 @@
       <span>{{ 'inbox.folder-list.empty' | translate }}</span>
     </div>
   }
+
+  @if (inboxService.groupTree().length > 0) {
+  <div class="group-folder-separator"></div>
+  <div class="group-folder-header">
+    <span class="folder-title">{{ 'inbox.folder-list.groups-title' | translate }}</span>
+  </div>
+  <div class="group-folder-tree">
+    <ng-template #groupTreeNode let-node>
+      <div class="group-tree-item"
+           [class.active]="isGroupActive(node.id, node.type)"
+           (click)="onSelectGroupNode(node)"
+           role="button"
+           tabindex="0"
+           (keydown.enter)="onSelectGroupNode(node)">
+        <div class="group-tree-toggle">
+          @if (hasChildren(node)) {
+            <span class="toggle-icon" (click)="toggleGroupNode(node); $event.stopPropagation()">
+              @if (isNodeExpanded(node)) {
+                <app-icon-angle-down></app-icon-angle-down>
+              } @else {
+                <app-icon-angle-right></app-icon-angle-right>
+              }
+            </span>
+          } @else {
+            <span class="toggle-placeholder"></span>
+          }
+        </div>
+        <span class="group-tree-name">{{ node.name }}</span>
+        @if (node.emailCount > 0) {
+          <span class="folder-badge">{{ node.emailCount }}</span>
+        }
+      </div>
+      @if (hasChildren(node) && isNodeExpanded(node)) {
+        <div class="group-tree-children">
+          @for (child of node.children; track child.id) {
+            <ng-container *ngTemplateOutlet="groupTreeNode; context: { $implicit: child }"></ng-container>
+          }
+        </div>
+      }
+    </ng-template>
+    @for (rootNode of inboxService.groupTree(); track rootNode.id) {
+      <ng-container *ngTemplateOutlet="groupTreeNode; context: { $implicit: rootNode }"></ng-container>
+    }
+  </div>
+  }
 </div>
