@@ -35,6 +35,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 
+const INFO_SPOT_FONT_COLOR = '#000000';
+
 export interface FilterIconResult {
   recFilterIcon: Rectangle;
 }
@@ -92,7 +94,7 @@ export class BaseCreateRowHeaderService {
   createRowHeaderHeader(
     ctx: CanvasRenderingContext2D,
     width: number,
-    filterImage?: HTMLImageElement
+    filterImage?: HTMLImageElement | HTMLCanvasElement
   ): FilterIconResult | undefined {
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
 
@@ -118,7 +120,7 @@ export class BaseCreateRowHeaderService {
   private drawFilterIcon(
     ctx: CanvasRenderingContext2D,
     width: number,
-    filterImage?: HTMLImageElement
+    filterImage?: HTMLImageElement | HTMLCanvasElement
   ): FilterIconResult | undefined {
     if (!filterImage) return undefined;
 
@@ -232,7 +234,7 @@ export class BaseCreateRowHeaderService {
 
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
-    ctx.fillRect(0, backgroundY, backgroundWidth, backgroundHeight);
+    ctx.fillRect(this.settings.headerBorderWidth, backgroundY, backgroundWidth, backgroundHeight);
     ctx.restore();
 
     ctx.save();
@@ -435,7 +437,7 @@ export class BaseCreateRowHeaderService {
         rect.height,
         this.gridFonts.headerFontStringZoom,
         this.gridFonts.headerFontHeightZoom,
-        this.gridColors.headerForeGroundColor,
+        INFO_SPOT_FONT_COLOR,
         TextAlignmentEnum.Center,
         BaselineAlignmentEnum.Center
       );

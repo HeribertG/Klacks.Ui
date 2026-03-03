@@ -92,7 +92,7 @@ export class BaseCreateHeaderService {
         DrawHelper.setAntiAliasing(ctx);
 
         this.fillHeaderBackground(ctx, this.settings.cellWidth);
-        this.drawBorder(ctx, this.settings.headerBorderWidth, 2);
+        this.drawBorder(ctx, this.settings.headerBorderWidth, this.settings.cellWidth);
         const color = this.chooseFontColor(col);
         this.drawTitle(ctx, this.getTitle(col), color);
         this.drawSymbol(ctx, col, this.settings.cellWidth);
