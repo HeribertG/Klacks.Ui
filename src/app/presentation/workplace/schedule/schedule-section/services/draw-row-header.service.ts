@@ -158,13 +158,12 @@ export class BaseDrawRowHeaderService {
 
     const width = this.width;
     const height = this.settings.cellHeaderHeight;
-    const dpr = DrawHelper.pixelRatio();
-    const barHeight = 2 * dpr;
+    const barHeight = 2;
     const yPos = height - barHeight - 1;
 
     this.headerCtx.save();
     this.headerCtx.fillStyle = this.gridColors.controlBackGroundColor;
-    this.headerCtx.fillRect(0, yPos * dpr, width * dpr, barHeight + 2);
+    this.headerCtx.fillRect(0, yPos, width, barHeight + 2);
     this.headerCtx.restore();
 
     this.progressBar.drawInRect(this.headerCtx, 0, 0, width, height);
