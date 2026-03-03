@@ -1,5 +1,4 @@
 // schedule-section.component.scss
-@use "../../../../../assets/standard-styles/colors.scss";
 
 :host {
   --v-scrollbar-size: 17px;
@@ -19,7 +18,7 @@
     width: 100%;
     height: calc(100% - 20px);
     .box {
-      background-color: colors.$gridBackgroundColor;
+      background-color: var(--gridContainerBackground);
       overflow: hidden;
       width: calc(100% - var(--v-scrollbar-size));
       flex: 1;

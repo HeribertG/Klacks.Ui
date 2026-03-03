@@ -75,6 +75,7 @@ import { ShiftPdfExportService } from './services/shift-pdf-export.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { ScheduleErrorListComponent } from './schedule-error-list/schedule-error-list.component';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -138,6 +139,7 @@ export class ShiftSectionComponent
   private navigationService = inject(ShiftNavigationService);
   private shiftPdfExportService = inject(ShiftPdfExportService);
   public collisionService = inject(CollisionDetectionService);
+  private gridColorService = inject(GridColorService);
 
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
@@ -298,6 +300,13 @@ export class ShiftSectionComponent
         }
       });
       this.effects.push(showInShiftEffect);
+
+      const colorResetEffect = effect(() => {
+        if (this.gridColorService.isReset()) {
+          this.shiftSurface.Refresh(false);
+        }
+      });
+      this.effects.push(colorResetEffect);
     });
   }
 

@@ -63,6 +63,7 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -103,6 +104,7 @@ export class ScheduleScheduleRowHeaderComponent
   private scheduleChangeService = inject(ScheduleChangeService);
   private appSettings = inject(AppSettingsManagementService);
   private toastShowService = inject(ToastShowService);
+  private gridColorService = inject(GridColorService);
 
   private isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -252,6 +254,13 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(dirtyStateEffect);
+
+      const colorResetEffect = effect(() => {
+        if (this.gridColorService.isReset()) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(colorResetEffect);
     });
   }
 

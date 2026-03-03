@@ -11,6 +11,7 @@ import { Group } from 'src/app/domain/models/group/group-class';
 import { HttpClient } from '@angular/common/http';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
+import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 
 describe('DataManagementGroupService', () => {
     let service: DataManagementGroupService;
@@ -37,6 +38,12 @@ describe('DataManagementGroupService', () => {
         const translateSpy = {
             instant: vi.fn().mockReturnValue('')
         };
+        const calendarSelectionSpy = {
+            isRead: vi.fn().mockReturnValue(false),
+            readData: vi.fn(),
+            calendarsSelections: [],
+            chips: []
+        };
 
         TestBed.configureTestingModule({
             providers: [
@@ -47,6 +54,7 @@ describe('DataManagementGroupService', () => {
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: registrySpy },
                 { provide: TranslateService, useValue: translateSpy },
+                { provide: DataManagementCalendarSelectionService, useValue: calendarSelectionSpy },
             ],
         });
 

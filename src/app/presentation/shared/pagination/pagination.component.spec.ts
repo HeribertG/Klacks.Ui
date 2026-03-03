@@ -91,7 +91,7 @@ describe('PaginationComponent', () => {
             // Assert
             expect(component.visibleRow).toBeDefined();
             expect(component.visibleRow.length).toBeGreaterThan(0);
-            expect(component.visibleRow[0].text).toBe('auto');
+            expect(component.visibleRow[0].text).toBe('pagination.auto');
             expect(component.visibleRow[0].value).toBe(-1);
         });
     });

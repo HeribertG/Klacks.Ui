@@ -42,6 +42,7 @@ import { ShiftRowHeaderIconsService } from './services/shift-row-header-icons.se
 import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-events.directive';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-schedule-shift-row-header',
@@ -73,6 +74,7 @@ export class ScheduleShiftRowHeaderComponent
   private dataService = inject(BaseDataService);
   private settings = inject(BaseSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private gridColorService = inject(GridColorService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -164,6 +166,13 @@ export class ScheduleShiftRowHeaderComponent
         }
       });
       this.effects.push(zoomEffect);
+
+      const colorResetEffect = effect(() => {
+        if (this.gridColorService.isReset()) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(colorResetEffect);
     });
   }
 }

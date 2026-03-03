@@ -84,6 +84,7 @@ import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-ren
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 @Component({
   selector: 'app-schedule-section',
   standalone: true,
@@ -167,6 +168,7 @@ export class ScheduleSectionComponent
   private workNotificationService = inject(WorkNotificationService);
   private showInScheduleService = inject(ShowInScheduleService);
   private absenceMenuService = inject(AbsenceMenuService);
+  private gridColorService = inject(GridColorService);
   private contextMenuService = inject(ScheduleContextMenuService);
   private entryActionsService = inject(ScheduleEntryActionsService);
   private dialogService = inject(ScheduleDialogService);
@@ -331,15 +333,20 @@ export class ScheduleSectionComponent
       this.effects.push(showInScheduleEffect);
 
       const periodHoursEffect = effect(() => {
-        // React to period hours updates from SignalR
         const _timestamp = this.workScheduleLoader.periodHoursUpdated();
 
         if (this.scheduleSurface) {
-
           this.scheduleSurface.Refresh(false);
         }
       });
       this.effects.push(periodHoursEffect);
+
+      const colorResetEffect = effect(() => {
+        if (this.gridColorService.isReset()) {
+          this.scheduleSurface.Refresh(false);
+        }
+      });
+      this.effects.push(colorResetEffect);
 
     });
   }

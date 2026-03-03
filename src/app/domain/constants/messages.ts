@@ -131,6 +131,8 @@ export class DomainMessages {
   public static EMAIL_RESTORE = 'contextMenu.email.restore';
   public static EMAIL_PERMANENTLY_DELETE = 'contextMenu.email.permanentlyDelete';
   public static EMAIL_MOVE_TO_FOLDER = 'contextMenu.email.moveToFolder';
+  public static EMAIL_MARK_AS_SPAM = 'contextMenu.email.markAsSpam';
+  public static EMAIL_MARK_AS_NOT_SPAM = 'contextMenu.email.markAsNotSpam';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

@@ -138,7 +138,7 @@
     height: 100%;
     .box-shift {
       overflow: hidden;
-      background-color: colors.$gridBackgroundColor;
+      background-color: var(--gridContainerBackground);
       width: calc(100% - var(--v-shift-scrollbar-size));
       height: 100%;
       flex: 1;

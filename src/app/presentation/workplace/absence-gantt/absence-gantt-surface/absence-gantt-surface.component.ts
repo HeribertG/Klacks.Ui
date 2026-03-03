@@ -47,6 +47,7 @@ import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollba
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { Language } from 'src/app/domain/models/settings/language-config';
 
@@ -86,6 +87,7 @@ export class AbsenceGanttSurfaceComponent
   private renderer = inject(Renderer2);
   private translateService = inject(TranslateService);
   private el = inject(ElementRef);
+  private gridColorService = inject(GridColorService);
   private cd = inject(ChangeDetectorRef);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
@@ -558,6 +560,12 @@ export class AbsenceGanttSurfaceComponent
           this.dataManagementBreak.canReadBreaks = true;
           this.dataManagementBreak.readYear();
           this.cd.detectChanges();
+        }
+      });
+
+      effect(() => {
+        if (this.gridColorService.isReset()) {
+          this.redrawComponents();
         }
       });
     });

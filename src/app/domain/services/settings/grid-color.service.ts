@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, effect, untracked } from '@angular/core';
 import {
   ISetting,
   Setting,
@@ -10,12 +10,14 @@ import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { GridThemeService } from './grid-theme.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GridColorService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private gridTheme = inject(GridThemeService);
   private destroy$ = new Subject<void>();
 
   public isReset = signal(false);
@@ -26,9 +28,9 @@ export class GridColorService {
   successColor = 'green';
   backGroundColor = '#f2eded';
   backGroundColorSaturday = '#F5F5DC';
-  backGroundColorHolyday = '#82E0AA'; // green
+  backGroundColorHolyday = '#82E0AA';
   backGroundColorSunday = '#95b9d0';
-  backGroundColorOfficiallyHoliday = '#48C9B0'; //darkgreen
+  backGroundColorOfficiallyHoliday = '#48C9B0';
   borderColor = '#abad94';
   boundaryBorderColor = '#424949';
   mainFontColor = '#000000';
@@ -51,6 +53,52 @@ export class GridColorService {
   private settingListDummy: ISetting[] = [];
 
   private settingsCount = 0;
+
+  constructor() {
+    effect(() => {
+      const headerBg = this.gridTheme.headerBackground();
+      const headerColor = this.gridTheme.headerColor();
+      const containerBg = this.gridTheme.containerBackground();
+      const rowColor = this.gridTheme.rowHeaderColor();
+      const borderColor = this.gridTheme.headerBorderColor();
+
+      untracked(() => this.applyThemeDefaults(headerBg, headerColor, containerBg, rowColor, borderColor));
+    });
+  }
+
+  private applyThemeDefaults(headerBg: string, headerColor: string, containerBg: string, rowColor: string, borderColor: string): void {
+    let changed = false;
+
+    if (!this.hasDbOverride(ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY)) {
+      this.controlBackGroundColor = headerBg;
+      changed = true;
+    }
+
+    if (!this.hasDbOverride(ConstantKeys.HEADER_FOREGROUND_COLOR_KEY)) {
+      this.headerForeGroundColor = headerColor;
+      changed = true;
+    }
+
+    if (!this.hasDbOverride(ConstantKeys.FOREGROUND_COLOR_KEY)) {
+      this.foreGroundColor = rowColor;
+      changed = true;
+    }
+
+    this.backGroundContainerColor = containerBg;
+    this.boundaryBorderColor = containerBg;
+    this.backGroundSealedColor = containerBg;
+    changed = true;
+
+    if (changed) {
+      this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
+    }
+  }
+
+  private hasDbOverride(key: string): boolean {
+    const setting = this.settingList.find(s => s.type === key);
+    return setting?.id != null;
+  }
 
   areObjectsDirty(): boolean {
     if (this.isSetting_Dirty()) {

@@ -9,6 +9,7 @@ import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-ca
 import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { of } from 'rxjs';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 
 class MockEventBus implements IEventBus {
     emit<_T>(_eventType: string, _payload: _T): void { }
@@ -36,6 +37,12 @@ describe('DataManagementShiftService', () => {
         const translateSpy = {
             instant: vi.fn().mockReturnValue('')
         };
+        const calendarSelectionSpy = {
+            isRead: vi.fn().mockReturnValue(false),
+            readData: vi.fn(),
+            calendarsSelections: [],
+            chips: []
+        };
 
         TestBed.configureTestingModule({
             providers: [
@@ -44,7 +51,8 @@ describe('DataManagementShiftService', () => {
                 WorkTimeCalculationService,
                 { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
-                { provide: TranslateService, useValue: translateSpy }
+                { provide: TranslateService, useValue: translateSpy },
+                { provide: DataManagementCalendarSelectionService, useValue: calendarSelectionSpy }
             ]
         });
         service = TestBed.inject(DataManagementShiftService);

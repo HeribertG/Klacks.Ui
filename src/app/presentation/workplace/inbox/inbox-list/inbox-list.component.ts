@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
-import { TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
+import { INBOX_FOLDER, JUNK_FOLDER, TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
@@ -33,7 +33,13 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
     const folder = this.inboxService
       .folders()
       .find((f) => f.imapFolderName === selectedImapFolder);
-    if (!folder) return 'Inbox';
+    if (!folder) return this.translateService.instant('inbox.folder-list.inbox-name');
+    if (folder.imapFolderName === INBOX_FOLDER) {
+      return this.translateService.instant('inbox.folder-list.inbox-name');
+    }
+    if (folder.imapFolderName === JUNK_FOLDER) {
+      return this.translateService.instant('inbox.folder-list.junk-name');
+    }
     if (folder.imapFolderName === TRASH_FOLDER) {
       return this.translateService.instant('inbox.folder-list.trash-name');
     }
@@ -90,6 +96,7 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
   private buildContextMenu(email: IReceivedEmailListItem): Menu {
     const menuData = new Menu();
     const isTrash = this.inboxService.isTrashFolder();
+    const isJunk = this.inboxService.selectedFolder() === JUNK_FOLDER;
 
     if (email.isRead) {
       menuData.list.push(new MenuItem('markUnread', DomainMessages.EMAIL_MARK_UNREAD, false, '', 'fa-regular fa-envelope'));
@@ -103,6 +110,14 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
       menuData.list.push(new MenuItem('restore', DomainMessages.EMAIL_RESTORE, false, '', 'fa-solid fa-rotate-left'));
       menuData.list.push(new MenuItem('permanentlyDelete', DomainMessages.EMAIL_PERMANENTLY_DELETE, false, '', 'fa-solid fa-trash'));
     } else {
+      if (isJunk) {
+        menuData.list.push(new MenuItem('markAsNotSpam', DomainMessages.EMAIL_MARK_AS_NOT_SPAM, false, '', 'fa-solid fa-check'));
+      } else {
+        menuData.list.push(new MenuItem('markAsSpam', DomainMessages.EMAIL_MARK_AS_SPAM, false, '', 'fa-solid fa-ban'));
+      }
+
+      menuData.list.push(...MenuDataTemplate.divider());
+
       const moveItem = new MenuItem('moveToFolder', DomainMessages.EMAIL_MOVE_TO_FOLDER, false);
       moveItem.hasMenu = true;
       moveItem.menu = this.buildMoveToFolderSubmenu();
@@ -157,6 +172,12 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
         break;
       case 'permanentlyDelete':
         this.inboxService.permanentlyDeleteEmail(emailId);
+        break;
+      case 'markAsSpam':
+        this.inboxService.moveEmailToFolder(emailId, JUNK_FOLDER);
+        break;
+      case 'markAsNotSpam':
+        this.inboxService.moveEmailToFolder(emailId, INBOX_FOLDER);
         break;
       case 'moveToFolderItem':
         if (value) {

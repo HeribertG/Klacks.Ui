@@ -16,6 +16,7 @@ import { DrawAvailabilityGridService } from '../services/draw-availability-grid.
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-client-availability-surface',
@@ -29,6 +30,7 @@ export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDest
   public drawGrid = inject(DrawAvailabilityGridService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
   private filterService = inject(ClientAvailabilityFilterService);
+  private gridColorService = inject(GridColorService);
 
   valueChangeHScrollbar = input(0);
   valueChangeVScrollbar = input(0);
@@ -60,6 +62,12 @@ export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDest
       if (changed) {
         this.drawGrid.drawGrid();
         this.updateScrollbarValues();
+      }
+    });
+
+    effect(() => {
+      if (this.gridColorService.isReset()) {
+        this.drawGrid.drawGrid();
       }
     });
   }
