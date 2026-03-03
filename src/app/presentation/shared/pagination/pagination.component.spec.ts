@@ -24,7 +24,15 @@ describe('PaginationComponent', () => {
             set: vi.fn()
         };
         const translateSpy = {
-            instant: vi.fn()
+            instant: vi.fn((key: string) => {
+                if (key === 'pagination.auto') return 'auto';
+                if (key === 'pagination.visibleRow5') return '5';
+                if (key === 'pagination.visibleRow10') return '10';
+                if (key === 'pagination.visibleRow20') return '20';
+                if (key === 'pagination.visibleRow50') return '50';
+                if (key === 'pagination.visibleRow100') return '100';
+                return key;
+            })
         };
 
         mockDataService = {

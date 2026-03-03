@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { GroupSelectionService } from './group-selection.service';
@@ -33,6 +34,9 @@ describe('DataManagementGroupService', () => {
         const registrySpy = {
             register: vi.fn()
         };
+        const translateSpy = {
+            instant: vi.fn().mockReturnValue('')
+        };
 
         TestBed.configureTestingModule({
             providers: [
@@ -42,6 +46,7 @@ describe('DataManagementGroupService', () => {
                 { provide: HttpClient, useValue: httpClientSpy },
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: registrySpy },
+                { provide: TranslateService, useValue: translateSpy },
             ],
         });
 
