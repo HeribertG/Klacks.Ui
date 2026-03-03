@@ -6,6 +6,8 @@ import { AvailabilityCalculationService } from './availability-calculation.servi
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 
 @Injectable()
 export class AvailabilityHeaderRenderingService {
@@ -27,6 +29,7 @@ export class AvailabilityHeaderRenderingService {
     const dayHeaderHeight = this.settings.dayHeaderHeight;
     const isMonthly = this.settings.viewMode() === PaymentInterval.Monthly;
     const font = this.gridFonts.headerFontString;
+    const bgColor = this.gridColors.controlBackGroundColor;
 
     for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
       const date = new Date(this.calculation.startDate);
@@ -35,14 +38,8 @@ export class AvailabilityHeaderRenderingService {
 
       if (x > width) break;
 
-      this.fillRect(ctx, x, 0, dayWidth, dayHeaderHeight, this.gridColors.controlBackGroundColor);
-
-      ctx.strokeStyle = this.gridColors.borderColor;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x + dayWidth, 0);
-      ctx.lineTo(x + dayWidth, dayHeaderHeight);
-      ctx.stroke();
+      this.fillRect(ctx, x, 0, dayWidth, dayHeaderHeight, bgColor);
+      DrawHelper.drawBorder(ctx, x, 0, dayWidth, dayHeaderHeight, bgColor, 2, Gradient3DBorderStyleEnum.Raised);
 
       const label = this.calculation.formatDayLabel(date, isMonthly);
       this.drawCenteredText(
@@ -50,13 +47,6 @@ export class AvailabilityHeaderRenderingService {
         font, this.gridColors.headerForeGroundColor
       );
     }
-
-    ctx.strokeStyle = this.gridColors.borderColor;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, dayHeaderHeight);
-    ctx.lineTo(width, dayHeaderHeight);
-    ctx.stroke();
   }
 
   private renderHourRow(ctx: CanvasRenderingContext2D, width: number): void {
@@ -65,6 +55,7 @@ export class AvailabilityHeaderRenderingService {
     const dayHeaderHeight = this.settings.dayHeaderHeight;
     const hourHeaderHeight = this.settings.hourHeaderHeight;
     const font = this.gridFonts.firstSubFontString;
+    const bgColor = this.gridColors.controlBackGroundColor;
 
     for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
       const date = new Date(this.calculation.startDate);
@@ -82,16 +73,9 @@ export class AvailabilityHeaderRenderingService {
 
         if (x > width) break;
 
-        if (holidayBg) {
-          this.fillRect(ctx, x, dayHeaderHeight, cellWidth, hourHeaderHeight, holidayBg);
-        }
-
-        ctx.strokeStyle = this.gridColors.borderColor;
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x + cellWidth, dayHeaderHeight);
-        ctx.lineTo(x + cellWidth, dayHeaderHeight + hourHeaderHeight);
-        ctx.stroke();
+        const slotBg = holidayBg ?? bgColor;
+        this.fillRect(ctx, x, dayHeaderHeight, cellWidth, hourHeaderHeight, slotBg);
+        DrawHelper.drawBorder(ctx, x, dayHeaderHeight, cellWidth, dayHeaderHeight + hourHeaderHeight, slotBg, 2, Gradient3DBorderStyleEnum.Raised);
 
         const label = this.calculation.getSlotLabel(slotIdx);
         this.drawCenteredText(
@@ -100,13 +84,6 @@ export class AvailabilityHeaderRenderingService {
         );
       }
     }
-
-    ctx.strokeStyle = this.gridColors.borderColor;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, this.settings.cellHeaderHeight);
-    ctx.lineTo(width, this.settings.cellHeaderHeight);
-    ctx.stroke();
   }
 
   private fillRect(
