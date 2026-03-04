@@ -363,7 +363,7 @@ export class BaseCreateRowHeaderService {
       widthWithoutInfoSpot,
       this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2,
       width,
-      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth
+      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 2
     );
 
     const emptyRect = new Rectangle(

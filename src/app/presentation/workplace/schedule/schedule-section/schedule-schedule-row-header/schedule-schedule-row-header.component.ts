@@ -420,7 +420,7 @@ export class ScheduleScheduleRowHeaderComponent
     const slot2Top = this.settings.cellHeaderHeight + this.settings.borderWidth;
     const slot2Bottom = this.settings.cellHeaderHeight * 2 + this.settings.borderWidth;
     const slot3Top = this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2;
-    const slot3Bottom = this.settings.cellHeaderHeight * 3 + this.settings.borderWidth;
+    const slot3Bottom = this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 2;
 
     let tooltipKey = '';
 
