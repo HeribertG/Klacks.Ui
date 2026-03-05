@@ -54,9 +54,6 @@ export class InboxFolderListComponent {
   }
 
   getFolderBadgeCount(folder: IEmailFolder): number {
-    if (folder.specialUse === SPECIAL_USE_TRASH) {
-      return folder.totalCount;
-    }
     return folder.unreadCount;
   }
 
