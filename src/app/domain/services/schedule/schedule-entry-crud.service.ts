@@ -14,6 +14,7 @@ import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
 import { Break } from '../../models/break/break-class';
+import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -57,6 +58,7 @@ export class ScheduleEntryCrudService {
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private breakService = inject(DataManagementBreakService);
   private expensesService = inject(DataManagementExpensesService);
+  private appSettingsService = inject(AppSettingsManagementService);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -107,6 +109,7 @@ export class ScheduleEntryCrudService {
       })),
       periodStart,
       periodEnd,
+      paymentInterval: this.appSettingsService.workSettings().paymentInterval,
     };
 
     return new Promise((resolve, reject) => {

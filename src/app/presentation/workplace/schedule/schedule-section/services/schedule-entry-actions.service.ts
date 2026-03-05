@@ -113,6 +113,7 @@ export class ScheduleEntryActionsService {
     breakEntry.endTime = endTime;
     breakEntry.periodStart = periodStart;
     breakEntry.periodEnd = periodEnd;
+    breakEntry.paymentInterval = this.dataManagement.currentFilter.paymentInterval;
     if (selectedItem.description) {
       breakEntry.description = { ...selectedItem.description };
     }

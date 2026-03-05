@@ -6,4 +6,5 @@ export interface BulkAddBreaksRequest {
   breaks: BulkAddBreakItem[];
   periodStart: string;
   periodEnd: string;
+  paymentInterval?: number;
 }

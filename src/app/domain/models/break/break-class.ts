@@ -25,6 +25,7 @@ export interface IBreak {
   periodHours: IPeriodHours | undefined;
   periodStart: string | undefined;
   periodEnd: string | undefined;
+  paymentInterval?: number;
   scheduleEntries: IScheduleCell[] | undefined;
 }
 
@@ -46,6 +47,7 @@ export class Break implements IBreak {
   periodHours: IPeriodHours | undefined = undefined;
   periodStart: string | undefined = undefined;
   periodEnd: string | undefined = undefined;
+  paymentInterval?: number = undefined;
   scheduleEntries: IScheduleCell[] | undefined = undefined;
 }
 
