@@ -38,6 +38,7 @@ export interface IAbsence {
   defaultLength: number;
   defaultValue: number;
   hideInGantt: boolean;
+  macroId: string | undefined;
   undeletable: boolean;
   withSaturday: boolean;
   withSunday: boolean;
@@ -53,6 +54,7 @@ export class Absence implements IAbsence {
   defaultLength = 0;
   defaultValue = 1;
   hideInGantt = false;
+  macroId: string | undefined = undefined;
   undeletable = false;
   withSaturday = false;
   withSunday = false;

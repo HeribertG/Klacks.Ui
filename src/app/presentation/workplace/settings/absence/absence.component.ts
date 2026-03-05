@@ -39,6 +39,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
+import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 
 interface AbsenceFormModel {
   name: string;
@@ -51,6 +52,7 @@ interface AbsenceFormModel {
   withHoliday: boolean;
   color: string;
   hideInGantt: boolean;
+  macroId: string;
 }
 
 @Component({
@@ -77,6 +79,7 @@ interface AbsenceFormModel {
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
+  public macroManagementService = inject(MacroManagementService);
   public sortingService = inject(TableSortingService);
 
   private modalService = inject(ModalService);
@@ -109,6 +112,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     withHoliday: false,
     color: '#000000',
     hideInGantt: false,
+    macroId: '',
   });
 
   absenceForm = form(this.formModel, f => {
@@ -135,6 +139,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       useThreeWaySort: true
     });
 
+    this.macroManagementService.loadMacros();
     this.readPage();
   }
 
@@ -323,6 +328,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       withHoliday: absence.withHoliday || false,
       color: absence.color || '#000000',
       hideInGantt: absence.hideInGantt || false,
+      macroId: absence.macroId || '',
     });
   }
 
@@ -352,6 +358,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentAbsence.withHoliday = formData.withHoliday;
     this.currentAbsence.color = formData.color;
     this.currentAbsence.hideInGantt = formData.hideInGantt;
+    this.currentAbsence.macroId = formData.macroId || undefined;
   }
 
   private readPage(): void {

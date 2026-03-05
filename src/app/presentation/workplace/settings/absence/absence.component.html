@@ -150,6 +150,27 @@
         </div>
       </div>
 
+      @if (macroManagementService.macroList().length > 0) {
+        <div id="absence-modal-macro-row" class="row-line">
+          <label for="macro-list">{{
+            "shift.edit-shift.special-feature.sum-macro.list" | translate
+          }}</label>
+          <select
+            id="absence-modal-macro-list"
+            class="form-select"
+            [field]="absenceForm.macroId"
+            aria-label="macro-list"
+          >
+            <option value="">---</option>
+            @for (item of macroManagementService.macroList(); track item.id) {
+              <option [value]="item.id">
+                {{ item.name }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+
       <div class="bottom-border-space"></div>
       <div id="absence-modal-hide-gantt-row" class="row-line">
         <label class="checkbox-label">
