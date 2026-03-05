@@ -276,5 +276,8 @@ export class TranslateStringConstantsService {
     this.translateService.get('ADOPT_ABSENCE').subscribe((x: string) => {
       DomainMessages.ADOPT_ABSENCE = x;
     });
+    this.translateService.get('INBOX').subscribe((x: string) => {
+      DomainMessages.INBOX = x;
+    });
   }
 }
