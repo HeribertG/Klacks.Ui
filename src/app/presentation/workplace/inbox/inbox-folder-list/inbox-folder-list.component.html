@@ -74,8 +74,14 @@
           }
         </div>
         <span class="group-tree-name">{{ node.name }}</span>
-        @if (node.emailCount > 0) {
-          <span class="folder-badge">{{ node.emailCount }}</span>
+        @if (getTotalUnreadCount(node) > 0) {
+          <span class="folder-badge">
+            @if (hasChildren(node)) {
+              {{ node.unreadCount }}/{{ getTotalUnreadCount(node) }}
+            } @else {
+              {{ node.unreadCount }}
+            }
+          </span>
         }
       </div>
       @if (hasChildren(node) && isNodeExpanded(node)) {

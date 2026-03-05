@@ -5,5 +5,6 @@ export interface IEmailGroupNode {
   name: string;
   type: 'group' | 'client';
   emailCount: number;
+  unreadCount: number;
   children: IEmailGroupNode[];
 }

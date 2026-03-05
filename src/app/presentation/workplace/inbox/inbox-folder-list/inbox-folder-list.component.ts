@@ -107,4 +107,14 @@ export class InboxFolderListComponent {
   hasChildren(node: IEmailGroupNode): boolean {
     return node.children && node.children.length > 0;
   }
+
+  getTotalUnreadCount(node: IEmailGroupNode): number {
+    let total = node.unreadCount;
+    if (node.children) {
+      for (const child of node.children) {
+        total += this.getTotalUnreadCount(child);
+      }
+    }
+    return total;
+  }
 }
