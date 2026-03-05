@@ -6,6 +6,7 @@ export interface IEmailFolder {
   imapFolderName: string;
   sortOrder: number;
   isSystem: boolean;
+  specialUse: string | null;
   unreadCount: number;
   totalCount: number;
 }

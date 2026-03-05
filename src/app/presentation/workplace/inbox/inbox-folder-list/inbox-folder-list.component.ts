@@ -7,9 +7,16 @@ import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
-import { INBOX_FOLDER, JUNK_FOLDER, TRASH_FOLDER } from 'src/app/domain/constants/email.constants';
+import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_SENT, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+
+const SPECIAL_USE_TRANSLATION_MAP: Record<string, string> = {
+  [SPECIAL_USE_INBOX]: 'inbox.folder-list.inbox-name',
+  [SPECIAL_USE_TRASH]: 'inbox.folder-list.trash-name',
+  [SPECIAL_USE_JUNK]: 'inbox.folder-list.junk-name',
+  [SPECIAL_USE_SENT]: 'inbox.folder-list.sent-name',
+};
 
 @Component({
   selector: 'app-inbox-folder-list',
@@ -47,21 +54,18 @@ export class InboxFolderListComponent {
   }
 
   getFolderBadgeCount(folder: IEmailFolder): number {
-    if (folder.imapFolderName === TRASH_FOLDER) {
+    if (folder.specialUse === SPECIAL_USE_TRASH) {
       return folder.totalCount;
     }
     return folder.unreadCount;
   }
 
   getFolderDisplayName(folder: IEmailFolder): string {
-    if (folder.imapFolderName === INBOX_FOLDER) {
-      return this.translateService.instant('inbox.folder-list.inbox-name');
-    }
-    if (folder.imapFolderName === JUNK_FOLDER) {
-      return this.translateService.instant('inbox.folder-list.junk-name');
-    }
-    if (folder.imapFolderName === TRASH_FOLDER) {
-      return this.translateService.instant('inbox.folder-list.trash-name');
+    if (folder.specialUse) {
+      const translationKey = SPECIAL_USE_TRANSLATION_MAP[folder.specialUse];
+      if (translationKey) {
+        return this.translateService.instant(translationKey);
+      }
     }
     return folder.name;
   }
