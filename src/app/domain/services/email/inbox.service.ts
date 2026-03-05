@@ -51,6 +51,9 @@ export class InboxService {
 
   selectedFolderUnreadCount = computed(() => {
     const selected = this.selectedFolder();
+    if (!selected) {
+      return this.unreadCount();
+    }
     const folder = this.folders().find(f => f.imapFolderName === selected);
     return folder?.unreadCount ?? 0;
   });
