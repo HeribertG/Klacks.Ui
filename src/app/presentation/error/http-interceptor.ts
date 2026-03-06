@@ -312,8 +312,9 @@ export class ResponseInterceptor implements HttpInterceptor {
         errorMessage = `Unknown error during ${operation}`;
     }
 
-    if (error.error?.message) {
-      errorMessage += `\nDetails: ${error.error.message}`;
+    const detail = error.error?.detail || error.error?.message;
+    if (detail) {
+      errorMessage += `\nDetails: ${detail}`;
     }
 
     return errorMessage;
