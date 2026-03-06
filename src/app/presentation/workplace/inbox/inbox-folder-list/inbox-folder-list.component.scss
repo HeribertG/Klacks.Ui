@@ -25,12 +25,12 @@
 }
 
 .add-folder-button {
-  background: none;
-  border: 1px solid var(--cardBorderColor);
+  background-color: colors.$standartGreenColor;
+  border: none;
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
-  color: var(--standartTextColor);
+  color: colors.$standartWhiteColor;
   width: 28px;
   height: 28px;
   border-radius: 4px;
