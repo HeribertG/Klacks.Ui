@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_SENT, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
@@ -26,13 +28,29 @@ const SPECIAL_USE_TRANSLATION_MAP: Record<string, string> = {
   imports: [CommonModule, TranslateModule, NgTemplateOutlet, IconAngleDownComponent, IconAngleRightComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InboxFolderListComponent {
+export class InboxFolderListComponent implements OnInit {
   inboxService = inject(InboxService);
   private authorizationService = inject(AuthorizationService);
+  private modalService = inject(ModalService);
   private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   get isAuthorised(): boolean {
     return this.authorizationService.isAuthorised;
+  }
+
+  ngOnInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((type) => {
+        if (type === ModalType.Input && this.modalService.componentContext === 'inbox-create-folder') {
+          const name = this.modalService.contentInputString.trim();
+          if (name) {
+            this.inboxService.createFolder(name, name);
+          }
+          this.modalService.componentContext = '';
+        }
+      });
   }
 
   isActive(folder: IEmailFolder): boolean {
@@ -44,10 +62,10 @@ export class InboxFolderListComponent {
   }
 
   onCreateFolder(): void {
-    const name = window.prompt(this.translateService.instant('inbox.folder-list.prompt-name'));
-    if (!name) return;
-
-    this.inboxService.createFolder(name, name);
+    this.modalService.componentContext = 'inbox-create-folder';
+    this.modalService.contentInputTitle = this.translateService.instant('inbox.folder-list.prompt-name');
+    this.modalService.contentInputString = '';
+    this.modalService.openModel(ModalType.Input);
   }
 
   getFolderBadgeCount(folder: IEmailFolder): number {
@@ -65,12 +83,14 @@ export class InboxFolderListComponent {
   }
 
   onDeleteFolder(folder: IEmailFolder): void {
-    const confirmed = window.confirm(
-      this.translateService.instant('inbox.folder-list.confirm-delete', { name: folder.name })
-    );
-    if (confirmed) {
-      this.inboxService.deleteFolder(folder.id);
-    }
+    this.modalService.openModal({
+      type: ModalType.Delete,
+      title: this.translateService.instant('delete'),
+      message: this.translateService.instant('inbox.folder-list.confirm-delete', { name: folder.name }),
+      confirmText: this.translateService.instant('button.delete'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.inboxService.deleteFolder(folder.id),
+    });
   }
 
   expandedNodes = new Set<string>();
