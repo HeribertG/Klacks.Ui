@@ -73,7 +73,7 @@ export class ModalService {
     this.openModelSignal.set(null);
     this.resultSignal.set(kind);
 
-    if (kind === ModalType.Confirmation && this.onConfirmCallback) {
+    if ((kind === ModalType.Confirmation || kind === ModalType.Delete) && this.onConfirmCallback) {
       this.onConfirmCallback();
       this.onConfirmCallback = null;
     }
