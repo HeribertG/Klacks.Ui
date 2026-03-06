@@ -82,17 +82,6 @@ export class InboxFolderListComponent implements OnInit {
     return folder.name;
   }
 
-  onDeleteFolder(folder: IEmailFolder): void {
-    this.modalService.openModal({
-      type: ModalType.Delete,
-      title: this.translateService.instant('delete'),
-      message: this.translateService.instant('inbox.folder-list.confirm-delete', { name: folder.name }),
-      confirmText: this.translateService.instant('button.delete'),
-      cancelText: this.translateService.instant('cancel'),
-      onConfirm: () => this.inboxService.deleteFolder(folder.id),
-    });
-  }
-
   expandedNodes = new Set<string>();
 
   isGroupActive(nodeId: string, nodeType: string): boolean {

@@ -27,16 +27,6 @@
         @if (getFolderBadgeCount(folder) > 0) {
           <span class="folder-badge">{{ getFolderBadgeCount(folder) }}</span>
         }
-        @if (isAuthorised && !folder.isSystem) {
-          <button
-            type="button"
-            class="delete-folder-button"
-            (click)="onDeleteFolder(folder); $event.stopPropagation()"
-            [attr.aria-label]="'inbox.folder-list.delete' | translate"
-          >
-            &#10005;
-          </button>
-        }
       </div>
     </div>
   }
