@@ -47,10 +47,7 @@ export class InboxFolderListComponent {
     const name = window.prompt(this.translateService.instant('inbox.folder-list.prompt-name'));
     if (!name) return;
 
-    const imapFolderName = window.prompt(this.translateService.instant('inbox.folder-list.prompt-imap'));
-    if (!imapFolderName) return;
-
-    this.inboxService.createFolder(name, imapFolderName);
+    this.inboxService.createFolder(name, name);
   }
 
   getFolderBadgeCount(folder: IEmailFolder): number {
