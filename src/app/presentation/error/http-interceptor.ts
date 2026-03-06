@@ -16,6 +16,9 @@ import { catchError } from 'rxjs/operators';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { TranslateService } from '@ngx-translate/core';
+import { DataTranslationService } from 'src/app/infrastructure/api/translation/data-translation.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
@@ -24,6 +27,8 @@ export class ResponseInterceptor implements HttpInterceptor {
   );
   private toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
+  private translateService = inject(TranslateService);
+  private dataTranslationService = inject(DataTranslationService);
 
   private static readonly ERROR_PATTERNS = {
     POSTCODE: 'PostcodeCH',
@@ -190,7 +195,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     );
     const messageKey = `${operationType}_${entityInfo.key}_ERROR`;
 
-    this.toastShowService.showError(errorMessage, messageKey);
+    this.showTranslatedError(errorMessage, messageKey);
 
     console.error(`${entityInfo.name} ${operationType} Error:`, {
       url,
@@ -201,6 +206,25 @@ export class ResponseInterceptor implements HttpInterceptor {
     });
 
     return throwError(() => error);
+  }
+
+  private async showTranslatedError(errorMessage: string, messageKey: string): Promise<void> {
+    const currentLang = this.translateService.currentLang || 'de';
+
+    if (currentLang === 'en') {
+      this.toastShowService.showError(errorMessage, messageKey);
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.dataTranslationService.translateToAll(errorMessage, 'en')
+      );
+      const translated = response[currentLang as keyof typeof response] || errorMessage;
+      this.toastShowService.showError(translated, messageKey);
+    } catch {
+      this.toastShowService.showError(errorMessage, messageKey);
+    }
   }
 
   private getEntityInfo(url: string): { name: string; key: string } {
