@@ -11,7 +11,7 @@ describe('WorkplaceStateService', () => {
     let mockRegistry: IManageableServiceRegistry;
 
     beforeEach(() => {
-        mockLoadingIndicator = { showProgressSpinner: false };
+        mockLoadingIndicator = { showProgressSpinner: false, interceptorSuppressed: false };
         mockRegistry = {
             register: vi.fn(),
             get: vi.fn().mockReturnValue(null),

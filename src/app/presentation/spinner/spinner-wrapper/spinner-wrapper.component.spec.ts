@@ -10,19 +10,9 @@ describe('SpinnerWrapperComponent', () => {
     let spinnerService: SpinnerService;
 
     beforeEach(async () => {
-        // Mock für SpinnerService
-        const spinnerServiceMock = {
-            showProgressSpinner: false,
-        };
-
         await TestBed.configureTestingModule({
-            imports: [SpinnerWrapperComponent], // Standalone Component in imports!
-            providers: [
-                {
-                    provide: SpinnerService,
-                    useValue: spinnerServiceMock,
-                },
-            ],
+            imports: [SpinnerWrapperComponent],
+            providers: [SpinnerService],
         }).compileComponents();
 
         fixture = TestBed.createComponent(SpinnerWrapperComponent);
@@ -32,21 +22,32 @@ describe('SpinnerWrapperComponent', () => {
     });
 
     it('should create', () => {
+        // Arrange
+        // Act
+        // Assert
         expect(component).toBeTruthy();
     });
 
     it('should not show spinner when showProgressSpinner is false', () => {
+        // Arrange
         spinnerService.showProgressSpinner = false;
+
+        // Act
         fixture.detectChanges();
 
+        // Assert
         const spinnerElement = fixture.nativeElement.querySelector('.loading-indicator');
         expect(spinnerElement).toBeFalsy();
     });
 
     it('should show spinner when showProgressSpinner is true', () => {
+        // Arrange
         spinnerService.showProgressSpinner = true;
+
+        // Act
         fixture.detectChanges();
 
+        // Assert
         const spinnerElement = fixture.nativeElement.querySelector('.loading-indicator');
         expect(spinnerElement).toBeTruthy();
     });

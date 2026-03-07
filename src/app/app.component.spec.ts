@@ -59,7 +59,7 @@ describe('AppComponent', () => {
         { provide: ApplicationInitService, useValue: { initializeBasics: () => {}, destroy: () => {} } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: () => {}, on: () => of(), onAny: () => of() } },
         { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: { register: () => {}, get: () => undefined, has: () => false, clear: () => {}, getRegisteredRoutes: () => [] } },
-        { provide: LOADING_INDICATOR_TOKEN, useValue: { showProgressSpinner: false } },
+        { provide: LOADING_INDICATOR_TOKEN, useValue: { showProgressSpinner: false, interceptorSuppressed: false } },
         { provide: ENTITY_STATE_PROVIDER_TOKEN, useValue: {} },
         { provide: FILTER_STORAGE_TOKEN, useValue: { getItem: () => null, setItem: () => {}, removeItem: () => {} } },
         { provide: SCRIPT_COMPILER, useValue: { compile: () => ({}) } },

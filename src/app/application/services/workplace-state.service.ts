@@ -151,11 +151,18 @@ export class WorkplaceStateService implements IEntityStateProvider {
     this.readEffects();
   }
 
+  private static readonly INTERCEPTOR_SUPPRESSED_ROUTES: ReadonlySet<string> = new Set([
+    RouteName.ABSENCE,
+    RouteName.SCHEDULE,
+  ]);
+
   public setActiveManagerByRoute(routeId: RouteName | string): void {
     const manager = this.manageableServiceFactory.getService(routeId);
     this.activeManager.set(manager);
     this.activeRoute.set(routeId);
     this.manualEntityName.set('');
+    this.spinnerService.interceptorSuppressed =
+      WorkplaceStateService.INTERCEPTOR_SUPPRESSED_ROUTES.has(routeId);
   }
 
   public setNameOfVisibleEntity(entityName: EntityName): void {

@@ -79,7 +79,8 @@ describe('AllGroupListComponent', () => {
         };
 
         mockLoadingIndicator = {
-            showProgressSpinner: false
+            showProgressSpinner: false,
+            interceptorSuppressed: false
         };
 
         mockRegistry = {

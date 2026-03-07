@@ -11,6 +11,7 @@ const SPINNER_SHOW_DELAY_MS = 200;
 export class SpinnerService implements ILoadingIndicator {
   private _manualShow = signal(false);
   private _interceptorShow = signal(false);
+  private _interceptorSuppressed = false;
   private activeRequests = 0;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -24,7 +25,12 @@ export class SpinnerService implements ILoadingIndicator {
     this._manualShow.set(value);
   }
 
+  set interceptorSuppressed(value: boolean) {
+    this._interceptorSuppressed = value;
+  }
+
   incrementRequests(): void {
+    if (this._interceptorSuppressed) return;
     this.activeRequests++;
     if (this.activeRequests === 1 && !this.showTimer) {
       this.showTimer = setTimeout(() => {
