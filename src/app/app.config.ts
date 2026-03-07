@@ -139,7 +139,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: LOADING_INDICATOR_TOKEN,
-      useClass: SpinnerService,
+      useExisting: SpinnerService,
     },
     {
       provide: SCRIPT_COMPILER,

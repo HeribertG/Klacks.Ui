@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import {
@@ -43,7 +44,9 @@ export class DataReceivedEmailService {
 
   getUnreadCount() {
     return this.httpClient
-      .get<number>(`${environment.baseUrl}${API_PATH}UnreadCount`)
+      .get<number>(`${environment.baseUrl}${API_PATH}UnreadCount`, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      })
       .pipe(retry(3));
   }
 
@@ -51,7 +54,8 @@ export class DataReceivedEmailService {
     return this.httpClient
       .put<IReceivedEmail>(
         `${environment.baseUrl}${API_PATH}${id}/Read?isRead=${isRead}`,
-        {}
+        {},
+        { context: new HttpContext().set(SKIP_LOADING, true) }
       )
       .pipe(retry(3));
   }
@@ -89,7 +93,11 @@ export class DataReceivedEmailService {
   }
 
   getEmailGroupTree(): Observable<IEmailGroupNode[]> {
-    return this.httpClient.get<IEmailGroupNode[]>(`${environment.baseUrl}${API_PATH}GroupTree`).pipe(retry(3));
+    return this.httpClient
+      .get<IEmailGroupNode[]>(`${environment.baseUrl}${API_PATH}GroupTree`, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      })
+      .pipe(retry(3));
   }
 
   getEmailsByGroup(groupId: string, skip: number, take: number): Observable<IReceivedEmailListResponse> {
