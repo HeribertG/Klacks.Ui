@@ -11,8 +11,7 @@ import {
   Output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { IconSearchComponent } from 'src/app/presentation/icons/icon-search.component';
 import {
   NgbDropdownModule,
   NgbTooltipModule,
@@ -35,7 +34,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
     NgbDropdownModule,
     NgbTooltipModule,
     TranslateModule,
-    FontAwesomeModule,
+    IconSearchComponent,
     FallbackPipe
 ],
 })
@@ -53,7 +52,7 @@ export class CalendarDropdownComponent
   private translateService = inject(TranslateService);
 
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
-  public faSearch = faSearch;
+
 
   private ngUnsubscribe = new Subject<void>();
 

@@ -4,11 +4,12 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguagePluginInfo } from 'src/app/domain/models/settings/language-plugin';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-language-plugins-row',
   standalone: true,
-  imports: [DecimalPipe, TranslateModule],
+  imports: [DecimalPipe, TranslateModule, TrashIconRedComponent],
   templateUrl: './language-plugins-row.component.html',
   styleUrls: ['./language-plugins-row.component.scss']
 })

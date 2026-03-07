@@ -16,9 +16,7 @@
       </button>
     }
     @if (!data.isCore && data.isInstalled) {
-      <button class="action-btn uninstall-btn" (click)="onUninstall()">
-        {{ translate.instant("settings.language-plugins.action.uninstall") }}
-      </button>
+      <app-icon-trash-red (click)="onUninstall()" />
     }
   </span>
 </div>
