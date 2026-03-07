@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { inject, Injectable, Injector, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
@@ -60,7 +60,7 @@ export class ScheduleEntryCrudService {
   private breakService = inject(DataManagementBreakService);
   private expensesService = inject(DataManagementExpensesService);
   private appSettingsService = inject(AppSettingsManagementService);
-  private groupSelectionService = inject(GroupSelectionService);
+  private injector = inject(Injector);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -111,7 +111,7 @@ export class ScheduleEntryCrudService {
       })),
       periodStart,
       periodEnd,
-      paymentInterval: this.groupSelectionService.selectedGroup?.paymentInterval
+      paymentInterval: this.injector.get(GroupSelectionService).selectedGroup?.paymentInterval
         ?? this.appSettingsService.workSettings().paymentInterval,
     };
 
