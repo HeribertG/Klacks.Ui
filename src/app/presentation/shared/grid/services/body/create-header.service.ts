@@ -16,6 +16,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 
 @Injectable()
@@ -27,6 +28,7 @@ export class BaseCreateHeaderService {
   protected gridData = inject(BaseDataService);
   private translateService = inject(TranslateService);
   private settingsService = inject(DataManagementSettingsService);
+  private groupSelectionService = inject(GroupSelectionService);
 
   private emptyHeader: ImageData | undefined = undefined;
 
@@ -158,7 +160,8 @@ export class BaseCreateHeaderService {
   private formatDate(date: Date): string {
     const day = date.getDate();
     const weekday = this.translateService.instant(this.gridSettings.weekday[date.getDay()]);
-    const paymentInterval = this.settingsService.paymentInterval;
+    const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
+      ?? this.settingsService.paymentInterval;
 
     if (paymentInterval === PaymentInterval.Weekly || paymentInterval === PaymentInterval.Biweekly) {
       const month = date.getMonth() + 1;

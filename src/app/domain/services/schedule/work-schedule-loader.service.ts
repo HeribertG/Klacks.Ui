@@ -186,7 +186,7 @@ export class WorkScheduleLoaderService {
       hoursSortOrder: workFilter.hoursSortOrder || undefined,
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,
-      paymentInterval: this.settingsService.paymentInterval,
+      paymentInterval: workFilter.paymentInterval,
     };
 
     this.dataWorkSchedule
@@ -316,7 +316,7 @@ export class WorkScheduleLoaderService {
   }
 
   private calculatePeriodStartDate(filter: IWorkFilter): Date {
-    const paymentInterval = this.settingsService.paymentInterval;
+    const paymentInterval = filter.paymentInterval;
     const year = filter.currentYear;
 
     switch (paymentInterval) {
@@ -337,7 +337,7 @@ export class WorkScheduleLoaderService {
   }
 
   private calculatePeriodEndDate(filter: IWorkFilter): Date {
-    const paymentInterval = this.settingsService.paymentInterval;
+    const paymentInterval = filter.paymentInterval;
     const year = filter.currentYear;
 
     switch (paymentInterval) {

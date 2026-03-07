@@ -40,6 +40,8 @@ import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -91,12 +93,23 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private searchService = inject(SearchService);
   private holidayCollection = inject(HolidayCollectionService);
   private calendarUtil = inject(CalendarUtilService);
+  private appSettingsService = inject(AppSettingsManagementService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
 
-  get viewMode() {
-    return this.settings.viewMode();
+  get viewMode(): PaymentInterval {
+    return this.resolvePaymentInterval();
+  }
+
+  private resolvePaymentInterval(): PaymentInterval {
+    const group = this.groupSelection.selectedGroup;
+    return group?.paymentInterval
+      ?? this.appSettingsService.workSettings().paymentInterval;
+  }
+
+  private applyViewMode(): void {
+    this.settings.viewMode.set(this.resolvePaymentInterval());
   }
 
   ngOnInit(): void {
@@ -121,6 +134,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
     this.groupSelection.registerClientAvailabilityCallback((groupId) => {
       this.filterService.selectedGroupId = groupId;
+      this.applyViewMode();
       this.applyFilterAndRender();
     });
   }
@@ -133,6 +147,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     ]);
 
     this.renderGrid.initialize();
+    this.applyViewMode();
     this.setStartDate();
 
     const clients = await firstValueFrom(

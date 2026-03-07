@@ -49,7 +49,6 @@ import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/dat
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
 import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
@@ -101,7 +100,6 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService);
   private allScheduleStateService = inject(AllScheduleStateService);
-  private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
   private appSettings = inject(AppSettingsManagementService);
   private scheduleReportCtx = inject(ScheduleReportContextService);
@@ -123,7 +121,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   });
 
   get paymentInterval(): number {
-    return this.settingsService.paymentInterval;
+    return this.dataManagementSchedule.workFilter.paymentInterval;
   }
 
   get displayYear(): string {

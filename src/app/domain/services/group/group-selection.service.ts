@@ -8,6 +8,7 @@ import { DataManagementBreakPlaceholderService } from '../break/data-management-
 import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
 import { DataManagementShiftService } from '../shift/data-management-shift.service';
 import { DataManagementClientService } from '../client/data-management-client.service';
+import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class GroupSelectionService {
   private dataManagementScheduleService = inject(DataManagementScheduleService);
   private dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementClientService = inject(DataManagementClientService);
+  private appSettingsService = inject(AppSettingsManagementService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
   private clientAvailabilityGroupCallback: ((groupId: string | undefined) => void) | null = null;
@@ -60,6 +62,9 @@ export class GroupSelectionService {
       case EntityName.SCHEDULE:
         this.dataManagementScheduleService.workFilter.selectedGroup =
           this.selectedGroupId;
+        this.dataManagementScheduleService.workFilter.paymentInterval =
+          this._selectedGroup()?.paymentInterval
+          ?? this.appSettingsService.workSettings().paymentInterval;
         this.dataManagementScheduleService.readDatas();
         break;
       case EntityName.SHIFT:

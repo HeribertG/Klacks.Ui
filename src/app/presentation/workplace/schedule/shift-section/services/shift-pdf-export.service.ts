@@ -240,7 +240,9 @@ export class ShiftPdfExportService {
     const workSettings = this.appSettingsService.workSettings();
     const groupName = this.groupSelectionService.selectedGroup?.name;
     const groupSuffix = groupName ? ` - ${groupName}` : '';
-    const period = this.buildPeriodLabel(workSettings.paymentInterval, filter);
+    const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
+      ?? workSettings.paymentInterval;
+    const period = this.buildPeriodLabel(paymentInterval, filter);
     return `Schichtplan - ${period} ${filter.currentYear}${groupSuffix}`;
   }
 

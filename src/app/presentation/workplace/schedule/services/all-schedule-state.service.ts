@@ -52,7 +52,8 @@ export class AllScheduleStateService extends BaseStateService<
 
   private applySettingsToFilter(): void {
     const filter = this.dataManagementService.currentFilter;
-    const workSettings = this.appSettingsService.workSettings();
-    filter.paymentInterval = workSettings.paymentInterval;
+    const group = this.groupSelectionService.selectedGroup;
+    filter.paymentInterval = group?.paymentInterval
+      ?? this.appSettingsService.workSettings().paymentInterval;
   }
 }

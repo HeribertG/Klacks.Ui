@@ -15,6 +15,7 @@ import { DataManagementBreakService } from '../break/data-management-break.servi
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
 import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
+import { GroupSelectionService } from '../group/group-selection.service';
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -59,6 +60,7 @@ export class ScheduleEntryCrudService {
   private breakService = inject(DataManagementBreakService);
   private expensesService = inject(DataManagementExpensesService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private groupSelectionService = inject(GroupSelectionService);
 
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
@@ -109,7 +111,8 @@ export class ScheduleEntryCrudService {
       })),
       periodStart,
       periodEnd,
-      paymentInterval: this.appSettingsService.workSettings().paymentInterval,
+      paymentInterval: this.groupSelectionService.selectedGroup?.paymentInterval
+        ?? this.appSettingsService.workSettings().paymentInterval,
     };
 
     return new Promise((resolve, reject) => {
