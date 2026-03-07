@@ -1,0 +1,39 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.card-content {
+  padding: 10px;
+}
+
+.selector-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.dropdown-row {
+  display: flex;
+  justify-content: right;
+  margin-bottom: 10px;
+}
+
+.select-calendar {
+  width: 180px;
+}
+
+.crud-button {
+  margin-left: 5px;
+  width: auto;
+  font-size: xx-small;
+}
+
+.chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 200px;
+  overflow: auto;
+}

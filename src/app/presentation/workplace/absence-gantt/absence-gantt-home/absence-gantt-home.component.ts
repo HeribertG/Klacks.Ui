@@ -33,6 +33,11 @@ import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { lastValueFrom } from 'rxjs';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
@@ -86,6 +91,9 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
   private holidayCollection = inject(HolidayCollectionService);
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private groupSelectionService = inject(GroupSelectionService);
+  private appSettingsService = inject(AppSettingsManagementService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
 
   ganttHeader = viewChild.required<AbsenceGanttHeaderComponent>('ganttHeader');
@@ -105,7 +113,41 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
       this.dataManagementAbsence.readDataAsync(),
     ]);
 
+    const chips = await this.resolveCalendarChips();
+    if (chips.length > 0) {
+      this.holidayCollection.setSelection(chips);
+    }
+
     await this.ganttHeader().initAsync();
+  }
+
+  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+    const calendarSelectionId =
+      this.groupSelectionService.selectedGroup?.calendarSelectionId ||
+      this.appSettingsService.contactSettings().globalCalendarSelectionId;
+
+    if (!calendarSelectionId) {
+      return [];
+    }
+
+    try {
+      const selection = await lastValueFrom(
+        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
+      );
+
+      if (!selection?.selectedCalendars?.length) {
+        return [];
+      }
+
+      return selection.selectedCalendars.map((sc) => {
+        const token = new StateCountryToken();
+        token.country = sc.country;
+        token.state = sc.state;
+        return token;
+      });
+    } catch {
+      return [];
+    }
   }
 
   async onPdfExportRequested(): Promise<void> {

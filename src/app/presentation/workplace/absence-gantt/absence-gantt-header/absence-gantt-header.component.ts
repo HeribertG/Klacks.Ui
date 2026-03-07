@@ -4,7 +4,6 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
   viewChild,
   signal,
   computed,
@@ -15,20 +14,13 @@ import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
-import {
-  NgbDropdown,
-  NgbDropdownModule,
-  NgbTooltipModule,
-} from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
-import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
-import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 
 @Component({
   selector: 'app-absence-gantt-header',
@@ -38,18 +30,13 @@ import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calen
   imports: [
     AbsenceGanttAbsenceListComponent,
     PdfIconComponent,
-    ChooseCalendarComponent,
-    NgbDropdownModule,
     NgbTooltipModule,
     NgxSliderModule,
     TranslateModule,
-    CalendarSelectorComponent,
     CounterComponent,
   ],
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
-  @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
-
   absenceList = viewChild<AbsenceGanttAbsenceListComponent>('absenceList');
 
   // Event Emitter für PDF Export
@@ -59,9 +46,6 @@ export class AbsenceGanttHeaderComponent implements OnInit {
   private holidayCollection = inject(HolidayCollectionService);
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
-  private dataManagementCalendarSelectionService = inject(
-    DataManagementCalendarSelectionService
-  );
 
   currentLang = signal<Language>(DomainMessages.DEFAULT_LANG);
   value = signal<number>(100);
@@ -101,27 +85,6 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   changeYear(event: number) {
     this.currentYear.set(event);
-  }
-
-  onOpenMenu() {
-    setTimeout(() => {
-      this.dropdownSetting.open();
-    }, 100);
-  }
-
-  onChangeCalendar() {
-    setTimeout(() => {
-      const chips = this.dataManagementCalendarSelectionService.chips;
-      this.holidayCollection.setSelection(chips);
-    }, 300);
-  }
-
-  onCalendarInitialized() {
-    this.onChangeCalendar();
-  }
-
-  onReRead() {
-    this.onChangeCalendar();
   }
 
   onPdfExport() {

@@ -859,6 +859,7 @@
   "setting.group.Sum": "Nombre",
   "setting.group.chose-headline": "Groupe racine visible",
   "setting.group.headline": "Visibilité des groupes par utilisateur",
+  "setting.calendar-selection.title": "Sélection du calendrier",
   "setting.holiday-rules.add-rule": "+ Ajouter une règle",
   "setting.holiday-rules.country": "PAYS",
   "setting.holiday-rules.country-modal": "Nation",

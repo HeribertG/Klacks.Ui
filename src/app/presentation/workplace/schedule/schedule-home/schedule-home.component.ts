@@ -45,7 +45,11 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { lastValueFrom } from 'rxjs';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
@@ -85,9 +89,9 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   private holidayCollection = inject(HolidayCollectionService);
-  private dataManagementCalendarSelectionService = inject(
-    DataManagementCalendarSelectionService
-  );
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private groupSelectionService = inject(GroupSelectionService);
+  private appSettingsService = inject(AppSettingsManagementService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
@@ -117,21 +121,45 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async initializeHolidays(): Promise<void> {
-    await Promise.all([
-      this.holidayCollection.readDataAsync(),
-      this.dataManagementCalendarSelectionService.readData(),
-    ]);
+    await this.holidayCollection.readDataAsync();
 
-    this.dataManagementCalendarSelectionService.readSChips();
-    const chips = this.dataManagementCalendarSelectionService.chips;
-
-    if (chips && chips.length > 0) {
+    const chips = await this.resolveCalendarChips();
+    if (chips.length > 0) {
       this.holidayCollection.setSelection(chips);
     }
 
     this.updateHolidayDates();
     this.dataManagementSchedule.readShiftSchedule();
     this.refreshTrigger = !this.refreshTrigger;
+  }
+
+  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+    const calendarSelectionId =
+      this.groupSelectionService.selectedGroup?.calendarSelectionId ||
+      this.appSettingsService.contactSettings().globalCalendarSelectionId;
+
+    if (!calendarSelectionId) {
+      return [];
+    }
+
+    try {
+      const selection = await lastValueFrom(
+        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
+      );
+
+      if (!selection?.selectedCalendars?.length) {
+        return [];
+      }
+
+      return selection.selectedCalendars.map((sc) => {
+        const token = new StateCountryToken();
+        token.country = sc.country;
+        token.state = sc.state;
+        return token;
+      });
+    } catch {
+      return [];
+    }
   }
 
   ngOnDestroy(): void {
@@ -149,17 +177,6 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.effects.push(holidayEffect);
 
-      const chipsLoadedEffect = effect(() => {
-        if (this.dataManagementCalendarSelectionService.chipsLoaded()) {
-          const chips = this.dataManagementCalendarSelectionService.chips;
-          if (chips && chips.length > 0) {
-            this.holidayCollection.setSelection(chips);
-            this.updateHolidayDates();
-            this.dataManagementSchedule.readShiftSchedule();
-          }
-        }
-      });
-      this.effects.push(chipsLoadedEffect);
     });
   }
 

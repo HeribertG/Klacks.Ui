@@ -109,29 +109,6 @@
   </button>
 
   <span class="filler"></span>
-  <div ngbDropdown #dropdownSetting="ngbDropdown">
-    <button
-      class="btn btn-sm btn-setting"
-      id="dropdownSetting"
-      ngbDropdownToggle
-      aria-label="absence settings"
-      placement="bottom"
-      ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
-      autoClose="true"
-    >
-      <app-choose-calendar></app-choose-calendar>
-    </button>
-    <div ngbDropdownMenu>
-      <div class="px-3 py-3">
-        <div class="chip-form-group">
-          <app-calendar-selector
-            (openMenu)="onOpenMenu()"
-            (changeEvent)="onChangeCalendar()"
-          ></app-calendar-selector>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="custom-slider">
     <ngx-slider

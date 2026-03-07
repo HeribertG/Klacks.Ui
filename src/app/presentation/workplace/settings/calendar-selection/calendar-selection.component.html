@@ -1,0 +1,86 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="calendar-selection-card" class="settings-list-card">
+  <div id="calendar-selection-header" class="container-header">
+    {{ "setting.calendar-selection.title" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div id="calendar-selection-content" class="card-content">
+    @if (hasValidCalendarSelections) {
+      <div
+        class="selector-row"
+        role="group"
+        [attr.aria-label]="'calendar.selector.controls' | translate"
+      >
+        <div class="form-group">
+          <label for="settings-select-calendar" class="visually-hidden">
+            {{ "calendar.selector.select-calendar" | translate }}
+          </label>
+          <select
+            class="form-select select-calendar"
+            name="settings-select-calendar"
+            id="settings-select-calendar"
+            [(ngModel)]="dataManagementCalendarSelectionService.currentCalendarSelection"
+            [compareWith]="compareCalendars"
+            (ngModelChange)="onChangeSelection()"
+          >
+            @for (c of dataManagementCalendarSelectionService.calendarsSelections; track c.id || c.name) {
+              <option [ngValue]="c">{{ c.name }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          id="calendar-selection-add-btn"
+          class="crud-button btn btn-success"
+          [disabled]="!shouldEnableAddButton"
+          (click)="onOpen(modalTypeInput)"
+          [attr.aria-label]="'calendar.selector.add-selection' | translate"
+          [attr.title]="'calendar.selector.add-selection' | translate"
+          type="button"
+        >
+          <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+        </button>
+
+        <button
+          id="calendar-selection-delete-btn"
+          class="crud-button btn btn-danger"
+          [disabled]="!shouldShowDeleteButton"
+          (click)="onOpen(modalTypeDelete)"
+          [attr.aria-label]="'calendar.selector.delete-selection' | translate"
+          [attr.title]="'calendar.selector.delete-selection' | translate"
+          type="button"
+        >
+          <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+        </button>
+      </div>
+    }
+
+    <div class="dropdown-row">
+      <app-calendar-dropdown
+        (changed)="onChangeFilter()"
+        (isClosing)="onIsClosing()"
+        (isOpening)="onIsOpening()"
+      ></app-calendar-dropdown>
+    </div>
+
+    @if (hasChips) {
+      <div
+        class="chips-list"
+        role="region"
+        [attr.aria-label]="'calendar.selector.selected-items' | translate"
+      >
+        @for (chip of chipList; track trackByChip($index, chip)) {
+          <div>
+            <app-chips
+              [name]="getChipDisplayName(chip)"
+              [key]="getChipKey(chip)"
+              (delete)="onDeleteChip($event)"
+            ></app-chips>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

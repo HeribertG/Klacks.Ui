@@ -12,32 +12,6 @@
     <app-icon-pdf-icon></app-icon-pdf-icon>
   </div>
 
-  <div id="absence-gantt-settings-dropdown" ngbDropdown #dropdownSetting="ngbDropdown">
-    <button
-      class="btn btn-sm btn-setting"
-      id="absence-gantt-settings-dropdown-toggle"
-      ngbDropdownToggle
-      aria-label="absence settings"
-      placement="bottom"
-      ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
-      autoClose="true"
-    >
-      <app-choose-calendar id="absence-gantt-choose-calendar" (change)="onChangeCalendar()"></app-choose-calendar>
-    </button>
-    <div id="absence-gantt-settings-dropdown-menu" ngbDropdownMenu>
-      <div class="px-3 py-3">
-        <div class="chip-form-group">
-          <app-calendar-selector
-            id="absence-gantt-calendar-selector"
-            (openMenu)="onOpenMenu()"
-            (change)="onChangeCalendar()"
-            (initialized)="onCalendarInitialized()"
-          ></app-calendar-selector>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="absence-gantt-year-counter" class="custom-counter">
     <span class="custom-counter-span"
       >{{

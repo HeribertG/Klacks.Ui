@@ -26,16 +26,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  NgbDropdown,
   NgbDropdownModule,
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
-
-import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
 import {
   CalendarResetData,
   ScheduleHeaderCalendarMonthlyComponent,
@@ -43,7 +38,6 @@ import {
 import { ScheduleHeaderCalendarWeeklyComponent } from './schedule-header-calendar-weekly/schedule-header-calendar-weekly.component';
 import { ScheduleHeaderCalendarBiweeklyComponent } from './schedule-header-calendar-biweekly/schedule-header-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
-import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
@@ -76,9 +70,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     NgxSliderModule,
     NgbDropdownModule,
     TranslateModule,
-    CalendarSelectorComponent,
     NgbTooltip,
-    ChooseCalendarComponent,
     ScheduleHeaderCalendarMonthlyComponent,
     ScheduleHeaderCalendarWeeklyComponent,
     ScheduleHeaderCalendarBiweeklyComponent,
@@ -94,7 +86,6 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
   providers: [],
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
-  @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   value = 100;
@@ -109,10 +100,6 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   zoomChange = output<number>();
   pdfExportRequested = output<void>();
 
-  private holidayCollection = inject(HolidayCollectionService);
-  private dataManagementCalendarSelectionService = inject(
-    DataManagementCalendarSelectionService,
-  );
   private gridSettingsService = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService);
@@ -212,21 +199,6 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onChange() {
     this.emitZoomChange();
-  }
-
-  changeYear(event: number) {
-    this.holidayCollection.currentYear = event;
-  }
-
-  onOpenMenu() {
-    setTimeout(() => {
-      this.dropdownSetting.open();
-    }, 100);
-  }
-
-  onChangeCalendar() {
-    const chips = this.dataManagementCalendarSelectionService.chips;
-    this.holidayCollection.setSelection(chips);
   }
 
   onCalendarReset(_data: CalendarResetData) {}
