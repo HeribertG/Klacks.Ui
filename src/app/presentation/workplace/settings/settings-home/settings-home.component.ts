@@ -39,7 +39,6 @@ import { ReportsComponent } from '../reports/reports.component';
 import { ReportDefaultsComponent } from '../reports/report-defaults/report-defaults.component';
 import { SchedulingRulesComponent } from '../scheduling-rules/scheduling-rules.component';
 import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setting/scheduling-defaults-setting.component';
-import { GlobalAgentRulesComponent } from '../global-agent-rules/global-agent-rules.component';
 import { ImapSettingComponent } from '../imap-setting/imap-setting.component';
 import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
 import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
@@ -87,7 +86,6 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     ReportDefaultsComponent,
     SchedulingRulesComponent,
     SchedulingDefaultsSettingComponent,
-    GlobalAgentRulesComponent,
     ImapSettingComponent,
     SpamRulesComponent,
     LanguagePluginsComponent,
