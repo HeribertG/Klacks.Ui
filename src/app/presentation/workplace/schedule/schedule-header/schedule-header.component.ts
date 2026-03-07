@@ -31,12 +31,9 @@ import {
   NgbDropdownModule,
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import {
-  CalendarResetData,
-  ScheduleHeaderCalendarMonthlyComponent,
-} from './schedule-header-calendar-monthly/schedule-header-calendar-monthly.component';
-import { ScheduleHeaderCalendarWeeklyComponent } from './schedule-header-calendar-weekly/schedule-header-calendar-weekly.component';
-import { ScheduleHeaderCalendarBiweeklyComponent } from './schedule-header-calendar-biweekly/schedule-header-calendar-biweekly.component';
+import { PeriodCalendarMonthlyComponent, PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/period-calendar-weekly/period-calendar-weekly.component';
+import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-left.component';
@@ -71,9 +68,9 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     NgbDropdownModule,
     TranslateModule,
     NgbTooltip,
-    ScheduleHeaderCalendarMonthlyComponent,
-    ScheduleHeaderCalendarWeeklyComponent,
-    ScheduleHeaderCalendarBiweeklyComponent,
+    PeriodCalendarMonthlyComponent,
+    PeriodCalendarWeeklyComponent,
+    PeriodCalendarBiweeklyComponent,
     IconAngleLeftComponent,
     IconAngleRightComponent,
     PdfIconComponent,
@@ -153,24 +150,24 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  private get selectedMonth(): number {
+  get selectedMonth(): number {
     return this.dataManagementSchedule.workFilter.currentMonth;
   }
-  private set selectedMonth(value: number) {
+  set selectedMonth(value: number) {
     this.dataManagementSchedule.workFilter.currentMonth = value;
   }
 
-  private get selectedWeek(): number {
+  get selectedWeek(): number {
     return this.dataManagementSchedule.workFilter.currentWeek ?? 1;
   }
-  private set selectedWeek(value: number) {
+  set selectedWeek(value: number) {
     this.dataManagementSchedule.workFilter.currentWeek = value;
   }
 
-  private get currentYear(): number {
+  get currentYear(): number {
     return this.dataManagementSchedule.workFilter.currentYear;
   }
-  private set currentYear(value: number) {
+  set currentYear(value: number) {
     this.dataManagementSchedule.workFilter.currentYear = value;
   }
 
@@ -201,7 +198,16 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     this.emitZoomChange();
   }
 
-  onCalendarReset(_data: CalendarResetData) {}
+  onCalendarReset(data: PeriodResetData): void {
+    if (data.month !== undefined) {
+      this.selectedMonth = data.month;
+    }
+    if (data.week !== undefined) {
+      this.selectedWeek = data.week;
+    }
+    this.currentYear = data.year;
+    this.applyPeriodChange();
+  }
 
   onPdfExport() {
     this.pdfExportRequested.emit();

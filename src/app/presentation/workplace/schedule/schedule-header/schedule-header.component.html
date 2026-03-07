@@ -23,19 +23,25 @@
     <div ngbDropdownMenu>
       @switch (paymentInterval) {
         @case (0) {
-          <app-schedule-header-calendar-weekly
-            (resetData)="onCalendarReset($event)"
-          ></app-schedule-header-calendar-weekly>
+          <app-period-calendar-weekly
+            [year]="currentYear"
+            [week]="selectedWeek"
+            (periodChanged)="onCalendarReset($event)"
+          ></app-period-calendar-weekly>
         }
         @case (1) {
-          <app-schedule-header-calendar-biweekly
-            (resetData)="onCalendarReset($event)"
-          ></app-schedule-header-calendar-biweekly>
+          <app-period-calendar-biweekly
+            [year]="currentYear"
+            [week]="selectedWeek"
+            (periodChanged)="onCalendarReset($event)"
+          ></app-period-calendar-biweekly>
         }
         @default {
-          <app-schedule-header-calendar-monthly
-            (resetData)="onCalendarReset($event)"
-          ></app-schedule-header-calendar-monthly>
+          <app-period-calendar-monthly
+            [year]="currentYear"
+            [month]="selectedMonth"
+            (periodChanged)="onCalendarReset($event)"
+          ></app-period-calendar-monthly>
         }
       }
     </div>

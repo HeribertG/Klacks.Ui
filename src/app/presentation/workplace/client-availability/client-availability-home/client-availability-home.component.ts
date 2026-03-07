@@ -2,6 +2,8 @@
 
 import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
 import { ClientAvailabilityContainerComponent } from '../client-availability-container/client-availability-container.component';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
@@ -88,9 +90,14 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private filterService = inject(ClientAvailabilityFilterService);
   private searchService = inject(SearchService);
   private holidayCollection = inject(HolidayCollectionService);
+  private calendarUtil = inject(CalendarUtilService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
+
+  get viewMode() {
+    return this.settings.viewMode();
+  }
 
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);
@@ -162,8 +169,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     await this.dataManagement.saveChanges();
   }
 
-  async onPeriodChanged(): Promise<void> {
-    this.setStartDate();
+  async onPeriodChanged(data: PeriodResetData): Promise<void> {
+    this.setStartDateFromPeriod(data);
     await this.loadAvailabilityData();
   }
 
@@ -177,10 +184,16 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
   private setStartDate(): void {
     const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    this.calculation.startDate = new Date(now.setDate(diff));
-    this.calculation.startDate.setHours(0, 0, 0, 0);
+    const week = this.calendarUtil.getISO8601WeekNumber(now);
+    this.calculation.startDate = this.calendarUtil.getWeekStartDate(now.getFullYear(), week);
+  }
+
+  private setStartDateFromPeriod(data: PeriodResetData): void {
+    if (data.week !== undefined) {
+      this.calculation.startDate = this.calendarUtil.getWeekStartDate(data.year, data.week);
+    } else if (data.month !== undefined) {
+      this.calculation.startDate = new Date(data.year, data.month - 1, 1);
+    }
   }
 
   private async loadAvailabilityData(): Promise<void> {

@@ -1,24 +1,59 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="availability-header">
   <div class="header-left">
-    <div class="view-mode-group" ngbDropdown>
-      <button class="btn btn-sm btn-outline-secondary" ngbDropdownToggle>
-        @switch (viewMode) {
-          @case (PaymentInterval.Weekly) { {{ "client-availability.view-mode.week" | translate }} }
-          @case (PaymentInterval.Biweekly) { {{ "client-availability.view-mode.biweekly" | translate }} }
-          @case (PaymentInterval.Monthly) { {{ "client-availability.view-mode.monthly" | translate }} }
-        }
+    <button
+      class="btn btn-sm btn-nav"
+      (click)="goToPrevious()"
+      aria-label="previous period"
+    >
+      <app-icon-angle-left />
+    </button>
+    <div ngbDropdown #dropdownSetting="ngbDropdown">
+      <button
+        class="btn btn-sm calendar-setting"
+        id="dropdownSetting"
+        ngbDropdownToggle
+        aria-label="calendar settings"
+        placement="right"
+        [ngbTooltip]="'schedule.selector.select-calendar' | translate"
+        autoClose="true"
+      >
+        <span>{{ displayPeriod }} {{ displayYear }}</span>
       </button>
       <div ngbDropdownMenu>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Weekly)">{{ "client-availability.view-mode.week" | translate }}</button>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Biweekly)">{{ "client-availability.view-mode.biweekly" | translate }}</button>
-        <button ngbDropdownItem (click)="setViewMode(PaymentInterval.Monthly)">{{ "client-availability.view-mode.monthly" | translate }}</button>
+        @switch (viewMode) {
+          @case (PaymentInterval.Weekly) {
+            <app-period-calendar-weekly
+              [year]="currentYear"
+              [week]="currentWeek"
+              (periodChanged)="onCalendarReset($event)"
+            ></app-period-calendar-weekly>
+          }
+          @case (PaymentInterval.Biweekly) {
+            <app-period-calendar-biweekly
+              [year]="currentYear"
+              [week]="currentWeek"
+              (periodChanged)="onCalendarReset($event)"
+            ></app-period-calendar-biweekly>
+          }
+          @default {
+            <app-period-calendar-monthly
+              [year]="currentYear"
+              [month]="currentMonth"
+              (periodChanged)="onCalendarReset($event)"
+            ></app-period-calendar-monthly>
+          }
+        }
       </div>
     </div>
-
-  </div>
-
-  <div class="header-center">
-    <span class="period-label">{{ periodLabel() }}</span>
+    <button
+      class="btn btn-sm btn-nav"
+      (click)="goToNext()"
+      aria-label="next period"
+    >
+      <app-icon-angle-right />
+    </button>
   </div>
 
   <div class="header-right">

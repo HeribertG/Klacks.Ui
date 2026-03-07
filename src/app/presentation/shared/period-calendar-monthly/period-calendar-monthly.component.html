@@ -1,19 +1,19 @@
 <div class="container">
-  <div class="week-line">
+  <div class="period-line">
     <span class="custom-counter-span">
-      {{ "schedule.schedule-header.schedule-header.week" | translate }}
+      {{ "schedule.schedule-header.schedule-header.month" | translate }}
     </span>
     <span class="filler"></span>
     <select
-      name="week"
-      id="week"
-      class="form-select week"
-      [(ngModel)]="selectedWeek"
-      (ngModelChange)="onChangeWeek()"
+      name="month"
+      id="month"
+      class="form-select period-select"
+      [(ngModel)]="month"
+      (ngModelChange)="onChangeMonth()"
     >
-      @for (w of weeks; track w) {
-        <option [ngValue]="w" [selected]="w === selectedWeek">
-          {{ w }}
+      @for (c of gridSettingsService.monthsName; track $index; let i = $index) {
+        <option [ngValue]="i + 1" [selected]="i + 1 === month">
+          {{ c | translate }}
         </option>
       }
     </select>
@@ -25,7 +25,7 @@
     <span class="filler"></span>
     <app-counter
       [maxNumber]="maxYear"
-      [currentNumber]="currentYear"
+      [currentNumber]="year"
       (isChanged)="changeYear($event)"
     >
     </app-counter>

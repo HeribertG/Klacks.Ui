@@ -2,7 +2,8 @@
   <app-client-availability-header
     #header
     (saveRequested)="onSaveRequested()"
-    (periodChanged)="onPeriodChanged()">
+    [viewMode]="viewMode"
+    (periodChanged)="onPeriodChanged($event)">
   </app-client-availability-header>
 </div>
 <div class="availability-body">
