@@ -1646,6 +1646,7 @@
   "inbox.folder-list.junk-name": "Spamverdacht",
   "inbox.folder-list.trash-name": "Papierkorb",
   "inbox.folder-list.sent-name": "Gesendet",
+  "inbox.folder-list.client-assigned-name": "Kunden",
   "inbox.folder-list.groups-title": "Gruppen",
   "settings.spam-rules.title": "Spam-Regeln",
   "settings.spam-rules.column.rule-type": "Regeltyp",

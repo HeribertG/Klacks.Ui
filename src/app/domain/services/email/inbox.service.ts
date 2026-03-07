@@ -81,6 +81,7 @@ export class InboxService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadFolders();
+        this.refreshUnreadCount();
       });
 
     this.emailSignalRService.emailReadStateChanged$
@@ -105,7 +106,7 @@ export class InboxService {
     this.dataEmailFolderService.getFolders().subscribe({
       next: (folders) => {
         this.folders.set(folders);
-        if (folders.length > 0 && !this.selectedFolder()) {
+        if (folders.length > 0 && !this.selectedFolder() && !this.selectedGroupId() && !this.selectedClientId()) {
           this.selectFolder(folders[0].imapFolderName);
         } else {
           this.loadEmails();

@@ -9,7 +9,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
-import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_SENT, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
+import { SPECIAL_USE_CLIENT_ASSIGNED, SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_SENT, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 
@@ -18,6 +18,7 @@ const SPECIAL_USE_TRANSLATION_MAP: Record<string, string> = {
   [SPECIAL_USE_TRASH]: 'inbox.folder-list.trash-name',
   [SPECIAL_USE_JUNK]: 'inbox.folder-list.junk-name',
   [SPECIAL_USE_SENT]: 'inbox.folder-list.sent-name',
+  [SPECIAL_USE_CLIENT_ASSIGNED]: 'inbox.folder-list.client-assigned-name',
 };
 
 @Component({

@@ -1643,6 +1643,7 @@
   "inbox.folder-list.junk-name": "Spam",
   "inbox.folder-list.trash-name": "Cestino",
   "inbox.folder-list.sent-name": "Inviati",
+  "inbox.folder-list.client-assigned-name": "Clienti",
   "inbox.folder-list.groups-title": "Gruppi",
   "settings.spam-rules.title": "Regole antispam",
   "settings.spam-rules.column.rule-type": "Tipo di regola",

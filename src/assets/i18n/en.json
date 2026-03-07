@@ -1645,6 +1645,7 @@
   "inbox.folder-list.junk-name": "Spam",
   "inbox.folder-list.trash-name": "Trash",
   "inbox.folder-list.sent-name": "Sent",
+  "inbox.folder-list.client-assigned-name": "Clients",
   "inbox.folder-list.groups-title": "Groups",
   "settings.spam-rules.title": "Spam Rules",
   "settings.spam-rules.column.rule-type": "Rule Type",

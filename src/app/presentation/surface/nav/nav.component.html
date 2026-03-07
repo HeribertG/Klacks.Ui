@@ -78,7 +78,9 @@
         class="icon-button"
         id="open-availability"
         (click)="onClickAvailability()"
-        [attr.aria-label]="('client-availability.nav.tooltip' | translate) + ' (Alt+6)'"
+        [attr.aria-label]="
+          ('client-availability.nav.tooltip' | translate) + ' (Alt+6)'
+        "
         placement="right"
         ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+6)"
       >
@@ -99,7 +101,9 @@
         >
           <app-icon-mail #mailIcon></app-icon-mail>
           @if (inboxService.inboxUnreadCount() > 0) {
-            <span class="unread-badge">{{ inboxService.inboxUnreadCount() }}</span>
+            <span class="unread-badge">{{
+              inboxService.inboxUnreadCount()
+            }}</span>
           }
         </button>
       </div>
