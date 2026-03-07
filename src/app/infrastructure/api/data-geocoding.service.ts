@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 export interface GeocodingResult {
   lat: number;
@@ -30,6 +31,7 @@ export class DataGeocodingService {
       headers: {
         'Accept-Language': language,
       },
+      context: new HttpContext().set(SKIP_LOADING, true),
     }).pipe(
       map(results => {
         if (results && results.length > 0) {
