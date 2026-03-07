@@ -4,4 +4,38 @@
 :host {
   display: block;
   height: 100%;
+  position: relative;
+}
+
+.search-btn {
+  position: absolute;
+  right: 30px;
+  top: 18px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.available-table {
+  font-size: 13px;
+  color: var(--colorLabel);
+
+  th {
+    font-weight: 500;
+    border-bottom: 2px solid var(--cardBorderColor);
+  }
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+.modal-header {
+  background-color: var(--backgroundColoPagination);
+}
+
+.modal-body {
+  background-color: var(--backgroundColoPagination);
 }
