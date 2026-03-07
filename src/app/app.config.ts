@@ -15,6 +15,7 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { ResponseInterceptor } from './presentation/error/http-interceptor';
+import { LoadingInterceptor } from './presentation/spinner/loading.interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './infrastructure/helpers/NgbDateParserFormatter';
@@ -100,6 +101,7 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     {
       provide: HTTP_INTERCEPTORS,

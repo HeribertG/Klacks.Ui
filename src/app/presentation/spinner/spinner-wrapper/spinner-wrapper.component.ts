@@ -14,6 +14,4 @@ import { SpinnerComponent } from '../spinner.component';
 })
 export class SpinnerWrapperComponent {
   spinnerService = inject(SpinnerService);
-
-  isInit = false;
 }
