@@ -4,6 +4,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpamRuleService } from 'src/app/domain/services/email/spam-rule.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import {
   ISpamRule,
   SpamRuleType,
@@ -23,7 +24,7 @@ const SPAM_RULE_TYPES = [
   styleUrls: ['./spam-rules.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormsModule, TrashIconRedComponent],
 })
 export class SpamRulesComponent implements OnInit {
   protected spamRuleService = inject(SpamRuleService);

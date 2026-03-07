@@ -3,13 +3,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-contract-row',
   templateUrl: './contract-row.component.html',
   styleUrls: ['./contract-row.component.scss'],
   standalone: true,
-  imports: [],
+  imports: [TrashIconRedComponent],
 })
 export class ContractRowComponent {
   @Input() data: IContract = new Contract();

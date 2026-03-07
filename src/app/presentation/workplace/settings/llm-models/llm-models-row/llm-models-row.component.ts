@@ -5,11 +5,12 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-llm-models-row',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, TrashIconRedComponent],
   templateUrl: './llm-models-row.component.html',
   styleUrls: ['./llm-models-row.component.scss'],
 })

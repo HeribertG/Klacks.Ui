@@ -19,6 +19,7 @@ import { ICountry } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 interface CountryModel {
   abbreviation: string;
@@ -34,7 +35,7 @@ interface CountryModel {
   templateUrl: './countries-row.component.html',
   styleUrls: ['./countries-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field],
+  imports: [TranslateModule, Field, TrashIconRedComponent],
 })
 export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: ICountry | undefined;

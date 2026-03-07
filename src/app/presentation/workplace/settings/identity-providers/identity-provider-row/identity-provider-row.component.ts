@@ -31,6 +31,7 @@ import {
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-identity-provider-row',
@@ -42,6 +43,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
     FormsModule,
     TranslateModule,
     NgbModule,
+    TrashIconRedComponent,
   ],
 })
 export class IdentityProviderRowComponent implements OnDestroy {

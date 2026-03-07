@@ -37,6 +37,7 @@ import {
 import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 interface MacroFormModel {
   name: string;
@@ -57,6 +58,7 @@ interface MacroFormModel {
     NgbModule,
     CodeEditorComponent,
     PropertyGridComponent,
+    TrashIconRedComponent,
   ],
 })
 export class MacroRowComponent implements OnChanges, OnDestroy {

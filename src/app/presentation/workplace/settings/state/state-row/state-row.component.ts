@@ -19,6 +19,7 @@ import { IState } from 'src/app/domain/models/client/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 interface StateModel {
   abbreviation: string;
@@ -34,7 +35,7 @@ interface StateModel {
   templateUrl: './state-row.component.html',
   styleUrls: ['./state-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field],
+  imports: [TranslateModule, Field, TrashIconRedComponent],
 })
 export class StateRowComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: IState | undefined;

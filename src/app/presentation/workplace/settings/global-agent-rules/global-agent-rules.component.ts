@@ -23,6 +23,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
+
 interface GlobalRuleFormModel {
   name: string;
   content: string;

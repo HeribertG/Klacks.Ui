@@ -86,7 +86,7 @@
   </div>
   <div id="user-admin-row-delete-group-{{ user!.id }}">
     @if (enabled) {
-    <span id="user-admin-row-delete-{{ user!.id }}" class="delete-button" type="button" (click)="onDelete()">✕</span>
+    <span id="user-admin-row-delete-{{ user!.id }}" class="delete-button" type="button" (click)="onDelete()"><app-icon-trash-red /></span>
     }
   </div>
 </div>

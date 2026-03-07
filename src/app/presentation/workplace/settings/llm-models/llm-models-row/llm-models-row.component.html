@@ -22,6 +22,6 @@
       (click)="onClickDelete()"
       [class.disabled]="data.isDefault"
       [title]="data.isDefault ? (translate.instant('settings.llm-models.cannot-delete-default') || 'Cannot delete default model') : ''"
-    >✕</span>
+    ><app-icon-trash-red /></span>
   </div>
 </form>

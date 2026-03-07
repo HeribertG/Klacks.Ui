@@ -22,13 +22,14 @@ import { REPORT_DATA_SOURCES, ReportDataSource, ReportDataSet } from 'src/app/do
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-report-row',
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent]
+  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent]
 })
 export class ReportRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
