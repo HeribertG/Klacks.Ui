@@ -180,10 +180,6 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     this.groupSelection.unregisterClientAvailabilityCallback();
   }
 
-  async onSaveRequested(): Promise<void> {
-    await this.dataManagement.saveChanges();
-  }
-
   async onPeriodChanged(data: PeriodResetData): Promise<void> {
     this.setStartDateFromPeriod(data);
     await this.loadAvailabilityData();

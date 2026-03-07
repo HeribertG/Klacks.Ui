@@ -52,7 +52,6 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
 
   @Input() viewMode: PaymentInterval = PaymentInterval.Weekly;
 
-  saveRequested = output<void>();
   periodChanged = output<PeriodResetData>();
 
   currentYear = new Date().getFullYear();
@@ -146,10 +145,6 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
         this.goToNextMonth();
         break;
     }
-  }
-
-  onSave(): void {
-    this.saveRequested.emit();
   }
 
   readonly PaymentInterval = PaymentInterval;

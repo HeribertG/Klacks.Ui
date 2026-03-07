@@ -27,34 +27,24 @@ export class AvailabilitySurfaceEventsDirective {
   private surface = inject(ClientAvailabilitySurfaceComponent);
 
   private lastKeyTime = 0;
+  private isDragging = false;
+  private dragValue = true;
+  private lastDragRow = -1;
+  private lastDragCol = -1;
 
-  @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
-    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = event.clientX - rect.left + this.drawGrid.getScrollX();
-    const y = event.clientY - rect.top - this.settings.cellHeaderHeight + this.drawGrid.getScrollY();
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (event.button !== 0) return;
 
-    if (y < 0) return;
+    const cell = this.getCellFromEvent(event);
+    if (!cell) return;
 
-    const row = Math.floor(y / this.settings.cellHeight);
-    const col = Math.floor(x / this.settings.cellWidth);
+    this.isDragging = true;
+    this.dragValue = !event.ctrlKey;
+    this.lastDragRow = cell.row;
+    this.lastDragCol = cell.col;
 
-    const clients = this.renderGrid.getClients();
-    if (row < 0 || row >= clients.length) return;
-    if (col < 0 || col >= this.calculation.totalColumns) return;
-
-    this.selection.select(row, col);
-
-    const client = clients[row];
-    const dateHour = this.calculation.columnToDateHour(col);
-
-    this.dataManagement.toggleAvailability(
-      client.id,
-      dateHour.dateString,
-      dateHour.startHour,
-      dateHour.endHour
-    );
-
+    this.applyCellValue(cell.row, cell.col, this.dragValue);
     this.drawGrid.drawGrid();
   }
 
@@ -63,8 +53,29 @@ export class AvailabilitySurfaceEventsDirective {
     const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
     const y = event.clientY - rect.top - this.settings.cellHeaderHeight;
     const canvas = event.target as HTMLCanvasElement;
-
     canvas.style.cursor = y >= 0 ? 'pointer' : 'default';
+
+    if (!this.isDragging) return;
+
+    const cell = this.getCellFromEvent(event);
+    if (!cell) return;
+    if (cell.row === this.lastDragRow && cell.col === this.lastDragCol) return;
+
+    this.lastDragRow = cell.row;
+    this.lastDragCol = cell.col;
+
+    this.applyCellValue(cell.row, cell.col, this.dragValue);
+    this.drawGrid.drawGrid();
+  }
+
+  @HostListener('mouseup')
+  onMouseUp(): void {
+    this.isDragging = false;
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave(): void {
+    this.isDragging = false;
   }
 
   @HostListener('focus')
@@ -165,6 +176,40 @@ export class AvailabilitySurfaceEventsDirective {
       this.drawGrid.drawGrid();
       event.preventDefault();
     }
+  }
+
+  private getCellFromEvent(event: MouseEvent): { row: number; col: number } | null {
+    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
+    const x = event.clientX - rect.left + this.drawGrid.getScrollX();
+    const y = event.clientY - rect.top - this.settings.cellHeaderHeight + this.drawGrid.getScrollY();
+
+    if (y < 0) return null;
+
+    const row = Math.floor(y / this.settings.cellHeight);
+    const col = Math.floor(x / this.settings.cellWidth);
+
+    const clients = this.renderGrid.getClients();
+    if (row < 0 || row >= clients.length) return null;
+    if (col < 0 || col >= this.calculation.totalColumns) return null;
+
+    return { row, col };
+  }
+
+  private applyCellValue(row: number, col: number, value: boolean): void {
+    const clients = this.renderGrid.getClients();
+    const client = clients[row];
+    if (!client) return;
+
+    const dateHour = this.calculation.columnToDateHour(col);
+    this.dataManagement.setHourRange(
+      client.id,
+      dateHour.dateString,
+      dateHour.startHour,
+      dateHour.endHour,
+      value
+    );
+
+    this.selection.select(row, col);
   }
 
   private isNavigationKey(key: string): boolean {
