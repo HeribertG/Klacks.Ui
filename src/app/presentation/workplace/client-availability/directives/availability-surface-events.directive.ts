@@ -86,8 +86,10 @@ export class AvailabilitySurfaceEventsDirective {
     const deltaY = event.deltaY !== 0 ? Math.sign(event.deltaY) * this.settings.cellHeight : 0;
     const deltaX = event.deltaX !== 0 ? Math.sign(event.deltaX) * this.settings.cellWidth : 0;
 
-    const newScrollX = Math.max(0, this.drawGrid.getScrollX() + deltaX);
-    const newScrollY = Math.max(0, this.drawGrid.getScrollY() + deltaY);
+    const maxScrollX = Math.max(0, this.drawGrid.getMaxScrollX() - this.drawGrid.getVisibleWidth());
+    const maxScrollY = Math.max(0, this.drawGrid.getMaxScrollY() - this.drawGrid.getVisibleHeight());
+    const newScrollX = Math.min(maxScrollX, Math.max(0, this.drawGrid.getScrollX() + deltaX));
+    const newScrollY = Math.min(maxScrollY, Math.max(0, this.drawGrid.getScrollY() + deltaY));
 
     this.drawGrid.moveGrid(newScrollX, newScrollY);
     this.surface.notifyScrollChanged();
