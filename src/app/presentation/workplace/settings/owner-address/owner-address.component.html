@@ -177,14 +177,12 @@
             {{ translate.instant("setting.owner-address.noCalendar") }}
           </option>
           @for (
-            calendar of calendarSelectionService.calendarsSelections;
+            calendar of filteredCalendarSelections();
             track calendar.id
           ) {
-            @if (!calendar.internal) {
-              <option [value]="calendar.id">
-                {{ calendar.name }}
-              </option>
-            }
+            <option [value]="calendar.id">
+              {{ calendar.name }}
+            </option>
           }
         </select>
       </div>

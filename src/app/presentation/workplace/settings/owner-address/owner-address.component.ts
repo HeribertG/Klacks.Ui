@@ -54,6 +54,15 @@ export class OwnerAddressComponent implements OnInit {
     return this.clientConfigService.stateList().filter(s => s.country === country);
   });
 
+  filteredCalendarSelections = computed(() => {
+    const country = this.selectedCountry();
+    return this.calendarSelectionService.calendarsSelections.filter(c => {
+      if (c.internal) return false;
+      if (!country) return true;
+      return c.selectedCalendars.some(sc => sc.country === country);
+    });
+  });
+
   constructor() {
     effect(() => {
       const model = this.addressModel();
@@ -104,6 +113,14 @@ export class OwnerAddressComponent implements OnInit {
   onCountryChange(country: string): void {
     this.selectedCountry.set(country);
     this.selectedState.set('');
+
+    const currentId = this.selectedCalendarId();
+    if (currentId) {
+      const stillValid = this.filteredCalendarSelections().some(c => c.id === currentId);
+      if (!stillValid) {
+        this.selectedCalendarId.set('');
+      }
+    }
   }
 
   onStateChange(state: string): void {
