@@ -84,6 +84,7 @@ export interface IWorkScheduleResponse {
   entries: IScheduleCell[];
   clients: IWorkScheduleClient[];
   periodHours: Record<string, IPeriodHours>;
+  clientAvailabilities: Record<string, Record<string, string>>;
   totalClientCount: number;
   startDate: string;
   endDate: string;

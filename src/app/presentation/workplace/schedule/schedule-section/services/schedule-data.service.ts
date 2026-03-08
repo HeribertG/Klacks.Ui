@@ -27,7 +27,7 @@ import {
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
+import { addDays, compareDate, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
@@ -81,20 +81,31 @@ export class ScheduleDataService extends BaseDataService {
   public override getCell(row: number, col: number): GridCell {
     const entry = this.getWorkScheduleEntryForCell(row, col);
 
+    let cell: GridCell;
+
     if (!entry) {
-      return this.emptyFormatter.formatCell(undefined);
+      cell = this.emptyFormatter.formatCell(undefined);
+    } else {
+      switch (entry.entryType) {
+        case WorkScheduleEntryType.Break:
+          cell = this.breakFormatter.formatCell(entry);
+          break;
+        case WorkScheduleEntryType.WorkChange:
+        case WorkScheduleEntryType.Expenses:
+          cell = this.formatWorkChangeCell(entry);
+          break;
+        case WorkScheduleEntryType.Work:
+        default:
+          cell = this.workFormatter.formatCell(entry);
+          break;
+      }
     }
 
-    switch (entry.entryType) {
-      case WorkScheduleEntryType.Break:
-        return this.breakFormatter.formatCell(entry);
-      case WorkScheduleEntryType.WorkChange:
-      case WorkScheduleEntryType.Expenses:
-        return this.formatWorkChangeCell(entry);
-      case WorkScheduleEntryType.Work:
-      default:
-        return this.workFormatter.formatCell(entry);
+    if (this.dataManagementSchedule.showAvailability()) {
+      this.applyAvailabilityHighlighting(cell, row, col, !entry);
     }
+
+    return cell;
   }
 
   getWorkScheduleEntryForCell(
@@ -763,5 +774,52 @@ export class ScheduleDataService extends BaseDataService {
     if (wholeHours === 0) return `${sign}${mins}m`;
     if (mins === 0) return `${sign}${wholeHours}h`;
     return `${sign}${wholeHours}h ${mins}m`;
+  }
+
+  private applyAvailabilityHighlighting(
+    cell: GridCell,
+    row: number,
+    col: number,
+    isEmpty: boolean,
+  ): void {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return;
+
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client?.id) return;
+
+    const date = this.getDateForColumn(col);
+    if (!date) return;
+
+    const dateKey = formatDateOnly(date);
+    const availability = this.dataManagementSchedule.clientAvailabilities
+      .get(client.id)
+      ?.get(dateKey);
+
+    if (!availability) return;
+
+    if (!cell.backgroundColor) {
+      cell.backgroundColor = 'rgba(76, 175, 80, 0.15)';
+    }
+
+    if (isEmpty) {
+      cell.tooltip = this.formatAvailabilityTooltip(availability);
+    }
+  }
+
+  private formatAvailabilityTooltip(rangesString: string): string {
+    const ranges = rangesString.split(',');
+    const formattedRanges = ranges
+      .map(range => {
+        const parts = range.trim().split('-');
+        if (parts.length === 2) {
+          return `${parts[0]} – ${parts[1]}`;
+        }
+        return range;
+      })
+      .join('\n');
+
+    const label = this.translateService.instant('schedule.availability.times');
+    return `${label}:\n${formattedRanges}`;
   }
 }

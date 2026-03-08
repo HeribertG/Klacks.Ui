@@ -103,6 +103,7 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   public showBreakPlaceholders = signal(false);
+  public showAvailability = signal(false);
 
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean {
@@ -160,6 +161,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.periodHours;
   }
 
+  get clientAvailabilities(): Map<string, Map<string, string>> {
+    return this.workScheduleLoader.clientAvailabilities;
+  }
+
   get visibleStartDate(): Date | null {
     return this.workScheduleLoader.startDate;
   }
@@ -174,6 +179,10 @@ export class DataManagementScheduleService implements ILoadable {
 
   get overbookedShiftsByDay(): readonly (readonly string[])[] {
     return this.availableShiftsCalc.overbookedShiftsByDay;
+  }
+
+  get hasAvailabilityData(): boolean {
+    return this.workScheduleLoader.clientAvailabilities.size > 0;
   }
 
   get isLoadingMore(): boolean {
@@ -367,6 +376,15 @@ export class DataManagementScheduleService implements ILoadable {
       return true;
     }
     return false;
+  }
+
+  toggleAvailability(): void {
+    this.showAvailability.update(v => !v);
+    this.isRead.set({ value: true, resetScroll: false });
+    setTimeout(
+      () => this.isRead.set({ value: false, resetScroll: false }),
+      100,
+    );
   }
 
   toggleBreakPlaceholders(): void {

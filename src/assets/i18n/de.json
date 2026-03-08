@@ -641,6 +641,8 @@
   "pdf.directions": "Wegbeschreibung",
   "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
   "schedule.breakPlaceholder.toggle": "Gewünschte Absenzen ein-/ausblenden",
+  "schedule.availability.toggle": "Verfügbarkeit ein-/ausblenden",
+  "schedule.availability.times": "Verfügbar",
   "schedule.sendEmail.tooltip": "E-Mail senden",
   "schedule.send.title": "Dienstplan versenden",
   "schedule.send.success": "Dienstplan an {{email}} gesendet",

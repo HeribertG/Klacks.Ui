@@ -100,6 +100,18 @@
     <app-icon-break-placeholder #breakPlaceholderIcon />
   </button>
 
+  @if (hasAvailabilityData) {
+    <button
+      type="button"
+      class="icon-button availability-check-button"
+      [class.active]="showAvailability"
+      (click)="onAvailabilityCheck()"
+      ngbTooltip="{{ 'schedule.availability.toggle' | translate }}"
+    >
+      <app-icon-availability-check #availabilityCheckIcon />
+    </button>
+  }
+
   <button
     type="button"
     class="icon-button recalculate-button"

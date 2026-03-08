@@ -40,6 +40,7 @@ import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-le
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
+import { IconAvailabilityCheckComponent } from 'src/app/presentation/icons/icon-availability-check.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
@@ -76,6 +77,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     IconBreakPlaceholderComponent,
     IconFlyComponent,
     IconRefreshScheduleComponent,
+    IconAvailabilityCheckComponent,
     IconWizardComponent,
     WizardDialogComponent,
   ],
@@ -83,6 +85,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
+  @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   value = 100;
   options: Options = {
@@ -169,6 +172,14 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     this.dataManagementSchedule.workFilter.currentYear = value;
   }
 
+  get showAvailability(): boolean {
+    return this.dataManagementSchedule.showAvailability();
+  }
+
+  get hasAvailabilityData(): boolean {
+    return this.dataManagementSchedule.hasAvailabilityData;
+  }
+
   get showBreakPlaceholders(): boolean {
     return this.dataManagementSchedule.showBreakPlaceholders();
   }
@@ -184,6 +195,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.updateBreakPlaceholderIcon();
+    this.updateAvailabilityCheckIcon();
   }
 
   private updateBreakPlaceholderIcon(): void {
@@ -209,6 +221,17 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onPdfExport() {
     this.pdfExportRequested.emit();
+  }
+
+  onAvailabilityCheck(): void {
+    this.dataManagementSchedule.toggleAvailability();
+    this.updateAvailabilityCheckIcon();
+  }
+
+  private updateAvailabilityCheckIcon(): void {
+    if (this.availabilityCheckIcon) {
+      this.availabilityCheckIcon.ChangeColor(this.showAvailability);
+    }
   }
 
   onWizardClick(): void {

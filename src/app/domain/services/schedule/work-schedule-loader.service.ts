@@ -49,6 +49,7 @@ export class WorkScheduleLoaderService {
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
   public periodHours = new Map<string, IPeriodHours>();
+  public clientAvailabilities = new Map<string, Map<string, string>>();
   public startDate: Date | null = null;
   public endDate: Date | null = null;
 
@@ -166,6 +167,7 @@ export class WorkScheduleLoaderService {
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
     this.periodHours = new Map();
+    this.clientAvailabilities = new Map();
     this.startDate = null;
     this.endDate = null;
     this._autoLoadEnabled = true;
@@ -204,6 +206,7 @@ export class WorkScheduleLoaderService {
           this.periodHours = new Map(
             Object.entries(response.periodHours ?? {}),
           );
+          this.mergeClientAvailabilities(response.clientAvailabilities);
           this._totalAvailableClients = response.totalClientCount;
           this.startDate = new Date(response.startDate);
           this.endDate = new Date(response.endDate);
@@ -265,6 +268,8 @@ export class WorkScheduleLoaderService {
           )) {
             this.periodHours.set(key, value);
           }
+
+          this.mergeClientAvailabilities(response.clientAvailabilities);
 
           this.updateClientNeededRows();
           this.applyBreakPlaceholderRows();
@@ -507,6 +512,22 @@ export class WorkScheduleLoaderService {
       startDate: formatDateOnly(periodStartDate),
       endDate: formatDateOnly(periodEndDate),
     };
+  }
+
+  private mergeClientAvailabilities(
+    availabilities: Record<string, Record<string, string>> | null | undefined,
+  ): void {
+    if (!availabilities) return;
+
+    for (const [clientId, dates] of Object.entries(availabilities)) {
+      if (!this.clientAvailabilities.has(clientId)) {
+        this.clientAvailabilities.set(clientId, new Map());
+      }
+      const clientMap = this.clientAvailabilities.get(clientId)!;
+      for (const [dateKey, ranges] of Object.entries(dates)) {
+        clientMap.set(dateKey, ranges);
+      }
+    }
   }
 
   private joinSignalRGroup(startDate: string, endDate: string): void {

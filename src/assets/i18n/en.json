@@ -639,6 +639,8 @@
   "pdf.directions": "Directions",
   "pdf.no-directions-available": "No detailed directions available",
   "schedule.breakPlaceholder.toggle": "Show/hide absence bars",
+  "schedule.availability.toggle": "Show/hide availability",
+  "schedule.availability.times": "Available",
   "schedule.sendEmail.tooltip": "Send email",
   "schedule.send.title": "Send Staff Schedule",
   "schedule.send.success": "Schedule sent to {{email}}",
