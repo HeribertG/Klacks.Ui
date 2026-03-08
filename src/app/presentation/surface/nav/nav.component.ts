@@ -47,6 +47,7 @@ type NavigationPage =
   | 'schedule'
   | 'client'
   | 'client-availability'
+  | 'floor-plan'
   | 'profile'
   | 'settings'
   | 'edit-address'
@@ -129,6 +130,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'schedule';
       case 'client-availability':
         return 'availability';
+      case 'floor-plan':
+        return 'floor-plan';
       case 'inbox':
         return 'inbox';
       default:
@@ -317,6 +320,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickAvailability(): void {
     this.currentPage.set('client-availability');
     this.navigationService.navigateToClientAvailability();
+  }
+
+  onClickFloorPlan(): void {
+    this.currentPage.set('floor-plan');
+    this.navigationService.navigateToFloorPlan();
   }
 
   onClickInbox(): void {

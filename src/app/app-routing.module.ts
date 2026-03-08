@@ -118,6 +118,10 @@ const routes: Routes = [
         path: 'inbox',
         loadComponent: () => import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(m => m.InboxHomeComponent),
         canActivate: [InboxGuard]
+      },
+      {
+        path: 'floor-plan',
+        loadComponent: () => import('./presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component').then(m => m.FloorPlanHomeComponent)
       }
     ]
   }

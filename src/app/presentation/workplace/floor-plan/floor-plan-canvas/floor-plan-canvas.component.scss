@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background-color: var(--backgroundColorCard);
+  position: relative;
+}
+
+canvas {
+  display: block;
+}
+
+.canvas-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  cursor: default;
+
+  &.panning {
+    cursor: grabbing;
+  }
+}

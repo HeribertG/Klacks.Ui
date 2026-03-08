@@ -110,6 +110,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/inbox']);
   }
 
+  navigateToFloorPlan(): void {
+    this.router.navigate(['/workplace/floor-plan']);
+  }
+
   navigateToRouterToken(routerToken: string): void {
     this.router.navigate([routerToken]);
   }

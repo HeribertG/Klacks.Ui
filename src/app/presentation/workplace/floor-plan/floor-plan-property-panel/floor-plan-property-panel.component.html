@@ -1,0 +1,140 @@
+<div class="property-panel">
+  <div class="property-panel-header">
+    <span class="property-panel-title">{{ 'floor-plan.properties.title' | translate }}</span>
+  </div>
+
+  @if (!hasSelection()) {
+    <div class="property-empty">
+      <span>{{ 'floor-plan.properties.empty' | translate }}</span>
+    </div>
+  } @else {
+    <div class="property-content">
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.position' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label">X</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().x"
+            (ngModelChange)="onXChange($event)"
+          />
+        </div>
+        <div class="property-row">
+          <label class="property-label">Y</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().y"
+            (ngModelChange)="onYChange($event)"
+          />
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.size' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label">W</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().width"
+            readonly
+          />
+        </div>
+        <div class="property-row">
+          <label class="property-label">H</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().height"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.transform' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.rotation' | translate }}</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().angle"
+            (ngModelChange)="onAngleChange($event)"
+            min="-360"
+            max="360"
+          />
+        </div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.opacity' | translate }}</label>
+          <input
+            type="range"
+            class="property-range"
+            [ngModel]="properties().opacity"
+            (ngModelChange)="onOpacityChange($event)"
+            min="0"
+            max="1"
+            step="0.01"
+          />
+          <span class="property-range-value">{{ (properties().opacity * 100).toFixed(0) }}%</span>
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.appearance' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.stroke' | translate }}</label>
+          <input
+            type="color"
+            class="property-color"
+            [value]="properties().stroke"
+            (change)="onStrokeChange($event)"
+          />
+        </div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.fill' | translate }}</label>
+          <input
+            type="color"
+            class="property-color"
+            [value]="properties().fill"
+            (change)="onFillChange($event)"
+          />
+        </div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.stroke-width' | translate }}</label>
+          <input
+            type="number"
+            class="property-input"
+            [ngModel]="properties().strokeWidth"
+            (ngModelChange)="onStrokeWidthChange($event)"
+            min="0"
+            max="50"
+          />
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.order' | translate }}</div>
+        <div class="property-actions">
+          <button class="property-btn" (click)="onBringToFront()">
+            {{ 'floor-plan.properties.bring-to-front' | translate }}
+          </button>
+          <button class="property-btn" (click)="onSendToBack()">
+            {{ 'floor-plan.properties.send-to-back' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-actions">
+          <button class="property-btn danger" (click)="onDelete()">
+            {{ 'floor-plan.properties.delete' | translate }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

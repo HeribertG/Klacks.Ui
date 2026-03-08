@@ -1,0 +1,200 @@
+<div class="floor-plan-toolbar">
+
+  <input
+    #importFileRef
+    type="file"
+    accept=".svg,.dxf,.png,.jpg,.jpeg,.gif,.bmp,.webp"
+    class="d-none"
+    (change)="onImportFile($event)"
+  />
+
+  <div class="toolbar-group">
+    <button class="toolbar-btn" (click)="onSave()" [title]="'floor-plan.toolbar.save' | translate">
+      <app-icon-fp-save />
+    </button>
+    <button class="toolbar-btn" (click)="onImportClick()" [title]="'floor-plan.toolbar.import' | translate">
+      <app-icon-fp-import />
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group">
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Select)"
+      (click)="onSelectTool(FloorPlanTool.Select)"
+      [title]="'floor-plan.toolbar.select' | translate"
+    >
+      <app-icon-fp-select />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Pan)"
+      (click)="onSelectTool(FloorPlanTool.Pan)"
+      [title]="'floor-plan.toolbar.pan' | translate"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="var(--iconStandartColor)">
+        <path d="M10 5.5a2 2 0 1 1 4 0V9h1.5a2 2 0 0 1 2 2v3.586l.707.707a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414 0L10.5 16.414 7.207 13.12a1 1 0 0 1 0-1.414l.5-.5A1 1 0 0 1 9 11.5V9h-.5a2 2 0 0 1-2-2V5.5z" opacity="0.3"/>
+        <path d="M12 2a1 1 0 0 1 1 1v6h2V7a1 1 0 0 1 2 0v5l2.293-2.293a1 1 0 0 1 1.414 1.414L16 15.828l-4 4-4.707-4.707a1 1 0 0 1 1.414-1.414L11 15.828V3a1 1 0 0 1 1-1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group">
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Line)"
+      (click)="onSelectTool(FloorPlanTool.Line)"
+      [title]="'floor-plan.toolbar.line' | translate"
+    >
+      <app-icon-fp-line />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Rectangle)"
+      (click)="onSelectTool(FloorPlanTool.Rectangle)"
+      [title]="'floor-plan.toolbar.rectangle' | translate"
+    >
+      <app-icon-fp-rectangle />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Circle)"
+      (click)="onSelectTool(FloorPlanTool.Circle)"
+      [title]="'floor-plan.toolbar.circle' | translate"
+    >
+      <app-icon-fp-circle />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Polygon)"
+      (click)="onSelectTool(FloorPlanTool.Polygon)"
+      [title]="'floor-plan.toolbar.polygon' | translate"
+    >
+      <app-icon-fp-polygon />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.FreeDrawing)"
+      (click)="onSelectTool(FloorPlanTool.FreeDrawing)"
+      [title]="'floor-plan.toolbar.free-drawing' | translate"
+    >
+      <app-icon-fp-pencil />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Text)"
+      (click)="onSelectTool(FloorPlanTool.Text)"
+      [title]="'floor-plan.toolbar.text' | translate"
+    >
+      <app-icon-fp-text />
+    </button>
+    <button
+      class="toolbar-btn"
+      [class.active]="isToolActive(FloorPlanTool.Eraser)"
+      (click)="onSelectTool(FloorPlanTool.Eraser)"
+      [title]="'floor-plan.toolbar.eraser' | translate"
+    >
+      <app-icon-fp-eraser />
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group">
+    <button
+      class="toolbar-btn"
+      (click)="onUndo()"
+      [disabled]="!canvasService.canUndo()"
+      [title]="'floor-plan.toolbar.undo' | translate"
+    >
+      <app-icon-fp-undo />
+    </button>
+    <button
+      class="toolbar-btn"
+      (click)="onRedo()"
+      [disabled]="!canvasService.canRedo()"
+      [title]="'floor-plan.toolbar.redo' | translate"
+    >
+      <app-icon-fp-redo />
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group">
+    <button class="toolbar-btn" (click)="onZoomIn()" [title]="'floor-plan.toolbar.zoom-in' | translate">
+      <app-icon-fp-zoom-plus />
+    </button>
+    <button class="toolbar-btn" (click)="onZoomOut()" [title]="'floor-plan.toolbar.zoom-out' | translate">
+      <app-icon-fp-zoom-minus />
+    </button>
+    <button class="toolbar-btn" (click)="onZoomFit()" [title]="'floor-plan.toolbar.zoom-fit' | translate">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <rect x="0" y="0" width="24" height="24"></rect>
+          <path d="M4,7 L4,5 C4,4.44771525 4.44771525,4 5,4 L7,4" stroke="var(--iconStandartColor)" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M20,7 L20,5 C20,4.44771525 19.5522847,4 19,4 L17,4" stroke="var(--iconStandartColor)" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M4,17 L4,19 C4,19.5522847 4.44771525,20 5,20 L7,20" stroke="var(--iconStandartColor)" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M20,17 L20,19 C20,19.5522847 19.5522847,20 19,20 L17,20" stroke="var(--iconStandartColor)" stroke-width="2" stroke-linecap="round"></path>
+        </g>
+      </svg>
+    </button>
+    <button class="toolbar-btn" (click)="onZoomReset()" [title]="'floor-plan.toolbar.zoom-100' | translate">
+      <span class="zoom-label">{{ (canvasService.zoom() * 100).toFixed(0) }}%</span>
+    </button>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group align-items-center">
+    <label class="toolbar-label" [title]="'floor-plan.toolbar.stroke-color' | translate">
+      <span>S</span>
+      <input
+        type="color"
+        class="color-picker"
+        [value]="toolService.strokeColor()"
+        (change)="onStrokeColorChange($event)"
+      />
+    </label>
+    <label class="toolbar-label" [title]="'floor-plan.toolbar.fill-color' | translate">
+      <span>F</span>
+      <input
+        type="color"
+        class="color-picker"
+        [value]="toolService.fillColor() === 'transparent' ? '#ffffff' : toolService.fillColor()"
+        (change)="onFillColorChange($event)"
+      />
+    </label>
+    <select
+      class="toolbar-select"
+      [ngModel]="toolService.strokeWidth()"
+      (ngModelChange)="onStrokeWidthChange($event)"
+      [title]="'floor-plan.toolbar.stroke-width' | translate"
+    >
+      @for (w of strokeWidths; track w) {
+        <option [value]="w">{{ w }}px</option>
+      }
+    </select>
+  </div>
+
+  <div class="toolbar-separator"></div>
+
+  <div class="toolbar-group">
+    <div class="dropdown">
+      <button class="toolbar-btn" data-bs-toggle="dropdown" [title]="'floor-plan.toolbar.export' | translate">
+        <app-icon-fp-export />
+        <span class="ms-1">{{ 'floor-plan.toolbar.export' | translate }}</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><button class="dropdown-item" (click)="onExportSVG()">SVG</button></li>
+        <li><button class="dropdown-item" (click)="onExportPNG()">PNG</button></li>
+        <li><button class="dropdown-item" (click)="onExportJSON()">JSON</button></li>
+      </ul>
+    </div>
+  </div>
+
+</div>

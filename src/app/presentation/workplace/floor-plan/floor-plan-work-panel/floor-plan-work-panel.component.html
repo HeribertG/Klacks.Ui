@@ -1,0 +1,55 @@
+<div class="work-panel">
+  <div class="work-panel-header">
+    <span class="work-panel-title">{{ 'floor-plan.works.title' | translate }}</span>
+  </div>
+
+  <div class="work-panel-search">
+    <input
+      type="text"
+      class="form-control form-control-sm"
+      [placeholder]="'floor-plan.works.search' | translate"
+      [ngModel]="searchText()"
+      (ngModelChange)="onSearchChange($event)"
+    />
+  </div>
+
+  <div class="work-list">
+    @if (dataManagement.isLoading()) {
+      <div class="work-loading">
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (filteredMarkers().length === 0) {
+      <div class="work-empty">
+        <span>{{ 'floor-plan.works.empty' | translate }}</span>
+      </div>
+    } @else {
+      @for (marker of filteredMarkers(); track marker.id ?? $index) {
+        <div
+          class="work-item"
+          draggable="true"
+          (dragstart)="onDragStart(marker, $event)"
+          (dragend)="onDragEnd()"
+          [title]="formatTime(marker.startTime, marker.endTime)"
+        >
+          <div class="work-color-bar" [style.background-color]="marker.color ?? 'var(--colorAccent, #0d6efd)'"></div>
+          <div class="work-info">
+            <span class="work-client">{{ marker.clientName ?? marker.label }}</span>
+            @if (marker.shiftName) {
+              <span class="work-shift">{{ marker.shiftName }}</span>
+            }
+            @if (marker.startTime || marker.endTime) {
+              <span class="work-time">{{ formatTime(marker.startTime, marker.endTime) }}</span>
+            }
+          </div>
+          <div class="work-drag-handle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+            </svg>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

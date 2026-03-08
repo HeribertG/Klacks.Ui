@@ -1,0 +1,15 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div class="first custom-control-inline">
+  <div class="form-group">
+    <div class="floor-plan-row-content" (click)="onClickEdit()">
+      @if (data.thumbnailData) {
+        <img [src]="data.thumbnailData" [alt]="data.name" class="row-thumbnail" />
+      }
+      <span class="row-name">{{ data.name }}</span>
+    </div>
+  </div>
+  <span class="delete-button" type="button" (click)="onClickDelete()">
+    <app-icon-trash-red />
+  </span>
+</div>

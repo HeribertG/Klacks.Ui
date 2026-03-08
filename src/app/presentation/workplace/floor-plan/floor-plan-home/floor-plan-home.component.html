@@ -1,0 +1,62 @@
+<div class="floor-plan-home">
+
+  @if (showFloorPlanList()) {
+    <div class="floor-plan-list-view">
+      <div class="list-header">
+        <h2 class="list-title">{{ 'floor-plan.title' | translate }}</h2>
+      </div>
+
+      @if (dataManagement.isLoading()) {
+        <div class="list-loading">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      } @else if (dataManagement.floorPlans().length === 0) {
+        <div class="list-empty">
+          <p>{{ 'floor-plan.empty' | translate }}</p>
+        </div>
+      } @else {
+        <div class="floor-plan-grid">
+          @for (plan of dataManagement.floorPlans(); track plan.id) {
+            <div class="floor-plan-card" (click)="onSelectFloorPlan(plan)">
+              <div class="floor-plan-card-thumbnail">
+                @if (plan.thumbnailData) {
+                  <img [src]="plan.thumbnailData" [alt]="plan.name" class="thumbnail-img" />
+                } @else {
+                  <div class="thumbnail-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5z"/>
+                    </svg>
+                  </div>
+                }
+              </div>
+              <div class="floor-plan-card-body">
+                <h5 class="floor-plan-card-name">{{ plan.name }}</h5>
+                @if (plan.description) {
+                  <p class="floor-plan-card-desc">{{ plan.description }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  } @else {
+    <div class="floor-plan-viewer">
+      <div class="viewer-header">
+        <button class="btn btn-sm btn-outline-secondary" (click)="onBack()">
+          {{ 'floor-plan.back' | translate }}
+        </button>
+        @if (dataManagement.selectedFloorPlan()) {
+          <span class="viewer-plan-name">{{ dataManagement.selectedFloorPlan()!.name }}</span>
+        }
+      </div>
+      <div class="viewer-canvas-area">
+        <app-floor-plan-canvas />
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,168 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  inject,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
+
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { FloorPlanSettingsRowComponent } from './floor-plan-settings-row/floor-plan-settings-row.component';
+import { DataManagementFloorPlanService } from 'src/app/domain/services/floor-plan/data-management-floor-plan.service';
+import { FloorPlan, IFloorPlan } from 'src/app/domain/models/floor-plan/floor-plan-class';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { FloorPlanCanvasComponent } from 'src/app/presentation/workplace/floor-plan/floor-plan-canvas/floor-plan-canvas.component';
+import { FloorPlanToolbarComponent } from 'src/app/presentation/workplace/floor-plan/floor-plan-toolbar/floor-plan-toolbar.component';
+import { FloorPlanLayerPanelComponent } from 'src/app/presentation/workplace/floor-plan/floor-plan-layer-panel/floor-plan-layer-panel.component';
+import { FloorPlanWorkPanelComponent } from 'src/app/presentation/workplace/floor-plan/floor-plan-work-panel/floor-plan-work-panel.component';
+import { FloorPlanPropertyPanelComponent } from 'src/app/presentation/workplace/floor-plan/floor-plan-property-panel/floor-plan-property-panel.component';
+import { FloorPlanCanvasService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-canvas.service';
+import { FloorPlanLayerService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-layer.service';
+import { FloorPlanToolService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-tool.service';
+import { FloorPlanImportService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-import.service';
+import { FloorPlanExportService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-export.service';
+import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-work-drop.service';
+
+@Component({
+  selector: 'app-floor-plan-settings',
+  standalone: true,
+  imports: [
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    SettingsListCardComponent,
+    FloorPlanSettingsRowComponent,
+    FloorPlanCanvasComponent,
+    FloorPlanToolbarComponent,
+    FloorPlanLayerPanelComponent,
+    FloorPlanWorkPanelComponent,
+    FloorPlanPropertyPanelComponent,
+  ],
+  templateUrl: './floor-plan-settings.component.html',
+  styleUrls: ['./floor-plan-settings.component.scss'],
+  providers: [
+    FloorPlanCanvasService,
+    FloorPlanLayerService,
+    FloorPlanToolService,
+    FloorPlanImportService,
+    FloorPlanExportService,
+    FloorPlanWorkDropService,
+  ],
+})
+export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('editorModal', { read: TemplateRef })
+  editorModal!: TemplateRef<any>;
+
+  dataManagement = inject(DataManagementFloorPlanService);
+  canvasService = inject(FloorPlanCanvasService);
+  translate = inject(TranslateService);
+  private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastShowService);
+  private destroy$ = new Subject<void>();
+
+  editingPlan: IFloorPlan | null = null;
+  private message = DomainMessages.DELETE_ENTRY;
+
+  ngOnInit(): void {
+    this.dataManagement.loadAll();
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'floor-plan-settings'
+        ) {
+          this.deleteFloorPlan(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onClickAdd(): void {
+    this.editingPlan = new FloorPlan();
+    this.openEditorModal();
+  }
+
+  onClickEdit(plan: IFloorPlan): void {
+    if (plan.id) {
+      this.dataManagement.loadById(plan.id);
+    }
+    this.editingPlan = { ...plan };
+    this.openEditorModal();
+  }
+
+  openDeleteFloorPlan(plan: IFloorPlan): void {
+    if (plan.id) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'floor-plan-settings';
+
+      this.modalService.Filing = plan.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  async onSaveInModal(modal: any): Promise<void> {
+    if (!this.editingPlan || !this.editingPlan.name) return;
+
+    const saveTarget = new FloorPlan();
+    if (this.editingPlan.id) saveTarget.id = this.editingPlan.id;
+    saveTarget.name = this.editingPlan.name;
+    saveTarget.description = this.editingPlan.description;
+    saveTarget.canvasJson = this.canvasService.toJSON();
+    saveTarget.thumbnailData = this.canvasService.toDataURL();
+    saveTarget.workMarkers = this.editingPlan.workMarkers as any;
+
+    try {
+      await this.dataManagement.save(saveTarget);
+      this.toastService.showSuccess('floor-plan.save.success', 'floor-plan.save.header');
+      modal.close();
+    } catch {
+      this.toastService.showError('floor-plan.save.error');
+    }
+  }
+
+  private async deleteFloorPlan(id: string): Promise<void> {
+    try {
+      await this.dataManagement.delete(id);
+    } catch {
+      this.toastService.showError('floor-plan.delete.error');
+    }
+  }
+
+  private openEditorModal(): void {
+    setTimeout(() => {
+      this.ngbModal.open(this.editorModal, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false,
+        windowClass: 'floor-plan-fullscreen-modal',
+      });
+    }, 0);
+  }
+}

@@ -1,0 +1,89 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Editor Modal -->
+<ng-template #editorModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ translate.instant("floor-plan.editor-title") }}
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div class="modal-body floor-plan-modal-body">
+    <!-- Name input row at top -->
+    <div class="floor-plan-name-row">
+      <div class="model-field">
+        <label>{{ translate.instant("floor-plan.name") }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editingPlan!.name" />
+      </div>
+      <div class="model-field">
+        <label>{{ translate.instant("floor-plan.description") }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editingPlan!.description" />
+      </div>
+    </div>
+    <!-- Full editor layout -->
+    <div class="floor-plan-editor-container">
+      <app-floor-plan-toolbar (savePlan)="onSaveInModal(modal)" />
+      <div class="editor-body">
+        <div class="editor-left-panel">
+          <app-floor-plan-layer-panel />
+          <app-floor-plan-work-panel />
+        </div>
+        <div class="editor-canvas-area">
+          <app-floor-plan-canvas />
+        </div>
+        <div class="editor-right-panel">
+          <app-floor-plan-property-panel />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveInModal(modal)"
+      [disabled]="!editingPlan?.name"
+    >
+      {{ translate.instant("save") }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="translate.instant('floor-plan.settings-title')"
+  [addLabel]="translate.instant('floor-plan.settings-add')"
+  [showHeader]="false"
+  idPrefix="floor-plan-settings"
+  (addClick)="onClickAdd()"
+>
+  <div rows>
+    @if (dataManagement.isLoading()) {
+      <div class="loading-row">Loading...</div>
+    }
+    @for (plan of dataManagement.floorPlans(); track plan.id || $index; let i = $index) {
+      <app-floor-plan-settings-row
+        [id]="'floor-plan-row-' + i"
+        [data]="plan"
+        (editEvent)="onClickEdit($event)"
+        (deleteEvent)="openDeleteFloorPlan($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

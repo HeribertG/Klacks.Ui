@@ -47,6 +47,7 @@
     "codemirror": "^6.0.0",
     "date-fns": "^4.1.0",
     "esbuild": "^0.27.0",
+    "fabric": "^7.2.0",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.7",
