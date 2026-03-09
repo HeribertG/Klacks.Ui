@@ -41,15 +41,15 @@ export class UiActionEngineService {
       case 'navigate':
         return this.executeNavigate(step, context);
       case 'waitForElement':
-        return this.executeWaitForElement(step);
+        return this.executeWaitForElement(step, context);
       case 'setValue':
         return this.executeSetValue(step, context);
       case 'setSelect':
         return this.executeSetSelect(step, context);
       case 'click':
-        return this.executeClick(step);
+        return this.executeClick(step, context);
       case 'scrollTo':
-        return this.executeScrollTo(step);
+        return this.executeScrollTo(step, context);
       case 'delay':
         return this.executeDelay(step);
       case 'poll':
@@ -91,14 +91,15 @@ export class UiActionEngineService {
     await this.router.navigate([route], { queryParams: step.queryParams });
   }
 
-  private async executeWaitForElement(step: IUiActionStep): Promise<void> {
+  private async executeWaitForElement(step: IUiActionStep, context: IUiActionContext): Promise<void> {
     if (!step.selector) {
       throw new Error('waitForElement action requires a selector');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType, step.timeout ?? DEFAULT_WAIT_TIMEOUT);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType, step.timeout ?? DEFAULT_WAIT_TIMEOUT);
     if (!el) {
-      throw new Error(`Element not found: ${step.selector}`);
+      throw new Error(`Element not found: ${selector}`);
     }
   }
 
@@ -107,9 +108,10 @@ export class UiActionEngineService {
       throw new Error('setValue action requires a selector');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType);
     if (!el) {
-      throw new Error(`Element not found for setValue: ${step.selector}`);
+      throw new Error(`Element not found for setValue: ${selector}`);
     }
 
     const value = this.valueResolver.resolveValue(step, context) ?? '';
@@ -123,9 +125,10 @@ export class UiActionEngineService {
       throw new Error('setSelect action requires a selector');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType);
     if (!el) {
-      throw new Error(`Element not found for setSelect: ${step.selector}`);
+      throw new Error(`Element not found for setSelect: ${selector}`);
     }
 
     const value = this.valueResolver.resolveValue(step, context) ?? '';
@@ -133,27 +136,29 @@ export class UiActionEngineService {
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  private async executeClick(step: IUiActionStep): Promise<void> {
+  private async executeClick(step: IUiActionStep, context: IUiActionContext): Promise<void> {
     if (!step.selector) {
       throw new Error('click action requires a selector');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType);
     if (!el) {
-      throw new Error(`Element not found for click: ${step.selector}`);
+      throw new Error(`Element not found for click: ${selector}`);
     }
 
     el.click();
   }
 
-  private async executeScrollTo(step: IUiActionStep): Promise<void> {
+  private async executeScrollTo(step: IUiActionStep, context: IUiActionContext): Promise<void> {
     if (!step.selector) {
       throw new Error('scrollTo action requires a selector');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType);
     if (!el) {
-      throw new Error(`Element not found for scrollTo: ${step.selector}`);
+      throw new Error(`Element not found for scrollTo: ${selector}`);
     }
 
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -173,10 +178,11 @@ export class UiActionEngineService {
     }
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const met = this.checkPollCondition(condition);
+      const met = this.checkPollCondition(condition, context);
       if (met) {
         if (step.resultKey && condition.selector) {
-          const el = this.findElement(condition.selector, step.selectorType);
+          const resolvedConditionSelector = this.resolveSelector(condition.selector, context)!;
+          const el = this.findElement(resolvedConditionSelector, step.selectorType);
           if (el) {
             context.results[step.resultKey] = (el as HTMLInputElement).value;
           }
@@ -189,13 +195,14 @@ export class UiActionEngineService {
     throw new Error(`Poll condition not met after ${maxAttempts} attempts`);
   }
 
-  private checkPollCondition(condition: { type: string; selector?: string; value?: string }): boolean {
+  private checkPollCondition(condition: { type: string; selector?: string; value?: string }, context: IUiActionContext): boolean {
     switch (condition.type) {
       case 'elementExists':
-        return condition.selector ? this.findElement(condition.selector) !== null : false;
+        if (!condition.selector) return false;
+        return this.findElement(this.resolveSelector(condition.selector, context)!) !== null;
       case 'elementHasValue':
         if (!condition.selector) return false;
-        const el = this.findElement(condition.selector);
+        const el = this.findElement(this.resolveSelector(condition.selector, context)!);
         return el ? (el as HTMLInputElement).value === condition.value : false;
       default:
         return false;
@@ -210,9 +217,10 @@ export class UiActionEngineService {
       throw new Error('readValue action requires a resultKey');
     }
 
-    const el = await this.waitForEl(step.selector, step.selectorType);
+    const selector = this.resolveSelector(step.selector, context)!;
+    const el = await this.waitForEl(selector, step.selectorType);
     if (!el) {
-      throw new Error(`Element not found for readValue: ${step.selector}`);
+      throw new Error(`Element not found for readValue: ${selector}`);
     }
 
     context.results[step.resultKey] = (el as HTMLInputElement).value;
@@ -267,6 +275,27 @@ export class UiActionEngineService {
     await this.router.navigate([route]);
     await new Promise(r => setTimeout(r, SEARCH_DELAY));
     this.searchStrategyService.globalSearch(searchValue, true, false);
+  }
+
+  private resolveSelector(selector: string | undefined, context: IUiActionContext): string | undefined {
+    if (!selector) return undefined;
+    return selector.replace(/\{(\w+(?:\.\w+)*)\}/g, (_, path: string) => {
+      const parts = path.split('.');
+      let source: Record<string, unknown> = context.params as Record<string, unknown>;
+      if (parts[0] === 'results') {
+        source = context.results as Record<string, unknown>;
+        parts.shift();
+      }
+      let value: unknown = source;
+      for (const part of parts) {
+        if (value && typeof value === 'object') {
+          value = (value as Record<string, unknown>)[part];
+        } else {
+          return '';
+        }
+      }
+      return String(value ?? '');
+    });
   }
 
   private findElement(selector: string, selectorType: 'id' | 'css' = 'id'): HTMLElement | null {
