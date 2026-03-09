@@ -625,6 +625,7 @@ export class BaseDrawScheduleService {
           (y - this.settings.cellHeaderHeight) / this.settings.cellHeight
         ) + this.firstVisibleRow;
       col = Math.floor(x / this.settings.cellWidth) + this.firstVisibleCol;
+      col = this.gridData.resolveSpanOwnerColumn(row, col);
     }
 
     return new MyPosition(row, col);

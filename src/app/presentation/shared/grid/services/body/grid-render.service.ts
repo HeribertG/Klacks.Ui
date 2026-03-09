@@ -17,6 +17,10 @@ import { GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/di
   providedIn: 'root',
 })
 export class BaseGridRenderService {
+  private readonly SELECTION_BORDER_OFFSET = 1;
+  private readonly SELECTION_BORDER_PADDING = this.SELECTION_BORDER_OFFSET * 2;
+  private readonly FILL_HANDLE_COLOR = '#ffffff';
+
   protected canvasManager = inject(BaseCanvasManagerService);
   protected settings = inject(BaseSettingsService);
   protected gridColors = inject(GridColorService);
@@ -31,7 +35,7 @@ export class BaseGridRenderService {
     visibleRow: number,
     visibleCol: number,
     firstVisibleRow: number,
-    firstVisibleCol: number
+    firstVisibleCol: number,
   ): void {
     this.resizeRenderCanvas(visibleRow, visibleCol);
 
@@ -76,7 +80,7 @@ export class BaseGridRenderService {
       0,
       cellHeaderHeight,
       renderWidth,
-      renderHeight
+      renderHeight,
     );
 
     this.overlayRenderer?.(ctx);
@@ -109,7 +113,7 @@ export class BaseGridRenderService {
         alignment,
         0,
         logicalWidth,
-        logicalHeight
+        logicalHeight,
       );
     }
   }
@@ -138,7 +142,7 @@ export class BaseGridRenderService {
         headerCanvas,
         expectedWidth,
         expectedHeight,
-        true
+        true,
       );
       DrawHelper.setAntiAliasing(this.canvasManager.headerCtx);
     }
@@ -153,7 +157,7 @@ export class BaseGridRenderService {
           col * this.settings.cellWidth,
           0,
           this.settings.cellWidth,
-          this.settings.cellHeaderHeight
+          this.settings.cellHeaderHeight,
         );
       }
     }
@@ -172,7 +176,7 @@ export class BaseGridRenderService {
     isFocused: boolean,
     firstVisibleRow: number,
     firstVisibleCol: number,
-    showFillHandle = false
+    showFillHandle = false,
   ): void {
     const ctx = this.canvasManager.ctx;
     if (!ctx || !position || position.isEmpty()) return;
@@ -182,7 +186,7 @@ export class BaseGridRenderService {
       0,
       this.settings.cellHeaderHeight,
       this.canvasManager.canvas!.width,
-      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight
+      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight,
     );
     ctx.clip();
 
@@ -192,28 +196,29 @@ export class BaseGridRenderService {
       (position.row - firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
 
-    const isRowMode = this.settings.selectionMode === GridSelectionModeEnum.Row ||
+    const isRowMode =
+      this.settings.selectionMode === GridSelectionModeEnum.Row ||
       this.settings.selectionMode === GridSelectionModeEnum.RowActiveOnly;
-    const showRowHighlight = isRowMode &&
+    const showRowHighlight =
+      isRowMode &&
       (this.settings.selectionMode !== GridSelectionModeEnum.RowActiveOnly ||
-       this.gridData.isCellActive(position.row, position.column));
+        this.gridData.isCellActive(position.row, position.column));
 
     if (showRowHighlight) {
       ctx.globalAlpha = 0.2;
       ctx.fillStyle = this.gridColors.focusBorderColor;
-      ctx.fillRect(
+      ctx.fillRect(0, row, col, this.settings.cellHeight);
+      const maxDataWidth =
+        (this.gridData.columns - firstVisibleCol) * this.settings.cellWidth;
+      const fillWidth = Math.max(
         0,
-        row,
-        col,
-        this.settings.cellHeight
+        maxDataWidth - col - this.settings.cellWidth,
       );
-      const maxDataWidth = (this.gridData.columns - firstVisibleCol) * this.settings.cellWidth;
-      const fillWidth = Math.max(0, maxDataWidth - col - this.settings.cellWidth);
       ctx.fillRect(
         col + this.settings.cellWidth,
         row,
         fillWidth,
-        this.settings.cellHeight
+        this.settings.cellHeight,
       );
       ctx.globalAlpha = 1.0;
     }
@@ -228,23 +233,31 @@ export class BaseGridRenderService {
 
     const gridCell = this.gridData.getCell(position.row, position.column);
     const span = gridCell?.colSpan || 1;
-    const selectionWidth = span * this.settings.cellWidth + 3;
+    const selectionWidth = span * this.settings.cellWidth + this.SELECTION_BORDER_PADDING;
 
     ctx.strokeRect(
-      col - 1,
-      row - 1,
+      col - this.SELECTION_BORDER_OFFSET,
+      row - this.SELECTION_BORDER_OFFSET,
       selectionWidth,
-      this.settings.cellHeight + 1
+      this.settings.cellHeight + this.SELECTION_BORDER_OFFSET,
     );
 
-    if (showFillHandle && isFocused && this.gridData.isCellDraggable(position.row, position.column)) {
+    if (
+      showFillHandle &&
+      isFocused &&
+      this.gridData.isCellDraggable(position.row, position.column)
+    ) {
       this.drawFillHandle(ctx, col, row);
     }
 
     ctx.restore();
   }
 
-  private drawFillHandle(ctx: CanvasRenderingContext2D, cellX: number, cellY: number): void {
+  private drawFillHandle(
+    ctx: CanvasRenderingContext2D,
+    cellX: number,
+    cellY: number,
+  ): void {
     const handleX = cellX + this.settings.cellWidth;
     const handleY = cellY + this.settings.cellHeight;
     const baseRadius = 5;
@@ -254,7 +267,7 @@ export class BaseGridRenderService {
     ctx.arc(handleX, handleY, radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.gridColors.focusBorderColor;
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = this.FILL_HANDLE_COLOR;
     ctx.lineWidth = 1 * this.settings.zoom;
     ctx.stroke();
   }
@@ -262,7 +275,7 @@ export class BaseGridRenderService {
   public drawSelection(
     positions: MyPosition[],
     firstVisibleRow: number,
-    firstVisibleCol: number
+    firstVisibleCol: number,
   ): void {
     const ctx = this.canvasManager.ctx;
     if (!ctx) return;
@@ -272,7 +285,7 @@ export class BaseGridRenderService {
       0,
       this.settings.cellHeaderHeight,
       this.canvasManager.canvas!.width,
-      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight
+      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight,
     );
     ctx.clip();
 
@@ -284,7 +297,7 @@ export class BaseGridRenderService {
         pos.column,
         pos.row,
         firstVisibleRow,
-        firstVisibleCol
+        firstVisibleCol,
       );
     }
 
@@ -293,7 +306,7 @@ export class BaseGridRenderService {
 
   public drawGridSelectedHeaderCell(
     position: MyPosition | null,
-    firstVisibleCol: number
+    firstVisibleCol: number,
   ): void {
     const ctx = this.canvasManager.ctx;
     if (!ctx || !position || position.isEmpty()) return;
@@ -308,7 +321,7 @@ export class BaseGridRenderService {
       col,
       0,
       this.settings.cellWidth,
-      this.settings.cellHeaderHeight
+      this.settings.cellHeaderHeight,
     );
     ctx.restore();
   }
@@ -321,7 +334,7 @@ export class BaseGridRenderService {
     row: number,
     col: number,
     firstVisibleRow: number,
-    firstVisibleCol: number
+    firstVisibleCol: number,
   ): void {
     const tmpRow: number = row + firstVisibleRow;
     const tmpCol: number = col + firstVisibleCol;
@@ -346,7 +359,7 @@ export class BaseGridRenderService {
           col * cellWidth,
           row * cellHeight,
           cellWidth,
-          cellHeight
+          cellHeight,
         );
       }
     }
@@ -356,7 +369,7 @@ export class BaseGridRenderService {
     col: number,
     row: number,
     firstVisibleRow: number,
-    firstVisibleCol: number
+    firstVisibleCol: number,
   ): void {
     const ctx = this.canvasManager.ctx;
     if (!ctx) return;
@@ -370,7 +383,7 @@ export class BaseGridRenderService {
       column,
       rowSet,
       this.settings.cellWidth,
-      this.settings.cellHeight
+      this.settings.cellHeight,
     );
   }
 }

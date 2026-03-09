@@ -79,4 +79,17 @@ export abstract class BaseDataService {
 
   onClearCopy(): void {
   }
+
+  resolveSpanOwnerColumn(row: number, col: number): number {
+    for (let c = col - 1; c >= 0; c--) {
+      const cell = this.getCell(row, c);
+      if (cell && cell.colSpan > 1 && c + cell.colSpan > col) {
+        return c;
+      }
+      if (cell && !cell.isEmpty()) {
+        break;
+      }
+    }
+    return col;
+  }
 }
