@@ -163,8 +163,16 @@ export class BaseDrawScheduleService {
     endCol: number
   ) {
     for (let r = startRow; r < endRow; r++) {
+      let skipUntilCol = -1;
       for (let c = startCol; c < endCol; c++) {
+        if (c < skipUntilCol) continue;
         if (r < this.gridData.rows && c < this.gridData.columns) {
+          const tmpRow = r + this.firstVisibleRow;
+          const tmpCol = c + this.firstVisibleCol;
+          const gridCell = this.gridData.getCell(tmpRow, tmpCol);
+          if (gridCell && gridCell.colSpan > 1) {
+            skipUntilCol = c + gridCell.colSpan;
+          }
           this.addCell(r, c);
         }
       }
@@ -418,20 +426,24 @@ export class BaseDrawScheduleService {
   private addCell(row: number, col: number): void {
     const ctx = this.canvasManager.renderCanvasCtx;
     if (!ctx) return;
-    const cellCanvas = this.createCellService.createCell(
-      row + this.firstVisibleRow,
-      col + this.firstVisibleCol
-    );
+
+    const tmpRow = row + this.firstVisibleRow;
+    const tmpCol = col + this.firstVisibleCol;
+    const cellCanvas = this.createCellService.createCell(tmpRow, tmpCol);
     if (!cellCanvas) return;
+
+    const gridCell = this.gridData.getCell(tmpRow, tmpCol);
+    const span = gridCell?.colSpan || 1;
 
     const x = col * this.settings.cellWidth;
     const y = row * this.settings.cellHeight;
+    const drawWidth = span * this.settings.cellWidth;
 
     ctx.drawImage(
       cellCanvas,
       x,
       y,
-      this.settings.cellWidth,
+      drawWidth,
       this.settings.cellHeight
     );
   }

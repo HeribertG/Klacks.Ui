@@ -34,19 +34,21 @@ export class BaseCellRenderService {
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
 
-    if (this.isValidCellIndex(tmpRow, tmpCol)) {
-      const img = this.createCell.createCell(tmpRow, tmpCol);
-      if (img && this.canvasManager.renderCanvasCtx) {
-        const drawX = col * cellWidth;
-        const drawY = row * cellHeight;
-        this.canvasManager.renderCanvasCtx.drawImage(
-          img,
-          drawX,
-          drawY,
-          cellWidth,
-          cellHeight
-        );
-      }
+    const gridCell = this.dataService.getCell(tmpRow, tmpCol);
+    const span = gridCell?.colSpan || 1;
+
+    const img = this.createCell.createCell(tmpRow, tmpCol);
+    if (img && this.canvasManager.renderCanvasCtx) {
+      const drawX = col * cellWidth;
+      const drawY = row * cellHeight;
+      const drawWidth = span * cellWidth;
+      this.canvasManager.renderCanvasCtx.drawImage(
+        img,
+        drawX,
+        drawY,
+        drawWidth,
+        cellHeight
+      );
     }
   }
 
@@ -59,7 +61,20 @@ export class BaseCellRenderService {
     firstVisibleCol: number
   ): void {
     for (let row = startRow; row < endRow; row++) {
+      let skipUntilCol = -1;
       for (let col = startCol; col < endCol; col++) {
+        if (col < skipUntilCol) continue;
+
+        const tmpCol = col + firstVisibleCol;
+        const tmpRow = row + firstVisibleRow;
+
+        if (this.isValidCellIndex(tmpRow, tmpCol)) {
+          const gridCell = this.dataService.getCell(tmpRow, tmpCol);
+          if (gridCell && gridCell.colSpan > 1) {
+            skipUntilCol = col + gridCell.colSpan;
+          }
+        }
+
         this.renderCell(row, col, firstVisibleRow, firstVisibleCol);
       }
     }
@@ -90,7 +105,19 @@ export class BaseCellRenderService {
     }
 
     for (let row = 0; row < visibleRows; row++) {
+      let skipUntilCol = -1;
       for (let col = startCol; col < endCol; col++) {
+        if (col < skipUntilCol) continue;
+
+        const tmpCol = col + newFirstVisibleCol;
+        const tmpRow = row + newFirstVisibleRow;
+        if (this.isValidCellIndex(tmpRow, tmpCol)) {
+          const gridCell = this.dataService.getCell(tmpRow, tmpCol);
+          if (gridCell && gridCell.colSpan > 1) {
+            skipUntilCol = col + gridCell.colSpan;
+          }
+        }
+
         this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
       }
     }
@@ -120,8 +147,20 @@ export class BaseCellRenderService {
       endRow = Math.min(visibleRows, absDiff + BaseCellRenderService.OVERLAP);
     }
 
-    for (let col = 0; col < visibleCols; col++) {
-      for (let row = startRow; row < endRow; row++) {
+    for (let row = startRow; row < endRow; row++) {
+      let skipUntilCol = -1;
+      for (let col = 0; col < visibleCols; col++) {
+        if (col < skipUntilCol) continue;
+
+        const tmpCol = col + newFirstVisibleCol;
+        const tmpRow = row + newFirstVisibleRow;
+        if (this.isValidCellIndex(tmpRow, tmpCol)) {
+          const gridCell = this.dataService.getCell(tmpRow, tmpCol);
+          if (gridCell && gridCell.colSpan > 1) {
+            skipUntilCol = col + gridCell.colSpan;
+          }
+        }
+
         this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
       }
     }

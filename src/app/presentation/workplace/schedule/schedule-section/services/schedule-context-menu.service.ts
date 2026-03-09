@@ -101,7 +101,13 @@ export class ScheduleContextMenuService {
 
       const isLocked = entry ? (entry.lockLevel > 0 || entry.isGroupRestricted) : false;
 
-      if (entry?.entryType === WorkScheduleEntryType.WorkChange || entry?.entryType === WorkScheduleEntryType.Expenses) {
+      if (entry?.entryType === WorkScheduleEntryType.ScheduleNote) {
+        if (!isLocked) {
+          menuData.list.push(...MenuDataTemplate.edit());
+          menuData.list.push(...MenuDataTemplate.divider());
+          menuData.list.push(...MenuDataTemplate.delete());
+        }
+      } else if (entry?.entryType === WorkScheduleEntryType.WorkChange || entry?.entryType === WorkScheduleEntryType.Expenses) {
         if (!isLocked) {
           menuData.list.push(...MenuDataTemplate.edit());
           menuData.list.push(...MenuDataTemplate.divider());

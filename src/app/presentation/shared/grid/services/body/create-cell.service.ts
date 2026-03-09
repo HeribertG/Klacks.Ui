@@ -169,13 +169,19 @@ export class BaseCreateCellService {
       return;
     }
 
+    const gridCell: GridCell = this.gridData.getCell(row, col);
+    const span = gridCell.colSpan || 1;
+
+    if (span > 1) {
+      return this.createSpanningCell(row, col, gridCell, span);
+    }
+
     const tempCanvas = this.initializeTempCanvas();
     if (!tempCanvas) return undefined;
 
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) return tempCanvas;
 
-    const gridCell: GridCell = this.gridData.getCell(row, col);
     const weekDay = this.gridData.getWeekday(col);
     const isOverlay = this.gridData.isOverlayDay(col);
     const isHighlighted = this.gridData.isCellHighlighted(row, col);
@@ -187,7 +193,7 @@ export class BaseCreateCellService {
 
     const needsDoubleDarkening = isOverlay && gridCell.sealed;
     if (needsDoubleDarkening && !gridCell.backgroundColor) {
-      this.drawSealedOverlay(ctx);
+      this.drawSealedOverlay(ctx, this.settings.cellWidth);
     }
 
     if (gridCell.backgroundColor) {
@@ -198,7 +204,7 @@ export class BaseCreateCellService {
       if (isOverlay && gridCell.sealed) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
       }
-      this.drawBackgroundColor(ctx, bgColor);
+      this.drawBackgroundColor(ctx, bgColor, this.settings.cellWidth);
     }
 
     this.drawCellTexts(ctx, gridCell);
@@ -206,17 +212,131 @@ export class BaseCreateCellService {
     return tempCanvas;
   }
 
-  private drawBackgroundColor(ctx: CanvasRenderingContext2D, color: string): void {
+  private createSpanningCell(
+    row: number,
+    col: number,
+    gridCell: GridCell,
+    span: number
+  ): HTMLCanvasElement | undefined {
+    const totalWidth = span * this.settings.cellWidth;
+    const cellHeight = this.settings.cellHeight;
+
+    const tempCanvas = document.createElement('canvas') as HTMLCanvasElement;
+    DrawHelper.createHiDPICanvas(tempCanvas, totalWidth, cellHeight, true);
+
+    const ctx = tempCanvas.getContext('2d');
+    if (!ctx) return tempCanvas;
+
+    const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
+
+    for (let i = 0; i < span; i++) {
+      const spanCol = col + i;
+      if (spanCol >= this.gridData.columns) break;
+
+      const weekDay = this.gridData.getWeekday(spanCol);
+      const isOverlay = this.gridData.isOverlayDay(spanCol);
+      const isHighlighted = this.gridData.isCellHighlighted(row, spanCol);
+      const needsBaseDarkening = isOverlay || isHighlighted || gridCell.sealed;
+      const canvas = this.getCellCanvas(weekDay, lastRowFlag, needsBaseDarkening);
+
+      ctx.drawImage(canvas, i * this.settings.cellWidth, 0);
+    }
+
+    if (gridCell.backgroundColor) {
+      let bgColor = gridCell.backgroundColor;
+      if (gridCell.sealed) {
+        bgColor = DrawHelper.GetDarkColor(bgColor, 30);
+      }
+      this.drawBackgroundColor(ctx, bgColor, totalWidth);
+    }
+
+    this.drawSpanningBorder(ctx, totalWidth, cellHeight);
+    this.drawSpanningCellTexts(ctx, gridCell, totalWidth);
+
+    return tempCanvas;
+  }
+
+  private drawSpanningBorder(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): void {
+    ctx.strokeStyle = this.gridColors.borderColor;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(0, 0, width, height);
+  }
+
+  private drawSpanningCellTexts(
+    ctx: CanvasRenderingContext2D,
+    gridCell: GridCell,
+    totalWidth: number
+  ): void {
+    const fontColor = gridCell.fontColor;
+    const alignment = gridCell.mainTextAlignment || TextAlignmentEnum.Left;
+
+    if (gridCell.mainText) {
+      DrawHelper.drawText(
+        ctx,
+        gridCell.mainText,
+        0,
+        this.margin * this.settings.zoom + this.settings.increaseBorder * 2,
+        totalWidth,
+        this.gridFonts.mainFontHeightZoom,
+        this.gridFonts.mainFontStringZoom,
+        +this.gridFonts.mainFontSizeZoom,
+        fontColor || this.gridColors.mainFontColor,
+        alignment,
+        BaselineAlignmentEnum.Center
+      );
+    }
+    if (gridCell.firstSubText) {
+      DrawHelper.drawText(
+        ctx,
+        gridCell.firstSubText,
+        0,
+        this.margin * this.settings.zoom +
+          this.gridFonts.mainFontHeightZoom +
+          this.settings.increaseBorder * 2,
+        totalWidth,
+        this.gridFonts.firstSubFontHeightZoom,
+        this.gridFonts.firstSubFontStringZoom,
+        +this.gridFonts.firstSubFontSizeZoom,
+        fontColor || this.gridColors.subFontColor,
+        alignment,
+        BaselineAlignmentEnum.Center
+      );
+    }
+    if (gridCell.secondSubText) {
+      DrawHelper.drawText(
+        ctx,
+        gridCell.secondSubText,
+        0,
+        this.margin * this.settings.zoom +
+          this.gridFonts.mainFontHeightZoom +
+          this.gridFonts.firstSubFontHeightZoom +
+          this.settings.increaseBorder * 4,
+        totalWidth,
+        this.gridFonts.secondSubFontHeightZoom,
+        this.gridFonts.secondSubFontStringZoom,
+        +this.gridFonts.secondSubFontSizeZoom,
+        fontColor || this.gridColors.subFontColor,
+        alignment,
+        BaselineAlignmentEnum.Center
+      );
+    }
+  }
+
+  private drawBackgroundColor(ctx: CanvasRenderingContext2D, color: string, width: number): void {
     ctx.save();
     ctx.fillStyle = color;
-    ctx.fillRect(1, 1, this.settings.cellWidth - 2, this.settings.cellHeight - 2);
+    ctx.fillRect(1, 1, width - 2, this.settings.cellHeight - 2);
     ctx.restore();
   }
 
-  private drawSealedOverlay(ctx: CanvasRenderingContext2D): void {
+  private drawSealedOverlay(ctx: CanvasRenderingContext2D, width: number): void {
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-    ctx.fillRect(1, 1, this.settings.cellWidth - 2, this.settings.cellHeight - 2);
+    ctx.fillRect(1, 1, width - 2, this.settings.cellHeight - 2);
     ctx.restore();
   }
 

@@ -13,6 +13,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
+import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
@@ -40,6 +41,7 @@ describe('ScheduleDataService', () => {
                 { provide: EmptyCellFormatterService, useValue: { format: vi.fn() } },
                 { provide: WorkCellFormatterService, useValue: { format: vi.fn() } },
                 { provide: BreakCellFormatterService, useValue: { format: vi.fn() } },
+                { provide: ScheduleNoteCellFormatterService, useValue: { formatCell: vi.fn() } },
                 { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
                 { provide: GridColorService, useValue: {} },
                 { provide: TranslateService, useValue: { currentLang: 'de' } }

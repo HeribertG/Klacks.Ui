@@ -64,6 +64,7 @@ import {
 } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
@@ -446,10 +447,16 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.dialogService.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
-      case 'edit':
+      case 'edit': {
         this.contextMenu.closeMenu(true);
-        this.dialogService.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
+        const editEntry = dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
+        if (editEntry?.entryType === WorkScheduleEntryType.ScheduleNote) {
+          this.cellManipulation.startEditing();
+        } else {
+          this.dialogService.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
+        }
         break;
+      }
       case 'editWork':
         this.contextMenu.closeMenu(true);
         this.dialogService.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);

@@ -16,11 +16,15 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
+import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
+import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.service';
 import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { ScheduleDataService } from './schedule-data.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 export interface DropTargetInfo {
   row: number;
@@ -32,6 +36,7 @@ export interface DropTargetInfo {
 @Injectable()
 export class ScheduleDragDropService {
   private dataManagement = inject(DataManagementScheduleService);
+  private scheduleNoteService = inject(DataManagementScheduleNoteService);
   private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
 
@@ -112,11 +117,18 @@ export class ScheduleDragDropService {
       return;
     }
 
-    const abbreviation = event.value.trim().toUpperCase();
-    if (!abbreviation) {
+    const trimmedValue = event.value.trim();
+    if (!trimmedValue) {
       return;
     }
 
+    const existingEntry = dataService.getWorkScheduleEntryForCell(event.row, event.column);
+    if (existingEntry && existingEntry.entryType === WorkScheduleEntryType.ScheduleNote) {
+      this.updateScheduleNote(existingEntry.id, client.id, date, trimmedValue);
+      return;
+    }
+
+    const abbreviation = trimmedValue.toUpperCase();
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === abbreviation &&
@@ -132,7 +144,30 @@ export class ScheduleDragDropService {
         startTime: matchingShift.startShift,
         endTime: matchingShift.endShift,
       });
+    } else {
+      this.createScheduleNote(client.id, date, trimmedValue);
     }
+  }
+
+  private updateScheduleNote(id: string, clientId: string, date: Date, content: string): void {
+    const dateStr = formatDateOnly(date);
+    const resource: ScheduleNoteResource = { id, clientId, currentDate: dateStr, content };
+    this.scheduleNoteService.update(resource).subscribe(() => {
+      this.dataManagement.readDatas();
+    });
+  }
+
+  private createScheduleNote(clientId: string, date: Date, content: string): void {
+    const dateStr = formatDateOnly(date);
+    const resource: ScheduleNoteResource = {
+      id: crypto.randomUUID(),
+      clientId,
+      currentDate: dateStr,
+      content,
+    };
+    this.scheduleNoteService.create(resource).subscribe(() => {
+      this.dataManagement.readDatas();
+    });
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {

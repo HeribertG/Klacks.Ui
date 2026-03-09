@@ -120,6 +120,7 @@ export class GridSurfaceTemplateComponent
   public cellInputVisible = false;
   public cellInputX = 0;
   public cellInputY = 0;
+  public cellInputWidth = 0;
   public lastEditedRow = -1;
   public lastEditedColumn = -1;
 
@@ -567,8 +568,12 @@ export class GridSurfaceTemplateComponent
     const isNewCell =
       row !== this.lastEditedRow || column !== this.lastEditedColumn;
 
+    const gridCell = this.dataService.getCell(row, column);
+    const span = gridCell?.colSpan || 1;
+
     this.cellInputX = x;
     this.cellInputY = y;
+    this.cellInputWidth = span * this.settings.cellWidth;
     this.cellInputVisible = true;
     this.lastEditedRow = row;
     this.lastEditedColumn = column;

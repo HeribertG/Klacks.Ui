@@ -38,6 +38,7 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
+import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
@@ -54,6 +55,7 @@ export class ScheduleDataService extends BaseDataService {
   private emptyFormatter = inject(EmptyCellFormatterService);
   private workFormatter = inject(WorkCellFormatterService);
   private breakFormatter = inject(BreakCellFormatterService);
+  private scheduleNoteFormatter = inject(ScheduleNoteCellFormatterService);
   private gridColorService = inject(GridColorService);
   private absenceLookup = inject(AbsenceLookupService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
@@ -93,6 +95,10 @@ export class ScheduleDataService extends BaseDataService {
         case WorkScheduleEntryType.WorkChange:
         case WorkScheduleEntryType.Expenses:
           cell = this.formatWorkChangeCell(entry);
+          break;
+        case WorkScheduleEntryType.ScheduleNote:
+          cell = this.scheduleNoteFormatter.formatCell(entry);
+          cell.colSpan = this.calculateNoteColSpan(row, col, entry);
           break;
         case WorkScheduleEntryType.Work:
         default:
@@ -199,6 +205,10 @@ export class ScheduleDataService extends BaseDataService {
     if (entry.entryType === WorkScheduleEntryType.Break) {
       const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
       return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
+    }
+
+    if (entry.entryType === WorkScheduleEntryType.ScheduleNote) {
+      return entry.description?.de || entry.description?.en || '';
     }
 
     return entry.abbreviation || '';
@@ -774,6 +784,19 @@ export class ScheduleDataService extends BaseDataService {
     if (wholeHours === 0) return `${sign}${mins}m`;
     if (mins === 0) return `${sign}${wholeHours}h`;
     return `${sign}${wholeHours}h ${mins}m`;
+  }
+
+  private calculateNoteColSpan(row: number, startCol: number, _entry: IScheduleCell): number {
+    let span = 1;
+    const maxCol = this.columns;
+
+    for (let col = startCol + 1; col < maxCol; col++) {
+      const nextEntry = this.getWorkScheduleEntryForCell(row, col);
+      if (nextEntry) break;
+      span++;
+    }
+
+    return span;
   }
 
   private applyAvailabilityHighlighting(

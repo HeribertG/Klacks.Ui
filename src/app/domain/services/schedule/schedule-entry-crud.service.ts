@@ -13,6 +13,7 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
 import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
+import { DataManagementScheduleNoteService } from '../schedule-note/data-management-schedule-note.service';
 import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { GroupSelectionService } from '../group/group-selection.service';
@@ -59,6 +60,7 @@ export class ScheduleEntryCrudService {
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private breakService = inject(DataManagementBreakService);
   private expensesService = inject(DataManagementExpensesService);
+  private scheduleNoteService = inject(DataManagementScheduleNoteService);
   private appSettingsService = inject(AppSettingsManagementService);
   private injector = inject(Injector);
 
@@ -334,6 +336,17 @@ export class ScheduleEntryCrudService {
         });
         break;
 
+      case WorkScheduleEntryType.ScheduleNote:
+        this.scheduleNoteService.delete(params.id).subscribe({
+          next: () => {
+            this.refreshClientScheduleForDays(params.clientId, params.date).then(() => {
+              this.triggerScheduleRefresh();
+            });
+          },
+          error: (err) => console.error('Error deleting schedule note:', err),
+        });
+        break;
+
       case WorkScheduleEntryType.Work:
       default:
         this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd).then((response) => {
@@ -359,6 +372,7 @@ export class ScheduleEntryCrudService {
     const workChangeEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.WorkChange);
     const expensesEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Expenses);
     const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
+    const scheduleNoteEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.ScheduleNote);
 
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
@@ -437,6 +451,22 @@ export class ScheduleEntryCrudService {
               next: () => resolve(),
               error: (err) => {
                 console.error('Error deleting expenses:', err);
+                reject(err);
+              },
+            });
+          })
+        );
+      }
+    }
+
+    if (scheduleNoteEntries.length > 0) {
+      for (const entry of scheduleNoteEntries) {
+        deletePromises.push(
+          new Promise<void>((resolve, reject) => {
+            this.scheduleNoteService.delete(entry.id).subscribe({
+              next: () => resolve(),
+              error: (err) => {
+                console.error('Error deleting schedule note:', err);
                 reject(err);
               },
             });

@@ -29,6 +29,7 @@ import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { Break } from 'src/app/domain/models/break/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
 import { ScheduleDataService } from './schedule-data.service';
 
 @Injectable()
@@ -40,6 +41,7 @@ export class ScheduleEntryActionsService {
   private cellManipulation = inject(BaseCellManipulationService);
   private dataScheduleService = inject(DataScheduleService);
   private dataBreakService = inject(DataBreakService);
+  private scheduleNoteService = inject(DataManagementScheduleNoteService);
 
   addWorkFromShiftMenu(
     shiftId: string,
@@ -271,6 +273,26 @@ export class ScheduleEntryActionsService {
     }
 
     await this.scheduleEntryCrud.bulkAddBreakScheduleEntries(entries);
+  }
+
+  deleteScheduleNote(row: number, column: number, dataService: ScheduleDataService): void {
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    if (!entry || entry.entryType !== WorkScheduleEntryType.ScheduleNote) return;
+
+    this.scheduleNoteService.delete(entry.id).subscribe({
+      next: () => this.dataManagement.readDatas(),
+    });
+  }
+
+  updateScheduleNote(
+    id: string,
+    clientId: string,
+    currentDate: string,
+    content: string
+  ): void {
+    this.scheduleNoteService.update({ id, clientId, currentDate, content }).subscribe({
+      next: () => this.dataManagement.readDatas(),
+    });
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {
