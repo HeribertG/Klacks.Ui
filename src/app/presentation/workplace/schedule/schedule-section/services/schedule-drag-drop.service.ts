@@ -15,14 +15,20 @@
  * - Receives: ShiftDropResult from ShiftToScheduleDragDropService
  */
 import { inject, Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.service';
 import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
@@ -37,6 +43,9 @@ export interface DropTargetInfo {
 export class ScheduleDragDropService {
   private dataManagement = inject(DataManagementScheduleService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
+  private absenceLookup = inject(AbsenceLookupService);
+  private entryActions = inject(ScheduleEntryActionsService);
+  private translateService = inject(TranslateService);
   private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
 
@@ -144,9 +153,16 @@ export class ScheduleDragDropService {
         startTime: matchingShift.startShift,
         endTime: matchingShift.endShift,
       });
-    } else {
-      this.createScheduleNote(client.id, date, trimmedValue);
+      return;
     }
+
+    const matchingAbsence = this.findAbsenceWithoutDetails(abbreviation);
+    if (matchingAbsence) {
+      this.entryActions.addBreakFromAbsenceMenu(matchingAbsence.id!, event.row, event.column, dataService);
+      return;
+    }
+
+    this.createScheduleNote(client.id, date, trimmedValue);
   }
 
   private updateScheduleNote(id: string, clientId: string, date: Date, content: string): void {
@@ -168,6 +184,26 @@ export class ScheduleDragDropService {
     this.scheduleNoteService.create(resource).subscribe(() => {
       this.dataManagement.readDatas();
     });
+  }
+
+  private findAbsenceWithoutDetails(abbreviation: string): { id: string } | null {
+    const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
+    const absences = this.absenceLookup.absences();
+    const details = this.absenceLookup.absenceDetails();
+
+    for (const absence of absences) {
+      if (!absence.id || !absence.abbreviation) continue;
+
+      const hasDetails = details.some(d => d.absenceId === absence.id);
+      if (hasDetails) continue;
+
+      const absAbbr = getLocalizedValue(absence.abbreviation as IMultiLanguage, language).toUpperCase();
+      if (absAbbr === abbreviation) {
+        return { id: absence.id };
+      }
+    }
+
+    return null;
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {
