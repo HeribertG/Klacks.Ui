@@ -33,6 +33,8 @@ import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { HeaderCellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatter.service';
@@ -60,6 +62,8 @@ export class ScheduleDataService extends BaseDataService {
   private absenceLookup = inject(AbsenceLookupService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private translateService = inject(TranslateService);
+  private settings = inject(BaseSettingsService);
+  private gridFonts = inject(GridFontsService);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -98,7 +102,7 @@ export class ScheduleDataService extends BaseDataService {
           break;
         case WorkScheduleEntryType.ScheduleNote:
           cell = this.scheduleNoteFormatter.formatCell(entry);
-          cell.colSpan = this.calculateNoteColSpan(row, col, entry);
+          this.applyNoteColSpan(cell, row, col);
           break;
         case WorkScheduleEntryType.Work:
         default:
@@ -241,6 +245,10 @@ export class ScheduleDataService extends BaseDataService {
     const entry = this.getWorkScheduleEntryForCell(row, col);
     if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
       return false;
+    }
+
+    if (entry && entry.entryType === WorkScheduleEntryType.ScheduleNote) {
+      return true;
     }
 
     return !this.isCellActive(row, col);
@@ -786,17 +794,27 @@ export class ScheduleDataService extends BaseDataService {
     return `${sign}${wholeHours}h ${mins}m`;
   }
 
-  private calculateNoteColSpan(row: number, startCol: number, _entry: IScheduleCell): number {
-    let span = 1;
+  private applyNoteColSpan(cell: GridCell, row: number, startCol: number): void {
     const maxCol = this.columns;
-
+    let emptySpan = 1;
     for (let col = startCol + 1; col < maxCol; col++) {
-      const nextEntry = this.getWorkScheduleEntryForCell(row, col);
-      if (nextEntry) break;
-      span++;
+      if (this.getWorkScheduleEntryForCell(row, col)) break;
+      emptySpan++;
     }
 
-    return span;
+    const cellWidth = this.settings.cellWidth;
+    const textWidth = this.measureTextWidth(cell.mainText);
+    const padding = 8;
+    const neededSpan = Math.ceil((textWidth + padding) / cellWidth);
+    cell.colSpan = Math.max(1, Math.min(neededSpan, emptySpan));
+  }
+
+  private measureTextWidth(text: string): number {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return text.length * 8;
+    ctx.font = this.gridFonts.mainFontStringZoom;
+    return ctx.measureText(text).width;
   }
 
   private applyAvailabilityHighlighting(

@@ -226,10 +226,14 @@ export class BaseGridRenderService {
       ctx.strokeStyle = 'grey';
     }
 
+    const gridCell = this.gridData.getCell(position.row, position.column);
+    const span = gridCell?.colSpan || 1;
+    const selectionWidth = span * this.settings.cellWidth + 3;
+
     ctx.strokeRect(
       col - 1,
       row - 1,
-      this.settings.cellWidth + 3,
+      selectionWidth,
       this.settings.cellHeight + 1
     );
 

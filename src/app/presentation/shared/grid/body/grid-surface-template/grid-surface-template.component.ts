@@ -569,11 +569,15 @@ export class GridSurfaceTemplateComponent
       row !== this.lastEditedRow || column !== this.lastEditedColumn;
 
     const gridCell = this.dataService.getCell(row, column);
-    const span = gridCell?.colSpan || 1;
+    const editSpan = gridCell?.colSpan || 1;
+    const firstVisibleCol = this.scroll.horizontalScrollPosition;
+    const visibleCols = this.calculateVisibleColumns();
+    const maxSpan = Math.max(1, visibleCols - (column - firstVisibleCol));
+    const clampedSpan = Math.min(editSpan, maxSpan);
 
     this.cellInputX = x;
     this.cellInputY = y;
-    this.cellInputWidth = span * this.settings.cellWidth;
+    this.cellInputWidth = clampedSpan * this.settings.cellWidth;
     this.cellInputVisible = true;
     this.lastEditedRow = row;
     this.lastEditedColumn = column;

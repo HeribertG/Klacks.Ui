@@ -227,8 +227,6 @@ export class BaseCreateCellService {
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) return tempCanvas;
 
-    const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-
     for (let i = 0; i < span; i++) {
       const spanCol = col + i;
       if (spanCol >= this.gridData.columns) break;
@@ -236,10 +234,9 @@ export class BaseCreateCellService {
       const weekDay = this.gridData.getWeekday(spanCol);
       const isOverlay = this.gridData.isOverlayDay(spanCol);
       const isHighlighted = this.gridData.isCellHighlighted(row, spanCol);
-      const needsBaseDarkening = isOverlay || isHighlighted || gridCell.sealed;
-      const canvas = this.getCellCanvas(weekDay, lastRowFlag, needsBaseDarkening);
-
-      ctx.drawImage(canvas, i * this.settings.cellWidth, 0);
+      const bgColor = this.getBackgroundColorForDay(weekDay, isOverlay || isHighlighted || gridCell.sealed);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(i * this.settings.cellWidth, 0, this.settings.cellWidth, cellHeight);
     }
 
     if (gridCell.backgroundColor) {
@@ -251,6 +248,18 @@ export class BaseCreateCellService {
     }
 
     this.drawSpanningBorder(ctx, totalWidth, cellHeight);
+
+    if (this.gridData.isLastGroupRow(row)) {
+      ctx.save();
+      ctx.lineWidth = this.settings.boundaryBorderWidth;
+      ctx.strokeStyle = this.gridColors.boundaryBorderColor;
+      ctx.beginPath();
+      ctx.moveTo(0, cellHeight);
+      ctx.lineTo(totalWidth, cellHeight);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     this.drawSpanningCellTexts(ctx, gridCell, totalWidth);
 
     return tempCanvas;
