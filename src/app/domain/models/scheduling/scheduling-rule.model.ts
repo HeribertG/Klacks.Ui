@@ -17,6 +17,10 @@ export interface ISchedulingRule {
   minimumHours: number | null;
   fullTimeHours: number | null;
   vacationDaysPerYear: number | null;
+  nightRate: number | null;
+  holidayRate: number | null;
+  saRate: number | null;
+  soRate: number | null;
 }
 
 export class SchedulingRule implements ISchedulingRule {
@@ -36,4 +40,8 @@ export class SchedulingRule implements ISchedulingRule {
   minimumHours: number | null = null;
   fullTimeHours: number | null = null;
   vacationDaysPerYear: number | null = null;
+  nightRate: number | null = null;
+  holidayRate: number | null = null;
+  saRate: number | null = null;
+  soRate: number | null = null;
 }

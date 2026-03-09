@@ -164,6 +164,54 @@
       <div class="form-group secondColumn">
       </div>
     </div>
+    <div id="scheduling-defaults-rates-row-1" class="row-line" style="margin-top: 16px;">
+      <div class="form-group firstColumn">
+        <label for="sdNightRate">{{ 'settings.work.night-rate' | translate }} (%)</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.nightRate"
+          aria-label="sdNightRate"
+          id="sdNightRate"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdHolidayRate">{{ 'settings.work.holiday-rate' | translate }} (%)</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.holidayRate"
+          aria-label="sdHolidayRate"
+          id="sdHolidayRate"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-rates-row-2" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdSaRate">{{ 'settings.work.sa-rate' | translate }} (%)</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.saRate"
+          aria-label="sdSaRate"
+          id="sdSaRate"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdSoRate">{{ 'settings.work.so-rate' | translate }} (%)</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="schedulingForm.soRate"
+          aria-label="sdSoRate"
+          id="sdSoRate"
+        />
+      </div>
+    </div>
     <div class="bottom-border-space"></div>
   </form>
   }

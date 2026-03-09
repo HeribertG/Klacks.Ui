@@ -275,6 +275,66 @@
       </div>
     </div>
 
+    <div id="scheduling-rule-modal-rates-row-1" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-night-rate-item" class="rule-config-item">
+        <label for="ruleNightRate">{{ translate.instant("setting.schedulingRule.nightRate") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.nightRate"
+          class="form-control rule-input"
+          id="ruleNightRate"
+          aria-label="ruleNightRate"
+          min="0"
+          max="1"
+          step="0.01"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-holiday-rate-item" class="rule-config-item">
+        <label for="ruleHolidayRate">{{ translate.instant("setting.schedulingRule.holidayRate") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.holidayRate"
+          class="form-control rule-input"
+          id="ruleHolidayRate"
+          aria-label="ruleHolidayRate"
+          min="0"
+          max="1"
+          step="0.01"
+        />
+      </div>
+    </div>
+
+    <div id="scheduling-rule-modal-rates-row-2" class="row-line-modal-inline rule-config-row">
+      <div id="scheduling-rule-modal-sa-rate-item" class="rule-config-item">
+        <label for="ruleSaRate">{{ translate.instant("setting.schedulingRule.saRate") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.saRate"
+          class="form-control rule-input"
+          id="ruleSaRate"
+          aria-label="ruleSaRate"
+          min="0"
+          max="1"
+          step="0.01"
+        />
+      </div>
+
+      <div id="scheduling-rule-modal-so-rate-item" class="rule-config-item">
+        <label for="ruleSoRate">{{ translate.instant("setting.schedulingRule.soRate") }}</label>
+        <input
+          type="number"
+          [(ngModel)]="editingRule.soRate"
+          class="form-control rule-input"
+          id="ruleSoRate"
+          aria-label="ruleSoRate"
+          min="0"
+          max="1"
+          step="0.01"
+        />
+      </div>
+    </div>
+
     <!-- Validation Errors -->
     @if (getValidationErrors().length > 0) {
     <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">

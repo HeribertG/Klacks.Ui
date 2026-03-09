@@ -77,6 +77,10 @@ export class DataManagementSchedulingRuleService {
     rule.minimumHours = this.settingsService.minimumHours;
     rule.fullTimeHours = this.settingsService.fullTime;
     rule.vacationDaysPerYear = this.settingsService.vacationDaysPerYear;
+    rule.nightRate = this.settingsService.nightRateRaw;
+    rule.holidayRate = this.settingsService.holidayRateRaw;
+    rule.saRate = this.settingsService.saRateRaw;
+    rule.soRate = this.settingsService.soRateRaw;
     return rule;
   }
 

@@ -27,6 +27,10 @@ interface SchedulingDefaultsFormModel {
   schedulingMaxDailyHours: number;
   schedulingMaxWeeklyHours: number;
   schedulingMaxConsecutiveDays: number;
+  nightRate: number;
+  holidayRate: number;
+  saRate: number;
+  soRate: number;
 }
 
 @Component({
@@ -55,6 +59,10 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     schedulingMaxDailyHours: 10,
     schedulingMaxWeeklyHours: 50,
     schedulingMaxConsecutiveDays: 6,
+    nightRate: 10,
+    holidayRate: 10,
+    saRate: 10,
+    soRate: 10,
   });
 
   schedulingForm = form(this.formModel);
@@ -99,6 +107,10 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       schedulingMaxDailyHours: svc.schedulingMaxDailyHours,
       schedulingMaxWeeklyHours: svc.schedulingMaxWeeklyHours,
       schedulingMaxConsecutiveDays: svc.schedulingMaxConsecutiveDays,
+      nightRate: svc.nightRate,
+      holidayRate: svc.holidayRate,
+      saRate: svc.saRate,
+      soRate: svc.soRate,
     });
   }
 
@@ -117,6 +129,10 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     svc.schedulingMaxDailyHours = data.schedulingMaxDailyHours;
     svc.schedulingMaxWeeklyHours = data.schedulingMaxWeeklyHours;
     svc.schedulingMaxConsecutiveDays = data.schedulingMaxConsecutiveDays;
+    svc.nightRate = data.nightRate;
+    svc.holidayRate = data.holidayRate;
+    svc.saRate = data.saRate;
+    svc.soRate = data.soRate;
     svc.settingsChangeTrigger.update(v => v + 1);
   }
 }
