@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LanguageConfigResponse } from 'src/app/domain/models/settings/language-config';
 
@@ -15,6 +15,6 @@ export class DataLanguageConfigService {
   private readonly apiUrl = environment.baseUrl.replace('backend/', '');
 
   getLanguageConfig(): Observable<LanguageConfigResponse> {
-    return this.httpClient.get<LanguageConfigResponse>(`${this.apiUrl}config/languages`);
+    return this.httpClient.get<LanguageConfigResponse>(`${this.apiUrl}config/languages`).pipe(retry(3));
   }
 }

@@ -2,7 +2,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
 
@@ -25,6 +25,6 @@ export class DataScheduleNoteService {
   }
 
   get(id: string): Observable<ScheduleNoteResource> {
-    return this.httpClient.get<ScheduleNoteResource>(`${environment.baseUrl}ScheduleNotes/${id}`);
+    return this.httpClient.get<ScheduleNoteResource>(`${environment.baseUrl}ScheduleNotes/${id}`).pipe(retry(3));
   }
 }

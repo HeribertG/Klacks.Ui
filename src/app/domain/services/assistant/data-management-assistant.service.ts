@@ -9,9 +9,9 @@ import {
   DataAssistantService,
   IAssistantChatRequest,
   IAssistantChatResponse,
-  IAssistantModel,
   IAssistantUsage,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';

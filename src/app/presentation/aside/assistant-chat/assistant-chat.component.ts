@@ -28,7 +28,7 @@ import {
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
-import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
 import { IconUserComponent } from '../../icons/icon-user.component';

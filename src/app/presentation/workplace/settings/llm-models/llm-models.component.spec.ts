@@ -11,7 +11,7 @@ import { LLMModelsComponent } from './llm-models.component';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Subject } from 'rxjs';

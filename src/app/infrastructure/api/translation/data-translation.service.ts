@@ -2,7 +2,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface TranslationRequest {
@@ -24,7 +24,7 @@ export class DataTranslationService {
   private httpClient = inject(HttpClient);
 
   getStatus(): Observable<boolean> {
-    return this.httpClient.get<boolean>(`${environment.baseUrl}Translation/status`);
+    return this.httpClient.get<boolean>(`${environment.baseUrl}Translation/status`).pipe(retry(3));
   }
 
   translateToAll(text: string, sourceLanguage: string): Observable<TranslationResponse> {
@@ -32,6 +32,6 @@ export class DataTranslationService {
     return this.httpClient.post<TranslationResponse>(
       `${environment.baseUrl}Translation/translate-all`,
       request
-    );
+    ).pipe(retry(3));
   }
 }

@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, retry } from 'rxjs';
 
 export interface RouteCoordinate {
   lat: number;
@@ -41,6 +41,7 @@ export class DataRoutingService {
     const url = `${this.OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
 
     return this.httpClient.get<OsrmResponse>(url).pipe(
+      retry(3),
       map((data) => {
         if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
           throw new Error('No route found');

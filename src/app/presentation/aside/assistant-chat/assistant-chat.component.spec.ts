@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { AssistantChatComponent } from './assistant-chat.component';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
-import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';

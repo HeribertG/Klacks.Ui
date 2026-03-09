@@ -4,7 +4,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IAssistantModel } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({

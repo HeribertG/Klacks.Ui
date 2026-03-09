@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 
@@ -37,13 +37,13 @@ export class DataOAuth2Service {
   getProviders(): Observable<OAuth2Provider[]> {
     return this.httpClient.get<OAuth2Provider[]>(
       `${environment.baseUrl}OAuth2/providers`
-    );
+    ).pipe(retry(3));
   }
 
   authorize(providerId: string, redirectUri: string): Observable<OAuth2AuthorizeResponse> {
     return this.httpClient.get<OAuth2AuthorizeResponse>(
       `${environment.baseUrl}OAuth2/authorize/${providerId}?redirectUri=${encodeURIComponent(redirectUri)}`
-    );
+    ).pipe(retry(3));
   }
 
   callback(request: OAuth2CallbackRequest): Observable<MyToken> {
@@ -58,6 +58,6 @@ export class DataOAuth2Service {
     if (postLogoutRedirectUri) {
       url += `?postLogoutRedirectUri=${encodeURIComponent(postLogoutRedirectUri)}`;
     }
-    return this.httpClient.get<OAuth2LogoutResponse>(url);
+    return this.httpClient.get<OAuth2LogoutResponse>(url).pipe(retry(3));
   }
 }

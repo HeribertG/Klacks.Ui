@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, retry } from 'rxjs';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 export interface GeocodingResult {
@@ -33,6 +33,7 @@ export class DataGeocodingService {
       },
       context: new HttpContext().set(SKIP_LOADING, true),
     }).pipe(
+      retry(3),
       map(results => {
         if (results && results.length > 0) {
           const result = results[0];

@@ -2,7 +2,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 
@@ -13,15 +13,15 @@ export class DataReportApiService {
   private http = inject(HttpClient);
 
   getAllTemplates(): Promise<ReportTemplate[]> {
-    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates`));
+    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates`).pipe(retry(3)));
   }
 
   getTemplatesByType(type: number): Promise<ReportTemplate[]> {
-    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates/by-type/${type}`));
+    return firstValueFrom(this.http.get<ReportTemplate[]>(`${environment.baseUrl}reporttemplates/by-type/${type}`).pipe(retry(3)));
   }
 
   getTemplateById(id: string): Promise<ReportTemplate> {
-    return firstValueFrom(this.http.get<ReportTemplate>(`${environment.baseUrl}reporttemplates/${id}`));
+    return firstValueFrom(this.http.get<ReportTemplate>(`${environment.baseUrl}reporttemplates/${id}`).pipe(retry(3)));
   }
 
   createTemplate(template: ReportTemplate): Promise<ReportTemplate> {

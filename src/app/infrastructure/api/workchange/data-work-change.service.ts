@@ -2,7 +2,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WorkChangeRequest, WorkChangeResource } from 'src/app/domain/models/workchange/work-change';
 
@@ -25,6 +25,6 @@ export class DataWorkChangeService {
   }
 
   get(id: string): Observable<WorkChangeResource> {
-    return this.httpClient.get<WorkChangeResource>(`${environment.baseUrl}Works/Changes/${id}`);
+    return this.httpClient.get<WorkChangeResource>(`${environment.baseUrl}Works/Changes/${id}`).pipe(retry(3));
   }
 }

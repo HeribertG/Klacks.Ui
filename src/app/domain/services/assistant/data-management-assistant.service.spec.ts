@@ -8,7 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, throwError, delay } from 'rxjs';
 
 import { DataManagementAssistantService } from './data-management-assistant.service';
-import { DataAssistantService, IAssistantModel, IAssistantChatResponse, IAssistantUsage, } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { DataAssistantService, IAssistantChatResponse, IAssistantUsage, } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { AssistantFunctionExecutionService } from './assistant-function-execution.service';
 

@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 
 export interface IAssistantChatRequest {
   message: string;
@@ -32,27 +33,7 @@ export interface IAssistantChatResponse {
   };
 }
 
-export interface IAssistantModel {
-  id?: string;
-  modelId: string;
-  apiModelId?: string;
-  providerId: string;
-  modelName: string;
-  description?: string;
-  contextWindow: number;
-  maxTokens: number;
-  costPerInputToken: number;
-  costPerOutputToken: number;
-  isEnabled: boolean;
-  isDefault: boolean;
-  capabilities: string[];
-  // Temporary field for API key during creation/update
-  providerApiKey?: string;
-
-  // Frontend-only display fields (not sent to backend)
-  displayName?: string;
-  maxOutputTokens?: number;
-}
+export { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 
 export interface IAssistantUsage {
   totalCost: number;
