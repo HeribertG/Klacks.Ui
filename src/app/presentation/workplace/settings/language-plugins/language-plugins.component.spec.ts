@@ -86,10 +86,13 @@ describe('LanguagePluginsComponent', () => {
   });
 
   it('should load plugins on init', () => {
+    // Arrange & Act
     component.ngOnInit();
 
+    // Assert
     expect(mockDataService.getPlugins).toHaveBeenCalled();
-    expect(component.plugins).toEqual(mockPlugins);
+    expect(component.allPlugins).toEqual(mockPlugins);
+    expect(component.plugins).toEqual([mockPlugins[0]]);
   });
 
   it('should show error toast when loading fails', () => {

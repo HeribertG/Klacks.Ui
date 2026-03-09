@@ -72,6 +72,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
     [RouteName.SCHEDULE]: EntityName.SCHEDULE,
     [RouteName.ABSENCE]: EntityName.ABSENCE,
     [RouteName.CLIENT_AVAILABILITY]: EntityName.CLIENT_AVAILABILITY,
+    [RouteName.DASHBOARD]: EntityName.DASHBOARD,
   };
 
   public showProgressSpinnerNew = computed(
@@ -154,6 +155,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
   private static readonly INTERCEPTOR_SUPPRESSED_ROUTES: ReadonlySet<string> = new Set([
     RouteName.ABSENCE,
     RouteName.SCHEDULE,
+    RouteName.DASHBOARD,
   ]);
 
   public setActiveManagerByRoute(routeId: RouteName | string): void {

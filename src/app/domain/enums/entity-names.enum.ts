@@ -34,6 +34,7 @@ export enum RouteName {
   SCHEDULE = 'schedule',
   ABSENCE = 'absence',
   CLIENT_AVAILABILITY = 'client-availability',
+  DASHBOARD = 'dashboard',
 }
 
 export function isValidRouteName(value: string): value is RouteName {

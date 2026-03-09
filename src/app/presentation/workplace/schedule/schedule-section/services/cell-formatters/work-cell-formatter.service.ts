@@ -19,7 +19,10 @@ import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';
-import { CellTypeEnum, IconCornerEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
+import {
+  CellTypeEnum,
+  IconCornerEnum,
+} from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { ICellFormatter } from './cell-formatter.interface';
 import { EmptyCellFormatterService } from './empty-cell-formatter.service';
 
@@ -45,7 +48,10 @@ export class WorkCellFormatterService implements ICellFormatter {
       cell.icons = [new CellIcon(lockIcon, IconCornerEnum.TopRight, 12)];
     }
 
-    const tooltip = this.lockLevelService.getLockTooltip(entry.lockLevel, entry.isGroupRestricted);
+    const tooltip = this.lockLevelService.getLockTooltip(
+      entry.lockLevel,
+      entry.isGroupRestricted,
+    );
     if (tooltip) {
       cell.tooltip = tooltip;
     }

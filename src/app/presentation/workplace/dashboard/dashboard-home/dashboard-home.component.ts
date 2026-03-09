@@ -5,7 +5,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { EntityName } from 'src/app/domain/enums/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -37,8 +37,7 @@ export class DashboardHomeComponent implements OnInit {
     // Hide search for dashboard
     this.searchService.setSearchVisibility(false);
 
-    // Hide group-select for dashboard
-    this.workplaceStateService.setNameOfVisibleEntity(EntityName.DASHBOARD);
+    this.workplaceStateService.setActiveManagerByRoute(RouteName.DASHBOARD);
     this.workplaceStateService.isFocusChanged.set(true);
 
     // Set normal width for dashboard

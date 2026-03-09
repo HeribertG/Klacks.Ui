@@ -52,7 +52,7 @@ describe('OwnerAddressComponent', () => {
 
         const mockClientConfigService = {
             countryList: [{ code: 'DE', name: 'Germany' }],
-            stateList: [{ code: 'BY', name: 'Bavaria', country: 'DE' }],
+            stateList: vi.fn().mockReturnValue([{ code: 'BY', name: 'Bavaria', country: 'DE' }]),
             calendars: [{ id: 'cal-1', name: 'Default' }],
             countries: vi.fn().mockReturnValue([{ code: 'DE', name: 'Germany' }]),
             states: vi.fn().mockReturnValue([{ code: 'BY', name: 'Bavaria', country: 'DE' }]),
@@ -63,6 +63,7 @@ describe('OwnerAddressComponent', () => {
             selectedCountry: signal('DE'),
             selectedState: signal('BY'),
             selectedCalendarId: signal('cal-1'),
+            calendarsSelections: [],
             setSelectedCountry: vi.fn(),
             setSelectedState: vi.fn(),
             setSelectedCalendarId: vi.fn(),
