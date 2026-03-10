@@ -525,68 +525,112 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.shouldScrollToBottom = true;
   }
 
+  private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const uiActionCalls: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const navigationCalls: any[] = [];
+    const backendCalls: { id: string; name: string; arguments: Record<string, unknown> }[] = [];
+
     for (const call of functionCalls) {
       const functionName = call.FunctionName || call.functionName;
       if (!functionName) continue;
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
       if (uiActionSteps && uiActionSteps !== '{}') {
-        await this.executeUiActionSteps(uiActionSteps, call);
-        continue;
+        uiActionCalls.push(call);
+      } else if (this.NAVIGATION_FUNCTIONS.includes(functionName)) {
+        navigationCalls.push(call);
+      } else {
+        backendCalls.push({
+          id: this.generateMessageId(),
+          name: functionName,
+          arguments: call.Parameters || call.parameters || {},
+        });
       }
+    }
 
+    for (const call of uiActionCalls) {
+      const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
+      await this.executeUiActionSteps(uiActionSteps, call);
+    }
+
+    for (const call of navigationCalls) {
+      const functionName = call.FunctionName || call.functionName;
       const functionCall = {
         id: this.generateMessageId(),
         name: functionName,
         arguments: call.Parameters || call.parameters || {},
       };
-
       try {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(functionCall)
         );
-
-        if (result.success && result.result?.action === 'navigated') {
-          const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage) {
-            lastMessage.content = `✅ Navigiert zu: ${result.result.entity?.name || result.result.route}`;
-          }
-        } else if (result.success && result.result?.action === 'navigated_with_search') {
-          const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage) {
-            lastMessage.content = `✅ ${result.result.message}`;
-          }
-        } else if (result.success && result.result?.action === 'multiple_results') {
-          const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const items = result.result.items as any[];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const itemList = items.map((item: any) =>
-              `• ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
-            ).join('\n');
-            lastMessage.content = `${result.result.message}\n\n${itemList}`;
-          }
-        } else if (result.success && result.result?.message) {
-          const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage) {
-            lastMessage.content = `✅ ${result.result.message}`;
-          }
-        } else if (!result.success && result.error && !result.error.includes('not implemented')) {
-          const lastMessage = this.messages[this.messages.length - 1];
-          if (lastMessage) {
-            lastMessage.content = `âŒ ${result.error}`;
-          }
-        }
+        this.applyFunctionResult(result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        const lastMsg = this.messages[this.messages.length - 1];
-        if (lastMsg) {
-          lastMsg.content = `âŒ ${error?.message || 'Function execution failed'}`;
-        }
+        this.applyFunctionError(error);
       }
+    }
+
+    if (backendCalls.length === 0) return;
+
+    if (backendCalls.length === 1) {
+      try {
+        const result = await firstValueFrom(
+          this.functionExecutionService.executeFunction(backendCalls[0])
+        );
+        this.applyFunctionResult(result);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        this.applyFunctionError(error);
+      }
+      return;
+    }
+
+    try {
+      const results = await this.functionExecutionService.executeFunctionsBatch(backendCalls);
+      for (const result of results) {
+        this.applyFunctionResult(result);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      this.applyFunctionError(error);
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private applyFunctionResult(result: any): void {
+    const lastMessage = this.messages[this.messages.length - 1];
+    if (!lastMessage) return;
+
+    if (result.success && result.result?.action === 'navigated') {
+      lastMessage.content = `\u2705 Navigiert zu: ${result.result.entity?.name || result.result.route}`;
+    } else if (result.success && result.result?.action === 'navigated_with_search') {
+      lastMessage.content = `\u2705 ${result.result.message}`;
+    } else if (result.success && result.result?.action === 'multiple_results') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const items = result.result.items as any[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const itemList = items.map((item: any) =>
+        `\u2022 ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
+      ).join('\n');
+      lastMessage.content = `${result.result.message}\n\n${itemList}`;
+    } else if (result.success && result.result?.message) {
+      lastMessage.content = `\u2705 ${result.result.message}`;
+    } else if (!result.success && result.error && !result.error.includes('not implemented')) {
+      lastMessage.content = `\u274C ${result.error}`;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private applyFunctionError(error: any): void {
+    const lastMsg = this.messages[this.messages.length - 1];
+    if (lastMsg) {
+      lastMsg.content = `\u274C ${error?.message || 'Function execution failed'}`;
     }
   }
 

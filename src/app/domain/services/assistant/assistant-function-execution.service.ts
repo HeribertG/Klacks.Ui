@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, map, retry } from 'rxjs/operators';
 import {
   IAssistantFunctionCall,
   IAssistantFunctionResult,
@@ -48,6 +48,43 @@ export class AssistantFunctionExecutionService {
     } catch (error: any) {
       return of({ id: call.id, success: false, error: error.message });
     }
+  }
+
+  executeFunctionsBatch(
+    calls: IAssistantFunctionCall[]
+  ): Promise<IAssistantFunctionResult[]> {
+    const requests = calls.map(call => ({
+      functionName: call.name,
+      parameters: call.arguments,
+    }));
+
+    return firstValueFrom(
+      this.httpClient
+        .post<{ success: boolean; result?: any; error?: string; message?: string }[]>(
+          `${this.apiBaseUrl}assistant/chat/execute-functions-batch`,
+          requests
+        )
+        .pipe(
+          retry(1),
+          map((responses) =>
+            responses.map((response, index) => ({
+              id: calls[index].id,
+              success: response.success,
+              result: response.result,
+              error: response.error,
+            }))
+          ),
+          catchError(() =>
+            of(
+              calls.map(call => ({
+                id: call.id,
+                success: false,
+                error: 'Batch function execution failed',
+              }))
+            )
+          )
+        )
+    );
   }
 
   private executeBackendFunction(
