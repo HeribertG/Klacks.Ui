@@ -9,6 +9,8 @@ import { Component, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguagePluginService } from 'src/app/infrastructure/api/settings/data-language-plugin.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -17,7 +19,7 @@ import { MarketplacePackage } from 'src/app/domain/models/settings/marketplace-p
 @Component({
   selector: 'app-marketplace-browse',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, FormsModule],
+  imports: [TranslateModule, DecimalPipe, FormsModule, FontAwesomeModule],
   templateUrl: './marketplace-browse.component.html',
   styleUrls: ['./marketplace-browse.component.scss'],
 })
@@ -25,6 +27,8 @@ export class MarketplaceBrowseComponent {
   private dataService = inject(DataLanguagePluginService);
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
+
+  faSearch = faSearch;
 
   installedCodes = input<Set<string>>(new Set());
   installed = output<string>();
