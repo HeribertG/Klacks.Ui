@@ -1,0 +1,58 @@
+<div class="marketplace-browse">
+  <div class="search-bar">
+    <input type="text" class="form-control" [(ngModel)]="searchTerm"
+           (keyup.enter)="search()" [placeholder]="'settings.language-plugins.marketplace.search-placeholder' | translate">
+    <button class="btn btn-primary" (click)="search()" [disabled]="isLoading">
+      {{ 'settings.language-plugins.marketplace.search' | translate }}
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="text-center p-4">
+      <div class="spinner-border" role="status"></div>
+    </div>
+  } @else if (packages.length === 0) {
+    <div class="text-center p-4 text-muted">
+      {{ 'settings.language-plugins.marketplace.no-results' | translate }}
+    </div>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'settings.language-plugins.marketplace.language' | translate }}</th>
+          <th>{{ 'settings.language-plugins.marketplace.author' | translate }}</th>
+          <th>{{ 'settings.language-plugins.marketplace.coverage' | translate }}</th>
+          <th>{{ 'settings.language-plugins.marketplace.downloads' | translate }}</th>
+          <th>{{ 'settings.language-plugins.marketplace.version' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (pkg of packages; track pkg.code) {
+          <tr>
+            <td>{{ pkg.displayName }} ({{ pkg.code }})</td>
+            <td>{{ pkg.authorName }}</td>
+            <td>{{ pkg.coverage | number:'1.0-0' }}%</td>
+            <td>{{ pkg.downloads }}</td>
+            <td>{{ pkg.version }}</td>
+            <td>
+              @if (isInstalled(pkg.code)) {
+                <span class="badge bg-success">{{ 'settings.language-plugins.marketplace.installed' | translate }}</span>
+              } @else {
+                <button class="btn btn-sm btn-outline-primary"
+                        (click)="onDownloadAndInstall(pkg.code)"
+                        [disabled]="installingCode === pkg.code">
+                  @if (installingCode === pkg.code) {
+                    <span class="spinner-border spinner-border-sm"></span>
+                  } @else {
+                    {{ 'settings.language-plugins.marketplace.install' | translate }}
+                  }
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

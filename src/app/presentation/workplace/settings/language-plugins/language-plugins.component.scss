@@ -1,5 +1,5 @@
+@use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 :host {
   display: block;
@@ -16,26 +16,4 @@
   align-items: center;
   justify-content: center;
   z-index: 1;
-}
-
-.available-table {
-  font-size: 13px;
-  color: var(--colorLabel);
-
-  th {
-    font-weight: 500;
-    border-bottom: 2px solid var(--cardBorderColor);
-  }
-
-  td {
-    vertical-align: middle;
-  }
-}
-
-.modal-header {
-  background-color: var(--backgroundColoPagination);
-}
-
-.modal-body {
-  background-color: var(--backgroundColoPagination);
 }

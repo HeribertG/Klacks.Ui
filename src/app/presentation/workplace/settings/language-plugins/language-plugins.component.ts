@@ -11,19 +11,19 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { LanguagePluginsHeaderComponent } from './language-plugins-header/language-plugins-header.component';
 import { LanguagePluginsRowComponent } from './language-plugins-row/language-plugins-row.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { DecimalPipe } from '@angular/common';
 import { IconSearchComponent } from 'src/app/presentation/icons/icon-search.component';
+import { MarketplaceBrowseComponent } from './marketplace-browse/marketplace-browse.component';
 
 @Component({
   selector: 'app-language-plugins',
   standalone: true,
   imports: [
     TranslateModule,
-    DecimalPipe,
     LanguagePluginsHeaderComponent,
     LanguagePluginsRowComponent,
     SettingsListCardComponent,
     IconSearchComponent,
+    MarketplaceBrowseComponent,
   ],
   templateUrl: './language-plugins.component.html',
   styleUrls: ['./language-plugins.component.scss'],
@@ -36,7 +36,8 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
   public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
-  @ViewChild('availableModal') availableModal!: TemplateRef<unknown>;
+  @ViewChild('marketplaceModal') marketplaceModal!: TemplateRef<unknown>;
+  @ViewChild(MarketplaceBrowseComponent) marketplaceBrowse?: MarketplaceBrowseComponent;
 
   allPlugins: LanguagePluginInfo[] = [];
   isLoading = false;
@@ -45,8 +46,8 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
     return this.allPlugins.filter(p => p.isCore || p.isInstalled);
   }
 
-  get availablePlugins(): LanguagePluginInfo[] {
-    return this.allPlugins.filter(p => !p.isCore && !p.isInstalled);
+  get installedCodes(): Set<string> {
+    return new Set(this.allPlugins.filter(p => p.isInstalled || p.isCore).map(p => p.code));
   }
 
   ngOnInit(): void {
@@ -74,17 +75,6 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
       });
   }
 
-  async onInstall(plugin: LanguagePluginInfo): Promise<void> {
-    try {
-      await firstValueFrom(this.dataService.install(plugin.code));
-      plugin.isInstalled = true;
-      await this.languageConfigService.reloadConfig();
-      this.toastService.showSuccess('settings.language-plugins.success.install', 'Success');
-    } catch {
-      this.toastService.showError('settings.language-plugins.error.install');
-    }
-  }
-
   async onUninstall(plugin: LanguagePluginInfo): Promise<void> {
     try {
       await firstValueFrom(this.dataService.uninstall(plugin.code));
@@ -96,14 +86,13 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
     }
   }
 
-  openAvailableModal(): void {
-    this.modalService.open(this.availableModal, { size: 'lg' });
+  openMarketplaceModal(): void {
+    this.modalService.open(this.marketplaceModal, { size: 'lg' });
+    setTimeout(() => this.marketplaceBrowse?.search(), 0);
   }
 
-  async onInstallFromModal(plugin: LanguagePluginInfo, modal: { close: () => void }): Promise<void> {
-    await this.onInstall(plugin);
-    if (this.availablePlugins.length === 0) {
-      modal.close();
-    }
+  onMarketplaceInstalled(code: string): void {
+    this.loadPlugins();
+    this.languageConfigService.reloadConfig();
   }
 }

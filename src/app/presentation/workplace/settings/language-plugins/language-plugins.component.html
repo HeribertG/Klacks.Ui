@@ -10,7 +10,6 @@
       <app-language-plugins-row
         [id]="'language-plugins-row-' + i"
         [data]="plugin"
-        (installEvent)="onInstall($event)"
         (uninstallEvent)="onUninstall($event)"
       />
     }
@@ -21,50 +20,29 @@
   id="language-plugins-search-btn"
   class="btn btn-primary search-btn"
   type="button"
-  (click)="openAvailableModal()"
+  (click)="openMarketplaceModal()"
   [title]="translate.instant('settings.language-plugins.action.search')"
 >
   <app-icon-search />
 </button>
 
-<ng-template #availableModal let-modal>
+<ng-template #marketplaceModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">{{ translate.instant("settings.language-plugins.modal.title") }}</h5>
-    <button type="button" class="btn-close" (click)="modal.close()"></button>
+    <div class="container-header-modal modal-title">
+      {{ translate.instant("settings.language-plugins.modal.title") }}
+    </div>
+    <span class="filler"></span>
+    <div class="close" (click)="modal.dismiss()">×</div>
   </div>
   <div class="modal-body">
-    @if (availablePlugins.length === 0) {
-      <p class="text-muted">{{ translate.instant("settings.language-plugins.modal.no-available") }}</p>
-    } @else {
-      <table class="table available-table">
-        <thead>
-          <tr>
-            <th>{{ translate.instant("settings.language-plugins.header.language") }}</th>
-            <th>{{ translate.instant("settings.language-plugins.header.display-name") }}</th>
-            <th>{{ translate.instant("settings.language-plugins.header.author") }}</th>
-            <th>{{ translate.instant("settings.language-plugins.header.coverage") }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (plugin of availablePlugins; track plugin.code) {
-            <tr>
-              <td class="fw-bold">{{ plugin.code.toUpperCase() }}</td>
-              <td>{{ plugin.displayName }}</td>
-              <td>{{ plugin.author }}</td>
-              <td>{{ plugin.coverage | number:'1.0-0' }}%</td>
-              <td class="text-end">
-                <button
-                  class="btn btn-sm btn-outline-success"
-                  (click)="onInstallFromModal(plugin, modal)"
-                >
-                  {{ translate.instant("settings.language-plugins.action.install") }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
+    <app-marketplace-browse
+      [installedCodes]="installedCodes"
+      (installed)="onMarketplaceInstalled($event)">
+    </app-marketplace-browse>
+  </div>
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="modal.dismiss()">
+      {{ translate.instant("close") }}
+    </span>
   </div>
 </ng-template>
