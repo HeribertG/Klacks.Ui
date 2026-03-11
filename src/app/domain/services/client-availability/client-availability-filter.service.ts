@@ -21,6 +21,7 @@ export class ClientAvailabilityFilterService {
     sortOrder: 'asc',
     showEmployees: true,
     showExtern: true,
+    hoursSortOrder: undefined as string | undefined,
   };
 
   public startDate = '';
