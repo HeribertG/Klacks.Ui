@@ -317,6 +317,7 @@
   "client-availability.grouping.4h": "4h",
   "client-availability.grouping.am-pm": "AM/PM",
   "client-availability.grouping.full-day": "Day",
+  "client-availability.calendar-week": "CW",
   "client.validation.duplicate": "The selected person is already in the list",
   "search.inc.client": "Include client name",
   "active": "Active",

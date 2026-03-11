@@ -58,12 +58,19 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   currentMonth = new Date().getMonth() + 1;
   currentWeek = 1;
 
-  groupingOptions: Options = this.buildGroupingOptions();
+  groupingOptions: Options = {};
 
   ngOnInit(): void {
     this.currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
+    this.groupingOptions = this.buildGroupingOptions();
 
     this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.groupingOptions = this.buildGroupingOptions();
+      });
+
+    this.translateService.onDefaultLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.groupingOptions = this.buildGroupingOptions();
@@ -91,14 +98,15 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   get displayPeriod(): string {
+    const cw = this.translateService.instant('client-availability.calendar-week');
     switch (this.viewMode) {
       case PaymentInterval.Weekly:
-        return `KW ${this.currentWeek}`;
+        return `${cw} ${this.currentWeek}`;
       case PaymentInterval.Biweekly:
-        return `KW ${this.currentWeek}-${Math.min(this.currentWeek + 1, this.getWeeksInYear(this.currentYear))}`;
+        return `${cw} ${this.currentWeek}-${Math.min(this.currentWeek + 1, this.getWeeksInYear(this.currentYear))}`;
       case PaymentInterval.Monthly:
       default:
-        return this.gridSettingsService.monthsName[this.currentMonth - 1];
+        return this.translateService.instant(this.gridSettingsService.monthsName[this.currentMonth - 1]);
     }
   }
 
