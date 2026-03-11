@@ -219,10 +219,20 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   private emitPeriodChange(): void {
-    this.periodChanged.emit({
-      year: this.currentYear,
-      month: this.currentMonth,
-      week: this.currentWeek,
-    });
+    switch (this.viewMode) {
+      case PaymentInterval.Monthly:
+        this.periodChanged.emit({
+          year: this.currentYear,
+          month: this.currentMonth,
+        });
+        break;
+      case PaymentInterval.Weekly:
+      case PaymentInterval.Biweekly:
+        this.periodChanged.emit({
+          year: this.currentYear,
+          week: this.currentWeek,
+        });
+        break;
+    }
   }
 }

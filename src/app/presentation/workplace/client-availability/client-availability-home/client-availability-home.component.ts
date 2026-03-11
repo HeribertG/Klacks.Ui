@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { ClientAvailabilityHeaderComponent } from '../client-availability-header/client-availability-header.component';
 import { ClientAvailabilityContainerComponent } from '../client-availability-container/client-availability-container.component';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
@@ -94,6 +96,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private holidayCollection = inject(HolidayCollectionService);
   private calendarUtil = inject(CalendarUtilService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -132,10 +135,13 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       getEntityName: () => EntityName.CLIENT_AVAILABILITY,
     });
 
-    this.groupSelection.registerClientAvailabilityCallback((groupId) => {
+    this.groupSelection.registerClientAvailabilityCallback(async (groupId) => {
       this.filterService.selectedGroupId = groupId;
       this.applyViewMode();
+      this.setStartDate();
       this.applyFilterAndRender();
+      await this.applyCalendarSelection();
+      await this.loadAvailabilityData();
     });
   }
 
@@ -145,6 +151,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       this.gridFonts.readDataAsync(),
       this.holidayCollection.readDataAsync(),
     ]);
+
+    await this.applyCalendarSelection();
 
     this.renderGrid.initialize();
     this.applyViewMode();
@@ -195,8 +203,12 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
 
   private setStartDate(): void {
     const now = new Date();
-    const week = this.calendarUtil.getISO8601WeekNumber(now);
-    this.calculation.startDate = this.calendarUtil.getWeekStartDate(now.getFullYear(), week);
+    if (this.viewMode === PaymentInterval.Monthly) {
+      this.calculation.startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else {
+      const week = this.calendarUtil.getISO8601WeekNumber(now);
+      this.calculation.startDate = this.calendarUtil.getWeekStartDate(now.getFullYear(), week);
+    }
   }
 
   private setStartDateFromPeriod(data: PeriodResetData): void {
@@ -217,5 +229,41 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     const end = new Date(this.calculation.startDate);
     end.setDate(end.getDate() + this.calculation.daysInView - 1);
     return this.calculation.formatDateOnly(end);
+  }
+
+  private async applyCalendarSelection(): Promise<void> {
+    const chips = await this.resolveCalendarChips();
+    if (chips.length > 0) {
+      this.holidayCollection.setSelection(chips);
+    }
+  }
+
+  private async resolveCalendarChips(): Promise<StateCountryToken[]> {
+    const calendarSelectionId =
+      this.groupSelection.selectedGroup?.calendarSelectionId ||
+      this.appSettingsService.contactSettings().globalCalendarSelectionId;
+
+    if (!calendarSelectionId) {
+      return [];
+    }
+
+    try {
+      const selection = await lastValueFrom(
+        this.dataCalendarSelectionService.getCalendarSelection(calendarSelectionId)
+      );
+
+      if (!selection?.selectedCalendars?.length) {
+        return [];
+      }
+
+      return selection.selectedCalendars.map((sc) => {
+        const token = new StateCountryToken();
+        token.country = sc.country;
+        token.state = sc.state;
+        return token;
+      });
+    } catch {
+      return [];
+    }
   }
 }
