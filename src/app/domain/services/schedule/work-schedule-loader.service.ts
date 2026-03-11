@@ -2,6 +2,7 @@
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import {
   IPeriodHours,
@@ -12,6 +13,7 @@ import {
 } from 'src/app/domain/models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import {
   formatDateOnly,
@@ -27,6 +29,7 @@ import { ScheduleChangeService } from './schedule-change.service';
 export class WorkScheduleLoaderService {
   private dataWorkSchedule = inject(DataWorkScheduleService);
   private settingsService = inject(DataManagementSettingsService);
+  private groupService = inject(DataManagementGroupService);
   private calendarUtil = inject(CalendarUtilService);
   private signalRService = inject(SCHEDULE_SIGNALR);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
@@ -175,6 +178,8 @@ export class WorkScheduleLoaderService {
     this._isLoadingMore.set(false);
     this.scheduleChangeService.clear();
 
+    this.validateSelectedGroup(workFilter);
+
     const dates = this.calculateVisibleDates(workFilter);
 
     this._currentFilter = {
@@ -225,10 +230,34 @@ export class WorkScheduleLoaderService {
             setTimeout(() => this.autoLoadNextChunk(loadId), 100);
           }
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 404 && workFilter.selectedGroup) {
+            console.warn('Schedule load returned 404 for group - clearing stale group filter and retrying');
+            workFilter.selectedGroup = undefined;
+            if (this._currentFilter) {
+              this._currentFilter.selectedGroup = undefined;
+            }
+            this.load(workFilter, onLoaded);
+            return;
+          }
           console.error('Error loading work schedule:', err);
         },
       });
+  }
+
+  private validateSelectedGroup(workFilter: IWorkFilter): void {
+    if (!workFilter.selectedGroup) return;
+
+    const availableGroups = this.groupService.flatNodeList;
+    if (availableGroups.length === 0) return;
+
+    const groupExists = availableGroups.some(
+      (g) => g.id === workFilter.selectedGroup,
+    );
+
+    if (!groupExists) {
+      workFilter.selectedGroup = undefined;
+    }
   }
 
   private autoLoadNextChunk(loadId: number): void {

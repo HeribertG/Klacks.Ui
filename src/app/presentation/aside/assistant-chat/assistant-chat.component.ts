@@ -607,30 +607,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     const lastMessage = this.messages[this.messages.length - 1];
     if (!lastMessage) return;
 
-    if (result.success && result.result?.action === 'navigated') {
-      lastMessage.content = `\u2705 Navigiert zu: ${result.result.entity?.name || result.result.route}`;
-    } else if (result.success && result.result?.action === 'navigated_with_search') {
-      lastMessage.content = `\u2705 ${result.result.message}`;
-    } else if (result.success && result.result?.action === 'multiple_results') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items = result.result.items as any[];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itemList = items.map((item: any) =>
-        `\u2022 ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
-      ).join('\n');
-      lastMessage.content = `${result.result.message}\n\n${itemList}`;
-    } else if (result.success && result.result?.message) {
-      lastMessage.content = `\u2705 ${result.result.message}`;
-    } else if (!result.success && result.error && !result.error.includes('not implemented')) {
-      lastMessage.content = `\u274C ${result.error}`;
+    if (!result.success && result.error && !result.error.includes('not implemented')) {
+      if (!lastMessage.content) {
+        lastMessage.content = result.error;
+      }
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private applyFunctionError(error: any): void {
     const lastMsg = this.messages[this.messages.length - 1];
-    if (lastMsg) {
-      lastMsg.content = `\u274C ${error?.message || 'Function execution failed'}`;
+    if (lastMsg && !lastMsg.content) {
+      lastMsg.content = error?.message || 'Function execution failed';
     }
   }
 
@@ -647,16 +635,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       };
 
       await this.uiActionEngine.executeConfig(config, context);
-
-      const lastMessage = this.messages[this.messages.length - 1];
-      if (lastMessage && lastMessage.content) {
-        lastMessage.content = `\u2705 ${lastMessage.content}`;
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const lastMsg = this.messages[this.messages.length - 1];
-      if (lastMsg) {
-        lastMsg.content = `\u274C ${error?.message || 'UI action execution failed'}`;
+      if (lastMsg && !lastMsg.content) {
+        lastMsg.content = error?.message || 'UI action execution failed';
       }
     }
   }
