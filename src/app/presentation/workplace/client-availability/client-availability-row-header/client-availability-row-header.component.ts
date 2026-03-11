@@ -27,6 +27,9 @@ import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { RenderAvailabilityGridService } from '../services/render-availability-grid';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
+import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
+import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-availability-row-header',
@@ -43,6 +46,7 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   private injector = inject(Injector);
   private renderGrid = inject(RenderAvailabilityGridService);
   private rowHeaderIcons = inject(RowHeaderIconsService);
+  private dataClientAvailability = inject(DataClientAvailabilityService);
 
   public filterService = inject(ClientAvailabilityFilterService);
 
@@ -124,12 +128,19 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
     this.destroyFilter();
   }
 
-  onFilterChange(): void {
-    this.filterService.reFilter((filtered) => {
-      this.renderGrid.setClients(
-        filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
-      );
-    });
+  async onFilterChange(): Promise<void> {
+    const filter = this.filterService.buildFilter();
+    const response = await firstValueFrom(
+      this.dataClientAvailability.getClients(filter)
+    );
+
+    const clients = response.clients.map((c) => ({
+      id: c.id,
+      displayName: formatClientDisplayName(c),
+    }));
+
+    this.renderGrid.setClients(clients);
+    this.filterService.notifyClientsChanged();
   }
 
   showFilter(): void {

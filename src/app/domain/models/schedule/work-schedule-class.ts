@@ -54,6 +54,7 @@ export interface IWorkScheduleFilter {
   startDate: string;
   endDate: string;
   selectedGroup?: string;
+  searchString?: string;
   orderBy?: string;
   sortOrder?: string;
   showEmployees?: boolean;

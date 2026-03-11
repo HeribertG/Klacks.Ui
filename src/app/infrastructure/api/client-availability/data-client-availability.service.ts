@@ -8,6 +8,8 @@ import {
   IClientAvailability,
   IClientAvailabilityBulkRequest,
 } from 'src/app/domain/models/client-availability/client-availability-class';
+import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
+import { IClientAvailabilityClientResponse } from 'src/app/domain/models/client-availability/client-availability-client-response.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +35,15 @@ export class DataClientAvailabilityService {
       .post<number>(
         `${environment.baseUrl}ClientAvailabilities/Bulk`,
         request
+      )
+      .pipe(retry(3));
+  }
+
+  getClients(filter: IClientAvailabilityClientFilter) {
+    return this.httpClient
+      .post<IClientAvailabilityClientResponse>(
+        `${environment.baseUrl}ClientAvailabilities/Clients`,
+        filter
       )
       .pipe(retry(3));
   }

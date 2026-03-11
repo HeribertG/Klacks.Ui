@@ -186,6 +186,7 @@ export class WorkScheduleLoaderService {
       startDate: dates.startDate,
       endDate: dates.endDate,
       selectedGroup: workFilter.selectedGroup || undefined,
+      searchString: workFilter.searchString || '',
       orderBy: workFilter.orderBy || 'name',
       sortOrder: workFilter.sortOrder || 'asc',
       showEmployees: workFilter.showEmployees ?? true,

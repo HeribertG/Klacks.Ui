@@ -51,9 +51,19 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
     if (!cell) return;
 
     this.isDragging = true;
-    this.dragValue = !event.ctrlKey;
     this.lastDragRow = cell.row;
     this.lastDragCol = cell.col;
+
+    if (event.ctrlKey) {
+      this.dragValue = false;
+    } else {
+      const client = this.renderGrid.getClients()[cell.row];
+      const dateHour = this.calculation.columnToDateHour(cell.col);
+      const isCurrentlyChecked = client
+        ? this.dataManagement.isGroupAvailable(client.id, dateHour.dateString, dateHour.startHour, dateHour.endHour)
+        : false;
+      this.dragValue = !isCurrentlyChecked;
+    }
 
     document.addEventListener('mouseup', this.documentMouseUpHandler, { once: true });
 

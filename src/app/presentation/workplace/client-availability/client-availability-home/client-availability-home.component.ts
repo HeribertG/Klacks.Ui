@@ -30,7 +30,7 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
-import { DataClientService, IClientForReplacement } from 'src/app/infrastructure/api/client/data-client.service';
+import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
@@ -84,7 +84,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
-  private dataClientService = inject(DataClientService);
+  private dataClientAvailability = inject(DataClientAvailabilityService);
   private renderGrid = inject(RenderAvailabilityGridService);
   private calculation = inject(AvailabilityCalculationService);
   private settings = inject(AvailabilitySettingService);
@@ -126,11 +126,11 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     this.searchStrategy.addStrategy(EntityName.CLIENT_AVAILABILITY, {
       search: (value: string) => {
         this.filterService.searchString = value;
-        this.applyFilterAndRender();
+        this.loadClients();
       },
       resetFilter: () => {
         this.filterService.searchString = '';
-        this.applyFilterAndRender();
+        this.loadClients();
       },
       getEntityName: () => EntityName.CLIENT_AVAILABILITY,
     });
@@ -139,7 +139,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       this.filterService.selectedGroupId = groupId;
       this.applyViewMode();
       this.setStartDate();
-      this.applyFilterAndRender();
+      await this.loadClients();
       await this.applyCalendarSelection();
       await this.loadAvailabilityData();
     });
@@ -158,27 +158,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     this.applyViewMode();
     this.setStartDate();
 
-    const clients = await firstValueFrom(
-      this.dataClientService.getClientsForReplacement()
-    );
-
-    const mapped = clients.map((c: IClientForReplacement) => ({
-      id: c.id,
-      displayName: formatClientDisplayName(c),
-      groupIds: c.groupIds ?? [],
-      legalEntity: c.legalEntity,
-      name: c.name ?? '',
-      firstName: c.firstName ?? '',
-      company: c.company ?? '',
-    }));
-
-    this.filterService.setAllClients(mapped);
     this.filterService.selectedGroupId = this.groupSelection.selectedGroupId;
-
-    const filtered = this.filterService.getFilteredClients();
-    this.renderGrid.setClients(
-      filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
-    );
+    await this.loadClients();
 
     await this.loadAvailabilityData();
   }
@@ -193,12 +174,19 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     await this.loadAvailabilityData();
   }
 
-  private applyFilterAndRender(): void {
-    this.filterService.reFilter((filtered) => {
-      this.renderGrid.setClients(
-        filtered.map((c) => ({ id: c.id, displayName: c.displayName }))
-      );
-    });
+  private async loadClients(): Promise<void> {
+    const filter = this.filterService.buildFilter();
+    const response = await firstValueFrom(
+      this.dataClientAvailability.getClients(filter)
+    );
+
+    const clients = response.clients.map((c) => ({
+      id: c.id,
+      displayName: formatClientDisplayName(c),
+    }));
+
+    this.renderGrid.setClients(clients);
+    this.filterService.notifyClientsChanged();
   }
 
   private setStartDate(): void {
