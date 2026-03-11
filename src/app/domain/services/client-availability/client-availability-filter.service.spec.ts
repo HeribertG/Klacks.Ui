@@ -101,6 +101,19 @@ describe('ClientAvailabilityFilterService', () => {
         expect(filter.sortOrder).toBe('desc');
     });
 
+    it('buildFilter should include startDate and endDate', () => {
+        // Arrange
+        service.startDate = '2026-03-01';
+        service.endDate = '2026-03-31';
+
+        // Act
+        const filter = service.buildFilter();
+
+        // Assert
+        expect(filter.startDate).toBe('2026-03-01');
+        expect(filter.endDate).toBe('2026-03-31');
+    });
+
     it('notifyClientsChanged should toggle signal', () => {
         // Arrange
 

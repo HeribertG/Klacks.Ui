@@ -175,6 +175,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   private async loadClients(): Promise<void> {
+    this.filterService.startDate = this.calculation.formatDateOnly(this.calculation.startDate);
+    this.filterService.endDate = this.getEndDate();
     const filter = this.filterService.buildFilter();
     const response = await firstValueFrom(
       this.dataClientAvailability.getClients(filter)

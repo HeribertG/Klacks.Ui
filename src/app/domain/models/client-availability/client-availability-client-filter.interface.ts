@@ -7,6 +7,8 @@
  */
 export interface IClientAvailabilityClientFilter {
   searchString: string;
+  startDate: string;
+  endDate: string;
   selectedGroup?: string;
   orderBy: string;
   sortOrder: string;

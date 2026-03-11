@@ -23,9 +23,14 @@ export class ClientAvailabilityFilterService {
     showExtern: true,
   };
 
+  public startDate = '';
+  public endDate = '';
+
   public buildFilter(startRow = 0, rowCount = 200): IClientAvailabilityClientFilter {
     return {
       searchString: this.searchString,
+      startDate: this.startDate,
+      endDate: this.endDate,
       selectedGroup: this.selectedGroupId && this.selectedGroupId !== ALL_GROUPS_VIRTUAL_ID
         ? this.selectedGroupId
         : undefined,
