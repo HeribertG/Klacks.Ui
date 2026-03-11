@@ -232,14 +232,14 @@ export class AvailabilitySurfaceEventsDirective {
 
     if (cellTop < scrollY) {
       scrollY = cellTop;
-    } else if (cellBottom > scrollY + visibleHeight) {
-      scrollY = cellBottom - visibleHeight;
+    } else if (cellBottom + this.settings.cellHeight > scrollY + visibleHeight) {
+      scrollY = cellBottom + this.settings.cellHeight - visibleHeight;
     }
 
     if (cellLeft < scrollX) {
       scrollX = cellLeft;
-    } else if (cellRight > scrollX + visibleWidth) {
-      scrollX = cellRight - visibleWidth;
+    } else if (cellRight + this.settings.cellWidth > scrollX + visibleWidth) {
+      scrollX = cellRight + this.settings.cellWidth - visibleWidth;
     }
 
     scrollX = Math.max(0, scrollX);
