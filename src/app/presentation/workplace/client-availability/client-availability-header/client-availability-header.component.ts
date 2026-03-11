@@ -64,17 +64,17 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
     this.currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
     this.groupingOptions = this.buildGroupingOptions();
 
+    const rebuildOptions = () => {
+      this.groupingOptions = this.buildGroupingOptions();
+    };
+
+    this.translateService.onTranslationChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rebuildOptions);
+
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.groupingOptions = this.buildGroupingOptions();
-      });
-
-    this.translateService.onDefaultLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.groupingOptions = this.buildGroupingOptions();
-      });
+      .subscribe(rebuildOptions);
   }
 
   private buildGroupingOptions(): Options {
