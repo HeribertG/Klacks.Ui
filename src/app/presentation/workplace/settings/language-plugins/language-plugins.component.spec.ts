@@ -103,25 +103,16 @@ describe('LanguagePluginsComponent', () => {
     expect(mockToastService.showError).toHaveBeenCalledWith('settings.language-plugins.error.load');
   });
 
-  it('should install plugin and reload config', async () => {
-    mockDataService.install.mockReturnValue(of(void 0));
-    const plugin = { ...mockPlugins[1] };
+  it('should reload plugins and config on marketplace install', () => {
+    // Arrange
+    mockDataService.getPlugins.mockReturnValue(of(mockPlugins));
 
-    await component.onInstall(plugin);
+    // Act
+    component.onMarketplaceInstalled('es');
 
-    expect(mockDataService.install).toHaveBeenCalledWith('es');
-    expect(plugin.isInstalled).toBe(true);
+    // Assert
+    expect(mockDataService.getPlugins).toHaveBeenCalled();
     expect(mockLanguageConfigService.reloadConfig).toHaveBeenCalled();
-    expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.language-plugins.success.install', 'Success');
-  });
-
-  it('should show error toast when install fails', async () => {
-    mockDataService.install.mockReturnValue(throwError(() => new Error('Install error')));
-    const plugin = { ...mockPlugins[1] };
-
-    await component.onInstall(plugin);
-
-    expect(mockToastService.showError).toHaveBeenCalledWith('settings.language-plugins.error.install');
   });
 
   it('should uninstall plugin and reload config', async () => {
