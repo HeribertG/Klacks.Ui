@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Orchestriert die automatische Schichtplanung via evolutionärem Algorithmus oder Greedy-Verfahren.
+ * @param context - Enthält Shifts und Agents für den sichtbaren Zeitraum
+ * @param options - Steuerung: WebWorker, Cancellation, Progress-Callback
+ */
 import { Injectable, inject } from '@angular/core';
 import {
   IShift,
@@ -316,8 +321,11 @@ export class ConductorService {
     return this.schedule(context, options);
   }
 
+  /**
+   * @deprecated Apply-Logik wird direkt im WizardDialogComponent via bulkAddWorkScheduleEntries abgewickelt.
+   */
   async applySchedule(_result: IConductorResult): Promise<boolean> {
-    throw new Error('applySchedule is not yet implemented');
+    throw new Error('Use WizardDialogComponent.onApply() instead');
   }
 
   private findBestAgent(

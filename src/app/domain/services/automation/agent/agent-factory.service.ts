@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Factory-Service zur Erstellung von Schedule-Agents aus Clients.
+ * @param clients - Liste der Clients aus dem Schedule-View
+ * @param periodHours - Stunden pro Client aus Verträgen; bei fehlenden Verträgen werden Settings-Defaults verwendet
+ */
 import { Injectable } from '@angular/core';
 import {
   ScheduleAgent,
@@ -10,6 +15,7 @@ import {
   IWorkScheduleClient,
   IPeriodHours
 } from '../../../models/schedule/work-schedule-class';
+import { ISchedulingDefaultSettings } from '../../../models/settings/app-settings.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,22 +31,29 @@ export class AgentFactoryService {
     clients: IWorkScheduleClient[],
     periodHours: Record<string, IPeriodHours>,
     periodProgress: number,
-    config?: IAgentFactoryConfig
+    config?: IAgentFactoryConfig,
+    schedulingDefaults?: ISchedulingDefaultSettings
   ): IScheduleAgent[] {
-    const mergedConfig = { ...this.defaultConfig, ...config };
+    const mergedConfig = this.mergeConfigWithDefaults(config, schedulingDefaults);
 
     return clients
-      .filter(client => client.hasContract)
-      .map(client => this.createAgent(client, periodHours[client.id], periodProgress, mergedConfig));
+      .map(client => this.createAgent(
+        client,
+        periodHours[client.id],
+        periodProgress,
+        mergedConfig,
+        schedulingDefaults
+      ));
   }
 
   createAgent(
     client: IWorkScheduleClient,
     periodHours: IPeriodHours | undefined,
     periodProgress: number,
-    config?: IAgentFactoryConfig
+    config?: IAgentFactoryConfig,
+    schedulingDefaults?: ISchedulingDefaultSettings
   ): IScheduleAgent {
-    const mergedConfig = { ...this.defaultConfig, ...config };
+    const mergedConfig = this.mergeConfigWithDefaults(config, schedulingDefaults);
 
     const agent = new ScheduleAgent(client.id, client);
 
@@ -49,10 +62,27 @@ export class AgentFactoryService {
     agent.minRestHours = mergedConfig.minRestHours ?? 12;
 
     const currentHours = periodHours?.hours ?? 0;
-    const guaranteedHours = periodHours?.guaranteedHours ?? 0;
+    const guaranteedHours = periodHours?.guaranteedHours
+      ?? schedulingDefaults?.guaranteedHours
+      ?? 0;
     agent.updateHours(currentHours, guaranteedHours, periodProgress);
 
     return agent;
+  }
+
+  private mergeConfigWithDefaults(
+    config?: IAgentFactoryConfig,
+    schedulingDefaults?: ISchedulingDefaultSettings
+  ): IAgentFactoryConfig {
+    return {
+      ...this.defaultConfig,
+      ...(schedulingDefaults ? {
+        maxConsecutiveDays: schedulingDefaults.schedulingMaxConsecutiveDays,
+        minRestDays: schedulingDefaults.schedulingMinRestDays,
+        minRestHours: schedulingDefaults.schedulingMinPauseHours,
+      } : {}),
+      ...config,
+    };
   }
 
   updateAgentHours(
@@ -70,9 +100,10 @@ export class AgentFactoryService {
     periodHours: Record<string, IPeriodHours>,
     periodProgress: number,
     shiftHistory: Map<string, { shiftId: string; shiftName: string; date: Date; hours: number }[]>,
-    config?: IAgentFactoryConfig
+    config?: IAgentFactoryConfig,
+    schedulingDefaults?: ISchedulingDefaultSettings
   ): IScheduleAgent[] {
-    const agents = this.createAgents(clients, periodHours, periodProgress, config);
+    const agents = this.createAgents(clients, periodHours, periodProgress, config, schedulingDefaults);
 
     for (const agent of agents) {
       const history = shiftHistory.get(agent.id);

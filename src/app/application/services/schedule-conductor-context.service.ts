@@ -1,8 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Baut den Context für den Schedule-Wizard aus den aktuell sichtbaren Schedule-Daten.
+ * @param shiftSchedules - Sichtbare Shifts aus dem Schedule-View
+ * @param clients - Sichtbare Clients aus dem Schedule-View
+ * @param schedulingDefaults - Fallback-Werte für Clients ohne Vertrag
+ */
 import { inject, Injectable } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AgentFactoryService } from 'src/app/domain/services/automation/agent/agent-factory.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IConductorContext } from 'src/app/domain/models/automation/conductor/conductor-context.model';
 import { IShift } from 'src/app/domain/models/automation/conductor/shift.model';
 import { IWorkScheduleClient, IPeriodHours } from 'src/app/domain/models/schedule/work-schedule-class';
@@ -15,6 +22,7 @@ import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 export class ScheduleConductorContextService {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private agentFactory = inject(AgentFactoryService);
+  private appSettings = inject(AppSettingsManagementService);
 
   buildContext(): IConductorContext | null {
     const shiftSchedules = this.dataManagementSchedule.shiftSchedules;
@@ -30,7 +38,14 @@ export class ScheduleConductorContextService {
     const workScheduleClients = this.mapClients(clients);
     const periodHoursRecord = this.convertPeriodHours();
     const periodProgress = this.calculatePeriodProgress(startDate, endDate);
-    const agents = this.agentFactory.createAgents(workScheduleClients, periodHoursRecord, periodProgress);
+    const schedulingDefaults = this.appSettings.schedulingDefaultSettings();
+    const agents = this.agentFactory.createAgents(
+      workScheduleClients,
+      periodHoursRecord,
+      periodProgress,
+      undefined,
+      schedulingDefaults
+    );
 
     return { startDate, endDate, shifts, agents };
   }

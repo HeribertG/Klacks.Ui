@@ -4,7 +4,7 @@
   <div class="modal-header">
     <div class="modal-title">{{ "wizard.dialog.title" | translate }}</div>
     <span class="filler"></span>
-    @if (phase() !== 'running') {
+    @if (phase() !== 'running' && phase() !== 'applying') {
       <div class="close" (click)="onClose()">&times;</div>
     }
   </div>
@@ -92,6 +92,25 @@
           }
         }
       }
+      @case ('applying') {
+        <div class="progress-section">
+          <div class="progress-info">
+            <span>{{ "wizard.dialog.applying" | translate }}</span>
+          </div>
+          <div class="progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              style="width: 100%"
+            ></div>
+          </div>
+        </div>
+      }
+      @case ('applied') {
+        <div class="alert alert-success">
+          {{ appliedCount() }} {{ "wizard.dialog.applied" | translate }}
+        </div>
+      }
       @case ('error') {
         <div class="alert alert-danger">
           {{ errorMessage() }}
@@ -106,14 +125,30 @@
   </div>
 
   <div class="modal-footer">
-    @if (phase() === 'running') {
-      <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
-        {{ "cancel" | translate }}
-      </button>
-    } @else {
-      <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
-        {{ "close" | translate }}
-      </button>
+    @switch (phase()) {
+      @case ('running') {
+        <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+          {{ "cancel" | translate }}
+        </button>
+      }
+      @case ('done') {
+        <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+          {{ "close" | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onApply()">
+          {{ "wizard.dialog.apply" | translate }}
+        </button>
+      }
+      @case ('applying') {
+        <button type="button" class="btn btn-primary" disabled>
+          {{ "wizard.dialog.applying" | translate }}
+        </button>
+      }
+      @default {
+        <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+          {{ "close" | translate }}
+        </button>
+      }
     }
   </div>
 </ng-template>
