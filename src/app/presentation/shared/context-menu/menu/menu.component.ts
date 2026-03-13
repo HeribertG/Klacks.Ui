@@ -57,7 +57,7 @@ export class MenuComponent {
 
     this.rightPanelStyle = {
       display: 'block',
-      position: 'absolute',
+      position: 'fixed',
       'left.px': clientX,
       'top.px': clientY,
       opacity: 0,
@@ -140,7 +140,7 @@ export class MenuComponent {
       const res = this.isElementInViewport();
       this.rightPanelStyle = {
         display: 'block',
-        position: 'absolute',
+        position: 'fixed',
         'left.px': this.parentRect.left + res[0],
         'top.px': this.parentRect.bottom + res[1],
         opacity: 1,

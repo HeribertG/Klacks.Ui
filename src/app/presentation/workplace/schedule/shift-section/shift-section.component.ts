@@ -332,7 +332,7 @@ export class ShiftSectionComponent
   onRightClick(event: GridSurfaceRightClickEvent): void {
     if (!this.contextMenu) return;
 
-    this.contextMenu.closeMenu();
+    this.contextMenu.closeMenu(true);
     this.createContextMenu(event.row, event.column);
     this.contextMenu.openMenu({
       clientX: event.clientX,
