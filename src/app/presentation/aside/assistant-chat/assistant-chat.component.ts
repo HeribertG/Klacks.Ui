@@ -12,6 +12,7 @@
   effect,
   ChangeDetectorRef,
   NgZone,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -40,6 +41,8 @@ import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
 
 export interface ChatMessage {
   id: string;
@@ -47,6 +50,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   suggestions?: string[];
+  suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
   actionPerformed?: boolean;
 }
@@ -61,6 +65,7 @@ export interface ChatMessage {
     TranslateModule,
     IconMMLComponent,
     IconUserComponent,
+    SuggestedRepliesOverlayComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -101,6 +106,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   faUser = faUser;
   faTimes = faTimes;
   faChevronDown = faChevronDown;
+
+  activeSuggestedReplies = signal<ISuggestedRepliesConfig | null>(null);
 
   messages: ChatMessage[] = [];
   inputText = '';
@@ -234,13 +241,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         sender: 'assistant',
         content: response?.message || '',
         timestamp: new Date(),
-        suggestions: response?.suggestions,
+        suggestions: response?.suggestedReplies ? undefined : response?.suggestions,
+        suggestedReplies: response?.suggestedReplies,
         navigateTo: response?.navigateTo,
         actionPerformed: response?.actionPerformed,
       };
 
       this.messages.push(assistantMessage);
       this.shouldScrollToBottom = true;
+
+      if (response?.suggestedReplies) {
+        this.activeSuggestedReplies.set(response.suggestedReplies);
+      }
 
       if (response?.functionCalls && response.functionCalls.length > 0) {
         await this.executeFunctionCalls(response.functionCalls);
@@ -428,6 +440,17 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.sendMessage();
   }
 
+  onReplySelected(values: string[]): void {
+    this.activeSuggestedReplies.set(null);
+    if (values.length === 0) return;
+    this.inputText = values.join(', ');
+    this.sendMessage();
+  }
+
+  onRepliesDismissed(): void {
+    this.activeSuggestedReplies.set(null);
+  }
+
   onNavigateClick(navigateTo: string): void {
     this.router.navigate([navigateTo]);
   }
@@ -513,6 +536,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   clearChat(): void {
     this.messages = [];
+    this.activeSuggestedReplies.set(null);
 
     this.assistantService.clearConversation(this.conversationId);
 

@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 
 export interface IAssistantChatRequest {
   message: string;
@@ -21,6 +22,7 @@ export interface IAssistantChatResponse {
   message: string;
   conversationId: string;
   suggestions?: string[];
+  suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
   actionPerformed?: boolean;
   functionCalls?: any[];
