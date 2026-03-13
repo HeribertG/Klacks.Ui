@@ -699,6 +699,12 @@ export class GridTemplateEventsDirective {
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    this.rightClick.emit({
+      row: -1,
+      column: -1,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    });
   }
 
   private stopEvent(event: Event): void {
