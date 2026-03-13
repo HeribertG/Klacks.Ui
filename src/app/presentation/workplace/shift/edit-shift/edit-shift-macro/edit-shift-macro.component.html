@@ -1,7 +1,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form #macroShiftForm="ngForm" class="container-card">
-  <div class="container-header header-container">
+  <div class="container-header header-container" id="shift-macro-header">
     <div>
       {{ "shift.edit-shift.macro.header" | translate }}
     </div>
@@ -28,6 +28,7 @@
       }}</label>
       <select
         name="macro-list"
+        id="shift-macro-list-select"
         class="form-select default-width"
         [(ngModel)]="dataManagementShiftService.editShift.macroId"
         aria-label="macro-list"

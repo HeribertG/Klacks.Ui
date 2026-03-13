@@ -378,6 +378,7 @@
   <div class="container-line"></div>
   <div class="button-row">
     <button
+      id="cut-date-btn"
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutDate()"
@@ -386,6 +387,7 @@
       {{ "shift.cut-shift.buttons.cut-date" | translate }}
     </button>
     <button
+      id="cut-time-btn"
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutTime()"
@@ -394,6 +396,7 @@
       {{ "shift.cut-shift.buttons.cut-time" | translate }}
     </button>
     <button
+      id="cut-weekdays-btn"
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutWeekdays()"
@@ -402,6 +405,7 @@
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
     </button>
     <button
+      id="cut-staff-btn"
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
@@ -410,6 +414,7 @@
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </button>
     <button
+      id="cut-task-btn"
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutTask()"
@@ -418,6 +423,7 @@
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </button>
     <button
+      id="reset-cuts-btn"
       type="button"
       class="btn btn-sm btn-warning"
       (click)="onResetCuts()"

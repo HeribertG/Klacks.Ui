@@ -23,6 +23,7 @@
         </div>
         <div class="container-dashboard-card-content">
           <app-pie-chart
+            id="coverage-chart"
             [data]="coverageChartData()"
             [width]="500"
             [height]="500"
@@ -56,6 +57,7 @@
         </div>
         <div class="container-dashboard-card-content">
           <app-pie-chart
+            id="sealed-chart"
             [data]="sealedChartData()"
             [width]="500"
             [height]="500"

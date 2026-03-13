@@ -1,9 +1,9 @@
 @if (isInitialized) {
-<div class="schedule-main-header">
+<div id="schedule-main-header" class="schedule-main-header">
   <app-schedule-header (zoomChange)="onZoomChange($event)" (pdfExportRequested)="onPdfExport()">
   </app-schedule-header>
 </div>
-<div class="schedule-body">
+<div id="schedule-body" class="schedule-body">
   <app-schedule-container [zoom]="currentZoom" [refreshTrigger]="refreshTrigger"></app-schedule-container>
 </div>
 }

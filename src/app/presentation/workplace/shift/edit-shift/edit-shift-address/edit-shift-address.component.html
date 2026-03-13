@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form #addressShiftForm="ngForm" class="container-card">
-  <div class="container-header header-container">
+  <div class="container-header header-container" id="shift-address-header">
     <div>
       {{ "shift.edit-shift.address.header" | translate }}
     </div>
@@ -57,6 +57,7 @@
         } @if (selectedClient) {
         <div
           class="input-group-text btn btn-outline-secondary container-search-button"
+          id="shift-address-select-btn"
           (click)="onClickApply()"
           [class.disabled]="isFieldsDisabled"
         >

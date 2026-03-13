@@ -1,6 +1,7 @@
 <div class="error-list-container">
   <div class="error-list-header">
     <button
+      id="error-filter-btn"
       class="btn btn-sm btn-filter-toggle"
       [class.active]="isFilterActive('error')"
       (click)="toggleFilter('error')"
@@ -10,6 +11,7 @@
       {{ "schedule.error-list.filter.errors" | translate }}
     </button>
     <button
+      id="warning-filter-btn"
       class="btn btn-sm btn-filter-toggle"
       [class.active]="isFilterActive('warning')"
       (click)="toggleFilter('warning')"
@@ -19,6 +21,7 @@
       {{ "schedule.error-list.filter.warnings" | translate }}
     </button>
     <button
+      id="info-filter-btn"
       class="btn btn-sm btn-filter-toggle"
       [class.active]="isFilterActive('info')"
       (click)="toggleFilter('info')"

@@ -2,11 +2,12 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div
+  id="container-template-wrapper"
   class="container-template-container"
   (contextmenu)="onContainerContextMenu($event)"
 >
   <!-- Header -->
-  <div class="header">
+  <div id="container-template-header" class="header">
     <div class="header-content">
       <h2>
         {{
@@ -266,7 +267,7 @@
                   [cdkDropListConnectedTo]="getConnectedDropLists()"
                   (cdkDropListDropped)="onTaskDrop($event)"
                 >
-                  <table class="shifts-table">
+                  <table id="selected-tasks-table" class="shifts-table">
                     <thead>
                       <tr>
                         <th class="icon-column"></th>
@@ -417,7 +418,7 @@
               <div class="shifts-grid-container">
                 <div class="shifts-grid">
                   @if (availableTasks.length > 0) {
-                  <table class="shifts-table">
+                  <table id="available-tasks-table" class="shifts-table">
                     <thead>
                       <tr>
                         <th class="icon-column"></th>

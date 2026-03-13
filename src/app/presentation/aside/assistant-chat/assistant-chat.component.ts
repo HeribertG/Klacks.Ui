@@ -544,12 +544,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         uiActionCalls.push(call);
       } else if (this.NAVIGATION_FUNCTIONS.includes(functionName)) {
         navigationCalls.push(call);
-      } else {
-        backendCalls.push({
-          id: this.generateMessageId(),
-          name: functionName,
-          arguments: call.Parameters || call.parameters || {},
-        });
       }
     }
 
