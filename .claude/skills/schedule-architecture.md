@@ -1,3 +1,8 @@
+---
+name: schedule-architecture
+description: Verwende wenn an der Schedule-Komponenten-Hierarchie, Scroll-Synchronisierung oder Schedule-Header gearbeitet wird
+---
+
 # Schedule Architektur
 
 ## Komponenten-Hierarchie

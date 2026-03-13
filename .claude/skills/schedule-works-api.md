@@ -1,3 +1,8 @@
+---
+name: schedule-works-api
+description: Verwende wenn an Works-CRUD-Endpunkten, Bulk-Operationen oder Schedule-API-Integration gearbeitet wird
+---
+
 # Works API
 
 ## Autorisierung
@@ -9,18 +14,18 @@ Der `WorksController` erbt von `BaseController` (nicht `InputBaseController`).
 
 | Methode | Pfad | Beschreibung |
 |---------|------|--------------|
-| GET | `/api/v1/backend/Works/{id}` | Work abrufen |
-| POST | `/api/v1/backend/Works` | Work erstellen |
-| PUT | `/api/v1/backend/Works` | Work aktualisieren |
-| DELETE | `/api/v1/backend/Works/{id}` | Work löschen |
-| POST | `/api/v1/backend/Works/Bulk` | Mehrere Works erstellen |
-| DELETE | `/api/v1/backend/Works/Bulk` | Mehrere Works löschen |
-| POST | `/api/v1/backend/Works/Schedule` | Arbeitsplan abrufen |
-| GET | `/api/v1/backend/Works/Changes` | WorkChanges auflisten |
-| GET | `/api/v1/backend/Works/Changes/{id}` | WorkChange abrufen |
-| POST | `/api/v1/backend/Works/Changes` | WorkChange erstellen |
-| PUT | `/api/v1/backend/Works/Changes` | WorkChange aktualisieren |
-| DELETE | `/api/v1/backend/Works/Changes/{id}` | WorkChange löschen |
+| GET | `api/backend/Works/{id}` | Work abrufen |
+| POST | `api/backend/Works` | Work erstellen |
+| PUT | `api/backend/Works` | Work aktualisieren |
+| DELETE | `api/backend/Works/{id}` | Work löschen |
+| POST | `api/backend/Works/Bulk` | Mehrere Works erstellen |
+| DELETE | `api/backend/Works/Bulk` | Mehrere Works löschen |
+| POST | `api/backend/Works/Schedule` | Arbeitsplan abrufen |
+| GET | `api/backend/Works/Changes` | WorkChanges auflisten |
+| GET | `api/backend/Works/Changes/{id}` | WorkChange abrufen |
+| POST | `api/backend/Works/Changes` | WorkChange erstellen |
+| PUT | `api/backend/Works/Changes` | WorkChange aktualisieren |
+| DELETE | `api/backend/Works/Changes/{id}` | WorkChange löschen |
 
 ## Service-Architektur
 

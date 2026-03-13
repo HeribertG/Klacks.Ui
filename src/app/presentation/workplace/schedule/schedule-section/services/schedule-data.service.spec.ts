@@ -16,6 +16,9 @@ import { BreakCellFormatterService } from './cell-formatters/break-cell-formatte
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
+import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
@@ -44,7 +47,10 @@ describe('ScheduleDataService', () => {
                 { provide: ScheduleNoteCellFormatterService, useValue: { formatCell: vi.fn() } },
                 { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
                 { provide: GridColorService, useValue: {} },
-                { provide: TranslateService, useValue: { currentLang: 'de' } }
+                { provide: TranslateService, useValue: { currentLang: 'de' } },
+                { provide: BaseSettingsService, useValue: {} },
+                { provide: BreakPlaceholderScheduleLoaderService, useValue: { load: vi.fn() } },
+                { provide: GridFontsService, useValue: {} }
             ]
         });
         service = TestBed.inject(ScheduleDataService);

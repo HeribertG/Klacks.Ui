@@ -1,3 +1,8 @@
+---
+name: schedule-workschedule
+description: Verwende wenn an WorkSchedule, WorkChange-Mitternachtsregel oder Schedule-Refresh-Flow gearbeitet wird
+---
+
 # WorkSchedule Implementation
 
 ## Elementare Regel: WorkChange bei Mitternachtsschichten

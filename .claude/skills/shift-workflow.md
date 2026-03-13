@@ -1,3 +1,8 @@
+---
+name: shift-workflow
+description: Verwende wenn am Shift-Workflow von Order zu Shift, Batch Cutting oder Nested Set gearbeitet wird
+---
+
 # Shift (Dienst) Workflow
 
 ## Wichtigste Regel

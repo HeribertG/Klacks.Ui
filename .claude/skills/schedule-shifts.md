@@ -1,3 +1,8 @@
+---
+name: schedule-shifts
+description: Verwende wenn an Shift-Status-Flow, TimeRange-Shifts, Grid-Selection oder Shift Drag&Drop gearbeitet wird
+---
+
 # Shift-System
 
 ## Status-Flow

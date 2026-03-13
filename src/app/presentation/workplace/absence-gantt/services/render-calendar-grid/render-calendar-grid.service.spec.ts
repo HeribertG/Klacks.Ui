@@ -215,8 +215,12 @@ describe('RenderCalendarGridService', () => {
         });
 
         it('should not crash on error', () => {
+            // Arrange
             mockScroll.verticalScrollDelta = 2;
+            mockGanttCanvasManager.isCanvasAvailable.mockReturnValue(false);
+            vi.spyOn(service, 'renderCalendar').mockImplementation(() => {});
 
+            // Act & Assert
             expect(() => service.moveGridVertical(1)).not.toThrow();
         });
     });

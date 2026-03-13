@@ -1,3 +1,8 @@
+---
+name: shift-filter
+description: Verwende wenn an Shift-Status-Filtern, ShiftFilterType oder Gruppen-Visibility-Filterung gearbeitet wird
+---
+
 # Shift Status Filter
 
 ## Enums

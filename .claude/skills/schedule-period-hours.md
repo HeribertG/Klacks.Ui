@@ -1,3 +1,8 @@
+---
+name: schedule-period-hours
+description: Verwende wenn an der PeriodHours-Anzeige im Schedule Row-Header oder PaymentInterval-Logik gearbeitet wird
+---
+
 # Client Period Hours (Periodenbasierte Stundenplanung)
 
 ## Konzept
@@ -7,80 +12,55 @@
 ```
 PaymentInterval (Enum)
 +----------------+---------------------------------------------------+
-| Weekly (0)     | Wöchentliche Planung -> Year + WeekNumber (1-53)  |
-| Biweekly (1)   | 2-wöchentliche Planung -> Year + WeekNumber       |
-| Monthly (2)    | Monatliche Planung -> Year + Month (1-12)         |
-| Individual (3) | Benutzerdefiniert -> IndividualPeriodId           |
+| Weekly (0)     | Wöchentliche Planung                              |
+| Biweekly (1)   | 2-wöchentliche Planung                            |
+| Monthly (2)    | Monatliche Planung (Default)                      |
+| Individual (3) | Benutzerdefiniert -> IndividualPeriodId            |
 +----------------+---------------------------------------------------+
 ```
 
-## Anwendungsfall
+## Datenmodell (Backend Entity)
 
-Jeder Client, der verplant wird, erhält `n` ClientPeriodHours-Einträge:
+```csharp
+public class ClientPeriodHours : BaseEntity
+{
+    public Guid ClientId { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
+    public decimal Hours { get; set; }
+    public decimal Surcharges { get; set; }
+    public PaymentInterval PaymentInterval { get; set; } // Default: Monthly
+    public Guid? IndividualPeriodId { get; set; }
+    public DateTime CalculatedAt { get; set; }
 
-| PaymentInterval | Beispiel | Verwendete Felder |
-|-----------------|----------|-------------------|
-| **Monthly** | Januar 2026 | `Year=2026`, `Month=1` |
-| **Weekly** | KW 5/2026 | `Year=2026`, `WeekNumber=5` |
-| **Biweekly** | KW 2,4,6.../2026 | `Year=2026`, `WeekNumber=2` |
-| **Individual** | "Sommersaison" | `IndividualPeriodId=<guid>` |
-
-## Tabelle: `client_period_hours`
-
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| `id` | UUID | Primärschlüssel |
-| `client_id` | UUID | FK zu Client |
-| `year` | int | Jahr |
-| `month` | int? | Monat (1-12), nur bei Monthly |
-| `week_number` | int? | Kalenderwoche (1-53), nur bei Weekly/Biweekly |
-| `individual_period_id` | UUID? | FK zu IndividualPeriod, nur bei Individual |
-| `hours` | decimal | Summe der Arbeitsstunden |
-| `surcharges` | decimal | Zuschlagsstunden (Nacht/Feiertag) |
-| `payment_interval` | int | 0=Weekly, 1=Biweekly, 2=Monthly, 3=Individual |
-
-## Filtered Unique Indexes
-
-```sql
--- Monthly: Eindeutig pro Client + Jahr + Monat
-CREATE UNIQUE INDEX ix_client_period_hours_monthly
-ON client_period_hours (client_id, year, month)
-WHERE payment_interval = 2;
-
--- Weekly/Biweekly: Eindeutig pro Client + Jahr + Woche
-CREATE UNIQUE INDEX ix_client_period_hours_weekly
-ON client_period_hours (client_id, year, week_number)
-WHERE payment_interval IN (0, 1);
-
--- Individual: Eindeutig pro Client + IndividualPeriod
-CREATE UNIQUE INDEX ix_client_period_hours_individual
-ON client_period_hours (client_id, individual_period_id)
-WHERE payment_interval = 3;
+    public virtual Client? Client { get; set; }
+    public virtual IndividualPeriod? IndividualPeriod { get; set; }
+}
 ```
 
 ## EF Core Konfiguration
 
 ```csharp
-// DataBaseContext.cs
+// Unique Index über (ClientId, StartDate, EndDate)
 modelBuilder.Entity<ClientPeriodHours>()
-    .HasIndex(p => new { p.ClientId, p.Year, p.Month })
-    .HasFilter("payment_interval = 2")
-    .IsUnique();
-
-modelBuilder.Entity<ClientPeriodHours>()
-    .HasIndex(p => new { p.ClientId, p.Year, p.WeekNumber })
-    .HasFilter("payment_interval IN (0, 1)")
-    .IsUnique();
-
-modelBuilder.Entity<ClientPeriodHours>()
-    .HasIndex(p => new { p.ClientId, p.IndividualPeriodId })
-    .HasFilter("payment_interval = 3")
+    .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
     .IsUnique();
 
 // Query Filter: Nur Clients die nicht gelöscht sind
 modelBuilder.Entity<ClientPeriodHours>()
     .HasQueryFilter(p => !p.Client!.IsDeleted);
 ```
+
+## Anwendungsfall
+
+Jeder Client, der verplant wird, erhält `n` ClientPeriodHours-Einträge:
+
+| PaymentInterval | Beispiel | StartDate | EndDate |
+|-----------------|----------|-----------|---------|
+| **Monthly** | Januar 2026 | 2026-01-01 | 2026-01-31 |
+| **Weekly** | KW 5/2026 | 2026-01-27 | 2026-02-02 |
+| **Biweekly** | KW 2-3/2026 | 2026-01-06 | 2026-01-19 |
+| **Individual** | "Sommersaison" | IndividualPeriod.FromDate | IndividualPeriod.UntilDate |
 
 ## IndividualPeriod (Benutzerdefinierte Perioden)
 
@@ -116,8 +96,8 @@ IndividualPeriod: { name: "Sommersaison 2026" }
 
 ```json
 {
-  "entries": [...],
-  "clients": [...],
+  "entries": [],
+  "clients": [],
   "periodHours": {
     "<clientId>": {
       "hours": 120.5,
@@ -130,7 +110,7 @@ IndividualPeriod: { name: "Sommersaison 2026" }
 
 ## Berechnung
 
-1. Falls `client_period_hours` Eintrag für die aktuelle Periode existiert -> diesen verwenden
+1. Falls `ClientPeriodHours` Eintrag für die aktuelle Periode existiert -> diesen verwenden
 2. Sonst -> Summe aus `work.work_time` für den Zeitraum berechnen
 3. `guaranteedHours` kommt aus aktivem `client_contract`
 

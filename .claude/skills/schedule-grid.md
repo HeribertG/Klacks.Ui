@@ -1,3 +1,8 @@
+---
+name: schedule-grid
+description: Verwende wenn am Schedule-Grid, Cell-Editing, Copy/Paste, Fill Handle oder Context Menu gearbeitet wird
+---
+
 # Grid Cell Editing & Interaktion
 
 ## Komponenten

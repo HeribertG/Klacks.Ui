@@ -1,3 +1,8 @@
+---
+name: dashboard
+description: Verwende wenn am Dashboard, Pie-Charts, Leaflet-Karte oder Client-Locations gearbeitet wird
+---
+
 # Dashboard
 
 ## Übersicht

@@ -1,3 +1,8 @@
+---
+name: shift-cut-holidays
+description: Verwende wenn an Shift-Cutting nach Feiertagen, Wochentagen oder Shift-Trennung gearbeitet wird
+---
+
 # Shift Cut - Holidays Feature
 
 ## Übersicht
@@ -153,15 +158,19 @@ private analyzeCutByStaff(shift: Shift): void {
 Checkboxen werden nur angezeigt, wenn sie im ausgewählten Shift vorhanden sind:
 
 ```html
-<div class="form-group" *ngIf="isMondayEnabled">
-  <input type="checkbox" [(ngModel)]="weekdays.isMonday" />
-  {{ "monday" | translate }}
-</div>
+@if (isMondayEnabled) {
+  <div class="form-group">
+    <input type="checkbox" [(ngModel)]="weekdays.isMonday" />
+    {{ "monday" | translate }}
+  </div>
+}
 
-<div class="form-group" *ngIf="isHolidayEnabledForCut">
-  <input type="checkbox" [(ngModel)]="holidays.isHoliday" />
-  {{ "holiday" | translate }}
-</div>
+@if (isHolidayEnabledForCut) {
+  <div class="form-group">
+    <input type="checkbox" [(ngModel)]="holidays.isHoliday" />
+    {{ "holiday" | translate }}
+  </div>
+}
 ```
 
 ## Pattern Consistency

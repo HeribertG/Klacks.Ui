@@ -1,3 +1,8 @@
+---
+name: time-ruler-drag-drop
+description: Verwende wenn am Time-Ruler-Component, vertikalem Drag&Drop oder TimeRange-Überlappungsvermeidung gearbeitet wird
+---
+
 # Time-Ruler Drag-and-Drop
 
 ## Übersicht

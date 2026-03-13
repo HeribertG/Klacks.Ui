@@ -1,3 +1,8 @@
+---
+name: test-setup
+description: Verwende wenn Frontend-Tests geschrieben oder das Vitest-Setup konfiguriert werden soll
+---
+
 # Test Setup
 
 ## Test Framework

@@ -1,3 +1,8 @@
+---
+name: viewmodel-pattern
+description: Verwende wenn ViewModel-Konvertierungen zwischen Domain-Typen und UI-Typen (NgbDateStruct, OwnTime) implementiert werden
+---
+
 # ViewModel-Pattern für UI-spezifische Typen
 
 ## Prinzip

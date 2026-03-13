@@ -1,3 +1,8 @@
+---
+name: llm-chat-ui
+description: Verwende wenn an der Chat-UI, SignalR-Streaming, Function Execution oder UiAction Engine gearbeitet wird
+---
+
 # LLM Chat UI
 
 ## Übersicht

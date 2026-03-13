@@ -1,3 +1,8 @@
+---
+name: db-frontend-mapping
+description: Verwende als Referenz für Entity-Mapping zwischen DB-Tabellen, Backend-Controllern und Frontend-Services
+---
+
 # DB → Frontend Mapping
 
 ## Architektur
@@ -68,7 +73,7 @@ PostgreSQL → Klacks.Api → REST API → Klacks.Ui
 
 | BE Entity | SQL Function | Verwendung |
 |-----------|--------------|------------|
-| `ScheduleCell.cs` | `get_work_schedule()` | WorkSchedule-Abfragen |
+| `ScheduleCell.cs` | `get_schedule_entries()` | WorkSchedule-Abfragen |
 | `ClientScheduleDetail.cs` | `get_break_schedule()` | Break/Absence Gantt |
 
 ## API-Routen
@@ -76,11 +81,13 @@ PostgreSQL → Klacks.Api → REST API → Klacks.Ui
 - UserBackend: `api/backend/{controller}`
 - Assistant: `api/assistant/{controller}`
 
-## SignalR Hub
+## SignalR Hubs
 
 | Hub | Pfad | Verwendung |
 |-----|------|------------|
-| `WorkNotificationHub` | `/api/backend/workNotifications` | Work/Schedule Änderungen |
+| `WorkNotificationHub` | `/hubs/work-notifications` | Work/Schedule Änderungen |
+| `EmailNotificationHub` | `/hubs/email-notifications` | E-Mail Benachrichtigungen |
+| `AssistantNotificationHub` | `/hubs/assistant-notifications` | LLM Assistant Events |
 
 FE Service: `signalr.service.ts`
 

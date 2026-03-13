@@ -1,3 +1,8 @@
+---
+name: container-available-tasks
+description: Verwende wenn an Container-Template Task-Filterung oder verfügbaren Shifts für Container gearbeitet wird
+---
+
 # Container Available Tasks Filter
 
 ## Service

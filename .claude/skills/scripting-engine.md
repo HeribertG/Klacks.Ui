@@ -1,3 +1,8 @@
+---
+name: scripting-engine
+description: Verwende wenn an der BASIC-Scripting-Engine, Macro-Parser, Lexer oder Script-Execution gearbeitet wird
+---
+
 # Scripting Macro Engine
 
 ## Übersicht

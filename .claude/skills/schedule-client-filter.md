@@ -1,3 +1,8 @@
+---
+name: schedule-client-filter
+description: Verwende wenn am ClientFilter-Component, Sortierung oder Entity-Typ-Filterung im Schedule gearbeitet wird
+---
+
 # Client Filter
 
 ## Shared Component

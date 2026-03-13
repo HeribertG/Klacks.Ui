@@ -1,3 +1,8 @@
+---
+name: container-template
+description: Verwende wenn an Container-Templates, Container-Shifts oder Template-Zeitfenstern gearbeitet wird
+---
+
 # Container Template
 
 ## Konzept
@@ -53,7 +58,7 @@ interface IContainerTemplateItem {
 
 ## API Endpunkte
 
-**Basis:** `/api/v1/user-backend/containers`
+**Basis:** `api/backend/Containers`
 
 | Method | Route | Beschreibung |
 |--------|-------|--------------|

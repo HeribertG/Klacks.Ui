@@ -76,6 +76,7 @@
     "@typescript-eslint/utils": "^8.47.0",
     "@vitest/ui": "^4.0.14",
     "angular-eslint": "20.6.0",
+    "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9.28.0",
     "jsdom": "^27.2.0",
     "less": "^4.2.0",

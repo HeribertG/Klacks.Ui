@@ -1,3 +1,8 @@
+---
+name: accessibility
+description: Verwende wenn an WCAG Accessibility, ARIA-Labels, Keyboard-Navigation oder Screen-Reader-Support gearbeitet wird
+---
+
 # Accessibility (Web Accessibility / A11y)
 
 ## WCAG 2.1 Level AA - Hauptziel

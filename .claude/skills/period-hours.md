@@ -1,20 +1,44 @@
+---
+name: period-hours
+description: Verwende wenn an PeriodHours-Caching, Stunden-Berechnung pro Client/Periode oder PaymentInterval gearbeitet wird
+---
+
 # Period Hours (Client-Stunden)
 
 ## Konzept
 
 `ClientPeriodHours` speichert berechnete Stunden pro Client und Periode für schnelle Abfrage im Schedule.
 
-## Datenmodell
+## Datenmodell (Backend Entity)
 
 ```csharp
-public class ClientPeriodHours {
+public class ClientPeriodHours : BaseEntity
+{
     public Guid ClientId { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
     public decimal Hours { get; set; }
     public decimal Surcharges { get; set; }
+    public PaymentInterval PaymentInterval { get; set; } // Default: Monthly
+    public Guid? IndividualPeriodId { get; set; }
     public DateTime CalculatedAt { get; set; }
+
+    public virtual Client? Client { get; set; }
+    public virtual IndividualPeriod? IndividualPeriod { get; set; }
 }
+```
+
+## EF Core Konfiguration
+
+```csharp
+// Unique Index über (ClientId, StartDate, EndDate)
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasIndex(p => new { p.ClientId, p.StartDate, p.EndDate })
+    .IsUnique();
+
+// Query Filter: Nur Clients die nicht gelöscht sind
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasQueryFilter(p => !p.Client!.IsDeleted);
 ```
 
 ## PaymentInterval
@@ -26,18 +50,23 @@ public class ClientPeriodHours {
 | Monthly (2) | 1. des Monats | Letzter Tag |
 | Individual (3) | IndividualPeriod.FromDate | IndividualPeriod.UntilDate |
 
-## API Response
+## API Response (DTO)
+
+Kein Frontend-TypeScript-Model vorhanden. Daten kommen direkt als API-DTO:
 
 ```typescript
+// PeriodHoursResource (im WorkScheduleResponse)
+interface PeriodHoursResource {
+  hours: number;
+  surcharges: number;
+  guaranteedHours: number;
+}
+
 interface WorkScheduleResponse {
   entries: IScheduleCell[];
   clients: IClient[];
   periodHours: {
-    [clientId: string]: {
-      hours: number;
-      surcharges: number;
-      guaranteedHours: number;
-    }
+    [clientId: string]: PeriodHoursResource;
   };
   totalClientCount: number;
 }
@@ -47,8 +76,8 @@ interface WorkScheduleResponse {
 
 | Hub | Event | Trigger |
 |-----|-------|---------|
-| PeriodHoursHub | `PeriodHoursUpdated` | Work/Break/WorkChange CRUD |
-| PeriodHoursHub | `PeriodHoursRecalculated` | Bulk Recalculation |
+| WorkNotificationHub | `PeriodHoursUpdated` | Work/Break/WorkChange CRUD |
+| WorkNotificationHub | `PeriodHoursRecalculated` | Bulk Recalculation |
 
 ## Frontend: ConnectionId Header
 
