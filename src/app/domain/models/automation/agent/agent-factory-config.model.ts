@@ -4,4 +4,7 @@ export interface IAgentFactoryConfig {
   maxConsecutiveDays?: number;
   minRestDays?: number;
   minRestHours?: number;
+  maxDailyHours?: number;
+  maxWeeklyHours?: number;
+  maxOptimalGap?: number;
 }

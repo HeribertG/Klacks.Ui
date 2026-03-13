@@ -393,7 +393,10 @@ export class MutationEngineService {
       guaranteedHours: agent.guaranteedHours,
       maxConsecutiveDays: agent.maxConsecutiveDays,
       minRestHours: agent.minRestHours,
-      motivation: agent.currentState.motivation
+      motivation: agent.currentState.motivation,
+      maxDailyHours: agent.maxDailyHours,
+      maxWeeklyHours: agent.maxWeeklyHours,
+      maxOptimalGap: agent.maxOptimalGap
     };
   }
 

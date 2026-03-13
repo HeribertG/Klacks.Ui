@@ -17,6 +17,9 @@ export interface IScheduleAgent {
   maxConsecutiveDays: number;
   minRestDays: number;
   minRestHours: number;
+  maxDailyHours: number;
+  maxWeeklyHours: number;
+  maxOptimalGap: number;
 
   updateHours(currentHours: number, guaranteedHours: number, periodProgress: number): void;
   addShiftToHistory(shiftId: string, shiftName: string, date: Date, hours: number): void;
@@ -45,6 +48,9 @@ export class ScheduleAgent implements IScheduleAgent {
   maxConsecutiveDays = 5;
   minRestDays = 2;
   minRestHours = 12;
+  maxDailyHours = 10;
+  maxWeeklyHours = 50;
+  maxOptimalGap = 2;
 
   constructor(
     public id: string,

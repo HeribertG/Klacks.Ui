@@ -51,6 +51,9 @@ function makeAgent(overrides: Partial<CoreAgent> = {}): CoreAgent {
     maxConsecutiveDays: 5,
     minRestHours: 11,
     motivation: 0.8,
+    maxDailyHours: 12,
+    maxWeeklyHours: 50,
+    maxOptimalGap: 2,
     ...overrides
   };
 }
@@ -149,7 +152,7 @@ describe('evolution-core', () => {
       expect(violations).toBe(0);
     });
 
-    it('should detect daily hours exceeding 10h', () => {
+    it('should detect daily hours exceeding agent maxDailyHours', () => {
       const shifts = [
         makeShift({ id: 's1', startTime: '06:00', endTime: '12:00', hours: 6 }),
         makeShift({ id: 's2', startTime: '12:00', endTime: '17:00', hours: 5 })
@@ -160,7 +163,7 @@ describe('evolution-core', () => {
           { shiftId: 's2', agentId: 'agent1', motivationScore: 0.8 }
         ]
       });
-      const violations = evaluateHardConstraints(scenario, shifts, [makeAgent()]);
+      const violations = evaluateHardConstraints(scenario, shifts, [makeAgent({ maxDailyHours: 10 })]);
       expect(violations).toBeGreaterThan(0);
     });
 
@@ -430,12 +433,12 @@ describe('evolution-core', () => {
       expect(scenario.assignments[0].agentId).toBe('hungry');
     });
 
-    it('should respect daily hour limit', () => {
+    it('should respect agent daily hour limit', () => {
       const shifts = [
         makeShift({ id: 's1', hours: 6, startTime: '06:00', endTime: '12:00' }),
         makeShift({ id: 's2', hours: 6, startTime: '12:00', endTime: '18:00' })
       ];
-      const agents = [makeAgent({ id: 'a1' })];
+      const agents = [makeAgent({ id: 'a1', maxDailyHours: 10 })];
       const rng = freshRng();
       const scenario = createGreedyScenario(shifts, agents, 0, rng);
       const a1Assignments = scenario.assignments.filter(a => a.agentId === 'a1');

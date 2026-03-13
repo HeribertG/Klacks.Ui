@@ -120,14 +120,31 @@ export class FitnessEvaluatorService {
       });
     }
 
-    const MAX_DAILY_HOURS = SCHEDULING_CONSTANTS.MAX_DAILY_HOURS;
     for (const [agentId, dailyMap] of agentDailyHours) {
+      const agent = agentMap.get(agentId);
+      const maxDaily = agent?.maxDailyHours ?? 10;
       for (const [dateKey, hours] of dailyMap) {
-        if (hours > MAX_DAILY_HOURS) {
+        if (hours > maxDaily) {
           violations.push({
             type: 'hard',
             agentId,
-            description: `Agent exceeds ${MAX_DAILY_HOURS}h on ${dateKey} (${hours}h)`
+            description: `Agent exceeds ${maxDaily}h on ${dateKey} (${hours}h)`
+          });
+        }
+      }
+
+      const weeklyHours = new Map<string, number>();
+      for (const [dateKey, hours] of dailyMap) {
+        const wk = this.getWeekKey(dateKey);
+        weeklyHours.set(wk, (weeklyHours.get(wk) || 0) + hours);
+      }
+      const maxWeekly = agent?.maxWeeklyHours ?? 50;
+      for (const [weekKey, hours] of weeklyHours) {
+        if (hours > maxWeekly) {
+          violations.push({
+            type: 'hard',
+            agentId,
+            description: `Agent exceeds ${maxWeekly}h in week ${weekKey} (${hours}h)`
           });
         }
       }
@@ -254,6 +271,58 @@ export class FitnessEvaluatorService {
       }
     }
 
+    const agentDailySlots = new Map<string, Map<string, { start: string; end: string; name: string }[]>>();
+    for (const assignment of scenario.assignments) {
+      const shift = shiftMap.get(assignment.shiftId);
+      if (!shift) continue;
+      const dateKey = shift.date instanceof Date
+        ? shift.date.toISOString().split('T')[0]
+        : String(shift.date).split('T')[0];
+      if (!agentDailySlots.has(assignment.agentId)) agentDailySlots.set(assignment.agentId, new Map());
+      const dailySlotMap = agentDailySlots.get(assignment.agentId)!;
+      if (!dailySlotMap.has(dateKey)) dailySlotMap.set(dateKey, []);
+      dailySlotMap.get(dateKey)!.push({ start: shift.startTime, end: shift.endTime, name: shift.name });
+    }
+
+    const agentMapSoft = new Map(agents.map(a => [a.id, a]));
+    for (const [agentId, dailySlotMap] of agentDailySlots) {
+      const agent = agentMapSoft.get(agentId);
+      if (!agent) continue;
+
+      for (const [dateKey, slots] of dailySlotMap) {
+        if (slots.length < 2) continue;
+        slots.sort((a, b) => a.start.localeCompare(b.start));
+        for (let i = 1; i < slots.length; i++) {
+          const gap = this.timeGapHours(slots[i - 1].end, slots[i].start);
+          if (gap > agent.maxOptimalGap) {
+            violations.push({
+              type: 'soft',
+              agentId,
+              description: `Gap between shifts on ${dateKey} is ${gap.toFixed(1)}h (max ${agent.maxOptimalGap}h)`
+            });
+          }
+        }
+      }
+
+      const dates = Array.from(dailySlotMap.keys()).sort();
+      for (let i = 1; i < dates.length; i++) {
+        const prev = new Date(dates[i - 1]);
+        const curr = new Date(dates[i]);
+        const diffDays = (curr.getTime() - prev.getTime()) / EVOLUTION_CONSTANTS.MS_PER_HOUR / 24;
+        if (Math.round(diffDays) === 1) {
+          const prevName = dailySlotMap.get(dates[i - 1])![0].name;
+          const currName = dailySlotMap.get(dates[i])![0].name;
+          if (prevName !== currName) {
+            violations.push({
+              type: 'soft',
+              agentId,
+              description: `Shift inconsistency: ${prevName} on ${dates[i - 1]} vs ${currName} on ${dates[i]}`
+            });
+          }
+        }
+      }
+    }
+
     return violations;
   }
 
@@ -303,8 +372,25 @@ export class FitnessEvaluatorService {
       guaranteedHours: agent.guaranteedHours,
       maxConsecutiveDays: agent.maxConsecutiveDays,
       minRestHours: agent.minRestHours,
-      motivation: agent.currentState.motivation
+      motivation: agent.currentState.motivation,
+      maxDailyHours: agent.maxDailyHours,
+      maxWeeklyHours: agent.maxWeeklyHours,
+      maxOptimalGap: agent.maxOptimalGap
     };
+  }
+
+  private getWeekKey(dateStr: string): string {
+    const d = new Date(dateStr);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.getFullYear(), d.getMonth(), diff);
+    return monday.toISOString().split('T')[0];
+  }
+
+  private timeGapHours(end: string, start: string): number {
+    const [eh, em] = end.split(':').map(Number);
+    const [sh, sm] = start.split(':').map(Number);
+    return (sh * 60 + sm - eh * 60 - em) / 60;
   }
 
   private toCoreScenario(scenario: ISchedulingScenario): CoreScenario {

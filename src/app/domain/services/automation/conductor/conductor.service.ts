@@ -119,7 +119,10 @@ export class ConductorService {
           guaranteedHours: a.guaranteedHours,
           maxConsecutiveDays: a.maxConsecutiveDays,
           minRestHours: a.minRestHours,
-          motivation: a.currentState.motivation
+          motivation: a.currentState.motivation,
+          maxDailyHours: a.maxDailyHours,
+          maxWeeklyHours: a.maxWeeklyHours,
+          maxOptimalGap: a.maxOptimalGap
         }));
 
         worker.onmessage = ({ data }) => {

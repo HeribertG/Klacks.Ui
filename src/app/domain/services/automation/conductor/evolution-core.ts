@@ -20,6 +20,9 @@ export interface CoreAgent {
   maxConsecutiveDays: number;
   minRestHours: number;
   motivation: number;
+  maxDailyHours: number;
+  maxWeeklyHours: number;
+  maxOptimalGap: number;
 }
 
 export interface CoreAssignment {
@@ -99,6 +102,26 @@ function timeSlotsOverlap(start1: string, end1: string, start2: string, end2: st
   return start1 < end2 && start2 < end1;
 }
 
+function getWeekKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d.getFullYear(), d.getMonth(), diff);
+  return monday.toISOString().split('T')[0];
+}
+
+function timeGapHours(end: string, start: string): number {
+  const [eh, em] = end.split(':').map(Number);
+  const [sh, sm] = start.split(':').map(Number);
+  return (sh * 60 + sm - eh * 60 - em) / 60;
+}
+
+function getPreviousDayKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
 export function evaluateHardConstraints(
   scenario: CoreScenario,
   shifts: CoreShift[],
@@ -132,18 +155,24 @@ export function evaluateHardConstraints(
     });
   }
 
-  for (const [, dailyMap] of agentDailyHours) {
-    for (const [, hours] of dailyMap) {
-      if (hours > SCHEDULING_CONSTANTS.MAX_DAILY_HOURS) violations++;
-    }
-  }
-
   const agentMap = new Map(agents.map(a => [a.id, a]));
-  for (const [agentId] of agentDailyHours) {
+  for (const [agentId, dailyMap] of agentDailyHours) {
     const agent = agentMap.get(agentId);
     if (!agent) continue;
 
-    const dailyMap = agentDailyHours.get(agentId)!;
+    for (const [, hours] of dailyMap) {
+      if (hours > agent.maxDailyHours) violations++;
+    }
+
+    const weeklyHours = new Map<string, number>();
+    for (const [dateKey, hours] of dailyMap) {
+      const wk = getWeekKey(dateKey);
+      weeklyHours.set(wk, (weeklyHours.get(wk) || 0) + hours);
+    }
+    for (const [, hours] of weeklyHours) {
+      if (hours > agent.maxWeeklyHours) violations++;
+    }
+
     const workedDates = Array.from(dailyMap.keys()).sort();
     let consecutive = 1;
     for (let i = 1; i < workedDates.length; i++) {
@@ -224,6 +253,44 @@ export function evaluateSoftConstraints(
 
   for (const a of scenario.assignments) {
     if (a.motivationScore < SCHEDULING_CONSTANTS.LOW_MOTIVATION_THRESHOLD) violations++;
+  }
+
+  const agentDailySlots = new Map<string, Map<string, { start: string; end: string; name: string }[]>>();
+  for (const a of scenario.assignments) {
+    const shift = shiftMap.get(a.shiftId);
+    if (!shift) continue;
+    const dateKey = shift.date.split('T')[0];
+    if (!agentDailySlots.has(a.agentId)) agentDailySlots.set(a.agentId, new Map());
+    const dailyMap = agentDailySlots.get(a.agentId)!;
+    if (!dailyMap.has(dateKey)) dailyMap.set(dateKey, []);
+    dailyMap.get(dateKey)!.push({ start: shift.startTime, end: shift.endTime, name: shift.name });
+  }
+
+  const agentMapSoft = new Map(agents.map(a => [a.id, a]));
+  for (const [agentId, dailyMap] of agentDailySlots) {
+    const agent = agentMapSoft.get(agentId);
+    if (!agent) continue;
+
+    for (const [, slots] of dailyMap) {
+      if (slots.length < 2) continue;
+      slots.sort((a, b) => a.start.localeCompare(b.start));
+      for (let i = 1; i < slots.length; i++) {
+        const gap = timeGapHours(slots[i - 1].end, slots[i].start);
+        if (gap > agent.maxOptimalGap) violations++;
+      }
+    }
+
+    const dates = Array.from(dailyMap.keys()).sort();
+    for (let i = 1; i < dates.length; i++) {
+      const prev = new Date(dates[i - 1]);
+      const curr = new Date(dates[i]);
+      const diffDays = (curr.getTime() - prev.getTime()) / EVOLUTION_CONSTANTS.MS_PER_DAY;
+      if (diffDays === 1) {
+        const prevName = dailyMap.get(dates[i - 1])![0].name;
+        const currName = dailyMap.get(dates[i])![0].name;
+        if (prevName !== currName) violations++;
+      }
+    }
   }
 
   return violations;
@@ -344,19 +411,25 @@ export function createGreedyScenario(
     }
   }
 
+  const sortedAgents = [...agents].sort((a, b) => b.guaranteedHours - a.guaranteedHours);
+  const agentDailyShiftNames = new Map<string, Map<string, string>>();
+
   for (const shift of sortedShifts) {
     const dateKey = shift.date.split('T')[0];
     let bestAgent: CoreAgent | null = null;
     let bestScore = -Infinity;
 
-    for (const agent of agents) {
+    for (const agent of sortedAgents) {
       const currentHours = agentScheduledHours.get(agent.id) || 0;
       const dailyKey = `${agent.id}_${dateKey}`;
       if (agentDailyShifts.has(dailyKey) && agentDailyShifts.get(dailyKey)!.size > 0) continue;
-      if (currentHours + shift.hours > SCHEDULING_CONSTANTS.MAX_DAILY_HOURS) continue;
+      if (currentHours + shift.hours > agent.maxDailyHours) continue;
 
       const hourDeficit = agent.guaranteedHours - (agent.currentHours + currentHours);
-      const score = hourDeficit * EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT + agent.motivation * EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT - currentHours;
+      const prevDayKey = getPreviousDayKey(dateKey);
+      const prevShiftName = agentDailyShiftNames.get(agent.id)?.get(prevDayKey);
+      const blockBonus = prevShiftName === shift.name ? EVOLUTION_CONSTANTS.GREEDY_BLOCK_CONSISTENCY_WEIGHT : 0;
+      const score = hourDeficit * EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT + agent.motivation * EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT - currentHours + blockBonus;
       if (score > bestScore) {
         bestScore = score;
         bestAgent = agent;
@@ -373,6 +446,8 @@ export function createGreedyScenario(
       const dailyKey = `${bestAgent.id}_${dateKey}`;
       if (!agentDailyShifts.has(dailyKey)) agentDailyShifts.set(dailyKey, new Set());
       agentDailyShifts.get(dailyKey)!.add(shift.id);
+      if (!agentDailyShiftNames.has(bestAgent.id)) agentDailyShiftNames.set(bestAgent.id, new Map());
+      agentDailyShiftNames.get(bestAgent.id)!.set(dateKey, shift.name);
     }
   }
 

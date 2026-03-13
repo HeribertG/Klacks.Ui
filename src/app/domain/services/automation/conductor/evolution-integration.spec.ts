@@ -82,7 +82,10 @@ function toCoreAgent(agent: IScheduleAgent): CoreAgent {
     guaranteedHours: agent.guaranteedHours,
     maxConsecutiveDays: agent.maxConsecutiveDays,
     minRestHours: agent.minRestHours,
-    motivation: agent.currentState.motivation
+    motivation: agent.currentState.motivation,
+    maxDailyHours: agent.maxDailyHours,
+    maxWeeklyHours: agent.maxWeeklyHours,
+    maxOptimalGap: agent.maxOptimalGap
   };
 }
 
@@ -353,7 +356,7 @@ describe('Evolution Integration Tests', () => {
         { id: 's2', name: 'A', date: '2026-03-02', startTime: '08:00', endTime: '16:00', hours: 8, requiredAssignments: 1, priority: 5 }
       ];
       const agents: CoreAgent[] = [
-        { id: 'a1', currentHours: 0, guaranteedHours: 40, maxConsecutiveDays: 5, minRestHours: 11, motivation: 0.8 }
+        { id: 'a1', currentHours: 0, guaranteedHours: 40, maxConsecutiveDays: 5, minRestHours: 11, motivation: 0.8, maxDailyHours: 12, maxWeeklyHours: 50, maxOptimalGap: 2 }
       ];
       const config: CoreConfig = {
         populationSize: 10, maxGenerations: 10, eliteCount: 2, mutationRate: 0.15,
@@ -403,7 +406,7 @@ describe('Evolution Integration Tests', () => {
         { id: 's1', name: 'Morning', date: '2026-03-01T00:00:00.000Z', startTime: '08:00', endTime: '16:00', hours: 8, requiredAssignments: 1, priority: 5 }
       ];
       const agents: CoreAgent[] = [
-        { id: 'a1', currentHours: 0, guaranteedHours: 40, maxConsecutiveDays: 5, minRestHours: 11, motivation: 0.8 }
+        { id: 'a1', currentHours: 0, guaranteedHours: 40, maxConsecutiveDays: 5, minRestHours: 11, motivation: 0.8, maxDailyHours: 12, maxWeeklyHours: 50, maxOptimalGap: 2 }
       ];
       const config: CoreConfig = {
         populationSize: 10, maxGenerations: 5, eliteCount: 2, mutationRate: 0.15,

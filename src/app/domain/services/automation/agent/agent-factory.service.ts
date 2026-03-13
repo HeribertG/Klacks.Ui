@@ -24,7 +24,10 @@ export class AgentFactoryService {
   private defaultConfig: IAgentFactoryConfig = {
     maxConsecutiveDays: 5,
     minRestDays: 2,
-    minRestHours: 12
+    minRestHours: 12,
+    maxDailyHours: 10,
+    maxWeeklyHours: 50,
+    maxOptimalGap: 2
   };
 
   createAgents(
@@ -60,12 +63,19 @@ export class AgentFactoryService {
     agent.maxConsecutiveDays = mergedConfig.maxConsecutiveDays ?? 5;
     agent.minRestDays = mergedConfig.minRestDays ?? 2;
     agent.minRestHours = mergedConfig.minRestHours ?? 12;
+    agent.maxDailyHours = mergedConfig.maxDailyHours ?? 10;
+    agent.maxWeeklyHours = mergedConfig.maxWeeklyHours ?? 50;
+    agent.maxOptimalGap = mergedConfig.maxOptimalGap ?? 2;
 
     const currentHours = periodHours?.hours ?? 0;
     const guaranteedHours = periodHours?.guaranteedHours
       ?? schedulingDefaults?.guaranteedHours
       ?? 0;
     agent.updateHours(currentHours, guaranteedHours, periodProgress);
+
+    agent.currentState.motivation = guaranteedHours > 0
+      ? Math.max(0, (guaranteedHours - currentHours) / guaranteedHours)
+      : 0;
 
     return agent;
   }
@@ -80,6 +90,9 @@ export class AgentFactoryService {
         maxConsecutiveDays: schedulingDefaults.schedulingMaxConsecutiveDays,
         minRestDays: schedulingDefaults.schedulingMinRestDays,
         minRestHours: schedulingDefaults.schedulingMinPauseHours,
+        maxDailyHours: schedulingDefaults.schedulingMaxDailyHours,
+        maxWeeklyHours: schedulingDefaults.schedulingMaxWeeklyHours,
+        maxOptimalGap: schedulingDefaults.schedulingMaxOptimalGap,
       } : {}),
       ...config,
     };
