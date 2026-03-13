@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
+/**
+ * Hauptkomponente des Dashboards mit klappbaren Sektionen.
+ * @param sections - Record der Sektions-Zustände (offen/geschlossen)
+ */
 import { Component, inject, OnInit } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
@@ -12,20 +15,43 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { DashboardClientsOverviewComponent } from '../dashboard-clients-overview/dashboard-clients-overview.component';
 import { DashboardClientsLocationsComponent } from '../dashboard-clients-locations/dashboard-clients-locations.component';
 import { DashboardShiftsOverviewComponent } from '../dashboard-shifts-overview/dashboard-shifts-overview.component';
+import { DashboardShiftCoverageComponent } from '../dashboard-shift-coverage/dashboard-shift-coverage.component';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
+import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 
 @Component({
   selector: 'app-dashboard-home',
   templateUrl: './dashboard-home.component.html',
   styleUrls: ['./dashboard-home.component.scss'],
   standalone: true,
-  imports: [TranslateModule, DashboardClientsOverviewComponent, DashboardClientsLocationsComponent, DashboardShiftsOverviewComponent],
+  imports: [
+    TranslateModule,
+    DashboardClientsOverviewComponent,
+    DashboardClientsLocationsComponent,
+    DashboardShiftsOverviewComponent,
+    DashboardShiftCoverageComponent,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+    IconCollapseAllGreyComponent,
+    IconExpandAllGreyComponent,
+  ],
 })
 export class DashboardHomeComponent implements OnInit {
+  public translate = inject(TranslateService);
+
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   private authorizationService = inject(AuthorizationService);
+
+  sections: Record<string, boolean> = {
+    overview: true,
+    coverage: true,
+    locations: true,
+  };
 
   get isAuthorised(): boolean {
     return this.authorizationService.isAuthorised;
@@ -33,14 +59,21 @@ export class DashboardHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);
-
-    // Hide search for dashboard
     this.searchService.setSearchVisibility(false);
-
     this.workplaceStateService.setActiveManagerByRoute(RouteName.DASHBOARD);
     this.workplaceStateService.isFocusChanged.set(true);
-
-    // Set normal width for dashboard
     this.layoutService.setContainerToNormalSize();
+  }
+
+  toggleSection(section: string): void {
+    this.sections[section] = !this.sections[section];
+  }
+
+  expandAll(): void {
+    Object.keys(this.sections).forEach((key) => (this.sections[key] = true));
+  }
+
+  collapseAll(): void {
+    Object.keys(this.sections).forEach((key) => (this.sections[key] = false));
   }
 }

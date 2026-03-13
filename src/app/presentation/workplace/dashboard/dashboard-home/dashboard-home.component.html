@@ -1,14 +1,66 @@
 <div class="container-dashboard">
-  <h1 class="container-dashboard-header">{{ 'dashboard.clients.headline' | translate }}</h1>
+  <div class="container-headline">
+    <h1 class="container-dashboard-header">{{ 'dashboard.clients.headline' | translate }}</h1>
+    <div class="headline-actions">
+      <button class="headline-action-button" (click)="expandAll()">
+        <app-expand-all-grey></app-expand-all-grey>
+      </button>
+      <button class="headline-action-button" (click)="collapseAll()">
+        <app-collapse-all-grey></app-collapse-all-grey>
+      </button>
+    </div>
+  </div>
   <div class="container-dashboard-line"></div>
 
   <div class="container-dashboard-content">
     @if (isAuthorised) {
-      <div class="container-dashboard-charts-row">
-        <app-dashboard-clients-overview></app-dashboard-clients-overview>
-        <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('overview')" (keydown.enter)="toggleSection('overview')">
+        <span>{{ translate.instant("dashboard.section.overview") }}</span>
+        <button class="section-toggle-button">
+          @if (sections['overview']) {
+            <app-icon-angle-down></app-icon-angle-down>
+          } @else {
+            <app-icon-angle-right></app-icon-angle-right>
+          }
+        </button>
       </div>
+      @if (sections['overview']) {
+        <div class="container-dashboard-charts-row">
+          <app-dashboard-clients-overview></app-dashboard-clients-overview>
+          <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div class="section-header" tabindex="0" role="button" (click)="toggleSection('coverage')" (keydown.enter)="toggleSection('coverage')">
+        <span>{{ translate.instant("dashboard.section.coverage") }}</span>
+        <button class="section-toggle-button">
+          @if (sections['coverage']) {
+            <app-icon-angle-down></app-icon-angle-down>
+          } @else {
+            <app-icon-angle-right></app-icon-angle-right>
+          }
+        </button>
+      </div>
+      @if (sections['coverage']) {
+        <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
+      }
     }
-    <app-dashboard-clients-locations></app-dashboard-clients-locations>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="section-header" tabindex="0" role="button" (click)="toggleSection('locations')" (keydown.enter)="toggleSection('locations')">
+      <span>{{ translate.instant("dashboard.section.locations") }}</span>
+      <button class="section-toggle-button">
+        @if (sections['locations']) {
+          <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+          <app-icon-angle-right></app-icon-angle-right>
+        }
+      </button>
+    </div>
+    @if (sections['locations']) {
+      <app-dashboard-clients-locations></app-dashboard-clients-locations>
+    }
   </div>
 </div>

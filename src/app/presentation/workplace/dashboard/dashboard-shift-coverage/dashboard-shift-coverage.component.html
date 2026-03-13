@@ -1,0 +1,67 @@
+<div class="container-dashboard-charts-row">
+  <div class="container-dashboard-card">
+    @if (isLoading()) {
+      <div class="container-dashboard-loading">
+        <p>{{ 'dashboard.coverage.loading' | translate }}</p>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="container-dashboard-error">
+        <p class="container-dashboard-error-message">{{ error() }}</p>
+      </div>
+    }
+
+    @if (!isLoading() && !error()) {
+      @if (coverageChartData().length === 0) {
+        <div class="container-dashboard-no-data">
+          <p>{{ 'dashboard.coverage.noData' | translate }}</p>
+        </div>
+      } @else {
+        <div class="container-dashboard-card-header">
+          <h3>{{ 'dashboard.coverage.coverageByGroup' | translate }}</h3>
+        </div>
+        <div class="container-dashboard-card-content">
+          <app-pie-chart
+            [data]="coverageChartData()"
+            [width]="500"
+            [height]="500"
+          ></app-pie-chart>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="container-dashboard-card">
+    @if (isLoading()) {
+      <div class="container-dashboard-loading">
+        <p>{{ 'dashboard.coverage.loading' | translate }}</p>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="container-dashboard-error">
+        <p class="container-dashboard-error-message">{{ error() }}</p>
+      </div>
+    }
+
+    @if (!isLoading() && !error()) {
+      @if (sealedChartData().length === 0) {
+        <div class="container-dashboard-no-data">
+          <p>{{ 'dashboard.coverage.noData' | translate }}</p>
+        </div>
+      } @else {
+        <div class="container-dashboard-card-header">
+          <h3>{{ 'dashboard.coverage.sealedByGroup' | translate }}</h3>
+        </div>
+        <div class="container-dashboard-card-content">
+          <app-pie-chart
+            [data]="sealedChartData()"
+            [width]="500"
+            [height]="500"
+          ></app-pie-chart>
+        </div>
+      }
+    }
+  </div>
+</div>

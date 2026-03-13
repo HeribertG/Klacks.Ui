@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { IGroupTree } from 'src/app/domain/models/group/group-class';
-import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
+import { IClientLocationResource, IShiftCoverageStatistics } from 'src/app/domain/models/dashboard-class';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 @Injectable({
@@ -26,6 +26,14 @@ export class DataDashboardService {
   getClientsLocationsData(): Observable<IClientLocationResource[]> {
     return this.httpClient
       .get<IClientLocationResource[]>(`${environment.baseUrl}Dashboard/ClientLocations`, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      })
+      .pipe(retry(3));
+  }
+
+  getShiftCoverageStatistics(): Observable<IShiftCoverageStatistics[]> {
+    return this.httpClient
+      .get<IShiftCoverageStatistics[]>(`${environment.baseUrl}Dashboard/ShiftCoverageStatistics`, {
         context: new HttpContext().set(SKIP_LOADING, true),
       })
       .pipe(retry(3));

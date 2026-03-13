@@ -13,3 +13,12 @@ export interface IAddressInfo {
   latitude?: number | null;
   longitude?: number | null;
 }
+
+export interface IShiftCoverageStatistics {
+  groupId: string;
+  groupName: string;
+  totalSlots: number;
+  coveredSlots: number;
+  totalWorkEntries: number;
+  sealedWorkEntries: number;
+}
