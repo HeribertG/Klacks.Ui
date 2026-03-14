@@ -43,6 +43,7 @@ import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-acti
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 export interface ChatMessage {
   id: string;
@@ -88,6 +89,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
   private uiActionEngine = inject(UiActionEngineService);
+  private toastShowService = inject(ToastShowService);
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
@@ -252,6 +254,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
       if (response?.suggestedReplies) {
         this.activeSuggestedReplies.set(response.suggestedReplies);
+        this.showRepliesAsToast(response.suggestedReplies);
       }
 
       if (response?.functionCalls && response.functionCalls.length > 0) {
@@ -442,6 +445,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   onReplySelected(values: string[]): void {
     this.activeSuggestedReplies.set(null);
+    this.toastShowService.dismissInteractiveReplies();
     if (values.length === 0) return;
     this.inputText = values.join(', ');
     this.sendMessage();
@@ -449,6 +453,27 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   onRepliesDismissed(): void {
     this.activeSuggestedReplies.set(null);
+    this.toastShowService.dismissInteractiveReplies();
+  }
+
+  private showRepliesAsToast(config: ISuggestedRepliesConfig): void {
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(
+      config,
+      (values: string[]) => {
+        this.ngZone.run(() => {
+          this.activeSuggestedReplies.set(null);
+          if (values.length === 0) return;
+          this.inputText = values.join(', ');
+          this.sendMessage();
+        });
+      },
+      () => {
+        this.ngZone.run(() => {
+          this.activeSuggestedReplies.set(null);
+        });
+      },
+    );
   }
 
   onNavigateClick(navigateTo: string): void {
@@ -537,6 +562,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   clearChat(): void {
     this.messages = [];
     this.activeSuggestedReplies.set(null);
+    this.toastShowService.dismissInteractiveReplies();
 
     this.assistantService.clearConversation(this.conversationId);
 

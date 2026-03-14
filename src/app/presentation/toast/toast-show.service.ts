@@ -1,8 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Facade service for typed toast notifications including interactive reply toasts.
+ * @param showInfo - Shows an info toast (auto-hide 5s)
+ * @param showError - Shows an error toast (auto-hide 8s)
+ * @param showSuccess - Shows a success toast (auto-hide 2s)
+ * @param showInteractiveReply - Shows an interactive toast with single/multi-select options
+ */
+
 import { inject, Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { IToast } from './toast.interface';
 
 export const TOAST_ICONS = {
   INFO: 'ℹ️',
@@ -11,7 +21,13 @@ export const TOAST_ICONS = {
   SUCCESS: '✅',
   LOADING: '⏳',
   ROUTE: '🗺️',
+  ASSISTANT: '🤖',
 };
+
+const INTERACTIVE_REPLY_DEFAULTS = {
+  PROMPT_FALLBACK: 'Bitte wählen...',
+  HEADER: 'Assistent',
+} as const;
 
 @Injectable({
   providedIn: 'root',
@@ -19,10 +35,10 @@ export const TOAST_ICONS = {
 export class ToastShowService {
   private toastService = inject(ToastService);
 
-  showInfo(message: string, infoName = '', additionalMessage = '', icon = '') {
+  showInfo(message: string, infoName = '', additionalMessage = '', icon = ''): void {
     if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
+      const existing = this.toastService.toasts.find((x) => x.name === infoName);
+      this.toastService.remove(existing);
     }
     this.toastService.show(message, {
       classname: 'bg-info text-light',
@@ -36,10 +52,10 @@ export class ToastShowService {
     });
   }
 
-  showError(message: string, errorName = '', additionalMessage = '', icon = '') {
+  showError(message: string, errorName = '', additionalMessage = '', icon = ''): void {
     if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
+      const existing = this.toastService.toasts.find((x) => x.name === errorName);
+      this.toastService.remove(existing);
     }
 
     this.toastService.show(message, {
@@ -54,7 +70,7 @@ export class ToastShowService {
     });
   }
 
-  showSuccess(message: string, header: string, additionalMessage = '', icon = '') {
+  showSuccess(message: string, header: string, additionalMessage = '', icon = ''): void {
     this.toastService.show(message, {
       classname: 'bg-success text-light',
       delay: 2000,
@@ -64,5 +80,33 @@ export class ToastShowService {
       textFieldValue: additionalMessage,
       icon: icon,
     });
+  }
+
+  showInteractiveReply(
+    config: ISuggestedRepliesConfig,
+    onSelected: (values: string[]) => void,
+    onDismissed?: () => void,
+  ): IToast | null {
+    const promptText = config.prompt || INTERACTIVE_REPLY_DEFAULTS.PROMPT_FALLBACK;
+
+    return this.toastService.show(promptText, {
+      classname: 'bg-assistant-interactive',
+      autohide: false,
+      headertext: TOAST_ICONS.ASSISTANT + ' ' + INTERACTIVE_REPLY_DEFAULTS.HEADER,
+      icon: TOAST_ICONS.ASSISTANT,
+      interactive: {
+        repliesConfig: config,
+        onSelected,
+        onDismissed,
+      },
+    });
+  }
+
+  dismissInteractiveReplies(): void {
+    const interactiveToasts = this.toastService.toasts.filter((t) => t.interactive);
+    for (const toast of interactiveToasts) {
+      toast.interactive?.onDismissed?.();
+      this.toastService.remove(toast);
+    }
   }
 }

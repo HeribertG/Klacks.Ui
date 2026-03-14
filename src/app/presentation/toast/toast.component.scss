@@ -1,6 +1,10 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+@use "../../../assets/standard-styles/colors" as colors;
+
 :host {
   .toast {
-    max-width: 350px;
+    max-width: 380px;
     height: auto !important;
     min-height: auto !important;
 
@@ -38,6 +42,126 @@
         border-color: rgba(255, 255, 255, 0.4) !important;
         box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.2) !important;
       }
+    }
+  }
+
+  // Interactive assistant toast
+  .bg-assistant-interactive {
+    background: var(--backgroundColorCard, #fff) !important;
+    color: var(--standartTextColor, #333) !important;
+    border: 2px solid colors.$standartGreenColor !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .interactive-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .reply-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .reply-chip-btn {
+    background: var(--backgroundColorFocus, #f0f0f0);
+    color: var(--standartTextColor, #333);
+    border: 1px solid var(--cardBorderColor, #ddd);
+    border-radius: 16px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: colors.$standartGreenColor;
+      color: colors.$standartWhiteColor;
+      border-color: colors.$standartGreenColor;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .reply-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .reply-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--standartTextColor, #333);
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--backgroundColorFocus, #f0f0f0);
+    }
+
+    &.checked {
+      background: rgba(colors.$standartGreenColor, 0.08);
+    }
+
+    input[type="checkbox"] {
+      accent-color: colors.$standartGreenColor;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-text {
+      flex: 1;
+    }
+  }
+
+  .reply-confirm-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 8px;
+    background: colors.$standartGreenColor;
+    color: colors.$standartWhiteColor;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: colors.$splitButtonGreenColor;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .reply-dismiss-btn {
+    background: none;
+    border: none;
+    color: var(--colorLabel, #999);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 0;
+    text-align: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
     }
   }
 

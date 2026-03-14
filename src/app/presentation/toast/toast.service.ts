@@ -1,35 +1,48 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, TemplateRef } from '@angular/core';
+/**
+ * Core toast management service that maintains the toast array.
+ * @param toasts - Array of active toast notifications
+ * @param show - Adds a new toast with optional interactive config
+ * @param remove - Removes a toast from display
+ */
+
+import { Injectable } from '@angular/core';
+import { IToast } from './toast.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ToastService {
-  constructor() {}
+  private idCounter = 0;
 
-  toasts: any[] = [];
+  toasts: IToast[] = [];
 
-  show(textOrTpl: string | TemplateRef<any>, options: any = {}) {
-    if (textOrTpl !== '') {
-      if (!this.findToast(textOrTpl.toString())) {
-        this.toasts.push({ textOrTpl, ...options });
-      }
-    }
+  show(textOrTpl: string, options: Partial<IToast> = {}): IToast | null {
+    if (textOrTpl === '') return null;
+
+    if (this.findToast(textOrTpl.toString())) return null;
+
+    const toast: IToast = {
+      id: `toast_${++this.idCounter}_${Date.now()}`,
+      textOrTpl,
+      ...options,
+    };
+
+    this.toasts.push(toast);
+    return toast;
   }
 
-  remove(toast: any) {
-    this.toasts = this.toasts.filter((t) => t !== toast);
+  remove(toast: IToast | undefined): void {
+    if (!toast) return;
+    this.toasts = this.toasts.filter((t) => t.id !== toast.id);
+  }
+
+  removeById(id: string): void {
+    this.toasts = this.toasts.filter((t) => t.id !== id);
   }
 
   findToast(text: string): boolean {
-    const toast = this.toasts.filter((t) => t.textOrTpl.toString() === text);
-
-    if (toast && toast.length > 0) {
-      return true;
-    }
-
-    return false;
+    return this.toasts.some((t) => t.textOrTpl.toString() === text);
   }
 }
