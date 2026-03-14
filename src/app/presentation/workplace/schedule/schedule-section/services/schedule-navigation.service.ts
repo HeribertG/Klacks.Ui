@@ -16,7 +16,6 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShowInShiftService } from '../../services/show-in-shift.service';
 import { ScheduleDataService } from './schedule-data.service';
@@ -30,7 +29,6 @@ export interface ScrollbarState {
 @Injectable()
 export class ScheduleNavigationService {
   private cellManipulation = inject(BaseCellManipulationService);
-  private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
   private showInShiftService = inject(ShowInShiftService);
 
@@ -61,8 +59,9 @@ export class ScheduleNavigationService {
       );
       const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
 
+      vScrollbar.maxValue = dataService.rows;
       vScrollbar.value = targetScroll;
-      this.scrollService.verticalScrollPosition = targetScroll;
+      dataService.setScrollPosition(targetScroll);
       moveGridCallback();
     }
   }

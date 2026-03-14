@@ -730,14 +730,30 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {
-    for (let row = 0; row < this.rows; row++) {
-      const entry = this.getWorkScheduleEntryForCell(row, column);
-      if (entry && entry.entryId === shiftId) {
-        return row;
-      }
-    }
-    return -1;
+    const date = this.getDateForColumn(column);
+    if (!date) return -1;
+
+    const dateKey = formatDateOnly(date);
+    const matchingEntry = this.dataManagementSchedule.workScheduleEntries.find(
+      (e: IScheduleCell) => e.entryId === shiftId && formatDateOnly(new Date(e.entryDate)) === dateKey
+    );
+
+    if (!matchingEntry) return -1;
+
+    this.initializeGroupIndices();
+
+    const clientIndex = this.dataManagementSchedule.clients.findIndex(
+      (c) => c.id === matchingEntry.clientId
+    );
+    if (clientIndex < 0 || clientIndex >= this.indexGroupRow.length) return -1;
+
+    return this.indexGroupRow[clientIndex];
   }
+
+  setScrollPosition(position: number): void {
+    this.gridScroll.verticalScrollPosition = position;
+  }
+
 
   private formatWorkChangeCell(entry: IScheduleCell): GridCell {
     const cell = new GridCell();

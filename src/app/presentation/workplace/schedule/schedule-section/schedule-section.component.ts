@@ -497,7 +497,7 @@ export class ScheduleSectionComponent
       dataService,
       this.scheduleSurface.drawSchedule.height,
       this.vScrollbar,
-      () => this.scheduleSurface.drawSchedule.moveGrid()
+      () => this.scheduleSurface.drawSchedule.redraw()
     );
   }
 
