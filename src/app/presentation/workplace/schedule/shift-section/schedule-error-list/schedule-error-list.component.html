@@ -1,4 +1,4 @@
-<div class="error-list-container">
+<div class="container-table-borderless-no-height">
   <div class="error-list-header">
     <button
       id="error-filter-btn"
@@ -33,28 +33,28 @@
   </div>
 
   <div class="error-list-table-wrapper">
-    <table class="error-list-table">
+    <table style="width: 100%">
       <thead>
         <tr>
-          <th class="col-icon"></th>
-          <th class="col-date">{{ "schedule.error-list.column.date" | translate }}</th>
-          <th class="col-client">{{ "schedule.error-list.column.client" | translate }}</th>
-          <th class="col-comment">{{ "schedule.error-list.column.comment" | translate }}</th>
+          <th class="table-header col-icon cell-center"></th>
+          <th class="table-header col-date">{{ "schedule.error-list.column.date" | translate }}</th>
+          <th class="table-header col-client">{{ "schedule.error-list.column.client" | translate }}</th>
+          <th class="table-header">{{ "schedule.error-list.column.comment" | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (entry of filteredEntries(); track entry) {
-          <tr [class]="'row-' + entry.type" (click)="onRowClick(entry)">
-            <td class="col-icon">
+          <tr class="table-row" (click)="onRowClick(entry)">
+            <td class="table-cell col-icon cell-center">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>
             </td>
-            <td class="col-date">{{ entry.date }}</td>
-            <td class="col-client">{{ entry.clientName }}</td>
-            <td class="col-comment">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
+            <td class="table-cell col-date">{{ entry.date }}</td>
+            <td class="table-cell col-client">{{ entry.clientName }}</td>
+            <td class="table-cell">{{ entry.comment | translate: (entry.commentParams || {}) }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4" class="empty-message">
+            <td colspan="4" class="table-cell empty-message">
               {{ "schedule.error-list.empty" | translate }}
             </td>
           </tr>
