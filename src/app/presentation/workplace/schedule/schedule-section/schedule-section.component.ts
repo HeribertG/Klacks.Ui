@@ -501,6 +501,7 @@ export class ScheduleSectionComponent
       dataService,
       this.scheduleSurface.drawSchedule.height,
       this.vScrollbar,
+      this.hScrollbar,
       () => this.scheduleSurface.drawSchedule.redraw()
     );
   }

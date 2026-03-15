@@ -64,7 +64,7 @@ export class ScheduleErrorListComponent {
     }
   }
 
-  onRowDoubleClick(entry: ScheduleErrorEntry): void {
+  onRowClick(entry: ScheduleErrorEntry): void {
     this.showInScheduleService.showScheduleByClient(entry.clientId, entry.date);
   }
 }

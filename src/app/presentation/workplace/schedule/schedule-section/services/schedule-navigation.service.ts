@@ -77,6 +77,7 @@ export class ScheduleNavigationService {
     dataService: ScheduleDataService,
     drawScheduleHeight: number,
     vScrollbar: ScrollbarState,
+    hScrollbar: ScrollbarState,
     moveGridCallback: () => void
   ): void {
     const rowIndex = dataService.findRowByClientId(clientId);
@@ -87,11 +88,13 @@ export class ScheduleNavigationService {
         (drawScheduleHeight - this.settings.cellHeaderHeight) /
           this.settings.cellHeight
       );
-      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
+      const targetVScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
 
       vScrollbar.maxValue = dataService.rows;
-      vScrollbar.value = targetScroll;
-      dataService.setScrollPosition(targetScroll);
+      vScrollbar.value = targetVScroll;
+      dataService.setScrollPosition(targetVScroll);
+
+      hScrollbar.value = column;
 
       this.cellManipulation.PositionCollection.clear();
       this.cellManipulation.Position = new MyPosition(rowIndex, column);

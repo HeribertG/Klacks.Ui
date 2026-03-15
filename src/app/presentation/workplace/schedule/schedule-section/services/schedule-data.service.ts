@@ -756,7 +756,13 @@ export class ScheduleDataService extends BaseDataService {
 
   findRowByClientId(clientId: string): number {
     const clientIndex = this.dataManagementSchedule.clients.findIndex(c => c.id === clientId);
-    if (clientIndex < 0 || clientIndex >= this.indexGroupRow.length) return -1;
+    if (clientIndex < 0) return -1;
+
+    if (clientIndex >= this.indexGroupRow.length) {
+      this.initializeGroupIndices();
+    }
+
+    if (clientIndex >= this.indexGroupRow.length) return -1;
     return this.indexGroupRow[clientIndex];
   }
 

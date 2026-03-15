@@ -44,7 +44,7 @@
       </thead>
       <tbody>
         @for (entry of filteredEntries(); track entry) {
-          <tr [class]="'row-' + entry.type" (dblclick)="onRowDoubleClick(entry)">
+          <tr [class]="'row-' + entry.type" (click)="onRowClick(entry)">
             <td class="col-icon">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>
             </td>
