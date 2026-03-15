@@ -52,7 +52,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (entry of filteredEntries(); track entry.clientId + entry.date + entry.comment) {
+        @for (entry of filteredEntries(); track $index) {
           <tr class="table-row" (click)="onRowClick(entry)">
             <td class="table-cell col-icon cell-center">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>
