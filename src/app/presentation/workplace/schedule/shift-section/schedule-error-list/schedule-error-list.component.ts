@@ -17,17 +17,20 @@ import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { ErrorListFilterType, ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { ShowInScheduleService } from 'src/app/presentation/workplace/schedule/services/show-in-schedule.service';
+import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-export.service';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 
 @Component({
   selector: 'app-schedule-error-list',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule],
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, PdfIconComponent],
   templateUrl: './schedule-error-list.component.html',
   styleUrls: ['./schedule-error-list.component.scss'],
 })
 export class ScheduleErrorListComponent {
   private collisionService = inject(CollisionDetectionService);
   private showInScheduleService = inject(ShowInScheduleService);
+  private pdfExportService = inject(ScheduleErrorListPdfExportService);
 
   readonly faError = faCircleExclamation;
   readonly faWarning = faTriangleExclamation;
@@ -66,5 +69,9 @@ export class ScheduleErrorListComponent {
 
   onRowClick(entry: ScheduleErrorEntry): void {
     this.showInScheduleService.showScheduleByClient(entry.clientId, entry.date);
+  }
+
+  onPdfExport(): void {
+    this.pdfExportService.exportToPdf(this.filteredEntries());
   }
 }

@@ -30,6 +30,15 @@
       <fa-icon [icon]="faInfo" class="icon-info"></fa-icon>
       {{ "schedule.error-list.filter.info" | translate }}
     </button>
+    <div class="header-spacer"></div>
+    <button
+      id="error-list-pdf-export-btn"
+      class="btn btn-sm btn-pdf-export"
+      (click)="onPdfExport()"
+      [title]="'schedule.error-list.pdf.tooltip' | translate"
+    >
+      <app-icon-pdf-icon></app-icon-pdf-icon>
+    </button>
   </div>
 
   <div class="error-list-table-wrapper">

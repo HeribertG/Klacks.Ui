@@ -43,6 +43,24 @@
       background-color: var(--backgroundColoPaginationSelected);
     }
   }
+
+  .header-spacer {
+    flex: 1;
+  }
+
+  .btn-pdf-export {
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 .icon-error {
