@@ -43,7 +43,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (entry of filteredEntries; track entry) {
+        @for (entry of filteredEntries(); track entry) {
           <tr [class]="'row-' + entry.type">
             <td class="col-icon">
               <fa-icon [icon]="getEntryIcon(entry.type)" [class]="'icon-' + entry.type"></fa-icon>

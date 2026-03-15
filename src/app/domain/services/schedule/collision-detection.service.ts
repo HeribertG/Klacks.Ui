@@ -1,6 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, signal, OnDestroy } from '@angular/core';
+/**
+ * Service zur Erkennung und Verwaltung von Schicht-Kollisionen via SignalR.
+ * @param collisions - Map aller empfangenen Kollisionen (Key: sortierte Work-ID-Paare)
+ * @param errorEntries - Gefilterte Error-Einträge basierend auf sichtbaren Clients und Datumsbereich
+ * @param errorCount - Anzahl der aktuell sichtbaren Error-Einträge (für Tab-Badge)
+ */
+import { inject, Injectable, signal, computed, OnDestroy, effect } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import {
@@ -8,20 +14,23 @@ import {
   ICollisionNotification,
 } from 'src/app/domain/interfaces/collision-notification.interface';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { DataManagementScheduleService } from './data-management-schedule.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CollisionDetectionService implements OnDestroy {
   private signalRService = inject(SCHEDULE_SIGNALR);
+  private dataManagement = inject(DataManagementScheduleService);
   private collisions = new Map<string, ICollisionNotification>();
   private subscription: Subscription;
 
-  public collisionsUpdated = signal(0);
+  private collisionsUpdated = signal(0);
 
-  get collisionCount(): number {
-    return this.collisions.size;
-  }
+  errorEntries = signal<ScheduleErrorEntry[]>([]);
+
+  errorCount = computed(() => this.errorEntries().length);
 
   constructor() {
     this.subscription = this.signalRService.collisionsDetected$.subscribe(
@@ -30,15 +39,34 @@ export class CollisionDetectionService implements OnDestroy {
         this.collisionsUpdated.set(this.collisionsUpdated() + 1);
       },
     );
+
+    effect(() => {
+      this.collisionsUpdated();
+      this.dataManagement.workScheduleChunkLoaded();
+      this.refreshEntries();
+    });
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
 
-  getErrorEntries(): ScheduleErrorEntry[] {
+  private refreshEntries(): void {
+    const visibleClientIds = new Set(this.dataManagement.clients.map(c => c.id));
+    const startDate = this.dataManagement.visibleStartDate ? formatDateOnly(this.dataManagement.visibleStartDate) : undefined;
+    const endDate = this.dataManagement.visibleEndDate ? formatDateOnly(this.dataManagement.visibleEndDate) : undefined;
+
     const entries: ScheduleErrorEntry[] = [];
     for (const collision of this.collisions.values()) {
+      if (!visibleClientIds.has(collision.clientId)) {
+        continue;
+      }
+      if (startDate && collision.date < startDate) {
+        continue;
+      }
+      if (endDate && collision.date > endDate) {
+        continue;
+      }
       entries.push({
         type: 'error',
         date: collision.date,
@@ -50,7 +78,7 @@ export class CollisionDetectionService implements OnDestroy {
         },
       });
     }
-    return entries;
+    this.errorEntries.set(entries);
   }
 
   private processNotification(notification: ICollisionListNotification): void {

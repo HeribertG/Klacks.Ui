@@ -1,6 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, effect, inject, Injector, OnInit, runInInjectionContext } from '@angular/core';
+/**
+ * Komponente zur Anzeige der Schedule-Fehlerliste (Kollisionen, Warnungen, Infos).
+ * @param activeFilters - Aktive Filtertypen (error, warning, info)
+ */
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
-import { ScheduleErrorEntry, ErrorListFilterType } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { ErrorListFilterType } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 
 @Component({
   selector: 'app-schedule-error-list',
@@ -20,45 +24,31 @@ import { ScheduleErrorEntry, ErrorListFilterType } from 'src/app/domain/interfac
   templateUrl: './schedule-error-list.component.html',
   styleUrls: ['./schedule-error-list.component.scss'],
 })
-export class ScheduleErrorListComponent implements OnInit {
-  private injector = inject(Injector);
+export class ScheduleErrorListComponent {
   private collisionService = inject(CollisionDetectionService);
 
   readonly faError = faCircleExclamation;
   readonly faWarning = faTriangleExclamation;
   readonly faInfo = faCircleInfo;
 
-  activeFilters = new Set<ErrorListFilterType>([
-    'error',
-    'warning',
-    'info',
-  ]);
+  activeFilters = signal(new Set<ErrorListFilterType>(['error', 'warning', 'info']));
 
-  entries: ScheduleErrorEntry[] = [];
-
-  ngOnInit(): void {
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        this.collisionService.collisionsUpdated();
-        this.entries = this.collisionService.getErrorEntries();
-      });
-    });
-  }
-
-  get filteredEntries(): ScheduleErrorEntry[] {
-    return this.entries.filter((e) => this.activeFilters.has(e.type));
-  }
+  filteredEntries = computed(() =>
+    this.collisionService.errorEntries().filter((e) => this.activeFilters().has(e.type)),
+  );
 
   toggleFilter(type: ErrorListFilterType): void {
-    if (this.activeFilters.has(type)) {
-      this.activeFilters.delete(type);
+    const updated = new Set(this.activeFilters());
+    if (updated.has(type)) {
+      updated.delete(type);
     } else {
-      this.activeFilters.add(type);
+      updated.add(type);
     }
+    this.activeFilters.set(updated);
   }
 
   isFilterActive(type: ErrorListFilterType): boolean {
-    return this.activeFilters.has(type);
+    return this.activeFilters().has(type);
   }
 
   getEntryIcon(type: ErrorListFilterType): IconDefinition {

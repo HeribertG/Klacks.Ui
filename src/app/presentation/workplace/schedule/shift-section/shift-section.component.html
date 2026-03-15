@@ -25,9 +25,9 @@
           (click)="onTabChange('errors')"
         >
           {{ "schedule.shift-section.tab.errors" | translate }}
-          @if (collisionService.collisionCount > 0) {
+          @if (collisionService.errorCount() > 0) {
             <span class="badge bg-danger ms-1">{{
-              collisionService.collisionCount
+              collisionService.errorCount()
             }}</span>
           }
         </a>

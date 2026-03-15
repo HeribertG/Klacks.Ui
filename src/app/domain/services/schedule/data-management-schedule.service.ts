@@ -119,6 +119,10 @@ export class DataManagementScheduleService implements ILoadable {
   );
   public isWorkScheduleRead = signal(false);
 
+  get workScheduleChunkLoaded() {
+    return this.workScheduleLoader.isRead;
+  }
+
   public workFilter: IWorkFilter = new WorkFilter();
   public get currentFilter(): IWorkFilter {
     return this.workFilter;
