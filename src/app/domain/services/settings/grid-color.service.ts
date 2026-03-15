@@ -49,6 +49,8 @@ export class GridColorService {
   backGroundSealedColor = '#424949';
   workChangeColor = '#FFA500';
   surchargeColor = '#FFFF00';
+  availableShiftsHeaderColor = 'red';
+  availabilityHighlightColor = 'rgba(76, 175, 80, 0.15)';
 
   private settingListDummy: ISetting[] = [];
 

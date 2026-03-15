@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-export type ErrorListFilterType = 'error' | 'warning' | 'info';
+import { ErrorListFilterType } from './error-list-filter-type.type';
 
 export interface ScheduleErrorEntry {
   type: ErrorListFilterType;

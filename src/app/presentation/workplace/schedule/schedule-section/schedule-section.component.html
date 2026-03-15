@@ -1,6 +1,6 @@
 <as-split #splitEl direction="horizontal" [gutterSize]="6" unit="pixel">
   <!-- Links: Row Header -->
-  <as-split-area [size]="horizontalSize" [minSize]="100">
+  <as-split-area [size]="horizontalSize()" [minSize]="100">
     <app-schedule-schedule-row-header
       [valueChangeVScrollbar]="vScrollbar.value"
     >

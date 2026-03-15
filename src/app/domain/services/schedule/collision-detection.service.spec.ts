@@ -11,10 +11,8 @@ import {
   ICollisionListNotification,
   ICollisionNotification,
 } from 'src/app/domain/interfaces/collision-notification.interface';
-import {
-  IScheduleValidationListNotification,
-  IScheduleValidationNotification,
-} from 'src/app/domain/interfaces/schedule-validation-notification.interface';
+import { IScheduleValidationNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
+import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 
 function createCollision(overrides: Partial<ICollisionNotification> = {}): ICollisionNotification {
   return {

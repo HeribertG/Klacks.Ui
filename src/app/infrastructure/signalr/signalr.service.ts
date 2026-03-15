@@ -16,7 +16,7 @@ import {
 } from 'src/app/domain/interfaces/period-hours-notification.interface';
 import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
-import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
+import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 
 @Injectable({

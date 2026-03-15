@@ -75,10 +75,8 @@ import { BranchManagementService } from 'src/app/domain/services/settings/branch
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
 import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
-import {
-  ToastShowService,
-  TOAST_ICONS,
-} from 'src/app/presentation/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import {

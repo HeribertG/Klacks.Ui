@@ -63,7 +63,8 @@ import { ReportDefaultsService } from 'src/app/domain/services/report/report-def
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 

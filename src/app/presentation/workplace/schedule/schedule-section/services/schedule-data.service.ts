@@ -306,7 +306,7 @@ export class ScheduleDataService extends BaseDataService {
     if (column >= 0 && column < availableShifts.length) {
       const shiftsForDay = availableShifts[column];
       if (shiftsForDay && shiftsForDay.length > 0) {
-        return 'red';
+        return this.gridColorService.availableShiftsHeaderColor;
       }
     }
     return null;
@@ -876,7 +876,7 @@ export class ScheduleDataService extends BaseDataService {
     if (!availability) return;
 
     if (!cell.backgroundColor) {
-      cell.backgroundColor = 'rgba(76, 175, 80, 0.15)';
+      cell.backgroundColor = this.gridColorService.availabilityHighlightColor;
     }
 
     if (isEmpty) {

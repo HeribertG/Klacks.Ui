@@ -14,10 +14,3 @@ export interface IScheduleValidationNotification {
   comment: string;
   commentParams: Record<string, string>;
 }
-
-export interface IScheduleValidationListNotification {
-  entries: IScheduleValidationNotification[];
-  isFullRefresh: boolean;
-  checkedClientId?: string;
-  checkedDate?: string;
-}

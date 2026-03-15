@@ -11,7 +11,7 @@ import {
 } from './period-hours-notification.interface';
 import { IScheduleChangeNotification } from './schedule-change-notification.interface';
 import { ICollisionListNotification } from './collision-notification.interface';
-import { IScheduleValidationListNotification } from './schedule-validation-notification.interface';
+import { IScheduleValidationListNotification } from './schedule-validation-list-notification.interface';
 
 export interface IScheduleSignalR {
   workCreated$: Observable<IWorkNotification>;

@@ -23,12 +23,10 @@ import {
   EffectRef,
   inject,
   Injector,
-  Input,
-  OnChanges,
+  input,
   OnDestroy,
   OnInit,
   runInInjectionContext,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -117,7 +115,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   styleUrls: ['./shift-section.component.scss'],
 })
 export class ShiftSectionComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('shiftSurface', { static: true })
   shiftSurface!: GridSurfaceTemplateComponent;
@@ -144,10 +142,10 @@ export class ShiftSectionComponent
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
 
-  @Input() horizontalSize!: number;
-  @Input() zoom = 1.0;
-  @Input() refreshTrigger = false;
-  @Input() hScrollPosition = 0;
+  horizontalSize = input(0);
+  zoom = input(1.0);
+  refreshTrigger = input(false);
+  hScrollPosition = input(0);
 
   public activeTab: 'shifts' | 'errors' = 'shifts';
 
@@ -193,22 +191,6 @@ export class ShiftSectionComponent
       .subscribe((keys) => {
         this.menuClicked(keys);
       });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['zoom'] && !changes['zoom'].firstChange) {
-      this.settings.zoom = this.zoom;
-    }
-
-    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
-      this.shiftSurface.Refresh();
-    }
-
-    if (changes['hScrollPosition']) {
-      const position = changes['hScrollPosition'].currentValue;
-      this.hScrollPositionValue = position;
-      this.scrollService.horizontalScrollPosition = position;
-    }
   }
 
   ngOnDestroy(): void {
@@ -307,6 +289,33 @@ export class ShiftSectionComponent
         }
       });
       this.effects.push(colorResetEffect);
+
+      let zoomInitialized = false;
+      const zoomEffect = effect(() => {
+        const zoomValue = this.zoom();
+        if (zoomInitialized) {
+          this.settings.zoom = zoomValue;
+        }
+        zoomInitialized = true;
+      });
+      this.effects.push(zoomEffect);
+
+      let refreshInitialized = false;
+      const refreshTriggerEffect = effect(() => {
+        const _trigger = this.refreshTrigger();
+        if (refreshInitialized) {
+          this.shiftSurface.Refresh();
+        }
+        refreshInitialized = true;
+      });
+      this.effects.push(refreshTriggerEffect);
+
+      const hScrollPositionEffect = effect(() => {
+        const position = this.hScrollPosition();
+        this.hScrollPositionValue = position;
+        this.scrollService.horizontalScrollPosition = position;
+      });
+      this.effects.push(hScrollPositionEffect);
     });
   }
 

@@ -44,17 +44,7 @@ import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interf
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-
-export interface ChatMessage {
-  id: string;
-  sender: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  suggestions?: string[];
-  suggestedReplies?: ISuggestedRepliesConfig;
-  navigateTo?: string;
-  actionPerformed?: boolean;
-}
+import { ChatMessage } from './chat-message.interface';
 
 @Component({
   selector: 'app-assistant-chat',

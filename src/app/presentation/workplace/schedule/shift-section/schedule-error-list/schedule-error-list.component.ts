@@ -15,7 +15,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
-import { ErrorListFilterType, ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { ErrorListFilterType } from 'src/app/domain/interfaces/error-list-filter-type.type';
+import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { ShowInScheduleService } from 'src/app/presentation/workplace/schedule/services/show-in-schedule.service';
 import { ScheduleErrorListPdfExportService } from './schedule-error-list-pdf-export.service';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';

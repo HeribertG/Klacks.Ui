@@ -13,16 +13,7 @@ import { ToastService } from './toast.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { IToast } from './toast.interface';
-
-export const TOAST_ICONS = {
-  INFO: 'ℹ️',
-  WARNING: '⚠️',
-  ERROR: '❌',
-  SUCCESS: '✅',
-  LOADING: '⏳',
-  ROUTE: '🗺️',
-  ASSISTANT: '🤖',
-};
+import { TOAST_ICONS } from './toast-icons.constants';
 
 const INTERACTIVE_REPLY_DEFAULTS = {
   PROMPT_FALLBACK: 'Bitte wählen...',
@@ -87,6 +78,8 @@ export class ToastShowService {
     onSelected: (values: string[]) => void,
     onDismissed?: () => void,
   ): IToast | null {
+    this.dismissInteractiveReplies();
+
     const promptText = config.prompt || INTERACTIVE_REPLY_DEFAULTS.PROMPT_FALLBACK;
 
     return this.toastService.show(promptText, {

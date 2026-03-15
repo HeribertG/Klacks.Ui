@@ -16,13 +16,7 @@
  * - Counterpart: ShowInShiftService (opposite direction)
  */
 import { Injectable, signal } from '@angular/core';
-
-export interface ShowInScheduleRequest {
-  shiftId?: string;
-  clientId?: string;
-  date?: string;
-  column?: number;
-}
+import { ShowInScheduleRequest } from './show-in-schedule-request.interface';
 
 @Injectable({
   providedIn: 'root',

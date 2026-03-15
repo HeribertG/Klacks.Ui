@@ -52,7 +52,8 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
-import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';

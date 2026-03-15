@@ -20,12 +20,7 @@ import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShowInShiftService } from '../../services/show-in-shift.service';
 import { ScheduleDataService } from './schedule-data.service';
-
-export interface ScrollbarState {
-  value: number;
-  maxValue: number;
-  visibleValue: number;
-}
+import { ScrollbarState } from '../../services/scrollbar-state.interface';
 
 @Injectable()
 export class ScheduleNavigationService {

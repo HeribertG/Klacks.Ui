@@ -20,17 +20,14 @@ import {
   ViewChild,
   inject,
   AfterViewInit,
-  EventEmitter,
-  Output,
-  Input,
   effect,
   OnDestroy,
   OnInit,
   runInInjectionContext,
   EffectRef,
   Injector,
-  OnChanges,
-  SimpleChanges,
+  input,
+  output,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -127,7 +124,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   styleUrls: ['./schedule-section.component.scss'],
 })
 export class ScheduleSectionComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
@@ -145,12 +142,12 @@ export class ScheduleSectionComponent
   @ViewChild(ExpensesDialogComponent)
   expensesDialog!: ExpensesDialogComponent;
 
-  @Input() horizontalSize = 200;
-  @Input() zoom = 1.0;
-  @Input() refreshTrigger = false;
+  horizontalSize = input(200);
+  zoom = input(1.0);
+  refreshTrigger = input(false);
 
-  @Output() horizontalSizeChange = new EventEmitter<number>();
-  @Output() hScrollPositionChange = new EventEmitter<number>();
+  horizontalSizeChange = output<number>();
+  hScrollPositionChange = output<number>();
 
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -194,16 +191,6 @@ export class ScheduleSectionComponent
     this.tooltipService.initLanguage();
     this.settings.editable = true;
     this.absenceMenuService.loadIfNeeded();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['zoom'] && !changes['zoom'].firstChange) {
-      this.settings.zoom = this.zoom;
-    }
-
-    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
-      this.scheduleSurface.Refresh();
-    }
   }
 
   ngAfterViewInit() {
@@ -352,6 +339,26 @@ export class ScheduleSectionComponent
         }
       });
       this.effects.push(colorResetEffect);
+
+      let zoomInitialized = false;
+      const zoomEffect = effect(() => {
+        const zoomValue = this.zoom();
+        if (zoomInitialized) {
+          this.settings.zoom = zoomValue;
+        }
+        zoomInitialized = true;
+      });
+      this.effects.push(zoomEffect);
+
+      let refreshInitialized = false;
+      const refreshTriggerEffect = effect(() => {
+        const _trigger = this.refreshTrigger();
+        if (refreshInitialized) {
+          this.scheduleSurface.Refresh();
+        }
+        refreshInitialized = true;
+      });
+      this.effects.push(refreshTriggerEffect);
 
     });
   }

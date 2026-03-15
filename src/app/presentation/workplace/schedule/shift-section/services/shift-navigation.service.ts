@@ -18,12 +18,7 @@ import { inject, Injectable } from '@angular/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDataService } from './shift-data.service';
-
-export interface ScrollbarState {
-  value: number;
-  maxValue: number;
-  visibleValue: number;
-}
+import { ScrollbarState } from '../../services/scrollbar-state.interface';
 
 @Injectable()
 export class ShiftNavigationService {

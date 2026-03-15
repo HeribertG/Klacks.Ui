@@ -4,7 +4,6 @@
  * Service zur PDF-Generierung der Schedule-Fehlerliste im Report-Format.
  * @param entries - Die zu exportierenden ScheduleErrorEntry-Einträge
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -115,7 +114,7 @@ export class ScheduleErrorListPdfExportService {
   }
 
   private renderPageNumbers(pdf: jsPDF): void {
-    const pageCount = (pdf as any).internal.pages.length - 1;
+    const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
       pdf.setFontSize(PDF_PAGE_NUMBER_FONT_SIZE);
