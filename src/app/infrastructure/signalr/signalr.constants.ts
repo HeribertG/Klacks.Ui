@@ -13,6 +13,7 @@ export const SignalRConstants = {
     PeriodHoursRecalculated: 'PeriodHoursRecalculated',
     ScheduleChangeTracked: 'ScheduleChangeTracked',
     CollisionsDetected: 'CollisionsDetected',
+    ScheduleValidationsDetected: 'ScheduleValidationsDetected',
   },
 
   HubMethods: {

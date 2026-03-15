@@ -11,6 +11,7 @@ import {
 } from './period-hours-notification.interface';
 import { IScheduleChangeNotification } from './schedule-change-notification.interface';
 import { ICollisionListNotification } from './collision-notification.interface';
+import { IScheduleValidationListNotification } from './schedule-validation-notification.interface';
 
 export interface IScheduleSignalR {
   workCreated$: Observable<IWorkNotification>;
@@ -22,6 +23,7 @@ export interface IScheduleSignalR {
   periodHoursRecalculated$: Observable<IPeriodHoursRecalculatedNotification>;
   scheduleChangeTracked$: Observable<IScheduleChangeNotification>;
   collisionsDetected$: Observable<ICollisionListNotification>;
+  scheduleValidationsDetected$: Observable<IScheduleValidationListNotification>;
   connectionId: string;
   joinScheduleGroup(startDate: string, endDate: string): Promise<void>;
 }

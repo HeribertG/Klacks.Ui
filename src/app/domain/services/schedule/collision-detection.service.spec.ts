@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { TestBed } from '@angular/core/testing';
-import { Subject, signal } from 'rxjs';
+import { Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { signal as angularSignal } from '@angular/core';
 import { CollisionDetectionService } from './collision-detection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
@@ -10,7 +11,10 @@ import {
   ICollisionListNotification,
   ICollisionNotification,
 } from 'src/app/domain/interfaces/collision-notification.interface';
-import { signal as angularSignal } from '@angular/core';
+import {
+  IScheduleValidationListNotification,
+  IScheduleValidationNotification,
+} from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 
 function createCollision(overrides: Partial<ICollisionNotification> = {}): ICollisionNotification {
   return {
@@ -25,9 +29,22 @@ function createCollision(overrides: Partial<ICollisionNotification> = {}): IColl
   };
 }
 
+function createValidation(overrides: Partial<IScheduleValidationNotification> = {}): IScheduleValidationNotification {
+  return {
+    type: 'warning',
+    clientId: 'client-1',
+    clientName: 'Test Client',
+    date: '2026-03-15',
+    comment: 'schedule.error-list.rest-violation',
+    commentParams: { hours: '8' },
+    ...overrides,
+  };
+}
+
 describe('CollisionDetectionService', () => {
   let service: CollisionDetectionService;
   let collisionsDetected$: Subject<ICollisionListNotification>;
+  let scheduleValidationsDetected$: Subject<IScheduleValidationListNotification>;
   let chunkLoadedSignal: ReturnType<typeof angularSignal<boolean>>;
   let dataManagementMock: {
     clients: { id: string }[];
@@ -39,6 +56,7 @@ describe('CollisionDetectionService', () => {
   beforeEach(() => {
     // Arrange
     collisionsDetected$ = new Subject<ICollisionListNotification>();
+    scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
     chunkLoadedSignal = angularSignal(false);
 
     dataManagementMock = {
@@ -51,7 +69,13 @@ describe('CollisionDetectionService', () => {
     TestBed.configureTestingModule({
       providers: [
         CollisionDetectionService,
-        { provide: SCHEDULE_SIGNALR, useValue: { collisionsDetected$: collisionsDetected$.asObservable() } },
+        {
+          provide: SCHEDULE_SIGNALR,
+          useValue: {
+            collisionsDetected$: collisionsDetected$.asObservable(),
+            scheduleValidationsDetected$: scheduleValidationsDetected$.asObservable(),
+          },
+        },
         { provide: DataManagementScheduleService, useValue: dataManagementMock },
       ],
     });
@@ -61,119 +85,11 @@ describe('CollisionDetectionService', () => {
 
   afterEach(() => {
     collisionsDetected$.complete();
+    scheduleValidationsDetected$.complete();
   });
 
-  describe('errorEntries', () => {
-    it('should populate errorEntries when collision notification arrives for visible client', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ clientId: 'client-1' })],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorEntries().length).toBe(1);
-      expect(service.errorEntries()[0].clientName).toBe('Test Client');
-      expect(service.errorEntries()[0].type).toBe('error');
-    });
-
-    it('should filter out collisions for non-visible clients', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ clientId: 'unknown-client' })],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorEntries().length).toBe(0);
-    });
-
-    it('should filter out collisions outside visible date range', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ clientId: 'client-1', date: '2026-05-01' })],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorEntries().length).toBe(0);
-    });
-
-    it('should include collisions within visible date range', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ clientId: 'client-1', date: '2026-03-15' })],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorEntries().length).toBe(1);
-    });
-
-    it('should update errorEntries when new clients become visible via chunk load', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ clientId: 'client-3' })],
-      };
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-      expect(service.errorEntries().length).toBe(0);
-
-      // Act
-      dataManagementMock.clients.push({ id: 'client-3' });
-      chunkLoadedSignal.set(true);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorEntries().length).toBe(1);
-    });
-  });
-
-  describe('errorCount', () => {
-    it('should return 0 when no collisions exist', () => {
-      // Arrange / Act / Assert
-      expect(service.errorCount()).toBe(0);
-    });
-
-    it('should match errorEntries length', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [
-          createCollision({ workId1: 'w1', workId2: 'w2', clientId: 'client-1' }),
-          createCollision({ workId1: 'w3', workId2: 'w4', clientId: 'client-2' }),
-        ],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorCount()).toBe(2);
-      expect(service.errorCount()).toBe(service.errorEntries().length);
-    });
-  });
-
-  describe('processNotification', () => {
-    it('should clear old collisions on fullRefresh', async () => {
+  describe('Collision Notifications', () => {
+    it('should replace all collisions when isFullRefresh is true', async () => {
       // Arrange
       const initial: ICollisionListNotification = {
         isFullRefresh: true,
@@ -198,28 +114,7 @@ describe('CollisionDetectionService', () => {
       expect(service.errorCount()).toBe(1);
     });
 
-    it('should add collisions incrementally when not fullRefresh', async () => {
-      // Arrange
-      const first: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [createCollision({ workId1: 'w1', workId2: 'w2', clientId: 'client-1' })],
-      };
-      collisionsDetected$.next(first);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Act
-      const second: ICollisionListNotification = {
-        isFullRefresh: false,
-        collisions: [createCollision({ workId1: 'w3', workId2: 'w4', clientId: 'client-2' })],
-      };
-      collisionsDetected$.next(second);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorCount()).toBe(2);
-    });
-
-    it('should remove collisions for checkedClientId and checkedDate before adding new ones', async () => {
+    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', async () => {
       // Arrange
       const initial: ICollisionListNotification = {
         isFullRefresh: true,
@@ -237,37 +132,19 @@ describe('CollisionDetectionService', () => {
         isFullRefresh: false,
         checkedClientId: 'client-1',
         checkedDate: '2026-03-15',
-        collisions: [],
+        collisions: [createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1', date: '2026-03-15' })],
       };
       collisionsDetected$.next(update);
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(service.errorCount()).toBe(1);
-      expect(service.errorEntries()[0].date).toBe('2026-03-16');
+      expect(service.errorCount()).toBe(2);
+      const dates = service.errorEntries().map(e => e.date);
+      expect(dates).toContain('2026-03-15');
+      expect(dates).toContain('2026-03-16');
     });
 
-    it('should deduplicate collisions by sorted work ID pair', async () => {
-      // Arrange
-      const notification: ICollisionListNotification = {
-        isFullRefresh: true,
-        collisions: [
-          createCollision({ workId1: 'w1', workId2: 'w2', clientId: 'client-1' }),
-          createCollision({ workId1: 'w2', workId2: 'w1', clientId: 'client-1' }),
-        ],
-      };
-
-      // Act
-      collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Assert
-      expect(service.errorCount()).toBe(1);
-    });
-  });
-
-  describe('errorEntries content', () => {
-    it('should map collision fields to ScheduleErrorEntry correctly', async () => {
+    it('should create errorEntries with type error for collisions', async () => {
       // Arrange
       const notification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -294,6 +171,290 @@ describe('CollisionDetectionService', () => {
         timeRange1: '08:00-12:00',
         timeRange2: '10:00-14:00',
       });
+    });
+  });
+
+  describe('Validation Notifications', () => {
+    it('should replace all validations when isFullRefresh is true', async () => {
+      // Arrange
+      const initial: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ clientId: 'client-1', date: '2026-03-10', comment: 'rest-violation-1' }),
+          createValidation({ clientId: 'client-1', date: '2026-03-11', comment: 'rest-violation-2' }),
+        ],
+      };
+      scheduleValidationsDetected$.next(initial);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(2);
+
+      // Act
+      const refresh: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [createValidation({ clientId: 'client-1', date: '2026-03-12', comment: 'rest-violation-3' })],
+      };
+      scheduleValidationsDetected$.next(refresh);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+      expect(service.errorEntries()[0].date).toBe('2026-03-12');
+    });
+
+    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', async () => {
+      // Arrange
+      const initial: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ clientId: 'client-1', date: '2026-03-15', comment: 'old-warning' }),
+          createValidation({ clientId: 'client-1', date: '2026-03-16', comment: 'keep-warning' }),
+        ],
+      };
+      scheduleValidationsDetected$.next(initial);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(2);
+
+      // Act
+      const update: IScheduleValidationListNotification = {
+        isFullRefresh: false,
+        checkedClientId: 'client-1',
+        checkedDate: '2026-03-15',
+        entries: [createValidation({ clientId: 'client-1', date: '2026-03-15', comment: 'new-warning' })],
+      };
+      scheduleValidationsDetected$.next(update);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(2);
+      const comments = service.errorEntries().map(e => e.comment);
+      expect(comments).toContain('new-warning');
+      expect(comments).toContain('keep-warning');
+      expect(comments).not.toContain('old-warning');
+    });
+
+    it('should map rest-violation entries as type warning', async () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [createValidation({
+          type: 'warning',
+          clientId: 'client-1',
+          comment: 'schedule.error-list.rest-violation',
+          commentParams: { hours: '11' },
+        })],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      const entry = service.errorEntries()[0];
+      expect(entry.type).toBe('warning');
+      expect(entry.comment).toBe('schedule.error-list.rest-violation');
+      expect(entry.commentParams).toEqual({ hours: '11' });
+    });
+
+    it('should map info entries as type info', async () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [createValidation({
+          type: 'info',
+          clientId: 'client-1',
+          comment: 'schedule.error-list.understaffed',
+          commentParams: { needed: '3', actual: '1' },
+        })],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      const entry = service.errorEntries()[0];
+      expect(entry.type).toBe('info');
+      expect(entry.comment).toBe('schedule.error-list.understaffed');
+      expect(entry.commentParams).toEqual({ needed: '3', actual: '1' });
+    });
+  });
+
+  describe('Filter and Visibility', () => {
+    it('should only include entries for visible clients', async () => {
+      // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [
+          createCollision({ clientId: 'client-1' }),
+          createCollision({ workId1: 'w3', workId2: 'w4', clientId: 'unknown-client' }),
+        ],
+      };
+
+      // Act
+      collisionsDetected$.next(collisionNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+      expect(service.errorEntries()[0].clientName).toBe('Test Client');
+    });
+
+    it('should only include entries within visible date range', async () => {
+      // Arrange
+      const notification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [
+          createCollision({ clientId: 'client-1', date: '2026-03-15' }),
+          createCollision({ workId1: 'w3', workId2: 'w4', clientId: 'client-1', date: '2026-05-01' }),
+          createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1', date: '2026-01-01' }),
+        ],
+      };
+
+      // Act
+      collisionsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+      expect(service.errorEntries()[0].date).toBe('2026-03-15');
+    });
+
+    it('should combine errors, warnings and infos in errorEntries', async () => {
+      // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      const validationNotification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-16', comment: 'warning-entry' }),
+          createValidation({ type: 'info', clientId: 'client-2', date: '2026-03-17', comment: 'info-entry' }),
+        ],
+      };
+
+      // Act
+      collisionsDetected$.next(collisionNotification);
+      scheduleValidationsDetected$.next(validationNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(3);
+      const types = service.errorEntries().map(e => e.type);
+      expect(types).toContain('error');
+      expect(types).toContain('warning');
+      expect(types).toContain('info');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should deduplicate collisions by sorted work ID pair', async () => {
+      // Arrange
+      const notification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [
+          createCollision({ workId1: 'w1', workId2: 'w2', clientId: 'client-1' }),
+          createCollision({ workId1: 'w2', workId2: 'w1', clientId: 'client-1' }),
+        ],
+      };
+
+      // Act
+      collisionsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorCount()).toBe(1);
+    });
+
+    it('should use type_clientId_date_comment as unique validation key', async () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-15', comment: 'rest-violation' }),
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-15', comment: 'rest-violation' }),
+        ],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+    });
+
+    it('should allow same comment on different dates as separate entries', async () => {
+      // Arrange
+      const notification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-15', comment: 'rest-violation' }),
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-16', comment: 'rest-violation' }),
+        ],
+      };
+
+      // Act
+      scheduleValidationsDetected$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(2);
+    });
+
+    it('should update errorEntries when new clients become visible via chunk load', async () => {
+      // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-3' })],
+      };
+      const validationNotification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [createValidation({ clientId: 'client-3' })],
+      };
+      collisionsDetected$.next(collisionNotification);
+      scheduleValidationsDetected$.next(validationNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(0);
+
+      // Act
+      dataManagementMock.clients.push({ id: 'client-3' });
+      chunkLoadedSignal.set(true);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(2);
+    });
+  });
+
+  describe('errorCount', () => {
+    it('should return 0 when no entries exist', () => {
+      // Arrange / Act / Assert
+      expect(service.errorCount()).toBe(0);
+    });
+
+    it('should reflect combined count of all entry types', async () => {
+      // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      const validationNotification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [
+          createValidation({ type: 'warning', clientId: 'client-1', date: '2026-03-16', comment: 'warning-1' }),
+          createValidation({ type: 'info', clientId: 'client-2', date: '2026-03-17', comment: 'info-1' }),
+        ],
+      };
+
+      // Act
+      collisionsDetected$.next(collisionNotification);
+      scheduleValidationsDetected$.next(validationNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorCount()).toBe(3);
+      expect(service.errorCount()).toBe(service.errorEntries().length);
     });
   });
 });

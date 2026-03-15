@@ -16,6 +16,7 @@ import {
 } from 'src/app/domain/interfaces/period-hours-notification.interface';
 import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
+import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 
 @Injectable({
@@ -39,6 +40,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public periodHoursRecalculated$ = new Subject<IPeriodHoursRecalculatedNotification>();
   public scheduleChangeTracked$ = new Subject<IScheduleChangeNotification>();
   public collisionsDetected$ = new Subject<ICollisionListNotification>();
+  public scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
   public reconnected$ = new Subject<void>();
 
   private currentGroup: { startDate: string; endDate: string } | null = null;
@@ -282,6 +284,10 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     this.hubConnection.on(SignalRConstants.Events.CollisionsDetected, (notification: ICollisionListNotification) => {
       this.collisionsDetected$.next(notification);
     });
+
+    this.hubConnection.on(SignalRConstants.Events.ScheduleValidationsDetected, (notification: IScheduleValidationListNotification) => {
+      this.scheduleValidationsDetected$.next(notification);
+    });
   }
 
   private registerConnectionEvents(): void {
@@ -380,6 +386,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     this.periodHoursRecalculated$.complete();
     this.scheduleChangeTracked$.complete();
     this.collisionsDetected$.complete();
+    this.scheduleValidationsDetected$.complete();
     this.reconnected$.complete();
   }
 

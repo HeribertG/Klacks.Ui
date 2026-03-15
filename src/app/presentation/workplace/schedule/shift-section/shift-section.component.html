@@ -26,9 +26,13 @@
         >
           {{ "schedule.shift-section.tab.errors" | translate }}
           @if (collisionService.errorCount() > 0) {
-            <span class="badge bg-danger ms-1">{{
-              collisionService.errorCount()
-            }}</span>
+            <span class="badge bg-danger ms-1">{{ collisionService.errorCount() }}</span>
+          }
+          @if (collisionService.warningCount() > 0) {
+            <span class="badge bg-warning ms-1">{{ collisionService.warningCount() }}</span>
+          }
+          @if (collisionService.infoCount() > 0) {
+            <span class="badge bg-info ms-1">{{ collisionService.infoCount() }}</span>
           }
         </a>
       </li>
