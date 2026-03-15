@@ -433,7 +433,7 @@ describe('CollisionDetectionService', () => {
       expect(service.errorCount()).toBe(0);
     });
 
-    it('should reflect combined count of all entry types', async () => {
+    it('should reflect count per type', async () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -453,8 +453,10 @@ describe('CollisionDetectionService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(service.errorCount()).toBe(3);
-      expect(service.errorCount()).toBe(service.errorEntries().length);
+      expect(service.errorCount()).toBe(1);
+      expect(service.warningCount()).toBe(1);
+      expect(service.infoCount()).toBe(1);
+      expect(service.errorEntries().length).toBe(3);
     });
   });
 });

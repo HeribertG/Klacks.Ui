@@ -87,6 +87,7 @@ export class CollisionDetectionService implements OnDestroy {
       entries.push({
         type: 'error',
         date: collision.date,
+        clientId: collision.clientId,
         clientName: collision.clientName,
         comment: 'schedule.error-list.collision',
         commentParams: {
@@ -104,6 +105,7 @@ export class CollisionDetectionService implements OnDestroy {
       entries.push({
         type: validation.type,
         date: validation.date,
+        clientId: validation.clientId,
         clientName: validation.clientName,
         comment: validation.comment,
         commentParams: validation.commentParams,

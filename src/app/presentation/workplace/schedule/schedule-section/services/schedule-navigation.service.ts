@@ -70,4 +70,33 @@ export class ScheduleNavigationService {
       moveGridCallback();
     }
   }
+
+  scrollToClient(
+    clientId: string,
+    date: string,
+    dataService: ScheduleDataService,
+    drawScheduleHeight: number,
+    vScrollbar: ScrollbarState,
+    moveGridCallback: () => void
+  ): void {
+    const rowIndex = dataService.findRowByClientId(clientId);
+    const column = dataService.getColumnForDate(date);
+
+    if (rowIndex >= 0 && column >= 0) {
+      const visibleRows = Math.floor(
+        (drawScheduleHeight - this.settings.cellHeaderHeight) /
+          this.settings.cellHeight
+      );
+      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
+
+      vScrollbar.maxValue = dataService.rows;
+      vScrollbar.value = targetScroll;
+      dataService.setScrollPosition(targetScroll);
+
+      this.cellManipulation.PositionCollection.clear();
+      this.cellManipulation.Position = new MyPosition(rowIndex, column);
+
+      moveGridCallback();
+    }
+  }
 }

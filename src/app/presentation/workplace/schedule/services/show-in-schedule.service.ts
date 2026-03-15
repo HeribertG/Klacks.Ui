@@ -5,9 +5,10 @@
  * @license Proprietary
  *
  * @description
- * Service enabling navigation from ShiftSection to ScheduleSection.
+ * Service enabling navigation from ShiftSection or ErrorList to ScheduleSection.
  * When a shift is selected in the shift grid, this service signals
  * the schedule section to scroll to and highlight the corresponding entries.
+ * Also supports client-based navigation by clientId and date.
  *
  * @relations
  * - Used by: ShiftContextMenuService (triggers navigation)
@@ -17,8 +18,10 @@
 import { Injectable, signal } from '@angular/core';
 
 export interface ShowInScheduleRequest {
-  shiftId: string;
-  column: number;
+  shiftId?: string;
+  clientId?: string;
+  date?: string;
+  column?: number;
 }
 
 @Injectable({
@@ -31,6 +34,10 @@ export class ShowInScheduleService {
 
   showSchedule(shiftId: string, column: number): void {
     this._request.set({ shiftId, column });
+  }
+
+  showScheduleByClient(clientId: string, date: string): void {
+    this._request.set({ clientId, date });
   }
 
   clear(): void {

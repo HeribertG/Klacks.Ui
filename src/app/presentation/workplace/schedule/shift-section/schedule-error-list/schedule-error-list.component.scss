@@ -82,6 +82,7 @@
   tbody {
     tr {
       border-bottom: 1px solid var(--colorLine);
+      cursor: pointer;
 
       &:hover {
         background-color: var(--backgroundColoPaginationSelected);

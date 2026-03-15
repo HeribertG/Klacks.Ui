@@ -327,7 +327,11 @@ export class ScheduleSectionComponent
       const showInScheduleEffect = effect(() => {
         const request = this.showInScheduleService.request();
         if (request) {
-          this.scrollToScheduleEntry(request.shiftId, request.column);
+          if (request.clientId && request.date) {
+            this.scrollToClient(request.clientId, request.date);
+          } else if (request.shiftId !== undefined && request.column !== undefined) {
+            this.scrollToScheduleEntry(request.shiftId, request.column);
+          }
           this.showInScheduleService.clear();
         }
       });
@@ -487,6 +491,18 @@ export class ScheduleSectionComponent
   private showSelectedShiftInShiftSection(): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
     this.navigationService.showSelectedShiftInShiftSection(dataService);
+  }
+
+  private scrollToClient(clientId: string, date: string): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    this.navigationService.scrollToClient(
+      clientId,
+      date,
+      dataService,
+      this.scheduleSurface.drawSchedule.height,
+      this.vScrollbar,
+      () => this.scheduleSurface.drawSchedule.redraw()
+    );
   }
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {

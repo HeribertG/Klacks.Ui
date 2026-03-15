@@ -15,7 +15,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
-import { ErrorListFilterType } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { ErrorListFilterType, ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
+import { ShowInScheduleService } from 'src/app/presentation/workplace/schedule/services/show-in-schedule.service';
 
 @Component({
   selector: 'app-schedule-error-list',
@@ -26,6 +27,7 @@ import { ErrorListFilterType } from 'src/app/domain/interfaces/schedule-error-en
 })
 export class ScheduleErrorListComponent {
   private collisionService = inject(CollisionDetectionService);
+  private showInScheduleService = inject(ShowInScheduleService);
 
   readonly faError = faCircleExclamation;
   readonly faWarning = faTriangleExclamation;
@@ -60,5 +62,9 @@ export class ScheduleErrorListComponent {
       case 'info':
         return this.faInfo;
     }
+  }
+
+  onRowDoubleClick(entry: ScheduleErrorEntry): void {
+    this.showInScheduleService.showScheduleByClient(entry.clientId, entry.date);
   }
 }

@@ -754,6 +754,20 @@ export class ScheduleDataService extends BaseDataService {
     this.gridScroll.verticalScrollPosition = position;
   }
 
+  findRowByClientId(clientId: string): number {
+    const clientIndex = this.dataManagementSchedule.clients.findIndex(c => c.id === clientId);
+    if (clientIndex < 0 || clientIndex >= this.indexGroupRow.length) return -1;
+    return this.indexGroupRow[clientIndex];
+  }
+
+  getColumnForDate(dateStr: string): number {
+    if (!this.startDate) return -1;
+    const targetDate = new Date(dateStr);
+    const diffTime = targetDate.getTime() - this.startDate.getTime();
+    const column = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return column >= 0 && column < this.columns ? column : -1;
+  }
+
 
   private formatWorkChangeCell(entry: IScheduleCell): GridCell {
     const cell = new GridCell();
