@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -22,6 +23,10 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    if (!this.isInternalRequest(req.url)) {
+      return next.handle(req);
+    }
+
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     const connectionId = this.signalRService.connectionId;
 
@@ -37,5 +42,9 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     return next.handle(req);
+  }
+
+  private isInternalRequest(url: string): boolean {
+    return url.startsWith(environment.baseUrl) || url.startsWith('/api/');
   }
 }

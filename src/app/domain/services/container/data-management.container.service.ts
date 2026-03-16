@@ -145,7 +145,7 @@ export class DataManagementContainerService
     return this.dataService
       .getAvailableTasks(
         containerId,
-        slot.weekday,
+        slot.effectiveWeekday,
         slot.fromTime,
         slot.untilTime,
         searchString,

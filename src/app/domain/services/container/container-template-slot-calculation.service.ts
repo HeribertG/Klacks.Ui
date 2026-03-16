@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { IShift } from '../../models/shift/shift-class';
 import { IContainerTemplateSlot, IContainerTemplateGrid } from '../../models/container/container-template-slot';
 
+const DAYS_IN_WEEK = 7;
+
 enum WeekdayName {
   Sunday = 0,
   Monday = 1,
@@ -41,25 +43,41 @@ export class ContainerTemplateSlotCalculationService {
     const crossesMidnight = this.checkIfCrossesMidnight(containerShift);
     const holidayVariants = this.getHolidayVariants(containerShift);
 
-    const totalDays = crossesMidnight ? 2 : 1;
     const slots: IContainerTemplateSlot[][] = [];
 
     for (const weekday of activeWeekdays) {
       for (const holidayVariant of holidayVariants) {
-        const row: IContainerTemplateSlot[] = [];
-
-        for (let dayIndex = 0; dayIndex < totalDays; dayIndex++) {
-          row.push(this.createSlot(
+        if (crossesMidnight) {
+          const beforeMidnightSlot = this.createSlot(
             containerShift,
             weekday,
             holidayVariant.isHoliday,
             holidayVariant.isWeekdayAndHoliday,
-            dayIndex,
+            0,
             crossesMidnight
-          ));
-        }
+          );
+          slots.push([beforeMidnightSlot]);
 
-        slots.push(row);
+          const afterMidnightSlot = this.createSlot(
+            containerShift,
+            weekday,
+            holidayVariant.isHoliday,
+            holidayVariant.isWeekdayAndHoliday,
+            1,
+            crossesMidnight
+          );
+          slots.push([afterMidnightSlot]);
+        } else {
+          const slot = this.createSlot(
+            containerShift,
+            weekday,
+            holidayVariant.isHoliday,
+            holidayVariant.isWeekdayAndHoliday,
+            0,
+            crossesMidnight
+          );
+          slots.push([slot]);
+        }
       }
     }
 
@@ -68,7 +86,7 @@ export class ContainerTemplateSlotCalculationService {
       slots,
       crossesMidnight,
       totalRows: slots.length,
-      totalDays
+      totalDays: crossesMidnight ? 2 : 1
     };
   }
 
@@ -126,9 +144,12 @@ export class ContainerTemplateSlotCalculationService {
     dayIndex: number,
     crossesMidnight: boolean
   ): IContainerTemplateSlot {
+    const effectiveWeekday = dayIndex === 0
+      ? weekday
+      : (weekday + 1) % DAYS_IN_WEEK;
     const weekdayName = WEEKDAY_NAMES[weekday];
+    const effectiveWeekdayName = WEEKDAY_NAMES[effectiveWeekday];
     const holidayLabel = this.getHolidayLabel(isHoliday, isWeekdayAndHoliday);
-    const dayLabel = crossesMidnight ? ` - Day ${dayIndex + 1}` : '';
 
     const { fromTime, untilTime } = this.calculateTimeWindow(
       containerShift.startShift,
@@ -137,13 +158,18 @@ export class ContainerTemplateSlotCalculationService {
       crossesMidnight
     );
 
+    const label = crossesMidnight
+      ? `${effectiveWeekdayName} (${holidayLabel})`
+      : `${weekdayName} (${holidayLabel})`;
+
     return {
       weekday,
       weekdayName,
+      effectiveWeekday,
       isHoliday,
       isWeekdayAndHoliday,
       dayIndex,
-      label: `${weekdayName} (${holidayLabel})${dayLabel}`,
+      label,
       fromTime,
       untilTime
     };

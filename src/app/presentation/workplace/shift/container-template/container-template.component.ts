@@ -1129,11 +1129,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
 
     const firstSlot = filteredRows[rowIndex][0];
-    const labelWithoutDay = firstSlot.label.split(' - ')[0];
+    const label = firstSlot.label;
 
-    const match = labelWithoutDay.match(/^(\w+)\s*\(([^)]+)\)$/);
+    const match = label.match(/^(\w+)\s*\(([^)]+)\)$/);
     if (!match) {
-      return labelWithoutDay;
+      return label;
     }
 
     const [, weekdayEn, holidayLabelEn] = match;
@@ -1146,11 +1146,21 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     )}`;
     const holidayTranslated = this.translateService.instant(holidayKey);
 
+    const timeRange = this.templateGrid?.crossesMidnight
+      ? ` ${this.formatSlotTime(firstSlot.fromTime)} - ${this.formatSlotTime(firstSlot.untilTime)}`
+      : '';
+
     if (holidayTranslated) {
-      return `${weekdayTranslated} ${holidayTranslated}`;
+      return `${weekdayTranslated} ${holidayTranslated}${timeRange}`;
     }
-    return weekdayTranslated;
+    return `${weekdayTranslated}${timeRange}`;
   }
+
+  private formatSlotTime(time: string): string {
+    const parts = time.split(':');
+    return `${parts[0]}:${parts[1]}`;
+  }
+
 
   private getHolidayLabelKey(label: string): string {
     const normalized = label.toLowerCase().trim();

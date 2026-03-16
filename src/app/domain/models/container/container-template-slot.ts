@@ -5,6 +5,7 @@ import { IShift } from '../shift/shift-class';
 export interface IContainerTemplateSlot {
   weekday: number;
   weekdayName: string;
+  effectiveWeekday: number;
   isHoliday: boolean;
   isWeekdayAndHoliday: boolean;
   dayIndex: number;

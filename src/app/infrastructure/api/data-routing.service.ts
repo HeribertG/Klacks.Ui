@@ -1,8 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service zum Abrufen von Routen-Geometrien für die Kartenanzeige.
+ * @param coordinates - Liste von Koordinaten mit Name, Lat/Lon
+ * Nutzt OpenRouteService (wenn API-Key vorhanden), sonst OSRM als Fallback.
+ */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, retry } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, map, catchError, of, switchMap } from 'rxjs';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 export interface RouteCoordinate {
   lat: number;
@@ -22,26 +28,76 @@ interface OsrmResponse {
   }[];
 }
 
+interface OrsDirectionsResponse {
+  features: {
+    geometry: {
+      coordinates: [number, number][];
+    };
+  }[];
+}
+
+const OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
+const ORS_DIRECTIONS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+
 @Injectable({
   providedIn: 'root',
 })
 export class DataRoutingService {
   private httpClient = inject(HttpClient);
-  private readonly OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
+  private appSettingsService = inject(AppSettingsManagementService);
 
   getRoute(coordinates: RouteCoordinateWithName[]): Observable<RouteCoordinate[]> {
     if (coordinates.length < 2) {
-      return new Observable((observer) => {
-        observer.next(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })));
-        observer.complete();
-      });
+      return of(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })));
     }
 
+    const apiKey = this.appSettingsService.openRouteServiceApiKey();
+
+    if (apiKey) {
+      return this.getOpenRouteServiceRoute(coordinates, apiKey).pipe(
+        catchError(() => this.getOsrmRoute(coordinates))
+      );
+    }
+
+    return this.getOsrmRoute(coordinates);
+  }
+
+  private getOpenRouteServiceRoute(
+    coordinates: RouteCoordinateWithName[],
+    apiKey: string
+  ): Observable<RouteCoordinate[]> {
+    const body = {
+      coordinates: coordinates.map((c) => [c.lon, c.lat]),
+    };
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: apiKey,
+    });
+
+    return this.httpClient
+      .post<OrsDirectionsResponse>(ORS_DIRECTIONS_URL, body, { headers })
+      .pipe(
+        map((data) => {
+          if (!data.features || data.features.length === 0) {
+            throw new Error('No route found');
+          }
+
+          return data.features[0].geometry.coordinates.map((coord) => ({
+            lon: coord[0],
+            lat: coord[1],
+          }));
+        })
+      );
+  }
+
+  private getOsrmRoute(
+    coordinates: RouteCoordinateWithName[]
+  ): Observable<RouteCoordinate[]> {
     const coordString = coordinates.map((c) => `${c.lon},${c.lat}`).join(';');
-    const url = `${this.OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
+    const url = `${OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
 
     return this.httpClient.get<OsrmResponse>(url).pipe(
-      retry(3),
       map((data) => {
         if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
           throw new Error('No route found');
@@ -51,7 +107,10 @@ export class DataRoutingService {
           lon: coord[0],
           lat: coord[1],
         }));
-      })
+      }),
+      catchError(() =>
+        of(coordinates.map((c) => ({ lat: c.lat, lon: c.lon })))
+      )
     );
   }
 }

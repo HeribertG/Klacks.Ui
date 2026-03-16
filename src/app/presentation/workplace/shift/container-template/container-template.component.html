@@ -23,6 +23,9 @@
           (valueChange)="onTimeFromChange($event)"
           [showLabel]="true"
           [forDuration]="false"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.time-from' | translate
+          "
         ></app-time-input>
 
         <app-time-input
@@ -31,6 +34,9 @@
           (valueChange)="onTimeToChange($event)"
           [showLabel]="true"
           [forDuration]="false"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.time-until' | translate
+          "
         ></app-time-input>
 
         <app-time-input
@@ -39,6 +45,9 @@
           [showLabel]="true"
           [forDuration]="true"
           [disabled]="true"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.duration' | translate
+          "
         ></app-time-input>
       </div>
 
@@ -47,6 +56,9 @@
         <label
           class="weekday-button"
           [class.active]="selectedWeekday === day.value"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.select-weekday' | translate
+          "
         >
           <input
             type="radio"
@@ -62,14 +74,24 @@
 
       <div class="holiday-checkboxes">
         @if (containerShift?.isHoliday) {
-        <label class="holiday-checkbox">
+        <label
+          class="holiday-checkbox"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.holiday-filter' | translate
+          "
+        >
           <input type="checkbox" [(ngModel)]="isHoliday" />
           <span>{{
             "shift.container-template.weekday.holiday" | translate
           }}</span>
         </label>
         } @if (containerShift?.isWeekdayAndHoliday) {
-        <label class="holiday-checkbox">
+        <label
+          class="holiday-checkbox"
+          [ngbTooltip]="
+            'shift.container-template.tooltip.holiday-plus-filter' | translate
+          "
+        >
           <input type="checkbox" [(ngModel)]="isWeekdayAndHoliday" />
           <span>{{
             "shift.container-template.weekday.holiday-plus" | translate
@@ -89,6 +111,9 @@
             class="form-select"
             [(ngModel)]="selectedStartBase"
             (change)="onStartBaseChange()"
+            [ngbTooltip]="
+              'shift.container-template.tooltip.start-base' | translate
+            "
           >
             <option [value]="''">-</option>
             @for (address of addressProvider.allAddresses(); track address.name)
@@ -109,6 +134,9 @@
             class="form-select"
             [(ngModel)]="selectedEndBase"
             (change)="onEndBaseChange()"
+            [ngbTooltip]="
+              'shift.container-template.tooltip.end-base' | translate
+            "
           >
             <option [value]="''">-</option>
             @for (address of addressProvider.allAddresses(); track address.name)
