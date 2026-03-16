@@ -272,6 +272,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       : client.name || '-';
   }
 
+  hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
+    if (!item.shift?.isTimeRange || !item.timeRangeStartShift) {
+      return false;
+    }
+    const plannedStart = timeToMinutes(item.timeRangeStartShift);
+    const plannedEnd = timeToMinutes(item.timeRangeEndShift);
+    const shiftRangeStart = timeToMinutes(item.shift.startShift);
+    const shiftRangeEnd = timeToMinutes(item.shift.endShift);
+
+    return plannedStart < shiftRangeStart || plannedEnd > shiftRangeEnd;
+  }
+
   isTimeRangePartial(shift: IShift): boolean {
     if (!shift.isTimeRange) {
       return false;

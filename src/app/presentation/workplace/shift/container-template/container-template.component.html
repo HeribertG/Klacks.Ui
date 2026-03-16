@@ -370,6 +370,7 @@
                           (cdkDragStarted)="onDragStarted($event)"
                           (cdkDragEnded)="onDragEnded($event)"
                           [class.selected]="shift === selectedShift"
+                          [class.timerange-violation]="hasTimeRangeViolation(shift)"
                         >
                           <td class="icon-column">
                             @if (shift.shift?.isSporadic) {
