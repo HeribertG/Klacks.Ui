@@ -69,6 +69,8 @@ export class ScheduleErrorListComponent {
   }
 
   onRowClick(entry: ScheduleErrorEntry): void {
+    const emptyGuid = '00000000-0000-0000-0000-000000000000';
+    if (!entry.clientId || entry.clientId === emptyGuid) return;
     this.showInScheduleService.showScheduleByClient(entry.clientId, entry.date);
   }
 

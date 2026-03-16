@@ -86,12 +86,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       return;
     }
 
-    const urlWithToken = `${this.hubUrl}?${SignalRConstants.QueryParams.AccessToken}=${encodeURIComponent(token)}`;
-    
-
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(urlWithToken, {
-        accessTokenFactory: () => token,
+      .withUrl(this.hubUrl, {
+        accessTokenFactory: () => this.localStorageService.get(StorageKeys.TOKEN) ?? '',
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
@@ -339,14 +336,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     });
 
     this.hubConnection.onclose((_error) => {
-      
       this._isConnected.set(false);
-
-      if (this.reconnectAttemptWithExpiredToken) {
-        
-        this.reconnectAttemptWithExpiredToken = false;
-        this.scheduleConnectionRefresh();
-      }
+      this.reconnectAttemptWithExpiredToken = false;
+      this.scheduleFullReconnect();
     });
   }
 
@@ -379,10 +371,30 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     setTimeout(async () => {
       const token = this.localStorageService.get(StorageKeys.TOKEN);
       if (token && !this.isTokenExpired(token)) {
-
         await this.refreshConnection();
       }
     }, SignalRService.CONNECTION_REFRESH_DELAY_MS);
+  }
+
+  private scheduleFullReconnect(attempt = 0): void {
+    const delays = [2000, 5000, 10000, 30000, 60000];
+    const delay = delays[Math.min(attempt, delays.length - 1)];
+
+    setTimeout(async () => {
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (!token || this.isTokenExpired(token)) {
+        return;
+      }
+
+      try {
+        await this.refreshConnection();
+        if (!this.isConnected) {
+          this.scheduleFullReconnect(attempt + 1);
+        }
+      } catch {
+        this.scheduleFullReconnect(attempt + 1);
+      }
+    }, delay);
   }
 
   ngOnDestroy(): void {
