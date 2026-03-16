@@ -99,6 +99,8 @@ export class RouteOptimizationService {
     isHoliday: boolean,
     startBase: string,
     endBase: string,
+    fromTime: string,
+    untilTime: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
   ): Observable<IAutofillResult> {
     const params = new HttpParams()
@@ -107,6 +109,8 @@ export class RouteOptimizationService {
       .set('isHoliday', isHoliday.toString())
       .set('startBase', startBase)
       .set('endBase', endBase)
+      .set('fromTime', fromTime)
+      .set('untilTime', untilTime)
       .set('transportMode', transportMode.toString());
 
     return this.http.get<IAutofillResult>(

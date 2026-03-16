@@ -45,179 +45,184 @@
           [showLabel]="true"
           [forDuration]="true"
           [disabled]="true"
-          [ngbTooltip]="
-            'shift.container-template.tooltip.duration' | translate
-          "
+          [ngbTooltip]="'shift.container-template.tooltip.duration' | translate"
         ></app-time-input>
       </div>
 
       <div class="weekday-buttons">
         @for (day of weekdays; track day.value) {
-        <label
-          class="weekday-button"
-          [class.active]="selectedWeekday === day.value"
-          [ngbTooltip]="
-            'shift.container-template.tooltip.select-weekday' | translate
-          "
-        >
-          <input
-            type="radio"
-            name="weekday"
-            [value]="day.value"
-            [(ngModel)]="selectedWeekday"
-            (change)="onWeekdayChange()"
-          />
-          <span>{{ day.labelKey | translate }}</span>
-        </label>
+          <label
+            class="weekday-button"
+            [class.active]="selectedWeekday === day.value"
+            [ngbTooltip]="
+              'shift.container-template.tooltip.select-weekday' | translate
+            "
+          >
+            <input
+              type="radio"
+              name="weekday"
+              [value]="day.value"
+              [(ngModel)]="selectedWeekday"
+              (change)="onWeekdayChange()"
+            />
+            <span>{{ day.labelKey | translate }}</span>
+          </label>
         }
       </div>
 
       <div class="holiday-checkboxes">
         @if (containerShift?.isHoliday) {
-        <label
-          class="holiday-checkbox"
-          [ngbTooltip]="
-            'shift.container-template.tooltip.holiday-filter' | translate
-          "
-        >
-          <input type="checkbox" [(ngModel)]="isHoliday" />
-          <span>{{
-            "shift.container-template.weekday.holiday" | translate
-          }}</span>
-        </label>
-        } @if (containerShift?.isWeekdayAndHoliday) {
-        <label
-          class="holiday-checkbox"
-          [ngbTooltip]="
-            'shift.container-template.tooltip.holiday-plus-filter' | translate
-          "
-        >
-          <input type="checkbox" [(ngModel)]="isWeekdayAndHoliday" />
-          <span>{{
-            "shift.container-template.weekday.holiday-plus" | translate
-          }}</span>
-        </label>
+          <label
+            class="holiday-checkbox"
+            [ngbTooltip]="
+              'shift.container-template.tooltip.holiday-filter' | translate
+            "
+          >
+            <input type="checkbox" [(ngModel)]="isHoliday" />
+            <span>{{
+              "shift.container-template.weekday.holiday" | translate
+            }}</span>
+          </label>
+        }
+        @if (containerShift?.isWeekdayAndHoliday) {
+          <label
+            class="holiday-checkbox"
+            [ngbTooltip]="
+              'shift.container-template.tooltip.holiday-plus-filter' | translate
+            "
+          >
+            <input type="checkbox" [(ngModel)]="isWeekdayAndHoliday" />
+            <span>{{
+              "shift.container-template.weekday.holiday-plus" | translate
+            }}</span>
+          </label>
         }
       </div>
 
       @if (addressProvider.allAddresses().length > 0) {
-      <div class="address-selects">
-        <div class="address-select-group">
-          <label for="start-base">
-            {{ "shift.container-template.start-base" | translate }}
-          </label>
-          <select
-            id="start-base"
-            class="form-select"
-            [(ngModel)]="selectedStartBase"
-            (change)="onStartBaseChange()"
-            [ngbTooltip]="
-              'shift.container-template.tooltip.start-base' | translate
-            "
-          >
-            <option [value]="''">-</option>
-            @for (address of addressProvider.allAddresses(); track address.name)
-            {
-            <option [value]="address.address">
-              {{ address.name }}
-            </option>
-            }
-          </select>
-        </div>
+        <div class="address-selects">
+          <div class="address-select-group">
+            <label for="start-base">
+              {{ "shift.container-template.start-base" | translate }}
+            </label>
+            <select
+              id="start-base"
+              class="form-select"
+              [(ngModel)]="selectedStartBase"
+              (change)="onStartBaseChange()"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.start-base' | translate
+              "
+            >
+              <option [value]="''">-</option>
+              @for (
+                address of addressProvider.allAddresses();
+                track address.name
+              ) {
+                <option [value]="address.address">
+                  {{ address.name }}
+                </option>
+              }
+            </select>
+          </div>
 
-        <div class="address-select-group">
-          <label for="end-base">
-            {{ "shift.container-template.end-base" | translate }}
-          </label>
-          <select
-            id="end-base"
-            class="form-select"
-            [(ngModel)]="selectedEndBase"
-            (change)="onEndBaseChange()"
-            [ngbTooltip]="
-              'shift.container-template.tooltip.end-base' | translate
-            "
-          >
-            <option [value]="''">-</option>
-            @for (address of addressProvider.allAddresses(); track address.name)
-            {
-            <option [value]="address.address">
-              {{ address.name }}
-            </option>
-            }
-          </select>
+          <div class="address-select-group">
+            <label for="end-base">
+              {{ "shift.container-template.end-base" | translate }}
+            </label>
+            <select
+              id="end-base"
+              class="form-select"
+              [(ngModel)]="selectedEndBase"
+              (change)="onEndBaseChange()"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.end-base' | translate
+              "
+            >
+              <option [value]="''">-</option>
+              @for (
+                address of addressProvider.allAddresses();
+                track address.name
+              ) {
+                <option [value]="address.address">
+                  {{ address.name }}
+                </option>
+              }
+            </select>
+          </div>
         </div>
-      </div>
-      @if (selectedStartBase && selectedEndBase) {
-      <div class="transport-mode-group">
-        <label>
-          {{ "shift.container-template.transport-mode" | translate }}
-        </label>
-        <div class="transport-mode-buttons">
-          <button
-            type="button"
-            class="transport-mode-btn"
-            [class.active]="selectedTransportMode === 0"
-            (click)="selectTransportMode(0)"
-            [ngbTooltip]="
-              'shift.container-template.transport-mode.by-car' | translate
-            "
-          >
-            <app-icon-by-car></app-icon-by-car>
-          </button>
-          <button
-            type="button"
-            class="transport-mode-btn"
-            [class.active]="selectedTransportMode === 1"
-            [class.disabled]="!hasOpenRouteServiceApiKey"
-            [disabled]="!hasOpenRouteServiceApiKey"
-            (click)="hasOpenRouteServiceApiKey && selectTransportMode(1)"
-            [ngbTooltip]="
-              hasOpenRouteServiceApiKey
-                ? ('shift.container-template.transport-mode.by-bicycle'
-                  | translate)
-                : ('shift.container-template.transport-mode.api-key-required'
-                  | translate)
-            "
-          >
-            <app-icon-by-bicycle></app-icon-by-bicycle>
-          </button>
-          <button
-            type="button"
-            class="transport-mode-btn"
-            [class.active]="selectedTransportMode === 2"
-            [class.disabled]="!hasOpenRouteServiceApiKey"
-            [disabled]="!hasOpenRouteServiceApiKey"
-            (click)="hasOpenRouteServiceApiKey && selectTransportMode(2)"
-            [ngbTooltip]="
-              hasOpenRouteServiceApiKey
-                ? ('shift.container-template.transport-mode.by-foot'
-                  | translate)
-                : ('shift.container-template.transport-mode.api-key-required'
-                  | translate)
-            "
-          >
-            <app-icon-by-foot></app-icon-by-foot>
-          </button>
-          <button
-            type="button"
-            class="transport-mode-btn"
-            [class.active]="selectedTransportMode === 3"
-            [class.disabled]="!hasOpenRouteServiceApiKey"
-            [disabled]="!hasOpenRouteServiceApiKey"
-            (click)="hasOpenRouteServiceApiKey && selectTransportMode(3)"
-            [ngbTooltip]="
-              hasOpenRouteServiceApiKey
-                ? ('shift.container-template.transport-mode.mix' | translate)
-                : ('shift.container-template.transport-mode.api-key-required'
-                  | translate)
-            "
-          >
-            <app-icon-transport-mix></app-icon-transport-mix>
-          </button>
-        </div>
-      </div>
-      } }
+        @if (selectedStartBase && selectedEndBase) {
+          <div class="transport-mode-group">
+            <label>
+              {{ "shift.container-template.transport-mode" | translate }}
+            </label>
+            <div class="transport-mode-buttons">
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="selectedTransportMode === 0"
+                (click)="selectTransportMode(0)"
+                [ngbTooltip]="
+                  'shift.container-template.transport-mode.by-car' | translate
+                "
+              >
+                <app-icon-by-car></app-icon-by-car>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="selectedTransportMode === 1"
+                [class.disabled]="!hasOpenRouteServiceApiKey"
+                [disabled]="!hasOpenRouteServiceApiKey"
+                (click)="hasOpenRouteServiceApiKey && selectTransportMode(1)"
+                [ngbTooltip]="
+                  hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.by-bicycle'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-by-bicycle></app-icon-by-bicycle>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="selectedTransportMode === 2"
+                [class.disabled]="!hasOpenRouteServiceApiKey"
+                [disabled]="!hasOpenRouteServiceApiKey"
+                (click)="hasOpenRouteServiceApiKey && selectTransportMode(2)"
+                [ngbTooltip]="
+                  hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.by-foot'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-by-foot></app-icon-by-foot>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="selectedTransportMode === 3"
+                [class.disabled]="!hasOpenRouteServiceApiKey"
+                [disabled]="!hasOpenRouteServiceApiKey"
+                (click)="hasOpenRouteServiceApiKey && selectTransportMode(3)"
+                [ngbTooltip]="
+                  hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.mix'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-transport-mix></app-icon-transport-mix>
+              </button>
+            </div>
+          </div>
+        }
+      }
     </div>
   </div>
 
@@ -249,32 +254,31 @@
                 </h3>
                 <span class="filler"></span>
                 @if (selectedStartBase && selectedEndBase) {
-                <app-icon-autofill
-                  class="icon-table"
-                  (click)="autofill()"
-                  [ngbTooltip]="
-                    'shift.container-template.tooltip.autofill'
-                      | translate
-                  "
-                ></app-icon-autofill>
-                <app-icon-route
-                  class="icon-table"
-                  (click)="optimizeRoute()"
-                  [ngbTooltip]="
-                    'shift.container-template.tooltip.optimize-route'
-                      | translate
-                  "
-                ></app-icon-route>
-                @if (hasRouteInfo) {
-                <app-icon-route-file
-                  class="icon-table"
-                  (click)="exportRouteToPdf()"
-                  [ngbTooltip]="
-                    'shift.container-template.tooltip.export-route-pdf'
-                      | translate
-                  "
-                ></app-icon-route-file>
-                }
+                  <app-icon-wizard
+                    class="icon-table"
+                    (click)="autofill()"
+                    [ngbTooltip]="
+                      'shift.container-template.tooltip.autofill' | translate
+                    "
+                  ></app-icon-wizard>
+                  <app-icon-route
+                    class="icon-table"
+                    (click)="optimizeRoute()"
+                    [ngbTooltip]="
+                      'shift.container-template.tooltip.optimize-route'
+                        | translate
+                    "
+                  ></app-icon-route>
+                  @if (hasRouteInfo) {
+                    <app-icon-route-file
+                      class="icon-table"
+                      (click)="exportRouteToPdf()"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.export-route-pdf'
+                          | translate
+                      "
+                    ></app-icon-route-file>
+                  }
                 }
                 <app-icon-pdf-icon
                   class="icon-table"
@@ -335,81 +339,84 @@
                     </thead>
                     <tbody>
                       @if (selectedContainerTemplateItems.length === 0) {
-                      <tr class="empty-drop-zone">
-                        <td colspan="7">
-                          <div class="no-shifts">
-                            <p>
-                              {{
-                                "shift.container-template.selected-tasks.placeholder"
-                                  | translate
-                              }}
-                            </p>
-                          </div>
-                        </td>
-                      </tr>
-                      } @for (shift of selectedContainerTemplateItems; track
-                      shift.id || shift.tmpId) {
-                      <tr
-                        cdkDrag
-                        cdkDragLockAxis="y"
-                        (click)="onShiftRowClick(shift)"
-                        (contextmenu)="onTableRowRightClick($event, shift)"
-                        (cdkDragStarted)="onDragStarted($event)"
-                        (cdkDragEnded)="onDragEnded($event)"
-                        [class.selected]="shift === selectedShift"
-                      >
-                        <td class="icon-column">
-                          @if (shift.shift?.isSporadic) {
-                          <app-icon-unknown-time></app-icon-unknown-time>
-                          } @else if (shift.shift?.isTimeRange) {
-                          <app-icon-time-window></app-icon-time-window>
-                          } @else {
-                          <app-icon-shift-segment></app-icon-shift-segment>
-                          }
-                        </td>
-                        <td>{{ shift.shift?.name }}</td>
-                        <td>{{ shift.shift?.abbreviation }}</td>
-                        <td>
-                          @if (shift.shift?.isTimeRange) {
-                          <div
-                            class="time-range-inputs"
-                            (click)="$event.stopPropagation()"
-                          >
-                            <app-time-input
-                              [value]="getTimeRangeStartTime(shift)"
-                              (valueChange)="
-                                onTimeRangeStartChange(shift, $event)
-                              "
-                              [showLabel]="false"
-                              [forDuration]="false"
-                            ></app-time-input>
-                            <span class="time-separator">-</span>
-                            <span class="time-display">{{
-                              formatTime(shift.timeRangeEndShift)
-                            }}</span>
-                          </div>
-                          } @else {
-                          {{ formatTime(shift.startShift) }} -
-                          {{ formatTime(shift.endShift) }}
-                          }
-                        </td>
-                        <td>
-                          {{
-                            shift.shift?.workTime
-                              ? formatWorkTime(shift.shift!.workTime)
-                              : "-"
-                          }}
-                        </td>
-                        <td>{{ formatClientWithAddress(shift) }}</td>
-                        <td
-                          class="action-column"
-                          (click)="
-                            onRemoveTask(shift); $event.stopPropagation()
-                          "
+                        <tr class="empty-drop-zone">
+                          <td colspan="7">
+                            <div class="no-shifts">
+                              <p>
+                                {{
+                                  "shift.container-template.selected-tasks.placeholder"
+                                    | translate
+                                }}
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                      @for (
+                        shift of selectedContainerTemplateItems;
+                        track shift.id || shift.tmpId
+                      ) {
+                        <tr
+                          cdkDrag
+                          cdkDragLockAxis="y"
+                          (click)="onShiftRowClick(shift)"
+                          (contextmenu)="onTableRowRightClick($event, shift)"
+                          (cdkDragStarted)="onDragStarted($event)"
+                          (cdkDragEnded)="onDragEnded($event)"
+                          [class.selected]="shift === selectedShift"
                         >
-                          <app-icon-trash-red></app-icon-trash-red>
-                        </td>
-                      </tr>
+                          <td class="icon-column">
+                            @if (shift.shift?.isSporadic) {
+                              <app-icon-unknown-time></app-icon-unknown-time>
+                            } @else if (shift.shift?.isTimeRange) {
+                              <app-icon-time-window></app-icon-time-window>
+                            } @else {
+                              <app-icon-shift-segment></app-icon-shift-segment>
+                            }
+                          </td>
+                          <td>{{ shift.shift?.name }}</td>
+                          <td>{{ shift.shift?.abbreviation }}</td>
+                          <td>
+                            @if (shift.shift?.isTimeRange) {
+                              <div
+                                class="time-range-inputs"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <app-time-input
+                                  [value]="getTimeRangeStartTime(shift)"
+                                  (valueChange)="
+                                    onTimeRangeStartChange(shift, $event)
+                                  "
+                                  [showLabel]="false"
+                                  [forDuration]="false"
+                                ></app-time-input>
+                                <span class="time-separator">-</span>
+                                <span class="time-display">{{
+                                  formatTime(shift.timeRangeEndShift)
+                                }}</span>
+                              </div>
+                            } @else {
+                              {{ formatTime(shift.startShift) }} -
+                              {{ formatTime(shift.endShift) }}
+                            }
+                          </td>
+                          <td>
+                            {{
+                              shift.shift?.workTime
+                                ? formatWorkTime(shift.shift!.workTime)
+                                : "-"
+                            }}
+                          </td>
+                          <td>{{ formatClientWithAddress(shift) }}</td>
+                          <td
+                            class="action-column"
+                            (click)="
+                              onRemoveTask(shift); $event.stopPropagation()
+                            "
+                          >
+                            <app-icon-trash-red></app-icon-trash-red>
+                          </td>
+                        </tr>
                       }
                     </tbody>
                   </table>
@@ -422,144 +429,155 @@
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-right">
               @if (isLoading) {
-              <div class="loading-indicator">
-                <p>{{ "common.loading" | translate }}</p>
-              </div>
+                <div class="loading-indicator">
+                  <p>{{ "common.loading" | translate }}</p>
+                </div>
               } @else if (templateGrid) {
-              <!-- Tabs -->
-              <div class="tabs-container">
-                <div class="tabs">
-                  @for (row of getFilteredRowsForSelectedWeekday(); track
-                  $index) {
-                  <button
-                    class="tab"
-                    [class.active]="selectedTabIndex === $index"
-                    (click)="selectTab($index)"
-                  >
-                    {{ getTabLabel($index) }}
-                  </button>
-                  }
-                  <span class="filler"></span>
-                  <button
-                    class="tab permanent-tab"
-                    [class.active]="isEmploymentTabActive"
-                    (click)="selectEmploymentTab()"
-                  >
-                    {{ "shift.container-template.tab.employment" | translate }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Shifts Grid -->
-              <div class="shifts-grid-container">
-                <div class="shifts-grid">
-                  @if (availableTasks.length > 0) {
-                  <table id="available-tasks-table" class="shifts-table">
-                    <thead>
-                      <tr>
-                        <th class="icon-column"></th>
-                        <th
-                          (click)="onHeaderClick('name')"
-                          style="cursor: pointer"
-                        >
-                          {{ "shift.container-template.grid.name" | translate }}
-                          {{ sortingService.getArrow("name") }}
-                        </th>
-                        <th
-                          (click)="onHeaderClick('abbreviation')"
-                          style="cursor: pointer"
-                        >
-                          {{
-                            "shift.container-template.grid.abbreviation"
-                              | translate
-                          }}
-                          {{ sortingService.getArrow("abbreviation") }}
-                        </th>
-                        <th
-                          (click)="onHeaderClick('startShift')"
-                          style="cursor: pointer"
-                        >
-                          {{ "shift.container-template.grid.time" | translate }}
-                          {{ sortingService.getArrow("startShift") }}
-                        </th>
-                        <th
-                          (click)="onHeaderClick('workTime')"
-                          style="cursor: pointer"
-                        >
-                          {{
-                            "shift.container-template.grid.work-time"
-                              | translate
-                          }}
-                          {{ sortingService.getArrow("workTime") }}
-                        </th>
-                        <th
-                          (click)="onHeaderClick('client')"
-                          style="cursor: pointer"
-                        >
-                          {{
-                            "shift.container-template.grid.client" | translate
-                          }}
-                          {{ sortingService.getArrow("client") }}
-                        </th>
-                        <th class="action-column"></th>
-                      </tr>
-                    </thead>
-                    <tbody
-                      cdkDropList
-                      id="available-tasks-list"
-                      [cdkDropListData]="availableTasks"
-                      [cdkDropListConnectedTo]="['selected-tasks-list']"
-                      [cdkDropListSortingDisabled]="true"
-                      (cdkDropListDropped)="onAvailableTasksDrop($event)"
-                    >
-                      @for (shift of availableTasks; track shift.id) {
-                      <tr
-                        cdkDrag
-                        cdkDragLockAxis="y"
-                        (cdkDragStarted)="onDragStarted($event)"
-                        (cdkDragEnded)="onDragEnded($event)"
+                <!-- Tabs -->
+                <div class="tabs-container">
+                  <div class="tabs">
+                    @for (
+                      row of getFilteredRowsForSelectedWeekday();
+                      track $index
+                    ) {
+                      <button
+                        class="tab"
+                        [class.active]="selectedTabIndex === $index"
+                        (click)="selectTab($index)"
                       >
-                        <td class="icon-column">
-                          @if (shift.isSporadic) {
-                          <app-icon-unknown-time></app-icon-unknown-time>
-                          } @else if (shift.isTimeRange) {
-                          <app-icon-time-window></app-icon-time-window>
-                          } @else {
-                          <app-icon-shift-segment></app-icon-shift-segment>
-                          }
-                        </td>
-                        <td>{{ shift.name }}</td>
-                        <td>{{ shift.abbreviation }}</td>
-                        <td>
-                          {{ formatTime(shift.startShift) }} -
-                          {{ formatTime(shift.endShift) }}
-                        </td>
-                        <td>{{ formatWorkTime(shift.workTime) }}</td>
-                        <td>{{ formatClientWithAddress(shift) }}</td>
-                        <td class="action-column"></td>
-                      </tr>
-                      }
-                    </tbody>
-                  </table>
-                  } @else {
-                  <div class="no-shifts">
-                    <p>
+                        {{ getTabLabel($index) }}
+                      </button>
+                    }
+                    <span class="filler"></span>
+                    <button
+                      class="tab permanent-tab"
+                      [class.active]="isEmploymentTabActive"
+                      (click)="selectEmploymentTab()"
+                    >
                       {{
-                        "shift.container-template.grid.no-shifts" | translate
+                        "shift.container-template.tab.employment" | translate
                       }}
-                    </p>
+                    </button>
                   </div>
-                  }
                 </div>
-              </div>
+
+                <!-- Shifts Grid -->
+                <div class="shifts-grid-container">
+                  <div class="shifts-grid">
+                    @if (availableTasks.length > 0) {
+                      <table id="available-tasks-table" class="shifts-table">
+                        <thead>
+                          <tr>
+                            <th class="icon-column"></th>
+                            <th
+                              (click)="onHeaderClick('name')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.name" | translate
+                              }}
+                              {{ sortingService.getArrow("name") }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('abbreviation')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.abbreviation"
+                                  | translate
+                              }}
+                              {{ sortingService.getArrow("abbreviation") }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('startShift')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.time" | translate
+                              }}
+                              {{ sortingService.getArrow("startShift") }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('workTime')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.work-time"
+                                  | translate
+                              }}
+                              {{ sortingService.getArrow("workTime") }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('client')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.client"
+                                  | translate
+                              }}
+                              {{ sortingService.getArrow("client") }}
+                            </th>
+                            <th class="action-column"></th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          cdkDropList
+                          id="available-tasks-list"
+                          [cdkDropListData]="availableTasks"
+                          [cdkDropListConnectedTo]="['selected-tasks-list']"
+                          [cdkDropListSortingDisabled]="true"
+                          (cdkDropListDropped)="onAvailableTasksDrop($event)"
+                        >
+                          @for (shift of availableTasks; track shift.id) {
+                            <tr
+                              cdkDrag
+                              cdkDragLockAxis="y"
+                              (cdkDragStarted)="onDragStarted($event)"
+                              (cdkDragEnded)="onDragEnded($event)"
+                            >
+                              <td class="icon-column">
+                                @if (shift.isSporadic) {
+                                  <app-icon-unknown-time></app-icon-unknown-time>
+                                } @else if (shift.isTimeRange) {
+                                  <app-icon-time-window></app-icon-time-window>
+                                } @else {
+                                  <app-icon-shift-segment></app-icon-shift-segment>
+                                }
+                              </td>
+                              <td>{{ shift.name }}</td>
+                              <td>{{ shift.abbreviation }}</td>
+                              <td>
+                                {{ formatTime(shift.startShift) }} -
+                                {{ formatTime(shift.endShift) }}
+                              </td>
+                              <td>{{ formatWorkTime(shift.workTime) }}</td>
+                              <td>{{ formatClientWithAddress(shift) }}</td>
+                              <td class="action-column"></td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <div class="no-shifts">
+                        <p>
+                          {{
+                            "shift.container-template.grid.no-shifts"
+                              | translate
+                          }}
+                        </p>
+                      </div>
+                    }
+                  </div>
+                </div>
               } @else {
-              <div class="no-data">
-                <p>
-                  {{
-                    "shift.container-template.no-container-selected" | translate
-                  }}
-                </p>
-              </div>
+                <div class="no-data">
+                  <p>
+                    {{
+                      "shift.container-template.no-container-selected"
+                        | translate
+                    }}
+                  </p>
+                </div>
               }
             </div>
           </as-split-area>
@@ -599,151 +617,162 @@
     </div>
   </div>
   <div class="modal-body first-modal">
-    @if (contextMenuTargetItem) { @if (contextMenuTargetItem.shift?.isTimeRange)
-    {
-    <div class="row-line-modal-inline1">
-      <div class="property-field">
-        <label for="timeRangeStartShift">
-          {{
-            "shift.container-template.properties.time-range-start" | translate
-          }}
-        </label>
-        <app-time-input
-          id="timeRangeStartShift"
-          [value]="getPropertiesTimeRangeStart()"
-          (valueChange)="onPropertiesTimeRangeStartChange($event)"
-          [showLabel]="false"
-          [forDuration]="false"
-        ></app-time-input>
-      </div>
-      <div class="property-field">
-        <label>
-          {{ "shift.container-template.properties.work-time" | translate }}
-        </label>
-        <div class="readonly-value">
-          {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
+    @if (contextMenuTargetItem) {
+      @if (contextMenuTargetItem.shift?.isTimeRange) {
+        <div class="row-line-modal-inline1">
+          <div class="property-field">
+            <label for="timeRangeStartShift">
+              {{
+                "shift.container-template.properties.time-range-start"
+                  | translate
+              }}
+            </label>
+            <app-time-input
+              id="timeRangeStartShift"
+              [value]="getPropertiesTimeRangeStart()"
+              (valueChange)="onPropertiesTimeRangeStartChange($event)"
+              [showLabel]="false"
+              [forDuration]="false"
+            ></app-time-input>
+          </div>
+          <div class="property-field">
+            <label>
+              {{ "shift.container-template.properties.work-time" | translate }}
+            </label>
+            <div class="readonly-value">
+              {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
+            </div>
+          </div>
+        </div>
+      }
+      <div class="row-line-modal-inline1">
+        <div class="property-field">
+          <label for="briefingTime">
+            {{
+              "shift.container-template.properties.briefing-time" | translate
+            }}
+          </label>
+          <app-time-input
+            id="briefingTime"
+            [value]="getPropertiesBriefingTime()"
+            (valueChange)="onPropertiesBriefingTimeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+        <div class="property-field">
+          <label for="debriefingTime">
+            {{
+              "shift.container-template.properties.debriefing-time" | translate
+            }}
+          </label>
+          <app-time-input
+            id="debriefingTime"
+            [value]="getPropertiesDebriefingTime()"
+            (valueChange)="onPropertiesDebriefingTimeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
         </div>
       </div>
-    </div>
-    }
-    <div class="row-line-modal-inline1">
-      <div class="property-field">
-        <label for="briefingTime">
-          {{ "shift.container-template.properties.briefing-time" | translate }}
-        </label>
-        <app-time-input
-          id="briefingTime"
-          [value]="getPropertiesBriefingTime()"
-          (valueChange)="onPropertiesBriefingTimeChange($event)"
-          [showLabel]="false"
-          [forDuration]="true"
-        ></app-time-input>
+      <div class="row-line-modal-inline1">
+        <div class="property-field">
+          <label for="travelTimeBefore">
+            {{
+              "shift.container-template.properties.travel-time-before"
+                | translate
+            }}
+          </label>
+          <app-time-input
+            id="travelTimeBefore"
+            [value]="getPropertiesTravelTimeBefore()"
+            (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+        <div class="property-field">
+          <label for="travelTimeAfter">
+            {{
+              "shift.container-template.properties.travel-time-after"
+                | translate
+            }}
+          </label>
+          <app-time-input
+            id="travelTimeAfter"
+            [value]="getPropertiesTravelTimeAfter()"
+            (valueChange)="onPropertiesTravelTimeAfterChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
       </div>
-      <div class="property-field">
-        <label for="debriefingTime">
-          {{
-            "shift.container-template.properties.debriefing-time" | translate
-          }}
-        </label>
-        <app-time-input
-          id="debriefingTime"
-          [value]="getPropertiesDebriefingTime()"
-          (valueChange)="onPropertiesDebriefingTimeChange($event)"
-          [showLabel]="false"
-          [forDuration]="true"
-        ></app-time-input>
-      </div>
-    </div>
-    <div class="row-line-modal-inline1">
-      <div class="property-field">
-        <label for="travelTimeBefore">
-          {{
-            "shift.container-template.properties.travel-time-before" | translate
-          }}
-        </label>
-        <app-time-input
-          id="travelTimeBefore"
-          [value]="getPropertiesTravelTimeBefore()"
-          (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
-          [showLabel]="false"
-          [forDuration]="true"
-        ></app-time-input>
-      </div>
-      <div class="property-field">
-        <label for="travelTimeAfter">
-          {{
-            "shift.container-template.properties.travel-time-after" | translate
-          }}
-        </label>
-        <app-time-input
-          id="travelTimeAfter"
-          [value]="getPropertiesTravelTimeAfter()"
-          (valueChange)="onPropertiesTravelTimeAfterChange($event)"
-          [showLabel]="false"
-          [forDuration]="true"
-        ></app-time-input>
-      </div>
-    </div>
 
-    @if (isTransportModeMix) {
-    <div class="transport-mode-group">
-      <label>
-        {{ "shift.container-template.transport-mode" | translate }}
-      </label>
-      <div class="transport-mode-buttons">
-        <button
-          type="button"
-          class="transport-mode-btn"
-          [class.active]="
-            getPropertiesTransportMode() === TransportModeEnum.byCar
-          "
-          (click)="selectPropertiesTransportMode(TransportModeEnum.byCar)"
-          [ngbTooltip]="
-            'shift.container-template.transport-mode.by-car' | translate
-          "
-        >
-          <app-icon-by-car></app-icon-by-car>
-        </button>
-        <button
-          type="button"
-          class="transport-mode-btn"
-          [class.active]="
-            getPropertiesTransportMode() === TransportModeEnum.byBicycle
-          "
-          (click)="selectPropertiesTransportMode(TransportModeEnum.byBicycle)"
-          [ngbTooltip]="
-            'shift.container-template.transport-mode.by-bicycle' | translate
-          "
-        >
-          <app-icon-by-bicycle></app-icon-by-bicycle>
-        </button>
-        <button
-          type="button"
-          class="transport-mode-btn"
-          [class.active]="
-            getPropertiesTransportMode() === TransportModeEnum.byFoot
-          "
-          (click)="selectPropertiesTransportMode(TransportModeEnum.byFoot)"
-          [ngbTooltip]="
-            'shift.container-template.transport-mode.by-foot' | translate
-          "
-        >
-          <app-icon-by-foot></app-icon-by-foot>
-        </button>
-      </div>
-    </div>
-    } @if (contextMenuTargetItem.shift?.isTimeRange) {
-    <div class="time-range-info-box">
-      {{
-        "shift.container-template.properties.time-range-info"
-          | translate
-            : {
-                startShift: formatTime(contextMenuTargetItem.shift?.startShift),
-                endShift: formatTime(contextMenuTargetItem.shift?.endShift)
-              }
-      }}
-    </div>
-    } }
+      @if (isTransportModeMix) {
+        <div class="transport-mode-group">
+          <label>
+            {{ "shift.container-template.transport-mode" | translate }}
+          </label>
+          <div class="transport-mode-buttons">
+            <button
+              type="button"
+              class="transport-mode-btn"
+              [class.active]="
+                getPropertiesTransportMode() === TransportModeEnum.byCar
+              "
+              (click)="selectPropertiesTransportMode(TransportModeEnum.byCar)"
+              [ngbTooltip]="
+                'shift.container-template.transport-mode.by-car' | translate
+              "
+            >
+              <app-icon-by-car></app-icon-by-car>
+            </button>
+            <button
+              type="button"
+              class="transport-mode-btn"
+              [class.active]="
+                getPropertiesTransportMode() === TransportModeEnum.byBicycle
+              "
+              (click)="
+                selectPropertiesTransportMode(TransportModeEnum.byBicycle)
+              "
+              [ngbTooltip]="
+                'shift.container-template.transport-mode.by-bicycle' | translate
+              "
+            >
+              <app-icon-by-bicycle></app-icon-by-bicycle>
+            </button>
+            <button
+              type="button"
+              class="transport-mode-btn"
+              [class.active]="
+                getPropertiesTransportMode() === TransportModeEnum.byFoot
+              "
+              (click)="selectPropertiesTransportMode(TransportModeEnum.byFoot)"
+              [ngbTooltip]="
+                'shift.container-template.transport-mode.by-foot' | translate
+              "
+            >
+              <app-icon-by-foot></app-icon-by-foot>
+            </button>
+          </div>
+        </div>
+      }
+      @if (contextMenuTargetItem.shift?.isTimeRange) {
+        <div class="time-range-info-box">
+          {{
+            "shift.container-template.properties.time-range-info"
+              | translate
+                : {
+                    startShift: formatTime(
+                      contextMenuTargetItem.shift?.startShift
+                    ),
+                    endShift: formatTime(contextMenuTargetItem.shift?.endShift),
+                  }
+          }}
+        </div>
+      }
+    }
   </div>
   <div class="modal-footer">
     <span
