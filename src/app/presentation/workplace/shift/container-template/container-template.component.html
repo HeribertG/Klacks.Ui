@@ -249,6 +249,14 @@
                 </h3>
                 <span class="filler"></span>
                 @if (selectedStartBase && selectedEndBase) {
+                <app-icon-autofill
+                  class="icon-table"
+                  (click)="autofill()"
+                  [ngbTooltip]="
+                    'shift.container-template.tooltip.autofill'
+                      | translate
+                  "
+                ></app-icon-autofill>
                 <app-icon-route
                   class="icon-table"
                   (click)="optimizeRoute()"
@@ -267,6 +275,7 @@
                   "
                 ></app-icon-route-file>
                 }
+                }
                 <app-icon-pdf-icon
                   class="icon-table"
                   (click)="exportSelectedShiftsToPdf()"
@@ -275,7 +284,6 @@
                       | translate
                   "
                 ></app-icon-pdf-icon>
-                }
                 <app-icon-compact
                   class="icon-table"
                   (click)="compactSelectedShifts()"

@@ -51,6 +51,14 @@ export interface IRouteOptimizationResult {
   totalBriefingDebriefingTime: string;
 }
 
+export interface IAutofillResult extends IRouteOptimizationResult {
+  selectedShiftIds: string[];
+  totalWorkTime: string;
+  remainingTime: string;
+  totalAvailableShifts: number;
+  selectedShiftCount: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -81,6 +89,28 @@ export class RouteOptimizationService {
 
     return this.http.get<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,
+      { params }
+    );
+  }
+
+  autofill(
+    containerId: string,
+    weekday: number,
+    isHoliday: boolean,
+    startBase: string,
+    endBase: string,
+    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
+  ): Observable<IAutofillResult> {
+    const params = new HttpParams()
+      .set('containerId', containerId)
+      .set('weekday', weekday.toString())
+      .set('isHoliday', isHoliday.toString())
+      .set('startBase', startBase)
+      .set('endBase', endBase)
+      .set('transportMode', transportMode.toString());
+
+    return this.http.get<IAutofillResult>(
+      `${this.apiUrl}/autofill`,
       { params }
     );
   }

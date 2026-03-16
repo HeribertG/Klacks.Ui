@@ -89,6 +89,7 @@ import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.compo
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
+import { IconAutofillComponent } from 'src/app/presentation/icons/icon-autofill.component';
 import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -114,6 +115,7 @@ import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
     IconByFootComponent,
     IconByBicycleComponent,
     IconTransportMixComponent,
+    IconAutofillComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -921,6 +923,119 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         this.isHoliday
       );
     }
+  }
+
+  autofill(): void {
+    if (!this.selectedStartBase || !this.selectedEndBase) {
+      this.toastService.showInfo(
+        this.translateService.instant(
+          'shift.container-template.toast.autofill-no-base'
+        )
+      );
+      return;
+    }
+
+    if (!this.containerShift?.id || !this.selectedWeekday) {
+      this.toastService.showInfo(
+        this.translateService.instant(
+          'shift.container-template.toast.no-container-weekday'
+        )
+      );
+      return;
+    }
+
+    const weekdayNumber = this.containerService.getWeekdayNumber(
+      this.selectedWeekday
+    );
+
+    this.spinnerService.showProgressSpinner = true;
+    this.toastService.showInfo(
+      this.translateService.instant(
+        'shift.container-template.toast.autofill-running'
+      ),
+      '',
+      '',
+      TOAST_ICONS.ROUTE
+    );
+
+    this.routeOptimizationService
+      .autofill(
+        this.containerShift.id,
+        weekdayNumber,
+        this.isHoliday,
+        this.selectedStartBase,
+        this.selectedEndBase,
+        this.selectedTransportMode
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.spinnerService.showProgressSpinner = false;
+
+          if (result.selectedShiftCount === 0) {
+            this.toastService.showInfo(
+              this.translateService.instant(
+                'shift.container-template.toast.autofill-no-shifts'
+              )
+            );
+            return;
+          }
+
+          const newItems = this.convertAutofillResultToItems(
+            result.selectedShiftIds
+          );
+
+          this.lastRouteInfo = {
+            startBase: this.selectedStartBase,
+            endBase: this.selectedEndBase,
+            totalDistanceKm: result.totalDistanceKm,
+            estimatedTravelTime: result.estimatedTravelTime,
+            travelTimeFromStartBase: result.travelTimeFromStartBase,
+            distanceFromStartBaseKm: result.distanceFromStartBaseKm,
+            distanceToEndBaseKm: result.distanceToEndBaseKm,
+            travelTimeToEndBase: result.travelTimeToEndBase,
+            optimizedRoute: result.optimizedRoute,
+            segmentDirections: result.segmentDirections,
+          };
+
+          this.saveRouteInfoToTemplate();
+          this.applyOptimizedRoute(result, newItems);
+          this.toastService.showSuccess(
+            this.translateService.instant(
+              'shift.container-template.toast.autofill-success',
+              {
+                selected: result.selectedShiftCount,
+                total: result.totalAvailableShifts,
+                distance: result.totalDistanceKm.toFixed(2),
+              }
+            ),
+            'Autofill'
+          );
+        },
+        error: (error) => {
+          this.spinnerService.showProgressSpinner = false;
+          console.error('Autofill failed:', error);
+          this.toastService.showError(
+            error.message || error.statusText || 'Unknown error',
+            'autofill-error'
+          );
+        },
+      });
+  }
+
+  private convertAutofillResultToItems(
+    selectedShiftIds: string[]
+  ): IContainerTemplateItem[] {
+    const items: IContainerTemplateItem[] = [];
+
+    for (const shiftId of selectedShiftIds) {
+      const shift = this.availableTasks.find((t) => t.id === shiftId);
+      if (shift) {
+        items.push(this.convertShiftToContainerTemplateItem(shift));
+      }
+    }
+
+    return items;
   }
 
   optimizeRoute(): void {
