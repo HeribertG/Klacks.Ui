@@ -540,6 +540,7 @@
                               cdkDragLockAxis="y"
                               (cdkDragStarted)="onDragStarted($event)"
                               (cdkDragEnded)="onDragEnded($event)"
+                              [class.partial-timerange]="isTimeRangePartial(shift)"
                             >
                               <td class="icon-column">
                                 @if (shift.isSporadic) {

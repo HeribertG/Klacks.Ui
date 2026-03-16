@@ -659,6 +659,14 @@
   pointer-events: none;
 }
 
+tr.partial-timerange {
+  background-color: rgba(244, 67, 54, 0.08);
+
+  td {
+    color: rgba(var(--colorTextRgb, 0, 0, 0), 0.6);
+  }
+}
+
 ::ng-deep .cdk-drag-preview {
   display: table;
   background-color: var(--backgroundColorCard);

@@ -272,6 +272,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       : client.name || '-';
   }
 
+  isTimeRangePartial(shift: IShift): boolean {
+    if (!shift.isTimeRange) {
+      return false;
+    }
+    const containerFrom = timeToMinutes(
+      timeToString(parseInt(this.timeFrom.hours), parseInt(this.timeFrom.minutes)),
+    );
+    const containerUntil = timeToMinutes(
+      timeToString(parseInt(this.timeTo.hours), parseInt(this.timeTo.minutes)),
+    );
+    const shiftStart = timeToMinutes(shift.startShift);
+    const shiftEnd = timeToMinutes(shift.endShift);
+
+    return shiftStart < containerFrom || shiftEnd > containerUntil;
+  }
+
   onRemoveTask(item: IContainerTemplateItem): void {
     const itemIdentifier = item.id || item.tmpId;
     if (itemIdentifier) {
