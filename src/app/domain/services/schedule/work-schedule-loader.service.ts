@@ -223,6 +223,7 @@ export class WorkScheduleLoaderService {
           setTimeout(() => this._isRead.set(false), 100);
 
           this.joinSignalRGroup(dates.startDate, dates.endDate);
+          this.signalRService.setSelectedGroup(workFilter.selectedGroup ?? '');
           this.scheduleChangeService.loadDirtyClients(dates.startDate, dates.endDate);
 
           onLoaded?.();

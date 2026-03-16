@@ -2,14 +2,21 @@
 
 /**
  * Service zur Erkennung und Verwaltung von Schedule-Validierungen via SignalR.
- * Verarbeitet Kollisionen (error), Ruhezeit/Arbeitszeit-Verletzungen (warning)
- * und Unterbesetzung (info).
+ * Verarbeitet Kollisionen (error), Ruhezeit/Arbeitszeit-Verletzungen (warning) via SignalR.
+ * Berechnet Unterbesetzungs-Infos (info) lokal aus den geladenen Shift-Schedule-Daten.
  * @param collisions - Map aller empfangenen Kollisionen (Key: sortierte Work-ID-Paare)
- * @param validationEntries - Alle Validierungseinträge vom Backend (warning, info)
+ * @param validationEntries - Client-spezifische Validierungseinträge vom Backend (warning)
  * @param errorEntries - Kombinierte Error-Einträge basierend auf sichtbaren Clients und Datumsbereich
  * @param errorCount - Anzahl der aktuell sichtbaren Error-Einträge (für Tab-Badge)
  */
-import { inject, Injectable, signal, computed, OnDestroy, effect } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  signal,
+  computed,
+  OnDestroy,
+  effect,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import {
@@ -33,12 +40,19 @@ export class CollisionDetectionService implements OnDestroy {
   private subscriptions: Subscription[] = [];
 
   private entriesUpdated = signal(0);
+  private readonly emptyGuid = '00000000-0000-0000-0000-000000000000';
 
   errorEntries = signal<ScheduleErrorEntry[]>([]);
 
-  errorCount = computed(() => this.errorEntries().filter(e => e.type === 'error').length);
-  warningCount = computed(() => this.errorEntries().filter(e => e.type === 'warning').length);
-  infoCount = computed(() => this.errorEntries().filter(e => e.type === 'info').length);
+  errorCount = computed(
+    () => this.errorEntries().filter((e) => e.type === 'error').length,
+  );
+  warningCount = computed(
+    () => this.errorEntries().filter((e) => e.type === 'warning').length,
+  );
+  infoCount = computed(
+    () => this.errorEntries().filter((e) => e.type === 'info').length,
+  );
 
   constructor() {
     this.subscriptions.push(
@@ -49,15 +63,26 @@ export class CollisionDetectionService implements OnDestroy {
     );
 
     this.subscriptions.push(
-      this.signalRService.scheduleValidationsDetected$.subscribe((notification) => {
-        this.processValidationNotification(notification);
-        this.entriesUpdated.set(this.entriesUpdated() + 1);
-      }),
+      this.signalRService.scheduleValidationsDetected$.subscribe(
+        (notification) => {
+          this.processValidationNotification(notification);
+          this.entriesUpdated.set(this.entriesUpdated() + 1);
+        },
+      ),
     );
+
+    effect(() => {
+      if (this.dataManagement.isWorkScheduleRead()) {
+        this.collisions.clear();
+        this.validations.clear();
+        this.errorEntries.set([]);
+      }
+    });
 
     effect(() => {
       this.entriesUpdated();
       this.dataManagement.workScheduleChunkLoaded();
+      this.dataManagement.isShiftScheduleRead();
       this.refreshEntries();
     });
   }
@@ -67,7 +92,9 @@ export class CollisionDetectionService implements OnDestroy {
   }
 
   private refreshEntries(): void {
-    const visibleClientIds = new Set(this.dataManagement.clients.map((c) => c.id));
+    const visibleClientIds = new Set(
+      this.dataManagement.clients.map((c) => c.id),
+    );
     const startDate = this.dataManagement.visibleStartDate
       ? formatDateOnly(this.dataManagement.visibleStartDate)
       : undefined;
@@ -96,6 +123,7 @@ export class CollisionDetectionService implements OnDestroy {
     }
 
     for (const validation of this.validations.values()) {
+      if (validation.clientId === this.emptyGuid) continue;
       if (!visibleClientIds.has(validation.clientId)) continue;
       if (startDate && validation.date < startDate) continue;
       if (endDate && validation.date > endDate) continue;
@@ -110,21 +138,70 @@ export class CollisionDetectionService implements OnDestroy {
       });
     }
 
+    this.addUnderstaffedShiftEntries(entries);
+
     this.errorEntries.set(entries);
   }
 
-  private processCollisionNotification(notification: ICollisionListNotification): void {
+  private addUnderstaffedShiftEntries(entries: ScheduleErrorEntry[]): void {
+    const shifts = this.dataManagement.shiftSchedules;
+    if (!shifts || shifts.length === 0) return;
+
+    const understaffedByDate = new Map<string, { abbreviations: string[]; needed: number; scheduled: number }>();
+
+    for (const shift of shifts) {
+      if (shift.engaged >= shift.sumEmployees * shift.quantity) continue;
+
+      const dateKey = formatDateOnly(new Date(shift.date));
+      let group = understaffedByDate.get(dateKey);
+      if (!group) {
+        group = { abbreviations: [], needed: 0, scheduled: 0 };
+        understaffedByDate.set(dateKey, group);
+      }
+
+      if (!group.abbreviations.includes(shift.abbreviation)) {
+        group.abbreviations.push(shift.abbreviation);
+      }
+      group.needed += shift.sumEmployees * shift.quantity;
+      group.scheduled += shift.engaged;
+    }
+
+    for (const [date, group] of understaffedByDate) {
+      entries.push({
+        type: 'info',
+        date,
+        clientId: this.emptyGuid,
+        clientName: '',
+        comment: 'schedule.error-list.understaffed',
+        commentParams: {
+          shifts: group.abbreviations.join(', '),
+          needed: group.needed.toString(),
+          scheduled: group.scheduled.toString(),
+        },
+      });
+    }
+  }
+
+  private processCollisionNotification(
+    notification: ICollisionListNotification,
+  ): void {
     if (notification.isFullRefresh) {
       this.collisions.clear();
       for (const collision of notification.collisions) {
-        const key = this.buildCollisionKey(collision.workId1, collision.workId2);
+        const key = this.buildCollisionKey(
+          collision.workId1,
+          collision.workId2,
+        );
         this.collisions.set(key, collision);
       }
       return;
     }
 
     if (notification.checkedClientId && notification.checkedDate) {
-      this.removeCollisionsForClientDate(notification.checkedClientId, notification.checkedDate);
+      this.removeCollisionsForClientDate(
+        notification.checkedClientId,
+        notification.checkedDate,
+      );
     }
 
     for (const collision of notification.collisions) {
@@ -133,7 +210,9 @@ export class CollisionDetectionService implements OnDestroy {
     }
   }
 
-  private processValidationNotification(notification: IScheduleValidationListNotification): void {
+  private processValidationNotification(
+    notification: IScheduleValidationListNotification,
+  ): void {
     if (notification.isFullRefresh) {
       this.validations.clear();
       for (const entry of notification.entries) {
@@ -144,7 +223,10 @@ export class CollisionDetectionService implements OnDestroy {
     }
 
     if (notification.checkedClientId && notification.checkedDate) {
-      this.removeValidationsForClientDate(notification.checkedClientId, notification.checkedDate);
+      this.removeValidationsForClientDate(
+        notification.checkedClientId,
+        notification.checkedDate,
+      );
     }
 
     for (const entry of notification.entries) {
@@ -168,7 +250,10 @@ export class CollisionDetectionService implements OnDestroy {
   private removeValidationsForClientDate(clientId: string, date: string): void {
     const keysToRemove: string[] = [];
     for (const [key, validation] of this.validations) {
-      if (validation.clientId === clientId && validation.date === date) {
+      if (
+        validation.date === date &&
+        validation.clientId === clientId
+      ) {
         keysToRemove.push(key);
       }
     }
@@ -178,7 +263,9 @@ export class CollisionDetectionService implements OnDestroy {
   }
 
   private buildCollisionKey(workId1: string, workId2: string): string {
-    return workId1 < workId2 ? `${workId1}_${workId2}` : `${workId2}_${workId1}`;
+    return workId1 < workId2
+      ? `${workId1}_${workId2}`
+      : `${workId2}_${workId1}`;
   }
 
   private buildValidationKey(entry: IScheduleValidationNotification): string {

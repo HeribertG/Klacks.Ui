@@ -26,6 +26,7 @@ export interface IScheduleSignalR {
   scheduleValidationsDetected$: Observable<IScheduleValidationListNotification>;
   connectionId: string;
   joinScheduleGroup(startDate: string, endDate: string): Promise<void>;
+  setSelectedGroup(selectedGroupId: string): Promise<void>;
 }
 
 export const SCHEDULE_SIGNALR = new InjectionToken<IScheduleSignalR>('IScheduleSignalR');

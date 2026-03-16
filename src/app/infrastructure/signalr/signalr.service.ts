@@ -231,12 +231,22 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     }
   }
 
+  async setSelectedGroup(selectedGroupId: string): Promise<void> {
+    if (!this.hubConnection || !this.isConnected) return;
+
+    try {
+      await this.hubConnection.invoke(SignalRConstants.HubMethods.SetSelectedGroup, selectedGroupId);
+    } catch {
+      // ignored
+    }
+  }
+
   async rejoinCurrentGroup(): Promise<void> {
-    
+
     if (this.currentGroup && this.isConnected) {
       const { startDate, endDate } = this.currentGroup;
       this.currentGroup = null;
-      
+
       await this.joinScheduleGroup(startDate, endDate);
     }
   }

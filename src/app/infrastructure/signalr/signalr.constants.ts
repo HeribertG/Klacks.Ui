@@ -19,6 +19,7 @@ export const SignalRConstants = {
   HubMethods: {
     JoinScheduleGroup: 'JoinScheduleGroup',
     LeaveScheduleGroup: 'LeaveScheduleGroup',
+    SetSelectedGroup: 'SetSelectedGroup',
     JoinClientGroup: 'JoinClientGroup',
     LeaveClientGroup: 'LeaveClientGroup',
     JoinClientGroups: 'JoinClientGroups',

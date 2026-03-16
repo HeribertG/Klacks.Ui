@@ -44,11 +44,16 @@ describe('CollisionDetectionService', () => {
   let collisionsDetected$: Subject<ICollisionListNotification>;
   let scheduleValidationsDetected$: Subject<IScheduleValidationListNotification>;
   let chunkLoadedSignal: ReturnType<typeof angularSignal<boolean>>;
+  let isWorkScheduleReadSignal: ReturnType<typeof angularSignal<boolean>>;
+  let isShiftScheduleReadSignal: ReturnType<typeof angularSignal<{ value: boolean; resetScroll: boolean }>>;
   let dataManagementMock: {
     clients: { id: string }[];
     visibleStartDate: Date | null;
     visibleEndDate: Date | null;
     workScheduleChunkLoaded: ReturnType<typeof angularSignal<boolean>>;
+    isWorkScheduleRead: ReturnType<typeof angularSignal<boolean>>;
+    isShiftScheduleRead: ReturnType<typeof angularSignal<{ value: boolean; resetScroll: boolean }>>;
+    shiftSchedules: { date: Date; abbreviation: string; sumEmployees: number; quantity: number; engaged: number }[];
   };
 
   beforeEach(() => {
@@ -57,11 +62,16 @@ describe('CollisionDetectionService', () => {
     scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
     chunkLoadedSignal = angularSignal(false);
 
+    isWorkScheduleReadSignal = angularSignal(false);
+    isShiftScheduleReadSignal = angularSignal({ value: false, resetScroll: true });
     dataManagementMock = {
       clients: [{ id: 'client-1' }, { id: 'client-2' }],
       visibleStartDate: new Date('2026-03-01'),
       visibleEndDate: new Date('2026-03-31'),
       workScheduleChunkLoaded: chunkLoadedSignal,
+      isWorkScheduleRead: isWorkScheduleReadSignal,
+      isShiftScheduleRead: isShiftScheduleReadSignal,
+      shiftSchedules: [],
     };
 
     TestBed.configureTestingModule({
@@ -422,6 +432,62 @@ describe('CollisionDetectionService', () => {
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
+    });
+  });
+
+  describe('Clear on reload', () => {
+    it('should clear all entries when progress spinner becomes active', async () => {
+      // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      const validationNotification: IScheduleValidationListNotification = {
+        isFullRefresh: true,
+        entries: [createValidation({ clientId: 'client-1', date: '2026-03-16', comment: 'warning-1' })],
+      };
+      collisionsDetected$.next(collisionNotification);
+      scheduleValidationsDetected$.next(validationNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(2);
+
+      // Act
+      isWorkScheduleReadSignal.set(true);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(0);
+    });
+
+    it('should show new entries after reload completes', async () => {
+      // Arrange
+      const initialNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      collisionsDetected$.next(initialNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(1);
+
+      // Act
+      isWorkScheduleReadSignal.set(true);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(service.errorEntries().length).toBe(0);
+
+      isWorkScheduleReadSignal.set(false);
+      const newNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [
+          createCollision({ workId1: 'w10', workId2: 'w11', clientId: 'client-2' }),
+          createCollision({ workId1: 'w12', workId2: 'w13', clientId: 'client-2' }),
+        ],
+      };
+      collisionsDetected$.next(newNotification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(2);
+      expect(service.errorEntries().every(e => e.clientId === 'client-2')).toBe(true);
     });
   });
 
