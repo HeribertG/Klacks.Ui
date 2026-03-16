@@ -256,6 +256,7 @@
                 @if (selectedStartBase && selectedEndBase) {
                   <app-icon-wizard
                     class="icon-table"
+                    [class.disabled]="isAutofillRunning"
                     (click)="autofill()"
                     [ngbTooltip]="
                       'shift.container-template.tooltip.autofill' | translate
@@ -297,6 +298,11 @@
                   "
                 ></app-icon-compact>
               </div>
+              @if (isAutofillRunning) {
+                <div class="autofill-progress">
+                  <div class="autofill-progress-bar"></div>
+                </div>
+              }
 
               <div class="shifts-grid-container">
                 <div

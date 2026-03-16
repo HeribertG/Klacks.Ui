@@ -631,6 +631,34 @@
     padding-right: 30px;
   }
 }
+
+.autofill-progress {
+  height: 2px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.autofill-progress-bar {
+  height: 100%;
+  width: 30%;
+  background-color: #4caf50;
+  animation: autofill-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes autofill-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.icon-table.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 ::ng-deep .cdk-drag-preview {
   display: table;
   background-color: var(--backgroundColorCard);

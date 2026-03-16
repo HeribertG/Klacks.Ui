@@ -229,6 +229,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
   public isLoading = false;
+  public isAutofillRunning = false;
   public selectedTabIndex = 0;
   public isEmploymentTabActive = false;
   public availableTasks: IShift[] = [];
@@ -948,15 +949,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday,
     );
 
-    this.spinnerService.showProgressSpinner = true;
-    this.toastService.showInfo(
-      this.translateService.instant(
-        'shift.container-template.toast.autofill-running',
-      ),
-      '',
-      '',
-      TOAST_ICONS.ROUTE,
-    );
+    this.isAutofillRunning = true;
 
     const containerFromTime = timeToString(
       parseInt(this.timeFrom.hours),
@@ -981,7 +974,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          this.spinnerService.showProgressSpinner = false;
+          this.isAutofillRunning = false;
 
           if (result.selectedShiftCount === 0) {
             this.toastService.showInfo(
@@ -1024,7 +1017,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           );
         },
         error: (error) => {
-          this.spinnerService.showProgressSpinner = false;
+          this.isAutofillRunning = false;
           console.error('Autofill failed:', error);
           this.toastService.showError(
             error.message || error.statusText || 'Unknown error',
