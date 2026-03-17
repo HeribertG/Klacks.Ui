@@ -1,8 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service für das Laden von Shift-Schedule-Daten mit automatischem Chunk-Loading.
+ * Nutzt Subject + switchMap um bei erneutem load() den vorherigen Request sauber abzubrechen.
+ * @param shiftSchedules - Array aller geladenen Shift-Datum-Zuordnungen
+ * @param shiftScheduleFilter - Aktueller Filter für die Shift-Schedule-Abfrage
+ */
+
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription } from 'rxjs';
+import { Subject, switchMap, EMPTY, catchError } from 'rxjs';
 import {
   IShiftSchedule,
   IShiftScheduleFilter,
@@ -10,6 +17,11 @@ import {
 } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
+
+interface ShiftLoadRequest {
+  filter: IShiftScheduleFilter;
+  onLoaded?: () => void;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -23,15 +35,19 @@ export class ShiftScheduleLoaderService {
   private _totalAvailableShifts = 0;
   private _currentChunkSize = 200;
   private _autoLoadEnabled = true;
+  private _currentLoadId = 0;
 
   private _isLoadingMore = signal(false);
   private _isRead = signal(false);
-  private _loadSubscription: Subscription | null = null;
-  private _loadMoreSubscription: Subscription | null = null;
-  private _currentLoadId = 0;
+
+  private loadTrigger$ = new Subject<ShiftLoadRequest>();
 
   public shiftScheduleFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
   public shiftSchedules: IShiftSchedule[] = [];
+
+  constructor() {
+    this.setupLoadPipeline();
+  }
 
   get isLoadingMore(): boolean {
     return this._isLoadingMore();
@@ -56,6 +72,37 @@ export class ShiftScheduleLoaderService {
     return this._totalAvailableShifts;
   }
 
+  private setupLoadPipeline(): void {
+    this.loadTrigger$
+      .pipe(
+        switchMap((request) => {
+          return this.dataShiftSchedule.getShiftSchedule(request.filter).pipe(
+            catchError((err) => {
+              console.error('Error loading shift schedules:', err);
+              return EMPTY;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((response) => {
+        this.shiftSchedules = response.shifts;
+        this._totalAvailableShifts = response.totalCount;
+
+        this._isRead.set(true);
+        setTimeout(() => this._isRead.set(false), 100);
+
+        this._pendingOnLoaded?.();
+
+        if (this._autoLoadEnabled && this.hasMoreShifts) {
+          const loadId = this._currentLoadId;
+          setTimeout(() => this.autoLoadNextChunk(loadId), 100);
+        }
+      });
+  }
+
+  private _pendingOnLoaded?: () => void;
+
   load(
     startDate: string,
     endDate: string,
@@ -63,11 +110,9 @@ export class ShiftScheduleLoaderService {
     holidayDates: Date[],
     onLoaded?: () => void,
   ): void {
-    this._loadSubscription?.unsubscribe();
-    this._loadMoreSubscription?.unsubscribe();
     this._currentLoadId++;
-    const loadId = this._currentLoadId;
     this._isLoadingMore.set(false);
+    this._pendingOnLoaded = onLoaded;
 
     this.shiftScheduleFilter.startDate = startDate;
     this.shiftScheduleFilter.endDate = endDate;
@@ -80,32 +125,13 @@ export class ShiftScheduleLoaderService {
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._autoLoadEnabled = true;
 
-    this._loadSubscription = this.dataShiftSchedule
-      .getShiftSchedule(this.shiftScheduleFilter)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (loadId !== this._currentLoadId) return;
-
-          this.shiftSchedules = response.shifts;
-          this._totalAvailableShifts = response.totalCount;
-
-          this._isRead.set(true);
-          setTimeout(() => this._isRead.set(false), 100);
-
-          onLoaded?.();
-
-          if (this._autoLoadEnabled && this.hasMoreShifts) {
-            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 100);
-          }
-        },
-        error: (err) => {
-          console.error('Error loading shift schedules:', err);
-        },
-      });
+    this.loadTrigger$.next({
+      filter: { ...this.shiftScheduleFilter },
+      onLoaded,
+    });
   }
 
-  private autoLoadNextChunk(loadId: number, onLoaded?: () => void): void {
+  private autoLoadNextChunk(loadId: number): void {
     if (loadId !== this._currentLoadId) return;
     if (
       !this._autoLoadEnabled ||
@@ -120,7 +146,7 @@ export class ShiftScheduleLoaderService {
     this.shiftScheduleFilter.startRow = uniqueShiftIds.size;
     this.shiftScheduleFilter.rowCount = this._currentChunkSize;
 
-    this._loadMoreSubscription = this.dataShiftSchedule
+    this.dataShiftSchedule
       .getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -148,10 +174,10 @@ export class ShiftScheduleLoaderService {
           this._isRead.set(true);
           setTimeout(() => this._isRead.set(false), 100);
 
-          onLoaded?.();
+          this._pendingOnLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreShifts) {
-            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 50);
+            setTimeout(() => this.autoLoadNextChunk(loadId), 50);
           }
         },
         error: (err) => {

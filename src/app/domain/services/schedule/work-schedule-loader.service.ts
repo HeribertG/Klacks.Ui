@@ -168,8 +168,6 @@ export class WorkScheduleLoaderService {
   }
 
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
-    this._loadSubscription?.unsubscribe();
-    this._loadMoreSubscription?.unsubscribe();
     this._currentLoadId++;
     const loadId = this._currentLoadId;
 
@@ -205,7 +203,7 @@ export class WorkScheduleLoaderService {
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
-    this._loadSubscription = this.dataWorkSchedule
+    this.dataWorkSchedule
       .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -285,7 +283,7 @@ export class WorkScheduleLoaderService {
     this._currentFilter.startRow = this.clients.length;
     this._currentFilter.rowCount = this._currentChunkSize;
 
-    this._loadMoreSubscription = this.dataWorkSchedule
+    this.dataWorkSchedule
       .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
