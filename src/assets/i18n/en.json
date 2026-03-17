@@ -1611,7 +1611,9 @@
   "shift.container-template.tooltip.holiday-plus-filter": "Show weekday and holiday variant",
   "shift.container-template.tooltip.start-base": "Start address for route calculation",
   "shift.container-template.tooltip.end-base": "End address for route calculation",
+  "shift.container-template.tolerance": "Tolerance",
   "shift.container-template.tooltip.autofill": "Automatically assign shifts and optimize route",
+  "shift.container-template.tooltip.tolerance-slider": "Time range tolerance: 0% = flexible, 100% = strict",
   "settings.identity-provider.headline": "Identity Provider",
   "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
@@ -1780,5 +1782,16 @@
   "floor-plan.settings-add": "+ Create new plan",
   "floor-plan.editor-title": "Floor Plan Editor",
   "floor-plan.name": "Name",
-  "floor-plan.description": "Description"
+  "floor-plan.description": "Description",
+  "scenario.title": "Scenarios",
+  "scenario.create": "Create new scenario",
+  "scenario.select": "Select scenario",
+  "scenario.exit": "Back to real plan",
+  "scenario.accept": "Accept scenario",
+  "scenario.reject": "Reject scenario",
+  "scenario.delete": "Delete scenario",
+  "scenario.name": "Name",
+  "scenario.description": "Description",
+  "scenario.fromDate": "From",
+  "scenario.untilDate": "Until"
 }

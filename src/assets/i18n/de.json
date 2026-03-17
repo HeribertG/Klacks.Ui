@@ -1627,7 +1627,9 @@
   "shift.container-template.tooltip.holiday-plus-filter": "Wochentag- und Feiertagsvariante anzeigen",
   "shift.container-template.tooltip.start-base": "Startadresse für die Routenberechnung",
   "shift.container-template.tooltip.end-base": "Endadresse für die Routenberechnung",
+  "shift.container-template.tolerance": "Toleranz",
   "shift.container-template.tooltip.autofill": "Dienste automatisch zuordnen und Route optimieren",
+  "shift.container-template.tooltip.tolerance-slider": "Zeitfenster-Toleranz: 0% = flexibel, 100% = strikt",
   "settings.identity-provider.headline": "Identity Provider",
   "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
@@ -1796,5 +1798,16 @@
   "floor-plan.settings-add": "+ Neuen Plan erstellen",
   "floor-plan.editor-title": "Grundriss-Editor",
   "floor-plan.name": "Name",
-  "floor-plan.description": "Beschreibung"
+  "floor-plan.description": "Beschreibung",
+  "scenario.title": "Szenarien",
+  "scenario.create": "Neues Szenario erstellen",
+  "scenario.select": "Szenario auswählen",
+  "scenario.exit": "Zurück zum echten Plan",
+  "scenario.accept": "Szenario übernehmen",
+  "scenario.reject": "Szenario verwerfen",
+  "scenario.delete": "Szenario löschen",
+  "scenario.name": "Name",
+  "scenario.description": "Beschreibung",
+  "scenario.fromDate": "Von",
+  "scenario.untilDate": "Bis"
 }

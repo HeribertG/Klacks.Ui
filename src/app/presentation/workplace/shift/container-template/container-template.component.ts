@@ -91,6 +91,7 @@ import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicyc
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 
 @Component({
   selector: 'app-container-template',
@@ -116,6 +117,7 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
     IconByBicycleComponent,
     IconTransportMixComponent,
     IconWizardComponent,
+    NgxSliderModule,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -230,6 +232,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public templateGrid: IContainerTemplateGrid | null = null;
   public isLoading = false;
   public isAutofillRunning = false;
+  timeRangeToleranceValue = 50;
+  timeRangeToleranceOptions: Options = {
+    floor: 0,
+    ceil: 100,
+    step: 10,
+    showSelectionBar: true,
+  };
   public selectedTabIndex = 0;
   public isEmploymentTabActive = false;
   public availableTasks: IShift[] = [];
@@ -998,6 +1007,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         containerFromTime,
         containerUntilTime,
         this.selectedTransportMode,
+        this.timeRangeToleranceValue / 100,
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe({

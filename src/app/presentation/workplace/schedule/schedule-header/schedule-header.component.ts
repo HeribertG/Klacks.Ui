@@ -45,6 +45,7 @@ import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component'
 import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
+import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -81,6 +82,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     IconAvailabilityCheckComponent,
     IconWizardComponent,
     WizardDialogComponent,
+    ScenarioSelectorComponent,
   ],
   providers: [],
 })

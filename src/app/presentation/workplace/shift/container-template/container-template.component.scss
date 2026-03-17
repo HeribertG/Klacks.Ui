@@ -630,6 +630,26 @@
     padding-top: 15px;
     padding-right: 30px;
   }
+
+  .tolerance-slider {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 10px;
+    padding-right: 20px;
+    min-width: 200px;
+
+    .tolerance-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--colorLabel);
+      white-space: nowrap;
+    }
+
+    ngx-slider {
+      flex: 1;
+    }
+  }
 }
 
 .autofill-progress {

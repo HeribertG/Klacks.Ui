@@ -102,7 +102,8 @@ export class RouteOptimizationService {
     endBase: string,
     fromTime: string,
     untilTime: string,
-    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
+    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
+    timeRangeTolerance: number = 0.5
   ): Observable<IAutofillResult> {
     const params = new HttpParams()
       .set('containerId', containerId)
@@ -112,7 +113,8 @@ export class RouteOptimizationService {
       .set('endBase', endBase)
       .set('fromTime', fromTime)
       .set('untilTime', untilTime)
-      .set('transportMode', transportMode.toString());
+      .set('transportMode', transportMode.toString())
+      .set('timeRangeTolerance', timeRangeTolerance.toString());
 
     return this.http.get<IAutofillResult>(
       `${this.apiUrl}/autofill`,

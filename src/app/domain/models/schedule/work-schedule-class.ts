@@ -63,6 +63,7 @@ export interface IWorkScheduleFilter {
   startRow?: number;
   rowCount?: number;
   paymentInterval?: number;
+  analyseToken?: string;
 }
 
 export interface IWorkScheduleClient {

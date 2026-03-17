@@ -262,6 +262,11 @@
                       'shift.container-template.tooltip.autofill' | translate
                     "
                   ></app-icon-wizard>
+                  <div class="tolerance-slider"
+                    [ngbTooltip]="'shift.container-template.tooltip.tolerance-slider' | translate">
+                    <span class="tolerance-label">{{ 'shift.container-template.tolerance' | translate }}</span>
+                    <ngx-slider [(value)]="timeRangeToleranceValue" [options]="timeRangeToleranceOptions"></ngx-slider>
+                  </div>
                   <app-icon-route
                     class="icon-table"
                     (click)="optimizeRoute()"
