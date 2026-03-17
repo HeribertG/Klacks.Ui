@@ -67,8 +67,7 @@ export class ShiftScheduleLoaderService {
     this._loadMoreSubscription?.unsubscribe();
     this._currentLoadId++;
     const loadId = this._currentLoadId;
-
-    this.shiftSchedules = [];
+    this._isLoadingMore.set(false);
 
     this.shiftScheduleFilter.startDate = startDate;
     this.shiftScheduleFilter.endDate = endDate;
