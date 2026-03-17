@@ -1780,5 +1780,16 @@
   "floor-plan.settings-add": "+ Créer un nouveau plan",
   "floor-plan.editor-title": "Éditeur de plan d'étage",
   "floor-plan.name": "Nom",
-  "floor-plan.description": "Description"
+  "floor-plan.description": "Description",
+  "scenario.title": "Scénarios",
+  "scenario.create": "Créer un nouveau scénario",
+  "scenario.select": "Sélectionner le scénario",
+  "scenario.exit": "Retour au plan réel",
+  "scenario.accept": "Accepter le scénario",
+  "scenario.reject": "Rejeter le scénario",
+  "scenario.delete": "Supprimer le scénario",
+  "scenario.name": "Nom",
+  "scenario.description": "Description",
+  "scenario.fromDate": "De",
+  "scenario.untilDate": "Jusqu'à"
 }

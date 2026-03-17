@@ -1780,5 +1780,16 @@
   "floor-plan.settings-add": "+ Crea un nuovo piano",
   "floor-plan.editor-title": "Editor pianta",
   "floor-plan.name": "Nome",
-  "floor-plan.description": "Descrizione"
+  "floor-plan.description": "Descrizione",
+  "scenario.title": "Scenari",
+  "scenario.create": "Crea nuovo scenario",
+  "scenario.select": "Seleziona scenario",
+  "scenario.exit": "Torna al piano reale",
+  "scenario.accept": "Accetta scenario",
+  "scenario.reject": "Rifiuta scenario",
+  "scenario.delete": "Elimina scenario",
+  "scenario.name": "Nome",
+  "scenario.description": "Descrizione",
+  "scenario.fromDate": "Da",
+  "scenario.untilDate": "Fino a"
 }

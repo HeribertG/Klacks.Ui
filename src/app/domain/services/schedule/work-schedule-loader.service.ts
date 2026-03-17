@@ -22,6 +22,7 @@ import {
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,7 @@ export class WorkScheduleLoaderService {
   private signalRService = inject(SCHEDULE_SIGNALR);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private scheduleChangeService = inject(ScheduleChangeService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -195,6 +197,7 @@ export class WorkScheduleLoaderService {
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,
       paymentInterval: workFilter.paymentInterval,
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
     this.dataWorkSchedule
