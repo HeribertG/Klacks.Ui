@@ -28,6 +28,7 @@ export class ShiftScheduleLoaderService {
   private _isRead = signal(false);
   private _loadSubscription: Subscription | null = null;
   private _loadMoreSubscription: Subscription | null = null;
+  private _currentLoadId = 0;
 
   public shiftScheduleFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
   public shiftSchedules: IShiftSchedule[] = [];
@@ -64,6 +65,10 @@ export class ShiftScheduleLoaderService {
   ): void {
     this._loadSubscription?.unsubscribe();
     this._loadMoreSubscription?.unsubscribe();
+    this._currentLoadId++;
+    const loadId = this._currentLoadId;
+
+    this.shiftSchedules = [];
 
     this.shiftScheduleFilter.startDate = startDate;
     this.shiftScheduleFilter.endDate = endDate;
@@ -81,6 +86,8 @@ export class ShiftScheduleLoaderService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (loadId !== this._currentLoadId) return;
+
           this.shiftSchedules = response.shifts;
           this._totalAvailableShifts = response.totalCount;
 
@@ -90,7 +97,7 @@ export class ShiftScheduleLoaderService {
           onLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreShifts) {
-            setTimeout(() => this.autoLoadNextChunk(onLoaded), 100);
+            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 100);
           }
         },
         error: (err) => {
@@ -99,7 +106,8 @@ export class ShiftScheduleLoaderService {
       });
   }
 
-  private autoLoadNextChunk(onLoaded?: () => void): void {
+  private autoLoadNextChunk(loadId: number, onLoaded?: () => void): void {
+    if (loadId !== this._currentLoadId) return;
     if (
       !this._autoLoadEnabled ||
       !this.hasMoreShifts ||
@@ -118,6 +126,11 @@ export class ShiftScheduleLoaderService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (loadId !== this._currentLoadId) {
+            this._isLoadingMore.set(false);
+            return;
+          }
+
           this.shiftSchedules.push(...response.shifts);
 
           const newUniqueCount = new Set(response.shifts.map((s) => s.shiftId))
@@ -139,7 +152,7 @@ export class ShiftScheduleLoaderService {
           onLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreShifts) {
-            setTimeout(() => this.autoLoadNextChunk(onLoaded), 50);
+            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 50);
           }
         },
         error: (err) => {
