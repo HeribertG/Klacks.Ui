@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, signal, OnDestroy } from '@angular/core';
+import { inject, Injectable, Injector, signal, OnDestroy } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -18,12 +18,15 @@ import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SignalRService implements OnDestroy, IScheduleSignalR {
   private localStorageService = inject(LocalStorageService);
+  private injector = inject(Injector);
+  private _analyseScenarioService: AnalyseScenarioService | null = null;
 
   private hubConnection: signalR.HubConnection | null = null;
   private readonly hubUrl: string;
@@ -253,40 +256,60 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     }
   }
 
+  private get analyseScenarioService(): AnalyseScenarioService {
+    if (!this._analyseScenarioService) {
+      this._analyseScenarioService = this.injector.get(AnalyseScenarioService);
+    }
+    return this._analyseScenarioService;
+  }
+
+  private shouldProcessScheduleEvent(): boolean {
+    return !this.analyseScenarioService.isScenarioMode();
+  }
+
   private registerEventHandlers(): void {
     if (!this.hubConnection) return;
 
     this.hubConnection.on(SignalRConstants.Events.WorkCreated, (notification: IWorkNotification) => {
-      
-      this.workCreated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.workCreated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.WorkUpdated, (notification: IWorkNotification) => {
-      
-      this.workUpdated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.workUpdated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.WorkDeleted, (notification: IWorkNotification) => {
-      
-      this.workDeleted$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.workDeleted$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.ScheduleUpdated, (notification: IScheduleNotification) => {
-      
-      this.scheduleUpdated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.scheduleUpdated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.ShiftStatsUpdated, (notification: IShiftStatsNotification) => {
-      this.shiftStatsUpdated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.shiftStatsUpdated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursUpdated, (notification: IPeriodHoursNotification) => {
-      
-      this.periodHoursUpdated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.periodHoursUpdated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursRecalculated, (notification: IPeriodHoursRecalculatedNotification) => {
-      this.periodHoursRecalculated$.next(notification);
+      if (this.shouldProcessScheduleEvent()) {
+        this.periodHoursRecalculated$.next(notification);
+      }
     });
 
     this.hubConnection.on(SignalRConstants.Events.ScheduleChangeTracked, (notification: IScheduleChangeNotification) => {
