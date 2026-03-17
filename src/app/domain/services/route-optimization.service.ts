@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { Observable, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 export interface ILocation {
   name: string;
@@ -89,8 +90,8 @@ export class RouteOptimizationService {
 
     return this.http.get<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,
-      { params }
-    );
+      { params, context: new HttpContext().set(SKIP_LOADING, true) }
+    ).pipe(timeout(120_000));
   }
 
   autofill(
@@ -115,7 +116,7 @@ export class RouteOptimizationService {
 
     return this.http.get<IAutofillResult>(
       `${this.apiUrl}/autofill`,
-      { params }
-    );
+      { params, context: new HttpContext().set(SKIP_LOADING, true) }
+    ).pipe(timeout(120_000));
   }
 }

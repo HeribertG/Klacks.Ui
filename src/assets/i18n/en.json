@@ -1584,6 +1584,7 @@
   "shift.container-template.toast.autofill-running": "Shifts are being automatically assigned. This may take a moment...",
   "shift.container-template.toast.autofill-success": "{{selected}} of {{total}} shifts selected. Distance: {{distance}} km",
   "shift.container-template.toast.autofill-no-shifts": "No matching time-range shifts found",
+  "shift.container-template.toast.autofill-timeout": "Autofill request timed out. Please try again",
   "shift.container-template.context-menu.properties": "Properties...",
   "shift.container-template.properties.time-range-start": "Time Range Start",
   "shift.container-template.properties.work-time": "Work Time",

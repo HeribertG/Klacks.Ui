@@ -15,7 +15,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, TimeoutError } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -1047,10 +1047,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.isAutofillRunning = false;
           console.error('Autofill failed:', error);
-          this.toastService.showError(
-            error.message || error.statusText || 'Unknown error',
-            'autofill-error',
-          );
+          const message = error instanceof TimeoutError
+            ? this.translateService.instant('shift.container-template.toast.autofill-timeout')
+            : error.error || error.message || error.statusText || 'Unknown error';
+          this.toastService.showError(message, 'autofill-error');
         },
       });
   }

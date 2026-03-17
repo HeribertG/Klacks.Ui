@@ -1582,6 +1582,7 @@
   "shift.container-template.toast.autofill-running": "Les services sont attribués automatiquement. Cela peut prendre un moment...",
   "shift.container-template.toast.autofill-success": "{{selected}} sur {{total}} services sélectionnés. Distance: {{distance}} km",
   "shift.container-template.toast.autofill-no-shifts": "Aucun service à plage horaire correspondant trouvé",
+  "shift.container-template.toast.autofill-timeout": "La demande de remplissage automatique a expiré. Veuillez réessayer",
   "shift.container-template.context-menu.properties": "Propriétés...",
   "shift.container-template.properties.time-range-start": "Début de la plage horaire",
   "shift.container-template.properties.work-time": "Temps de travail",

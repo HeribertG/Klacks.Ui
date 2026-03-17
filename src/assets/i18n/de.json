@@ -1600,6 +1600,7 @@
   "shift.container-template.toast.autofill-running": "Dienste werden automatisch zugeordnet. Dies kann einen Moment dauern...",
   "shift.container-template.toast.autofill-success": "{{selected}} von {{total}} Diensten ausgewählt. Distanz: {{distance}} km",
   "shift.container-template.toast.autofill-no-shifts": "Keine passenden Zeitfenster-Dienste gefunden",
+  "shift.container-template.toast.autofill-timeout": "Autofill-Anfrage hat das Zeitlimit überschritten. Bitte versuchen Sie es erneut",
   "shift.container-template.context-menu.properties": "Eigenschaften...",
   "shift.container-template.properties.time-range-start": "Zeitfenster Start",
   "shift.container-template.properties.work-time": "Arbeitszeit",

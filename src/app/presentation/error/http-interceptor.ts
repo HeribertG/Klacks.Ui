@@ -113,6 +113,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return this.handleClientListError();
     }
 
+    if (url.includes('RouteOptimization/')) {
+      return throwError(() => error);
+    }
+
     // Validation Errors
     if (error.error?.errors) {
       return this.handleValidationErrors(error);
