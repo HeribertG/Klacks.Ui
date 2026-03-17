@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
@@ -49,6 +50,8 @@ export class WorkScheduleLoaderService {
   private _isLoadingMore = signal(false);
   private _isRead = signal(false);
   private _currentLoadId = 0;
+  private _loadSubscription: Subscription | null = null;
+  private _loadMoreSubscription: Subscription | null = null;
 
   public workScheduleEntries: IScheduleCell[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
@@ -165,6 +168,8 @@ export class WorkScheduleLoaderService {
   }
 
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
+    this._loadSubscription?.unsubscribe();
+    this._loadMoreSubscription?.unsubscribe();
     this._currentLoadId++;
     const loadId = this._currentLoadId;
 
@@ -200,7 +205,7 @@ export class WorkScheduleLoaderService {
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
-    this.dataWorkSchedule
+    this._loadSubscription = this.dataWorkSchedule
       .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -280,7 +285,7 @@ export class WorkScheduleLoaderService {
     this._currentFilter.startRow = this.clients.length;
     this._currentFilter.rowCount = this._currentChunkSize;
 
-    this.dataWorkSchedule
+    this._loadMoreSubscription = this.dataWorkSchedule
       .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

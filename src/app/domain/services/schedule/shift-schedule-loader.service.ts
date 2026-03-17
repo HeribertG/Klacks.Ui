@@ -2,6 +2,7 @@
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import {
   IShiftSchedule,
   IShiftScheduleFilter,
@@ -25,6 +26,8 @@ export class ShiftScheduleLoaderService {
 
   private _isLoadingMore = signal(false);
   private _isRead = signal(false);
+  private _loadSubscription: Subscription | null = null;
+  private _loadMoreSubscription: Subscription | null = null;
 
   public shiftScheduleFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
   public shiftSchedules: IShiftSchedule[] = [];
@@ -59,6 +62,9 @@ export class ShiftScheduleLoaderService {
     holidayDates: Date[],
     onLoaded?: () => void,
   ): void {
+    this._loadSubscription?.unsubscribe();
+    this._loadMoreSubscription?.unsubscribe();
+
     this.shiftScheduleFilter.startDate = startDate;
     this.shiftScheduleFilter.endDate = endDate;
     this.shiftScheduleFilter.holidayDates =
@@ -70,7 +76,7 @@ export class ShiftScheduleLoaderService {
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._autoLoadEnabled = true;
 
-    this.dataShiftSchedule
+    this._loadSubscription = this.dataShiftSchedule
       .getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -107,7 +113,7 @@ export class ShiftScheduleLoaderService {
     this.shiftScheduleFilter.startRow = uniqueShiftIds.size;
     this.shiftScheduleFilter.rowCount = this._currentChunkSize;
 
-    this.dataShiftSchedule
+    this._loadMoreSubscription = this.dataShiftSchedule
       .getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
