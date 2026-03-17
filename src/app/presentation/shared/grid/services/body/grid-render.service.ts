@@ -179,14 +179,16 @@ export class BaseGridRenderService {
     showFillHandle = false,
   ): void {
     const ctx = this.canvasManager.ctx;
-    if (!ctx || !position || position.isEmpty()) return;
+    const canvas = this.canvasManager.canvas;
+    const renderCanvas = this.canvasManager.renderCanvas;
+    if (!ctx || !canvas || !renderCanvas || !position || position.isEmpty()) return;
 
     ctx.save();
     ctx.rect(
       0,
       this.settings.cellHeaderHeight,
-      this.canvasManager.canvas!.width,
-      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight,
+      canvas.width,
+      renderCanvas.height - this.settings.cellHeaderHeight,
     );
     ctx.clip();
 
@@ -278,14 +280,16 @@ export class BaseGridRenderService {
     firstVisibleCol: number,
   ): void {
     const ctx = this.canvasManager.ctx;
-    if (!ctx) return;
+    const canvas = this.canvasManager.canvas;
+    const renderCanvas = this.canvasManager.renderCanvas;
+    if (!ctx || !canvas || !renderCanvas) return;
 
     ctx.save();
     ctx.rect(
       0,
       this.settings.cellHeaderHeight,
-      this.canvasManager.canvas!.width,
-      this.canvasManager.renderCanvas!.height - this.settings.cellHeaderHeight,
+      canvas.width,
+      renderCanvas.height - this.settings.cellHeaderHeight,
     );
     ctx.clip();
 

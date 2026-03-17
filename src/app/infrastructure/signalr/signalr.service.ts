@@ -48,6 +48,8 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   private reconnectAttemptWithExpiredToken = false;
   private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
   private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
+  private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
+  private tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
@@ -135,8 +137,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         const connectionId = await this.hubConnection!.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         this._connectionId.set(connectionId);
         this._isConnected.set(true);
-        
-        
+        this.startProactiveTokenRefresh();
         await this.rejoinCurrentGroup();
         return;
       } catch (error) {
@@ -160,6 +161,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   async stopConnection(): Promise<void> {
+    this.stopProactiveTokenRefresh();
     if (this.hubConnection) {
       await this.hubConnection.stop();
       this._isConnected.set(false);
@@ -381,9 +383,18 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     const delay = delays[Math.min(attempt, delays.length - 1)];
 
     setTimeout(async () => {
-      const token = this.localStorageService.get(StorageKeys.TOKEN);
-      if (!token || this.isTokenExpired(token)) {
+      let token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (!token) {
         return;
+      }
+
+      if (this.isTokenExpired(token)) {
+        await this.attemptTokenRefresh();
+        token = this.localStorageService.get(StorageKeys.TOKEN);
+        if (!token || this.isTokenExpired(token)) {
+          this.scheduleFullReconnect(attempt + 1);
+          return;
+        }
       }
 
       try {
@@ -398,6 +409,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   ngOnDestroy(): void {
+    this.stopProactiveTokenRefresh();
     this.stopConnection();
     this.workCreated$.complete();
     this.workUpdated$.complete();
@@ -424,6 +436,27 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       return response.ok;
     } catch {
       return false;
+    }
+  }
+
+  private startProactiveTokenRefresh(): void {
+    this.stopProactiveTokenRefresh();
+    this.tokenRefreshTimer = setInterval(async () => {
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (token && this.isTokenExpired(token)) {
+        await this.attemptTokenRefresh();
+        const refreshedToken = this.localStorageService.get(StorageKeys.TOKEN);
+        if (refreshedToken && !this.isTokenExpired(refreshedToken) && this.isConnected) {
+          await this.refreshConnection();
+        }
+      }
+    }, SignalRService.TOKEN_REFRESH_CHECK_INTERVAL_MS);
+  }
+
+  private stopProactiveTokenRefresh(): void {
+    if (this.tokenRefreshTimer) {
+      clearInterval(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
     }
   }
 

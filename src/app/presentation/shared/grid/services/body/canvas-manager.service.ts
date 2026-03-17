@@ -8,16 +8,29 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 export class BaseCanvasManagerService {
   protected settings = inject(BaseSettingsService);
 
-  public ctx: CanvasRenderingContext2D | undefined;
-  public canvas: HTMLCanvasElement | undefined;
-  public renderCanvasCtx: CanvasRenderingContext2D | undefined;
-  public renderCanvas: HTMLCanvasElement | undefined;
+  private _ctx: CanvasRenderingContext2D | undefined;
+  private _canvas: HTMLCanvasElement | undefined;
+  private _renderCanvasCtx: CanvasRenderingContext2D | undefined;
+  private _renderCanvas: HTMLCanvasElement | undefined;
   public headerCanvas: HTMLCanvasElement | undefined;
   public headerCtx: CanvasRenderingContext2D | undefined;
 
   private _width = 10;
   private _height = 10;
   private id!: string;
+  private _canvasWasAvailable = false;
+
+  public get ctx(): CanvasRenderingContext2D | undefined { return this._ctx; }
+  public set ctx(value: CanvasRenderingContext2D | undefined) { this._ctx = value; }
+
+  public get canvas(): HTMLCanvasElement | undefined { return this._canvas; }
+  public set canvas(value: HTMLCanvasElement | undefined) { this._canvas = value; }
+
+  public get renderCanvasCtx(): CanvasRenderingContext2D | undefined { return this._renderCanvasCtx; }
+  public set renderCanvasCtx(value: CanvasRenderingContext2D | undefined) { this._renderCanvasCtx = value; }
+
+  public get renderCanvas(): HTMLCanvasElement | undefined { return this._renderCanvas; }
+  public set renderCanvas(value: HTMLCanvasElement | undefined) { this._renderCanvas = value; }
 
   public init(id: string): void {
     this.id = id;
@@ -30,6 +43,8 @@ export class BaseCanvasManagerService {
   }
 
   public deleteCanvas(): void {
+    console.warn(`[CANVAS-DEBUG] deleteCanvas() called for id=${this.id}`, new Error().stack);
+    this._canvasWasAvailable = false;
     this.ctx = undefined;
     this.canvas = undefined;
     this.renderCanvasCtx = undefined;
@@ -52,6 +67,7 @@ export class BaseCanvasManagerService {
 
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
     if (!this.renderCanvas || !this.renderCanvasCtx) {
+      console.warn(`[CANVAS-DEBUG] resizeRenderCanvas: skipped - renderCanvas=${!!this.renderCanvas}, renderCanvasCtx=${!!this.renderCanvasCtx}, id=${this.id}`);
       return;
     }
     const pixelRatio = DrawHelper.pixelRatio();
@@ -71,12 +87,22 @@ export class BaseCanvasManagerService {
   }
 
   public isCanvasAvailable(): boolean {
-    return (
+    const available = (
       this.canvas != null &&
       this.width > 0 &&
       this.height > 0 &&
       this.ctx != null
     );
+    if (!available && this._canvasWasAvailable) {
+      console.error(`[CANVAS-DEBUG] Canvas LOST for id=${this.id}!`,
+        `canvas=${!!this.canvas}, ctx=${!!this.ctx}, render=${!!this.renderCanvas}, renderCtx=${!!this.renderCanvasCtx}, w=${this.width}, h=${this.height}`,
+        new Error().stack);
+      this._canvasWasAvailable = false;
+    }
+    if (available && !this._canvasWasAvailable) {
+      this._canvasWasAvailable = true;
+    }
+    return available;
   }
 
   public isRenderCanvasAvailable(): boolean {
@@ -103,13 +129,13 @@ export class BaseCanvasManagerService {
 
   private createMainCanvas(): void {
     if (!this.id) {
-      console.error('Canvas is undefined');
+      console.error('[CANVAS-DEBUG] createMainCanvas: id is not set!');
       return;
     }
 
     this.canvas = document.getElementById(this.id) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error('Canvas with ID ${id} not found.');
+      console.error(`[CANVAS-DEBUG] createMainCanvas: getElementById('${this.id}') returned null!`, new Error().stack);
       return;
     }
 
@@ -122,7 +148,7 @@ export class BaseCanvasManagerService {
       );
       DrawHelper.setAntiAliasing(this.ctx);
     } catch (error) {
-      console.error('Error when creating the scheduleCanvas context:', error);
+      console.error('[CANVAS-DEBUG] createMainCanvas: createHiDPICanvas failed:', error);
     }
   }
 

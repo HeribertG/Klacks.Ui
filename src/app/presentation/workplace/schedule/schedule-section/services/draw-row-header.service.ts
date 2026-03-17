@@ -77,6 +77,10 @@ export class BaseDrawRowHeaderService {
     this.canvas = document.getElementById(
       'scheduleRowCanvas',
     ) as HTMLCanvasElement;
+    if (!this.canvas) {
+      console.error("Canvas with ID 'scheduleRowCanvas' not found.");
+      return;
+    }
     this.ctx = DrawHelper.createHiDPICanvas(
       this.canvas,
       this.width,
@@ -193,7 +197,7 @@ export class BaseDrawRowHeaderService {
     if (!this.gridSettings) {
       return false;
     }
-    if (!this.canvas) {
+    if (!this.canvas || !this.ctx) {
       return false;
     }
     if (!(this.height || this.width)) {
@@ -255,9 +259,9 @@ export class BaseDrawRowHeaderService {
   }
 
   private resizeMainCanvas() {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.canvas) {
       this.ctx = DrawHelper.createHiDPICanvas(
-        this.canvas!,
+        this.canvas,
         this.width,
         this.height,
         true,
@@ -267,11 +271,11 @@ export class BaseDrawRowHeaderService {
   }
 
   private resizeRenderCanvas() {
-    if (this.isCanvasAvailable()) {
-      this.renderCanvas!.style.width = `${this.width}px`;
-      this.renderCanvas!.style.height = `${this.height}px`;
-      this.renderCanvasCtx!.canvas.height = this.height;
-      this.renderCanvasCtx!.canvas!.width = this.width;
+    if (this.isCanvasAvailable() && this.renderCanvas && this.renderCanvasCtx) {
+      this.renderCanvas.style.width = `${this.width}px`;
+      this.renderCanvas.style.height = `${this.height}px`;
+      this.renderCanvasCtx.canvas.height = this.height;
+      this.renderCanvasCtx.canvas.width = this.width;
     }
   }
 
@@ -291,14 +295,14 @@ export class BaseDrawRowHeaderService {
   /* #endregion Environment changes */
 
   refreshGrid(): void {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.renderCanvas) {
       const visibleRow: number = this.visibleRow();
 
       const height = visibleRow * this.settings.cellHeight;
 
       if (
-        this.renderCanvas!.width <= this.width ||
-        this.renderCanvas!.height <= height
+        this.renderCanvas.width <= this.width ||
+        this.renderCanvas.height <= height
       ) {
         this.crateGridHeader();
         this.drawGrid();
@@ -312,11 +316,11 @@ export class BaseDrawRowHeaderService {
   }
 
   crateGridHeader(): void {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.headerCtx) {
       const width = Math.floor(this.width);
 
       const result = this.createRowHeader.createRowHeaderHeader(
-        this.headerCtx!,
+        this.headerCtx,
         Math.floor(width),
         this.filterImage,
       );
@@ -326,7 +330,7 @@ export class BaseDrawRowHeaderService {
       }
 
       this.progressBar.drawInRect(
-        this.headerCtx!,
+        this.headerCtx,
         0,
         0,
         width,
@@ -336,20 +340,20 @@ export class BaseDrawRowHeaderService {
   }
 
   drawGrid() {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.canvas && this.renderCanvas) {
       const width = Math.floor(this.width);
       const visibleRow: number = this.visibleRow();
-      const height = Math.floor(this.canvas!.clientHeight);
+      const height = Math.floor(this.canvas.clientHeight);
 
       this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
-        this.renderCanvas!,
+        this.renderCanvas,
         width,
         height,
         true,
       );
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
-      this.renderCanvasCtx!.clearRect(0, 0, width, height);
+      this.renderCanvasCtx.clearRect(0, 0, width, height);
 
       for (let row = 0; row < visibleRow; row++) {
         let tmpRow: number = row + this.firstVisibleRow;
@@ -402,16 +406,16 @@ export class BaseDrawRowHeaderService {
   }
 
   private renderGrid(): void {
-    if (!this.isCanvasAvailable()) return;
+    if (!this.isCanvasAvailable() || !this.ctx || !this.renderCanvas) return;
 
     const pixelRatio = DrawHelper.pixelRatio();
-    const srcW = this.renderCanvas!.width;
-    const srcH = this.renderCanvas!.height;
+    const srcW = this.renderCanvas.width;
+    const srcH = this.renderCanvas.height;
     const destX = 0;
     const destY = this.settings.cellHeaderHeight;
 
-    this.ctx!.drawImage(
-      this.renderCanvas!,
+    this.ctx.drawImage(
+      this.renderCanvas,
       0,
       0,
       srcW,
@@ -422,17 +426,19 @@ export class BaseDrawRowHeaderService {
       srcH / pixelRatio,
     );
 
-    this.ctx!.drawImage(
-      this.headerCanvas!,
-      0,
-      0,
-      this.headerCanvas!.width,
-      this.headerCanvas!.height,
-      0,
-      0,
-      this.width,
-      this.settings.cellHeaderHeight,
-    );
+    if (this.headerCanvas) {
+      this.ctx.drawImage(
+        this.headerCanvas,
+        0,
+        0,
+        this.headerCanvas.width,
+        this.headerCanvas.height,
+        0,
+        0,
+        this.width,
+        this.settings.cellHeaderHeight,
+      );
+    }
   }
 
   private addCells(row: number, position: number): number | undefined {
@@ -455,7 +461,8 @@ export class BaseDrawRowHeaderService {
 
           const yPosition = diffRow * this.settings.cellHeight;
 
-          this.renderCanvasCtx!.drawImage(
+          if (!this.renderCanvasCtx) return undefined;
+          this.renderCanvasCtx.drawImage(
             result.img,
             0,
             0,
@@ -476,13 +483,12 @@ export class BaseDrawRowHeaderService {
 
   drawRowHeaderSelection(redraw = false) {
     this.lastSelection;
-    if (this.cellManipulation.Position === undefined) {
+    if (this.cellManipulation.Position === undefined || !this.canvas || !this.ctx) {
       return;
     }
-    const width = Math.floor(this.canvas!.clientWidth);
+    const width = Math.floor(this.canvas.clientWidth);
     const tmpPos = this.cellManipulation.Position;
 
-    // Add bounds checking
     if (tmpPos.row >= this.gridData.rows || tmpPos.row < 0) {
       return;
     }
@@ -504,7 +510,7 @@ export class BaseDrawRowHeaderService {
     }
     this.renderGrid();
     this.lastSelection = firstRow;
-    this.ctx!.save();
+    this.ctx.save();
     let correction = 0;
     let top: number =
       this.settings.cellHeaderHeight +
@@ -519,10 +525,10 @@ export class BaseDrawRowHeaderService {
       return;
     }
 
-    this.ctx!.globalAlpha = 0.2;
-    this.ctx!.fillStyle = this.gridColors.focusBorderColor;
-    this.ctx!.fillRect(0, top, width, height + correction);
-    this.ctx!.restore();
+    this.ctx.globalAlpha = 0.2;
+    this.ctx.fillStyle = this.gridColors.focusBorderColor;
+    this.ctx.fillRect(0, top, width, height + correction);
+    this.ctx.restore();
   }
 
   moveGrid(): void {
@@ -554,14 +560,13 @@ export class BaseDrawRowHeaderService {
       true,
     );
 
-    if (tempCtx) {
-      // Copy current render canvas content to temp canvas with correct scaling
+    if (tempCtx && this.renderCanvas) {
       tempCtx.drawImage(
-        this.renderCanvas!,
+        this.renderCanvas,
         0,
         0,
-        this.renderCanvas!.width,
-        this.renderCanvas!.height,
+        this.renderCanvas.width,
+        this.renderCanvas.height,
         0,
         0,
         this.width,
@@ -569,17 +574,18 @@ export class BaseDrawRowHeaderService {
       );
     }
 
-    this.renderCanvasCtx!.clearRect(
+    if (!this.renderCanvasCtx || !this.renderCanvas) return;
+
+    this.renderCanvasCtx.clearRect(
       0,
       0,
-      this.renderCanvas!.width,
-      this.renderCanvas!.height,
+      this.renderCanvas.width,
+      this.renderCanvas.height,
     );
 
     const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
 
-    // Draw shifted content back
-    this.renderCanvasCtx!.drawImage(
+    this.renderCanvasCtx.drawImage(
       tempCanvas,
       0,
       0,
@@ -628,7 +634,7 @@ export class BaseDrawRowHeaderService {
     minRow: number,
     maxRow: number,
   ): void {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.canvas && this.ctx) {
       let col: number =
         (minCol - this.firstVisibleCol) * this.settings.cellWidth;
       let row: number =
@@ -647,17 +653,17 @@ export class BaseDrawRowHeaderService {
         (maxRow - this.firstVisibleRow) * this.settings.cellHeight +
         this.settings.cellHeaderHeight;
 
-      if (lastCol > this.canvas!.width) {
-        lastCol = this.canvas!.width;
+      if (lastCol > this.canvas.width) {
+        lastCol = this.canvas.width;
       }
-      if (lastRow > this.canvas!.height) {
-        lastRow = this.canvas!.height;
+      if (lastRow > this.canvas.height) {
+        lastRow = this.canvas.height;
       }
 
       const width = lastCol - col;
       const height = lastRow - row;
 
-      this.ctx!.fillRect(col, row, width, height);
+      this.ctx.fillRect(col, row, width, height);
     }
   }
 

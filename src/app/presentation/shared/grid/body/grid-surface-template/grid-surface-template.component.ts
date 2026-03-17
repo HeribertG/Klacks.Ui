@@ -140,6 +140,7 @@ export class GridSurfaceTemplateComponent
   private lastHeight = 0;
   private readonly RESIZE_THRESHOLD = 2;
   private pendingResize?: { width: number; height: number };
+  private isDestroyed = false;
 
   private lastColumns = 0;
   private lastRows = 0;
@@ -169,6 +170,7 @@ export class GridSurfaceTemplateComponent
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.drawSchedule.deleteCanvas();
@@ -417,6 +419,7 @@ export class GridSurfaceTemplateComponent
       const zoomEffect = effect(() => {
         this.settings.zoomSignal();
         setTimeout(() => {
+          if (this.isDestroyed) return;
           if (this.drawSchedule.isCanvasAvailable()) {
             this.drawSchedule.createCanvas();
             this.drawSchedule.rebuild();
@@ -441,6 +444,7 @@ export class GridSurfaceTemplateComponent
         const isReset = this.dataService.holidayCollection?.isReset();
         if (isReset) {
           setTimeout(() => {
+            if (this.isDestroyed) return;
             if (this.drawSchedule.isCanvasAvailable()) {
               this.drawSchedule.rebuild();
               this.drawSchedule.redraw();

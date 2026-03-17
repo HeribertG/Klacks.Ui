@@ -176,11 +176,13 @@ export class ShiftDrawRowHeaderService {
     const visibleRows = this.visibleRows();
     const firstRow = this.scroll.verticalScrollPosition;
 
+    if (!this.canvasManager.renderCanvas) return;
+
     ctx.clearRect(
       0,
       0,
-      this.canvasManager.renderCanvas!.width,
-      this.canvasManager.renderCanvas!.height,
+      this.canvasManager.renderCanvas.width,
+      this.canvasManager.renderCanvas.height,
     );
 
     for (let i = 0; i < visibleRows + 1; i++) {
@@ -240,12 +242,14 @@ export class ShiftDrawRowHeaderService {
     const rowIndex = this.selectedRow - firstRow;
     const yPosition = rowIndex * this.settings.cellHeight;
 
+    if (!this.canvasManager.canvas) return;
+
     ctx.globalAlpha = 0.2;
     ctx.fillStyle = this.gridColors.focusBorderColor;
     ctx.fillRect(
       0,
       yPosition,
-      this.canvasManager.canvas!.width,
+      this.canvasManager.canvas.width,
       this.settings.cellHeight,
     );
     ctx.globalAlpha = 1.0;

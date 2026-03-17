@@ -103,9 +103,9 @@ export class ShiftRowHeaderCanvasService {
   }
 
   public resizeMainCanvas(): void {
-    if (this.isCanvasAvailable()) {
+    if (this.isCanvasAvailable() && this.canvas) {
       this.ctx = DrawHelper.createHiDPICanvas(
-        this.canvas!,
+        this.canvas,
         this.width,
         this.height,
         true

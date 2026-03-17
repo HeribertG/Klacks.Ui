@@ -180,7 +180,6 @@ export class BaseDrawScheduleService {
   }
 
   @CanvasAvailable('queue')
-  @CanvasAvailable('queue')
   private shrinkGrid() {
     const oldVisibleRow = this.nominalVisibleRow();
     const oldVisibleCol = this.nominalVisibleCol();
@@ -359,9 +358,9 @@ export class BaseDrawScheduleService {
     y: number
   ): void {
     const ctx = tempCanvas.getContext('2d');
-    if (!ctx) return;
+    const renderCanvas = this.canvasManager.renderCanvas;
+    if (!ctx || !renderCanvas) return;
 
-    const renderCanvas = this.canvasManager.renderCanvas!;
     const pixelRatio = DrawHelper.pixelRatio();
     const logicalWidth = renderCanvas.width / pixelRatio;
     const logicalHeight = renderCanvas.height / pixelRatio;
@@ -453,24 +452,29 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   drawSelectionDynamically(pos: MyPosition): void {
+    const ctx = this.canvasManager.ctx;
+    const canvas = this.canvasManager.canvas;
+    const renderCanvas = this.canvasManager.renderCanvas;
+    if (!ctx || !canvas || !renderCanvas) return;
+
     if (this.position != null && !this.position.isEmpty()) {
       if (pos != null && !pos.isEmpty()) {
-        this.canvasManager.ctx!.save();
+        ctx.save();
 
         this.renderGrid();
 
-        this.canvasManager.ctx!.rect(
+        ctx.rect(
           0,
           this.settings.cellHeaderHeight,
-          this.canvasManager.canvas!.width,
-          this.canvasManager.renderCanvas!.height -
+          canvas.width,
+          renderCanvas.height -
             this.settings.cellHeaderHeight
         );
 
-        this.canvasManager.ctx!.clip();
+        ctx.clip();
 
-        this.canvasManager.ctx!.globalAlpha = 0.2;
-        this.canvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = this.gridColors.focusBorderColor;
 
         const minCol: number =
           this.position.column < pos.column ? this.position.column : pos.column;
@@ -493,7 +497,7 @@ export class BaseDrawScheduleService {
 
         this.drawRange(minCol, maxCol, minRow, maxRow);
 
-        this.canvasManager.ctx!.restore();
+        ctx.restore();
       }
     }
   }
@@ -523,6 +527,10 @@ export class BaseDrawScheduleService {
     minRow: number,
     maxRow: number
   ): void {
+    const ctx = this.canvasManager.ctx;
+    const canvas = this.canvasManager.canvas;
+    if (!ctx || !canvas) return;
+
     let col: number = (minCol - this.firstVisibleCol) * this.settings.cellWidth;
     let row: number =
       (minRow - this.firstVisibleRow) * this.settings.cellHeight +
@@ -540,17 +548,17 @@ export class BaseDrawScheduleService {
       (maxRow - this.firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
 
-    if (lastCol > this.canvasManager.canvas!.width) {
-      lastCol = this.canvasManager.canvas!.width;
+    if (lastCol > canvas.width) {
+      lastCol = canvas.width;
     }
-    if (lastRow > this.canvasManager.canvas!.height) {
-      lastRow = this.canvasManager.canvas!.height;
+    if (lastRow > canvas.height) {
+      lastRow = canvas.height;
     }
 
     const width = lastCol - col;
     const height = lastRow - row;
 
-    this.canvasManager.ctx!.fillRect(col, row, width, height);
+    ctx.fillRect(col, row, width, height);
   }
 
   @CanvasAvailable('queue')
@@ -615,7 +623,8 @@ export class BaseDrawScheduleService {
   calcCorrectCoordinate(event: MouseEvent) {
     let row = -1;
     let col = -1;
-    const rect = this.canvasManager.canvas!.getBoundingClientRect();
+    if (!this.canvasManager.canvas) return new MyPosition(row, col);
+    const rect = this.canvasManager.canvas.getBoundingClientRect();
     const x: number = event.clientX - rect.left;
     const y: number = event.clientY - rect.top;
 
@@ -668,17 +677,19 @@ export class BaseDrawScheduleService {
   }
 
   private nominalVisibleRow(): number {
+    if (!this.canvasManager.renderCanvas) return 0;
     const dpr = DrawHelper.pixelRatio();
     const row = Math.ceil(
-      this.canvasManager.renderCanvas!.height / dpr / this.settings.cellHeight
+      this.canvasManager.renderCanvas.height / dpr / this.settings.cellHeight
     );
     return row <= this.gridData.rows ? row : this.gridData.rows;
   }
 
   private nominalVisibleCol(): number {
+    if (!this.canvasManager.renderCanvas) return 0;
     const dpr = DrawHelper.pixelRatio();
     return Math.ceil(
-      this.canvasManager.renderCanvas!.width / dpr / this.settings.cellWidth
+      this.canvasManager.renderCanvas.width / dpr / this.settings.cellWidth
     );
   }
 

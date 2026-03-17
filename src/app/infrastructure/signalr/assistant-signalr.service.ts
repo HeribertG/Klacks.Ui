@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * SignalR service for assistant notifications (proactive messages, onboarding prompts).
+ * @param hubUrl - URL des Assistant-Notification-Hubs
+ */
+
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
@@ -39,7 +44,7 @@ export class AssistantSignalRService implements OnDestroy {
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(urlWithToken, {
-        accessTokenFactory: () => token,
+        accessTokenFactory: () => this.localStorageService.get(StorageKeys.TOKEN) ?? '',
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
@@ -48,6 +53,7 @@ export class AssistantSignalRService implements OnDestroy {
       .build();
 
     this.registerEventHandlers();
+    this.registerConnectionEvents();
 
     try {
       await this.hubConnection.start();
@@ -61,6 +67,10 @@ export class AssistantSignalRService implements OnDestroy {
       await this.hubConnection.stop();
       this.hubConnection = null;
     }
+  }
+
+  private isConnected(): boolean {
+    return this.hubConnection?.state === signalR.HubConnectionState.Connected;
   }
 
   private registerEventHandlers(): void {
@@ -79,6 +89,34 @@ export class AssistantSignalRService implements OnDestroy {
         this.onboardingPrompt$.next(message);
       }
     );
+  }
+
+  private registerConnectionEvents(): void {
+    if (!this.hubConnection) return;
+
+    this.hubConnection.onclose(() => {
+      this.scheduleReconnect();
+    });
+  }
+
+  private scheduleReconnect(attempt = 0): void {
+    const delays = [2000, 5000, 10000, 30000, 60000];
+    const delay = delays[Math.min(attempt, delays.length - 1)];
+
+    setTimeout(async () => {
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (!token) return;
+
+      try {
+        this.hubConnection = null;
+        await this.startConnection();
+        if (!this.isConnected()) {
+          this.scheduleReconnect(attempt + 1);
+        }
+      } catch {
+        this.scheduleReconnect(attempt + 1);
+      }
+    }, delay);
   }
 
   ngOnDestroy(): void {

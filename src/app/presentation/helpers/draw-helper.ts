@@ -247,6 +247,10 @@ export abstract class DrawHelper {
     const dpr = this.pixelRatio();
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+    if (!ctx) {
+      throw new Error('Failed to acquire 2D canvas context.');
+    }
+
     if (setPixelRatio) {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
@@ -254,13 +258,13 @@ export abstract class DrawHelper {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
 
-      ctx!.scale(dpr, dpr);
+      ctx.scale(dpr, dpr);
     } else {
       canvas.width = width;
       canvas.height = height;
     }
 
-    return ctx!;
+    return ctx;
   }
 
   public static pixelRatio(): number {

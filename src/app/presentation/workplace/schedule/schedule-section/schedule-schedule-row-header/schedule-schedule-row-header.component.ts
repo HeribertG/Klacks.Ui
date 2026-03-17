@@ -117,6 +117,7 @@ export class ScheduleScheduleRowHeaderComponent
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
+  private isDestroyed = false;
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   private filterEl = viewChild<ElementRef>('filterEl');
@@ -145,6 +146,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.drawRowHeader.deleteCanvas();
@@ -200,6 +202,7 @@ export class ScheduleScheduleRowHeaderComponent
       const zoomEffect = effect(() => {
         this.settings.zoomSignal();
         setTimeout(() => {
+          if (this.isDestroyed) return;
           if (this.drawRowHeader.isCanvasAvailable()) {
             this.drawRowHeader.createCanvas();
             this.drawRowHeader.rebuild();
