@@ -2,7 +2,7 @@
 
 import { Component, inject, computed, OnDestroy, OnInit, effect, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './settings-general.component.html',
   styleUrls: ['./settings-general.component.scss'],
   standalone: true,
-  imports: [TranslateModule, NgbModule, Field],
+  imports: [TranslateModule, NgbModule, FormField],
 })
 export class SettingsGeneralComponent implements OnInit, OnDestroy {
   selectedFileIcon: File | undefined;

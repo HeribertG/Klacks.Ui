@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -63,7 +63,7 @@ interface AbsenceFormModel {
   imports: [
     CommonModule,
     FormsModule,
-    Field,
+    FormField,
     TranslateModule,
     NgbModule,
     NgbPaginationModule,

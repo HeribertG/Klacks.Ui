@@ -64,27 +64,27 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   async startConnection(): Promise<void> {
-    
+    console.log('[SignalR] startConnection called');
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
-      
+      console.log('[SignalR] already connected, skipping');
       return;
     }
 
     const token = this.localStorageService.get(StorageKeys.TOKEN);
-    
+    console.log('[SignalR] token present:', !!token);
     if (!token) {
-      
+      console.warn('[SignalR] no token, aborting');
       return;
     }
 
     if (this.isTokenExpired(token)) {
-      
+      console.warn('[SignalR] token expired, aborting');
       return;
     }
 
     const isValid = await this.validateTokenWithBackend(token);
     if (!isValid) {
-      
+      console.warn('[SignalR] token validation failed, aborting');
       return;
     }
 
@@ -107,12 +107,13 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private async waitForBackend(maxAttempts = 10, intervalMs = 1000): Promise<void> {
     const healthUrl = environment.baseUrl.replace('/api/backend/', '/health');
+    console.log('[SignalR] waiting for backend at:', healthUrl);
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const response = await fetch(healthUrl, { method: 'GET' });
         if (response.ok) {
-          
+          console.log('[SignalR] backend ready');
           return;
         }
       } catch {
@@ -120,12 +121,12 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       }
 
       if (attempt < maxAttempts - 1) {
-        
+        console.log(`[SignalR] backend not ready, attempt ${attempt + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, intervalMs));
       }
     }
 
-    
+    console.warn('[SignalR] backend not reachable after all attempts');
   }
 
   private async connectWithRetry(maxRetries = 5): Promise<void> {
@@ -137,11 +138,13 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         const connectionId = await this.hubConnection!.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         this._connectionId.set(connectionId);
         this._isConnected.set(true);
+        console.log('[SignalR] connected, id:', connectionId);
         this.startProactiveTokenRefresh();
         await this.rejoinCurrentGroup();
         return;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[SignalR] connection attempt ${attempt + 1} failed:`, errorMessage);
 
         if (errorMessage.includes('401')) {
           this._isConnected.set(false);
@@ -150,10 +153,10 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
         const delay = retryDelays[attempt] ?? 10000;
         if (attempt < maxRetries - 1) {
-          
+          console.log(`[SignalR] retrying in ${delay}ms`);
           await new Promise(resolve => setTimeout(resolve, delay));
         } else {
-          
+          console.error('[SignalR] all connection attempts failed');
           this._isConnected.set(false);
         }
       }
@@ -427,14 +430,15 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   private async validateTokenWithBackend(token: string): Promise<boolean> {
     try {
       const validateUrl = environment.baseUrl + 'Accounts/ValidateToken';
-      
+      console.log('[SignalR] validating token at:', validateUrl);
       const response = await fetch(validateUrl, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+      console.log('[SignalR] token validation response:', response.status);
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error('[SignalR] token validation error:', error);
       return false;
     }
   }

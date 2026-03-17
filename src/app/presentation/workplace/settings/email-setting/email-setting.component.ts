@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -34,7 +34,7 @@ interface ContactModel {
   templateUrl: './email-setting.component.html',
   styleUrls: ['./email-setting.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, Field],
+  imports: [TranslateModule, FontAwesomeModule, FormField],
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsManagementService);

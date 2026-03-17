@@ -14,7 +14,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -52,7 +52,7 @@ interface MacroFormModel {
   standalone: true,
   imports: [
     CommonModule,
-    Field,
+    FormField,
     FormsModule,
     TranslateModule,
     NgbModule,

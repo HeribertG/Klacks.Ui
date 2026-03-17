@@ -12,7 +12,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.outgoingServer"
+          [formField]="emailForm.outgoingServer"
           aria-label="outgoingServer"
           id="outgoingServer"
         />
@@ -22,7 +22,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.outgoingServerPort"
+          [formField]="emailForm.outgoingServerPort"
           aria-label="outgoingServerPort"
           id="outgoingServerPort"
         />
@@ -34,7 +34,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.outgoingServerTimeout"
+          [formField]="emailForm.outgoingServerTimeout"
           aria-label="outgoingServerTimeout"
           id="outgoingServerTimeout"
         />
@@ -43,7 +43,7 @@
         <label for="enabledSSL">{{ "settings.email-setting.enabled-ssl" | translate }}</label>
         <select
           class="form-select"
-          [field]="emailForm.enabledSSL"
+          [formField]="emailForm.enabledSSL"
           aria-label="enabledSSL"
           id="enabledSSL"
         >
@@ -57,7 +57,7 @@
         <label for="authenticationType">{{ "settings.email-setting.authentication-type" | translate }}</label>
         <select
           class="form-select"
-          [field]="emailForm.authenticationType"
+          [formField]="emailForm.authenticationType"
           aria-label="authenticationType"
           id="authenticationType"
         >
@@ -73,7 +73,7 @@
         <select
           id="dispositionNotification"
           class="form-select"
-          [field]="emailForm.dispositionNotification"
+          [formField]="emailForm.dispositionNotification"
           aria-label="dispositionNotification"
         >
           <option value="true">{{ "general.yes" | translate }}</option>
@@ -87,7 +87,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.readReceipt"
+          [formField]="emailForm.readReceipt"
           aria-label="readReceipt"
           id="readReceipt"
         />
@@ -99,7 +99,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.replyTo"
+          [formField]="emailForm.replyTo"
           aria-label="replyTo"
           id="replyTo"
         />
@@ -111,7 +111,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="contactForm.mark"
+          [formField]="contactForm.mark"
           aria-label="mark"
           id="mark"
         />
@@ -123,7 +123,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="emailForm.username"
+          [formField]="emailForm.username"
           aria-label="outgoingServerAuthUser"
           id="outgoingServerAuthUser"
           autocomplete="new-password"
@@ -139,7 +139,7 @@
             <input
               type="text"
               class="form-control password-input"
-              [field]="emailForm.password"
+              [formField]="emailForm.password"
               id="outgoingServerAuthKey"
               aria-label="outgoingServerAuthKey"
               autocomplete="new-password"
@@ -148,7 +148,7 @@
             <input
               type="password"
               class="form-control password-input"
-              [field]="emailForm.password"
+              [formField]="emailForm.password"
               id="outgoingServerAuthKey"
               aria-label="outgoingServerAuthKey"
               autocomplete="new-password"

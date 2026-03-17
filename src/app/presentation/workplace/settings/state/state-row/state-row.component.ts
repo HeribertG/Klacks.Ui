@@ -12,7 +12,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IState } from 'src/app/domain/models/client/client-class';
@@ -35,7 +35,7 @@ interface StateModel {
   templateUrl: './state-row.component.html',
   styleUrls: ['./state-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field, TrashIconRedComponent],
+  imports: [TranslateModule, FormField, TrashIconRedComponent],
 })
 export class StateRowComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: IState | undefined;

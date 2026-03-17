@@ -14,7 +14,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="imapForm.server"
+          [formField]="imapForm.server"
           aria-label="imapServer"
           id="imapServer"
         />
@@ -24,7 +24,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="imapForm.port"
+          [formField]="imapForm.port"
           aria-label="imapPort"
           id="imapPort"
         />
@@ -35,7 +35,7 @@
         <label for="imapEnableSSL">{{ "settings.imap-setting.ssl" | translate }}</label>
         <select
           class="form-select"
-          [field]="imapForm.enableSSL"
+          [formField]="imapForm.enableSSL"
           aria-label="imapEnableSSL"
           id="imapEnableSSL"
         >
@@ -48,7 +48,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="imapForm.folder"
+          [formField]="imapForm.folder"
           aria-label="imapFolder"
           id="imapFolder"
         />
@@ -60,7 +60,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="imapForm.pollInterval"
+          [formField]="imapForm.pollInterval"
           aria-label="imapPollInterval"
           id="imapPollInterval"
         />
@@ -72,7 +72,7 @@
         <input
           type="text"
           class="form-control"
-          [field]="imapForm.username"
+          [formField]="imapForm.username"
           aria-label="imapUsername"
           id="imapUsername"
           autocomplete="new-password"
@@ -86,7 +86,7 @@
             <input
               type="text"
               class="form-control password-input"
-              [field]="imapForm.password"
+              [formField]="imapForm.password"
               id="imapPassword"
               aria-label="imapPassword"
               autocomplete="new-password"
@@ -95,7 +95,7 @@
             <input
               type="password"
               class="form-control password-input"
-              [field]="imapForm.password"
+              [formField]="imapForm.password"
               id="imapPassword"
               aria-label="imapPassword"
               autocomplete="new-password"

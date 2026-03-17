@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -49,7 +49,7 @@ interface UserFormModel {
   standalone: true,
   imports: [
     FormsModule,
-    Field,
+    FormField,
     TranslateModule,
     NgbModule,
     SpinnerModule,

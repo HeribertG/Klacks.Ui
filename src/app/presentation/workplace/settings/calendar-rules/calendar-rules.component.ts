@@ -13,7 +13,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -67,7 +67,7 @@ interface RuleFormModel {
   imports: [
     CommonModule,
     FormsModule,
-    Field,
+    FormField,
     TranslateModule,
     NgbModule,
     NgbPaginationModule,

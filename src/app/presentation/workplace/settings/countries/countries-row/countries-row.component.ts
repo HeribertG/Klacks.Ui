@@ -12,7 +12,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/domain/models/client/client-class';
@@ -35,7 +35,7 @@ interface CountryModel {
   templateUrl: './countries-row.component.html',
   styleUrls: ['./countries-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field, TrashIconRedComponent],
+  imports: [TranslateModule, FormField, TrashIconRedComponent],
 })
 export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: ICountry | undefined;

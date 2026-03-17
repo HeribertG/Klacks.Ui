@@ -33,7 +33,7 @@
     @if (enabled) {
       <select
         id="user-admin-row-authorised-{{ user!.id }}"
-        [field]="userRoleForm.isAuthorised"
+        [formField]="userRoleForm.isAuthorised"
         class="form-select gap"
         aria-label="isAuthorised"
       >
@@ -65,7 +65,7 @@
     @if (enabled) {
       <select
         id="user-admin-row-admin-{{ user!.id }}"
-        [field]="userRoleForm.isAdmin"
+        [formField]="userRoleForm.isAdmin"
         class="form-select"
         aria-label="isAdmin"
       >

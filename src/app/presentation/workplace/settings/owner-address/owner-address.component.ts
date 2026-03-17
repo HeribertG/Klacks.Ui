@@ -2,7 +2,7 @@
 
 import { Component, OnInit, effect, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ClientConfigService } from 'src/app/domain/services/client/client-config.service';
@@ -24,7 +24,7 @@ interface AddressModel {
   templateUrl: './owner-address.component.html',
   styleUrls: ['./owner-address.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field, FormsModule, FallbackPipe],
+  imports: [TranslateModule, FormField, FormsModule, FallbackPipe],
 })
 export class OwnerAddressComponent implements OnInit {
   public translate = inject(TranslateService);

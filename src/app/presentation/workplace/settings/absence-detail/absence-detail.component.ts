@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -52,7 +52,7 @@ interface AbsenceDetailFormFields {
   standalone: true,
   imports: [
     FormsModule,
-    Field,
+    FormField,
     TranslateModule,
     NgbModule,
     SpinnerModule,

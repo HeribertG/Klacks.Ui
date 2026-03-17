@@ -39,7 +39,7 @@
           <input
             id="llm-models-modal-model-id"
             type="text"
-            [field]="llmForm.modelId"
+            [formField]="llmForm.modelId"
             class="form-control"
           />
         </div>
@@ -50,7 +50,7 @@
           <input
             id="llm-models-modal-model-name"
             type="text"
-            [field]="llmForm.modelName"
+            [formField]="llmForm.modelName"
             class="form-control"
           />
         </div>
@@ -65,7 +65,7 @@
           <select
             id="llm-models-modal-provider"
             class="form-control"
-            [field]="llmForm.providerId"
+            [formField]="llmForm.providerId"
           >
             @for (provider of availableProviders; track provider.providerId) {
             <option [value]="provider.providerId">
@@ -81,7 +81,7 @@
           <input
             id="llm-models-modal-description"
             type="text"
-            [field]="llmForm.description"
+            [formField]="llmForm.description"
             class="form-control"
           />
         </div>
@@ -96,7 +96,7 @@
           <input
             id="llm-models-modal-api-model-id"
             type="text"
-            [field]="llmForm.apiModelId"
+            [formField]="llmForm.apiModelId"
             class="form-control"
           />
         </div>
@@ -111,7 +111,7 @@
           <input
             id="llm-models-modal-context-window"
             type="text"
-            [field]="llmForm.contextWindow"
+            [formField]="llmForm.contextWindow"
             class="form-control"
           />
         </div>
@@ -122,7 +122,7 @@
           <input
             id="llm-models-modal-max-tokens"
             type="text"
-            [field]="llmForm.maxTokens"
+            [formField]="llmForm.maxTokens"
             class="form-control"
           />
         </div>
@@ -140,7 +140,7 @@
           <input
             id="llm-models-modal-input-cost"
             type="text"
-            [field]="llmForm.costPerInputToken"
+            [formField]="llmForm.costPerInputToken"
             class="form-control"
           />
         </div>
@@ -154,7 +154,7 @@
           <input
             id="llm-models-modal-output-cost"
             type="text"
-            [field]="llmForm.costPerOutputToken"
+            [formField]="llmForm.costPerOutputToken"
             class="form-control"
           />
         </div>
@@ -171,7 +171,7 @@
           <input
             id="llm-models-modal-api-key"
             type="password"
-            [field]="llmForm.providerApiKey"
+            [formField]="llmForm.providerApiKey"
             class="form-control"
             placeholder="sk-..."
           />
@@ -188,7 +188,7 @@
           <input
             id="llm-models-modal-is-enabled"
             type="checkbox"
-            [field]="llmForm.isEnabled"
+            [formField]="llmForm.isEnabled"
           />
           <label for="isEnabled">{{
             translate.instant("settings.llm-models.enabled")
@@ -198,7 +198,7 @@
           <input
             id="llm-models-modal-is-default"
             type="checkbox"
-            [field]="llmForm.isDefault"
+            [formField]="llmForm.isDefault"
           />
           <label for="isDefault">{{
             translate.instant("settings.llm-models.default")

@@ -36,7 +36,7 @@
           }}</label>
           <input
             type="text"
-            [field]="userForm.firstName"
+            [formField]="userForm.firstName"
             class="form-control default-width"
             id="user-firstname"
             aria-label="firstName"
@@ -50,7 +50,7 @@
           }}</label>
           <input
             type="text"
-            [field]="userForm.lastName"
+            [formField]="userForm.lastName"
             class="form-control default-width"
             id="user-name"
             aria-label="lastName"
@@ -71,7 +71,7 @@
             @if (isEditMode) {
               <input
                 type="text"
-                [field]="userForm.userName"
+                [formField]="userForm.userName"
                 class="form-control default-width"
                 id="user-userName"
                 aria-label="userName"
@@ -104,7 +104,7 @@
 
       <input
         type="text"
-        [field]="userForm.email"
+        [formField]="userForm.email"
         class="form-control"
         id="setting-user-email"
         aria-label="email"

@@ -2,7 +2,7 @@
 
 import { Component, Input, inject, signal, effect, OnChanges } from '@angular/core';
 
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
@@ -13,7 +13,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   templateUrl: './grid-color-row.component.html',
   styleUrls: ['./grid-color-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, NgbModule, Field],
+  imports: [TranslateModule, NgbModule, FormField],
 })
 export class GridColorRowComponent implements OnChanges {
   @Input() data: ISetting | undefined;

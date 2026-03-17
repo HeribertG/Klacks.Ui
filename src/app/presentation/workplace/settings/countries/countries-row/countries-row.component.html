@@ -6,7 +6,7 @@
       <input
         id="country-row-abbreviation-{{ data!.id }}"
         type="text"
-        [field]="countryForm.abbreviation"
+        [formField]="countryForm.abbreviation"
         aria-label="data.abbreviation"
         class="form-control abbreviation"
       />
@@ -16,7 +16,7 @@
         <input
           id="country-row-name-de-{{ data!.id }}"
           type="text"
-          [field]="countryForm.nameDe"
+          [formField]="countryForm.nameDe"
           aria-label="data.name"
           class="form-control country-name"
         />
@@ -24,7 +24,7 @@
         <input
           id="country-row-name-en-{{ data!.id }}"
           type="text"
-          [field]="countryForm.nameEn"
+          [formField]="countryForm.nameEn"
           aria-label="data.name"
           class="form-control country-name"
         />
@@ -32,7 +32,7 @@
         <input
           id="country-row-name-fr-{{ data!.id }}"
           type="text"
-          [field]="countryForm.nameFr"
+          [formField]="countryForm.nameFr"
           aria-label="data.name"
           class="form-control country-name"
         />
@@ -40,7 +40,7 @@
         <input
           id="country-row-name-it-{{ data!.id }}"
           type="text"
-          [field]="countryForm.nameIt"
+          [formField]="countryForm.nameIt"
           aria-label="data.name"
           class="form-control country-name"
         />
@@ -50,7 +50,7 @@
       <input
         id="country-row-prefix-{{ data!.id }}"
         type="text"
-        [field]="countryForm.prefix"
+        [formField]="countryForm.prefix"
         aria-label="data.prefix"
         class="form-control country-prefix"
       />

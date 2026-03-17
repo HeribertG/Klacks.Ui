@@ -38,7 +38,7 @@
           <input
             id="llm-providers-modal-provider-id"
             type="text"
-            [field]="providerForm.providerId"
+            [formField]="providerForm.providerId"
             class="form-control"
           />
           } @else {
@@ -58,7 +58,7 @@
           <input
             id="llm-providers-modal-provider-name"
             type="text"
-            [field]="providerForm.providerName"
+            [formField]="providerForm.providerName"
             class="form-control"
           />
         </div>
@@ -72,7 +72,7 @@
           <input
             id="llm-providers-modal-base-url"
             type="url"
-            [field]="providerForm.baseUrl"
+            [formField]="providerForm.baseUrl"
             class="form-control"
             placeholder="https://api.example.com/v1/"
           />
@@ -87,7 +87,7 @@
           <input
             id="llm-providers-modal-api-version"
             type="text"
-            [field]="providerForm.apiVersion"
+            [formField]="providerForm.apiVersion"
             class="form-control"
             placeholder="v1, 2023-06-01, etc."
           />
@@ -99,7 +99,7 @@
           <input
             id="llm-providers-modal-priority"
             type="text"
-            [field]="providerForm.priority"
+            [formField]="providerForm.priority"
             class="form-control"
           />
         </div>
@@ -116,7 +116,7 @@
           <input
             id="llm-providers-modal-api-key"
             type="password"
-            [field]="providerForm.providerApiKey"
+            [formField]="providerForm.providerApiKey"
             class="form-control"
             [placeholder]="!isNewProvider && editingProvider.hasApiKey ? '••••••••' : 'sk-...'"
           />
@@ -135,7 +135,7 @@
           <input
             id="llm-providers-modal-is-enabled"
             type="checkbox"
-            [field]="providerForm.isEnabled"
+            [formField]="providerForm.isEnabled"
           />
           <label for="isEnabledCheckbox">
             {{ translate.instant("settings.llm-providers.is-enabled") }}</label

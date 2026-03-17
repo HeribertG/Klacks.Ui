@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 @Component({
   selector: 'app-deepl',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, Field],
+  imports: [TranslateModule, FontAwesomeModule, FormField],
   templateUrl: './deepl.component.html',
   styleUrls: ['./deepl.component.scss'],
 })

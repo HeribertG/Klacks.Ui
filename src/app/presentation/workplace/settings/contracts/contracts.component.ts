@@ -17,7 +17,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { form, Field, debounce } from '@angular/forms/signals';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -55,7 +55,7 @@ interface ContractFormModel {
     CommonModule,
     TranslateModule,
     FormsModule,
-    Field,
+    FormField,
     NgbModule,
     SpinnerModule,
     ContractHeaderComponent,

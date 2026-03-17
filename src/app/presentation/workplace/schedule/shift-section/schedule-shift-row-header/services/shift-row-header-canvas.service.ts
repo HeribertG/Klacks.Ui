@@ -28,14 +28,19 @@ export class ShiftRowHeaderCanvasService {
 
   private _width = 10;
   private _height = 10;
+  private _canvasWasAvailable = false;
+  private _canvasId = '';
   public readonly progressBarHeight = 2;
 
   public createCanvas(canvasId: string): void {
+    this._canvasId = canvasId;
     this.createMainCanvas(canvasId);
     this.createRenderCanvas();
   }
 
   public deleteCanvas(): void {
+    console.warn(`[CANVAS-DEBUG] ShiftRowHeader deleteCanvas() called for id=${this._canvasId}`, new Error().stack);
+    this._canvasWasAvailable = false;
     this.ctx = undefined;
     this.canvas = undefined;
     this.renderCanvasCtx = undefined;
@@ -43,12 +48,22 @@ export class ShiftRowHeaderCanvasService {
   }
 
   public isCanvasAvailable(): boolean {
-    return (
+    const available = (
       this.canvas != null &&
       this.width > 0 &&
       this.height > 0 &&
       this.ctx != null
     );
+    if (!available && this._canvasWasAvailable) {
+      console.error(`[CANVAS-DEBUG] ShiftRowHeader Canvas LOST for id=${this._canvasId}!`,
+        `canvas=${!!this.canvas}, ctx=${!!this.ctx}, render=${!!this.renderCanvas}, renderCtx=${!!this.renderCanvasCtx}, w=${this.width}, h=${this.height}`,
+        new Error().stack);
+      this._canvasWasAvailable = false;
+    }
+    if (available && !this._canvasWasAvailable) {
+      this._canvasWasAvailable = true;
+    }
+    return available;
   }
 
   public set width(value: number) {
@@ -70,7 +85,7 @@ export class ShiftRowHeaderCanvasService {
   private createMainCanvas(canvasId: string): void {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error(`Canvas with ID '${canvasId}' not found.`);
+      console.error(`[CANVAS-DEBUG] ShiftRowHeader createMainCanvas: getElementById('${canvasId}') returned null!`, new Error().stack);
       return;
     }
 

@@ -10,7 +10,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
@@ -32,7 +32,7 @@ interface UserRoleModel {
   templateUrl: './user-administration-row.component.html',
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
-  imports: [TranslateModule, Field, TrashIconRedComponent],
+  imports: [TranslateModule, FormField, TrashIconRedComponent],
 })
 export class UserAdministrationRowComponent implements OnChanges {
   @Input() user: IAuthentication | undefined;

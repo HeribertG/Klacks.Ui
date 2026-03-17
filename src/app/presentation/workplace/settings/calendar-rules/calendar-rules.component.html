@@ -54,7 +54,7 @@
           id="calendar-rules-modal-name"
           type="text"
           class="form-control"
-          [field]="ruleForm.name"
+          [formField]="ruleForm.name"
           aria-label="ruleName"
           (blur)="onModalChange()"
         />
@@ -68,7 +68,7 @@
           id="calendar-rules-modal-rule"
           type="text"
           class="form-control"
-          [field]="ruleForm.rule"
+          [formField]="ruleForm.rule"
           aria-label="rule"
           (blur)="onModalChange()"
         />
@@ -82,7 +82,7 @@
           id="calendar-rules-modal-subrule"
           type="text"
           class="form-control"
-          [field]="ruleForm.subRule"
+          [formField]="ruleForm.subRule"
           aria-label="subRule"
           (blur)="onModalChange()"
         />
@@ -136,7 +136,7 @@
             <input
               id="calendar-rules-modal-is-mandatory"
               type="checkbox"
-              [field]="ruleForm.isMandatory"
+              [formField]="ruleForm.isMandatory"
             />
             {{ translate.instant("setting.holiday-rules.is-holyday") }}
           </label>
@@ -147,7 +147,7 @@
             <input
               id="calendar-rules-modal-is-paid"
               type="checkbox"
-              [field]="ruleForm.isPaid"
+              [formField]="ruleForm.isPaid"
             />
             {{ translate.instant("setting.holiday-rules.is-paid") }}
           </label>
@@ -162,7 +162,7 @@
         <textarea
           id="calendar-rules-modal-description"
           class="form-control rule-description"
-          [field]="ruleForm.description"
+          [formField]="ruleForm.description"
           aria-label="description"
           (blur)="onModalChange()"
         ></textarea>

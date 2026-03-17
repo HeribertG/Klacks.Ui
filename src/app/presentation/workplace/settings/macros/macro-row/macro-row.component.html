@@ -37,7 +37,7 @@
         <input
           type="text"
           style="width: 150px"
-          [field]="macroForm.name"
+          [formField]="macroForm.name"
           class="form-control"
           id="macroName"
         />
@@ -50,7 +50,7 @@
         <label for="type">{{
           translate.instant("setting.macro.type-modal")
         }}</label>
-        <select class="form-select" [field]="macroForm.type" id="type">
+        <select class="form-select" [formField]="macroForm.type" id="type">
           @for (option of macroTypeOptions; track option.value) {
           <option [value]="option.value">
             {{ translate.instant(option.label) }}

@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -32,7 +32,7 @@ interface WorkSettingsFormModel {
   templateUrl: './work-setting.component.html',
   styleUrls: ['./work-setting.component.scss'],
   standalone: true,
-  imports: [FormsModule, Field, TranslateModule, NgbModule],
+  imports: [FormsModule, FormField, TranslateModule, NgbModule],
 })
 export class WorkSettingComponent implements OnInit {
   public dataManagementSettingsService = inject(DataManagementSettingsService);

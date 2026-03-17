@@ -42,7 +42,7 @@
           id="absence-modal-name"
           type="text"
           class="form-control"
-          [field]="absenceForm.name"
+          [formField]="absenceForm.name"
           aria-label="ruleName"
         />
       </div>
@@ -55,7 +55,7 @@
           id="absence-modal-abbreviation"
           type="text"
           class="form-control"
-          [field]="absenceForm.abbreviation"
+          [formField]="absenceForm.abbreviation"
           aria-label="abbreviation"
         />
       </div>
@@ -67,7 +67,7 @@
         <textarea
           id="absence-modal-description"
           class="form-control rule-description"
-          [field]="absenceForm.description"
+          [formField]="absenceForm.description"
           aria-label="description"
         ></textarea>
       </div>
@@ -82,7 +82,7 @@
               id="absence-modal-default-length"
               type="number"
               class="form-control input-number"
-              [field]="absenceForm.defaultLength"
+              [formField]="absenceForm.defaultLength"
               aria-label="defaultLength"
             />
           </div>
@@ -94,7 +94,7 @@
               id="absence-modal-default-value"
               type="number"
               class="form-control input-number"
-              [field]="absenceForm.defaultValue"
+              [formField]="absenceForm.defaultValue"
               aria-label="defaultValue"
             />
           </div>
@@ -105,7 +105,7 @@
           <input
             id="absence-modal-with-saturday"
             type="checkbox"
-            [field]="absenceForm.withSaturday"
+            [formField]="absenceForm.withSaturday"
           />
           {{ "setting.absence.modal.value-sat" | translate }}
         </label>
@@ -115,7 +115,7 @@
           <input
             id="absence-modal-with-sunday"
             type="checkbox"
-            [field]="absenceForm.withSunday"
+            [formField]="absenceForm.withSunday"
           />
           {{ "setting.absence.modal.value-sun" | translate }}
         </label>
@@ -125,7 +125,7 @@
           <input
             id="absence-modal-with-holiday"
             type="checkbox"
-            [field]="absenceForm.withHoliday"
+            [formField]="absenceForm.withHoliday"
           />
           {{ "setting.absence.modal.value-holiday" | translate }}
         </label>
@@ -139,13 +139,13 @@
             id="absence-modal-color-picker"
             type="color"
             class="form-control form-control-color color-button"
-            [field]="absenceForm.color"
+            [formField]="absenceForm.color"
           />
           <input
             id="absence-modal-color-text"
             type="text"
             class="form-control color-text"
-            [field]="absenceForm.color"
+            [formField]="absenceForm.color"
           />
         </div>
       </div>
@@ -158,7 +158,7 @@
           <select
             id="absence-modal-macro-list"
             class="form-select"
-            [field]="absenceForm.macroId"
+            [formField]="absenceForm.macroId"
             aria-label="macro-list"
           >
             <option value="">---</option>
@@ -177,7 +177,7 @@
           <input
             id="absence-modal-hide-in-gantt"
             type="checkbox"
-            [field]="absenceForm.hideInGantt"
+            [formField]="absenceForm.hideInGantt"
           />
           {{ "setting.absence.modal.internal" | translate }}
         </label>
