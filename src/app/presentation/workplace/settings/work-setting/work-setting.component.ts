@@ -121,32 +121,36 @@ export class WorkSettingComponent implements OnInit {
 
   private loadFromService(): void {
     const svc = this.dataManagementSettingsService;
+    const work = svc.appSettings.workSettings();
     this.formModel.set({
-      vacationDaysPerYear: svc.vacationDaysPerYear,
-      probationPeriod: svc.probationPeriod,
-      noticePeriod: svc.noticePeriod,
-      paymentInterval: String(svc.paymentInterval),
+      vacationDaysPerYear: work.vacationDaysPerYear,
+      probationPeriod: work.probationPeriod,
+      noticePeriod: work.noticePeriod,
+      paymentInterval: String(work.paymentInterval),
       nightRate: svc.nightRate,
       holidayRate: svc.holidayRate,
       saRate: svc.saRate,
       soRate: svc.soRate,
-      dayVisibleBefore: svc.dayVisibleBefore,
-      dayVisibleAfter: svc.dayVisibleAfter,
+      dayVisibleBefore: work.dayVisibleBefore,
+      dayVisibleAfter: work.dayVisibleAfter,
     });
   }
 
   private syncToService(data: WorkSettingsFormModel): void {
     const svc = this.dataManagementSettingsService;
-    svc.vacationDaysPerYear = data.vacationDaysPerYear;
-    svc.probationPeriod = data.probationPeriod;
-    svc.noticePeriod = data.noticePeriod;
-    svc.paymentInterval = Number(data.paymentInterval);
+    svc.appSettings.workSettings.update(s => ({
+      ...s,
+      vacationDaysPerYear: data.vacationDaysPerYear,
+      probationPeriod: data.probationPeriod,
+      noticePeriod: data.noticePeriod,
+      paymentInterval: Number(data.paymentInterval),
+      dayVisibleBefore: data.dayVisibleBefore,
+      dayVisibleAfter: data.dayVisibleAfter,
+    }));
     svc.nightRate = data.nightRate;
     svc.holidayRate = data.holidayRate;
     svc.saRate = data.saRate;
     svc.soRate = data.soRate;
-    svc.dayVisibleBefore = data.dayVisibleBefore;
-    svc.dayVisibleAfter = data.dayVisibleAfter;
     svc.settingsChangeTrigger.update(v => v + 1);
   }
 

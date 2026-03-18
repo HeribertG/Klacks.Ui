@@ -105,14 +105,6 @@ export class BaseDrawRowHeaderService {
       this.settings.cellHeaderHeight,
       true,
     );
-    DrawHelper.setAntiAliasing(this.renderCanvasCtx);
-
-    this.headerCtx = DrawHelper.createHiDPICanvas(
-      this.headerCanvas,
-      this.width,
-      this.settings.cellHeaderHeight,
-      true,
-    );
     DrawHelper.setAntiAliasing(this.headerCtx);
 
     this.setupProgressBar();

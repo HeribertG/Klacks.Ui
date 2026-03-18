@@ -34,12 +34,11 @@ import { ICalendarSelection } from '../../models/calendar/calendar-selection-cla
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
+import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -51,9 +50,9 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   private dataCountryStateService = inject(DataCountryStateService);
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
-  private httpClient = inject(HttpClient);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
+  private checkboxState = new CheckboxStateService();
 
   constructor() {
     this.registry.register(
@@ -78,9 +77,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public showTree = signal(true);
 
   public currentClientFilter: Filter = new Filter();
-  public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
+  public get checkedArray(): CheckBoxValue[] { return this.checkboxState.checkedArray; }
+  public set checkedArray(value: CheckBoxValue[]) { this.checkboxState.checkedArray = value; }
   public clientAttribute: IClientAttribute[] = [];
-  public headerCheckBoxValue = false;
+  public get headerCheckBoxValue(): boolean { return this.checkboxState.headerCheckBoxValue; }
+  public set headerCheckBoxValue(value: boolean) { this.checkboxState.headerCheckBoxValue = value; }
   public stateList: StateCountryToken[] | undefined;
 
   public orderBy = 'name';
@@ -235,51 +236,23 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   clearCheckedArray() {
-    this.checkedArray = new Array<CheckBoxValue>();
+    this.checkboxState.clearCheckedArray();
   }
 
   addCheckBoxValueToArray(value: CheckBoxValue) {
-    this.checkedArray.push(value);
+    this.checkboxState.addCheckBoxValueToArray(value);
   }
 
   findCheckBoxValue(key: string): CheckBoxValue | undefined {
-    if (!this.checkedArray) {
-      return undefined;
-    }
-    if (key === '') {
-      return undefined;
-    }
-
-    return this.checkedArray.find((x) => x.id === key);
+    return this.checkboxState.findCheckBoxValue(key);
   }
 
   removeCheckBoxValueToArray(key: string) {
-    const index = this.checkedArray.findIndex((x) => x.id === key);
-    this.checkedArray.splice(index, 1);
+    this.checkboxState.removeCheckBoxValueToArray(key);
   }
 
   checkBoxIndeterminate() {
-    if (this.headerCheckBoxValue === undefined) {
-      this.headerCheckBoxValue = false;
-    }
-    if (this.headerCheckBoxValue === null) {
-      this.headerCheckBoxValue = false;
-    }
-
-    if (this.headerCheckBoxValue === true) {
-      const tmp = this.checkedArray.find((x) => x.checked === false);
-      if (!(tmp === undefined || tmp === null)) {
-        return true;
-      }
-    }
-    if (this.headerCheckBoxValue === false) {
-      const tmp = this.checkedArray.find((x) => x.checked === true);
-      if (!(tmp === undefined || tmp === null)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.checkboxState.checkBoxIndeterminate();
   }
 
   readPage(isSecondRead = false) {
@@ -575,29 +548,22 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   /* #region   Tree Group */
 
   getPathToNode(id: string): Observable<IGroup[]> {
-    return this.httpClient
-      .get<IGroup[]>(`${environment.baseUrl}Groups/path/${id}`)
-      .pipe(
-        catchError((error) => {
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'GroupPathError',
-            context: 'DataManagementGroupService.getPathToNode'
-          });
-          return throwError(() => error);
-        })
-      );
+    return this.dataGroupService.getPathToNode(id).pipe(
+      catchError((error) => {
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: error,
+          code: 'GroupPathError',
+          context: 'DataManagementGroupService.getPathToNode'
+        });
+        return throwError(() => error);
+      })
+    );
   }
 
   moveGroup(id: string, newParentId: string) {
     this._showProgressSpinner.set(true);
 
-    const params = new HttpParams().set('newParentId', newParentId);
-
-    return this.httpClient
-      .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {
-        params,
-      })
+    return this.dataGroupService.moveGroup(id, newParentId)
       .pipe(
         takeUntil(this.destroy$),
         catchError((error) => {

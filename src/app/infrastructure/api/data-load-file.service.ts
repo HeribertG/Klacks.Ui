@@ -1,7 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service zum Upload, Download und Löschen von Dateien (Profilbild, Icon, Logo, Client-Bilder).
+ * @param profileImage$ - Signal mit dem Base64-Profilbild des aktuellen Benutzers
+ * @param iconImage$ - Signal mit dem Base64-Favicon/Icon der Anwendung
+ * @param logoImage$ - Signal mit dem Base64-Logo der Anwendung
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry, catchError } from 'rxjs/operators';
@@ -19,7 +27,6 @@ export class DataLoadFileService {
   public profileImage$ = signal<string | null>(null);
   public iconImage$ = signal<string | null>(null);
 
-  // Image dimensions
   public logoImageDimensions$ = signal<{
     width: number;
     height: number;
@@ -34,6 +41,7 @@ export class DataLoadFileService {
   } | null>(null);
 
   private httpClient = inject(HttpClient);
+  private destroyRef = inject(DestroyRef);
 
   upLoadFile(file: FormData) {
     return this.httpClient
@@ -46,7 +54,7 @@ export class DataLoadFileService {
       .get(`${environment.baseUrl}LoadFile/DownLoad?type=` + type, {
         responseType: 'blob',
       })
-      .pipe(retry(3))
+      .pipe(retry(3), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.createImageFromBlob(data);
@@ -62,7 +70,7 @@ export class DataLoadFileService {
       .get(`${environment.baseUrl}LoadFile/DownLoad?type=` + 'own-icon.ico', {
         responseType: 'blob',
       })
-      .pipe(retry(3))
+      .pipe(retry(3), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.createIconFromBlob(data);
@@ -78,7 +86,7 @@ export class DataLoadFileService {
       .get(`${environment.baseUrl}LoadFile/DownLoad?type=` + 'own-logo.png', {
         responseType: 'blob',
       })
-      .pipe(retry(3))
+      .pipe(retry(3), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
           this.createLogoFromBlob(data);
@@ -92,7 +100,7 @@ export class DataLoadFileService {
   deleteIcon() {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + 'own-icon.ico')
-      .pipe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.iconImage = undefined;
@@ -107,7 +115,7 @@ export class DataLoadFileService {
   deleteLogo() {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + 'own-logo.png')
-      .pipe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.logoImage = undefined;
@@ -123,7 +131,7 @@ export class DataLoadFileService {
   deleteFile(type: string) {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + type)
-      .pipe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.profileImage = undefined;
@@ -136,38 +144,25 @@ export class DataLoadFileService {
   }
 
   private createImageFromBlob(image: Blob) {
-    if (image.type === 'text/plain') {
-      this.profileImage = undefined;
-      this.profileImage$.set(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.addEventListener(
-      'load',
-      () => {
-        const result = reader.result as string;
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.profileImage = undefined;
+        this.profileImage$.set(null);
+      },
+      onLoad: (result) => {
         this.profileImage = result;
         this.profileImage$.set(result);
       },
-      false
-    );
-
-    if (image) {
-      reader.readAsDataURL(image);
-    }
+    });
   }
 
   private createIconFromBlob(image: Blob) {
-    if (image.type === 'text/plain') {
-      this.iconImage = undefined;
-      this.iconImage$.set(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.addEventListener(
-      'load',
-      () => {
-        const result = reader.result as string;
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.iconImage = undefined;
+        this.iconImage$.set(null);
+      },
+      onLoad: (result) => {
         this.iconImage = result;
         this.iconImage$.set(result);
 
@@ -185,39 +180,46 @@ export class DataLoadFileService {
           favicon.href = result;
         }
       },
-      false
-    );
-
-    if (image) {
-      reader.readAsDataURL(image);
-    }
+    });
   }
 
   private createLogoFromBlob(image: Blob) {
-    if (image.type === 'text/plain') {
-      this.logoImage = undefined;
-      this.logoImage$.set(null);
-      this.logoImageDimensions$.set(null);
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.logoImage = undefined;
+        this.logoImage$.set(null);
+        this.logoImageDimensions$.set(null);
+      },
+      onLoad: (result) => {
+        this.logoImage = result;
+        this.logoImage$.set(result);
+
+        this.getImageDimensions(result).then((dimensions) => {
+          this.logoImageDimensions$.set(dimensions);
+        });
+      },
+    });
+  }
+
+  private convertBlobToDataUrl(
+    blob: Blob,
+    callbacks: { onClear: () => void; onLoad: (result: string) => void }
+  ) {
+    if (blob.type === 'text/plain') {
+      callbacks.onClear();
       return;
     }
     const reader = new FileReader();
     reader.addEventListener(
       'load',
       () => {
-        const result = reader.result as string;
-        this.logoImage = result;
-        this.logoImage$.set(result);
-
-        // Get image dimensions
-        this.getImageDimensions(result).then((dimensions) => {
-          this.logoImageDimensions$.set(dimensions);
-        });
+        callbacks.onLoad(reader.result as string);
       },
       false
     );
 
-    if (image) {
-      reader.readAsDataURL(image);
+    if (blob) {
+      reader.readAsDataURL(blob);
     }
   }
 
@@ -250,17 +252,14 @@ export class DataLoadFileService {
       return { width: maxWidth, height: maxHeight };
     }
 
-    // Calculate scale factors
     const scaleX = maxWidth / originalWidth;
     const scaleY = maxHeight / originalHeight;
 
-    // Use the smaller scale factor to maintain proportions
     const scale = Math.min(scaleX, scaleY);
 
     let newWidth = Math.round(originalWidth * scale);
     let newHeight = Math.round(originalHeight * scale);
 
-    // Ensure we don't exceed absolute maximum
     if (newWidth > absoluteMax) {
       const absoluteScale = absoluteMax / newWidth;
       newWidth = absoluteMax;
@@ -306,9 +305,6 @@ export class DataLoadFileService {
     );
   }
 
-  /**
-   * Clears all cached images (used on logout)
-   */
   clearAllImages(): void {
     this.profileImage = undefined;
     this.iconImage = undefined;

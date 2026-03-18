@@ -65,7 +65,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
     state.name = new MultiLanguage();
     state.isDirty = CreateEntriesEnum.new;
 
-    const currentList = this.dataManagementSettingsService.statesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.statesList();
     this.dataManagementSettingsService.countryStateService.statesList.set([...currentList, state]);
 
     requestAnimationFrame(() => {
@@ -78,7 +78,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
   }
 
   openDeleteState(index: number): void {
-    const currentList = this.dataManagementSettingsService.statesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.statesList();
     if (index >= 0 && index < currentList.length) {
       this.modalService.Filing = '';
       this.modalService.componentContext = 'state';
@@ -91,7 +91,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
 
   private deleteState(indexStr: string): void {
     const index = parseInt(indexStr, 10);
-    const currentList = this.dataManagementSettingsService.statesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.statesList();
 
     if (index >= 0 && index < currentList.length) {
       const state = currentList[index];
@@ -113,7 +113,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
   }
 
   onIsChanging(): void {
-    const currentList = this.dataManagementSettingsService.statesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.statesList();
     this.dataManagementSettingsService.countryStateService.statesList.set([...currentList]);
   }
 }

@@ -36,7 +36,10 @@ describe('GroupScopeComponent', () => {
 
     beforeEach(async () => {
         const settingsServiceSpy = {
-            loadSettings: vi.fn()
+            loadSettings: vi.fn(),
+            userAdmin: {
+                accountsList: signal([]),
+            },
         };
 
         const groupServiceSpy = {

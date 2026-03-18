@@ -213,15 +213,17 @@ export class DataManagementContractService {
 
     const newContract = new Contract();
     newContract.name = '';
-    newContract.guaranteedHours = this.settingsService.guaranteedHours;
-    newContract.maximumHours = this.settingsService.maximumHours;
-    newContract.minimumHours = this.settingsService.minimumHours;
-    newContract.fullTime = this.settingsService.fullTime;
+    const sched = this.settingsService.appSettings.schedulingDefaultSettings();
+    const work = this.settingsService.appSettings.workSettings();
+    newContract.guaranteedHours = sched.guaranteedHours;
+    newContract.maximumHours = sched.maximumHours;
+    newContract.minimumHours = sched.minimumHours;
+    newContract.fullTime = sched.fullTime;
     newContract.nightRate = this.settingsService.nightRate;
     newContract.holidayRate = this.settingsService.holidayRate;
     newContract.saRate = this.settingsService.saRate;
     newContract.soRate = this.settingsService.soRate;
-    newContract.paymentInterval = this.settingsService.paymentInterval;
+    newContract.paymentInterval = work.paymentInterval;
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;

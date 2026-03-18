@@ -4,6 +4,7 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EffectRef,
   EventEmitter,
   Injector,
@@ -18,6 +19,7 @@ import {
   runInInjectionContext,
   untracked,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
   NgbDatepickerModule,
@@ -26,7 +28,8 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+
 import {
   Address,
   ICommunication,
@@ -83,6 +86,7 @@ export class AddressPersonaComponent
   private translateService = inject(TranslateService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
 
   @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -96,8 +100,6 @@ export class AddressPersonaComponent
 
   public addFirstNameLine2 = false;
   public addNameLine2 = false;
-
-  public objectForUnsubscribe: Subscription | undefined;
 
   public editClientType = 0;
   public addressType = 0;
@@ -152,15 +154,17 @@ export class AddressPersonaComponent
   }
 
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.clientForm!.valueChanges!.subscribe(() => {
-      if (this.clientForm!.dirty === true) {
-        setTimeout(() => this.isChangingEvent.emit(true), 100);
+    this.clientForm!.valueChanges!
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.clientForm!.dirty === true) {
+          queueMicrotask(() => this.isChangingEvent.emit(true));
 
-        if (!this.dataManagementClientService.editClient()?.id) {
-          setTimeout(() => this.dataManagementClientService.findClients(), 100);
+          if (!this.dataManagementClientService.editClient()?.id) {
+            queueMicrotask(() => this.dataManagementClientService.findClients());
+          }
         }
-      }
-    });
+      });
 
     if (
       this.dataManagementClientService.editClient() &&
@@ -185,11 +189,11 @@ export class AddressPersonaComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
-        setTimeout(() => {
+        queueMicrotask(() => {
           this.message = DomainMessages.DEACTIVE_ADDRESS;
           this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
           this.newAddressString = DomainMessages.NEW_ADDRESS;
-        }, 200);
+        });
       });
 
     this.modalService.resultEvent
@@ -207,9 +211,6 @@ export class AddressPersonaComponent
   }
 
   ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -325,85 +326,28 @@ export class AddressPersonaComponent
     }
   }
 
-  onChangePhoneType(index: number, event: any) {
-    const value = event.currentTarget.value;
-
-    if (value) {
-      const tmp =
-        this.dataManagementClientService.communicationPhoneList()[index];
-      let data = this.dataManagementClientService
-        .editClient()!
-        .communications.find((x) => x.index === tmp.index);
-
-      if (!data) {
-        data = tmp;
-        data.index = index;
-        data.type = 0;
-        data.isPhone = true;
-        this.dataManagementClientService
-          .editClient()!
-          .communications.push(data);
-      }
-
-      data.type = +value;
-
-      this.isChangingEvent.emit(true);
-    }
+  onChangePhoneType(index: number, event: any): void {
+    this.updateCommunication(
+      this.dataManagementClientService.communicationPhoneList(), index,
+      { isPhone: true, type: 0 }, 'type', +event.currentTarget.value
+    );
   }
 
-  onChangePhonePrefix(index: number, event: any) {
-    const value = event.currentTarget.value;
-    if (value) {
-      const tmp =
-        this.dataManagementClientService.communicationPhoneList()[index];
-      let data = this.dataManagementClientService
-        .editClient()!
-        .communications.find((x) => x.index === tmp.index);
-
-      if (!data) {
-        data = tmp;
-        data.index = index;
-        data.type = 0;
-        data.isPhone = true;
-        this.dataManagementClientService
-          .editClient()!
-          .communications.push(data);
-      }
-
-      data.prefix = value;
-
-      this.isChangingEvent.emit(true);
-    }
+  onChangePhonePrefix(index: number, event: any): void {
+    this.updateCommunication(
+      this.dataManagementClientService.communicationPhoneList(), index,
+      { isPhone: true, type: 0 }, 'prefix', event.currentTarget.value
+    );
   }
 
-  onChangePhoneValue(index: number, event: any) {
+  onChangePhoneValue(index: number, event: any): void {
     if (this.isPhoneValueSeals) {
       return;
     }
-
-    const value = event.currentTarget.value;
-    if (value) {
-      this.isPhoneValueSeals = false;
-
-      const tmp =
-        this.dataManagementClientService.communicationPhoneList()[index];
-      let data = this.dataManagementClientService
-        .editClient()!
-        .communications.find((x) => x.index === tmp.index);
-
-      if (!data) {
-        data = tmp;
-        data.index = index;
-        data.isPhone = true;
-        this.dataManagementClientService
-          .editClient()!
-          .communications.push(data);
-      }
-
-      data.value = value;
-
-      this.isChangingEvent.emit(true);
-    }
+    this.updateCommunication(
+      this.dataManagementClientService.communicationPhoneList(), index,
+      { isPhone: true }, 'value', event.currentTarget.value
+    );
   }
 
   onKeyupPhoneNumber(pos: number, event: any) {
@@ -416,53 +360,42 @@ export class AddressPersonaComponent
     }
   }
 
-  onChangeEmailValue(index: number, event: any) {
-    const value = event.currentTarget.value;
-    if (value) {
-      const tmp =
-        this.dataManagementClientService.communicationEmailList()[index];
-      let data = this.dataManagementClientService
-        .editClient()!
-        .communications.find((x) => x.index === tmp.index);
-
-      if (!data) {
-        data = tmp;
-        data.index = index;
-        data.isEmail = true;
-        this.dataManagementClientService
-          .editClient()!
-          .communications.push(data);
-      }
-
-      data.value = value;
-
-      this.isChangingEvent.emit(true);
-    }
+  onChangeEmailValue(index: number, event: any): void {
+    this.updateCommunication(
+      this.dataManagementClientService.communicationEmailList(), index,
+      { isEmail: true }, 'value', event.currentTarget.value
+    );
   }
 
-  onChangeEmailType(index: number, event: any) {
-    const value = event.currentTarget.value;
+  onChangeEmailType(index: number, event: any): void {
+    this.updateCommunication(
+      this.dataManagementClientService.communicationEmailList(), index,
+      { isEmail: true }, 'type', +event.currentTarget.value
+    );
+  }
 
-    if (value) {
-      const tmp =
-        this.dataManagementClientService.communicationEmailList()[index];
-      let data = this.dataManagementClientService
-        .editClient()!
-        .communications.find((x) => x.index === tmp.index);
-
-      if (!data) {
-        data = tmp;
-        data.index = index;
-        data.isEmail = true;
-        this.dataManagementClientService
-          .editClient()!
-          .communications.push(data);
-      }
-
-      data.type = +value;
-
-      this.isChangingEvent.emit(true);
+  private updateCommunication(
+    list: ICommunication[], index: number,
+    defaults: Partial<ICommunication>, field: keyof ICommunication, value: any
+  ): void {
+    if (!value && value !== 0) {
+      return;
     }
+
+    const tmp = list[index];
+    let data = this.dataManagementClientService
+      .editClient()!
+      .communications.find((x) => x.index === tmp.index);
+
+    if (!data) {
+      data = tmp;
+      data.index = index;
+      Object.assign(data, defaults);
+      this.dataManagementClientService.editClient()!.communications.push(data);
+    }
+
+    (data as any)[field] = value;
+    this.isChangingEvent.emit(true);
   }
 
   onClickAddPhone() {
@@ -626,7 +559,6 @@ export class AddressPersonaComponent
     return 'address.edit-address.address-persona.state';
   }
 
-
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const effect1 = effect(() => {
@@ -638,24 +570,24 @@ export class AddressPersonaComponent
           const birthdate = client.birthdate;
           this.birthdateValue = birthdate ? transformDateToNgbDateStruct(birthdate) : undefined;
           untracked(() => {
-            setTimeout(() => {
+            queueMicrotask(() => {
               this.setEnvironmentVariable();
               this.dataManagementClientService.filterState();
               this.calcValidation();
-            }, 100);
+            });
           });
         }
 
         if (isReset) {
           untracked(() => {
-            setTimeout(() => this.isChangingEvent.emit(false), 100);
+            queueMicrotask(() => this.isChangingEvent.emit(false));
           });
         }
       });
       this.effects.push(effect1);
 
       if (this.dataManagementClientService.isRead() && this.dataManagementClientService.editClient()) {
-        setTimeout(() => this.setEnvironmentVariable(), 100);
+        queueMicrotask(() => this.setEnvironmentVariable());
       }
     });
   }

@@ -62,21 +62,23 @@ export class DataManagementSchedulingRuleService {
 
   createRule(): SchedulingRule {
     const rule = new SchedulingRule();
+    const sched = this.settingsService.appSettings.schedulingDefaultSettings();
+    const work = this.settingsService.appSettings.workSettings();
     rule.name = '';
-    rule.maxWorkDays = this.settingsService.schedulingMaxWorkDays;
-    rule.minRestDays = this.settingsService.schedulingMinRestDays;
-    rule.minPauseHours = this.settingsService.schedulingMinPauseHours;
-    rule.maxOptimalGap = this.settingsService.schedulingMaxOptimalGap;
-    rule.maxDailyHours = this.settingsService.schedulingMaxDailyHours;
-    rule.maxWeeklyHours = this.settingsService.schedulingMaxWeeklyHours;
-    rule.maxConsecutiveDays = this.settingsService.schedulingMaxConsecutiveDays;
-    rule.defaultWorkingHours = this.settingsService.defaultWorkingHours;
-    rule.overtimeThreshold = this.settingsService.overtimeThreshold;
-    rule.guaranteedHours = this.settingsService.guaranteedHours;
-    rule.maximumHours = this.settingsService.maximumHours;
-    rule.minimumHours = this.settingsService.minimumHours;
-    rule.fullTimeHours = this.settingsService.fullTime;
-    rule.vacationDaysPerYear = this.settingsService.vacationDaysPerYear;
+    rule.maxWorkDays = sched.schedulingMaxWorkDays;
+    rule.minRestDays = sched.schedulingMinRestDays;
+    rule.minPauseHours = sched.schedulingMinPauseHours;
+    rule.maxOptimalGap = sched.schedulingMaxOptimalGap;
+    rule.maxDailyHours = sched.schedulingMaxDailyHours;
+    rule.maxWeeklyHours = sched.schedulingMaxWeeklyHours;
+    rule.maxConsecutiveDays = sched.schedulingMaxConsecutiveDays;
+    rule.defaultWorkingHours = sched.defaultWorkingHours;
+    rule.overtimeThreshold = sched.overtimeThreshold;
+    rule.guaranteedHours = sched.guaranteedHours;
+    rule.maximumHours = sched.maximumHours;
+    rule.minimumHours = sched.minimumHours;
+    rule.fullTimeHours = sched.fullTime;
+    rule.vacationDaysPerYear = work.vacationDaysPerYear;
     rule.nightRate = this.settingsService.nightRateRaw;
     rule.holidayRate = this.settingsService.holidayRateRaw;
     rule.saRate = this.settingsService.saRateRaw;

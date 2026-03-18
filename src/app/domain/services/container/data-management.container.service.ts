@@ -267,53 +267,24 @@ export class DataManagementContainerService
     });
   }
 
+  private static readonly WEEKDAY_DEFINITIONS: ReadonlyArray<{
+    flag: keyof IShift;
+    value: string;
+    labelKey: string;
+  }> = [
+    { flag: 'isSunday', value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
+    { flag: 'isMonday', value: 'monday', labelKey: 'shift.container-template.weekday.monday' },
+    { flag: 'isTuesday', value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' },
+    { flag: 'isWednesday', value: 'wednesday', labelKey: 'shift.container-template.weekday.wednesday' },
+    { flag: 'isThursday', value: 'thursday', labelKey: 'shift.container-template.weekday.thursday' },
+    { flag: 'isFriday', value: 'friday', labelKey: 'shift.container-template.weekday.friday' },
+    { flag: 'isSaturday', value: 'saturday', labelKey: 'shift.container-template.weekday.saturday' },
+  ];
+
   getActiveWeekdays(shift: IShift): { value: string; labelKey: string }[] {
-    const activeWeekdays: { value: string; labelKey: string }[] = [];
-
-    if (shift.isSunday) {
-      activeWeekdays.push({
-        value: 'sunday',
-        labelKey: 'shift.container-template.weekday.sunday',
-      });
-    }
-    if (shift.isMonday) {
-      activeWeekdays.push({
-        value: 'monday',
-        labelKey: 'shift.container-template.weekday.monday',
-      });
-    }
-    if (shift.isTuesday) {
-      activeWeekdays.push({
-        value: 'tuesday',
-        labelKey: 'shift.container-template.weekday.tuesday',
-      });
-    }
-    if (shift.isWednesday) {
-      activeWeekdays.push({
-        value: 'wednesday',
-        labelKey: 'shift.container-template.weekday.wednesday',
-      });
-    }
-    if (shift.isThursday) {
-      activeWeekdays.push({
-        value: 'thursday',
-        labelKey: 'shift.container-template.weekday.thursday',
-      });
-    }
-    if (shift.isFriday) {
-      activeWeekdays.push({
-        value: 'friday',
-        labelKey: 'shift.container-template.weekday.friday',
-      });
-    }
-    if (shift.isSaturday) {
-      activeWeekdays.push({
-        value: 'saturday',
-        labelKey: 'shift.container-template.weekday.saturday',
-      });
-    }
-
-    return activeWeekdays;
+    return DataManagementContainerService.WEEKDAY_DEFINITIONS
+      .filter((def) => shift[def.flag])
+      .map(({ value, labelKey }) => ({ value, labelKey }));
   }
 
   getWeekdayNumber(weekdayValue: string): number {
@@ -688,41 +659,11 @@ export class DataManagementContainerService
     isHoliday: boolean,
     startBase: string
   ): void {
-    const templates = this.editTemplates();
-    const existingTemplate = templates.find(
-      (t) => t.weekday === weekday && t.isHoliday === isHoliday
-    );
-
-    if (existingTemplate) {
-      const updated = templates.map((template) => {
-        if (template.weekday === weekday && template.isHoliday === isHoliday) {
-          return { ...template, startBase };
-        }
-        return template;
-      });
-      this.editTemplates.set(updated);
-    } else {
-      this.createOrUpdateTemplateProperty(weekday, isHoliday, { startBase });
-    }
+    this.updateTemplateProperty(weekday, isHoliday, { startBase });
   }
 
   updateEndBase(weekday: number, isHoliday: boolean, endBase: string): void {
-    const templates = this.editTemplates();
-    const existingTemplate = templates.find(
-      (t) => t.weekday === weekday && t.isHoliday === isHoliday
-    );
-
-    if (existingTemplate) {
-      const updated = templates.map((template) => {
-        if (template.weekday === weekday && template.isHoliday === isHoliday) {
-          return { ...template, endBase };
-        }
-        return template;
-      });
-      this.editTemplates.set(updated);
-    } else {
-      this.createOrUpdateTemplateProperty(weekday, isHoliday, { endBase });
-    }
+    this.updateTemplateProperty(weekday, isHoliday, { endBase });
   }
 
   updateTransportMode(
@@ -730,23 +671,29 @@ export class DataManagementContainerService
     isHoliday: boolean,
     transportMode: ContainerTransportModeEnum
   ): void {
+    this.updateTemplateProperty(weekday, isHoliday, { transportMode });
+  }
+
+  private updateTemplateProperty(
+    weekday: number,
+    isHoliday: boolean,
+    properties: Partial<IContainerTemplate>
+  ): void {
     const templates = this.editTemplates();
-    const existingTemplate = templates.find(
+    const exists = templates.some(
       (t) => t.weekday === weekday && t.isHoliday === isHoliday
     );
 
-    if (existingTemplate) {
+    if (exists) {
       const updated = templates.map((template) => {
         if (template.weekday === weekday && template.isHoliday === isHoliday) {
-          return { ...template, transportMode };
+          return { ...template, ...properties };
         }
         return template;
       });
       this.editTemplates.set(updated);
     } else {
-      this.createOrUpdateTemplateProperty(weekday, isHoliday, {
-        transportMode,
-      });
+      this.createOrUpdateTemplateProperty(weekday, isHoliday, properties);
     }
   }
 
@@ -793,17 +740,7 @@ export class DataManagementContainerService
   }
 
   updateFromTime(weekday: number, isHoliday: boolean, fromTime: string): void {
-    const templates = this.editTemplates();
-    const updated = templates.map((template) => {
-      if (template.weekday === weekday && template.isHoliday === isHoliday) {
-        return {
-          ...template,
-          fromTime: fromTime,
-        };
-      }
-      return template;
-    });
-    this.editTemplates.set(updated);
+    this.updateTemplateProperty(weekday, isHoliday, { fromTime });
   }
 
   updateUntilTime(
@@ -811,17 +748,7 @@ export class DataManagementContainerService
     isHoliday: boolean,
     untilTime: string
   ): void {
-    const templates = this.editTemplates();
-    const updated = templates.map((template) => {
-      if (template.weekday === weekday && template.isHoliday === isHoliday) {
-        return {
-          ...template,
-          untilTime: untilTime,
-        };
-      }
-      return template;
-    });
-    this.editTemplates.set(updated);
+    this.updateTemplateProperty(weekday, isHoliday, { untilTime });
   }
 
   updateRouteInfo(
@@ -829,43 +756,7 @@ export class DataManagementContainerService
     isHoliday: boolean,
     routeInfo: IRouteInfo
   ): void {
-    const templates = this.editTemplates();
-    const existingTemplate = templates.find(
-      (t) => t.weekday === weekday && t.isHoliday === isHoliday
-    );
-
-    if (existingTemplate) {
-      const updated = templates.map((template) => {
-        if (template.weekday === weekday && template.isHoliday === isHoliday) {
-          return {
-            ...template,
-            routeInfo: routeInfo,
-          };
-        }
-        return template;
-      });
-      this.editTemplates.set(updated);
-    } else {
-      const containerShift = this.currentContainerShiftSignal();
-      if (!containerShift?.id) return;
-
-      const grid = this.templateGridSignal();
-      const slot = grid?.slots
-        .flat()
-        .find((s) => s.weekday === weekday && s.isHoliday === isHoliday);
-
-      const newTemplate: IContainerTemplate = {
-        containerId: containerShift.id,
-        weekday: weekday,
-        fromTime: slot?.fromTime || '00:00',
-        untilTime: slot?.untilTime || '23:59',
-        isHoliday: isHoliday,
-        isWeekdayAndHoliday: slot?.isWeekdayAndHoliday || false,
-        routeInfo: routeInfo,
-        containerTemplateItems: [],
-      };
-      this.editTemplates.set([...templates, newTemplate]);
-    }
+    this.updateTemplateProperty(weekday, isHoliday, { routeInfo });
   }
 
   clearAllTemplates(): void {

@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service zur PDF-Generierung aus Report-Templates mit jsPDF/autoTable.
+ * @param context - ReportGenerationContext mit Template, Provider, Daten und Zeitraum
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +19,7 @@ import { ReportSection, ReportSectionType } from '../../models/report/report-sec
 import { ReportField, ReportFieldType, TextAlignment } from '../../models/report/report-field.model';
 import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/report-data-source.model';
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
+import { PdfRenderContext } from './pdf-render-context.interface';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
 import { IScheduleCell } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
@@ -88,9 +94,11 @@ export class ReportPdfService {
     const pageWidth = doc.internal.pageSize.getWidth();
     const contentWidth = pageWidth - marginLeft - template.pageSetup.margins.right;
 
+    const ctx: PdfRenderContext = { doc, template, provider, headerContext, imageCache, marginLeft, contentWidth };
+
     const headerSection = template.sections.find(s => s.type === ReportSectionType.Header);
     if (headerSection?.visible && headerSection.fields.length > 0) {
-      yPos = this.renderHeader(doc, headerSection, provider, headerContext, yPos, marginLeft, contentWidth, imageCache);
+      yPos = this.renderHeader(ctx, headerSection, yPos);
       yPos += 5;
     }
 
@@ -106,14 +114,14 @@ export class ReportPdfService {
     for (const section of bodySections) {
       if (!section.visible || section.fields.length === 0) continue;
       if (effectiveRows.length > 0) {
-        yPos = this.renderTable(doc, section, effectiveRows, provider, template, yPos, marginLeft, contentWidth);
+        yPos = this.renderTable(ctx, section, effectiveRows, yPos);
         yPos += 5;
       }
     }
 
     const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
     if (footerSection?.visible && footerSection.fields.length > 0) {
-      this.renderFooter(doc, footerSection, effectiveRows, provider, template, yPos, marginLeft, contentWidth);
+      this.renderFooter(ctx, footerSection, effectiveRows, yPos);
     }
   }
 
@@ -155,16 +163,7 @@ export class ReportPdfService {
     });
   }
 
-  private renderHeader(
-    doc: jsPDF,
-    section: ReportSection,
-    provider: ReportDataProvider,
-    headerContext: ReportHeaderContext,
-    yPos: number,
-    marginLeft: number,
-    contentWidth: number,
-    imageCache: Map<string, string>
-  ): number {
+  private renderHeader(ctx: PdfRenderContext, section: ReportSection, yPos: number): number {
     const rows = this.groupFieldsByRow(section.fields);
 
     for (const row of rows) {
@@ -174,55 +173,12 @@ export class ReportPdfService {
         const zoneFields = row.fields.filter(f => (f.style?.alignment ?? TextAlignment.Left) === alignment);
         if (zoneFields.length === 0) continue;
 
-        let xOffset = this.getZoneStartX(alignment, marginLeft, contentWidth, zoneFields, doc, provider, headerContext, imageCache);
+        let xOffset = this.getZoneStartX(ctx, alignment, zoneFields);
 
         for (const field of zoneFields) {
-          if (field.type === ReportFieldType.Image && field.imageUrl) {
-            const imgData = imageCache.get(field.imageUrl);
-            if (imgData) {
-              const imgWidth = field.width || 30;
-              const imgHeight = field.height || imgWidth * 0.5;
-              const imgFormat = imgData.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
-              doc.addImage(imgData, imgFormat, xOffset, yPos, imgWidth, imgHeight);
-              xOffset += imgWidth + 2;
-              rowHeight = Math.max(rowHeight, imgHeight);
-            }
-          } else if (field.dataBinding) {
-            const value = provider.resolveHeaderValue(field, headerContext);
-            if (!value) continue;
-
-            doc.setFontSize(field.style.fontSize);
-            const fontFamily = field.style.fontFamily || 'helvetica';
-            const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
-            doc.setFont(fontFamily, fontStyle);
-            this.applyTextColor(doc, field.style.textColor);
-
-            if (field.dataBinding === 'report.customText' && value.includes('\n')) {
-              const lineHeight = field.style.fontSize * 0.45;
-              const lines = value.split('\n');
-              let lineY = yPos + field.style.fontSize * 0.35;
-              for (const line of lines) {
-                doc.text(line, xOffset, lineY);
-                lineY += lineHeight;
-              }
-              const textWidth = Math.max(...lines.map(l => doc.getTextWidth(l)));
-              if (field.style.underline) {
-                this.renderUnderline(doc, lines[lines.length - 1], xOffset, lineY - lineHeight, field);
-              }
-              xOffset += textWidth + 2;
-              rowHeight = Math.max(rowHeight, lines.length * lineHeight + 2);
-            } else {
-              const textY = yPos + field.style.fontSize * 0.35;
-              doc.text(value, xOffset, textY);
-
-              if (field.style.underline) {
-                this.renderUnderline(doc, value, xOffset, textY, field);
-              }
-
-              xOffset += doc.getTextWidth(value) + 2;
-              rowHeight = Math.max(rowHeight, field.style.fontSize * 0.5 + 2);
-            }
-          }
+          const result = this.renderHeaderField(ctx.doc, field, ctx.provider, ctx.headerContext, ctx.imageCache, xOffset, yPos);
+          xOffset = result.xOffset;
+          rowHeight = Math.max(rowHeight, result.height);
         }
       }
 
@@ -232,34 +188,120 @@ export class ReportPdfService {
     return yPos;
   }
 
-  private getZoneStartX(
-    alignment: TextAlignment,
-    marginLeft: number,
-    contentWidth: number,
-    zoneFields: ReportField[],
+  private renderHeaderField(
     doc: jsPDF,
+    field: ReportField,
     provider: ReportDataProvider,
     headerContext: ReportHeaderContext,
-    imageCache: Map<string, string>
-  ): number {
-    if (alignment === TextAlignment.Left) return marginLeft;
+    imageCache: Map<string, string>,
+    xOffset: number,
+    yPos: number
+  ): { xOffset: number; height: number } {
+    if (field.type === ReportFieldType.Image && field.imageUrl) {
+      return this.renderHeaderImage(doc, field, imageCache, xOffset, yPos);
+    }
+
+    if (field.dataBinding) {
+      return this.renderHeaderText(doc, field, provider, headerContext, xOffset, yPos);
+    }
+
+    return { xOffset, height: 0 };
+  }
+
+  private renderHeaderImage(
+    doc: jsPDF,
+    field: ReportField,
+    imageCache: Map<string, string>,
+    xOffset: number,
+    yPos: number
+  ): { xOffset: number; height: number } {
+    const imgData = imageCache.get(field.imageUrl!);
+    if (!imgData) return { xOffset, height: 0 };
+
+    const imgWidth = field.width || 30;
+    const imgHeight = field.height || imgWidth * 0.5;
+    const imgFormat = imgData.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
+    doc.addImage(imgData, imgFormat, xOffset, yPos, imgWidth, imgHeight);
+    return { xOffset: xOffset + imgWidth + 2, height: imgHeight };
+  }
+
+  private renderHeaderText(
+    doc: jsPDF,
+    field: ReportField,
+    provider: ReportDataProvider,
+    headerContext: ReportHeaderContext,
+    xOffset: number,
+    yPos: number
+  ): { xOffset: number; height: number } {
+    const value = provider.resolveHeaderValue(field, headerContext);
+    if (!value) return { xOffset, height: 0 };
+
+    doc.setFontSize(field.style.fontSize);
+    const fontFamily = field.style.fontFamily || 'helvetica';
+    const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
+    doc.setFont(fontFamily, fontStyle);
+    this.applyTextColor(doc, field.style.textColor);
+
+    if (field.dataBinding === 'report.customText' && value.includes('\n')) {
+      return this.renderMultilineHeaderText(doc, field, value, xOffset, yPos);
+    }
+
+    const textY = yPos + field.style.fontSize * 0.35;
+    doc.text(value, xOffset, textY);
+
+    if (field.style.underline) {
+      this.renderUnderline(doc, value, xOffset, textY, field);
+    }
+
+    return {
+      xOffset: xOffset + doc.getTextWidth(value) + 2,
+      height: field.style.fontSize * 0.5 + 2,
+    };
+  }
+
+  private renderMultilineHeaderText(
+    doc: jsPDF,
+    field: ReportField,
+    value: string,
+    xOffset: number,
+    yPos: number
+  ): { xOffset: number; height: number } {
+    const lineHeight = field.style.fontSize * 0.45;
+    const lines = value.split('\n');
+    let lineY = yPos + field.style.fontSize * 0.35;
+    for (const line of lines) {
+      doc.text(line, xOffset, lineY);
+      lineY += lineHeight;
+    }
+    const textWidth = Math.max(...lines.map(l => doc.getTextWidth(l)));
+    if (field.style.underline) {
+      this.renderUnderline(doc, lines[lines.length - 1], xOffset, lineY - lineHeight, field);
+    }
+    return {
+      xOffset: xOffset + textWidth + 2,
+      height: lines.length * lineHeight + 2,
+    };
+  }
+
+  private getZoneStartX(ctx: PdfRenderContext, alignment: TextAlignment, zoneFields: ReportField[]): number {
+    if (alignment === TextAlignment.Left) return ctx.marginLeft;
 
     let totalWidth = 0;
     for (const field of zoneFields) {
-      if (field.type === ReportFieldType.Image && field.imageUrl && imageCache.has(field.imageUrl)) {
+      if (field.type === ReportFieldType.Image && field.imageUrl && ctx.imageCache.has(field.imageUrl)) {
         totalWidth += (field.width || 30) + 2;
       } else if (field.dataBinding) {
-        const value = provider.resolveHeaderValue(field, headerContext);
+        const value = ctx.provider.resolveHeaderValue(field, ctx.headerContext);
         if (value) {
-          doc.setFontSize(field.style.fontSize);
-          doc.setFont(field.style.fontFamily || 'helvetica', this.getJsPdfFontStyle(field.style.bold, field.style.italic));
-          totalWidth += doc.getTextWidth(value) + 2;
+          ctx.doc.setFontSize(field.style.fontSize);
+          ctx.doc.setFont(field.style.fontFamily || 'helvetica', this.getJsPdfFontStyle(field.style.bold, field.style.italic));
+          totalWidth += ctx.doc.getTextWidth(value) + 2;
         }
       }
     }
 
-    if (alignment === TextAlignment.Center) return marginLeft + (contentWidth - totalWidth) / 2;
-    return marginLeft + contentWidth - totalWidth;
+    if (alignment === TextAlignment.Center) return ctx.marginLeft + (ctx.contentWidth - totalWidth) / 2;
+    return ctx.marginLeft + ctx.contentWidth - totalWidth;
   }
 
   private groupFieldsByRow(fields: ReportField[]): { rowIndex: number; fields: ReportField[] }[] {
@@ -277,56 +319,112 @@ export class ReportPdfService {
       .map(([rowIndex, rowFields]) => ({ rowIndex, fields: rowFields }));
   }
 
-  private renderTable(
-    doc: jsPDF,
-    section: ReportSection,
-    rows: any[],
-    provider: ReportDataProvider,
-    template: ReportTemplate,
-    yPos: number,
-    marginLeft: number,
-    contentWidth: number
-  ): number {
+  private renderTable(ctx: PdfRenderContext, section: ReportSection, rows: any[], yPos: number): number {
     const fields = section.fields.sort((a, b) => a.sortOrder - b.sortOrder);
-    const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
+    const columns = this.resolveTableColumns(fields, ctx.template);
+    const columnStyles = this.buildColumnStyles(fields, ctx.contentWidth);
 
-    const columns = fields.map(f => ({
+    const compiledFormulas = this.compileTableFormulas(fields);
+    const resolvedRows = this.resolveTableRows(fields, rows, ctx.provider, compiledFormulas);
+
+    const bodyData: any[] = [];
+    this.buildFreeTextRows(section, fields, 'before', bodyData);
+
+    const shouldMerge = (ctx.template.mergeRows || ctx.template.showFullPeriod) && ctx.template.sourceId === 'schedule';
+    if (shouldMerge) {
+      this.buildMergedRows(resolvedRows, fields, bodyData);
+    } else {
+      for (const { row } of resolvedRows) {
+        bodyData.push(row);
+      }
+    }
+
+    this.buildFreeTextRows(section, fields, 'after', bodyData);
+    const foot = this.buildTableFooter(section, fields, rows, ctx.provider, ctx.template);
+    const hasBorders = fields.some(f => f.style.cellBorder);
+
+    autoTable(ctx.doc, {
+      startY: yPos,
+      margin: { left: ctx.marginLeft },
+      tableWidth: ctx.contentWidth,
+      columns,
+      body: bodyData,
+      foot,
+      columnStyles: columnStyles as never,
+      headStyles: {
+        fillColor: [66, 66, 66],
+        textColor: [255, 255, 255],
+        fontSize: 9,
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      footStyles: {
+        fillColor: [230, 230, 230],
+        textColor: [0, 0, 0],
+        fontSize: 9,
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      theme: 'grid',
+      didDrawCell: hasBorders ? (data: any) => {
+        if (data.section !== 'body') return;
+        const colIndex = data.column.index;
+        if (colIndex < 0 || colIndex >= fields.length) return;
+        const field = fields[colIndex];
+        if (!field.style.cellBorder) return;
+        this.drawCellBorders(ctx.doc, field, data.cell);
+      } : undefined,
+    });
+
+    return (ctx.doc as never as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+  }
+
+  private resolveTableColumns(
+    fields: ReportField[],
+    template: ReportTemplate
+  ): { header: string; dataKey: string }[] {
+    return fields.map(f => ({
       header: this.translateFieldName(f, template, false),
       dataKey: f.dataBinding,
     }));
+  }
 
-    const columnStyles: Record<string, { cellWidth: number; halign: string; fontSize: number; fontStyle: string }> = {};
+  private buildColumnStyles(
+    fields: ReportField[],
+    contentWidth: number
+  ): Record<string, { cellWidth: number; halign: string; fontSize: number; fontStyle: string }> {
+    const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
+    const styles: Record<string, { cellWidth: number; halign: string; fontSize: number; fontStyle: string }> = {};
     fields.forEach(f => {
-      columnStyles[f.dataBinding] = {
+      styles[f.dataBinding] = {
         cellWidth: (f.width / totalWidth) * contentWidth,
         halign: f.style.alignment === 0 ? 'left' : f.style.alignment === 1 ? 'center' : 'right',
         fontSize: f.style.fontSize,
         fontStyle: this.getJsPdfFontStyle(f.style.bold, f.style.italic),
       };
     });
+    return styles;
+  }
 
-    const formulaFields = fields.filter(f => f.type === ReportFieldType.Formula && f.formula);
+  private compileTableFormulas(fields: ReportField[]): Map<string, CompiledScript> {
     const compiledFormulas = new Map<string, CompiledScript>();
+    const formulaFields = fields.filter(f => f.type === ReportFieldType.Formula && f.formula);
     for (const f of formulaFields) {
       compiledFormulas.set(f.dataBinding, this.formulaService.compileFormula(f.formula!));
     }
+    return compiledFormulas;
+  }
 
-    const bodyData: any[] = [];
-
-    const beforeRows = (section.freeTextRows ?? []).filter(r => r.position === 'before');
-    for (const freeRow of beforeRows) {
-      bodyData.push([{
-        content: freeRow.text,
-        colSpan: fields.length,
-        styles: {
-          fontStyle: this.getJsPdfFontStyle(freeRow.style.bold, freeRow.style.italic),
-          fontSize: freeRow.style.fontSize,
-          textColor: this.hexToRgbArray(freeRow.style.textColor),
-          halign: freeRow.style.alignment === 0 ? 'left' : freeRow.style.alignment === 1 ? 'center' : 'right',
-        },
-      }]);
-    }
-
+  private resolveTableRows(
+    fields: ReportField[],
+    rows: any[],
+    provider: ReportDataProvider,
+    compiledFormulas: Map<string, CompiledScript>
+  ): { row: Record<string, string>; sourceEntry: any }[] {
     const resolvedRows: { row: Record<string, string>; sourceEntry: any }[] = [];
     for (const entry of rows) {
       const row: Record<string, string> = {};
@@ -365,45 +463,52 @@ export class ReportPdfService {
       });
       resolvedRows.push({ row, sourceEntry: entry });
     }
+    return resolvedRows;
+  }
 
-    const shouldMerge = (template.mergeRows || template.showFullPeriod) && template.sourceId === 'schedule';
-    if (shouldMerge) {
-      const groups = new Map<string, Record<string, string>[]>();
-      const groupOrder: string[] = [];
-      for (const { row, sourceEntry } of resolvedRows) {
-        const key = sourceEntry.entryDate ? new Date(sourceEntry.entryDate).toDateString() : '';
-        if (!groups.has(key)) {
-          groups.set(key, []);
-          groupOrder.push(key);
-        }
-        groups.get(key)!.push(row);
+  private buildMergedRows(
+    resolvedRows: { row: Record<string, string>; sourceEntry: any }[],
+    fields: ReportField[],
+    bodyData: any[]
+  ): void {
+    const groups = new Map<string, Record<string, string>[]>();
+    const groupOrder: string[] = [];
+    for (const { row, sourceEntry } of resolvedRows) {
+      const key = sourceEntry.entryDate ? new Date(sourceEntry.entryDate).toDateString() : '';
+      if (!groups.has(key)) {
+        groups.set(key, []);
+        groupOrder.push(key);
       }
-      for (const key of groupOrder) {
-        const groupRows = groups.get(key)!;
-        if (groupRows.length === 1) {
-          bodyData.push(groupRows[0]);
-        } else {
-          const merged: Record<string, string> = {};
-          for (const f of fields) {
-            const values = groupRows.map(r => r[f.dataBinding]);
-            const unique = [...new Set(values.filter(v => v))];
-            if (unique.length <= 1) {
-              merged[f.dataBinding] = unique[0] ?? '';
-            } else {
-              merged[f.dataBinding] = values.filter(v => v).join('\n');
-            }
+      groups.get(key)!.push(row);
+    }
+    for (const key of groupOrder) {
+      const groupRows = groups.get(key)!;
+      if (groupRows.length === 1) {
+        bodyData.push(groupRows[0]);
+      } else {
+        const merged: Record<string, string> = {};
+        for (const f of fields) {
+          const values = groupRows.map(r => r[f.dataBinding]);
+          const unique = [...new Set(values.filter(v => v))];
+          if (unique.length <= 1) {
+            merged[f.dataBinding] = unique[0] ?? '';
+          } else {
+            merged[f.dataBinding] = values.filter(v => v).join('\n');
           }
-          bodyData.push(merged);
         }
-      }
-    } else {
-      for (const { row } of resolvedRows) {
-        bodyData.push(row);
+        bodyData.push(merged);
       }
     }
+  }
 
-    const afterRows = (section.freeTextRows ?? []).filter(r => r.position === 'after');
-    for (const freeRow of afterRows) {
+  private buildFreeTextRows(
+    section: ReportSection,
+    fields: ReportField[],
+    position: 'before' | 'after',
+    bodyData: any[]
+  ): void {
+    const freeRows = (section.freeTextRows ?? []).filter(r => r.position === position);
+    for (const freeRow of freeRows) {
       bodyData.push([{
         content: freeRow.text,
         colSpan: fields.length,
@@ -415,81 +520,47 @@ export class ReportPdfService {
         },
       }]);
     }
+  }
 
-    let foot: any[][] | undefined;
-    if (section.tableFooterFields && section.tableFooterFields.length > 0) {
-      const footRow: any[] = fields.map(() => '');
-      const footerFormulaVars = provider.buildFooterFormulaVariables
-        ? provider.buildFooterFormulaVariables(rows) : undefined;
+  private buildTableFooter(
+    section: ReportSection,
+    fields: ReportField[],
+    rows: any[],
+    provider: ReportDataProvider,
+    template: ReportTemplate
+  ): any[][] | undefined {
+    if (!section.tableFooterFields || section.tableFooterFields.length === 0) return undefined;
 
-      for (const footerField of section.tableFooterFields) {
-        const targetColumn = FOOTER_TO_COLUMN_MAP[footerField.dataBinding];
-        const colIndex = targetColumn
-          ? fields.findIndex(f => f.dataBinding === targetColumn)
-          : footerField.sortOrder;
+    const footRow: any[] = fields.map(() => '');
+    const footerFormulaVars = provider.buildFooterFormulaVariables
+      ? provider.buildFooterFormulaVariables(rows) : undefined;
 
-        let value: string;
-        if (footerField.type === ReportFieldType.Formula && footerField.formula) {
-          try {
-            value = this.formulaService.evaluateFormula(footerField.formula, footerFormulaVars ?? {});
-          } catch {
-            value = '#ERR';
-          }
-        } else {
-          value = provider.resolveFooterValue(footerField, rows);
+    for (const footerField of section.tableFooterFields) {
+      const targetColumn = FOOTER_TO_COLUMN_MAP[footerField.dataBinding];
+      const colIndex = targetColumn
+        ? fields.findIndex(f => f.dataBinding === targetColumn)
+        : footerField.sortOrder;
+
+      let value: string;
+      if (footerField.type === ReportFieldType.Formula && footerField.formula) {
+        try {
+          value = this.formulaService.evaluateFormula(footerField.formula, footerFormulaVars ?? {});
+        } catch {
+          value = '#ERR';
         }
-
-        if (colIndex >= 0 && colIndex < fields.length) {
-          const text = footerField.hideLabel
-            ? value
-            : `${this.translateFieldName(footerField, template)}: ${value}`;
-          const halign = footerField.style.alignment === 0 ? 'left' : footerField.style.alignment === 1 ? 'center' : 'right';
-          footRow[colIndex] = { content: text, styles: { halign } };
-        }
+      } else {
+        value = provider.resolveFooterValue(footerField, rows);
       }
-      foot = [footRow];
+
+      if (colIndex >= 0 && colIndex < fields.length) {
+        const text = footerField.hideLabel
+          ? value
+          : `${this.translateFieldName(footerField, template)}: ${value}`;
+        const halign = footerField.style.alignment === 0 ? 'left' : footerField.style.alignment === 1 ? 'center' : 'right';
+        footRow[colIndex] = { content: text, styles: { halign } };
+      }
     }
-
-    const hasBorders = fields.some(f => f.style.cellBorder);
-
-    autoTable(doc, {
-      startY: yPos,
-      margin: { left: marginLeft },
-      tableWidth: contentWidth,
-      columns,
-      body: bodyData,
-      foot,
-      columnStyles: columnStyles as never,
-      headStyles: {
-        fillColor: [66, 66, 66],
-        textColor: [255, 255, 255],
-        fontSize: 9,
-        fontStyle: 'bold',
-      },
-      bodyStyles: {
-        fontSize: 9,
-      },
-      footStyles: {
-        fillColor: [230, 230, 230],
-        textColor: [0, 0, 0],
-        fontSize: 9,
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245],
-      },
-      theme: 'grid',
-      didDrawCell: hasBorders ? (data: any) => {
-        if (data.section !== 'body') return;
-        const colIndex = data.column.index;
-        if (colIndex < 0 || colIndex >= fields.length) return;
-        const field = fields[colIndex];
-        if (!field.style.cellBorder) return;
-        this.drawCellBorders(doc, field, data.cell);
-      } : undefined,
-    });
-
-    return (doc as never as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+    return [footRow];
   }
 
   private drawCellBorders(doc: jsPDF, field: ReportField, cell: any): void {
@@ -541,23 +612,14 @@ export class ReportPdfService {
     return [rgb.r, rgb.g, rgb.b];
   }
 
-  private renderFooter(
-    doc: jsPDF,
-    section: ReportSection,
-    rows: any[],
-    provider: ReportDataProvider,
-    template: ReportTemplate,
-    yPos: number,
-    marginLeft: number,
-    contentWidth: number
-  ): void {
+  private renderFooter(ctx: PdfRenderContext, section: ReportSection, rows: any[], yPos: number): void {
     yPos += 3;
-    doc.setDrawColor(100);
-    doc.line(marginLeft, yPos, marginLeft + contentWidth, yPos);
+    ctx.doc.setDrawColor(100);
+    ctx.doc.line(ctx.marginLeft, yPos, ctx.marginLeft + ctx.contentWidth, yPos);
     yPos += 5;
 
-    const sectionFooterFormulaVars = provider.buildFooterFormulaVariables
-      ? provider.buildFooterFormulaVariables(rows) : undefined;
+    const sectionFooterFormulaVars = ctx.provider.buildFooterFormulaVariables
+      ? ctx.provider.buildFooterFormulaVariables(rows) : undefined;
 
     section.fields
       .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -570,19 +632,19 @@ export class ReportPdfService {
             value = '#ERR';
           }
         } else {
-          value = provider.resolveFooterValue(field, rows);
+          value = ctx.provider.resolveFooterValue(field, rows);
         }
-        doc.setFontSize(field.style.fontSize);
+        ctx.doc.setFontSize(field.style.fontSize);
         const fontFamily = field.style.fontFamily || 'helvetica';
         const fontStyle = this.getJsPdfFontStyle(field.style.bold, field.style.italic);
-        doc.setFont(fontFamily, fontStyle);
-        this.applyTextColor(doc, field.style.textColor);
+        ctx.doc.setFont(fontFamily, fontStyle);
+        this.applyTextColor(ctx.doc, field.style.textColor);
 
-        const fullText = `${this.translateFieldName(field, template)}: ${value}`;
-        doc.text(fullText, marginLeft, yPos);
+        const fullText = `${this.translateFieldName(field, ctx.template)}: ${value}`;
+        ctx.doc.text(fullText, ctx.marginLeft, yPos);
 
         if (field.style.underline) {
-          this.renderUnderline(doc, fullText, marginLeft, yPos, field);
+          this.renderUnderline(ctx.doc, fullText, ctx.marginLeft, yPos, field);
         }
 
         yPos += field.style.fontSize * 0.5 + 2;
@@ -605,8 +667,6 @@ export class ReportPdfService {
     }
     return field.name;
   }
-
-  // --- Formatting Helpers ---
 
   private applyTextColor(doc: jsPDF, hex: string | undefined): void {
     const rgb = this.hexToRgb(hex || '#000000');

@@ -7,6 +7,39 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';
 
+interface SnapDirection {
+  getEffectiveEdge: (shift: IContainerTemplateItem, timeRangeService: TimeRangeService) => number;
+  aggregate: typeof Math.min | typeof Math.max;
+  boundaryCheck: (edge: number, boundary: number) => boolean;
+  computeCandidate: (edge: number, pre: number, post: number, duration: number) => { start: number; end: number; effectiveStart: number; effectiveEnd: number };
+}
+
+const SNAP_ABOVE: SnapDirection = {
+  getEffectiveEdge: (shift, timeRangeService) => timeRangeService.getEffectiveStartMinutes(shift),
+  aggregate: Math.min,
+  boundaryCheck: (effectiveStart, boundary) => effectiveStart < boundary,
+  computeCandidate: (edge, pre, post, duration) => {
+    const effectiveEnd = edge;
+    const end = effectiveEnd - post;
+    const start = end - duration;
+    const effectiveStart = start - pre;
+    return { start, end, effectiveStart, effectiveEnd };
+  },
+};
+
+const SNAP_BELOW: SnapDirection = {
+  getEffectiveEdge: (shift, timeRangeService) => timeRangeService.getEffectiveEndMinutes(shift),
+  aggregate: Math.max,
+  boundaryCheck: (effectiveEnd, boundary) => effectiveEnd > boundary,
+  computeCandidate: (edge, pre, post, duration) => {
+    const effectiveStart = edge;
+    const start = effectiveStart + pre;
+    const end = start + duration;
+    const effectiveEnd = end + post;
+    return { start, end, effectiveStart, effectiveEnd };
+  },
+};
+
 export interface DragState {
   isDragging: boolean;
   draggedShift: IContainerTemplateItem | null;
@@ -331,89 +364,15 @@ export class TimeRulerDragDropService {
     preShiftTime = 0,
     postShiftTime = 0
   ): { newStartMinutes: number; newEndMinutes: number } | null {
-    const effectiveStart = startMinutes - preShiftTime;
-    const effectiveEnd = endMinutes + postShiftTime;
-
-    const conflictingShifts = otherShifts.filter((shift) =>
-      this.effectiveShiftsOverlap(effectiveStart, effectiveEnd, shift)
+    return this.findSnapPosition(
+      SNAP_ABOVE,
+      startMinutes,
+      endMinutes,
+      duration,
+      otherShifts,
+      preShiftTime,
+      postShiftTime
     );
-
-    if (conflictingShifts.length === 0) {
-      return null;
-    }
-
-    const lowestConflictEffectiveStart = Math.min(
-      ...conflictingShifts.map((s) =>
-        this.timeRangeService.getEffectiveStartMinutes(s)
-      )
-    );
-
-    let candidateEffectiveEnd = lowestConflictEffectiveStart;
-    let candidateEnd = candidateEffectiveEnd - postShiftTime;
-    let candidateStart = candidateEnd - duration;
-    let candidateEffectiveStart = candidateStart - preShiftTime;
-
-    if (candidateEffectiveStart < this._dragState.displayFromMinutes) {
-      return null;
-    }
-
-    let iterations = 0;
-    const maxIterations = 100;
-
-    while (
-      this.hasEffectiveOverlap(
-        candidateEffectiveStart,
-        candidateEffectiveEnd,
-        otherShifts
-      ) &&
-      iterations < maxIterations
-    ) {
-      const blockingShifts = otherShifts.filter((shift) =>
-        this.effectiveShiftsOverlap(
-          candidateEffectiveStart,
-          candidateEffectiveEnd,
-          shift
-        )
-      );
-
-      if (blockingShifts.length === 0) break;
-
-      const nextEffectiveStart = Math.min(
-        ...blockingShifts.map((s) =>
-          this.timeRangeService.getEffectiveStartMinutes(s)
-        )
-      );
-
-      candidateEffectiveEnd = nextEffectiveStart;
-      candidateEnd = candidateEffectiveEnd - postShiftTime;
-      candidateStart = candidateEnd - duration;
-      candidateEffectiveStart = candidateStart - preShiftTime;
-
-      if (candidateEffectiveStart < this._dragState.displayFromMinutes) {
-        return null;
-      }
-
-      iterations++;
-    }
-
-    if (iterations >= maxIterations) {
-      return null;
-    }
-
-    if (
-      !this.hasEffectiveOverlap(
-        candidateEffectiveStart,
-        candidateEffectiveEnd,
-        otherShifts
-      )
-    ) {
-      return {
-        newStartMinutes: candidateStart,
-        newEndMinutes: candidateEnd,
-      };
-    }
-
-    return null;
   }
 
   private findSnapPositionBelow(
@@ -423,6 +382,26 @@ export class TimeRulerDragDropService {
     otherShifts: IContainerTemplateItem[],
     preShiftTime = 0,
     postShiftTime = 0
+  ): { newStartMinutes: number; newEndMinutes: number } | null {
+    return this.findSnapPosition(
+      SNAP_BELOW,
+      startMinutes,
+      endMinutes,
+      duration,
+      otherShifts,
+      preShiftTime,
+      postShiftTime
+    );
+  }
+
+  private findSnapPosition(
+    direction: SnapDirection,
+    startMinutes: number,
+    endMinutes: number,
+    duration: number,
+    otherShifts: IContainerTemplateItem[],
+    preShiftTime: number,
+    postShiftTime: number
   ): { newStartMinutes: number; newEndMinutes: number } | null {
     const effectiveStart = startMinutes - preShiftTime;
     const effectiveEnd = endMinutes + postShiftTime;
@@ -435,21 +414,30 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    const highestConflictEffectiveEnd = Math.max(
+    const boundaryEdge = direction.aggregate(
       ...conflictingShifts.map((s) =>
-        this.timeRangeService.getEffectiveEndMinutes(s)
+        direction.getEffectiveEdge(s, this.timeRangeService)
       )
     );
 
-    let candidateEffectiveStart = highestConflictEffectiveEnd;
-    let candidateStart = candidateEffectiveStart + preShiftTime;
-    let candidateEnd = candidateStart + duration;
-    let candidateEffectiveEnd = candidateEnd + postShiftTime;
+    let candidate = direction.computeCandidate(
+      boundaryEdge,
+      preShiftTime,
+      postShiftTime,
+      duration
+    );
 
-    if (
-      candidateEffectiveEnd >
-      this._dragState.displayFromMinutes + this._dragState.totalMinutes
-    ) {
+    const displayBoundary =
+      direction === SNAP_ABOVE
+        ? this._dragState.displayFromMinutes
+        : this._dragState.displayFromMinutes + this._dragState.totalMinutes;
+
+    const checkEdge =
+      direction === SNAP_ABOVE
+        ? candidate.effectiveStart
+        : candidate.effectiveEnd;
+
+    if (direction.boundaryCheck(checkEdge, displayBoundary)) {
       return null;
     }
 
@@ -458,37 +446,41 @@ export class TimeRulerDragDropService {
 
     while (
       this.hasEffectiveOverlap(
-        candidateEffectiveStart,
-        candidateEffectiveEnd,
+        candidate.effectiveStart,
+        candidate.effectiveEnd,
         otherShifts
       ) &&
       iterations < maxIterations
     ) {
       const blockingShifts = otherShifts.filter((shift) =>
         this.effectiveShiftsOverlap(
-          candidateEffectiveStart,
-          candidateEffectiveEnd,
+          candidate.effectiveStart,
+          candidate.effectiveEnd,
           shift
         )
       );
 
       if (blockingShifts.length === 0) break;
 
-      const nextEffectiveEnd = Math.max(
+      const nextEdge = direction.aggregate(
         ...blockingShifts.map((s) =>
-          this.timeRangeService.getEffectiveEndMinutes(s)
+          direction.getEffectiveEdge(s, this.timeRangeService)
         )
       );
 
-      candidateEffectiveStart = nextEffectiveEnd;
-      candidateStart = candidateEffectiveStart + preShiftTime;
-      candidateEnd = candidateStart + duration;
-      candidateEffectiveEnd = candidateEnd + postShiftTime;
+      candidate = direction.computeCandidate(
+        nextEdge,
+        preShiftTime,
+        postShiftTime,
+        duration
+      );
 
-      if (
-        candidateEffectiveEnd >
-        this._dragState.displayFromMinutes + this._dragState.totalMinutes
-      ) {
+      const iterCheckEdge =
+        direction === SNAP_ABOVE
+          ? candidate.effectiveStart
+          : candidate.effectiveEnd;
+
+      if (direction.boundaryCheck(iterCheckEdge, displayBoundary)) {
         return null;
       }
 
@@ -501,14 +493,14 @@ export class TimeRulerDragDropService {
 
     if (
       !this.hasEffectiveOverlap(
-        candidateEffectiveStart,
-        candidateEffectiveEnd,
+        candidate.effectiveStart,
+        candidate.effectiveEnd,
         otherShifts
       )
     ) {
       return {
-        newStartMinutes: candidateStart,
-        newEndMinutes: candidateEnd,
+        newStartMinutes: candidate.start,
+        newEndMinutes: candidate.end,
       };
     }
 

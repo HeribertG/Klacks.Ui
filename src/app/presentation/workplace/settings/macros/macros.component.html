@@ -10,7 +10,7 @@
   <app-macro-header header></app-macro-header>
 
   <div rows>
-    @for (c of dataManagementSettingsService.macroList; track c.id || $index; let i = $index) {
+    @for (c of dataManagementSettingsService.macros.macroList(); track c.id || $index; let i = $index) {
       @if (!(c.isDirty === 3)) {
         <app-macro-row
           [id]="'macro-row-' + i"

@@ -93,20 +93,21 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
 
   private loadFromService(): void {
     const svc = this.dataManagementSettingsService;
+    const sched = svc.appSettings.schedulingDefaultSettings();
     this.formModel.set({
-      defaultWorkingHours: svc.defaultWorkingHours,
-      overtimeThreshold: svc.overtimeThreshold,
-      guaranteedHours: svc.guaranteedHours,
-      maximumHours: svc.maximumHours,
-      minimumHours: svc.minimumHours,
-      fullTime: svc.fullTime,
-      schedulingMaxWorkDays: svc.schedulingMaxWorkDays,
-      schedulingMinRestDays: svc.schedulingMinRestDays,
-      schedulingMinPauseHours: svc.schedulingMinPauseHours,
-      schedulingMaxOptimalGap: svc.schedulingMaxOptimalGap,
-      schedulingMaxDailyHours: svc.schedulingMaxDailyHours,
-      schedulingMaxWeeklyHours: svc.schedulingMaxWeeklyHours,
-      schedulingMaxConsecutiveDays: svc.schedulingMaxConsecutiveDays,
+      defaultWorkingHours: sched.defaultWorkingHours,
+      overtimeThreshold: sched.overtimeThreshold,
+      guaranteedHours: sched.guaranteedHours,
+      maximumHours: sched.maximumHours,
+      minimumHours: sched.minimumHours,
+      fullTime: sched.fullTime,
+      schedulingMaxWorkDays: sched.schedulingMaxWorkDays,
+      schedulingMinRestDays: sched.schedulingMinRestDays,
+      schedulingMinPauseHours: sched.schedulingMinPauseHours,
+      schedulingMaxOptimalGap: sched.schedulingMaxOptimalGap,
+      schedulingMaxDailyHours: sched.schedulingMaxDailyHours,
+      schedulingMaxWeeklyHours: sched.schedulingMaxWeeklyHours,
+      schedulingMaxConsecutiveDays: sched.schedulingMaxConsecutiveDays,
       nightRate: svc.nightRate,
       holidayRate: svc.holidayRate,
       saRate: svc.saRate,
@@ -116,19 +117,22 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
 
   private syncToService(data: SchedulingDefaultsFormModel): void {
     const svc = this.dataManagementSettingsService;
-    svc.defaultWorkingHours = data.defaultWorkingHours;
-    svc.overtimeThreshold = data.overtimeThreshold;
-    svc.guaranteedHours = data.guaranteedHours;
-    svc.maximumHours = data.maximumHours;
-    svc.minimumHours = data.minimumHours;
-    svc.fullTime = data.fullTime;
-    svc.schedulingMaxWorkDays = data.schedulingMaxWorkDays;
-    svc.schedulingMinRestDays = data.schedulingMinRestDays;
-    svc.schedulingMinPauseHours = data.schedulingMinPauseHours;
-    svc.schedulingMaxOptimalGap = data.schedulingMaxOptimalGap;
-    svc.schedulingMaxDailyHours = data.schedulingMaxDailyHours;
-    svc.schedulingMaxWeeklyHours = data.schedulingMaxWeeklyHours;
-    svc.schedulingMaxConsecutiveDays = data.schedulingMaxConsecutiveDays;
+    svc.appSettings.schedulingDefaultSettings.update(s => ({
+      ...s,
+      defaultWorkingHours: data.defaultWorkingHours,
+      overtimeThreshold: data.overtimeThreshold,
+      guaranteedHours: data.guaranteedHours,
+      maximumHours: data.maximumHours,
+      minimumHours: data.minimumHours,
+      fullTime: data.fullTime,
+      schedulingMaxWorkDays: data.schedulingMaxWorkDays,
+      schedulingMinRestDays: data.schedulingMinRestDays,
+      schedulingMinPauseHours: data.schedulingMinPauseHours,
+      schedulingMaxOptimalGap: data.schedulingMaxOptimalGap,
+      schedulingMaxDailyHours: data.schedulingMaxDailyHours,
+      schedulingMaxWeeklyHours: data.schedulingMaxWeeklyHours,
+      schedulingMaxConsecutiveDays: data.schedulingMaxConsecutiveDays,
+    }));
     svc.nightRate = data.nightRate;
     svc.holidayRate = data.holidayRate;
     svc.saRate = data.saRate;

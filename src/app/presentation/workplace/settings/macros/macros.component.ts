@@ -77,31 +77,31 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
     macro.isDirty = CreateEntriesEnum.new;
 
     this.pendingOpenMacro = macro;
-    this.dataManagementSettingsService.macroList = [
-      ...this.dataManagementSettingsService.macroList,
+    this.dataManagementSettingsService.macros.macroList.set([
+      ...this.dataManagementSettingsService.macros.macroList(),
       macro
-    ];
+    ]);
   }
 
   cancelNewMacro(index: number): void {
-    const macros = this.dataManagementSettingsService.macroList;
+    const macros = this.dataManagementSettingsService.macros.macroList();
     if (index >= 0 && index < macros.length) {
-      this.dataManagementSettingsService.macroList = [
+      this.dataManagementSettingsService.macros.macroList.set([
         ...macros.slice(0, index),
         ...macros.slice(index + 1)
-      ];
+      ]);
     }
   }
 
   onMacroChanged(index: number): void {
-    const macros = this.dataManagementSettingsService.macroList;
+    const macros = this.dataManagementSettingsService.macros.macroList();
     if (index >= 0 && index < macros.length) {
-      this.dataManagementSettingsService.macroList = [...macros];
+      this.dataManagementSettingsService.macros.macroList.set([...macros]);
     }
   }
 
   openDeleteMacro(index: number): void {
-    const macros = this.dataManagementSettingsService.macroList;
+    const macros = this.dataManagementSettingsService.macros.macroList();
 
     if (index >= 0 && index < macros.length) {
       this.modalService.Filing = '';
@@ -116,17 +116,17 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
 
   private deleteMacro(indexStr: string): void {
     const index = parseInt(indexStr, 10);
-    const macros = this.dataManagementSettingsService.macroList;
+    const macros = this.dataManagementSettingsService.macros.macroList();
 
     if (index >= 0 && index < macros.length) {
       const macro = macros[index];
 
       if (macro) {
         if (macro.isDirty === CreateEntriesEnum.new) {
-          this.dataManagementSettingsService.macroList = [
+          this.dataManagementSettingsService.macros.macroList.set([
             ...macros.slice(0, index),
             ...macros.slice(index + 1)
-          ];
+          ]);
         } else {
           const updatedMacro = { ...macro };
           if (updatedMacro.name) {
@@ -134,11 +134,11 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
           }
           updatedMacro.isDirty = CreateEntriesEnum.delete;
 
-          this.dataManagementSettingsService.macroList = [
+          this.dataManagementSettingsService.macros.macroList.set([
             ...macros.slice(0, index),
             updatedMacro,
             ...macros.slice(index + 1)
-          ];
+          ]);
           this.macroManagementService.save();
         }
       }

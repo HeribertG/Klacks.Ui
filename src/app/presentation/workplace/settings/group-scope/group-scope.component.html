@@ -6,7 +6,7 @@
   <div id="group-scope-line" class="container-line"></div>
   <div id="group-scope-box" class="container-box">
     <app-group-scope-header id="group-scope-table-header"></app-group-scope-header>
-    @for (c of dataManagementSettingsService.accountsList; track c.id ||
+    @for (c of dataManagementSettingsService.userAdmin.accountsList(); track c.id ||
     c.userName || $index; let i = $index) {
     <div [id]="'group-scope-row-wrapper-' + i">
       <app-group-scope-row [id]="'group-scope-row-' + i" [user]="c"></app-group-scope-row>

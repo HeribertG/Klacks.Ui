@@ -19,12 +19,96 @@ import {
 } from 'src/app/domain/models/settings/app-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
+interface SettingsModels {
+  contact: IAppContactSettings;
+  email: IEmailServerSettings;
+  imap: IImapServerSettings;
+  work: IWorkSettings;
+  schedulingDefaults: ISchedulingDefaultSettings;
+  openRouteServiceApiKey: string;
+  deeplApiKey: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AppSettingsManagementService {
   private dataSettingsService = inject(DataSettingsVariousService);
   private destroyRef = inject(DestroyRef);
+
+  private readonly settingsHandlerMap = new Map<string, (value: string, models: SettingsModels) => void>([
+    [AppSetting.APP_NAME, (v, m) => (m.contact.name = v)],
+    [AppSetting.APP_ADDRESS_NAME, (v, m) => (m.contact.addressName = v)],
+    [AppSetting.APP_ADDRESS_SUPPLEMENT, (v, m) => (m.contact.supplementAddress = v)],
+    [AppSetting.APP_ADDRESS_ADDRESS, (v, m) => (m.contact.address = v)],
+    [AppSetting.APP_ADDRESS_ZIP, (v, m) => (m.contact.zip = v)],
+    [AppSetting.APP_ADDRESS_PLACE, (v, m) => (m.contact.place = v)],
+    [AppSetting.APP_ADDRESS_STATE, (v, m) => (m.contact.state = v)],
+    [AppSetting.APP_ADDRESS_COUNTRY, (v, m) => (m.contact.country = v)],
+    [AppSetting.APP_ADDRESS_PHONE, (v, m) => (m.contact.phone = v)],
+    [AppSetting.APP_ADDRESS_MAIL, (v, m) => (m.contact.email = v)],
+    [AppSetting.APP_ACCOUNTING_START, (v, m) => (m.contact.accountingStart = +v)],
+    [AppSetting.APP_MARK, (v, m) => (m.contact.mark = v)],
+    [AppSetting.GLOBAL_CALENDAR_COUNTRY, (v, m) => (m.contact.globalCalendarCountry = v)],
+    [AppSetting.GLOBAL_CALENDAR_STATE, (v, m) => (m.contact.globalCalendarState = v)],
+    [AppSetting.GLOBAL_CALENDAR_SELECTION_ID, (v, m) => (m.contact.globalCalendarSelectionId = v)],
+
+    [AppSetting.APP_OUTGOING_SERVER, (v, m) => (m.email.outgoingServer = v)],
+    [AppSetting.APP_OUTGOING_SERVER_PORT, (v, m) => (m.email.outgoingServerPort = v)],
+    [AppSetting.APP_ENABLE_SSL, (v, m) => (m.email.enabledSSL = v)],
+    [AppSetting.APP_OUTGOING_SERVER_TIMEOUT, (v, m) => (m.email.outgoingServerTimeout = v)],
+    [AppSetting.APP_AUTHENTICATION_TYPE, (v, m) => (m.email.authenticationType = v)],
+    [AppSetting.APP_READ_RECEIPT, (v, m) => (m.email.readReceipt = v)],
+    [AppSetting.APP_REPLY_TO, (v, m) => (m.email.replyTo = v)],
+    [AppSetting.APP_DISPOSITION_NOTIFICATION, (v, m) => (m.email.dispositionNotification = v)],
+    [AppSetting.APP_OUTGOING_SERVER_USERNAME, (v, m) => (m.email.username = v)],
+    [AppSetting.APP_OUTGOING_SERVER_PASSWORD, (v, m) => (m.email.password = v)],
+
+    [AppSetting.APP_INCOMING_SERVER, (v, m) => (m.imap.server = v)],
+    [AppSetting.APP_INCOMING_SERVER_PORT, (v, m) => (m.imap.port = v)],
+    [AppSetting.APP_INCOMING_SERVER_USERNAME, (v, m) => (m.imap.username = v)],
+    [AppSetting.APP_INCOMING_SERVER_PASSWORD, (v, m) => (m.imap.password = v)],
+    [AppSetting.APP_INCOMING_SERVER_SSL, (v, m) => (m.imap.enableSSL = v)],
+    [AppSetting.APP_INCOMING_SERVER_FOLDER, (v, m) => (m.imap.folder = v)],
+    [AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL, (v, m) => (m.imap.pollInterval = v)],
+
+    [AppSetting.OPENROUTESERVICE_API_KEY, (v, m) => (m.openRouteServiceApiKey = v)],
+    [AppSetting.DEEPL_API_KEY, (v, m) => (m.deeplApiKey = v)],
+
+    [AppSetting.WORK_VACATION_DAYS_PER_YEAR, (v, m) => (m.work.vacationDaysPerYear = parseInt(v, 10) || 25)],
+    [AppSetting.WORK_PROBATION_PERIOD, (v, m) => (m.work.probationPeriod = parseInt(v, 10) || 3)],
+    [AppSetting.WORK_NOTICE_PERIOD, (v, m) => (m.work.noticePeriod = parseInt(v, 10) || 30)],
+    [AppSetting.WORK_PAYMENT_INTERVAL, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.work.paymentInterval = Number.isNaN(parsed) ? 2 : parsed;
+    }],
+    [AppSetting.WORK_NIGHT_RATE, (v, m) => (m.work.nightRate = parseFloat(v) || 0)],
+    [AppSetting.WORK_HOLIDAY_RATE, (v, m) => (m.work.holidayRate = parseFloat(v) || 0)],
+    [AppSetting.WORK_SA_RATE, (v, m) => (m.work.saRate = parseFloat(v) || 0)],
+    [AppSetting.WORK_SO_RATE, (v, m) => (m.work.soRate = parseFloat(v) || 0)],
+    [AppSetting.WORK_DAY_VISIBLE_BEFORE, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.work.dayVisibleBefore = Number.isNaN(parsed) ? 3 : parsed;
+    }],
+    [AppSetting.WORK_DAY_VISIBLE_AFTER, (v, m) => {
+      const parsed = parseInt(v, 10);
+      m.work.dayVisibleAfter = Number.isNaN(parsed) ? 3 : parsed;
+    }],
+
+    [AppSetting.WORK_DEFAULT_WORKING_HOURS, (v, m) => (m.schedulingDefaults.defaultWorkingHours = parseFloat(v) || 8.5)],
+    [AppSetting.WORK_OVERTIME_THRESHOLD, (v, m) => (m.schedulingDefaults.overtimeThreshold = parseFloat(v) || 42)],
+    [AppSetting.WORK_GUARANTEED_HOURS, (v, m) => (m.schedulingDefaults.guaranteedHours = parseFloat(v) || 0)],
+    [AppSetting.WORK_MAXIMUM_HOURS, (v, m) => (m.schedulingDefaults.maximumHours = parseFloat(v) || 0)],
+    [AppSetting.WORK_MINIMUM_HOURS, (v, m) => (m.schedulingDefaults.minimumHours = parseFloat(v) || 0)],
+    [AppSetting.WORK_FULL_TIME, (v, m) => (m.schedulingDefaults.fullTime = parseFloat(v) || 0)],
+    [AppSetting.SCHEDULING_MAX_WORK_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxWorkDays = parseInt(v, 10) || 5)],
+    [AppSetting.SCHEDULING_MIN_REST_DAYS, (v, m) => (m.schedulingDefaults.schedulingMinRestDays = parseInt(v, 10) || 2)],
+    [AppSetting.SCHEDULING_MIN_PAUSE_HOURS, (v, m) => (m.schedulingDefaults.schedulingMinPauseHours = parseFloat(v) || 12)],
+    [AppSetting.SCHEDULING_MAX_OPTIMAL_GAP, (v, m) => (m.schedulingDefaults.schedulingMaxOptimalGap = parseFloat(v) || 2)],
+    [AppSetting.SCHEDULING_MAX_DAILY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailyHours = parseFloat(v) || 10)],
+    [AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(v) || 50)],
+    [AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxConsecutiveDays = parseInt(v, 10) || 6)],
+  ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -110,216 +194,38 @@ export class AppSettingsManagementService {
   }
 
   private applySettingsToModels(settings: ISetting[]): void {
-    const contact = new AppContactSettings();
-    const email = new EmailServerSettings();
-    const imap = new ImapServerSettings();
-    const work = new WorkSettings();
-    const schedulingDefaults = new SchedulingDefaultSettings();
-    let openRouteServiceApiKey = '';
-    let deeplApiKey = '';
+    const models: SettingsModels = {
+      contact: new AppContactSettings(),
+      email: new EmailServerSettings(),
+      imap: new ImapServerSettings(),
+      work: new WorkSettings(),
+      schedulingDefaults: new SchedulingDefaultSettings(),
+      openRouteServiceApiKey: '',
+      deeplApiKey: '',
+    };
 
-    settings.forEach((setting) => {
-      switch (setting.type) {
-        case AppSetting.APP_NAME:
-          contact.name = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_NAME:
-          contact.addressName = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_SUPPLEMENT:
-          contact.supplementAddress = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_ADDRESS:
-          contact.address = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_ZIP:
-          contact.zip = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_PLACE:
-          contact.place = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_STATE:
-          contact.state = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_COUNTRY:
-          contact.country = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_PHONE:
-          contact.phone = setting.value;
-          break;
-        case AppSetting.APP_ADDRESS_MAIL:
-          contact.email = setting.value;
-          break;
-        case AppSetting.APP_ACCOUNTING_START:
-          contact.accountingStart = +setting.value;
-          break;
-        case AppSetting.APP_MARK:
-          contact.mark = setting.value;
-          break;
-        case AppSetting.GLOBAL_CALENDAR_COUNTRY:
-          contact.globalCalendarCountry = setting.value;
-          break;
-        case AppSetting.GLOBAL_CALENDAR_STATE:
-          contact.globalCalendarState = setting.value;
-          break;
-        case AppSetting.GLOBAL_CALENDAR_SELECTION_ID:
-          contact.globalCalendarSelectionId = setting.value;
-          break;
-
-        case AppSetting.APP_OUTGOING_SERVER:
-          email.outgoingServer = setting.value;
-          break;
-        case AppSetting.APP_OUTGOING_SERVER_PORT:
-          email.outgoingServerPort = setting.value;
-          break;
-        case AppSetting.APP_ENABLE_SSL:
-          email.enabledSSL = setting.value;
-          break;
-        case AppSetting.APP_OUTGOING_SERVER_TIMEOUT:
-          email.outgoingServerTimeout = setting.value;
-          break;
-        case AppSetting.APP_AUTHENTICATION_TYPE:
-          email.authenticationType = setting.value;
-          break;
-        case AppSetting.APP_READ_RECEIPT:
-          email.readReceipt = setting.value;
-          break;
-        case AppSetting.APP_REPLY_TO:
-          email.replyTo = setting.value;
-          break;
-        case AppSetting.APP_DISPOSITION_NOTIFICATION:
-          email.dispositionNotification = setting.value;
-          break;
-        case AppSetting.APP_OUTGOING_SERVER_USERNAME:
-          email.username = setting.value;
-          break;
-        case AppSetting.APP_OUTGOING_SERVER_PASSWORD:
-          email.password = setting.value;
-          break;
-
-        case AppSetting.APP_INCOMING_SERVER:
-          imap.server = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_PORT:
-          imap.port = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_USERNAME:
-          imap.username = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_PASSWORD:
-          imap.password = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_SSL:
-          imap.enableSSL = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_FOLDER:
-          imap.folder = setting.value;
-          break;
-        case AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL:
-          imap.pollInterval = setting.value;
-          break;
-
-        case AppSetting.OPENROUTESERVICE_API_KEY:
-          openRouteServiceApiKey = setting.value;
-          break;
-        case AppSetting.DEEPL_API_KEY:
-          deeplApiKey = setting.value;
-          break;
-
-        case AppSetting.WORK_VACATION_DAYS_PER_YEAR:
-          work.vacationDaysPerYear = parseInt(setting.value, 10) || 25;
-          break;
-        case AppSetting.WORK_PROBATION_PERIOD:
-          work.probationPeriod = parseInt(setting.value, 10) || 3;
-          break;
-        case AppSetting.WORK_NOTICE_PERIOD:
-          work.noticePeriod = parseInt(setting.value, 10) || 30;
-          break;
-        case AppSetting.WORK_PAYMENT_INTERVAL: {
-          const paymentVal = parseInt(setting.value, 10);
-          work.paymentInterval = Number.isNaN(paymentVal) ? 2 : paymentVal;
-          break;
-        }
-        case AppSetting.WORK_NIGHT_RATE:
-          work.nightRate = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_HOLIDAY_RATE:
-          work.holidayRate = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_SA_RATE:
-          work.saRate = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_SO_RATE:
-          work.soRate = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_DAY_VISIBLE_BEFORE: {
-          const valBefore = parseInt(setting.value, 10);
-          work.dayVisibleBefore = Number.isNaN(valBefore) ? 3 : valBefore;
-          break;
-        }
-        case AppSetting.WORK_DAY_VISIBLE_AFTER: {
-          const valAfter = parseInt(setting.value, 10);
-          work.dayVisibleAfter = Number.isNaN(valAfter) ? 3 : valAfter;
-          break;
-        }
-
-        case AppSetting.WORK_DEFAULT_WORKING_HOURS:
-          schedulingDefaults.defaultWorkingHours = parseFloat(setting.value) || 8.5;
-          break;
-        case AppSetting.WORK_OVERTIME_THRESHOLD:
-          schedulingDefaults.overtimeThreshold = parseFloat(setting.value) || 42;
-          break;
-        case AppSetting.WORK_GUARANTEED_HOURS:
-          schedulingDefaults.guaranteedHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_MAXIMUM_HOURS:
-          schedulingDefaults.maximumHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_MINIMUM_HOURS:
-          schedulingDefaults.minimumHours = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.WORK_FULL_TIME:
-          schedulingDefaults.fullTime = parseFloat(setting.value) || 0;
-          break;
-        case AppSetting.SCHEDULING_MAX_WORK_DAYS:
-          schedulingDefaults.schedulingMaxWorkDays = parseInt(setting.value, 10) || 5;
-          break;
-        case AppSetting.SCHEDULING_MIN_REST_DAYS:
-          schedulingDefaults.schedulingMinRestDays = parseInt(setting.value, 10) || 2;
-          break;
-        case AppSetting.SCHEDULING_MIN_PAUSE_HOURS:
-          schedulingDefaults.schedulingMinPauseHours = parseFloat(setting.value) || 12;
-          break;
-        case AppSetting.SCHEDULING_MAX_OPTIMAL_GAP:
-          schedulingDefaults.schedulingMaxOptimalGap = parseFloat(setting.value) || 2;
-          break;
-        case AppSetting.SCHEDULING_MAX_DAILY_HOURS:
-          schedulingDefaults.schedulingMaxDailyHours = parseFloat(setting.value) || 10;
-          break;
-        case AppSetting.SCHEDULING_MAX_WEEKLY_HOURS:
-          schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(setting.value) || 50;
-          break;
-        case AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS:
-          schedulingDefaults.schedulingMaxConsecutiveDays = parseInt(setting.value, 10) || 6;
-          break;
+    for (const setting of settings) {
+      const handler = this.settingsHandlerMap.get(setting.type);
+      if (handler) {
+        handler(setting.value, models);
       }
-    });
+    }
 
-    this.contactSettings.set(contact);
-    this.emailSettings.set(email);
-    this.imapSettings.set(imap);
-    this.workSettings.set(work);
-    this.schedulingDefaultSettings.set(schedulingDefaults);
-    this.openRouteServiceApiKey.set(openRouteServiceApiKey);
-    this.deeplApiKey.set(deeplApiKey);
+    this.contactSettings.set(models.contact);
+    this.emailSettings.set(models.email);
+    this.imapSettings.set(models.imap);
+    this.workSettings.set(models.work);
+    this.schedulingDefaultSettings.set(models.schedulingDefaults);
+    this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
+    this.deeplApiKey.set(models.deeplApiKey);
 
-    this.contactSettingsOriginal.set(cloneObject(contact));
-    this.emailSettingsOriginal.set(cloneObject(email));
-    this.imapSettingsOriginal.set(cloneObject(imap));
-    this.workSettingsOriginal.set(cloneObject(work));
-    this.schedulingDefaultSettingsOriginal.set(cloneObject(schedulingDefaults));
-    this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
-    this.deeplApiKeyOriginal.set(deeplApiKey);
+    this.contactSettingsOriginal.set(cloneObject(models.contact));
+    this.emailSettingsOriginal.set(cloneObject(models.email));
+    this.imapSettingsOriginal.set(cloneObject(models.imap));
+    this.workSettingsOriginal.set(cloneObject(models.work));
+    this.schedulingDefaultSettingsOriginal.set(cloneObject(models.schedulingDefaults));
+    this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
+    this.deeplApiKeyOriginal.set(models.deeplApiKey);
   }
 
   save(): void {

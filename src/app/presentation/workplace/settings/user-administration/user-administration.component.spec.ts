@@ -77,7 +77,9 @@ describe('UserAdministrationComponent', () => {
     beforeEach(async () => {
         const settingsServiceSpy = {
             loadSettings: vi.fn(),
-            appName: 'Klacks Test'
+            appSettings: {
+                contactSettings: () => ({ name: 'Klacks Test' }),
+            },
         };
 
         const userAdminServiceSpy = {

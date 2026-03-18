@@ -30,11 +30,8 @@ import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/s
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
-import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
-import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
 
 export interface GridDoubleClickEvent {
   row: number;
@@ -56,9 +53,7 @@ export class GridTemplateEventsDirective {
   private cellManipulation = inject(BaseCellManipulationService);
   private shiftDragService = inject(ShiftToScheduleDragDropService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
-  private fillHandleService = inject(FillHandleService);
-  private gridFonts = inject(GridFontsService);
-  private absenceLookup = inject(AbsenceLookupService);
+  private fillHandleDrag = inject(GridFillHandleDragService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
   @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
@@ -79,16 +74,31 @@ export class GridTemplateEventsDirective {
   private lastPageDownTime = 0;
   private lastPageUpTime = 0;
 
+  private readonly keyHandlers = new Map<string, (event: KeyboardEvent) => void>([
+    ['ArrowDown', (event) => this.handleArrowDown(event)],
+    ['PageDown', (event) => this.handlePageDown(event)],
+    ['ArrowUp', (event) => this.handleArrowUp(event)],
+    ['PageUp', (event) => this.handlePageUp(event)],
+    ['End', (event) => this.handleEnd(event)],
+    ['Home', (event) => this.handleHome(event)],
+    ['ArrowLeft', (event) => this.handleArrowLeftOrBackspace(event)],
+    ['Backspace', (event) => this.handleArrowLeftOrBackspace(event)],
+    ['ArrowRight', (event) => this.handleArrowRightOrTabOrEnter(event)],
+    ['Tab', (event) => this.handleArrowRightOrTabOrEnter(event)],
+    ['Enter', (event) => this.handleArrowRightOrTabOrEnter(event)],
+    ['Delete', (event) => this.handleDeleteKeyAction(event)],
+    ['Ctrl+c', (event) => this.handleCopy(event)],
+    ['Ctrl+v', (event) => this.handlePaste(event)],
+    ['F2', (event) => this.handleF2(event)],
+  ]);
+
   private dragDelayTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingDragEvent: MouseEvent | null = null;
   private readonly DRAG_DELAY_MS = 150;
-  private readonly FILL_HANDLE_RADIUS = 5;
-  private readonly FILL_HANDLE_HIT_AREA = 12;
 
-  private autoScrollTimer: ReturnType<typeof setInterval> | null = null;
-  private autoScrollStartTime = 0;
-  private readonly AUTO_SCROLL_INITIAL_DELAY = 400;
-  private readonly AUTO_SCROLL_MIN_DELAY = 50;
+  constructor() {
+    this.fillHandleDrag.initialize({ gridSurface: this.gridSurface, el: this.el });
+  }
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
@@ -200,7 +210,7 @@ export class GridTemplateEventsDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      if (this.tryStartFillHandleDrag(event)) {
+      if (this.fillHandleDrag.tryStartDrag(event)) {
         return;
       }
       this.respondToLeftButtonMouseDown(event);
@@ -255,8 +265,8 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    if (this.fillHandleService.isDragging()) {
-      this.handleFillHandleDrop();
+    if (this.fillHandleDrag.isDragging()) {
+      this.fillHandleDrag.endDrag();
       return;
     }
 
@@ -287,8 +297,8 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    if (this.fillHandleService.isDragging()) {
-      this.handleFillHandleDrag(event);
+    if (this.fillHandleDrag.isDragging()) {
+      this.fillHandleDrag.updateDrag(event);
       return;
     }
 
@@ -300,7 +310,7 @@ export class GridTemplateEventsDirective {
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
     this.updateHoveredCell(pos, event);
-    this.updateCursorForFillHandle(event);
+    this.fillHandleDrag.updateCursorForFillHandle(event);
 
     if (event.buttons === 1 && this.isDrawing) {
       if (this.isMultiselectBlocked()) {
@@ -393,180 +403,10 @@ export class GridTemplateEventsDirective {
       this.gridSurface.contextMenu.closeMenu();
     }
 
-    // if (event.shiftKey) {
-    //   this.gridSurface.setShiftKey();
-    // }
-    // this.gridSurface.isCtrl = event.ctrlKey;
-
-    if (event.key === 'ArrowDown') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastGoDownTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastGoDownTime = now;
-      }
-
-      this.goDown();
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'PageDown') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastPageDownTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastPageDownTime = now;
-      }
-
-      this.goPageDown();
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'ArrowUp') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastGoUpTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastGoUpTime = now;
-      }
-
-      this.goUp();
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'PageUp') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastPageUpTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastPageUpTime = now;
-      }
-
-      this.goPageUp();
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'End') {
-      if (event.repeat) {
-        // const isOkToWrite :boolean = event
-        event.preventDefault();
-        return;
-      }
-
-      let lastRow: number = this.scrollGrid.maxRows;
-
-      if (this.scrollGrid.maxRows <= 1) {
-        lastRow = 0;
-      }
-
-      if (this.gridSurface.drawSchedule.position) {
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          this.gridData.rows - 1,
-          this.gridSurface.drawSchedule.position.column
-        );
-      }
-
-      this.gridSurface.valueVScrollbar.emit(lastRow);
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'Home') {
-      if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
-
-      const firstRow = 0;
-
-      this.gridSurface.valueVScrollbar.emit(firstRow);
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastGoLeftTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastGoLeftTime = now;
-      }
-
-      this.goLeft();
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'ArrowRight' || event.key === 'Tab' || event.key === 'Enter') {
-      if (event.repeat) {
-        const now = Date.now();
-        if (now - this.lastGoRightTime < this.REPEAT_DELAY) {
-          this.stopEvent(event);
-          return;
-        }
-        this.lastGoRightTime = now;
-      }
-
-      this.goRight();
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'Delete') {
-      this.handleDeleteKey();
-      this.stopEvent(event);
-      return;
-    }
-
-    // if (e.Key == Key.X && IsCtrl) {
-    //   try {
-    //     zCut();
-    //     e.Handled = true;
-    //     return;
-    //   }
-    //   catch (Exception ex)
-    //   {
-    //     Debug.Print("ucChildSimpleGrid.KeyDown: " + ex.Message);
-    //   }
-    // }
-    // Copy
-    if (event.key === 'c' && event.ctrlKey) {
-      this.cellManipulation.copy();
-      this.keyDown = false;
-      return;
-    }
-
-    // Paste
-    if (event.key === 'v' && event.ctrlKey) {
-      this.cellManipulation.paste();
-      this.keyDown = false;
-      return;
-    }
-
-    // F2 - start editing
-    if (event.key === 'F2') {
-      this.cellManipulation.startEditing();
-      this.stopEvent(event);
+    const mapKey = event.ctrlKey ? `Ctrl+${event.key}` : event.key;
+    const handler = this.keyHandlers.get(mapKey);
+    if (handler) {
+      handler(event);
       return;
     }
 
@@ -577,6 +417,144 @@ export class GridTemplateEventsDirective {
     }
 
     event.stopPropagation();
+  }
+
+  private handleArrowDown(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastGoDownTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastGoDownTime = now;
+    }
+
+    this.goDown();
+    this.stopEvent(event);
+  }
+
+  private handlePageDown(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastPageDownTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastPageDownTime = now;
+    }
+
+    this.goPageDown();
+    this.stopEvent(event);
+  }
+
+  private handleArrowUp(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastGoUpTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastGoUpTime = now;
+    }
+
+    this.goUp();
+    this.stopEvent(event);
+  }
+
+  private handlePageUp(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastPageUpTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastPageUpTime = now;
+    }
+
+    this.goPageUp();
+    this.stopEvent(event);
+  }
+
+  private handleEnd(event: KeyboardEvent): void {
+    if (event.repeat) {
+      event.preventDefault();
+      return;
+    }
+
+    let lastRow: number = this.scrollGrid.maxRows;
+
+    if (this.scrollGrid.maxRows <= 1) {
+      lastRow = 0;
+    }
+
+    if (this.gridSurface.drawSchedule.position) {
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        this.gridData.rows - 1,
+        this.gridSurface.drawSchedule.position.column
+      );
+    }
+
+    this.gridSurface.valueVScrollbar.emit(lastRow);
+    this.stopEvent(event);
+  }
+
+  private handleHome(event: KeyboardEvent): void {
+    if (event.repeat) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstRow = 0;
+    this.gridSurface.valueVScrollbar.emit(firstRow);
+    this.stopEvent(event);
+  }
+
+  private handleArrowLeftOrBackspace(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastGoLeftTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastGoLeftTime = now;
+    }
+
+    this.goLeft();
+    this.stopEvent(event);
+  }
+
+  private handleArrowRightOrTabOrEnter(event: KeyboardEvent): void {
+    if (event.repeat) {
+      const now = Date.now();
+      if (now - this.lastGoRightTime < this.REPEAT_DELAY) {
+        this.stopEvent(event);
+        return;
+      }
+      this.lastGoRightTime = now;
+    }
+
+    this.goRight();
+    this.stopEvent(event);
+  }
+
+  private handleDeleteKeyAction(event: KeyboardEvent): void {
+    this.handleDeleteKey();
+    this.stopEvent(event);
+  }
+
+  private handleCopy(event: KeyboardEvent): void {
+    this.cellManipulation.copy();
+    this.keyDown = false;
+  }
+
+  private handlePaste(event: KeyboardEvent): void {
+    this.cellManipulation.paste();
+    this.keyDown = false;
+  }
+
+  private handleF2(event: KeyboardEvent): void {
+    this.cellManipulation.startEditing();
+    this.stopEvent(event);
   }
 
   private isPrintableKey(event: KeyboardEvent): boolean {
@@ -952,404 +930,5 @@ export class GridTemplateEventsDirective {
       entryId: entry.entryId,
       entryType: entry.entryType,
     };
-  }
-
-  private tryStartFillHandleDrag(event: MouseEvent): boolean {
-    if (this.gridSurface.nameId !== 'surface') {
-      return false;
-    }
-
-    if (!this.gridSurface.drawSchedule.showFillHandle) {
-      return false;
-    }
-
-    const pos = this.cellManipulation.Position;
-
-    if (pos.isEmpty() || !this.gridData.isCellDraggable(pos.row, pos.column)) {
-      return false;
-    }
-
-    if (this.cellManipulation.PositionCollection.count() > 1) {
-      return false;
-    }
-
-    if (!this.isOverFillHandle(event, pos)) {
-      return false;
-    }
-
-    const scheduleDataService = this.gridData as ScheduleDataService;
-    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-
-    if (!entry) {
-      return false;
-    }
-
-    const date = scheduleDataService.getDateForColumn(pos.column);
-    const shift = this.dataManagementSchedule.shiftSchedules.find(
-      (s) => s.shiftId === entry.entryId && date && this.isSameDay(s.date, date)
-    );
-    const workTime = shift?.workTime ?? 0;
-
-    this.fillHandleService.startDrag(pos, entry.entryId, workTime, entry.entryType);
-    this.el.nativeElement.style.cursor = 'e-resize';
-    return true;
-  }
-
-  private handleFillHandleDrag(event: MouseEvent): void {
-    this.handleAutoScrollOnEdge(event);
-
-    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
-
-    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
-      return;
-    }
-
-    const startPos = this.fillHandleService.state.startPosition;
-    if (!startPos || pos.row !== startPos.row) {
-      return;
-    }
-
-    this.fillHandleService.updateDragColumn(pos.column);
-
-    if (pos.column <= startPos.column) {
-      this.gridSurface.drawSchedule.refresh();
-    } else {
-      this.drawFillHandleSelection();
-    }
-  }
-
-  private handleAutoScrollOnEdge(event: MouseEvent): void {
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const canvasWidth = rect.width;
-    const edgeThreshold = 30;
-
-    const isAtRightEdge = mouseX > canvasWidth - edgeThreshold;
-
-    if (!isAtRightEdge) {
-      this.stopAutoScroll();
-      return;
-    }
-
-    if (!this.autoScrollTimer) {
-      this.autoScrollStartTime = Date.now();
-      this.startAutoScroll();
-    }
-  }
-
-  private startAutoScroll(): void {
-    this.doAutoScrollStep();
-  }
-
-  private doAutoScrollStep(): void {
-    const maxScrollPos = this.gridData.columns - this.scrollGrid.visibleCols;
-    if (this.scrollGrid.horizontalScrollPosition >= maxScrollPos) {
-      this.stopAutoScroll();
-      return;
-    }
-
-    this.gridSurface.valueHScrollbar.emit(
-      this.scrollGrid.horizontalScrollPosition + 1
-    );
-
-    const currentCol = this.fillHandleService.state.currentColumn;
-    const maxCol = this.gridData.columns - 1;
-    if (currentCol < maxCol) {
-      this.fillHandleService.updateDragColumn(currentCol + 1);
-      this.drawFillHandleSelection();
-    }
-
-    const elapsed = Date.now() - this.autoScrollStartTime;
-    const acceleration = Math.min(elapsed / 2000, 1);
-    const delay =
-      this.AUTO_SCROLL_INITIAL_DELAY -
-      acceleration * (this.AUTO_SCROLL_INITIAL_DELAY - this.AUTO_SCROLL_MIN_DELAY);
-
-    this.autoScrollTimer = setTimeout(() => this.doAutoScrollStep(), delay);
-  }
-
-  private stopAutoScroll(): void {
-    if (this.autoScrollTimer) {
-      clearTimeout(this.autoScrollTimer);
-      this.autoScrollTimer = null;
-    }
-    this.autoScrollStartTime = 0;
-  }
-
-  private drawFillHandleSelection(): void {
-    const state = this.fillHandleService.state;
-    if (!state.startPosition) return;
-
-    this.gridSurface.drawSchedule.refresh();
-
-    const ctx = this.gridSurface.drawSchedule['canvasManager'].ctx;
-    if (!ctx) return;
-
-    const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;
-    const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
-    const cellWidth = this.gridSettings.cellWidth;
-    const cellHeight = this.gridSettings.cellHeight;
-    const headerHeight = this.gridSettings.cellHeaderHeight;
-
-    ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#4a90d9';
-
-    for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
-      const x = (col - firstVisibleCol) * cellWidth;
-      const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight;
-      ctx.fillRect(x, y, cellWidth, cellHeight);
-    }
-
-    ctx.restore();
-
-    const startCell = this.gridData.getCell(state.startPosition.row, state.startPosition.column);
-    const previewText = startCell?.mainText;
-
-    if (previewText) {
-      ctx.save();
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = '#000000';
-      ctx.font = this.gridFonts.mainFontStringZoom;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
-        const isActive = this.gridData.isCellActive(state.startPosition.row, col);
-
-        if (!isActive) {
-          const x = (col - firstVisibleCol) * cellWidth + cellWidth / 2;
-          const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight + cellHeight / 2;
-          ctx.fillText(previewText, x, y);
-        }
-      }
-
-      ctx.restore();
-    }
-  }
-
-  private async handleFillHandleDrop(): Promise<void> {
-    this.stopAutoScroll();
-    const result = this.fillHandleService.endDrag();
-    this.el.nativeElement.style.cursor = 'default';
-
-    if (!result || result.startColumn >= result.endColumn) {
-      this.gridSurface.drawSchedule.refresh();
-      return;
-    }
-
-    const scheduleDataService = this.gridData as ScheduleDataService;
-
-    if (result.entryType === WorkScheduleEntryType.Break) {
-      await this.handleFillHandleDropForBreak(scheduleDataService, result);
-    } else {
-      await this.handleFillHandleDropForWork(scheduleDataService, result);
-    }
-
-    this.gridSurface.drawSchedule.refresh();
-  }
-
-  private async handleFillHandleDropForBreak(
-    scheduleDataService: ScheduleDataService,
-    result: { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number }
-  ): Promise<void> {
-    const sourceEntry = scheduleDataService.getWorkScheduleEntryForCell(result.row, result.startColumn);
-    if (!sourceEntry) {
-      return;
-    }
-
-    const breakEntriesToAdd: BreakCellParams[] = [];
-
-    for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
-      if (scheduleDataService.isColumnSealed(col)) {
-        continue;
-      }
-
-      if (scheduleDataService.isCellActive(result.row, col)) {
-        continue;
-      }
-
-      const date = scheduleDataService.getDateForColumn(col);
-      if (!date) {
-        continue;
-      }
-
-      const clientIndex = scheduleDataService.rowGroupIndex[result.row];
-      if (clientIndex === undefined) {
-        continue;
-      }
-
-      const client = this.dataManagementSchedule.clients[clientIndex];
-      if (!client?.id) {
-        continue;
-      }
-
-      breakEntriesToAdd.push({
-        clientId: client.id,
-        absenceId: result.entryId,
-        date: date,
-        workTime: 0,
-        startTime: sourceEntry.startTime ?? '00:00',
-        endTime: sourceEntry.endTime ?? '00:00',
-        description: sourceEntry.description ?? undefined,
-      });
-    }
-
-    if (breakEntriesToAdd.length > 0) {
-      await this.dataManagementSchedule.bulkAddBreakScheduleEntries(breakEntriesToAdd);
-    }
-  }
-
-  private async handleFillHandleDropForWork(
-    scheduleDataService: ScheduleDataService,
-    result: { startColumn: number; endColumn: number; row: number; entryId: string; workTime: number; entryType: number }
-  ): Promise<void> {
-    const sourceEntry = scheduleDataService.getWorkScheduleEntryForCell(result.row, result.startColumn);
-
-    const entriesToAdd: {
-      clientId: string;
-      date: Date;
-      shiftId: string;
-      workTime: number;
-      startTime: string;
-      endTime: string;
-      information?: string;
-    }[] = [];
-
-    console.log('FillHandle: Starting copy loop', {
-      startColumn: result.startColumn,
-      endColumn: result.endColumn,
-      row: result.row,
-      entryId: result.entryId,
-      shiftSchedulesCount: this.dataManagementSchedule.shiftSchedules.length,
-    });
-
-    for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
-      const date = scheduleDataService.getDateForColumn(col);
-      console.log(`FillHandle: Processing col ${col}`, { date });
-
-      if (scheduleDataService.isColumnSealed(col)) {
-        console.log(`FillHandle: col ${col} is sealed, skipping`);
-        continue;
-      }
-
-      if (scheduleDataService.isCellActive(result.row, col)) {
-        console.log(`FillHandle: col ${col} cell is active, skipping`);
-        continue;
-      }
-
-      if (!date) {
-        console.log(`FillHandle: col ${col} no date, skipping`);
-        continue;
-      }
-
-      const shiftAvailable = this.dataManagementSchedule.shiftSchedules.find(
-        (s) => s.shiftId === result.entryId && this.isSameDay(s.date, date)
-      );
-
-      console.log(`FillHandle: col ${col} shiftAvailable`, {
-        found: !!shiftAvailable,
-        lookingForShiftId: result.entryId,
-        lookingForDate: date,
-        matchingShifts: this.dataManagementSchedule.shiftSchedules
-          .filter(s => s.shiftId === result.entryId)
-          .map(s => ({ shiftId: s.shiftId, date: s.date })),
-      });
-
-      if (!shiftAvailable) {
-        continue;
-      }
-
-      const maxCapacity = shiftAvailable.sumEmployees * shiftAvailable.quantity;
-      if (shiftAvailable.engaged >= maxCapacity) {
-        continue;
-      }
-
-      const clientIndex = scheduleDataService.rowGroupIndex[result.row];
-      if (clientIndex === undefined) {
-        continue;
-      }
-
-      const client = this.dataManagementSchedule.clients[clientIndex];
-      if (!client?.id) {
-        continue;
-      }
-
-      entriesToAdd.push({
-        clientId: client.id,
-        date: date,
-        shiftId: result.entryId,
-        workTime: result.workTime,
-        startTime: sourceEntry?.startTime || shiftAvailable.startShift,
-        endTime: sourceEntry?.endTime || shiftAvailable.endShift,
-        information: sourceEntry?.information ?? undefined,
-      });
-    }
-
-    if (entriesToAdd.length > 0) {
-      await this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
-    }
-  }
-
-  private isSameDay(date1: Date | string, date2: Date | string): boolean {
-    const d1 = new Date(date1);
-    const d2 = new Date(date2);
-    return (
-      d1.getFullYear() === d2.getFullYear() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getDate() === d2.getDate()
-    );
-  }
-
-  private updateCursorForFillHandle(event: MouseEvent): void {
-    if (this.gridSurface.nameId !== 'surface') {
-      return;
-    }
-
-    if (!this.gridSurface.drawSchedule.showFillHandle) {
-      return;
-    }
-
-    const pos = this.cellManipulation.Position;
-    if (pos.isEmpty() || !this.gridData.isCellDraggable(pos.row, pos.column)) {
-      this.el.nativeElement.style.cursor = 'default';
-      return;
-    }
-
-    if (this.cellManipulation.PositionCollection.count() > 1) {
-      this.el.nativeElement.style.cursor = 'default';
-      return;
-    }
-
-    if (this.isOverFillHandle(event, pos)) {
-      this.el.nativeElement.style.cursor = 'e-resize';
-    } else {
-      this.el.nativeElement.style.cursor = 'default';
-    }
-  }
-
-  private isOverFillHandle(event: MouseEvent, selectedPos: MyPosition): boolean {
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-
-    const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;
-    const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
-    const cellWidth = this.gridSettings.cellWidth;
-    const cellHeight = this.gridSettings.cellHeight;
-    const headerHeight = this.gridSettings.cellHeaderHeight;
-
-    const cellX = (selectedPos.column - firstVisibleCol) * cellWidth;
-    const cellY = (selectedPos.row - firstVisibleRow) * cellHeight + headerHeight;
-
-    const handleCenterX = cellX + cellWidth;
-    const handleCenterY = cellY + cellHeight;
-
-    const dx = mouseX - handleCenterX;
-    const dy = mouseY - handleCenterY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const hitArea = this.FILL_HANDLE_HIT_AREA * this.gridSettings.zoom;
-
-    return distance <= hitArea;
   }
 }

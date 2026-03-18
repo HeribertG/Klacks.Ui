@@ -25,6 +25,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
+import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   private dataManagementGroupService = inject(DataManagementGroupService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
+  private checkboxState = new CheckboxStateService();
 
   constructor() {
     this.registry.register(
@@ -79,8 +81,10 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
-  public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
-  public headerCheckBoxValue = false;
+  public get checkedArray(): CheckBoxValue[] { return this.checkboxState.checkedArray; }
+  public set checkedArray(value: CheckBoxValue[]) { this.checkboxState.checkedArray = value; }
+  public get headerCheckBoxValue(): boolean { return this.checkboxState.headerCheckBoxValue; }
+  public set headerCheckBoxValue(value: boolean) { this.checkboxState.headerCheckBoxValue = value; }
   public stateList: StateCountryToken[] | undefined;
   public maxAddressType = 3;
 
@@ -155,51 +159,23 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   /* #region all shift */
   clearCheckedArray() {
-    this.checkedArray = new Array<CheckBoxValue>();
+    this.checkboxState.clearCheckedArray();
   }
 
   addCheckBoxValueToArray(value: CheckBoxValue) {
-    this.checkedArray.push(value);
+    this.checkboxState.addCheckBoxValueToArray(value);
   }
 
   findCheckBoxValue(key: string): CheckBoxValue | undefined {
-    if (!this.checkedArray) {
-      return undefined;
-    }
-    if (key === '') {
-      return undefined;
-    }
-
-    return this.checkedArray.find((x) => x.id === key);
+    return this.checkboxState.findCheckBoxValue(key);
   }
 
   removeCheckBoxValueToArray(key: string) {
-    const index = this.checkedArray.findIndex((x) => x.id === key);
-    this.checkedArray.splice(index, 1);
+    this.checkboxState.removeCheckBoxValueToArray(key);
   }
 
   checkBoxIndeterminate() {
-    if (this.headerCheckBoxValue === undefined) {
-      this.headerCheckBoxValue = false;
-    }
-    if (this.headerCheckBoxValue === null) {
-      this.headerCheckBoxValue = false;
-    }
-
-    if (this.headerCheckBoxValue === true) {
-      const tmp = this.checkedArray.find((x) => x.checked === false);
-      if (!(tmp === undefined || tmp === null)) {
-        return true;
-      }
-    }
-    if (this.headerCheckBoxValue === false) {
-      const tmp = this.checkedArray.find((x) => x.checked === true);
-      if (!(tmp === undefined || tmp === null)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.checkboxState.checkBoxIndeterminate();
   }
 
   readPage(isSecondRead = false) {
@@ -343,7 +319,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   private saveEditShift() {
-    this.editShift;
     if (this.editShift) {
       const action = this.editShift.id
         ? this.dataShiftService.updateShift(this.editShift)

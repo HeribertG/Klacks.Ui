@@ -50,6 +50,7 @@ export class SpeechRecognitionService {
   private useWhisperFallback = false;
   private whisperSubscription: Subscription | null = null;
   private whisperInterimSubscription: Subscription | null = null;
+  private whisperErrorSubscription: Subscription | null = null;
 
   private accumulatedTranscript = '';
   private shouldContinue = false;
@@ -341,6 +342,7 @@ export class SpeechRecognitionService {
 
     this.whisperSubscription?.unsubscribe();
     this.whisperInterimSubscription?.unsubscribe();
+    this.whisperErrorSubscription?.unsubscribe();
 
     this.whisperInterimSubscription = this.whisperStreamingService.interimResults.subscribe((text: string) => {
       this.interimResults$.next(text);
@@ -350,7 +352,7 @@ export class SpeechRecognitionService {
       this.results$.next(text);
     });
 
-    this.whisperStreamingService.errors.subscribe((error: string) => {
+    this.whisperErrorSubscription = this.whisperStreamingService.errors.subscribe((error: string) => {
       this.errors$.next(error);
       this.isListening.set(false);
     });

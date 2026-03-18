@@ -63,7 +63,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
     c.name = new MultiLanguage();
     c.isDirty = CreateEntriesEnum.new;
 
-    const currentList = this.dataManagementSettingsService.countriesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.countriesList();
     this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList, c]);
 
     setTimeout(() => {
@@ -74,7 +74,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
   }
 
   openDeleteCountry(index: number): void {
-    const currentList = this.dataManagementSettingsService.countriesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.countriesList();
     if (index >= 0 && index < currentList.length) {
       this.modalService.Filing = '';
       this.modalService.componentContext = 'countries';
@@ -87,7 +87,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
 
   private deleteCountry(indexStr: string): void {
     const index = parseInt(indexStr, 10);
-    const currentList = this.dataManagementSettingsService.countriesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.countriesList();
     const c = currentList[index];
 
     if (c) {
@@ -106,7 +106,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
   }
 
   onIsChanging() {
-    const currentList = this.dataManagementSettingsService.countriesList;
+    const currentList = this.dataManagementSettingsService.countryStateService.countriesList();
     this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList]);
   }
 }

@@ -1,0 +1,85 @@
+@use "../../../../assets/standard-styles/colors.scss";
+
+:host {
+  --scrollbar-padding: 50px;
+  --arrow-thumb-width: 25px;
+}
+
+:host([style*="width:0"]) .arrow-thumb {
+  display: none;
+}
+
+.scrollbar-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  box-sizing: content-box;
+  background-color: colors.$objectSurfaceBackgroundColor;
+  cursor: default;
+}
+
+.arrow-thumb {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  color: #a9a9a9;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.arrow-thumb:hover {
+  color: #424949;
+  cursor: default;
+}
+
+.arrow-thumb.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+  color: #a9a9a9;
+}
+
+.arrow-thumb.hidden {
+  display: none;
+}
+
+canvas {
+  height: 100%;
+  width: 100%;
+}
+
+:host(.vertical) {
+  .scrollbar-container {
+    flex-direction: column;
+  }
+
+  .scrollbar-bar {
+    height: calc(100% - var(--scrollbar-padding));
+    width: 100%;
+  }
+
+  .arrow-thumb {
+    height: var(--arrow-thumb-width);
+    width: 100%;
+  }
+}
+
+:host(.horizontal) {
+  .scrollbar-container {
+    flex-direction: row;
+  }
+
+  .scrollbar-bar {
+    height: 100%;
+    width: calc(100% - var(--scrollbar-padding));
+  }
+
+  .arrow-thumb {
+    height: 100%;
+    width: var(--arrow-thumb-width);
+  }
+}

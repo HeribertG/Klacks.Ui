@@ -1,0 +1,367 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/**
+ * Facade-Service für Schicht-Operationen: Anordnung, Kompaktierung, TimeRange-Updates und Konvertierung.
+ * @param arrangementService - Ordnet Schichten sequentiell an und fügt neue Items ein
+ * @param itemManipulationService - Aktualisiert TimeRange-Startzeiten einzelner Items
+ * @param timeRangeService - Berechnet Zeitdauer und parst Zeitstrings
+ * @param shiftService - Verwaltet die ausgewählten Container-Template-Items
+ * @param containerService - Aktualisiert die Reihenfolge in den Templates
+ */
+import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
+import {
+  IContainerTemplateItem,
+} from 'src/app/domain/models/container/container-template-class';
+import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
+import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { ShiftArrangementService } from './shift-arrangement.service';
+import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
+import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ContainerTemplatePdfExportService } from './container-template-pdf-export.service';
+import { ContainerTemplateRouteService } from './container-template-route.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
+import {
+  timeToString,
+  timeToMinutes,
+} from 'src/app/shared/helpers/time-format.helper';
+
+@Injectable()
+export class ContainerTemplateShiftOperationsService {
+  private arrangementService = inject(ShiftArrangementService);
+  private itemManipulationService = inject(ContainerTemplateItemManipulationService);
+  private timeRangeService = inject(TimeRangeService);
+  private shiftService = inject(ContainerTemplateShiftService);
+  private containerService = inject(DataManagementContainerService);
+  private translateService = inject(TranslateService);
+  private toastService = inject(ToastShowService);
+  private pdfExportService = inject(ContainerTemplatePdfExportService);
+  private routeService = inject(ContainerTemplateRouteService);
+  private workplaceStateService = inject(WorkplaceStateService);
+
+  calculateDuration(timeFrom: OwnTime, timeTo: OwnTime): OwnTime {
+    return this.timeRangeService.calculateDuration(timeFrom, timeTo);
+  }
+
+  getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
+    if (!item.timeRangeStartShift) {
+      return OwnTime.forTime('00', '00');
+    }
+    const parsed = this.timeRangeService.parseTimeString(
+      item.timeRangeStartShift,
+    );
+    if (!parsed) {
+      return OwnTime.forTime('00', '00');
+    }
+    return OwnTime.forTime(
+      parsed.hours.toString().padStart(2, '0'),
+      parsed.minutes.toString().padStart(2, '0'),
+    );
+  }
+
+  onTimeRangeStartChange(
+    item: IContainerTemplateItem,
+    newTime: OwnTime,
+  ): void {
+    const desiredStartMinutes =
+      parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
+    const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
+    const targetItemId = item.id || item.tmpId;
+
+    const updatedItems = this.itemManipulationService.updateItemTimeRangeStart(
+      item,
+      desiredStartMinutes,
+      allItems,
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(updatedItems);
+    this.shiftService.setSelectedShift(null);
+    const updatedItem = updatedItems.find(
+      (i) => (i.id || i.tmpId) === targetItemId,
+    );
+    if (updatedItem) {
+      this.shiftService.setSelectedShift(updatedItem);
+    }
+  }
+
+  arrangeAndSetItems(
+    containerTemplateItems: IContainerTemplateItem[],
+    timeFrom: OwnTime,
+    timeTo: OwnTime,
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+  ): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+    const containerTimeUntil = timeToString(
+      parseInt(timeTo.hours),
+      parseInt(timeTo.minutes),
+    );
+
+    const arrangedItems = this.arrangementService.arrangeShifts(
+      containerTemplateItems,
+      containerTimeFrom,
+      containerTimeUntil,
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
+    this.updateTemplateOrder(arrangedItems, selectedWeekday, isHoliday);
+  }
+
+  insertNewItemWithMinimalRepositioning(
+    containerTemplateItems: IContainerTemplateItem[],
+    newItemIndex: number,
+    timeFrom: OwnTime,
+    timeTo: OwnTime,
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+  ): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+    const containerTimeUntil = timeToString(
+      parseInt(timeTo.hours),
+      parseInt(timeTo.minutes),
+    );
+
+    const arrangedItems =
+      this.arrangementService.insertItemWithMinimalRepositioning(
+        containerTemplateItems,
+        newItemIndex,
+        containerTimeFrom,
+        containerTimeUntil,
+      );
+
+    this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
+    this.updateTemplateOrder(arrangedItems, selectedWeekday, isHoliday);
+  }
+
+  compactAndSetItems(
+    containerTemplateItems: IContainerTemplateItem[],
+    timeFrom: OwnTime,
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+  ): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+
+    const compactedItems = this.arrangementService.compactShifts(
+      containerTemplateItems,
+      containerTimeFrom,
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(compactedItems);
+    this.updateTemplateOrder(compactedItems, selectedWeekday, isHoliday);
+  }
+
+  convertShiftToContainerTemplateItem(
+    shift: IShift,
+  ): IContainerTemplateItem {
+    return {
+      tmpId: newGuid(),
+      shiftId: shift.id!,
+      shift: shift,
+      startShift: shift.startShift,
+      endShift: shift.endShift,
+      briefingTime: shift.briefingTime,
+      debriefingTime: shift.debriefingTime,
+      travelTimeAfter: shift.travelTimeAfter,
+      travelTimeBefore: shift.travelTimeBefore,
+      timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
+      timeRangeEndShift: shift.isTimeRange ? shift.endShift : '',
+    };
+  }
+
+  hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
+    if (!item.shift?.isTimeRange || !item.timeRangeStartShift) {
+      return false;
+    }
+    const plannedStart = timeToMinutes(item.timeRangeStartShift);
+    const plannedEnd = timeToMinutes(item.timeRangeEndShift);
+    const shiftRangeStart = timeToMinutes(item.shift.startShift);
+    const shiftRangeEnd = timeToMinutes(item.shift.endShift);
+
+    return plannedStart < shiftRangeStart || plannedEnd > shiftRangeEnd;
+  }
+
+  isTimeRangePartial(shift: IShift, timeFrom: OwnTime, timeTo: OwnTime): boolean {
+    if (!shift.isTimeRange) {
+      return false;
+    }
+    const containerFrom = timeToMinutes(
+      timeToString(parseInt(timeFrom.hours), parseInt(timeFrom.minutes)),
+    );
+    const containerUntil = timeToMinutes(
+      timeToString(parseInt(timeTo.hours), parseInt(timeTo.minutes)),
+    );
+    const shiftStart = timeToMinutes(shift.startShift);
+    const shiftEnd = timeToMinutes(shift.endShift);
+
+    return shiftStart < containerFrom || shiftEnd > containerUntil;
+  }
+
+  exportSelectedShiftsToPdf(
+    containerShift: IShift | null,
+    selectedWeekday: string | null,
+    timeFrom: OwnTime,
+    timeTo: OwnTime,
+  ): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    if (items.length === 0) {
+      return;
+    }
+
+    const containerName = containerShift?.name || 'Container Template';
+    const weekday = selectedWeekday || '';
+    const timeFromStr = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+    const timeToStr = timeToString(
+      parseInt(timeTo.hours),
+      parseInt(timeTo.minutes),
+    );
+
+    this.pdfExportService.exportContainerTemplateToPdf(
+      items,
+      containerName,
+      weekday,
+      timeFromStr,
+      timeToStr,
+    );
+  }
+
+  exportRouteToPdf(
+    containerShift: IShift | null,
+    selectedWeekday: string | null,
+    timeFrom: OwnTime,
+  ): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    if (items.length === 0) {
+      this.toastService.showInfo(
+        this.translateService.instant(
+          'shift.container-template.toast.no-shifts-export',
+        ),
+      );
+      return;
+    }
+
+    if (!this.routeService.lastRouteInfo) {
+      this.toastService.showInfo(
+        this.translateService.instant(
+          'shift.container-template.toast.optimize-first',
+        ),
+      );
+      return;
+    }
+
+    const containerName = containerShift?.name || 'Route';
+    const weekday = selectedWeekday || '';
+    const timeFromStr = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+
+    this.pdfExportService.exportRouteToPdf(
+      items,
+      this.routeService.lastRouteInfo,
+      containerName,
+      weekday,
+      timeFromStr,
+    );
+  }
+
+  compactSelectedShifts(
+    timeFrom: OwnTime,
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+  ): void {
+    const currentItems =
+      this.shiftService.selectedContainerTemplateItemsSignal();
+    const itemsWithResetTravelTimes = currentItems.map((item) => ({
+      ...item,
+      travelTimeBefore: '00:00',
+      travelTimeAfter: '00:00',
+    }));
+    this.compactAndSetItems(
+      itemsWithResetTravelTimes,
+      timeFrom,
+      selectedWeekday,
+      isHoliday,
+    );
+    this.shiftService.setSelectedShift(null);
+  }
+
+  removeTask(
+    item: IContainerTemplateItem,
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+    updateAvailableTasksFn: () => void,
+  ): void {
+    const itemIdentifier = item.id || item.tmpId;
+    if (itemIdentifier) {
+      if (item.shift && selectedWeekday) {
+        const weekdayNumber = this.containerService.getWeekdayNumber(
+          selectedWeekday,
+        );
+        this.containerService.addShiftToAvailableTasks(
+          item.shift,
+          weekdayNumber,
+        );
+        updateAvailableTasksFn();
+
+        this.containerService.removeTaskItemFromTemplates(
+          itemIdentifier,
+          weekdayNumber,
+          isHoliday,
+        );
+      }
+
+      this.shiftService.removeTask(itemIdentifier);
+      this.workplaceStateService.areObjectsDirty();
+    }
+  }
+
+  private updateTemplateOrder(
+    items: IContainerTemplateItem[],
+    selectedWeekday: string | null,
+    isHoliday: boolean,
+  ): void {
+    if (selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        selectedWeekday,
+      );
+      this.containerService.updateTaskOrderInTemplates(
+        items,
+        weekdayNumber,
+        isHoliday,
+      );
+    }
+  }
+}

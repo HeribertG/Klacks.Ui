@@ -41,15 +41,11 @@ describe('SettingsGeneralComponent', () => {
 
         const settingsServiceSpy = {
             loadSettings: vi.fn(),
-            settingsChangeTrigger: signal(0)
+            settingsChangeTrigger: signal(0),
+            appSettings: {
+                contactSettings: signal({ name: 'Klacks' }),
+            },
         };
-
-        let mockAppName = 'Klacks';
-        Object.defineProperty(settingsServiceSpy, 'appName', {
-            get: () => mockAppName,
-            set: (value: string) => { mockAppName = value; },
-            configurable: true
-        });
 
         const translateServiceSpy = {
             instant: vi.fn()

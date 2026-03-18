@@ -7,12 +7,12 @@
 
   <div id="countries-line" class="container-line"></div>
 
-  @if (dataManagementSettingsService.countriesList &&
-  dataManagementSettingsService.countriesList.length > 0) {
+  @if (dataManagementSettingsService.countryStateService.countriesList() &&
+  dataManagementSettingsService.countryStateService.countriesList().length > 0) {
   <app-countries-header id="countries-table-header"> </app-countries-header>
   }
   <div id="countries-box" class="container-box" #containerBox>
-    @for (c of dataManagementSettingsService.countriesList; track c.id ||
+    @for (c of dataManagementSettingsService.countryStateService.countriesList(); track c.id ||
     $index; let i = $index) { @if (c.isDirty !== 3) {
     <app-countries-row
       [id]="'countries-row-' + i"

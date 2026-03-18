@@ -52,6 +52,31 @@ export class GridColorService {
   availableShiftsHeaderColor = 'red';
   availabilityHighlightColor = 'rgba(76, 175, 80, 0.15)';
 
+  private readonly colorSettingDefinitions: { key: string; property: keyof GridColorService & string }[] = [
+    { key: ConstantKeys.BACKGROUND_COLOR_HOLIDAY_KEY, property: 'backGroundColorHolyday' },
+    { key: ConstantKeys.BACKGROUND_COLOR_KEY, property: 'backGroundColor' },
+    { key: ConstantKeys.BACKGROUND_COLOR_OFFICIALLY_KEY, property: 'backGroundColorOfficiallyHoliday' },
+    { key: ConstantKeys.BACKGROUND_COLOR_SATURDAY_KEY, property: 'backGroundColorSaturday' },
+    { key: ConstantKeys.BACKGROUND_COLOR_SUNDAY_KEY, property: 'backGroundColorSunday' },
+    { key: ConstantKeys.BORDER_COLOR_KEY, property: 'borderColor' },
+    { key: ConstantKeys.EVEN_MONTH_COLOR_KEY, property: 'evenMonthColor' },
+    { key: ConstantKeys.MAIN_TEXT_COLOR_KEY, property: 'mainFontColor' },
+    { key: ConstantKeys.ODD_MONTH_COLOR_KEY, property: 'oddMonthColor' },
+    { key: ConstantKeys.SUB_TEXT_COLOR_KEY, property: 'subFontColor' },
+    { key: ConstantKeys.FOREGROUND_COLOR_KEY, property: 'foreGroundColor' },
+    { key: ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY, property: 'controlBackGroundColor' },
+    { key: ConstantKeys.HEADER_BACKGROUND_COLOR_KEY, property: 'headerBackGroundColor' },
+    { key: ConstantKeys.HEADER_FOREGROUND_COLOR_KEY, property: 'headerForeGroundColor' },
+    { key: ConstantKeys.FOCUS_BORDER_COLOR_KEY, property: 'focusBorderColor' },
+    { key: ConstantKeys.BORDER_END_MONTH_COLOR_KEY, property: 'borderColorEndMonth' },
+    { key: ConstantKeys.WORK_CHANGE_COLOR_KEY, property: 'workChangeColor' },
+    { key: ConstantKeys.SURCHARGE_COLOR_KEY, property: 'surchargeColor' },
+  ];
+
+  private readonly colorSettingMap = new Map<string, keyof GridColorService & string>(
+    this.colorSettingDefinitions.map(d => [d.key, d.property])
+  );
+
   private settingListDummy: ISetting[] = [];
 
   private settingsCount = 0;
@@ -158,118 +183,12 @@ export class GridColorService {
   }
 
   private resetSettingList(): void {
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.backGroundColorHolyday,
-        ConstantKeys.BACKGROUND_COLOR_HOLIDAY_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.backGroundColor,
-        ConstantKeys.BACKGROUND_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.backGroundColorOfficiallyHoliday,
-        ConstantKeys.BACKGROUND_COLOR_OFFICIALLY_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.backGroundColorSaturday,
-        ConstantKeys.BACKGROUND_COLOR_SATURDAY_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.backGroundColorSunday,
-        ConstantKeys.BACKGROUND_COLOR_SUNDAY_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(this.borderColor, ConstantKeys.BORDER_COLOR_KEY)
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.evenMonthColor,
-        ConstantKeys.EVEN_MONTH_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.mainFontColor,
-        ConstantKeys.MAIN_TEXT_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.oddMonthColor,
-        ConstantKeys.ODD_MONTH_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.subFontColor,
-        ConstantKeys.SUB_TEXT_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.foreGroundColor,
-        ConstantKeys.FOREGROUND_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.controlBackGroundColor,
-        ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.headerBackGroundColor,
-        ConstantKeys.HEADER_BACKGROUND_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.headerForeGroundColor,
-        ConstantKeys.HEADER_FOREGROUND_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.focusBorderColor,
-        ConstantKeys.FOCUS_BORDER_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.borderColorEndMonth,
-        ConstantKeys.BORDER_END_MONTH_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.workChangeColor,
-        ConstantKeys.WORK_CHANGE_COLOR_KEY
-      )
-    );
-    this.settingList.push(
-      this.resetSettingListSub(
-        this.surchargeColor,
-        ConstantKeys.SURCHARGE_COLOR_KEY
-      )
-    );
-  }
-  private resetSettingListSub(value: string, type: string): Setting {
-    const s = new Setting();
-    s.value = value;
-    s.type = type;
-
-    return s;
+    for (const def of this.colorSettingDefinitions) {
+      const s = new Setting();
+      s.value = this[def.property] as string;
+      s.type = def.key;
+      this.settingList.push(s);
+    }
   }
 
   private isValidColor(color: string): boolean {
@@ -282,79 +201,10 @@ export class GridColorService {
       return;
     }
 
-    switch (value.type) {
-      case ConstantKeys.BACKGROUND_COLOR_HOLIDAY_KEY:
-        this.backGroundColorHolyday = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BACKGROUND_COLOR_KEY:
-        this.backGroundColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BACKGROUND_COLOR_OFFICIALLY_KEY:
-        this.backGroundColorOfficiallyHoliday = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BACKGROUND_COLOR_SATURDAY_KEY:
-        this.backGroundColorSaturday = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BACKGROUND_COLOR_SUNDAY_KEY:
-        this.backGroundColorSunday = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BORDER_COLOR_KEY:
-        this.borderColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.EVEN_MONTH_COLOR_KEY:
-        this.evenMonthColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.MAIN_TEXT_COLOR_KEY:
-        this.mainFontColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.ODD_MONTH_COLOR_KEY:
-        this.oddMonthColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.SUB_TEXT_COLOR_KEY:
-        this.subFontColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.FOREGROUND_COLOR_KEY:
-        this.foreGroundColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY:
-        this.controlBackGroundColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.HEADER_BACKGROUND_COLOR_KEY:
-        this.headerBackGroundColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.HEADER_FOREGROUND_COLOR_KEY:
-        this.headerForeGroundColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.FOCUS_BORDER_COLOR_KEY:
-        this.focusBorderColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.BORDER_END_MONTH_COLOR_KEY:
-        this.borderColorEndMonth = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.WORK_CHANGE_COLOR_KEY:
-        this.workChangeColor = value.value;
-        this.setCurrentSetting(value);
-        break;
-      case ConstantKeys.SURCHARGE_COLOR_KEY:
-        this.surchargeColor = value.value;
-        this.setCurrentSetting(value);
-        break;
+    const property = this.colorSettingMap.get(value.type);
+    if (property) {
+      (this as Record<string, unknown>)[property] = value.value;
+      this.setCurrentSetting(value);
     }
   }
 

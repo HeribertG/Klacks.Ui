@@ -24,8 +24,14 @@ describe('MacrosComponent delete logic', () => {
     mockMacroManagementService = { save: vi.fn() };
 
     dataManagementSettingsService = {
-      get macroList() { return macroListStore; },
-      set macroList(value: IMacro[]) { macroListStore = value; },
+      macros: {
+        macroList: (() => {
+          const s = { value: macroListStore };
+          const fn = () => s.value;
+          fn.set = (v: IMacro[]) => { s.value = v; macroListStore = v; };
+          return fn;
+        })(),
+      },
     };
 
     TestBed.configureTestingModule({
@@ -41,17 +47,17 @@ describe('MacrosComponent delete logic', () => {
 
   function deleteMacro(indexStr: string): void {
     const index = parseInt(indexStr, 10);
-    const macros = dataManagementSettingsService.macroList;
+    const macros = dataManagementSettingsService.macros.macroList();
 
     if (index >= 0 && index < macros.length) {
       const macro = macros[index];
 
       if (macro) {
         if (macro.isDirty === CreateEntriesEnum.new) {
-          dataManagementSettingsService.macroList = [
+          dataManagementSettingsService.macros.macroList.set([
             ...macros.slice(0, index),
             ...macros.slice(index + 1)
-          ];
+          ]);
         } else {
           const updatedMacro = { ...macro };
           if (updatedMacro.name) {
@@ -59,11 +65,11 @@ describe('MacrosComponent delete logic', () => {
           }
           updatedMacro.isDirty = CreateEntriesEnum.delete;
 
-          dataManagementSettingsService.macroList = [
+          dataManagementSettingsService.macros.macroList.set([
             ...macros.slice(0, index),
             updatedMacro,
             ...macros.slice(index + 1)
-          ];
+          ]);
           mockMacroManagementService.save();
         }
       }

@@ -42,6 +42,7 @@ import { MyPosition } from '../../classes/position';
 import { TooltipService } from '../../../tooltip/tooltip.service';
 import { TestAccessibilityService } from '../../services/grid-test-accessibility/test-accessibility.service';
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
+import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -64,9 +65,9 @@ export interface CellValueChangeEvent {
   standalone: true,
   imports: [GridTemplateEventsDirective, CellInputEventsDirective],
   providers: [
-    // Test accessibility services - only instantiated when component is created
     TestAccessibilityService,
     GridTestAccessibilityService,
+    GridFillHandleDragService,
   ],
 })
 export class GridSurfaceTemplateComponent

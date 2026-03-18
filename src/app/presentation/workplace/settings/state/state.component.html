@@ -7,12 +7,12 @@
 
   <div id="state-line" class="container-line"></div>
 
-  @if (dataManagementSettingsService.statesList &&
-  dataManagementSettingsService.statesList.length > 0) {
+  @if (dataManagementSettingsService.countryStateService.statesList() &&
+  dataManagementSettingsService.countryStateService.statesList().length > 0) {
   <app-state-header id="state-table-header"> </app-state-header>
   }
   <div id="state-box" class="container-box" #containerBox>
-    @for (c of dataManagementSettingsService.statesList; track c.id || $index;
+    @for (c of dataManagementSettingsService.countryStateService.statesList(); track c.id || $index;
     let i = $index) { @if (c.isDirty !== 3) {
     <app-state-row
       [id]="'state-row-' + i"

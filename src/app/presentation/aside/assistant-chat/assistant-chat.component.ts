@@ -39,12 +39,12 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
-import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
+import { VoiceModeService } from './services/voice-mode.service';
+import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 
 @Component({
   selector: 'app-assistant-chat',
@@ -62,6 +62,8 @@ import { ChatMessage } from './chat-message.interface';
   styleUrls: ['./assistant-chat.component.scss'],
   providers: [
     AssistantFunctionExecutionService,
+    VoiceModeService,
+    ChatFunctionExecutionService,
   ],
 })
 export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -69,7 +71,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
-  private functionExecutionService = inject(AssistantFunctionExecutionService);
+  private chatFunctionExecution = inject(ChatFunctionExecutionService);
+  private voiceModeService = inject(VoiceModeService);
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
@@ -78,7 +81,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
-  private uiActionEngine = inject(UiActionEngineService);
   private toastShowService = inject(ToastShowService);
   private destroy$ = new Subject<void>();
 
@@ -103,14 +105,20 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   messages: ChatMessage[] = [];
   inputText = '';
-  isListening = false;
-  isTranscribing = false;
   isProcessing = false;
   conversationId = '';
 
-  voiceModeEnabled = false;
-  private silenceTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly SILENCE_AUTO_SEND_DELAY_MS = 3000;
+  get voiceModeEnabled(): boolean {
+    return this.voiceModeService.voiceModeEnabled;
+  }
+
+  get isListening(): boolean {
+    return this.voiceModeService.isListening;
+  }
+
+  get isTranscribing(): boolean {
+    return this.voiceModeService.isTranscribing;
+  }
 
   availableModels: IAssistantModel[] = [];
   currentModel = '';
@@ -125,6 +133,17 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   ngOnInit(): void {
     this.conversationId = this.generateConversationId();
+
+    this.voiceModeService.initialize(
+      {
+        getInputText: () => this.inputText,
+        setInputText: (text: string) => { this.inputText = text; },
+        sendMessage: () => this.sendMessage(),
+        getIsProcessing: () => this.isProcessing,
+        detectChanges: () => this.cdr.detectChanges(),
+      },
+      this.destroy$,
+    );
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.destroy$))
@@ -187,7 +206,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnDestroy(): void {
-    this.disableVoiceMode();
+    this.voiceModeService.disableVoiceMode();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -248,7 +267,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       }
 
       if (response?.functionCalls && response.functionCalls.length > 0) {
-        await this.executeFunctionCalls(response.functionCalls);
+        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls, this.messages);
       } else if (response?.navigateTo && response?.actionPerformed) {
         setTimeout(() => {
           this.router.navigate([response.navigateTo!]);
@@ -268,7 +287,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       const errorMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
-        content: 'âŒ ' + errorContent,
+        content: '❌ ' + errorContent,
         timestamp: new Date(),
       };
       this.messages.push(errorMessage);
@@ -279,153 +298,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   async toggleVoiceMode(): Promise<void> {
-    if (this.voiceModeEnabled) {
-      this.disableVoiceMode();
-    } else {
-      await this.enableVoiceMode();
-    }
-  }
-
-  private async enableVoiceMode(): Promise<void> {
-    const diagnostics = this.speechService.getDiagnostics();
-
-    if (!this.speechService.isSupported$()) {
-      const errorMsg = diagnostics.isArmProcessor
-        ? 'Speech recognition may not be fully supported on Windows ARM devices.'
-        : 'Speech recognition is not supported in this browser.';
-      alert(errorMsg);
-      return;
-    }
-
-    try {
-      const hasPermission = await this.speechService.requestPermissions();
-      if (!hasPermission) {
-        alert(this.translateService.instant('assistant-chat.error.microphone-permission'));
-        return;
-      }
-    } catch {
-      alert(this.translateService.instant('assistant-chat.error.microphone-access'));
-      return;
-    }
-
-    this.voiceModeEnabled = true;
-    this.startVoiceListening();
-  }
-
-  private disableVoiceMode(): void {
-    this.voiceModeEnabled = false;
-    this.clearSilenceTimer();
-    if (this.isListening) {
-      this.speechService.stopListening();
-      this.isListening = false;
-    }
-  }
-
-  private startVoiceListening(): void {
-    if (!this.voiceModeEnabled || this.isListening || this.isProcessing) {
-      return;
-    }
-
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
-    const speechLang = this.getSpeechLanguageCode(currentLang);
-
-    this.inputText = '';
-    this.isListening = true;
-
-    this.speechService.interimResults
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((text: string) => {
-        this.ngZone.run(() => {
-          this.inputText = text;
-          this.resetSilenceTimer();
-          this.cdr.detectChanges();
-        });
-      });
-
-    this.startSilenceTimer();
-
-    this.speechService
-      .startListening(speechLang)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (text: string) => {
-          this.ngZone.run(() => {
-            this.inputText = text;
-            this.isListening = false;
-            this.isTranscribing = false;
-            this.cdr.detectChanges();
-          });
-        },
-        error: () => {
-          this.ngZone.run(() => {
-            this.isListening = false;
-            this.isTranscribing = false;
-            this.cdr.detectChanges();
-          });
-        },
-      });
-
-    this.speechService.errors
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((_error) => {
-        this.ngZone.run(() => {
-          this.isTranscribing = false;
-          if (this.voiceModeEnabled) {
-            setTimeout(() => this.startVoiceListening(), 1000);
-          }
-          this.cdr.detectChanges();
-        });
-      });
-  }
-
-  private async handleSilenceTimeout(): Promise<void> {
-    if (!this.isListening || !this.inputText.trim()) {
-      if (this.voiceModeEnabled) {
-        this.startSilenceTimer();
-      }
-      return;
-    }
-
-    this.clearSilenceTimer();
-
-    if (this.isUsingWhisper()) {
-      this.isTranscribing = true;
-    }
-
-    this.speechService.stopListening();
-    this.isListening = false;
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    if (this.inputText.trim() && !this.isProcessing) {
-      await this.sendMessage();
-    }
-
-    if (this.voiceModeEnabled && !this.isProcessing) {
-      setTimeout(() => this.startVoiceListening(), 500);
-    }
-  }
-
-  private startSilenceTimer(): void {
-    this.clearSilenceTimer();
-    this.silenceTimer = setTimeout(() => {
-      this.ngZone.run(() => {
-        this.handleSilenceTimeout();
-      });
-    }, this.SILENCE_AUTO_SEND_DELAY_MS);
-  }
-
-  private resetSilenceTimer(): void {
-    if (this.isListening) {
-      this.startSilenceTimer();
-    }
-  }
-
-  private clearSilenceTimer(): void {
-    if (this.silenceTimer) {
-      clearTimeout(this.silenceTimer);
-      this.silenceTimer = null;
-    }
+    await this.voiceModeService.toggleVoiceMode();
   }
 
   onSuggestionClick(suggestion: string): void {
@@ -565,119 +438,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.shouldScrollToBottom = true;
   }
 
-  private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const uiActionCalls: any[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const navigationCalls: any[] = [];
-    const backendCalls: { id: string; name: string; arguments: Record<string, unknown> }[] = [];
-
-    for (const call of functionCalls) {
-      const functionName = call.FunctionName || call.functionName;
-      if (!functionName) continue;
-
-      const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      if (uiActionSteps && uiActionSteps !== '{}') {
-        uiActionCalls.push(call);
-      } else if (this.NAVIGATION_FUNCTIONS.includes(functionName)) {
-        navigationCalls.push(call);
-      }
-    }
-
-    for (const call of uiActionCalls) {
-      const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      await this.executeUiActionSteps(uiActionSteps, call);
-    }
-
-    for (const call of navigationCalls) {
-      const functionName = call.FunctionName || call.functionName;
-      const functionCall = {
-        id: this.generateMessageId(),
-        name: functionName,
-        arguments: call.Parameters || call.parameters || {},
-      };
-      try {
-        const result = await firstValueFrom(
-          this.functionExecutionService.executeFunction(functionCall)
-        );
-        this.applyFunctionResult(result);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        this.applyFunctionError(error);
-      }
-    }
-
-    if (backendCalls.length === 0) return;
-
-    if (backendCalls.length === 1) {
-      try {
-        const result = await firstValueFrom(
-          this.functionExecutionService.executeFunction(backendCalls[0])
-        );
-        this.applyFunctionResult(result);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        this.applyFunctionError(error);
-      }
-      return;
-    }
-
-    try {
-      const results = await this.functionExecutionService.executeFunctionsBatch(backendCalls);
-      for (const result of results) {
-        this.applyFunctionResult(result);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      this.applyFunctionError(error);
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionResult(result: any): void {
-    const lastMessage = this.messages[this.messages.length - 1];
-    if (!lastMessage) return;
-
-    if (!result.success && result.error && !result.error.includes('not implemented')) {
-      if (!lastMessage.content) {
-        lastMessage.content = result.error;
-      }
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionError(error: any): void {
-    const lastMsg = this.messages[this.messages.length - 1];
-    if (lastMsg && !lastMsg.content) {
-      lastMsg.content = error?.message || 'Function execution failed';
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeUiActionSteps(stepsJson: string, call: any): Promise<void> {
-    try {
-      const config: IUiActionConfig = JSON.parse(stepsJson);
-      if (!config.steps || config.steps.length === 0) return;
-
-      const context = {
-        params: call.Parameters || call.parameters || {},
-        results: {},
-        callId: this.generateMessageId(),
-      };
-
-      await this.uiActionEngine.executeConfig(config, context);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      const lastMsg = this.messages[this.messages.length - 1];
-      if (lastMsg && !lastMsg.content) {
-        lastMsg.content = error?.message || 'UI action execution failed';
-      }
-    }
-  }
-
   isInitializing(): boolean {
     return !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized();
   }
@@ -700,7 +460,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   isUsingWhisper(): boolean {
-    return this.speechService.getDiagnostics().useWhisperFallback;
+    return this.voiceModeService.isUsingWhisper();
   }
 }
-

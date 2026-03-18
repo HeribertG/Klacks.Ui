@@ -30,6 +30,25 @@ export class AbsenceCalendarDirective {
   private readonly PAGE_DOWN_SCROLL_OFFSET = 3;
   private readonly PAGE_UP_SCROLL_OFFSET = 0;
 
+  private readonly keyHandlers = new Map<string, (event: KeyboardEvent) => void>([
+    ['ArrowDown', (event) => this.handleArrowDown(event)],
+    ['PageDown', (event) => this.handlePageDown(event)],
+    ['ArrowUp', (event) => this.handleArrowUp(event)],
+    ['PageUp', (event) => this.handlePageUp(event)],
+    ['End', (event) => this.handleEnd(event)],
+    ['Home', (event) => this.handleHome(event)],
+    ['ArrowLeft', (event) => this.handleArrowLeft(event)],
+    ['Backspace', (event) => this.handleArrowLeft(event)],
+    ['ArrowRight', (event) => this.handleArrowRight(event)],
+    ['Tab', (event) => this.handleArrowRight(event)],
+    ['Delete', (event) => this.handleDelete(event)],
+    ['Ctrl+x', (event) => this.handleCut(event)],
+    ['Ctrl+X', (event) => this.handleCut(event)],
+    ['Ctrl+c', (event) => this.handleCopy(event)],
+    ['Ctrl+v', (event) => this.handlePaste(event)],
+    ['Ctrl+V', (event) => this.handlePaste(event)],
+  ]);
+
   // @HostListener('mouseenter', ['$event']) onMouseEnter(
   //   event: MouseEvent
   // ): void {}
@@ -167,246 +186,217 @@ export class AbsenceCalendarDirective {
     }
     this.gridBody.isCtrl = event.ctrlKey;
 
-    if (event.key === 'ArrowDown') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+    const mapKey = event.ctrlKey ? `Ctrl+${event.key}` : event.key;
+    const handler = this.keyHandlers.get(mapKey);
+    if (handler) {
+      handler(event);
+    }
+  }
 
-      if (
-        this.gridBody.drawCalendarGantt.selectedRow <
-        this.gridBody.dataManagementBreak.rows - 1
-      ) {
-        const tmp =
-          this.gridBody.drawCalendarGantt.selectedRow + this.INDEX_CORRECTION;
-
-        const nextRow =
-          tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
-            ? tmp
-            : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
-
-        this.drawCalendarGanttService.unDrawSelectionRow();
-        this.drawCalendarGanttService.selectedRow = nextRow;
-
-        if (
-          this.drawCalendarGanttService.selectedRow >=
-          this.drawCalendarGanttService.lastVisibleRow() - this.SCROLL_THRESHOLD
-        ) {
-          const newScrollPosition = this.gridBody.scroll.verticalScrollPosition + this.INDEX_CORRECTION;
-          this.gridBody.valueVScrollbar.emit(newScrollPosition);
-        }
-      }
-
+  private handleArrowDown(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
       return;
     }
 
-    if (event.key === 'PageDown') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+    if (
+      this.gridBody.drawCalendarGantt.selectedRow <
+      this.gridBody.dataManagementBreak.rows - 1
+    ) {
+      const tmp =
+        this.gridBody.drawCalendarGantt.selectedRow + this.INDEX_CORRECTION;
 
-      const visibleRows = this.gridBody.scroll.visibleRows;
-      const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
-      const maxRows = this.gridBody.drawCalendarGantt.rows - 1;
+      const nextRow =
+        tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
+          ? tmp
+          : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
 
-      let newSelectedRow = currentSelectedRow + visibleRows;
-      if (newSelectedRow > maxRows) {
-        newSelectedRow = maxRows;
-      }
+      this.drawCalendarGanttService.unDrawSelectionRow();
+      this.drawCalendarGanttService.selectedRow = nextRow;
 
-      const firstVisible = this.drawCalendarGanttService.firstVisibleRow;
-      const lastVisible = this.drawCalendarGanttService.lastVisibleRow();
-
-      if (newSelectedRow >= lastVisible) {
-        const newScrollPosition = newSelectedRow - visibleRows + this.PAGE_DOWN_SCROLL_OFFSET;
+      if (
+        this.drawCalendarGanttService.selectedRow >=
+        this.drawCalendarGanttService.lastVisibleRow() - this.SCROLL_THRESHOLD
+      ) {
+        const newScrollPosition = this.gridBody.scroll.verticalScrollPosition + this.INDEX_CORRECTION;
         this.gridBody.valueVScrollbar.emit(newScrollPosition);
       }
+    }
 
-      this.drawCalendarGanttService.selectedRow = newSelectedRow;
+    this.stopEvent(event);
+  }
 
+  private handlePageDown(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
       return;
     }
 
-    if (event.key === 'ArrowUp') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+    const visibleRows = this.gridBody.scroll.visibleRows;
+    const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
+    const maxRows = this.gridBody.drawCalendarGantt.rows - 1;
 
-      if (this.gridBody.drawCalendarGantt.selectedRow > 0) {
-        const tmp =
-          this.gridBody.drawCalendarGantt.selectedRow - this.INDEX_CORRECTION;
+    let newSelectedRow = currentSelectedRow + visibleRows;
+    if (newSelectedRow > maxRows) {
+      newSelectedRow = maxRows;
+    }
 
-        const nextRow =
-          tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
-            ? tmp
-            : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
+    const lastVisible = this.drawCalendarGanttService.lastVisibleRow();
 
-        this.drawCalendarGanttService.unDrawSelectionRow();
-        this.drawCalendarGanttService.selectedRow = nextRow;
+    if (newSelectedRow >= lastVisible) {
+      const newScrollPosition = newSelectedRow - visibleRows + this.PAGE_DOWN_SCROLL_OFFSET;
+      this.gridBody.valueVScrollbar.emit(newScrollPosition);
+    }
 
-        if (
-          this.drawCalendarGanttService.firstVisibleRow >=
-          this.drawCalendarGanttService.selectedRow
-        ) {
-          this.gridBody.valueVScrollbar.emit(nextRow);
-        }
-      }
+    this.drawCalendarGanttService.selectedRow = newSelectedRow;
 
+    this.stopEvent(event);
+  }
+
+  private handleArrowUp(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
       return;
     }
 
-    if (event.key === 'PageUp') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+    if (this.gridBody.drawCalendarGantt.selectedRow > 0) {
+      const tmp =
+        this.gridBody.drawCalendarGantt.selectedRow - this.INDEX_CORRECTION;
 
-      const visibleRows = this.gridBody.scroll.visibleRows;
-      const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
+      const nextRow =
+        tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
+          ? tmp
+          : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
 
-      let newSelectedRow = currentSelectedRow - visibleRows;
-      if (newSelectedRow < 0) {
-        newSelectedRow = 0;
-      }
-
-      const firstVisible = this.drawCalendarGanttService.firstVisibleRow;
-
-      if (newSelectedRow < firstVisible) {
-        this.gridBody.valueVScrollbar.emit(newSelectedRow);
-      }
-
-      this.drawCalendarGanttService.selectedRow = newSelectedRow;
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'End') {
-      const newValue = this.gridBody.scroll.maxRows;
-      this.drawCalendarGanttService.selectedRow =
-        this.drawCalendarGanttService.rows - 1;
-      this.gridBody.valueVScrollbar.emit(newValue);
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'Home') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
-      this.drawCalendarGanttService.selectedRow = 0;
-      this.gridBody.valueVScrollbar.emit(0);
-
-      this.stopEvent(event);
-      return;
-    }
-
-    if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+      this.drawCalendarGanttService.unDrawSelectionRow();
+      this.drawCalendarGanttService.selectedRow = nextRow;
 
       if (
-        this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
-        this.gridBody.drawCalendarGantt.selectedBreakIndex > 0
+        this.drawCalendarGanttService.firstVisibleRow >=
+        this.drawCalendarGanttService.selectedRow
       ) {
-        this.gridBody.drawCalendarGantt.selectedBreakIndex--;
-        this.gridBody.showSelectedBreak();
-      } else if (
-        this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
-        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
-      ) {
-        this.gridBody.drawCalendarGantt.selectedBreakIndex =
-          this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex;
-        this.gridBody.showSelectedBreak();
+        this.gridBody.valueVScrollbar.emit(nextRow);
       }
+    }
 
+    this.stopEvent(event);
+  }
+
+  private handlePageUp(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
       return;
     }
 
-    if (event.key === 'ArrowRight' || event.key === 'Tab') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
+    const visibleRows = this.gridBody.scroll.visibleRows;
+    const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
 
-      if (
-        this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
-        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex >
-          this.gridBody.drawCalendarGantt.selectedBreakIndex
-      ) {
-        this.gridBody.drawCalendarGantt.selectedBreakIndex++;
-        this.gridBody.showSelectedBreak();
-      } else if (
-        this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
-        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
-      ) {
-        this.gridBody.drawCalendarGantt.selectedBreakIndex = 0;
-        this.gridBody.showSelectedBreak();
-      }
+    let newSelectedRow = currentSelectedRow - visibleRows;
+    if (newSelectedRow < 0) {
+      newSelectedRow = 0;
+    }
 
-      // if (this.gridBody.isShift) {
-      //   if (this.gridBody.AnchorKeyPosition) { this.gridBody.drawSelectionDynamically(this.gridBody.AnchorKeyPosition as Position); }
-      // }
+    const firstVisible = this.drawCalendarGanttService.firstVisibleRow;
 
+    if (newSelectedRow < firstVisible) {
+      this.gridBody.valueVScrollbar.emit(newSelectedRow);
+    }
+
+    this.drawCalendarGanttService.selectedRow = newSelectedRow;
+
+    this.stopEvent(event);
+  }
+
+  private handleEnd(event: KeyboardEvent): void {
+    const newValue = this.gridBody.scroll.maxRows;
+    this.drawCalendarGanttService.selectedRow =
+      this.drawCalendarGanttService.rows - 1;
+    this.gridBody.valueVScrollbar.emit(newValue);
+
+    this.stopEvent(event);
+  }
+
+  private handleHome(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
+      this.stopEvent(event);
+      return;
+    }
+    this.drawCalendarGanttService.selectedRow = 0;
+    this.gridBody.valueVScrollbar.emit(0);
+
+    this.stopEvent(event);
+  }
+
+  private handleArrowLeft(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
       return;
     }
 
-    // Delete
-    if (event.key === 'Delete') {
-      this.keyDown = false;
+    if (
+      this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
+      this.gridBody.drawCalendarGantt.selectedBreakIndex > 0
+    ) {
+      this.gridBody.drawCalendarGantt.selectedBreakIndex--;
+      this.gridBody.showSelectedBreak();
+    } else if (
+      this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
+      this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
+    ) {
+      this.gridBody.drawCalendarGantt.selectedBreakIndex =
+        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex;
+      this.gridBody.showSelectedBreak();
+    }
+
+    this.stopEvent(event);
+  }
+
+  private handleArrowRight(event: KeyboardEvent): void {
+    if (event.repeat && this.gridBody.drawCalendarGantt.isBusy) {
       this.stopEvent(event);
-      this.gridBody.Delete();
       return;
     }
 
-    // Cut
-    if (event.key.toLocaleLowerCase() === 'x' && event.ctrlKey) {
-      this.keyDown = false;
-      this.stopEvent(event);
-      this.gridBody.cut();
-      return;
+    if (
+      this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
+      this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex >
+        this.gridBody.drawCalendarGantt.selectedBreakIndex
+    ) {
+      this.gridBody.drawCalendarGantt.selectedBreakIndex++;
+      this.gridBody.showSelectedBreak();
+    } else if (
+      this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
+      this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
+    ) {
+      this.gridBody.drawCalendarGantt.selectedBreakIndex = 0;
+      this.gridBody.showSelectedBreak();
     }
 
-    // Copy
-    if (event.key === 'c' && event.ctrlKey) {
-      this.keyDown = false;
-      this.stopEvent(event);
-      this.gridBody.copy();
-      return;
-    }
+    this.stopEvent(event);
+  }
 
-    // Paste
-    if (event.key.toLocaleLowerCase() === 'v' && event.ctrlKey) {
-      this.keyDown = false;
-      this.stopEvent(event);
-      this.gridBody.paste();
-      return;
-    }
+  private handleDelete(event: KeyboardEvent): void {
+    this.keyDown = false;
+    this.stopEvent(event);
+    this.gridBody.Delete();
+  }
+
+  private handleCut(event: KeyboardEvent): void {
+    this.keyDown = false;
+    this.stopEvent(event);
+    this.gridBody.cut();
+  }
+
+  private handleCopy(event: KeyboardEvent): void {
+    this.keyDown = false;
+    this.stopEvent(event);
+    this.gridBody.copy();
+  }
+
+  private handlePaste(event: KeyboardEvent): void {
+    this.keyDown = false;
+    this.stopEvent(event);
+    this.gridBody.paste();
   }
 
   @HostListener('window:keyup', ['$event']) onKeyUp(

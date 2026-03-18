@@ -1,19 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * @copyright 2025 Heribert Gasparoli
- * @license Proprietary
- *
- * @description
  * Component rendering the row headers for the schedule grid.
  * Displays client information (name, ID, period hours) in a fixed left column.
  * Handles scrolling synchronization with the main grid.
- * Supports context menu for navigation to client details.
+ * Delegates tooltip, report, and context-menu logic to extracted services.
  *
  * @relations
  * - Parent: ScheduleSectionComponent
  * - Uses: BaseDrawRowHeaderService for rendering
  * - Uses: BaseCreateRowHeaderService for content creation
+ * - Uses: RowHeaderTooltipService for tooltip management
+ * - Uses: RowHeaderReportService for report generation and context-menu actions
  */
 import {
   AfterViewInit,
@@ -30,12 +28,10 @@ import {
   EffectRef,
   Injector,
   runInInjectionContext,
-  computed,
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { Router } from '@angular/router';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
@@ -50,21 +46,13 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
-import { TranslateService } from '@ngx-translate/core';
-import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
-import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
-import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
-import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
-import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
+import { RowHeaderTooltipService } from './row-header-tooltip.service';
+import { RowHeaderReportService } from './row-header-report.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -82,6 +70,8 @@ import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services
     BaseDrawRowHeaderService,
     ProgressBarAnimationService,
     ContextMenuService,
+    RowHeaderTooltipService,
+    RowHeaderReportService,
   ],
 })
 export class ScheduleScheduleRowHeaderComponent
@@ -101,27 +91,11 @@ export class ScheduleScheduleRowHeaderComponent
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private scrollEventService = inject(ScrollEventService);
-  private translateService = inject(TranslateService);
-  private tooltipService = inject(TooltipService);
-  private router = inject(Router);
-  private contextMenuService = inject(ContextMenuService);
-  private scheduleReportCtx = inject(ScheduleReportContextService);
-  private reportDefaults = inject(ReportDefaultsService);
   private scheduleChangeService = inject(ScheduleChangeService);
-  private appSettings = inject(AppSettingsManagementService);
-  private toastShowService = inject(ToastShowService);
   private gridColorService = inject(GridColorService);
   private rowHeaderIcons = inject(RowHeaderIconsService);
-
-  private isEmailConfigured = computed(() => {
-    const e = this.appSettings.emailSettings();
-    return (
-      !!e.outgoingServer &&
-      !!e.outgoingServerPort &&
-      !!e.username &&
-      !!e.password
-    );
-  });
+  private tooltipHelper = inject(RowHeaderTooltipService);
+  private reportHelper = inject(RowHeaderReportService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -139,7 +113,7 @@ export class ScheduleScheduleRowHeaderComponent
   ngOnInit(): void {
     this.destroyFilter();
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
-    this.reportDefaults.load();
+    this.reportHelper.loadDefaults();
   }
 
   ngAfterViewInit(): void {
@@ -297,204 +271,24 @@ export class ScheduleScheduleRowHeaderComponent
     if (this.drawRowHeader.recFilterIcon) {
       if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
         this.currentCursor = CursorEnum.pointer;
-        this.tooltipService.hide();
+        this.tooltipHelper.hide();
         return;
       } else {
         this.currentCursor = CursorEnum.default;
       }
     }
 
-    if (this.checkContractSymbolTooltip(event, pos)) {
-      return;
-    }
-
-    if (this.checkDirtyDotTooltip(event, pos)) {
-      return;
-    }
-
-    this.checkInfoSpotTooltip(event, pos);
-  }
-
-  private checkContractSymbolTooltip(
-    event: MouseEvent,
-    pos: { x: number; y: number },
-  ): boolean {
     const canvas = this.drawRowHeader.canvas;
-    if (!canvas) return false;
 
-    const row =
-      Math.floor(
-        (pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight,
-      ) + this.scroll.verticalScrollPosition;
-    if (row < 0 || row >= this.dataService.rows) return false;
-
-    const clientIndex = this.dataService.rowGroupIndex[row];
-    if (clientIndex === undefined) return false;
-
-    const client = this.dataService.getGroupIndex(clientIndex);
-    if (!client || client.hasContract) return false;
-
-    const firstRow = this.dataService.indexGroupRow[clientIndex];
-    const cellHeight = this.settings.cellHeight;
-    const localY =
-      pos.y -
-      this.settings.cellHeaderHeight -
-      (firstRow - this.scroll.verticalScrollPosition) * cellHeight;
-    const sectionHeight = cellHeight / 3;
-
-    if (localY >= 0 && localY <= sectionHeight && pos.x >= 0 && pos.x <= 24) {
-      const tooltipText = this.translateService.instant(
-        'schedule.row-header.no-contract.tooltip',
-      );
-      this.tooltipService.show({
-        text: tooltipText,
-        x: event.clientX,
-        y: event.clientY,
-      });
-      return true;
-    }
-
-    return false;
-  }
-
-  private checkDirtyDotTooltip(
-    event: MouseEvent,
-    pos: { x: number; y: number },
-  ): boolean {
-    const canvas = this.drawRowHeader.canvas;
-    if (!canvas) return false;
-
-    const row =
-      Math.floor(
-        (pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight,
-      ) + this.scroll.verticalScrollPosition;
-    if (row < 0 || row >= this.dataService.rows) return false;
-
-    const clientIndex = this.dataService.rowGroupIndex[row];
-    if (clientIndex === undefined) return false;
-
-    const client = this.dataService.getGroupIndex(clientIndex);
-    if (!client || !this.scheduleChangeService.isDirty(client.id)) return false;
-
-    const firstRow = this.dataService.indexGroupRow[clientIndex];
-    const localY =
-      pos.y -
-      this.settings.cellHeaderHeight -
-      (firstRow - this.scroll.verticalScrollPosition) *
-        this.settings.cellHeight;
-    const sectionHeight = this.settings.cellHeight / 3;
-
-    const textAreaWidth =
-      canvas.getBoundingClientRect().width - this.settings.InfoSpotWidth;
-    const dotRadius = 4.5 * this.settings.zoom;
-    const dotX = textAreaWidth - dotRadius - 4;
-    const dotY = dotRadius + 2;
-    const hitRadius = dotRadius + 4;
-
-    if (
-      localY >= 0 &&
-      localY <= sectionHeight &&
-      Math.abs(pos.x - dotX) <= hitRadius &&
-      Math.abs(localY - dotY) <= hitRadius
-    ) {
-      const tooltipText = this.translateService.instant(
-        'schedule.row-header.dirty.tooltip',
-      );
-      this.tooltipService.show({
-        text: tooltipText,
-        x: event.clientX,
-        y: event.clientY,
-      });
-      return true;
-    }
-
-    return false;
-  }
-
-  private checkInfoSpotTooltip(
-    event: MouseEvent,
-    pos: { x: number; y: number },
-  ): void {
-    const canvas = this.drawRowHeader.canvas;
-    if (!canvas) {
-      this.tooltipService.hide();
+    if (this.tooltipHelper.checkContractSymbolTooltip(event, pos, canvas)) {
       return;
     }
 
-    const row =
-      Math.floor(
-        (pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight,
-      ) + this.scroll.verticalScrollPosition;
-
-    if (row < 0 || row >= this.dataService.rows) {
-      this.tooltipService.hide();
+    if (this.tooltipHelper.checkDirtyDotTooltip(event, pos, canvas)) {
       return;
     }
 
-    const clientIndex = this.dataService.rowGroupIndex[row];
-    if (clientIndex === undefined) {
-      this.tooltipService.hide();
-      return;
-    }
-
-    const firstRow = this.dataService.indexGroupRow[clientIndex];
-    const client = this.dataService.getGroupIndex(clientIndex);
-    const lastRow = firstRow + (client?.displayRows ?? 1) - 1;
-
-    if (row < firstRow || row > lastRow) {
-      this.tooltipService.hide();
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    const visualWidth = rect.width;
-    const canvasWidth = canvas.width;
-    const scale = canvasWidth / visualWidth;
-
-    const widthWithoutInfoSpot =
-      visualWidth - this.settings.InfoSpotWidth / scale;
-
-    if (pos.x < widthWithoutInfoSpot) {
-      this.tooltipService.hide();
-      return;
-    }
-
-    const localY =
-      pos.y -
-      this.settings.cellHeaderHeight -
-      (firstRow - this.scroll.verticalScrollPosition) *
-        this.settings.cellHeight;
-
-    const slot1Top = this.settings.increaseBorder;
-    const slot1Bottom = this.settings.cellHeaderHeight;
-    const slot2Top = this.settings.cellHeaderHeight + this.settings.borderWidth;
-    const slot2Bottom =
-      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth;
-    const slot3Top =
-      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2;
-    const slot3Bottom =
-      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 2;
-
-    let tooltipKey = '';
-
-    if (localY >= slot1Top && localY <= slot1Bottom) {
-      tooltipKey = 'schedule.row-header.slot1.tooltip';
-    } else if (localY >= slot2Top && localY <= slot2Bottom) {
-      tooltipKey = 'schedule.row-header.slot2.tooltip';
-    } else if (localY >= slot3Top && localY <= slot3Bottom) {
-      tooltipKey = 'schedule.row-header.slot3.tooltip';
-    }
-
-    if (tooltipKey) {
-      const tooltipText = this.translateService.instant(tooltipKey);
-      this.tooltipService.show({
-        text: tooltipText,
-        x: event.clientX,
-        y: event.clientY,
-      });
-    } else {
-      this.tooltipService.hide();
-    }
+    this.tooltipHelper.checkInfoSpotTooltip(event, pos, canvas);
   }
 
   onCanvasClick(event: MouseEvent): void {
@@ -535,24 +329,12 @@ export class ScheduleScheduleRowHeaderComponent
     }
 
     this.contextMenuRow = row;
-    this.createContextMenu();
+    this.contextMenu.menuData = this.reportHelper.createContextMenu();
 
     this.contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
-  }
-
-  private createContextMenu(): void {
-    const menuData = new Menu();
-    menuData.list.push(...MenuDataTemplate.goToAddress());
-    if (this.reportDefaults.hasDefault('schedule')) {
-      menuData.list.push(...MenuDataTemplate.staffSchedule());
-      if (this.isEmailConfigured()) {
-        menuData.list.push(...MenuDataTemplate.sendStaffSchedule());
-      }
-    }
-    this.contextMenu.menuData = menuData;
   }
 
   private menuClicked(keys: string[]): void {
@@ -561,127 +343,16 @@ export class ScheduleScheduleRowHeaderComponent
     switch (keys[0]) {
       case 'goToAddress':
         this.contextMenu.closeMenu(true);
-        this.navigateToAddress();
+        this.reportHelper.navigateToAddress(this.contextMenuRow);
         break;
       case 'staffSchedule':
         this.contextMenu.closeMenu(true);
-        this.generateStaffSchedule();
+        this.reportHelper.generateStaffSchedule(this.contextMenuRow);
         break;
       case 'sendStaffSchedule':
         this.contextMenu.closeMenu(true);
-        this.sendStaffSchedule();
+        this.reportHelper.sendStaffSchedule(this.contextMenuRow);
         break;
-    }
-  }
-
-  private navigateToAddress(): void {
-    const row = this.contextMenuRow;
-    if (row < 0 || row >= this.dataService.rows) {
-      return;
-    }
-
-    const groupIndex = this.dataService.rowGroupIndex[row];
-    if (groupIndex === undefined) {
-      return;
-    }
-
-    const client = this.dataService.getGroupIndex(groupIndex);
-    if (client?.id) {
-      this.router.navigate(['/workplace/edit-address', client.id], {
-        queryParams: { readonly: 'true', returnUrl: '/workplace/schedule' },
-      });
-    }
-  }
-
-  private generateStaffSchedule(): void {
-    const row = this.contextMenuRow;
-    const groupIndex = this.dataService.rowGroupIndex[row];
-    const client = this.dataService.getGroupIndex(groupIndex);
-
-    if (!client?.id) return;
-
-    const startDate = this.dataManagementSchedule.visibleStartDate;
-    const endDate = this.dataManagementSchedule.visibleEndDate;
-
-    if (!startDate || !endDate) return;
-
-    this.scheduleReportCtx.generateForClient(
-      client.id,
-      `${client.firstName} ${client.name}`,
-      formatDateOnly(startDate),
-      formatDateOnly(endDate),
-    );
-  }
-
-  private async sendStaffSchedule(): Promise<void> {
-    const row = this.contextMenuRow;
-    const groupIndex = this.dataService.rowGroupIndex[row];
-    const client = this.dataService.getGroupIndex(groupIndex);
-
-    if (!client?.id) return;
-
-    const startDate = this.dataManagementSchedule.visibleStartDate;
-    const endDate = this.dataManagementSchedule.visibleEndDate;
-
-    if (!startDate || !endDate) return;
-
-    const clientName = `${client.firstName} ${client.name}`;
-
-    try {
-      const response = await this.scheduleReportCtx.sendForClient(
-        client.id,
-        clientName,
-        formatDateOnly(startDate),
-        formatDateOnly(endDate),
-      );
-
-      if (!response) return;
-
-      if (response.success) {
-        const msg = this.translateService.instant('schedule.send.success', {
-          email: response.clientEmail,
-        });
-        this.toastShowService.showSuccess(
-          msg,
-          this.translateService.instant('schedule.send.title'),
-          '',
-          TOAST_ICONS.SUCCESS,
-        );
-      } else if (
-        response.errorMessage === 'No email address found for client'
-      ) {
-        const msg = this.translateService.instant(
-          'schedule.send.error.noEmail',
-          { clientName },
-        );
-        this.toastShowService.showError(
-          msg,
-          'send-schedule',
-          '',
-          TOAST_ICONS.ERROR,
-        );
-      } else {
-        const msg = this.translateService.instant(
-          'schedule.send.error.failed',
-          { clientName },
-        );
-        this.toastShowService.showError(
-          msg,
-          'send-schedule',
-          response.errorMessage ?? '',
-          TOAST_ICONS.ERROR,
-        );
-      }
-    } catch {
-      const msg = this.translateService.instant('schedule.send.error.failed', {
-        clientName,
-      });
-      this.toastShowService.showError(
-        msg,
-        'send-schedule',
-        '',
-        TOAST_ICONS.ERROR,
-      );
     }
   }
 
@@ -690,7 +361,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   onCanvasMouseLeave(): void {
-    this.tooltipService.hide();
+    this.tooltipHelper.hide();
   }
 
   onFilterChange(): void {

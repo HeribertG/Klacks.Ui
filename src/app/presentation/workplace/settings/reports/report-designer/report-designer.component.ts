@@ -1,13 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Visual report designer component for configuring report templates with sections, fields, and styling.
+ * @param template - The report template being edited
+ * @param sourceId - Active data source identifier (e.g. 'schedule')
+ * @param dataSetIds - Active data set identifiers (e.g. ['work'])
+ * @param imagePreviewCache - Shared cache for image preview DataURLs
+ */
+
 import { Component, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { firstValueFrom } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
@@ -16,20 +21,21 @@ import {
   ReportFieldType,
   DataBindingDefinition,
   FieldCategory,
-  DEFAULT_FIELD_STYLE,
   AVAILABLE_FONTS,
   TextAlignment,
   HeaderRow,
 } from 'src/app/domain/models/report/report-field.model';
 import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
-import { BorderLineStyle, CellBorderStyle, DEFAULT_BORDER_SIDE } from 'src/app/domain/models/report/cell-border-style.model';
+import { BorderLineStyle } from 'src/app/domain/models/report/cell-border-style.model';
 import { FreeTextRow } from 'src/app/domain/models/report/free-text-row.model';
-import { FOOTER_TO_COLUMN_MAP } from 'src/app/domain/models/report/report-footer-mapping.constants';
-import { FormulaEvaluationService } from 'src/app/domain/services/report/formula-evaluation.service';
-import { getFormulaVariables, getFooterFormulaVariables, FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
-import { createFormulaTestData, createFooterFormulaTestData } from 'src/app/domain/models/report/formula-test-data';
+import { FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
 import { PropertyGridComponent } from 'src/app/presentation/workplace/settings/macros/property-grid/property-grid.component';
 import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
+
+import { ReportDesignerFieldService } from './report-designer-field.service';
+import { ReportDesignerBorderService } from './report-designer-border.service';
+import { ReportDesignerFormulaService } from './report-designer-formula.service';
+import { ReportDesignerImageService } from './report-designer-image.service';
 
 interface FieldPaletteGroup {
   id: string;
@@ -46,7 +52,8 @@ interface FieldPaletteGroup {
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent]
+  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent],
+  providers: [ReportDesignerFieldService, ReportDesignerBorderService, ReportDesignerFormulaService, ReportDesignerImageService],
 })
 export class ReportDesignerComponent implements OnChanges {
   @Input() template!: ReportTemplate;
@@ -56,8 +63,10 @@ export class ReportDesignerComponent implements OnChanges {
   @Output() templateChange = new EventEmitter<ReportTemplate>();
 
   translate = inject(TranslateService);
-  private http = inject(HttpClient);
-  private formulaService = inject(FormulaEvaluationService);
+  private fieldService = inject(ReportDesignerFieldService);
+  private borderService = inject(ReportDesignerBorderService);
+  private formulaSvc = inject(ReportDesignerFormulaService);
+  private imageService = inject(ReportDesignerImageService);
 
   activeField: ReportField | null = null;
   fieldPrefixMap = new Map<string, string>();
@@ -65,7 +74,7 @@ export class ReportDesignerComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['template'] && this.template?.sections) {
       for (const section of this.template.sections) {
-        this.loadExistingImages(section);
+        this.imageService.loadExistingImages(section, this.imagePreviewCache);
       }
     }
   }
@@ -179,8 +188,6 @@ export class ReportDesignerComponent implements OnChanges {
     [ReportSectionType.Footer]: 'setting.report.designer.sectionFooter',
   };
 
-  // --- Body Section Helpers ---
-
   get bodySections(): ReportSection[] {
     return this.template.sections
       .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
@@ -262,24 +269,16 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  // --- Section Helpers ---
-
   getSection(type: ReportSectionType): ReportSection | undefined {
     return this.template.sections.find(s => s.type === type);
   }
 
   isFieldInSection(binding: DataBindingDefinition, sectionType: ReportSectionType): boolean {
-    const section = this.getSection(sectionType);
-    if (!section) return false;
-    if (binding.type === ReportFieldType.Image) return false;
-    if (binding.key === 'report.customText') return false;
-    return section.fields.some(f => f.dataBinding === binding.key);
+    return this.fieldService.isFieldInSection(binding, this.getSection(sectionType));
   }
 
   isFieldInSectionInstance(binding: DataBindingDefinition, section: ReportSection): boolean {
-    if (binding.type === ReportFieldType.Image) return false;
-    if (binding.key === 'report.customText') return false;
-    return section.fields.some(f => f.dataBinding === binding.key);
+    return this.fieldService.isFieldInSectionInstance(binding, section);
   }
 
   getAvailableFields(group: FieldPaletteGroup): DataBindingDefinition[] {
@@ -293,8 +292,6 @@ export class ReportDesignerComponent implements OnChanges {
     group.collapsed = !group.collapsed;
   }
 
-  // --- Field Selection (Global) ---
-
   selectField(field: ReportField): void {
     this.activeField = field;
   }
@@ -303,9 +300,6 @@ export class ReportDesignerComponent implements OnChanges {
     const headerSection = this.getSection(ReportSectionType.Header);
     return headerSection?.fields.includes(field) ?? false;
   }
-
-
-  // --- Toolbar Actions ---
 
   toggleBold(field: ReportField): void {
     field.style.bold = !field.style.bold;
@@ -358,78 +352,29 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  // --- Footer Drag & Drop ---
-
   addFieldToSection(binding: DataBindingDefinition, sectionType: ReportSectionType): void {
-    const section = this.getSection(sectionType);
-    if (!section || this.isFieldInSection(binding, sectionType)) return;
-
-    const field: ReportField = {
-      name: this.getFieldDisplayLabel(binding),
-      dataBinding: binding.key,
-      type: binding.type,
-      width: binding.defaultWidth,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE },
-      sortOrder: section.fields.length,
-    };
-
-    section.fields = [...section.fields, field];
+    this.fieldService.addFieldToSection(binding, this.getSection(sectionType), b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
   removeFieldFromSection(field: ReportField, section: ReportSection): void {
-    section.fields = section.fields.filter(f => f !== field);
-    section.fields.forEach((f, i) => f.sortOrder = i);
+    this.fieldService.removeFieldFromSection(field, section);
     if (this.activeField === field) this.activeField = null;
     this.emitChange();
   }
 
   onFooterFieldDrop(event: CdkDragDrop<ReportField[]>): void {
-    const section = this.footerSection;
-    if (!section) return;
-
-    if (event.previousContainer === event.container) {
-      moveItemInArray(section.fields, event.previousIndex, event.currentIndex);
-      section.fields.forEach((f, i) => f.sortOrder = i);
-    } else {
-      const binding = event.item.data as DataBindingDefinition;
-      if (binding && !this.isFieldInSection(binding, ReportSectionType.Footer)) {
-        this.addFieldToSection(binding, ReportSectionType.Footer);
-      }
-    }
+    this.fieldService.onFooterFieldDrop(event, this.footerSection, b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
-  // --- Body Table Drag & Drop ---
-
   addFieldToBodyTable(binding: DataBindingDefinition, section: ReportSection): void {
-    if (this.isFieldInSectionInstance(binding, section)) return;
-
-    const field: ReportField = {
-      name: this.getFieldDisplayLabel(binding),
-      dataBinding: binding.key,
-      type: binding.type,
-      width: binding.defaultWidth,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE },
-      sortOrder: section.fields.length,
-    };
-
-    section.fields = [...section.fields, field];
+    this.fieldService.addFieldToBodyTable(binding, section, b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
   onBodyTableFieldDrop(event: CdkDragDrop<ReportField[]>, section: ReportSection): void {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(section.fields, event.previousIndex, event.currentIndex);
-      section.fields.forEach((f, i) => f.sortOrder = i);
-    } else {
-      const binding = event.item.data as DataBindingDefinition;
-      if (binding && !this.isFieldInSectionInstance(binding, section)) {
-        this.addFieldToBodyTable(binding, section);
-      }
-    }
+    this.fieldService.onBodyTableFieldDrop(event, section, b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
@@ -439,12 +384,10 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  // --- Header Row Logic ---
-
   get headerZoneIds(): string[] {
     const headerSection = this.getSection(ReportSectionType.Header);
     if (!headerSection) return [];
-    const rows = this.getHeaderRows(headerSection);
+    const rows = this.fieldService.getHeaderRows(headerSection);
     const ids: string[] = [];
     for (const row of rows) {
       ids.push(`zone-${row.rowIndex}-0`, `zone-${row.rowIndex}-1`, `zone-${row.rowIndex}-2`);
@@ -453,81 +396,27 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   getHeaderRows(section: ReportSection): HeaderRow[] {
-    const rowMap = new Map<number, HeaderRow>();
-
-    for (const field of section.fields) {
-      const rowIndex = field.sortOrder;
-      if (!rowMap.has(rowIndex)) {
-        rowMap.set(rowIndex, { rowIndex, left: [], center: [], right: [] });
-      }
-      const row = rowMap.get(rowIndex)!;
-      switch (field.style?.alignment) {
-        case TextAlignment.Center: row.center.push(field); break;
-        case TextAlignment.Right: row.right.push(field); break;
-        default: row.left.push(field); break;
-      }
-    }
-
-    return Array.from(rowMap.values()).sort((a, b) => a.rowIndex - b.rowIndex);
+    return this.fieldService.getHeaderRows(section);
   }
 
   addHeaderRow(section: ReportSection): void {
-    const rows = this.getHeaderRows(section);
-    const nextIndex = rows.length > 0 ? Math.max(...rows.map(r => r.rowIndex)) + 1 : 0;
-    section.fields = [...section.fields, {
-      name: '',
-      dataBinding: '',
-      type: ReportFieldType.Text,
-      width: 30,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE, alignment: TextAlignment.Left },
-      sortOrder: nextIndex,
-    }];
+    this.fieldService.addHeaderRow(section);
     this.emitChange();
   }
 
   removeHeaderRow(section: ReportSection, rowIndex: number): void {
-    const removedFields = section.fields.filter(f => f.sortOrder === rowIndex);
-    if (removedFields.includes(this.activeField!)) this.activeField = null;
-
-    section.fields = section.fields.filter(f => f.sortOrder !== rowIndex);
-    const rows = this.getHeaderRows(section);
-    rows.forEach((row, i) => {
-      [...row.left, ...row.center, ...row.right].forEach(f => f.sortOrder = i);
-    });
+    this.activeField = this.fieldService.removeHeaderRow(section, rowIndex, this.activeField);
     this.emitChange();
   }
 
   onHeaderFieldDrop(event: CdkDragDrop<ReportField[]>, section: ReportSection, rowIndex: number, alignment: TextAlignment): void {
-    if (event.previousContainer === event.container) {
-      return;
-    }
-
-    const binding = event.item.data as DataBindingDefinition;
-    if (!binding) return;
-    if (this.isFieldInSection(binding, ReportSectionType.Header)) return;
-
-    const field: ReportField = {
-      name: this.getFieldDisplayLabel(binding),
-      dataBinding: binding.key,
-      type: binding.type,
-      width: binding.defaultWidth,
-      height: binding.type === ReportFieldType.Image ? 15 : 20,
-      style: { ...DEFAULT_FIELD_STYLE, alignment },
-      sortOrder: rowIndex,
-    };
-
-    section.fields = [...section.fields, field];
-    this.activeField = field;
+    const field = this.fieldService.onHeaderFieldDrop(event, section, rowIndex, alignment, b => this.getFieldDisplayLabel(b));
+    if (field) this.activeField = field;
     this.emitChange();
   }
 
   removeHeaderField(section: ReportSection, field: ReportField): void {
-    if (field.type === ReportFieldType.Image && field.imageUrl) {
-      this.http.delete(`${environment.baseUrl}LoadFile/${field.imageUrl}`).subscribe();
-      this.imagePreviewCache.delete(field.imageUrl);
-    }
-    section.fields = section.fields.filter(f => f !== field);
+    this.fieldService.removeHeaderField(section, field, this.imagePreviewCache);
     if (this.activeField === field) this.activeField = null;
     this.emitChange();
   }
@@ -541,190 +430,57 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  // --- Image Upload ---
-
   async onImageChipUpload(event: Event, section: ReportSection, field: ReportField): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-
-    const file = input.files[0];
-    const imageId = crypto.randomUUID();
-    const fileName = `report-img-${imageId}.png`;
-
-    const localDataUrl = await this.fileToDataUrl(file);
-    this.imagePreviewCache.set(fileName, localDataUrl);
-
-    const formData = new FormData();
-    formData.append('file', file, fileName);
-
-    try {
-      await firstValueFrom(this.http.post(`${environment.baseUrl}LoadFile/Upload/`, formData));
-      field.imageUrl = fileName;
-      field.name = fileName;
+    const success = await this.imageService.onImageChipUpload(event, field, this.imagePreviewCache);
+    if (success) {
       this.activeField = field;
       this.emitChange();
-    } catch (err) {
-      console.error('Image upload failed:', err);
-      this.imagePreviewCache.delete(fileName);
     }
-
-    input.value = '';
   }
 
   async onImageUpload(event: Event, section: ReportSection, rowIndex: number, alignment: TextAlignment): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-
-    const file = input.files[0];
-    const imageId = crypto.randomUUID();
-    const fileName = `report-img-${imageId}.png`;
-
-    const localDataUrl = await this.fileToDataUrl(file);
-    this.imagePreviewCache.set(fileName, localDataUrl);
-
-    const formData = new FormData();
-    formData.append('file', file, fileName);
-
-    try {
-      await firstValueFrom(this.http.post(`${environment.baseUrl}LoadFile/Upload/`, formData));
-
-      const field: ReportField = {
-        name: fileName,
-        dataBinding: 'report.image',
-        type: ReportFieldType.Image,
-        width: 30,
-        height: 15,
-        style: { ...DEFAULT_FIELD_STYLE, alignment },
-        sortOrder: rowIndex,
-        imageUrl: fileName,
-      };
-
-      section.fields = [...section.fields, field];
+    const field = await this.imageService.onImageUpload(event, section, rowIndex, alignment, this.imagePreviewCache);
+    if (field) {
       this.activeField = field;
       this.emitChange();
-    } catch (err) {
-      console.error('Image upload failed:', err);
-      this.imagePreviewCache.delete(fileName);
     }
-
-    input.value = '';
   }
 
   loadImagePreview(fileName: string): void {
-    if (this.imagePreviewCache.has(fileName)) return;
-
-    this.http.get(`${environment.baseUrl}LoadFile/DownLoad?type=${fileName}`, { responseType: 'blob' })
-      .subscribe({
-        next: (blob) => {
-          if (blob.type === 'text/plain') return;
-          const reader = new FileReader();
-          reader.onload = () => {
-            this.imagePreviewCache.set(fileName, reader.result as string);
-          };
-          reader.readAsDataURL(blob);
-        }
-      });
-  }
-
-  loadExistingImages(section: ReportSection): void {
-    for (const field of section.fields) {
-      if (field.type === ReportFieldType.Image && field.imageUrl) {
-        this.loadImagePreview(field.imageUrl);
-      }
-    }
-  }
-
-  private fileToDataUrl(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // --- Border Methods ---
-
-  private ensureCellBorder(field: ReportField): CellBorderStyle {
-    if (!field.style.cellBorder) {
-      field.style.cellBorder = {
-        top: { ...DEFAULT_BORDER_SIDE },
-        right: { ...DEFAULT_BORDER_SIDE },
-        bottom: { ...DEFAULT_BORDER_SIDE },
-        left: { ...DEFAULT_BORDER_SIDE },
-      };
-    }
-    return field.style.cellBorder;
+    this.imageService.loadImagePreview(fileName, this.imagePreviewCache);
   }
 
   getBorderSideActive(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): boolean {
-    return (field.style.cellBorder?.[side]?.lineStyle ?? BorderLineStyle.None) !== BorderLineStyle.None;
+    return this.borderService.getBorderSideActive(field, side);
   }
 
   toggleBorderSide(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): void {
-    const border = this.ensureCellBorder(field);
-    if (border[side].lineStyle === BorderLineStyle.None) {
-      border[side].lineStyle = BorderLineStyle.Thin;
-    } else {
-      border[side].lineStyle = BorderLineStyle.None;
-    }
+    this.borderService.toggleBorderSide(field, side);
     this.emitChange();
   }
 
   setBorderLineStyle(field: ReportField, style: BorderLineStyle): void {
-    const border = this.ensureCellBorder(field);
-    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
-    for (const side of sides) {
-      if (border[side].lineStyle !== BorderLineStyle.None) {
-        border[side].lineStyle = style;
-      }
-    }
+    this.borderService.setBorderLineStyle(field, style);
     this.emitChange();
   }
 
   setBorderColor(field: ReportField, color: string): void {
-    const border = this.ensureCellBorder(field);
-    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
-    for (const side of sides) {
-      border[side].color = color;
-    }
+    this.borderService.setBorderColor(field, color);
     this.emitChange();
   }
 
   setAllBorders(field: ReportField, lineStyle: BorderLineStyle): void {
-    const border = this.ensureCellBorder(field);
-    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
-    for (const side of sides) {
-      border[side].lineStyle = lineStyle;
-    }
+    this.borderService.setAllBorders(field, lineStyle);
     this.emitChange();
   }
 
   getActiveBorderLineStyle(field: ReportField): BorderLineStyle {
-    const border = field.style.cellBorder;
-    if (!border) return BorderLineStyle.None;
-    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
-    for (const side of sides) {
-      if (border[side].lineStyle !== BorderLineStyle.None) {
-        return border[side].lineStyle;
-      }
-    }
-    return BorderLineStyle.None;
+    return this.borderService.getActiveBorderLineStyle(field);
   }
 
   getActiveBorderColor(field: ReportField): string {
-    const border = field.style.cellBorder;
-    if (!border) return '#000000';
-    const sides: ('top' | 'right' | 'bottom' | 'left')[] = ['top', 'right', 'bottom', 'left'];
-    for (const side of sides) {
-      if (border[side].lineStyle !== BorderLineStyle.None) {
-        return border[side].color;
-      }
-    }
-    return '#000000';
+    return this.borderService.getActiveBorderColor(field);
   }
-
-  // --- Table Footer Methods ---
 
   hasTableFooter(section: ReportSection): boolean {
     return section.tableFooterFields !== undefined;
@@ -745,25 +501,7 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   addTableFooterField(section: ReportSection, binding: DataBindingDefinition): void {
-    if (!section.tableFooterFields) section.tableFooterFields = [];
-    if (section.tableFooterFields.some(f => f.dataBinding === binding.key)) return;
-
-    const targetColumn = FOOTER_TO_COLUMN_MAP[binding.key];
-    const columnIndex = targetColumn
-      ? section.fields.findIndex(f => f.dataBinding === targetColumn)
-      : -1;
-
-    const field: ReportField = {
-      name: this.getFieldDisplayLabel(binding),
-      dataBinding: binding.key,
-      type: binding.type,
-      width: binding.defaultWidth,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE, bold: true },
-      sortOrder: columnIndex >= 0 ? columnIndex : section.tableFooterFields.length,
-    };
-
-    section.tableFooterFields = [...section.tableFooterFields, field];
+    this.fieldService.addTableFooterField(section, binding, b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
@@ -777,8 +515,7 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   removeTableFooterField(section: ReportSection, field: ReportField): void {
-    if (!section.tableFooterFields) return;
-    section.tableFooterFields = section.tableFooterFields.filter(f => f !== field);
+    this.fieldService.removeTableFooterField(section, field);
     if (this.activeField === field) this.activeField = null;
     this.emitChange();
   }
@@ -795,23 +532,13 @@ export class ReportDesignerComponent implements OnChanges {
     return all.filter(f => !used.some(u => u.dataBinding === f.key));
   }
 
-  // --- Free Text Row Methods ---
-
   addFreeTextRow(section: ReportSection): void {
-    if (!section.freeTextRows) section.freeTextRows = [];
-    const row: FreeTextRow = {
-      id: crypto.randomUUID(),
-      text: '',
-      position: 'after',
-      style: { ...DEFAULT_FIELD_STYLE },
-    };
-    section.freeTextRows = [...section.freeTextRows, row];
+    this.fieldService.addFreeTextRow(section);
     this.emitChange();
   }
 
   removeFreeTextRow(section: ReportSection, row: FreeTextRow): void {
-    if (!section.freeTextRows) return;
-    section.freeTextRows = section.freeTextRows.filter(r => r !== row);
+    this.fieldService.removeFreeTextRow(section, row);
     this.emitChange();
   }
 
@@ -824,8 +551,6 @@ export class ReportDesignerComponent implements OnChanges {
     row.position = position;
     this.emitChange();
   }
-
-  // --- Merged Fields Methods ---
 
   isBodyTableField(field: ReportField): boolean {
     return this.bodySections.some(s => s.fields.includes(field));
@@ -891,106 +616,80 @@ export class ReportDesignerComponent implements OnChanges {
     return key;
   }
 
-  // --- Formula Field Methods ---
-
   isFormulaField(field: ReportField): boolean {
     return field.type === ReportFieldType.Formula;
   }
 
   addFormulaField(section: ReportSection): void {
-    const field: ReportField = {
-      name: this.translate.instant('setting.report.designer.formulaField'),
-      dataBinding: `formula.${crypto.randomUUID()}`,
-      type: ReportFieldType.Formula,
-      width: 15,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE },
-      formula: '',
-      sortOrder: section.fields.length,
-    };
-
-    section.fields = [...section.fields, field];
-    this.activeField = field;
+    this.activeField = this.fieldService.addFormulaField(section);
     this.emitChange();
   }
 
   addFormulaFooterField(section: ReportSection): void {
-    if (!section.tableFooterFields) section.tableFooterFields = [];
-
-    const field: ReportField = {
-      name: this.translate.instant('setting.report.designer.formulaField'),
-      dataBinding: `formula.${crypto.randomUUID()}`,
-      type: ReportFieldType.Formula,
-      width: 15,
-      height: 20,
-      style: { ...DEFAULT_FIELD_STYLE, bold: true },
-      formula: '',
-      sortOrder: section.tableFooterFields.length,
-    };
-
-    section.tableFooterFields = [...section.tableFooterFields, field];
-    this.activeField = field;
+    this.activeField = this.fieldService.addFormulaFooterField(section);
     this.emitChange();
   }
 
   getFormulaStatus(field: ReportField): 'empty' | 'valid' | 'error' {
-    if (!field.formula) return 'empty';
-    const result = this.formulaService.validateFormula(field.formula);
-    return result.valid ? 'valid' : 'error';
+    return this.formulaSvc.getFormulaStatus(field);
   }
 
   onFormulaChange(field: ReportField, formula: string): void {
-    field.formula = formula;
-    this.formulaService.clearCache();
+    this.formulaSvc.onFormulaChange(field, formula);
     this.emitChange();
   }
 
   onFormulaNameChange(field: ReportField, name: string): void {
-    field.name = name;
+    this.formulaSvc.onFormulaNameChange(field, name);
     this.emitChange();
   }
 
   getFormulaVariableDefs(): FormulaVariableDefinition[] {
-    return getFormulaVariables(this.sourceId, this.dataSetIds);
+    return this.formulaSvc.getFormulaVariableDefs(this.sourceId, this.dataSetIds);
   }
 
   getFooterFormulaVariableDefs(): FormulaVariableDefinition[] {
-    return getFooterFormulaVariables(this.sourceId, this.dataSetIds);
+    return this.formulaSvc.getFooterFormulaVariableDefs(this.sourceId, this.dataSetIds);
   }
 
   testFormula(field: ReportField): string {
-    if (!field.formula) return '';
-    return this.formulaService.evaluateFormula(field.formula, { ...this.formulaTestData });
+    return this.formulaSvc.testFormula(field);
   }
 
-  showFormulaEditor = false;
-  formulaEditorField: ReportField | null = null;
-  formulaTestResult = '';
-  formulaTestData: Record<string, unknown> = {};
-  formulaTestMetadata?: PropertyMetadata;
+  get showFormulaEditor(): boolean {
+    return this.formulaSvc.showFormulaEditor;
+  }
+
+  get formulaEditorField(): ReportField | null {
+    return this.formulaSvc.formulaEditorField;
+  }
+
+  get formulaTestResult(): string {
+    return this.formulaSvc.formulaTestResult;
+  }
+
+  get formulaTestData(): Record<string, unknown> {
+    return this.formulaSvc.formulaTestData;
+  }
+
+  set formulaTestData(value: Record<string, unknown>) {
+    this.formulaSvc.formulaTestData = value;
+  }
+
+  get formulaTestMetadata(): PropertyMetadata | undefined {
+    return this.formulaSvc.formulaTestMetadata;
+  }
 
   openFormulaEditor(field: ReportField): void {
-    this.formulaEditorField = field;
-    this.showFormulaEditor = true;
-    this.formulaTestResult = '';
-    const isFooter = this.bodySections.some(s => s.tableFooterFields?.includes(field));
-    const testObj = isFooter
-      ? createFooterFormulaTestData(this.sourceId)
-      : createFormulaTestData(this.sourceId, this.dataSetIds);
-    this.formulaTestData = testObj;
-    this.formulaTestMetadata = (testObj.constructor as { metadata?: PropertyMetadata }).metadata;
+    this.formulaSvc.openFormulaEditor(field, this.bodySections, this.sourceId, this.dataSetIds);
   }
 
   closeFormulaEditor(): void {
-    this.showFormulaEditor = false;
-    this.formulaEditorField = null;
-    this.formulaTestResult = '';
+    this.formulaSvc.closeFormulaEditor();
   }
 
   runFormulaTest(): void {
-    if (this.formulaEditorField) {
-      this.formulaTestResult = this.testFormula(this.formulaEditorField);
-    }
+    this.formulaSvc.runFormulaTest();
   }
 
   onMergeRowsChange(value: boolean): void {

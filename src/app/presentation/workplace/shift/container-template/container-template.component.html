@@ -108,8 +108,8 @@
             <select
               id="start-base"
               class="form-select"
-              [(ngModel)]="selectedStartBase"
-              (change)="onStartBaseChange()"
+              [(ngModel)]="routeService.selectedStartBase"
+              (change)="routeService.onStartBaseChange(selectedWeekday, isHoliday)"
               [ngbTooltip]="
                 'shift.container-template.tooltip.start-base' | translate
               "
@@ -133,8 +133,8 @@
             <select
               id="end-base"
               class="form-select"
-              [(ngModel)]="selectedEndBase"
-              (change)="onEndBaseChange()"
+              [(ngModel)]="routeService.selectedEndBase"
+              (change)="routeService.onEndBaseChange(selectedWeekday, isHoliday)"
               [ngbTooltip]="
                 'shift.container-template.tooltip.end-base' | translate
               "
@@ -151,7 +151,7 @@
             </select>
           </div>
         </div>
-        @if (selectedStartBase && selectedEndBase) {
+        @if (routeService.selectedStartBase && routeService.selectedEndBase) {
           <div class="transport-mode-group">
             <label>
               {{ "shift.container-template.transport-mode" | translate }}
@@ -160,8 +160,8 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="selectedTransportMode === 0"
-                (click)="selectTransportMode(0)"
+                [class.active]="routeService.selectedTransportMode === 0"
+                (click)="routeService.selectTransportMode(0, selectedWeekday, isHoliday)"
                 [ngbTooltip]="
                   'shift.container-template.transport-mode.by-car' | translate
                 "
@@ -171,12 +171,12 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="selectedTransportMode === 1"
-                [class.disabled]="!hasOpenRouteServiceApiKey"
-                [disabled]="!hasOpenRouteServiceApiKey"
-                (click)="hasOpenRouteServiceApiKey && selectTransportMode(1)"
+                [class.active]="routeService.selectedTransportMode === 1"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(1, selectedWeekday, isHoliday)"
                 [ngbTooltip]="
-                  hasOpenRouteServiceApiKey
+                  routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.by-bicycle'
                       | translate)
                     : ('shift.container-template.transport-mode.api-key-required'
@@ -188,12 +188,12 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="selectedTransportMode === 2"
-                [class.disabled]="!hasOpenRouteServiceApiKey"
-                [disabled]="!hasOpenRouteServiceApiKey"
-                (click)="hasOpenRouteServiceApiKey && selectTransportMode(2)"
+                [class.active]="routeService.selectedTransportMode === 2"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(2, selectedWeekday, isHoliday)"
                 [ngbTooltip]="
-                  hasOpenRouteServiceApiKey
+                  routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.by-foot'
                       | translate)
                     : ('shift.container-template.transport-mode.api-key-required'
@@ -205,12 +205,12 @@
               <button
                 type="button"
                 class="transport-mode-btn"
-                [class.active]="selectedTransportMode === 3"
-                [class.disabled]="!hasOpenRouteServiceApiKey"
-                [disabled]="!hasOpenRouteServiceApiKey"
-                (click)="hasOpenRouteServiceApiKey && selectTransportMode(3)"
+                [class.active]="routeService.selectedTransportMode === 3"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(3, selectedWeekday, isHoliday)"
                 [ngbTooltip]="
-                  hasOpenRouteServiceApiKey
+                  routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.mix'
                       | translate)
                     : ('shift.container-template.transport-mode.api-key-required'
@@ -253,10 +253,10 @@
                   }}
                 </h3>
                 <span class="filler"></span>
-                @if (selectedStartBase && selectedEndBase) {
+                @if (routeService.selectedStartBase && routeService.selectedEndBase) {
                   <app-icon-wizard
                     class="icon-table"
-                    [class.disabled]="isAutofillRunning"
+                    [class.disabled]="routeService.isAutofillRunning"
                     (click)="autofill()"
                     [ngbTooltip]="
                       'shift.container-template.tooltip.autofill' | translate
@@ -275,7 +275,7 @@
                         | translate
                     "
                   ></app-icon-route>
-                  @if (hasRouteInfo) {
+                  @if (routeService.hasRouteInfo) {
                     <app-icon-route-file
                       class="icon-table"
                       (click)="exportRouteToPdf()"
@@ -303,7 +303,7 @@
                   "
                 ></app-icon-compact>
               </div>
-              @if (isAutofillRunning) {
+              @if (routeService.isAutofillRunning) {
                 <div class="autofill-progress">
                   <div class="autofill-progress-bar"></div>
                 </div>
@@ -454,7 +454,7 @@
                     ) {
                       <button
                         class="tab"
-                        [class.active]="selectedTabIndex === $index"
+                        [class.active]="tabService.selectedTabIndex === $index"
                         (click)="selectTab($index)"
                       >
                         {{ getTabLabel($index) }}
@@ -463,8 +463,8 @@
                     <span class="filler"></span>
                     <button
                       class="tab permanent-tab"
-                      [class.active]="isEmploymentTabActive"
-                      (click)="selectEmploymentTab()"
+                      [class.active]="tabService.isEmploymentTabActive"
+                      (click)="tabService.selectEmploymentTab()"
                     >
                       {{
                         "shift.container-template.tab.employment" | translate
@@ -476,7 +476,7 @@
                 <!-- Shifts Grid -->
                 <div class="shifts-grid-container">
                   <div class="shifts-grid">
-                    @if (availableTasks.length > 0) {
+                    @if (tabService.availableTasks.length > 0) {
                       <table id="available-tasks-table" class="shifts-table">
                         <thead>
                           <tr>
@@ -535,12 +535,12 @@
                         <tbody
                           cdkDropList
                           id="available-tasks-list"
-                          [cdkDropListData]="availableTasks"
+                          [cdkDropListData]="tabService.availableTasks"
                           [cdkDropListConnectedTo]="['selected-tasks-list']"
                           [cdkDropListSortingDisabled]="true"
                           (cdkDropListDropped)="onAvailableTasksDrop($event)"
                         >
-                          @for (shift of availableTasks; track shift.id) {
+                          @for (shift of tabService.availableTasks; track shift.id) {
                             <tr
                               cdkDrag
                               cdkDragLockAxis="y"
@@ -630,8 +630,8 @@
     </div>
   </div>
   <div class="modal-body first-modal">
-    @if (contextMenuTargetItem) {
-      @if (contextMenuTargetItem.shift?.isTimeRange) {
+    @if (propertiesService.contextMenuTargetItem) {
+      @if (propertiesService.contextMenuTargetItem.shift?.isTimeRange) {
         <div class="row-line-modal-inline1">
           <div class="property-field">
             <label for="timeRangeStartShift">
@@ -642,8 +642,8 @@
             </label>
             <app-time-input
               id="timeRangeStartShift"
-              [value]="getPropertiesTimeRangeStart()"
-              (valueChange)="onPropertiesTimeRangeStartChange($event)"
+              [value]="propertiesService.getPropertiesTimeRangeStart()"
+              (valueChange)="propertiesService.onPropertiesTimeRangeStartChange($event)"
               [showLabel]="false"
               [forDuration]="false"
             ></app-time-input>
@@ -653,7 +653,7 @@
               {{ "shift.container-template.properties.work-time" | translate }}
             </label>
             <div class="readonly-value">
-              {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
+              {{ formatWorkTime(propertiesService.contextMenuTargetItem.shift?.workTime || 0) }}
             </div>
           </div>
         </div>
@@ -667,8 +667,8 @@
           </label>
           <app-time-input
             id="briefingTime"
-            [value]="getPropertiesBriefingTime()"
-            (valueChange)="onPropertiesBriefingTimeChange($event)"
+            [value]="propertiesService.getPropertiesBriefingTime()"
+            (valueChange)="propertiesService.onPropertiesBriefingTimeChange($event)"
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -681,8 +681,8 @@
           </label>
           <app-time-input
             id="debriefingTime"
-            [value]="getPropertiesDebriefingTime()"
-            (valueChange)="onPropertiesDebriefingTimeChange($event)"
+            [value]="propertiesService.getPropertiesDebriefingTime()"
+            (valueChange)="propertiesService.onPropertiesDebriefingTimeChange($event)"
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -698,8 +698,8 @@
           </label>
           <app-time-input
             id="travelTimeBefore"
-            [value]="getPropertiesTravelTimeBefore()"
-            (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
+            [value]="propertiesService.getPropertiesTravelTimeBefore()"
+            (valueChange)="propertiesService.onPropertiesTravelTimeBeforeChange($event)"
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -713,15 +713,15 @@
           </label>
           <app-time-input
             id="travelTimeAfter"
-            [value]="getPropertiesTravelTimeAfter()"
-            (valueChange)="onPropertiesTravelTimeAfterChange($event)"
+            [value]="propertiesService.getPropertiesTravelTimeAfter()"
+            (valueChange)="propertiesService.onPropertiesTravelTimeAfterChange($event)"
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
         </div>
       </div>
 
-      @if (isTransportModeMix) {
+      @if (routeService.isTransportModeMix) {
         <div class="transport-mode-group">
           <label>
             {{ "shift.container-template.transport-mode" | translate }}
@@ -731,9 +731,9 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                getPropertiesTransportMode() === TransportModeEnum.byCar
+                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byCar
               "
-              (click)="selectPropertiesTransportMode(TransportModeEnum.byCar)"
+              (click)="propertiesService.selectPropertiesTransportMode(TransportModeEnum.byCar)"
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-car' | translate
               "
@@ -744,10 +744,10 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                getPropertiesTransportMode() === TransportModeEnum.byBicycle
+                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byBicycle
               "
               (click)="
-                selectPropertiesTransportMode(TransportModeEnum.byBicycle)
+                propertiesService.selectPropertiesTransportMode(TransportModeEnum.byBicycle)
               "
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-bicycle' | translate
@@ -759,9 +759,9 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                getPropertiesTransportMode() === TransportModeEnum.byFoot
+                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byFoot
               "
-              (click)="selectPropertiesTransportMode(TransportModeEnum.byFoot)"
+              (click)="propertiesService.selectPropertiesTransportMode(TransportModeEnum.byFoot)"
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-foot' | translate
               "
@@ -771,16 +771,16 @@
           </div>
         </div>
       }
-      @if (contextMenuTargetItem.shift?.isTimeRange) {
+      @if (propertiesService.contextMenuTargetItem.shift?.isTimeRange) {
         <div class="time-range-info-box">
           {{
             "shift.container-template.properties.time-range-info"
               | translate
                 : {
                     startShift: formatTime(
-                      contextMenuTargetItem.shift?.startShift
+                      propertiesService.contextMenuTargetItem.shift?.startShift
                     ),
-                    endShift: formatTime(contextMenuTargetItem.shift?.endShift),
+                    endShift: formatTime(propertiesService.contextMenuTargetItem.shift?.endShift),
                   }
           }}
         </div>

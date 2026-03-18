@@ -169,7 +169,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     this.newUser = new Authentication();
     this.newUser.message = DomainMessages.REGISTERUSER_MAILTEXT;
     this.newUser.title = DomainMessages.REGISTERUSER_TITLE;
-    this.newUser.appName = this.dataManagementSettingsService.appName;
+    this.newUser.appName = this.dataManagementSettingsService.appSettings.contactSettings().name;
     this.newUser.sendEmail = true;
 
     this.formModel.set({

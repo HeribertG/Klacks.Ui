@@ -72,7 +72,7 @@ export class AvailableShiftsCalculatorService {
   }
 
   private calculateStartDate(filter: IWorkFilter): Date {
-    const daysBefore = this.settingsService.dayVisibleBefore;
+    const daysBefore = this.settingsService.appSettings.workSettings().dayVisibleBefore;
     const periodStart = this.calculatePeriodStartDate(filter);
     return new Date(periodStart.getTime() - daysBefore * 24 * 60 * 60 * 1000);
   }
@@ -101,9 +101,9 @@ export class AvailableShiftsCalculatorService {
   private getTotalDays(filter: IWorkFilter): number {
     const periodDays = this.getPeriodDays(filter);
     return (
-      this.settingsService.dayVisibleBefore +
+      this.settingsService.appSettings.workSettings().dayVisibleBefore +
       periodDays +
-      this.settingsService.dayVisibleAfter
+      this.settingsService.appSettings.workSettings().dayVisibleAfter
     );
   }
 

@@ -161,7 +161,7 @@ export class BaseCreateHeaderService {
     const day = date.getDate();
     const weekday = this.translateService.instant(this.gridSettings.weekday[date.getDay()]);
     const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
-      ?? this.settingsService.paymentInterval;
+      ?? this.settingsService.appSettings.workSettings().paymentInterval;
 
     if (paymentInterval === PaymentInterval.Weekly || paymentInterval === PaymentInterval.Biweekly) {
       const month = date.getMonth() + 1;

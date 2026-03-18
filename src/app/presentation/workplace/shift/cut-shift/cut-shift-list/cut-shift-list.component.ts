@@ -12,7 +12,9 @@ import {
   EventEmitter,
   Output,
   HostListener,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -60,6 +62,7 @@ export class CutShiftListComponent implements OnInit {
   private workTimeCalculator = inject(WorkTimeCalculationService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('cutDateModal', { static: true }) cutDateModal!: TemplateRef<any>;
   @ViewChild('cutTimeModal', { static: true }) cutTimeModal!: TemplateRef<any>;
@@ -702,70 +705,69 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    this.dataShiftCutsService.getResetDateRange(firstShift.originalId).subscribe({
-      next: (response) => {
-        const earliestDate = new Date(response.earliestResetDate);
-        const earliestNgbDate = this.calendar.getNext(
-          new NgbDate(
-            earliestDate.getFullYear(),
-            earliestDate.getMonth() + 1,
-            earliestDate.getDate()
-          ),
-          'd',
-          0
-        );
-        this.minDate = earliestNgbDate;
-
-        if (response.untilDate) {
-          const untilDate = new Date(response.untilDate);
-          const untilNgbDate = new NgbDate(
-            untilDate.getFullYear(),
-            untilDate.getMonth() + 1,
-            untilDate.getDate()
+    this.dataShiftCutsService.getResetDateRange(firstShift.originalId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const earliestDate = new Date(response.earliestResetDate);
+          const earliestNgbDate = this.calendar.getNext(
+            new NgbDate(
+              earliestDate.getFullYear(),
+              earliestDate.getMonth() + 1,
+              earliestDate.getDate()
+            ),
+            'd',
+            0
           );
-          this.maxDate = untilNgbDate;
-        } else {
-          this.maxDate = this.calendar.getNext(earliestNgbDate, 'y', 1);
-        }
+          this.minDate = earliestNgbDate;
 
-        const today = new Date();
-        const todayNgbDate = new NgbDate(
-          today.getFullYear(),
-          today.getMonth() + 1,
-          today.getDate()
-        );
-
-        const todayCompare = todayNgbDate.after(this.minDate) || todayNgbDate.equals(this.minDate);
-        const todayInRange = todayCompare && (todayNgbDate.before(this.maxDate) || todayNgbDate.equals(this.maxDate));
-
-        if (todayInRange) {
-          this.resetDate = todayNgbDate;
-        } else if (todayNgbDate.before(this.minDate)) {
-          this.resetDate = this.minDate;
-        } else {
-          this.resetDate = this.maxDate;
-        }
-
-        this.activeModal = this.modalService.open(this.resetCutsModal, {
-          size: 'md',
-          centered: true,
-          windowClass: 'modal-window',
-        });
-
-        this.activeModal.result.then(
-          () => {
-            this.performResetCuts();
-            this.activeModal = null;
-          },
-          () => {
-            this.activeModal = null;
+          if (response.untilDate) {
+            const untilDate = new Date(response.untilDate);
+            const untilNgbDate = new NgbDate(
+              untilDate.getFullYear(),
+              untilDate.getMonth() + 1,
+              untilDate.getDate()
+            );
+            this.maxDate = untilNgbDate;
+          } else {
+            this.maxDate = this.calendar.getNext(earliestNgbDate, 'y', 1);
           }
-        );
-      },
-      error: (error) => {
-        console.error('Error fetching reset date range:', error);
-      },
-    });
+
+          const today = new Date();
+          const todayNgbDate = new NgbDate(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            today.getDate()
+          );
+
+          const todayCompare = todayNgbDate.after(this.minDate) || todayNgbDate.equals(this.minDate);
+          const todayInRange = todayCompare && (todayNgbDate.before(this.maxDate) || todayNgbDate.equals(this.maxDate));
+
+          if (todayInRange) {
+            this.resetDate = todayNgbDate;
+          } else if (todayNgbDate.before(this.minDate)) {
+            this.resetDate = this.minDate;
+          } else {
+            this.resetDate = this.maxDate;
+          }
+
+          this.activeModal = this.modalService.open(this.resetCutsModal, {
+            size: 'md',
+            centered: true,
+            windowClass: 'modal-window',
+          });
+
+          this.activeModal.result.then(
+            () => {
+              this.performResetCuts();
+              this.activeModal = null;
+            },
+            () => {
+              this.activeModal = null;
+            }
+          );
+        },
+      });
   }
 
   private performResetCuts(): void {

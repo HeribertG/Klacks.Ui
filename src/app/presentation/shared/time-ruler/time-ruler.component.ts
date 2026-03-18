@@ -39,6 +39,14 @@ export interface IShiftContextMenuEvent {
   mouseEvent: MouseEvent;
 }
 
+interface ShiftBoxDrawParams {
+  ctx: CanvasRenderingContext2D;
+  range: any;
+  boxWidth: number;
+  marginLeftRight: number;
+  height: number;
+}
+
 @Component({
   selector: 'app-time-ruler',
   imports: [],
@@ -553,24 +561,6 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       return null;
     }
 
-    let startMinutes = bodyStartMinutes;
-    let endMinutes = bodyEndMinutes;
-
-    if (item.startShift && item.endShift) {
-      const startTime = this.timeRangeService.parseTimeString(item.startShift);
-      const endTime = this.timeRangeService.parseTimeString(item.endShift);
-
-      if (startTime && endTime) {
-        startMinutes =
-          startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
-        endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
-
-        if (endMinutes < startMinutes) {
-          endMinutes += this.MINUTES_PER_DAY;
-        }
-      }
-    }
-
     const startY =
       ((bodyStartMinutes - range.displayFromMinutes) / range.totalMinutes) *
       height;
@@ -578,53 +568,101 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       ((bodyEndMinutes - range.displayFromMinutes) / range.totalMinutes) *
       height;
 
-    const pixelsPerMinute = height / range.totalMinutes;
-    const durationMinutes = bodyEndMinutes - bodyStartMinutes;
-
     const briefingMinutes = this.parseTravelTimeToMinutes(item.briefingTime);
     const debriefingMinutes = this.parseTravelTimeToMinutes(item.debriefingTime);
     const travelBeforeMinutes = this.parseTravelTimeToMinutes(item.travelTimeBefore);
     const travelAfterMinutes = this.parseTravelTimeToMinutes(item.travelTimeAfter);
 
-    if (travelBeforeMinutes > 0) {
-      const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
-      const travelStartMinutes = briefingStartMinutes - travelBeforeMinutes;
-      const travelStartY =
-        ((travelStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
-      const travelEndY =
-        ((briefingStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
-
-      const travelRect = new Rectangle(
-        marginLeftRight,
-        travelStartY,
-        marginLeftRight + boxWidth,
-        travelEndY
-      );
-
-      DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
-      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, travelRect);
-    }
-
-    if (briefingMinutes > 0) {
-      const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
-      const briefingStartY =
-        ((briefingStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
-
-      const briefingRect = new Rectangle(
-        marginLeftRight,
-        briefingStartY,
-        marginLeftRight + boxWidth,
-        startY
-      );
-
-      DrawHelper.fillRectangle(ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, briefingRect);
-      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, briefingRect);
-    }
-
-    const rect = new Rectangle(
+    const drawParams: ShiftBoxDrawParams = {
+      ctx,
+      range,
+      boxWidth,
       marginLeftRight,
+      height,
+    };
+
+    this.drawTravelBefore(
+      drawParams, bodyStartMinutes, briefingMinutes, travelBeforeMinutes
+    );
+    this.drawBriefing(drawParams, bodyStartMinutes, briefingMinutes, startY);
+
+    const rect = this.drawMainShiftBox(
+      drawParams, item, bodyStartMinutes, bodyEndMinutes, startY, endY, isSelected
+    );
+
+    this.drawDebriefing(drawParams, bodyEndMinutes, debriefingMinutes, endY);
+    this.drawTravelAfter(
+      drawParams, bodyEndMinutes, debriefingMinutes, travelAfterMinutes
+    );
+
+    return rect;
+  }
+
+  private drawTravelBefore(
+    params: ShiftBoxDrawParams,
+    bodyStartMinutes: number,
+    briefingMinutes: number,
+    travelBeforeMinutes: number
+  ): void {
+    if (travelBeforeMinutes <= 0) return;
+
+    const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
+    const travelStartMinutes = briefingStartMinutes - travelBeforeMinutes;
+    const travelStartY =
+      ((travelStartMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
+    const travelEndY =
+      ((briefingStartMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
+
+    const travelRect = new Rectangle(
+      params.marginLeftRight,
+      travelStartY,
+      params.marginLeftRight + params.boxWidth,
+      travelEndY
+    );
+
+    DrawHelper.fillRectangle(params.ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+    DrawHelper.drawBaseBorder(params.ctx, this.gridColorService.borderColor, 1, travelRect);
+  }
+
+  private drawBriefing(
+    params: ShiftBoxDrawParams,
+    bodyStartMinutes: number,
+    briefingMinutes: number,
+    startY: number
+  ): void {
+    if (briefingMinutes <= 0) return;
+
+    const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
+    const briefingStartY =
+      ((briefingStartMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
+
+    const briefingRect = new Rectangle(
+      params.marginLeftRight,
+      briefingStartY,
+      params.marginLeftRight + params.boxWidth,
+      startY
+    );
+
+    DrawHelper.fillRectangle(params.ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, briefingRect);
+    DrawHelper.drawBaseBorder(params.ctx, this.gridColorService.borderColor, 1, briefingRect);
+  }
+
+  private drawMainShiftBox(
+    params: ShiftBoxDrawParams,
+    item: IContainerTemplateItem,
+    bodyStartMinutes: number,
+    bodyEndMinutes: number,
+    startY: number,
+    endY: number,
+    isSelected: boolean
+  ): Rectangle {
+    const rect = new Rectangle(
+      params.marginLeftRight,
       startY,
-      marginLeftRight + boxWidth,
+      params.marginLeftRight + params.boxWidth,
       endY
     );
 
@@ -632,11 +670,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.shiftRectangles.set(item, rect);
     }
 
-    const hasOverlap = this.checkShiftOverlap(
-      item,
-      bodyStartMinutes,
-      bodyEndMinutes
-    );
+    const hasOverlap = this.checkShiftOverlap(item, bodyStartMinutes, bodyEndMinutes);
     const isTask = item.shift?.shiftType === ShiftType.IsTask;
     const defaultColor = isTask
       ? this.TASK_BACKGROUND_COLOR
@@ -645,28 +679,24 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       ? this.gridColorService.warningColor
       : defaultColor;
 
-    DrawHelper.fillRectangle(ctx, backgroundColor, rect);
+    DrawHelper.fillRectangle(params.ctx, backgroundColor, rect);
 
     if (isSelected) {
-      ctx.save();
-
-      ctx.globalAlpha = this.SHIFT_BOX_SELECTION_OPACITY;
+      params.ctx.save();
+      params.ctx.globalAlpha = this.SHIFT_BOX_SELECTION_OPACITY;
       DrawHelper.fillRectangle(
-        ctx,
+        params.ctx,
         this.gridColorService.focusBorderColor,
         rect
       );
-
-      ctx.restore();
+      params.ctx.restore();
     }
 
-    const boxHeight = endY - startY;
-
     DrawHelper.drawBorder(
-      ctx,
-      marginLeftRight,
+      params.ctx,
+      params.marginLeftRight,
       startY,
-      boxWidth,
+      params.boxWidth,
       endY,
       defaultColor,
       this.SHIFT_BOX_BORDER_DEPTH,
@@ -675,15 +705,25 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if ((item.shift?.isTimeRange || item.shift?.isSporadic) && isSelected) {
       this.drawBlueBoundaryLines(
-        ctx,
+        params.ctx,
         item,
-        range,
-        boxWidth,
-        marginLeftRight,
-        height
+        params.range,
+        params.boxWidth,
+        params.marginLeftRight,
+        params.height
       );
     }
 
+    this.drawShiftLabel(params.ctx, item, rect);
+
+    return rect;
+  }
+
+  private drawShiftLabel(
+    ctx: CanvasRenderingContext2D,
+    item: IContainerTemplateItem,
+    rect: Rectangle
+  ): void {
     const abbreviation = item.shift?.abbreviation || '';
     const name = item.shift?.name || '';
     const displayText = abbreviation ? `${abbreviation} - ${name}` : name;
@@ -701,43 +741,58 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
+  }
 
-    if (debriefingMinutes > 0) {
-      const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
-      const debriefingEndY =
-        ((debriefingEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+  private drawDebriefing(
+    params: ShiftBoxDrawParams,
+    bodyEndMinutes: number,
+    debriefingMinutes: number,
+    endY: number
+  ): void {
+    if (debriefingMinutes <= 0) return;
 
-      const debriefingRect = new Rectangle(
-        marginLeftRight,
-        endY,
-        marginLeftRight + boxWidth,
-        debriefingEndY
-      );
+    const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
+    const debriefingEndY =
+      ((debriefingEndMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
 
-      DrawHelper.fillRectangle(ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, debriefingRect);
-      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, debriefingRect);
-    }
+    const debriefingRect = new Rectangle(
+      params.marginLeftRight,
+      endY,
+      params.marginLeftRight + params.boxWidth,
+      debriefingEndY
+    );
 
-    if (travelAfterMinutes > 0) {
-      const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
-      const travelEndMinutes = debriefingEndMinutes + travelAfterMinutes;
-      const travelStartY =
-        ((debriefingEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
-      const travelEndY =
-        ((travelEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+    DrawHelper.fillRectangle(params.ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, debriefingRect);
+    DrawHelper.drawBaseBorder(params.ctx, this.gridColorService.borderColor, 1, debriefingRect);
+  }
 
-      const travelRect = new Rectangle(
-        marginLeftRight,
-        travelStartY,
-        marginLeftRight + boxWidth,
-        travelEndY
-      );
+  private drawTravelAfter(
+    params: ShiftBoxDrawParams,
+    bodyEndMinutes: number,
+    debriefingMinutes: number,
+    travelAfterMinutes: number
+  ): void {
+    if (travelAfterMinutes <= 0) return;
 
-      DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
-      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, travelRect);
-    }
+    const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
+    const travelEndMinutes = debriefingEndMinutes + travelAfterMinutes;
+    const travelStartY =
+      ((debriefingEndMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
+    const travelEndY =
+      ((travelEndMinutes - params.range.displayFromMinutes) / params.range.totalMinutes) *
+      params.height;
 
-    return rect;
+    const travelRect = new Rectangle(
+      params.marginLeftRight,
+      travelStartY,
+      params.marginLeftRight + params.boxWidth,
+      travelEndY
+    );
+
+    DrawHelper.fillRectangle(params.ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+    DrawHelper.drawBaseBorder(params.ctx, this.gridColorService.borderColor, 1, travelRect);
   }
 
   private renderShiftsToCache(width: number, height: number): void {

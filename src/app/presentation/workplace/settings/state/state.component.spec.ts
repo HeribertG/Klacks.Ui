@@ -57,12 +57,8 @@ describe('StateComponent', () => {
 
         const settingsServiceSpy = {
             loadSettings: vi.fn(),
-            countryStateService: mockCountryStateService
+            countryStateService: mockCountryStateService,
         };
-
-        Object.defineProperty(settingsServiceSpy, 'statesList', {
-            get: () => mockCountryStateService.statesList(),
-        });
 
         const translateServiceSpy = {
             instant: vi.fn()

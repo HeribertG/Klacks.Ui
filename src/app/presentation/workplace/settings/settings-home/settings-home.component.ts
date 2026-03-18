@@ -130,7 +130,7 @@ export class SettingsHomeComponent implements OnInit {
     this.searchService.setSearchVisibility(false);
 
     const id = this.localStorageService.get(StorageKeys.TOKEN_USERID) + '';
-    this.dataManagementSettingsService.CurrentAccountId = id;
+    this.dataManagementSettingsService.userAdmin.currentAccountId.set(id);
     this.workplaceStateService.setActiveManagerByRoute('settings');
     this.savebarService.setSavebarVisibility(false);
     this.dataManagementSettingsService.readData();

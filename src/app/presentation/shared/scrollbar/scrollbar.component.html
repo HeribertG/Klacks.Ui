@@ -1,0 +1,29 @@
+<div class="scrollbar-container" appResize (resizeElement)="onResize($event)">
+  <div
+    class="arrow-thumb"
+    role="button"
+    (mousedown)="onArrowThumbMouseDown($event, -1)"
+    (mouseup)="onArrowThumbMouseUp($event)"
+    [innerHTML]="safeTriangleSvgBackward"
+    [class.disabled]="disableBackwardArrow"
+    [class.hidden]="hideArrowButtons"
+    [attr.disabled]="disableBackwardArrow ? true : null"
+    [attr.aria-disabled]="disableBackwardArrow"
+  ></div>
+
+  <div class="scrollbar-bar">
+    <canvas #canvas></canvas>
+  </div>
+
+  <div
+    class="arrow-thumb"
+    role="button"
+    (mousedown)="onArrowThumbMouseDown($event, 1)"
+    (mouseup)="onArrowThumbMouseUp($event)"
+    [innerHTML]="safeTriangleSvgForward"
+    [class.disabled]="disableForwardArrow"
+    [class.hidden]="hideArrowButtons"
+    [attr.disabled]="disableForwardArrow ? true : null"
+    [attr.aria-disabled]="disableForwardArrow"
+  ></div>
+</div>
