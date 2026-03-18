@@ -32,6 +32,7 @@ import { TimeRangeService } from './services/time-range.service';
 import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 
 export interface IShiftContextMenuEvent {
   item: IContainerTemplateItem;
@@ -94,6 +95,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private readonly SHIFT_BOX_SELECTION_OPACITY = 0.2;
   private readonly TRAVEL_TIME_BACKGROUND_COLOR = '#F5F5DC';
   private readonly BRIEFING_TIME_BACKGROUND_COLOR = 'rgb(149, 185, 208)';
+  private readonly TASK_BACKGROUND_COLOR = '#cdcdd8';
 
   private readonly MINUTES_PER_DAY = 24 * 60;
 
@@ -635,9 +637,13 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       bodyStartMinutes,
       bodyEndMinutes
     );
+    const isTask = item.shift?.shiftType === ShiftType.IsTask;
+    const defaultColor = isTask
+      ? this.TASK_BACKGROUND_COLOR
+      : this.gridColorService.controlBackGroundColor;
     const backgroundColor = hasOverlap
       ? this.gridColorService.warningColor
-      : this.gridColorService.controlBackGroundColor;
+      : defaultColor;
 
     DrawHelper.fillRectangle(ctx, backgroundColor, rect);
 
@@ -662,7 +668,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       startY,
       boxWidth,
       endY,
-      this.gridColorService.controlBackGroundColor,
+      defaultColor,
       this.SHIFT_BOX_BORDER_DEPTH,
       Gradient3DBorderStyleEnum.Raised
     );
