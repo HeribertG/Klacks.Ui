@@ -680,7 +680,7 @@
 }
 
 tr.partial-timerange {
-  background-color: rgba(76, 175, 80, 0.08);
+  background-color: var(--taskRowPossibleBackground);
 
   td {
     color: rgba(var(--colorTextRgb, 0, 0, 0), 0.6);
@@ -688,7 +688,7 @@ tr.partial-timerange {
 }
 
 tr.timerange-violation {
-  background-color: rgba(244, 67, 54, 0.12);
+  background-color: var(--taskRowViolationBackground);
 }
 
 ::ng-deep .cdk-drag-preview {
