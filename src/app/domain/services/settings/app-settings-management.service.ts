@@ -228,91 +228,79 @@ export class AppSettingsManagementService {
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
   }
 
+  private readonly saveDefinitions: ReadonlyArray<{ key: string; getCurrent: () => string; getOriginal: () => string }> = [
+    { key: AppSetting.APP_NAME, getCurrent: () => this.contactSettings().name, getOriginal: () => this.contactSettingsOriginal().name },
+    { key: AppSetting.APP_ADDRESS_NAME, getCurrent: () => this.contactSettings().addressName, getOriginal: () => this.contactSettingsOriginal().addressName },
+    { key: AppSetting.APP_ADDRESS_SUPPLEMENT, getCurrent: () => this.contactSettings().supplementAddress, getOriginal: () => this.contactSettingsOriginal().supplementAddress },
+    { key: AppSetting.APP_ADDRESS_ADDRESS, getCurrent: () => this.contactSettings().address, getOriginal: () => this.contactSettingsOriginal().address },
+    { key: AppSetting.APP_ADDRESS_ZIP, getCurrent: () => this.contactSettings().zip, getOriginal: () => this.contactSettingsOriginal().zip },
+    { key: AppSetting.APP_ADDRESS_PLACE, getCurrent: () => this.contactSettings().place, getOriginal: () => this.contactSettingsOriginal().place },
+    { key: AppSetting.APP_ADDRESS_STATE, getCurrent: () => this.contactSettings().state, getOriginal: () => this.contactSettingsOriginal().state },
+    { key: AppSetting.APP_ADDRESS_COUNTRY, getCurrent: () => this.contactSettings().country, getOriginal: () => this.contactSettingsOriginal().country },
+    { key: AppSetting.APP_ADDRESS_PHONE, getCurrent: () => this.contactSettings().phone, getOriginal: () => this.contactSettingsOriginal().phone },
+    { key: AppSetting.APP_ADDRESS_MAIL, getCurrent: () => this.contactSettings().email, getOriginal: () => this.contactSettingsOriginal().email },
+    { key: AppSetting.APP_ACCOUNTING_START, getCurrent: () => this.contactSettings().accountingStart.toString(), getOriginal: () => this.contactSettingsOriginal().accountingStart.toString() },
+    { key: AppSetting.APP_MARK, getCurrent: () => this.contactSettings().mark, getOriginal: () => this.contactSettingsOriginal().mark },
+    { key: AppSetting.GLOBAL_CALENDAR_COUNTRY, getCurrent: () => this.contactSettings().globalCalendarCountry, getOriginal: () => this.contactSettingsOriginal().globalCalendarCountry },
+    { key: AppSetting.GLOBAL_CALENDAR_STATE, getCurrent: () => this.contactSettings().globalCalendarState, getOriginal: () => this.contactSettingsOriginal().globalCalendarState },
+    { key: AppSetting.GLOBAL_CALENDAR_SELECTION_ID, getCurrent: () => this.contactSettings().globalCalendarSelectionId, getOriginal: () => this.contactSettingsOriginal().globalCalendarSelectionId },
+
+    { key: AppSetting.APP_OUTGOING_SERVER, getCurrent: () => this.emailSettings().outgoingServer, getOriginal: () => this.emailSettingsOriginal().outgoingServer },
+    { key: AppSetting.APP_OUTGOING_SERVER_PORT, getCurrent: () => this.emailSettings().outgoingServerPort, getOriginal: () => this.emailSettingsOriginal().outgoingServerPort },
+    { key: AppSetting.APP_ENABLE_SSL, getCurrent: () => this.emailSettings().enabledSSL, getOriginal: () => this.emailSettingsOriginal().enabledSSL },
+    { key: AppSetting.APP_OUTGOING_SERVER_TIMEOUT, getCurrent: () => this.emailSettings().outgoingServerTimeout, getOriginal: () => this.emailSettingsOriginal().outgoingServerTimeout },
+    { key: AppSetting.APP_AUTHENTICATION_TYPE, getCurrent: () => this.emailSettings().authenticationType, getOriginal: () => this.emailSettingsOriginal().authenticationType },
+    { key: AppSetting.APP_READ_RECEIPT, getCurrent: () => this.emailSettings().readReceipt, getOriginal: () => this.emailSettingsOriginal().readReceipt },
+    { key: AppSetting.APP_REPLY_TO, getCurrent: () => this.emailSettings().replyTo, getOriginal: () => this.emailSettingsOriginal().replyTo },
+    { key: AppSetting.APP_DISPOSITION_NOTIFICATION, getCurrent: () => this.emailSettings().dispositionNotification, getOriginal: () => this.emailSettingsOriginal().dispositionNotification },
+    { key: AppSetting.APP_OUTGOING_SERVER_USERNAME, getCurrent: () => this.emailSettings().username, getOriginal: () => this.emailSettingsOriginal().username },
+    { key: AppSetting.APP_OUTGOING_SERVER_PASSWORD, getCurrent: () => this.emailSettings().password, getOriginal: () => this.emailSettingsOriginal().password },
+
+    { key: AppSetting.APP_INCOMING_SERVER, getCurrent: () => this.imapSettings().server, getOriginal: () => this.imapSettingsOriginal().server },
+    { key: AppSetting.APP_INCOMING_SERVER_PORT, getCurrent: () => this.imapSettings().port, getOriginal: () => this.imapSettingsOriginal().port },
+    { key: AppSetting.APP_INCOMING_SERVER_USERNAME, getCurrent: () => this.imapSettings().username, getOriginal: () => this.imapSettingsOriginal().username },
+    { key: AppSetting.APP_INCOMING_SERVER_PASSWORD, getCurrent: () => this.imapSettings().password, getOriginal: () => this.imapSettingsOriginal().password },
+    { key: AppSetting.APP_INCOMING_SERVER_SSL, getCurrent: () => this.imapSettings().enableSSL, getOriginal: () => this.imapSettingsOriginal().enableSSL },
+    { key: AppSetting.APP_INCOMING_SERVER_FOLDER, getCurrent: () => this.imapSettings().folder, getOriginal: () => this.imapSettingsOriginal().folder },
+    { key: AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL, getCurrent: () => this.imapSettings().pollInterval, getOriginal: () => this.imapSettingsOriginal().pollInterval },
+
+    { key: AppSetting.WORK_VACATION_DAYS_PER_YEAR, getCurrent: () => this.workSettings().vacationDaysPerYear.toString(), getOriginal: () => this.workSettingsOriginal().vacationDaysPerYear.toString() },
+    { key: AppSetting.WORK_PROBATION_PERIOD, getCurrent: () => this.workSettings().probationPeriod.toString(), getOriginal: () => this.workSettingsOriginal().probationPeriod.toString() },
+    { key: AppSetting.WORK_NOTICE_PERIOD, getCurrent: () => this.workSettings().noticePeriod.toString(), getOriginal: () => this.workSettingsOriginal().noticePeriod.toString() },
+    { key: AppSetting.WORK_PAYMENT_INTERVAL, getCurrent: () => this.workSettings().paymentInterval.toString(), getOriginal: () => this.workSettingsOriginal().paymentInterval.toString() },
+    { key: AppSetting.WORK_NIGHT_RATE, getCurrent: () => this.workSettings().nightRate.toString(), getOriginal: () => this.workSettingsOriginal().nightRate.toString() },
+    { key: AppSetting.WORK_HOLIDAY_RATE, getCurrent: () => this.workSettings().holidayRate.toString(), getOriginal: () => this.workSettingsOriginal().holidayRate.toString() },
+    { key: AppSetting.WORK_SA_RATE, getCurrent: () => this.workSettings().saRate.toString(), getOriginal: () => this.workSettingsOriginal().saRate.toString() },
+    { key: AppSetting.WORK_SO_RATE, getCurrent: () => this.workSettings().soRate.toString(), getOriginal: () => this.workSettingsOriginal().soRate.toString() },
+    { key: AppSetting.WORK_DAY_VISIBLE_BEFORE, getCurrent: () => this.workSettings().dayVisibleBefore.toString(), getOriginal: () => this.workSettingsOriginal().dayVisibleBefore.toString() },
+    { key: AppSetting.WORK_DAY_VISIBLE_AFTER, getCurrent: () => this.workSettings().dayVisibleAfter.toString(), getOriginal: () => this.workSettingsOriginal().dayVisibleAfter.toString() },
+
+    { key: AppSetting.WORK_DEFAULT_WORKING_HOURS, getCurrent: () => this.schedulingDefaultSettings().defaultWorkingHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().defaultWorkingHours.toString() },
+    { key: AppSetting.WORK_OVERTIME_THRESHOLD, getCurrent: () => this.schedulingDefaultSettings().overtimeThreshold.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().overtimeThreshold.toString() },
+    { key: AppSetting.WORK_GUARANTEED_HOURS, getCurrent: () => this.schedulingDefaultSettings().guaranteedHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().guaranteedHours.toString() },
+    { key: AppSetting.WORK_MAXIMUM_HOURS, getCurrent: () => this.schedulingDefaultSettings().maximumHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().maximumHours.toString() },
+    { key: AppSetting.WORK_MINIMUM_HOURS, getCurrent: () => this.schedulingDefaultSettings().minimumHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().minimumHours.toString() },
+    { key: AppSetting.WORK_FULL_TIME, getCurrent: () => this.schedulingDefaultSettings().fullTime.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().fullTime.toString() },
+    { key: AppSetting.SCHEDULING_MAX_WORK_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWorkDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWorkDays.toString() },
+    { key: AppSetting.SCHEDULING_MIN_REST_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMinRestDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMinRestDays.toString() },
+    { key: AppSetting.SCHEDULING_MIN_PAUSE_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMinPauseHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMinPauseHours.toString() },
+    { key: AppSetting.SCHEDULING_MAX_OPTIMAL_GAP, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxOptimalGap.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxOptimalGap.toString() },
+    { key: AppSetting.SCHEDULING_MAX_DAILY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxDailyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxDailyHours.toString() },
+    { key: AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWeeklyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWeeklyHours.toString() },
+    { key: AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxConsecutiveDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxConsecutiveDays.toString() },
+
+    { key: AppSetting.OPENROUTESERVICE_API_KEY, getCurrent: () => this.openRouteServiceApiKey(), getOriginal: () => this.openRouteServiceApiKeyOriginal() },
+    { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
+  ];
+
   save(): void {
     if (!this.isDirty()) {
       return;
     }
 
-    const contact = this.contactSettings();
-    const contactOriginal = this.contactSettingsOriginal();
-    const email = this.emailSettings();
-    const emailOriginal = this.emailSettingsOriginal();
-    const work = this.workSettings();
-    const workOriginal = this.workSettingsOriginal();
-
-    // Save contact settings
-    this.saveSetting(contact.name, contactOriginal.name, AppSetting.APP_NAME);
-    this.saveSetting(contact.addressName, contactOriginal.addressName, AppSetting.APP_ADDRESS_NAME);
-    this.saveSetting(contact.supplementAddress, contactOriginal.supplementAddress, AppSetting.APP_ADDRESS_SUPPLEMENT);
-    this.saveSetting(contact.address, contactOriginal.address, AppSetting.APP_ADDRESS_ADDRESS);
-    this.saveSetting(contact.zip, contactOriginal.zip, AppSetting.APP_ADDRESS_ZIP);
-    this.saveSetting(contact.place, contactOriginal.place, AppSetting.APP_ADDRESS_PLACE);
-    this.saveSetting(contact.state, contactOriginal.state, AppSetting.APP_ADDRESS_STATE);
-    this.saveSetting(contact.country, contactOriginal.country, AppSetting.APP_ADDRESS_COUNTRY);
-    this.saveSetting(contact.phone, contactOriginal.phone, AppSetting.APP_ADDRESS_PHONE);
-    this.saveSetting(contact.email, contactOriginal.email, AppSetting.APP_ADDRESS_MAIL);
-    this.saveSetting(contact.accountingStart.toString(), contactOriginal.accountingStart.toString(), AppSetting.APP_ACCOUNTING_START);
-    this.saveSetting(contact.mark, contactOriginal.mark, AppSetting.APP_MARK);
-    this.saveSetting(contact.globalCalendarCountry, contactOriginal.globalCalendarCountry, AppSetting.GLOBAL_CALENDAR_COUNTRY);
-    this.saveSetting(contact.globalCalendarState, contactOriginal.globalCalendarState, AppSetting.GLOBAL_CALENDAR_STATE);
-    this.saveSetting(contact.globalCalendarSelectionId, contactOriginal.globalCalendarSelectionId, AppSetting.GLOBAL_CALENDAR_SELECTION_ID);
-
-    // Save email settings
-    this.saveSetting(email.outgoingServer, emailOriginal.outgoingServer, AppSetting.APP_OUTGOING_SERVER);
-    this.saveSetting(email.outgoingServerPort, emailOriginal.outgoingServerPort, AppSetting.APP_OUTGOING_SERVER_PORT);
-    this.saveSetting(email.enabledSSL, emailOriginal.enabledSSL, AppSetting.APP_ENABLE_SSL);
-    this.saveSetting(email.outgoingServerTimeout, emailOriginal.outgoingServerTimeout, AppSetting.APP_OUTGOING_SERVER_TIMEOUT);
-    this.saveSetting(email.authenticationType, emailOriginal.authenticationType, AppSetting.APP_AUTHENTICATION_TYPE);
-    this.saveSetting(email.readReceipt, emailOriginal.readReceipt, AppSetting.APP_READ_RECEIPT);
-    this.saveSetting(email.replyTo, emailOriginal.replyTo, AppSetting.APP_REPLY_TO);
-    this.saveSetting(email.dispositionNotification, emailOriginal.dispositionNotification, AppSetting.APP_DISPOSITION_NOTIFICATION);
-    this.saveSetting(email.username, emailOriginal.username, AppSetting.APP_OUTGOING_SERVER_USERNAME);
-    this.saveSetting(email.password, emailOriginal.password, AppSetting.APP_OUTGOING_SERVER_PASSWORD);
-
-    const imap = this.imapSettings();
-    const imapOriginal = this.imapSettingsOriginal();
-    this.saveSetting(imap.server, imapOriginal.server, AppSetting.APP_INCOMING_SERVER);
-    this.saveSetting(imap.port, imapOriginal.port, AppSetting.APP_INCOMING_SERVER_PORT);
-    this.saveSetting(imap.username, imapOriginal.username, AppSetting.APP_INCOMING_SERVER_USERNAME);
-    this.saveSetting(imap.password, imapOriginal.password, AppSetting.APP_INCOMING_SERVER_PASSWORD);
-    this.saveSetting(imap.enableSSL, imapOriginal.enableSSL, AppSetting.APP_INCOMING_SERVER_SSL);
-    this.saveSetting(imap.folder, imapOriginal.folder, AppSetting.APP_INCOMING_SERVER_FOLDER);
-    this.saveSetting(imap.pollInterval, imapOriginal.pollInterval, AppSetting.APP_INCOMING_SERVER_POLL_INTERVAL);
-
-    // Save work settings
-    this.saveSetting(work.vacationDaysPerYear.toString(), workOriginal.vacationDaysPerYear.toString(), AppSetting.WORK_VACATION_DAYS_PER_YEAR);
-    this.saveSetting(work.probationPeriod.toString(), workOriginal.probationPeriod.toString(), AppSetting.WORK_PROBATION_PERIOD);
-    this.saveSetting(work.noticePeriod.toString(), workOriginal.noticePeriod.toString(), AppSetting.WORK_NOTICE_PERIOD);
-    this.saveSetting(work.paymentInterval.toString(), workOriginal.paymentInterval.toString(), AppSetting.WORK_PAYMENT_INTERVAL);
-    this.saveSetting(work.nightRate.toString(), workOriginal.nightRate.toString(), AppSetting.WORK_NIGHT_RATE);
-    this.saveSetting(work.holidayRate.toString(), workOriginal.holidayRate.toString(), AppSetting.WORK_HOLIDAY_RATE);
-    this.saveSetting(work.saRate.toString(), workOriginal.saRate.toString(), AppSetting.WORK_SA_RATE);
-    this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
-    this.saveSetting(work.dayVisibleBefore.toString(), workOriginal.dayVisibleBefore.toString(), AppSetting.WORK_DAY_VISIBLE_BEFORE);
-    this.saveSetting(work.dayVisibleAfter.toString(), workOriginal.dayVisibleAfter.toString(), AppSetting.WORK_DAY_VISIBLE_AFTER);
-
-    // Save scheduling default settings
-    const sched = this.schedulingDefaultSettings();
-    const schedOriginal = this.schedulingDefaultSettingsOriginal();
-    this.saveSetting(sched.defaultWorkingHours.toString(), schedOriginal.defaultWorkingHours.toString(), AppSetting.WORK_DEFAULT_WORKING_HOURS);
-    this.saveSetting(sched.overtimeThreshold.toString(), schedOriginal.overtimeThreshold.toString(), AppSetting.WORK_OVERTIME_THRESHOLD);
-    this.saveSetting(sched.guaranteedHours.toString(), schedOriginal.guaranteedHours.toString(), AppSetting.WORK_GUARANTEED_HOURS);
-    this.saveSetting(sched.maximumHours.toString(), schedOriginal.maximumHours.toString(), AppSetting.WORK_MAXIMUM_HOURS);
-    this.saveSetting(sched.minimumHours.toString(), schedOriginal.minimumHours.toString(), AppSetting.WORK_MINIMUM_HOURS);
-    this.saveSetting(sched.fullTime.toString(), schedOriginal.fullTime.toString(), AppSetting.WORK_FULL_TIME);
-    this.saveSetting(sched.schedulingMaxWorkDays.toString(), schedOriginal.schedulingMaxWorkDays.toString(), AppSetting.SCHEDULING_MAX_WORK_DAYS);
-    this.saveSetting(sched.schedulingMinRestDays.toString(), schedOriginal.schedulingMinRestDays.toString(), AppSetting.SCHEDULING_MIN_REST_DAYS);
-    this.saveSetting(sched.schedulingMinPauseHours.toString(), schedOriginal.schedulingMinPauseHours.toString(), AppSetting.SCHEDULING_MIN_PAUSE_HOURS);
-    this.saveSetting(sched.schedulingMaxOptimalGap.toString(), schedOriginal.schedulingMaxOptimalGap.toString(), AppSetting.SCHEDULING_MAX_OPTIMAL_GAP);
-    this.saveSetting(sched.schedulingMaxDailyHours.toString(), schedOriginal.schedulingMaxDailyHours.toString(), AppSetting.SCHEDULING_MAX_DAILY_HOURS);
-    this.saveSetting(sched.schedulingMaxWeeklyHours.toString(), schedOriginal.schedulingMaxWeeklyHours.toString(), AppSetting.SCHEDULING_MAX_WEEKLY_HOURS);
-    this.saveSetting(sched.schedulingMaxConsecutiveDays.toString(), schedOriginal.schedulingMaxConsecutiveDays.toString(), AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS);
-
-    // Save OpenRouteService API Key
-    this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
-
-    // Save DeepL API Key
-    this.saveSetting(this.deeplApiKey(), this.deeplApiKeyOriginal(), AppSetting.DEEPL_API_KEY);
+    for (const definition of this.saveDefinitions) {
+      this.saveSetting(definition.getCurrent(), definition.getOriginal(), definition.key);
+    }
   }
 
   private saveSetting(value: string, originalValue: string, type: string): void {

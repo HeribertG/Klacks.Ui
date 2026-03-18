@@ -13,13 +13,13 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container/container-template-slot';
-import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
+import { ContainerTaskService } from 'src/app/domain/services/container/container-task.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Injectable()
 export class ContainerTemplateTabService {
-  private containerService = inject(DataManagementContainerService);
+  private taskService = inject(ContainerTaskService);
   private shiftService = inject(ContainerTemplateShiftService);
   private translateService = inject(TranslateService);
   private sortingService = inject(TableSortingService);
@@ -76,7 +76,7 @@ export class ContainerTemplateTabService {
       }
     });
 
-    let uniqueShifts = this.containerService.getUniqueShifts(allShifts);
+    let uniqueShifts = this.taskService.getUniqueShifts(allShifts);
 
     const selectedShiftIds = this.shiftService
       .selectedContainerTemplateItemsSignal()
@@ -87,7 +87,7 @@ export class ContainerTemplateTabService {
       (shift) => !selectedShiftIds.includes(shift.id!),
     );
 
-    uniqueShifts = this.containerService.filterAvailableTasksBySearch(
+    uniqueShifts = this.taskService.filterAvailableTasksBySearch(
       uniqueShifts,
       currentSearchString,
       currentIncludeAddress,
@@ -96,7 +96,7 @@ export class ContainerTemplateTabService {
     const orderBy = this.sortingService.getCurrentOrderBy();
     const sortOrder = this.sortingService.getCurrentSortOrder();
 
-    this.availableTasks = this.containerService.sortShifts(
+    this.availableTasks = this.taskService.sortShifts(
       uniqueShifts,
       orderBy || '',
       sortOrder,
@@ -111,8 +111,8 @@ export class ContainerTemplateTabService {
       return [];
     }
 
-    const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
-    return this.containerService.getFilteredRowsForWeekday(
+    const weekdayNumber = this.taskService.getWeekdayNumber(selectedWeekday);
+    return this.taskService.getFilteredRowsForWeekday(
       templateGrid,
       weekdayNumber,
     );

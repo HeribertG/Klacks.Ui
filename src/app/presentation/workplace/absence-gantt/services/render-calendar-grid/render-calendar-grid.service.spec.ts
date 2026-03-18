@@ -217,7 +217,8 @@ describe('RenderCalendarGridService', () => {
         it('should not crash on error', () => {
             // Arrange
             mockScroll.verticalScrollDelta = 2;
-            mockGanttCanvasManager.isCanvasAvailable.mockReturnValue(false);
+            mockGanttCanvasManager.renderCanvas = null;
+            mockGanttCanvasManager.renderCanvasCtx = null;
             vi.spyOn(service, 'renderCalendar').mockImplementation(() => {});
 
             // Act & Assert

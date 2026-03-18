@@ -1,138 +1,95 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Phone Number Helper
- *
  * Pure functions for phone number formatting.
+ * @param value - Phone number string (digits, optionally prefixed with '+')
+ *
+ * Uses lookup tables to define digit-group patterns per length range.
+ * Each entry maps a length range to an array of group sizes that control spacing.
  */
 
-/**
- * Removes all non-digit characters from a phone number.
- *
- * @param value - Phone number string
- * @returns Unformatted phone number (digits only)
- */
+interface FormatRule {
+  readonly minLength: number;
+  readonly maxLength: number;
+  readonly groups: readonly number[];
+}
+
+const FORMAT_RULES_WITHOUT_CROSS: readonly FormatRule[] = [
+  { minLength: 1, maxLength: 2, groups: [2] },
+  { minLength: 3, maxLength: 5, groups: [3, 2] },
+  { minLength: 6, maxLength: 6, groups: [3, 2, 2, 1] },
+  { minLength: 7, maxLength: 7, groups: [3, 2, 2, 2] },
+  { minLength: 8, maxLength: 9, groups: [3, 2, 2, 2] },
+  { minLength: 10, maxLength: 10, groups: [3, 3, 2, 2, 1] },
+  { minLength: 11, maxLength: 11, groups: [2, 3, 2, 2, 2] },
+  { minLength: 12, maxLength: 12, groups: [2, 3, 2, 2, 2, 1] },
+  { minLength: 13, maxLength: 13, groups: [4, 2, 3, 2, 2, 2] },
+];
+
+const FORMAT_RULES_WITHOUT_CROSS_FALLBACK: readonly number[] = [2, 3, 2, 2, 2, 2];
+
+const FORMAT_RULES_WITH_CROSS: readonly FormatRule[] = [
+  { minLength: 1, maxLength: 2, groups: [2] },
+  { minLength: 3, maxLength: 5, groups: [2, 2, 1] },
+  { minLength: 6, maxLength: 6, groups: [2, 2, 3, 1] },
+  { minLength: 7, maxLength: 7, groups: [2, 2, 3, 2] },
+  { minLength: 8, maxLength: 9, groups: [2, 2, 3, 2] },
+  { minLength: 10, maxLength: 10, groups: [2, 2, 3, 2, 2] },
+  { minLength: 11, maxLength: 11, groups: [2, 2, 3, 2, 2] },
+  { minLength: 12, maxLength: 12, groups: [2, 2, 3, 2, 2, 1] },
+  { minLength: 13, maxLength: 13, groups: [2, 2, 2, 2, 2, 2] },
+];
+
+const FORMAT_RULES_WITH_CROSS_FALLBACK: readonly number[] = [2, 3, 2, 2, 2, 2];
+
 export function unformatPhoneNumber(value: string): string {
   if (!value) {
     return '';
   }
-  const tmpValue = value.replace(/\D/g, '');
-
-  return tmpValue;
+  return value.replace(/\D/g, '');
 }
 
-/**
- * Formats a phone number with spaces for better readability.
- *
- * @param value - Phone number string
- * @returns Formatted phone number
- */
 export function formatPhoneNumber(value: string): string {
-  let hasCross = false;
-  if (value) {
-    if (value.substring(0, 1) === '+') {
-      hasCross = true;
-    }
-
-    value = unformatPhoneNumber(value);
-    const tmpValue = unformatPhoneNumber(value);
-    if (!hasCross) {
-      return formatPhoneNumberWithoutCross(tmpValue);
-    }
-    if (hasCross) {
-      return '+' + formatPhoneNumberWithCross(tmpValue);
-    }
+  if (!value) {
+    return '';
   }
 
-  return '';
+  const hasCross = value.substring(0, 1) === '+';
+  const digits = unformatPhoneNumber(value);
+
+  if (!hasCross) {
+    return formatWithRules(digits, FORMAT_RULES_WITHOUT_CROSS, FORMAT_RULES_WITHOUT_CROSS_FALLBACK);
+  }
+
+  return '+' + formatWithRules(digits, FORMAT_RULES_WITH_CROSS, FORMAT_RULES_WITH_CROSS_FALLBACK);
 }
 
-function formatPhoneNumberWithoutCross(value: string): string {
+function formatWithRules(
+  value: string,
+  rules: readonly FormatRule[],
+  fallbackGroups: readonly number[]
+): string {
   if (value.length === 0) {
-    value = '';
-  } else if (value.length <= 2) {
-    value = value.replace(/^(\d{0,2})/, '$1');
-  } else if (value.length <= 5) {
-    value = value.replace(/^(\d{0,3})(\d{0,2})/, '$1 $2');
-  } else if (value.length === 6) {
-    value = value.replace(/^(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,1})/, '$1 $2 $3');
-  } else if (value.length === 7) {
-    value = value.replace(/^(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})/, '$1 $2 $3');
-  } else if (value.length <= 9) {
-    value = value.replace(
-      /^(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4'
-    );
-  } else if (value.length === 10) {
-    value = value.replace(
-      /^(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,1})/,
-      '$1 $2 $3 $4 $5'
-    );
-  } else if (value.length <= 11) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5'
-    );
-  } else if (value.length === 12) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,1})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
-  } else if (value.length <= 13) {
-    value = value.replace(
-      /^(\d{0,4})(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
-  } else {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
+    return '';
   }
-  return value;
+
+  const matchedRule = rules.find(
+    rule => value.length >= rule.minLength && value.length <= rule.maxLength
+  );
+  const groups = matchedRule ? matchedRule.groups : fallbackGroups;
+
+  return applyGroupPattern(value, groups);
 }
 
-function formatPhoneNumberWithCross(value: string): string {
-  if (value.length === 0) {
-    value = '';
-  } else if (value.length <= 2) {
-    value = value.replace(/^(\d{0,2})/, '$1');
-  } else if (value.length <= 5) {
-    value = value.replace(/^(\d{0,2})(\d{0,2})(\d{0,1})/, '$1 $2 $3');
-  } else if (value.length === 6) {
-    value = value.replace(/^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,1})/, '$1 $2 $3');
-  } else if (value.length === 7) {
-    value = value.replace(/^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,2})/, '$1 $2 $3');
-  } else if (value.length <= 9) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,2})/,
-      '$1 $2 $3 $4'
-    );
-  } else if (value.length === 10) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5'
-    );
-  } else if (value.length <= 11) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5'
-    );
-  } else if (value.length === 12) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,1})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
-  } else if (value.length <= 13) {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
-  } else {
-    value = value.replace(
-      /^(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})/,
-      '$1 $2 $3 $4 $5 $6'
-    );
+function applyGroupPattern(value: string, groups: readonly number[]): string {
+  const regexParts = groups.map(size => `(\\d{0,${size}})`).join('');
+  const pattern = new RegExp(`^${regexParts}`);
+
+  const replacementParts: string[] = [];
+  for (let i = 1; i <= groups.length; i++) {
+    replacementParts.push(`$${i}`);
   }
-  return value;
+
+  const formatted = value.replace(pattern, replacementParts.join(' '));
+  return formatted.trimEnd();
 }

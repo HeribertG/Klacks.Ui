@@ -18,26 +18,28 @@ import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 export function transformNgbDateStructToDate(
   value: NgbDateStruct | undefined
 ): Date | undefined {
-  if (value) {
-    if (
-      typeof value === 'object' &&
-      value.hasOwnProperty('year') &&
-      value.hasOwnProperty('month') &&
-      value.hasOwnProperty('day')
-    ) {
-      if (
-        value.year &&
-        isYearOk(value.year) &&
-        value.month &&
-        isMonthOk(value.month) &&
-        value.day &&
-        isDayOk(value.day)
-      ) {
-        return new Date(value.year, value.month - 1, value.day);
-      }
-    }
+  if (!value) {
+    return undefined;
   }
-  return undefined;
+  if (
+    typeof value !== 'object' ||
+    !value.hasOwnProperty('year') ||
+    !value.hasOwnProperty('month') ||
+    !value.hasOwnProperty('day')
+  ) {
+    return undefined;
+  }
+  if (
+    !value.year ||
+    !isYearOk(value.year) ||
+    !value.month ||
+    !isMonthOk(value.month) ||
+    !value.day ||
+    !isDayOk(value.day)
+  ) {
+    return undefined;
+  }
+  return new Date(value.year, value.month - 1, value.day);
 }
 
 /**
@@ -67,27 +69,7 @@ export function transformDateToNgbDateStruct(
  * @returns true if valid, false otherwise
  */
 export function isNgbDateStructOk(event: NgbDateStruct | undefined): boolean {
-  if (event) {
-    if (
-      typeof event === 'object' &&
-      event.hasOwnProperty('year') &&
-      event.hasOwnProperty('month') &&
-      event.hasOwnProperty('day')
-    ) {
-      if (
-        event.year &&
-        isYearOk(event.year) &&
-        event.month &&
-        isMonthOk(event.month) &&
-        event.day &&
-        isDayOk(event.day)
-      ) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+  return transformNgbDateStructToDate(event) !== undefined;
 }
 
 /**

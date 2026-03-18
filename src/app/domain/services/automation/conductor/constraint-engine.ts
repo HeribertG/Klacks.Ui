@@ -3,6 +3,9 @@
 /**
  * Gemeinsame Constraint-Engine fuer Hard- und Soft-Constraint-Auswertung.
  * Wird von evolution-core (Zaehler) und FitnessEvaluatorService (Detail-Violations) genutzt.
+ * Orchestriert Einzel-Constraint-Checker fuer Hard-Constraints (DailyHours, WeeklyHours,
+ * ConsecutiveDays, TimeOverlap, RestPeriod) und Soft-Constraints (Fairness, Overtime,
+ * Motivation, ShiftGap, ShiftConsistency).
  * @param scenario - Szenario mit Zuweisungen (shiftId/agentId/motivationScore)
  * @param shifts - Liste der verfuegbaren Schichten mit Zeiten und Stunden
  * @param agents - Liste der Agenten mit Limits und Konfiguration
@@ -38,6 +41,12 @@ export interface ConstraintAssignment {
   motivationScore: number;
 }
 
+interface TimeSlot {
+  date: string;
+  start: string;
+  end: string;
+}
+
 function timeSlotsOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
   return start1 < end2 && start2 < end1;
 }
@@ -56,17 +65,12 @@ function timeGapHours(end: string, start: string): number {
   return (sh * 60 + sm - eh * 60 - em) / 60;
 }
 
-export function evaluateHardConstraintViolations(
+function buildAgentAggregations(
   assignments: ConstraintAssignment[],
-  shifts: ConstraintShift[],
-  agents: ConstraintAgent[]
-): IConstraintViolation[] {
-  const violations: IConstraintViolation[] = [];
-  const shiftMap = new Map(shifts.map(s => [s.id, s]));
-  const agentMap = new Map(agents.map(a => [a.id, a]));
-
+  shiftMap: Map<string, ConstraintShift>
+): { agentDailyHours: Map<string, Map<string, number>>; agentTimeSlots: Map<string, TimeSlot[]> } {
   const agentDailyHours = new Map<string, Map<string, number>>();
-  const agentTimeSlots = new Map<string, { date: string; start: string; end: string }[]>();
+  const agentTimeSlots = new Map<string, TimeSlot[]>();
 
   for (const assignment of assignments) {
     const shift = shiftMap.get(assignment.shiftId);
@@ -90,6 +94,15 @@ export function evaluateHardConstraintViolations(
     });
   }
 
+  return { agentDailyHours, agentTimeSlots };
+}
+
+function checkDailyHoursConstraint(
+  agentDailyHours: Map<string, Map<string, number>>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
   for (const [agentId, dailyMap] of agentDailyHours) {
     const agent = agentMap.get(agentId);
     if (!agent) continue;
@@ -103,6 +116,20 @@ export function evaluateHardConstraintViolations(
         });
       }
     }
+  }
+
+  return violations;
+}
+
+function checkWeeklyHoursConstraint(
+  agentDailyHours: Map<string, Map<string, number>>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
+  for (const [agentId, dailyMap] of agentDailyHours) {
+    const agent = agentMap.get(agentId);
+    if (!agent) continue;
 
     const weeklyHours = new Map<string, number>();
     for (const [dateKey, hours] of dailyMap) {
@@ -118,6 +145,20 @@ export function evaluateHardConstraintViolations(
         });
       }
     }
+  }
+
+  return violations;
+}
+
+function checkConsecutiveDaysConstraint(
+  agentDailyHours: Map<string, Map<string, number>>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
+  for (const [agentId, dailyMap] of agentDailyHours) {
+    const agent = agentMap.get(agentId);
+    if (!agent) continue;
 
     const workedDates = Array.from(dailyMap.keys()).sort();
     let consecutive = 1;
@@ -140,6 +181,15 @@ export function evaluateHardConstraintViolations(
     }
   }
 
+  return violations;
+}
+
+function checkTimeOverlapConstraint(
+  agentTimeSlots: Map<string, TimeSlot[]>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
   for (const [agentId, slots] of agentTimeSlots) {
     const agent = agentMap.get(agentId);
     if (!agent) continue;
@@ -157,6 +207,20 @@ export function evaluateHardConstraintViolations(
         }
       }
     }
+  }
+
+  return violations;
+}
+
+function checkRestPeriodConstraint(
+  agentTimeSlots: Map<string, TimeSlot[]>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
+  for (const [agentId, slots] of agentTimeSlots) {
+    const agent = agentMap.get(agentId);
+    if (!agent) continue;
 
     const sortedSlots = [...slots].sort((a, b) => {
       const cmp = a.date.localeCompare(b.date);
@@ -181,36 +245,51 @@ export function evaluateHardConstraintViolations(
   return violations;
 }
 
-export function evaluateSoftConstraintViolations(
+export function evaluateHardConstraintViolations(
   assignments: ConstraintAssignment[],
   shifts: ConstraintShift[],
   agents: ConstraintAgent[]
 ): IConstraintViolation[] {
-  const violations: IConstraintViolation[] = [];
   const shiftMap = new Map(shifts.map(s => [s.id, s]));
+  const agentMap = new Map(agents.map(a => [a.id, a]));
+  const { agentDailyHours, agentTimeSlots } = buildAgentAggregations(assignments, shiftMap);
 
-  const agentHours = new Map<string, number>();
-  for (const a of assignments) {
-    const shift = shiftMap.get(a.shiftId);
-    if (shift) {
-      agentHours.set(a.agentId, (agentHours.get(a.agentId) || 0) + shift.hours);
-    }
+  return [
+    ...checkDailyHoursConstraint(agentDailyHours, agentMap),
+    ...checkWeeklyHoursConstraint(agentDailyHours, agentMap),
+    ...checkConsecutiveDaysConstraint(agentDailyHours, agentMap),
+    ...checkTimeOverlapConstraint(agentTimeSlots, agentMap),
+    ...checkRestPeriodConstraint(agentTimeSlots, agentMap),
+  ];
+}
+
+function checkFairnessConstraint(
+  agentHours: Map<string, number>
+): IConstraintViolation[] {
+  if (agentHours.size <= 1) return [];
+
+  const violations: IConstraintViolation[] = [];
+  const hours = Array.from(agentHours.values());
+  const avg = hours.reduce((s, h) => s + h, 0) / hours.length;
+  const maxDev = Math.max(...hours.map(h => Math.abs(h - avg)));
+  if (avg > 0 && maxDev / avg > SCHEDULING_CONSTANTS.FAIRNESS_MAX_DEVIATION_RATIO) {
+    const worstAgent = Array.from(agentHours.entries())
+      .sort((a, b) => Math.abs(b[1] - avg) - Math.abs(a[1] - avg))[0];
+    violations.push({
+      type: 'soft',
+      agentId: worstAgent[0],
+      description: `Hour distribution unfair (max deviation ${(maxDev / avg * 100).toFixed(0)}%)`
+    });
   }
 
-  if (agentHours.size > 1) {
-    const hours = Array.from(agentHours.values());
-    const avg = hours.reduce((s, h) => s + h, 0) / hours.length;
-    const maxDev = Math.max(...hours.map(h => Math.abs(h - avg)));
-    if (avg > 0 && maxDev / avg > SCHEDULING_CONSTANTS.FAIRNESS_MAX_DEVIATION_RATIO) {
-      const worstAgent = Array.from(agentHours.entries())
-        .sort((a, b) => Math.abs(b[1] - avg) - Math.abs(a[1] - avg))[0];
-      violations.push({
-        type: 'soft',
-        agentId: worstAgent[0],
-        description: `Hour distribution unfair (max deviation ${(maxDev / avg * 100).toFixed(0)}%)`
-      });
-    }
-  }
+  return violations;
+}
+
+function checkOvertimeConstraint(
+  agents: ConstraintAgent[],
+  agentHours: Map<string, number>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
 
   for (const agent of agents) {
     const totalHours = (agentHours.get(agent.id) || 0) + agent.currentHours;
@@ -223,6 +302,14 @@ export function evaluateSoftConstraintViolations(
     }
   }
 
+  return violations;
+}
+
+function checkLowMotivationConstraint(
+  assignments: ConstraintAssignment[]
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
   for (const a of assignments) {
     if (a.motivationScore < SCHEDULING_CONSTANTS.LOW_MOTIVATION_THRESHOLD) {
       violations.push({
@@ -233,20 +320,17 @@ export function evaluateSoftConstraintViolations(
     }
   }
 
-  const agentDailySlots = new Map<string, Map<string, { start: string; end: string; name: string }[]>>();
-  for (const a of assignments) {
-    const shift = shiftMap.get(a.shiftId);
-    if (!shift) continue;
-    const dateKey = shift.date.split('T')[0];
-    if (!agentDailySlots.has(a.agentId)) agentDailySlots.set(a.agentId, new Map());
-    const dailyMap = agentDailySlots.get(a.agentId)!;
-    if (!dailyMap.has(dateKey)) dailyMap.set(dateKey, []);
-    dailyMap.get(dateKey)!.push({ start: shift.startTime, end: shift.endTime, name: shift.name });
-  }
+  return violations;
+}
 
-  const agentMapSoft = new Map(agents.map(a => [a.id, a]));
+function checkShiftGapConstraint(
+  agentDailySlots: Map<string, Map<string, { start: string; end: string; name: string }[]>>,
+  agentMap: Map<string, ConstraintAgent>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
   for (const [agentId, dailyMap] of agentDailySlots) {
-    const agent = agentMapSoft.get(agentId);
+    const agent = agentMap.get(agentId);
     if (!agent) continue;
 
     for (const [dateKey, slots] of dailyMap) {
@@ -263,7 +347,17 @@ export function evaluateSoftConstraintViolations(
         }
       }
     }
+  }
 
+  return violations;
+}
+
+function checkShiftConsistencyConstraint(
+  agentDailySlots: Map<string, Map<string, { start: string; end: string; name: string }[]>>
+): IConstraintViolation[] {
+  const violations: IConstraintViolation[] = [];
+
+  for (const [agentId, dailyMap] of agentDailySlots) {
     const dates = Array.from(dailyMap.keys()).sort();
     for (let i = 1; i < dates.length; i++) {
       const prev = new Date(dates[i - 1]);
@@ -284,4 +378,41 @@ export function evaluateSoftConstraintViolations(
   }
 
   return violations;
+}
+
+export function evaluateSoftConstraintViolations(
+  assignments: ConstraintAssignment[],
+  shifts: ConstraintShift[],
+  agents: ConstraintAgent[]
+): IConstraintViolation[] {
+  const shiftMap = new Map(shifts.map(s => [s.id, s]));
+
+  const agentHours = new Map<string, number>();
+  for (const a of assignments) {
+    const shift = shiftMap.get(a.shiftId);
+    if (shift) {
+      agentHours.set(a.agentId, (agentHours.get(a.agentId) || 0) + shift.hours);
+    }
+  }
+
+  const agentDailySlots = new Map<string, Map<string, { start: string; end: string; name: string }[]>>();
+  for (const a of assignments) {
+    const shift = shiftMap.get(a.shiftId);
+    if (!shift) continue;
+    const dateKey = shift.date.split('T')[0];
+    if (!agentDailySlots.has(a.agentId)) agentDailySlots.set(a.agentId, new Map());
+    const dailyMap = agentDailySlots.get(a.agentId)!;
+    if (!dailyMap.has(dateKey)) dailyMap.set(dateKey, []);
+    dailyMap.get(dateKey)!.push({ start: shift.startTime, end: shift.endTime, name: shift.name });
+  }
+
+  const agentMap = new Map(agents.map(a => [a.id, a]));
+
+  return [
+    ...checkFairnessConstraint(agentHours),
+    ...checkOvertimeConstraint(agents, agentHours),
+    ...checkLowMotivationConstraint(assignments),
+    ...checkShiftGapConstraint(agentDailySlots, agentMap),
+    ...checkShiftConsistencyConstraint(agentDailySlots),
+  ];
 }

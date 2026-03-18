@@ -10,6 +10,7 @@ import {
   IShift,
   IConductorContext,
   IEvolutionResult,
+  IEvolutionProgress,
   DEFAULT_EVOLUTION_CONFIG,
   DEFAULT_PENALTY_WEIGHTS,
 } from '../../../models/automation/conductor/scheduling.models';
@@ -22,6 +23,27 @@ import { EvolutionEngineService } from './evolution-engine.service';
 import { AgentStateService } from '../agent/agent-state.service';
 import { RulesEngineService } from '../rules/rules-engine.service';
 import { SCHEDULING_CONSTANTS } from '../../../models/automation/automation-constants';
+
+interface IWorkerProgressData {
+  currentGeneration: number;
+  maxGenerations: number;
+  bestFitness: number;
+  avgFitness: number;
+  coverage: number;
+  timeElapsedMs: number;
+  stagnationCount: number;
+}
+
+interface IWorkerResultData {
+  assignments: { shiftId: string; agentId: string; motivationScore: number }[];
+  coverage: number;
+  finalGeneration: number;
+  message: string;
+  stopReason: string;
+  timeElapsedMs: number;
+  penaltyScore: number;
+  hardViolations: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -102,83 +124,8 @@ export class ConductorService {
         const config = { ...DEFAULT_EVOLUTION_CONFIG, ...options.evolutionConfig };
         const penaltyWeights = { ...DEFAULT_PENALTY_WEIGHTS, ...options.penaltyWeights };
 
-        const workerShifts = shifts.map(s => ({
-          id: s.id,
-          name: s.name,
-          date: s.date instanceof Date ? s.date.toISOString() : String(s.date),
-          startTime: s.startTime,
-          endTime: s.endTime,
-          hours: s.hours,
-          requiredAssignments: s.requiredAssignments,
-          priority: s.priority
-        }));
-
-        const workerAgents = agents.map(a => ({
-          id: a.id,
-          currentHours: a.currentHours,
-          guaranteedHours: a.guaranteedHours,
-          maxConsecutiveDays: a.maxConsecutiveDays,
-          minRestHours: a.minRestHours,
-          motivation: a.currentState.motivation,
-          maxDailyHours: a.maxDailyHours,
-          maxWeeklyHours: a.maxWeeklyHours,
-          maxOptimalGap: a.maxOptimalGap
-        }));
-
         worker.onmessage = ({ data }) => {
-          if (data.type === 'progress' && options.onProgress) {
-            options.onProgress({
-              currentGeneration: data.data.currentGeneration,
-              maxGenerations: data.data.maxGenerations,
-              bestFitness: data.data.bestFitness,
-              avgFitness: data.data.avgFitness,
-              coverage: data.data.coverage,
-              isConverged: false,
-              improvement: 0,
-              timeElapsedMs: data.data.timeElapsedMs,
-              stagnationCount: data.data.stagnationCount
-            });
-          }
-
-          if (data.type === 'result') {
-            this.terminateActiveWorker();
-
-            const resultData = data.data;
-            const assignments: IAssignmentResult[] = resultData.assignments.map((a: { shiftId: string; agentId: string; motivationScore: number }) => {
-              const shift = shifts.find(s => s.id === a.shiftId);
-              const agent = agents.find(ag => ag.id === a.agentId);
-              return {
-                shiftId: a.shiftId,
-                shiftName: shift?.name || 'Unknown',
-                date: shift?.date || new Date(),
-                agentId: a.agentId,
-                agentName: agent
-                  ? `${agent.client.firstName} ${agent.client.name}`
-                  : 'Unknown',
-                motivation: a.motivationScore,
-                hours: shift?.hours || 0
-              };
-            });
-
-            const assignedShiftIds = new Set(resultData.assignments.map((a: { shiftId: string }) => a.shiftId));
-            const unassignedShifts = shifts.filter(s => !assignedShiftIds.has(s.id)).map(s => s.id);
-
-            resolve({
-              success: resultData.coverage > SCHEDULING_CONSTANTS.SUCCESS_COVERAGE_THRESHOLD,
-              assignments,
-              unassignedShifts,
-              coverage: resultData.coverage,
-              avgMotivation: resultData.assignments.length > 0
-                ? resultData.assignments.reduce((sum: number, a: { motivationScore: number }) => sum + a.motivationScore, 0) / resultData.assignments.length
-                : 0,
-              generations: resultData.finalGeneration,
-              message: resultData.message,
-              stopReason: resultData.stopReason,
-              timeElapsedMs: resultData.timeElapsedMs,
-              penaltyScore: resultData.penaltyScore,
-              hardViolations: resultData.hardViolations
-            });
-          }
+          this.handleWorkerMessage(data, shifts, agents, options, resolve);
         };
 
         worker.onerror = (error) => {
@@ -187,31 +134,12 @@ export class ConductorService {
         };
 
         if (options.cancellationToken) {
-          const checkCancellation = setInterval(() => {
-            if (options.cancellationToken?.isCancelled) {
-              clearInterval(checkCancellation);
-              this.terminateActiveWorker();
-              resolve({
-                success: false,
-                assignments: [],
-                unassignedShifts: shifts.map(s => s.id),
-                coverage: 0,
-                avgMotivation: 0,
-                generations: 0,
-                message: 'Cancelled by user',
-                stopReason: 'cancelled'
-              });
-            }
-          }, SCHEDULING_CONSTANTS.CANCELLATION_CHECK_INTERVAL_MS);
-
-          worker.addEventListener('message', ({ data: msg }) => {
-            if (msg.type === 'result') clearInterval(checkCancellation);
-          }, { once: false });
+          this.setupCancellationPolling(worker, shifts, options.cancellationToken, resolve);
         }
 
         worker.postMessage({
-          shifts: workerShifts,
-          agents: workerAgents,
+          shifts: this.serializeShiftsForWorker(shifts),
+          agents: this.serializeAgentsForWorker(agents),
           config,
           penaltyWeights
         });
@@ -401,6 +329,139 @@ export class ConductorService {
       penaltyScore: best.penaltyScore,
       hardViolations: best.hardViolations
     };
+  }
+
+  private handleWorkerMessage(
+    data: { type: string; data: IWorkerProgressData | IWorkerResultData },
+    shifts: IShift[],
+    agents: IScheduleAgent[],
+    options: IConductorOptions,
+    resolve: (result: IConductorResult) => void
+  ): void {
+    if (data.type === 'progress') {
+      this.handleWorkerProgress(data.data as IWorkerProgressData, options.onProgress);
+    }
+
+    if (data.type === 'result') {
+      resolve(this.handleWorkerResult(data.data as IWorkerResultData, shifts, agents));
+    }
+  }
+
+  private handleWorkerProgress(
+    progressData: IWorkerProgressData,
+    onProgress?: (progress: IEvolutionProgress) => void
+  ): void {
+    if (!onProgress) return;
+
+    onProgress({
+      currentGeneration: progressData.currentGeneration,
+      maxGenerations: progressData.maxGenerations,
+      bestFitness: progressData.bestFitness,
+      avgFitness: progressData.avgFitness,
+      coverage: progressData.coverage,
+      isConverged: false,
+      improvement: 0,
+      timeElapsedMs: progressData.timeElapsedMs,
+      stagnationCount: progressData.stagnationCount
+    });
+  }
+
+  private handleWorkerResult(
+    resultData: IWorkerResultData,
+    shifts: IShift[],
+    agents: IScheduleAgent[]
+  ): IConductorResult {
+    this.terminateActiveWorker();
+
+    const assignments: IAssignmentResult[] = resultData.assignments.map(a => {
+      const shift = shifts.find(s => s.id === a.shiftId);
+      const agent = agents.find(ag => ag.id === a.agentId);
+      return {
+        shiftId: a.shiftId,
+        shiftName: shift?.name || 'Unknown',
+        date: shift?.date || new Date(),
+        agentId: a.agentId,
+        agentName: agent
+          ? `${agent.client.firstName} ${agent.client.name}`
+          : 'Unknown',
+        motivation: a.motivationScore,
+        hours: shift?.hours || 0
+      };
+    });
+
+    const assignedShiftIds = new Set(resultData.assignments.map(a => a.shiftId));
+    const unassignedShifts = shifts.filter(s => !assignedShiftIds.has(s.id)).map(s => s.id);
+
+    return {
+      success: resultData.coverage > SCHEDULING_CONSTANTS.SUCCESS_COVERAGE_THRESHOLD,
+      assignments,
+      unassignedShifts,
+      coverage: resultData.coverage,
+      avgMotivation: resultData.assignments.length > 0
+        ? resultData.assignments.reduce((sum, a) => sum + a.motivationScore, 0) / resultData.assignments.length
+        : 0,
+      generations: resultData.finalGeneration,
+      message: resultData.message,
+      stopReason: resultData.stopReason,
+      timeElapsedMs: resultData.timeElapsedMs,
+      penaltyScore: resultData.penaltyScore,
+      hardViolations: resultData.hardViolations
+    };
+  }
+
+  private serializeShiftsForWorker(shifts: IShift[]): Record<string, unknown>[] {
+    return shifts.map(s => ({
+      id: s.id,
+      name: s.name,
+      date: s.date instanceof Date ? s.date.toISOString() : String(s.date),
+      startTime: s.startTime,
+      endTime: s.endTime,
+      hours: s.hours,
+      requiredAssignments: s.requiredAssignments,
+      priority: s.priority
+    }));
+  }
+
+  private serializeAgentsForWorker(agents: IScheduleAgent[]): Record<string, unknown>[] {
+    return agents.map(a => ({
+      id: a.id,
+      currentHours: a.currentHours,
+      guaranteedHours: a.guaranteedHours,
+      maxConsecutiveDays: a.maxConsecutiveDays,
+      minRestHours: a.minRestHours,
+      motivation: a.currentState.motivation,
+      maxDailyHours: a.maxDailyHours,
+      maxWeeklyHours: a.maxWeeklyHours,
+      maxOptimalGap: a.maxOptimalGap
+    }));
+  }
+
+  private setupCancellationPolling(
+    worker: Worker,
+    shifts: IShift[],
+    cancellationToken: { isCancelled: boolean },
+    resolve: (result: IConductorResult) => void
+  ): void {
+    const checkCancellation = setInterval(() => {
+      if (cancellationToken.isCancelled) {
+        clearInterval(checkCancellation);
+        this.terminateActiveWorker();
+        resolve({
+          success: false,
+          assignments: [],
+          unassignedShifts: shifts.map(s => s.id),
+          coverage: 0,
+          avgMotivation: 0,
+          generations: 0,
+          message: 'Cancelled by user',
+          stopReason: 'cancelled'
+        });
+      }
+    }, SCHEDULING_CONSTANTS.CANCELLATION_CHECK_INTERVAL_MS);
+
+    worker.addEventListener('message', ({ data: msg }) => {
+      if (msg.type === 'result') clearInterval(checkCancellation);
+    }, { once: false });
   }
 
   private terminateActiveWorker(): void {

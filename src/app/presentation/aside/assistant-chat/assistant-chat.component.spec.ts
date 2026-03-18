@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 import { AssistantChatComponent } from './assistant-chat.component';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
+import { VoiceModeService } from './services/voice-mode.service';
+import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
@@ -36,6 +38,7 @@ describe('AssistantChatComponent', () => {
     let mockLlmService: any;
     let mockLlmProviderService: any;
     let mockSpeechService: any;
+    let mockVoiceModeService: any;
     let mockTranslateService: TranslateService;
     let mockRouter: any;
     let mockFunctionExecutionService: any;
@@ -132,6 +135,17 @@ describe('AssistantChatComponent', () => {
             useWhisperFallback: false,
         });
 
+        const voiceModeServiceSpy = {
+            voiceModeEnabled: false,
+            isListening: false,
+            isTranscribing: false,
+            initialize: vi.fn(),
+            toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
+            disableVoiceMode: vi.fn(),
+            isUsingWhisper: vi.fn().mockReturnValue(false),
+            destroy: vi.fn(),
+        };
+
         const routerSpy = {
             navigate: vi.fn()
         };
@@ -187,7 +201,10 @@ describe('AssistantChatComponent', () => {
                     IconChatComponent,
                     IconMMLComponent,
                 ],
-                providers: [],
+                providers: [
+                    { provide: VoiceModeService, useValue: voiceModeServiceSpy },
+                    { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
+                ],
             },
         })
             .compileComponents();
@@ -195,6 +212,7 @@ describe('AssistantChatComponent', () => {
         mockLlmService = TestBed.inject(DataManagementAssistantService) as any;
         mockLlmProviderService = TestBed.inject(DataManagementAssistantProviderService) as any;
         mockSpeechService = TestBed.inject(SpeechRecognitionService) as any;
+        mockVoiceModeService = voiceModeServiceSpy;
         mockRouter = TestBed.inject(Router) as any;
         mockFunctionExecutionService = TestBed.inject(AssistantFunctionExecutionService) as any;
         mockLanguageMappingService = TestBed.inject(LanguageMappingService) as any;
@@ -313,7 +331,7 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(component.messages.length).toBe(3); // Welcome + User + Error
-            expect(component.messages[2].content).toContain('âŒ');
+            expect(component.messages[2].content).toContain('❌');
             expect(component.messages[2].content).toContain('API Error');
             expect(component.isProcessing).toBe(false);
         });
@@ -346,47 +364,28 @@ describe('AssistantChatComponent', () => {
             mockSpeechService.interimResults = new BehaviorSubject('');
         });
 
-        it('should call speech service methods when enabling voice mode', async () => {
-            // Arrange
-            component.voiceModeEnabled = false;
-            mockSpeechService.requestPermissions.mockReturnValue(Promise.resolve(true));
-            mockSpeechService.startListening.mockReturnValue(of('Hello from voice'));
-
+        it('should delegate to voiceModeService when toggling voice mode', async () => {
             // Act
             await component.toggleVoiceMode();
 
             // Assert
-            expect(mockSpeechService.requestPermissions).toHaveBeenCalled();
-            expect(mockSpeechService.startListening).toHaveBeenCalled();
+            expect(mockVoiceModeService.toggleVoiceMode).toHaveBeenCalled();
+        });
+
+        it('should reflect voiceModeService state for voiceModeEnabled', () => {
+            mockVoiceModeService.voiceModeEnabled = false;
+            expect(component.voiceModeEnabled).toBe(false);
+
+            mockVoiceModeService.voiceModeEnabled = true;
             expect(component.voiceModeEnabled).toBe(true);
         });
 
-        it('should not enable voice mode when permission denied', async () => {
-            // Arrange
-            mockSpeechService.requestPermissions.mockReturnValue(Promise.resolve(false));
-            vi.spyOn(window, 'alert');
-
-            // Act
-            await component.toggleVoiceMode();
-
-            // Assert
-            expect(window.alert).toHaveBeenCalled();
-            expect(mockSpeechService.startListening).not.toHaveBeenCalled();
-            expect(component.voiceModeEnabled).toBe(false);
-        });
-
-        it('should disable voice mode when toggled off', async () => {
-            // Arrange
-            component.voiceModeEnabled = true;
-            component.isListening = true;
-
-            // Act
-            await component.toggleVoiceMode();
-
-            // Assert
-            expect(mockSpeechService.stopListening).toHaveBeenCalled();
-            expect(component.voiceModeEnabled).toBe(false);
+        it('should reflect voiceModeService state for isListening', () => {
+            mockVoiceModeService.isListening = false;
             expect(component.isListening).toBe(false);
+
+            mockVoiceModeService.isListening = true;
+            expect(component.isListening).toBe(true);
         });
     });
 

@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { signal as angularSignal } from '@angular/core';
 import { CollisionDetectionService } from './collision-detection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
@@ -39,6 +39,11 @@ function createValidation(overrides: Partial<IScheduleValidationNotification> = 
   };
 }
 
+function flushAndTick(): void {
+  TestBed.flushEffects();
+  vi.advanceTimersByTime(100);
+}
+
 describe('CollisionDetectionService', () => {
   let service: CollisionDetectionService;
   let collisionsDetected$: Subject<ICollisionListNotification>;
@@ -58,6 +63,7 @@ describe('CollisionDetectionService', () => {
   };
 
   beforeEach(() => {
+    vi.useFakeTimers();
     // Arrange
     collisionsDetected$ = new Subject<ICollisionListNotification>();
     scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
@@ -94,12 +100,13 @@ describe('CollisionDetectionService', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     collisionsDetected$.complete();
     scheduleValidationsDetected$.complete();
   });
 
   describe('Collision Notifications', () => {
-    it('should replace all collisions when isFullRefresh is true', async () => {
+    it('should replace all collisions when isFullRefresh is true', () => {
       // Arrange
       const initial: ICollisionListNotification = {
         isFullRefresh: true,
@@ -109,7 +116,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       collisionsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorCount()).toBe(2);
 
       // Act
@@ -118,13 +125,13 @@ describe('CollisionDetectionService', () => {
         collisions: [createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1' })],
       };
       collisionsDetected$.next(refresh);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorCount()).toBe(1);
     });
 
-    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', async () => {
+    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', () => {
       // Arrange
       const initial: ICollisionListNotification = {
         isFullRefresh: true,
@@ -134,7 +141,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       collisionsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorCount()).toBe(2);
 
       // Act
@@ -145,7 +152,7 @@ describe('CollisionDetectionService', () => {
         collisions: [createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1', date: '2026-03-15' })],
       };
       collisionsDetected$.next(update);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorCount()).toBe(2);
@@ -154,7 +161,7 @@ describe('CollisionDetectionService', () => {
       expect(dates).toContain('2026-03-16');
     });
 
-    it('should create errorEntries with type error for collisions', async () => {
+    it('should create errorEntries with type error for collisions', () => {
       // Arrange
       const notification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -169,7 +176,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -185,7 +192,7 @@ describe('CollisionDetectionService', () => {
   });
 
   describe('Validation Notifications', () => {
-    it('should replace all validations when isFullRefresh is true', async () => {
+    it('should replace all validations when isFullRefresh is true', () => {
       // Arrange
       const initial: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -195,7 +202,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       scheduleValidationsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(2);
 
       // Act
@@ -204,14 +211,14 @@ describe('CollisionDetectionService', () => {
         entries: [createValidation({ clientId: 'client-1', date: '2026-03-12', comment: 'rest-violation-3' })],
       };
       scheduleValidationsDetected$.next(refresh);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
       expect(service.errorEntries()[0].date).toBe('2026-03-12');
     });
 
-    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', async () => {
+    it('should remove old entries for checkedClientId/checkedDate and add new ones when isFullRefresh is false', () => {
       // Arrange
       const initial: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -221,7 +228,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       scheduleValidationsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(2);
 
       // Act
@@ -232,7 +239,7 @@ describe('CollisionDetectionService', () => {
         entries: [createValidation({ clientId: 'client-1', date: '2026-03-15', comment: 'new-warning' })],
       };
       scheduleValidationsDetected$.next(update);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -242,7 +249,7 @@ describe('CollisionDetectionService', () => {
       expect(comments).not.toContain('old-warning');
     });
 
-    it('should map rest-violation entries as type warning', async () => {
+    it('should map rest-violation entries as type warning', () => {
       // Arrange
       const notification: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -256,7 +263,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -265,7 +272,7 @@ describe('CollisionDetectionService', () => {
       expect(entry.commentParams).toEqual({ hours: '11' });
     });
 
-    it('should map info entries as type info', async () => {
+    it('should map info entries as type info', () => {
       // Arrange
       const notification: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -279,7 +286,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -290,7 +297,7 @@ describe('CollisionDetectionService', () => {
   });
 
   describe('Filter and Visibility', () => {
-    it('should only include entries for visible clients', async () => {
+    it('should only include entries for visible clients', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -302,14 +309,14 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(collisionNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
       expect(service.errorEntries()[0].clientName).toBe('Test Client');
     });
 
-    it('should only include entries within visible date range', async () => {
+    it('should only include entries within visible date range', () => {
       // Arrange
       const notification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -322,14 +329,14 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
       expect(service.errorEntries()[0].date).toBe('2026-03-15');
     });
 
-    it('should combine errors, warnings and infos in errorEntries', async () => {
+    it('should combine errors, warnings and infos in errorEntries', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -346,7 +353,7 @@ describe('CollisionDetectionService', () => {
       // Act
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(3);
@@ -358,7 +365,7 @@ describe('CollisionDetectionService', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should deduplicate collisions by sorted work ID pair', async () => {
+    it('should deduplicate collisions by sorted work ID pair', () => {
       // Arrange
       const notification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -370,13 +377,13 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorCount()).toBe(1);
     });
 
-    it('should use type_clientId_date_comment as unique validation key', async () => {
+    it('should use type_clientId_date_comment as unique validation key', () => {
       // Arrange
       const notification: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -388,13 +395,13 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
     });
 
-    it('should allow same comment on different dates as separate entries', async () => {
+    it('should allow same comment on different dates as separate entries', () => {
       // Arrange
       const notification: IScheduleValidationListNotification = {
         isFullRefresh: true,
@@ -406,13 +413,13 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
     });
 
-    it('should update errorEntries when new clients become visible via chunk load', async () => {
+    it('should update errorEntries when new clients become visible via chunk load', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -424,13 +431,13 @@ describe('CollisionDetectionService', () => {
       };
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(0);
 
       // Act
       dataManagementMock.clients.push({ id: 'client-3' });
       chunkLoadedSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -438,7 +445,7 @@ describe('CollisionDetectionService', () => {
   });
 
   describe('Clear on reload', () => {
-    it('should clear all entries when date range changes on reload', async () => {
+    it('should clear all entries when date range changes on reload', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -450,77 +457,77 @@ describe('CollisionDetectionService', () => {
       };
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(2);
 
       // Act
       dataManagementMock.visibleStartDate = new Date('2026-04-01');
       dataManagementMock.visibleEndDate = new Date('2026-04-30');
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(0);
     });
 
-    it('should clear all entries when group changes on reload', async () => {
+    it('should clear all entries when group changes on reload', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
         collisions: [createCollision({ clientId: 'client-1' })],
       };
       collisionsDetected$.next(collisionNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(1);
 
       // Act
       dataManagementMock.workFilter.selectedGroup = 'group-123';
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(0);
     });
 
-    it('should keep cached entries when same group and date range reload', async () => {
+    it('should keep cached entries when same group and date range reload', () => {
       // Arrange
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
         collisions: [createCollision({ clientId: 'client-1' })],
       };
       collisionsDetected$.next(collisionNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(1);
 
       // Act
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
     });
 
-    it('should show new entries after reload with changed dates', async () => {
+    it('should show new entries after reload with changed dates', () => {
       // Arrange
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       const initialNotification: ICollisionListNotification = {
         isFullRefresh: true,
         collisions: [createCollision({ clientId: 'client-1' })],
       };
       collisionsDetected$.next(initialNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(1);
 
       // Act
       dataManagementMock.visibleStartDate = new Date('2026-04-01');
       dataManagementMock.visibleEndDate = new Date('2026-04-30');
       isWorkScheduleReadSignal.update(v => v + 1);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
       expect(service.errorEntries().length).toBe(0);
 
       const newNotification: ICollisionListNotification = {
@@ -531,7 +538,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       collisionsDetected$.next(newNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -545,7 +552,7 @@ describe('CollisionDetectionService', () => {
       expect(service.errorCount()).toBe(0);
     });
 
-    it('should reflect count per type', async () => {
+    it('should reflect count per type', () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -562,7 +569,7 @@ describe('CollisionDetectionService', () => {
       // Act
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      flushAndTick();
 
       // Assert
       expect(service.errorCount()).toBe(1);

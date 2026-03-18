@@ -92,10 +92,11 @@ describe('MacrosComponent delete logic', () => {
   });
 
   it('should remove new macro from list without calling save', () => {
-    macroListStore = [
+    const newList = [
       { id: '1', name: 'Macro 1', content: 'code1', type: 0, isDirty: CreateEntriesEnum.undefined } as IMacro,
       { name: 'New', content: '', type: 0, isDirty: CreateEntriesEnum.new } as IMacro,
     ];
+    dataManagementSettingsService.macros.macroList.set(newList);
 
     deleteMacro('1');
 

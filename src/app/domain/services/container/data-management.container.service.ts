@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Orchestrierungs-Service fuer Container-Template CRUD, State-Management und Persistenz.
+ * Delegiert Task/Shift-Hilfsfunktionen an ContainerTaskService.
+ * @param dataService - API-Service fuer Container-Template HTTP-Calls
+ * @param slotCalculationService - Berechnet das Template-Grid aus Schicht-Daten
+ * @param shiftService - Verwaltet die ausgewaehlten Container-Template-Items pro Wochentag
+ * @param taskService - Stellt Task/Shift-Hilfsfunktionen bereit (Sortierung, Filterung, Weekday-Mapping)
+ */
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { map, tap, catchError, takeUntil } from 'rxjs/operators';
@@ -20,6 +28,7 @@ import {
   ContainerTemplateShiftService,
   IWeekdayContainerTemplateItemsMap,
 } from './container-template-shift.service';
+import { ContainerTaskService } from './container-task.service';
 import {
   ISaveable,
   IResettable,
@@ -44,6 +53,7 @@ export class DataManagementContainerService
     ContainerTemplateSlotCalculationService
   );
   private shiftService = inject(ContainerTemplateShiftService);
+  private taskService = inject(ContainerTaskService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -62,6 +72,12 @@ export class DataManagementContainerService
   public isRead = signal(false);
   public isReset = signal(false);
   public onSaveCompleted?: () => void;
+
+  private currentWeekdaySignal = signal<number | undefined>(undefined);
+  private currentSlotSignal = signal<IContainerTemplateSlot | undefined>(
+    undefined
+  );
+  private allLoadedShiftsSignal = signal<IShift[]>([]);
 
   get showProgressSpinner(): boolean {
     return this.loadingSignal();
@@ -124,7 +140,7 @@ export class DataManagementContainerService
             allShifts.push(...slot.availableTasks);
           }
         });
-        this.allLoadedShiftsSignal.set(this.getUniqueShifts(allShifts));
+        this.allLoadedShiftsSignal.set(this.taskService.getUniqueShifts(allShifts));
 
         this.templateGridSignal.set(grid);
         this.loadingSignal.set(false);
@@ -223,98 +239,39 @@ export class DataManagementContainerService
     this.editTemplatesDummy.set([]);
   }
 
-  sortShifts(
-    shifts: IShift[],
-    orderBy: string,
-    sortOrder: 'asc' | 'desc' | ''
-  ): IShift[] {
-    if (!orderBy || !sortOrder) {
-      return shifts;
-    }
-
-    return [...shifts].sort((a, b) => {
-      let valueA: string;
-      let valueB: string;
-
-      switch (orderBy) {
-        case 'name':
-          valueA = a.name?.toLowerCase() || '';
-          valueB = b.name?.toLowerCase() || '';
-          break;
-        case 'abbreviation':
-          valueA = a.abbreviation?.toLowerCase() || '';
-          valueB = b.abbreviation?.toLowerCase() || '';
-          break;
-        case 'startShift':
-          valueA = a.startShift || '';
-          valueB = b.startShift || '';
-          break;
-        case 'client':
-          valueA = a.client?.name?.toLowerCase() || '';
-          valueB = b.client?.name?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (valueA < valueB) {
-        return sortOrder === 'asc' ? -1 : 1;
-      }
-      if (valueA > valueB) {
-        return sortOrder === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }
-
-  private static readonly WEEKDAY_DEFINITIONS: ReadonlyArray<{
-    flag: keyof IShift;
-    value: string;
-    labelKey: string;
-  }> = [
-    { flag: 'isSunday', value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
-    { flag: 'isMonday', value: 'monday', labelKey: 'shift.container-template.weekday.monday' },
-    { flag: 'isTuesday', value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' },
-    { flag: 'isWednesday', value: 'wednesday', labelKey: 'shift.container-template.weekday.wednesday' },
-    { flag: 'isThursday', value: 'thursday', labelKey: 'shift.container-template.weekday.thursday' },
-    { flag: 'isFriday', value: 'friday', labelKey: 'shift.container-template.weekday.friday' },
-    { flag: 'isSaturday', value: 'saturday', labelKey: 'shift.container-template.weekday.saturday' },
-  ];
-
   getActiveWeekdays(shift: IShift): { value: string; labelKey: string }[] {
-    return DataManagementContainerService.WEEKDAY_DEFINITIONS
-      .filter((def) => shift[def.flag])
-      .map(({ value, labelKey }) => ({ value, labelKey }));
+    return this.taskService.getActiveWeekdays(shift);
   }
 
   getWeekdayNumber(weekdayValue: string): number {
-    const weekdayMap: Record<string, number> = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-    };
-    return weekdayMap[weekdayValue] ?? -1;
+    return this.taskService.getWeekdayNumber(weekdayValue);
   }
 
   getFilteredRowsForWeekday(
     grid: IContainerTemplateGrid | null,
     weekdayNumber: number
   ): IContainerTemplateSlot[][] {
-    if (!grid) {
-      return [];
-    }
-
-    return grid.slots.filter((row) => row[0].weekday === weekdayNumber);
+    return this.taskService.getFilteredRowsForWeekday(grid, weekdayNumber);
   }
 
   getUniqueShifts(shifts: IShift[]): IShift[] {
-    return shifts.filter(
-      (shift, index, self) => index === self.findIndex((s) => s.id === shift.id)
-    );
+    return this.taskService.getUniqueShifts(shifts);
+  }
+
+  sortShifts(
+    shifts: IShift[],
+    orderBy: string,
+    sortOrder: 'asc' | 'desc' | ''
+  ): IShift[] {
+    return this.taskService.sortShifts(shifts, orderBy, sortOrder);
+  }
+
+  filterAvailableTasksBySearch(
+    shifts: IShift[],
+    searchString: string,
+    includeAddress = false
+  ): IShift[] {
+    return this.taskService.filterAvailableTasksBySearch(shifts, searchString, includeAddress);
   }
 
   canSave(): boolean {
@@ -348,12 +305,6 @@ export class DataManagementContainerService
     const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
     return Object.values(weekdayTasksMap).some((tasks) => tasks.length > 0);
   }
-
-  private currentWeekdaySignal = signal<number | undefined>(undefined);
-  private currentSlotSignal = signal<IContainerTemplateSlot | undefined>(
-    undefined
-  );
-  private allLoadedShiftsSignal = signal<IShift[]>([]);
 
   setCurrentWeekdayAndSlot(
     weekday: number,
@@ -496,22 +447,12 @@ export class DataManagementContainerService
 
     if (!grid) return;
 
-    const weekdayMapping: Record<string, number> = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-    };
-
     let templates = this.editTemplates();
 
     Object.entries(weekdayTasksMap).forEach(([weekdayName, tasks]) => {
       if (tasks.length === 0) return;
 
-      const weekdayNumber = weekdayMapping[weekdayName];
+      const weekdayNumber = ContainerTaskService.WEEKDAY_NAME_TO_NUMBER[weekdayName];
       const slotsForWeekday = grid.slots
         .flat()
         .filter((slot) => slot.weekday === weekdayNumber);
@@ -560,19 +501,6 @@ export class DataManagementContainerService
   private restoreWeekdayTasksFromTemplates(
     templates: IContainerTemplate[]
   ): void {
-    const weekdayNumberToName: Record<
-      number,
-      keyof IWeekdayContainerTemplateItemsMap
-    > = {
-      0: 'sunday',
-      1: 'monday',
-      2: 'tuesday',
-      3: 'wednesday',
-      4: 'thursday',
-      5: 'friday',
-      6: 'saturday',
-    };
-
     const weekdayContainerTemplateItemsMap: IWeekdayContainerTemplateItemsMap =
       {
         monday: [],
@@ -587,7 +515,7 @@ export class DataManagementContainerService
     const allLoadedShifts = this.allLoadedShiftsSignal();
 
     templates.forEach((template) => {
-      const weekdayName = weekdayNumberToName[template.weekday];
+      const weekdayName = ContainerTaskService.WEEKDAY_NUMBER_TO_NAME[template.weekday];
       if (weekdayName && template.containerTemplateItems) {
         const enrichedItems = template.containerTemplateItems.map((item) => {
           const matchingShift = allLoadedShifts.find(
@@ -798,51 +726,6 @@ export class DataManagementContainerService
     });
 
     this.templateGridSignal.set({ ...grid });
-  }
-
-  filterAvailableTasksBySearch(
-    shifts: IShift[],
-    searchString: string,
-    includeAddress = false
-  ): IShift[] {
-    if (!searchString || searchString.trim() === '') {
-      return shifts;
-    }
-
-    const search = searchString.toLowerCase().trim();
-
-    return shifts.filter((shift) => {
-      const name = shift.name?.toLowerCase() || '';
-      const abbreviation = shift.abbreviation?.toLowerCase() || '';
-      const clientName = shift.client?.name?.toLowerCase() || '';
-
-      const matchesBasicSearch =
-        name.includes(search) ||
-        abbreviation.includes(search) ||
-        clientName.includes(search);
-
-      if (matchesBasicSearch) {
-        return true;
-      }
-
-      if (includeAddress && shift.client?.addresses) {
-        for (const address of shift.client.addresses) {
-          const street = address.street?.toLowerCase() || '';
-          const zip = address.zip?.toLowerCase() || '';
-          const city = address.city?.toLowerCase() || '';
-
-          if (
-            street.includes(search) ||
-            zip.includes(search) ||
-            city.includes(search)
-          ) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    });
   }
 
   destroy(): void {
