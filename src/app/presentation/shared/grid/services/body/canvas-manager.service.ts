@@ -43,7 +43,6 @@ export class BaseCanvasManagerService {
   }
 
   public deleteCanvas(): void {
-    console.warn(`[CANVAS-DEBUG] deleteCanvas() called for id=${this.id}`, new Error().stack);
     this._canvasWasAvailable = false;
     this.ctx = undefined;
     this.canvas = undefined;
@@ -67,7 +66,6 @@ export class BaseCanvasManagerService {
 
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
     if (!this.renderCanvas || !this.renderCanvasCtx) {
-      console.warn(`[CANVAS-DEBUG] resizeRenderCanvas: skipped - renderCanvas=${!!this.renderCanvas}, renderCanvasCtx=${!!this.renderCanvasCtx}, id=${this.id}`);
       return;
     }
     const pixelRatio = DrawHelper.pixelRatio();
@@ -94,9 +92,6 @@ export class BaseCanvasManagerService {
       this.ctx != null
     );
     if (!available && this._canvasWasAvailable) {
-      console.error(`[CANVAS-DEBUG] Canvas LOST for id=${this.id}!`,
-        `canvas=${!!this.canvas}, ctx=${!!this.ctx}, render=${!!this.renderCanvas}, renderCtx=${!!this.renderCanvasCtx}, w=${this.width}, h=${this.height}`,
-        new Error().stack);
       this._canvasWasAvailable = false;
     }
     if (available && !this._canvasWasAvailable) {
@@ -129,13 +124,11 @@ export class BaseCanvasManagerService {
 
   private createMainCanvas(): void {
     if (!this.id) {
-      console.error('[CANVAS-DEBUG] createMainCanvas: id is not set!');
       return;
     }
 
     this.canvas = document.getElementById(this.id) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error(`[CANVAS-DEBUG] createMainCanvas: getElementById('${this.id}') returned null!`, new Error().stack);
       return;
     }
 
@@ -147,8 +140,7 @@ export class BaseCanvasManagerService {
         true
       );
       DrawHelper.setAntiAliasing(this.ctx);
-    } catch (error) {
-      console.error('[CANVAS-DEBUG] createMainCanvas: createHiDPICanvas failed:', error);
+    } catch {
     }
   }
 

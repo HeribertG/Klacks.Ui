@@ -39,7 +39,6 @@ export class ShiftRowHeaderCanvasService {
   }
 
   public deleteCanvas(): void {
-    console.warn(`[CANVAS-DEBUG] ShiftRowHeader deleteCanvas() called for id=${this._canvasId}`, new Error().stack);
     this._canvasWasAvailable = false;
     this.ctx = undefined;
     this.canvas = undefined;
@@ -55,9 +54,6 @@ export class ShiftRowHeaderCanvasService {
       this.ctx != null
     );
     if (!available && this._canvasWasAvailable) {
-      console.error(`[CANVAS-DEBUG] ShiftRowHeader Canvas LOST for id=${this._canvasId}!`,
-        `canvas=${!!this.canvas}, ctx=${!!this.ctx}, render=${!!this.renderCanvas}, renderCtx=${!!this.renderCanvasCtx}, w=${this.width}, h=${this.height}`,
-        new Error().stack);
       this._canvasWasAvailable = false;
     }
     if (available && !this._canvasWasAvailable) {
@@ -85,7 +81,6 @@ export class ShiftRowHeaderCanvasService {
   private createMainCanvas(canvasId: string): void {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error(`[CANVAS-DEBUG] ShiftRowHeader createMainCanvas: getElementById('${canvasId}') returned null!`, new Error().stack);
       return;
     }
 
