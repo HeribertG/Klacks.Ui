@@ -38,7 +38,7 @@ export class ShiftScheduleLoaderService {
   private _currentLoadId = 0;
 
   private _isLoadingMore = signal(false);
-  private _isRead = signal(false);
+  private _isRead = signal(0);
 
   private loadTrigger$ = new Subject<ShiftLoadRequest>();
 
@@ -89,8 +89,7 @@ export class ShiftScheduleLoaderService {
         this.shiftSchedules = response.shifts;
         this._totalAvailableShifts = response.totalCount;
 
-        this._isRead.set(true);
-        setTimeout(() => this._isRead.set(false), 100);
+        this._isRead.update(v => v + 1);
 
         this._pendingOnLoaded?.();
 
@@ -171,8 +170,7 @@ export class ShiftScheduleLoaderService {
           }
 
           this._isLoadingMore.set(false);
-          this._isRead.set(true);
-          setTimeout(() => this._isRead.set(false), 100);
+          this._isRead.update(v => v + 1);
 
           this._pendingOnLoaded?.();
 
@@ -206,8 +204,7 @@ export class ShiftScheduleLoaderService {
     }
 
     if (updated) {
-      this._isRead.set(true);
-      setTimeout(() => this._isRead.set(false), 100);
+      this._isRead.update(v => v + 1);
     }
 
     return updated;

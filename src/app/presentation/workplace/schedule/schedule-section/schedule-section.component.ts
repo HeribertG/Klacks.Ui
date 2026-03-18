@@ -262,7 +262,7 @@ export class ScheduleSectionComponent
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
         const readState = this.dataManagement.isRead();
-        if (readState.value) {
+        if (readState.count > 0) {
           this.scheduleSurface.Refresh(readState.resetScroll);
         }
       });
@@ -538,8 +538,7 @@ export class ScheduleSectionComponent
       next: () => {
         this.breakPlaceholderLoader.removeBreakPlaceholder(id);
         this.workScheduleLoader.applyBreakPlaceholderRows();
-        this.dataManagement.isRead.set({ value: true, resetScroll: false });
-        setTimeout(() => this.dataManagement.isRead.set({ value: false, resetScroll: false }), 100);
+        this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
       },
     });
   }
@@ -554,8 +553,7 @@ export class ScheduleSectionComponent
         next: () => {
           this.breakPlaceholderLoader.removeBreakPlaceholder(bp.id!);
           this.workScheduleLoader.applyBreakPlaceholderRows();
-          this.dataManagement.isRead.set({ value: true, resetScroll: false });
-          setTimeout(() => this.dataManagement.isRead.set({ value: false, resetScroll: false }), 100);
+          this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         },
       });
     });

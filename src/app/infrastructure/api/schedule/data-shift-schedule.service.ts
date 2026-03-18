@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { retry } from 'rxjs';
+import { retry, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   IShiftScheduleFilter,
@@ -18,6 +18,6 @@ export class DataShiftScheduleService {
   getShiftSchedule(filter: IShiftScheduleFilter) {
     return this.httpClient
       .post<IShiftScheduleResponse>(`${environment.baseUrl}Shifts/Schedule`, filter)
-      .pipe(retry(3));
+      .pipe(retry(1), timeout(30000));
   }
 }

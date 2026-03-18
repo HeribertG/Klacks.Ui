@@ -224,7 +224,7 @@ export class ShiftSectionComponent
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
         const readState = this.dataManagement.isShiftScheduleRead();
-        if (readState.value) {
+        if (readState.count > 0) {
           this.shiftSurface.Refresh(readState.resetScroll);
         }
       });

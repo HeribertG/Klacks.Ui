@@ -4,7 +4,7 @@ import { Injectable, Injector, effect, runInInjectionContext, Signal } from '@an
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
 export interface IProgressLoader {
-  readonly isRead: Signal<boolean> | (() => boolean);
+  readonly isRead: Signal<number> | Signal<boolean> | (() => boolean) | (() => number);
   readonly loadingProgress: number;
   readonly hasMore: boolean;
 }

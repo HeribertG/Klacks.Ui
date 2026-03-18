@@ -145,7 +145,7 @@ export class ScheduleShiftRowHeaderComponent
 
       const dataReadEffect = effect(() => {
         const readState = this.dataManagementSchedule.isShiftScheduleRead();
-        if (readState.value) {
+        if (readState.count > 0) {
           this.drawRowHeader.redraw();
         }
       });

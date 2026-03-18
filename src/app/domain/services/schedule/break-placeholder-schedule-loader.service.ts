@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { Subject, switchMap, EMPTY, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { IBreakFilter, IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
@@ -16,12 +17,37 @@ export class BreakPlaceholderScheduleLoaderService {
   private destroyRef = inject(DestroyRef);
 
   private _isLoaded = signal(false);
+  private loadTrigger$ = new Subject<IBreakFilter>();
 
   public visible = false;
   public clients: IClientBreak[] = [];
 
+  constructor() {
+    this.setupLoadPipeline();
+  }
+
   get isLoaded() {
     return this._isLoaded;
+  }
+
+  private setupLoadPipeline(): void {
+    this.loadTrigger$
+      .pipe(
+        switchMap((filter) => {
+          return this.dataBreakPlaceholder.getScheduleList(filter).pipe(
+            catchError((err) => {
+              console.error('Error loading break placeholders for schedule:', err);
+              return EMPTY;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((clients) => {
+        this.clients = clients;
+        this._isLoaded.set(true);
+        setTimeout(() => this._isLoaded.set(false), 100);
+      });
   }
 
   load(startDate: string, endDate: string, workFilter: IWorkFilter): void {
@@ -45,19 +71,7 @@ export class BreakPlaceholderScheduleLoaderService {
       hoursSortOrder: workFilter.hoursSortOrder || undefined,
     };
 
-    this.dataBreakPlaceholder
-      .getScheduleList(filter)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (clients) => {
-          this.clients = clients;
-          this._isLoaded.set(true);
-          setTimeout(() => this._isLoaded.set(false), 100);
-        },
-        error: (err) => {
-          console.error('Error loading break placeholders for schedule:', err);
-        },
-      });
+    this.loadTrigger$.next(filter);
   }
 
   removeBreakPlaceholder(id: string): void {

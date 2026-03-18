@@ -38,6 +38,8 @@ export class CollisionDetectionService implements OnDestroy {
   private collisions = new Map<string, ICollisionNotification>();
   private validations = new Map<string, IScheduleValidationNotification>();
   private subscriptions: Subscription[] = [];
+  private lastClearedKey = '';
+  private _refreshDebounce: ReturnType<typeof setTimeout> | null = null;
 
   private entriesUpdated = signal(0);
   private readonly emptyGuid = '00000000-0000-0000-0000-000000000000';
@@ -73,9 +75,16 @@ export class CollisionDetectionService implements OnDestroy {
 
     effect(() => {
       if (this.dataManagement.isWorkScheduleRead()) {
-        this.collisions.clear();
-        this.validations.clear();
-        this.errorEntries.set([]);
+        const group = this.dataManagement.workFilter.selectedGroup ?? '';
+        const currentKey = `${group}_${this.dataManagement.visibleStartDate?.toISOString()}_${this.dataManagement.visibleEndDate?.toISOString()}`;
+        const changed = currentKey !== this.lastClearedKey;
+
+        if (changed) {
+          this.collisions.clear();
+          this.validations.clear();
+          this.errorEntries.set([]);
+          this.lastClearedKey = currentKey;
+        }
       }
     });
 
@@ -83,12 +92,23 @@ export class CollisionDetectionService implements OnDestroy {
       this.entriesUpdated();
       this.dataManagement.workScheduleChunkLoaded();
       this.dataManagement.isShiftScheduleRead();
-      this.refreshEntries();
+      this.scheduleRefresh();
     });
   }
 
   ngOnDestroy(): void {
+    if (this._refreshDebounce) clearTimeout(this._refreshDebounce);
     this.subscriptions.forEach((s) => s.unsubscribe());
+  }
+
+  private scheduleRefresh(): void {
+    if (this._refreshDebounce) {
+      clearTimeout(this._refreshDebounce);
+    }
+    this._refreshDebounce = setTimeout(() => {
+      this._refreshDebounce = null;
+      this.refreshEntries();
+    }, 50);
   }
 
   private refreshEntries(): void {

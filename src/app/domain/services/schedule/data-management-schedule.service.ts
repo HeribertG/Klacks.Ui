@@ -65,25 +65,13 @@ export class DataManagementScheduleService implements ILoadable {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         if (this.scheduleEntryCrud.scheduleRefreshed()) {
-          this.isRead.set({ value: true, resetScroll: false });
-          setTimeout(
-            () => this.isRead.set({ value: false, resetScroll: false }),
-            100,
-          );
+          this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         }
       });
 
       effect(() => {
         if (this.scheduleEntryCrud.shiftScheduleRefreshed()) {
-          this.isShiftScheduleRead.set({ value: true, resetScroll: false });
-          setTimeout(
-            () =>
-              this.isShiftScheduleRead.set({
-                value: false,
-                resetScroll: false,
-              }),
-            100,
-          );
+          this.isShiftScheduleRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         }
       });
 
@@ -91,11 +79,7 @@ export class DataManagementScheduleService implements ILoadable {
         if (this.breakPlaceholderLoader.isLoaded()) {
           if (this.showBreakPlaceholders()) {
             this.workScheduleLoader.applyBreakPlaceholderRows();
-            this.isRead.set({ value: true, resetScroll: false });
-            setTimeout(
-              () => this.isRead.set({ value: false, resetScroll: false }),
-              100,
-            );
+            this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
           }
         }
       });
@@ -110,14 +94,14 @@ export class DataManagementScheduleService implements ILoadable {
     return this._showProgressSpinner();
   }
 
-  public isRead = signal<{ value: boolean; resetScroll: boolean }>({
-    value: false,
+  public isRead = signal<{ count: number; resetScroll: boolean }>({
+    count: 0,
     resetScroll: true,
   });
-  public isShiftScheduleRead = signal<{ value: boolean; resetScroll: boolean }>(
-    { value: false, resetScroll: true },
+  public isShiftScheduleRead = signal<{ count: number; resetScroll: boolean }>(
+    { count: 0, resetScroll: true },
   );
-  public isWorkScheduleRead = signal(false);
+  public isWorkScheduleRead = signal(0);
 
   get workScheduleChunkLoaded() {
     return this.workScheduleLoader.isRead;
@@ -128,6 +112,11 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workFilter;
   }
   public holidayDates: Date[] = [];
+
+  private _cachedStartDate: Date | null = null;
+  private _cachedEndDate: Date | null = null;
+  private _readDatasDebounce: ReturnType<typeof setTimeout> | null = null;
+  private _spinnerSafetyTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private _restoreSearchSignal = signal('');
   public restoreSearch = {
@@ -170,11 +159,11 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   get visibleStartDate(): Date | null {
-    return this.workScheduleLoader.startDate;
+    return this.workScheduleLoader.startDate ?? this._cachedStartDate;
   }
 
   get visibleEndDate(): Date | null {
-    return this.workScheduleLoader.endDate;
+    return this.workScheduleLoader.endDate ?? this._cachedEndDate;
   }
 
   get availableShiftsByDay(): readonly (readonly string[])[] {
@@ -211,16 +200,35 @@ export class DataManagementScheduleService implements ILoadable {
 
   readDatas() {
     this._showProgressSpinner.set(true);
-    const dates = this.workScheduleLoader.calculateVisibleDates(
-      this.workFilter,
-    );
-    this.readWorkSchedule();
-    this.readShiftSchedule(true, dates.startDate, dates.endDate);
-    this.breakPlaceholderLoader.load(
-      dates.startDate,
-      dates.endDate,
-      this.workFilter,
-    );
+
+    if (this._readDatasDebounce) {
+      clearTimeout(this._readDatasDebounce);
+    }
+    if (this._spinnerSafetyTimeout) {
+      clearTimeout(this._spinnerSafetyTimeout);
+    }
+
+    this._spinnerSafetyTimeout = setTimeout(() => {
+      if (this._showProgressSpinner()) {
+        this._showProgressSpinner.set(false);
+      }
+    }, 30000);
+
+    this._readDatasDebounce = setTimeout(() => {
+      this._readDatasDebounce = null;
+      const dates = this.workScheduleLoader.calculateVisibleDates(
+        this.workFilter,
+      );
+      this._cachedStartDate = new Date(dates.startDate);
+      this._cachedEndDate = new Date(dates.endDate);
+      this.readWorkSchedule();
+      this.readShiftSchedule(true, dates.startDate, dates.endDate);
+      this.breakPlaceholderLoader.load(
+        dates.startDate,
+        dates.endDate,
+        this.workFilter,
+      );
+    }, 300);
   }
 
   readShiftSchedule(resetScroll = true, startDate?: string, endDate?: string) {
@@ -239,11 +247,7 @@ export class DataManagementScheduleService implements ILoadable {
           this.shiftSchedules,
           this.workFilter,
         );
-        this.isShiftScheduleRead.set({ value: true, resetScroll });
-        setTimeout(
-          () => this.isShiftScheduleRead.set({ value: false, resetScroll }),
-          100,
-        );
+        this.isShiftScheduleRead.update(v => ({ count: v.count + 1, resetScroll }));
       },
     );
   }
@@ -252,10 +256,12 @@ export class DataManagementScheduleService implements ILoadable {
     this.workScheduleLoader.load(this.workFilter, () => {
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this._showProgressSpinner.set(false);
-      this.isRead.set({ value: true, resetScroll });
-      setTimeout(() => this.isRead.set({ value: false, resetScroll }), 100);
-      this.isWorkScheduleRead.set(true);
-      setTimeout(() => this.isWorkScheduleRead.set(false), 100);
+      if (this._spinnerSafetyTimeout) {
+        clearTimeout(this._spinnerSafetyTimeout);
+        this._spinnerSafetyTimeout = null;
+      }
+      this.isRead.update(v => ({ count: v.count + 1, resetScroll }));
+      this.isWorkScheduleRead.update(v => v + 1);
     });
   }
 
@@ -384,11 +390,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   toggleAvailability(): void {
     this.showAvailability.update(v => !v);
-    this.isRead.set({ value: true, resetScroll: false });
-    setTimeout(
-      () => this.isRead.set({ value: false, resetScroll: false }),
-      100,
-    );
+    this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
   }
 
   toggleBreakPlaceholders(): void {
@@ -402,11 +404,7 @@ export class DataManagementScheduleService implements ILoadable {
       this.workScheduleLoader.resetToNeededRows();
     }
 
-    this.isRead.set({ value: true, resetScroll: false });
-    setTimeout(
-      () => this.isRead.set({ value: false, resetScroll: false }),
-      100,
-    );
+    this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
   }
 
   public destroy(): void {

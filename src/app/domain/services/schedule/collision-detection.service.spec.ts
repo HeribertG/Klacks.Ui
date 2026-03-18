@@ -43,16 +43,17 @@ describe('CollisionDetectionService', () => {
   let service: CollisionDetectionService;
   let collisionsDetected$: Subject<ICollisionListNotification>;
   let scheduleValidationsDetected$: Subject<IScheduleValidationListNotification>;
-  let chunkLoadedSignal: ReturnType<typeof angularSignal<boolean>>;
-  let isWorkScheduleReadSignal: ReturnType<typeof angularSignal<boolean>>;
-  let isShiftScheduleReadSignal: ReturnType<typeof angularSignal<{ value: boolean; resetScroll: boolean }>>;
+  let chunkLoadedSignal: ReturnType<typeof angularSignal<number>>;
+  let isWorkScheduleReadSignal: ReturnType<typeof angularSignal<number>>;
+  let isShiftScheduleReadSignal: ReturnType<typeof angularSignal<{ count: number; resetScroll: boolean }>>;
   let dataManagementMock: {
     clients: { id: string }[];
     visibleStartDate: Date | null;
     visibleEndDate: Date | null;
-    workScheduleChunkLoaded: ReturnType<typeof angularSignal<boolean>>;
-    isWorkScheduleRead: ReturnType<typeof angularSignal<boolean>>;
-    isShiftScheduleRead: ReturnType<typeof angularSignal<{ value: boolean; resetScroll: boolean }>>;
+    workFilter: { selectedGroup?: string };
+    workScheduleChunkLoaded: ReturnType<typeof angularSignal<number>>;
+    isWorkScheduleRead: ReturnType<typeof angularSignal<number>>;
+    isShiftScheduleRead: ReturnType<typeof angularSignal<{ count: number; resetScroll: boolean }>>;
     shiftSchedules: { date: Date; abbreviation: string; sumEmployees: number; quantity: number; engaged: number }[];
   };
 
@@ -60,14 +61,15 @@ describe('CollisionDetectionService', () => {
     // Arrange
     collisionsDetected$ = new Subject<ICollisionListNotification>();
     scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
-    chunkLoadedSignal = angularSignal(false);
+    chunkLoadedSignal = angularSignal(0);
 
-    isWorkScheduleReadSignal = angularSignal(false);
-    isShiftScheduleReadSignal = angularSignal({ value: false, resetScroll: true });
+    isWorkScheduleReadSignal = angularSignal(0);
+    isShiftScheduleReadSignal = angularSignal({ count: 0, resetScroll: true });
     dataManagementMock = {
       clients: [{ id: 'client-1' }, { id: 'client-2' }],
       visibleStartDate: new Date('2026-03-01'),
       visibleEndDate: new Date('2026-03-31'),
+      workFilter: { selectedGroup: undefined },
       workScheduleChunkLoaded: chunkLoadedSignal,
       isWorkScheduleRead: isWorkScheduleReadSignal,
       isShiftScheduleRead: isShiftScheduleReadSignal,
@@ -107,7 +109,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       collisionsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorCount()).toBe(2);
 
       // Act
@@ -116,7 +118,7 @@ describe('CollisionDetectionService', () => {
         collisions: [createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1' })],
       };
       collisionsDetected$.next(refresh);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorCount()).toBe(1);
@@ -132,7 +134,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       collisionsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorCount()).toBe(2);
 
       // Act
@@ -143,7 +145,7 @@ describe('CollisionDetectionService', () => {
         collisions: [createCollision({ workId1: 'w5', workId2: 'w6', clientId: 'client-1', date: '2026-03-15' })],
       };
       collisionsDetected$.next(update);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorCount()).toBe(2);
@@ -167,7 +169,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -193,7 +195,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       scheduleValidationsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(2);
 
       // Act
@@ -202,7 +204,7 @@ describe('CollisionDetectionService', () => {
         entries: [createValidation({ clientId: 'client-1', date: '2026-03-12', comment: 'rest-violation-3' })],
       };
       scheduleValidationsDetected$.next(refresh);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
@@ -219,7 +221,7 @@ describe('CollisionDetectionService', () => {
         ],
       };
       scheduleValidationsDetected$.next(initial);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(2);
 
       // Act
@@ -230,7 +232,7 @@ describe('CollisionDetectionService', () => {
         entries: [createValidation({ clientId: 'client-1', date: '2026-03-15', comment: 'new-warning' })],
       };
       scheduleValidationsDetected$.next(update);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -254,7 +256,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -277,7 +279,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       const entry = service.errorEntries()[0];
@@ -300,7 +302,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(collisionNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
@@ -320,7 +322,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
@@ -344,7 +346,7 @@ describe('CollisionDetectionService', () => {
       // Act
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(3);
@@ -368,7 +370,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       collisionsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorCount()).toBe(1);
@@ -386,7 +388,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(1);
@@ -404,7 +406,7 @@ describe('CollisionDetectionService', () => {
 
       // Act
       scheduleValidationsDetected$.next(notification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -422,13 +424,13 @@ describe('CollisionDetectionService', () => {
       };
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(0);
 
       // Act
       dataManagementMock.clients.push({ id: 'client-3' });
-      chunkLoadedSignal.set(true);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      chunkLoadedSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -436,7 +438,7 @@ describe('CollisionDetectionService', () => {
   });
 
   describe('Clear on reload', () => {
-    it('should clear all entries when progress spinner becomes active', async () => {
+    it('should clear all entries when date range changes on reload', async () => {
       // Arrange
       const collisionNotification: ICollisionListNotification = {
         isFullRefresh: true,
@@ -448,42 +450,88 @@ describe('CollisionDetectionService', () => {
       };
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(2);
 
       // Act
-      isWorkScheduleReadSignal.set(true);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      dataManagementMock.visibleStartDate = new Date('2026-04-01');
+      dataManagementMock.visibleEndDate = new Date('2026-04-30');
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(0);
     });
 
-    it('should show new entries after reload completes', async () => {
+    it('should clear all entries when group changes on reload', async () => {
       // Arrange
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      collisionsDetected$.next(collisionNotification);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(service.errorEntries().length).toBe(1);
+
+      // Act
+      dataManagementMock.workFilter.selectedGroup = 'group-123';
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(0);
+    });
+
+    it('should keep cached entries when same group and date range reload', async () => {
+      // Arrange
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const collisionNotification: ICollisionListNotification = {
+        isFullRefresh: true,
+        collisions: [createCollision({ clientId: 'client-1' })],
+      };
+      collisionsDetected$.next(collisionNotification);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(service.errorEntries().length).toBe(1);
+
+      // Act
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Assert
+      expect(service.errorEntries().length).toBe(1);
+    });
+
+    it('should show new entries after reload with changed dates', async () => {
+      // Arrange
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const initialNotification: ICollisionListNotification = {
         isFullRefresh: true,
         collisions: [createCollision({ clientId: 'client-1' })],
       };
       collisionsDetected$.next(initialNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(1);
 
       // Act
-      isWorkScheduleReadSignal.set(true);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      dataManagementMock.visibleStartDate = new Date('2026-04-01');
+      dataManagementMock.visibleEndDate = new Date('2026-04-30');
+      isWorkScheduleReadSignal.update(v => v + 1);
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(service.errorEntries().length).toBe(0);
 
-      isWorkScheduleReadSignal.set(false);
       const newNotification: ICollisionListNotification = {
         isFullRefresh: true,
         collisions: [
-          createCollision({ workId1: 'w10', workId2: 'w11', clientId: 'client-2' }),
-          createCollision({ workId1: 'w12', workId2: 'w13', clientId: 'client-2' }),
+          createCollision({ workId1: 'w10', workId2: 'w11', clientId: 'client-2', date: '2026-04-15' }),
+          createCollision({ workId1: 'w12', workId2: 'w13', clientId: 'client-2', date: '2026-04-16' }),
         ],
       };
       collisionsDetected$.next(newNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorEntries().length).toBe(2);
@@ -514,7 +562,7 @@ describe('CollisionDetectionService', () => {
       // Act
       collisionsDetected$.next(collisionNotification);
       scheduleValidationsDetected$.next(validationNotification);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Assert
       expect(service.errorCount()).toBe(1);
