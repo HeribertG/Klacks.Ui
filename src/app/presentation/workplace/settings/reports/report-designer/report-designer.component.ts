@@ -23,14 +23,10 @@ import {
   FieldCategory,
   AVAILABLE_FONTS,
   TextAlignment,
-  HeaderRow,
 } from 'src/app/domain/models/report/report-field.model';
 import { REPORT_DATA_SOURCES, ReportDataSet, getFieldPrefixMap } from 'src/app/domain/models/report/report-data-source.model';
 import { BorderLineStyle } from 'src/app/domain/models/report/cell-border-style.model';
-import { FreeTextRow } from 'src/app/domain/models/report/free-text-row.model';
-import { FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
 import { PropertyGridComponent } from 'src/app/presentation/workplace/settings/macros/property-grid/property-grid.component';
-import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
 
 import { ReportDesignerFieldService } from './report-designer-field.service';
 import { ReportDesignerBorderService } from './report-designer-border.service';
@@ -63,9 +59,9 @@ export class ReportDesignerComponent implements OnChanges {
   @Output() templateChange = new EventEmitter<ReportTemplate>();
 
   translate = inject(TranslateService);
-  private fieldService = inject(ReportDesignerFieldService);
-  private borderService = inject(ReportDesignerBorderService);
-  private formulaSvc = inject(ReportDesignerFormulaService);
+  protected fieldService = inject(ReportDesignerFieldService);
+  protected borderService = inject(ReportDesignerBorderService);
+  protected formulaSvc = inject(ReportDesignerFormulaService);
   private imageService = inject(ReportDesignerImageService);
 
   activeField: ReportField | null = null;
@@ -202,12 +198,8 @@ export class ReportDesignerComponent implements OnChanges {
     return this.template.sections.find(s => s.type === ReportSectionType.Footer);
   }
 
-  getBodyTableIndex(section: ReportSection): number {
-    return this.bodySections.indexOf(section);
-  }
-
   getBodyTableDropId(section: ReportSection): string {
-    return 'body-table-' + this.getBodyTableIndex(section);
+    return 'body-table-' + this.bodySections.indexOf(section);
   }
 
   get allBodyTableDropIds(): string[] {
@@ -273,23 +265,11 @@ export class ReportDesignerComponent implements OnChanges {
     return this.template.sections.find(s => s.type === type);
   }
 
-  isFieldInSection(binding: DataBindingDefinition, sectionType: ReportSectionType): boolean {
-    return this.fieldService.isFieldInSection(binding, this.getSection(sectionType));
-  }
-
-  isFieldInSectionInstance(binding: DataBindingDefinition, section: ReportSection): boolean {
-    return this.fieldService.isFieldInSectionInstance(binding, section);
-  }
-
   getAvailableFields(group: FieldPaletteGroup): DataBindingDefinition[] {
     if (group.sectionType === ReportSectionType.Header || group.sectionType === ReportSectionType.Footer) {
-      return group.fields.filter(f => !this.isFieldInSection(f, group.sectionType));
+      return group.fields.filter(f => !this.fieldService.isFieldInSection(f, this.getSection(group.sectionType)));
     }
     return group.fields;
-  }
-
-  toggleGroup(group: FieldPaletteGroup): void {
-    group.collapsed = !group.collapsed;
   }
 
   selectField(field: ReportField): void {
@@ -301,40 +281,10 @@ export class ReportDesignerComponent implements OnChanges {
     return headerSection?.fields.includes(field) ?? false;
   }
 
-  toggleBold(field: ReportField): void {
-    field.style.bold = !field.style.bold;
-    this.emitChange();
-  }
-
-  toggleItalic(field: ReportField): void {
-    field.style.italic = !field.style.italic;
-    this.emitChange();
-  }
-
-  toggleUnderline(field: ReportField): void {
-    field.style.underline = !field.style.underline;
-    this.emitChange();
-  }
-
-  setFontFamily(field: ReportField, fontFamily: string): void {
-    field.style.fontFamily = fontFamily;
-    this.emitChange();
-  }
-
   setFontSize(field: ReportField, size: number): void {
     if (size < 6) size = 6;
     if (size > 48) size = 48;
     field.style.fontSize = size;
-    this.emitChange();
-  }
-
-  setAlignment(field: ReportField, alignment: TextAlignment): void {
-    field.style.alignment = alignment;
-    this.emitChange();
-  }
-
-  setTextColor(field: ReportField, color: string): void {
-    field.style.textColor = color;
     this.emitChange();
   }
 
@@ -352,11 +302,6 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  addFieldToSection(binding: DataBindingDefinition, sectionType: ReportSectionType): void {
-    this.fieldService.addFieldToSection(binding, this.getSection(sectionType), b => this.getFieldDisplayLabel(b));
-    this.emitChange();
-  }
-
   removeFieldFromSection(field: ReportField, section: ReportSection): void {
     this.fieldService.removeFieldFromSection(field, section);
     if (this.activeField === field) this.activeField = null;
@@ -365,11 +310,6 @@ export class ReportDesignerComponent implements OnChanges {
 
   onFooterFieldDrop(event: CdkDragDrop<ReportField[]>): void {
     this.fieldService.onFooterFieldDrop(event, this.footerSection, b => this.getFieldDisplayLabel(b));
-    this.emitChange();
-  }
-
-  addFieldToBodyTable(binding: DataBindingDefinition, section: ReportSection): void {
-    this.fieldService.addFieldToBodyTable(binding, section, b => this.getFieldDisplayLabel(b));
     this.emitChange();
   }
 
@@ -395,15 +335,6 @@ export class ReportDesignerComponent implements OnChanges {
     return ids;
   }
 
-  getHeaderRows(section: ReportSection): HeaderRow[] {
-    return this.fieldService.getHeaderRows(section);
-  }
-
-  addHeaderRow(section: ReportSection): void {
-    this.fieldService.addHeaderRow(section);
-    this.emitChange();
-  }
-
   removeHeaderRow(section: ReportSection, rowIndex: number): void {
     this.activeField = this.fieldService.removeHeaderRow(section, rowIndex, this.activeField);
     this.emitChange();
@@ -418,15 +349,6 @@ export class ReportDesignerComponent implements OnChanges {
   removeHeaderField(section: ReportSection, field: ReportField): void {
     this.fieldService.removeHeaderField(section, field, this.imagePreviewCache);
     if (this.activeField === field) this.activeField = null;
-    this.emitChange();
-  }
-
-  isCustomText(field: ReportField | undefined): boolean {
-    return field?.dataBinding === 'report.customText';
-  }
-
-  onCustomTextChange(field: ReportField, text: string): void {
-    field.name = text;
     this.emitChange();
   }
 
@@ -446,48 +368,8 @@ export class ReportDesignerComponent implements OnChanges {
     }
   }
 
-  loadImagePreview(fileName: string): void {
-    this.imageService.loadImagePreview(fileName, this.imagePreviewCache);
-  }
-
-  getBorderSideActive(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): boolean {
-    return this.borderService.getBorderSideActive(field, side);
-  }
-
-  toggleBorderSide(field: ReportField, side: 'top' | 'right' | 'bottom' | 'left'): void {
-    this.borderService.toggleBorderSide(field, side);
-    this.emitChange();
-  }
-
-  setBorderLineStyle(field: ReportField, style: BorderLineStyle): void {
-    this.borderService.setBorderLineStyle(field, style);
-    this.emitChange();
-  }
-
-  setBorderColor(field: ReportField, color: string): void {
-    this.borderService.setBorderColor(field, color);
-    this.emitChange();
-  }
-
-  setAllBorders(field: ReportField, lineStyle: BorderLineStyle): void {
-    this.borderService.setAllBorders(field, lineStyle);
-    this.emitChange();
-  }
-
-  getActiveBorderLineStyle(field: ReportField): BorderLineStyle {
-    return this.borderService.getActiveBorderLineStyle(field);
-  }
-
-  getActiveBorderColor(field: ReportField): string {
-    return this.borderService.getActiveBorderColor(field);
-  }
-
-  hasTableFooter(section: ReportSection): boolean {
-    return section.tableFooterFields !== undefined;
-  }
-
   toggleTableFooter(section: ReportSection): void {
-    if (this.hasTableFooter(section)) {
+    if (section.tableFooterFields !== undefined) {
       section.tableFooterFields = undefined;
     } else {
       section.tableFooterFields = [];
@@ -509,11 +391,6 @@ export class ReportDesignerComponent implements OnChanges {
     return this.bodySections.some(s => s.tableFooterFields?.includes(field));
   }
 
-  toggleHideLabel(field: ReportField): void {
-    field.hideLabel = !field.hideLabel;
-    this.emitChange();
-  }
-
   removeTableFooterField(section: ReportSection, field: ReportField): void {
     this.fieldService.removeTableFooterField(section, field);
     if (this.activeField === field) this.activeField = null;
@@ -530,26 +407,6 @@ export class ReportDesignerComponent implements OnChanges {
     const all = this.getAvailableFooterFields();
     const used = section.tableFooterFields ?? [];
     return all.filter(f => !used.some(u => u.dataBinding === f.key));
-  }
-
-  addFreeTextRow(section: ReportSection): void {
-    this.fieldService.addFreeTextRow(section);
-    this.emitChange();
-  }
-
-  removeFreeTextRow(section: ReportSection, row: FreeTextRow): void {
-    this.fieldService.removeFreeTextRow(section, row);
-    this.emitChange();
-  }
-
-  onFreeTextChange(row: FreeTextRow, text: string): void {
-    row.text = text;
-    this.emitChange();
-  }
-
-  onFreeTextPositionChange(row: FreeTextRow, position: 'before' | 'after'): void {
-    row.position = position;
-    this.emitChange();
   }
 
   isBodyTableField(field: ReportField): boolean {
@@ -597,11 +454,6 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  setBindingSeparator(field: ReportField, separator: string): void {
-    field.bindingSeparator = separator;
-    this.emitChange();
-  }
-
   getMergedFieldLabel(key: string): string {
     const cached = this.mergeFieldLabelCache.get(key);
     if (cached) return cached;
@@ -616,10 +468,6 @@ export class ReportDesignerComponent implements OnChanges {
     return key;
   }
 
-  isFormulaField(field: ReportField): boolean {
-    return field.type === ReportFieldType.Formula;
-  }
-
   addFormulaField(section: ReportSection): void {
     this.activeField = this.fieldService.addFormulaField(section);
     this.emitChange();
@@ -630,76 +478,8 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
-  getFormulaStatus(field: ReportField): 'empty' | 'valid' | 'error' {
-    return this.formulaSvc.getFormulaStatus(field);
-  }
-
-  onFormulaChange(field: ReportField, formula: string): void {
-    this.formulaSvc.onFormulaChange(field, formula);
-    this.emitChange();
-  }
-
-  onFormulaNameChange(field: ReportField, name: string): void {
-    this.formulaSvc.onFormulaNameChange(field, name);
-    this.emitChange();
-  }
-
-  getFormulaVariableDefs(): FormulaVariableDefinition[] {
-    return this.formulaSvc.getFormulaVariableDefs(this.sourceId, this.dataSetIds);
-  }
-
-  getFooterFormulaVariableDefs(): FormulaVariableDefinition[] {
-    return this.formulaSvc.getFooterFormulaVariableDefs(this.sourceId, this.dataSetIds);
-  }
-
-  testFormula(field: ReportField): string {
-    return this.formulaSvc.testFormula(field);
-  }
-
-  get showFormulaEditor(): boolean {
-    return this.formulaSvc.showFormulaEditor;
-  }
-
-  get formulaEditorField(): ReportField | null {
-    return this.formulaSvc.formulaEditorField;
-  }
-
-  get formulaTestResult(): string {
-    return this.formulaSvc.formulaTestResult;
-  }
-
-  get formulaTestData(): Record<string, unknown> {
-    return this.formulaSvc.formulaTestData;
-  }
-
-  set formulaTestData(value: Record<string, unknown>) {
-    this.formulaSvc.formulaTestData = value;
-  }
-
-  get formulaTestMetadata(): PropertyMetadata | undefined {
-    return this.formulaSvc.formulaTestMetadata;
-  }
-
   openFormulaEditor(field: ReportField): void {
     this.formulaSvc.openFormulaEditor(field, this.bodySections, this.sourceId, this.dataSetIds);
-  }
-
-  closeFormulaEditor(): void {
-    this.formulaSvc.closeFormulaEditor();
-  }
-
-  runFormulaTest(): void {
-    this.formulaSvc.runFormulaTest();
-  }
-
-  onMergeRowsChange(value: boolean): void {
-    this.template.mergeRows = value;
-    this.emitChange();
-  }
-
-  onShowFullPeriodChange(value: boolean): void {
-    this.template.showFullPeriod = value;
-    this.emitChange();
   }
 
   emitChange(): void {

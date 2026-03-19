@@ -26,7 +26,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/shift/data-m
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { SimpleGroupSelectComponent } from 'src/app/presentation/shared/simple-group-select/simple-group-select.component';
+import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 
@@ -42,7 +42,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
     IconAngleDownComponent,
     IconAngleRightComponent,
     TrashIconRedComponent,
-    SimpleGroupSelectComponent,
+    GroupSelectComponent,
   ],
 })
 export class EditShiftGroupComponent

@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Komponente zur Anzeige und Steuerung der Shift-Cut-Operationen (Datum, Zeit, Wochentage, Personal, Aufgaben).
+ * Koordiniert die Cut-Services und verwaltet Lifecycle, Template-Bindings und Modals.
+ * @param shifts - Liste der anzuzeigenden Shifts
+ * @param isChangingEvent - Event das bei Aenderungen emittiert wird
+ */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -32,13 +38,14 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
-import { newGuid } from 'src/app/shared/helpers/guid.helper';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
-import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
+import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
+import { CutByTimeService } from './services/cut-by-time.service';
+import { CutByDateService } from './services/cut-by-date.service';
+import { CutByWeekdayService } from './services/cut-by-weekday.service';
+import { CutByStaffService } from './services/cut-by-staff.service';
+import { createDefaultCutParameterState } from './services/cut-parameter-state';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -59,10 +66,14 @@ export class CutShiftListComponent implements OnInit {
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private dataShiftCutsService = inject(DataShiftCutsService);
   private shiftCutOperationService = inject(ShiftCutOperationService);
-  private workTimeCalculator = inject(WorkTimeCalculationService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
   private destroyRef = inject(DestroyRef);
+
+  private cutByTimeService = inject(CutByTimeService);
+  private cutByDateService = inject(CutByDateService);
+  private cutByWeekdayService = inject(CutByWeekdayService);
+  private cutByStaffService = inject(CutByStaffService);
 
   @ViewChild('cutDateModal', { static: true }) cutDateModal!: TemplateRef<any>;
   @ViewChild('cutTimeModal', { static: true }) cutTimeModal!: TemplateRef<any>;
@@ -162,49 +173,13 @@ export class CutShiftListComponent implements OnInit {
   }
 
   private validateAndCorrectTime(): void {
-    if (!this.minTimeShift || !this.maxTimeShift) {
-      return;
-    }
-
-    const currentMinutes = this.cutTimeShift.toMinutes();
-    const minMinutes = this.minTimeShift.toMinutes();
-    const maxMinutes = this.maxTimeShift.toMinutes();
-    if (this.is24Hours) {
-      if (currentMinutes === minMinutes) {
-        const newMinutes = (currentMinutes + 1) % (24 * 60);
-        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
-        this.cutTimeShift.minutes = (newMinutes % 60).toString();
-      }
-      return;
-    }
-
-    if (this.isOverMidnight) {
-      const isInvalidRange =
-        currentMinutes > maxMinutes && currentMinutes < minMinutes;
-
-      if (isInvalidRange) {
-        const distanceToStart = Math.abs(minMinutes - currentMinutes);
-        const distanceToEnd = Math.abs(currentMinutes - maxMinutes);
-
-        if (distanceToStart <= distanceToEnd) {
-          this.cutTimeShift.hours = Math.floor(minMinutes / 60).toString();
-          this.cutTimeShift.minutes = (minMinutes % 60).toString();
-        } else {
-          this.cutTimeShift.hours = Math.floor(maxMinutes / 60).toString();
-          this.cutTimeShift.minutes = (maxMinutes % 60).toString();
-        }
-      }
-    } else {
-      if (currentMinutes <= minMinutes) {
-        const newMinutes = minMinutes + 1;
-        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
-        this.cutTimeShift.minutes = (newMinutes % 60).toString();
-      } else if (currentMinutes >= maxMinutes) {
-        const newMinutes = maxMinutes - 1;
-        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
-        this.cutTimeShift.minutes = (newMinutes % 60).toString();
-      }
-    }
+    this.cutByTimeService.validateAndCorrectTime({
+      cutTimeShift: this.cutTimeShift,
+      minTimeShift: this.minTimeShift,
+      maxTimeShift: this.maxTimeShift,
+      isOverMidnight: this.isOverMidnight,
+      is24Hours: this.is24Hours,
+    });
   }
 
   onCutDate(): void {
@@ -309,12 +284,7 @@ export class CutShiftListComponent implements OnInit {
     this.selectedShift = shift;
 
     if (shift) {
-      this.analyzeCutByDate(shift);
-      this.analyzeCutByTime(shift);
-      this.analyzeCutByWeekdays(shift);
-      this.analyzeCutByStaff(shift);
-      this.analyzeCutByTask(shift);
-      this.analyzeResetCuts();
+      this.analyzeShift(shift);
     }
   }
 
@@ -343,156 +313,62 @@ export class CutShiftListComponent implements OnInit {
     this.analyzeResetCuts();
   }
 
-  private analyzeCutByDate(shift: Shift): void {
-    if (shift.fromDate || shift.untilDate) {
+  private analyzeShift(shift: Shift): void {
+    const dateParams = this.cutByDateService.analyzeCutByDate(shift);
+    if (dateParams.minDate || dateParams.maxDate) {
       this.isCutDateEnabled = true;
-
-      if (shift.fromDate) {
-        const ngbFromDate = transformDateToNgbDateStruct(shift.fromDate);
-
-        if (ngbFromDate) {
-          const fromDate = NgbDate.from(ngbFromDate);
-          if (fromDate) {
-            this.minDate = this.calendar.getNext(fromDate, 'd', 1);
-            this.cutDate = this.minDate;
-          }
-        }
+      this.cutDate = dateParams.cutDate;
+      if (dateParams.minDate) {
+        this.minDate = dateParams.minDate;
       }
-
-      if (shift.untilDate) {
-        const ngbUntilDate = transformDateToNgbDateStruct(shift.untilDate);
-
-        if (ngbUntilDate) {
-          const untilDate = NgbDate.from(ngbUntilDate);
-          if (untilDate) {
-            this.maxDate = untilDate;
-          }
-        }
-      } else {
-        if (this.minDate) {
-          this.maxDate = this.calendar.getNext(this.minDate, 'y', 1);
-        }
+      if (dateParams.maxDate) {
+        this.maxDate = dateParams.maxDate;
       }
     }
-  }
 
-  private analyzeCutByTime(shift: Shift): void {
-    const normalizedStartShift = shift.startShift
-      .split(':')
-      .slice(0, 2)
-      .join(':');
-    const normalizedEndShift = shift.endShift.split(':').slice(0, 2).join(':');
-
-    const startTime = transformStringToOwnTimeStruct(normalizedStartShift);
-    const endTime = transformStringToOwnTimeStruct(normalizedEndShift);
-
-    if (startTime && endTime) {
-      const startMinutes = startTime.toMinutes();
-      const endMinutes = endTime.toMinutes();
-
-      let totalMinutes: number;
-
-      if (startMinutes === endMinutes) {
-        totalMinutes = 24 * 60;
-        this.is24Hours = true;
-        this.isOverMidnight = false;
-      } else if (endMinutes < startMinutes) {
-        totalMinutes = 24 * 60 - startMinutes + endMinutes;
-        this.is24Hours = false;
-        this.isOverMidnight = true;
-      } else {
-        totalMinutes = endMinutes - startMinutes;
-        this.is24Hours = false;
-        this.isOverMidnight = false;
-      }
-
-      if (totalMinutes > 1) {
-        this.isCutTimeEnabled = true;
-
-        this.minTimeShift = startTime;
-        this.maxTimeShift = endTime;
-
-        if (this.is24Hours) {
-          const defaultCutHour = (Number(startTime.hours) + 1) % 24;
-          this.cutTimeShift = OwnTime.forTime(defaultCutHour.toString(), '0');
-        } else if (this.isOverMidnight) {
-          const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
-          let midHours: number;
-          let remainingMinutes: number;
-
-          if (midMinutes >= 24 * 60) {
-            const adjustedMinutes = midMinutes - 24 * 60;
-            midHours = Math.floor(adjustedMinutes / 60);
-            remainingMinutes = adjustedMinutes % 60;
-          } else {
-            midHours = Math.floor(midMinutes / 60);
-            remainingMinutes = midMinutes % 60;
-          }
-
-          this.cutTimeShift = OwnTime.forTime(
-            midHours.toString(),
-            remainingMinutes.toString()
-          );
-        } else {
-          const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
-          const midHours = Math.floor(midMinutes / 60);
-          const remainingMinutes = midMinutes % 60;
-          this.cutTimeShift = OwnTime.forTime(
-            midHours.toString(),
-            remainingMinutes.toString()
-          );
-        }
-      }
+    const timeParams = this.cutByTimeService.analyzeCutByTime(shift);
+    if (timeParams.minTimeShift && timeParams.maxTimeShift) {
+      this.isCutTimeEnabled = true;
+      this.cutTimeShift = timeParams.cutTimeShift;
+      this.minTimeShift = timeParams.minTimeShift;
+      this.maxTimeShift = timeParams.maxTimeShift;
+      this.isOverMidnight = timeParams.isOverMidnight;
+      this.is24Hours = timeParams.is24Hours;
     }
-  }
 
-  private analyzeCutByWeekdays(shift: Shift): void {
-    let weekdayCount = 0;
-    if (shift.isMonday) weekdayCount++;
-    if (shift.isTuesday) weekdayCount++;
-    if (shift.isWednesday) weekdayCount++;
-    if (shift.isThursday) weekdayCount++;
-    if (shift.isFriday) weekdayCount++;
-    if (shift.isSaturday) weekdayCount++;
-    if (shift.isSunday) weekdayCount++;
-
-    if (weekdayCount >= 2) {
+    const weekdayParams = this.cutByWeekdayService.analyzeCutByWeekdays(shift);
+    if (weekdayParams.isMondayEnabled || weekdayParams.isTuesdayEnabled ||
+        weekdayParams.isWednesdayEnabled || weekdayParams.isThursdayEnabled ||
+        weekdayParams.isFridayEnabled || weekdayParams.isSaturdayEnabled ||
+        weekdayParams.isSundayEnabled) {
       this.isCutWeekdaysEnabled = true;
-
-      this.weekdays.isMonday = false;
-      this.weekdays.isTuesday = false;
-      this.weekdays.isWednesday = false;
-      this.weekdays.isThursday = false;
-      this.weekdays.isFriday = false;
-      this.weekdays.isSaturday = false;
-      this.weekdays.isSunday = false;
-
-      this.isMondayEnabled = shift.isMonday;
-      this.isTuesdayEnabled = shift.isTuesday;
-      this.isWednesdayEnabled = shift.isWednesday;
-      this.isThursdayEnabled = shift.isThursday;
-      this.isFridayEnabled = shift.isFriday;
-      this.isSaturdayEnabled = shift.isSaturday;
-      this.isSundayEnabled = shift.isSunday;
+      this.weekdays = weekdayParams.weekdays;
+      this.isMondayEnabled = weekdayParams.isMondayEnabled;
+      this.isTuesdayEnabled = weekdayParams.isTuesdayEnabled;
+      this.isWednesdayEnabled = weekdayParams.isWednesdayEnabled;
+      this.isThursdayEnabled = weekdayParams.isThursdayEnabled;
+      this.isFridayEnabled = weekdayParams.isFridayEnabled;
+      this.isSaturdayEnabled = weekdayParams.isSaturdayEnabled;
+      this.isSundayEnabled = weekdayParams.isSundayEnabled;
     }
-  }
 
-  private analyzeCutByStaff(shift: Shift): void {
-    if (shift.sumEmployees && shift.sumEmployees > 1) {
+    if (this.cutByStaffService.isStaffCutEnabled(shift)) {
       this.isCutStaffEnabled = true;
-      this.minStaffCount = 1;
-      this.maxStaffCount = shift.sumEmployees - 1;
-      this.staffCount = 1;
+      const staffParams = this.cutByStaffService.analyzeCutByStaff(shift);
+      this.staffCount = staffParams.staffCount;
+      this.minStaffCount = staffParams.minStaffCount;
+      this.maxStaffCount = staffParams.maxStaffCount;
     }
-  }
 
-  private analyzeCutByTask(shift: Shift): void {
-    if (shift.quantity && shift.quantity > 1) {
+    if (this.cutByStaffService.isTaskCutEnabled(shift)) {
       this.isCutTaskEnabled = true;
-      this.minTaskCount = 1;
-      this.maxTaskCount = shift.quantity - 1;
-      this.taskCount = 1;
+      const taskParams = this.cutByStaffService.analyzeCutByTask(shift);
+      this.taskCount = taskParams.taskCount;
+      this.minTaskCount = taskParams.minTaskCount;
+      this.maxTaskCount = taskParams.maxTaskCount;
     }
+
+    this.analyzeResetCuts();
   }
 
   private performCutByDate(): void {
@@ -522,75 +398,13 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    const copiedShift = this.copyShift(this.selectedShift);
-
-    const originalStartTime = transformStringToOwnTimeStruct(this.selectedShift.startShift);
-    const originalEndTime = transformStringToOwnTimeStruct(this.selectedShift.endShift);
-    const originalEndShift = this.selectedShift.endShift;
-
-    const cutTimeString = `${this.cutTimeShift.hours
-      .toString()
-      .padStart(2, '0')}:${this.cutTimeShift.minutes
-      .toString()
-      .padStart(2, '0')}`;
-
-    this.selectedShift.endShift = cutTimeString;
-
-    const originalStartMinutes = originalStartTime?.toMinutes() || 0;
-    const originalEndMinutes = originalEndTime?.toMinutes() || 0;
-
-    const crossesMidnight = originalEndMinutes < originalStartMinutes;
-
-    this.selectedShift.cuttingAfterMidnight =
-      crossesMidnight &&
-      originalStartMinutes >= 0 &&
-      originalStartMinutes < originalEndMinutes;
-
-    const cutTimeProps: any = {
-      startShift: cutTimeString,
-    };
-
-    if (this.is24Hours) {
-      cutTimeProps.endShift = originalEndShift;
-    }
-
-    this.prepareCutShift(copiedShift, cutTimeProps);
-
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    const selectedStartTime = transformStringToOwnTimeStruct(this.selectedShift.startShift);
-    const selectedEndTime = transformStringToOwnTimeStruct(this.selectedShift.endShift);
-    this.selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      selectedStartTime,
-      selectedEndTime
+    const copiedShift = this.cutByTimeService.performCutByTime(
+      this.selectedShift,
+      this.cutTimeShift,
+      this.is24Hours
     );
-
-    const copiedStartTime = transformStringToOwnTimeStruct(copiedShift.startShift);
-    const copiedEndTime = transformStringToOwnTimeStruct(copiedShift.endShift);
-    copiedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      copiedStartTime,
-      copiedEndTime
-    );
-
-    const copiedStartMinutes = copiedStartTime?.toMinutes() || 0;
-
-    copiedShift.cuttingAfterMidnight =
-      crossesMidnight &&
-      copiedStartMinutes >= 0 &&
-      copiedStartMinutes < originalEndMinutes;
-
-    if (
-      copiedShift.cuttingAfterMidnight &&
-      copiedShift.fromDate
-    ) {
-      const adjustedDate = new Date(copiedShift.fromDate);
-      adjustedDate.setDate(adjustedDate.getDate() + 1);
-      copiedShift.fromDate = adjustedDate;
-      this.shiftWeekdaysForward(copiedShift);
-    }
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
-
     this.selectNewChildCut(copiedShift);
 
     this.isChangingEvent.emit(true);
@@ -612,26 +426,6 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
-  }
-
-  private updateOriginalShiftWeekdays(originalShift: Shift): void {
-    if (this.weekdays.isMonday) originalShift.isMonday = false;
-    if (this.weekdays.isTuesday) originalShift.isTuesday = false;
-    if (this.weekdays.isWednesday) originalShift.isWednesday = false;
-    if (this.weekdays.isThursday) originalShift.isThursday = false;
-    if (this.weekdays.isFriday) originalShift.isFriday = false;
-    if (this.weekdays.isSaturday) originalShift.isSaturday = false;
-    if (this.weekdays.isSunday) originalShift.isSunday = false;
-  }
-
-  private updateCopiedShiftWeekdays(copiedShift: Shift): void {
-    copiedShift.isMonday = this.weekdays.isMonday;
-    copiedShift.isTuesday = this.weekdays.isTuesday;
-    copiedShift.isWednesday = this.weekdays.isWednesday;
-    copiedShift.isThursday = this.weekdays.isThursday;
-    copiedShift.isFriday = this.weekdays.isFriday;
-    copiedShift.isSaturday = this.weekdays.isSaturday;
-    copiedShift.isSunday = this.weekdays.isSunday;
   }
 
   private performCutByStaff(): void {
@@ -668,33 +462,10 @@ export class CutShiftListComponent implements OnInit {
     this.analyzeResetCuts();
   }
 
-
   private selectNewChildCut(newChildCut: Shift): void {
     this.selectedShift = newChildCut;
     if (newChildCut) {
-      this.analyzeCutByDate(newChildCut);
-      this.analyzeCutByTime(newChildCut);
-      this.analyzeCutByWeekdays(newChildCut);
-      this.analyzeCutByStaff(newChildCut);
-      this.analyzeCutByTask(newChildCut);
-    }
-  }
-
-  private prepareCutShift(copiedShift: Shift, specificProperties?: any): void {
-    if (!this.selectedShift) {
-      return;
-    }
-
-    copiedShift.parentId = this.selectedShift.id;
-    copiedShift.id = newGuid();
-    copiedShift.isNew = true;
-
-    if (this.selectedShift.cuttingAfterMidnight) {
-      copiedShift.cuttingAfterMidnight = true;
-    }
-
-    if (specificProperties) {
-      Object.assign(copiedShift, specificProperties);
+      this.analyzeShift(newChildCut);
     }
   }
 
@@ -794,68 +565,40 @@ export class CutShiftListComponent implements OnInit {
   }
 
   private resetAllParameters(): void {
-    this.cutDate = null;
-    this.resetDate = null;
+    const defaults = createDefaultCutParameterState();
 
-    this.cutTimeShift = OwnTime.forTime();
-    this.minTimeShift = null;
-    this.maxTimeShift = null;
-    this.isOverMidnight = false;
-    this.is24Hours = false;
+    this.cutDate = defaults.date.cutDate;
+    this.resetDate = defaults.date.resetDate;
 
-    this.weekdays = {
-      isMonday: false,
-      isTuesday: false,
-      isWednesday: false,
-      isThursday: false,
-      isFriday: false,
-      isSaturday: false,
-      isSunday: false,
-    };
+    this.cutTimeShift = defaults.time.cutTimeShift;
+    this.minTimeShift = defaults.time.minTimeShift;
+    this.maxTimeShift = defaults.time.maxTimeShift;
+    this.isOverMidnight = defaults.time.isOverMidnight;
+    this.is24Hours = defaults.time.is24Hours;
 
-    this.staffCount = 1;
-    this.minStaffCount = 1;
-    this.maxStaffCount = 100;
+    this.weekdays = defaults.weekdays.weekdays;
 
-    this.taskCount = 1;
-    this.minTaskCount = 1;
-    this.maxTaskCount = 50;
+    this.staffCount = defaults.staff.staffCount;
+    this.minStaffCount = defaults.staff.minStaffCount;
+    this.maxStaffCount = defaults.staff.maxStaffCount;
 
-    this.isCutDateEnabled = false;
-    this.isCutTimeEnabled = false;
-    this.isCutWeekdaysEnabled = false;
-    this.isCutStaffEnabled = false;
-    this.isCutTaskEnabled = false;
-    this.isResetCutsEnabled = false;
+    this.taskCount = defaults.task.taskCount;
+    this.minTaskCount = defaults.task.minTaskCount;
+    this.maxTaskCount = defaults.task.maxTaskCount;
 
-    this.isMondayEnabled = false;
-    this.isTuesdayEnabled = false;
-    this.isWednesdayEnabled = false;
-    this.isThursdayEnabled = false;
-    this.isFridayEnabled = false;
-    this.isSaturdayEnabled = false;
-    this.isSundayEnabled = false;
-  }
+    this.isCutDateEnabled = defaults.enabled.isCutDateEnabled;
+    this.isCutTimeEnabled = defaults.enabled.isCutTimeEnabled;
+    this.isCutWeekdaysEnabled = defaults.enabled.isCutWeekdaysEnabled;
+    this.isCutStaffEnabled = defaults.enabled.isCutStaffEnabled;
+    this.isCutTaskEnabled = defaults.enabled.isCutTaskEnabled;
+    this.isResetCutsEnabled = defaults.enabled.isResetCutsEnabled;
 
-  private copyShift(shift: Shift): Shift {
-    return cloneObject<Shift>(shift);
-  }
-
-  private shiftWeekdaysForward(shift: Shift): void {
-    const oldMonday = shift.isMonday;
-    const oldTuesday = shift.isTuesday;
-    const oldWednesday = shift.isWednesday;
-    const oldThursday = shift.isThursday;
-    const oldFriday = shift.isFriday;
-    const oldSaturday = shift.isSaturday;
-    const oldSunday = shift.isSunday;
-
-    shift.isMonday = oldSunday;
-    shift.isTuesday = oldMonday;
-    shift.isWednesday = oldTuesday;
-    shift.isThursday = oldWednesday;
-    shift.isFriday = oldThursday;
-    shift.isSaturday = oldFriday;
-    shift.isSunday = oldSaturday;
+    this.isMondayEnabled = defaults.weekdays.isMondayEnabled;
+    this.isTuesdayEnabled = defaults.weekdays.isTuesdayEnabled;
+    this.isWednesdayEnabled = defaults.weekdays.isWednesdayEnabled;
+    this.isThursdayEnabled = defaults.weekdays.isThursdayEnabled;
+    this.isFridayEnabled = defaults.weekdays.isFridayEnabled;
+    this.isSaturdayEnabled = defaults.weekdays.isSaturdayEnabled;
+    this.isSundayEnabled = defaults.weekdays.isSundayEnabled;
   }
 }

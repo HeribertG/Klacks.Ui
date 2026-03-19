@@ -32,14 +32,16 @@
       }
 
       <div class="default-width">
-        <app-simple-group-select
+        <app-group-select
+          [showAllGroupsOption]="false"
           [hasOptionButton]="false"
+          [useGlobalSelection]="false"
           [required]="false"
           [(ngModel)]="selectedGroupId"
           (groupSelected)="onGroupSelected($event)"
           [disabled]="isFieldsDisabled"
           name="groupSelect"
-        ></app-simple-group-select>
+        ></app-group-select>
       </div>
     </div>
 

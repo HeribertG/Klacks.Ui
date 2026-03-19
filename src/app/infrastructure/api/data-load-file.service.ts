@@ -7,7 +7,6 @@
  * @param logoImage$ - Signal mit dem Base64-Logo der Anwendung
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
@@ -19,10 +18,6 @@ import { Observable, of, throwError } from 'rxjs';
   providedIn: 'root',
 })
 export class DataLoadFileService {
-  profileImage: any;
-  iconImage: any;
-  logoImage: any;
-
   public logoImage$ = signal<string | null>(null);
   public profileImage$ = signal<string | null>(null);
   public iconImage$ = signal<string | null>(null);
@@ -39,6 +34,8 @@ export class DataLoadFileService {
     width: number;
     height: number;
   } | null>(null);
+
+  public lastError$ = signal<string | null>(null);
 
   private httpClient = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
@@ -60,7 +57,7 @@ export class DataLoadFileService {
           this.createImageFromBlob(data);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to download file', error);
         },
       });
   }
@@ -76,7 +73,7 @@ export class DataLoadFileService {
           this.createIconFromBlob(data);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to download icon', error);
         },
       });
   }
@@ -92,7 +89,7 @@ export class DataLoadFileService {
           this.createLogoFromBlob(data);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to download logo', error);
         },
       });
   }
@@ -103,11 +100,10 @@ export class DataLoadFileService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.iconImage = undefined;
           this.iconImage$.set(null);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to delete icon', error);
         },
       });
   }
@@ -118,12 +114,11 @@ export class DataLoadFileService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.logoImage = undefined;
           this.logoImage$.set(null);
           this.logoImageDimensions$.set(null);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to delete logo', error);
         },
       });
   }
@@ -134,111 +129,12 @@ export class DataLoadFileService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.profileImage = undefined;
           this.profileImage$.set(null);
         },
         error: (error) => {
-          console.log(error);
+          this.handleFileError('Failed to delete file', error);
         },
       });
-  }
-
-  private createImageFromBlob(image: Blob) {
-    this.convertBlobToDataUrl(image, {
-      onClear: () => {
-        this.profileImage = undefined;
-        this.profileImage$.set(null);
-      },
-      onLoad: (result) => {
-        this.profileImage = result;
-        this.profileImage$.set(result);
-      },
-    });
-  }
-
-  private createIconFromBlob(image: Blob) {
-    this.convertBlobToDataUrl(image, {
-      onClear: () => {
-        this.iconImage = undefined;
-        this.iconImage$.set(null);
-      },
-      onLoad: (result) => {
-        this.iconImage = result;
-        this.iconImage$.set(result);
-
-        const favicon =
-          (document.getElementById('appIcon') as HTMLLinkElement) ||
-          (document.querySelector('link[rel="icon"]') as HTMLLinkElement) ||
-          (document.querySelector(
-            'link[rel="shortcut icon"]'
-          ) as HTMLLinkElement) ||
-          (document.querySelector(
-            'link[rel="apple-touch-icon"]'
-          ) as HTMLLinkElement);
-
-        if (favicon) {
-          favicon.href = result;
-        }
-      },
-    });
-  }
-
-  private createLogoFromBlob(image: Blob) {
-    this.convertBlobToDataUrl(image, {
-      onClear: () => {
-        this.logoImage = undefined;
-        this.logoImage$.set(null);
-        this.logoImageDimensions$.set(null);
-      },
-      onLoad: (result) => {
-        this.logoImage = result;
-        this.logoImage$.set(result);
-
-        this.getImageDimensions(result).then((dimensions) => {
-          this.logoImageDimensions$.set(dimensions);
-        });
-      },
-    });
-  }
-
-  private convertBlobToDataUrl(
-    blob: Blob,
-    callbacks: { onClear: () => void; onLoad: (result: string) => void }
-  ) {
-    if (blob.type === 'text/plain') {
-      callbacks.onClear();
-      return;
-    }
-    const reader = new FileReader();
-    reader.addEventListener(
-      'load',
-      () => {
-        callbacks.onLoad(reader.result as string);
-      },
-      false
-    );
-
-    if (blob) {
-      reader.readAsDataURL(blob);
-    }
-  }
-
-  private getImageDimensions(
-    src: string
-  ): Promise<{ width: number; height: number }> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        resolve({
-          width: img.naturalWidth,
-          height: img.naturalHeight,
-        });
-      };
-      img.onerror = () => {
-        reject(new Error('Failed to load image'));
-      };
-      img.src = src;
-    });
   }
 
   calculateProportionalDimensions(
@@ -306,10 +202,6 @@ export class DataLoadFileService {
   }
 
   clearAllImages(): void {
-    this.profileImage = undefined;
-    this.iconImage = undefined;
-    this.logoImage = undefined;
-
     this.profileImage$.set(null);
     this.iconImage$.set(null);
     this.logoImage$.set(null);
@@ -317,5 +209,103 @@ export class DataLoadFileService {
     this.profileImageDimensions$.set(null);
     this.iconImageDimensions$.set(null);
     this.logoImageDimensions$.set(null);
+  }
+
+  private handleFileError(context: string, error: unknown): void {
+    const message = error instanceof Error ? error.message : String(error);
+    this.lastError$.set(`${context}: ${message}`);
+    console.error(context, error);
+  }
+
+  private createImageFromBlob(image: Blob) {
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.profileImage$.set(null);
+      },
+      onLoad: (result) => {
+        this.profileImage$.set(result);
+      },
+    });
+  }
+
+  private createIconFromBlob(image: Blob) {
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.iconImage$.set(null);
+      },
+      onLoad: (result) => {
+        this.iconImage$.set(result);
+
+        const favicon =
+          (document.getElementById('appIcon') as HTMLLinkElement) ||
+          (document.querySelector('link[rel="icon"]') as HTMLLinkElement) ||
+          (document.querySelector(
+            'link[rel="shortcut icon"]'
+          ) as HTMLLinkElement) ||
+          (document.querySelector(
+            'link[rel="apple-touch-icon"]'
+          ) as HTMLLinkElement);
+
+        if (favicon) {
+          favicon.href = result;
+        }
+      },
+    });
+  }
+
+  private createLogoFromBlob(image: Blob) {
+    this.convertBlobToDataUrl(image, {
+      onClear: () => {
+        this.logoImage$.set(null);
+        this.logoImageDimensions$.set(null);
+      },
+      onLoad: (result) => {
+        this.logoImage$.set(result);
+
+        this.getImageDimensions(result).then((dimensions) => {
+          this.logoImageDimensions$.set(dimensions);
+        });
+      },
+    });
+  }
+
+  private convertBlobToDataUrl(
+    blob: Blob,
+    callbacks: { onClear: () => void; onLoad: (result: string) => void }
+  ) {
+    if (blob.type === 'text/plain') {
+      callbacks.onClear();
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener(
+      'load',
+      () => {
+        callbacks.onLoad(reader.result as string);
+      },
+      false
+    );
+
+    if (blob) {
+      reader.readAsDataURL(blob);
+    }
+  }
+
+  private getImageDimensions(
+    src: string
+  ): Promise<{ width: number; height: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+        });
+      };
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      img.src = src;
+    });
   }
 }

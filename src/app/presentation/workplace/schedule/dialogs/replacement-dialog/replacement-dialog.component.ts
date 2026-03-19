@@ -240,11 +240,10 @@ export class ReplacementDialogComponent {
       this.workContext
     );
 
-    this.validation = this.logicService.validateReplacementMode(
+    this.validation = this.logicService.validateReplacement(
       this.startTime,
       this.endTime,
-      this.workContext,
-      this.replacementMode
+      this.workContext
     );
   }
 

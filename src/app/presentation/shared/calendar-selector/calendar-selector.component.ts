@@ -3,7 +3,6 @@
 import {
   AfterViewInit,
   Component,
-  EffectRef,
   EventEmitter,
   Injector,
   OnDestroy,
@@ -93,7 +92,6 @@ export class CalendarSelectorComponent
   private isInitialized = false;
   private isFirstReadLocal = false;
   private ngUnsubscribe = new Subject<void>();
-  private effectRef: EffectRef | null = null;
   private effects: ReturnType<typeof effect>[] = [];
 
   ngOnInit(): void {
@@ -130,11 +128,6 @@ export class CalendarSelectorComponent
     this.ngUnsubscribe.complete();
 
     this.effects.forEach((effectInstance) => effectInstance.destroy());
-
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
   }
 
   onChangeSelection(): void {
@@ -491,52 +484,41 @@ export class CalendarSelectorComponent
       });
   }
 
+  private emitInitializedOnce(): void {
+    if (!this.isInitialized) {
+      this.isInitialized = true;
+      setTimeout(() => {
+        this.initialized.emit();
+      }, CalendarSelectorComponent.WAIT_TIME);
+    }
+  }
+
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
-      const effect1 = effect(() => {
+      const rulesReadEffect = effect(() => {
         if (this.dataManagementCalendarRulesService.isRead()) {
           this.resetCalendarRule();
           this.reReadChips();
           this.setCalendarRule();
-          if (!this.isInitialized) {
-            this.isInitialized = true;
-            setTimeout(() => {
-              this.initialized.emit();
-            }, 100);
+          this.emitInitializedOnce();
+        }
+      });
+      this.effects.push(rulesReadEffect);
+
+      const selectionReadEffect = effect(() => {
+        if (this.dataManagementCalendarSelectionService.isRead()) {
+          this.setCurrentSelector();
+          this.onChangeSelection();
+          if (this.dataManagementCalendarRulesService.isRead()) {
+            this.emitInitializedOnce();
           }
         }
       });
-      this.effects.push(effect1);
+      this.effects.push(selectionReadEffect);
 
-      const effect2 = effect(() => {
-        this.addButtonEnabled =
-          this.dataManagementCalendarSelectionService.isChanged() ||
-          this.shouldEnableAddButton;
-      });
-      this.effects.push(effect2);
-
-      const effect3 = effect(() => {
-        const isRead = this.dataManagementCalendarSelectionService.isRead();
-        if (isRead) {
-          this.setCurrentSelector();
-          this.onChangeSelection();
-        }
-        if (
-          this.dataManagementCalendarRulesService.isRead() &&
-          !this.isInitialized
-        ) {
-          this.isInitialized = true;
-          setTimeout(() => {
-            this.initialized.emit();
-          }, 100);
-        }
-      });
-      this.effects.push(effect3);
-
-      const effect4 = effect(() => {
+      const newSelectionEffect = effect(() => {
         const newSel = this.dataManagementCalendarSelectionService.isNew();
         if (newSel) {
-          this.addButtonEnabled = false;
           this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
             newSel
           );
@@ -544,7 +526,7 @@ export class CalendarSelectorComponent
           this.onChangeSelection();
         }
       });
-      this.effects.push(effect4);
+      this.effects.push(newSelectionEffect);
     });
   }
 }

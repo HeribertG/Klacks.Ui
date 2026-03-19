@@ -30,8 +30,8 @@ describe('SettingsGeneralComponent', () => {
             calculateProportionalDimensions: vi.fn(),
             logoImage$: signal('data:image/png;base64,mocklogo'),
             logoImageDimensions$: signal({ width: 200, height: 100 }),
-            iconImage: undefined,
-            logoImage: undefined
+            iconImage$: signal(null),
+            lastError$: signal(null)
         };
 
         dataLoadFileServiceSpy.calculateProportionalDimensions.mockReturnValue({

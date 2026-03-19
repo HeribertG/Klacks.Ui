@@ -251,31 +251,7 @@ export function isDateOver(a: Date, b: Date): boolean {
     return true;
   }
 
-  if (a.getFullYear() < b.getFullYear()) {
-    return false;
-  }
-
-  if (a.getMonth() < b.getMonth()) {
-    return false;
-  }
-
-  if (a.getDate() < b.getDate()) {
-    return false;
-  }
-
-  if (a.getHours() < b.getHours()) {
-    return false;
-  }
-
-  if (a.getMinutes() < b.getMinutes()) {
-    return false;
-  }
-
-  if (a.getSeconds() < b.getSeconds()) {
-    return false;
-  }
-
-  return true;
+  return a.getTime() >= b.getTime();
 }
 
 /**

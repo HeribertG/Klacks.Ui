@@ -11,7 +11,7 @@
 
       @for (group of paletteGroups; track group.id) {
         <div class="palette-group">
-          <div class="palette-group-header" (click)="toggleGroup(group)">
+          <div class="palette-group-header" (click)="group.collapsed = !group.collapsed">
             <i
               class="fa"
               [class.fa-chevron-right]="group.collapsed"
@@ -59,7 +59,7 @@
           <div class="form-check form-check-inline">
             <input type="checkbox" class="form-check-input" id="designerMergeRows"
                    [checked]="template.mergeRows"
-                   (change)="onMergeRowsChange($any($event.target).checked)" />
+                   (change)="template.mergeRows = $any($event.target).checked; emitChange()" />
             <label class="form-check-label" for="designerMergeRows">
               {{ "setting.report.field.mergeRows" | translate }}
             </label>
@@ -67,7 +67,7 @@
           <div class="form-check form-check-inline">
             <input type="checkbox" class="form-check-input" id="designerShowFullPeriod"
                    [checked]="template.showFullPeriod"
-                   (change)="onShowFullPeriodChange($any($event.target).checked)" />
+                   (change)="template.showFullPeriod = $any($event.target).checked; emitChange()" />
             <label class="form-check-label" for="designerShowFullPeriod">
               {{ "setting.report.field.showFullPeriod" | translate }}
             </label>
@@ -80,21 +80,21 @@
           <button
             class="tb-btn"
             [class.active]="activeField.style.bold"
-            (click)="toggleBold(activeField)"
+            (click)="activeField.style.bold = !activeField.style.bold; emitChange()"
           >
             <b>B</b>
           </button>
           <button
             class="tb-btn italic"
             [class.active]="activeField.style.italic"
-            (click)="toggleItalic(activeField)"
+            (click)="activeField.style.italic = !activeField.style.italic; emitChange()"
           >
             <i>I</i>
           </button>
           <button
             class="tb-btn underline"
             [class.active]="activeField.style.underline"
-            (click)="toggleUnderline(activeField)"
+            (click)="activeField.style.underline = !activeField.style.underline; emitChange()"
           >
             <u>U</u>
           </button>
@@ -102,7 +102,7 @@
           <select
             class="tb-select"
             [ngModel]="activeField.style.fontFamily"
-            (ngModelChange)="setFontFamily(activeField, $event)"
+            (ngModelChange)="activeField.style.fontFamily = $event; emitChange()"
           >
             @for (font of availableFonts; track font.value) {
               <option [value]="font.value">{{ font.label }}</option>
@@ -121,7 +121,7 @@
             type="color"
             class="tb-color"
             [ngModel]="activeField.style.textColor"
-            (ngModelChange)="setTextColor(activeField, $event)"
+            (ngModelChange)="activeField.style.textColor = $event; emitChange()"
             [title]="'setting.report.designer.textColor' | translate"
           />
           <span class="tb-separator"></span>
@@ -130,7 +130,7 @@
             <button
               class="tb-btn"
               [class.active]="activeField.style.alignment === TextAlignment.Left"
-              (click)="setAlignment(activeField, TextAlignment.Left)"
+              (click)="activeField.style.alignment = TextAlignment.Left; emitChange()"
               title="Links"
             >
               <span class="align-icon align-left-icon"></span>
@@ -138,7 +138,7 @@
             <button
               class="tb-btn"
               [class.active]="activeField.style.alignment === TextAlignment.Center"
-              (click)="setAlignment(activeField, TextAlignment.Center)"
+              (click)="activeField.style.alignment = TextAlignment.Center; emitChange()"
               title="Zentriert"
             >
               <span class="align-icon align-center-icon"></span>
@@ -146,7 +146,7 @@
             <button
               class="tb-btn"
               [class.active]="activeField.style.alignment === TextAlignment.Right"
-              (click)="setAlignment(activeField, TextAlignment.Right)"
+              (click)="activeField.style.alignment = TextAlignment.Right; emitChange()"
               title="Rechts"
             >
               <span class="align-icon align-right-icon"></span>
@@ -183,47 +183,47 @@
             <div class="border-toolbar">
               <button
                 class="tb-btn border-side-btn"
-                [class.active]="getBorderSideActive(activeField, 'top')"
-                (click)="toggleBorderSide(activeField, 'top')"
+                [class.active]="borderService.getBorderSideActive(activeField, 'top')"
+                (click)="borderService.toggleBorderSide(activeField, 'top'); emitChange()"
                 [title]="'setting.report.designer.borderTop' | translate"
               >
                 <span class="border-icon border-top-icon"></span>
               </button>
               <button
                 class="tb-btn border-side-btn"
-                [class.active]="getBorderSideActive(activeField, 'right')"
-                (click)="toggleBorderSide(activeField, 'right')"
+                [class.active]="borderService.getBorderSideActive(activeField, 'right')"
+                (click)="borderService.toggleBorderSide(activeField, 'right'); emitChange()"
                 [title]="'setting.report.designer.borderRight' | translate"
               >
                 <span class="border-icon border-right-icon"></span>
               </button>
               <button
                 class="tb-btn border-side-btn"
-                [class.active]="getBorderSideActive(activeField, 'bottom')"
-                (click)="toggleBorderSide(activeField, 'bottom')"
+                [class.active]="borderService.getBorderSideActive(activeField, 'bottom')"
+                (click)="borderService.toggleBorderSide(activeField, 'bottom'); emitChange()"
                 [title]="'setting.report.designer.borderBottom' | translate"
               >
                 <span class="border-icon border-bottom-icon"></span>
               </button>
               <button
                 class="tb-btn border-side-btn"
-                [class.active]="getBorderSideActive(activeField, 'left')"
-                (click)="toggleBorderSide(activeField, 'left')"
+                [class.active]="borderService.getBorderSideActive(activeField, 'left')"
+                (click)="borderService.toggleBorderSide(activeField, 'left'); emitChange()"
                 [title]="'setting.report.designer.borderLeft' | translate"
               >
                 <span class="border-icon border-left-icon"></span>
               </button>
               <button
                 class="tb-btn"
-                (click)="setAllBorders(activeField, BorderLineStyle.Thin)"
+                (click)="borderService.setAllBorders(activeField, BorderLineStyle.Thin); emitChange()"
                 [title]="'setting.report.designer.allBorders' | translate"
               >
                 <i class="fa fa-border-all"></i>
               </button>
               <select
                 class="tb-select"
-                [ngModel]="getActiveBorderLineStyle(activeField)"
-                (ngModelChange)="setBorderLineStyle(activeField, +$event)"
+                [ngModel]="borderService.getActiveBorderLineStyle(activeField)"
+                (ngModelChange)="borderService.setBorderLineStyle(activeField, +$event); emitChange()"
               >
                 @for (ls of borderLineStyles; track ls.value) {
                   <option [value]="ls.value">
@@ -234,8 +234,8 @@
               <input
                 type="color"
                 class="tb-color"
-                [ngModel]="getActiveBorderColor(activeField)"
-                (ngModelChange)="setBorderColor(activeField, $event)"
+                [ngModel]="borderService.getActiveBorderColor(activeField)"
+                (ngModelChange)="borderService.setBorderColor(activeField, $event); emitChange()"
                 [title]="'setting.report.designer.borderColor' | translate"
               />
             </div>
@@ -247,20 +247,20 @@
               <input
                 type="checkbox"
                 [checked]="activeField.hideLabel"
-                (change)="toggleHideLabel(activeField)"
+                (change)="activeField.hideLabel = !activeField.hideLabel; emitChange()"
               />
               {{ "setting.report.designer.hideLabel" | translate }}
             </label>
           }
 
-          @if (isFormulaField(activeField)) {
+          @if (activeField.type === ReportFieldType.Formula) {
             <span class="tb-separator"></span>
             <input
               type="text"
               class="tb-select"
               style="max-width: 140px"
               [value]="activeField.name"
-              (input)="onFormulaNameChange(activeField, $any($event.target).value)"
+              (input)="formulaSvc.onFormulaNameChange(activeField, $any($event.target).value); emitChange()"
               [placeholder]="'setting.report.designer.formulaName' | translate"
             />
             <button
@@ -272,11 +272,11 @@
             </button>
             <span
               class="formula-status"
-              [class.status-empty]="getFormulaStatus(activeField) === 'empty'"
-              [class.status-valid]="getFormulaStatus(activeField) === 'valid'"
-              [class.status-error]="getFormulaStatus(activeField) === 'error'"
+              [class.status-empty]="formulaSvc.getFormulaStatus(activeField) === 'empty'"
+              [class.status-valid]="formulaSvc.getFormulaStatus(activeField) === 'valid'"
+              [class.status-error]="formulaSvc.getFormulaStatus(activeField) === 'error'"
             >
-              @switch (getFormulaStatus(activeField)) {
+              @switch (formulaSvc.getFormulaStatus(activeField)) {
                 @case ('empty') {
                   {{ 'setting.report.designer.noFormula' | translate }}
                 }
@@ -313,7 +313,7 @@
               <select
                 class="tb-select"
                 [ngModel]="activeField.bindingSeparator || '\n'"
-                (ngModelChange)="setBindingSeparator(activeField, $event)"
+                (ngModelChange)="activeField.bindingSeparator = $event; emitChange()"
               >
                 @for (sep of separatorOptions; track sep.value) {
                   <option [value]="sep.value">
@@ -333,13 +333,13 @@
             {{ sectionLabels[ReportSectionType.Header] | translate }}
           </div>
           <div class="header-section">
-            <button class="btn-add-row" (click)="addHeaderRow(hs)">
+            <button class="btn-add-row" (click)="fieldService.addHeaderRow(hs); emitChange()">
               <i class="fa fa-plus"></i>
               {{ "setting.report.designer.addRow" | translate }}
             </button>
 
             <div class="header-rows">
-              @for (row of getHeaderRows(hs); track row.rowIndex) {
+              @for (row of fieldService.getHeaderRows(hs); track row.rowIndex) {
                 <div class="header-row">
                   <div
                     class="header-zone"
@@ -419,7 +419,7 @@
                               </button>
                             </label>
                           }
-                        } @else if (isCustomText(field)) {
+                        } @else if (field.dataBinding === 'report.customText') {
                           <div
                             class="zone-chip custom-chip"
                             (click)="selectField(field)"
@@ -430,10 +430,8 @@
                               [value]="field.name"
                               (focus)="selectField(field)"
                               (input)="
-                                onCustomTextChange(
-                                  field,
-                                  $any($event.target).value
-                                )
+                                field.name = $any($event.target).value;
+                                emitChange()
                               "
                               [placeholder]="
                                 'setting.report.designer.customTextPlaceholder'
@@ -559,7 +557,7 @@
                               </button>
                             </label>
                           }
-                        } @else if (isCustomText(field)) {
+                        } @else if (field.dataBinding === 'report.customText') {
                           <div
                             class="zone-chip custom-chip"
                             (click)="selectField(field)"
@@ -570,10 +568,8 @@
                               [value]="field.name"
                               (focus)="selectField(field)"
                               (input)="
-                                onCustomTextChange(
-                                  field,
-                                  $any($event.target).value
-                                )
+                                field.name = $any($event.target).value;
+                                emitChange()
                               "
                               [placeholder]="
                                 'setting.report.designer.customTextPlaceholder'
@@ -696,7 +692,7 @@
                               </button>
                             </label>
                           }
-                        } @else if (isCustomText(field)) {
+                        } @else if (field.dataBinding === 'report.customText') {
                           <div
                             class="zone-chip custom-chip"
                             (click)="selectField(field)"
@@ -707,10 +703,8 @@
                               [value]="field.name"
                               (focus)="selectField(field)"
                               (input)="
-                                onCustomTextChange(
-                                  field,
-                                  $any($event.target).value
-                                )
+                                field.name = $any($event.target).value;
+                                emitChange()
                               "
                               [placeholder]="
                                 'setting.report.designer.customTextPlaceholder'
@@ -850,14 +844,14 @@
                 ) {
                   <div
                     class="table-column"
-                    [class.formula-column]="isFormulaField(field)"
+                    [class.formula-column]="field.type === ReportFieldType.Formula"
                     cdkDrag
                     [style.flex]="'0 0 ' + field.width + '%'"
                     (click)="selectField(field)"
                     [class.column-active]="activeField === field"
                   >
                     <div class="column-header">
-                      @if (isFormulaField(field)) {
+                      @if (field.type === ReportFieldType.Formula) {
                         <span class="formula-prefix">f(x)</span>
                       }
                       <span class="column-name">{{ field.name }}</span>
@@ -924,13 +918,13 @@
               <label class="table-footer-toggle">
                 <input
                   type="checkbox"
-                  [checked]="hasTableFooter(section)"
+                  [checked]="section.tableFooterFields !== undefined"
                   (change)="toggleTableFooter(section)"
                 />
                 {{ "setting.report.designer.enableTableFooter" | translate }}
               </label>
 
-              @if (hasTableFooter(section)) {
+              @if (section.tableFooterFields !== undefined) {
                 <div class="table-footer-fields">
                   @for (
                     field of section.tableFooterFields;
@@ -938,11 +932,11 @@
                   ) {
                     <div
                       class="field-chip"
-                      [class.formula-chip]="isFormulaField(field)"
+                      [class.formula-chip]="field.type === ReportFieldType.Formula"
                       (click)="selectField(field)"
                       [class.chip-active]="activeField === field"
                     >
-                      @if (isFormulaField(field)) {
+                      @if (field.type === ReportFieldType.Formula) {
                         <span class="formula-prefix">f(x)</span>
                       }
                       <span class="chip-label">{{ field.name }}</span>
@@ -999,7 +993,7 @@
                     type="text"
                     class="free-text-input"
                     [value]="row.text"
-                    (input)="onFreeTextChange(row, $any($event.target).value)"
+                    (input)="row.text = $any($event.target).value; emitChange()"
                     [placeholder]="
                       'setting.report.designer.freeTextPlaceholder' | translate
                     "
@@ -1007,7 +1001,7 @@
                   <select
                     class="tb-select"
                     [ngModel]="row.position"
-                    (ngModelChange)="onFreeTextPositionChange(row, $event)"
+                    (ngModelChange)="row.position = $event; emitChange()"
                   >
                     <option value="before">
                       {{ "setting.report.designer.positionBefore" | translate }}
@@ -1018,13 +1012,13 @@
                   </select>
                   <button
                     class="chip-btn remove"
-                    (click)="removeFreeTextRow(section, row)"
+                    (click)="fieldService.removeFreeTextRow(section, row); emitChange()"
                   >
                     &#10005;
                   </button>
                 </div>
               }
-              <button class="btn-add-row" (click)="addFreeTextRow(section)">
+              <button class="btn-add-row" (click)="fieldService.addFreeTextRow(section); emitChange()">
                 <i class="fa fa-plus"></i>
                 {{ "setting.report.designer.addFreeTextRow" | translate }}
               </button>
@@ -1088,12 +1082,12 @@
     </div>
   </div>
 
-  @if (showFormulaEditor && formulaEditorField) {
-    <div class="formula-editor-overlay" (click)="closeFormulaEditor()">
+  @if (formulaSvc.showFormulaEditor && formulaSvc.formulaEditorField) {
+    <div class="formula-editor-overlay" (click)="formulaSvc.closeFormulaEditor()">
       <div class="formula-editor-modal" (click)="$event.stopPropagation()">
         <div class="formula-editor-header">
           <h6>{{ 'setting.report.designer.editFormula' | translate }}</h6>
-          <button class="chip-btn remove" (click)="closeFormulaEditor()">&#10005;</button>
+          <button class="chip-btn remove" (click)="formulaSvc.closeFormulaEditor()">&#10005;</button>
         </div>
 
         <div class="formula-editor-body">
@@ -1101,8 +1095,8 @@
             <label>{{ 'setting.report.designer.formulaName' | translate }}</label>
             <input
               type="text"
-              [value]="formulaEditorField.name"
-              (input)="onFormulaNameChange(formulaEditorField, $any($event.target).value)"
+              [value]="formulaSvc.formulaEditorField.name"
+              (input)="formulaSvc.onFormulaNameChange(formulaSvc.formulaEditorField, $any($event.target).value); emitChange()"
             />
           </div>
 
@@ -1111,8 +1105,8 @@
               <label>{{ 'setting.report.designer.formula' | translate }}</label>
               <textarea
                 class="formula-textarea"
-                [value]="formulaEditorField.formula ?? ''"
-                (input)="onFormulaChange(formulaEditorField, $any($event.target).value)"
+                [value]="formulaSvc.formulaEditorField.formula ?? ''"
+                (input)="formulaSvc.onFormulaChange(formulaSvc.formulaEditorField, $any($event.target).value); emitChange()"
                 rows="8"
                 spellcheck="false"
               ></textarea>
@@ -1121,23 +1115,23 @@
             <div class="formula-tab">
               <label>{{ 'setting.report.designer.formulaVariables' | translate }}</label>
               <app-property-grid
-                [object]="formulaTestData"
-                [metadata]="formulaTestMetadata"
+                [object]="formulaSvc.formulaTestData"
+                [metadata]="formulaSvc.formulaTestMetadata"
               ></app-property-grid>
             </div>
           </div>
 
           <div class="formula-editor-test">
-            <button class="btn-add-row" (click)="runFormulaTest()">
+            <button class="btn-add-row" (click)="formulaSvc.runFormulaTest()">
               {{ 'setting.report.designer.formulaTest' | translate }}
             </button>
             <span
               class="formula-status"
-              [class.status-valid]="getFormulaStatus(formulaEditorField) === 'valid'"
-              [class.status-error]="getFormulaStatus(formulaEditorField) === 'error'"
-              [class.status-empty]="getFormulaStatus(formulaEditorField) === 'empty'"
+              [class.status-valid]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'valid'"
+              [class.status-error]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'error'"
+              [class.status-empty]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'empty'"
             >
-              @switch (getFormulaStatus(formulaEditorField)) {
+              @switch (formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField)) {
                 @case ('empty') {
                   {{ 'setting.report.designer.noFormula' | translate }}
                 }
@@ -1149,8 +1143,8 @@
                 }
               }
             </span>
-            @if (formulaTestResult) {
-              <span class="formula-test-result">= {{ formulaTestResult }}</span>
+            @if (formulaSvc.formulaTestResult) {
+              <span class="formula-test-result">= {{ formulaSvc.formulaTestResult }}</span>
             }
           </div>
         </div>

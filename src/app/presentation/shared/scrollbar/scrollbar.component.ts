@@ -40,14 +40,9 @@ import {
 } from 'rxjs';
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
+import { ScrollAnimationService } from './scroll-animation.service';
 
 export type ScrollbarOrientation = 'horizontal' | 'vertical';
-
-enum ArrowDirection {
-  NONE = 0,
-  BACKWARD = -1,
-  FORWARD = 1,
-}
 
 interface AxisConfig {
   clientPos: 'clientX' | 'clientY';
@@ -99,6 +94,7 @@ const HORIZONTAL_CONFIG: AxisConfig = {
   styleUrls: ['./scrollbar.component.scss'],
   standalone: true,
   imports: [ResizeDirective],
+  providers: [ScrollAnimationService],
   host: {
     '[class.horizontal]': 'orientation === "horizontal"',
     '[class.vertical]': 'orientation === "vertical"',
@@ -144,6 +140,7 @@ export class ScrollbarComponent
   private scrollbarService = inject(ScrollbarService);
   private cdr = inject(ChangeDetectorRef);
   private hostRef = inject(ElementRef);
+  private animationService = inject(ScrollAnimationService);
 
   public safeTriangleSvgBackward!: SafeHtml;
   public safeTriangleSvgForward!: SafeHtml;
@@ -153,7 +150,6 @@ export class ScrollbarComponent
 
   private _value = 0;
   private readonly CANVAS_PADDING = 50;
-  private readonly INITIAL_ANIMATION_FRAME_MODULO = 10;
   private readonly CROSS_AXIS_POSITION_OFFSET = 1;
   private readonly FPS_THROTTLE = 16;
   private readonly MOUSE_PRIMARY_BUTTON = 1;
@@ -164,18 +160,12 @@ export class ScrollbarComponent
   private imagesThumps: ImagesThumps = new ImagesThumps();
   private metrics: IMetrics = new Metrics();
   private ctx: CanvasRenderingContext2D | null = null;
-  private moveAnimationValue = ArrowDirection.NONE;
-  private moveAnimationFrameCount = 0;
-  private moveAnimationFrameModulo = this.INITIAL_ANIMATION_FRAME_MODULO;
-  private frameRequests: number[] = [];
-  private shouldStopAnimation = false;
   private mouseEnterThumb = false;
   private mousePointThumb = false;
   private mousePosToThumbPos = 0;
   private mouseOverThumb = false;
   private lastMouseEvent: MouseEvent | null = null;
   private isScrollbarClick = false;
-  private arrowHoldTimeout: ReturnType<typeof setTimeout> | undefined;
 
   ngOnInit() {
     this.axisConfig = this.orientation === 'horizontal' ? HORIZONTAL_CONFIG : VERTICAL_CONFIG;
@@ -186,6 +176,31 @@ export class ScrollbarComponent
     this.safeTriangleSvgForward = this.sanitizer.bypassSecurityTrustHtml(
       this.axisConfig.svgForward(this.scrollbarService)
     );
+
+    this.animationService.setContext({
+      getValue: () => this._value,
+      getMaxValue: () => this.maxValue,
+      getVisibleValue: () => this.visibleValue,
+      getTickSize: () => this.metrics.tickSize,
+      getThumbSize: () => this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] || 0,
+      getCanvasOffset: () => this.canvasRef.nativeElement[this.axisConfig.canvasOffset],
+      getMousePosition: () => {
+        if (!this.lastMouseEvent) return null;
+        const canvas = this.canvasRef.nativeElement;
+        return this.lastMouseEvent[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
+      },
+      isScrollbarClick: () => this.isScrollbarClick,
+      updateValue: (newValue: number) => this.updateValue(newValue),
+      emitValueChange: () => {
+        this.zone.run(() => {
+          this.valueChange.emit(this.value);
+        });
+      },
+      onStopAnimation: () => {
+        this.lastMouseEvent = null;
+        this.isScrollbarClick = false;
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -205,8 +220,7 @@ export class ScrollbarComponent
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.stopMoveAnimation();
-    this.cancelAnimationFrames();
+    this.animationService.destroy();
     this.ctx = null;
     this.lastMouseEvent = null;
   }
@@ -479,24 +493,12 @@ export class ScrollbarComponent
     if (canvas && !this.mouseEnterThumb) {
       this.lastMouseEvent = event;
       this.isScrollbarClick = true;
-      this.initiateMoveAnimation(event, canvas);
+
+      const mousePos = event[this.axisConfig.clientPos];
+      const canvasOffset = canvas[this.axisConfig.canvasOffset];
+      const direction = mousePos < this.value * this.metrics.tickSize + canvasOffset ? -1 : 1;
+      this.animationService.startBarAnimation(direction);
     }
-  }
-
-  private initiateMoveAnimation(
-    event: MouseEvent,
-    canvas: HTMLCanvasElement
-  ): void {
-    const mousePos = event[this.axisConfig.clientPos];
-    const canvasOffset = canvas[this.axisConfig.canvasOffset];
-
-    this.moveAnimationValue =
-      mousePos < this.value * this.metrics.tickSize + canvasOffset
-        ? ArrowDirection.BACKWARD
-        : ArrowDirection.FORWARD;
-    this.moveAnimationFrameModulo = SCROLLBAR_CONSTANTS.MAX_FRAME_MODULO;
-    this.shouldStopAnimation = false;
-    this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BAR);
   }
 
   private onMouseUp(): void {
@@ -506,14 +508,14 @@ export class ScrollbarComponent
     if (canvas) {
       canvas.onpointermove = null;
     }
-    this.stopMoveAnimation();
+    this.animationService.stopAnimation();
   }
 
   private onMouseMove(event: MouseEvent): void {
     this.mouseOverThumb = this.isMouseOverThumb(event);
 
     if (this.mouseOverThumb) {
-      this.stopMoveAnimation();
+      this.animationService.stopAnimation();
     }
 
     this.reDraw();
@@ -522,7 +524,7 @@ export class ScrollbarComponent
 
   private onMouseLeave(): void {
     this.mouseOverThumb = false;
-    this.stopMoveAnimation();
+    this.animationService.stopAnimation();
     this.lastMouseEvent = null;
     this.refresh();
   }
@@ -571,146 +573,17 @@ export class ScrollbarComponent
     });
   }
 
-  onArrowThumbMouseDown(event: MouseEvent, direction: ArrowDirection) {
+  onArrowThumbMouseDown(event: MouseEvent, direction: number) {
     const newValue = this.value + direction;
-    this.updateValue(newValue);
-
-    this.moveAnimationValue = direction;
-    this.arrowHoldTimeout = setTimeout(() => {
-      this.moveAnimationFrameModulo = SCROLLBAR_CONSTANTS.MAX_FRAME_MODULO;
-      this.shouldStopAnimation = false;
-      this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BUTTON);
-    }, 300);
-
+    this.animationService.startArrowHoldAnimation(direction, newValue);
     event.preventDefault();
     event.stopPropagation();
   }
 
   onArrowThumbMouseUp(event: MouseEvent) {
-    if (this.arrowHoldTimeout != null) {
-      clearTimeout(this.arrowHoldTimeout);
-      this.arrowHoldTimeout = undefined;
-    }
-    this.stopMoveAnimation();
+    this.animationService.stopArrowHold();
     event.preventDefault();
     event.stopPropagation();
-  }
-
-  @CheckContext
-  private moveAnimation(steps: number): void {
-    this.zone.runOutsideAngular(() => {
-      this.processAnimationFrame(steps);
-    });
-  }
-
-  private processAnimationFrame(steps: number): void {
-    this.incrementFrameCount();
-
-    if (this.shouldStopAnimation) {
-      return;
-    }
-
-    if (this.shouldUpdateValue()) {
-      if (this.isScrollbarClick && this.lastMouseEvent) {
-        const canvas = this.canvasRef.nativeElement;
-        const mousePosition =
-          this.lastMouseEvent[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
-
-        const trackerSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] || 0;
-        const trackerPosition = this.value * this.metrics.tickSize;
-        const trackerEnd = trackerPosition + trackerSize;
-
-        if (
-          (this.moveAnimationValue < 0 && trackerPosition <= mousePosition) ||
-          (this.moveAnimationValue > 0 && trackerEnd >= mousePosition)
-        ) {
-          this.stopMoveAnimation();
-          this.lastMouseEvent = null;
-          this.isScrollbarClick = false;
-          return;
-        }
-      }
-
-      this.updateAnimationState(steps);
-      this.emitValueChange();
-    }
-
-    this.scheduleNextFrame(steps);
-  }
-
-  private incrementFrameCount(): void {
-    this.moveAnimationFrameCount++;
-  }
-
-  private shouldUpdateValue(): boolean {
-    return (
-      this.moveAnimationFrameModulo <= 1 ||
-      this.moveAnimationFrameCount % this.moveAnimationFrameModulo === 0
-    );
-  }
-
-  private updateAnimationState(steps: number): void {
-    this.decreaseFrameModulo();
-    this.updateScrollValue(steps);
-  }
-
-  private decreaseFrameModulo(): void {
-    if (this.moveAnimationFrameModulo > 1) {
-      this.moveAnimationFrameModulo -= 2;
-    }
-  }
-
-  private updateScrollValue(steps: number): void {
-    const IS_BACKWARD_LIMIT = -1;
-    const newValue = this.value + steps * this.moveAnimationValue;
-
-    const realMax =
-      this.maxValue -
-      this.visibleValue +
-      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
-    if (
-      (this.moveAnimationValue > 0 && newValue >= realMax) ||
-      (this.moveAnimationValue < 0 && newValue <= IS_BACKWARD_LIMIT)
-    ) {
-      this.stopMoveAnimation();
-      return;
-    }
-
-    this.updateValue(newValue);
-  }
-
-  private emitValueChange(): void {
-    this.zone.run(() => {
-      this.valueChange.emit(this.value);
-    });
-  }
-
-  private scheduleNextFrame(steps: number): void {
-    const requestId = window.requestAnimationFrame(() => {
-      this.frameRequests.push(requestId);
-      this.moveAnimation(steps);
-    });
-  }
-
-  private stopMoveAnimation(): void {
-    this.shouldStopAnimation = true;
-    this.resetAnimationState();
-    this.cancelAnimationFrames();
-    this.lastMouseEvent = null;
-    this.isScrollbarClick = false;
-  }
-
-  private resetAnimationState(): void {
-    this.moveAnimationFrameCount = 0;
-    this.moveAnimationValue = ArrowDirection.NONE;
-    this.moveAnimationFrameModulo = this.INITIAL_ANIMATION_FRAME_MODULO;
-  }
-
-  private cancelAnimationFrames(): void {
-    this.frameRequests.forEach((requestId) =>
-      window.cancelAnimationFrame(requestId)
-    );
-    this.frameRequests = [];
   }
 
   private clampValue(value: number): number {
@@ -727,8 +600,10 @@ export class ScrollbarComponent
   private updateValue(newValue: number) {
     newValue = this.clampValue(newValue);
     if (newValue !== this._value) {
-      this.value = newValue;
+      this._value = newValue;
       this.valueChange.emit(this._value);
+      this.reDraw();
+      this.updateArrowButtonsState();
     }
   }
 

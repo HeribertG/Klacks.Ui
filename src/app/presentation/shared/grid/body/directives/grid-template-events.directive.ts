@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Generische Grid-Events-Directive: Keyboard-Navigation, Mouse-Events, Focus-Management.
+ * @param gridSurface - GridSurfaceTemplateComponent fuer Canvas-Zugriff und Scroll-Events
+ * @param gridData - BaseDataService fuer Grid-Daten (Rows, Columns, Zell-Status)
+ * @param gridSettings - BaseSettingsService fuer Grid-Konfiguration (Header, Zellgroesse)
+ * @param scrollGrid - ScrollService fuer Scroll-Positionen
+ * @param cellManipulation - BaseCellManipulationService fuer Zell-Bearbeitung und Hover
+ * @param fillHandleDrag - GridFillHandleDragService fuer Fill-Handle-Drag-and-Drop
+ * @param scheduleEvents - GridScheduleEventsService fuer Schedule-spezifische Events
+ */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Directive,
@@ -8,10 +18,7 @@ import {
   HostListener,
   inject,
   Output,
-  ViewContainerRef,
 } from '@angular/core';
-
-import { Overlay } from '@angular/cdk/overlay';
 
 export interface GridRightClickEvent {
   row: number;
@@ -26,12 +33,8 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
 import { GridSelectionModeEnum } from '../../enums/divers';
-import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
-import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
-import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
-import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
+import { GridScheduleEventsService } from './grid-schedule-events.service';
 
 export interface GridDoubleClickEvent {
   row: number;
@@ -45,15 +48,12 @@ export interface GridDoubleClickEvent {
 export class GridTemplateEventsDirective {
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private gridSurface = inject(GridSurfaceTemplateComponent);
-  public overlay = inject(Overlay);
-  public viewContainerRef = inject(ViewContainerRef);
   private gridData = inject(BaseDataService);
   private gridSettings = inject(BaseSettingsService);
   private scrollGrid = inject(ScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
-  private shiftDragService = inject(ShiftToScheduleDragDropService);
-  private dataManagementSchedule = inject(DataManagementScheduleService);
   private fillHandleDrag = inject(GridFillHandleDragService);
+  private scheduleEvents = inject(GridScheduleEventsService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
   @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
@@ -92,12 +92,10 @@ export class GridTemplateEventsDirective {
     ['F2', (event) => this.handleF2(event)],
   ]);
 
-  private dragDelayTimer: ReturnType<typeof setTimeout> | null = null;
-  private pendingDragEvent: MouseEvent | null = null;
-  private readonly DRAG_DELAY_MS = 150;
-
   constructor() {
     this.fillHandleDrag.initialize({ gridSurface: this.gridSurface, el: this.el });
+    this.scheduleEvents.workChangeDoubleClick.subscribe((event) => this.workChangeDoubleClick.emit(event));
+    this.scheduleEvents.workDoubleClick.subscribe((event) => this.workDoubleClick.emit(event));
   }
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
@@ -112,62 +110,11 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    if (this.gridSurface.nameId === 'surface') {
-      const scheduleDataService = this.gridData as ScheduleDataService;
-      const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-      if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
-        return;
-      }
-
-      if (this.handleWorkChangeDoubleClick(pos)) {
-        return;
-      }
-      if (this.handleWorkDoubleClick(pos)) {
-        return;
-      }
+    if (this.scheduleEvents.handleDoubleClick(pos)) {
+      return;
     }
 
     this.cellManipulation.startEditing();
-  }
-
-  private handleWorkChangeDoubleClick(pos: MyPosition): boolean {
-    const scheduleDataService = this.gridData as ScheduleDataService;
-    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-
-    if (!entry || (entry.entryType !== WorkScheduleEntryType.WorkChange && entry.entryType !== WorkScheduleEntryType.Expenses)) {
-      return false;
-    }
-
-    if (scheduleDataService.isColumnSealed(pos.column)) {
-      return false;
-    }
-
-    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
-      return false;
-    }
-
-    this.workChangeDoubleClick.emit({ row: pos.row, column: pos.column });
-    return true;
-  }
-
-  private handleWorkDoubleClick(pos: MyPosition): boolean {
-    const scheduleDataService = this.gridData as ScheduleDataService;
-    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-
-    if (!entry || entry.entryType !== WorkScheduleEntryType.Work) {
-      return false;
-    }
-
-    if (scheduleDataService.isColumnSealed(pos.column)) {
-      return false;
-    }
-
-    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
-      return false;
-    }
-
-    this.workDoubleClick.emit({ row: pos.row, column: pos.column });
-    return true;
   }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
@@ -214,54 +161,16 @@ export class GridTemplateEventsDirective {
         return;
       }
       this.respondToLeftButtonMouseDown(event);
-      this.tryPrepareShiftDrag(event);
+      this.scheduleEvents.tryPrepareShiftDrag(event);
     } else if (event.buttons === 2) {
       this.respondToRightButtonMouseDown(event);
     }
   }
 
-  private tryPrepareShiftDrag(event: MouseEvent): void {
-    if (this.gridSurface.nameId !== 'shift') {
-      return;
-    }
-
-    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
-    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
-      return;
-    }
-
-    if (!this.gridData.isCellActive(pos.row, pos.column)) {
-      return;
-    }
-
-    const shiftDataService = this.gridData as ShiftDataService;
-    const dragData = shiftDataService.getShiftDragData(pos.row, pos.column);
-    if (!dragData) {
-      return;
-    }
-
-    this.cancelPendingDrag();
-    this.pendingDragEvent = event;
-    this.dragDelayTimer = setTimeout(() => {
-      if (this.pendingDragEvent) {
-        this.shiftDragService.startDrag(this.pendingDragEvent, dragData);
-        this.pendingDragEvent = null;
-      }
-    }, this.DRAG_DELAY_MS);
-  }
-
-  private cancelPendingDrag(): void {
-    if (this.dragDelayTimer) {
-      clearTimeout(this.dragDelayTimer);
-      this.dragDelayTimer = null;
-    }
-    this.pendingDragEvent = null;
-  }
-
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
-    this.cancelPendingDrag();
+    this.scheduleEvents.cancelPendingDrag();
 
-    if (this.shiftDragService.isDragging()) {
+    if (this.scheduleEvents.isShiftDragging()) {
       return;
     }
 
@@ -292,8 +201,8 @@ export class GridTemplateEventsDirective {
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
-    if (this.shiftDragService.isDragging()) {
-      this.shiftDragService.updateDragPosition(event.clientY);
+    if (this.scheduleEvents.isShiftDragging()) {
+      this.scheduleEvents.updateShiftDragPosition(event.clientY);
       return;
     }
 
@@ -538,7 +447,7 @@ export class GridTemplateEventsDirective {
   }
 
   private handleDeleteKeyAction(event: KeyboardEvent): void {
-    this.handleDeleteKey();
+    this.scheduleEvents.handleDeleteKey();
     this.stopEvent(event);
   }
 
@@ -631,7 +540,6 @@ export class GridTemplateEventsDirective {
       this.scrollGrid.visibleRows + this.scrollGrid.verticalScrollPosition;
 
     if (pos.row >= lastVisibleRow) {
-      // this.gridSurface.drawSchedule.moveGrid(0, 1);
       return;
     }
   }
@@ -861,74 +769,5 @@ export class GridTemplateEventsDirective {
       this.gridSettings.selectionMode === GridSelectionModeEnum.Row ||
       this.gridSettings.selectionMode === GridSelectionModeEnum.RowActiveOnly
     );
-  }
-
-  private handleDeleteKey(): void {
-    if (this.gridSurface.nameId !== 'surface') {
-      return;
-    }
-
-    const scheduleDataService = this.gridData as ScheduleDataService;
-    const entriesToDelete: { id: string; sourceId: string; clientId: string; date: Date; entryId: string; entryType: number }[] = [];
-
-    const positionCollection = this.cellManipulation.PositionCollection;
-    const currentPos = this.gridSurface.drawSchedule.position;
-
-    if (positionCollection.count() > 0) {
-      for (let i = 0; i < positionCollection.count(); i++) {
-        const pos = positionCollection.item(i);
-        const deleteInfo = this.getDeleteInfoForPosition(scheduleDataService, pos.row, pos.column);
-        if (deleteInfo) {
-          entriesToDelete.push(deleteInfo);
-        }
-      }
-    }
-
-    if (currentPos && !positionCollection.contains(currentPos)) {
-      const deleteInfo = this.getDeleteInfoForPosition(scheduleDataService, currentPos.row, currentPos.column);
-      if (deleteInfo) {
-        entriesToDelete.push(deleteInfo);
-      }
-    }
-
-    if (entriesToDelete.length === 0) {
-      return;
-    }
-
-    if (entriesToDelete.length === 1) {
-      const entry = entriesToDelete[0];
-      this.dataManagementSchedule.deleteWorkScheduleEntry(entry.id, entry.sourceId, entry.clientId, entry.date, entry.entryId, entry.entryType);
-    } else {
-      this.dataManagementSchedule.bulkDeleteWorkScheduleEntries(entriesToDelete);
-    }
-  }
-
-  private getDeleteInfoForPosition(
-    scheduleDataService: ScheduleDataService,
-    row: number,
-    column: number
-  ): { id: string; sourceId: string; clientId: string; date: Date; entryId: string; entryType: number } | null {
-    const entry = scheduleDataService.getWorkScheduleEntryForCell(row, column);
-    if (!entry) {
-      return null;
-    }
-
-    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
-      return null;
-    }
-
-    const date = scheduleDataService.getDateForColumn(column);
-    if (!date) {
-      return null;
-    }
-
-    return {
-      id: entry.id,
-      sourceId: entry.sourceId,
-      clientId: entry.clientId,
-      date,
-      entryId: entry.entryId,
-      entryType: entry.entryType,
-    };
   }
 }

@@ -143,6 +143,7 @@
       }
     </div>
 
+    @if (hasOptionButton) {
     <div
       [id]="'group-option-' + node.id"
       class="group-option-button"
@@ -160,6 +161,7 @@
         [class.selected]="selectedGroup?.id === node.id"
       ></div>
     </div>
+    }
 
     <div
       class="group-tree-node-content"

@@ -22,14 +22,14 @@
   </div>
 
   <div id="settings-general-icon-logo-row" class="row-line first">
-    @if (dataLoadFileService.iconImage) {
+    @if (dataLoadFileService.iconImage$()) {
     <div
       id="settings-general-icon-image-container"
       class="image-container-show"
     >
       <img
         id="settings-general-icon-image"
-        [src]="dataLoadFileService.iconImage"
+        [src]="dataLoadFileService.iconImage$()"
         alt=""
         class="imgIcon"
       />
@@ -45,7 +45,7 @@
         </span>
       </div>
     </div>
-    } @if (!dataLoadFileService.iconImage) {
+    } @if (!dataLoadFileService.iconImage$()) {
     <div
       id="settings-general-icon-upload-container"
       class="image-container"

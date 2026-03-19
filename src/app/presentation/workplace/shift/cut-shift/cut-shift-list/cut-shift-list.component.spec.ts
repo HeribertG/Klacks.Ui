@@ -3464,23 +3464,15 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
 
         it('should analyze cut possibilities for the newly selected child cut', () => {
             // Arrange
-            vi.spyOn(component as any, 'analyzeCutByDate');
-            vi.spyOn(component as any, 'analyzeCutByTime');
-            vi.spyOn(component as any, 'analyzeCutByWeekdays');
-            vi.spyOn(component as any, 'analyzeCutByStaff');
-            vi.spyOn(component as any, 'analyzeCutByTask');
+            vi.spyOn(component as any, 'analyzeShift');
 
             component['cutTimeShift'] = transformStringToOwnTimeStruct('12:00');
 
             // Act
             component['performCutByTime']();
 
-            // Assert - all analyze methods should be called for the new child cut
-            expect(component['analyzeCutByDate']).toHaveBeenCalled();
-            expect(component['analyzeCutByTime']).toHaveBeenCalled();
-            expect(component['analyzeCutByWeekdays']).toHaveBeenCalled();
-            expect(component['analyzeCutByStaff']).toHaveBeenCalled();
-            expect(component['analyzeCutByTask']).toHaveBeenCalled();
+            // Assert - analyzeShift should be called for the new child cut
+            expect(component['analyzeShift']).toHaveBeenCalled();
         });
     });
 });

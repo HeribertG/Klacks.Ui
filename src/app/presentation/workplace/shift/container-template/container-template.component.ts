@@ -88,6 +88,8 @@ import { ContainerTemplateLifecycleService } from './services/container-template
 import { ContainerTemplateShiftOperationsService } from './services/container-template-shift-operations.service';
 import { ContainerTemplateItemManipulationService } from './services/container-template-item-manipulation.service';
 import { ContainerTemplatePdfExportService } from './services/container-template-pdf-export.service';
+import { RoutePdfExportService } from './services/route-pdf-export.service';
+import { MapRenderingService } from './services/map-rendering.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
 
 @Component({
@@ -124,6 +126,8 @@ import { ShiftArrangementService } from './services/shift-arrangement.service';
     TimeRulerDragDropService,
     ContextMenuService,
     ContainerTemplateItemManipulationService,
+    MapRenderingService,
+    RoutePdfExportService,
     ContainerTemplatePdfExportService,
     ShiftArrangementService,
     ContainerTemplateRouteService,
@@ -260,16 +264,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      const dirty = this.isDirty();
-      const canSave = this.canSaveComputed();
+      this.isDirty();
+      this.canSaveComputed();
       this.lifecycleService.workplaceStateService.areObjectsDirty();
     });
 
     effect(() => {
       this.templateGrid = this.containerService.templateGrid();
-    });
-
-    effect(() => {
       this.isLoading = this.containerService.loading();
     });
 

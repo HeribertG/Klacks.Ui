@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
-import { WorkChangeType, WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
+import { WorkChangeValidation, WorkTimeContext } from 'src/app/domain/models/workchange/work-change';
 
 export enum CorrectionMode {
   AtStart = 0,
@@ -170,44 +170,10 @@ export class WorkChangeLogicService {
     }
   }
 
-  validateReplacementType(
+  validateReplacement(
     wcStartTime: OwnTime,
     wcEndTime: OwnTime,
-    workContext: WorkTimeContext,
-    _type: WorkChangeType
-  ): WorkChangeValidation {
-    const { start: workStart, end: workEnd } = this.getWorkBoundaries(workContext);
-
-    const wcStartMinutes = this.ownTimeToMinutes(wcStartTime);
-    const wcEndMinutes = this.ownTimeToMinutes(wcEndTime);
-
-    const normalizedWcStart = this.normalizeToWorkDay(wcStartMinutes, workContext);
-    let normalizedWcEnd = this.normalizeToWorkDay(wcEndMinutes, workContext);
-
-    if (normalizedWcEnd < normalizedWcStart) {
-      normalizedWcEnd += this.MINUTES_PER_DAY;
-    }
-
-    const durationMinutes = normalizedWcEnd - normalizedWcStart;
-
-    if (durationMinutes <= 0) {
-      return { isValid: false, changeTime: 0, errorKey: 'dialog.replacement.error.zeroTime' };
-    }
-
-    const changeTimeHours = durationMinutes / 60;
-
-    if (normalizedWcStart >= workStart && normalizedWcEnd <= workEnd) {
-      return { isValid: true, changeTime: changeTimeHours };
-    }
-
-    return { isValid: false, changeTime: 0, errorKey: 'dialog.replacement.error.outsideWork' };
-  }
-
-  validateReplacementMode(
-    wcStartTime: OwnTime,
-    wcEndTime: OwnTime,
-    workContext: WorkTimeContext,
-    _mode: CorrectionMode
+    workContext: WorkTimeContext
   ): WorkChangeValidation {
     const { start: workStart, end: workEnd } = this.getWorkBoundaries(workContext);
 

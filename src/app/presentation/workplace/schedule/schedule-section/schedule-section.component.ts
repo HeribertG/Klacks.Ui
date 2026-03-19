@@ -1,19 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * @copyright 2025 Heribert Gasparoli
- * @license Proprietary
+ * Hauptkomponente zur Anzeige des Mitarbeiter-Dienstplan-Grids.
+ * Zeigt Arbeitseinsätze, Pausen und Änderungen für alle Klienten.
+ * Unterstützt Kontextmenüs, Drag-and-Drop und Tastaturnavigation.
  *
- * @description
- * Main component displaying the employee schedule grid.
- * Shows work entries, breaks, and work changes for all clients.
- * Supports context menus, drag-drop, and keyboard navigation.
- *
- * @relations
- * - Parent: ScheduleContainerComponent
- * - Contains: GridSurfaceTemplateComponent, ContextMenuComponent, Dialog components
- * - Uses: ScheduleDataService, ScheduleContextMenuService, ScheduleEntryActionsService
- * - Uses: ScheduleDialogService, ScheduleDragDropService, ScheduleNavigationService
+ * @param horizontalSize - Breite des Row-Header-Bereichs in Pixel
+ * @param zoom - Zoom-Faktor für die Grid-Darstellung
+ * @param refreshTrigger - Signal zum erzwungenen Neuzeichnen des Grids
  */
 import {
   Component,
@@ -34,7 +28,6 @@ import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-head
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/create-row-header.service';
@@ -54,20 +47,13 @@ import {
 } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
-import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import {
-  ScheduleTooltipService,
-  TooltipState,
-} from '../services/schedule-tooltip.service';
+import { TooltipState } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
-import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { ShowInScheduleService } from '../services/show-in-schedule.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
-import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
@@ -80,9 +66,8 @@ import { ScheduleNavigationService } from './services/schedule-navigation.servic
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
-import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
-import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
-import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';
+
 @Component({
   selector: 'app-schedule-section',
   standalone: true,
@@ -119,6 +104,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
     ScheduleDragDropService,
     ScheduleNavigationService,
     ScheduleBreakBarRenderService,
+    ScheduleSectionFacadeService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
@@ -155,27 +141,13 @@ export class ScheduleSectionComponent
   public hScrollbarSize = 17;
 
   protected dataManagement = inject(DataManagementScheduleService);
-  private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private hScrollService = inject(ScheduleHorizontalScrollService);
-  private groupSelectionService = inject(GroupSelectionService);
   private cellManipulation = inject(BaseCellManipulationService);
-  private tooltipService = inject(ScheduleTooltipService);
-  private workNotificationService = inject(WorkNotificationService);
-  private showInScheduleService = inject(ShowInScheduleService);
-  private absenceMenuService = inject(AbsenceMenuService);
-  private gridColorService = inject(GridColorService);
-  private contextMenuService = inject(ScheduleContextMenuService);
-  private entryActionsService = inject(ScheduleEntryActionsService);
-  private dialogService = inject(ScheduleDialogService);
-  private dragDropService = inject(ScheduleDragDropService);
-  private navigationService = inject(ScheduleNavigationService);
-  private breakBarRender = inject(ScheduleBreakBarRenderService);
-  private gridRender = inject(BaseGridRenderService);
-  private dataBreakPlaceholder = inject(DataBreakPlaceholderService);
-  private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
+  private facade = inject(ScheduleSectionFacadeService);
+
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
@@ -188,9 +160,9 @@ export class ScheduleSectionComponent
   private initialSyncDone = true;
 
   ngOnInit(): void {
-    this.tooltipService.initLanguage();
+    this.facade.tooltip.initLanguage();
     this.settings.editable = true;
-    this.absenceMenuService.loadIfNeeded();
+    this.facade.absenceMenu.loadIfNeeded();
   }
 
   ngAfterViewInit() {
@@ -198,8 +170,8 @@ export class ScheduleSectionComponent
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
     this.scheduleSurface.drawSchedule.showFillHandle = true;
-    this.dialogService.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog);
-    this.gridRender.overlayRenderer = (ctx) => this.breakBarRender.renderBreakBars(ctx);
+    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog);
+    this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
@@ -227,7 +199,7 @@ export class ScheduleSectionComponent
   }
 
   private applyGlobalGroupSelection(): void {
-    const globalGroupId = this.groupSelectionService.selectedGroupId;
+    const globalGroupId = this.facade.groupSelection.selectedGroupId;
     if (globalGroupId !== undefined) {
       this.dataManagement.workFilter.selectedGroup = globalGroupId;
     }
@@ -236,7 +208,7 @@ export class ScheduleSectionComponent
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.gridRender.overlayRenderer = undefined;
+    this.facade.gridRender.overlayRenderer = undefined;
 
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
@@ -293,7 +265,7 @@ export class ScheduleSectionComponent
 
       const hoveredCellEffect = effect(() => {
         const hoveredCell = this.cellManipulation.hoveredCell();
-        this.tooltipService.handleHoveredCell(
+        this.facade.tooltip.handleHoveredCell(
           hoveredCell,
           this.scheduleSurface.dataService,
           this.scheduleSurface,
@@ -304,7 +276,7 @@ export class ScheduleSectionComponent
       this.effects.push(hoveredCellEffect);
 
       const scheduleUpdateEffect = effect(() => {
-        const updateId = this.workNotificationService.scheduleUpdateSignal();
+        const updateId = this.facade.workNotification.scheduleUpdateSignal();
         if (updateId) {
           this.scheduleSurface.Refresh(false);
         }
@@ -312,20 +284,20 @@ export class ScheduleSectionComponent
       this.effects.push(scheduleUpdateEffect);
 
       const showInScheduleEffect = effect(() => {
-        const request = this.showInScheduleService.request();
+        const request = this.facade.showInSchedule.request();
         if (request) {
           if (request.clientId && request.date) {
             this.scrollToClient(request.clientId, request.date);
           } else if (request.shiftId !== undefined && request.column !== undefined) {
             this.scrollToScheduleEntry(request.shiftId, request.column);
           }
-          this.showInScheduleService.clear();
+          this.facade.showInSchedule.clear();
         }
       });
       this.effects.push(showInScheduleEffect);
 
       const periodHoursEffect = effect(() => {
-        const _timestamp = this.workScheduleLoader.periodHoursUpdated();
+        const _timestamp = this.facade.workScheduleLoader.periodHoursUpdated();
 
         if (this.scheduleSurface) {
           this.scheduleSurface.Refresh(false);
@@ -334,7 +306,7 @@ export class ScheduleSectionComponent
       this.effects.push(periodHoursEffect);
 
       const colorResetEffect = effect(() => {
-        if (this.gridColorService.isReset()) {
+        if (this.facade.gridColor.isReset()) {
           this.scheduleSurface.Refresh(false);
         }
       });
@@ -373,16 +345,16 @@ export class ScheduleSectionComponent
     column: number
   ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    return this.dragDropService.getDropTargetInfo(mouseY, column, dataService);
+    return this.facade.dragDrop.getDropTargetInfo(mouseY, column, dataService);
   }
 
   handleShiftDrop(result: ShiftDropResult): void {
-    this.dragDropService.handleShiftDrop(result);
+    this.facade.dragDrop.handleShiftDrop(result);
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.dragDropService.handleCellValueChange(event, dataService);
+    this.facade.dragDrop.handleCellValueChange(event, dataService);
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
@@ -390,10 +362,10 @@ export class ScheduleSectionComponent
 
     this.contextMenu.closeMenu();
 
-    const bp = this.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
+    const bp = this.facade.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
     if (bp) {
       this.contextMenuBreakPlaceholder = bp;
-      this.contextMenu.menuData = this.contextMenuService.createBreakPlaceholderContextMenu(bp);
+      this.contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp);
     } else {
       this.contextMenuBreakPlaceholder = null;
       this.createContextMenu(event.row, event.column);
@@ -409,7 +381,7 @@ export class ScheduleSectionComponent
     this.contextMenuRow = row;
     this.contextMenuColumn = column;
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.contextMenu.menuData = this.contextMenuService.createContextMenu({
+    this.contextMenu.menuData = this.facade.contextMenu.createContextMenu({
       row,
       column,
       dataService,
@@ -432,7 +404,7 @@ export class ScheduleSectionComponent
       case 'cut':
         this.contextMenu.closeMenu(true);
         this.cellManipulation.copy();
-        this.entryActionsService.deleteSelectedEntries(dataService);
+        this.facade.entryActions.deleteSelectedEntries(dataService);
         break;
       case 'paste':
         this.contextMenu.closeMenu(true);
@@ -440,23 +412,23 @@ export class ScheduleSectionComponent
         break;
       case 'del':
         this.contextMenu.closeMenu(true);
-        this.entryActionsService.deleteSelectedEntries(dataService);
+        this.facade.entryActions.deleteSelectedEntries(dataService);
         break;
       case 'shift':
         this.contextMenu.closeMenu(true);
-        this.entryActionsService.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.entryActions.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'absence':
         this.contextMenu.closeMenu(true);
-        this.entryActionsService.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.entryActions.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'correction':
         this.contextMenu.closeMenu(true);
-        this.dialogService.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'replacement':
         this.contextMenu.closeMenu(true);
-        this.dialogService.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'edit': {
         this.contextMenu.closeMenu(true);
@@ -464,25 +436,25 @@ export class ScheduleSectionComponent
         if (editEntry?.entryType === WorkScheduleEntryType.ScheduleNote) {
           this.cellManipulation.startEditing();
         } else {
-          this.dialogService.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
+          this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
         }
         break;
       }
       case 'editWork':
         this.contextMenu.closeMenu(true);
-        this.dialogService.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'expenses':
         this.contextMenu.closeMenu(true);
-        this.dialogService.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'confirm':
         this.contextMenu.closeMenu(true);
-        this.entryActionsService.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.entryActions.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'unconfirm':
         this.contextMenu.closeMenu(true);
-        this.entryActionsService.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
+        this.facade.entryActions.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
       case 'deleteBreakPlaceholder':
         this.contextMenu.closeMenu(true);
@@ -497,12 +469,12 @@ export class ScheduleSectionComponent
 
   private showSelectedShiftInShiftSection(): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.navigationService.showSelectedShiftInShiftSection(dataService);
+    this.facade.navigation.showSelectedShiftInShiftSection(dataService);
   }
 
   private scrollToClient(clientId: string, date: string): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.navigationService.scrollToClient(
+    this.facade.navigation.scrollToClient(
       clientId,
       date,
       dataService,
@@ -515,7 +487,7 @@ export class ScheduleSectionComponent
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.navigationService.scrollToScheduleEntry(
+    this.facade.navigation.scrollToScheduleEntry(
       shiftId,
       column,
       dataService,
@@ -527,17 +499,17 @@ export class ScheduleSectionComponent
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.dialogService.editWorkChange(event.row, event.column, dataService);
+    this.facade.dialog.editWorkChange(event.row, event.column, dataService);
   }
 
   private deleteBreakPlaceholder(): void {
     if (!this.contextMenuBreakPlaceholder?.id) return;
 
     const id = this.contextMenuBreakPlaceholder.id;
-    this.dataBreakPlaceholder.deleteBreak(id).subscribe({
+    this.facade.dataBreakPlaceholder.deleteBreak(id).subscribe({
       next: () => {
-        this.breakPlaceholderLoader.removeBreakPlaceholder(id);
-        this.workScheduleLoader.applyBreakPlaceholderRows();
+        this.facade.breakPlaceholderLoader.removeBreakPlaceholder(id);
+        this.facade.workScheduleLoader.applyBreakPlaceholderRows();
         this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
       },
     });
@@ -547,12 +519,12 @@ export class ScheduleSectionComponent
     if (!this.contextMenuBreakPlaceholder) return;
     const bp = this.contextMenuBreakPlaceholder;
 
-    this.entryActionsService.adoptBreakPlaceholder(bp, absenceItemId).then(() => {
+    this.facade.entryActions.adoptBreakPlaceholder(bp, absenceItemId).then(() => {
       if (!bp.id) return;
-      this.dataBreakPlaceholder.deleteBreak(bp.id).subscribe({
+      this.facade.dataBreakPlaceholder.deleteBreak(bp.id).subscribe({
         next: () => {
-          this.breakPlaceholderLoader.removeBreakPlaceholder(bp.id!);
-          this.workScheduleLoader.applyBreakPlaceholderRows();
+          this.facade.breakPlaceholderLoader.removeBreakPlaceholder(bp.id!);
+          this.facade.workScheduleLoader.applyBreakPlaceholderRows();
           this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         },
       });
@@ -561,6 +533,6 @@ export class ScheduleSectionComponent
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    this.dialogService.openWorkEditDialog(event.row, event.column, dataService);
+    this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService);
   }
 }

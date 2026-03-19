@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Wiederverwendbare Gruppen-Auswahl-Komponente mit Baumstruktur und Dropdown.
+ * @param showAllGroupsOption - Zeigt eine "Alle Gruppen"-Option im Dropdown an
+ * @param useGlobalSelection - Synchronisiert die Auswahl mit dem globalen GroupSelectionService
+ * @param hasOptionButton - Zeigt den Radio-Button-Kreis neben jedem Eintrag an
+ * @param label - Optionales Label über dem Select
+ * @param required - Markiert das Feld als Pflichtfeld
+ * @param index - Index für eindeutige IDs bei Mehrfachverwendung
+ * @param disabled - Deaktiviert die Komponente
+ */
 /* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
@@ -67,6 +77,7 @@ export class GroupSelectComponent
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+  @Input() hasOptionButton = true;
   @Input() index?: number;
   @Input() set disabled(value: boolean) {
     this.setDisabledState(value);

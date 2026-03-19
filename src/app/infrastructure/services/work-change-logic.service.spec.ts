@@ -259,7 +259,7 @@ describe('WorkChangeLogicService', () => {
     });
   });
 
-  describe('validateReplacementMode', () => {
+  describe('validateReplacement', () => {
     it('should validate replacement within work hours', () => {
       // Arrange
       const workContext: WorkTimeContext = {
@@ -271,11 +271,10 @@ describe('WorkChangeLogicService', () => {
       const wcEndTime = OwnTime.forTime('12', '00');
 
       // Act
-      const result = service.validateReplacementMode(
+      const result = service.validateReplacement(
         wcStartTime,
         wcEndTime,
-        workContext,
-        CorrectionMode.AtStart
+        workContext
       );
 
       // Assert
@@ -294,11 +293,10 @@ describe('WorkChangeLogicService', () => {
       const wcEndTime = OwnTime.forTime('12', '00');
 
       // Act
-      const result = service.validateReplacementMode(
+      const result = service.validateReplacement(
         wcStartTime,
         wcEndTime,
-        workContext,
-        CorrectionMode.AtStart
+        workContext
       );
 
       // Assert
@@ -317,11 +315,10 @@ describe('WorkChangeLogicService', () => {
       const wcEndTime = OwnTime.forTime('02', '00');
 
       // Act
-      const result = service.validateReplacementMode(
+      const result = service.validateReplacement(
         wcStartTime,
         wcEndTime,
-        workContext,
-        CorrectionMode.AtStart
+        workContext
       );
 
       // Assert

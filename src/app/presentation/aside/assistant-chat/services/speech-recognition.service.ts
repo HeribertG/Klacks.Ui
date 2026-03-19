@@ -115,44 +115,44 @@ export class SpeechRecognitionService {
     const workingLanguages: string[] = [];
 
     for (const lang of testLanguages) {
-      try {
-        const testRecognition = new SpeechRecognition();
-        testRecognition.lang = lang;
-        testRecognition.continuous = false;
-        testRecognition.interimResults = false;
-
-        const isSupported = await new Promise<boolean>((resolve) => {
-          testRecognition.onstart = () => {
-            testRecognition.abort();
-            resolve(true);
-          };
-
-          testRecognition.onerror = (event: any) => {
-            if (event.error === 'language-not-supported') {
-              resolve(false);
-            } else {
-              resolve(true);
-            }
-          };
-
-          setTimeout(() => resolve(false), 2000);
-
-          try {
-            testRecognition.start();
-          } catch (error) {
-            resolve(false);
-          }
-        });
-
-        if (isSupported) {
-          workingLanguages.push(lang);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch {}
+      const isSupported = await this.testLanguageSupport(SpeechRecognition, lang);
+      if (isSupported) {
+        workingLanguages.push(lang);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     this.availableLanguages = workingLanguages;
+  }
+
+  private async testLanguageSupport(SpeechRecognition: any, lang: string): Promise<boolean> {
+    try {
+      const testRecognition = new SpeechRecognition();
+      testRecognition.lang = lang;
+      testRecognition.continuous = false;
+      testRecognition.interimResults = false;
+
+      return await new Promise<boolean>((resolve) => {
+        testRecognition.onstart = () => {
+          testRecognition.abort();
+          resolve(true);
+        };
+
+        testRecognition.onerror = (event: any) => {
+          resolve(event.error !== 'language-not-supported');
+        };
+
+        setTimeout(() => resolve(false), 2000);
+
+        try {
+          testRecognition.start();
+        } catch (error) {
+          resolve(false);
+        }
+      });
+    } catch {
+      return false;
+    }
   }
 
   private initializeSpeechRecognition(): void {
@@ -163,36 +163,50 @@ export class SpeechRecognitionService {
     const isFirefox = /Firefox/.test(navigator.userAgent);
 
     if (isEdge || isFirefox || !SpeechRecognition) {
-      this.useWhisperFallback = true;
-      this.diagnostics.useWhisperFallback = true;
-
-      if (!window.isSecureContext) {
-        this.isSupported$.set(false);
-        this.diagnostics.errorMessage = 'Speech recognition requires HTTPS or localhost';
-        this.errors$.next('Speech recognition requires HTTPS or localhost');
-        return;
-      }
-
-      if (!navigator.mediaDevices?.getUserMedia) {
-        this.isSupported$.set(false);
-        this.diagnostics.errorMessage = 'Microphone access not available';
-        return;
-      }
-
-      this.isSupported$.set(true);
+      this.initializeWhisperFallback();
       return;
     }
 
     if (!window.isSecureContext) {
-      this.isSupported$.set(false);
-      this.diagnostics.errorMessage = 'Speech recognition requires HTTPS or localhost';
-      this.errors$.next('Speech recognition requires HTTPS or localhost');
+      this.setUnsupported('Speech recognition requires HTTPS or localhost');
       return;
     }
 
+    if (!this.setupRecognitionInstance(SpeechRecognition)) {
+      return;
+    }
+
+    this.setupEventHandlers();
+    this.setupErrorHandler();
+  }
+
+  private initializeWhisperFallback(): void {
+    this.useWhisperFallback = true;
+    this.diagnostics.useWhisperFallback = true;
+
+    if (!window.isSecureContext) {
+      this.setUnsupported('Speech recognition requires HTTPS or localhost');
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      this.isSupported$.set(false);
+      this.diagnostics.errorMessage = 'Microphone access not available';
+      return;
+    }
+
+    this.isSupported$.set(true);
+  }
+
+  private setUnsupported(message: string): void {
+    this.isSupported$.set(false);
+    this.diagnostics.errorMessage = message;
+    this.errors$.next(message);
+  }
+
+  private setupRecognitionInstance(SpeechRecognition: any): boolean {
     try {
       this.recognition = new SpeechRecognition();
-
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
@@ -202,13 +216,16 @@ export class SpeechRecognitionService {
       }
 
       this.isSupported$.set(true);
+      return true;
     } catch (error: any) {
       this.useWhisperFallback = true;
       this.diagnostics.useWhisperFallback = true;
       this.isSupported$.set(true);
-      return;
+      return false;
     }
+  }
 
+  private setupEventHandlers(): void {
     this.recognition.onstart = () => {
       this.isListening.set(true);
     };
@@ -255,6 +272,12 @@ export class SpeechRecognitionService {
       }
     };
 
+    this.recognition.onnomatch = () => {
+      this.errors$.next('Speech not recognized. Please speak more clearly.');
+    };
+  }
+
+  private setupErrorHandler(): void {
     this.recognition.onerror = (event: any) => {
       if (event.error === 'no-speech' && this.shouldContinue) {
         return;
@@ -267,33 +290,7 @@ export class SpeechRecognitionService {
       this.isListening.set(false);
       this.shouldContinue = false;
 
-      let errorMessage = 'Speech recognition error occurred';
-      switch (event.error) {
-        case 'no-speech':
-          errorMessage = 'No speech detected. Please try again.';
-          break;
-        case 'audio-capture':
-          errorMessage = 'Microphone not available or blocked.';
-          break;
-        case 'not-allowed':
-          errorMessage = 'Microphone access denied. Please allow access.';
-          break;
-        case 'network':
-          errorMessage = 'Network error during speech recognition.';
-          break;
-        case 'language-not-supported':
-          errorMessage = 'Language not supported.';
-          break;
-        case 'service-not-allowed':
-          errorMessage = this.diagnostics.isArmProcessor
-            ? 'Speech recognition service not available. Windows on ARM may not support all speech recognition features. Please check Windows speech settings.'
-            : 'Speech recognition service not available.';
-          break;
-        default:
-          if (this.diagnostics.isArmProcessor) {
-            errorMessage = `Speech recognition error (${event.error}). Windows on ARM may have limited speech recognition support.`;
-          }
-      }
+      const errorMessage = this.mapRecognitionError(event);
 
       console.warn('Speech recognition error:', {
         error: event.error,
@@ -303,10 +300,29 @@ export class SpeechRecognitionService {
 
       this.errors$.next(errorMessage);
     };
+  }
 
-    this.recognition.onnomatch = () => {
-      this.errors$.next('Speech not recognized. Please speak more clearly.');
-    };
+  private mapRecognitionError(event: any): string {
+    switch (event.error) {
+      case 'no-speech':
+        return 'No speech detected. Please try again.';
+      case 'audio-capture':
+        return 'Microphone not available or blocked.';
+      case 'not-allowed':
+        return 'Microphone access denied. Please allow access.';
+      case 'network':
+        return 'Network error during speech recognition.';
+      case 'language-not-supported':
+        return 'Language not supported.';
+      case 'service-not-allowed':
+        return this.diagnostics.isArmProcessor
+          ? 'Speech recognition service not available. Windows on ARM may not support all speech recognition features. Please check Windows speech settings.'
+          : 'Speech recognition service not available.';
+      default:
+        return this.diagnostics.isArmProcessor
+          ? `Speech recognition error (${event.error}). Windows on ARM may have limited speech recognition support.`
+          : 'Speech recognition error occurred';
+    }
   }
 
   startListening(language?: string, deviceId?: string): Observable<string> {

@@ -231,63 +231,32 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
   }
 
+  private static readonly ENTITY_INFO_MAP: ReadonlyArray<{ pattern: string; name: string; key: string }> = [
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.ABSENCES, name: 'Absence', key: 'ABSENCE' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS, name: 'Assigned Group', key: 'ASSIGNED_GROUP' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS, name: 'Bank Detail', key: 'BANK_DETAIL' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.BREAKS, name: 'Break', key: 'BREAK' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.CALENDAR_RULES, name: 'Calendar Rule', key: 'CALENDAR_RULE' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.CALENDAR_SELECTIONS, name: 'Calendar Selection', key: 'CALENDAR_SELECTION' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.SELECTED_CALENDARS, name: 'Selected Calendar', key: 'SELECTED_CALENDAR' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.CLIENTS, name: 'Client', key: 'CLIENT' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.COUNTRIES, name: 'Country', key: 'COUNTRY' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.STATES, name: 'State', key: 'STATE' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.GROUPS, name: 'Group', key: 'GROUP' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.LOAD_FILE, name: 'File', key: 'FILE' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.MACROS, name: 'Macro', key: 'MACRO' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.WORKS, name: 'Working Time', key: 'WORK' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.SHIFTS, name: 'Shift', key: 'SHIFT' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.ADDRESSES, name: 'Address', key: 'ADDRESS' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.COMMUNICATIONS, name: 'Communication', key: 'COMMUNICATION' },
+    { pattern: ResponseInterceptor.ERROR_PATTERNS.SETTINGS, name: 'Setting', key: 'SETTING' },
+  ];
+
   private getEntityInfo(url: string): { name: string; key: string } {
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ABSENCES)) {
-      return { name: 'Absence', key: 'ABSENCE' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS)) {
-      return { name: 'Assigned Group', key: 'ASSIGNED_GROUP' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS)) {
-      return { name: 'Bank Detail', key: 'BANK_DETAIL' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BREAKS)) {
-      return { name: 'Break', key: 'BREAK' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_RULES)) {
-      return { name: 'Calendar Rule', key: 'CALENDAR_RULE' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_SELECTIONS)) {
-      return { name: 'Calendar Selection', key: 'CALENDAR_SELECTION' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SELECTED_CALENDARS)) {
-      return { name: 'Selected Calendar', key: 'SELECTED_CALENDAR' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CLIENTS)) {
-      return { name: 'Client', key: 'CLIENT' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COUNTRIES)) {
-      return { name: 'Country', key: 'COUNTRY' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.STATES)) {
-      return { name: 'State', key: 'STATE' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.GROUPS)) {
-      return { name: 'Group', key: 'GROUP' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.LOAD_FILE)) {
-      return { name: 'File', key: 'FILE' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.MACROS)) {
-      return { name: 'Macro', key: 'MACRO' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.WORKS)) {
-      return { name: 'Working Time', key: 'WORK' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SHIFTS)) {
-      return { name: 'Shift', key: 'SHIFT' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ADDRESSES)) {
-      return { name: 'Address', key: 'ADDRESS' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COMMUNICATIONS)) {
-      return { name: 'Communication', key: 'COMMUNICATION' };
-    }
-    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SETTINGS)) {
-      return { name: 'Setting', key: 'SETTING' };
-    }
-    // ggf. Default-Fallback
-    return { name: 'Unknown Entity', key: 'UNKNOWN' };
+    const match = ResponseInterceptor.ENTITY_INFO_MAP.find(entry => url.includes(entry.pattern));
+    return match
+      ? { name: match.name, key: match.key }
+      : { name: 'Unknown Entity', key: 'UNKNOWN' };
   }
 
   private getOperationType(method: string): string {

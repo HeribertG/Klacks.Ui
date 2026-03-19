@@ -8,22 +8,22 @@
 
   <div class="container-line"></div>
 
-  @if (!dataLoadFileService.profileImage) {
+  @if (!dataLoadFileService.profileImage$()) {
   <div class="row">
     <label id="profile-picture-upload-label">{{ translate.instant("setting.picture.upload") }} </label>
   </div>
-  } @if (dataLoadFileService.profileImage) {
+  } @if (dataLoadFileService.profileImage$()) {
   <div class="row">
     <label id="profile-picture-label">{{ translate.instant("setting.picture.picture") }} </label>
   </div>
   }
 
   <div id="profile-picture-content" class="row">
-    @if (dataLoadFileService.profileImage) {
+    @if (dataLoadFileService.profileImage$()) {
     <div id="profile-picture-image-container" class="image-container">
-      <img id="profile-picture-image" [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
+      <img id="profile-picture-image" [src]="dataLoadFileService.profileImage$()" alt="" class="imgIcon" />
     </div>
-    } @if (!dataLoadFileService.profileImage) {
+    } @if (!dataLoadFileService.profileImage$()) {
     <div id="profile-picture-upload-wrapper">
       <div
         id="profile-picture-upload-area"
@@ -49,7 +49,7 @@
     }
   </div>
 
-  @if (dataLoadFileService.profileImage) {
+  @if (dataLoadFileService.profileImage$()) {
   <div id="profile-picture-delete-row" class="row">
     <div class="filler"></div>
     <span

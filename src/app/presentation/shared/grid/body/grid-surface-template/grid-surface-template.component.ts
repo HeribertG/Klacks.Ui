@@ -32,6 +32,7 @@ import {
   GridRightClickEvent,
   GridDoubleClickEvent,
 } from '../directives/grid-template-events.directive';
+import { GridScheduleEventsService } from '../directives/grid-schedule-events.service';
 import {
   CellInputEventsDirective,
   CellInputRightClickEvent,
@@ -68,6 +69,7 @@ export interface CellValueChangeEvent {
     TestAccessibilityService,
     GridTestAccessibilityService,
     GridFillHandleDragService,
+    GridScheduleEventsService,
   ],
 })
 export class GridSurfaceTemplateComponent
