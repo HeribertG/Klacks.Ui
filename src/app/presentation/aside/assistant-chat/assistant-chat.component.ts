@@ -45,6 +45,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ChatMessage } from './chat-message.interface';
 import { VoiceModeService } from './services/voice-mode.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
 
 @Component({
   selector: 'app-assistant-chat',
@@ -82,6 +84,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
   private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
@@ -201,6 +204,14 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
           });
           this.shouldScrollToBottom = true;
           this.cdr.detectChanges();
+        });
+      });
+
+    this.eventBus.on<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.ngZone.run(() => {
+          this.handleAddressValidationForChat(event);
         });
       });
   }
@@ -420,6 +431,22 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private getSpeechLanguageCode(langCode: string): string {
     return this.languageMappingService.getSpeechLocale(langCode);
+  }
+
+  private handleAddressValidationForChat(event: AddressValidationFailedEvent): void {
+    this.asideService.show();
+
+    const addressStr = [event.street, event.zip, event.city, event.country].filter(Boolean).join(', ');
+    const suggestionsText = event.suggestions.length > 0
+      ? event.suggestions.map((s) => `- ${s.displayName}`).join('\n')
+      : '';
+
+    const prompt = suggestionsText
+      ? `Die Adresse "${addressStr}" konnte nicht verifiziert werden. Nominatim schlägt folgende Alternativen vor:\n${suggestionsText}\nBitte hilf dem Benutzer die richtige Adresse auszuwählen oder eine korrekte Adresse einzugeben.`
+      : `Die Adresse "${addressStr}" konnte nicht verifiziert werden. Bitte hilf dem Benutzer eine korrekte Adresse einzugeben.`;
+
+    this.inputText = prompt;
+    this.sendMessage();
   }
 
   clearChat(): void {

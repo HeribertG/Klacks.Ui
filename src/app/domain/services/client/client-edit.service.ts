@@ -187,12 +187,7 @@ export class ClientEditService {
 
       this.handleAddressValidationFailure(address, result);
       return false;
-    } catch (error: unknown) {
-      const httpError = error as { status?: number; error?: { validation?: IAddressValidationResult } };
-      if (httpError?.status === 400 && httpError?.error?.validation) {
-        this.handleAddressValidationFailure(address, httpError.error.validation);
-        return false;
-      }
+    } catch {
       return true;
     }
   }

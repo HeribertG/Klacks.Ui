@@ -148,6 +148,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
     if (event.suggestions.length === 0) {
+      this.asideService.show();
       return;
     }
 
