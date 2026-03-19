@@ -255,6 +255,7 @@
   "address.edit-address.note.toolbar.list": "Liste",
   "address.edit-address.note.toolbar.paste": "Einfügen",
   "address.edit-address.note.toolbar.underline": "Unterstrichen",
+  "address.validation.failed": "Adresse konnte nicht verifiziert werden: {{address}}. Bitte korrigieren Sie Strasse, PLZ und Ort.",
   "auth.forgot-password.email-address": "E-Mail-Adresse",
   "auth.forgot-password.email-placeholder": "ihre-email@beispiel.de",
   "auth.forgot-password.error": "Fehler beim Senden der Zurücksetzungs-E-Mail.",

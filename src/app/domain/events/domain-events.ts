@@ -8,6 +8,7 @@ export enum DomainEventType {
   NAVIGATE = 'domain:navigate',
   SKILL_EXECUTED = 'domain:skill-executed',
   SKILL_UI_ACTION = 'domain:skill-ui-action',
+  ADDRESS_VALIDATION_FAILED = 'domain:address-validation-failed',
 }
 
 export interface ErrorEvent {
@@ -34,4 +35,12 @@ export interface InfoEvent {
 export interface NavigationEvent {
   route: string;
   params?: Record<string, unknown>;
+}
+
+export interface AddressValidationFailedEvent {
+  street: string;
+  zip: string;
+  city: string;
+  country: string;
+  suggestions: { displayName: string; latitude: number; longitude: number }[];
 }

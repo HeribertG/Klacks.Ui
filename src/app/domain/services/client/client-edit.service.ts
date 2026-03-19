@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service fuer Client-Bearbeitung: Lesen, Speichern, Validierung und Dirty-State-Tracking.
+ * @param editClient - Signal mit dem aktuell bearbeiteten Client
+ * @param lastSaveError - Signal das anzeigt ob der letzte Speichervorgang fehlgeschlagen ist
+ * @param onSaveCompleted - Callback der nach erfolgreichem Speichern aufgerufen wird
+ */
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
@@ -18,10 +25,11 @@ import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { ClientConfigService } from './client-config.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 
 @Injectable({
   providedIn: 'root',
@@ -149,9 +157,73 @@ export class ClientEditService {
       });
   }
 
-  public saveEditClient() {
+  public async saveEditClient() {
     if (!this.canSave()) return;
 
+    const client = this.editClient()!;
+    const addressesToValidate = client.addresses.filter(
+      (addr) => addr.zip && addr.zip.trim() !== '' && addr.city && addr.city.trim() !== ''
+    );
+
+    for (const address of addressesToValidate) {
+      const isValid = await this.validateAddress(address);
+      if (!isValid) return;
+    }
+
+    this.executeClientSave();
+  }
+
+  private async validateAddress(address: IAddress): Promise<boolean> {
+    try {
+      const result = await firstValueFrom(
+        this.dataClientService.validateAddress(address)
+      );
+
+      if (result.isValid) {
+        address.latitude = result.latitude;
+        address.longitude = result.longitude;
+        return true;
+      }
+
+      this.handleAddressValidationFailure(address, result);
+      return false;
+    } catch (error: unknown) {
+      const httpError = error as { status?: number; error?: { validation?: IAddressValidationResult } };
+      if (httpError?.status === 400 && httpError?.error?.validation) {
+        this.handleAddressValidationFailure(address, httpError.error.validation);
+        return false;
+      }
+      return true;
+    }
+  }
+
+  private handleAddressValidationFailure(address: IAddress, result: IAddressValidationResult): void {
+    const addressStr = [address.street, address.zip, address.city].filter(Boolean).join(', ');
+    const errorMessage = this.translateService.instant('address.validation.failed', { address: addressStr });
+
+    this.lastSaveError.set(true);
+    this.lastSaveErrorMessage.set(errorMessage);
+
+    this.eventBus.emit(DomainEventType.ERROR, {
+      message: errorMessage,
+      code: 'address-validation-failed',
+      context: 'ClientEditService.validateAddress',
+    });
+
+    this.eventBus.emit<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED, {
+      street: address.street,
+      zip: address.zip,
+      city: address.city,
+      country: address.country,
+      suggestions: result.suggestions.map((s) => ({
+        displayName: s.displayName,
+        latitude: s.latitude,
+        longitude: s.longitude,
+      })),
+    });
+  }
+
+  private executeClientSave(): void {
     const filteredContracts = this.editClient()!.clientContracts.filter(
       (contract) => contract.contractId && contract.contractId !== ''
     );
@@ -181,7 +253,6 @@ export class ClientEditService {
         }
       },
       error: (error) => {
-        console.error('Error saving client:', error);
         this.lastSaveError.set(true);
         this._showProgressSpinner.set(false);
 

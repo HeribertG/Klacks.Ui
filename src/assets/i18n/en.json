@@ -255,6 +255,7 @@
   "address.edit-address.note.toolbar.list": "List",
   "address.edit-address.note.toolbar.paste": "Paste",
   "address.edit-address.note.toolbar.underline": "Underline",
+  "address.validation.failed": "Address could not be verified: {{address}}. Please check street, ZIP and city.",
   "auth.forgot-password.email-address": "Email Address",
   "auth.forgot-password.email-placeholder": "your-email@example.com",
   "auth.forgot-password.error": "Error sending reset email.",

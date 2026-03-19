@@ -255,6 +255,7 @@
   "address.edit-address.note.toolbar.list": "Liste",
   "address.edit-address.note.toolbar.paste": "Coller",
   "address.edit-address.note.toolbar.underline": "Souligner",
+  "address.validation.failed": "L'adresse n'a pas pu \u00eatre v\u00e9rifi\u00e9e : {{address}}. Veuillez v\u00e9rifier la rue, le code postal et la ville.",
   "auth.forgot-password.email-address": "Adresse e-mail",
   "auth.forgot-password.email-placeholder": "votre-email@exemple.com",
   "auth.forgot-password.error": "Erreur lors de l'envoi de l'e-mail de réinitialisation.",

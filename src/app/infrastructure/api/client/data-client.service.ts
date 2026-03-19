@@ -17,6 +17,7 @@ import {
   ILastChangeMetaData,
   IAddress,
 } from 'src/app/domain/models/client/client-class';
+import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { ClientDataMapper } from './client-data.mapper';
@@ -145,4 +146,12 @@ export class DataClientService {
       .pipe(retry(3));
   }
 
+  validateAddress(address: IAddress) {
+    return this.httpClient
+      .post<IAddressValidationResult>(
+        `${environment.baseUrl}Addresses/Validate`,
+        address,
+      )
+      .pipe();
+  }
 }

@@ -30,6 +30,11 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
+import { AsideService } from 'src/app/presentation/aside/aside.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -68,6 +73,9 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private activatedRoute = inject(ActivatedRoute);
+  private eventBus = inject(EVENT_BUS_TOKEN);
+  private asideService = inject(AsideService);
+  private toastShowService = inject(ToastShowService);
   private destroy$ = new Subject<void>();
 
   isReadOnly = false;
@@ -79,6 +87,8 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
 
     this.savebarService.setSavebarVisibility(true);
+
+    this.subscribeToAddressValidation();
 
     combineLatest([
       this.activatedRoute.params,
@@ -128,5 +138,74 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     }
 
     return true;
+  }
+
+  private subscribeToAddressValidation(): void {
+    this.eventBus.on<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => this.handleAddressValidationFailed(event));
+  }
+
+  private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
+    if (event.suggestions.length === 0) {
+      return;
+    }
+
+    const repliesConfig: ISuggestedRepliesConfig = {
+      prompt: `Adresse nicht gefunden: ${[event.street, event.zip, event.city].filter(Boolean).join(', ')}. Meinten Sie:`,
+      options: event.suggestions.map((s) => ({
+        label: s.displayName,
+        value: s.displayName,
+      })),
+      selectionMode: 'single',
+    };
+
+    this.toastShowService.showInteractiveReply(
+      repliesConfig,
+      (values: string[]) => {
+        if (values.length === 0) return;
+
+        const selected = event.suggestions.find((s) => s.displayName === values[0]);
+        if (!selected) return;
+
+        this.applySelectedAddress(selected.displayName, selected.latitude, selected.longitude);
+      },
+    );
+
+    this.asideService.show();
+  }
+
+  private applySelectedAddress(displayName: string, latitude: number, longitude: number): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client) return;
+
+    const addressIndex = this.dataManagementClientService.currentAddressIndex();
+    const address = client.addresses[addressIndex];
+    if (!address) return;
+
+    const parsed = this.parseNominatimDisplayName(displayName);
+    if (parsed.street) address.street = parsed.street;
+    if (parsed.zip) address.zip = parsed.zip;
+    if (parsed.city) address.city = parsed.city;
+    address.latitude = latitude;
+    address.longitude = longitude;
+
+    this.dataManagementClientService.clientEditService.editClient.update((c) => c ? { ...c } : c);
+    this.dataManagementClientService.clientEditService.lastSaveError.set(false);
+    this.dataManagementClientService.clientEditService.lastSaveErrorMessage.set('');
+  }
+
+  private parseNominatimDisplayName(displayName: string): { street?: string; zip?: string; city?: string } {
+    const parts = displayName.split(',').map((p) => p.trim());
+    if (parts.length < 3) return {};
+
+    const zipMatch = parts.find((p) => /^\d{4,5}$/.test(p));
+    const zipIndex = zipMatch ? parts.indexOf(zipMatch) : -1;
+
+    return {
+      street: parts.length > 3 ? parts[0] : undefined,
+      zip: zipMatch,
+      city: zipIndex >= 0 && zipIndex + 1 < parts.length ? parts[zipIndex + 1] : parts.length > 1 ? parts[1] : undefined,
+    };
   }
 }

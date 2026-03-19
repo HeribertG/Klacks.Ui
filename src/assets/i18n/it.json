@@ -255,6 +255,7 @@
   "address.edit-address.note.toolbar.list": "Elenco",
   "address.edit-address.note.toolbar.paste": "Incolla",
   "address.edit-address.note.toolbar.underline": "Sottolineato",
+  "address.validation.failed": "L'indirizzo non ha potuto essere verificato: {{address}}. Si prega di controllare via, CAP e citt\u00e0.",
   "auth.forgot-password.email-address": "Indirizzo email",
   "auth.forgot-password.email-placeholder": "tua-email@esempio.com",
   "auth.forgot-password.error": "Errore nell'invio dell'email di reimpostazione.",
