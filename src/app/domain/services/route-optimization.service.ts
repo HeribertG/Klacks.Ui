@@ -119,6 +119,6 @@ export class RouteOptimizationService {
     return this.http.get<IAutofillResult>(
       `${this.apiUrl}/autofill`,
       { params, context: new HttpContext().set(SKIP_LOADING, true) }
-    ).pipe(timeout(120_000));
+    ).pipe(timeout(300_000));
   }
 }
