@@ -12,6 +12,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 
 @Component({
   selector: 'app-home',
@@ -31,12 +32,13 @@ import { ApplicationInitService } from 'src/app/application/services/application
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private applicationInitService = inject(ApplicationInitService);
+  private spinnerService = inject(SpinnerService);
   private destroy$ = new Subject<void>();
 
   constructor() {}
 
   ngOnInit(): void {
-    // Initialize application resources after successful login
+    this.spinnerService.interceptorSuppressed = true;
     this.applicationInitService.initialize();
   }
 
