@@ -83,22 +83,16 @@ export class MenuItemComponent {
   private show(): void {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
     const boundingRect = nativeElement.getBoundingClientRect();
-    const width = nativeElement.offsetWidth;
-    const height = nativeElement.offsetHeight;
-    const offsetTop = nativeElement.offsetTop;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const parentTop = nativeElement.parentElement?.getBoundingClientRect().top!;
-    const top = boundingRect.top;
 
     if (this.subMenu) {
       if (this.subMenu.isVisible) {
         return;
       }
       this.subMenu.openMenu(
-        width + 4,
-        parentTop - top + offsetTop,
-        width,
-        height
+        boundingRect.right + 4,
+        boundingRect.top,
+        boundingRect.width,
+        boundingRect.height
       );
     }
   }
