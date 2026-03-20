@@ -1642,6 +1642,8 @@
   "shift.container-template.tooltip.start-base": "Adresse de départ pour le calcul d'itinéraire",
   "shift.container-template.tooltip.end-base": "Adresse d'arrivée pour le calcul d'itinéraire",
   "shift.container-template.tolerance": "Tolérance",
+  "shift.container-template.tolerance.exact": "Exact",
+  "shift.container-template.tolerance.flexible": "Flexible",
   "shift.container-template.tooltip.autofill": "Attribuer automatiquement les services et optimiser l'itinéraire",
   "shift.container-template.tooltip.tolerance-slider": "Tolérance de la plage horaire: 0% = flexible, 100% = strict",
   "settings.identity-provider.headline": "Fournisseur d'identité",

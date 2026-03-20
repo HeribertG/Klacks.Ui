@@ -1644,6 +1644,8 @@
   "shift.container-template.tooltip.start-base": "Start address for route calculation",
   "shift.container-template.tooltip.end-base": "End address for route calculation",
   "shift.container-template.tolerance": "Tolerance",
+  "shift.container-template.tolerance.exact": "Exact",
+  "shift.container-template.tolerance.flexible": "Flexible",
   "shift.container-template.tooltip.autofill": "Automatically assign shifts and optimize route",
   "shift.container-template.tooltip.tolerance-slider": "Time range tolerance: 0% = flexible, 100% = strict",
   "settings.identity-provider.headline": "Identity Provider",

@@ -1660,6 +1660,8 @@
   "shift.container-template.tooltip.start-base": "Startadresse für die Routenberechnung",
   "shift.container-template.tooltip.end-base": "Endadresse für die Routenberechnung",
   "shift.container-template.tolerance": "Toleranz",
+  "shift.container-template.tolerance.exact": "Exakt",
+  "shift.container-template.tolerance.flexible": "Flexibel",
   "shift.container-template.tooltip.autofill": "Dienste automatisch zuordnen und Route optimieren",
   "shift.container-template.tooltip.tolerance-slider": "Zeitfenster-Toleranz: 0% = flexibel, 100% = strikt",
   "settings.identity-provider.headline": "Identity Provider",

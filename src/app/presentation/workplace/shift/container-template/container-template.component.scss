@@ -637,10 +637,11 @@
     gap: 0.5rem;
     padding-top: 10px;
     padding-right: 20px;
-    min-width: 200px;
+    min-width: 220px;
+    height: 40px !important;
 
-    .tolerance-label {
-      font-size: 12px;
+    .tolerance-endpoint {
+      font-size: 11px;
       font-weight: 500;
       color: var(--colorLabel);
       white-space: nowrap;
@@ -648,6 +649,26 @@
 
     ngx-slider {
       flex: 1;
+    }
+  }
+
+  ::ng-deep {
+    .custom-slider .ngx-slider .ngx-slider-pointer {
+      width: 8px;
+      height: 16px;
+      top: auto;
+      bottom: 0;
+      background-color: #333;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    .custom-slider .ngx-slider .ngx-slider-pointer:after {
+      display: none;
+    }
+
+    .custom-slider .ngx-slider .ngx-slider-bubble {
+      bottom: 14px;
     }
   }
 }
