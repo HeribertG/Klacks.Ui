@@ -125,18 +125,6 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   }
 
   canDeactivate(): boolean {
-    const hasError = this.dataManagementClientService.clientEditService.lastSaveError();
-
-    if (hasError) {
-      return false;
-    }
-
-    const isDirty = this.dataManagementClientService.areObjectsDirty();
-
-    if (isDirty) {
-      return confirm('Es gibt ungespeicherte Änderungen. Möchten Sie wirklich fortfahren?');
-    }
-
     return true;
   }
 
@@ -148,7 +136,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
     if (event.suggestions.length === 0) {
-      this.asideService.show();
+      this.asideService.show(true);
       return;
     }
 
@@ -173,7 +161,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       },
     );
 
-    this.asideService.show();
+    this.asideService.show(true);
   }
 
   private applySelectedAddress(displayName: string, latitude: number, longitude: number): void {
