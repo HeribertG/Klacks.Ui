@@ -66,9 +66,9 @@ export class MarketplaceBrowseComponent {
     try {
       await firstValueFrom(this.dataService.downloadAndInstall(code));
       this.installed.emit(code);
-      this.toastService.showSuccess('settings.language-plugins.marketplace.success.install', 'Success');
+      this.toastService.showSuccess(this.translate.instant('settings.language-plugins.marketplace.success.install'), this.translate.instant('TOAST_SUCCESS'));
     } catch {
-      this.toastService.showError('settings.language-plugins.marketplace.error.install');
+      this.toastService.showError(this.translate.instant('settings.language-plugins.marketplace.error.install'));
     } finally {
       this.installingCode = '';
     }

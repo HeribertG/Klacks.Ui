@@ -82,6 +82,10 @@ export class ResponseInterceptor implements HttpInterceptor {
     const url = error.url || '';
     const method = req.method.toUpperCase();
 
+    if (url.includes('Addresses/Validate')) {
+      return throwError(() => error);
+    }
+
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);
@@ -192,6 +196,10 @@ export class ResponseInterceptor implements HttpInterceptor {
   ): Observable<never> {
     const entityInfo = this.getEntityInfo(url);
     const operationType = this.getOperationType(method);
+
+    if (this.isAddressValidationError(error)) {
+      return throwError(() => error);
+    }
 
     const errorMessage = this.buildErrorMessage(
       `${entityInfo.name} ${operationType.toLowerCase()}`,
@@ -317,6 +325,13 @@ export class ResponseInterceptor implements HttpInterceptor {
     return errorMessage;
   }
 
+  private isAddressValidationError(error: HttpErrorResponse): boolean {
+    const errors = error.error?.errors;
+    if (!errors) return false;
+    return Object.values(errors).flat()
+      .some((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'));
+  }
+
   private handlePasswordChangeError(
     error: HttpErrorResponse
   ): Observable<never> {
@@ -427,13 +442,13 @@ export class ResponseInterceptor implements HttpInterceptor {
       case 401: // wird vom TokenRefreshInterceptor behandelt
         break;
       case 404:
-        this.toastShowService.showError('404 Not Found ', '404 Not Found');
+        this.toastShowService.showError(this.translateService.instant('HTTP_ERROR_404'), '404');
         break;
       case 500:
         if (!this.isSpecific500Error(error.url || '')) {
           this.toastShowService.showError(
-            '500 Internal Server Error ',
-            '500 Internal Server Error',
+            this.translateService.instant('HTTP_ERROR_500'),
+            '500',
             error.message
           );
           this.navigationService.navigateToError();
@@ -450,7 +465,9 @@ export class ResponseInterceptor implements HttpInterceptor {
       default:
         // Für unbekannte Status-Codes
         if (error.status >= 400) {
-          this.toastShowService.showError(error.status.toString());
+          this.toastShowService.showError(
+            this.translateService.instant('HTTP_ERROR_UNKNOWN', { status: error.status })
+          );
         }
     }
     if (error.statusText === 'Unknown Error') {

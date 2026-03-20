@@ -181,7 +181,7 @@ describe('LLMModelsComponent', () => {
 
             fixture.detectChanges();
 
-            expect(mockToastService.showError).toHaveBeenCalledWith('settings.llm-models.error.load-models');
+            expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
             expect(component.models.length).toBe(0);
             expect(component.isLoading).toBe(false);
         });
@@ -296,7 +296,7 @@ describe('LLMModelsComponent', () => {
 
             // Assert
             expect(mockLLMService.createModel).toHaveBeenCalled();
-            expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.llm-models.success.create', 'Success');
+            expect(mockToastService.showSuccess).toHaveBeenCalledWith('Translated text', 'Translated text');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
@@ -315,7 +315,7 @@ describe('LLMModelsComponent', () => {
 
             // Assert
             expect(mockLLMService.updateModel).toHaveBeenCalled();
-            expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.llm-models.success.update', 'Success');
+            expect(mockToastService.showSuccess).toHaveBeenCalledWith('Translated text', 'Translated text');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
@@ -394,7 +394,7 @@ describe('LLMModelsComponent', () => {
             await component.onSaveModal(mockModal);
 
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith('settings.llm-models.error.save');
+            expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
             expect(mockModal.close).not.toHaveBeenCalled();
         });
 

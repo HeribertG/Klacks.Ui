@@ -146,7 +146,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading LLM models:', error);
-          this.toastService.showError('settings.llm-models.error.load-models');
+          this.toastService.showError(this.translate.instant('settings.llm-models.error.load-models'));
           this.isLoading = false;
         },
       });
@@ -296,12 +296,12 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.toastService.showSuccess(
-        'settings.llm-models.success.delete',
-        'Success'
+        this.translate.instant('settings.llm-models.success.delete'),
+        this.translate.instant('TOAST_SUCCESS')
       );
     } catch (error) {
       console.error('Error deleting model:', error);
-      this.toastService.showError('settings.llm-models.error.delete');
+      this.toastService.showError(this.translate.instant('settings.llm-models.error.delete'));
     }
   }
 
@@ -318,8 +318,8 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
         const updatedModel = { ...this.originalModel, ...this.editingModel };
         await firstValueFrom(this.llmService.updateModel(updatedModel));
         this.toastService.showSuccess(
-          'settings.llm-models.success.update',
-          'Success'
+          this.translate.instant('settings.llm-models.success.update'),
+          this.translate.instant('TOAST_SUCCESS')
         );
       } else {
         const createdModel = await firstValueFrom(
@@ -331,8 +331,8 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.editingModel = createdModel;
           this.originalModel = createdModel;
           this.toastService.showSuccess(
-            'settings.llm-models.success.create',
-            'Success'
+            this.translate.instant('settings.llm-models.success.create'),
+            this.translate.instant('TOAST_SUCCESS')
           );
         }
       }
@@ -340,7 +340,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       return true;
     } catch (error) {
       console.error('Error saving model:', error);
-      this.toastService.showError('settings.llm-models.error.save');
+      this.toastService.showError(this.translate.instant('settings.llm-models.error.save'));
       this.loadModels();
       return false;
     } finally {

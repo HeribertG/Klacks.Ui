@@ -98,12 +98,14 @@ describe('EmailSettingComponent', () => {
     });
 
     describe('Email Configuration Test', () => {
-        it('should test email configuration successfully', async () => {
+        it('should test email configuration successfully with messageKey', async () => {
             // Arrange
             await component.ngOnInit();
             const successResult: EmailTestResult = {
                 success: true,
                 message: 'Email configuration test successful',
+                messageKey: 'EMAIL_TEST_SUCCESS_SENT',
+                messageParams: { email: 'test@test.com' },
             };
             mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
 
@@ -113,6 +115,24 @@ describe('EmailSettingComponent', () => {
 
             // Assert
             expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalled();
+            expect(mockToastService.showSuccess).toHaveBeenCalledWith('Translated text', 'Translated text');
+            expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should fall back to message when messageKey is absent', async () => {
+            // Arrange
+            await component.ngOnInit();
+            const successResult: EmailTestResult = {
+                success: true,
+                message: 'Fallback message',
+            };
+            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+
+            // Act
+            component.testEmailConfiguration();
+            await new Promise(resolve => setTimeout(resolve, 10));
+
+            // Assert
             expect(mockToastService.showSuccess).toHaveBeenCalledWith(successResult.message, 'Translated text');
             expect(component.isTestingEmail).toBe(false);
         });
@@ -123,6 +143,7 @@ describe('EmailSettingComponent', () => {
             const errorResult: EmailTestResult = {
                 success: false,
                 message: 'Email configuration test failed',
+                messageKey: 'EMAIL_TEST_AUTH_FAILED',
                 errorDetails: 'SMTP authentication error',
             };
             mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(errorResult));
@@ -133,7 +154,7 @@ describe('EmailSettingComponent', () => {
 
             // Assert
             expect(mockToastService.showError).toHaveBeenCalledWith(
-                errorResult.message,
+                'Translated text',
                 'Translated text',
                 errorResult.errorDetails
             );

@@ -21,6 +21,7 @@ import { AngularSplitModule } from 'angular-split';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 
@@ -55,6 +56,7 @@ export class AbsenceGanttContainerComponent {
   private dataManagementBreakService = inject(DataManagementBreakPlaceholderService);
   private workplaceStateService = inject(WorkplaceStateService);
   private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
   private scrollService = inject(ScrollService);
   private ganttPdfExportService = inject(GanttPdfExportService);
 
@@ -139,7 +141,7 @@ export class AbsenceGanttContainerComponent {
     try {
       await this.ganttPdfExportService.exportTest2DDrawing();
     } catch (error) {
-      this.toastShowService.showError('PDF export failed', error?.toString());
+      this.toastShowService.showError(this.translateService.instant('PDF_EXPORT_FAILED'), '', error?.toString());
     }
   }
 

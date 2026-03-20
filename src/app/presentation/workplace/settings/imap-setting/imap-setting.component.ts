@@ -128,14 +128,18 @@ export class ImapSettingComponent implements OnInit, OnDestroy {
         next: (result: EmailTestResult) => {
           this.isTestingImap = false;
 
+          const translatedMessage = result.messageKey
+            ? this.translateService.instant(result.messageKey, result.messageParams)
+            : result.message;
+
           if (result.success) {
             this.toastShowService.showSuccess(
-              result.message,
+              translatedMessage,
               this.translateService.instant('IMAP_TEST_SUCCESSFUL')
             );
           } else {
             this.toastShowService.showError(
-              result.message,
+              translatedMessage,
               this.translateService.instant('IMAP_TEST_ERROR'),
               result.errorDetails || ''
             );

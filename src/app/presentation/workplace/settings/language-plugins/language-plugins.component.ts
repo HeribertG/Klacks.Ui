@@ -80,9 +80,9 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
       await firstValueFrom(this.dataService.uninstall(plugin.code));
       plugin.isInstalled = false;
       await this.languageConfigService.reloadConfig();
-      this.toastService.showSuccess('settings.language-plugins.success.uninstall', 'Success');
+      this.toastService.showSuccess(this.translate.instant('settings.language-plugins.success.uninstall'), this.translate.instant('TOAST_SUCCESS'));
     } catch {
-      this.toastService.showError('settings.language-plugins.error.uninstall');
+      this.toastService.showError(this.translate.instant('settings.language-plugins.error.uninstall'));
     }
   }
 

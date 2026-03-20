@@ -13,6 +13,8 @@ export interface EmailTestRequest {
 export interface EmailTestResult {
   success: boolean;
   message: string;
+  messageKey?: string;
+  messageParams?: Record<string, string>;
   errorDetails?: string;
 }
 
