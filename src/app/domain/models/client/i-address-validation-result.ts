@@ -12,6 +12,7 @@ export interface IAddressValidationResult {
   latitude?: number;
   longitude?: number;
   returnedAddress?: string;
+  expectedState?: string;
   suggestions: IAddressSuggestion[];
 }
 

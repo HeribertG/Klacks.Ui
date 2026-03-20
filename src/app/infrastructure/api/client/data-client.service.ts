@@ -150,7 +150,7 @@ export class DataClientService {
     return this.httpClient
       .post<IAddressValidationResult>(
         `${environment.baseUrl}Addresses/Validate`,
-        address,
+        { street: address.street, zip: address.zip, city: address.city, state: address.state, country: address.country },
       )
       .pipe();
   }

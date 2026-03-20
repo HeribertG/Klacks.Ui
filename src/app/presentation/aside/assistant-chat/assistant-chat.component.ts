@@ -93,6 +93,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     effect(() => {
       if (this.asideService.isVisible()) {
         this.assistantProviderService.loadProviders();
+
+        if (!this.asideService.openedWithContext() && this.messages.length === 0) {
+          const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+          this.addWelcomeMessage(currentLang);
+        }
       }
     });
   }
@@ -434,19 +439,77 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   private handleAddressValidationForChat(event: AddressValidationFailedEvent): void {
-    this.asideService.show();
+    const welcomeIndex = this.messages.findIndex(
+      (m) => m.sender === 'assistant' && m.suggestions && m.suggestions.length > 0
+    );
+    if (welcomeIndex === 0) {
+      this.messages.splice(welcomeIndex, 1);
+    }
 
-    const addressStr = [event.street, event.zip, event.city, event.country].filter(Boolean).join(', ');
+    this.asideService.show(true);
+
+    const parts = [
+      event.street ? `Strasse: "${event.street}"` : '',
+      event.zip ? `PLZ: "${event.zip}"` : '',
+      event.city ? `Ort: "${event.city}"` : '',
+      event.state ? `Kanton/Bundesland: "${event.state}"` : '',
+      event.country ? `Land: "${event.country}"` : '',
+    ].filter(Boolean).join(', ');
+
     const suggestionsText = event.suggestions.length > 0
-      ? event.suggestions.map((s) => `- ${s.displayName}`).join('\n')
+      ? `\nNominatim-Vorschläge:\n${event.suggestions.map((s) => `- ${s.displayName}`).join('\n')}`
       : '';
 
-    const prompt = suggestionsText
-      ? `Die Adresse "${addressStr}" konnte nicht verifiziert werden. Nominatim schlägt folgende Alternativen vor:\n${suggestionsText}\nBitte hilf dem Benutzer die richtige Adresse auszuwählen oder eine korrekte Adresse einzugeben.`
-      : `Die Adresse "${addressStr}" konnte nicht verifiziert werden. Bitte hilf dem Benutzer eine korrekte Adresse einzugeben.`;
+    const prompt = `Die folgende Adresse konnte nicht verifiziert werden: ${parts}.${suggestionsText}
+Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Regeln:
 
-    this.inputText = prompt;
-    this.sendMessage();
+- Wenn der Skill ein Ergebnis fuer "Canton" oder eine Region zurueckgibt, ist die PLZ GUELTIG. Behaupte dann NICHT, dass die PLZ falsch oder ungueltig ist.
+- Vergleiche die vom Skill zurueckgegebene Region mit dem eingetragenen Kanton/Bundesland. Bei Abweichung: melde die korrekte Region.
+- Bei MatchType "city_only": PLZ und Ort sind korrekt, nur Strasse oder Hausnummer wurde nicht gefunden.
+- Bei MatchType "not_found": Die Kombination wurde beim Geocoding nicht gefunden.
+- Fasse zusammen was korrekt ist, was falsch ist, und schlage eine korrigierte Adresse vor.`;
+
+    this.sendHiddenMessage(prompt, true);
+  }
+
+  private async sendHiddenMessage(prompt: string, suppressSuggestions: boolean = false): Promise<void> {
+    if (this.isProcessing) return;
+
+    this.isProcessing = true;
+
+    try {
+      const response = await firstValueFrom(
+        this.assistantService.sendMessage(prompt, this.conversationId)
+      );
+
+      const assistantMessage: ChatMessage = {
+        id: this.generateMessageId(),
+        sender: 'assistant',
+        content: response?.message || '',
+        timestamp: new Date(),
+        suggestions: suppressSuggestions ? undefined : (response?.suggestedReplies ? undefined : response?.suggestions),
+        suggestedReplies: suppressSuggestions ? undefined : response?.suggestedReplies,
+      };
+
+      this.messages.push(assistantMessage);
+      this.shouldScrollToBottom = true;
+
+      if (response?.functionCalls && response.functionCalls.length > 0) {
+        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls, this.messages);
+      }
+    } catch {
+      this.messages.push({
+        id: this.generateMessageId(),
+        sender: 'assistant',
+        content: this.translateService.instant('assistant-chat.error.generic'),
+        timestamp: new Date(),
+      });
+      this.shouldScrollToBottom = true;
+      this.cdr.detectChanges();
+    } finally {
+      this.isProcessing = false;
+      this.cdr.detectChanges();
+    }
   }
 
   clearChat(): void {

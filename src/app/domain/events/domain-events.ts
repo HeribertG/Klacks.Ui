@@ -42,5 +42,6 @@ export interface AddressValidationFailedEvent {
   zip: string;
   city: string;
   country: string;
+  state: string;
   suggestions: { displayName: string; latitude: number; longitude: number }[];
 }

@@ -194,7 +194,8 @@ export class ClientEditService {
 
   private handleAddressValidationFailure(address: IAddress, result: IAddressValidationResult): void {
     const addressStr = [address.street, address.zip, address.city].filter(Boolean).join(', ');
-    const errorMessage = this.translateService.instant('address.validation.failed', { address: addressStr });
+    const translationKey = this.getValidationTranslationKey(result.matchType);
+    const errorMessage = this.translateService.instant(translationKey, { address: addressStr, expected: result.expectedState || '' });
 
     this.lastSaveError.set(true);
     this.lastSaveErrorMessage.set(errorMessage);
@@ -210,12 +211,84 @@ export class ClientEditService {
       zip: address.zip,
       city: address.city,
       country: address.country,
+      state: address.state,
       suggestions: result.suggestions.map((s) => ({
         displayName: s.displayName,
         latitude: s.latitude,
         longitude: s.longitude,
       })),
     });
+  }
+
+  private getValidationTranslationKey(matchType: string): string {
+    switch (matchType) {
+      case 'city_only':
+        return 'address.validation.city-only';
+      case 'not_found':
+        return 'address.validation.not-found';
+      case 'missing_fields':
+        return 'address.validation.missing-fields';
+      case 'state_mismatch':
+        return 'address.validation.state-mismatch';
+      default:
+        return 'address.validation.failed';
+    }
+  }
+
+  private isAddressValidationError(error: unknown): boolean {
+    const httpError = error as { error?: { errors?: Record<string, string[]> } };
+    if (!httpError?.error?.errors) return false;
+    return Object.values(httpError.error.errors).flat()
+      .some((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'));
+  }
+
+  private handleBackendAddressValidationError(error: unknown): void {
+    const httpError = error as { error?: { errors?: Record<string, string[]> } };
+    const messages = httpError?.error?.errors
+      ? Object.values(httpError.error.errors).flat()
+      : [];
+
+    const rawAddress = messages
+      .filter((msg) => typeof msg === 'string' && msg.startsWith('address.validation.failed'))
+      .map((msg) => msg.split('|')[1] || '')
+      .filter(Boolean)[0] || '';
+
+    const parsed = this.parseAddressString(rawAddress);
+
+    const errorMessage = this.translateService.instant('address.validation.failed', { address: rawAddress });
+
+    this.lastSaveErrorMessage.set(errorMessage);
+
+    this.eventBus.emit(DomainEventType.ERROR, {
+      message: errorMessage,
+      code: 'address-validation-failed',
+      context: 'ClientEditService.saveEditClient',
+    });
+
+    const currentAddr = this.editClient()?.addresses?.[0];
+    this.eventBus.emit<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED, {
+      street: parsed.street,
+      zip: parsed.zip,
+      city: parsed.city,
+      state: currentAddr?.state || '',
+      country: parsed.country,
+      suggestions: [],
+    });
+  }
+
+  private parseAddressString(raw: string): { street: string; zip: string; city: string; country: string } {
+    const match = raw.match(/^(.+?),\s*(\d{4,5})\s+(.+)$/);
+    if (match) {
+      return { street: match[1].trim(), zip: match[2], city: match[3].trim(), country: '' };
+    }
+
+    const client = this.editClient();
+    const addr = client?.addresses?.[0];
+    if (addr) {
+      return { street: addr.street, zip: addr.zip, city: addr.city, country: addr.country };
+    }
+
+    return { street: '', zip: '', city: '', country: '' };
   }
 
   private executeClientSave(): void {
@@ -250,6 +323,11 @@ export class ClientEditService {
       error: (error) => {
         this.lastSaveError.set(true);
         this._showProgressSpinner.set(false);
+
+        if (this.isAddressValidationError(error)) {
+          this.handleBackendAddressValidationError(error);
+          return;
+        }
 
         let errorMessage = 'Error while saving';
         const errorKeys: string[] = [];
