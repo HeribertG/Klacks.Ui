@@ -1642,6 +1642,8 @@
   "shift.container-template.properties.debriefing-time": "Debriefingzeit",
   "shift.container-template.properties.travel-time-before": "Fahrzeit vorher",
   "shift.container-template.properties.travel-time-after": "Fahrzeit nachher",
+  "shift.container-template.properties.start-time": "Startzeit",
+  "shift.container-template.properties.end-time": "Endzeit",
   "shift.container-template.properties.time-range-info": "Dieser Dienst sollte in einem Zeitfenster zwischen {{startShift}} und {{endShift}} liegen",
   "shift.container-template.transport-mode": "Transport",
   "shift.container-template.transport-mode.by-car": "Mit dem Auto",

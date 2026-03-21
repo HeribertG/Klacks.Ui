@@ -375,9 +375,9 @@ export class TimeRulerRenderService {
   ): Rectangle | null {
     const hasTimeRange =
       item.shift?.isTimeRange &&
-      item.timeRangeStartShift &&
-      item.timeRangeEndShift;
-    const hasFixedTime = item.startShift && item.endShift;
+      item.timeRangeStartItem &&
+      item.timeRangeEndItem;
+    const hasFixedTime = item.startItem && item.endItem;
 
     if (!hasTimeRange && !hasFixedTime) {
       return null;

@@ -10,7 +10,7 @@ import {
 } from 'src/app/shared/helpers/time-format.helper';
 
 export interface ItemTimeChange {
-  timeRangeStartShift?: string;
+  timeRangeStartItem?: string;
   briefingTime?: string;
   debriefingTime?: string;
   travelTimeBefore?: string;
@@ -74,16 +74,16 @@ export class ContainerTemplateItemManipulationService {
     }
 
     if (
-      changes.timeRangeStartShift !== undefined &&
+      changes.timeRangeStartItem !== undefined &&
       oldItem.shift?.isTimeRange
     ) {
-      updatedItem.timeRangeStartShift = changes.timeRangeStartShift;
+      updatedItem.timeRangeStartItem = changes.timeRangeStartItem;
       const workTimeMinutes = Math.round((oldItem.shift?.workTime || 0) * 60);
       const startMinutes = this.timeRangeService.getShiftStartMinutes({
         ...oldItem,
-        timeRangeStartShift: changes.timeRangeStartShift,
+        timeRangeStartItem: changes.timeRangeStartItem,
       });
-      updatedItem.timeRangeEndShift = this.minutesToTimeString(
+      updatedItem.timeRangeEndItem = this.minutesToTimeString(
         startMinutes + workTimeMinutes
       );
     }
@@ -102,9 +102,9 @@ export class ContainerTemplateItemManipulationService {
     oldItem: IContainerTemplateItem,
     changes: ItemTimeChange
   ): boolean {
-    if (changes.timeRangeStartShift !== undefined) {
+    if (changes.timeRangeStartItem !== undefined) {
       const oldStart = this.timeRangeService.getShiftStartMinutes(oldItem);
-      const newStart = timeToMinutes(changes.timeRangeStartShift);
+      const newStart = timeToMinutes(changes.timeRangeStartItem);
       if (newStart > oldStart) {
         return true;
       }
@@ -191,8 +191,8 @@ export class ContainerTemplateItemManipulationService {
 
         result[i] = {
           ...currentItem,
-          timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
-          timeRangeEndShift: this.minutesToTimeString(newEndMinutes),
+          timeRangeStartItem: this.minutesToTimeString(newStartMinutes),
+          timeRangeEndItem: this.minutesToTimeString(newEndMinutes),
         };
 
         return this.pushDownOverlappingItems(result[i], result);
@@ -255,8 +255,8 @@ export class ContainerTemplateItemManipulationService {
 
         const newItem: IContainerTemplateItem = {
           ...item,
-          timeRangeStartShift: newStartShift,
-          timeRangeEndShift: newEndShift,
+          timeRangeStartItem: newStartShift,
+          timeRangeEndItem: newEndShift,
           travelTimeBefore: travelTimeBeforeHHMM,
         };
 
@@ -300,8 +300,8 @@ export class ContainerTemplateItemManipulationService {
 
     const updatedItem: IContainerTemplateItem = {
       ...item,
-      timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
-      timeRangeEndShift: this.minutesToTimeString(newEndMinutes),
+      timeRangeStartItem: this.minutesToTimeString(newStartMinutes),
+      timeRangeEndItem: this.minutesToTimeString(newEndMinutes),
     };
 
     return this.pushDownOverlappingItems(updatedItem, allItems);

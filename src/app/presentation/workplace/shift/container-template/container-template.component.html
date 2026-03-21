@@ -380,7 +380,9 @@
                           [class.timerange-violation]="hasTimeRangeViolation(shift)"
                         >
                           <td class="icon-column">
-                            @if (shift.shift?.isSporadic) {
+                            @if (shift.absenceId) {
+                              <span class="absence-color-rect" [style.background-color]="shift.absence?.color"></span>
+                            } @else if (shift.shift?.isSporadic) {
                               <app-icon-unknown-time></app-icon-unknown-time>
                             } @else if (shift.shift?.isTimeRange) {
                               <app-icon-time-window></app-icon-time-window>
@@ -388,10 +390,12 @@
                               <app-icon-shift-segment></app-icon-shift-segment>
                             }
                           </td>
-                          <td>{{ shift.shift?.name }}</td>
-                          <td>{{ shift.shift?.abbreviation }}</td>
+                          <td>{{ shift.absenceId ? (shift.absence?.name?.[translateService.currentLang] || shift.absence?.name?.['de']) : shift.shift?.name }}</td>
+                          <td>{{ shift.absenceId ? (shift.absence?.abbreviation?.[translateService.currentLang] || shift.absence?.abbreviation?.['de']) : shift.shift?.abbreviation }}</td>
                           <td>
-                            @if (shift.shift?.isTimeRange) {
+                            @if (shift.absenceId) {
+                              {{ formatTime(shift.startItem) }} - {{ formatTime(shift.endItem) }}
+                            } @else if (shift.shift?.isTimeRange) {
                               <div
                                 class="time-range-inputs"
                                 (click)="$event.stopPropagation()"
@@ -406,22 +410,26 @@
                                 ></app-time-input>
                                 <span class="time-separator">-</span>
                                 <span class="time-display">{{
-                                  formatTime(shift.timeRangeEndShift)
+                                  formatTime(shift.timeRangeEndItem)
                                 }}</span>
                               </div>
                             } @else {
-                              {{ formatTime(shift.startShift) }} -
-                              {{ formatTime(shift.endShift) }}
+                              {{ formatTime(shift.startItem) }} -
+                              {{ formatTime(shift.endItem) }}
                             }
                           </td>
                           <td>
-                            {{
-                              shift.shift?.workTime
-                                ? formatWorkTime(shift.shift!.workTime)
-                                : "-"
-                            }}
+                            @if (shift.absenceId) {
+                              -
+                            } @else {
+                              {{
+                                shift.shift?.workTime
+                                  ? formatWorkTime(shift.shift!.workTime)
+                                  : "-"
+                              }}
+                            }
                           </td>
-                          <td>{{ formatClientWithAddress(shift) }}</td>
+                          <td>{{ shift.absenceId ? '-' : formatClientWithAddress(shift) }}</td>
                           <td
                             class="action-column"
                             (click)="
@@ -489,9 +497,15 @@
                               <th>{{ "setting.absence.modal.description" | translate }}</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody
+                            cdkDropList
+                            id="container-absences-list"
+                            [cdkDropListData]="tabService.containerAbsences"
+                            [cdkDropListConnectedTo]="['selected-tasks-list']"
+                            [cdkDropListSortingDisabled]="true"
+                          >
                             @for (absence of tabService.containerAbsences; track absence.id) {
-                              <tr>
+                              <tr cdkDrag>
                                 <td class="icon-column">
                                   <span class="absence-color-rect" [style.background-color]="absence.color"></span>
                                 </td>
@@ -674,14 +688,14 @@
       @if (propertiesService.contextMenuTargetItem.shift?.isTimeRange) {
         <div class="row-line-modal-inline1">
           <div class="property-field">
-            <label for="timeRangeStartShift">
+            <label for="timeRangeStartItem">
               {{
                 "shift.container-template.properties.time-range-start"
                   | translate
               }}
             </label>
             <app-time-input
-              id="timeRangeStartShift"
+              id="timeRangeStartItem"
               [value]="propertiesService.getPropertiesTimeRangeStart()"
               (valueChange)="propertiesService.onPropertiesTimeRangeStartChange($event)"
               [showLabel]="false"
@@ -826,6 +840,69 @@
         </div>
       }
     }
+  </div>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss()"
+      >{{ "cancel" | translate }}</span
+    >
+    <button type="button" class="btn save-btn" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Absence Time Modal -->
+<ng-template #absenceTimeModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ absenceModalTitle }}
+    </div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="row-line-modal-inline1">
+      <div class="property-field">
+        <label>
+          {{ "shift.container-template.properties.start-time" | translate }}
+        </label>
+        <app-time-input
+          [value]="absenceStartTime"
+          (valueChange)="onAbsenceStartTimeChange($event)"
+          [showLabel]="false"
+          [forDuration]="false"
+        ></app-time-input>
+      </div>
+      <div class="property-field">
+        <label>
+          {{ "shift.container-template.properties.end-time" | translate }}
+        </label>
+        <app-time-input
+          [value]="absenceEndTime"
+          (valueChange)="onAbsenceEndTimeChange($event)"
+          [showLabel]="false"
+          [forDuration]="false"
+        ></app-time-input>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <span

@@ -425,7 +425,7 @@ export class DataManagementContainerService
     if (selectedContainerTemplateItems.length === 0) return;
 
     const containerTemplateItems: IContainerTemplateItem[] =
-      selectedContainerTemplateItems.filter((task) => task.shiftId);
+      selectedContainerTemplateItems.filter((task) => task.shiftId || task.absenceId);
 
     const newTemplate: IContainerTemplate = {
       containerId: containerId,
@@ -462,7 +462,7 @@ export class DataManagementContainerService
       const slot = slotsForWeekday[0];
 
       const containerTemplateItems: IContainerTemplateItem[] = tasks.filter(
-        (task: IContainerTemplateItem) => task.shiftId
+        (task: IContainerTemplateItem) => task.shiftId || task.absenceId
       );
 
       const existingTemplate = templates.find(

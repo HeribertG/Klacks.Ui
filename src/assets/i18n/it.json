@@ -1624,6 +1624,8 @@
   "shift.container-template.properties.debriefing-time": "Tempo di debriefing",
   "shift.container-template.properties.travel-time-before": "Tempo di viaggio prima",
   "shift.container-template.properties.travel-time-after": "Tempo di viaggio dopo",
+  "shift.container-template.properties.start-time": "Ora di inizio",
+  "shift.container-template.properties.end-time": "Ora di fine",
   "shift.container-template.properties.time-range-info": "Questo turno dovrebbe essere programmato in una fascia oraria tra {{startShift}} e {{endShift}}",
   "shift.container-template.transport-mode": "Trasporto",
   "shift.container-template.transport-mode.by-car": "In auto",

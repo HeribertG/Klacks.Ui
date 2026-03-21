@@ -17,7 +17,7 @@ import { DataManagementContainerService } from 'src/app/domain/services/containe
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 
 export interface EditedProperties {
-  timeRangeStartShift: string;
+  timeRangeStartItem: string;
   briefingTime: string;
   debriefingTime: string;
   travelTimeBefore: string;
@@ -50,7 +50,7 @@ export class ContainerTemplatePropertiesService {
     this.currentIsHoliday = isHoliday ?? false;
 
     this.editedProperties = {
-      timeRangeStartShift: this.contextMenuTargetItem.timeRangeStartShift || '',
+      timeRangeStartItem: this.contextMenuTargetItem.timeRangeStartItem || '',
       briefingTime: this.contextMenuTargetItem.briefingTime || '00:00',
       debriefingTime: this.contextMenuTargetItem.debriefingTime || '00:00',
       travelTimeBefore: this.contextMenuTargetItem.travelTimeBefore || '00:00',
@@ -81,7 +81,7 @@ export class ContainerTemplatePropertiesService {
         debriefingTime: this.editedProperties.debriefingTime,
         travelTimeBefore: this.editedProperties.travelTimeBefore,
         travelTimeAfter: this.editedProperties.travelTimeAfter,
-        timeRangeStartShift: this.editedProperties.timeRangeStartShift,
+        timeRangeStartItem: this.editedProperties.timeRangeStartItem,
         transportMode: this.editedProperties.transportMode,
       },
       items,
@@ -110,11 +110,11 @@ export class ContainerTemplatePropertiesService {
   }
 
   getPropertiesTimeRangeStart(): OwnTime {
-    if (!this.editedProperties?.timeRangeStartShift) {
+    if (!this.editedProperties?.timeRangeStartItem) {
       return OwnTime.forTime('00', '00');
     }
     const parsed = this.timeRangeService.parseTimeString(
-      this.editedProperties.timeRangeStartShift,
+      this.editedProperties.timeRangeStartItem,
     );
     if (!parsed) {
       return OwnTime.forTime('00', '00');
@@ -127,7 +127,7 @@ export class ContainerTemplatePropertiesService {
 
   onPropertiesTimeRangeStartChange(time: OwnTime): void {
     if (this.editedProperties) {
-      this.editedProperties.timeRangeStartShift = `${time.hours}:${time.minutes}:00`;
+      this.editedProperties.timeRangeStartItem = `${time.hours}:${time.minutes}:00`;
     }
   }
 

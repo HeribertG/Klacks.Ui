@@ -97,8 +97,8 @@ export class TimeRulerDragDropService {
   ): boolean {
     if (
       !item.shift?.isTimeRange ||
-      !item.timeRangeStartShift ||
-      !item.timeRangeEndShift
+      !item.timeRangeStartItem ||
+      !item.timeRangeEndItem
     ) {
       return false;
     }
@@ -578,8 +578,8 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    const newStartTime = item.timeRangeStartShift;
-    const newEndTime = item.timeRangeEndShift;
+    const newStartTime = item.timeRangeStartItem;
+    const newEndTime = item.timeRangeEndItem;
 
     if (!newStartTime || !newEndTime) {
       return null;

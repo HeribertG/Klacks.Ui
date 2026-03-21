@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { IShift } from '../shift/shift-class';
+import { IAbsence } from '../absence/absence-class';
 import { ContainerTransportModeEnum, TransportModeEnum } from '../../enums/transport-mode.enum';
 
 export interface IRouteLocation {
@@ -64,15 +65,17 @@ export interface IContainerTemplateItem {
   id?: string;
   tmpId?: string;
   containerTemplateId?: string;
-  shiftId: string;
-  startShift?: string;
-  endShift?: string;
+  shiftId?: string;
+  absenceId?: string;
+  startItem?: string;
+  endItem?: string;
   briefingTime: string;
   debriefingTime: string;
   travelTimeAfter: string;
   travelTimeBefore: string;
-  timeRangeStartShift: string;
-  timeRangeEndShift: string;
+  timeRangeStartItem: string;
+  timeRangeEndItem: string;
   transportMode?: TransportModeEnum;
   shift?: IShift;
+  absence?: IAbsence;
 }

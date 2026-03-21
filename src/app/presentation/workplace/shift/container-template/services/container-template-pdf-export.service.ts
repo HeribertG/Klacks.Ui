@@ -164,15 +164,15 @@ export class ContainerTemplatePdfExportService {
 
   private formatStartTime(item: IContainerTemplateItem): string {
     const timeString = item.shift?.isTimeRange
-      ? item.timeRangeStartShift || item.startShift || ''
-      : item.startShift || '';
+      ? item.timeRangeStartItem || item.startItem || ''
+      : item.startItem || '';
     return this.formatTimeToHHMM(timeString);
   }
 
   private formatEndTime(item: IContainerTemplateItem): string {
     const timeString = item.shift?.isTimeRange
-      ? item.timeRangeEndShift || item.endShift || ''
-      : item.endShift || '';
+      ? item.timeRangeEndItem || item.endItem || ''
+      : item.endItem || '';
     return this.formatTimeToHHMM(timeString);
   }
 

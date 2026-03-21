@@ -12,6 +12,7 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import {
   IContainerTemplateItem,
 } from 'src/app/domain/models/container/container-template-class';
@@ -48,11 +49,11 @@ export class ContainerTemplateShiftOperationsService {
   }
 
   getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
-    if (!item.timeRangeStartShift) {
+    if (!item.timeRangeStartItem) {
       return OwnTime.forTime('00', '00');
     }
     const parsed = this.timeRangeService.parseTimeString(
-      item.timeRangeStartShift,
+      item.timeRangeStartItem,
     );
     if (!parsed) {
       return OwnTime.forTime('00', '00');
@@ -185,23 +186,43 @@ export class ContainerTemplateShiftOperationsService {
       tmpId: newGuid(),
       shiftId: shift.id!,
       shift: shift,
-      startShift: shift.startShift,
-      endShift: shift.endShift,
+      startItem: shift.startShift,
+      endItem: shift.endShift,
       briefingTime: shift.briefingTime,
       debriefingTime: shift.debriefingTime,
       travelTimeAfter: shift.travelTimeAfter,
       travelTimeBefore: shift.travelTimeBefore,
-      timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
-      timeRangeEndShift: shift.isTimeRange ? shift.endShift : '',
+      timeRangeStartItem: shift.isTimeRange ? shift.startShift : '',
+      timeRangeEndItem: shift.isTimeRange ? shift.endShift : '',
+    };
+  }
+
+  convertAbsenceToContainerTemplateItem(
+    absence: IAbsence,
+    startTime: string,
+    endTime: string,
+  ): IContainerTemplateItem {
+    return {
+      tmpId: newGuid(),
+      absenceId: absence.id,
+      absence: absence,
+      startItem: startTime,
+      endItem: endTime,
+      briefingTime: '00:00',
+      debriefingTime: '00:00',
+      travelTimeAfter: '00:00',
+      travelTimeBefore: '00:00',
+      timeRangeStartItem: '',
+      timeRangeEndItem: '',
     };
   }
 
   hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
-    if (!item.shift?.isTimeRange || !item.timeRangeStartShift) {
+    if (!item.shift?.isTimeRange || !item.timeRangeStartItem) {
       return false;
     }
-    const plannedStart = timeToMinutes(item.timeRangeStartShift);
-    const plannedEnd = timeToMinutes(item.timeRangeEndShift);
+    const plannedStart = timeToMinutes(item.timeRangeStartItem);
+    const plannedEnd = timeToMinutes(item.timeRangeEndItem);
     const shiftRangeStart = timeToMinutes(item.shift.startShift);
     const shiftRangeEnd = timeToMinutes(item.shift.endShift);
 
@@ -326,15 +347,18 @@ export class ContainerTemplateShiftOperationsService {
   ): void {
     const itemIdentifier = item.id || item.tmpId;
     if (itemIdentifier) {
-      if (item.shift && selectedWeekday) {
+      if (selectedWeekday) {
         const weekdayNumber = this.containerService.getWeekdayNumber(
           selectedWeekday,
         );
-        this.containerService.addShiftToAvailableTasks(
-          item.shift,
-          weekdayNumber,
-        );
-        updateAvailableTasksFn();
+
+        if (item.shift) {
+          this.containerService.addShiftToAvailableTasks(
+            item.shift,
+            weekdayNumber,
+          );
+          updateAvailableTasksFn();
+        }
 
         this.containerService.removeTaskItemFromTemplates(
           itemIdentifier,

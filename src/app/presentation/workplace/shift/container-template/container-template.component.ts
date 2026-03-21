@@ -44,6 +44,8 @@ import {
   IContainerTemplate,
   IContainerTemplateItem,
 } from 'src/app/domain/models/container/container-template-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,
@@ -196,6 +198,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   contextMenu!: ContextMenuComponent;
   @ViewChild('propertiesModal', { static: false })
   propertiesModal!: TemplateRef<unknown>;
+  @ViewChild('absenceTimeModal', { static: false })
+  absenceTimeModal!: TemplateRef<unknown>;
 
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
@@ -210,6 +214,17 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     hideLimitLabels: true,
     hidePointerLabels: true,
   };
+
+  private ngbModal = inject(NgbModal);
+
+  public absenceStartTime = OwnTime.forTime('08', '00');
+  public absenceEndTime = OwnTime.forTime('08', '30');
+  public absenceModalTitle = '';
+  private pendingAbsenceDrop: {
+    absence: IAbsence;
+    container: IContainerTemplateItem[];
+    currentIndex: number;
+  } | null = null;
 
   private currentSearchString = '';
   private currentIncludeAddress = false;
@@ -559,7 +574,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getConnectedDropLists(): string[] {
-    return ['available-tasks-list', 'selected-tasks-list'];
+    return ['available-tasks-list', 'selected-tasks-list', 'container-absences-list'];
   }
 
   onDragStarted(event: any): void {}
@@ -584,6 +599,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       }
     } else {
       if (
+        event.container.id === 'selected-tasks-list' &&
+        event.previousContainer.id === 'container-absences-list'
+      ) {
+        const absence = (event.previousContainer.data as any)[
+          event.previousIndex
+        ] as IAbsence;
+        this.openAbsenceTimeModal(absence, event.container.data, event.currentIndex);
+      } else if (
         event.container.id === 'selected-tasks-list' &&
         event.previousContainer.id === 'available-tasks-list'
       ) {
@@ -640,7 +663,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   formatClientWithAddress(item: IShift | IContainerTemplateItem): string {
-    const shift = 'shiftId' in item ? item.shift : item;
+    const shift = 'containerTemplateId' in item || 'tmpId' in item ? (item as IContainerTemplateItem).shift : (item as IShift);
 
     if (!shift?.client) {
       return '-';
@@ -814,5 +837,75 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday,
       this.isHoliday,
     );
+  }
+
+  private openAbsenceTimeModal(
+    absence: IAbsence,
+    containerData: IContainerTemplateItem[],
+    currentIndex: number,
+  ): void {
+    const lang = this.translateService.currentLang || 'de';
+    this.absenceModalTitle = absence.name?.[lang] || absence.name?.['de'] || '';
+    this.absenceStartTime = OwnTime.forTime(
+      this.timeFrom.hours,
+      this.timeFrom.minutes,
+    );
+    this.absenceEndTime = OwnTime.forTime(
+      this.timeTo.hours,
+      this.timeTo.minutes,
+    );
+    this.pendingAbsenceDrop = {
+      absence,
+      container: containerData,
+      currentIndex,
+    };
+
+    this.ngbModal
+      .open(this.absenceTimeModal, { centered: true })
+      .result.then(
+        () => {
+          this.confirmAbsenceDrop();
+        },
+        () => {
+          this.pendingAbsenceDrop = null;
+        },
+      );
+  }
+
+  private confirmAbsenceDrop(): void {
+    if (!this.pendingAbsenceDrop) return;
+
+    const { absence, container, currentIndex } = this.pendingAbsenceDrop;
+    const item = this.shiftOpsService.convertAbsenceToContainerTemplateItem(
+      absence,
+      timeToString(
+        parseInt(this.absenceStartTime.hours),
+        parseInt(this.absenceStartTime.minutes),
+      ),
+      timeToString(
+        parseInt(this.absenceEndTime.hours),
+        parseInt(this.absenceEndTime.minutes),
+      ),
+    );
+
+    container.splice(currentIndex, 0, item);
+
+    this.shiftOpsService.arrangeAndSetItems(
+      [...container],
+      this.timeFrom,
+      this.timeTo,
+      this.selectedWeekday,
+      this.isHoliday,
+    );
+
+    this.pendingAbsenceDrop = null;
+  }
+
+  onAbsenceStartTimeChange(time: OwnTime): void {
+    this.absenceStartTime = OwnTime.forTime(time.hours, time.minutes);
+  }
+
+  onAbsenceEndTimeChange(time: OwnTime): void {
+    this.absenceEndTime = OwnTime.forTime(time.hours, time.minutes);
   }
 }

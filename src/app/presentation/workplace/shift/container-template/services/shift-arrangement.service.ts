@@ -38,8 +38,8 @@ export class ShiftArrangementService {
 
       if (!item.shift?.isTimeRange && !item.shift?.isSporadic) {
         arrangedItems.push(item);
-        const endTime = item.endShift
-          ? this.timeRangeService.parseTimeString(item.endShift)
+        const endTime = item.endItem
+          ? this.timeRangeService.parseTimeString(item.endItem)
           : null;
         if (endTime) {
           const endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
@@ -49,8 +49,8 @@ export class ShiftArrangementService {
         continue;
       }
 
-      const originalStartTime = item.startShift
-        ? this.timeRangeService.parseTimeString(item.startShift)
+      const originalStartTime = item.startItem
+        ? this.timeRangeService.parseTimeString(item.startItem)
         : null;
 
       if (!originalStartTime) {
@@ -83,8 +83,8 @@ export class ShiftArrangementService {
 
       const newEndMinutes = newStartMinutes + workTimeMinutes;
 
-      item.timeRangeStartShift = formatTimeFromMinutes(newStartMinutes);
-      item.timeRangeEndShift = formatTimeFromMinutes(newEndMinutes);
+      item.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+      item.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
 
       arrangedItems.push(item);
       currentEffectivePosition = newEndMinutes + postShiftTime;
@@ -110,8 +110,8 @@ export class ShiftArrangementService {
       return result;
     }
 
-    const originalStartTime = newItem.startShift
-      ? this.timeRangeService.parseTimeString(newItem.startShift)
+    const originalStartTime = newItem.startItem
+      ? this.timeRangeService.parseTimeString(newItem.startItem)
       : null;
     if (!originalStartTime) {
       return result;
@@ -171,8 +171,8 @@ export class ShiftArrangementService {
             this.timeRangeService.getShiftEndMinutes(previousItem!) - prevStartMinutes;
           const newPrevEndMinutes = prevStartMinutes + prevDuration - halfOverlap;
 
-          previousItem!.timeRangeStartShift = formatTimeFromMinutes(prevStartMinutes);
-          previousItem!.timeRangeEndShift = formatTimeFromMinutes(newPrevEndMinutes);
+          previousItem!.timeRangeStartItem = formatTimeFromMinutes(prevStartMinutes);
+          previousItem!.timeRangeEndItem = formatTimeFromMinutes(newPrevEndMinutes);
 
           const prevPostShiftTime = this.timeRangeService.getTotalPostShiftMinutes(previousItem!);
           newStartMinutes = newPrevEndMinutes + prevPostShiftTime + preShiftTime;
@@ -185,8 +185,8 @@ export class ShiftArrangementService {
           const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
           const newNextEndMinutes = newNextStartMinutes + nextDuration;
 
-          nextItem.timeRangeStartShift = formatTimeFromMinutes(newNextStartMinutes);
-          nextItem.timeRangeEndShift = formatTimeFromMinutes(newNextEndMinutes);
+          nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
+          nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextEndMinutes);
         } else if (!isPreviousMovable && isNextMovable) {
           const nextStartMinutes = this.timeRangeService.getShiftStartMinutes(nextItem);
           const nextDuration =
@@ -194,16 +194,16 @@ export class ShiftArrangementService {
           const nextPreShiftTime = this.timeRangeService.getTotalPreShiftMinutes(nextItem);
           const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
 
-          nextItem.timeRangeStartShift = formatTimeFromMinutes(newNextStartMinutes);
-          nextItem.timeRangeEndShift = formatTimeFromMinutes(newNextStartMinutes + nextDuration);
+          nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
+          nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextStartMinutes + nextDuration);
         } else if (isPreviousMovable && !isNextMovable) {
           const prevStartMinutes = this.timeRangeService.getShiftStartMinutes(previousItem!);
           const prevDuration =
             this.timeRangeService.getShiftEndMinutes(previousItem!) - prevStartMinutes;
           const newPrevEndMinutes = prevStartMinutes + prevDuration - overlap;
 
-          previousItem!.timeRangeStartShift = formatTimeFromMinutes(prevStartMinutes);
-          previousItem!.timeRangeEndShift = formatTimeFromMinutes(newPrevEndMinutes);
+          previousItem!.timeRangeStartItem = formatTimeFromMinutes(prevStartMinutes);
+          previousItem!.timeRangeEndItem = formatTimeFromMinutes(newPrevEndMinutes);
 
           const prevPostShiftTime = this.timeRangeService.getTotalPostShiftMinutes(previousItem!);
           newStartMinutes = newPrevEndMinutes + prevPostShiftTime + preShiftTime;
@@ -212,8 +212,8 @@ export class ShiftArrangementService {
       }
     }
 
-    newItem.timeRangeStartShift = formatTimeFromMinutes(newStartMinutes);
-    newItem.timeRangeEndShift = formatTimeFromMinutes(newEndMinutes);
+    newItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+    newItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
 
     return result;
   }
@@ -250,13 +250,13 @@ export class ShiftArrangementService {
         const newStartMinutes = currentEffectivePosition + preShiftTime;
         const newEndMinutes = newStartMinutes + workTimeMinutes;
 
-        compactedItem.timeRangeStartShift = formatTimeFromMinutes(newStartMinutes);
-        compactedItem.timeRangeEndShift = formatTimeFromMinutes(newEndMinutes);
+        compactedItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+        compactedItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
 
         currentEffectivePosition = newEndMinutes + postShiftTime;
       } else {
-        const endTime = item.endShift
-          ? this.timeRangeService.parseTimeString(item.endShift)
+        const endTime = item.endItem
+          ? this.timeRangeService.parseTimeString(item.endItem)
           : null;
         if (endTime) {
           const endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;

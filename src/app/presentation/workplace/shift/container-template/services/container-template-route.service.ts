@@ -216,7 +216,9 @@ export class ContainerTemplateRouteService {
       return;
     }
 
-    const shiftIds = items.map((item) => item.shiftId);
+    const shiftIds = items
+      .filter((item) => item.shiftId)
+      .map((item) => item.shiftId!);
 
     this.isOptimizing = true;
     this.toastService.showInfo(
@@ -442,14 +444,14 @@ export class ContainerTemplateRouteService {
       tmpId: newGuid(),
       shiftId: shift.id!,
       shift: shift,
-      startShift: shift.startShift,
-      endShift: shift.endShift,
+      startItem: shift.startShift,
+      endItem: shift.endShift,
       briefingTime: shift.briefingTime,
       debriefingTime: shift.debriefingTime,
       travelTimeAfter: shift.travelTimeAfter,
       travelTimeBefore: shift.travelTimeBefore,
-      timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
-      timeRangeEndShift: shift.isTimeRange ? shift.endShift : '',
+      timeRangeStartItem: shift.isTimeRange ? shift.startShift : '',
+      timeRangeEndItem: shift.isTimeRange ? shift.endShift : '',
     };
   }
 }
