@@ -96,7 +96,7 @@ export class TimeRulerInteractionService {
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
-      if (shiftRect.pointInRect(x, y) && item.shift?.isTimeRange) {
+      if (shiftRect.pointInRect(x, y) && (item.shift?.isTimeRange || !!item.absenceId)) {
         const dragStarted = this.dragDropService.startDrag(y, item, shiftRect);
         if (dragStarted) {
           event.preventDefault();
