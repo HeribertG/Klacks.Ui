@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import { Timer } from 'src/app/presentation/helpers/timer';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
@@ -40,7 +39,7 @@ export class MenuComponent {
   isVisible = false;
   rightPanelStyle: any = {};
   parentRect = new Rectangle();
-  private myTimer = new Timer();
+  private animationFrameId: number | null = null;
 
   openMenu(
     clientX: number,
@@ -65,14 +64,18 @@ export class MenuComponent {
       opacity: 0,
     };
     this.isVisible = true;
-    this.myTimer.start(() => {
+    this.cdr.detectChanges();
+    this.animationFrameId = requestAnimationFrame(() => {
       this.recalcPosition();
       this.cdr.detectChanges();
-    }, 100);
+    });
   }
 
   closeMenu(): void {
-    this.myTimer.stop();
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
     this.isVisible = false;
     this.rightPanelStyle = { display: 'none' };
   }
@@ -138,7 +141,10 @@ export class MenuComponent {
 
     // is Menu-Div is visible, ergo if it have width and height
     if (width > 0 && height > 0) {
-      this.myTimer.stop();
+      if (this.animationFrameId !== null) {
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+      }
       const res = this.isElementInViewport();
       this.rightPanelStyle = {
         display: 'block',

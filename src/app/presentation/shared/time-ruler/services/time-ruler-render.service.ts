@@ -503,10 +503,16 @@ export class TimeRulerRenderService {
     }
 
     const hasOverlap = this.checkShiftOverlap(item, bodyStartMinutes, bodyEndMinutes, shifts);
+    const isAbsence = !!item.absenceId;
     const isTask = item.shift?.shiftType === ShiftType.IsTask;
-    const defaultColor = isTask
-      ? this.TASK_BACKGROUND_COLOR
-      : this.gridColorService.controlBackGroundColor;
+    let defaultColor: string;
+    if (isAbsence && item.absence?.color) {
+      defaultColor = item.absence.color;
+    } else if (isTask) {
+      defaultColor = this.TASK_BACKGROUND_COLOR;
+    } else {
+      defaultColor = this.gridColorService.controlBackGroundColor;
+    }
     const backgroundColor = hasOverlap
       ? this.gridColorService.warningColor
       : defaultColor;

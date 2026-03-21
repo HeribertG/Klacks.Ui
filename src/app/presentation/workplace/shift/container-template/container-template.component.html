@@ -373,11 +373,14 @@
                           cdkDrag
                           cdkDragLockAxis="y"
                           (click)="onShiftRowClick(shift)"
+                          (dblclick)="onAbsenceRowDblClick(shift)"
                           (contextmenu)="onTableRowRightClick($event, shift)"
                           (cdkDragStarted)="onDragStarted($event)"
                           (cdkDragEnded)="onDragEnded($event)"
                           [class.selected]="shift === selectedShift"
                           [class.timerange-violation]="hasTimeRangeViolation(shift)"
+                          [class.absence-item]="!!shift.absenceId"
+                          [style.background-color]="shift.absenceId ? shift.absence?.color + '30' : null"
                         >
                           <td class="icon-column">
                             @if (shift.absenceId) {

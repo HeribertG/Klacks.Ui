@@ -84,6 +84,7 @@ import { AddressProviderService } from 'src/app/domain/services/address-provider
 import {
   formatTime,
   timeToString,
+  timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
 import { ContainerTemplateRouteService } from './services/container-template-route.service';
 import { ContainerTemplatePropertiesService } from './services/container-template-properties.service';
@@ -224,11 +225,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public absenceStartTime = OwnTime.forTime('08', '00');
   public absenceEndTime = OwnTime.forTime('08', '30');
   public absenceModalTitle = '';
-  private pendingAbsenceDrop: {
-    absence: IAbsence;
-    container: IContainerTemplateItem[];
-    currentIndex: number;
-  } | null = null;
 
   private currentSearchString = '';
   private currentIncludeAddress = false;
@@ -624,7 +620,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         const absence = (event.previousContainer.data as any)[
           event.previousIndex
         ] as IAbsence;
-        this.openAbsenceTimeModal(absence, event.container.data, event.currentIndex);
+        this.insertAbsenceAtPosition(absence, event.container.data, event.currentIndex);
       } else if (
         event.container.id === 'selected-tasks-list' &&
         event.previousContainer.id === 'available-tasks-list'
@@ -871,66 +867,103 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
   }
 
-  private openAbsenceTimeModal(
+  private static readonly ABSENCE_DEFAULT_DURATION_MINUTES = 15;
+
+  private insertAbsenceAtPosition(
     absence: IAbsence,
     containerData: IContainerTemplateItem[],
     currentIndex: number,
   ): void {
-    const lang = this.translateService.currentLang || 'de';
-    this.absenceModalTitle = absence.name?.[lang] || absence.name?.['de'] || '';
-    this.absenceStartTime = OwnTime.forTime(
-      this.timeFrom.hours,
-      this.timeFrom.minutes,
-    );
-    this.absenceEndTime = OwnTime.forTime(
-      this.timeTo.hours,
-      this.timeTo.minutes,
-    );
-    this.pendingAbsenceDrop = {
-      absence,
-      container: containerData,
-      currentIndex,
-    };
+    const previousItem = currentIndex > 0 ? containerData[currentIndex - 1] : null;
+    let startMinutes: number;
 
-    this.ngbModal
-      .open(this.absenceTimeModal, { centered: true })
-      .result.then(
-        () => {
-          this.confirmAbsenceDrop();
-        },
-        () => {
-          this.pendingAbsenceDrop = null;
-        },
+    if (previousItem) {
+      const endTime = previousItem.timeRangeEndItem || previousItem.endItem || '';
+      startMinutes = endTime ? timeToMinutes(endTime) : timeToMinutes(
+        timeToString(parseInt(this.timeFrom.hours), parseInt(this.timeFrom.minutes)),
       );
-  }
+    } else {
+      startMinutes = timeToMinutes(
+        timeToString(parseInt(this.timeFrom.hours), parseInt(this.timeFrom.minutes)),
+      );
+    }
 
-  private confirmAbsenceDrop(): void {
-    if (!this.pendingAbsenceDrop) return;
+    const endMinutes = startMinutes + ContainerTemplateComponent.ABSENCE_DEFAULT_DURATION_MINUTES;
+    const startTime = `${Math.floor(startMinutes / 60).toString().padStart(2, '0')}:${(startMinutes % 60).toString().padStart(2, '0')}:00`;
+    const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}:00`;
 
-    const { absence, container, currentIndex } = this.pendingAbsenceDrop;
     const item = this.shiftOpsService.convertAbsenceToContainerTemplateItem(
       absence,
-      timeToString(
-        parseInt(this.absenceStartTime.hours),
-        parseInt(this.absenceStartTime.minutes),
-      ),
-      timeToString(
-        parseInt(this.absenceEndTime.hours),
-        parseInt(this.absenceEndTime.minutes),
-      ),
+      startTime,
+      endTime,
     );
 
-    container.splice(currentIndex, 0, item);
+    containerData.splice(currentIndex, 0, item);
 
     this.shiftOpsService.arrangeAndSetItems(
-      [...container],
+      [...containerData],
       this.timeFrom,
       this.timeTo,
       this.selectedWeekday,
       this.isHoliday,
     );
 
-    this.pendingAbsenceDrop = null;
+    this.cdr.markForCheck();
+  }
+
+  onAbsenceRowDblClick(item: IContainerTemplateItem): void {
+    if (!item.absenceId) return;
+
+    const lang = this.translateService.currentLang || 'de';
+    this.absenceModalTitle = item.absence?.name?.[lang] || item.absence?.name?.['de'] || '';
+
+    const startParts = (item.startItem || '00:00').split(':');
+    this.absenceStartTime = OwnTime.forTime(
+      (startParts[0] || '00').padStart(2, '0'),
+      (startParts[1] || '00').padStart(2, '0'),
+    );
+
+    const endParts = (item.endItem || '00:00').split(':');
+    this.absenceEndTime = OwnTime.forTime(
+      (endParts[0] || '00').padStart(2, '0'),
+      (endParts[1] || '00').padStart(2, '0'),
+    );
+
+    this.ngbModal
+      .open(this.absenceTimeModal, { centered: true })
+      .result.then(
+        () => {
+          this.applyAbsenceTimeEdit(item);
+        },
+        () => {},
+      );
+  }
+
+  private applyAbsenceTimeEdit(item: IContainerTemplateItem): void {
+    const newStartTime = timeToString(
+      parseInt(this.absenceStartTime.hours),
+      parseInt(this.absenceStartTime.minutes),
+    );
+    const newEndTime = timeToString(
+      parseInt(this.absenceEndTime.hours),
+      parseInt(this.absenceEndTime.minutes),
+    );
+
+    const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
+    const itemId = item.id || item.tmpId;
+    const updatedItems = allItems.map((i) =>
+      (i.id || i.tmpId) === itemId
+        ? { ...i, startItem: newStartTime, endItem: newEndTime }
+        : i,
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(updatedItems);
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      this.containerService.updateTaskOrderInTemplates(updatedItems, weekdayNumber, this.isHoliday);
+    }
+
     this.cdr.markForCheck();
   }
 
