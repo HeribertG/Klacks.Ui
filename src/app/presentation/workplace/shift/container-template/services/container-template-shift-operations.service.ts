@@ -204,6 +204,7 @@ export class ContainerTemplateShiftOperationsService {
   ): IContainerTemplateItem {
     return {
       tmpId: newGuid(),
+      shiftId: undefined,
       absenceId: absence.id,
       absence: absence,
       startItem: startTime,
