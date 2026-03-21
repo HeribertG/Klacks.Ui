@@ -8,25 +8,30 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container/container-template-slot';
 import { ContainerTaskService } from 'src/app/domain/services/container/container-task.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Injectable()
 export class ContainerTemplateTabService {
   private taskService = inject(ContainerTaskService);
   private shiftService = inject(ContainerTemplateShiftService);
+  private dataAbsenceService = inject(DataAbsenceService);
   private translateService = inject(TranslateService);
   private sortingService = inject(TableSortingService);
 
   public selectedTabIndex = 0;
   public isEmploymentTabActive = false;
   public availableTasks: IShift[] = [];
+  public containerAbsences: IAbsence[] = [];
 
   selectTab(index: number): void {
     this.selectedTabIndex = index;
@@ -34,11 +39,17 @@ export class ContainerTemplateTabService {
     this.shiftService.setSelectedShift(null);
   }
 
-  selectEmploymentTab(): void {
+  async selectEmploymentTab(): Promise<void> {
     this.isEmploymentTabActive = true;
     this.selectedTabIndex = -1;
     this.shiftService.setSelectedShift(null);
     this.availableTasks = [];
+    await this.loadContainerAbsences();
+  }
+
+  private async loadContainerAbsences(): Promise<void> {
+    const allAbsences = await firstValueFrom(this.dataAbsenceService.readAbsenceList());
+    this.containerAbsences = allAbsences.filter(a => a.appliesToContainer);
   }
 
   onWeekdayChange(selectedWeekday: string | null): void {

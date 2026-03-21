@@ -50,6 +50,7 @@ interface AbsenceFormModel {
   withSaturday: boolean;
   withSunday: boolean;
   withHoliday: boolean;
+  appliesToContainer: boolean;
   color: string;
   hideInGantt: boolean;
   macroId: string;
@@ -110,6 +111,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     withSaturday: false,
     withSunday: false,
     withHoliday: false,
+    appliesToContainer: false,
     color: '#000000',
     hideInGantt: false,
     macroId: '',
@@ -326,6 +328,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       withSaturday: absence.withSaturday || false,
       withSunday: absence.withSunday || false,
       withHoliday: absence.withHoliday || false,
+      appliesToContainer: absence.appliesToContainer || false,
       color: absence.color || '#000000',
       hideInGantt: absence.hideInGantt || false,
       macroId: absence.macroId || '',
@@ -356,6 +359,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentAbsence.withSaturday = formData.withSaturday;
     this.currentAbsence.withSunday = formData.withSunday;
     this.currentAbsence.withHoliday = formData.withHoliday;
+    this.currentAbsence.appliesToContainer = formData.appliesToContainer;
     this.currentAbsence.color = formData.color;
     this.currentAbsence.hideInGantt = formData.hideInGantt;
     this.currentAbsence.macroId = formData.macroId || undefined;

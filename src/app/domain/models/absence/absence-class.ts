@@ -43,6 +43,7 @@ export interface IAbsence {
   withSaturday: boolean;
   withSunday: boolean;
   withHoliday: boolean;
+  appliesToContainer: boolean;
 }
 
 export class Absence implements IAbsence {
@@ -59,6 +60,7 @@ export class Absence implements IAbsence {
   withSaturday = false;
   withSunday = false;
   withHoliday = false;
+  appliesToContainer = false;
 }
 
 export interface IAbsenceReason {

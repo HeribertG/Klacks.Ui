@@ -181,7 +181,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
-  private translateService = inject(TranslateService);
+  public translateService = inject(TranslateService);
   public sortingService = inject(TableSortingService);
   public addressProvider = inject(AddressProviderService);
   readonly routeService = inject(ContainerTemplateRouteService);
@@ -207,6 +207,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     ceil: 100,
     step: 10,
     showSelectionBar: true,
+    hideLimitLabels: true,
+    hidePointerLabels: true,
   };
 
   private currentSearchString = '';
@@ -707,7 +709,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   optimizeRoute(): void {
     this.routeService.optimizeRoute(
-      this.containerShift,
       this.selectedWeekday,
       this.isHoliday,
       this.timeFrom,

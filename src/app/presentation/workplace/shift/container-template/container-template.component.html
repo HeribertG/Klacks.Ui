@@ -264,12 +264,13 @@
                   ></app-icon-wizard>
                   <div class="tolerance-slider custom-slider"
                     [ngbTooltip]="'shift.container-template.tooltip.tolerance-slider' | translate">
-                    <span class="tolerance-endpoint">{{ 'shift.container-template.tolerance.exact' | translate }}</span>
-                    <ngx-slider [(value)]="timeRangeToleranceValue" [options]="timeRangeToleranceOptions"></ngx-slider>
                     <span class="tolerance-endpoint">{{ 'shift.container-template.tolerance.flexible' | translate }}</span>
+                    <ngx-slider [(value)]="timeRangeToleranceValue" [options]="timeRangeToleranceOptions"></ngx-slider>
+                    <span class="tolerance-endpoint">{{ 'shift.container-template.tolerance.exact' | translate }}</span>
                   </div>
                   <app-icon-route
                     class="icon-table"
+                    [class.disabled]="routeService.isOptimizing"
                     (click)="optimizeRoute()"
                     [ngbTooltip]="
                       'shift.container-template.tooltip.optimize-route'
@@ -304,7 +305,7 @@
                   "
                 ></app-icon-compact>
               </div>
-              @if (routeService.isAutofillRunning) {
+              @if (routeService.isAutofillRunning || routeService.isOptimizing) {
                 <div class="autofill-progress">
                   <div class="autofill-progress-bar"></div>
                 </div>
@@ -474,7 +475,44 @@
                   </div>
                 </div>
 
+                <!-- Employment Tab: Container Absences -->
+                @if (tabService.isEmploymentTabActive) {
+                  <div class="shifts-grid-container">
+                    <div class="shifts-grid">
+                      @if (tabService.containerAbsences.length > 0) {
+                        <table class="shifts-table">
+                          <thead>
+                            <tr>
+                              <th class="icon-column"></th>
+                              <th>{{ "shift.container-template.grid.name" | translate }}</th>
+                              <th>{{ "shift.container-template.grid.abbreviation" | translate }}</th>
+                              <th>{{ "setting.absence.modal.description" | translate }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (absence of tabService.containerAbsences; track absence.id) {
+                              <tr>
+                                <td class="icon-column">
+                                  <span class="absence-color-rect" [style.background-color]="absence.color"></span>
+                                </td>
+                                <td>{{ absence.name?.[translateService.currentLang] || absence.name?.['de'] }}</td>
+                                <td>{{ absence.abbreviation?.[translateService.currentLang] || absence.abbreviation?.['de'] }}</td>
+                                <td>{{ absence.description?.[translateService.currentLang] || absence.description?.['de'] }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="no-shifts">
+                          <p>{{ "shift.container-template.grid.no-container-absences" | translate }}</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
                 <!-- Shifts Grid -->
+                @if (!tabService.isEmploymentTabActive) {
                 <div class="shifts-grid-container">
                   <div class="shifts-grid">
                     @if (tabService.availableTasks.length > 0) {
@@ -583,6 +621,7 @@
                     }
                   </div>
                 </div>
+                }
               } @else {
                 <div class="no-data">
                   <p>

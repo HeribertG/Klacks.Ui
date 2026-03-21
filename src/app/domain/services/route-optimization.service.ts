@@ -68,17 +68,12 @@ export class RouteOptimizationService {
   private apiUrl = `${environment.baseUrl}RouteOptimization`;
 
   optimizeRoute(
-    containerId: string,
-    weekday: number,
-    isHoliday: boolean,
+    shiftIds: string[],
     startBase?: string,
     endBase?: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
   ): Observable<IRouteOptimizationResult> {
     let params = new HttpParams()
-      .set('containerId', containerId)
-      .set('weekday', weekday.toString())
-      .set('isHoliday', isHoliday.toString())
       .set('transportMode', transportMode.toString());
 
     if (startBase) {
@@ -88,8 +83,9 @@ export class RouteOptimizationService {
       params = params.set('endBase', endBase);
     }
 
-    return this.http.get<IRouteOptimizationResult>(
+    return this.http.post<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,
+      shiftIds,
       { params, context: new HttpContext().set(SKIP_LOADING, true) }
     ).pipe(timeout(120_000));
   }

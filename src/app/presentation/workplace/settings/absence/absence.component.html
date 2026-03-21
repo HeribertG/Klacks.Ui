@@ -130,6 +130,16 @@
           {{ "setting.absence.modal.value-holiday" | translate }}
         </label>
       </div>
+      <div id="absence-modal-container-row" class="row-line">
+        <label class="checkbox-label">
+          <input
+            id="absence-modal-applies-to-container"
+            type="checkbox"
+            [formField]="absenceForm.appliesToContainer"
+          />
+          {{ "setting.absence.modal.applies-to-container" | translate }}
+        </label>
+      </div>
       <div id="absence-modal-color-row" class="row-line box">
         <label for="color" class="form-label">{{
           "setting.absence.modal.color" | translate

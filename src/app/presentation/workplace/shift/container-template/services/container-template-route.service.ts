@@ -59,6 +59,7 @@ export class ContainerTemplateRouteService {
     ContainerTransportModeEnum.byCar;
   public lastRouteInfo: IRouteInfo | null = null;
   public isAutofillRunning = false;
+  public isOptimizing = false;
 
   get hasRouteInfo(): boolean {
     return this.lastRouteInfo !== null;
@@ -199,7 +200,6 @@ export class ContainerTemplateRouteService {
   }
 
   optimizeRoute(
-    containerShift: IShift | null,
     selectedWeekday: string | null,
     isHoliday: boolean,
     timeFrom: OwnTime,
@@ -216,18 +216,9 @@ export class ContainerTemplateRouteService {
       return;
     }
 
-    if (!containerShift?.id || !selectedWeekday) {
-      this.toastService.showInfo(
-        this.translateService.instant(
-          'shift.container-template.toast.no-container-weekday',
-        ),
-      );
-      return;
-    }
+    const shiftIds = items.map((item) => item.shiftId);
 
-    const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
-
-    this.spinnerService.showProgressSpinner = true;
+    this.isOptimizing = true;
     this.toastService.showInfo(
       this.translateService.instant(
         'shift.container-template.toast.optimizing-route',
@@ -239,9 +230,7 @@ export class ContainerTemplateRouteService {
 
     this.routeOptimizationService
       .optimizeRoute(
-        containerShift.id,
-        weekdayNumber,
-        isHoliday,
+        shiftIds,
         this.selectedStartBase || undefined,
         this.selectedEndBase || undefined,
         this.selectedTransportMode,
@@ -249,7 +238,7 @@ export class ContainerTemplateRouteService {
       .pipe(takeUntil(destroy$))
       .subscribe({
         next: (result) => {
-          this.spinnerService.showProgressSpinner = false;
+          this.isOptimizing = false;
 
           this.lastRouteInfo = {
             startBase: this.selectedStartBase,
@@ -265,7 +254,9 @@ export class ContainerTemplateRouteService {
           };
 
           this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
-          this.applyOptimizedRoute(result, items, timeFrom, selectedWeekday, isHoliday);
+          if (selectedWeekday) {
+            this.applyOptimizedRoute(result, items, timeFrom, selectedWeekday, isHoliday);
+          }
           this.toastService.showSuccess(
             this.translateService.instant(
               'shift.container-template.toast.route-optimized-details',
@@ -280,7 +271,7 @@ export class ContainerTemplateRouteService {
           );
         },
         error: (error) => {
-          this.spinnerService.showProgressSpinner = false;
+          this.isOptimizing = false;
           console.error('Route optimization failed:', error);
           this.toastService.showError(
             error.message || error.statusText || 'Unknown error',

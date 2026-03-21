@@ -440,6 +440,16 @@
           font-weight: 500;
           font-size: 13px;
         }
+
+        .absence-color-rect {
+          display: inline-block;
+          width: 17px;
+          height: 18px;
+          min-width: 17px;
+          min-height: 18px;
+          vertical-align: middle;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
       }
     }
   }
@@ -603,6 +613,16 @@
           color: var(--colorLabel);
           font-weight: 500;
           font-size: 13px;
+        }
+
+        .absence-color-rect {
+          display: inline-block;
+          width: 17px;
+          height: 18px;
+          min-width: 17px;
+          min-height: 18px;
+          vertical-align: middle;
+          border: 1px solid rgba(255, 255, 255, 0.3);
         }
       }
     }
