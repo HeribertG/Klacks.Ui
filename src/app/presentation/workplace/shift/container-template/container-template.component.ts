@@ -957,12 +957,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         : i,
     );
 
-    this.shiftService.setSelectedContainerTemplateItems(updatedItems);
-
-    if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-      this.containerService.updateTaskOrderInTemplates(updatedItems, weekdayNumber, this.isHoliday);
-    }
+    this.shiftOpsService.arrangeAndSetItems(
+      updatedItems,
+      this.timeFrom,
+      this.timeTo,
+      this.selectedWeekday,
+      this.isHoliday,
+    );
 
     this.cdr.markForCheck();
   }

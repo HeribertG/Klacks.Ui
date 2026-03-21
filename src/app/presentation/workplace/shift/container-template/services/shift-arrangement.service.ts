@@ -36,7 +36,10 @@ export class ShiftArrangementService {
     for (let i = 0; i < items.length; i++) {
       const item = { ...items[i] };
 
-      if (!item.shift?.isTimeRange && !item.shift?.isSporadic) {
+      const isAbsence = !!item.absenceId;
+      const isMovable = item.shift?.isTimeRange || item.shift?.isSporadic || isAbsence;
+
+      if (!isMovable) {
         arrangedItems.push(item);
         const endTime = item.endItem
           ? this.timeRangeService.parseTimeString(item.endItem)
@@ -61,9 +64,22 @@ export class ShiftArrangementService {
       const originalStartMinutes =
         originalStartTime.hours * this.MINUTES_PER_HOUR +
         originalStartTime.minutes;
-      const workTimeMinutes = Math.round(
-        (item.shift?.workTime || 0) * this.MINUTES_PER_HOUR
-      );
+
+      let workTimeMinutes: number;
+      if (isAbsence) {
+        const endTime = item.endItem
+          ? this.timeRangeService.parseTimeString(item.endItem)
+          : null;
+        const endMinutes = endTime
+          ? endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes
+          : originalStartMinutes;
+        workTimeMinutes = endMinutes - originalStartMinutes;
+      } else {
+        workTimeMinutes = Math.round(
+          (item.shift?.workTime || 0) * this.MINUTES_PER_HOUR
+        );
+      }
+
       const preShiftTime = this.timeRangeService.getTotalPreShiftMinutes(item);
       const postShiftTime = this.timeRangeService.getTotalPostShiftMinutes(item);
 
@@ -83,8 +99,13 @@ export class ShiftArrangementService {
 
       const newEndMinutes = newStartMinutes + workTimeMinutes;
 
-      item.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
-      item.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+      if (isAbsence) {
+        item.startItem = formatTimeFromMinutes(newStartMinutes);
+        item.endItem = formatTimeFromMinutes(newEndMinutes);
+      } else {
+        item.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+        item.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+      }
 
       arrangedItems.push(item);
       currentEffectivePosition = newEndMinutes + postShiftTime;
@@ -106,7 +127,8 @@ export class ShiftArrangementService {
     const result = [...items];
     const newItem = result[newItemIndex];
 
-    if (!newItem.shift?.isTimeRange && !newItem.shift?.isSporadic) {
+    const isNewItemAbsence = !!newItem.absenceId;
+    if (!newItem.shift?.isTimeRange && !newItem.shift?.isSporadic && !isNewItemAbsence) {
       return result;
     }
 
@@ -117,9 +139,19 @@ export class ShiftArrangementService {
       return result;
     }
 
-    const workTimeMinutes = Math.round(
-      (newItem.shift?.workTime || 0) * this.MINUTES_PER_HOUR
-    );
+    let workTimeMinutes: number;
+    if (isNewItemAbsence) {
+      const endTime = newItem.endItem
+        ? this.timeRangeService.parseTimeString(newItem.endItem)
+        : null;
+      const startMins = originalStartTime.hours * this.MINUTES_PER_HOUR + originalStartTime.minutes;
+      const endMins = endTime ? endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes : startMins;
+      workTimeMinutes = endMins - startMins;
+    } else {
+      workTimeMinutes = Math.round(
+        (newItem.shift?.workTime || 0) * this.MINUTES_PER_HOUR
+      );
+    }
     const containerFromTime =
       this.timeRangeService.parseTimeString(containerTimeFrom);
 
@@ -212,8 +244,13 @@ export class ShiftArrangementService {
       }
     }
 
-    newItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
-    newItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+    if (isNewItemAbsence) {
+      newItem.startItem = formatTimeFromMinutes(newStartMinutes);
+      newItem.endItem = formatTimeFromMinutes(newEndMinutes);
+    } else {
+      newItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+      newItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+    }
 
     return result;
   }
@@ -239,19 +276,34 @@ export class ShiftArrangementService {
 
     for (const item of items) {
       const compactedItem = { ...item };
-      const workTimeMinutes = Math.round(
-        (item.shift?.workTime || 0) * this.MINUTES_PER_HOUR
-      );
+      const isAbsence = !!item.absenceId;
+      const isMovable = item.shift?.isTimeRange || item.shift?.isSporadic || isAbsence;
 
-      if (item.shift?.isTimeRange || item.shift?.isSporadic) {
+      let workTimeMinutes: number;
+      if (isAbsence) {
+        const startMins = this.timeRangeService.getShiftStartMinutes(item);
+        const endMins = this.timeRangeService.getShiftEndMinutes(item);
+        workTimeMinutes = endMins - startMins;
+      } else {
+        workTimeMinutes = Math.round(
+          (item.shift?.workTime || 0) * this.MINUTES_PER_HOUR
+        );
+      }
+
+      if (isMovable) {
         const preShiftTime = this.timeRangeService.getTotalPreShiftMinutes(item);
         const postShiftTime = this.timeRangeService.getTotalPostShiftMinutes(item);
 
         const newStartMinutes = currentEffectivePosition + preShiftTime;
         const newEndMinutes = newStartMinutes + workTimeMinutes;
 
-        compactedItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
-        compactedItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+        if (isAbsence) {
+          compactedItem.startItem = formatTimeFromMinutes(newStartMinutes);
+          compactedItem.endItem = formatTimeFromMinutes(newEndMinutes);
+        } else {
+          compactedItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
+          compactedItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
+        }
 
         currentEffectivePosition = newEndMinutes + postShiftTime;
       } else {
