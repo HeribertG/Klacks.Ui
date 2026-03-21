@@ -211,8 +211,9 @@ export class ContainerTemplateRouteService {
     onStateChanged?: () => void,
   ): void {
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
+    const shiftItems = items.filter((item) => !!item.shiftId);
 
-    if (items.length < 2) {
+    if (shiftItems.length < 2) {
       this.toastService.showInfo(
         this.translateService.instant(
           'shift.container-template.toast.min-shifts-required',
@@ -221,9 +222,7 @@ export class ContainerTemplateRouteService {
       return;
     }
 
-    const shiftIds = items
-      .filter((item) => item.shiftId)
-      .map((item) => item.shiftId!);
+    const shiftIds = shiftItems.map((item) => item.shiftId!);
 
     this.isOptimizing = true;
     this.toastService.showInfo(
@@ -303,16 +302,21 @@ export class ContainerTemplateRouteService {
     );
     const containerStartTimeMinutes = timeToMinutes(startTimeString);
 
-    const reorderedItems = this.itemManipulationService.applyOptimizedRoute(
+    const shiftItems = currentItems.filter((item) => !!item.shiftId);
+    const absenceItems = currentItems.filter((item) => !!item.absenceId);
+
+    const reorderedShiftItems = this.itemManipulationService.applyOptimizedRoute(
       {
         optimizedRoute: result.optimizedRoute,
         travelTimeFromStartBase: result.travelTimeFromStartBase,
         travelTimeToEndBase: result.travelTimeToEndBase,
         distanceToEndBaseKm: result.distanceToEndBaseKm,
       },
-      currentItems,
+      shiftItems,
       containerStartTimeMinutes,
     );
+
+    const reorderedItems = [...reorderedShiftItems, ...absenceItems];
 
     if (reorderedItems.length > 0) {
       const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
