@@ -562,8 +562,16 @@ export class TimeRulerRenderService {
     item: IContainerTemplateItem,
     rect: Rectangle
   ): void {
-    const abbreviation = item.shift?.abbreviation || '';
-    const name = item.shift?.name || '';
+    let abbreviation: string;
+    let name: string;
+    if (item.absenceId && item.absence) {
+      const lang = 'de';
+      abbreviation = item.absence.abbreviation?.[lang] || '';
+      name = item.absence.name?.[lang] || '';
+    } else {
+      abbreviation = item.shift?.abbreviation || '';
+      name = item.shift?.name || '';
+    }
     const displayText = abbreviation ? `${abbreviation} - ${name}` : name;
 
     DrawHelper.drawText(
