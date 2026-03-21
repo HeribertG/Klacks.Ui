@@ -2,12 +2,16 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  DestroyRef,
   Directive,
   ElementRef,
   HostListener,
   inject,
   NgZone,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { fromEvent } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
@@ -20,6 +24,7 @@ export class AbsenceCalendarDirective {
   private el = inject(ElementRef);
   private gridBody = inject(AbsenceGanttSurfaceComponent);
   private drawCalendarGanttService = inject(DrawCalendarGanttService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private keyDown = false;
   private scrollByKey = false;
@@ -48,6 +53,15 @@ export class AbsenceCalendarDirective {
     ['Ctrl+v', (event) => this.handlePaste(event)],
     ['Ctrl+V', (event) => this.handlePaste(event)],
   ]);
+
+  constructor() {
+    fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove').pipe(
+      throttleTime(16),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(event => {
+      this.onMouseMove(event);
+    });
+  }
 
   // @HostListener('mouseenter', ['$event']) onMouseEnter(
   //   event: MouseEvent
@@ -141,7 +155,7 @@ export class AbsenceCalendarDirective {
     this.stopEvent(event);
   }
 
-  @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
+  onMouseMove(event: MouseEvent): void {
     if (!this.gridBody.drawCalendarGantt.isFocused) {
       return;
     }

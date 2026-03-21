@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-group-scope-header',
-  imports: [],
+  imports: [TranslateModule],
   templateUrl: './group-scope-header.component.html',
   styleUrl: './group-scope-header.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupScopeHeaderComponent {
-  public translate = inject(TranslateService);
 }

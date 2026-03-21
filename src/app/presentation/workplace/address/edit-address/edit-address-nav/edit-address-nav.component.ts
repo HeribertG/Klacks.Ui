@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -16,12 +19,14 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./edit-address-nav.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, NgbTooltipModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
   public validFrom = DomainMessages.VALID_FROM;
   public faCalendar = faCalendar;
 
   public dataManagementClientService = inject(DataManagementClientService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.validFrom = DomainMessages.VALID_FROM;
@@ -30,6 +35,7 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.validFrom = DomainMessages.VALID_FROM;
+      this.cdr.markForCheck();
     }, 200);
   }
 

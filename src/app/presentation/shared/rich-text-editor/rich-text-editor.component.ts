@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -37,6 +39,7 @@ import { TextFormatterService } from './text-formatter.service';
     IconPasteGreyComponent,
     InitContentDirective
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RichTextEditorComponent {
   @Input() content = '';
@@ -55,6 +58,7 @@ export class RichTextEditorComponent {
   isFocused = false;
 
   private textFormatterService = inject(TextFormatterService);
+  private cdr = inject(ChangeDetectorRef);
 
   onFocus(): void {
     this.isFocused = true;
@@ -65,6 +69,7 @@ export class RichTextEditorComponent {
     setTimeout(() => {
       this.isFocused = false;
       this.blurred.emit();
+      this.cdr.markForCheck();
     }, 200);
   }
 

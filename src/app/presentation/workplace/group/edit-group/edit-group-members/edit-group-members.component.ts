@@ -13,6 +13,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,6 +44,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     ExpandableCardComponent
 ],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
@@ -120,6 +122,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
 
     setTimeout(() => {
       this.searchText();
+      this.cdr.markForCheck();
     }, 2000);
   }
 
@@ -171,6 +174,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
           if (!tmpClientName.includes(this.selectedClientName))
             this.selectedClientName = this.visualName(this.result[0]);
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -188,7 +192,10 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   onPageChange() {
-    setTimeout(() => this.dataManagementGroupService.readPage(), 50);
+    setTimeout(() => {
+      this.dataManagementGroupService.readPage();
+      this.cdr.markForCheck();
+    }, 50);
   }
 
   onDeleteClient(value: IGroupItem) {

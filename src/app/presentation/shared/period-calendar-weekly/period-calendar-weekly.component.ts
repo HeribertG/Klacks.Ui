@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
@@ -13,6 +15,7 @@ import { PeriodResetData } from '../period-calendar-monthly/period-calendar-mont
   styleUrls: ['./period-calendar-weekly.component.scss'],
   standalone: true,
   imports: [FormsModule, TranslateModule, CounterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodCalendarWeeklyComponent implements OnInit {
   @Input() year = new Date().getFullYear();

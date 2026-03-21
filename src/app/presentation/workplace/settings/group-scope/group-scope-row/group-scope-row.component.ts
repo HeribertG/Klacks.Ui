@@ -1,16 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   inject,
   Input,
   OnDestroy,
   OnChanges,
   signal,
   computed,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import {
   IGroupVisibility,
@@ -26,15 +27,15 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './group-scope-row.component.html',
   styleUrl: './group-scope-row.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupScopeRowComponent implements OnChanges, OnDestroy {
   @Input() user: IAuthentication | undefined;
-
-  public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   public dataManagementGroupVisibilityService = inject(
     DataManagementGroupVisibilityService
   );
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   private userSignal = signal<IAuthentication | undefined>(undefined);
@@ -156,10 +157,12 @@ export class GroupScopeRowComponent implements OnChanges, OnDestroy {
             updatedVisibilities
           );
           this.loadUserGroups();
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error saving group visibilities:', error);
           this.loadUserGroups();
+          this.cdr.markForCheck();
         },
       });
   }

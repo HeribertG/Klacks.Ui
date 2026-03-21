@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 
 import { ISchedulingRule, SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -11,6 +11,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   styleUrls: ['./scheduling-rule-row.component.scss'],
   standalone: true,
   imports: [TrashIconRedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulingRuleRowComponent {
   @Input() data: ISchedulingRule = new SchedulingRule();

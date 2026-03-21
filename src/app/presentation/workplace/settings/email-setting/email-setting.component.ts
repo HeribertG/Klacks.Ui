@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -35,12 +35,14 @@ interface ContactModel {
   styleUrls: ['./email-setting.component.scss'],
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, FormField],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsManagementService);
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
@@ -177,6 +179,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
               result.errorDetails || ''
             );
           }
+          this.cdr.markForCheck();
         },
         error: (error: unknown) => {
           console.error('Email test error:', error);
@@ -188,6 +191,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
             this.translateService.instant('EMAIL_TEST_ERROR'),
             errorMessage
           );
+          this.cdr.markForCheck();
         },
       });
   }

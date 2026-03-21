@@ -4,7 +4,7 @@
   <div id="user-admin-modal-form">
     <div id="user-admin-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title-user">
-        {{ translate.instant("setting.user-admin.modal-title-user") }}
+        {{ 'setting.user-admin.modal-title-user' | translate }}
       </div>
       <div
         id="user-admin-modal-close-btn"
@@ -31,9 +31,7 @@
         class="container-certificate-value firstColumn"
       >
         <div class="form-group">
-          <label for="user-firstname">{{
-            translate.instant("setting.user-admin.modal-firstname")
-          }}</label>
+          <label for="user-firstname">{{ 'setting.user-admin.modal-firstname' | translate }}</label>
           <input
             type="text"
             [formField]="userForm.firstName"
@@ -45,9 +43,7 @@
         </div>
 
         <div class="form-group">
-          <label for="user-name">{{
-            translate.instant("setting.user-admin.modal-name")
-          }}</label>
+          <label for="user-name">{{ 'setting.user-admin.modal-name' | translate }}</label>
           <input
             type="text"
             [formField]="userForm.lastName"
@@ -65,9 +61,7 @@
       >
         <div class="row-line">
           <div class="form-group">
-            <label for="user-userName">{{
-              translate.instant("setting.user-admin.modal-user-name")
-            }}</label>
+            <label for="user-userName">{{ 'setting.user-admin.modal-user-name' | translate }}</label>
             @if (isEditMode) {
               <input
                 type="text"
@@ -77,9 +71,7 @@
                 aria-label="userName"
               />
               @if (showUserNameError()) {
-                <small class="text-danger">{{
-                  translate.instant("USERNAME_MIN_3_CHARS")
-                }}</small>
+                <small class="text-danger">{{ 'USERNAME_MIN_3_CHARS' | translate }}</small>
               }
             } @else {
               <input
@@ -89,7 +81,7 @@
                 id="user-userName"
                 aria-label="userName"
                 readonly
-                [placeholder]="translate.instant('USERNAME_AUTO_GENERATED')"
+                [placeholder]="'USERNAME_AUTO_GENERATED' | translate"
               />
             }
           </div>
@@ -98,9 +90,7 @@
     </div>
 
     <div id="user-admin-modal-email-row" class="row-line firstColumn-email">
-      <label for="setting-user-description">{{
-        translate.instant("setting.user-admin.modal-email")
-      }}</label>
+      <label for="setting-user-description">{{ 'setting.user-admin.modal-email' | translate }}</label>
 
       <input
         type="text"
@@ -122,7 +112,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("setting.user-admin.cancel") }}</span
+      >{{ 'setting.user-admin.cancel' | translate }}</span
     >
     <button
       id="user-admin-modal-save-btn"
@@ -131,7 +121,7 @@
       (click)="modal.close()"
       [disabled]="!isFormValid()"
     >
-      {{ translate.instant("setting.user-admin.modal-save") }}
+      {{ 'setting.user-admin.modal-save' | translate }}
     </button>
   </div>
 </ng-template>
@@ -139,13 +129,12 @@
 <ng-template #msg id="msg" let-modal>
   <div id="user-admin-password-reset-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.user-admin.password-reset") }}
+      {{ 'setting.user-admin.password-reset' | translate }}
     </div>
   </div>
   <div id="user-admin-password-reset-modal-body" class="modal-body">
     <p>
-      {{ translate.instant("setting.user-admin.password-reset-question")
-      }}<br /><b>{{ newUser?.email }}</b
+      {{ 'setting.user-admin.password-reset-question' | translate }}<br /><b>{{ newUser?.email }}</b
       ><br />
     </p>
   </div>
@@ -156,7 +145,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("setting.user-admin.cancel") }}</span
+      >{{ 'setting.user-admin.cancel' | translate }}</span
     >
     <button
       id="user-admin-msg-modal-ok-btn"
@@ -171,7 +160,7 @@
 
 <form id="user-administration-form">
   <div id="user-administration-header" class="container-header">
-    {{ translate.instant("setting.user-admin.headline") }}
+    {{ 'setting.user-admin.headline' | translate }}
   </div>
 
   <div id="user-administration-line" class="container-line"></div>
@@ -206,7 +195,7 @@
       class="first add-button"
       type="button"
       (click)="open(content)"
-      >{{ translate.instant("setting.user-admin.add") }}
+      >{{ 'setting.user-admin.add' | translate }}
     </span>
   </div>
   <div class="bottom-border-space"></div>

@@ -14,7 +14,7 @@
  * - Uses: DataManagementScheduleService for filter state
  * - Triggers: Shift data refresh on filter change
  */
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -35,6 +35,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
   ],
   templateUrl: './shift-filter.component.html',
   styleUrls: ['./shift-filter.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftFilterComponent {
   public dataManagement = inject(DataManagementScheduleService);

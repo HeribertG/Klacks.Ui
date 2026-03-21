@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
@@ -13,6 +15,7 @@ import { IGroup } from 'src/app/domain/models/group/group-class';
   styleUrls: ['./dashboard-clients-overview.component.scss'],
   standalone: true,
   imports: [TranslateModule, PieChartComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsOverviewComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);

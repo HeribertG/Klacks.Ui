@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   ElementRef,
   inject,
   OnInit,
@@ -12,6 +12,7 @@ import {
   TemplateRef,
   signal,
   effect,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -65,6 +66,7 @@ interface ContractFormModel {
     ChooseCalendarComponent,
     SettingsListCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contractModal', { read: TemplateRef })
@@ -75,6 +77,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementContractService = inject(DataManagementContractService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
+  private cdr = inject(ChangeDetectorRef);
 
   public editingContract: IContract | null = null;
   public originalContract: IContract | null = null;
@@ -184,9 +187,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editingContract.paymentInterval = this.paymentInterval();
   }
 
+  private isReadEffect = effect(() => {
+    if (this.dataManagementContractService.isRead()) {
+      this.cdr.markForCheck();
+    }
+  });
+
   async ngOnInit(): Promise<void> {
     try {
       await this.dataManagementContractService.init();
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error initializing contracts:', error);
     }
@@ -203,6 +213,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteContract(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -333,6 +344,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

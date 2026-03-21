@@ -4,7 +4,7 @@
 <ng-template #ruleModal id="calendar-rules-modal-template" let-modal role="dialog" class="modal-window">
   <div id="calendar-rules-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title1">
-      {{ translate.instant("setting.holiday-rules.create-rules") }}
+      {{ 'setting.holiday-rules.create-rules' | translate }}
     </div>
     <span class="filler"></span>
 
@@ -30,7 +30,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'form' }"
             (click)="tabId.set('form')"
-            >{{ translate.instant("setting.calendar-rule.tab-form") }}</a
+            >{{ 'setting.calendar-rule.tab-form' | translate }}</a
           >
         </li>
         <li id="calendar-rules-modal-tab-help-item" class="nav-item">
@@ -39,7 +39,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'help' }"
             (click)="tabId.set('help')"
-            >{{ translate.instant("setting.calendar-rule.tab-help") }}</a
+            >{{ 'setting.calendar-rule.tab-help' | translate }}</a
           >
         </li>
       </ul>
@@ -47,9 +47,7 @@
 
     <form id="calendar-rules-modal-form" [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
       <div id="calendar-rules-modal-name-row" class="row-line">
-        <label for="ruleName">{{
-          translate.instant("setting.holiday-rules.name")
-        }}</label>
+        <label for="ruleName">{{ 'setting.holiday-rules.name' | translate }}</label>
         <input
           id="calendar-rules-modal-name"
           type="text"
@@ -61,9 +59,7 @@
       </div>
 
       <div id="calendar-rules-modal-rule-row" class="row-line">
-        <label for="ruleName">{{
-          translate.instant("setting.holiday-rules.rule")
-        }}</label>
+        <label for="ruleName">{{ 'setting.holiday-rules.rule' | translate }}</label>
         <input
           id="calendar-rules-modal-rule"
           type="text"
@@ -75,9 +71,7 @@
       </div>
 
       <div id="calendar-rules-modal-subrule-row" class="row-line">
-        <label for="subRule">{{
-          translate.instant("setting.holiday-rules.sub-rule")
-        }}</label>
+        <label for="subRule">{{ 'setting.holiday-rules.sub-rule' | translate }}</label>
         <input
           id="calendar-rules-modal-subrule"
           type="text"
@@ -90,9 +84,7 @@
       <div id="calendar-rules-modal-location-row" class="row-line">
         <div class="single-line">
           <div class="row-line gap">
-            <label for="country" class="col-form-label">{{
-              translate.instant("setting.holiday-rules.country-modal")
-            }}</label>
+            <label for="country" class="col-form-label">{{ 'setting.holiday-rules.country-modal' | translate }}</label>
 
             <select
               id="calendar-rules-modal-country"
@@ -138,7 +130,7 @@
               type="checkbox"
               [formField]="ruleForm.isMandatory"
             />
-            {{ translate.instant("setting.holiday-rules.is-holyday") }}
+            {{ 'setting.holiday-rules.is-holyday' | translate }}
           </label>
         </div>
 
@@ -149,16 +141,14 @@
               type="checkbox"
               [formField]="ruleForm.isPaid"
             />
-            {{ translate.instant("setting.holiday-rules.is-paid") }}
+            {{ 'setting.holiday-rules.is-paid' | translate }}
           </label>
         </div>
       </div>
 
       <div class="row-line"></div>
       <div id="calendar-rules-modal-description-row" class="row-line">
-        <label for="description">{{
-          translate.instant("setting.absence.modal.description")
-        }}</label>
+        <label for="description">{{ 'setting.absence.modal.description' | translate }}</label>
         <textarea
           id="calendar-rules-modal-description"
           class="form-control rule-description"
@@ -193,7 +183,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       id="calendar-rules-modal-add-btn"
@@ -204,7 +194,7 @@
         ruleFormModel().name === '' || ruleFormModel().rule === '' || currentRule.country === '' || currentRule.state === ''
       "
     >
-      {{ translate.instant("setting.absence.modal.add") }}
+      {{ 'setting.absence.modal.add' | translate }}
     </button>
   </div>
 </ng-template>
@@ -212,7 +202,7 @@
 <form id="calendar-rules-form">
   <div id="calendar-rules-container" class="container-dashboard">
     <div id="calendar-rules-header" class="container-header header-container">
-      {{ translate.instant("setting.calendar-rule.title") }}
+      {{ 'setting.calendar-rule.title' | translate }}
 
       <span class="filler"></span>
       <app-calendar-dropdown
@@ -243,7 +233,7 @@
             >
               <div class="table-header-cell form-inline">
                 <p class="gap noselect">
-                  {{ translate.instant("default.grid.name") }}
+                  {{ 'default.grid.name' | translate }}
                 </p>
                 <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
               </div>
@@ -255,7 +245,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ translate.instant("setting.holiday-rules.country") }}
+                  {{ 'setting.holiday-rules.country' | translate }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
                   {{ sortingService.getArrow('country') }}
@@ -269,7 +259,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ translate.instant("setting.holiday-rules.states") }}
+                  {{ 'setting.holiday-rules.states' | translate }}
                 </p>
                 <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('state') }}</p>
               </div>
@@ -281,7 +271,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ translate.instant("default.grid.description") }}
+                  {{ 'default.grid.description' | translate }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
                   {{ sortingService.getArrow('description') }}
@@ -348,7 +338,7 @@
         class="first add-button"
         type="button"
         (click)="createNewRule(ruleModal)"
-        >{{ translate.instant("setting.holiday-rules.add-rule") }}
+        >{{ 'setting.holiday-rules.add-rule' | translate }}
       </span>
       <span class="filler"></span>
 

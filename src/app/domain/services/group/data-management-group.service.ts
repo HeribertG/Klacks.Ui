@@ -101,8 +101,8 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   public groupTree: GroupTree = new GroupTree();
   public flatNodeList: Group[] = [];
-  public selectedNode: Group | undefined;
-  public expandedNodes = new Set<string>();
+  public selectedNode = signal<Group | undefined>(undefined);
+  public expandedNodes = signal(new Set<string>());
 
   public hasGroups(): boolean {
     return (this.flatNodeList?.length ?? 0) > 0;
@@ -153,7 +153,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
     setTimeout(() => this._showProgressSpinner.set(true), 0);
 
-    const previousExpandedNodes = preserveExpandedState ? new Set(this.expandedNodes) : new Set<string>();
+    const previousExpandedNodes = preserveExpandedState ? new Set(this.expandedNodes()) : new Set<string>();
 
     this.dataGroupService.getGroupTree(rootId)
       .pipe(takeUntil(this.destroy$))
@@ -165,9 +165,9 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           this.flatNodeList = this.flattenTree(this.groupTree.nodes);
 
           if (preserveExpandedState) {
-            this.expandedNodes = previousExpandedNodes;
+            this.expandedNodes.set(previousExpandedNodes);
           } else {
-            this.expandedNodes = new Set<string>();
+            this.expandedNodes.set(new Set<string>());
           }
 
           this.fireIsReadEvent();
@@ -588,15 +588,17 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   selectNode(node: Group) {
-    this.selectedNode = node;
+    this.selectedNode.set(node);
   }
 
   toggleNodeExpansion(node: Group) {
-    if (this.expandedNodes.has(node.id!)) {
-      this.expandedNodes.delete(node.id!);
+    const updated = new Set(this.expandedNodes());
+    if (updated.has(node.id!)) {
+      updated.delete(node.id!);
     } else {
-      this.expandedNodes.add(node.id!);
+      updated.add(node.id!);
     }
+    this.expandedNodes.set(updated);
   }
 
   refreshTree() {
@@ -642,12 +644,14 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   expandNode(node: Group): void {
     if (node.id) {
-      this.expandedNodes.add(node.id);
+      const updated = new Set(this.expandedNodes());
+      updated.add(node.id);
+      this.expandedNodes.set(updated);
     }
   }
 
   collapseAllNodes(): void {
-    this.expandedNodes.clear();
+    this.expandedNodes.set(new Set<string>());
   }
   /* #endregion   Tree Group */
 

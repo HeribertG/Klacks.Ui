@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,10 +18,12 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
   styleUrls: ['./all-group-nav.component.scss'],
   standalone: true,
   imports: [FormsModule, NgbDropdownModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('navGroupForm', { static: false }) navGroupForm:
     | NgForm
@@ -39,6 +43,7 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

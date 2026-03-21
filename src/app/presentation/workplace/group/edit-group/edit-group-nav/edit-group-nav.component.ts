@@ -12,6 +12,8 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -47,6 +49,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
     FontAwesomeModule,
     FallbackPipe
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:
@@ -58,6 +61,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public navGroup: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -105,6 +109,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     if (this.navGroupForm && this.navGroupForm.valueChanges) {
@@ -112,7 +117,10 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
         () => {
           if (this.navGroupForm!.dirty) {
             if (!this.isComboBoxOpen) {
-              setTimeout(() => this.dataManagementGroupService.readPage(), 100);
+              setTimeout(() => {
+                this.dataManagementGroupService.readPage();
+                this.cdr.markForCheck();
+              }, 100);
             }
           }
         }
@@ -162,6 +170,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataManagementGroupService.headerCheckBoxValue = false;
 
         this.dataManagementGroupService.readPage();
+        this.cdr.markForCheck();
       }, 100);
     }
   }
@@ -193,6 +202,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
     setTimeout(() => {
       this.dataManagementGroupService.readPage();
+      this.cdr.markForCheck();
     }, 100);
   }
 

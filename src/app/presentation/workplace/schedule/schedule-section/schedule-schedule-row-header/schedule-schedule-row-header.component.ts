@@ -15,6 +15,8 @@
  */
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
@@ -73,6 +75,7 @@ import { RowHeaderReportService } from './row-header-report.service';
     RowHeaderTooltipService,
     RowHeaderReportService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -96,6 +99,7 @@ export class ScheduleScheduleRowHeaderComponent
   private rowHeaderIcons = inject(RowHeaderIconsService);
   private tooltipHelper = inject(RowHeaderTooltipService);
   private reportHelper = inject(RowHeaderReportService);
+  private cdr = inject(ChangeDetectorRef);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -393,6 +397,7 @@ export class ScheduleScheduleRowHeaderComponent
         left: left + 'px',
         top: iconBottom + 'px',
       };
+      this.cdr.markForCheck();
     });
   }
 

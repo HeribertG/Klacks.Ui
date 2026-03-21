@@ -4,6 +4,8 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
@@ -25,6 +27,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   templateUrl: './all-shift-nav.component.html',
   styleUrl: './all-shift-nav.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, NgbDropdownModule, TranslateModule],
 })
 export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -37,6 +40,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   private translateService = inject(TranslateService);
   private workplaceStateService = inject(WorkplaceStateService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
@@ -54,6 +58,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

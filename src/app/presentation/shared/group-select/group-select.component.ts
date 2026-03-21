@@ -27,6 +27,7 @@ import {
   runInInjectionContext,
   effect,
   ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -62,6 +63,7 @@ type TreeNode = Group | VirtualGroup;
     IconAngleRightComponent,
     IconAngleUpComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -227,6 +229,7 @@ export class GroupSelectComponent
         } else if (this.hierarchicalTree.length > 0) {
           this.selectGroupProgrammatically(this.hierarchicalTree[0]);
         }
+        this.cdr.markForCheck();
       }, 0);
     }
   }

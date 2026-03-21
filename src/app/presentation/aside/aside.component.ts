@@ -8,6 +8,7 @@ import {
   Renderer2,
   ViewChild,
   effect,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
@@ -26,6 +27,7 @@ import { FocusTrapDirective } from '../directives/focus-trap.directive';
     TranslateModule,
     FocusTrapDirective
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AsideComponent {
   @ViewChild(AssistantChatComponent) assistantChatComponent!: AssistantChatComponent;

@@ -1,6 +1,6 @@
 <div id="settings-home-container" class="container-dashboard">
   <div id="settings-home-headline" class="container-headline">
-    {{ translate.instant("setting.title") }}
+    {{ 'setting.title' | translate }}
     <div class="headline-actions">
       <button class="headline-action-button" (click)="expandAll()">
         <app-expand-all-grey></app-expand-all-grey>
@@ -13,7 +13,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('general')" (keydown.enter)="toggleSection('general')">
-    <span>{{ translate.instant("setting.section.general") }}</span>
+    <span>{{ 'setting.section.general' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['general']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -44,7 +44,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('users')" (keydown.enter)="toggleSection('users')">
-    <span>{{ translate.instant("setting.section.users") }}</span>
+    <span>{{ 'setting.section.users' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['users']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -81,7 +81,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('organization')" (keydown.enter)="toggleSection('organization')">
-    <span>{{ translate.instant("setting.section.organization") }}</span>
+    <span>{{ 'setting.section.organization' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['organization']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -125,7 +125,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('work')" (keydown.enter)="toggleSection('work')">
-    <span>{{ translate.instant("setting.section.work") }}</span>
+    <span>{{ 'setting.section.work' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['work']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -165,7 +165,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('absence')" (keydown.enter)="toggleSection('absence')">
-    <span>{{ translate.instant("setting.section.absence") }}</span>
+    <span>{{ 'setting.section.absence' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['absence']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -215,7 +215,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('communication')" (keydown.enter)="toggleSection('communication')">
-    <span>{{ translate.instant("setting.section.communication") }}</span>
+    <span>{{ 'setting.section.communication' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['communication']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -270,7 +270,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('appearance')" (keydown.enter)="toggleSection('appearance')">
-    <span>{{ translate.instant("setting.section.appearance") }}</span>
+    <span>{{ 'setting.section.appearance' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['appearance']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -300,7 +300,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('integrations')" (keydown.enter)="toggleSection('integrations')">
-    <span>{{ translate.instant("setting.section.integrations") }}</span>
+    <span>{{ 'setting.section.integrations' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['integrations']) {
         <app-icon-angle-down></app-icon-angle-down>
@@ -356,7 +356,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('workspace')" (keydown.enter)="toggleSection('workspace')">
-    <span>{{ translate.instant("setting.section.workspace") }}</span>
+    <span>{{ 'setting.section.workspace' | translate }}</span>
     <button class="section-toggle-button">
       @if (sections['workspace']) {
         <app-icon-angle-down></app-icon-angle-down>

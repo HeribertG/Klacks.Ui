@@ -5,7 +5,7 @@
 <ng-template #contractModal id="contract-modal-template" let-modal>
   <div id="contract-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.contract.headline-modal") }}
+      {{ 'setting.contract.headline-modal' | translate }}
     </div>
     <span class="filler"></span>
 
@@ -31,9 +31,7 @@
     @if (editingContract) {
       <div id="contract-modal-name-row" class="contract-name">
         <div id="contract-modal-name-section" class="contract-name-section">
-          <label for="contractName">{{
-            translate.instant("setting.contract.name-modal")
-          }}</label>
+          <label for="contractName">{{ 'setting.contract.name-modal' | translate }}</label>
           <input
             type="text"
             [formField]="contractForm.name"
@@ -56,7 +54,7 @@
           <app-time-input
             id="contract-modal-guaranteed-hours-input"
             [label]="
-              translate.instant('setting.contract.guaranteedHours-modal')
+              'setting.contract.guaranteedHours-modal' | translate
             "
             [value]="guaranteedHours()"
             (valueChange)="onGuaranteedHoursChange($event)"
@@ -71,7 +69,7 @@
         <div id="contract-modal-min-hours-item" class="hours-config-item">
           <app-time-input
             id="contract-modal-min-hours-input"
-            [label]="translate.instant('setting.contract.minHours-modal')"
+            [label]="'setting.contract.minHours-modal' | translate"
             [value]="minimumHours()"
             (valueChange)="onMinimumHoursChange($event)"
             hoursName="minHoursHours"
@@ -85,7 +83,7 @@
         <div id="contract-modal-max-hours-item" class="hours-config-item">
           <app-time-input
             id="contract-modal-max-hours-input"
-            [label]="translate.instant('setting.contract.maxHours-modal')"
+            [label]="'setting.contract.maxHours-modal' | translate"
             [value]="maximumHours()"
             (valueChange)="onMaximumHoursChange($event)"
             hoursName="maxHoursHours"
@@ -99,7 +97,7 @@
         <div id="contract-modal-fulltime-item" class="hours-config-item">
           <app-time-input
             id="contract-modal-fulltime-input"
-            [label]="translate.instant('setting.contract.fullTime-modal')"
+            [label]="'setting.contract.fullTime-modal' | translate"
             [value]="fullTime()"
             (valueChange)="onFullTimeChange($event)"
             hoursName="fullTimeHours"
@@ -120,9 +118,7 @@
           id="contract-modal-night-rate-item"
           class="rate-config-item align-left"
         >
-          <label for="nightRate">{{
-            translate.instant("setting.contract.nightRate-modal")
-          }}</label>
+          <label for="nightRate">{{ 'setting.contract.nightRate-modal' | translate }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -139,9 +135,7 @@
           id="contract-modal-holiday-rate-item"
           class="rate-config-item align-center"
         >
-          <label for="holidayRate">{{
-            translate.instant("setting.contract.holidayRate-modal")
-          }}</label>
+          <label for="holidayRate">{{ 'setting.contract.holidayRate-modal' | translate }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -158,9 +152,7 @@
           id="contract-modal-sa-rate-item"
           class="rate-config-item align-center"
         >
-          <label for="saRate">{{
-            translate.instant("setting.contract.saRate-modal")
-          }}</label>
+          <label for="saRate">{{ 'setting.contract.saRate-modal' | translate }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -177,9 +169,7 @@
           id="contract-modal-so-rate-item"
           class="rate-config-item align-right"
         >
-          <label for="soRate">{{
-            translate.instant("setting.contract.soRate-modal")
-          }}</label>
+          <label for="soRate">{{ 'setting.contract.soRate-modal' | translate }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -198,7 +188,7 @@
         <div id="contract-modal-valid-from-section" class="validity-section">
           <app-date-input
             id="contract-modal-valid-from-input"
-            [label]="translate.instant('setting.contract.validFrom-modal')"
+            [label]="'setting.contract.validFrom-modal' | translate"
             [value]="validFrom()"
             (valueChange)="onValidFromChange($event)"
             inputName="validFrom"
@@ -210,7 +200,7 @@
         <div id="contract-modal-valid-until-section" class="validity-section">
           <app-date-input
             id="contract-modal-valid-until-input"
-            [label]="translate.instant('setting.contract.validUntil-modal')"
+            [label]="'setting.contract.validUntil-modal' | translate"
             [value]="validUntil()"
             (valueChange)="onValidUntilChange($event)"
             inputName="validUntil"
@@ -224,9 +214,7 @@
       <!-- Payment Interval -->
       <div id="contract-modal-payment-interval-row" class="payment-interval-section">
         <div id="contract-modal-payment-interval" class="selection-section">
-          <span class="selection-label">{{
-            translate.instant("setting.contract.paymentInterval-modal")
-          }}</span>
+          <span class="selection-label">{{ 'setting.contract.paymentInterval-modal' | translate }}</span>
           <div class="selector-container">
             <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
               <button
@@ -259,9 +247,7 @@
       <!-- Calendar & Scheduling Rule Selection -->
       <div id="contract-modal-selections-row" class="contract-selections">
         <div id="contract-modal-calendar-section" class="selection-section">
-          <span class="selection-label">{{
-            translate.instant("setting.contract.calendarSelection-modal")
-          }}</span>
+          <span class="selection-label">{{ 'setting.contract.calendarSelection-modal' | translate }}</span>
           <div class="selector-container">
             <div ngbDropdown #calendarDropdown="ngbDropdown">
               <button
@@ -282,7 +268,7 @@
                   (click)="onCalendarSelectionChange('')"
                   [class.active]="!calendarSelectionId()"
                 >
-                  {{ translate.instant("setting.contract.noCalendar") }}
+                  {{ 'setting.contract.noCalendar' | translate }}
                 </button>
                 @for (
                   calendar of dataManagementContractService.availableCalendars;
@@ -302,9 +288,7 @@
         </div>
 
         <div id="contract-modal-scheduling-rule-section" class="selection-section">
-          <span class="selection-label">{{
-            translate.instant("setting.contract.schedulingRuleSelection-modal")
-          }}</span>
+          <span class="selection-label">{{ 'setting.contract.schedulingRuleSelection-modal' | translate }}</span>
           <div class="selector-container">
             <div ngbDropdown #schedulingRuleDropdown="ngbDropdown">
               <button
@@ -324,7 +308,7 @@
                   (click)="onSchedulingRuleSelectionChange('')"
                   [class.active]="!schedulingRuleId()"
                 >
-                  {{ translate.instant("setting.contract.noSchedulingRule") }}
+                  {{ 'setting.contract.noSchedulingRule' | translate }}
                 </button>
                 @for (
                   rule of dataManagementContractService.availableSchedulingRules;
@@ -355,7 +339,7 @@
               id="contract-modal-validation-alert"
               class="alert alert-danger"
             >
-              <strong>{{ translate.instant("validation.errors") }}:</strong>
+              <strong>{{ 'validation.errors' | translate }}:</strong>
               <ul id="contract-modal-validation-list">
                 @for (error of getValidationErrors(); track error) {
                   <li>{{ error }}</li>
@@ -388,8 +372,8 @@
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('setting.contract.headline')"
-  [addLabel]="translate.instant('setting.contract.add')"
+  [headline]="'setting.contract.headline' | translate"
+  [addLabel]="'setting.contract.add' | translate"
   [showHeader]="true"
   idPrefix="contracts"
   (addClick)="onClickAdd()"

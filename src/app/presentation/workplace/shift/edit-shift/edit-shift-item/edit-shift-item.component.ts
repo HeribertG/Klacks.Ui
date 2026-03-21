@@ -2,6 +2,8 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   EffectRef,
@@ -41,6 +43,7 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
   templateUrl: './edit-shift-item.component.html',
   styleUrls: ['./edit-shift-item.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -73,6 +76,7 @@ export class EditShiftItemComponent
   public shiftFormService = inject(ShiftFormService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public faCalendar = faCalendar;
   public ShiftStatus = ShiftStatus;
@@ -95,7 +99,10 @@ export class EditShiftItemComponent
     this.objectForUnsubscribe = this.mainShiftForm!.valueChanges!.subscribe(
       () => {
         if (this.mainShiftForm!.dirty === true) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
+          setTimeout(() => {
+            this.isChangingEvent.emit(true);
+            this.cdr.markForCheck();
+          }, 100);
         }
       }
     );
@@ -175,6 +182,7 @@ export class EditShiftItemComponent
         const effect1 = effect(() => {
           this.dataManagementShiftService.makeValidation();
           this.calcValidation();
+          this.cdr.markForCheck();
         });
         this.effects.push(effect1);
 
@@ -182,6 +190,7 @@ export class EditShiftItemComponent
           const isReset = this.dataManagementShiftService.isReset();
           if (isReset) {
             setTimeout(() => this.isChangingEvent.emit(false), 100);
+            this.cdr.markForCheck();
           }
         });
         this.effects.push(effect2);

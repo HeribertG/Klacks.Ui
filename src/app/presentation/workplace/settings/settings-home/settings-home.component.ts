@@ -2,9 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -93,9 +93,9 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsHomeComponent implements OnInit {
-  public translate = inject(TranslateService);
 
   private workplaceStateService = inject(WorkplaceStateService);
   private dataManagementSettingsService = inject(DataManagementSettingsService);

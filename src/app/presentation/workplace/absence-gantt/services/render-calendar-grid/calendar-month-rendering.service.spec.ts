@@ -10,6 +10,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 
 describe('CalendarMonthRenderingService', () => {
@@ -77,7 +78,11 @@ describe('CalendarMonthRenderingService', () => {
         };
 
         mockTranslateService = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         mockTranslateService.instant.mockImplementation((key: string) => {
             const months: Record<string, string> = {

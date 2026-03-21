@@ -9,6 +9,7 @@ import {
   inject,
   Input,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
@@ -27,6 +28,7 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
     forwardRef(() => MenuItemComponent),
     ClickOutsideDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent {
   @Input() menu: Menu | undefined;

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-contract-header',
@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   styleUrls: ['./contract-header.component.scss'],
   standalone: true,
   imports: [TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContractHeaderComponent {
-  public translate = inject(TranslateService);
 }

@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   ElementRef,
+  effect,
   inject,
   OnInit,
   OnDestroy,
@@ -10,6 +11,7 @@ import {
   ViewChild,
   TemplateRef,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -47,6 +49,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
     SchedulingRuleRowComponent,
     SettingsListCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulingRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -60,6 +63,7 @@ export class SchedulingRulesComponent
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   private manualLoader = inject(ManualLoaderService);
+  private cdr = inject(ChangeDetectorRef);
 
   public editingRule: ISchedulingRule | null = null;
   public originalRule: ISchedulingRule | null = null;
@@ -71,9 +75,16 @@ export class SchedulingRulesComponent
 
   message = DomainMessages.DELETE_ENTRY;
 
+  private isReadEffect = effect(() => {
+    if (this.dataManagementService.isRead()) {
+      this.cdr.markForCheck();
+    }
+  });
+
   async ngOnInit(): Promise<void> {
     try {
       await this.dataManagementService.init();
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error initializing scheduling rules:', error);
     }
@@ -90,6 +101,7 @@ export class SchedulingRulesComponent
           this.deleteRule(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -206,6 +218,7 @@ export class SchedulingRulesComponent
       }
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

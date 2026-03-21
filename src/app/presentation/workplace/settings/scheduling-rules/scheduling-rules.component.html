@@ -5,7 +5,7 @@
 <ng-template #ruleModal id="scheduling-rule-modal-template" let-modal>
   <div id="scheduling-rule-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.schedulingRule.headline-modal") }}
+      {{ 'setting.schedulingRule.headline-modal' | translate }}
     </div>
     <span class="filler"></span>
 
@@ -36,7 +36,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'form' }"
             (click)="tabId.set('form')"
-            >{{ translate.instant("setting.schedulingRule.tab-form") }}</a
+            >{{ 'setting.schedulingRule.tab-form' | translate }}</a
           >
         </li>
         <li id="scheduling-rule-modal-tab-help-item" class="nav-item">
@@ -45,7 +45,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'help' }"
             (click)="tabId.set('help')"
-            >{{ translate.instant("setting.schedulingRule.tab-help") }}</a
+            >{{ 'setting.schedulingRule.tab-help' | translate }}</a
           >
         </li>
       </ul>
@@ -56,9 +56,7 @@
     <!-- Name -->
     <div id="scheduling-rule-modal-name-row" class="row-line-modal-inline">
       <div id="scheduling-rule-modal-name-section" class="rule-name-section">
-        <label for="ruleName">{{
-          translate.instant("setting.schedulingRule.name-modal")
-        }}</label>
+        <label for="ruleName">{{ 'setting.schedulingRule.name-modal' | translate }}</label>
         <input
           type="text"
           [(ngModel)]="editingRule.name"
@@ -72,7 +70,7 @@
     <!-- Max Work Days / Min Rest Days -->
     <div id="scheduling-rule-modal-days-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-max-work-days-item" class="rule-config-item">
-        <label for="maxWorkDays">{{ translate.instant("setting.schedulingRule.maxWorkDays") }}</label>
+        <label for="maxWorkDays">{{ 'setting.schedulingRule.maxWorkDays' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maxWorkDays"
@@ -85,7 +83,7 @@
       </div>
 
       <div id="scheduling-rule-modal-min-rest-days-item" class="rule-config-item">
-        <label for="minRestDays">{{ translate.instant("setting.schedulingRule.minRestDays") }}</label>
+        <label for="minRestDays">{{ 'setting.schedulingRule.minRestDays' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.minRestDays"
@@ -101,7 +99,7 @@
     <!-- Min Pause Hours / Max Optimal Gap -->
     <div id="scheduling-rule-modal-hours-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-min-pause-hours-item" class="rule-config-item">
-        <label for="minPauseHours">{{ translate.instant("setting.schedulingRule.minPauseHours") }}</label>
+        <label for="minPauseHours">{{ 'setting.schedulingRule.minPauseHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.minPauseHours"
@@ -114,7 +112,7 @@
       </div>
 
       <div id="scheduling-rule-modal-max-optimal-gap-item" class="rule-config-item">
-        <label for="maxOptimalGap">{{ translate.instant("setting.schedulingRule.maxOptimalGap") }}</label>
+        <label for="maxOptimalGap">{{ 'setting.schedulingRule.maxOptimalGap' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maxOptimalGap"
@@ -130,7 +128,7 @@
     <!-- Max Daily Hours / Max Weekly Hours -->
     <div id="scheduling-rule-modal-limits-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-max-daily-hours-item" class="rule-config-item">
-        <label for="maxDailyHours">{{ translate.instant("setting.schedulingRule.maxDailyHours") }}</label>
+        <label for="maxDailyHours">{{ 'setting.schedulingRule.maxDailyHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maxDailyHours"
@@ -143,7 +141,7 @@
       </div>
 
       <div id="scheduling-rule-modal-max-weekly-hours-item" class="rule-config-item">
-        <label for="maxWeeklyHours">{{ translate.instant("setting.schedulingRule.maxWeeklyHours") }}</label>
+        <label for="maxWeeklyHours">{{ 'setting.schedulingRule.maxWeeklyHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maxWeeklyHours"
@@ -159,7 +157,7 @@
     <!-- Max Consecutive Days -->
     <div id="scheduling-rule-modal-consecutive-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-max-consecutive-days-item" class="rule-config-item">
-        <label for="maxConsecutiveDays">{{ translate.instant("setting.schedulingRule.maxConsecutiveDays") }}</label>
+        <label for="maxConsecutiveDays">{{ 'setting.schedulingRule.maxConsecutiveDays' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maxConsecutiveDays"
@@ -175,7 +173,7 @@
     <!-- Default Working Hours / Overtime Threshold -->
     <div id="scheduling-rule-modal-working-hours-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-default-working-hours-item" class="rule-config-item">
-        <label for="ruleDefaultWorkingHours">{{ translate.instant("setting.schedulingRule.defaultWorkingHours") }}</label>
+        <label for="ruleDefaultWorkingHours">{{ 'setting.schedulingRule.defaultWorkingHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.defaultWorkingHours"
@@ -188,7 +186,7 @@
       </div>
 
       <div id="scheduling-rule-modal-overtime-threshold-item" class="rule-config-item">
-        <label for="ruleOvertimeThreshold">{{ translate.instant("setting.schedulingRule.overtimeThreshold") }}</label>
+        <label for="ruleOvertimeThreshold">{{ 'setting.schedulingRule.overtimeThreshold' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.overtimeThreshold"
@@ -204,7 +202,7 @@
     <!-- Guaranteed Hours / Maximum Hours -->
     <div id="scheduling-rule-modal-guaranteed-max-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-guaranteed-hours-item" class="rule-config-item">
-        <label for="ruleGuaranteedHours">{{ translate.instant("setting.schedulingRule.guaranteedHours") }}</label>
+        <label for="ruleGuaranteedHours">{{ 'setting.schedulingRule.guaranteedHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.guaranteedHours"
@@ -217,7 +215,7 @@
       </div>
 
       <div id="scheduling-rule-modal-maximum-hours-item" class="rule-config-item">
-        <label for="ruleMaximumHours">{{ translate.instant("setting.schedulingRule.maximumHours") }}</label>
+        <label for="ruleMaximumHours">{{ 'setting.schedulingRule.maximumHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.maximumHours"
@@ -233,7 +231,7 @@
     <!-- Minimum Hours / Full Time Hours -->
     <div id="scheduling-rule-modal-minimum-fulltime-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-minimum-hours-item" class="rule-config-item">
-        <label for="ruleMinimumHours">{{ translate.instant("setting.schedulingRule.minimumHours") }}</label>
+        <label for="ruleMinimumHours">{{ 'setting.schedulingRule.minimumHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.minimumHours"
@@ -246,7 +244,7 @@
       </div>
 
       <div id="scheduling-rule-modal-fulltime-hours-item" class="rule-config-item">
-        <label for="ruleFullTimeHours">{{ translate.instant("setting.schedulingRule.fullTimeHours") }}</label>
+        <label for="ruleFullTimeHours">{{ 'setting.schedulingRule.fullTimeHours' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.fullTimeHours"
@@ -262,7 +260,7 @@
     <!-- Vacation Days Per Year -->
     <div id="scheduling-rule-modal-vacation-row" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-vacation-days-item" class="rule-config-item">
-        <label for="ruleVacationDaysPerYear">{{ translate.instant("setting.schedulingRule.vacationDaysPerYear") }}</label>
+        <label for="ruleVacationDaysPerYear">{{ 'setting.schedulingRule.vacationDaysPerYear' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.vacationDaysPerYear"
@@ -277,7 +275,7 @@
 
     <div id="scheduling-rule-modal-rates-row-1" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-night-rate-item" class="rule-config-item">
-        <label for="ruleNightRate">{{ translate.instant("setting.schedulingRule.nightRate") }}</label>
+        <label for="ruleNightRate">{{ 'setting.schedulingRule.nightRate' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.nightRate"
@@ -291,7 +289,7 @@
       </div>
 
       <div id="scheduling-rule-modal-holiday-rate-item" class="rule-config-item">
-        <label for="ruleHolidayRate">{{ translate.instant("setting.schedulingRule.holidayRate") }}</label>
+        <label for="ruleHolidayRate">{{ 'setting.schedulingRule.holidayRate' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.holidayRate"
@@ -307,7 +305,7 @@
 
     <div id="scheduling-rule-modal-rates-row-2" class="row-line-modal-inline rule-config-row">
       <div id="scheduling-rule-modal-sa-rate-item" class="rule-config-item">
-        <label for="ruleSaRate">{{ translate.instant("setting.schedulingRule.saRate") }}</label>
+        <label for="ruleSaRate">{{ 'setting.schedulingRule.saRate' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.saRate"
@@ -321,7 +319,7 @@
       </div>
 
       <div id="scheduling-rule-modal-so-rate-item" class="rule-config-item">
-        <label for="ruleSoRate">{{ translate.instant("setting.schedulingRule.soRate") }}</label>
+        <label for="ruleSoRate">{{ 'setting.schedulingRule.soRate' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="editingRule.soRate"
@@ -340,7 +338,7 @@
     <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">
       <div id="scheduling-rule-modal-validation-section" class="validation-errors-section">
         <div id="scheduling-rule-modal-validation-alert" class="alert alert-danger">
-          <strong>{{ translate.instant("validation.errors") }}:</strong>
+          <strong>{{ 'validation.errors' | translate }}:</strong>
           <ul id="scheduling-rule-modal-validation-list">
             @for (error of getValidationErrors(); track error) {
             <li>{{ error }}</li>
@@ -386,8 +384,8 @@
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('setting.schedulingRule.headline')"
-  [addLabel]="translate.instant('setting.schedulingRule.add')"
+  [headline]="'setting.schedulingRule.headline' | translate"
+  [addLabel]="'setting.schedulingRule.add' | translate"
   [showHeader]="true"
   idPrefix="scheduling-rules"
   (addClick)="onClickAdd()"

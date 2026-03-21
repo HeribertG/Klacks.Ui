@@ -5,7 +5,7 @@
  * @param installedCodes - Set der bereits installierten Sprachcodes
  * @param installed - Event das nach erfolgreicher Installation emittiert wird
  */
-import { Component, inject, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,11 +22,13 @@ import { MarketplacePackage } from 'src/app/domain/models/settings/marketplace-p
   imports: [TranslateModule, DecimalPipe, FormsModule, FontAwesomeModule],
   templateUrl: './marketplace-browse.component.html',
   styleUrls: ['./marketplace-browse.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarketplaceBrowseComponent {
   private dataService = inject(DataLanguagePluginService);
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   faSearch = faSearch;
 
@@ -53,6 +55,7 @@ export class MarketplaceBrowseComponent {
       this.toastService.showError('settings.language-plugins.marketplace.error.search');
     } finally {
       this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -71,6 +74,7 @@ export class MarketplaceBrowseComponent {
       this.toastService.showError(this.translate.instant('settings.language-plugins.marketplace.error.install'));
     } finally {
       this.installingCode = '';
+      this.cdr.markForCheck();
     }
   }
 

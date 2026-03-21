@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-branches-header',
@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   styleUrls: ['./branches-header.component.scss'],
   standalone: true,
   imports: [TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesHeaderComponent {
-  public translate = inject(TranslateService);
 }

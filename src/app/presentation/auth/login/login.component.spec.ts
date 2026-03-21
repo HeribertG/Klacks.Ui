@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -47,7 +48,11 @@ describe('LoginComponent', () => {
         const translateServiceSpy = {
             setDefaultLang: vi.fn(),
             use: vi.fn(),
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         const userAdministrationServiceSpy = {
             sendResetPasswordEmail: vi.fn()

@@ -10,6 +10,7 @@ import {
   computed,
   EffectRef,
   Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
@@ -38,6 +39,7 @@ import { IconLogoComponent } from '../../icons/icon-logo.component';
     IconMMLComponent,
     IconLogoComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
   public dataLoadFileService = inject(DataLoadFileService);

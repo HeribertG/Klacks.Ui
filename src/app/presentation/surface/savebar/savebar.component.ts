@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -73,6 +75,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
     }
   `,
   styleUrls: ['../home/home.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavebarComponent {
   public workplaceStateService = inject(WorkplaceStateService);

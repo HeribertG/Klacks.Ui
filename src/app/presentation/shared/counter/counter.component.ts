@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -11,6 +13,7 @@ import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./counter.component.scss'],
   standalone: true,
   imports: [FontAwesomeModule, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CounterComponent {
   @Output() isChanged = new EventEmitter<number>();

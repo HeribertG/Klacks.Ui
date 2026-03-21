@@ -9,6 +9,8 @@ import {
   OnInit,
   OnDestroy,
   Output,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -51,6 +53,7 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
     ClientImageComponent,
     EditAddressNavComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   @Input() isEditClient = false;
@@ -76,6 +79,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private eventBus = inject(EVENT_BUS_TOKEN);
   private asideService = inject(AsideService);
   private toastShowService = inject(ToastShowService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   isReadOnly = false;
@@ -107,6 +111,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       } else {
         this.dataManagementClientService.createClient();
       }
+      this.cdr.markForCheck();
     });
   }
 

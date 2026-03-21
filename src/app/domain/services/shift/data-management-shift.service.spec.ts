@@ -35,7 +35,11 @@ describe('DataManagementShiftService', () => {
             getRegisteredRoutes: vi.fn().mockReturnValue([])
         };
         const translateSpy = {
-            instant: vi.fn().mockReturnValue('')
+            instant: vi.fn().mockReturnValue(''),
+            get: vi.fn().mockReturnValue(of('')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         const calendarSelectionSpy = {
             isRead: vi.fn().mockReturnValue(false),

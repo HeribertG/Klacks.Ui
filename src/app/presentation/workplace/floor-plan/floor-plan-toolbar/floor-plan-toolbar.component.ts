@@ -7,6 +7,7 @@ import {
   ElementRef,
   Output,
   EventEmitter,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -56,6 +57,7 @@ const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
   ],
   templateUrl: './floor-plan-toolbar.component.html',
   styleUrls: ['./floor-plan-toolbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanToolbarComponent {
   @ViewChild('importFileRef') importFileRef!: ElementRef<HTMLInputElement>;

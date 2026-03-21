@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="countries-form">
   <div id="countries-header" class="container-header">
-    {{ translate.instant("setting.state.headline") }}
+    {{ 'setting.state.headline' | translate }}
   </div>
 
   <div id="countries-line" class="container-line"></div>
@@ -26,7 +26,7 @@
 
   <div id="countries-add-row" class="row">
     <span id="countries-add-btn" class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("setting.country.add") }}
+      >{{ 'setting.country.add' | translate }}
     </span>
   </div>
 </div>

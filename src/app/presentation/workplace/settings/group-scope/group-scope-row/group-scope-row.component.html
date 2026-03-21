@@ -3,7 +3,7 @@
 <ng-template #content id="group-scope-modal-template" let-modal>
   <div id="group-scope-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.group.chose-headline") }}
+      {{ 'setting.group.chose-headline' | translate }}
     </div>
     <span class="filler"></span>
 
@@ -53,10 +53,10 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cross click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button id="group-scope-modal-save-btn" type="button" class="btn save-btn" (click)="modal.close('OK')">
-      {{ translate.instant("setting.contract.save") }}
+      {{ 'setting.contract.save' | translate }}
     </button>
   </div>
 </ng-template>

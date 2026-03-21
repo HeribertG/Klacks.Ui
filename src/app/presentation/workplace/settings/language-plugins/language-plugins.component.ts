@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, OnDestroy, inject, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, ViewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -27,6 +27,7 @@ import { MarketplaceBrowseComponent } from './marketplace-browse/marketplace-bro
   ],
   templateUrl: './language-plugins.component.html',
   styleUrls: ['./language-plugins.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguagePluginsComponent implements OnInit, OnDestroy {
   private dataService = inject(DataLanguagePluginService);
@@ -34,6 +35,7 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
   private toastService = inject(ToastShowService);
   private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   @ViewChild('marketplaceModal') marketplaceModal!: TemplateRef<unknown>;
@@ -67,10 +69,12 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
         next: (plugins) => {
           this.allPlugins = plugins;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: () => {
           this.toastService.showError('settings.language-plugins.error.load');
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -83,6 +87,8 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
       this.toastService.showSuccess(this.translate.instant('settings.language-plugins.success.uninstall'), this.translate.instant('TOAST_SUCCESS'));
     } catch {
       this.toastService.showError(this.translate.instant('settings.language-plugins.error.uninstall'));
+    } finally {
+      this.cdr.markForCheck();
     }
   }
 

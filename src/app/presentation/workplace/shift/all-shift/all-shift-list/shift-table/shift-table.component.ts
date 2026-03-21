@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { IconBoxComponent } from 'src/app/presentation/icons/icon-box.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
@@ -21,6 +21,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   templateUrl: './shift-table.component.html',
   styleUrl: './shift-table.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -35,7 +36,6 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   ],
 })
 export class ShiftTableComponent {
-  public translate = inject(TranslateService);
   private textFormatterService = inject(TextFormatterService);
   @Input() shifts: IShift[] | undefined;
   @Input() sortingService!: TableSortingService;

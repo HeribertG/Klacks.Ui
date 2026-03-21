@@ -2,17 +2,19 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  ChangeDetectorRef,
   Component,
   Input,
   Output,
   EventEmitter,
   OnInit,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -26,6 +28,7 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
   styleUrls: ['./pagination.component.scss'],
   standalone: true,
   imports: [FormsModule, NgbPaginationModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginationComponent implements OnInit {
   @Input() paginationType: 'standard' | 'shift' = 'standard';
@@ -49,8 +52,8 @@ export class PaginationComponent implements OnInit {
   realRow = -1;
   visibleRow: { text: string; value: number }[] = [];
 
-  public translate = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     if (this.numberOfItemsPerPage === undefined) {
@@ -73,7 +76,10 @@ export class PaginationComponent implements OnInit {
       this.realRow = +tmpRow;
       if (+tmpRow !== -1) {
         this.numberOfItemsPerPage = +tmpRow;
-        setTimeout(() => this.numberOfItemsPerPageChange.emit(+tmpRow), 0);
+        setTimeout(() => {
+          this.numberOfItemsPerPageChange.emit(+tmpRow);
+          this.cdr.markForCheck();
+        }, 0);
       } else {
         this.realRow = -1;
         if (this.numberOfItemsPerPage === 0) {

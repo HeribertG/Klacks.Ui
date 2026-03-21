@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
 import { ReportTemplate } from 'src/app/domain/models/report/report-template.model';
 import { DataReportApiService } from 'src/app/infrastructure/api/report/data-report-api.service';
@@ -16,11 +16,11 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
   imports: [CommonModule, FormsModule, TranslateModule, SettingsListCardComponent],
   templateUrl: './report-defaults.component.html',
   styleUrls: ['./report-defaults.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportDefaultsComponent implements OnInit {
   private reportDefaults = inject(ReportDefaultsService);
   private reportApi = inject(DataReportApiService);
-  translate = inject(TranslateService);
 
   dataSources = REPORT_DATA_SOURCES;
   templates = signal<ReportTemplate[]>([]);

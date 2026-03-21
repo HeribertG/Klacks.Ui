@@ -4,8 +4,8 @@
  * Hauptkomponente des Dashboards mit klappbaren Sektionen.
  * @param sections - Record der Sektions-Zustände (offen/geschlossen)
  */
-import { Component, inject, OnInit } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
@@ -37,10 +37,9 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     IconCollapseAllGreyComponent,
     IconExpandAllGreyComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardHomeComponent implements OnInit {
-  public translate = inject(TranslateService);
-
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);

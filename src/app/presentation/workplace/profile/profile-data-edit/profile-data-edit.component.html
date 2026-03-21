@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="profile-data-edit-container" class="container-dashboard">
   <div id="profile-data-edit-header" class="container-header">
-    {{ translate.instant("setting.data-edit.header") }}
+    {{ "setting.data-edit.header" | translate }}
   </div>
 
   <div class="container-line"></div>
@@ -11,7 +11,7 @@
     <div class="row-line">
       <div class="form-group firstColumn">
         <label for="profile-data-edit-username">{{
-          translate.instant("setting.data-edit.username")
+          "setting.data-edit.username" | translate
         }}</label>
         <input
           type="text"
@@ -30,7 +30,7 @@
     <div class="row-line">
       <div class="input-group firstColumn my-password">
         <label for="profile-data-edit-old-password">{{
-          translate.instant("setting.data-edit.current-password")
+          "setting.data-edit.current-password" | translate
         }}</label>
         <input
           [type]="showOldPassword ? 'text' : 'password'"
@@ -58,7 +58,7 @@
     <div class="row-line">
       <div class="form-group firstColumn">
         <label for="profile-data-edit-new-password">{{
-          translate.instant("setting.data-edit.new-password")
+          "setting.data-edit.new-password" | translate
         }}</label>
         <input
           type="password"
@@ -85,7 +85,7 @@
     <div class="row-line">
       <div class="form-group firstColumn move-on-top">
         <label for="profile-data-edit-new-password-repeat">{{
-          translate.instant("setting.data-edit.new-password-repeat")
+          "setting.data-edit.new-password-repeat" | translate
         }}</label>
         <input
           type="password"

@@ -3,15 +3,13 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="settings-general-form">
   <div id="settings-general-header" class="container-header">
-    {{ translate.instant("setting.setting-general.headline") }}
+    {{ 'setting.setting-general.headline' | translate }}
   </div>
 
   <div id="settings-general-line" class="container-line"></div>
 
   <div class="form-group first">
-    <label for="setting-general-name">{{
-      translate.instant("setting.setting-general.title")
-    }}</label>
+    <label for="setting-general-name">{{ 'setting.setting-general.title' | translate }}</label>
     <input
       id="setting-general-name"
       type="text"
@@ -41,7 +39,7 @@
           class="delete-button delete-button-icon"
           type="button"
           (click)="onClickDeleteIcon()"
-          >{{ translate.instant("setting.setting-general.remove-icon") }}
+          >{{ 'setting.setting-general.remove-icon' | translate }}
         </span>
       </div>
     </div>
@@ -49,12 +47,10 @@
     <div
       id="settings-general-icon-upload-container"
       class="image-container"
-      [ngbTooltip]="translate.instant('setting.setting-general.tooltip-icon')"
+      [ngbTooltip]="'setting.setting-general.tooltip-icon' | translate"
       autoClose="true"
     >
-      <label id="settings-general-icon-label" class="first">{{
-        translate.instant("setting.setting-general.icon")
-      }}</label>
+      <label id="settings-general-icon-label" class="first">{{ 'setting.setting-general.icon' | translate }}</label>
 
       <div
         id="setting-general-icon-upload-area"
@@ -63,9 +59,7 @@
         (click)="fileField1.click()"
         (fileDropped)="onUploadIcon($event)"
       >
-        <span id="settings-general-icon-info" class="ddinfo">{{
-          translate.instant("setting.setting-general.info-icon")
-        }}</span>
+        <span id="settings-general-icon-info" class="ddinfo">{{ 'setting.setting-general.info-icon' | translate }}</span>
         <input
           id="setting-general-icon-file-input"
           type="file"
@@ -98,7 +92,7 @@
           class="delete-button delete-button-icon"
           type="button"
           (click)="onClickDeleteLogo()"
-          >{{ translate.instant("setting.setting-general.remove-logo") }}</span
+          >{{ 'setting.setting-general.remove-logo' | translate }}</span
         >
       </div>
     </div>
@@ -106,12 +100,10 @@
     <div
       id="settings-general-logo-upload-container"
       class="image-container"
-      [ngbTooltip]="translate.instant('setting.setting-general.tooltip-logo')"
+      [ngbTooltip]="'setting.setting-general.tooltip-logo' | translate"
       autoClose="true"
     >
-      <label id="settings-general-logo-label" class="first">{{
-        translate.instant("setting.setting-general.logo")
-      }}</label>
+      <label id="settings-general-logo-label" class="first">{{ 'setting.setting-general.logo' | translate }}</label>
       <div
         id="setting-general-logo-upload-area"
         class="fileupload-ico"
@@ -120,7 +112,7 @@
         (fileDropped)="onUploadLogo($event)"
       >
         <span id="settings-general-logo-info" class="ddinfo"
-          >{{ translate.instant("setting.setting-general.info-logo") }}
+          >{{ 'setting.setting-general.info-logo' | translate }}
         </span>
         <input
           id="setting-general-logo-file-input"

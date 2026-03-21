@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { GroupScopeHeaderComponent } from './group-scope-header/group-scope-header.component';
@@ -15,11 +15,11 @@ import { DataManagementGroupVisibilityService } from 'src/app/domain/services/gr
   templateUrl: './group-scope.component.html',
   styleUrl: './group-scope.component.scss',
   standalone: true,
-  imports: [GroupScopeRowComponent, GroupScopeHeaderComponent, NgbModule],
+  imports: [GroupScopeRowComponent, GroupScopeHeaderComponent, NgbModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupScopeComponent {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
-  public translate = inject(TranslateService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public dataManagementGroupVisibilityService = inject(
     DataManagementGroupVisibilityService

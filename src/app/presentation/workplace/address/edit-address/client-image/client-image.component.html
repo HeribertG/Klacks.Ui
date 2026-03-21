@@ -3,7 +3,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="client-image-form" #imageForm="ngForm">
   <app-expandable-card
-    [headerTitle]="translate.instant('address.edit-address.client-image.headline')">
+    [headerTitle]="'address.edit-address.client-image.headline' | translate">
 
   <div>
     @if (isLoading()) {
@@ -25,7 +25,7 @@
           (click)="onClickDeleteImage()"
         >
           {{
-            translate.instant("address.edit-address.client-image.remove-image")
+            "address.edit-address.client-image.remove-image" | translate
           }}
         </span>
       </div>
@@ -35,12 +35,12 @@
     <div
       class="image-container"
       [ngbTooltip]="
-        translate.instant('address.edit-address.client-image.tooltip')
+        'address.edit-address.client-image.tooltip' | translate
       "
       autoClose="true"
     >
       <label class="first">
-        {{ translate.instant("address.edit-address.client-image.label") }}
+        {{ "address.edit-address.client-image.label" | translate }}
       </label>
 
       <div
@@ -52,7 +52,7 @@
         (fileDropped)="!isDisabled() && onUploadImage($event)"
       >
         <span class="ddinfo">
-          {{ translate.instant("address.edit-address.client-image.info") }}
+          {{ "address.edit-address.client-image.info" | translate }}
         </span>
         <input
           id="clientImage"

@@ -3,12 +3,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
-  Component,
+  Component, ChangeDetectionStrategy,
   effect,
   OnDestroy,
   OnInit,
   inject,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -77,6 +78,7 @@ interface AbsenceFormModel {
     SimplePaginationComponent,
   ],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
@@ -86,6 +88,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
   private translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   public currentAbsence = new Absence();
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
@@ -131,6 +134,12 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   });
 
+  private isReadEffect = effect(() => {
+    if (this.dataManagementAbsenceService.isRead()) {
+      this.cdr.markForCheck();
+    }
+  });
+
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
 
@@ -150,6 +159,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translate.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     this.modalService.resultEvent
@@ -162,6 +172,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteAbsence(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }

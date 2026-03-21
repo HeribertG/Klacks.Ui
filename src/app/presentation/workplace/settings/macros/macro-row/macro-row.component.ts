@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   EventEmitter,
   Input,
   OnChanges,
@@ -60,6 +60,7 @@ interface MacroFormModel {
     PropertyGridComponent,
     TrashIconRedComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MacroRowComponent implements OnChanges, OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;

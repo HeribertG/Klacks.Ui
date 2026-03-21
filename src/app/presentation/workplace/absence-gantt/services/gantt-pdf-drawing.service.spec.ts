@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { GanttPdfDrawingService, GanttDrawingConfig, } from './gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { signal } from '@angular/core';
@@ -15,7 +16,11 @@ describe('GanttPdfDrawingService', () => {
 
     beforeEach(() => {
         const translateSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateSpy.instant.mockReturnValue('Translated');
 

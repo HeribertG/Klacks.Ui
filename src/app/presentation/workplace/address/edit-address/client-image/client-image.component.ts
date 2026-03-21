@@ -14,9 +14,10 @@ import {
   Output,
   signal,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
@@ -37,6 +38,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
     DragDropFileUploadDirective,
     ExpandableCardComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientImageComponent implements OnInit, OnDestroy {
   @Input() isReadOnly = false;
@@ -50,7 +52,6 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   errorMessage = signal<string | undefined>(undefined);
 
   public dataLoadFileService = inject(DataLoadFileService);
-  public translate = inject(TranslateService);
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private injector = inject(Injector);

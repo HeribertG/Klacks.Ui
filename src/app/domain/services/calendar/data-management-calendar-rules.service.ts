@@ -25,6 +25,7 @@ export class DataManagementCalendarRulesService {
   private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
+  public isPageRead = signal(false);
 
   public maxItems = 0;
   public firstItem = 0;
@@ -103,6 +104,8 @@ export class DataManagementCalendarRulesService {
     this.currentFilter.list[index].select = value.select;
   }
 
+  private static readonly READ_RESET_DELAY = 100;
+
   readPage(language: string) {
     this.currentFilter.language = language;
     this.dataCalendarRuleService
@@ -119,6 +122,11 @@ export class DataManagementCalendarRulesService {
 
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
+          this.isPageRead.set(true);
+          setTimeout(
+            () => this.isPageRead.set(false),
+            DataManagementCalendarRulesService.READ_RESET_DELAY
+          );
         }
       });
   }

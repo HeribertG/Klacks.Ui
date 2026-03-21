@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
@@ -11,6 +13,7 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
   styleUrls: ['./time-input.component.scss'],
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeInputComponent {
   @Input() label?: string;

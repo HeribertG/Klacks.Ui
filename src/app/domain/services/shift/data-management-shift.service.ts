@@ -188,12 +188,16 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         this.maxItems = x.maxItems;
         this.firstItem = x.firstItemOnPage;
         this.maxPages = x.maxPages;
-      });
+        this._showProgressSpinner.set(false);
 
-    if (isSecondRead) {
-      this.fireIsReadEvent();
-    }
-    this._showProgressSpinner.set(false);
+        if (isSecondRead) {
+          this.fireIsReadEvent();
+        }
+
+        if (this.onExternalFilterChange) {
+          this.onExternalFilterChange();
+        }
+      });
   }
 
   fireIsReadEvent() {

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, effect, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, effect, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,6 +25,7 @@ interface AddressModel {
   styleUrls: ['./owner-address.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormField, FormsModule, FallbackPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OwnerAddressComponent implements OnInit {
   public translate = inject(TranslateService);

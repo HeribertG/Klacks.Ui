@@ -17,6 +17,8 @@
  * - Part of: Workplace module routing
  */
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   OnInit,
@@ -64,6 +66,7 @@ import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-expor
   templateUrl: './schedule-home.component.html',
   styleUrls: ['./schedule-home.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
@@ -99,6 +102,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private allScheduleStateService = inject(AllScheduleStateService);
   private signalRService = inject(SignalRService);
   private schedulePdfExportService = inject(SchedulePdfExportService);
+  private cdr = inject(ChangeDetectorRef);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -114,6 +118,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     await this.allScheduleStateService.initializeWorkplaceState();
     this.isInitialized = true;
+    this.cdr.markForCheck();
 
     this.setupEffects();
   }
@@ -133,6 +138,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateHolidayDates();
     this.dataManagementSchedule.readShiftSchedule();
     this.refreshTrigger = !this.refreshTrigger;
+    this.cdr.markForCheck();
   }
 
   private async resolveCalendarChips(): Promise<StateCountryToken[]> {
@@ -175,6 +181,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.holidayCollection.isReset()) {
           this.updateHolidayDates();
           this.refreshTrigger = !this.refreshTrigger;
+          this.cdr.markForCheck();
         }
       });
       this.effects.push(holidayEffect);

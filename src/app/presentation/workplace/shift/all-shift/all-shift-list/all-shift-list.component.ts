@@ -4,6 +4,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   OnInit,
@@ -45,6 +47,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   templateUrl: './all-shift-list.component.html',
   styleUrl: './all-shift-list.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     NgbTooltipModule,
@@ -71,6 +74,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private toastService = inject(ToastShowService);
   private dataShiftService = inject(DataShiftService);
+  private cdr = inject(ChangeDetectorRef);
 
   selectedRowId?: string;
 
@@ -92,6 +96,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tableResizeService.setRowHeights(90, 82);
     this.dataManagementShiftService.init();
     await this.allShiftStateService.initializeWorkplaceState();
+    const baseCallback = this.dataManagementShiftService.onExternalFilterChange;
+    this.dataManagementShiftService.onExternalFilterChange = () => {
+      if (baseCallback) {
+        baseCallback();
+      }
+      this.cdr.markForCheck();
+    };
     this.visibleRow = visibleShiftRow(true);
 
     this.sortingService.initialize({
@@ -118,6 +129,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteShift(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
 
@@ -128,6 +140,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.page =
           this.dataManagementShiftService.currentFilter.requiredPage + 1;
         this.readPage(true);
+        this.cdr.markForCheck();
       }, 100);
     } else {
       this.readPage(true);
@@ -180,11 +193,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
         ''
       );
       this.readPage(true);
+      this.cdr.markForCheck();
     } catch (error) {
       this.toastService.showError(
         this.translate.instant('shift.all-shift.delete-error'),
         ''
       );
+      this.cdr.markForCheck();
     }
   }
 
@@ -227,6 +242,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.page = event;
     setTimeout(() => {
       this.readPage(false);
+      this.cdr.markForCheck();
     }, 100);
   }
 
@@ -322,6 +338,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
               this.realRow = optimalRows;
               this.page = 1;
               this.readPage(true);
+              this.cdr.markForCheck();
             }
           }
         });
@@ -360,6 +377,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
               this.realRow = optimalRows;
               this.page = 1;
               this.readPage(true);
+              this.cdr.markForCheck();
             }
           }
         });
@@ -380,6 +398,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (shouldRecalculate && !this.isRecalculating) {
       setTimeout(() => {
         this.recalculateTableHeight();
+        this.cdr.markForCheck();
       }, 300);
     }
   }
@@ -418,6 +437,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
       setTimeout(() => {
         this.isRecalculating = false;
+        this.cdr.markForCheck();
       }, 500);
     }
   }

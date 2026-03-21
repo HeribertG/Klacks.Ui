@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, DestroyRef, inject, Input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit, output, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -42,6 +44,7 @@ const GROUPING_LABEL_KEYS = [
     IconAngleLeftComponent,
     IconAngleRightComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityHeaderComponent implements OnInit {
   private settings = inject(AvailabilitySettingService);

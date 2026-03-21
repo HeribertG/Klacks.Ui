@@ -18,6 +18,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
@@ -71,6 +72,7 @@ export interface CellValueChangeEvent {
     GridFillHandleDragService,
     GridScheduleEventsService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GridSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

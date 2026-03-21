@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnInit, viewChild } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
 import { DrawCalendarGanttService } from '../services/draw-calendar-gantt.service';
@@ -49,6 +49,7 @@ import { AbsenceGanttContextMenuService } from '../services/absence-gantt-contex
   templateUrl: './absence-gantt-home.component.html',
   styleUrls: ['./absence-gantt-home.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AbsenceGanttHeaderComponent,
     AbsenceGanttContainerComponent

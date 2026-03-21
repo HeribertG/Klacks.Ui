@@ -5,6 +5,7 @@ import {
   Component,
   inject,
   OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -30,6 +31,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditGroupNavComponent,
     EditGroupParentComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupHomeComponent implements OnInit {
 

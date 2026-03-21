@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,6 +16,7 @@ import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-clos
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
   imports: [CommonModule, DatePipe, TranslateModule, TrashIconRedComponent, IconEyeClosedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxDetailComponent {
   inboxService = inject(InboxService);

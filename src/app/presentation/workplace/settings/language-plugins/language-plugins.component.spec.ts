@@ -63,6 +63,10 @@ describe('LanguagePluginsComponent', () => {
 
   const mockTranslateService = {
     instant: vi.fn().mockReturnValue('Translated text'),
+    get: vi.fn().mockReturnValue(of('Translated text')),
+    onTranslationChange: of(),
+    onLangChange: of(),
+    onDefaultLangChange: of(),
   };
 
   beforeEach(() => {

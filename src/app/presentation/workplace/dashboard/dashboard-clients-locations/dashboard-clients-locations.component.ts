@@ -2,7 +2,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSearch, faStreetView } from '@fortawesome/free-solid-svg-icons';
@@ -50,6 +52,7 @@ const MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('mapContainer') mapContainerRef!: ElementRef<HTMLDivElement>;

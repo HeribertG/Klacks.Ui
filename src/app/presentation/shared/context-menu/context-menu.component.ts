@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Menu } from './context-menu-class';
 import { MenuComponent } from './menu/menu.component';
 import { ContextMenuService } from './context-menu.service';
@@ -17,9 +19,11 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, MenuComponent, ClickOutsideDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
   private contextMenuService = inject(ContextMenuService);
+  private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('main', { static: false }) main!: MenuComponent;
   @Input() menuData: Menu = new Menu();
@@ -34,6 +38,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
         this.hasClicked.emit(x);
+        this.cdr.markForCheck();
       });
   }
 
@@ -63,6 +68,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
       if (this.main) {
         this.main.closeMenu();
       }
+      this.cdr.markForCheck();
     }, 1000);
   }
 

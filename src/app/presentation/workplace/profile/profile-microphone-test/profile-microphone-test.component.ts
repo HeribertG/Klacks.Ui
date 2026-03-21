@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faMicrophone,
@@ -26,9 +26,9 @@ interface TestResult {
   imports: [TranslateModule, FontAwesomeModule],
   templateUrl: './profile-microphone-test.component.html',
   styleUrls: ['./profile-microphone-test.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
-  public translate = inject(TranslateService);
   private speechService = inject(SpeechRecognitionService);
   private subscriptions: Subscription[] = [];
 

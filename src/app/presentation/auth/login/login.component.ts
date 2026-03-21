@@ -9,6 +9,7 @@ import {
   OnInit,
   ViewChild,
   TemplateRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
@@ -44,6 +45,7 @@ import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/da
     FontAwesomeModule,
     NgbModule
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('forgotPasswordModal', { read: TemplateRef })

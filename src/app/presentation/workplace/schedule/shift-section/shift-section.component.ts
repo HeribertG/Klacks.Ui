@@ -17,6 +17,7 @@
  */
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   effect,
@@ -113,6 +114,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   ],
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftSectionComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -226,6 +228,7 @@ export class ShiftSectionComponent
         const readState = this.dataManagement.isShiftScheduleRead();
         if (readState.count > 0) {
           this.shiftSurface.Refresh(readState.resetScroll);
+          this.cdr.markForCheck();
         }
       });
       this.effects.push(dataReadEffect);
@@ -235,6 +238,7 @@ export class ShiftSectionComponent
         const hasRows = this.dataService.rows > 0;
         this.vScrollbarSize = (isLocked || !hasRows) ? 0 : this.defaultVScrollbarSize;
         this.updateScrollbarSizes();
+        this.cdr.markForCheck();
       });
       this.effects.push(vScrollbarSizeEffect);
 

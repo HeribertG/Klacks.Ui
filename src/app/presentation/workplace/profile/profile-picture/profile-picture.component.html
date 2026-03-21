@@ -3,18 +3,18 @@
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <div id="profile-picture-container" class="container-dashboard">
   <div id="profile-picture-header" class="container-header">
-    {{ translate.instant("setting.picture.header") }}
+    {{ "setting.picture.header" | translate }}
   </div>
 
   <div class="container-line"></div>
 
   @if (!dataLoadFileService.profileImage$()) {
   <div class="row">
-    <label id="profile-picture-upload-label">{{ translate.instant("setting.picture.upload") }} </label>
+    <label id="profile-picture-upload-label">{{ "setting.picture.upload" | translate }} </label>
   </div>
   } @if (dataLoadFileService.profileImage$()) {
   <div class="row">
-    <label id="profile-picture-label">{{ translate.instant("setting.picture.picture") }} </label>
+    <label id="profile-picture-label">{{ "setting.picture.picture" | translate }} </label>
   </div>
   }
 
@@ -33,7 +33,7 @@
         (fileDropped)="onUpload($event)"
       >
         <span id="profile-picture-upload-info" class="ddinfo"
-          >{{ translate.instant("setting.picture.info") }}
+          >{{ "setting.picture.info" | translate }}
         </span>
         <input
           id="profile-picture-file-input"
@@ -57,7 +57,7 @@
       class="delete-button firstColumn"
       type="button"
       (click)="onDeleteImg()"
-      >{{ translate.instant("setting.picture.delete") }}
+      >{{ "setting.picture.delete" | translate }}
     </span>
   </div>
   }

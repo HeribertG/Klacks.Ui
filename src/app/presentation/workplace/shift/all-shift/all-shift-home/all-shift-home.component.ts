@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';
 import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   templateUrl: './all-shift-home.component.html',
   styleUrl: './all-shift-home.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslateModule,
     AllShiftListComponent,

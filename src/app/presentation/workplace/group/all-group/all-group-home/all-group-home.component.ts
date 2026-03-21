@@ -6,6 +6,8 @@ import {
   inject,
   OnInit,
   effect,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AllGroupListComponent } from '../all-group-list/all-group-list.component';
@@ -30,6 +32,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     AllGroupNavComponent,
     TreeGroupComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllGroupHomeComponent implements OnInit {
   public authorizationService = inject(AuthorizationService);
@@ -40,7 +43,7 @@ export class AllGroupHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
-
+  private cdr = inject(ChangeDetectorRef);
 
   private readonly STORAGE_KEY = 'group-view-mode';
   private _showGrid = true;
@@ -55,6 +58,7 @@ export class AllGroupHomeComponent implements OnInit {
       if (focusChanged && currentEntity === EntityName.GROUP) {
         setTimeout(() => {
           this.restoreViewMode();
+          this.cdr.markForCheck();
         }, 10);
       }
     });

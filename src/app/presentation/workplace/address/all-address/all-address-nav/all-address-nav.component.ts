@@ -12,6 +12,8 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -51,6 +53,7 @@ import { AllAddressStateService } from '../services/all-address-state.service';
     FallbackPipe
 ],
   providers: [AllAddressStateService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllAddressNavComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -64,6 +67,7 @@ export class AllAddressNavComponent
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
   private allAddressStateService = inject(AllAddressStateService);
+  private cdr = inject(ChangeDetectorRef);
 
   public navClient: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -109,6 +113,7 @@ export class AllAddressNavComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     this.objectForUnsubscribe = this.navClientForm!.valueChanges!.subscribe(
@@ -167,6 +172,7 @@ export class AllAddressNavComponent
       setTimeout(() => {
         this.allAddressStateService.updateFilterState();
         this.dataManagementClientService.readPage();
+        this.cdr.markForCheck();
       }, 100);
     }
   }
@@ -201,6 +207,7 @@ export class AllAddressNavComponent
 
     setTimeout(() => {
       this.dataManagementClientService.readPage();
+      this.cdr.markForCheck();
     }, 100);
   }
 
@@ -232,6 +239,7 @@ export class AllAddressNavComponent
     setTimeout(() => {
       this.allAddressStateService.updateFilterState();
       this.dataManagementClientService.readPage();
+      this.cdr.markForCheck();
     }, 100);
   }
 

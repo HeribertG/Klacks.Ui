@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ModalService, ModalType } from '../modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -23,6 +25,7 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
     DeletewindowComponent,
     MessageWindowComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   // @ViewChild properties

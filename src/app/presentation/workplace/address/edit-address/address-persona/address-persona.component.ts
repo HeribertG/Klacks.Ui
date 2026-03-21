@@ -18,6 +18,8 @@ import {
   inject,
   runInInjectionContext,
   untracked,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -75,6 +77,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
     ButtonNewComponent,
     ExpandableCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -87,6 +90,7 @@ export class AddressPersonaComponent
   private modalService = inject(ModalService);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -193,6 +197,7 @@ export class AddressPersonaComponent
           this.message = DomainMessages.DEACTIVE_ADDRESS;
           this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
           this.newAddressString = DomainMessages.NEW_ADDRESS;
+          this.cdr.markForCheck();
         });
       });
 
@@ -207,6 +212,7 @@ export class AddressPersonaComponent
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -534,6 +540,7 @@ export class AddressPersonaComponent
   async onZipFocusout() {
     await this.dataManagementClientService.writeCity();
     this.calcValidation();
+    this.cdr.markForCheck();
   }
 
   onChangingAddress(event: any) {
@@ -574,6 +581,7 @@ export class AddressPersonaComponent
               this.setEnvironmentVariable();
               this.dataManagementClientService.filterState();
               this.calcValidation();
+              this.cdr.markForCheck();
             });
           });
         }

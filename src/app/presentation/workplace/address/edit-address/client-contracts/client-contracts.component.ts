@@ -15,6 +15,8 @@ import {
   Injector,
   effect,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -52,6 +54,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     ExpandableCardComponent,
   ],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientContractsComponent
   implements AfterViewInit, OnDestroy, OnInit
@@ -84,6 +87,7 @@ export class ClientContractsComponent
   public sortingService = inject(TableSortingService);
 
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   async ngOnInit(): Promise<void> {
     this.sortingService.initialize({
@@ -115,6 +119,7 @@ export class ClientContractsComponent
 
   async loadContracts(): Promise<void> {
     this.contracts = await this.contractService.readContracts();
+    this.cdr.markForCheck();
   }
 
   isDisabled(): boolean {

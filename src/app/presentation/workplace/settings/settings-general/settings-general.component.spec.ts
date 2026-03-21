@@ -48,7 +48,11 @@ describe('SettingsGeneralComponent', () => {
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 

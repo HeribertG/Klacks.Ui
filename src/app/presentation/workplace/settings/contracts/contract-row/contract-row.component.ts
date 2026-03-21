@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 
 import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -11,6 +11,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   styleUrls: ['./contract-row.component.scss'],
   standalone: true,
   imports: [TrashIconRedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContractRowComponent {
   @Input() data: IContract = new Contract();

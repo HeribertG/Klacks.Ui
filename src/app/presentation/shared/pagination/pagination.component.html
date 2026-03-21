@@ -2,7 +2,7 @@
   @if (showRowSelector && visibleRow) {
   <div>
     <label for="selection" class="entry-row">{{
-      translate.instant("pagination.line")
+      "pagination.line" | translate
     }}</label>
     <select
       id="selection"
@@ -12,7 +12,7 @@
     >
       @for (c of visibleRow; track c.value) {
       <option [value]="c.value" [selected]="c.value === realRow">
-        {{ c.value === -1 ? translate.instant(c.text) : c.text }}
+        {{ c.value === -1 ? (c.text | translate) : c.text }}
       </option>
       }
     </select>
@@ -20,7 +20,7 @@
   }
 
   <label id="pagination-total-count" for="pagination" class="entry-info"
-    >{{ translate.instant("pagination.sum") }} {{ dataService.maxItems }}</label
+    >{{ "pagination.sum" | translate }} {{ dataService.maxItems }}</label
   >
 
   <ngb-pagination

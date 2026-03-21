@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 export interface PieChartData {
   label: string;
@@ -15,6 +17,7 @@ export interface PieChartData {
   styleUrls: ['./pie-chart.component.scss'],
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PieChartComponent implements OnChanges {
   @Input() data: PieChartData[] = [];

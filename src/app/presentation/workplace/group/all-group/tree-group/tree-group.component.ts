@@ -4,6 +4,7 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EffectRef,
   EventEmitter,
@@ -14,6 +15,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -65,6 +67,7 @@ import { takeUntil } from 'rxjs/operators';
     CdkDropList,
     CdkDropListGroup,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
@@ -73,6 +76,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   private injector = inject(Injector);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() switchToGrid = new EventEmitter<void>();
 
@@ -132,10 +136,9 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
-      setTimeout(() => {
-        this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
-        this.debugTreeStructure(this.hierarchicalTree);
-      }, 0);
+      this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
+      this.debugTreeStructure(this.hierarchicalTree);
+      this.cdr.markForCheck();
     }
   }
 
@@ -165,11 +168,11 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isNodeSelected(node: Group): boolean {
-    return this.dataManagementGroupService.selectedNode?.id === node.id;
+    return this.dataManagementGroupService.selectedNode()?.id === node.id;
   }
 
   isNodeExpanded(node: Group): boolean {
-    return this.dataManagementGroupService.expandedNodes.has(node.id!);
+    return this.dataManagementGroupService.expandedNodes().has(node.id!);
   }
 
   selectNode(node: Group): void {
@@ -246,19 +249,19 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   expandAllNodes(): void {
     if (this.hierarchicalTree && this.hierarchicalTree.length > 0) {
-      const expandNodes = (nodes: Group[]) => {
+      const allIds = new Set(this.dataManagementGroupService.expandedNodes());
+      const collectIds = (nodes: Group[]) => {
         for (const node of nodes) {
           if (node.id) {
-            this.dataManagementGroupService.expandNode(node);
+            allIds.add(node.id);
           }
-
           if (node.children && node.children.length > 0) {
-            expandNodes(node.children);
+            collectIds(node.children);
           }
         }
       };
-
-      expandNodes(this.hierarchicalTree);
+      collectIds(this.hierarchicalTree);
+      this.dataManagementGroupService.expandedNodes.set(allIds);
     }
   }
 
@@ -351,6 +354,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.hasChildren(node) && !this.isNodeExpanded(node)) {
       this.expandTimeout = setTimeout(() => {
         this.dataManagementGroupService.expandNode(node);
+        this.cdr.markForCheck();
       }, 800);
     }
   }

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -13,7 +15,8 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./date-input.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, NgbModule, FontAwesomeModule],
-  // No providers needed - using simple Input/Output binding
+  // No providers needed - using simple Input/Output binding,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateInputComponent {
   @Input() label?: string;

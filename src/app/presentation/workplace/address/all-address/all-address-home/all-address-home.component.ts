@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.component';
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,6 +23,7 @@ import { AllAddressStateService } from '../services/all-address-state.service';
     AllAddressNavComponent
 ],
   providers: [AllAddressStateService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllAddressHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);

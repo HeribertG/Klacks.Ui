@@ -30,10 +30,10 @@
       @if (selectedGroup) {
       <span>{{ selectedGroup.name }}</span>
       } @else { @if (selectedGroupId === ALL_GROUPS_ID) {
-      <span>{{ translate.instant("group.select.all-groups") }}</span>
+      <span>{{ "group.select.all-groups" | translate }}</span>
       } @else {
       <span class="placeholder">{{
-        translate.instant("group.select.select")
+        "group.select.select" | translate
       }}</span>
       } }
     </div>
@@ -100,7 +100,7 @@
       </ul>
       } @else {
       <div class="no-tree-message">
-        {{ translate.instant("group.select.no-groups") }}
+        {{ "group.select.no-groups" | translate }}
       </div>
       }
     </div>

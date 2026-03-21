@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
   AfterViewInit,
@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -52,6 +53,7 @@ interface BranchFormModel {
   ],
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('branchModal', { read: TemplateRef })
@@ -62,6 +64,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   branches: IBranch[] = [];
@@ -102,6 +105,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteBranch(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -120,11 +124,13 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (branches) => {
           this.branches = branches;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading branches:', error);
           this.toastService.showError('setting.branches.error.load-branches');
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -211,9 +217,11 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       if (index !== -1) {
         this.branches.splice(index, 1);
       }
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error deleting branch:', error);
       this.toastService.showError('setting.branches.error.delete');
+      this.cdr.markForCheck();
     }
   }
 
@@ -242,6 +250,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
 
+      this.cdr.markForCheck();
       return true;
     } catch (error) {
       console.error('Error saving branch:', error);
@@ -250,6 +259,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

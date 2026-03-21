@@ -4,11 +4,12 @@ import {
   Component,
   OnInit,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 // Angular und Bibliotheksmodule
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Anwendungskomponenten
 import { ProfilePictureComponent } from '../profile-picture/profile-picture.component';
@@ -35,10 +36,10 @@ import { SearchService } from 'src/app/application/services/search.service';
     ProfileCustomSettingComponent,
     ProfileMicrophoneTestComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHomeComponent implements OnInit {
 
-  public translate = inject(TranslateService);
   private workplaceStateService = inject(
     WorkplaceStateService
   );

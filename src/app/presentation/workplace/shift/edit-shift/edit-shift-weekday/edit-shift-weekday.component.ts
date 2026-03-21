@@ -4,6 +4,8 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   EffectRef,
@@ -33,6 +35,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
   templateUrl: './edit-shift-weekday.component.html',
   styleUrls: ['./edit-shift-weekday.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -57,6 +60,7 @@ export class EditShiftWeekdayComponent
   public shiftFormService = inject(ShiftFormService);
   private workTimeCalculationService = inject(WorkTimeCalculationService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public visibleTable = 'inline';
   public disabledWorkTime = true;
@@ -74,9 +78,12 @@ export class EditShiftWeekdayComponent
     this.objectForUnsubscribe = this.weekdayShiftForm!.valueChanges!.subscribe(
       () => {
         if (this.weekdayShiftForm!.dirty === true) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
-          setTimeout(() => this.check(), 100);
-          setTimeout(() => this.validateWeekdays(), 100);
+          setTimeout(() => {
+            this.isChangingEvent.emit(true);
+            this.check();
+            this.validateWeekdays();
+            this.cdr.markForCheck();
+          }, 100);
         }
       }
     );
@@ -150,6 +157,7 @@ export class EditShiftWeekdayComponent
         const effect1 = effect(() => {
           this.dataManagementShiftService.makeValidation();
           this.validateWeekdays();
+          this.cdr.markForCheck();
         });
         this.effects.push(effect1);
 
@@ -158,6 +166,7 @@ export class EditShiftWeekdayComponent
           if (shift && this.isContainer && shift.isTimeRange) {
             shift.isTimeRange = false;
           }
+          this.cdr.markForCheck();
         });
         this.effects.push(effect2);
       });

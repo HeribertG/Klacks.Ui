@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -29,13 +29,13 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
     StateHeaderComponent,
     StateRowComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StateComponent implements AfterViewInit, OnDestroy {
   @ViewChild('containerBox') containerBox?: ElementRef;
-
-  public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private modalService = inject(ModalService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   message = DomainMessages.DELETE_ENTRY;
@@ -51,6 +51,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
           this.deleteState(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }

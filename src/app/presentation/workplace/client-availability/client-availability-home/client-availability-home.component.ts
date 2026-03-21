@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
@@ -77,6 +79,7 @@ import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
     HolidayCollectionService,
     AvailabilitySelectionService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private savebarService = inject(SavebarService);

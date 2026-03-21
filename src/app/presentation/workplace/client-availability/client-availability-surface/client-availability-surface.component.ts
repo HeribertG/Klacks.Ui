@@ -8,6 +8,7 @@ import {
   input,
   OnDestroy,
   output,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { AvailabilitySurfaceEventsDirective } from '../directives/availability-surface-events.directive';
@@ -24,6 +25,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   styleUrls: ['./client-availability-surface.component.scss'],
   standalone: true,
   imports: [ResizeDirective, AvailabilitySurfaceEventsDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDestroy {
   private canvasManager = inject(AvailabilityCanvasManagerService);

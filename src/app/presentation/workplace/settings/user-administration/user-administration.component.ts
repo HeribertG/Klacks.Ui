@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   ViewChild,
   inject,
   OnInit,
@@ -12,6 +12,7 @@ import {
   signal,
   computed,
   effect,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -56,6 +57,7 @@ interface UserFormModel {
     UserAdministrationHeaderComponent,
     UserAdministrationRowComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
@@ -65,6 +67,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public userAdminService = inject(UserAdministrationManagementService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
@@ -237,6 +240,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
           this.pendingDeleteIndex = -1;
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }

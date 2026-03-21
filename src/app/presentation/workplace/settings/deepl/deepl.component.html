@@ -2,17 +2,17 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="deepl-form">
   <div id="deepl-header" class="container-header">
-    {{ translate.instant("setting.deepl.headline") }}
+    {{ 'setting.deepl.headline' | translate }}
   </div>
 
   <div id="deepl-line" class="container-line"></div>
 
   <div class="deepl-info first">
     <p class="info-text">
-      {{ translate.instant("setting.deepl.description") }}
+      {{ 'setting.deepl.description' | translate }}
     </p>
     <p class="info-text">
-      {{ translate.instant("setting.deepl.register") }}
+      {{ 'setting.deepl.register' | translate }}
       <a
         href="https://www.deepl.com/pro-api"
         target="_blank"
@@ -25,9 +25,7 @@
 
   <div class="form-group first">
     <div class="input-group my-password">
-      <label for="deepl-apikey">{{
-        translate.instant("setting.deepl.apikey")
-      }}</label>
+      <label for="deepl-apikey">{{ 'setting.deepl.apikey' | translate }}</label>
       @if (showApiKey()) {
         <input
           id="deepl-apikey"

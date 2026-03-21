@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { PaginationComponent } from './pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -32,7 +33,11 @@ describe('PaginationComponent', () => {
                 if (key === 'pagination.visibleRow50') return '50';
                 if (key === 'pagination.visibleRow100') return '100';
                 return key;
-            })
+            }),
+            get: vi.fn((key: string) => of(key)),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
 
         mockDataService = {

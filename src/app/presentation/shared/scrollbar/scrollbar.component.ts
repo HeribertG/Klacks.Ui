@@ -22,6 +22,7 @@ import {
   OnDestroy,
   ChangeDetectorRef,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
@@ -99,6 +100,7 @@ const HORIZONTAL_CONFIG: AxisConfig = {
     '[class.horizontal]': 'orientation === "horizontal"',
     '[class.vertical]': 'orientation === "vertical"',
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

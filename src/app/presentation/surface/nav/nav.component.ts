@@ -13,6 +13,7 @@ import {
   EffectRef,
   Injector,
   runInInjectionContext,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -72,6 +73,7 @@ type NavigationPage =
     IconAvailabilityComponent,
     IconMailComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;

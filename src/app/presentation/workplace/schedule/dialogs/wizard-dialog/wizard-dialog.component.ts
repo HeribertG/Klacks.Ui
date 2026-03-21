@@ -6,7 +6,7 @@
  * @param progress - Fortschrittsdaten des evolutionären Algorithmus
  * @param result - Ergebnis der Berechnung mit Zuweisungen
  */
-import { Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,6 +28,7 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
   styleUrls: ['./wizard-dialog.component.scss'],
   standalone: true,
   imports: [CommonModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WizardDialogComponent {
   @ViewChild('wizardModal') modalTemplate!: TemplateRef<unknown>;

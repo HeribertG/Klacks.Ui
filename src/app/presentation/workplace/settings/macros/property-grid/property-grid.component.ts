@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import {
@@ -31,6 +31,7 @@ interface EnumOption {
   styleUrl: './property-grid.component.scss',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PropertyGridComponent implements OnInit {
   @Input() object: any = {};

@@ -13,6 +13,8 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
@@ -58,6 +60,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     PaginationComponent,
   ],
   providers: [TableResizeService, AllAddressStateService, TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -80,6 +83,7 @@ export class AllAddressListComponent
   private tableResizeService = inject(TableResizeService);
   private allAddressStateService = inject(AllAddressStateService);
   private navigationService = inject(NavigationService);
+  private cdr = inject(ChangeDetectorRef);
 
   public checkBoxIndeterminate = false;
   public firstItemOnLastPage: number | undefined = undefined;
@@ -126,6 +130,7 @@ export class AllAddressListComponent
         this.dataManagementClientService.currentFilter.requiredPage + 1;
     }
     this.readPage();
+    this.cdr.markForCheck();
   }
 
   ngAfterViewInit(): void {
@@ -133,6 +138,7 @@ export class AllAddressListComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.message = this.translate.instant('DELETE_ENTRY');
+        this.cdr.markForCheck();
       });
 
     setTimeout(() => {
@@ -153,6 +159,7 @@ export class AllAddressListComponent
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -299,6 +306,7 @@ export class AllAddressListComponent
     this.page = event;
     setTimeout(() => {
       this.readPage();
+      this.cdr.markForCheck();
     }, 100);
   }
 
@@ -373,6 +381,7 @@ export class AllAddressListComponent
       .subscribe(() => {
         this.readPage();
         this.setLastChangeMetaData();
+        this.cdr.markForCheck();
       });
   }
 
@@ -417,6 +426,7 @@ export class AllAddressListComponent
               optimalRows;
             this.page = 1;
             this.readPage();
+            this.cdr.markForCheck();
           }
         }
       });

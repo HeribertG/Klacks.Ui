@@ -13,6 +13,7 @@
   ChangeDetectorRef,
   NgZone,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -67,6 +68,7 @@ import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/ev
     VoiceModeService,
     ChatFunctionExecutionService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;

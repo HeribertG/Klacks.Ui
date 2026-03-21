@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="all-group-list-form">
   <div id="all-group-list-header" class="container-header header-container">
-    {{ translate.instant("group.all-group.all-group-list.header") }}
+    {{ "group.all-group.all-group-list.header" | translate }}
 
     <span class="filler"></span>
 
@@ -68,7 +68,7 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  translate.instant("group.all-group.all-group-list.table.name")
+                  "group.all-group.all-group-list.table.name" | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
@@ -84,9 +84,7 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  translate.instant(
-                    "group.all-group.all-group-list.table.description"
-                  )
+                  "group.all-group.all-group-list.table.description" | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -104,7 +102,7 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  translate.instant("group.all-group.all-group-list.table.from")
+                  "group.all-group.all-group-list.table.from" | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -122,9 +120,7 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  translate.instant(
-                    "group.all-group.all-group-list.table.until"
-                  )
+                  "group.all-group.all-group-list.table.until" | translate
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">

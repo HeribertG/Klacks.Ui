@@ -13,6 +13,7 @@ import {
   input,
   runInInjectionContext,
   viewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
@@ -37,6 +38,7 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./client-availability-row-header.component.scss'],
   standalone: true,
   imports: [ResizeDirective, NgStyle, ClientFilterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   private drawRowHeader = inject(DrawAvailabilityRowHeaderService);

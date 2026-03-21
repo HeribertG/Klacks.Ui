@@ -13,6 +13,8 @@ import {
   runInInjectionContext,
   ViewChild,
   OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -39,6 +41,7 @@ import { toNumber } from 'src/app/shared/helpers/number.helper';
     NgbModule,
     ExpandableCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MembershipComponent implements AfterViewInit, OnDestroy {
   @ViewChild('membershipForm', { static: false }) membershipForm:
@@ -58,12 +61,16 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.membershipForm!.valueChanges!.subscribe(
       () => {
         if (this.membershipForm!.dirty === true) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
+          setTimeout(() => {
+            this.isChangingEvent.emit(true);
+            this.cdr.markForCheck();
+          }, 100);
         }
       }
     );

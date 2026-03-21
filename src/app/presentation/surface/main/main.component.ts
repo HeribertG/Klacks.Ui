@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component } from '@angular/core';
+import { Component,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { RouterOutlet } from '@angular/router';
 
@@ -10,5 +12,6 @@ import { RouterOutlet } from '@angular/router';
   styleUrls: ['./main.component.scss'],
   standalone: true,
   imports: [RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {}

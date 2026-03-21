@@ -8,7 +8,7 @@
  * @param imagePreviewCache - Shared cache for image preview DataURLs
  */
 
-import { Component, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -50,6 +50,7 @@ interface FieldPaletteGroup {
   standalone: true,
   imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent],
   providers: [ReportDesignerFieldService, ReportDesignerBorderService, ReportDesignerFormulaService, ReportDesignerImageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportDesignerComponent implements OnChanges {
   @Input() template!: ReportTemplate;

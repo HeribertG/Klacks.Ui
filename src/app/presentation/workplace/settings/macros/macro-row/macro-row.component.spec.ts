@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { of } from 'rxjs';
 
 import { MacroRowComponent } from './macro-row.component';
 import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
@@ -62,6 +63,10 @@ describe('MacroRowComponent', () => {
 
     const translateServiceSpy = {
       instant: vi.fn().mockReturnValue('Translated text'),
+      get: vi.fn().mockReturnValue(of('Translated text')),
+      onTranslationChange: of(),
+      onLangChange: of(),
+      onDefaultLangChange: of(),
       currentLang: 'de',
     };
 

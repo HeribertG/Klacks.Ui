@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -14,6 +16,7 @@ import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-pla
   imports: [FormsModule, TranslateModule],
   templateUrl: './floor-plan-work-panel.component.html',
   styleUrls: ['./floor-plan-work-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   private workDropService = inject(FloorPlanWorkDropService);

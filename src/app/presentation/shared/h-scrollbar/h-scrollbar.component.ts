@@ -14,6 +14,7 @@ import {
   ViewChild,
   OnChanges,
   SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   ScrollbarComponent,
@@ -34,6 +35,7 @@ import {
   styles: [':host { display: block; height: 100%; width: 100%; } app-scrollbar { display: block; height: 100%; width: 100%; }'],
   standalone: true,
   imports: [ScrollbarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HScrollbarComponent implements OnChanges {
   @Input() maxValue = 365;

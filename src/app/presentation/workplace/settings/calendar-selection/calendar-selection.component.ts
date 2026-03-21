@@ -2,7 +2,7 @@
 
 import {
   AfterViewInit,
-  Component,
+  Component, ChangeDetectionStrategy,
   effect,
   EventEmitter,
   inject,
@@ -11,6 +11,7 @@ import {
   OnInit,
   Output,
   runInInjectionContext,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -49,6 +50,7 @@ interface TranslationResults {
     ChipsComponent,
     FontAwesomeModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarSelectionComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChanging = new EventEmitter<boolean>();
@@ -58,6 +60,7 @@ export class CalendarSelectionComponent implements OnInit, AfterViewInit, OnDest
   private dataManagementCalendarRulesService = inject(DataManagementCalendarRulesService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public faPlus = faPlus;
   public faTrash = faTrash;
@@ -106,6 +109,7 @@ export class CalendarSelectionComponent implements OnInit, AfterViewInit, OnDest
             break;
           }
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -388,6 +392,7 @@ export class CalendarSelectionComponent implements OnInit, AfterViewInit, OnDest
           this.modalService.contentInputTitle = results.inputTitle;
           this.dataManagementCalendarSelectionService.emptyPlaceholder =
             results.emptyPlaceholder;
+          this.cdr.markForCheck();
         },
       });
   }

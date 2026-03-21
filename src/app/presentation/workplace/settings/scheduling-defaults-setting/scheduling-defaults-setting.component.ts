@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   effect,
   inject,
@@ -39,6 +39,7 @@ interface SchedulingDefaultsFormModel {
   styleUrls: ['./scheduling-defaults-setting.component.scss'],
   standalone: true,
   imports: [FormsModule, FormField, TranslateModule, NgbModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulingDefaultsSettingComponent implements OnInit {
   public dataManagementSettingsService = inject(DataManagementSettingsService);

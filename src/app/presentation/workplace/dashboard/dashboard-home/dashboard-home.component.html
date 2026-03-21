@@ -16,7 +16,7 @@
     @if (isAuthorised) {
       <!-- ═══════════════════════════════════════════════════════════ -->
       <div id="dashboard-section-overview" class="section-header first" tabindex="0" role="button" (click)="toggleSection('overview')" (keydown.enter)="toggleSection('overview')">
-        <span>{{ translate.instant("dashboard.section.overview") }}</span>
+        <span>{{ "dashboard.section.overview" | translate }}</span>
         <button class="section-toggle-button">
           @if (sections['overview']) {
             <app-icon-angle-down></app-icon-angle-down>
@@ -34,7 +34,7 @@
 
       <!-- ═══════════════════════════════════════════════════════════ -->
       <div id="dashboard-section-coverage" class="section-header" tabindex="0" role="button" (click)="toggleSection('coverage')" (keydown.enter)="toggleSection('coverage')">
-        <span>{{ translate.instant("dashboard.section.coverage") }}</span>
+        <span>{{ "dashboard.section.coverage" | translate }}</span>
         <button class="section-toggle-button">
           @if (sections['coverage']) {
             <app-icon-angle-down></app-icon-angle-down>
@@ -50,7 +50,7 @@
 
     <!-- ═══════════════════════════════════════════════════════════ -->
     <div id="dashboard-section-locations" class="section-header" tabindex="0" role="button" (click)="toggleSection('locations')" (keydown.enter)="toggleSection('locations')">
-      <span>{{ translate.instant("dashboard.section.locations") }}</span>
+      <span>{{ "dashboard.section.locations" | translate }}</span>
       <button class="section-toggle-button">
         @if (sections['locations']) {
           <app-icon-angle-down></app-icon-angle-down>

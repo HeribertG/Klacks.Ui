@@ -2,6 +2,8 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
@@ -46,6 +48,7 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
   templateUrl: './absence-gantt-mask.component.html',
   styleUrls: ['./absence-gantt-mask.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgStyle,
     NgClass,
@@ -77,6 +80,7 @@ export class AbsenceGanttMaskComponent
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   public page = 1;
   public tabId = 'mask';
@@ -120,6 +124,7 @@ export class AbsenceGanttMaskComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 
@@ -207,6 +212,7 @@ export class AbsenceGanttMaskComponent
   onChange() {
     setTimeout(() => {
       this.change();
+      this.cdr.markForCheck();
     }, 100);
   }
 
@@ -242,6 +248,7 @@ export class AbsenceGanttMaskComponent
           .updateBreak(this.selectedRow, this.selectedBreak)
           .then(() => {
             this.UpdateEvent.emit();
+            this.cdr.markForCheck();
           });
       } else {
         this.ErrorMessageEvent.emit(DomainMessages.ERROR_DATE);

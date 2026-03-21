@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
@@ -21,6 +22,10 @@ describe('GanttPdfExportService', () => {
         // Create spies
         const translateSpy = {
             instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
             currentLang: 'en'
         };
         const mockBreakFilter = new BreakFilter();

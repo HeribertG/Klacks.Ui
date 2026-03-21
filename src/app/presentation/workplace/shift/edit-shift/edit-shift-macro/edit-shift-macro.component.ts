@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -21,6 +21,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
   templateUrl: './edit-shift-macro.component.html',
   styleUrls: ['./edit-shift-macro.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -38,6 +39,7 @@ export class EditShiftMacroComponent
   dataManagementShiftService = inject(DataManagementShiftService);
   private translateService = inject(TranslateService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -51,6 +53,14 @@ export class EditShiftMacroComponent
   macroDescription = '';
   objectForUnsubscribe: Subscription | undefined;
 
+  constructor() {
+    effect(() => {
+      this.dataManagementShiftService.initIsRead();
+      this.dataManagementShiftService.isReset();
+      this.cdr.markForCheck();
+    });
+  }
+
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
   }
@@ -58,10 +68,14 @@ export class EditShiftMacroComponent
     this.objectForUnsubscribe = this.macroShiftForm!.valueChanges!.subscribe(
       () => {
         if (this.macroShiftForm!.dirty === true) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
           if (!this.dataManagementShiftService.editShift?.macroId) {
             this.macroDescription = '';
           }
+          setTimeout(() => {
+            this.isChangingEvent.emit(true);
+            this.cdr.markForCheck();
+          }, 100);
+          this.cdr.markForCheck();
         }
       }
     );

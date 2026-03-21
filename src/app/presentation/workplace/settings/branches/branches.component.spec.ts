@@ -64,7 +64,10 @@ describe('BranchesComponent', () => {
 
         const translateServiceSpy = {
             instant: vi.fn(),
-            get: vi.fn()
+            get: vi.fn(),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
         translateServiceSpy.get.mockReturnValue(of('Translated text'));

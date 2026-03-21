@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, EventEmitter, OnDestroy, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
@@ -29,6 +29,7 @@ import { takeUntil } from 'rxjs/operators';
     TranslateModule,
     FontAwesomeModule
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePictureComponent implements OnDestroy {
   @Output() isChangingEvent = new EventEmitter();
@@ -36,9 +37,9 @@ export class ProfilePictureComponent implements OnDestroy {
   selectedFile: File | undefined = undefined;
   profileImage: any;
 
-  public translate = inject(TranslateService);
   public dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   onFileSelected(event: { target: { files: File[] } }): void {
@@ -62,6 +63,7 @@ export class ProfilePictureComponent implements OnDestroy {
         .subscribe(() => {
           this.tryLoadProfileImage();
           this.selectedFile = undefined;
+          this.cdr.markForCheck();
         });
     }
   }

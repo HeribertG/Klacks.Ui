@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,6 +27,7 @@ import { LanguageConfigService } from 'src/app/application/services/language-con
     NgbModule,
     SpinnerModule
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;
@@ -41,6 +42,7 @@ export class ProfileCustomSettingComponent implements OnInit {
   private localeService = inject(LocaleService);
   private themeService = inject(ThemeService);
   private languageConfigService = inject(LanguageConfigService);
+  private cdr = inject(ChangeDetectorRef);
 
   get languages(): Language[] {
     return this.languageConfigService.getSupportedLanguages() as Language[];
@@ -65,6 +67,7 @@ export class ProfileCustomSettingComponent implements OnInit {
   onChange() {
     setTimeout(() => {
       this.onChangeLanguage(this.selectedLanguage);
+      this.cdr.markForCheck();
     }, 100);
   }
 

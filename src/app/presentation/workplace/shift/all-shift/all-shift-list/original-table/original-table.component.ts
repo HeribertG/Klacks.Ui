@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { InfoIconComponent } from 'src/app/presentation/icons/icon-info.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -17,6 +17,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   templateUrl: './original-table.component.html',
   styleUrl: './original-table.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -27,7 +28,6 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   ],
 })
 export class OriginalTableComponent {
-  public translate = inject(TranslateService);
   private textFormatterService = inject(TextFormatterService);
   @Input() shifts: IShift[] | undefined;
   @Input() isSealedOrder = false;

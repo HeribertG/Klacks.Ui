@@ -1,6 +1,6 @@
 <div id="profile-microphone-test-container" class="container-dashboard">
   <div id="profile-microphone-test-header" class="container-header">
-    {{ translate.instant("setting.microphone-test.headline") }}
+    {{ "setting.microphone-test.headline" | translate }}
   </div>
 
   <div class="container-line"></div>
@@ -8,13 +8,13 @@
   <div id="profile-microphone-test-content" class="custom-container">
     <div class="microphone-test-info">
       <p class="info-text">
-        {{ translate.instant("setting.microphone-test.description") }}
+        {{ "setting.microphone-test.description" | translate }}
       </p>
     </div>
 
     @if (defaultMicrophone()) {
       <div class="microphone-info">
-        <span class="microphone-label-title">{{ translate.instant("setting.microphone-test.default-microphone") }}</span>
+        <span class="microphone-label-title">{{ "setting.microphone-test.default-microphone" | translate }}</span>
         <span class="microphone-label">{{ defaultMicrophone() }}</span>
       </div>
     }
@@ -30,7 +30,7 @@
         } @else {
           <fa-icon [icon]="faPlay"></fa-icon>
         }
-        {{ translate.instant("setting.microphone-test.run-diagnostics") }}
+        {{ "setting.microphone-test.run-diagnostics" | translate }}
       </button>
 
       <button
@@ -42,10 +42,10 @@
       >
         @if (isRecording()) {
           <fa-icon [icon]="faStop"></fa-icon>
-          {{ translate.instant("setting.microphone-test.stop-recording") }}
+          {{ "setting.microphone-test.stop-recording" | translate }}
         } @else {
           <fa-icon [icon]="faMicrophone"></fa-icon>
-          {{ translate.instant("setting.microphone-test.start-recording") }}
+          {{ "setting.microphone-test.start-recording" | translate }}
         }
       </button>
     </div>
@@ -53,14 +53,14 @@
     @if (isWhisperLoading()) {
       <div class="whisper-loading">
         <span class="spinner-border spinner-border-sm"></span>
-        {{ translate.instant("setting.microphone-test.loading-whisper") }}
+        {{ "setting.microphone-test.loading-whisper" | translate }}
         {{ whisperLoadProgress() }}%
       </div>
     }
 
     @if (testResults().length > 0) {
       <div class="test-results">
-        <h4>{{ translate.instant("setting.microphone-test.diagnostics-results") }}</h4>
+        <h4>{{ "setting.microphone-test.diagnostics-results" | translate }}</h4>
         <ul class="result-list">
           @for (result of testResults(); track result.name) {
             <li class="result-item" [class]="result.status">
@@ -78,7 +78,7 @@
                   <fa-icon [icon]="faXmark" class="status-icon error"></fa-icon>
                 }
               }
-              <span class="result-name">{{ translate.instant(result.name) }}</span>
+              <span class="result-name">{{ result.name | translate }}</span>
               @if (result.message) {
                 <span class="result-message">({{ result.message }})</span>
               }
@@ -90,7 +90,7 @@
 
     @if (transcribedText()) {
       <div class="transcription-result">
-        <h4>{{ translate.instant("setting.microphone-test.transcription-result") }}</h4>
+        <h4>{{ "setting.microphone-test.transcription-result" | translate }}</h4>
         <div class="transcription-text">
           {{ transcribedText() }}
         </div>

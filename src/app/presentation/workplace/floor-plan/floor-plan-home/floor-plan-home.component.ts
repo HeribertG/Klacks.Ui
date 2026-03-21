@@ -6,6 +6,7 @@ import {
   signal,
   effect,
   OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanCanvasComponent } from '../floor-plan-canvas/floor-plan-canvas.component';
@@ -31,6 +32,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     FloorPlanLayerService,
     FloorPlanImportService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanHomeComponent implements OnInit {
   dataManagement = inject(DataManagementFloorPlanService);

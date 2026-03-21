@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
 import { GroupSelectionService } from './group-selection.service';
@@ -36,7 +37,11 @@ describe('DataManagementGroupService', () => {
             register: vi.fn()
         };
         const translateSpy = {
-            instant: vi.fn().mockReturnValue('')
+            instant: vi.fn().mockReturnValue(''),
+            get: vi.fn().mockReturnValue(of('')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         const calendarSelectionSpy = {
             isRead: vi.fn().mockReturnValue(false),

@@ -7,7 +7,9 @@
  * @param dismissed - Emits when overlay is closed without selection
  */
 
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -19,6 +21,7 @@ import { faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './suggested-replies-overlay.component.html',
   styleUrls: ['./suggested-replies-overlay.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestedRepliesOverlayComponent {
   config = input.required<ISuggestedRepliesConfig>();

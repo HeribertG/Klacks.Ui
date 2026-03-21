@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IconAscComponent } from 'src/app/presentation/icons/icon-asc.component';
 import { IconDescComponent } from 'src/app/presentation/icons/icon-desc.component';
@@ -14,6 +16,7 @@ import { IClientTypeFilter } from './client-filter.interface';
   standalone: true,
   imports: [TranslateModule, IconAscComponent, IconDescComponent],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientFilterComponent implements OnInit {
   @Input() filter!: IClientTypeFilter;

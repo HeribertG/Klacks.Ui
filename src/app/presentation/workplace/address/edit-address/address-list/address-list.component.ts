@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CalendarIconComponent } from 'src/app/presentation/icons/calendar-icon.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
@@ -31,5 +33,6 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
     TrashIconLightRedComponent,
     GearGreyComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddressListComponent {}

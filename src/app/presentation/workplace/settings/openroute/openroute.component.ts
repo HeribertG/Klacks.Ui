@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, effect } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -13,9 +13,9 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
   imports: [TranslateModule, FontAwesomeModule, FormField],
   templateUrl: './openroute.component.html',
   styleUrls: ['./openroute.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenrouteComponent implements OnInit {
-  public translate = inject(TranslateService);
   private appSettingsManagementService = inject(AppSettingsManagementService);
 
   public faEye = faEye;

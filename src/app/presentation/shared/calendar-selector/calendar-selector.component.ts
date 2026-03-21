@@ -2,6 +2,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Injector,
@@ -11,6 +12,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -53,6 +55,7 @@ interface TranslationResults {
     ChipsComponent,
     FontAwesomeModule
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarSelectorComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -71,6 +74,7 @@ export class CalendarSelectorComponent
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public faPlus = faPlus;
   public faTrash = faTrash;
@@ -120,6 +124,7 @@ export class CalendarSelectorComponent
             break;
           }
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -142,10 +147,10 @@ export class CalendarSelectorComponent
     } else {
       this.resetCalendarRule();
       this.reReadChips();
-      setTimeout(
-        () => this.setCalendarRule(),
-        CalendarSelectorComponent.WAIT_TIME
-      );
+      setTimeout(() => {
+        this.setCalendarRule();
+        this.cdr.markForCheck();
+      }, CalendarSelectorComponent.WAIT_TIME);
     }
   }
 
@@ -189,10 +194,10 @@ export class CalendarSelectorComponent
   }
 
   onIsOpening() {
-    setTimeout(
-      () => this.setCalendarRule(),
-      CalendarSelectorComponent.WAIT_TIME
-    );
+    setTimeout(() => {
+      this.setCalendarRule();
+      this.cdr.markForCheck();
+    }, CalendarSelectorComponent.WAIT_TIME);
   }
 
   onDeleteChip(key: string): void {
@@ -265,10 +270,10 @@ export class CalendarSelectorComponent
     } else {
       this.dataManagementCalendarSelectionService.setCurrentOnEmpty();
     }
-    setTimeout(
-      () => this.changeEvent.emit(),
-      CalendarSelectorComponent.WAIT_TIME
-    );
+    setTimeout(() => {
+      this.changeEvent.emit();
+      this.cdr.markForCheck();
+    }, CalendarSelectorComponent.WAIT_TIME);
   }
 
   private setIdToLocalStorage(): void {
@@ -480,6 +485,7 @@ export class CalendarSelectorComponent
           this.modalService.contentInputTitle = results.inputTitle;
           this.dataManagementCalendarSelectionService.emptyPlaceholder =
             results.emptyPlaceholder;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -489,6 +495,7 @@ export class CalendarSelectorComponent
       this.isInitialized = true;
       setTimeout(() => {
         this.initialized.emit();
+        this.cdr.markForCheck();
       }, CalendarSelectorComponent.WAIT_TIME);
     }
   }

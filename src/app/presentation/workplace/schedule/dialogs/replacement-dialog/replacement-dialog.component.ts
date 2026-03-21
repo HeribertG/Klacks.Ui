@@ -15,7 +15,7 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: CorrectionDialogComponent
  */
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -46,6 +46,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReplacementDialogComponent {
   @ViewChild('replacementModal') modalTemplate!: TemplateRef<unknown>;
@@ -57,6 +58,7 @@ export class ReplacementDialogComponent {
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   protected translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   clients: IClientForReplacement[] = [];
 
@@ -161,6 +163,7 @@ export class ReplacementDialogComponent {
           }
 
           this.recalculate();
+          this.cdr.markForCheck();
 
           this.modalRef = this.ngbModal.open(this.modalTemplate, {
             centered: true,
@@ -178,11 +181,13 @@ export class ReplacementDialogComponent {
     this.clientService.getClientsForReplacement().subscribe({
       next: (clients) => {
         this.clients = clients;
+        this.cdr.markForCheck();
         callback();
       },
       error: (err) => {
         console.error('Error loading clients for replacement:', err);
         this.clients = [];
+        this.cdr.markForCheck();
         callback();
       },
     });

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   EventEmitter,
   Input,
   OnDestroy,
@@ -10,6 +10,7 @@ import {
   ViewChild,
   inject,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
     NgbModule,
     TrashIconRedComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IdentityProviderRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
@@ -57,6 +59,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
   private modalService = inject(NgbModal);
   public providerService = inject(DataManagementIdentityProviderService);
   private manualLoader = inject(ManualLoaderService);
+  private cdr = inject(ChangeDetectorRef);
 
   private wasSaved = false;
   private destroy$ = new Subject<void>();
@@ -185,6 +188,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
     }
     this.wasSaved = true;
     this.providerChangedEvent.emit();
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy(): void {

@@ -3,7 +3,7 @@
 <ng-template #content id="macro-modal-template" let-modal>
   <div id="macro-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.macro.headline-modal") }}
+      {{ 'setting.macro.headline-modal' | translate }}
     </div>
     <span class="filler"></span>
 
@@ -31,9 +31,7 @@
         id="macro-modal-name-section"
         style="margin-left: 30px; width: 150px"
       >
-        <label for="macroName">{{
-          translate.instant("setting.macro.name-modal")
-        }}</label>
+        <label for="macroName">{{ 'setting.macro.name-modal' | translate }}</label>
         <input
           type="text"
           style="width: 150px"
@@ -47,13 +45,11 @@
         id="macro-modal-type-section"
         style="margin-left: 30px; width: 200px"
       >
-        <label for="type">{{
-          translate.instant("setting.macro.type-modal")
-        }}</label>
+        <label for="type">{{ 'setting.macro.type-modal' | translate }}</label>
         <select class="form-select" [formField]="macroForm.type" id="type">
           @for (option of macroTypeOptions; track option.value) {
           <option [value]="option.value">
-            {{ translate.instant(option.label) }}
+            {{ option.label | translate }}
           </option>
           }
         </select>
@@ -69,9 +65,7 @@
         style="margin-right: 10px"
         (click)="onCheckMacro()"
       >
-        <i class="fas fa-check"></i>&nbsp;{{
-          translate.instant("setting.macro.check-btn")
-        }}
+        <i class="fas fa-check"></i>&nbsp;{{ 'setting.macro.check-btn' | translate }}
       </button>
       } @if (tabId() === 'test') {
       <button
@@ -81,9 +75,7 @@
         style="margin-right: 10px"
         (click)="onRunMacro()"
       >
-        <i class="fas fa-running"></i>&nbsp;{{
-          translate.instant("setting.macro.run-btn")
-        }}
+        <i class="fas fa-running"></i>&nbsp;{{ 'setting.macro.run-btn' | translate }}
       </button>
       }
     </div>
@@ -104,7 +96,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'data' }"
             (click)="onClickData()"
-            >{{ translate.instant("setting.macro.data-modal") }}</a
+            >{{ 'setting.macro.data-modal' | translate }}</a
           >
         </li>
 
@@ -114,7 +106,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'test' }"
             (click)="tabId.set('test')"
-            >{{ translate.instant("setting.macro.test-modal") }}</a
+            >{{ 'setting.macro.test-modal' | translate }}</a
           >
         </li>
         <li id="macro-modal-tab-description-item" class="nav-item">
@@ -123,7 +115,7 @@
             class="nav-link"
             [ngClass]="{ active: tabId() === 'description' }"
             (click)="tabId.set('description')"
-            >{{ translate.instant("setting.macro.description-modal") }}</a
+            >{{ 'setting.macro.description-modal' | translate }}</a
           >
         </li>
       </ul>
@@ -188,7 +180,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       id="macro-modal-save-btn"
@@ -196,7 +188,7 @@
       class="btn save-btn"
       (click)="onSave()"
     >
-      {{ translate.instant("save") }}
+      {{ 'save' | translate }}
     </button>
     <button
       id="macro-modal-save-close-btn"
@@ -204,7 +196,7 @@
       class="btn save-btn"
       (click)="modal.close()"
     >
-      {{ translate.instant("setting.macro.save-close-btn") }}
+      {{ 'setting.macro.save-close-btn' | translate }}
     </button>
   </div>
 </ng-template>

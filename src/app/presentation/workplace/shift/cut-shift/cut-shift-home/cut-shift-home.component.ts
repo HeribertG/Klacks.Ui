@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnInit,
@@ -24,6 +25,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   imports: [TranslateModule, CutShiftListComponent],
   templateUrl: './cut-shift-home.component.html',
   styleUrl: './cut-shift-home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CutShiftHomeComponent implements OnInit, OnDestroy {
 

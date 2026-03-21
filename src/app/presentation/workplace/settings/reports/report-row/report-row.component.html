@@ -6,8 +6,8 @@
     <div class="container-header-modal modal-title">
       {{
         isNew
-          ? translate.instant("setting.report.modal.new")
-          : translate.instant("setting.report.modal.edit")
+          ? ('setting.report.modal.new' | translate)
+          : ('setting.report.modal.edit' | translate)
       }}
     </div>
     <span class="filler"></span>
@@ -253,7 +253,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       type="button"
@@ -264,7 +264,7 @@
       @if (isSaving) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
-      {{ translate.instant("general.save") }}
+      {{ 'general.save' | translate }}
     </button>
     <button
       type="button"
@@ -275,7 +275,7 @@
       @if (isSaving) {
         <span class="spinner-border spinner-border-sm me-1"></span>
       }
-      {{ translate.instant("setting.macro.save-close-btn") }}
+      {{ 'setting.macro.save-close-btn' | translate }}
     </button>
   </div>
 </ng-template>

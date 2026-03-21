@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { AfterViewInit, Component, computed, inject, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, OnDestroy, ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -18,6 +20,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
   styleUrls: ['./inbox-list.component.scss'],
   standalone: true,
   imports: [CommonModule, DatePipe, TranslateModule, ContextMenuComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxListComponent implements AfterViewInit, OnDestroy {
   inboxService = inject(InboxService);

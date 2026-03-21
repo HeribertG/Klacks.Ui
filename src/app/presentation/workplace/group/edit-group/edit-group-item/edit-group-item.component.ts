@@ -14,6 +14,8 @@ import {
   inject,
   runInInjectionContext,
   signal,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -50,6 +52,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
     ExpandableCardComponent,
     ChooseCalendarComponent,
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit
@@ -60,6 +63,7 @@ export class EditGroupItemComponent
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -105,7 +109,10 @@ export class EditGroupItemComponent
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.groupForm!.dirty) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
+          setTimeout(() => {
+            this.isChangingEvent.emit(true);
+            this.cdr.markForCheck();
+          }, 100);
         }
       });
 
@@ -113,6 +120,7 @@ export class EditGroupItemComponent
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

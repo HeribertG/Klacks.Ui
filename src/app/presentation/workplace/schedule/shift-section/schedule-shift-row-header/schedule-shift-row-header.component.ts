@@ -16,6 +16,7 @@
  */
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   EffectRef,
   ElementRef,
@@ -57,6 +58,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
     ShiftRowHeaderIconsService,
     ProgressBarAnimationService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleShiftRowHeaderComponent
   implements AfterViewInit, OnChanges, OnDestroy

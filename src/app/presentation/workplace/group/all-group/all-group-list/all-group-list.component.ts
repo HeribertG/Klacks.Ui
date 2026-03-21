@@ -18,13 +18,15 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/domain/models/client/client-class';
 import { IGroup } from 'src/app/domain/models/group/group-class';
@@ -67,6 +69,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     PaginationComponent,
   ],
   providers: [TableResizeService, AllGroupStateService, TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(ResizeTableDirective, { static: false })
@@ -78,7 +81,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() switchToTree = new EventEmitter<void>();
 
   public dataManagementGroupService = inject(DataManagementGroupService);
-  public translate = inject(TranslateService);
   public sortingService = inject(TableSortingService);
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
@@ -87,6 +89,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private tableResizeService = inject(TableResizeService);
   private allGroupStateService = inject(AllGroupStateService);
   private localStorageService = inject(LocalStorageService);
+  private cdr = inject(ChangeDetectorRef);
 
   private effectRef: EffectRef | null = null;
 
@@ -126,6 +129,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataManagementGroupService.currentFilter.requiredPage + 1;
     }
     this.readPage();
+    this.cdr.markForCheck();
   }
 
   ngAfterViewInit(): void {
@@ -142,6 +146,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
+        this.cdr.markForCheck();
       });
 
     setTimeout(() => {
@@ -151,7 +156,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setupTableResize();
     }, 100);
 
-    setTimeout(() => (this.spinnerService.showProgressSpinner = false), 300);
+    setTimeout(() => {
+      this.spinnerService.showProgressSpinner = false;
+      this.cdr.markForCheck();
+    }, 300);
   }
 
   ngOnDestroy(): void {
@@ -351,6 +359,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.page = event;
     setTimeout(() => {
       this.readPage();
+      this.cdr.markForCheck();
     }, 100);
   }
 
@@ -374,6 +383,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.readPage();
+        this.cdr.markForCheck();
       });
   }
 
@@ -416,6 +426,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
               optimalRows;
             this.page = 1;
             this.readPage();
+            this.cdr.markForCheck();
           }
         }
       });

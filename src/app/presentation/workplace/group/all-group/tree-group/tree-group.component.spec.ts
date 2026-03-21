@@ -7,6 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CdkDragDrop, CdkDragMove, DragDropModule, } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { TreeGroupComponent } from './tree-group.component';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -50,9 +51,10 @@ describe('TreeGroupComponent - Drag and Drop', () => {
             prepareGroup: vi.fn(),
             moveGroup: vi.fn(),
             isRead: vi.fn(),
-            selectedNode: null,
-            expandedNodes: new Set<string>(),
-            groupTree: { nodes: [] }
+            selectedNode: signal(null),
+            expandedNodes: signal(new Set<string>()),
+            groupTree: { nodes: [] },
+            showTree: vi.fn()
         };
 
         const authorizationServiceSpy = {
@@ -74,11 +76,16 @@ describe('TreeGroupComponent - Drag and Drop', () => {
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 
         dataManagementGroupServiceSpy.isRead.mockReturnValue(false);
+        dataManagementGroupServiceSpy.showTree.mockReturnValue(true);
         dataManagementGroupServiceSpy.deleteGroup.mockReturnValue(of(undefined));
 
         await TestBed.configureTestingModule({
@@ -258,7 +265,7 @@ describe('TreeGroupComponent - Drag and Drop', () => {
             const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
             const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
 
-            mockDataManagementGroupService.expandedNodes.add('1');
+            mockDataManagementGroupService.expandedNodes.set(new Set(['1']));
 
             component.onDragStarted(draggedNode);
             component.onDropZoneEnter(parentNode);

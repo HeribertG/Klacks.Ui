@@ -4,6 +4,8 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Injector,
   OnDestroy,
@@ -37,6 +39,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
   templateUrl: './edit-shift-nav.component.html',
   styleUrls: ['./edit-shift-nav.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     NgbDropdownModule,
@@ -56,6 +59,7 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public navShift: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -95,6 +99,7 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     if (this.navShiftForm && this.navShiftForm.valueChanges) {
@@ -102,7 +107,10 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
         () => {
           if (this.navShiftForm!.dirty) {
             if (!this.isComboBoxOpen) {
-              setTimeout(() => this.onFilterChange(), 100);
+              setTimeout(() => {
+                this.onFilterChange();
+                this.cdr.markForCheck();
+              }, 100);
             }
           }
         }
@@ -148,6 +156,7 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
           const filter = this.dataManagementShiftService.currentClientFilter;
           this.scopeFromValue = filter.scopeFrom ? transformDateToNgbDateStruct(filter.scopeFrom) : undefined;
           this.scopeUntilValue = filter.scopeUntil ? transformDateToNgbDateStruct(filter.scopeUntil) : undefined;
+          this.cdr.markForCheck();
         }
       });
     });

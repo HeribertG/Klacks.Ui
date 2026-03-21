@@ -1,5 +1,5 @@
 <app-settings-list-card
-  [headline]="translate.instant('settings.language-plugins.title')"
+  [headline]="'settings.language-plugins.title' | translate"
   [showAddButton]="false"
   idPrefix="language-plugins"
   [showHeader]="true"
@@ -21,7 +21,7 @@
   class="btn btn-primary search-btn"
   type="button"
   (click)="openMarketplaceModal()"
-  [title]="translate.instant('settings.language-plugins.action.search')"
+  [title]="'settings.language-plugins.action.search' | translate"
 >
   <app-icon-search />
 </button>
@@ -29,7 +29,7 @@
 <ng-template #marketplaceModal let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title">
-      {{ translate.instant("settings.language-plugins.modal.title") }}
+      {{ 'settings.language-plugins.modal.title' | translate }}
     </div>
     <span class="filler"></span>
     <div class="close" aria-label="Close" (click)="modal.dismiss()">
@@ -44,7 +44,7 @@
   </div>
   <div class="modal-footer">
     <span class="link-button red-font" (click)="modal.dismiss()">
-      {{ translate.instant("close") }}
+      {{ 'close' | translate }}
     </span>
   </div>
 </ng-template>

@@ -21,6 +21,7 @@ import {
   inject,
   effect,
   Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -45,6 +46,7 @@ export interface IShiftContextMenuEvent {
   templateUrl: './time-ruler.component.html',
   styleUrl: './time-ruler.component.scss',
   providers: [TimeRulerDragDropService, TimeRulerInteractionService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');

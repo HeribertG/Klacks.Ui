@@ -27,25 +27,19 @@
           <tr>
             <th id="sort-name-header" class="table-header clickable" style="width: 360px" (click)="onClickHeader('name')">
               {{
-                translate.instant(
-                  "address.edit-address.client-groups.table.name"
-                )
+                "address.edit-address.client-groups.table.name" | translate
               }}
               <span class="sort-arrow">{{ sortingService.getArrow('name') }}</span>
             </th>
             <th id="sort-validFrom-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('validFrom')">
               {{
-                translate.instant(
-                  "address.edit-address.client-groups.table.valid-from"
-                )
+                "address.edit-address.client-groups.table.valid-from" | translate
               }}
               <span class="sort-arrow">{{ sortingService.getArrow('validFrom') }}</span>
             </th>
             <th id="sort-validUntil-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('validUntil')">
               {{
-                translate.instant(
-                  "address.edit-address.client-groups.table.valid-until"
-                )
+                "address.edit-address.client-groups.table.valid-until" | translate
               }}
               <span class="sort-arrow">{{ sortingService.getArrow('validUntil') }}</span>
             </th>

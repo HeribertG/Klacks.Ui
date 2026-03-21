@@ -2,17 +2,17 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="openroute-form">
   <div id="openroute-header" class="container-header">
-    {{ translate.instant("setting.openroute.headline") }}
+    {{ 'setting.openroute.headline' | translate }}
   </div>
 
   <div id="openroute-line" class="container-line"></div>
 
   <div class="openroute-info first">
     <p class="info-text">
-      {{ translate.instant("setting.openroute.description") }}
+      {{ 'setting.openroute.description' | translate }}
     </p>
     <p class="info-text">
-      {{ translate.instant("setting.openroute.register") }}
+      {{ 'setting.openroute.register' | translate }}
       <a
         href="https://openrouteservice.org/dev/#/signup"
         target="_blank"
@@ -25,9 +25,7 @@
 
   <div class="form-group first">
     <div class="input-group my-password">
-      <label for="openroute-apikey">{{
-        translate.instant("setting.openroute.apikey")
-      }}</label>
+      <label for="openroute-apikey">{{ 'setting.openroute.apikey' | translate }}</label>
       @if (showApiKey()) {
         <input
           id="openroute-apikey"

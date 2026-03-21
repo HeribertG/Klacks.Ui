@@ -12,6 +12,7 @@ import {
   Injector,
   runInInjectionContext,
   EffectRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
@@ -27,6 +28,7 @@ const CANVAS_DEFAULT_HEIGHT = 800;
   imports: [],
   template: `<canvas #canvasRef></canvas>`,
   styleUrls: ['./floor-plan-canvas.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;

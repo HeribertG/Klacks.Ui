@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EventEmitter } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { ContractsComponent } from './contracts.component';
@@ -68,6 +69,10 @@ describe('ContractsComponent', () => {
 
     mockTranslateService = {
       instant: vi.fn().mockImplementation((key: string) => key),
+      get: vi.fn().mockImplementation((key: string) => of(key)),
+      onTranslationChange: new EventEmitter(),
+      onLangChange: new EventEmitter(),
+      onDefaultLangChange: new EventEmitter(),
     };
 
     await TestBed.configureTestingModule({

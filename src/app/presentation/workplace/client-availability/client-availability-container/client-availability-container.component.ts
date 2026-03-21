@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, computed, signal, viewChild } from '@angular/core';
+import { Component, computed, signal, viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
@@ -22,6 +24,7 @@ import { ClientAvailabilityRowHeaderComponent } from '../client-availability-row
     HScrollbarComponent,
     VScrollbarComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityContainerComponent {
   surface = viewChild.required<ClientAvailabilitySurfaceComponent>('surface');

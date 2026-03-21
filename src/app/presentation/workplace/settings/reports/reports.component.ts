@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, inject, DestroyRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, DestroyRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
@@ -38,14 +38,14 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
     ReportDataProviderService,
     AbsenceLookupService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsComponent implements AfterViewInit {
   @ViewChildren(ReportRowComponent) reportRows!: QueryList<ReportRowComponent>;
-
-  public translate = inject(TranslateService);
   public dataManagementReportService = inject(DataManagementReportService);
   private modalService = inject(ModalService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   message = DomainMessages.DELETE_ENTRY;
   private reportToDeleteIndex: number | null = null;
@@ -62,6 +62,7 @@ export class ReportsComponent implements AfterViewInit {
           this.deleteReport(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
 
@@ -75,6 +76,7 @@ export class ReportsComponent implements AfterViewInit {
           }
           this.pendingOpenReport = null;
         }
+        this.cdr.markForCheck();
       });
   }
 

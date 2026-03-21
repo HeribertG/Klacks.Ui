@@ -13,6 +13,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
@@ -123,6 +125,7 @@ import { ShiftArrangementService } from './services/shift-arrangement.service';
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     TableSortingService,
     TimeRulerDragDropService,
@@ -186,6 +189,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public translateService = inject(TranslateService);
   public sortingService = inject(TableSortingService);
   public addressProvider = inject(AddressProviderService);
+  private cdr = inject(ChangeDetectorRef);
   readonly routeService = inject(ContainerTemplateRouteService);
   readonly propertiesService = inject(ContainerTemplatePropertiesService);
   readonly tabService = inject(ContainerTemplateTabService);
@@ -289,11 +293,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     effect(() => {
       this.templateGrid = this.containerService.templateGrid();
       this.isLoading = this.containerService.loading();
+      this.cdr.markForCheck();
     });
 
     effect(() => {
       if (this.containerService.isReset()) {
         this.updateAvailableTasks();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -321,6 +327,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
               this.selectedWeekday,
               this.isHoliday,
             );
+            this.cdr.markForCheck();
           });
       }
     };
@@ -391,9 +398,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
             this.selectedWeekday,
             this.isHoliday,
           );
+          this.cdr.markForCheck();
         },
         error: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -498,8 +507,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.updateAvailableTasks();
+          this.cdr.markForCheck();
         },
-        error: () => {},
+        error: () => {
+          this.cdr.markForCheck();
+        },
       });
   }
 
@@ -523,6 +535,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           this.selectedWeekday,
           this.isHoliday,
         );
+        this.cdr.markForCheck();
       });
     }
   }
@@ -535,6 +548,12 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday,
       this.isHoliday,
     );
+    this.cdr.markForCheck();
+  }
+
+  async selectEmploymentTab(): Promise<void> {
+    await this.tabService.selectEmploymentTab();
+    this.cdr.markForCheck();
   }
 
   updateAvailableTasks(): void {
@@ -654,6 +673,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         }
       }
     }
+    this.cdr.markForCheck();
   }
 
   formatWorkTime(workTime: number): string {
@@ -705,6 +725,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.isHoliday,
       () => this.updateAvailableTasks(),
     );
+    this.cdr.markForCheck();
   }
 
   onAvailableTasksDrop(event: CdkDragDrop<IShift[]>): void {}
@@ -727,6 +748,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.tabService.availableTasks,
       this.timeRangeToleranceValue,
       this.destroy$,
+      () => {
+        this.updateAvailableTasks();
+        this.cdr.markForCheck();
+      },
     );
   }
 
@@ -736,6 +761,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.isHoliday,
       this.timeFrom,
       this.destroy$,
+      () => {
+        this.updateAvailableTasks();
+        this.cdr.markForCheck();
+      },
     );
   }
 
@@ -763,6 +792,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   onHeaderClick(columnKey: string): void {
     this.sortingService.onHeaderClick(columnKey, () => {
       this.updateAvailableTasks();
+      this.cdr.markForCheck();
     });
   }
 
@@ -797,10 +827,12 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday,
       this.isHoliday,
     );
+    this.cdr.markForCheck();
   }
 
   private onSearchChanged(): void {
     this.updateAvailableTasks();
+    this.cdr.markForCheck();
   }
 
   private updateCurrentWeekdayAndSlot(): void {
@@ -899,6 +931,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
 
     this.pendingAbsenceDrop = null;
+    this.cdr.markForCheck();
   }
 
   onAbsenceStartTimeChange(time: OwnTime): void {

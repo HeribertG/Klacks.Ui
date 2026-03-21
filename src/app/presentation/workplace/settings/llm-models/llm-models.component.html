@@ -6,7 +6,7 @@
   <form id="llm-models-modal-form">
     <div id="llm-models-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
-        {{ translate.instant("settings.llm-models.headline-modal") }}
+        {{ 'settings.llm-models.headline-modal' | translate }}
       </div>
       <span class="filler"></span>
 
@@ -33,9 +33,7 @@
       <!-- Model ID and Display Name -->
       <div id="llm-models-modal-basic-info-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="modelId">{{
-            translate.instant("settings.llm-models.model-id")
-          }}</label>
+          <label for="modelId">{{ 'settings.llm-models.model-id' | translate }}</label>
           <input
             id="llm-models-modal-model-id"
             type="text"
@@ -44,9 +42,7 @@
           />
         </div>
         <div class="model-field">
-          <label for="modelName">{{
-            translate.instant("settings.llm-models.display-name")
-          }}</label>
+          <label for="modelName">{{ 'settings.llm-models.display-name' | translate }}</label>
           <input
             id="llm-models-modal-model-name"
             type="text"
@@ -59,9 +55,7 @@
       <!-- Provider and Description -->
       <div id="llm-models-modal-provider-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="provider">{{
-            translate.instant("settings.llm-models.provider")
-          }}</label>
+          <label for="provider">{{ 'settings.llm-models.provider' | translate }}</label>
           <select
             id="llm-models-modal-provider"
             class="form-control"
@@ -75,9 +69,7 @@
           </select>
         </div>
         <div class="model-field-wide">
-          <label for="description">{{
-            translate.instant("settings.llm-models.description")
-          }}</label>
+          <label for="description">{{ 'settings.llm-models.description' | translate }}</label>
           <input
             id="llm-models-modal-description"
             type="text"
@@ -90,9 +82,7 @@
       <!-- API Model ID -->
       <div id="llm-models-modal-api-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="apiModelId">{{
-            translate.instant("settings.llm-models.api-model-id")
-          }}</label>
+          <label for="apiModelId">{{ 'settings.llm-models.api-model-id' | translate }}</label>
           <input
             id="llm-models-modal-api-model-id"
             type="text"
@@ -105,9 +95,7 @@
       <!-- Technical Specifications -->
       <div id="llm-models-modal-specs-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="contextWindow">{{
-            translate.instant("settings.llm-models.context-window")
-          }}</label>
+          <label for="contextWindow">{{ 'settings.llm-models.context-window' | translate }}</label>
           <input
             id="llm-models-modal-context-window"
             type="text"
@@ -116,9 +104,7 @@
           />
         </div>
         <div class="model-field">
-          <label for="maxTokens">{{
-            translate.instant("settings.llm-models.max-tokens")
-          }}</label>
+          <label for="maxTokens">{{ 'settings.llm-models.max-tokens' | translate }}</label>
           <input
             id="llm-models-modal-max-tokens"
             type="text"
@@ -132,9 +118,7 @@
       <div id="llm-models-modal-cost-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="inputCost"
-            >{{
-              translate.instant("settings.llm-models.input-cost")
-            }}
+            >{{ 'settings.llm-models.input-cost' | translate }}
             (€/1K)</label
           >
           <input
@@ -146,9 +130,7 @@
         </div>
         <div class="model-field">
           <label for="outputCost"
-            >{{
-              translate.instant("settings.llm-models.output-cost")
-            }}
+            >{{ 'settings.llm-models.output-cost' | translate }}
             (€/1K)</label
           >
           <input
@@ -165,7 +147,7 @@
       <div id="llm-models-modal-apikey-row" class="row-line-modal-inline">
         <div class="model-field full-width">
           <label for="apiKey"
-            >{{ translate.instant("settings.llm-models.api-key") }}
+            >{{ 'settings.llm-models.api-key' | translate }}
             <span class="required-marker">*</span></label
           >
           <input
@@ -175,9 +157,7 @@
             class="form-control"
             placeholder="sk-..."
           />
-          <small class="info-text">{{
-            translate.instant("settings.llm-models.api-key-info")
-          }}</small>
+          <small class="info-text">{{ 'settings.llm-models.api-key-info' | translate }}</small>
         </div>
       </div>
       }
@@ -190,9 +170,7 @@
             type="checkbox"
             [formField]="llmForm.isEnabled"
           />
-          <label for="isEnabled">{{
-            translate.instant("settings.llm-models.enabled")
-          }}</label>
+          <label for="isEnabled">{{ 'settings.llm-models.enabled' | translate }}</label>
         </div>
         <div class="checkbox-field">
           <input
@@ -200,9 +178,7 @@
             type="checkbox"
             [formField]="llmForm.isDefault"
           />
-          <label for="isDefault">{{
-            translate.instant("settings.llm-models.default")
-          }}</label>
+          <label for="isDefault">{{ 'settings.llm-models.default' | translate }}</label>
         </div>
       </div>
 
@@ -211,7 +187,7 @@
       <div id="llm-models-modal-validation-row" class="row-line-modal-inline">
         <div class="validation-errors-section">
           <div class="alert alert-danger">
-            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <strong>{{ 'validation.errors' | translate }}:</strong>
             <ul>
               @for (error of getValidationErrors(); track error) {
               <li>{{ error }}</li>
@@ -230,7 +206,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       id="llm-models-modal-save-btn"
@@ -239,14 +215,14 @@
       (click)="onSaveModal(modal)"
       [disabled]="!isFormValid()"
     >
-      {{ translate.instant("save") }}
+      {{ 'save' | translate }}
     </button>
   </div>
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('settings.llm-models.title')"
-  [addLabel]="translate.instant('settings.llm-models.add')"
+  [headline]="'settings.llm-models.title' | translate"
+  [addLabel]="'settings.llm-models.add' | translate"
   idPrefix="llm-models"
   [showHeader]="true"
   (addClick)="onClickAdd()"

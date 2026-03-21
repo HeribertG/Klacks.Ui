@@ -82,6 +82,7 @@ export class ContainerTemplateRouteService {
     availableTasks: IShift[],
     timeRangeToleranceValue: number,
     destroy$: Subject<void>,
+    onStateChanged?: () => void,
   ): void {
     if (!this.selectedStartBase || !this.selectedEndBase) {
       this.toastService.showInfo(
@@ -137,6 +138,7 @@ export class ContainerTemplateRouteService {
                 'shift.container-template.toast.autofill-no-shifts',
               ),
             );
+            onStateChanged?.();
             return;
           }
 
@@ -171,6 +173,7 @@ export class ContainerTemplateRouteService {
             ),
             'Autofill',
           );
+          onStateChanged?.();
         },
         error: (error) => {
           this.isAutofillRunning = false;
@@ -179,6 +182,7 @@ export class ContainerTemplateRouteService {
             ? this.translateService.instant('shift.container-template.toast.autofill-timeout')
             : error.error || error.message || error.statusText || 'Unknown error';
           this.toastService.showError(message, 'autofill-error');
+          onStateChanged?.();
         },
       });
   }
@@ -204,6 +208,7 @@ export class ContainerTemplateRouteService {
     isHoliday: boolean,
     timeFrom: OwnTime,
     destroy$: Subject<void>,
+    onStateChanged?: () => void,
   ): void {
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
 
@@ -271,6 +276,7 @@ export class ContainerTemplateRouteService {
               'shift.container-template.toast.route-optimized',
             ),
           );
+          onStateChanged?.();
         },
         error: (error) => {
           this.isOptimizing = false;
@@ -279,6 +285,7 @@ export class ContainerTemplateRouteService {
             error.message || error.statusText || 'Unknown error',
             'route-optimization-error',
           );
+          onStateChanged?.();
         },
       });
   }

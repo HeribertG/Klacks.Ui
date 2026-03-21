@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, AfterViewInit, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
@@ -25,13 +25,13 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
     IdentityProviderHeaderComponent,
     IdentityProviderRowComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(IdentityProviderRowComponent) providerRows!: QueryList<IdentityProviderRowComponent>;
-
-  public translate = inject(TranslateService);
   public providerService = inject(DataManagementIdentityProviderService);
   private modalService = inject(ModalService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   message = DomainMessages.DELETE_ENTRY;
@@ -52,6 +52,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
           this.deleteProvider(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
 
@@ -65,6 +66,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
           }
           this.pendingOpenProvider = null;
         }
+        this.cdr.markForCheck();
       });
   }
 

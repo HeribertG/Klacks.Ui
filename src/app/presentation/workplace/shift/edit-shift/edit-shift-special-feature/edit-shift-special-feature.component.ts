@@ -3,6 +3,8 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
@@ -27,6 +29,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
   templateUrl: './edit-shift-special-feature.component.html',
   styleUrls: ['./edit-shift-special-feature.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -47,6 +50,7 @@ export class EditShiftSpecialFeatureComponent
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public shiftFormService = inject(ShiftFormService);
+  private cdr = inject(ChangeDetectorRef);
 
   public visibleTable = 'inline';
   public isSumEmployeesValid: boolean | undefined;
@@ -58,7 +62,11 @@ export class EditShiftSpecialFeatureComponent
     this.objectForUnsubscribe =
       this.specialFeatureShiftForm!.valueChanges!.subscribe(() => {
         if (this.specialFeatureShiftForm!.dirty === true) {
-          setTimeout(() => this.validateNumberInputs(), 100);
+          setTimeout(() => {
+            this.validateNumberInputs();
+            this.isChangingEvent.emit(true);
+            this.cdr.markForCheck();
+          }, 100);
         }
       });
   }

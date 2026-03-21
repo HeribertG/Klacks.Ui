@@ -2,17 +2,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
   AfterViewInit,
   inject,
   TemplateRef,
   ViewChild,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
@@ -62,6 +63,7 @@ import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-p
     FloorPlanExportService,
     FloorPlanWorkDropService,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorModal', { read: TemplateRef })
@@ -69,10 +71,10 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
 
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
-  translate = inject(TranslateService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   private toastService = inject(ToastShowService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   editingPlan: IFloorPlan | null = null;
@@ -93,6 +95,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
           this.deleteFloorPlan(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -144,6 +147,8 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
       modal.close();
     } catch {
       this.toastService.showError('floor-plan.save.error');
+    } finally {
+      this.cdr.markForCheck();
     }
   }
 

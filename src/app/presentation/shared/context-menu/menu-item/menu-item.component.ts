@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MenuItem } from '../context-menu-class';
 import { MenuComponent } from '../menu/menu.component';
@@ -15,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./menu-item.component.scss'],
   standalone: true,
   imports: [CommonModule, TranslateModule, forwardRef(() => MenuComponent)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemComponent {
   private elementRef = inject(ElementRef);

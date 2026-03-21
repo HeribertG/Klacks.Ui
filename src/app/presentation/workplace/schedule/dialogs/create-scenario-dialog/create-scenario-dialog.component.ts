@@ -7,7 +7,7 @@
  * @param untilDate - Enddatum des Szenario-Zeitraums
  */
 
-import { Component, computed, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -20,6 +20,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
   templateUrl: './create-scenario-dialog.component.html',
   standalone: true,
   imports: [FormsModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateScenarioDialogComponent {
   @ViewChild('createScenarioModal') modalTemplate!: TemplateRef<unknown>;

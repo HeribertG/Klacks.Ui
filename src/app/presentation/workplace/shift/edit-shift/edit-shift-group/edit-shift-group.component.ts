@@ -3,6 +3,8 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   EffectRef,
@@ -19,7 +21,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { Group, IGroup } from 'src/app/domain/models/group/group-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
@@ -34,6 +36,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
   selector: 'app-edit-shift-group',
   templateUrl: './edit-shift-group.component.html',
   styleUrl: './edit-shift-group.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -56,9 +59,9 @@ export class EditShiftGroupComponent
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
-  public translate = inject(TranslateService);
   private authService = inject(AuthService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   visibleTable = 'inline';
   highlightRowId: string | undefined = undefined;
@@ -76,7 +79,10 @@ export class EditShiftGroupComponent
     this.objectForUnsubscribe = this.groupShiftForm!.valueChanges!.subscribe(
       () => {
         if (this.groupShiftForm!.dirty === true) {
-          setTimeout(() => this.validateGroups(), 100);
+          setTimeout(() => {
+            this.validateGroups();
+            this.cdr.markForCheck();
+          }, 100);
         }
       }
     );
@@ -94,12 +100,14 @@ export class EditShiftGroupComponent
 
   onGroupSelected(group: IGroup | null): void {
     if (this.dataManagementShiftService.editShift && group) {
-      const indexToRemove =
-        this.dataManagementShiftService.editShift?.groups.findIndex(
-          (x) => x.id === group.id
-        );
-      if (indexToRemove === -1) {
-        this.dataManagementShiftService.editShift?.groups.push(group as Group);
+      const exists = this.dataManagementShiftService.editShift.groups.some(
+        (x) => x.id === group.id
+      );
+      if (!exists) {
+        this.dataManagementShiftService.editShift.groups = [
+          ...this.dataManagementShiftService.editShift.groups,
+          group as Group,
+        ];
       }
     }
     this.selectedGroupId = '';
@@ -117,18 +125,12 @@ export class EditShiftGroupComponent
 
   onDelete(group: Group) {
     if (this.dataManagementShiftService.editShift && group) {
-      const indexToRemove =
-        this.dataManagementShiftService.editShift?.groups.findIndex(
-          (x) => x.id === group.id
+      this.dataManagementShiftService.editShift.groups =
+        this.dataManagementShiftService.editShift.groups.filter(
+          (x) => x.id !== group.id
         );
-      if (indexToRemove > -1) {
-        this.dataManagementShiftService.editShift?.groups.splice(
-          indexToRemove,
-          1
-        );
-        this.isChangingEvent.emit(true);
-        this.validateGroups();
-      }
+      this.isChangingEvent.emit(true);
+      this.validateGroups();
     }
   }
 
@@ -143,6 +145,7 @@ export class EditShiftGroupComponent
         const effect1 = effect(() => {
           this.dataManagementShiftService.isRead();
           this.validateGroups();
+          this.cdr.markForCheck();
         });
         this.effects.push(effect1);
       });

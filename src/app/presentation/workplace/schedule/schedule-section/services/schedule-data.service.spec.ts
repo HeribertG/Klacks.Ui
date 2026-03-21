@@ -3,6 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { ScheduleDataService } from './schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -47,7 +48,7 @@ describe('ScheduleDataService', () => {
                 { provide: ScheduleNoteCellFormatterService, useValue: { formatCell: vi.fn() } },
                 { provide: AbsenceLookupService, useValue: { getAbbreviationForEntryId: () => '' } },
                 { provide: GridColorService, useValue: {} },
-                { provide: TranslateService, useValue: { currentLang: 'de' } },
+                { provide: TranslateService, useValue: { currentLang: 'de', instant: vi.fn().mockReturnValue(''), get: vi.fn().mockReturnValue(of('')), onTranslationChange: of(), onLangChange: of(), onDefaultLangChange: of() } },
                 { provide: BaseSettingsService, useValue: {} },
                 { provide: BreakPlaceholderScheduleLoaderService, useValue: { load: vi.fn() } },
                 { provide: GridFontsService, useValue: {} }

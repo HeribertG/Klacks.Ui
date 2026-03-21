@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QuestionMarkRoundComponent } from 'src/app/presentation/icons/icon-round-question_mark.component';
 import { Subject } from 'rxjs';
@@ -13,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./message-window.component.scss'],
   standalone: true,
   imports: [TranslateModule, QuestionMarkRoundComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageWindowComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);

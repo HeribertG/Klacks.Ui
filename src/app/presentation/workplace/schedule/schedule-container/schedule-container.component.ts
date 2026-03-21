@@ -16,12 +16,17 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
   inject,
   Input,
   ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { fromEvent } from 'rxjs';
+import { throttleTime, filter } from 'rxjs/operators';
 import { AngularSplitModule } from 'angular-split';
 import { CommonModule } from '@angular/common';
 
@@ -40,6 +45,7 @@ import { ShiftToScheduleDragDropService } from '../services/shift-to-schedule-dr
   ],
   templateUrl: './schedule-container.component.html',
   styleUrls: ['./schedule-container.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleContainerComponent {
   @ViewChild('scheduleSection') scheduleSection!: ScheduleSectionComponent;
@@ -51,6 +57,17 @@ export class ScheduleContainerComponent {
   public IsInfoVisible = false;
 
   public shiftDragService = inject(ShiftToScheduleDragDropService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    fromEvent<MouseEvent>(document, 'mousemove').pipe(
+      throttleTime(16),
+      filter(() => this.shiftDragService.isDragging()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(event => {
+      this.onDocumentMouseMove(event);
+    });
+  }
 
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
@@ -60,10 +77,7 @@ export class ScheduleContainerComponent {
     this.hScrollPosition = position;
   }
 
-  @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent): void {
-    if (!this.shiftDragService.isDragging()) return;
-
     this.shiftDragService.updateDragPosition(event.clientY);
     this.updateDropTarget(event);
   }

@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -14,9 +14,9 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './cut-table.component.html',
   styleUrl: './cut-table.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CutTableComponent implements OnChanges {
-  public translate = inject(TranslateService);
   private textFormatterService = inject(TextFormatterService);
   @Input() shifts: IShift[] | undefined;
   @Input() selectedShiftId?: string; // Input für externe Selektion

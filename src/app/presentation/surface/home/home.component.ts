@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -29,6 +31,7 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
     SavebarComponent,
     FooterComponent
 ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private applicationInitService = inject(ApplicationInitService);

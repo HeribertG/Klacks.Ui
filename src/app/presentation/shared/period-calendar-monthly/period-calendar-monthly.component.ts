@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
@@ -18,6 +20,7 @@ export interface PeriodResetData {
   styleUrls: ['./period-calendar-monthly.component.scss'],
   standalone: true,
   imports: [FormsModule, TranslateModule, CounterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodCalendarMonthlyComponent implements OnInit {
   @Input() year = new Date().getFullYear();

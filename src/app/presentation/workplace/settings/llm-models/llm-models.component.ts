@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
   AfterViewInit,
@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -59,6 +60,7 @@ interface LLMModelFormModel {
   ],
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
@@ -69,6 +71,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   models: IAssistantModel[] = [];
@@ -125,6 +128,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteModel(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -143,11 +147,13 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (models) => {
           this.models = models;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading LLM models:', error);
           this.toastService.showError(this.translate.instant('settings.llm-models.error.load-models'));
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -159,6 +165,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (providers) => {
           this.availableProviders = providers.filter((p) => p.isEnabled);
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading providers:', error);
@@ -185,6 +192,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
               isEnabled: true,
             } as IAssistantProvider,
           ];
+          this.cdr.markForCheck();
         },
       });
   }
@@ -294,6 +302,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       if (index !== -1) {
         this.models.splice(index, 1);
       }
+      this.cdr.markForCheck();
 
       this.toastService.showSuccess(
         this.translate.instant('settings.llm-models.success.delete'),
@@ -302,6 +311,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     } catch (error) {
       console.error('Error deleting model:', error);
       this.toastService.showError(this.translate.instant('settings.llm-models.error.delete'));
+      this.cdr.markForCheck();
     }
   }
 
@@ -345,6 +355,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

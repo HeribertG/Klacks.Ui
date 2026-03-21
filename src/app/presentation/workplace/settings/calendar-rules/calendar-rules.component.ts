@@ -3,12 +3,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
-  Component,
+  Component, ChangeDetectionStrategy,
   OnDestroy,
   OnInit,
   effect,
   inject,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -81,6 +82,7 @@ interface RuleFormModel {
     SimplePaginationComponent
 ],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -95,6 +97,7 @@ export class CalendarRulesComponent
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
   private manualLoader = inject(ManualLoaderService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Pagination properties
   highlightRowId: string | undefined = undefined;
@@ -140,6 +143,12 @@ export class CalendarRulesComponent
       const isRead = this.dataManagementCalendarRulesService.isRead();
       if (isRead) {
         this.readPage();
+      }
+    });
+
+    effect(() => {
+      if (this.dataManagementCalendarRulesService.isPageRead()) {
+        this.cdr.markForCheck();
       }
     });
 
@@ -216,6 +225,7 @@ export class CalendarRulesComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
         this.headerCalendarDropdown = x;
+        this.cdr.markForCheck();
       });
 
     this.holidaysListHelper.currentYear = new Date().getFullYear();
@@ -233,7 +243,9 @@ export class CalendarRulesComponent
           .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe((x) => {
             this.headerCalendarDropdown = x;
+            this.cdr.markForCheck();
           });
+        this.cdr.markForCheck();
       });
 
     this.modalService.resultEvent
@@ -246,6 +258,7 @@ export class CalendarRulesComponent
           this.deleteRule(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }

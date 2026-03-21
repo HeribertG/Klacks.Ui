@@ -5,6 +5,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 
 import { GroupScopeComponent } from './group-scope.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -53,7 +54,11 @@ describe('GroupScopeComponent', () => {
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 

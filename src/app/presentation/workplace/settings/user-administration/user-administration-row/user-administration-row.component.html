@@ -24,9 +24,7 @@
       aria-label="email"
     />
     @if (enabled) {
-    <span id="user-admin-row-sendto-{{ user!.id }}" class="send-to" (click)="onClickSentTo()">{{
-      translate.instant("setting.user-admin.row.send")
-    }}</span>
+    <span id="user-admin-row-sendto-{{ user!.id }}" class="send-to" (click)="onClickSentTo()">{{ 'setting.user-admin.row.send' | translate }}</span>
     }
   </div>
   <div id="user-admin-row-authorised-group-{{ user!.id }}" class="form-group">
@@ -38,10 +36,10 @@
         aria-label="isAuthorised"
       >
         <option value="true">
-          {{ translate.instant("setting.user-admin.row.yes") }}
+          {{ 'setting.user-admin.row.yes' | translate }}
         </option>
         <option value="false">
-          {{ translate.instant("setting.user-admin.row.no") }}
+          {{ 'setting.user-admin.row.no' | translate }}
         </option>
       </select>
     } @else {
@@ -52,10 +50,10 @@
         aria-label="isAuthorised"
       >
         <option [selected]="user!.isAuthorised">
-          {{ translate.instant("setting.user-admin.row.yes") }}
+          {{ 'setting.user-admin.row.yes' | translate }}
         </option>
         <option [selected]="!user!.isAuthorised">
-          {{ translate.instant("setting.user-admin.row.no") }}
+          {{ 'setting.user-admin.row.no' | translate }}
         </option>
       </select>
     }

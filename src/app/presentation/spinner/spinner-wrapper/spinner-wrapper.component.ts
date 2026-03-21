@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { SpinnerService } from '../spinner.service';
 
 import { SpinnerComponent } from '../spinner.component';
@@ -11,6 +13,7 @@ import { SpinnerComponent } from '../spinner.component';
   styleUrls: ['./spinner-wrapper.component.scss'],
   standalone: true,
   imports: [SpinnerComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerWrapperComponent {
   spinnerService = inject(SpinnerService);

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,8 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent]
+  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
@@ -48,6 +49,7 @@ export class ReportRowComponent implements OnDestroy {
   private dataProviderService = inject(ReportDataProviderService);
   private groupService = inject(DataManagementGroupService);
   private clientService = inject(DataClientService);
+  private cdr = inject(ChangeDetectorRef);
 
   private modalRef: NgbModalRef | null = null;
   private destroy$ = new Subject<void>();
@@ -252,6 +254,7 @@ export class ReportRowComponent implements OnDestroy {
       console.error('Failed to save report:', err);
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -305,6 +308,7 @@ export class ReportRowComponent implements OnDestroy {
       console.error('Error generating preview:', err);
     } finally {
       this.isGenerating = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -324,7 +328,10 @@ export class ReportRowComponent implements OnDestroy {
     if (this.previewClients.length > 0) return;
     this.clientService.getClientsForReplacement()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(clients => this.previewClients = clients);
+      .subscribe(clients => {
+        this.previewClients = clients;
+        this.cdr.markForCheck();
+      });
   }
 
   private resetTemplateSections(): void {

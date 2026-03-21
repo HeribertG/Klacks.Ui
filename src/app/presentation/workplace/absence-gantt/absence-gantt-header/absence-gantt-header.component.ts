@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnInit,
@@ -27,6 +28,7 @@ import { CounterComponent } from 'src/app/presentation/shared/counter/counter.co
   templateUrl: './absence-gantt-header.component.html',
   styleUrls: ['./absence-gantt-header.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AbsenceGanttAbsenceListComponent,
     PdfIconComponent,

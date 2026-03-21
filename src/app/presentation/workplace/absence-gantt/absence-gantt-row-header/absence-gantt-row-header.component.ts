@@ -2,6 +2,8 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EffectRef,
   ElementRef,
@@ -39,6 +41,7 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
   templateUrl: './absence-gantt-row-header.component.html',
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgStyle, ClientFilterComponent, ResizeDirective],
   providers: [ProgressBarAnimationService],
 })
@@ -58,6 +61,7 @@ export class AbsenceGanttRowHeaderComponent
   private drawRowHeader = inject(DrawRowHeaderService);
   private rowHeaderIcons = inject(RowHeaderIconsService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -105,7 +109,10 @@ export class AbsenceGanttRowHeaderComponent
       const diff = currentValue - previousValue;
 
       if (diff) {
-        setTimeout(() => this.drawRowHeader.moveRow(diff), 50);
+        setTimeout(() => {
+          this.drawRowHeader.moveRow(diff);
+          this.cdr.markForCheck();
+        }, 50);
       }
     }
   }
@@ -235,6 +242,7 @@ export class AbsenceGanttRowHeaderComponent
       let left = iconRight - popupWidth;
       if (left < 0) left = 0;
       this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+      this.cdr.markForCheck();
     });
   }
 

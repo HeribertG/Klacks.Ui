@@ -4,6 +4,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   HostListener,
@@ -29,6 +31,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   templateUrl: './edit-shift-address.component.html',
   styleUrls: ['./edit-shift-address.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -55,6 +58,7 @@ export class EditShiftAddressComponent implements OnInit {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataClientService = inject(DataClientService);
+  private cdr = inject(ChangeDetectorRef);
 
   result = new Array<IClient>();
   visibleTable = 'inline';
@@ -102,6 +106,7 @@ export class EditShiftAddressComponent implements OnInit {
 
     setTimeout(() => {
       this.searchText();
+      this.cdr.markForCheck();
     }, 2000);
   }
 
@@ -171,6 +176,7 @@ export class EditShiftAddressComponent implements OnInit {
           if (!tmpClientName.includes(this.selectedClientName))
             this.selectedClientName = this.visualName(this.result[0]);
         }
+        this.cdr.markForCheck();
       });
   }
 

@@ -6,13 +6,13 @@
   <span class="col-coverage">{{ (data.isCore ? 100 : data.coverage) | number:'1.0-0' }}%</span>
   <span class="col-status">
     <span class="status-badge" [class]="getStatusClass()">
-      {{ translate.instant(getStatusKey()) }}
+      {{ getStatusKey() | translate }}
     </span>
   </span>
   <span class="col-actions">
     @if (!data.isCore && !data.isInstalled) {
       <button class="action-btn install-btn" (click)="onInstall()">
-        {{ translate.instant("settings.language-plugins.action.install") }}
+        {{ 'settings.language-plugins.action.install' | translate }}
       </button>
     }
     @if (!data.isCore && data.isInstalled) {

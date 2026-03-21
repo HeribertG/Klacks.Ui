@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +15,7 @@ import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/sched
   styleUrls: ['./expenses-dialog.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpensesDialogComponent {
   @ViewChild('expensesModal') modalTemplate!: TemplateRef<unknown>;
@@ -23,6 +24,7 @@ export class ExpensesDialogComponent {
   private expensesService = inject(DataManagementExpensesService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   protected translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   workId = '';
   clientId = '';
@@ -60,6 +62,7 @@ export class ExpensesDialogComponent {
         this.amount = data.amount;
         this.description = data.description || '';
         this.taxable = data.taxable;
+        this.cdr.markForCheck();
 
         this.modalRef = this.ngbModal.open(this.modalTemplate, {
           centered: true,

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnInit,
   AfterViewInit,
@@ -25,6 +27,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
   templateUrl: './absence-gantt-absence-list.component.html',
   styleUrls: ['./absence-gantt-absence-list.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslateModule, FallbackPipe],
 })
 export class AbsenceGanttAbsenceListComponent
@@ -34,6 +37,7 @@ export class AbsenceGanttAbsenceListComponent
   public calendarSetting = inject(CalendarSettingService);
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
   checkmark = '&#10003;';
@@ -50,6 +54,7 @@ export class AbsenceGanttAbsenceListComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

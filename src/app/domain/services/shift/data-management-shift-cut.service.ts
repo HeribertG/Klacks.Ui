@@ -87,7 +87,7 @@ export class DataManagementShiftCutService
     if (!shift.id || (shift as any).isNew) {
       (shift as any).__tempId = newGuid();
     }
-    this.cutShifts.push(shift);
+    this.cutShifts = [...this.cutShifts, shift];
   }
 
   areObjectsDirty(): boolean {

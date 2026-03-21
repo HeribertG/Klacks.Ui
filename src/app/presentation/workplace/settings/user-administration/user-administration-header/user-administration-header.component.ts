@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -11,7 +11,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./user-administration-header.component.scss'],
   standalone: true,
   imports: [TranslateModule, NgbModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdministrationHeaderComponent {
-  public translate = inject(TranslateService);
 }

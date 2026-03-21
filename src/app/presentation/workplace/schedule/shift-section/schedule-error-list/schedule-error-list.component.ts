@@ -4,7 +4,7 @@
  * Komponente zur Anzeige der Schedule-Fehlerliste (Kollisionen, Warnungen, Infos).
  * @param activeFilters - Aktive Filtertypen (error, warning, info)
  */
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -27,6 +27,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
   imports: [CommonModule, TranslateModule, FontAwesomeModule, PdfIconComponent],
   templateUrl: './schedule-error-list.component.html',
   styleUrls: ['./schedule-error-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleErrorListComponent {
   private collisionService = inject(CollisionDetectionService);

@@ -5,7 +5,7 @@
   <form id="llm-providers-modal-form">
     <div id="llm-providers-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
-        {{ translate.instant("settings.llm-providers.headline-modal") }}
+        {{ 'settings.llm-providers.headline-modal' | translate }}
       </div>
       <span class="filler"></span>
 
@@ -31,9 +31,7 @@
       @if (editingProvider) {
       <div id="llm-providers-modal-basic-info-row" class="row-line-modal-inline">
         <div class="provider-field">
-          <label for="providerId">{{
-            translate.instant("settings.llm-providers.provider-id")
-          }}</label>
+          <label for="providerId">{{ 'settings.llm-providers.provider-id' | translate }}</label>
           @if (isNewProvider) {
           <input
             id="llm-providers-modal-provider-id"
@@ -52,9 +50,7 @@
           }
         </div>
         <div class="provider-field">
-          <label for="providerName">{{
-            translate.instant("settings.llm-providers.provider-name")
-          }}</label>
+          <label for="providerName">{{ 'settings.llm-providers.provider-name' | translate }}</label>
           <input
             id="llm-providers-modal-provider-name"
             type="text"
@@ -66,9 +62,7 @@
 
       <div id="llm-providers-modal-url-row" class="row-line-modal-inline">
         <div class="provider-field full-width">
-          <label for="baseUrl">{{
-            translate.instant("settings.llm-providers.base-url")
-          }}</label>
+          <label for="baseUrl">{{ 'settings.llm-providers.base-url' | translate }}</label>
           <input
             id="llm-providers-modal-base-url"
             type="url"
@@ -81,9 +75,7 @@
 
       <div id="llm-providers-modal-version-priority-row" class="row-line-modal-inline">
         <div class="provider-field">
-          <label for="apiVersion">{{
-            translate.instant("settings.llm-providers.api-version")
-          }}</label>
+          <label for="apiVersion">{{ 'settings.llm-providers.api-version' | translate }}</label>
           <input
             id="llm-providers-modal-api-version"
             type="text"
@@ -93,9 +85,7 @@
           />
         </div>
         <div class="provider-field">
-          <label for="priority">{{
-            translate.instant("settings.llm-providers.priority")
-          }}</label>
+          <label for="priority">{{ 'settings.llm-providers.priority' | translate }}</label>
           <input
             id="llm-providers-modal-priority"
             type="text"
@@ -108,7 +98,7 @@
       <div id="llm-providers-modal-apikey-row" class="row-line-modal-inline">
         <div class="provider-field full-width">
           <label for="apiKey">
-            {{ translate.instant("settings.llm-providers.api-key") }}
+            {{ 'settings.llm-providers.api-key' | translate }}
             @if (isNewProvider || !editingProvider.hasApiKey) {
             <span class="required-marker">*</span>
             }</label
@@ -122,9 +112,9 @@
           />
           <small class="info-text">
             @if (!isNewProvider && editingProvider.hasApiKey) {
-              {{ translate.instant("settings.llm-providers.api-key-keep-existing") }}
+              {{ 'settings.llm-providers.api-key-keep-existing' | translate }}
             } @else {
-              {{ translate.instant("settings.llm-providers.api-key-info") }}
+              {{ 'settings.llm-providers.api-key-info' | translate }}
             }
           </small>
         </div>
@@ -138,7 +128,7 @@
             [formField]="providerForm.isEnabled"
           />
           <label for="isEnabledCheckbox">
-            {{ translate.instant("settings.llm-providers.is-enabled") }}</label
+            {{ 'settings.llm-providers.is-enabled' | translate }}</label
           >
         </div>
       </div>
@@ -147,7 +137,7 @@
       <div id="llm-providers-modal-validation-row" class="row-line-modal-inline">
         <div class="validation-errors-section">
           <div class="alert alert-danger">
-            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <strong>{{ 'validation.errors' | translate }}:</strong>
             <ul>
               @for (error of getValidationErrors(); track error) {
               <li>{{ error }}</li>
@@ -166,7 +156,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       id="llm-providers-modal-save-btn"
@@ -175,14 +165,14 @@
       (click)="onSaveModal(modal)"
       [disabled]="!isFormValid()"
     >
-      {{ translate.instant("save") }}
+      {{ 'save' | translate }}
     </button>
   </div>
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('settings.llm-providers.title')"
-  [addLabel]="translate.instant('settings.llm-providers.add')"
+  [headline]="'settings.llm-providers.title' | translate"
+  [addLabel]="'settings.llm-providers.add' | translate"
   [showHeader]="true"
   idPrefix="llm-providers"
   (addClick)="onClickAdd()"

@@ -5,7 +5,9 @@
  * @param toastService - Injected service providing the toast array
  */
 
-import { Component, TemplateRef, inject, signal } from '@angular/core';
+import { Component, TemplateRef, inject, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ToastService } from './toast.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -103,6 +105,7 @@ import { IToast } from './toast.interface';
   },
   standalone: true,
   imports: [CommonModule, FormsModule, NgbToastModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastsContainerComponent {
   toastService = inject(ToastService);

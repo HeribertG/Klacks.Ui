@@ -9,6 +9,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ViewChild,
   TemplateRef,
@@ -59,6 +61,7 @@ import { createDefaultCutParameterState } from './services/cut-parameter-state';
 ],
   templateUrl: './cut-shift-list.component.html',
   styleUrl: './cut-shift-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CutShiftListComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -69,6 +72,7 @@ export class CutShiftListComponent implements OnInit {
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   private cutByTimeService = inject(CutByTimeService);
   private cutByDateService = inject(CutByDateService);
@@ -137,9 +141,11 @@ export class CutShiftListComponent implements OnInit {
     this.resetAllParameters();
     this.dataManagementShiftCutService.onResetCompleted = () => {
       this.analyzeResetCuts();
+      this.cdr.markForCheck();
     };
     this.dataManagementShiftCutService.onReadCompleted = () => {
       this.analyzeResetCuts();
+      this.cdr.markForCheck();
     };
   }
 
@@ -286,6 +292,7 @@ export class CutShiftListComponent implements OnInit {
     if (shift) {
       this.analyzeShift(shift);
     }
+    this.cdr.markForCheck();
   }
 
   private analyzeResetCuts(): void {
@@ -311,6 +318,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private analyzeShift(shift: Shift): void {
@@ -391,6 +399,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private performCutByTime(): void {
@@ -409,6 +418,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private performCutByWeekdays(): void {
@@ -426,6 +436,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private performCutByStaff(): void {
@@ -443,6 +454,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private performCutByTask(): void {
@@ -460,6 +472,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.isChangingEvent.emit(true);
     this.analyzeResetCuts();
+    this.cdr.markForCheck();
   }
 
   private selectNewChildCut(newChildCut: Shift): void {
@@ -521,6 +534,8 @@ export class CutShiftListComponent implements OnInit {
           } else {
             this.resetDate = this.maxDate;
           }
+
+          this.cdr.markForCheck();
 
           this.activeModal = this.modalService.open(this.resetCutsModal, {
             size: 'md',

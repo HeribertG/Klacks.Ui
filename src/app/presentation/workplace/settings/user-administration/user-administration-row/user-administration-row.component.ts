@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   EventEmitter,
   inject,
   Input,
@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -33,6 +33,7 @@ interface UserRoleModel {
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormField, TrashIconRedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdministrationRowComponent implements OnChanges {
   @Input() user: IAuthentication | undefined;
@@ -41,8 +42,6 @@ export class UserAdministrationRowComponent implements OnChanges {
   @Output() isRoleChangeEvent = new EventEmitter<RoleChangeEvent>();
   @Output() isSentToEvent = new EventEmitter<string>();
   @Output() isEditEvent = new EventEmitter<IAuthentication>();
-
-  public translate = inject(TranslateService);
 
   private isInitialized = false;
   private lastModel: UserRoleModel | null = null;

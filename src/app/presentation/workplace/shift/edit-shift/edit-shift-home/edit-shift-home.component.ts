@@ -3,7 +3,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  effect,
   inject,
   OnInit,
   OnDestroy,
@@ -34,6 +37,7 @@ import { ShiftFormService } from '../services/shift-form.service';
   templateUrl: './edit-shift-home.component.html',
   styleUrls: ['./edit-shift-home.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslateModule,
     EditShiftItemComponent,
@@ -57,11 +61,20 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private shiftFormService = inject(ShiftFormService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   isComplex = false;
   isReadOnly = false;
   private returnUrl: string | null = null;
+
+  constructor() {
+    effect(() => {
+      this.dataManagementShiftService.isReset();
+      this.dataManagementShiftService.isRead();
+      this.cdr.markForCheck();
+    });
+  }
 
   // Getter to determine if nav should be hidden when shift status is IsCut
   get isNavVisible(): boolean {
@@ -105,6 +118,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
         this.workplaceStateService.setActiveManagerByRoute('new-shift');
         this.dataManagementShiftService.createShift();
       }
+      this.cdr.markForCheck();
     });
 
     this.onIsChangingMode();

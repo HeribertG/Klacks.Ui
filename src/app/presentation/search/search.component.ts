@@ -8,6 +8,7 @@ import {
   effect,
   ChangeDetectorRef,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./search.component.scss'],
   standalone: true,
   imports: [FormsModule, FontAwesomeModule, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent {
   private cdr = inject(ChangeDetectorRef);

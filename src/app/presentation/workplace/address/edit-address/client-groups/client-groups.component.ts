@@ -16,9 +16,11 @@ import {
   Injector,
   effect,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group/group-class';
@@ -53,6 +55,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     NgbTooltipModule,
   ],
   providers: [TableSortingService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() clientId?: string;
@@ -62,11 +65,11 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('groupsForm', { static: false }) groupsForm: NgForm | undefined;
 
   public dataManagementClientService = inject(DataManagementClientService);
-  public translate = inject(TranslateService);
   public authorizationService = inject(AuthorizationService);
   public sortingService = inject(TableSortingService);
 
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   public faCalendar = faCalendar;
   public highlightRowId: string | undefined = undefined;
@@ -96,7 +99,10 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.groupsForm!.valueChanges!.subscribe(() => {
       if (this.groupsForm!.dirty === true) {
-        setTimeout(() => this.isChangingEvent.emit(true), 100);
+        setTimeout(() => {
+          this.isChangingEvent.emit(true);
+          this.cdr.markForCheck();
+        }, 100);
       }
     });
   }

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
   AfterViewInit,
@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -64,6 +65,7 @@ interface AbsenceDetailFormFields {
   ],
   templateUrl: './absence-detail.component.html',
   styleUrls: ['./absence-detail.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('absenceDetailModal', { read: TemplateRef })
@@ -75,6 +77,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   absenceDetails: IAbsenceDetail[] = [];
@@ -116,6 +119,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentLang = this.translate.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     this.modalService.resultEvent
@@ -128,6 +132,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
           this.deleteAbsenceDetail(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -146,11 +151,13 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         next: (absenceDetails) => {
           this.absenceDetails = absenceDetails;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading absence details:', error);
           this.toastService.showError('setting.absence-detail.error.load');
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -162,9 +169,11 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       .subscribe({
         next: (absences) => {
           this.absences = absences;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading absences:', error);
+          this.cdr.markForCheck();
         },
       });
   }
@@ -268,9 +277,11 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       if (index !== -1) {
         this.absenceDetails.splice(index, 1);
       }
+      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error deleting absence detail:', error);
       this.toastService.showError('setting.absence-detail.error.delete');
+      this.cdr.markForCheck();
     }
   }
 
@@ -299,6 +310,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
         }
       }
 
+      this.cdr.markForCheck();
       return true;
     } catch (error) {
       console.error('Error saving absence detail:', error);
@@ -307,6 +319,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
       return false;
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

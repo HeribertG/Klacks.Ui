@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IAbsenceDetail } from 'src/app/domain/models/absence-detail/absence-detail-class';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
@@ -12,6 +12,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   imports: [FallbackPipe, TrashIconRedComponent],
   templateUrl: './absence-detail-row.component.html',
   styleUrls: ['./absence-detail-row.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbsenceDetailRowComponent {
   translate = inject(TranslateService);

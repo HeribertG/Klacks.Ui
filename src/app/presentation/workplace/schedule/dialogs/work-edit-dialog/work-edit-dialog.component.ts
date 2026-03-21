@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -25,6 +25,7 @@ interface WorkEditValidation {
   styleUrls: ['./work-edit-dialog.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkEditDialogComponent {
   @ViewChild('workEditModal') modalTemplate!: TemplateRef<unknown>;

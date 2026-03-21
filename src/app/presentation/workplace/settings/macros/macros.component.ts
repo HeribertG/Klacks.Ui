@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
@@ -25,14 +25,14 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
     MacroHeaderComponent,
     MacroRowComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MacrosComponent implements AfterViewInit, OnDestroy {
   @ViewChildren(MacroRowComponent) macroRows!: QueryList<MacroRowComponent>;
-
-  public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private macroManagementService = inject(MacroManagementService);
   private modalService = inject(ModalService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   message = DomainMessages.DELETE_ENTRY;
@@ -50,6 +50,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
           this.deleteMacro(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
 
@@ -63,6 +64,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
           }
           this.pendingOpenMacro = null;
         }
+        this.cdr.markForCheck();
       });
   }
 

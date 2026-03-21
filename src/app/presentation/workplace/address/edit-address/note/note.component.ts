@@ -14,6 +14,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -50,6 +52,7 @@ import { takeUntil } from 'rxjs/operators';
     RichTextEditorComponent,
     ExpandableCardComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -62,6 +65,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
   private isInitializing = false;
   private destroy$ = new Subject<void>();
 
@@ -101,6 +105,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
         this.note_new = DomainMessages.NOTE_NEW;
+        this.cdr.markForCheck();
       }, 200);
     });
   }
@@ -145,6 +150,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
           (button as HTMLElement).focus();
         }
       }
+      this.cdr.markForCheck();
     }, 0);
   }
 
@@ -179,6 +185,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.isChangingEvent.emit(true);
       this.isInitializing = false;
+      this.cdr.markForCheck();
     }, 0);
   }
 
@@ -209,6 +216,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
       );
       this.isChangingEvent.emit(true);
       this.isInitializing = false;
+      this.cdr.markForCheck();
     }, 0);
   }
 

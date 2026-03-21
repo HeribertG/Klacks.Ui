@@ -3,6 +3,8 @@
 import { DatePipe } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EffectRef,
   Injector,
@@ -41,6 +43,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   templateUrl: './absence-gantt-grid.component.html',
   styleUrls: ['./absence-gantt-grid.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, TranslateModule],
   providers: [
     TableSortingService,
@@ -70,6 +73,7 @@ export class AbsenceGanttGridComponent
   private reportDataProvider = inject(ReportDataProviderService);
   private reportService = inject(ReportService);
   private textFormatterService = inject(TextFormatterService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
 
@@ -98,6 +102,7 @@ export class AbsenceGanttGridComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

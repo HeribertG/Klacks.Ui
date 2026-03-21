@@ -4,7 +4,9 @@
  * Zeigt Shift-Abdeckung und Versiegelungsstatus als zwei Donut-Charts im Dashboard-Card-Stil.
  * @param dataDashboardService - API-Service zum Laden der Statistikdaten
  */
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { PieChartComponent, PieChartData } from 'src/app/presentation/shared/pie-chart/pie-chart.component';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
@@ -16,6 +18,7 @@ import { IShiftCoverageStatistics } from 'src/app/domain/models/dashboard-class'
   styleUrls: ['./dashboard-shift-coverage.component.scss'],
   standalone: true,
   imports: [TranslateModule, PieChartComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardShiftCoverageComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);

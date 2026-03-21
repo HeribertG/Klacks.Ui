@@ -2,6 +2,7 @@
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -56,6 +57,7 @@ import { Language } from 'src/app/domain/models/settings/language-config';
   templateUrl: './absence-gantt-surface.component.html',
   styleUrls: ['./absence-gantt-surface.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ResizeDirective, AbsenceCalendarDirective, ContextMenuComponent],
   providers: [ScrollbarService, ContextMenuService],
 })
@@ -144,6 +146,7 @@ export class AbsenceGanttSurfaceComponent
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x) => {
         this.contextMenuService.menuClicked(x);
+        this.cd.markForCheck();
       });
   }
 

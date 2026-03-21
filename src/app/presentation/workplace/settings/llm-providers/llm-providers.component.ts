@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
   AfterViewInit,
@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -53,6 +54,7 @@ interface LLMProviderFormModel {
   ],
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('providerModal', { read: TemplateRef })
@@ -64,6 +66,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   public translate = inject(TranslateService);
   private providerService = inject(DataManagementAssistantProviderService);
   private llmService = inject(DataManagementAssistantService);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   providers: IAssistantProvider[] = [];
@@ -104,6 +107,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(providers => {
         this.providers = providers;
+        this.cdr.markForCheck();
       });
   }
 
@@ -118,6 +122,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
           this.deleteProvider(this.modalService.Filing);
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -282,6 +287,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } finally {
       this.isSaving = false;
+      this.cdr.markForCheck();
     }
   }
 

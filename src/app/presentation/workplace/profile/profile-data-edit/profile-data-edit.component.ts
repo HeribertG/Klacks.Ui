@@ -9,6 +9,8 @@ import {
   effect,
   inject,
   DoCheck,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 
 // Angular und Bibliotheksmodule
@@ -16,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -45,6 +47,7 @@ import {
     TranslateModule,
     FontAwesomeModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileDataEditComponent implements OnInit, DoCheck {
   @Output() isChangingEvent = new EventEmitter();
@@ -57,8 +60,8 @@ export class ProfileDataEditComponent implements OnInit, DoCheck {
   public passwordStrengthFlag = false;
   public showOldPassword = false;
 
-  public translate = inject(TranslateService);
   public dataManagementProfileService = inject(DataManagementProfileService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.setupResetSignalEffect();
@@ -66,7 +69,10 @@ export class ProfileDataEditComponent implements OnInit, DoCheck {
 
   ngOnInit(): void {
     this.dataManagementProfileService.isRead.set(true);
-    setTimeout(() => this.dataManagementProfileService.isRead.set(false), 100);
+    setTimeout(() => {
+      this.dataManagementProfileService.isRead.set(false);
+      this.cdr.markForCheck();
+    }, 100);
   }
 
   ngDoCheck(): void {

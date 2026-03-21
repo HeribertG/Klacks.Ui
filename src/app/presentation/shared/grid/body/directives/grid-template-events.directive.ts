@@ -12,6 +12,7 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  DestroyRef,
   Directive,
   ElementRef,
   EventEmitter,
@@ -19,6 +20,9 @@ import {
   inject,
   Output,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { fromEvent } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 
 export interface GridRightClickEvent {
   row: number;
@@ -54,6 +58,7 @@ export class GridTemplateEventsDirective {
   private cellManipulation = inject(BaseCellManipulationService);
   private fillHandleDrag = inject(GridFillHandleDragService);
   private scheduleEvents = inject(GridScheduleEventsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
   @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
@@ -96,6 +101,13 @@ export class GridTemplateEventsDirective {
     this.fillHandleDrag.initialize({ gridSurface: this.gridSurface, el: this.el });
     this.scheduleEvents.workChangeDoubleClick.subscribe((event) => this.workChangeDoubleClick.emit(event));
     this.scheduleEvents.workDoubleClick.subscribe((event) => this.workDoubleClick.emit(event));
+
+    fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove').pipe(
+      throttleTime(16),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(event => {
+      this.onMouseMove(event);
+    });
   }
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
@@ -200,7 +212,7 @@ export class GridTemplateEventsDirective {
     this.hasCollection = false;
   }
 
-  @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
+  onMouseMove(event: MouseEvent): void {
     if (this.scheduleEvents.isShiftDragging()) {
       this.scheduleEvents.updateShiftDragPosition(event.clientY);
       return;

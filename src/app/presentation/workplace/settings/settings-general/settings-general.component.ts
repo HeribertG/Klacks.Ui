@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, computed, OnDestroy, OnInit, effect, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, computed, OnDestroy, OnInit, effect, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { form, FormField } from '@angular/forms/signals';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -16,15 +16,16 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./settings-general.component.scss'],
   standalone: true,
   imports: [TranslateModule, NgbModule, FormField],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsGeneralComponent implements OnInit, OnDestroy {
   selectedFileIcon: File | undefined;
   selectedFileLogo: File | undefined;
 
   public dataLoadFileService = inject(DataLoadFileService);
-  public translate = inject(TranslateService);
   private appSettingsService = inject(AppSettingsManagementService);
   private titleService = inject(Title);
+  private cdr = inject(ChangeDetectorRef);
 
   private destroy$ = new Subject<void>();
   private isInitialized = false;
@@ -94,6 +95,7 @@ export class SettingsGeneralComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.tryLoadProfileImage();
           this.selectedFileIcon = undefined;
+          this.cdr.markForCheck();
         });
     }
   }
@@ -129,6 +131,7 @@ export class SettingsGeneralComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.tryLoadProfileImage();
           this.selectedFileLogo = undefined;
+          this.cdr.markForCheck();
         });
     }
   }

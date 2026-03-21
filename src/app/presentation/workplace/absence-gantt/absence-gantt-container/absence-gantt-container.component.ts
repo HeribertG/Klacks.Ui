@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   inject,
@@ -30,6 +31,7 @@ import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
   templateUrl: './absence-gantt-container.component.html',
   styleUrls: ['./absence-gantt-container.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AngularSplitModule,
     AbsenceGanttRowHeaderComponent,

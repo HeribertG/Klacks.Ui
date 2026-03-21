@@ -5,7 +5,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 
 import { UserAdministrationComponent } from './user-administration.component';
@@ -108,7 +108,11 @@ describe('UserAdministrationComponent', () => {
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 

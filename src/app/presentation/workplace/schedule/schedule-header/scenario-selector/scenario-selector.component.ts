@@ -5,7 +5,7 @@
  * @param analyseScenarioService - Service für Szenario-State und -Operationen
  */
 
-import { Component, inject, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbDropdownModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
@@ -18,6 +18,7 @@ import { CreateScenarioDialogComponent } from '../../dialogs/create-scenario-dia
   styleUrls: ['./scenario-selector.component.scss'],
   standalone: true,
   imports: [NgbDropdownModule, NgbTooltip, TranslateModule, CreateScenarioDialogComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioSelectorComponent {
   @ViewChild('createScenarioDialog') createScenarioDialog!: CreateScenarioDialogComponent;

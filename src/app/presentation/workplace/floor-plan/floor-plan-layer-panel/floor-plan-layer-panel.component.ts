@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanLayerService, FloorPlanLayer } from '../services/floor-plan-layer.service';
@@ -11,6 +13,7 @@ import { FloorPlanLayerService, FloorPlanLayer } from '../services/floor-plan-la
   imports: [FormsModule, TranslateModule],
   templateUrl: './floor-plan-layer-panel.component.html',
   styleUrls: ['./floor-plan-layer-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanLayerPanelComponent {
   layerService = inject(FloorPlanLayerService);

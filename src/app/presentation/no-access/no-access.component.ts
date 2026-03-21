@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, inject } from '@angular/core';
+import { Component, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -13,6 +15,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
   styleUrl: './no-access.component.scss',
   imports: [FormsModule, TranslateModule, RouterModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoAccessComponent {
   // Public injected services

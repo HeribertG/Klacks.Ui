@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { DataOAuth2Service } from 'src/app/infrastructure/api/data-oauth2.service';
@@ -58,7 +60,8 @@ interface OAuth2Token extends MyToken {
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OAuth2CallbackComponent implements OnInit {
   private route = inject(ActivatedRoute);

@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   OnInit,
   effect,
   inject,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
@@ -33,10 +34,12 @@ interface WorkSettingsFormModel {
   styleUrls: ['./work-setting.component.scss'],
   standalone: true,
   imports: [FormsModule, FormField, TranslateModule, NgbModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkSettingComponent implements OnInit {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private contractService = inject(DataManagementContractService);
+  private cdr = inject(ChangeDetectorRef);
 
   public isDataLoaded = false;
   public hasContracts = false;
@@ -110,6 +113,7 @@ export class WorkSettingComponent implements OnInit {
       this.loadFromService();
       this.isDataLoaded = true;
     }
+    this.cdr.markForCheck();
   }
 
   private async checkContracts(): Promise<void> {

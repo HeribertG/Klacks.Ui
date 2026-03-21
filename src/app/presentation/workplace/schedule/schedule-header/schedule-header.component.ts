@@ -17,6 +17,7 @@
  */
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -85,6 +86,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     ScenarioSelectorComponent,
   ],
   providers: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
@@ -179,9 +181,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     return this.dataManagementSchedule.showAvailability();
   }
 
-  get hasAvailabilityData(): boolean {
+  hasAvailabilityData = computed(() => {
+    this.dataManagementSchedule.isRead();
     return this.dataManagementSchedule.hasAvailabilityData;
-  }
+  });
 
   get showBreakPlaceholders(): boolean {
     return this.dataManagementSchedule.showBreakPlaceholders();

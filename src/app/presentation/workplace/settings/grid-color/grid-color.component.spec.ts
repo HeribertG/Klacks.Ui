@@ -4,6 +4,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { GridColorComponent } from './grid-color.component';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -22,7 +23,11 @@ describe('GridColorComponent', () => {
         };
 
         const translateServiceSpy = {
-            instant: vi.fn()
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onTranslationChange: of(),
+            onLangChange: of(),
+            onDefaultLangChange: of(),
         };
         translateServiceSpy.instant.mockReturnValue('Translated text');
 

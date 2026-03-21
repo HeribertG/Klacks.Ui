@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { InboxFolderListComponent } from '../inbox-folder-list/inbox-folder-list.component';
 import { InboxListComponent } from '../inbox-list/inbox-list.component';
@@ -16,6 +18,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./inbox-home.component.scss'],
   standalone: true,
   imports: [AngularSplitModule, InboxFolderListComponent, InboxListComponent, InboxDetailComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxHomeComponent implements OnInit {
   private inboxService = inject(InboxService);

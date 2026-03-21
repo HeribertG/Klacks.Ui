@@ -4,7 +4,7 @@
 <ng-template #editorModal let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("floor-plan.editor-title") }}
+      {{ 'floor-plan.editor-title' | translate }}
     </div>
     <span class="filler"></span>
     <div type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -23,11 +23,11 @@
     <!-- Name input row at top -->
     <div class="floor-plan-name-row">
       <div class="model-field">
-        <label>{{ translate.instant("floor-plan.name") }}</label>
+        <label>{{ 'floor-plan.name' | translate }}</label>
         <input type="text" class="form-control" [(ngModel)]="editingPlan!.name" />
       </div>
       <div class="model-field">
-        <label>{{ translate.instant("floor-plan.description") }}</label>
+        <label>{{ 'floor-plan.description' | translate }}</label>
         <input type="text" class="form-control" [(ngModel)]="editingPlan!.description" />
       </div>
     </div>
@@ -53,7 +53,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       type="button"
@@ -61,14 +61,14 @@
       (click)="onSaveInModal(modal)"
       [disabled]="!editingPlan?.name"
     >
-      {{ translate.instant("save") }}
+      {{ 'save' | translate }}
     </button>
   </div>
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('floor-plan.settings-title')"
-  [addLabel]="translate.instant('floor-plan.settings-add')"
+  [headline]="'floor-plan.settings-title' | translate"
+  [addLabel]="'floor-plan.settings-add' | translate"
   [showHeader]="false"
   idPrefix="floor-plan-settings"
   (addClick)="onClickAdd()"

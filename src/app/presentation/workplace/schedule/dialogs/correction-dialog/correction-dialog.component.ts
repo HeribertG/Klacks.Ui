@@ -15,7 +15,7 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: ReplacementDialogComponent
  */
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -45,6 +45,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CorrectionDialogComponent {
   @ViewChild('correctionModal') modalTemplate!: TemplateRef<unknown>;
@@ -55,6 +56,7 @@ export class CorrectionDialogComponent {
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   protected translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   workId = '';
   clientId = '';
@@ -115,6 +117,7 @@ export class CorrectionDialogComponent {
         this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
 
         this.recalculate();
+        this.cdr.markForCheck();
 
         this.modalRef = this.ngbModal.open(this.modalTemplate, {
           centered: true,

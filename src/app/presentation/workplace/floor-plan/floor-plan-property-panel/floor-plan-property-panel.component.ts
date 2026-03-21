@@ -11,6 +11,7 @@ import {
   OnInit,
   OnDestroy,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -47,6 +48,7 @@ const DEFAULT_PROPERTIES: ObjectProperties = {
   imports: [FormsModule, TranslateModule],
   templateUrl: './floor-plan-property-panel.component.html',
   styleUrls: ['./floor-plan-property-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
   canvasService = inject(FloorPlanCanvasService);

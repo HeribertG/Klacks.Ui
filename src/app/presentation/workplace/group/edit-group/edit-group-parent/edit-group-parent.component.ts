@@ -13,6 +13,8 @@ import {
   inject,
   Injector,
   runInInjectionContext,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,6 +32,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   styleUrls: ['./edit-group-parent.component.scss'],
   standalone: true,
   imports: [FormsModule, TranslateModule, ExpandableCardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupParentComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -39,6 +42,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   public dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   availableParents: Group[] = [];
   groupPath: Group[] = [];
@@ -61,6 +65,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+        this.cdr.markForCheck();
       });
 
     setTimeout(() => {

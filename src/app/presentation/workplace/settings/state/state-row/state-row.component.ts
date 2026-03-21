@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component,
+  Component, ChangeDetectionStrategy,
   EventEmitter,
   Input,
   OnChanges,
@@ -11,6 +11,7 @@ import {
   inject,
   effect,
   signal,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,6 +37,7 @@ interface StateModel {
   styleUrls: ['./state-row.component.scss'],
   standalone: true,
   imports: [TranslateModule, FormField, TrashIconRedComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StateRowComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: IState | undefined;
@@ -45,6 +47,7 @@ export class StateRowComponent implements OnInit, OnChanges, OnDestroy {
   currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   public translate = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
   private ngUnsubscribe = new Subject<void>();
 
   private isInitialized = false;
@@ -101,6 +104,7 @@ export class StateRowComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translate.currentLang as Language;
+        this.cdr.markForCheck();
       });
   }
 

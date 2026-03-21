@@ -10,6 +10,8 @@
  * @param refreshTrigger - Signal zum erzwungenen Neuzeichnen des Grids
  */
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ViewChild,
   inject,
@@ -108,6 +110,7 @@ import { ScheduleSectionFacadeService } from './services/schedule-section-facade
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleSectionComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -147,6 +150,7 @@ export class ScheduleSectionComponent
   private hScrollService = inject(ScheduleHorizontalScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
   private facade = inject(ScheduleSectionFacadeService);
+  private cdr = inject(ChangeDetectorRef);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -244,6 +248,7 @@ export class ScheduleSectionComponent
         const isLocked = this.scrollService.lockedRows();
         this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
         this.updateScrollbarSizes();
+        this.cdr.markForCheck();
       });
       this.effects.push(vScrollbarSizeEffect);
 
@@ -251,6 +256,7 @@ export class ScheduleSectionComponent
         const isLocked = this.scrollService.lockedCols();
         this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
         this.updateScrollbarSizes();
+        this.cdr.markForCheck();
       });
       this.effects.push(hScrollbarSizeEffect);
 
@@ -259,6 +265,7 @@ export class ScheduleSectionComponent
         if (this.initialSyncDone && this.hScrollbar.value !== position) {
           this.hScrollbar.value = position;
           this.scrollService.horizontalScrollPosition = position;
+          this.cdr.markForCheck();
         }
       });
       this.effects.push(hScrollPositionEffect);

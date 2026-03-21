@@ -5,7 +5,7 @@
   <form id="branches-modal-form">
     <div id="branches-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
-        {{ translate.instant("setting.branches.headline-modal") }}
+        {{ 'setting.branches.headline-modal' | translate }}
       </div>
       <span class="filler"></span>
 
@@ -32,9 +32,7 @@
       <!-- Name and Address -->
       <div id="branches-modal-basic-info-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="name">{{
-            translate.instant("setting.branches.modal.name")
-          }}</label>
+          <label for="name">{{ 'setting.branches.modal.name' | translate }}</label>
           <input
             id="branches-modal-name"
             type="text"
@@ -43,9 +41,7 @@
           />
         </div>
         <div class="model-field">
-          <label for="address">{{
-            translate.instant("setting.branches.modal.address")
-          }}</label>
+          <label for="address">{{ 'setting.branches.modal.address' | translate }}</label>
           <input
             id="branches-modal-address"
             type="text"
@@ -58,9 +54,7 @@
       <!-- Phone and Email -->
       <div id="branches-modal-contact-row" class="row-line-modal-inline">
         <div class="model-field">
-          <label for="phone">{{
-            translate.instant("setting.branches.modal.phone")
-          }}</label>
+          <label for="phone">{{ 'setting.branches.modal.phone' | translate }}</label>
           <input
             id="branches-modal-phone"
             type="text"
@@ -69,9 +63,7 @@
           />
         </div>
         <div class="model-field">
-          <label for="email">{{
-            translate.instant("setting.branches.modal.email")
-          }}</label>
+          <label for="email">{{ 'setting.branches.modal.email' | translate }}</label>
           <input
             id="branches-modal-email"
             type="email"
@@ -86,7 +78,7 @@
       <div id="branches-modal-validation-row" class="row-line-modal-inline">
         <div class="validation-errors-section">
           <div class="alert alert-danger">
-            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <strong>{{ 'validation.errors' | translate }}:</strong>
             <ul>
               @for (error of getValidationErrors(); track error) {
               <li>{{ error }}</li>
@@ -105,7 +97,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ 'cancel' | translate }}</span
     >
     <button
       id="branches-modal-save-btn"
@@ -114,14 +106,14 @@
       (click)="onSaveModal(modal)"
       [disabled]="!isFormValid()"
     >
-      {{ translate.instant("save") }}
+      {{ 'save' | translate }}
     </button>
   </div>
 </ng-template>
 
 <app-settings-list-card
-  [headline]="translate.instant('setting.branches.title')"
-  [addLabel]="translate.instant('setting.branches.add')"
+  [headline]="'setting.branches.title' | translate"
+  [addLabel]="'setting.branches.add' | translate"
   [showHeader]="true"
   idPrefix="branches"
   (addClick)="onClickAdd()"
