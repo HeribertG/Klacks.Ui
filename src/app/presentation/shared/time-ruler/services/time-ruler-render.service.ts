@@ -502,7 +502,7 @@ export class TimeRulerRenderService {
       shiftRectangles.set(item, rect);
     }
 
-    const hasOverlap = this.checkShiftOverlap(item, bodyStartMinutes, bodyEndMinutes, shifts);
+    const hasOverlap = this.checkTaskOverlap(item, bodyStartMinutes, bodyEndMinutes, shifts);
     const isAbsence = !!item.absenceId;
     const isTask = item.shift?.shiftType === ShiftType.IsTask;
     let defaultColor: string;
@@ -867,18 +867,18 @@ export class TimeRulerRenderService {
     );
   }
 
-  checkShiftOverlap(
+  checkTaskOverlap(
     currentItem: IContainerTemplateItem,
     startMinutes: number,
     endMinutes: number,
     shifts: IContainerTemplateItem[]
   ): boolean {
-    if (!currentItem.shift?.isTimeRange) {
+    if (!currentItem.shift?.isTimeRange && !currentItem.absenceId) {
       return false;
     }
 
     const otherItems = shifts.filter(
-      (item) => item !== currentItem && item.shift?.isTimeRange
+      (item) => item !== currentItem && (item.shift?.isTimeRange || !!item.absenceId)
     );
 
     for (const otherItem of otherItems) {

@@ -95,11 +95,14 @@ export class TimeRulerDragDropService {
     item: IContainerTemplateItem,
     shiftRect: Rectangle
   ): boolean {
-    if (
-      !item.shift?.isTimeRange ||
-      !item.timeRangeStartItem ||
-      !item.timeRangeEndItem
-    ) {
+    const isAbsence = !!item.absenceId;
+    const isTimeRange = !!item.shift?.isTimeRange;
+
+    if (isAbsence) {
+      if (!item.startItem || !item.endItem) {
+        return false;
+      }
+    } else if (!isTimeRange || !item.timeRangeStartItem || !item.timeRangeEndItem) {
       return false;
     }
 
@@ -201,7 +204,7 @@ export class TimeRulerDragDropService {
     const effectiveEnd = endMinutes + postShiftTime;
 
     const otherItems = allShifts.filter(
-      (item) => item !== draggedShift && item.shift?.isTimeRange
+      (item) => item !== draggedShift && (item.shift?.isTimeRange || !!item.absenceId)
     );
 
     let closestSnap: {
@@ -287,7 +290,7 @@ export class TimeRulerDragDropService {
       this.timeRangeService.getTotalPostShiftMinutes(currentItem);
 
     const otherItems = allItems.filter(
-      (item) => item !== currentItem && item.shift?.isTimeRange
+      (item) => item !== currentItem && (item.shift?.isTimeRange || !!item.absenceId)
     );
 
     if (otherItems.length === 0) {
@@ -578,8 +581,9 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    const newStartTime = item.timeRangeStartItem;
-    const newEndTime = item.timeRangeEndItem;
+    const isAbsence = !!item.absenceId;
+    const newStartTime = isAbsence ? item.startItem : item.timeRangeStartItem;
+    const newEndTime = isAbsence ? item.endItem : item.timeRangeEndItem;
 
     if (!newStartTime || !newEndTime) {
       return null;

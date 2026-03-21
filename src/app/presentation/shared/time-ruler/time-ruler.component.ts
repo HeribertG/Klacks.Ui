@@ -291,10 +291,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const draggedShift = this.dragDropService.dragState.draggedShift;
     if (draggedShift) {
-      draggedShift.timeRangeStartItem =
-        this.dragDropService.formatTimeFromMinutes(newPosition.newStartMinutes);
-      draggedShift.timeRangeEndItem =
-        this.dragDropService.formatTimeFromMinutes(newPosition.newEndMinutes);
+      const formattedStart = this.dragDropService.formatTimeFromMinutes(newPosition.newStartMinutes);
+      const formattedEnd = this.dragDropService.formatTimeFromMinutes(newPosition.newEndMinutes);
+
+      if (draggedShift.absenceId) {
+        draggedShift.startItem = formattedStart;
+        draggedShift.endItem = formattedEnd;
+      } else {
+        draggedShift.timeRangeStartItem = formattedStart;
+        draggedShift.timeRangeEndItem = formattedEnd;
+      }
 
       if (this.renderCanvas && this.renderCtx) {
         this.renderService.redrawCanvas(
