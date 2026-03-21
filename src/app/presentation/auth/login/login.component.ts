@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   inject,
   OnDestroy,
@@ -63,6 +64,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
+  private cdr = inject(ChangeDetectorRef);
 
   private destroy$ = new Subject<void>();
 
@@ -104,6 +106,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (providers) => {
           this.oauth2Providers = providers;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error loading OAuth2 providers:', err);

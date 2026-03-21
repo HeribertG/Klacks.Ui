@@ -78,6 +78,7 @@ export class MenuComponent {
     }
     this.isVisible = false;
     this.rightPanelStyle = { display: 'none' };
+    this.cdr.markForCheck();
   }
 
   stopEvent(event: any): void {

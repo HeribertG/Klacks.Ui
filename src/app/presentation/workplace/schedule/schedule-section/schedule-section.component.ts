@@ -367,7 +367,7 @@ export class ScheduleSectionComponent
   onRightClick(event: GridSurfaceRightClickEvent): void {
     if (!this.contextMenu) return;
 
-    this.contextMenu.closeMenu();
+    this.contextMenu.closeMenu(true);
 
     const bp = this.facade.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
     if (bp) {

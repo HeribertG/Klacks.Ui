@@ -5,13 +5,13 @@ export class Timer {
 
   start(callback: () => void, delay: number) {
     if (!this.timerId) {
-      this.timerId = window.setInterval(callback, delay);
+      this.timerId = window.setTimeout(callback, delay);
     }
   }
 
   stop() {
     if (this.timerId) {
-      clearInterval(this.timerId);
+      clearTimeout(this.timerId);
       this.timerId = undefined;
     }
   }

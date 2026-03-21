@@ -52,6 +52,7 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
     this.rightPanelStyle = {
       display: 'contents',
     };
+    this.cdr.detectChanges();
 
     if (this.main) {
       this.main.openMenu(event.clientX - 4, event.clientY - 4, 0, 0);

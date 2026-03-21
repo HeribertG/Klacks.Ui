@@ -321,7 +321,7 @@ export class GridTemplateEventsDirective {
     this.keyDown = true;
 
     if (this.gridSurface.contextMenu) {
-      this.gridSurface.contextMenu.closeMenu();
+      this.gridSurface.contextMenu.closeMenu(true);
     }
 
     const mapKey = event.ctrlKey ? `Ctrl+${event.key}` : event.key;
@@ -583,7 +583,8 @@ export class GridTemplateEventsDirective {
     if (this.gridSurface.drawSchedule.position !== pos) {
       this.gridSurface.drawSchedule.position = pos;
     }
-    this.gridSurface.drawSchedule.refresh();
+    this.gridSurface.drawSchedule.drawSelection();
+    this.gridSurface.drawSchedule.drawGridSelectedCell();
 
     this.rightClick.emit({
       row: pos.row,

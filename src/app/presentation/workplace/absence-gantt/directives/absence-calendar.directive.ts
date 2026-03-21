@@ -122,7 +122,7 @@ export class AbsenceCalendarDirective {
     }
     if (event.buttons === 2) {
       if (this.gridBody.contextMenu) {
-        this.gridBody.contextMenu.closeMenu();
+        this.gridBody.contextMenu.closeMenu(true);
         this.stopEvent(event);
         if (this.gridBody.drawCalendarGantt.rows > 0) {
           this.gridBody.onSelectByMouse(event);
@@ -192,7 +192,7 @@ export class AbsenceCalendarDirective {
     this.keyDown = true;
 
     if (this.gridBody.contextMenu) {
-      this.gridBody.contextMenu.closeMenu();
+      this.gridBody.contextMenu.closeMenu(true);
     }
 
     if (event.shiftKey) {
