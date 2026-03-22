@@ -1,0 +1,47 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<app-settings-list-card
+  [headline]="'settings.messaging-providers.title' | translate"
+  [addLabel]="'settings.messaging-providers.action.add' | translate"
+  [showAddButton]="true"
+  [showHeader]="true"
+  idPrefix="messaging-providers"
+  (addClick)="onAdd()"
+>
+  <app-messaging-providers-header header id="messaging-providers-table-header"></app-messaging-providers-header>
+  <div rows>
+    @for (provider of providers; track provider.id; let i = $index) {
+      <app-messaging-providers-row
+        [id]="'messaging-providers-row-' + i"
+        [data]="provider"
+        (editEvent)="onEdit($event)"
+        (deleteEvent)="onDelete($event)"
+        (testEvent)="onTest($event)"
+        (toggleEnabledEvent)="onToggleEnabled($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>
+
+<ng-template #editModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      @if (isNewProvider) {
+        {{ 'settings.messaging-providers.modal.title-add' | translate }}
+      } @else {
+        {{ 'settings.messaging-providers.modal.title-edit' | translate }}
+      }
+    </div>
+    <span class="filler"></span>
+    <div class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true" style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);">&times;</span>
+    </div>
+  </div>
+  <div class="modal-body">
+    <app-messaging-provider-edit
+      [provider]="editingProvider"
+      (saved)="onSaved($event, modal)"
+      (cancelled)="modal.dismiss()"
+    ></app-messaging-provider-edit>
+  </div>
+</ng-template>

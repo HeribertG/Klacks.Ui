@@ -1,0 +1,19 @@
+<app-settings-list-card
+  [headline]="'settings.feature-plugins.title' | translate"
+  [showAddButton]="false"
+  idPrefix="feature-plugins"
+  [showHeader]="true"
+>
+  <app-feature-plugins-header header id="feature-plugins-table-header"></app-feature-plugins-header>
+  <div rows>
+    @for (plugin of allPlugins; track plugin.name; let i = $index) {
+      <app-feature-plugins-row
+        [id]="'feature-plugins-row-' + i"
+        [data]="plugin"
+        (installEvent)="onInstall($event)"
+        (uninstallEvent)="onUninstall($event)"
+        (toggleEnabledEvent)="onToggleEnabled($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

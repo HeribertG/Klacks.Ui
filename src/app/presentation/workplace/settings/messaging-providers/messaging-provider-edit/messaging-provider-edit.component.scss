@@ -1,0 +1,53 @@
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
+.row-line-modal-inline {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+.provider-field {
+  flex: 1;
+
+  label {
+    font-size: 13px;
+    color: var(--colorLabel);
+    margin-bottom: 4px;
+    display: block;
+  }
+}
+
+.full-width {
+  flex: 1 1 100%;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 22px;
+
+  label {
+    margin-bottom: 0;
+  }
+}
+
+.config-textarea {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.info-text {
+  font-size: 11px;
+  color: var(--colorLabel);
+  opacity: 0.7;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cardBorderColor);
+}

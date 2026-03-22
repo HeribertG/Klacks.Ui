@@ -1,0 +1,89 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="messaging-provider-edit-form">
+  <div id="messaging-provider-edit-name-row" class="row-line-modal-inline">
+    <div class="provider-field">
+      <label for="providerName">{{ 'settings.messaging-providers.field.name' | translate }}</label>
+      <input
+        id="messaging-provider-edit-name"
+        type="text"
+        [(ngModel)]="name"
+        name="name"
+        class="form-control"
+      />
+    </div>
+    <div class="provider-field">
+      <label for="providerDisplayName">{{ 'settings.messaging-providers.field.display-name' | translate }}</label>
+      <input
+        id="messaging-provider-edit-display-name"
+        type="text"
+        [(ngModel)]="displayName"
+        name="displayName"
+        class="form-control"
+      />
+    </div>
+  </div>
+
+  <div id="messaging-provider-edit-type-row" class="row-line-modal-inline">
+    <div class="provider-field">
+      <label for="providerType">{{ 'settings.messaging-providers.field.type' | translate }}</label>
+      <select
+        id="messaging-provider-edit-type"
+        [(ngModel)]="providerType"
+        name="providerType"
+        class="form-control"
+      >
+        @for (type of providerTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+    <div class="provider-field">
+      <div class="checkbox-container">
+        <input
+          id="messaging-provider-edit-enabled"
+          type="checkbox"
+          [(ngModel)]="isEnabled"
+          name="isEnabled"
+        />
+        <label for="messaging-provider-edit-enabled">
+          {{ 'settings.messaging-providers.field.enabled' | translate }}
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div id="messaging-provider-edit-config-row" class="row-line-modal-inline">
+    <div class="provider-field full-width">
+      <label for="configJson">{{ 'settings.messaging-providers.field.config' | translate }}</label>
+      <textarea
+        id="messaging-provider-edit-config"
+        [(ngModel)]="configJson"
+        name="configJson"
+        class="form-control config-textarea"
+        rows="5"
+        placeholder='{ "apiKey": "...", "webhookUrl": "..." }'
+      ></textarea>
+      <small class="info-text">
+        {{ 'settings.messaging-providers.field.config-hint' | translate }}
+      </small>
+    </div>
+  </div>
+</form>
+
+<div id="messaging-provider-edit-footer" class="modal-footer">
+  <span
+    id="messaging-provider-edit-cancel-btn"
+    class="link-button red-font"
+    (click)="onCancel()"
+  >{{ 'cancel' | translate }}</span>
+  <button
+    id="messaging-provider-edit-save-btn"
+    type="button"
+    class="btn save-btn"
+    (click)="onSave()"
+    [disabled]="!isFormValid()"
+  >
+    {{ 'save' | translate }}
+  </button>
+</div>

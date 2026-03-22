@@ -266,6 +266,24 @@
       >
       </app-report-defaults>
     </div>
+
+    <div id="settings-home-messaging-inbox-row" class="container-profilline">
+      <app-messaging-inbox
+        id="settings-messaging-inbox"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-messaging-inbox')"
+      >
+      </app-messaging-inbox>
+    </div>
+
+    <div id="settings-home-messaging-providers-row" class="container-profilline">
+      <app-messaging-providers
+        id="settings-messaging-providers"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-messaging-providers')"
+      >
+      </app-messaging-providers>
+    </div>
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -351,6 +369,15 @@
         (click)="isfocused('app-language-plugins')"
       >
       </app-language-plugins>
+    </div>
+
+    <div id="settings-home-feature-plugins-row" class="container-profilline">
+      <app-feature-plugins
+        id="settings-feature-plugins"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-feature-plugins')"
+      >
+      </app-feature-plugins>
     </div>
   }
 

@@ -58,6 +58,7 @@ export const AssistantSignalRConstants = {
   Events: {
     ProactiveMessage: 'ProactiveMessage',
     OnboardingPrompt: 'OnboardingPrompt',
+    IncomingMessage: 'IncomingMessage',
   },
 
   HubMethods: {

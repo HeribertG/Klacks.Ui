@@ -42,8 +42,11 @@ import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setti
 import { ImapSettingComponent } from '../imap-setting/imap-setting.component';
 import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
 import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
+import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
+import { MessagingProvidersComponent } from '../messaging-providers/messaging-providers.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
+import { MessagingInboxComponent } from '../messaging-inbox/messaging-inbox.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -90,8 +93,11 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     ImapSettingComponent,
     SpamRulesComponent,
     LanguagePluginsComponent,
+    FeaturePluginsComponent,
+    MessagingProvidersComponent,
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,
+    MessagingInboxComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

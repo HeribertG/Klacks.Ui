@@ -13,6 +13,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { AssistantSignalRConstants } from './signalr.constants';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { IncomingMessage } from 'src/app/domain/models/messaging/incoming-message.model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,7 @@ export class AssistantSignalRService implements OnDestroy {
 
   public proactiveMessage$ = new Subject<IProactiveMessage>();
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
+  public incomingMessage$ = new Subject<IncomingMessage>();
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', AssistantSignalRConstants.HubPath);
@@ -89,6 +91,13 @@ export class AssistantSignalRService implements OnDestroy {
         this.onboardingPrompt$.next(message);
       }
     );
+
+    this.hubConnection.on(
+      AssistantSignalRConstants.Events.IncomingMessage,
+      (message: IncomingMessage) => {
+        this.incomingMessage$.next(message);
+      }
+    );
   }
 
   private registerConnectionEvents(): void {
@@ -123,5 +132,6 @@ export class AssistantSignalRService implements OnDestroy {
     this.stopConnection();
     this.proactiveMessage$.complete();
     this.onboardingPrompt$.complete();
+    this.incomingMessage$.complete();
   }
 }

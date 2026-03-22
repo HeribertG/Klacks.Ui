@@ -1,0 +1,28 @@
+<div [id]="'feature-plugins-row-container-' + data.name" class="first custom-control-inline">
+  <span class="col-name">{{ data.displayName }}</span>
+  <span class="col-category">{{ data.category }}</span>
+  <span class="col-version">{{ data.version }}</span>
+  <span class="col-author">{{ data.author }}</span>
+  <span class="col-status">
+    <span class="status-badge" [class]="getStatusClass()">
+      {{ getStatusKey() | translate }}
+    </span>
+  </span>
+  <span class="col-actions">
+    @if (!data.isInstalled) {
+      <button class="action-btn install-btn" (click)="onInstall()">
+        {{ 'settings.feature-plugins.action.install' | translate }}
+      </button>
+    }
+    @if (data.isInstalled) {
+      <button class="action-btn toggle-btn" (click)="onToggleEnabled()">
+        @if (data.isEnabled) {
+          {{ 'settings.feature-plugins.action.disable' | translate }}
+        } @else {
+          {{ 'settings.feature-plugins.action.enable' | translate }}
+        }
+      </button>
+      <app-icon-trash-red (click)="onUninstall()" />
+    }
+  </span>
+</div>

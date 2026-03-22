@@ -1,0 +1,49 @@
+<app-settings-list-card
+  [headline]="'settings.messaging-inbox.title' | translate"
+  [showAddButton]="false"
+  idPrefix="messaging-inbox"
+>
+  <div rows>
+    <div class="messaging-inbox-header">
+      <div class="filter-group">
+        <select class="form-select form-select-sm"
+                [ngModel]="selectedDirection()"
+                (ngModelChange)="onDirectionFilterChange($event)">
+          <option [ngValue]="undefined">{{ 'settings.messaging-inbox.filter.all' | translate }}</option>
+          <option [ngValue]="MessageDirection.Inbound">{{ 'settings.messaging-inbox.filter.inbound' | translate }}</option>
+          <option [ngValue]="MessageDirection.Outbound">{{ 'settings.messaging-inbox.filter.outbound' | translate }}</option>
+        </select>
+        <button class="btn btn-sm btn-outline-secondary ms-2" (click)="loadMessages()">&#x21bb;</button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="text-center p-3">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+      </div>
+    } @else if (messages().length === 0) {
+      <div class="text-center text-muted p-4">
+        {{ 'settings.messaging-inbox.empty' | translate }}
+      </div>
+    } @else {
+      <div class="message-list">
+        @for (msg of messages(); track msg.id) {
+          <div class="message-item" [class.inbound]="msg.direction === MessageDirection.Inbound" [class.outbound]="msg.direction === MessageDirection.Outbound">
+            <div class="message-header">
+              <span class="badge" [ngClass]="getDirectionClass(msg.direction)">
+                {{ getDirectionLabel(msg.direction) }}
+              </span>
+              <span class="provider-badge">{{ msg.providerName }}</span>
+              <span class="message-sender">{{ msg.senderDisplayName || msg.sender }}</span>
+              <span class="message-time">{{ msg.timestamp | date:'short' }}</span>
+            </div>
+            <div class="message-content">{{ msg.content }}</div>
+            @if (msg.errorMessage) {
+              <div class="message-error text-danger small">{{ msg.errorMessage }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</app-settings-list-card>

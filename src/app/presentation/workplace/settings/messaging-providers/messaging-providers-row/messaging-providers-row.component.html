@@ -1,0 +1,26 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div [id]="'messaging-providers-row-container-' + data.id" class="first custom-control-inline">
+  <span class="col-name" (click)="onEdit()">{{ data.displayName }}</span>
+  <span class="col-type">{{ data.providerType }}</span>
+  <span class="col-status">
+    <span class="status-badge" [class]="getStatusClass()">
+      {{ getStatusKey() | translate }}
+    </span>
+  </span>
+  <span class="col-actions">
+    <button class="action-btn toggle-btn" (click)="onToggleEnabled()">
+      @if (data.isEnabled) {
+        {{ 'settings.messaging-providers.action.disable' | translate }}
+      } @else {
+        {{ 'settings.messaging-providers.action.enable' | translate }}
+      }
+    </button>
+    <button class="action-btn test-btn" (click)="onTest()">
+      {{ 'settings.messaging-providers.action.test' | translate }}
+    </button>
+    <span class="delete-button" (click)="onDelete()">
+      <app-icon-trash-red />
+    </span>
+  </span>
+</div>
