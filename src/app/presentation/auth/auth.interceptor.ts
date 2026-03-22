@@ -45,6 +45,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private isInternalRequest(url: string): boolean {
-    return url.startsWith(environment.baseUrl) || url.startsWith('/api/');
+    const apiRoot = environment.baseUrl.replace('backend/', '');
+    return url.startsWith(environment.baseUrl) || url.startsWith(apiRoot) || url.startsWith('/api/');
   }
 }
