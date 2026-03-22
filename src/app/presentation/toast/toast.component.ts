@@ -17,7 +17,7 @@ import { IToast } from './toast.interface';
 @Component({
   selector: 'app-toasts',
   template: `
-    @for (toast of toastService.toasts; track toast.id) {
+    @for (toast of toastService.toasts(); track toast.id) {
     <ngb-toast
       [class]="toast.classname"
       [autohide]="toast.autohide ?? true"

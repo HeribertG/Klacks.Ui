@@ -28,7 +28,7 @@ export class ToastShowService {
 
   showInfo(message: string, infoName = '', additionalMessage = '', icon = ''): void {
     if (infoName) {
-      const existing = this.toastService.toasts.find((x) => x.name === infoName);
+      const existing = this.toastService.toasts().find((x) => x.name === infoName);
       this.toastService.remove(existing);
     }
     this.toastService.show(message, {
@@ -45,7 +45,7 @@ export class ToastShowService {
 
   showError(message: string, errorName = '', additionalMessage = '', icon = ''): void {
     if (errorName) {
-      const existing = this.toastService.toasts.find((x) => x.name === errorName);
+      const existing = this.toastService.toasts().find((x) => x.name === errorName);
       this.toastService.remove(existing);
     }
 
@@ -96,7 +96,7 @@ export class ToastShowService {
   }
 
   dismissInteractiveReplies(): void {
-    const interactiveToasts = this.toastService.toasts.filter((t) => t.interactive);
+    const interactiveToasts = this.toastService.toasts().filter((t) => t.interactive);
     for (const toast of interactiveToasts) {
       toast.interactive?.onDismissed?.();
       this.toastService.remove(toast);
