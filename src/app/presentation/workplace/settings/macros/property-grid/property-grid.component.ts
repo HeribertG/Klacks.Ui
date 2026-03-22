@@ -57,7 +57,7 @@ export class PropertyGridComponent implements OnInit {
   }
 
   /**
-   * Konvertiert ein Enum in ein Array von Optionen für Dropdowns
+   * Converts an enum into an array of options for dropdowns
    */
   getEnumValues(enumType: any): EnumOption[] {
     const result: EnumOption[] = [];

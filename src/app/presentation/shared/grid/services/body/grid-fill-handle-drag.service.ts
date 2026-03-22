@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Steuerung der Fill-Handle-Drag-Logik im Schedule-Grid.
- * Verwaltet Start, Update, Ende und visuelle Darstellung des Fill-Handle-Drags
- * sowie das automatische Scrollen am Rand und die Datenübernahme (Work/Break).
- * @param fillHandleService - State-Management des Fill-Handle-Drags
- * @param gridData - Abstrakte Grid-Datenquelle (wird als ScheduleDataService gecastet)
- * @param gridSettings - Grid-Darstellungseinstellungen (Zellgröße, Zoom, Header)
- * @param scrollGrid - Scroll-Position und sichtbare Zeilen/Spalten
- * @param gridFonts - Schriftart-Konfiguration für Preview-Text
- * @param dataManagementSchedule - CRUD-Operationen für Schedule-Einträge
- * @param cellManipulation - Aktuelle Zellposition und Selektion
+ * Service for controlling the fill handle drag logic in the schedule grid.
+ * Manages start, update, end, and visual representation of the fill handle drag
+ * as well as automatic edge scrolling and data adoption (Work/Break).
+ * @param fillHandleService - State management of the fill handle drag
+ * @param gridData - Abstract grid data source (cast to ScheduleDataService)
+ * @param gridSettings - Grid display settings (cell size, zoom, header)
+ * @param scrollGrid - Scroll position and visible rows/columns
+ * @param gridFonts - Font configuration for preview text
+ * @param dataManagementSchedule - CRUD operations for schedule entries
+ * @param cellManipulation - Current cell position and selection
  */
 import { ElementRef, inject, Injectable } from '@angular/core';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';

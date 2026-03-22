@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Gemeinsame Constraint-Engine fuer Hard- und Soft-Constraint-Auswertung.
- * Wird von evolution-core (Zaehler) und FitnessEvaluatorService (Detail-Violations) genutzt.
- * Orchestriert Einzel-Constraint-Checker fuer Hard-Constraints (DailyHours, WeeklyHours,
- * ConsecutiveDays, TimeOverlap, RestPeriod) und Soft-Constraints (Fairness, Overtime,
+ * Shared constraint engine for hard and soft constraint evaluation.
+ * Used by evolution-core (counters) and FitnessEvaluatorService (detail violations).
+ * Orchestrates individual constraint checkers for hard constraints (DailyHours, WeeklyHours,
+ * ConsecutiveDays, TimeOverlap, RestPeriod) and soft constraints (Fairness, Overtime,
  * Motivation, ShiftGap, ShiftConsistency).
- * @param scenario - Szenario mit Zuweisungen (shiftId/agentId/motivationScore)
- * @param shifts - Liste der verfuegbaren Schichten mit Zeiten und Stunden
- * @param agents - Liste der Agenten mit Limits und Konfiguration
+ * @param scenario - Scenario with assignments (shiftId/agentId/motivationScore)
+ * @param shifts - List of available shifts with times and hours
+ * @param agents - List of agents with limits and configuration
  */
 
 import { IConstraintViolation } from '../../../models/automation/conductor/constraint-violation.model';

@@ -5,6 +5,7 @@ import { Component, inject, computed,
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import DOMPurify from 'dompurify';
 import { TranslateModule } from '@ngx-translate/core';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -29,7 +30,8 @@ export class InboxDetailComponent {
     const e = this.email();
     if (!e) return undefined;
     if (e.bodyHtml) {
-      return this.sanitizer.bypassSecurityTrustHtml(e.bodyHtml);
+      const cleanHtml = DOMPurify.sanitize(e.bodyHtml);
+      return this.sanitizer.bypassSecurityTrustHtml(cleanHtml);
     }
     if (e.bodyText) {
       return this.sanitizer.bypassSecurityTrustHtml(

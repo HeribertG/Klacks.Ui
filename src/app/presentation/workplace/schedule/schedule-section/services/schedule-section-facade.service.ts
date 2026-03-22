@@ -1,23 +1,23 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Facade-Service, der zusammengehörende Services der ScheduleSectionComponent bündelt.
- * @param contextMenu - Service für Kontextmenü-Erstellung im Schedule-Grid
- * @param entryActions - Service für Aktionen auf Schedule-Einträgen (Löschen, Bestätigen etc.)
- * @param dialog - Service für Dialog-Verwaltung (Korrektur, Vertretung, Bearbeitung)
- * @param dragDrop - Service für Drag-and-Drop-Operationen im Schedule
- * @param navigation - Service für Navigation innerhalb des Schedule-Grids
- * @param breakBarRender - Service für Break-Bar-Rendering im Grid-Overlay
- * @param gridRender - Service für Grid-Rendering und Overlay-Management
- * @param gridColor - Service für Grid-Farbverwaltung und Reset-Signale
- * @param tooltip - Service für Tooltip-Anzeige bei Zell-Hover
- * @param absenceMenu - Service für Abwesenheits-Menü-Daten
- * @param groupSelection - Service für globale Gruppenauswahl
- * @param workNotification - Service für Schedule-Update-Benachrichtigungen
- * @param showInSchedule - Service für "Im Plan anzeigen"-Navigation
- * @param workScheduleLoader - Service für Laden und Aktualisieren der Arbeitspläne
- * @param breakPlaceholderLoader - Service für Break-Placeholder-Verwaltung im Schedule
- * @param dataBreakPlaceholder - API-Service für Break-Placeholder-CRUD-Operationen
+ * Facade service that bundles related services of the ScheduleSectionComponent.
+ * @param contextMenu - Service for context menu creation in the schedule grid
+ * @param entryActions - Service for actions on schedule entries (delete, confirm, etc.)
+ * @param dialog - Service for dialog management (correction, substitution, editing)
+ * @param dragDrop - Service for drag-and-drop operations in the schedule
+ * @param navigation - Service for navigation within the schedule grid
+ * @param breakBarRender - Service for break bar rendering in the grid overlay
+ * @param gridRender - Service for grid rendering and overlay management
+ * @param gridColor - Service for grid color management and reset signals
+ * @param tooltip - Service for tooltip display on cell hover
+ * @param absenceMenu - Service for absence menu data
+ * @param groupSelection - Service for global group selection
+ * @param workNotification - Service for schedule update notifications
+ * @param showInSchedule - Service for "show in schedule" navigation
+ * @param workScheduleLoader - Service for loading and updating work schedules
+ * @param breakPlaceholderLoader - Service for break placeholder management in the schedule
+ * @param dataBreakPlaceholder - API service for break placeholder CRUD operations
  */
 import { inject, Injectable } from '@angular/core';
 import { ScheduleContextMenuService } from './schedule-context-menu.service';

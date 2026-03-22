@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Verwaltung der Tooltip-Anzeige im Schedule-Row-Header.
- * @param tooltipService - Globaler Tooltip-Service fuer Anzeige/Verstecken
- * @param translateService - Uebersetzungsservice fuer Tooltip-Texte
- * @param dataService - Grid-Daten (Zeilen, Gruppen, Clients)
- * @param settings - Grid-Einstellungen (Zellhoehe, Header-Hoehe, Zoom)
- * @param scroll - Scroll-Position des Grids
- * @param scheduleChangeService - Dirty-State-Tracking fuer Clients
+ * Service for managing tooltip display in the schedule row header.
+ * @param tooltipService - Global tooltip service for show/hide
+ * @param translateService - Translation service for tooltip texts
+ * @param dataService - Grid data (rows, groups, clients)
+ * @param settings - Grid settings (cell height, header height, zoom)
+ * @param scroll - Scroll position of the grid
+ * @param scheduleChangeService - Dirty state tracking for clients
  */
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';

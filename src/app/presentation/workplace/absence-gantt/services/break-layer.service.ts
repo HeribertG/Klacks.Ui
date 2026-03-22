@@ -8,20 +8,20 @@ export interface IBreakPlaceholderWithLayer extends IBreakPlaceholder {
 }
 
 /**
- * Service für die Berechnung von Überdeckungsebenen (Layern) für Breaks
+ * Service for calculating overlap layers for breaks
  *
- * Verwendung:
- * - Füge den Service zu den providers der Gantt-Components hinzu
- * - Injiziere den Service in deine Component/Service
- * - Rufe calculateBreakLayers() auf um Layer zu berechnen
- * - Verwende die Layer-Information für das Rendering
+ * Usage:
+ * - Add the service to the providers of the Gantt components
+ * - Inject the service into your component/service
+ * - Call calculateBreakLayers() to calculate layers
+ * - Use the layer information for rendering
  */
 @Injectable()
 export class BreakLayerService {
   /**
-   * Hauptfunktion: Berechnet Layer für alle Breaks einer Row
-   * @param breaks Array von Breaks einer Row
-   * @returns Array von Breaks mit berechneten Layer-Werten
+   * Main function: calculates layers for all breaks of a row
+   * @param breaks Array of breaks of a row
+   * @returns Array of breaks with calculated layer values
    */
   public calculateBreakLayers(breaks: IBreakPlaceholder[]): IBreakPlaceholderWithLayer[] {
     if (!breaks || breaks.length === 0) {
@@ -42,10 +42,10 @@ export class BreakLayerService {
   }
 
   /**
-   * Alternative Layer-Berechnung mit optimierter Verteilung
-   * Versucht Breaks so zu verteilen, dass die Layer-Nummern minimal sind
-   * @param breaks Array von Breaks
-   * @returns Array von Breaks mit optimierten Layer-Werten
+   * Alternative layer calculation with optimized distribution
+   * Tries to distribute breaks so that layer numbers are minimal
+   * @param breaks Array of breaks
+   * @returns Array of breaks with optimized layer values
    */
   public calculateOptimizedBreakLayers(breaks: IBreakPlaceholder[]): IBreakPlaceholderWithLayer[] {
     if (!breaks || breaks.length === 0) {
@@ -84,10 +84,10 @@ export class BreakLayerService {
   }
 
   /**
-   * Berechnet die maximale Anzahl gleichzeitiger Overlaps
-   * Nützlich für die Bestimmung der benötigten Zeilenhöhe
-   * @param breaks Array von Breaks
-   * @returns Maximale Anzahl gleichzeitiger Overlaps
+   * Calculates the maximum number of simultaneous overlaps
+   * Useful for determining the required row height
+   * @param breaks Array of breaks
+   * @returns Maximum number of simultaneous overlaps
    */
   public getMaxSimultaneousOverlaps(breaks: IBreakPlaceholder[]): number {
     if (!breaks || breaks.length === 0) {
@@ -135,21 +135,21 @@ export class BreakLayerService {
   }
 
   /**
-   * Prüft ob ein Break von anderen Breaks überdeckt wird
-   * @param targetBreak Der zu prüfende Break
-   * @param allBreaks Alle Breaks zum Vergleich
-   * @returns Anzahl der überdeckenden Breaks
+   * Checks whether a break is overlapped by other breaks
+   * @param targetBreak The break to check
+   * @param allBreaks All breaks to compare against
+   * @returns Number of overlapping breaks
    */
   public getOverlapCount(targetBreak: IBreakPlaceholder, allBreaks: IBreakPlaceholder[]): number {
     return this.calculateLayerForBreak(targetBreak, allBreaks);
   }
 
   /**
-   * Berechnet die empfohlene Zeilenhöhe basierend auf den Layern
-   * @param breaks Array von Breaks
-   * @param baseCellHeight Basis-Zellenhöhe
-   * @param layerHeight Höhe pro Layer
-   * @returns Empfohlene Gesamthöhe
+   * Calculates the recommended row height based on the layers
+   * @param breaks Array of breaks
+   * @param baseCellHeight Base cell height
+   * @param layerHeight Height per layer
+   * @returns Recommended total height
    */
   public calculateRecommendedRowHeight(
     breaks: IBreakPlaceholder[],
@@ -163,7 +163,7 @@ export class BreakLayerService {
   // Private Helper Methods
 
   /**
-   * Berechnet die Layer-Nummer für einen einzelnen Break
+   * Calculates the layer number for a single break
    */
   private calculateLayerForBreak(
     currentBreak: IBreakPlaceholder,
@@ -187,7 +187,7 @@ export class BreakLayerService {
   }
 
   /**
-   * Prüft, ob zwei Breaks zeitlich überschneiden
+   * Checks whether two breaks overlap in time
    */
   private hasOverlap(break1: IBreakPlaceholder, break2: IBreakPlaceholder): boolean {
     if (!break1.from || !break1.until || !break2.from || !break2.until) {
@@ -205,7 +205,7 @@ export class BreakLayerService {
   }
 
   /**
-   * Prüft ob zwei Breaks identisch sind
+   * Checks whether two breaks are identical
    */
   private isSameBreak(break1: IBreakPlaceholder, break2: IBreakPlaceholder): boolean {
     // Wenn beide IDs haben, vergleiche IDs
@@ -223,7 +223,7 @@ export class BreakLayerService {
   }
 
   /**
-   * Filtert ungültige Breaks heraus
+   * Filters out invalid breaks
    */
   private filterValidBreaks(breaks: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return breaks.filter(
@@ -236,7 +236,7 @@ export class BreakLayerService {
   }
 
   /**
-   * Sortiert Breaks nach Startdatum
+   * Sorts breaks by start date
    */
   private sortBreaksByStartDate(breaks: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return [...breaks].sort((a, b) => {

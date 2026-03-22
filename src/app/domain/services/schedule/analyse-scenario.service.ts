@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Domain-Service zur Verwaltung von What-If-Analyse-Szenarien.
- * @param activeScenario - Das aktuell ausgewaehlte Szenario (oder null)
- * @param scenarios - Liste aller aktiven Szenarien fuer die aktuelle Gruppe
- * @param isScenarioMode - Ob ein Szenario aktiv ausgewaehlt ist
- * @param activeToken - Der Token des aktiven Szenarios fuer API-Aufrufe
+ * Domain service for managing what-if analysis scenarios.
+ * @param activeScenario - The currently selected scenario (or null)
+ * @param scenarios - List of all active scenarios for the current group
+ * @param isScenarioMode - Whether a scenario is actively selected
+ * @param activeToken - The token of the active scenario for API calls
  */
 
 import { computed, inject, Injectable, signal } from '@angular/core';

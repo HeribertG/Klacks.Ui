@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer die Cut-by-Weekday Strategie: Analyse der aktiven Wochentage eines Shifts.
- * @param shift - Der zu analysierende Shift mit Wochentags-Flags
+ * Service for the cut-by-weekday strategy: analysis of active weekdays of a shift.
+ * @param shift - The shift to analyse with weekday flags
  */
 import { Injectable } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';

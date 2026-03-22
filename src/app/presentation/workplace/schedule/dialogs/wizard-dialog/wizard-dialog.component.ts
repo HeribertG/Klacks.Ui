@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog-Komponente für den Schichtplanungs-Wizard mit evolutionärem Algorithmus.
- * @param phase - Aktuelle Phase des Wizards (running, done, applying, applied, error, cancelled)
- * @param progress - Fortschrittsdaten des evolutionären Algorithmus
- * @param result - Ergebnis der Berechnung mit Zuweisungen
+ * Dialog component for the shift scheduling wizard with evolutionary algorithm.
+ * @param phase - Current phase of the wizard (running, done, applying, applied, error, cancelled)
+ * @param progress - Progress data of the evolutionary algorithm
+ * @param result - Result of the calculation with assignments
  */
 import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';

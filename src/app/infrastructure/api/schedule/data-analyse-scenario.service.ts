@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * API-Service fuer die Kommunikation mit dem AnalyseScenarios-Backend-Endpoint.
- * @param groupId - Gruppen-ID zum Filtern der Szenarien
- * @param id - Szenario-ID fuer Einzelabfragen und Aktionen
- * @param request - Request-Objekt zum Erstellen eines neuen Szenarios
+ * API service for communication with the AnalyseScenarios backend endpoint.
+ * @param groupId - Group ID for filtering scenarios
+ * @param id - Scenario ID for individual queries and actions
+ * @param request - Request object for creating a new scenario
  */
 
 import { inject, Injectable } from '@angular/core';

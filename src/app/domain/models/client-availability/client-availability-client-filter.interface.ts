@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Filter für die Client-Availability Client-Liste.
- * @param searchString - Suchbegriff für Client-Name/Vorname/Firma
- * @param selectedGroup - Gruppen-Filter
+ * Filter for the client availability client list.
+ * @param searchString - Search term for client name/first name/company
+ * @param selectedGroup - Group filter
  */
 export interface IClientAvailabilityClientFilter {
   searchString: string;

@@ -148,10 +148,10 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Entfernt ungültige Zeichen aus Namen
+   * Removes invalid characters from names
    *
-   * Diese Methode wird aktuell nicht verwendet, wurde aber
-   * aus dem Originalcode beibehalten, falls sie später benötigt wird.
+   * This method is currently not used but was kept
+   * from the original code in case it is needed later.
    */
   private parseName(value: string): string {
     return value

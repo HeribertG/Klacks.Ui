@@ -24,7 +24,11 @@ import {
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ContainerTemplateItemManipulationService } from './container-template-item-manipulation.service';
-import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
+import {
+  RouteOptimizationService,
+  ITimeBlock,
+  ITimeBlockResult,
+} from 'src/app/domain/services/route-optimization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
@@ -115,6 +119,10 @@ export class ContainerTemplateRouteService {
       parseInt(timeTo.minutes),
     );
 
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+    const absenceItems = items.filter((item) => !!item.absenceId);
+    const timeBlocks = this.convertAbsencesToTimeBlocks(absenceItems);
+
     this.routeOptimizationService
       .autofill(
         containerShift.id,
@@ -126,6 +134,7 @@ export class ContainerTemplateRouteService {
         containerUntilTime,
         this.selectedTransportMode,
         timeRangeToleranceValue / 100,
+        timeBlocks,
       )
       .pipe(takeUntil(destroy$))
       .subscribe({
@@ -223,6 +232,8 @@ export class ContainerTemplateRouteService {
     }
 
     const shiftIds = shiftItems.map((item) => item.shiftId!);
+    const absenceItems = items.filter((item) => !!item.absenceId);
+    const timeBlocks = this.convertAbsencesToTimeBlocks(absenceItems);
 
     this.isOptimizing = true;
     this.toastService.showInfo(
@@ -234,12 +245,19 @@ export class ContainerTemplateRouteService {
       TOAST_ICONS.ROUTE,
     );
 
+    const containerFromTime = timeToString(
+      parseInt(timeFrom.hours),
+      parseInt(timeFrom.minutes),
+    );
+
     this.routeOptimizationService
       .optimizeRoute(
         shiftIds,
         this.selectedStartBase || undefined,
         this.selectedEndBase || undefined,
         this.selectedTransportMode,
+        timeBlocks,
+        containerFromTime,
       )
       .pipe(takeUntil(destroy$))
       .subscribe({
@@ -316,7 +334,11 @@ export class ContainerTemplateRouteService {
       containerStartTimeMinutes,
     );
 
-    const reorderedItems = [...reorderedShiftItems, ...absenceItems];
+    const reorderedItems = this.applyPlacedTimeBlocks(
+      result.placedTimeBlocks,
+      absenceItems,
+      reorderedShiftItems,
+    );
 
     if (reorderedItems.length > 0) {
       const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
@@ -446,6 +468,65 @@ export class ContainerTemplateRouteService {
   ): void {
     this.selectedTransportMode = mode;
     this.onTransportModeChange(selectedWeekday, isHoliday);
+  }
+
+  convertAbsencesToTimeBlocks(
+    absenceItems: IContainerTemplateItem[],
+  ): ITimeBlock[] {
+    return absenceItems
+      .filter((item) => !!item.absenceId)
+      .map((item) => {
+        const hasFixedTime = !!item.startItem && !!item.endItem;
+        const minutesPerDay = 1440;
+        let durationMinutes = hasFixedTime
+          ? timeToMinutes(item.endItem!) - timeToMinutes(item.startItem!)
+          : timeToMinutes(item.timeRangeEndItem || '00:30:00') -
+            timeToMinutes(item.timeRangeStartItem || '00:00:00');
+        if (durationMinutes < 0) {
+          durationMinutes += minutesPerDay;
+        }
+
+        return {
+          id: item.absenceId!,
+          name: item.absence?.name || 'Block',
+          fixedStartTime: hasFixedTime ? item.startItem : undefined,
+          fixedEndTime: hasFixedTime ? item.endItem : undefined,
+          durationMinutes: Math.max(durationMinutes, 1),
+          isMovable: !hasFixedTime,
+        } as ITimeBlock;
+      });
+  }
+
+  applyPlacedTimeBlocks(
+    placedBlocks: ITimeBlockResult[] | undefined,
+    absenceItems: IContainerTemplateItem[],
+    reorderedShiftItems: IContainerTemplateItem[],
+  ): IContainerTemplateItem[] {
+    if (!placedBlocks || placedBlocks.length === 0) {
+      return [...reorderedShiftItems, ...absenceItems];
+    }
+
+    const result: IContainerTemplateItem[] = [...reorderedShiftItems];
+
+    for (const block of placedBlocks) {
+      const absenceItem = absenceItems.find(
+        (item) => item.absenceId === block.id,
+      );
+      if (absenceItem) {
+        const updatedItem: IContainerTemplateItem = {
+          ...absenceItem,
+          startItem: block.startTime,
+          endItem: block.endTime,
+          timeRangeStartItem: block.startTime,
+          timeRangeEndItem: block.endTime,
+        };
+
+        const insertIdx = Math.min(block.insertionPosition, result.length);
+        result.splice(insertIdx, 0, updatedItem);
+      }
+    }
+
+    return result;
   }
 
   private convertShiftToContainerTemplateItem(

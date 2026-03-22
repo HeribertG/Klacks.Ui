@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Modal-Dialog zum Erstellen eines neuen Was-wäre-wenn Szenarios.
- * @param scenarioName - Name des neuen Szenarios
- * @param fromDate - Startdatum des Szenario-Zeitraums
- * @param untilDate - Enddatum des Szenario-Zeitraums
+ * Modal dialog for creating a new what-if scenario.
+ * @param scenarioName - Name of the new scenario
+ * @param fromDate - Start date of the scenario period
+ * @param untilDate - End date of the scenario period
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, ViewChild } from '@angular/core';

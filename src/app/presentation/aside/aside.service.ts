@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Steuerung der Aside-Sichtbarkeit.
- * @param isVisible - Ob die Aside-Leiste sichtbar ist
- * @param openedWithContext - Ob die Aside mit Kontext (z.B. Fehler-Validierung) geöffnet wurde
+ * Service for controlling aside panel visibility.
+ * @param isVisible - Whether the aside panel is visible
+ * @param openedWithContext - Whether the aside was opened with context (e.g. error validation)
  */
 import { Injectable, signal } from '@angular/core';
 

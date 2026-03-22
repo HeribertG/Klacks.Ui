@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service für das Zeichnen des Time-Rulers und aller Shift-Boxen auf dem Canvas.
- * @param timeRangeService - Berechnung von Zeitbereichen und Minuten-Konvertierung
- * @param gridColorService - Farben für Hintergrund, Rahmen, Text und Warnungen
+ * Service for drawing the time ruler and all shift boxes on the canvas.
+ * @param timeRangeService - Calculation of time ranges and minute conversion
+ * @param gridColorService - Colors for background, borders, text, and warnings
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Pure-Function-Mapper fuer Client-Daten vor dem API-Versand.
- * Transformiert IClient/IFilter-Objekte ohne Mutation des Originals.
- * @param value - Das zu transformierende Client- oder Filter-Objekt
+ * Pure-function mapper for client data before sending to the API.
+ * Transforms IClient/IFilter objects without mutating the original.
+ * @param value - The client or filter object to transform
  */
 import {
   IClient,

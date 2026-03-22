@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Verwaltung der Filter-Parameter für Client-Availability.
- * @param searchString - Aktueller Suchbegriff
- * @param selectedGroupId - Aktive Gruppen-Selektion
+ * Service for managing filter parameters for client availability.
+ * @param searchString - Current search term
+ * @param selectedGroupId - Active group selection
  */
 import { Injectable, signal } from '@angular/core';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';

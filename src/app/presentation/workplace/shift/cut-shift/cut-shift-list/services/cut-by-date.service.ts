@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer die Cut-by-Date Strategie: Analyse der Datumsgrenzen eines Shifts.
- * @param shift - Der zu analysierende Shift mit fromDate/untilDate
+ * Service for the cut-by-date strategy: analysis of date boundaries of a shift.
+ * @param shift - The shift to analyse with fromDate/untilDate
  */
 import { Injectable, inject } from '@angular/core';
 import { NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';

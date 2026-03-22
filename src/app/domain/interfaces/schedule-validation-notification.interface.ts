@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Einzelner Validierungseintrag vom Backend (Kollision, Ruhezeit, Arbeitszeit).
- * @param type - 'error', 'warning' oder 'info'
- * @param comment - Übersetzungsschlüssel
- * @param commentParams - Parameter für die Übersetzung
+ * Single validation entry from the backend (collision, rest time, working time).
+ * @param type - 'error', 'warning', or 'info'
+ * @param comment - Translation key
+ * @param commentParams - Parameters for the translation
  */
 export interface IScheduleValidationNotification {
   type: 'error' | 'warning' | 'info';

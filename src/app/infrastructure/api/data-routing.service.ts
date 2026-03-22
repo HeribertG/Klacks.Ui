@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zum Abrufen von Routen-Geometrien für die Kartenanzeige.
- * @param coordinates - Liste von Koordinaten mit Name, Lat/Lon
- * Nutzt OpenRouteService (wenn API-Key vorhanden), sonst OSRM als Fallback.
+ * Service for fetching route geometries for map display.
+ * @param coordinates - List of coordinates with name, lat/lon
+ * Uses OpenRouteService (if API key is available), otherwise OSRM as fallback.
  */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';

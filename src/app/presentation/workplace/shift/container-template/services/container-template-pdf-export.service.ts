@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Fassade für den PDF-Export von Container-Templates und Routen.
- * Delegiert Template-Export an interne Logik und Routen-Export an RoutePdfExportService.
- * @param items - Container-Template-Items mit Schicht- und Adressdaten
- * @param routeInfo - Routeninformationen für den Routen-PDF-Export
+ * Facade for PDF export of container templates and routes.
+ * Delegates template export to internal logic and route export to RoutePdfExportService.
+ * @param items - Container template items with shift and address data
+ * @param routeInfo - Route information for the route PDF export
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

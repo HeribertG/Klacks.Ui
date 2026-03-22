@@ -1,6 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+} from '@angular/core';
 import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
 
 @Component({
@@ -17,17 +22,7 @@ import { NavIconColorService } from 'src/app/presentation/services/nav-icon-colo
       xmlns:xlink="http://www.w3.org/1999/xlink"
       [style.color]="currentColor"
     >
-      <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
-      <title>Stockholm-icons / Code / Time-schedule</title>
-      <desc>Created with Sketch.</desc>
-      <defs></defs>
-      <g
-        id="Stockholm-icons-/-Code-/-Time-schedule"
-        stroke="none"
-        stroke-width="1"
-        fill="none"
-        fill-rule="evenodd"
-      >
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect id="bound" x="0" y="0" width="24" height="24"></rect>
         <path
           d="M10.9630156,7.5 L11.0475062,7.5 C11.3043819,7.5 11.5194647,7.69464724 11.5450248,7.95024814 L12,12.5 L15.2480695,14.3560397 C15.403857,14.4450611 15.5,14.6107328 15.5,14.7901613 L15.5,15 C15.5,15.2109164 15.3290185,15.3818979 15.1181021,15.3818979 C15.0841582,15.3818979 15.0503659,15.3773725 15.0176181,15.3684413 L10.3986612,14.1087258 C10.1672824,14.0456225 10.0132986,13.8271186 10.0316926,13.5879956 L10.4644883,7.96165175 C10.4845267,7.70115317 10.7017474,7.5 10.9630156,7.5 Z"

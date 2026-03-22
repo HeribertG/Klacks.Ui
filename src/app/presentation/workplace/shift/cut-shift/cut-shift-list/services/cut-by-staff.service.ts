@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer die Cut-by-Staff und Cut-by-Task Strategien: Analyse der Mitarbeiter- und Aufgabenanzahl.
- * @param shift - Der zu analysierende Shift mit sumEmployees/quantity
+ * Service for the cut-by-staff and cut-by-task strategies: analysis of employee and task counts.
+ * @param shift - The shift to analyse with sumEmployees/quantity
  */
 import { Injectable } from '@angular/core';
 import { Shift } from 'src/app/domain/models/shift/shift-class';

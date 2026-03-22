@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Wiederverwendbare Gruppen-Auswahl-Komponente mit Baumstruktur und Dropdown.
- * @param showAllGroupsOption - Zeigt eine "Alle Gruppen"-Option im Dropdown an
- * @param useGlobalSelection - Synchronisiert die Auswahl mit dem globalen GroupSelectionService
- * @param hasOptionButton - Zeigt den Radio-Button-Kreis neben jedem Eintrag an
- * @param label - Optionales Label über dem Select
- * @param required - Markiert das Feld als Pflichtfeld
- * @param index - Index für eindeutige IDs bei Mehrfachverwendung
- * @param disabled - Deaktiviert die Komponente
+ * Reusable group selection component with tree structure and dropdown.
+ * @param showAllGroupsOption - Shows an "All Groups" option in the dropdown
+ * @param useGlobalSelection - Synchronizes the selection with the global GroupSelectionService
+ * @param hasOptionButton - Shows the radio button circle next to each entry
+ * @param label - Optional label above the select
+ * @param required - Marks the field as required
+ * @param index - Index for unique IDs when used multiple times
+ * @param disabled - Disables the component
  */
 /* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */

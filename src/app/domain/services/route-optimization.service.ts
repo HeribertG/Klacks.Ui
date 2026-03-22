@@ -50,6 +50,7 @@ export interface IRouteOptimizationResult {
   travelTimeToEndBase: string;
   segmentDirections?: IRouteSegmentDirections[];
   totalBriefingDebriefingTime: string;
+  placedTimeBlocks?: ITimeBlockResult[];
 }
 
 export interface IAutofillResult extends IRouteOptimizationResult {
@@ -58,6 +59,25 @@ export interface IAutofillResult extends IRouteOptimizationResult {
   remainingTime: string;
   totalAvailableShifts: number;
   selectedShiftCount: number;
+  placedTimeBlocks?: ITimeBlockResult[];
+}
+
+export interface ITimeBlock {
+  id: string;
+  name: string;
+  fixedStartTime?: string;
+  fixedEndTime?: string;
+  durationMinutes: number;
+  isMovable: boolean;
+}
+
+export interface ITimeBlockResult {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  insertionPosition: number;
+  isMovable: boolean;
 }
 
 @Injectable({
@@ -71,7 +91,9 @@ export class RouteOptimizationService {
     shiftIds: string[],
     startBase?: string,
     endBase?: string,
-    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
+    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
+    timeBlocks: ITimeBlock[] = [],
+    containerFromTime?: string
   ): Observable<IRouteOptimizationResult> {
     let params = new HttpParams()
       .set('transportMode', transportMode.toString());
@@ -85,7 +107,7 @@ export class RouteOptimizationService {
 
     return this.http.post<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,
-      shiftIds,
+      { shiftIds, timeBlocks, containerFromTime },
       { params, context: new HttpContext().set(SKIP_LOADING, true) }
     ).pipe(timeout(120_000));
   }
@@ -99,22 +121,26 @@ export class RouteOptimizationService {
     fromTime: string,
     untilTime: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
-    timeRangeTolerance: number = 0.5
+    timeRangeTolerance: number = 0.5,
+    timeBlocks: ITimeBlock[] = []
   ): Observable<IAutofillResult> {
-    const params = new HttpParams()
-      .set('containerId', containerId)
-      .set('weekday', weekday.toString())
-      .set('isHoliday', isHoliday.toString())
-      .set('startBase', startBase)
-      .set('endBase', endBase)
-      .set('fromTime', fromTime)
-      .set('untilTime', untilTime)
-      .set('transportMode', transportMode.toString())
-      .set('timeRangeTolerance', timeRangeTolerance.toString());
+    const body = {
+      containerId,
+      weekday,
+      isHoliday,
+      startBase,
+      endBase,
+      fromTime,
+      untilTime,
+      transportMode,
+      timeRangeTolerance,
+      timeBlocks,
+    };
 
-    return this.http.get<IAutofillResult>(
+    return this.http.post<IAutofillResult>(
       `${this.apiUrl}/autofill`,
-      { params, context: new HttpContext().set(SKIP_LOADING, true) }
+      body,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
     ).pipe(timeout(300_000));
   }
 }

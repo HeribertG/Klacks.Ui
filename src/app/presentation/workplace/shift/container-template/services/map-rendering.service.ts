@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zum Rendern von Routen-Karten auf Canvas-Elementen mit OSM-Tiles.
- * Erzeugt ein HTMLCanvasElement mit Kartenausschnitt, Routenlinie und Marker-Positionen.
- * @param coordinates - Liste von Koordinaten (lat, lon, name) für die Routenpunkte
- * @param dataRoutingService - Liefert die OSRM-Routengeometrie zwischen den Koordinaten
+ * Service for rendering route maps on canvas elements with OSM tiles.
+ * Creates an HTMLCanvasElement with map viewport, route line, and marker positions.
+ * @param coordinates - List of coordinates (lat, lon, name) for the route points
+ * @param dataRoutingService - Provides the OSRM route geometry between the coordinates
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

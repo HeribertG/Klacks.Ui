@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Type Alias für die Filteroptionen der Schedule-Fehlerliste.
+ * Type alias for filter options of the schedule error list.
  */
 export type ErrorListFilterType = 'error' | 'warning' | 'info';

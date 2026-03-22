@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Autofill-Icon (Zauberstab) für die automatische Container-Befüllung.
+ * Autofill icon (magic wand) for automatic container filling.
  */
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';

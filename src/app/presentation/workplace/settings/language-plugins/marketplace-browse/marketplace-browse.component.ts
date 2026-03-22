@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Komponente zum Durchsuchen und Installieren von Marketplace-Sprachpaketen.
- * @param installedCodes - Set der bereits installierten Sprachcodes
- * @param installed - Event das nach erfolgreicher Installation emittiert wird
+ * Component for browsing and installing marketplace language packages.
+ * @param installedCodes - Set of already installed language codes
+ * @param installed - Event emitted after successful installation
  */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

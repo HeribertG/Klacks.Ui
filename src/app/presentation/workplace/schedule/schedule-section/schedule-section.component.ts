@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Hauptkomponente zur Anzeige des Mitarbeiter-Dienstplan-Grids.
- * Zeigt Arbeitseinsätze, Pausen und Änderungen für alle Klienten.
- * Unterstützt Kontextmenüs, Drag-and-Drop und Tastaturnavigation.
+ * Main component for displaying the employee schedule grid.
+ * Shows work assignments, breaks, and changes for all clients.
+ * Supports context menus, drag-and-drop, and keyboard navigation.
  *
- * @param horizontalSize - Breite des Row-Header-Bereichs in Pixel
- * @param zoom - Zoom-Faktor für die Grid-Darstellung
- * @param refreshTrigger - Signal zum erzwungenen Neuzeichnen des Grids
+ * @param horizontalSize - Width of the row header area in pixels
+ * @param zoom - Zoom factor for the grid display
+ * @param refreshTrigger - Signal for forcing a grid redraw
  */
 import {
   ChangeDetectionStrategy,

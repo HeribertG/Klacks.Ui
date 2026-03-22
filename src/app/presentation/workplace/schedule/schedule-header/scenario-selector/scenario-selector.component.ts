@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dropdown-Komponente zum Auswählen und Verwalten von Was-wäre-wenn Szenarien.
- * @param analyseScenarioService - Service für Szenario-State und -Operationen
+ * Dropdown component for selecting and managing what-if scenarios.
+ * @param analyseScenarioService - Service for scenario state and operations
  */
 
 import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';

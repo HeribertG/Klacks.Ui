@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Icon-Konstanten fuer Toast-Benachrichtigungen.
+ * Icon constants for toast notifications.
  */
 export const TOAST_ICONS = {
   INFO: 'ℹ️',

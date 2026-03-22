@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service für Mouse-/Click-Interaktionen auf dem Time-Ruler Canvas.
- * @param dragDropService - Verwaltung von Drag&Drop-Zuständen für Shift-Verschiebungen
- * @param shiftService - Zugriff auf selektierte Shifts und Container-Template-Items
- * @param timeRangeService - Berechnung von Shift-Start/End-Minuten für Sortierung
+ * Service for mouse/click interactions on the time ruler canvas.
+ * @param dragDropService - Management of drag & drop states for shift movements
+ * @param shiftService - Access to selected shifts and container template items
+ * @param timeRangeService - Calculation of shift start/end minutes for sorting
  */
 
 import { EventEmitter, inject, Injectable } from '@angular/core';

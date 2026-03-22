@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer Client-Bearbeitung: Lesen, Speichern, Validierung und Dirty-State-Tracking.
- * @param editClient - Signal mit dem aktuell bearbeiteten Client
- * @param lastSaveError - Signal das anzeigt ob der letzte Speichervorgang fehlgeschlagen ist
- * @param onSaveCompleted - Callback der nach erfolgreichem Speichern aufgerufen wird
+ * Service for client editing: reading, saving, validation, and dirty state tracking.
+ * @param editClient - Signal containing the currently edited client
+ * @param lastSaveError - Signal indicating whether the last save operation failed
+ * @param onSaveCompleted - Callback invoked after successful save
  */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */

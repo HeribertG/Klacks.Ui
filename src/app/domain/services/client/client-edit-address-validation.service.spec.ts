@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Tests fuer die Adress-Validierungslogik in ClientEditService.
- * Prueft Validierung vor dem Speichern, Fehlerbehandlung und Event-Emission.
- * @param validateAddress - Methode die eine einzelne Adresse via API validiert
- * @param saveEditClient - Methode die vor dem Speichern alle Adressen validiert
+ * Tests for the address validation logic in ClientEditService.
+ * Verifies validation before saving, error handling, and event emission.
+ * @param validateAddress - Method that validates a single address via API
+ * @param saveEditClient - Method that validates all addresses before saving
  */
 
 import { TestBed } from '@angular/core/testing';

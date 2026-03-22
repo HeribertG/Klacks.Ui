@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Zeigt Shift-Abdeckung und Versiegelungsstatus als zwei Donut-Charts im Dashboard-Card-Stil.
- * @param dataDashboardService - API-Service zum Laden der Statistikdaten
+ * Displays shift coverage and seal status as two donut charts in dashboard card style.
+ * @param dataDashboardService - API service for loading statistics data
  */
 import { Component, inject, OnInit, signal,
   ChangeDetectionStrategy,

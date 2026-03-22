@@ -1,15 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer Report-Generierung und Kontext-Menue-Aktionen im Schedule-Row-Header.
- * @param scheduleReportCtx - Kontext-Service fuer Schedule-Report-Erzeugung und Versand
- * @param reportDefaults - Standard-Report-Templates
- * @param appSettings - Email-Konfiguration fuer Versandpruefung
- * @param toastShowService - Toast-Benachrichtigungen fuer Erfolg/Fehler
- * @param translateService - Uebersetzungsservice fuer Meldungen
- * @param router - Navigation zu Adress-Details
- * @param dataService - Grid-Daten (Zeilen, Gruppen, Clients)
- * @param dataManagementSchedule - Sichtbarer Zeitraum fuer Report
+ * Service for report generation and context menu actions in the schedule row header.
+ * @param scheduleReportCtx - Context service for schedule report generation and sending
+ * @param reportDefaults - Default report templates
+ * @param appSettings - Email configuration for send verification
+ * @param toastShowService - Toast notifications for success/error
+ * @param translateService - Translation service for messages
+ * @param router - Navigation to address details
+ * @param dataService - Grid data (rows, groups, clients)
+ * @param dataManagementSchedule - Visible time period for report
  */
 import { inject, Injectable, computed } from '@angular/core';
 import { Router } from '@angular/router';

@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Orchestrierungs-Service fuer Container-Template CRUD, State-Management und Persistenz.
- * Delegiert Task/Shift-Hilfsfunktionen an ContainerTaskService.
- * @param dataService - API-Service fuer Container-Template HTTP-Calls
- * @param slotCalculationService - Berechnet das Template-Grid aus Schicht-Daten
- * @param shiftService - Verwaltet die ausgewaehlten Container-Template-Items pro Wochentag
- * @param taskService - Stellt Task/Shift-Hilfsfunktionen bereit (Sortierung, Filterung, Weekday-Mapping)
+ * Orchestration service for container template CRUD, state management, and persistence.
+ * Delegates task/shift helper functions to ContainerTaskService.
+ * @param dataService - API service for container template HTTP calls
+ * @param slotCalculationService - Calculates the template grid from shift data
+ * @param shiftService - Manages the selected container template items per weekday
+ * @param taskService - Provides task/shift helper functions (sorting, filtering, weekday mapping)
  */
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, forkJoin, of, Subject } from 'rxjs';

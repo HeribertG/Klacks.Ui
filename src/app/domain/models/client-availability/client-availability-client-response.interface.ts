@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Response der Client-Availability Client-Liste vom Backend.
- * @param clients - Liste der gefilterten Clients
- * @param totalCount - Gesamtanzahl (vor Paging)
+ * Response of the client availability client list from the backend.
+ * @param clients - List of filtered clients
+ * @param totalCount - Total count (before paging)
  */
 export interface IClientAvailabilityClientResponse {
   clients: IClientAvailabilityClientResource[];

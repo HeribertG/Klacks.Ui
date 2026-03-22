@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur PDF-Generierung aus Report-Templates mit jsPDF/autoTable.
- * @param context - ReportGenerationContext mit Template, Provider, Daten und Zeitraum
+ * Service for PDF generation from report templates using jsPDF/autoTable.
+ * @param context - ReportGenerationContext with template, provider, data, and time period
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

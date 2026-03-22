@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Zustandsobjekt fuer alle Cut-Parameter der CutShiftListComponent.
- * Wird beim Zuruecksetzen oder bei Shift-Wechsel komplett neu erzeugt.
- * @param date - Parameter fuer Cut-by-Date (cutDate, resetDate, minDate, maxDate)
- * @param time - Parameter fuer Cut-by-Time (cutTimeShift, minTimeShift, maxTimeShift, isOverMidnight, is24Hours)
- * @param weekdays - Ausgewaehlte Wochentage und deren Enabled-Status
- * @param staff - Parameter fuer Cut-by-Staff (staffCount, minStaffCount, maxStaffCount)
- * @param task - Parameter fuer Cut-by-Task (taskCount, minTaskCount, maxTaskCount)
- * @param enabledFlags - Enabled-Status der einzelnen Cut-Strategien
+ * State object for all cut parameters of the CutShiftListComponent.
+ * Completely recreated on reset or shift change.
+ * @param date - Parameters for Cut-by-Date (cutDate, resetDate, minDate, maxDate)
+ * @param time - Parameters for Cut-by-Time (cutTimeShift, minTimeShift, maxTimeShift, isOverMidnight, is24Hours)
+ * @param weekdays - Selected weekdays and their enabled status
+ * @param staff - Parameters for Cut-by-Staff (staffCount, minStaffCount, maxStaffCount)
+ * @param task - Parameters for Cut-by-Task (taskCount, minTaskCount, maxTaskCount)
+ * @param enabledFlags - Enabled status of individual cut strategies
  */
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';

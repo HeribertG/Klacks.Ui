@@ -157,7 +157,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handler für Änderungen der Elterngruppe
+   * Handler for parent group changes
    */
   onParentChange(): void {
     this.isChangingEvent.emit(true);

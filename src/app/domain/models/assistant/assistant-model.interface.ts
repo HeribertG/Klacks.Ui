@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Beschreibt ein LLM-Modell mit Provider-Informationen, Kosten und Fähigkeiten.
- * @param modelId - Eindeutige Kennung des Modells beim Provider
- * @param providerId - Kennung des API-Providers (z.B. OpenAI, Anthropic)
- * @param capabilities - Liste der unterstützten Fähigkeiten des Modells
+ * Describes an LLM model with provider information, costs, and capabilities.
+ * @param modelId - Unique identifier of the model at the provider
+ * @param providerId - Identifier of the API provider (e.g. OpenAI, Anthropic)
+ * @param capabilities - List of supported capabilities of the model
  */
 export interface IAssistantModel {
   id?: string;

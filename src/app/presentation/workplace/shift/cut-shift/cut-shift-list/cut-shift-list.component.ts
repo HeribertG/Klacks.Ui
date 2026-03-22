@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Komponente zur Anzeige und Steuerung der Shift-Cut-Operationen (Datum, Zeit, Wochentage, Personal, Aufgaben).
- * Koordiniert die Cut-Services und verwaltet Lifecycle, Template-Bindings und Modals.
- * @param shifts - Liste der anzuzeigenden Shifts
- * @param isChangingEvent - Event das bei Aenderungen emittiert wird
+ * Component for displaying and controlling shift cut operations (date, time, weekdays, staff, tasks).
+ * Coordinates the cut services and manages lifecycle, template bindings, and modals.
+ * @param shifts - List of shifts to display
+ * @param isChangingEvent - Event emitted on changes
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */

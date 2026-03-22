@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zum Übersetzen und Zuweisen aller statischen DomainMessages-Konstanten.
- * @param translateService - ngx-translate Service für i18n-Übersetzungen
+ * Service for translating and assigning all static DomainMessages constants.
+ * @param translateService - ngx-translate service for i18n translations
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';

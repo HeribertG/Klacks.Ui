@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Models für Marketplace-Sprachpakete.
- * @param items - Liste der gefundenen Pakete
- * @param totalCount - Gesamtanzahl der Treffer
+ * Models for marketplace language packages.
+ * @param items - List of found packages
+ * @param totalCount - Total number of results
  */
 export interface MarketplacePackage {
   code: string;

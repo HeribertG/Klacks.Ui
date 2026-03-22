@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service für den PDF-Export von Routeninformationen inkl. Karte, Routentabelle und Wegbeschreibung.
- * @param routeInfo - Enthält optimierte Route, Segmente, Distanzen und Reisezeiten
- * @param items - Container-Template-Items mit Schicht- und Adressdaten
- * @param mapRenderingService - Rendert die Routenkarte als Canvas-Element
+ * Service for PDF export of route information including map, route table, and directions.
+ * @param routeInfo - Contains optimized route, segments, distances, and travel times
+ * @param items - Container template items with shift and address data
+ * @param mapRenderingService - Renders the route map as a canvas element
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

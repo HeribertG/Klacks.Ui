@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer die Cut-by-Time Strategie: Analyse, Validierung und Ausfuehrung.
- * @param shift - Der zu analysierende/schneidende Shift
- * @param cutTimeParams - Ergebnis der Analyse mit min/max-Zeiten und Cut-Zeitpunkt
+ * Service for the cut-by-time strategy: analysis, validation, and execution.
+ * @param shift - The shift to analyse/cut
+ * @param cutTimeParams - Analysis result with min/max times and cut time
  */
 import { Injectable, inject } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';

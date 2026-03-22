@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Orchestriert die automatische Schichtplanung via evolutionärem Algorithmus oder Greedy-Verfahren.
- * @param context - Enthält Shifts und Agents für den sichtbaren Zeitraum
- * @param options - Steuerung: WebWorker, Cancellation, Progress-Callback
+ * Orchestrates automatic shift scheduling via evolutionary algorithm or greedy method.
+ * @param context - Contains shifts and agents for the visible time period
+ * @param options - Controls: WebWorker, cancellation, progress callback
  */
 import { Injectable, inject } from '@angular/core';
 import {
@@ -253,7 +253,7 @@ export class ConductorService {
   }
 
   /**
-   * @deprecated Apply-Logik wird direkt im WizardDialogComponent via bulkAddWorkScheduleEntries abgewickelt.
+   * @deprecated Apply logic is handled directly in WizardDialogComponent via bulkAddWorkScheduleEntries.
    */
   async applySchedule(_result: IConductorResult): Promise<boolean> {
     throw new Error('Use WizardDialogComponent.onApply() instead');

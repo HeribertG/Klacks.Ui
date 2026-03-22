@@ -2,7 +2,7 @@
 
 /**
  * SignalR service for email notifications (new emails, read state changes).
- * @param hubUrl - URL des Email-Notification-Hubs
+ * @param hubUrl - URL of the email notification hub
  */
 
 import { inject, Injectable, OnDestroy } from '@angular/core';

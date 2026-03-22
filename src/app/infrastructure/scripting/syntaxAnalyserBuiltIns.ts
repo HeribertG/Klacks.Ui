@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Abstrakte Basisklasse für Built-in-Funktionen des Syntax-Analysers.
- * Stellt generische Parsing-Methoden für Funktionsaufrufe mit 0-N Parametern bereit.
- * @param opcode - Der Opcode der aufzurufenden Built-in-Funktion
- * @param paramCount - Anzahl der erwarteten Parameter (1=unary, 2=binary, etc.)
+ * Abstract base class for built-in functions of the syntax analyser.
+ * Provides generic parsing methods for function calls with 0-N parameters.
+ * @param opcode - The opcode of the built-in function to invoke
+ * @param paramCount - Number of expected parameters (1=unary, 2=binary, etc.)
  */
 import { Opcodes } from './code';
 import { SyntaxAnalyserBase } from './syntaxAnalyserBase';

@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Facade-Service für Schicht-Operationen: Anordnung, Kompaktierung, TimeRange-Updates und Konvertierung.
- * @param arrangementService - Ordnet Schichten sequentiell an und fügt neue Items ein
- * @param itemManipulationService - Aktualisiert TimeRange-Startzeiten einzelner Items
- * @param timeRangeService - Berechnet Zeitdauer und parst Zeitstrings
- * @param shiftService - Verwaltet die ausgewählten Container-Template-Items
- * @param containerService - Aktualisiert die Reihenfolge in den Templates
+ * Facade service for shift operations: arrangement, compaction, time range updates, and conversion.
+ * @param arrangementService - Arranges shifts sequentially and inserts new items
+ * @param itemManipulationService - Updates time range start times of individual items
+ * @param timeRangeService - Calculates time duration and parses time strings
+ * @param shiftService - Manages the selected container template items
+ * @param containerService - Updates the order in the templates
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';

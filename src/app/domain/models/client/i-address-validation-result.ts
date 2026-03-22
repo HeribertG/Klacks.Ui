@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Ergebnis der Adress-Validierung via Geocoding.
- * @param isValid - Ob die Adresse erfolgreich geocodiert werden konnte
- * @param suggestions - Alternativ-Vorschlaege bei ungueltigem Ergebnis
+ * Result of address validation via geocoding.
+ * @param isValid - Whether the address could be successfully geocoded
+ * @param suggestions - Alternative suggestions for invalid results
  */
 
 export interface IAddressValidationResult {

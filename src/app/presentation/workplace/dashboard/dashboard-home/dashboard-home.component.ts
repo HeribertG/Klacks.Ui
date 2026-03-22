@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Hauptkomponente des Dashboards mit klappbaren Sektionen.
- * @param sections - Record der Sektions-Zustände (offen/geschlossen)
+ * Main dashboard component with collapsible sections.
+ * @param sections - Record of section states (open/closed)
  */
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Tests für den ClientAvailabilityFilterService.
- * Prüft Filter-Erstellung, Paging, Sortierung und Signal-Benachrichtigung.
+ * Tests for the ClientAvailabilityFilterService.
+ * Verifies filter creation, paging, sorting, and signal notification.
  */
 import { TestBed } from '@angular/core/testing';
 import { ClientAvailabilityFilterService } from './client-availability-filter.service';

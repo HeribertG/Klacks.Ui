@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Factory-Service zur Erstellung von Schedule-Agents aus Clients.
- * @param clients - Liste der Clients aus dem Schedule-View
- * @param periodHours - Stunden pro Client aus Verträgen; bei fehlenden Verträgen werden Settings-Defaults verwendet
+ * Factory service for creating schedule agents from clients.
+ * @param clients - List of clients from the schedule view
+ * @param periodHours - Hours per client from contracts; settings defaults are used when contracts are missing
  */
 import { Injectable } from '@angular/core';
 import {

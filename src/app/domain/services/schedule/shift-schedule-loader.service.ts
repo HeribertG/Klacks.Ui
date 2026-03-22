@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service für das Laden von Shift-Schedule-Daten mit automatischem Chunk-Loading.
- * Nutzt Subject + switchMap um bei erneutem load() den vorherigen Request sauber abzubrechen.
- * @param shiftSchedules - Array aller geladenen Shift-Datum-Zuordnungen
- * @param shiftScheduleFilter - Aktueller Filter für die Shift-Schedule-Abfrage
+ * Service for loading shift schedule data with automatic chunk loading.
+ * Uses Subject + switchMap to cleanly cancel the previous request on repeated load() calls.
+ * @param shiftSchedules - Array of all loaded shift-date assignments
+ * @param shiftScheduleFilter - Current filter for the shift schedule query
  */
 
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';

@@ -2,7 +2,7 @@
 
 /**
  * SignalR service for assistant notifications (proactive messages, onboarding prompts).
- * @param hubUrl - URL des Assistant-Notification-Hubs
+ * @param hubUrl - URL of the assistant notification hub
  */
 
 import { inject, Injectable, OnDestroy } from '@angular/core';

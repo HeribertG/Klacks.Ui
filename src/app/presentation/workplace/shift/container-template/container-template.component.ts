@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Container-Template-Komponente zur Wochenplanung von Schichten in Containern.
- * @param containerShift - Der aktuelle Container-Schicht mit Zeitrahmen und Wochentagen
- * @param templateGrid - Das Grid mit allen verfügbaren Slots pro Wochentag
- * @param routeService - Verwaltet Routenoptimierung, Autofill und Transportmodus
- * @param propertiesService - Verwaltet den Eigenschaften-Dialog einzelner Template-Items
- * @param tabService - Verwaltet Tab-Auswahl, Wochentag-Wechsel und verfügbare Aufgaben
- * @param lifecycleService - Verwaltet Initialisierung, Lifecycle und Suchzustand
- * @param shiftOpsService - Verwaltet Schicht-Operationen (Anordnung, Kompaktierung, Export)
+ * Container template component for weekly shift planning in containers.
+ * @param containerShift - The current container shift with time frame and weekdays
+ * @param templateGrid - The grid with all available slots per weekday
+ * @param routeService - Manages route optimization, autofill, and transport mode
+ * @param propertiesService - Manages the properties dialog of individual template items
+ * @param tabService - Manages tab selection, weekday switching, and available tasks
+ * @param lifecycleService - Manages initialization, lifecycle, and search state
+ * @param shiftOpsService - Manages shift operations (arrangement, compaction, export)
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */

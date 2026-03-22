@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer schedule-spezifische Grid-Events: Delete-Key, Double-Click auf Work/WorkChange, Shift-Drag.
- * @param gridData - BaseDataService, wird zu ScheduleDataService/ShiftDataService gecastet
- * @param gridSurface - GridSurfaceTemplateComponent fuer nameId und drawSchedule-Zugriff
- * @param cellManipulation - BaseCellManipulationService fuer PositionCollection
+ * Service for schedule-specific grid events: delete key, double-click on Work/WorkChange, shift drag.
+ * @param gridData - BaseDataService, cast to ScheduleDataService/ShiftDataService
+ * @param gridSurface - GridSurfaceTemplateComponent for nameId and drawSchedule access
+ * @param cellManipulation - BaseCellManipulationService for PositionCollection
  */
 import { EventEmitter, inject, Injectable } from '@angular/core';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';

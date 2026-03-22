@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Baut den Context für den Schedule-Wizard aus den aktuell sichtbaren Schedule-Daten.
- * @param shiftSchedules - Sichtbare Shifts aus dem Schedule-View
- * @param clients - Sichtbare Clients aus dem Schedule-View
- * @param schedulingDefaults - Fallback-Werte für Clients ohne Vertrag
+ * Builds the context for the schedule wizard from the currently visible schedule data.
+ * @param shiftSchedules - Visible shifts from the schedule view
+ * @param clients - Visible clients from the schedule view
+ * @param schedulingDefaults - Fallback values for clients without a contract
  */
 import { inject, Injectable } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';

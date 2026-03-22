@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Komponente zur Anzeige der Schedule-Fehlerliste (Kollisionen, Warnungen, Infos).
- * @param activeFilters - Aktive Filtertypen (error, warning, info)
+ * Component for displaying the schedule error list (collisions, warnings, infos).
+ * @param activeFilters - Active filter types (error, warning, info)
  */
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';

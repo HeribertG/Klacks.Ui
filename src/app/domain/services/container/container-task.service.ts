@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service fuer Task/Shift-Hilfsfunktionen in Container-Templates: Sortierung, Filterung, Weekday-Mapping.
- * @param WEEKDAY_DEFINITIONS - Statische Zuordnung von IShift-Flags zu Wochentag-Werten und Label-Keys
- * @param WEEKDAY_NAME_TO_NUMBER - Mapping von Wochentag-Namen (z.B. 'monday') zu numerischen Werten (0-6)
- * @param WEEKDAY_NUMBER_TO_NAME - Mapping von numerischen Wochentag-Werten (0-6) zu Namen
+ * Service for task/shift helper functions in container templates: sorting, filtering, weekday mapping.
+ * @param WEEKDAY_DEFINITIONS - Static mapping of IShift flags to weekday values and label keys
+ * @param WEEKDAY_NAME_TO_NUMBER - Mapping of weekday names (e.g. 'monday') to numeric values (0-6)
+ * @param WEEKDAY_NUMBER_TO_NAME - Mapping of numeric weekday values (0-6) to names
  */
 import { Injectable } from '@angular/core';
 import { IShift } from '../../models/shift/shift-class';

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Storage-Service auf Basis von sessionStorage fuer sitzungsgebundene Filter-Speicherung.
+ * Storage service based on sessionStorage for session-scoped filter storage.
  */
 
 import { Injectable } from '@angular/core';

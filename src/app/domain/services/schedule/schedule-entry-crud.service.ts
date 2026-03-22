@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * CRUD-Service für Schedule-Einträge (Work, Break, Expenses, Notes, WorkChange).
- * @param dataWorkSchedule - API-Service für WorkSchedule-Daten
- * @param workCrud - Service für Work-CRUD-Operationen
- * @param breakService - Service für Break-CRUD-Operationen
- * @param shiftLoader - Service zum Laden von Shift-Schedules
- * @param workScheduleLoader - Service zum Laden von Work-Schedules
+ * CRUD service for schedule entries (Work, Break, Expenses, Notes, WorkChange).
+ * @param dataWorkSchedule - API service for WorkSchedule data
+ * @param workCrud - Service for Work CRUD operations
+ * @param breakService - Service for Break CRUD operations
+ * @param shiftLoader - Service for loading shift schedules
+ * @param workScheduleLoader - Service for loading work schedules
  */
 
 import { inject, Injectable, Injector, signal } from '@angular/core';

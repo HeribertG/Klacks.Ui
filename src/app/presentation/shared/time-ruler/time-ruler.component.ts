@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Canvas-basierte Zeitachse zur Darstellung und Interaktion mit Schicht-Boxen.
- * @param fromTime - Startzeit des angezeigten Zeitbereichs
- * @param untilTime - Endzeit des angezeigten Zeitbereichs
- * @param shiftRightClick - Event bei Rechtsklick auf eine Schicht-Box
+ * Canvas-based time axis for displaying and interacting with shift boxes.
+ * @param fromTime - Start time of the displayed time range
+ * @param untilTime - End time of the displayed time range
+ * @param shiftRightClick - Event on right-click on a shift box
  */
 
 import {

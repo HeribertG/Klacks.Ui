@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Facade-Service für Initialisierung, Lifecycle und Suchzustand der Container-Template-Komponente.
- * @param layoutService - Setzt die Container-Größe bei Initialisierung
- * @param savebarService - Steuert die Sichtbarkeit der Speicherleiste
- * @param searchService - Steuert die Sichtbarkeit der Suchleiste
- * @param searchStateService - Liefert den aktuellen Suchstring und Adress-Flag
- * @param workplaceStateService - Setzt aktiven Manager und Entity-Name, prüft Dirty-State
- * @param appSettingsService - Lädt App-Einstellungen beim Init
- * @param branchService - Lädt Filialen beim Init
- * @param activatedRoute - Liefert Route-Parameter (Container-Shift-ID)
- * @param dataShiftService - Lädt Schicht-Daten per API
+ * Facade service for initialization, lifecycle, and search state of the container template component.
+ * @param layoutService - Sets the container size on initialization
+ * @param savebarService - Controls the visibility of the save bar
+ * @param searchService - Controls the visibility of the search bar
+ * @param searchStateService - Provides the current search string and address flag
+ * @param workplaceStateService - Sets active manager and entity name, checks dirty state
+ * @param appSettingsService - Loads app settings on init
+ * @param branchService - Loads branches on init
+ * @param activatedRoute - Provides route parameters (container shift ID)
+ * @param dataShiftService - Loads shift data via API
  */
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';

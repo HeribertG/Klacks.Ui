@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Abstrakte Basisklasse fuer localStorage- und sessionStorage-basierte Services.
- * @param storage - Die konkrete Storage-Instanz (localStorage oder sessionStorage)
- * @param storageName - Anzeigename fuer Log-Meldungen (z.B. 'localStorage', 'sessionStorage')
+ * Abstract base class for localStorage- and sessionStorage-based services.
+ * @param storage - The concrete storage instance (localStorage or sessionStorage)
+ * @param storageName - Display name for log messages (e.g. 'localStorage', 'sessionStorage')
  */
 
 import { IFilterStorage } from '../../application/interfaces/filter-storage.interface';

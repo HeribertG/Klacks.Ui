@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zum Upload, Download und Löschen von Dateien (Profilbild, Icon, Logo, Client-Bilder).
- * @param profileImage$ - Signal mit dem Base64-Profilbild des aktuellen Benutzers
- * @param iconImage$ - Signal mit dem Base64-Favicon/Icon der Anwendung
- * @param logoImage$ - Signal mit dem Base64-Logo der Anwendung
+ * Service for uploading, downloading, and deleting files (profile image, icon, logo, client images).
+ * @param profileImage$ - Signal containing the Base64 profile image of the current user
+ * @param iconImage$ - Signal containing the Base64 favicon/icon of the application
+ * @param logoImage$ - Signal containing the Base64 logo of the application
  */
 
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * API-Service fuer Client-CRUD-Operationen.
- * Nutzt ClientDataMapper fuer die Transformation von Daten vor dem API-Versand.
+ * API service for client CRUD operations.
+ * Uses ClientDataMapper for data transformation before sending to the API.
  */
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs/operators';

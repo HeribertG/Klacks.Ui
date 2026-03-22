@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Generische Grid-Events-Directive: Keyboard-Navigation, Mouse-Events, Focus-Management.
- * @param gridSurface - GridSurfaceTemplateComponent fuer Canvas-Zugriff und Scroll-Events
- * @param gridData - BaseDataService fuer Grid-Daten (Rows, Columns, Zell-Status)
- * @param gridSettings - BaseSettingsService fuer Grid-Konfiguration (Header, Zellgroesse)
- * @param scrollGrid - ScrollService fuer Scroll-Positionen
- * @param cellManipulation - BaseCellManipulationService fuer Zell-Bearbeitung und Hover
- * @param fillHandleDrag - GridFillHandleDragService fuer Fill-Handle-Drag-and-Drop
- * @param scheduleEvents - GridScheduleEventsService fuer Schedule-spezifische Events
+ * Generic grid events directive: keyboard navigation, mouse events, focus management.
+ * @param gridSurface - GridSurfaceTemplateComponent for canvas access and scroll events
+ * @param gridData - BaseDataService for grid data (rows, columns, cell status)
+ * @param gridSettings - BaseSettingsService for grid configuration (header, cell size)
+ * @param scrollGrid - ScrollService for scroll positions
+ * @param cellManipulation - BaseCellManipulationService for cell editing and hover
+ * @param fillHandleDrag - GridFillHandleDragService for fill handle drag-and-drop
+ * @param scheduleEvents - GridScheduleEventsService for schedule-specific events
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {

@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Erkennung und Verwaltung von Schedule-Validierungen via SignalR.
- * Verarbeitet Kollisionen (error), Ruhezeit/Arbeitszeit-Verletzungen (warning) via SignalR.
- * Berechnet Unterbesetzungs-Infos (info) lokal aus den geladenen Shift-Schedule-Daten.
- * @param collisions - Map aller empfangenen Kollisionen (Key: sortierte Work-ID-Paare)
- * @param validationEntries - Client-spezifische Validierungseinträge vom Backend (warning)
- * @param errorEntries - Kombinierte Error-Einträge basierend auf sichtbaren Clients und Datumsbereich
- * @param errorCount - Anzahl der aktuell sichtbaren Error-Einträge (für Tab-Badge)
+ * Service for detecting and managing schedule validations via SignalR.
+ * Processes collisions (error), rest time/working time violations (warning) via SignalR.
+ * Calculates understaffing info (info) locally from the loaded shift schedule data.
+ * @param collisions - Map of all received collisions (key: sorted work ID pairs)
+ * @param validationEntries - Client-specific validation entries from the backend (warning)
+ * @param errorEntries - Combined error entries based on visible clients and date range
+ * @param errorCount - Number of currently visible error entries (for tab badge)
  */
 import {
   inject,

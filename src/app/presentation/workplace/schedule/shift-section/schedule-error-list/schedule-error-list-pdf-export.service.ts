@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur PDF-Generierung der Schedule-Fehlerliste im Report-Format.
- * @param entries - Die zu exportierenden ScheduleErrorEntry-Einträge
+ * Service for PDF generation of the schedule error list in report format.
+ * @param entries - The ScheduleErrorEntry entries to export
  */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';

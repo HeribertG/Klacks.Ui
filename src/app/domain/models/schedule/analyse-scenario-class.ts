@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Modelle fuer die What-If-Analyse (Szenario-Verwaltung).
- * @param IAnalyseScenario - Repraesentiert ein gespeichertes Analyse-Szenario mit Status und Token
- * @param ICreateAnalyseScenarioRequest - Request-Daten zum Erstellen eines neuen Szenarios
- * @param AnalyseScenarioStatus - Status-Enum: Active, Accepted, Rejected
+ * Models for what-if analysis (scenario management).
+ * @param IAnalyseScenario - Represents a saved analysis scenario with status and token
+ * @param ICreateAnalyseScenarioRequest - Request data for creating a new scenario
+ * @param AnalyseScenarioStatus - Status enum: Active, Accepted, Rejected
  */
 
 export interface IAnalyseScenario {

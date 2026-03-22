@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Tests fuer die validateAddress API-Methode in DataClientService.
- * Prueft HTTP-Methode, URL und Request-Body der Adress-Validierung.
- * @param validateAddress - POST /Addresses/Validate mit IAddress als Body
+ * Tests for the validateAddress API method in DataClientService.
+ * Verifies HTTP method, URL, and request body of the address validation.
+ * @param validateAddress - POST /Addresses/Validate with IAddress as body
  */
 
 import { TestBed } from '@angular/core/testing';

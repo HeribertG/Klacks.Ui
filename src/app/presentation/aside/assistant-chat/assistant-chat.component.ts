@@ -418,11 +418,19 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   formatMessage(content: string): string {
-    return content
+    const escaped = this.escapeForHtml(content);
+    return escaped
       .replace(/\n/g, '<br>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code>$1</code>');
+  }
+
+  private escapeForHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   private updateSpeechLanguage(langCode: string): void {

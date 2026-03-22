@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service zur Verwaltung der Scroll-Animation (requestAnimationFrame-Loop, Frame-Modulo, Beschleunigung).
- * @param moveAnimationValue - Richtung der Animation (-1 = rückwärts, 0 = keine, 1 = vorwärts)
- * @param moveAnimationFrameModulo - Frame-Modulo zur Steuerung der Animationsgeschwindigkeit
- * @param shouldStopAnimation - Flag zum Stoppen der laufenden Animation
+ * Service for managing scroll animation (requestAnimationFrame loop, frame modulo, acceleration).
+ * @param moveAnimationValue - Direction of animation (-1 = backward, 0 = none, 1 = forward)
+ * @param moveAnimationFrameModulo - Frame modulo for controlling animation speed
+ * @param shouldStopAnimation - Flag to stop the running animation
  */
 import { Injectable, NgZone, inject } from '@angular/core';
 import { SCROLLBAR_CONSTANTS } from './constants';
