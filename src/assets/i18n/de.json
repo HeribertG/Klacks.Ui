@@ -1901,5 +1901,16 @@
   "scenario.fromDate": "Von",
   "scenario.untilDate": "Bis",
   "messaging.nav.tooltip": "Messaging",
-  "messaging.page.title": "Messaging"
+  "messaging.page.title": "Messaging",
+  "messaging.chat.select-contact": "Kontakt aus der Suche auswählen",
+  "messaging.chat.select-contact-hint": "Bitte wählen Sie zuerst einen Kontakt aus der Suche",
+  "messaging.chat.placeholder": "Nachricht eingeben...",
+  "messaging.chat.empty": "Keine Nachrichten vorhanden",
+  "messaging.chat.send-error": "Nachricht konnte nicht gesendet werden",
+  "messaging.nav.direction": "Richtung",
+  "messaging.nav.direction.all": "Alle",
+  "messaging.nav.direction.inbound": "Eingehend",
+  "messaging.nav.direction.outbound": "Ausgehend",
+  "messaging.nav.providers": "Anbieter",
+  "messaging.nav.reset": "Filter zurücksetzen"
 }

@@ -1,0 +1,70 @@
+<form #navMessagingForm="ngForm" id="navMessagingForm">
+  <ul class="list-group">
+    <li class="list-group-item-label">
+      {{ "messaging.nav.direction" | translate }}
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="direction"
+          [value]="undefined"
+          [(ngModel)]="directionValue"
+          (ngModelChange)="onDirectionChange()"
+        />
+        {{ "messaging.nav.direction.all" | translate }}
+      </label>
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="direction"
+          [value]="MessageDirection.Inbound"
+          [(ngModel)]="directionValue"
+          (ngModelChange)="onDirectionChange()"
+        />
+        {{ "messaging.nav.direction.inbound" | translate }}
+      </label>
+    </li>
+    <li class="list-group-item-action">
+      <label class="radio-label">
+        <input
+          type="radio"
+          name="direction"
+          [value]="MessageDirection.Outbound"
+          [(ngModel)]="directionValue"
+          (ngModelChange)="onDirectionChange()"
+        />
+        {{ "messaging.nav.direction.outbound" | translate }}
+      </label>
+    </li>
+
+    <li class="list-group-item-divider"></li>
+
+    <li class="list-group-item-label">
+      {{ "messaging.nav.providers" | translate }}
+    </li>
+    @for (provider of providers(); track provider.id) {
+      <li class="list-group-item-action">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="isProviderSelected(provider.id)"
+            (change)="onProviderToggle(provider.id)"
+            [name]="'provider_' + provider.id"
+          />
+          {{ provider.displayName }}
+        </label>
+      </li>
+    }
+
+    <li class="list-group-item-divider"></li>
+
+    <li class="list-group-item-action">
+      <button class="btn btn-sm" type="button" (click)="onResetFilter()">
+        {{ "messaging.nav.reset" | translate }}
+      </button>
+    </li>
+  </ul>
+</form>

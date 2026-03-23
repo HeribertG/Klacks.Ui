@@ -1,0 +1,64 @@
+<div class="chat-container">
+  <div class="chat-header">
+    @if (selectedContact()) {
+      <span class="contact-name">{{ selectedContact() }}</span>
+      @if (selectedProvider()) {
+        <span class="provider-badge">{{ selectedProvider() }}</span>
+      }
+    } @else {
+      <span class="no-contact">{{ "messaging.chat.select-contact" | translate }}</span>
+    }
+  </div>
+
+  <div class="messages-container" #messagesContainer>
+    @if (isLoading()) {
+      <div class="text-center p-3">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+      </div>
+    } @else if (messages().length === 0) {
+      <div class="empty-state">
+        {{ "messaging.chat.empty" | translate }}
+      </div>
+    } @else {
+      <div class="messages">
+        @for (msg of messages(); track msg.id) {
+          <div class="message-wrapper" [class]="getDirectionClass(msg.direction)">
+            <div class="message-bubble" [class]="getDirectionClass(msg.direction)">
+              <div class="message-meta">
+                <span class="message-sender">{{ msg.senderDisplayName || msg.sender || msg.recipient }}</span>
+                <span class="message-provider">{{ msg.providerName }}</span>
+                <span class="message-time">{{ msg.timestamp | date:"short" }}</span>
+              </div>
+              <div class="message-text">{{ msg.content }}</div>
+              @if (msg.errorMessage) {
+                <div class="message-error">{{ msg.errorMessage }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea
+        class="input-field"
+        [(ngModel)]="inputText"
+        (keydown.enter)="onEnterKey($event)"
+        [placeholder]="selectedContact() ? ('messaging.chat.placeholder' | translate) : ('messaging.chat.select-contact-hint' | translate)"
+        [disabled]="!selectedContact()"
+        rows="1"
+      ></textarea>
+      <button
+        class="btn-send"
+        (click)="sendMessage()"
+        [disabled]="!selectedContact() || !inputText.trim()"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

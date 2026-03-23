@@ -1,14 +1,1 @@
-.messaging-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-}
-
-.messaging-section {
-  width: 100%;
-}
-
-.messaging-card {
-  display: block;
-}
+@use "../../../../../assets/standard-styles/standard-home-page.scss";

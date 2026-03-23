@@ -1,3 +1,23 @@
-<div class="messaging-page">
-  <app-messaging-inbox class="messaging-card"></app-messaging-inbox>
+<div id="messaging-home-container" class="container-dashboard">
+  <div id="messaging-home-headline" class="container-headline">
+    {{ "messaging.page.title" | translate }}
+  </div>
+
+  <div class="container-profilline">
+    <app-messaging-chat
+      #messagingChat
+      class="container-profile first border-right-card border-bottom-card"
+    ></app-messaging-chat>
+  </div>
+
+  <div
+    id="messaging-nav"
+    class="container-address-nav border-right-card border-bottom-card"
+  >
+    <app-messaging-nav
+      (filterChanged)="onFilterChanged($event)"
+    ></app-messaging-nav>
+  </div>
+
+  <div class="bottom-border-space"></div>
 </div>
