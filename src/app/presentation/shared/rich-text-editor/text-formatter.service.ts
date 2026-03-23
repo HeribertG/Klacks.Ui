@@ -20,7 +20,8 @@ export class TextFormatterService {
     if (!text) {
       return '';
     }
-    return text.replace(/\n/g, '<br>');
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return escaped.replace(/\n/g, '<br>');
   }
 
   isFormatted(text: string): boolean {

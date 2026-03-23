@@ -22,8 +22,6 @@ export class AppErrorHandler implements ErrorHandler {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleError(error: any): void {
-    console.log('handleError', error);
-
     // Basis-Validierung
     if (!error || typeof error !== 'object') {
       console.error('Invalid error object:', error);

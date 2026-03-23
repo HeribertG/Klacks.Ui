@@ -51,12 +51,11 @@ export class AuthService {
           return true;
         }
       })
-      .catch((err) => {
+      .catch(() => {
         this.toastShowService.showError(
           DomainMessages.AUTH_USER_ERROR,
           'AUTH_USER_ERROR'
         );
-        console.log(err);
         return false;
       });
   }
@@ -83,8 +82,15 @@ export class AuthService {
         this.localStorageService.remove('oauth2_provider_id');
 
         if (response.supportsLogout && response.logoutUrl) {
-          window.location.href = response.logoutUrl;
-          return;
+          try {
+            const url = new URL(response.logoutUrl);
+            if (url.protocol === 'https:' || url.protocol === 'http:') {
+              window.location.href = response.logoutUrl;
+              return;
+            }
+          } catch {
+            // Invalid URL - fall through to local navigation
+          }
         }
       } catch (error) {
         console.error('SSO logout error:', error);
@@ -197,8 +203,8 @@ export class AuthService {
         this.localStorageService.remove(StorageKeys.TOKEN_REFRESHTOKEN);
         this.removeStateValue();
       }
-    } catch (e: unknown) {
-      console.log('removeToken error: ', e);
+    } catch {
+      // Token removal error - ignored
     }
   }
 
@@ -243,7 +249,6 @@ export class AuthService {
   }
 
   errorMessage(error: string, message?: string) {
-    console.log(error);
 
     switch (error) {
       case 'Unknown Error':

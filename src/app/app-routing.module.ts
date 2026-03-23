@@ -102,9 +102,10 @@ const routes: Routes = [
         loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent),
         canActivate: [AdminGuard]
       },
-      { 
-        path: 'edit-shift/:id', 
-        loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent)
+      {
+        path: 'edit-shift/:id',
+        loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent),
+        canActivate: [AdminGuard]
       },
       {
         path: 'cut-shift/:id',

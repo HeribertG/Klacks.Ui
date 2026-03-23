@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Directive, ElementRef, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import DOMPurify from 'dompurify';
 
 @Directive({
   selector: '[appInitContent]',
@@ -22,7 +23,8 @@ export class InitContentDirective implements OnInit, OnChanges {
   }
 
   private updateContent(): void {
-    const newContent = this.appInitContent !== undefined ? this.appInitContent : '';
+    const rawContent = this.appInitContent !== undefined ? this.appInitContent : '';
+    const newContent = DOMPurify.sanitize(rawContent);
     const currentContent = this.el.nativeElement.innerHTML;
 
     if (newContent !== currentContent) {

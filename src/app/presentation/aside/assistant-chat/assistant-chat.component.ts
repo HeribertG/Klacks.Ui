@@ -286,7 +286,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
       if (response?.functionCalls && response.functionCalls.length > 0) {
         await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls, this.messages);
-      } else if (response?.navigateTo && response?.actionPerformed) {
+      } else if (response?.navigateTo && response?.actionPerformed && response.navigateTo.startsWith('/workplace/')) {
         setTimeout(() => {
           this.router.navigate([response.navigateTo!]);
         }, 2000);
@@ -358,7 +358,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   onNavigateClick(navigateTo: string): void {
-    this.router.navigate([navigateTo]);
+    if (navigateTo.startsWith('/workplace/')) {
+      this.router.navigate([navigateTo]);
+    }
   }
 
   toggleModelDropdown(): void {

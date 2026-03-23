@@ -31,6 +31,8 @@ export class AssistantFunctionExecutionService {
     }
   }
 
+  private static readonly ALLOWED_ROUTE_PREFIX = '/workplace/';
+
   private executeNavigate(
     call: IAssistantFunctionCall
   ): Observable<IAssistantFunctionResult> {
@@ -39,6 +41,11 @@ export class AssistantFunctionExecutionService {
         call.arguments['route'] ||
         call.arguments['Route'] ||
         `/workplace/${(call.arguments['page'] || 'dashboard').toLowerCase()}`;
+
+      if (!route.startsWith(AssistantFunctionExecutionService.ALLOWED_ROUTE_PREFIX)) {
+        return of({ id: call.id, success: false, error: 'Navigation target not allowed' });
+      }
+
       this.router.navigate([route], { queryParams: call.arguments['params'] });
       return of({
         id: call.id,
