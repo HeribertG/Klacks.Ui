@@ -1883,5 +1883,7 @@
   "scenario.name": "Name",
   "scenario.description": "Description",
   "scenario.fromDate": "From",
-  "scenario.untilDate": "Until"
+  "scenario.untilDate": "Until",
+  "messaging.nav.tooltip": "Messaging",
+  "messaging.page.title": "Messaging"
 }

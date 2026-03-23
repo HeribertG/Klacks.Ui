@@ -40,6 +40,7 @@ import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
 import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
 import { IconMailComponent } from '../../icons/icon-mail.component';
+import { IconMessagingComponent } from '../../icons/icon-messaging.component';
 
 type NavigationPage =
   | 'absence'
@@ -54,6 +55,7 @@ type NavigationPage =
   | 'edit-address'
   | 'edit-group'
   | 'inbox'
+  | 'messaging'
   | '';
 
 @Component({
@@ -72,6 +74,7 @@ type NavigationPage =
     IconSettingComponent,
     IconAvailabilityComponent,
     IconMailComponent,
+    IconMessagingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -85,6 +88,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
   @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
   @ViewChild('mailIcon') mailIcon!: IconMailComponent;
+  @ViewChild('messagingIcon') messagingIcon!: IconMessagingComponent;
 
   // Services
   public authorizationService = inject(AuthorizationService);
@@ -136,6 +140,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'floor-plan';
       case 'inbox':
         return 'inbox';
+      case 'messaging':
+        return 'messaging';
       default:
         return '';
     }
@@ -334,6 +340,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationService.navigateToInbox();
   }
 
+  onClickMessaging(): void {
+    this.currentPage.set('messaging');
+    this.navigationService.navigateToMessaging();
+  }
+
   onChangeLanguage(lang: string): void {
     this.translateService.use(lang);
     localStorage.setItem(StorageKeys.CURRENT_LANG, lang);
@@ -354,6 +365,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.settingsIcon,
       this.availabilityIcon,
       this.mailIcon,
+      this.messagingIcon,
     ];
 
     icons.forEach((icon) => {
@@ -374,6 +386,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       settings: this.settingsIcon,
       availability: this.availabilityIcon,
       inbox: this.mailIcon,
+      messaging: this.messagingIcon,
     };
 
     const icon = iconMap[iconName as keyof typeof iconMap];

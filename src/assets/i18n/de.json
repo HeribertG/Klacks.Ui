@@ -1899,5 +1899,7 @@
   "scenario.name": "Name",
   "scenario.description": "Beschreibung",
   "scenario.fromDate": "Von",
-  "scenario.untilDate": "Bis"
+  "scenario.untilDate": "Bis",
+  "messaging.nav.tooltip": "Messaging",
+  "messaging.page.title": "Messaging"
 }

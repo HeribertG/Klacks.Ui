@@ -120,6 +120,11 @@ const routes: Routes = [
         canActivate: [InboxGuard]
       },
       {
+        path: 'messaging',
+        loadComponent: () => import('./presentation/workplace/messaging/messaging-home/messaging-home.component').then(m => m.MessagingHomeComponent),
+        canActivate: [AuthGuard]
+      },
+      {
         path: 'floor-plan',
         loadComponent: () => import('./presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component').then(m => m.FloorPlanHomeComponent)
       }

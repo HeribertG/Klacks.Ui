@@ -1,0 +1,15 @@
+<div class="messaging-page">
+  <div class="messaging-section">
+    <app-messaging-inbox
+      class="messaging-card"
+    ></app-messaging-inbox>
+  </div>
+
+  @if (authorizationService.isAdmin) {
+    <div class="messaging-section">
+      <app-messaging-providers
+        class="messaging-card"
+      ></app-messaging-providers>
+    </div>
+  }
+</div>

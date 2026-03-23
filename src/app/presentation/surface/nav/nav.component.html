@@ -126,6 +126,20 @@
         </button>
       </div>
     }
+
+    <div class="icon">
+      <button
+        type="button"
+        class="icon-button"
+        id="open-messaging"
+        (click)="onClickMessaging()"
+        [attr.aria-label]="'Open Messaging'"
+        placement="right"
+        ngbTooltip="{{ 'messaging.nav.tooltip' | translate }}"
+      >
+        <app-icon-messaging #messagingIcon></app-icon-messaging>
+      </button>
+    </div>
   </div>
 
   <div class="main-bottomcell">
