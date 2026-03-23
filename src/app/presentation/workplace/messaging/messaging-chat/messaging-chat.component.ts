@@ -2,6 +2,7 @@
 
 /**
  * Chat component for displaying and sending messages in the Messaging workplace.
+ * Includes voice input via VoiceModeService (same as chatbot) and scroll navigation.
  * @param messages - Signal holding the current list of messages
  * @param isLoading - Signal indicating whether messages are being fetched
  * @param selectedContact - Signal holding the currently selected contact identifier
@@ -22,9 +23,13 @@ import {
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { DataMessagingService } from 'src/app/infrastructure/api/messaging/data-messaging.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
+import { VoiceModeService } from 'src/app/presentation/aside/assistant-chat/services/voice-mode.service';
 import { Message } from 'src/app/domain/models/messaging/message.model';
 import { MessageDirection } from 'src/app/domain/enums/message-direction.enum';
 
@@ -35,7 +40,9 @@ import { MessageDirection } from 'src/app/domain/enums/message-direction.enum';
     FormsModule,
     DatePipe,
     TranslateModule,
+    FontAwesomeModule,
   ],
+  providers: [VoiceModeService],
   templateUrl: './messaging-chat.component.html',
   styleUrls: ['./messaging-chat.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +51,8 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
   private signalRService = inject(AssistantSignalRService);
   private cdr = inject(ChangeDetectorRef);
+  public speechService = inject(SpeechRecognitionService);
+  private voiceModeService = inject(VoiceModeService);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
@@ -56,9 +65,35 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
 
   inputText = '';
 
+  faMicrophone = faMicrophone;
+  faMicrophoneSlash = faMicrophoneSlash;
+  faPaperPlane = faPaperPlane;
+  faChevronUp = faChevronUp;
+  faChevronDown = faChevronDown;
+
   private ngUnsubscribe = new Subject<void>();
 
+  get voiceModeEnabled(): boolean {
+    return this.voiceModeService.voiceModeEnabled;
+  }
+
+  get isListening(): boolean {
+    return this.voiceModeService.isListening;
+  }
+
+  get isTranscribing(): boolean {
+    return this.voiceModeService.isTranscribing;
+  }
+
   ngOnInit(): void {
+    this.voiceModeService.initialize({
+      getInputText: () => this.inputText,
+      setInputText: (text: string) => { this.inputText = text; },
+      sendMessage: async () => { this.sendMessage(); },
+      getIsProcessing: () => this.isLoading(),
+      detectChanges: () => this.cdr.markForCheck(),
+    }, this.ngUnsubscribe);
+
     this.loadMessages();
     this.subscribeToIncomingMessages();
   }
@@ -66,6 +101,9 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    if (this.voiceModeEnabled) {
+      this.voiceModeService.disableVoiceMode();
+    }
   }
 
   loadMessages(): void {
@@ -104,7 +142,7 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       provider: this.selectedProvider() ?? '',
       recipient: this.selectedContact()!,
       content,
-      contentType: 'text/plain',
+      contentType: 'text',
     }).pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
         next: () => {
@@ -131,6 +169,27 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
     }
   }
 
+  async toggleVoiceMode(): Promise<void> {
+    await this.voiceModeService.toggleVoiceMode();
+    this.cdr.markForCheck();
+  }
+
+  isUsingWhisper(): boolean {
+    return this.voiceModeService.isUsingWhisper();
+  }
+
+  scrollUp(): void {
+    if (this.messagesContainer) {
+      this.messagesContainer.nativeElement.scrollBy({ top: -200, behavior: 'smooth' });
+    }
+  }
+
+  scrollDown(): void {
+    if (this.messagesContainer) {
+      this.messagesContainer.nativeElement.scrollBy({ top: 200, behavior: 'smooth' });
+    }
+  }
+
   getDirectionClass(direction: MessageDirection): string {
     return direction === MessageDirection.Inbound ? 'inbound' : 'outbound';
   }
@@ -145,8 +204,7 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
 
   private scrollToBottom(): void {
     if (this.messagesContainer) {
-      const el = this.messagesContainer.nativeElement;
-      el.scrollTop = el.scrollHeight;
+      this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
     }
   }
 }

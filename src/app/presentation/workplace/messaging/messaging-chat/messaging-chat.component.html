@@ -46,6 +46,29 @@
 
   <div class="input-container">
     <div class="input-wrapper">
+      <button
+        type="button"
+        class="btn-voice"
+        [class.voice-enabled]="voiceModeEnabled"
+        [class.listening]="isListening"
+        [class.transcribing]="isTranscribing || speechService.isTranscribing()"
+        [class.not-supported]="!speechService.isSupported$()"
+        [disabled]="!selectedContact() || isTranscribing || speechService.isTranscribing()"
+        (click)="toggleVoiceMode()"
+      >
+        @if (isTranscribing || speechService.isTranscribing()) {
+          <span class="transcribing-waves">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        } @else {
+          <fa-icon
+            [icon]="voiceModeEnabled ? faMicrophone : faMicrophoneSlash"
+          ></fa-icon>
+        }
+      </button>
+
       <textarea
         class="input-field"
         [(ngModel)]="inputText"
@@ -53,14 +76,23 @@
         [placeholder]="selectedContact() ? ('messaging.chat.placeholder' | translate) : ('messaging.chat.select-contact-hint' | translate)"
         [disabled]="!selectedContact()"
       ></textarea>
+
+      <div class="scroll-buttons">
+        <button type="button" class="btn-scroll" (click)="scrollUp()">
+          <fa-icon [icon]="faChevronUp"></fa-icon>
+        </button>
+        <button type="button" class="btn-scroll" (click)="scrollDown()">
+          <fa-icon [icon]="faChevronDown"></fa-icon>
+        </button>
+      </div>
+
       <button
+        type="button"
         class="btn-send"
-        (click)="sendMessage()"
         [disabled]="!selectedContact() || !inputText.trim()"
+        (click)="sendMessage()"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-        </svg>
+        <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
       </button>
     </div>
   </div>
