@@ -124,10 +124,9 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
     this.loadMessages();
   }
 
-  onEnterKey(event: Event): void {
-    const keyEvent = event as KeyboardEvent;
-    if (!keyEvent.shiftKey) {
-      keyEvent.preventDefault();
+  onInputKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       this.sendMessage();
     }
   }

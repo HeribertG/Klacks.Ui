@@ -49,10 +49,9 @@
       <textarea
         class="input-field"
         [(ngModel)]="inputText"
-        (keydown.enter)="onEnterKey($event)"
+        (keydown)="onInputKeyPress($event)"
         [placeholder]="selectedContact() ? ('messaging.chat.placeholder' | translate) : ('messaging.chat.select-contact-hint' | translate)"
         [disabled]="!selectedContact()"
-        rows="1"
       ></textarea>
       <button
         class="btn-send"
