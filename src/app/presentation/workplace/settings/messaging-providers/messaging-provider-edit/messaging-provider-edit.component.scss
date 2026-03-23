@@ -33,15 +33,17 @@
   }
 }
 
-.config-textarea {
-  font-family: monospace;
-  font-size: 12px;
+.config-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cardBorderColor, #e9ecef);
 }
 
-.info-text {
-  font-size: 11px;
-  color: var(--colorLabel);
-  opacity: 0.7;
+.config-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--colorWorkplaceHeadline);
+  margin-bottom: 12px;
 }
 
 .modal-footer {
