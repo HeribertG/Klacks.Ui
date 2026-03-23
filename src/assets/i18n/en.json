@@ -1886,6 +1886,7 @@
   "scenario.untilDate": "Until",
   "messaging.nav.tooltip": "Messaging",
   "messaging.page.title": "Messaging",
+  "messaging.chat.subtitle": "Messages",
   "messaging.chat.select-contact": "Select a contact from search",
   "messaging.chat.select-contact-hint": "Please select a contact from search first",
   "messaging.chat.placeholder": "Type a message...",

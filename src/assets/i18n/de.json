@@ -1902,6 +1902,7 @@
   "scenario.untilDate": "Bis",
   "messaging.nav.tooltip": "Messaging",
   "messaging.page.title": "Messaging",
+  "messaging.chat.subtitle": "Nachrichten",
   "messaging.chat.select-contact": "Kontakt aus der Suche auswählen",
   "messaging.chat.select-contact-hint": "Bitte wählen Sie zuerst einen Kontakt aus der Suche",
   "messaging.chat.placeholder": "Nachricht eingeben...",

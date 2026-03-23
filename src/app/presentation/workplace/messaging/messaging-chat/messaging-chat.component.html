@@ -1,14 +1,18 @@
 <div class="chat-container">
-  <div class="chat-header">
+  <div class="container-header header-container">
     @if (selectedContact()) {
-      <span class="contact-name">{{ selectedContact() }}</span>
+      {{ selectedContact() }}
       @if (selectedProvider()) {
         <span class="provider-badge">{{ selectedProvider() }}</span>
       }
     } @else {
-      <span class="no-contact">{{ "messaging.chat.select-contact" | translate }}</span>
+      {{ "messaging.chat.select-contact" | translate }}
     }
   </div>
+  <div class="container-subline">
+    {{ "messaging.chat.subtitle" | translate }}
+  </div>
+  <div class="container-line"></div>
 
   <div class="messages-container" #messagesContainer>
     @if (isLoading()) {
