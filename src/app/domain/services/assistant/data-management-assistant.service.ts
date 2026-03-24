@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -39,6 +40,7 @@ export interface IConversation {
 })
 export class DataManagementAssistantService {
   private dataAssistantService = inject(DataAssistantService);
+  private dataAssistantStreamService = inject(DataAssistantStreamService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
@@ -162,6 +164,68 @@ export class DataManagementAssistantService {
         return throwError(() => error);
       })
     );
+  }
+
+  sendMessageStream(
+    message: string,
+    conversationId: string | undefined,
+    callbacks: StreamCallbacks,
+  ): AbortController {
+    const convId = conversationId || this.generateConversationId();
+    const conversation = this.getOrCreateConversation(convId);
+
+    conversation.messages.push({
+      role: 'user',
+      content: message,
+      timestamp: new Date(),
+    });
+
+    const modelId = this.selectedModelId();
+    if (!modelId) {
+      callbacks.onError?.('Please select a model first.');
+      return new AbortController();
+    }
+
+    const request: IAssistantChatRequest = {
+      message,
+      conversationId: convId,
+      modelId,
+      language: this.currentLanguage(),
+      context: {
+        conversationHistory: conversation.messages.slice(-10),
+        language: this.currentLanguage(),
+        userContext: this.getUserContext(),
+      },
+    };
+
+    this.isLoading.set(true);
+
+    const wrappedCallbacks: StreamCallbacks = {
+      ...callbacks,
+      onMetadata: (data: StreamMetadata) => {
+        conversation.messages.push({
+          role: 'assistant',
+          content: data.functionCalls ? '' : message,
+          timestamp: new Date(),
+          functionCalls: data.functionCalls,
+        });
+        conversation.lastActivity = new Date();
+        if (data.usage?.cost) {
+          conversation.totalCost = (conversation.totalCost || 0) + data.usage.cost;
+        }
+        callbacks.onMetadata?.(data);
+      },
+      onDone: () => {
+        this.isLoading.set(false);
+        callbacks.onDone?.();
+      },
+      onError: (msg: string) => {
+        this.isLoading.set(false);
+        callbacks.onError?.(msg);
+      },
+    };
+
+    return this.dataAssistantStreamService.chatStream(request, wrappedCallbacks);
   }
 
   getAvailableModels(): Observable<IAssistantModel[]> {
@@ -299,7 +363,7 @@ export class DataManagementAssistantService {
 
   private getUserContext(): any {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
       if (!token) return null;
 
       const payload = token.split('.')[1];

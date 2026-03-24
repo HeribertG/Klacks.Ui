@@ -11,4 +11,5 @@ export interface ChatMessage {
   suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
   actionPerformed?: boolean;
+  isStreaming?: boolean;
 }

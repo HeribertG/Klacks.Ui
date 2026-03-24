@@ -48,6 +48,7 @@ import { VoiceModeService } from './services/voice-mode.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
+import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 
 @Component({
   selector: 'app-assistant-chat',
@@ -117,6 +118,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   inputText = '';
   isProcessing = false;
   conversationId = '';
+  private currentStreamController: AbortController | null = null;
 
   get voiceModeEnabled(): boolean {
     return this.voiceModeService.voiceModeEnabled;
@@ -224,6 +226,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnDestroy(): void {
+    this.currentStreamController?.abort();
     this.voiceModeService.disableVoiceMode();
     this.destroy$.next();
     this.destroy$.complete();
@@ -260,59 +263,80 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.isProcessing = true;
     this.shouldScrollToBottom = true;
 
-    try {
-      const response = await firstValueFrom(
-        this.assistantService.sendMessage(messageText, this.conversationId)
-      );
+    const assistantMessage: ChatMessage = {
+      id: this.generateMessageId(),
+      sender: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    };
+    this.messages.push(assistantMessage);
+    this.cdr.detectChanges();
 
-      const assistantMessage: ChatMessage = {
-        id: this.generateMessageId(),
-        sender: 'assistant',
-        content: response?.message || '',
-        timestamp: new Date(),
-        suggestions: response?.suggestedReplies ? undefined : response?.suggestions,
-        suggestedReplies: response?.suggestedReplies,
-        navigateTo: response?.navigateTo,
-        actionPerformed: response?.actionPerformed,
-      };
+    this.currentStreamController = this.assistantService.sendMessageStream(
+      messageText,
+      this.conversationId,
+      {
+        onStreamStart: (convId: string) => {
+          if (!this.conversationId || this.conversationId !== convId) {
+            this.conversationId = convId;
+          }
+        },
+        onContent: (text: string) => {
+          this.ngZone.run(() => {
+            assistantMessage.content += text;
+            assistantMessage.isStreaming = true;
+            this.shouldScrollToBottom = true;
+            this.cdr.detectChanges();
+          });
+        },
+        onMetadata: (data: StreamMetadata) => {
+          this.ngZone.run(() => {
+            assistantMessage.isStreaming = false;
+            assistantMessage.suggestions = data.suggestedReplies ? undefined : data.suggestions;
+            assistantMessage.suggestedReplies = data.suggestedReplies;
+            assistantMessage.navigateTo = data.navigateTo;
+            assistantMessage.actionPerformed = data.actionPerformed;
 
-      this.messages.push(assistantMessage);
-      this.shouldScrollToBottom = true;
+            if (data.suggestedReplies) {
+              this.activeSuggestedReplies.set(data.suggestedReplies);
+              this.showRepliesAsToast(data.suggestedReplies);
+            }
 
-      if (response?.suggestedReplies) {
-        this.activeSuggestedReplies.set(response.suggestedReplies);
-        this.showRepliesAsToast(response.suggestedReplies);
-      }
+            if (data.functionCalls && data.functionCalls.length > 0) {
+              this.chatFunctionExecution.executeFunctionCalls(data.functionCalls, this.messages);
+            } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith('/workplace/')) {
+              setTimeout(() => {
+                this.router.navigate([data.navigateTo!]);
+              }, 2000);
+            }
 
-      if (response?.functionCalls && response.functionCalls.length > 0) {
-        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls, this.messages);
-      } else if (response?.navigateTo && response?.actionPerformed && response.navigateTo.startsWith('/workplace/')) {
-        setTimeout(() => {
-          this.router.navigate([response.navigateTo!]);
-        }, 2000);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      let errorContent = '';
-      if (error?.error?.message) {
-        errorContent = error.error.message;
-      } else if (error?.message) {
-        errorContent = error.message;
-      } else {
-        errorContent = this.translateService.instant('assistant-chat.error.generic');
-      }
-
-      const errorMessage: ChatMessage = {
-        id: this.generateMessageId(),
-        sender: 'assistant',
-        content: '❌ ' + errorContent,
-        timestamp: new Date(),
-      };
-      this.messages.push(errorMessage);
-      this.shouldScrollToBottom = true;
-    } finally {
-      this.isProcessing = false;
-    }
+            this.cdr.detectChanges();
+          });
+        },
+        onDone: () => {
+          this.ngZone.run(() => {
+            assistantMessage.isStreaming = false;
+            this.isProcessing = false;
+            this.currentStreamController = null;
+            this.cdr.detectChanges();
+          });
+        },
+        onError: (message: string) => {
+          this.ngZone.run(() => {
+            assistantMessage.isStreaming = false;
+            if (!assistantMessage.content) {
+              assistantMessage.content = message;
+            } else {
+              assistantMessage.content += '\n\n' + message;
+            }
+            this.isProcessing = false;
+            this.currentStreamController = null;
+            this.cdr.detectChanges();
+          });
+        },
+      },
+    );
   }
 
   async toggleVoiceMode(): Promise<void> {
