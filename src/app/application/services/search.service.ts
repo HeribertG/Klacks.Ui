@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { Subject } from 'rxjs';
 import { WorkplaceStateService } from './workplace-state.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
+import { IClient } from 'src/app/domain/models/client/client-class';
 
 export interface SearchConfig {
   showSearch: boolean;
@@ -21,10 +23,15 @@ export class SearchService {
   // Private signals
   private _showSearch = signal<boolean>(false);
   private _isGroupViewMode = signal<boolean>(true); // Grid view by default
-  
+  private _isClientSearchMode = signal<boolean>(false);
+  private _clientSelected$ = new Subject<IClient>();
+
+  public clientSelected$ = this._clientSelected$.asObservable();
+
   // Public computed signals
   public showSearch = computed(() => this._showSearch());
   public isGroupViewMode = computed(() => this._isGroupViewMode());
+  public isClientSearchMode = computed(() => this._isClientSearchMode());
   
   // Computed signals for checkbox visibility
   public showIncludeAddress = computed(() => {
@@ -67,6 +74,14 @@ export class SearchService {
   // Public methods to control search visibility
   public setSearchVisibility(show: boolean): void {
     this._showSearch.set(show);
+  }
+
+  public setClientSearchMode(enabled: boolean): void {
+    this._isClientSearchMode.set(enabled);
+  }
+
+  public emitClientSelected(client: IClient): void {
+    this._clientSelected$.next(client);
   }
   
   public setGroupViewMode(isGridView: boolean): void {

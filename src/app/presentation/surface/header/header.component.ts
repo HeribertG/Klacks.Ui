@@ -18,7 +18,10 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IconSignOutComponent } from 'src/app/presentation/icons/icon-sign-out.component';
 import { SearchComponent } from 'src/app/presentation/search/search.component';
+import { SearchClientComponent } from 'src/app/presentation/search/search-client/search-client.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { SearchService } from 'src/app/application/services/search.service';
+import { IClient } from 'src/app/domain/models/client/client-class';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -33,17 +36,19 @@ import { IconLogoComponent } from '../../icons/icon-logo.component';
   standalone: true,
   imports: [
     SearchComponent,
+    SearchClientComponent,
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
     IconMMLComponent,
-    IconLogoComponent
-],
+    IconLogoComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
   public dataLoadFileService = inject(DataLoadFileService);
   public dataManagementGroupService = inject(DataManagementGroupService);
+  public searchService = inject(SearchService);
 
   private auth = inject(AuthService);
   private injector = inject(Injector);
@@ -110,6 +115,10 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
         this.authorised.set(false);
       });
     }
+  }
+
+  onClientSelected(client: IClient): void {
+    this.searchService.emitClientSelected(client);
   }
 
   onToggleAssistant(): void {

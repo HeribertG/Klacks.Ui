@@ -18,7 +18,12 @@
     </div>
   }
 
-  <app-search></app-search>
+  @if (!searchService.isClientSearchMode()) {
+    <app-search></app-search>
+  }
+  @if (searchService.isClientSearchMode()) {
+    <app-search-client (clientSelected)="onClientSelected($event)"></app-search-client>
+  }
 
   <span id="header-version" class="version">{{ version() }}</span>
 

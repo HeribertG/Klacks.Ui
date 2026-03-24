@@ -1,0 +1,35 @@
+@if (searchService.showSearch()) {
+<div class="container-search form-group">
+  <div class="input-group">
+    <input
+      type="search"
+      class="form-control"
+      placeholder="{{ 'placeholder.search' | translate }}"
+      name="searchString"
+      id="search-client"
+      [(ngModel)]="searchString"
+      (keyup)="onKeyupSearch($event)"
+      autocomplete="off"
+      list="clientSearchDatalist"
+    />
+
+    <datalist id="clientSearchDatalist">
+      @for (item of results; track item) {
+        <option [ngValue]="item">
+          {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
+          {{ item.name }}
+        </option>
+      }
+    </datalist>
+
+    <button
+      id="search-client-button"
+      class="btn btn-outline-secondary container-search-button input-group-text"
+      type="button"
+      (click)="onClickSearch()"
+    >
+      <fa-icon [icon]="faSearch"></fa-icon>
+    </button>
+  </div>
+</div>
+}

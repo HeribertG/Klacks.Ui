@@ -1,0 +1,25 @@
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors.scss" as colors;
+
+.container-search {
+  margin-top: 10px;
+  padding-left: 60px;
+  width: 400px;
+  color: var(--colorLabel);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.container-search-button {
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+::placeholder {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--colorPlaceholder);
+  opacity: 1;
+}
