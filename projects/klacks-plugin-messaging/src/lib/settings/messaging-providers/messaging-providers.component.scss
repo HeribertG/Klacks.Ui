@@ -1,0 +1,9 @@
+@use "../../../../../../src/assets/standard-styles/standard-modal.scss";
+@use "../../../../../../src/assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../src/assets/standard-styles/standard-grid.scss";
+
+:host {
+  display: block;
+  height: 100%;
+  position: relative;
+}

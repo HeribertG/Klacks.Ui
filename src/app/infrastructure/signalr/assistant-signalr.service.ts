@@ -13,7 +13,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { AssistantSignalRConstants } from './signalr.constants';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
-import { IncomingMessage } from 'src/app/domain/models/messaging/incoming-message.model';
+import { IncomingMessage } from 'klacks-plugin-messaging';
 
 @Injectable({
   providedIn: 'root',

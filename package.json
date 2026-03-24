@@ -80,6 +80,7 @@
     "eslint": "^9.28.0",
     "jsdom": "^27.2.0",
     "less": "^4.2.0",
+    "ng-packagr": "^21.2.1",
     "puppeteer": "^24.23.0",
     "rollup": "^4.53.3",
     "typescript": "^5.7.3",

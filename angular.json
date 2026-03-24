@@ -21,12 +21,20 @@
               "base": "dist/klacks.ui"
             },
             "index": "src/index.html",
-            "polyfills": ["zone.js", "@angular/localize/init"],
+            "polyfills": [
+              "zone.js",
+              "@angular/localize/init"
+            ],
             "tsConfig": "tsconfig.app.json",
             "webWorkerTsConfig": "tsconfig.worker.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.scss"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": [],
             "browser": "src/main.ts",
             "allowedCommonJsDependencies": [
@@ -113,14 +121,56 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "Klacks.Ui:build:development",
-            "reporters": ["default", "json"],
+            "reporters": [
+              "default",
+              "json"
+            ],
             "outputFile": "./test-results/results.json"
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
+        }
+      }
+    },
+    "klacks-plugin-messaging": {
+      "projectType": "library",
+      "root": "projects/klacks-plugin-messaging",
+      "sourceRoot": "projects/klacks-plugin-messaging/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/klacks-plugin-messaging/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/klacks-plugin-messaging/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/klacks-plugin-messaging/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/klacks-plugin-messaging/**/*.ts",
+              "projects/klacks-plugin-messaging/**/*.html"
+            ],
+            "eslintConfig": "projects/klacks-plugin-messaging/eslint.config.js"
           }
         }
       }
@@ -128,7 +178,9 @@
   },
   "cli": {
     "analytics": "146396e1-126e-4ef7-8bb4-e490c40aefe3",
-    "schematicCollections": ["@angular-eslint/schematics"]
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   },
   "schematics": {
     "@schematics/angular:component": {

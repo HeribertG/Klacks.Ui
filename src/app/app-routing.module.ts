@@ -187,9 +187,9 @@ const routes: Routes = [
       },
       {
         path: 'messaging',
-        loadComponent: () =>
-          import('./presentation/workplace/messaging/messaging-home/messaging-home.component').then(
-            (m) => m.MessagingHomeComponent,
+        loadChildren: () =>
+          import('klacks-plugin-messaging').then(
+            (m) => m.MESSAGING_ROUTES,
           ),
         canActivate: [AuthGuard, featurePluginGuard(MESSAGING_PLUGIN_NAME)],
       },

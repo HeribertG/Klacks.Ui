@@ -8,6 +8,12 @@
     "esModuleInterop": true,
     "strict": true,
     "noImplicitOverride": true,
+    "paths": {
+      "klacks-plugin-messaging": [
+        "./projects/klacks-plugin-messaging/src/public-api.ts",
+        "./dist/klacks-plugin-messaging"
+      ]
+    },
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -30,5 +36,13 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "references": [
+    {
+      "path": "./projects/klacks-plugin-messaging/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/klacks-plugin-messaging/tsconfig.spec.json"
+    }
+  ]
 }
