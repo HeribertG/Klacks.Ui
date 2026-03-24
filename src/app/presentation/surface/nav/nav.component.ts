@@ -6,6 +6,8 @@ import {
   OnInit,
   OnDestroy,
   ViewChild,
+  ViewChildren,
+  QueryList,
   inject,
   signal,
   computed,
@@ -38,9 +40,11 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
 import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
 import { IconMailComponent } from '../../icons/icon-mail.component';
-import { IconMessagingComponent } from '../../icons/icon-messaging.component';
+import { PluginIconComponent } from '../../icons/plugin-icon.component';
 
 type NavigationPage =
   | 'absence'
@@ -55,8 +59,7 @@ type NavigationPage =
   | 'edit-address'
   | 'edit-group'
   | 'inbox'
-  | 'messaging'
-  | '';
+  | (string & {});
 
 @Component({
   selector: 'app-nav',
@@ -74,7 +77,7 @@ type NavigationPage =
     IconSettingComponent,
     IconAvailabilityComponent,
     IconMailComponent,
-    IconMessagingComponent,
+    PluginIconComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -88,7 +91,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
   @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
   @ViewChild('mailIcon') mailIcon!: IconMailComponent;
-  @ViewChild('messagingIcon') messagingIcon!: IconMessagingComponent;
+  @ViewChildren(PluginIconComponent) pluginIcons!: QueryList<PluginIconComponent>;
 
   // Services
   public authorizationService = inject(AuthorizationService);
@@ -107,6 +110,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public inboxService = inject(InboxService);
   public inboxVisibilityService = inject(InboxVisibilityService);
+  public featurePluginState = inject(FeaturePluginStateService);
 
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
@@ -140,9 +144,10 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'floor-plan';
       case 'inbox':
         return 'inbox';
-      case 'messaging':
-        return 'messaging';
       default:
+        if (this.isPluginPage(page)) {
+          return 'plugin:' + page;
+        }
         return '';
     }
   });
@@ -169,6 +174,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateCurrentPage();
     this.inboxVisibilityService.ensureSettingsLoaded();
     this.inboxService.refreshUnreadCount();
+    this.featurePluginState.ensureLoaded();
 
     this.absence = DomainMessages.ABSENCE;
     this.all_schedule = DomainMessages.ALL_SCHEDULE;
@@ -340,9 +346,9 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationService.navigateToInbox();
   }
 
-  onClickMessaging(): void {
-    this.currentPage.set('messaging');
-    this.navigationService.navigateToMessaging();
+  onClickPlugin(plugin: PluginNavItem): void {
+    this.currentPage.set(plugin.name as NavigationPage);
+    this.navigationService.navigateToRouterToken(plugin.route);
   }
 
   onChangeLanguage(lang: string): void {
@@ -365,7 +371,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.settingsIcon,
       this.availabilityIcon,
       this.mailIcon,
-      this.messagingIcon,
     ];
 
     icons.forEach((icon) => {
@@ -373,9 +378,19 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         icon.ChangeColor();
       }
     });
+
+    if (this.pluginIcons) {
+      this.pluginIcons.forEach((icon) => icon.ChangeColor());
+    }
   }
 
   private activateIcon(iconName: string): void {
+    if (iconName.startsWith('plugin:')) {
+      const pluginName = iconName.substring(7);
+      this.activatePluginIcon(pluginName);
+      return;
+    }
+
     const iconMap = {
       absence: this.absenceIcon,
       group: this.groupIcon,
@@ -386,13 +401,28 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       settings: this.settingsIcon,
       availability: this.availabilityIcon,
       inbox: this.mailIcon,
-      messaging: this.messagingIcon,
     };
 
     const icon = iconMap[iconName as keyof typeof iconMap];
     if (icon) {
       icon.ChangeColor(true);
     }
+  }
+
+  private activatePluginIcon(pluginName: string): void {
+    if (!this.pluginIcons) return;
+    const navItems = this.featurePluginState.pluginNavItems();
+    const index = navItems.findIndex((p) => p.name === pluginName);
+    if (index >= 0) {
+      const icon = this.pluginIcons.get(index);
+      if (icon) {
+        icon.ChangeColor(true);
+      }
+    }
+  }
+
+  private isPluginPage(page: string): boolean {
+    return this.featurePluginState.pluginNavItems().some((p) => p.name === page);
   }
 
   private setSelectedIconColor(): void {

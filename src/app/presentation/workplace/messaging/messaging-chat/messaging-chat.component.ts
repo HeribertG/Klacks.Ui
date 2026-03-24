@@ -107,6 +107,11 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   }
 
   loadMessages(): void {
+    if (!this.selectedContact()) {
+      this.messages.set([]);
+      return;
+    }
+
     this.isLoading.set(true);
     const providerId = this.selectedProviderIds().length === 1
       ? this.selectedProviderIds()[0]

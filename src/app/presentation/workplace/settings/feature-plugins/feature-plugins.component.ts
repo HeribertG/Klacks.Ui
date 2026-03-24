@@ -10,6 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { FeaturePluginsHeaderComponent } from './feature-plugins-header/feature-plugins-header.component';
 import { FeaturePluginsRowComponent } from './feature-plugins-row/feature-plugins-row.component';
@@ -30,6 +31,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 })
 export class FeaturePluginsComponent implements OnInit, OnDestroy {
   private dataService = inject(DataFeaturePluginService);
+  private pluginState = inject(FeaturePluginStateService);
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -70,6 +72,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
       await firstValueFrom(this.dataService.install(plugin.name));
       plugin.isInstalled = true;
       plugin.isEnabled = true;
+      await this.pluginState.refresh();
       this.toastService.showSuccess(
         this.translate.instant('settings.feature-plugins.success.install'),
         this.translate.instant('TOAST_SUCCESS')
@@ -86,6 +89,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
       await firstValueFrom(this.dataService.uninstall(plugin.name));
       plugin.isInstalled = false;
       plugin.isEnabled = false;
+      await this.pluginState.refresh();
       this.toastService.showSuccess(
         this.translate.instant('settings.feature-plugins.success.uninstall'),
         this.translate.instant('TOAST_SUCCESS')
@@ -106,6 +110,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
         await firstValueFrom(this.dataService.disable(plugin.name));
       }
       plugin.isEnabled = newState;
+      await this.pluginState.refresh();
       const messageKey = newState
         ? 'settings.feature-plugins.success.enable'
         : 'settings.feature-plugins.success.disable';

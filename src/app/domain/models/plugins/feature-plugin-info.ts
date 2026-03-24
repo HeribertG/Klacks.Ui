@@ -3,6 +3,8 @@
 /**
  * Feature plugin information model matching backend FeaturePluginInfo DTO.
  */
+import { PluginNavigationManifest } from './plugin-nav-item';
+
 export interface FeaturePluginInfo {
   name: string;
   displayName: string;
@@ -14,4 +16,5 @@ export interface FeaturePluginInfo {
   isInstalled: boolean;
   isEnabled: boolean;
   providedSkills: string[];
+  navigation?: PluginNavigationManifest;
 }

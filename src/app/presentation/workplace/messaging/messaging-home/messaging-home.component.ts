@@ -65,7 +65,8 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
   }
 
   private onClientSelected(client: IClient): void {
-    this.messagingChat.selectedContact.set(client.name ?? '');
+    const displayName = `${client.idNumber}, ${client.firstName} ${client.name}`.trim();
+    this.messagingChat.selectedContact.set(displayName);
     this.messagingChat.loadMessages();
   }
 }

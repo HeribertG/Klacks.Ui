@@ -127,19 +127,24 @@
       </div>
     }
 
-    <div class="icon">
-      <button
-        type="button"
-        class="icon-button"
-        id="open-messaging"
-        (click)="onClickMessaging()"
-        [attr.aria-label]="'Open Messaging'"
-        placement="right"
-        ngbTooltip="{{ 'messaging.nav.tooltip' | translate }}"
-      >
-        <app-icon-messaging #messagingIcon></app-icon-messaging>
-      </button>
-    </div>
+    @for (plugin of featurePluginState.pluginNavItems(); track plugin.name) {
+      <div class="icon">
+        <button
+          type="button"
+          class="icon-button"
+          [id]="'open-plugin-' + plugin.name"
+          (click)="onClickPlugin(plugin)"
+          [attr.aria-label]="'Open ' + plugin.name"
+          placement="right"
+          ngbTooltip="{{ plugin.labelKey | translate }}"
+        >
+          <app-plugin-icon
+            [svgPaths]="plugin.svgPaths"
+            [viewBox]="plugin.viewBox"
+          ></app-plugin-icon>
+        </button>
+      </div>
+    }
   </div>
 
   <div class="main-bottomcell">
