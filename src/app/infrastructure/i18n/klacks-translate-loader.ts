@@ -2,7 +2,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader } from '@ngx-translate/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, of, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const CORE_LANGUAGES = ['de', 'en', 'fr', 'it'];
@@ -16,13 +16,22 @@ export class KlacksTranslateLoader implements TranslateLoader {
   }
 
   getTranslation(lang: string): Observable<Record<string, string>> {
+    const featurePluginTranslations$ = this.httpClient
+      .get<Record<string, string>>(`${this.apiUrl}config/translations/${lang}`)
+      .pipe(catchError(() => of({})));
+
     if (CORE_LANGUAGES.includes(lang)) {
-      return this.httpClient.get<Record<string, string>>(`./assets/i18n/${lang}.json`);
+      return forkJoin({
+        core: this.httpClient.get<Record<string, string>>(`./assets/i18n/${lang}.json`),
+        plugins: featurePluginTranslations$,
+      }).pipe(
+        map(({ core, plugins }) => ({ ...core, ...plugins }))
+      );
     }
 
     return forkJoin({
       base: this.httpClient.get<Record<string, string>>(`./assets/i18n/${FALLBACK_LANGUAGE}.json`),
-      plugin: this.httpClient.get<Record<string, string>>(`${this.apiUrl}config/translations/${lang}`),
+      plugin: featurePluginTranslations$,
     }).pipe(
       map(({ base, plugin }) => ({ ...base, ...plugin }))
     );

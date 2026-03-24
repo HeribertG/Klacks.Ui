@@ -9,9 +9,7 @@
       {{ "messaging.chat.select-contact" | translate }}
     }
   </div>
-  <div class="container-subline">
-    {{ "messaging.chat.subtitle" | translate }}
-  </div>
+
   <div class="container-line"></div>
 
   <div class="messages-container" #messagesContainer>
@@ -26,12 +24,22 @@
     } @else {
       <div class="messages">
         @for (msg of messages(); track msg.id) {
-          <div class="message-wrapper" [class]="getDirectionClass(msg.direction)">
-            <div class="message-bubble" [class]="getDirectionClass(msg.direction)">
+          <div
+            class="message-wrapper"
+            [class]="getDirectionClass(msg.direction)"
+          >
+            <div
+              class="message-bubble"
+              [class]="getDirectionClass(msg.direction)"
+            >
               <div class="message-meta">
-                <span class="message-sender">{{ msg.senderDisplayName || msg.sender || msg.recipient }}</span>
+                <span class="message-sender">{{
+                  msg.senderDisplayName || msg.sender || msg.recipient
+                }}</span>
                 <span class="message-provider">{{ msg.providerName }}</span>
-                <span class="message-time">{{ msg.timestamp | date:"short" }}</span>
+                <span class="message-time">{{
+                  msg.timestamp | date: "short"
+                }}</span>
               </div>
               <div class="message-text">{{ msg.content }}</div>
               @if (msg.errorMessage) {
@@ -53,7 +61,9 @@
         [class.listening]="isListening"
         [class.transcribing]="isTranscribing || speechService.isTranscribing()"
         [class.not-supported]="!speechService.isSupported$()"
-        [disabled]="!selectedContact() || isTranscribing || speechService.isTranscribing()"
+        [disabled]="
+          !selectedContact() || isTranscribing || speechService.isTranscribing()
+        "
         (click)="toggleVoiceMode()"
       >
         @if (isTranscribing || speechService.isTranscribing()) {
@@ -73,7 +83,11 @@
         class="input-field"
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
-        [placeholder]="selectedContact() ? ('messaging.chat.placeholder' | translate) : ('messaging.chat.select-contact-hint' | translate)"
+        [placeholder]="
+          selectedContact()
+            ? ('messaging.chat.placeholder' | translate)
+            : ('messaging.chat.select-contact-hint' | translate)
+        "
         [disabled]="!selectedContact()"
       ></textarea>
 

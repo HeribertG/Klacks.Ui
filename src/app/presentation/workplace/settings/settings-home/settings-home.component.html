@@ -345,14 +345,16 @@
       </app-deepl>
     </div>
 
-    <div id="settings-home-messaging-providers-row" class="container-profilline">
-      <app-messaging-providers
-        id="settings-messaging-providers"
-        class="container-profile first border-right-card border-bottom-card"
-        (click)="isfocused('app-messaging-providers')"
-      >
-      </app-messaging-providers>
-    </div>
+    @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
+      <div id="settings-home-messaging-providers-row" class="container-profilline">
+        <app-messaging-providers
+          id="settings-messaging-providers"
+          class="container-profile first border-right-card border-bottom-card"
+          (click)="isfocused('app-messaging-providers')"
+        >
+        </app-messaging-providers>
+      </div>
+    }
 
     <div id="settings-home-language-plugins-row" class="container-profilline">
       <app-language-plugins

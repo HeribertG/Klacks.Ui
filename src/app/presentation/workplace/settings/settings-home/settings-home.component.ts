@@ -13,6 +13,8 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -108,6 +110,8 @@ export class SettingsHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  public featurePluginState = inject(FeaturePluginStateService);
+  public messagingPluginName = MESSAGING_PLUGIN_NAME;
 
   sections: Record<string, boolean> = {
     general: true,
