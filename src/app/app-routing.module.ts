@@ -17,7 +17,10 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
     path: 'oauth2/callback',
-    loadComponent: () => import('./presentation/auth/oauth2-callback/oauth2-callback.component').then(m => m.OAuth2CallbackComponent)
+    loadComponent: () =>
+      import('./presentation/auth/oauth2-callback/oauth2-callback.component').then(
+        (m) => m.OAuth2CallbackComponent,
+      ),
   },
   { path: 'error', component: ErrorComponent },
   { path: 'no-access', component: NoAccessComponent },
@@ -29,108 +32,174 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { 
-        path: 'dashboard', 
-        loadComponent: () => import('./presentation/workplace/dashboard/dashboard-home/dashboard-home.component').then(m => m.DashboardHomeComponent)
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./presentation/workplace/dashboard/dashboard-home/dashboard-home.component').then(
+            (m) => m.DashboardHomeComponent,
+          ),
       },
-      { 
-        path: 'client', 
-        loadComponent: () => import('./presentation/workplace/address/all-address/all-address-home/all-address-home.component').then(m => m.AllAddressHomeComponent)
+      {
+        path: 'client',
+        loadComponent: () =>
+          import('./presentation/workplace/address/all-address/all-address-home/all-address-home.component').then(
+            (m) => m.AllAddressHomeComponent,
+          ),
       },
       {
         path: 'edit-address',
-        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent),
-        canDeactivate: [CanDeactivateGuard]
+        loadComponent: () =>
+          import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(
+            (m) => m.EditAddressHomeComponent,
+          ),
+        canDeactivate: [CanDeactivateGuard],
       },
       {
         path: 'edit-address/:id',
-        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent),
-        canDeactivate: [CanDeactivateGuard]
+        loadComponent: () =>
+          import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(
+            (m) => m.EditAddressHomeComponent,
+          ),
+        canDeactivate: [CanDeactivateGuard],
       },
-      { 
-        path: 'schedule', 
-        loadComponent: () => import('./presentation/workplace/schedule/schedule-home/schedule-home.component').then(m => m.ScheduleHomeComponent)
+      {
+        path: 'schedule',
+        loadComponent: () =>
+          import('./presentation/workplace/schedule/schedule-home/schedule-home.component').then(
+            (m) => m.ScheduleHomeComponent,
+          ),
       },
       {
         path: 'absence',
-        loadComponent: () => import('./presentation/workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component').then(m => m.AbsenceGanttHomeComponent)
+        loadComponent: () =>
+          import('./presentation/workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component').then(
+            (m) => m.AbsenceGanttHomeComponent,
+          ),
       },
       {
         path: 'client-availability',
-        loadComponent: () => import('./presentation/workplace/client-availability/client-availability-home/client-availability-home.component').then(m => m.ClientAvailabilityHomeComponent)
+        loadComponent: () =>
+          import('./presentation/workplace/client-availability/client-availability-home/client-availability-home.component').then(
+            (m) => m.ClientAvailabilityHomeComponent,
+          ),
       },
-      { 
-        path: 'profile', 
-        loadComponent: () => import('./presentation/workplace/profile/profile-home/profile-home.component').then(m => m.ProfileHomeComponent)
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./presentation/workplace/profile/profile-home/profile-home.component').then(
+            (m) => m.ProfileHomeComponent,
+          ),
       },
-      { 
-        path: 'settings', 
-        loadComponent: () => import('./presentation/workplace/settings/settings-home/settings-home.component').then(m => m.SettingsHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./presentation/workplace/settings/settings-home/settings-home.component').then(
+            (m) => m.SettingsHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'group', 
-        loadComponent: () => import('./presentation/workplace/group/all-group/all-group-home/all-group-home.component').then(m => m.AllGroupHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'group',
+        loadComponent: () =>
+          import('./presentation/workplace/group/all-group/all-group-home/all-group-home.component').then(
+            (m) => m.AllGroupHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'edit-group', 
-        loadComponent: () => import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(m => m.EditGroupHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'edit-group',
+        loadComponent: () =>
+          import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(
+            (m) => m.EditGroupHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'edit-group/:id', 
-        loadComponent: () => import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(m => m.EditGroupHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'edit-group/:id',
+        loadComponent: () =>
+          import('./presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component').then(
+            (m) => m.EditGroupHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'group-structure', 
-        loadComponent: () => import('./presentation/workplace/settings/group-scope/group-scope.component').then(m => m.GroupScopeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'group-structure',
+        loadComponent: () =>
+          import('./presentation/workplace/settings/group-scope/group-scope.component').then(
+            (m) => m.GroupScopeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'shift', 
-        loadComponent: () => import('./presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component').then(m => m.AllShiftHomeComponent)
+      {
+        path: 'shift',
+        loadComponent: () =>
+          import('./presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component').then(
+            (m) => m.AllShiftHomeComponent,
+          ),
       },
-      { 
-        path: 'new-shift', 
-        loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'new-shift',
+        loadComponent: () =>
+          import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
+            (m) => m.EditShiftHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
-      { 
-        path: 'edit-shift', 
-        loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent),
-        canActivate: [AdminGuard]
+      {
+        path: 'edit-shift',
+        loadComponent: () =>
+          import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
+            (m) => m.EditShiftHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
       {
         path: 'edit-shift/:id',
-        loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent),
-        canActivate: [AdminGuard]
+        loadComponent: () =>
+          import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(
+            (m) => m.EditShiftHomeComponent,
+          ),
+        canActivate: [AdminGuard],
       },
       {
         path: 'cut-shift/:id',
-        loadComponent: () => import('./presentation/workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component').then(m => m.CutShiftHomeComponent)
+        loadComponent: () =>
+          import('./presentation/workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component').then(
+            (m) => m.CutShiftHomeComponent,
+          ),
       },
       {
         path: 'container-template/:id',
-        loadComponent: () => import('./presentation/workplace/shift/container-template/container-template.component').then(m => m.ContainerTemplateComponent)
+        loadComponent: () =>
+          import('./presentation/workplace/shift/container-template/container-template.component').then(
+            (m) => m.ContainerTemplateComponent,
+          ),
       },
       {
         path: 'inbox',
-        loadComponent: () => import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(m => m.InboxHomeComponent),
-        canActivate: [InboxGuard]
+        loadComponent: () =>
+          import('./presentation/workplace/inbox/inbox-home/inbox-home.component').then(
+            (m) => m.InboxHomeComponent,
+          ),
+        canActivate: [InboxGuard],
       },
       {
         path: 'messaging',
-        loadComponent: () => import('./presentation/workplace/messaging/messaging-home/messaging-home.component').then(m => m.MessagingHomeComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () =>
+          import('./presentation/workplace/messaging/messaging-home/messaging-home.component').then(
+            (m) => m.MessagingHomeComponent,
+          ),
+        canActivate: [AuthGuard],
       },
       {
         path: 'floor-plan',
-        loadComponent: () => import('./presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component').then(m => m.FloorPlanHomeComponent)
-      }
-    ]
-  }
+        loadComponent: () =>
+          import('./presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component').then(
+            (m) => m.FloorPlanHomeComponent,
+          ),
+      },
+    ],
+  },
 ];
 
 @NgModule({

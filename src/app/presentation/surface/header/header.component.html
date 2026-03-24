@@ -3,18 +3,19 @@
 
 <div class="header-container">
   @if (!hasLogoImage()) {
-  <div id="header-logo-icon" class="icon" (click)="onClickDashboard()">
-    <app-icon-logo></app-icon-logo>
-  </div>
-  } @if (hasLogoImage()) {
-  <div id="header-logo-image" (click)="onClickDashboard()" class="icon1">
-    <img
-      [src]="logoImage()"
-      [width]="logoDisplayDimensions().width"
-      [height]="logoDisplayDimensions().height"
-      alt="Logo"
-    />
-  </div>
+    <div id="header-logo-icon" class="icon" (click)="onClickDashboard()">
+      <app-icon-logo></app-icon-logo>
+    </div>
+  }
+  @if (hasLogoImage()) {
+    <div id="header-logo-image" (click)="onClickDashboard()" class="icon1">
+      <img
+        [src]="logoImage()"
+        [width]="logoDisplayDimensions().width"
+        [height]="logoDisplayDimensions().height"
+        alt="Logo"
+      />
+    </div>
   }
 
   <app-search></app-search>
