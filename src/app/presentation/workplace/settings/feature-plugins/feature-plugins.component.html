@@ -1,10 +1,15 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <app-settings-list-card
   [headline]="'settings.feature-plugins.title' | translate"
   [showAddButton]="false"
   idPrefix="feature-plugins"
   [showHeader]="true"
 >
-  <app-feature-plugins-header header id="feature-plugins-table-header"></app-feature-plugins-header>
+  <app-feature-plugins-header
+    header
+    id="feature-plugins-table-header"
+  ></app-feature-plugins-header>
   <div rows>
     @for (plugin of installedPlugins; track plugin.name; let i = $index) {
       <app-feature-plugins-row
@@ -30,22 +35,31 @@
 <ng-template #marketplaceModal let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title">
-      {{ 'settings.feature-plugins.marketplace.title' | translate }}
+      {{ "settings.feature-plugins.marketplace.title" | translate }}
     </div>
     <span class="filler"></span>
     <div class="close" aria-label="Close" (click)="modal.dismiss()">
-      <span aria-hidden="true" style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);">&times;</span>
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
     </div>
   </div>
   <div class="modal-body">
     <app-feature-plugin-marketplace-browse
       [installedNames]="installedNames"
-      (installed)="onMarketplaceInstalled($event)">
+      (installed)="onMarketplaceInstalled($event)"
+    >
     </app-feature-plugin-marketplace-browse>
   </div>
   <div class="modal-footer">
     <span class="link-button red-font" (click)="modal.dismiss()">
-      {{ 'close' | translate }}
+      {{ "close" | translate }}
     </span>
   </div>
 </ng-template>
