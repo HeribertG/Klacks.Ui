@@ -46,10 +46,15 @@ export class ChatFunctionExecutionService {
 
     for (const call of navigationCalls) {
       const functionName = call.FunctionName || call.functionName;
+      const args = call.Parameters || call.parameters || {};
+      const backendRoute = this.extractRouteFromResult(call.Result || call.result);
+      if (backendRoute) {
+        args['route'] = backendRoute;
+      }
       const functionCall = {
         id: this.generateMessageId(),
         name: functionName,
-        arguments: call.Parameters || call.parameters || {},
+        arguments: args,
       };
       try {
         const result = await firstValueFrom(
@@ -127,6 +132,20 @@ export class ChatFunctionExecutionService {
       if (lastMsg && !lastMsg.content) {
         lastMsg.content = error?.message || 'UI action execution failed';
       }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extractRouteFromResult(result: any): string | null {
+    if (!result) return null;
+    const resultStr = typeof result === 'string' ? result : JSON.stringify(result);
+    const dataMatch = resultStr.match(/Data:\s*(\{.*\})/s);
+    if (!dataMatch) return null;
+    try {
+      const data = JSON.parse(dataMatch[1]);
+      return data.Route || data.route || null;
+    } catch {
+      return null;
     }
   }
 
