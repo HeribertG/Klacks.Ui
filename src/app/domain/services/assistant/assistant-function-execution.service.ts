@@ -51,7 +51,6 @@ export class AssistantFunctionExecutionService {
     'edit-shift': '/workplace/edit-shift',
     'inbox': '/workplace/inbox',
     'messaging': '/workplace/messaging',
-    'floor-plan': '/workplace/floor-plan',
     'profile': '/workplace/profile',
   };
 

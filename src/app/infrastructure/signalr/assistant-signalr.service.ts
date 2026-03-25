@@ -93,9 +93,11 @@ export class AssistantSignalRService implements OnDestroy {
     );
 
     this.hubConnection.on(
-      AssistantSignalRConstants.Events.IncomingMessage,
-      (message: IncomingMessage) => {
-        this.incomingMessage$.next(message);
+      AssistantSignalRConstants.Events.PluginEvent,
+      (eventType: string, payload: unknown) => {
+        if (eventType === 'messaging.incoming') {
+          this.incomingMessage$.next(payload as IncomingMessage);
+        }
       }
     );
   }
