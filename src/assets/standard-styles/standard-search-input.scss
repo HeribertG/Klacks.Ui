@@ -1,0 +1,35 @@
+@use "colors.scss" as colors;
+@use "standard-controls.scss";
+
+.container-search {
+  color: var(--colorLabel);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.container-search-button {
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  font-size: 13px;
+  font-weight: normal;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.container-search-button-disabled {
+  background-color: var(--standartTextBackground);
+  color: var(--colorLabel);
+  font-size: 13px;
+  font-weight: normal;
+  cursor: not-allowed;
+}
+
+.container-search ::placeholder {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--colorPlaceholder);
+  opacity: 1;
+}

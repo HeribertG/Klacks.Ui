@@ -1,141 +1,14 @@
-@use "../../../../../../assets/standard-styles/colors.scss" as colors;
-@use "../../../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../../assets/standard-styles/standard-marketplace-browse.scss";
 
 .marketplace-browse {
-  .container-search {
-    margin-bottom: 16px;
-    color: var(--colorLabel);
-    font-size: 13px;
-    font-weight: normal;
-  }
-
-  .container-search-button {
-    background-color: colors.$standartBlueColor;
-    color: colors.$standartWhiteColor;
-    font-size: 13px;
-    font-weight: normal;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  ::placeholder {
-    font-size: 13px;
-    font-weight: normal;
-    color: var(--colorPlaceholder);
-    opacity: 1;
-  }
-
-  .container-table {
-    padding-top: 10px;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .custom-control-inline {
-    padding-top: 6px;
-    padding-bottom: 6px;
-    display: flex;
-    align-items: center;
-  }
-
-  .table-header {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--colorWorkplaceHeadline);
-    border-bottom: 1px solid var(--colorLine);
-    padding-bottom: 6px;
-  }
-
-  .table-row {
-    border-bottom: 1px solid var(--cardBorderColor);
-    min-height: 36px;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover {
-      background-color: var(--gridBackgroundColorRowHover);
-    }
-  }
-
-  .table-cell {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--colorLabel);
-    border-bottom: none;
-  }
-
   .col-language {
     width: 180px;
     flex-shrink: 0;
     font-weight: 600;
   }
 
-  .col-author {
-    width: 140px;
-    flex-shrink: 0;
-  }
-
   .col-coverage {
     width: 80px;
     flex-shrink: 0;
-  }
-
-  .col-downloads {
-    width: 80px;
-    flex-shrink: 0;
-  }
-
-  .col-version {
-    width: 70px;
-    flex-shrink: 0;
-  }
-
-  .col-action {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .status-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 500;
-
-    &.installed {
-      background-color: colors.$standartGreenColor;
-      color: white;
-    }
-  }
-
-  .install-btn {
-    padding: 2px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    border: 1px solid colors.$standartGreenColor;
-    color: colors.$standartGreenColor;
-    cursor: pointer;
-    background: transparent;
-
-    &:hover:not(:disabled) {
-      background: colors.$standartGreenColor;
-      color: white;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  .text-center {
-    color: var(--colorLabel);
   }
 }

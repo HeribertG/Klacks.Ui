@@ -1,13 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Settings component for managing feature plugins (install, uninstall, enable, disable).
+ * Settings component for managing installed feature plugins.
+ * Shows only installed plugins. Marketplace modal for browsing and installing new ones.
  * @param dataService - API service for feature plugin operations
  * @param toastService - Service for displaying toast notifications
  */
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, ViewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
@@ -15,6 +17,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { FeaturePluginsHeaderComponent } from './feature-plugins-header/feature-plugins-header.component';
 import { FeaturePluginsRowComponent } from './feature-plugins-row/feature-plugins-row.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { IconSearchComponent } from 'src/app/presentation/icons/icon-search.component';
+import { FeaturePluginMarketplaceBrowseComponent } from './feature-plugin-marketplace-browse/feature-plugin-marketplace-browse.component';
 
 @Component({
   selector: 'app-feature-plugins',
@@ -24,6 +28,8 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
     FeaturePluginsHeaderComponent,
     FeaturePluginsRowComponent,
     SettingsListCardComponent,
+    IconSearchComponent,
+    FeaturePluginMarketplaceBrowseComponent,
   ],
   templateUrl: './feature-plugins.component.html',
   styleUrls: ['./feature-plugins.component.scss'],
@@ -33,12 +39,24 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
   private dataService = inject(DataFeaturePluginService);
   private pluginState = inject(FeaturePluginStateService);
   private toastService = inject(ToastShowService);
+  private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
+  @ViewChild('marketplaceModal') marketplaceModal!: TemplateRef<unknown>;
+  @ViewChild(FeaturePluginMarketplaceBrowseComponent) marketplaceBrowse?: FeaturePluginMarketplaceBrowseComponent;
+
   allPlugins: FeaturePluginInfo[] = [];
   isLoading = false;
+
+  get installedPlugins(): FeaturePluginInfo[] {
+    return this.allPlugins.filter(p => p.isInstalled);
+  }
+
+  get installedNames(): Set<string> {
+    return new Set(this.allPlugins.filter(p => p.isInstalled).map(p => p.name));
+  }
 
   ngOnInit(): void {
     this.loadPlugins();
@@ -65,23 +83,6 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
       });
-  }
-
-  async onInstall(plugin: FeaturePluginInfo): Promise<void> {
-    try {
-      await firstValueFrom(this.dataService.install(plugin.name));
-      plugin.isInstalled = true;
-      plugin.isEnabled = true;
-      await this.pluginState.refresh();
-      this.toastService.showSuccess(
-        this.translate.instant('settings.feature-plugins.success.install'),
-        this.translate.instant('TOAST_SUCCESS')
-      );
-    } catch {
-      this.toastService.showError(this.translate.instant('settings.feature-plugins.error.install'));
-    } finally {
-      this.cdr.markForCheck();
-    }
   }
 
   async onUninstall(plugin: FeaturePluginInfo): Promise<void> {
@@ -123,5 +124,15 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
     } finally {
       this.cdr.markForCheck();
     }
+  }
+
+  openMarketplaceModal(): void {
+    this.modalService.open(this.marketplaceModal, { size: 'lg' });
+    setTimeout(() => this.marketplaceBrowse?.search(), 0);
+  }
+
+  onMarketplaceInstalled(name: string): void {
+    this.loadPlugins();
+    this.pluginState.refresh();
   }
 }

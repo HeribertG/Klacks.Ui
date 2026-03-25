@@ -1,0 +1,66 @@
+<div class="marketplace-browse">
+  <div class="container-search form-group">
+    <div class="input-group">
+      <input
+        type="search"
+        class="form-control"
+        [(ngModel)]="searchTerm"
+        (keydown.enter)="search()"
+        [placeholder]="'settings.feature-plugins.marketplace.search-placeholder' | translate"
+      />
+      <button
+        class="btn btn-outline-secondary container-search-button input-group-text"
+        type="button"
+        (click)="search()"
+        [disabled]="isLoading"
+      >
+        <fa-icon [icon]="faSearch"></fa-icon>
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="text-center p-4">
+      <div class="spinner-border" role="status"></div>
+    </div>
+  } @else if (plugins.length === 0) {
+    <div class="text-center p-4 text-muted">
+      {{ 'settings.feature-plugins.marketplace.no-results' | translate }}
+    </div>
+  } @else {
+    <div class="container-table">
+      <div class="table-header custom-control-inline">
+        <span class="col-name">{{ 'settings.feature-plugins.header.name' | translate }}</span>
+        <span class="col-category">{{ 'settings.feature-plugins.header.category' | translate }}</span>
+        <span class="col-version">{{ 'settings.feature-plugins.header.version' | translate }}</span>
+        <span class="col-author">{{ 'settings.feature-plugins.header.author' | translate }}</span>
+        <span class="col-downloads">{{ 'settings.feature-plugins.marketplace.downloads' | translate }}</span>
+        <span class="col-action"></span>
+      </div>
+      @for (plugin of plugins; track plugin.name) {
+        <div class="table-row custom-control-inline">
+          <span class="col-name table-cell">{{ plugin.displayName }}</span>
+          <span class="col-category table-cell">{{ plugin.category }}</span>
+          <span class="col-version table-cell">{{ plugin.version }}</span>
+          <span class="col-author table-cell">{{ plugin.authorName }}</span>
+          <span class="col-downloads table-cell">{{ plugin.downloads }}</span>
+          <span class="col-action table-cell">
+            @if (isInstalled(plugin.name)) {
+              <span class="status-badge installed">{{ 'settings.feature-plugins.status.installed' | translate }}</span>
+            } @else {
+              <button class="install-btn"
+                      (click)="onInstall(plugin.name)"
+                      [disabled]="installingName === plugin.name">
+                @if (installingName === plugin.name) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                } @else {
+                  {{ 'settings.feature-plugins.action.install' | translate }}
+                }
+              </button>
+            }
+          </span>
+        </div>
+      }
+    </div>
+  }
+</div>

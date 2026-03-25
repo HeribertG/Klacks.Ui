@@ -1,0 +1,14 @@
+@use "../../../../../../assets/standard-styles/standard-marketplace-browse.scss";
+
+.marketplace-browse {
+  .col-name {
+    width: 160px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .col-category {
+    width: 120px;
+    flex-shrink: 0;
+  }
+}

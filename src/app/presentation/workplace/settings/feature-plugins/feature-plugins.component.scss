@@ -1,3 +1,4 @@
+@use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 
@@ -5,4 +6,15 @@
   display: block;
   height: 100%;
   position: relative;
+}
+
+.search-btn {
+  position: absolute;
+  right: 30px;
+  top: 18px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }

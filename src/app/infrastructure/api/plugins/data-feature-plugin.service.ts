@@ -6,9 +6,10 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, retry } from 'rxjs';
+import { Observable, retry, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
+import { MarketplacePlugin, MarketplacePluginSearchResult } from 'src/app/domain/models/plugins/marketplace-plugin';
 
 @Injectable({ providedIn: 'root' })
 export class DataFeaturePluginService {
@@ -27,6 +28,10 @@ export class DataFeaturePluginService {
     return this.httpClient.post<void>(`${this.apiUrl}plugins/features/${name}/install`, {});
   }
 
+  installFromMarketplace(name: string): Observable<void> {
+    return this.httpClient.post<void>(`${this.apiUrl}plugins/features/${name}/install-from-marketplace`, {});
+  }
+
   uninstall(name: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}plugins/features/${name}/uninstall`);
   }
@@ -37,5 +42,14 @@ export class DataFeaturePluginService {
 
   disable(name: string): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}plugins/features/${name}/disable`, {});
+  }
+
+  searchMarketplace(search?: string, category?: string): Observable<MarketplacePluginSearchResult> {
+    let params = '?pageSize=100';
+    if (search) params += `&search=${encodeURIComponent(search)}`;
+    if (category) params += `&category=${encodeURIComponent(category)}`;
+    return this.httpClient.get<MarketplacePlugin[]>(`${this.apiUrl}plugins/features/marketplace${params}`).pipe(
+      map(items => ({ items, totalCount: items.length, page: 1, pageSize: 100 }))
+    );
   }
 }

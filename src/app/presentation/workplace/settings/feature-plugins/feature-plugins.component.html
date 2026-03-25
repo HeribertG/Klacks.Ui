@@ -6,14 +6,46 @@
 >
   <app-feature-plugins-header header id="feature-plugins-table-header"></app-feature-plugins-header>
   <div rows>
-    @for (plugin of allPlugins; track plugin.name; let i = $index) {
+    @for (plugin of installedPlugins; track plugin.name; let i = $index) {
       <app-feature-plugins-row
         [id]="'feature-plugins-row-' + i"
         [data]="plugin"
-        (installEvent)="onInstall($event)"
         (uninstallEvent)="onUninstall($event)"
         (toggleEnabledEvent)="onToggleEnabled($event)"
       />
     }
   </div>
 </app-settings-list-card>
+
+<button
+  id="feature-plugins-search-btn"
+  class="btn btn-primary search-btn"
+  type="button"
+  (click)="openMarketplaceModal()"
+  [title]="'settings.feature-plugins.action.search' | translate"
+>
+  <app-icon-search />
+</button>
+
+<ng-template #marketplaceModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ 'settings.feature-plugins.marketplace.title' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true" style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);">&times;</span>
+    </div>
+  </div>
+  <div class="modal-body">
+    <app-feature-plugin-marketplace-browse
+      [installedNames]="installedNames"
+      (installed)="onMarketplaceInstalled($event)">
+    </app-feature-plugin-marketplace-browse>
+  </div>
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="modal.dismiss()">
+      {{ 'close' | translate }}
+    </span>
+  </div>
+</ng-template>
