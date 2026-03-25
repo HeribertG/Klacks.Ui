@@ -47,9 +47,10 @@ export class PieChartComponent implements OnChanges {
   }
 
   private calculateChart(): void {
-    if (!this.data || this.data.length === 0) {
+    this.total = this.data?.reduce((sum, item) => sum + item.value, 0) ?? 0;
+
+    if (!this.data || this.data.length === 0 || this.total === 0) {
       this.slices = [];
-      this.total = 0;
       return;
     }
 
@@ -57,8 +58,6 @@ export class PieChartComponent implements OnChanges {
     this.centerY = this.height / 2;
     this.outerRadius = Math.min(this.width, this.height) / 2 - 20;
     this.innerRadius = this.outerRadius * 0.6;
-
-    this.total = this.data.reduce((sum, item) => sum + item.value, 0);
     let currentAngle = -90;
 
     const hoverOffset = 12;
