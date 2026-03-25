@@ -33,14 +33,44 @@ export class AssistantFunctionExecutionService {
 
   private static readonly ALLOWED_ROUTE_PREFIX = '/workplace/';
 
+  private static readonly PAGE_ROUTES: Record<string, string> = {
+    'dashboard': '/workplace/dashboard',
+    'client-list': '/workplace/client',
+    'new-employee': '/workplace/edit-address',
+    'edit-employee': '/workplace/edit-address',
+    'schedule': '/workplace/schedule',
+    'absences': '/workplace/absence',
+    'client-availability': '/workplace/client-availability',
+    'settings': '/workplace/settings',
+    'group-list': '/workplace/group',
+    'new-group': '/workplace/edit-group',
+    'edit-group': '/workplace/edit-group',
+    'group-structure': '/workplace/group-structure',
+    'shift-list': '/workplace/shift',
+    'new-shift': '/workplace/new-shift',
+    'edit-shift': '/workplace/edit-shift',
+    'inbox': '/workplace/inbox',
+    'messaging': '/workplace/messaging',
+    'floor-plan': '/workplace/floor-plan',
+    'profile': '/workplace/profile',
+  };
+
   private executeNavigate(
     call: IAssistantFunctionCall
   ): Observable<IAssistantFunctionResult> {
     try {
-      const route =
-        call.arguments['route'] ||
-        call.arguments['Route'] ||
-        `/workplace/${(call.arguments['page'] || 'dashboard').toLowerCase()}`;
+      const page = ((call.arguments['page'] as string) || 'dashboard').toLowerCase();
+      const entityId = call.arguments['entityId'] as string;
+
+      let route =
+        call.arguments['route'] as string ||
+        call.arguments['Route'] as string ||
+        AssistantFunctionExecutionService.PAGE_ROUTES[page] ||
+        `/workplace/${page}`;
+
+      if (entityId) {
+        route += `/${entityId}`;
+      }
 
       if (!route.startsWith(AssistantFunctionExecutionService.ALLOWED_ROUTE_PREFIX)) {
         return of({ id: call.id, success: false, error: 'Navigation target not allowed' });

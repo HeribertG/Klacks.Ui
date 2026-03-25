@@ -344,6 +344,10 @@ export class DataManagementAssistantService {
     this.initializeModels();
   }
 
+  warmupCache(): void {
+    this.dataAssistantService.warmup();
+  }
+
   private getOrCreateConversation(conversationId: string): IConversation {
     if (!this.conversations.has(conversationId)) {
       this.conversations.set(conversationId, {

@@ -140,4 +140,8 @@ export class DataAssistantService {
   deleteModel(id: string): Observable<any> {
     return this.httpClient.delete(`${this.baseUrl}models/${id}`).pipe(retry(3));
   }
+
+  warmup(): void {
+    this.httpClient.get(`${this.baseUrl}chat/warmup`).subscribe();
+  }
 }

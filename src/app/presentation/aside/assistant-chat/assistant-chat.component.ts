@@ -96,6 +96,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     effect(() => {
       if (this.asideService.isVisible()) {
         this.assistantProviderService.loadProviders();
+        this.assistantService.warmupCache();
 
         if (!this.asideService.openedWithContext() && this.messages.length === 0) {
           const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
@@ -395,6 +396,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.assistantService.setCurrentModel(modelId);
     this.currentModel = modelId;
     this.showModelDropdown = false;
+    this.assistantService.warmupCache();
   }
 
   getCurrentModelInfo(): IAssistantModel | undefined {
