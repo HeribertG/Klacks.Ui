@@ -714,6 +714,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return this.shiftOpsService.isTimeRangePartial(shift, this.timeFrom, this.timeTo);
   }
 
+  onRemoveAllTasks(): void {
+    const items = [...this.selectedContainerTemplateItems];
+    for (const item of items) {
+      this.shiftOpsService.removeTask(
+        item,
+        this.selectedWeekday,
+        this.isHoliday,
+        () => {},
+      );
+    }
+    this.updateAvailableTasks();
+    this.cdr.markForCheck();
+  }
+
   onRemoveTask(item: IContainerTemplateItem): void {
     this.shiftOpsService.removeTask(
       item,
@@ -779,6 +793,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday,
       this.timeFrom,
     );
+  }
+
+  onItemsDisplaced(): void {
+    this.cdr.markForCheck();
   }
 
   onShiftRowClick(item: IContainerTemplateItem): void {

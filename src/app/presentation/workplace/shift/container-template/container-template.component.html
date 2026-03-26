@@ -109,7 +109,9 @@
               id="start-base"
               class="form-select"
               [(ngModel)]="routeService.selectedStartBase"
-              (change)="routeService.onStartBaseChange(selectedWeekday, isHoliday)"
+              (change)="
+                routeService.onStartBaseChange(selectedWeekday, isHoliday)
+              "
               [ngbTooltip]="
                 'shift.container-template.tooltip.start-base' | translate
               "
@@ -134,7 +136,9 @@
               id="end-base"
               class="form-select"
               [(ngModel)]="routeService.selectedEndBase"
-              (change)="routeService.onEndBaseChange(selectedWeekday, isHoliday)"
+              (change)="
+                routeService.onEndBaseChange(selectedWeekday, isHoliday)
+              "
               [ngbTooltip]="
                 'shift.container-template.tooltip.end-base' | translate
               "
@@ -161,7 +165,13 @@
                 type="button"
                 class="transport-mode-btn"
                 [class.active]="routeService.selectedTransportMode === 0"
-                (click)="routeService.selectTransportMode(0, selectedWeekday, isHoliday)"
+                (click)="
+                  routeService.selectTransportMode(
+                    0,
+                    selectedWeekday,
+                    isHoliday
+                  )
+                "
                 [ngbTooltip]="
                   'shift.container-template.transport-mode.by-car' | translate
                 "
@@ -174,7 +184,14 @@
                 [class.active]="routeService.selectedTransportMode === 1"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
-                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(1, selectedWeekday, isHoliday)"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    routeService.selectTransportMode(
+                      1,
+                      selectedWeekday,
+                      isHoliday
+                    )
+                "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.by-bicycle'
@@ -191,7 +208,14 @@
                 [class.active]="routeService.selectedTransportMode === 2"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
-                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(2, selectedWeekday, isHoliday)"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    routeService.selectTransportMode(
+                      2,
+                      selectedWeekday,
+                      isHoliday
+                    )
+                "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.by-foot'
@@ -208,7 +232,14 @@
                 [class.active]="routeService.selectedTransportMode === 3"
                 [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
                 [disabled]="!routeService.hasOpenRouteServiceApiKey"
-                (click)="routeService.hasOpenRouteServiceApiKey && routeService.selectTransportMode(3, selectedWeekday, isHoliday)"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    routeService.selectTransportMode(
+                      3,
+                      selectedWeekday,
+                      isHoliday
+                    )
+                "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
                     ? ('shift.container-template.transport-mode.mix'
@@ -236,6 +267,7 @@
             [fromTime]="timeFrom"
             [untilTime]="timeTo"
             (shiftRightClick)="onShiftRightClick($event)"
+            (itemsDisplaced)="onItemsDisplaced()"
           ></app-time-ruler>
         </div>
       </as-split-area>
@@ -253,7 +285,9 @@
                   }}
                 </h3>
                 <span class="filler"></span>
-                @if (routeService.selectedStartBase && routeService.selectedEndBase) {
+                @if (
+                  routeService.selectedStartBase && routeService.selectedEndBase
+                ) {
                   <app-icon-wizard
                     class="icon-table"
                     [class.disabled]="routeService.isAutofillRunning"
@@ -262,11 +296,23 @@
                       'shift.container-template.tooltip.autofill' | translate
                     "
                   ></app-icon-wizard>
-                  <div class="tolerance-slider custom-slider"
-                    [ngbTooltip]="'shift.container-template.tooltip.tolerance-slider' | translate">
-                    <span class="tolerance-endpoint">{{ 'shift.container-template.tolerance.flexible' | translate }}</span>
-                    <ngx-slider [(value)]="timeRangeToleranceValue" [options]="timeRangeToleranceOptions"></ngx-slider>
-                    <span class="tolerance-endpoint">{{ 'shift.container-template.tolerance.exact' | translate }}</span>
+                  <div
+                    class="tolerance-slider custom-slider"
+                    [ngbTooltip]="
+                      'shift.container-template.tooltip.tolerance-slider'
+                        | translate
+                    "
+                  >
+                    <span class="tolerance-endpoint">{{
+                      "shift.container-template.tolerance.flexible" | translate
+                    }}</span>
+                    <ngx-slider
+                      [(value)]="timeRangeToleranceValue"
+                      [options]="timeRangeToleranceOptions"
+                    ></ngx-slider>
+                    <span class="tolerance-endpoint">{{
+                      "shift.container-template.tolerance.exact" | translate
+                    }}</span>
                   </div>
                   <app-icon-route
                     class="icon-table"
@@ -305,7 +351,9 @@
                   "
                 ></app-icon-compact>
               </div>
-              @if (routeService.isAutofillRunning || routeService.isOptimizing) {
+              @if (
+                routeService.isAutofillRunning || routeService.isOptimizing
+              ) {
                 <div class="autofill-progress">
                   <div class="autofill-progress-bar"></div>
                 </div>
@@ -347,7 +395,9 @@
                             "shift.container-template.grid.client" | translate
                           }}
                         </th>
-                        <th class="action-column"></th>
+                        <th class="action-column1" (click)="onRemoveAllTasks()">
+                          <app-icon-trash-red></app-icon-trash-red>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -378,13 +428,20 @@
                           (cdkDragStarted)="onDragStarted($event)"
                           (cdkDragEnded)="onDragEnded($event)"
                           [class.selected]="shift === selectedShift"
-                          [class.timerange-violation]="hasTimeRangeViolation(shift)"
+                          [class.timerange-violation]="
+                            hasTimeRangeViolation(shift)
+                          "
                           [class.absence-item]="!!shift.absenceId"
-                          [style.background-color]="shift.absenceId ? shift.absence?.color + '30' : null"
+                          [style.background-color]="
+                            shift.absenceId ? shift.absence?.color + '30' : null
+                          "
                         >
                           <td class="icon-column">
                             @if (shift.absenceId) {
-                              <span class="absence-color-rect" [style.background-color]="shift.absence?.color"></span>
+                              <span
+                                class="absence-color-rect"
+                                [style.background-color]="shift.absence?.color"
+                              ></span>
                             } @else if (shift.shift?.isSporadic) {
                               <app-icon-unknown-time></app-icon-unknown-time>
                             } @else if (shift.shift?.isTimeRange) {
@@ -393,11 +450,28 @@
                               <app-icon-shift-segment></app-icon-shift-segment>
                             }
                           </td>
-                          <td>{{ shift.absenceId ? (shift.absence?.name?.[translateService.currentLang] || shift.absence?.name?.['de']) : shift.shift?.name }}</td>
-                          <td>{{ shift.absenceId ? (shift.absence?.abbreviation?.[translateService.currentLang] || shift.absence?.abbreviation?.['de']) : shift.shift?.abbreviation }}</td>
+                          <td>
+                            {{
+                              shift.absenceId
+                                ? shift.absence?.name?.[
+                                    translateService.currentLang
+                                  ] || shift.absence?.name?.["de"]
+                                : shift.shift?.name
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              shift.absenceId
+                                ? shift.absence?.abbreviation?.[
+                                    translateService.currentLang
+                                  ] || shift.absence?.abbreviation?.["de"]
+                                : shift.shift?.abbreviation
+                            }}
+                          </td>
                           <td>
                             @if (shift.absenceId) {
-                              {{ formatTime(shift.startItem) }} - {{ formatTime(shift.endItem) }}
+                              {{ formatTime(shift.startItem) }} -
+                              {{ formatTime(shift.endItem) }}
                             } @else if (shift.shift?.isTimeRange) {
                               <div
                                 class="time-range-inputs"
@@ -432,7 +506,13 @@
                               }}
                             }
                           </td>
-                          <td>{{ shift.absenceId ? '-' : formatClientWithAddress(shift) }}</td>
+                          <td>
+                            {{
+                              shift.absenceId
+                                ? "-"
+                                : formatClientWithAddress(shift)
+                            }}
+                          </td>
                           <td
                             class="action-column"
                             (click)="
@@ -495,9 +575,24 @@
                           <thead>
                             <tr>
                               <th class="icon-column"></th>
-                              <th>{{ "shift.container-template.grid.name" | translate }}</th>
-                              <th>{{ "shift.container-template.grid.abbreviation" | translate }}</th>
-                              <th>{{ "setting.absence.modal.description" | translate }}</th>
+                              <th>
+                                {{
+                                  "shift.container-template.grid.name"
+                                    | translate
+                                }}
+                              </th>
+                              <th>
+                                {{
+                                  "shift.container-template.grid.abbreviation"
+                                    | translate
+                                }}
+                              </th>
+                              <th>
+                                {{
+                                  "setting.absence.modal.description"
+                                    | translate
+                                }}
+                              </th>
                             </tr>
                           </thead>
                           <tbody
@@ -507,21 +602,50 @@
                             [cdkDropListConnectedTo]="['selected-tasks-list']"
                             [cdkDropListSortingDisabled]="true"
                           >
-                            @for (absence of tabService.containerAbsences; track absence.id) {
+                            @for (
+                              absence of tabService.containerAbsences;
+                              track absence.id
+                            ) {
                               <tr cdkDrag>
                                 <td class="icon-column">
-                                  <span class="absence-color-rect" [style.background-color]="absence.color"></span>
+                                  <span
+                                    class="absence-color-rect"
+                                    [style.background-color]="absence.color"
+                                  ></span>
                                 </td>
-                                <td>{{ absence.name?.[translateService.currentLang] || absence.name?.['de'] }}</td>
-                                <td>{{ absence.abbreviation?.[translateService.currentLang] || absence.abbreviation?.['de'] }}</td>
-                                <td>{{ absence.description?.[translateService.currentLang] || absence.description?.['de'] }}</td>
+                                <td>
+                                  {{
+                                    absence.name?.[
+                                      translateService.currentLang
+                                    ] || absence.name?.["de"]
+                                  }}
+                                </td>
+                                <td>
+                                  {{
+                                    absence.abbreviation?.[
+                                      translateService.currentLang
+                                    ] || absence.abbreviation?.["de"]
+                                  }}
+                                </td>
+                                <td>
+                                  {{
+                                    absence.description?.[
+                                      translateService.currentLang
+                                    ] || absence.description?.["de"]
+                                  }}
+                                </td>
                               </tr>
                             }
                           </tbody>
                         </table>
                       } @else {
                         <div class="no-shifts">
-                          <p>{{ "shift.container-template.grid.no-container-absences" | translate }}</p>
+                          <p>
+                            {{
+                              "shift.container-template.grid.no-container-absences"
+                                | translate
+                            }}
+                          </p>
                         </div>
                       }
                     </div>
@@ -530,114 +654,121 @@
 
                 <!-- Shifts Grid -->
                 @if (!tabService.isEmploymentTabActive) {
-                <div class="shifts-grid-container">
-                  <div class="shifts-grid">
-                    @if (tabService.availableTasks.length > 0) {
-                      <table id="available-tasks-table" class="shifts-table">
-                        <thead>
-                          <tr>
-                            <th class="icon-column"></th>
-                            <th
-                              (click)="onHeaderClick('name')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.name" | translate
-                              }}
-                              {{ sortingService.getArrow("name") }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('abbreviation')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.abbreviation"
-                                  | translate
-                              }}
-                              {{ sortingService.getArrow("abbreviation") }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('startShift')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.time" | translate
-                              }}
-                              {{ sortingService.getArrow("startShift") }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('workTime')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.work-time"
-                                  | translate
-                              }}
-                              {{ sortingService.getArrow("workTime") }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('client')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.client"
-                                  | translate
-                              }}
-                              {{ sortingService.getArrow("client") }}
-                            </th>
-                            <th class="action-column"></th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          cdkDropList
-                          id="available-tasks-list"
-                          [cdkDropListData]="tabService.availableTasks"
-                          [cdkDropListConnectedTo]="['selected-tasks-list']"
-                          [cdkDropListSortingDisabled]="true"
-                          (cdkDropListDropped)="onAvailableTasksDrop($event)"
-                        >
-                          @for (shift of tabService.availableTasks; track shift.id) {
-                            <tr
-                              cdkDrag
-                              cdkDragLockAxis="y"
-                              (cdkDragStarted)="onDragStarted($event)"
-                              (cdkDragEnded)="onDragEnded($event)"
-                              [class.partial-timerange]="isTimeRangePartial(shift)"
-                            >
-                              <td class="icon-column">
-                                @if (shift.isSporadic) {
-                                  <app-icon-unknown-time></app-icon-unknown-time>
-                                } @else if (shift.isTimeRange) {
-                                  <app-icon-time-window></app-icon-time-window>
-                                } @else {
-                                  <app-icon-shift-segment></app-icon-shift-segment>
-                                }
-                              </td>
-                              <td>{{ shift.name }}</td>
-                              <td>{{ shift.abbreviation }}</td>
-                              <td>
-                                {{ formatTime(shift.startShift) }} -
-                                {{ formatTime(shift.endShift) }}
-                              </td>
-                              <td>{{ formatWorkTime(shift.workTime) }}</td>
-                              <td>{{ formatClientWithAddress(shift) }}</td>
-                              <td class="action-column"></td>
+                  <div class="shifts-grid-container">
+                    <div class="shifts-grid">
+                      @if (tabService.availableTasks.length > 0) {
+                        <table id="available-tasks-table" class="shifts-table">
+                          <thead>
+                            <tr>
+                              <th class="icon-column"></th>
+                              <th
+                                (click)="onHeaderClick('name')"
+                                style="cursor: pointer"
+                              >
+                                {{
+                                  "shift.container-template.grid.name"
+                                    | translate
+                                }}
+                                {{ sortingService.getArrow("name") }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('abbreviation')"
+                                style="cursor: pointer"
+                              >
+                                {{
+                                  "shift.container-template.grid.abbreviation"
+                                    | translate
+                                }}
+                                {{ sortingService.getArrow("abbreviation") }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('startShift')"
+                                style="cursor: pointer"
+                              >
+                                {{
+                                  "shift.container-template.grid.time"
+                                    | translate
+                                }}
+                                {{ sortingService.getArrow("startShift") }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('workTime')"
+                                style="cursor: pointer"
+                              >
+                                {{
+                                  "shift.container-template.grid.work-time"
+                                    | translate
+                                }}
+                                {{ sortingService.getArrow("workTime") }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('client')"
+                                style="cursor: pointer"
+                              >
+                                {{
+                                  "shift.container-template.grid.client"
+                                    | translate
+                                }}
+                                {{ sortingService.getArrow("client") }}
+                              </th>
+                              <th class="action-column"></th>
                             </tr>
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <div class="no-shifts">
-                        <p>
-                          {{
-                            "shift.container-template.grid.no-shifts"
-                              | translate
-                          }}
-                        </p>
-                      </div>
-                    }
+                          </thead>
+                          <tbody
+                            cdkDropList
+                            id="available-tasks-list"
+                            [cdkDropListData]="tabService.availableTasks"
+                            [cdkDropListConnectedTo]="['selected-tasks-list']"
+                            [cdkDropListSortingDisabled]="true"
+                            (cdkDropListDropped)="onAvailableTasksDrop($event)"
+                          >
+                            @for (
+                              shift of tabService.availableTasks;
+                              track shift.id
+                            ) {
+                              <tr
+                                cdkDrag
+                                cdkDragLockAxis="y"
+                                (cdkDragStarted)="onDragStarted($event)"
+                                (cdkDragEnded)="onDragEnded($event)"
+                                [class.partial-timerange]="
+                                  isTimeRangePartial(shift)
+                                "
+                              >
+                                <td class="icon-column">
+                                  @if (shift.isSporadic) {
+                                    <app-icon-unknown-time></app-icon-unknown-time>
+                                  } @else if (shift.isTimeRange) {
+                                    <app-icon-time-window></app-icon-time-window>
+                                  } @else {
+                                    <app-icon-shift-segment></app-icon-shift-segment>
+                                  }
+                                </td>
+                                <td>{{ shift.name }}</td>
+                                <td>{{ shift.abbreviation }}</td>
+                                <td>
+                                  {{ formatTime(shift.startShift) }} -
+                                  {{ formatTime(shift.endShift) }}
+                                </td>
+                                <td>{{ formatWorkTime(shift.workTime) }}</td>
+                                <td>{{ formatClientWithAddress(shift) }}</td>
+                                <td class="action-column"></td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="no-shifts">
+                          <p>
+                            {{
+                              "shift.container-template.grid.no-shifts"
+                                | translate
+                            }}
+                          </p>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
                 }
               } @else {
                 <div class="no-data">
@@ -700,7 +831,9 @@
             <app-time-input
               id="timeRangeStartItem"
               [value]="propertiesService.getPropertiesTimeRangeStart()"
-              (valueChange)="propertiesService.onPropertiesTimeRangeStartChange($event)"
+              (valueChange)="
+                propertiesService.onPropertiesTimeRangeStartChange($event)
+              "
               [showLabel]="false"
               [forDuration]="false"
             ></app-time-input>
@@ -710,7 +843,11 @@
               {{ "shift.container-template.properties.work-time" | translate }}
             </label>
             <div class="readonly-value">
-              {{ formatWorkTime(propertiesService.contextMenuTargetItem.shift?.workTime || 0) }}
+              {{
+                formatWorkTime(
+                  propertiesService.contextMenuTargetItem.shift?.workTime || 0
+                )
+              }}
             </div>
           </div>
         </div>
@@ -725,7 +862,9 @@
           <app-time-input
             id="briefingTime"
             [value]="propertiesService.getPropertiesBriefingTime()"
-            (valueChange)="propertiesService.onPropertiesBriefingTimeChange($event)"
+            (valueChange)="
+              propertiesService.onPropertiesBriefingTimeChange($event)
+            "
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -739,7 +878,9 @@
           <app-time-input
             id="debriefingTime"
             [value]="propertiesService.getPropertiesDebriefingTime()"
-            (valueChange)="propertiesService.onPropertiesDebriefingTimeChange($event)"
+            (valueChange)="
+              propertiesService.onPropertiesDebriefingTimeChange($event)
+            "
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -756,7 +897,9 @@
           <app-time-input
             id="travelTimeBefore"
             [value]="propertiesService.getPropertiesTravelTimeBefore()"
-            (valueChange)="propertiesService.onPropertiesTravelTimeBeforeChange($event)"
+            (valueChange)="
+              propertiesService.onPropertiesTravelTimeBeforeChange($event)
+            "
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -771,7 +914,9 @@
           <app-time-input
             id="travelTimeAfter"
             [value]="propertiesService.getPropertiesTravelTimeAfter()"
-            (valueChange)="propertiesService.onPropertiesTravelTimeAfterChange($event)"
+            (valueChange)="
+              propertiesService.onPropertiesTravelTimeAfterChange($event)
+            "
             [showLabel]="false"
             [forDuration]="true"
           ></app-time-input>
@@ -788,9 +933,14 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byCar
+                propertiesService.getPropertiesTransportMode() ===
+                TransportModeEnum.byCar
               "
-              (click)="propertiesService.selectPropertiesTransportMode(TransportModeEnum.byCar)"
+              (click)="
+                propertiesService.selectPropertiesTransportMode(
+                  TransportModeEnum.byCar
+                )
+              "
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-car' | translate
               "
@@ -801,10 +951,13 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byBicycle
+                propertiesService.getPropertiesTransportMode() ===
+                TransportModeEnum.byBicycle
               "
               (click)="
-                propertiesService.selectPropertiesTransportMode(TransportModeEnum.byBicycle)
+                propertiesService.selectPropertiesTransportMode(
+                  TransportModeEnum.byBicycle
+                )
               "
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-bicycle' | translate
@@ -816,9 +969,14 @@
               type="button"
               class="transport-mode-btn"
               [class.active]="
-                propertiesService.getPropertiesTransportMode() === TransportModeEnum.byFoot
+                propertiesService.getPropertiesTransportMode() ===
+                TransportModeEnum.byFoot
               "
-              (click)="propertiesService.selectPropertiesTransportMode(TransportModeEnum.byFoot)"
+              (click)="
+                propertiesService.selectPropertiesTransportMode(
+                  TransportModeEnum.byFoot
+                )
+              "
               [ngbTooltip]="
                 'shift.container-template.transport-mode.by-foot' | translate
               "
@@ -837,7 +995,9 @@
                     startShift: formatTime(
                       propertiesService.contextMenuTargetItem.shift?.startShift
                     ),
-                    endShift: formatTime(propertiesService.contextMenuTargetItem.shift?.endShift),
+                    endShift: formatTime(
+                      propertiesService.contextMenuTargetItem.shift?.endShift
+                    ),
                   }
           }}
         </div>
