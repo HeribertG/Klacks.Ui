@@ -49,7 +49,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faStreetView } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
@@ -59,6 +59,7 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -76,6 +77,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
     FallbackPipe,
     ButtonNewComponent,
     ExpandableCardComponent,
+    IconLocationPinComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -98,6 +100,7 @@ export class AddressPersonaComponent
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 
   public faCalendar = faCalendar;
+  public faStreetView = faStreetView;
 
   public addStreetLine2 = false;
   public addStreetLine3 = false;
@@ -234,6 +237,41 @@ export class AddressPersonaComponent
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
+  }
+
+  isCustomerWithCoordinates(): boolean {
+    const client = this.dataManagementClientService.editClient();
+    if (!client || client.type !== EntityTypeEnum.customer) {
+      return false;
+    }
+    const address = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    return !!address?.latitude && !!address?.longitude;
+  }
+
+  openOpenStreetMap(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client) {
+      return;
+    }
+    const address = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    if (!address?.latitude || !address?.longitude) {
+      return;
+    }
+    const url = `https://www.openstreetmap.org/?mlat=${address.latitude}&mlon=${address.longitude}#map=17/${address.latitude}/${address.longitude}`;
+    window.open(url, '_blank');
+  }
+
+  openStreetView(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client) {
+      return;
+    }
+    const address = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    if (!address?.latitude || !address?.longitude) {
+      return;
+    }
+    const url = `https://www.google.com/maps/@${address.latitude},${address.longitude},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
+    window.open(url, '_blank');
   }
 
   onLegalEntityChange(isLegalEntity: boolean): void {

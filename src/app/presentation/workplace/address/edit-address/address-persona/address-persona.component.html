@@ -187,7 +187,27 @@
 <form #clientForm="ngForm">
   <app-expandable-card [headerTitle]="headerTitle">
 
-    <div headerActions>
+    <div headerActions class="header-actions">
+      @if (isCustomerWithCoordinates()) {
+      <button
+        type="button"
+        class="btn map-btn-osm"
+        (click)="openOpenStreetMap()"
+        ngbTooltip="OpenStreetMap"
+      >
+        <app-icon-location-pin></app-icon-location-pin>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary map-btn-streetview"
+        (click)="openStreetView()"
+        ngbTooltip="Street View"
+      >
+        <fa-icon [icon]="faStreetView"></fa-icon>
+      </button>
+      }
+
       @if (!isDisabled()) {
 
       <app-button-new
