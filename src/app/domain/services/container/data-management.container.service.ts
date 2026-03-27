@@ -328,12 +328,8 @@ export class DataManagementContainerService
       return;
     }
 
-    const hasExistingItems = templates.some((t) =>
-      t.containerTemplateItems?.some(
-        (containerTemplateItem) => containerTemplateItem.id != null
-      )
-    );
-    const saveAction = hasExistingItems
+    const hasExistingTemplates = templates.some((t) => t.id != null);
+    const saveAction = hasExistingTemplates
       ? this.putTemplates(containerShift.id, templates)
       : this.postTemplates(containerShift.id, templates);
 
