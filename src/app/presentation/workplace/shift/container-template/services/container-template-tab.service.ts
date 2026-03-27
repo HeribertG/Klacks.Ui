@@ -70,15 +70,12 @@ export class ContainerTemplateTabService {
       selectedWeekday,
       templateGrid,
     );
-    if (
-      filteredRows.length === 0 ||
-      this.selectedTabIndex >= filteredRows.length
-    ) {
+    const row = filteredRows[this.selectedTabIndex];
+    if (!row) {
       this.availableTasks = [];
       return;
     }
 
-    const row = filteredRows[this.selectedTabIndex];
     const allShifts: IShift[] = [];
 
     row.forEach((slot) => {
