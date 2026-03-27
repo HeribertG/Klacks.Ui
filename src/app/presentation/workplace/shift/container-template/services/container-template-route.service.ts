@@ -36,12 +36,24 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
-import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import {
   timeToString,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
+import { convertShiftToContainerTemplateItem } from 'src/app/shared/helpers/container-template-format.helper';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+
+export interface AutofillRequest {
+  containerShift: IShift | null;
+  selectedWeekday: string | null;
+  isHoliday: boolean;
+  timeFrom: OwnTime;
+  timeTo: OwnTime;
+  availableTasks: IShift[];
+  timeRangeToleranceValue: number;
+  destroy$: Subject<void>;
+  onStateChanged?: () => void;
+}
 
 @Injectable()
 export class ContainerTemplateRouteService {
@@ -77,17 +89,13 @@ export class ContainerTemplateRouteService {
     return this.selectedTransportMode === ContainerTransportModeEnum.mix;
   }
 
-  autofill(
-    containerShift: IShift | null,
-    selectedWeekday: string | null,
-    isHoliday: boolean,
-    timeFrom: OwnTime,
-    timeTo: OwnTime,
-    availableTasks: IShift[],
-    timeRangeToleranceValue: number,
-    destroy$: Subject<void>,
-    onStateChanged?: () => void,
-  ): void {
+  autofill(request: AutofillRequest): void {
+    const {
+      containerShift, selectedWeekday, isHoliday,
+      timeFrom, timeTo, availableTasks,
+      timeRangeToleranceValue, destroy$, onStateChanged,
+    } = request;
+
     if (!this.selectedStartBase || !this.selectedEndBase) {
       this.toastService.showInfo(
         this.translateService.instant(
@@ -186,7 +194,6 @@ export class ContainerTemplateRouteService {
         },
         error: (error) => {
           this.isAutofillRunning = false;
-          console.error('Autofill failed:', error);
           const message = error instanceof TimeoutError
             ? this.translateService.instant('shift.container-template.toast.autofill-timeout')
             : error.error || error.message || error.statusText || 'Unknown error';
@@ -205,7 +212,7 @@ export class ContainerTemplateRouteService {
     for (const shiftId of selectedShiftIds) {
       const shift = availableTasks.find((t) => t.id === shiftId);
       if (shift) {
-        items.push(this.convertShiftToContainerTemplateItem(shift));
+        items.push(convertShiftToContainerTemplateItem(shift));
       }
     }
 
@@ -297,7 +304,6 @@ export class ContainerTemplateRouteService {
         },
         error: (error) => {
           this.isOptimizing = false;
-          console.error('Route optimization failed:', error);
           this.toastService.showError(
             error.message || error.statusText || 'Unknown error',
             'route-optimization-error',
@@ -308,7 +314,7 @@ export class ContainerTemplateRouteService {
   }
 
   applyOptimizedRoute(
-    result: any,
+    result: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     currentItems: IContainerTemplateItem[],
     timeFrom: OwnTime,
     selectedWeekday: string,
@@ -529,21 +535,4 @@ export class ContainerTemplateRouteService {
     return result;
   }
 
-  private convertShiftToContainerTemplateItem(
-    shift: IShift,
-  ): IContainerTemplateItem {
-    return {
-      tmpId: newGuid(),
-      shiftId: shift.id!,
-      shift: shift,
-      startItem: shift.startShift,
-      endItem: shift.endShift,
-      briefingTime: shift.briefingTime,
-      debriefingTime: shift.debriefingTime,
-      travelTimeAfter: shift.travelTimeAfter,
-      travelTimeBefore: shift.travelTimeBefore,
-      timeRangeStartItem: shift.isTimeRange ? shift.startShift : '',
-      timeRangeEndItem: shift.isTimeRange ? shift.endShift : '',
-    };
-  }
 }

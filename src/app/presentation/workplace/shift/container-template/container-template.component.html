@@ -425,8 +425,6 @@
                           (click)="onShiftRowClick(shift)"
                           (dblclick)="onAbsenceRowDblClick(shift)"
                           (contextmenu)="onTableRowRightClick($event, shift)"
-                          (cdkDragStarted)="onDragStarted($event)"
-                          (cdkDragEnded)="onDragEnded($event)"
                           [class.selected]="shift === selectedShift"
                           [class.timerange-violation]="
                             hasTimeRangeViolation(shift)
@@ -720,7 +718,7 @@
                             [cdkDropListData]="tabService.availableTasks"
                             [cdkDropListConnectedTo]="['selected-tasks-list']"
                             [cdkDropListSortingDisabled]="true"
-                            (cdkDropListDropped)="onAvailableTasksDrop($event)"
+                            (cdkDropListDropped)="onAvailableTasksDrop()"
                           >
                             @for (
                               shift of tabService.availableTasks;
@@ -729,8 +727,6 @@
                               <tr
                                 cdkDrag
                                 cdkDragLockAxis="y"
-                                (cdkDragStarted)="onDragStarted($event)"
-                                (cdkDragEnded)="onDragEnded($event)"
                                 [class.partial-timerange]="
                                   isTimeRangePartial(shift)
                                 "
@@ -1021,7 +1017,7 @@
 <ng-template #absenceTimeModal let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title">
-      {{ absenceModalTitle }}
+      {{ absenceService.absenceModalTitle }}
     </div>
     <span class="filler"></span>
     <div
@@ -1048,7 +1044,7 @@
           {{ "shift.container-template.properties.start-time" | translate }}
         </label>
         <app-time-input
-          [value]="absenceStartTime"
+          [value]="absenceService.absenceStartTime"
           (valueChange)="onAbsenceStartTimeChange($event)"
           [showLabel]="false"
           [forDuration]="false"
@@ -1059,7 +1055,7 @@
           {{ "shift.container-template.properties.end-time" | translate }}
         </label>
         <app-time-input
-          [value]="absenceEndTime"
+          [value]="absenceService.absenceEndTime"
           (valueChange)="onAbsenceEndTimeChange($event)"
           [showLabel]="false"
           [forDuration]="false"

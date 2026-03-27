@@ -30,6 +30,7 @@ import {
   timeToString,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
+import { convertShiftToContainerTemplateItem } from 'src/app/shared/helpers/container-template-format.helper';
 
 @Injectable()
 export class ContainerTemplateShiftOperationsService {
@@ -179,23 +180,7 @@ export class ContainerTemplateShiftOperationsService {
     this.updateTemplateOrder(compactedItems, selectedWeekday, isHoliday);
   }
 
-  convertShiftToContainerTemplateItem(
-    shift: IShift,
-  ): IContainerTemplateItem {
-    return {
-      tmpId: newGuid(),
-      shiftId: shift.id!,
-      shift: shift,
-      startItem: shift.startShift,
-      endItem: shift.endShift,
-      briefingTime: shift.briefingTime,
-      debriefingTime: shift.debriefingTime,
-      travelTimeAfter: shift.travelTimeAfter,
-      travelTimeBefore: shift.travelTimeBefore,
-      timeRangeStartItem: shift.isTimeRange ? shift.startShift : '',
-      timeRangeEndItem: shift.isTimeRange ? shift.endShift : '',
-    };
-  }
+  convertShiftToContainerTemplateItem = convertShiftToContainerTemplateItem;
 
   convertAbsenceToContainerTemplateItem(
     absence: IAbsence,

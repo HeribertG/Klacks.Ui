@@ -6,8 +6,6 @@
  * @param coordinates - List of coordinates (lat, lon, name) for the route points
  * @param dataRoutingService - Provides the OSRM route geometry between the coordinates
  */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DataRoutingService } from 'src/app/infrastructure/api/data-routing.service';
@@ -87,8 +85,7 @@ export class MapRenderingService {
     let routeGeometry: { lat: number; lon: number }[] = [];
     try {
       routeGeometry = await this.getOsrmRoute(coordinates);
-    } catch (error) {
-      console.error('Error fetching OSRM route:', error);
+    } catch {
       routeGeometry = coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
     }
 
@@ -132,8 +129,7 @@ export class MapRenderingService {
         canvas.width,
         canvas.height
       );
-    } catch (error) {
-      console.error('Error loading OSM tiles:', error);
+    } catch {
       ctx.fillStyle = COLOR_GRAY_LIGHT;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = COLOR_GRAY_MEDIUM;

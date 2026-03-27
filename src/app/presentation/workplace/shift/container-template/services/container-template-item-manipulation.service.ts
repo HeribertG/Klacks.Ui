@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service for manipulating individual container template items:
+ * applying time changes, pushing down overlapping items, and applying optimized routes.
+ * @param timeRangeService - Parses time strings and calculates pre/post shift minutes
+ */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';

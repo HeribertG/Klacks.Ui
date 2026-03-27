@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
@@ -139,19 +138,7 @@ export class ShiftArrangementService {
       return result;
     }
 
-    let workTimeMinutes: number;
-    if (isNewItemAbsence) {
-      const endTime = newItem.endItem
-        ? this.timeRangeService.parseTimeString(newItem.endItem)
-        : null;
-      const startMins = originalStartTime.hours * this.MINUTES_PER_HOUR + originalStartTime.minutes;
-      const endMins = endTime ? endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes : startMins;
-      workTimeMinutes = endMins - startMins;
-    } else {
-      workTimeMinutes = Math.round(
-        (newItem.shift?.workTime || 0) * this.MINUTES_PER_HOUR
-      );
-    }
+    const workTimeMinutes = this.getWorkTimeMinutes(newItem, originalStartTime);
     const containerFromTime =
       this.timeRangeService.parseTimeString(containerTimeFrom);
 
@@ -183,76 +170,109 @@ export class ShiftArrangementService {
     }
 
     if (nextItem && (nextItem.shift?.isTimeRange || nextItem.shift?.isSporadic)) {
+      const newEffectiveEndMinutes = newEndMinutes + postShiftTime;
       const nextEffectiveStartMinutes =
         this.timeRangeService.getEffectiveStartMinutes(nextItem);
-      const newEffectiveEndMinutes = newEndMinutes + postShiftTime;
 
       if (newEffectiveEndMinutes > nextEffectiveStartMinutes) {
         const overlap = newEffectiveEndMinutes - nextEffectiveStartMinutes;
         const isPreviousMovable =
           previousItem &&
           (previousItem.shift?.isTimeRange || previousItem.shift?.isSporadic);
-        const isNextMovable =
-          nextItem.shift?.isTimeRange || nextItem.shift?.isSporadic;
 
-        if (isPreviousMovable && isNextMovable) {
-          const halfOverlap = Math.ceil(overlap / this.HALF_DIVISOR);
-
-          const prevStartMinutes = this.timeRangeService.getShiftStartMinutes(previousItem!);
-          const prevDuration =
-            this.timeRangeService.getShiftEndMinutes(previousItem!) - prevStartMinutes;
-          const newPrevEndMinutes = prevStartMinutes + prevDuration - halfOverlap;
-
-          previousItem!.timeRangeStartItem = formatTimeFromMinutes(prevStartMinutes);
-          previousItem!.timeRangeEndItem = formatTimeFromMinutes(newPrevEndMinutes);
-
-          const prevPostShiftTime = this.timeRangeService.getTotalPostShiftMinutes(previousItem!);
-          newStartMinutes = newPrevEndMinutes + prevPostShiftTime + preShiftTime;
-          newEndMinutes = newStartMinutes + workTimeMinutes;
-
-          const nextStartMinutes = this.timeRangeService.getShiftStartMinutes(nextItem);
-          const nextDuration =
-            this.timeRangeService.getShiftEndMinutes(nextItem) - nextStartMinutes;
-          const nextPreShiftTime = this.timeRangeService.getTotalPreShiftMinutes(nextItem);
-          const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
-          const newNextEndMinutes = newNextStartMinutes + nextDuration;
-
-          nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
-          nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextEndMinutes);
-        } else if (!isPreviousMovable && isNextMovable) {
-          const nextStartMinutes = this.timeRangeService.getShiftStartMinutes(nextItem);
-          const nextDuration =
-            this.timeRangeService.getShiftEndMinutes(nextItem) - nextStartMinutes;
-          const nextPreShiftTime = this.timeRangeService.getTotalPreShiftMinutes(nextItem);
-          const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
-
-          nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
-          nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextStartMinutes + nextDuration);
-        } else if (isPreviousMovable && !isNextMovable) {
-          const prevStartMinutes = this.timeRangeService.getShiftStartMinutes(previousItem!);
-          const prevDuration =
-            this.timeRangeService.getShiftEndMinutes(previousItem!) - prevStartMinutes;
-          const newPrevEndMinutes = prevStartMinutes + prevDuration - overlap;
-
-          previousItem!.timeRangeStartItem = formatTimeFromMinutes(prevStartMinutes);
-          previousItem!.timeRangeEndItem = formatTimeFromMinutes(newPrevEndMinutes);
-
-          const prevPostShiftTime = this.timeRangeService.getTotalPostShiftMinutes(previousItem!);
-          newStartMinutes = newPrevEndMinutes + prevPostShiftTime + preShiftTime;
-          newEndMinutes = newStartMinutes + workTimeMinutes;
+        if (isPreviousMovable) {
+          const adjusted = this.resolveBothMovable(
+            previousItem!, nextItem, overlap, preShiftTime, postShiftTime, workTimeMinutes,
+          );
+          newStartMinutes = adjusted.newStartMinutes;
+          newEndMinutes = adjusted.newEndMinutes;
+        } else {
+          this.resolveNextMovable(nextItem, newEndMinutes, postShiftTime);
         }
       }
     }
 
-    if (isNewItemAbsence) {
-      newItem.startItem = formatTimeFromMinutes(newStartMinutes);
-      newItem.endItem = formatTimeFromMinutes(newEndMinutes);
-    } else {
-      newItem.timeRangeStartItem = formatTimeFromMinutes(newStartMinutes);
-      newItem.timeRangeEndItem = formatTimeFromMinutes(newEndMinutes);
-    }
-
+    this.applyTimeToItem(newItem, isNewItemAbsence, newStartMinutes, newEndMinutes);
     return result;
+  }
+
+  private resolveBothMovable(
+    previousItem: IContainerTemplateItem,
+    nextItem: IContainerTemplateItem,
+    overlap: number,
+    preShiftTime: number,
+    postShiftTime: number,
+    workTimeMinutes: number,
+  ): { newStartMinutes: number; newEndMinutes: number } {
+    const halfOverlap = Math.ceil(overlap / this.HALF_DIVISOR);
+
+    const prevStartMinutes = this.timeRangeService.getShiftStartMinutes(previousItem);
+    const prevDuration =
+      this.timeRangeService.getShiftEndMinutes(previousItem) - prevStartMinutes;
+    const newPrevEndMinutes = prevStartMinutes + prevDuration - halfOverlap;
+
+    previousItem.timeRangeStartItem = formatTimeFromMinutes(prevStartMinutes);
+    previousItem.timeRangeEndItem = formatTimeFromMinutes(newPrevEndMinutes);
+
+    const prevPostShiftTime = this.timeRangeService.getTotalPostShiftMinutes(previousItem);
+    const newStartMinutes = newPrevEndMinutes + prevPostShiftTime + preShiftTime;
+    const newEndMinutes = newStartMinutes + workTimeMinutes;
+
+    const nextStartMinutes = this.timeRangeService.getShiftStartMinutes(nextItem);
+    const nextDuration =
+      this.timeRangeService.getShiftEndMinutes(nextItem) - nextStartMinutes;
+    const nextPreShiftTime = this.timeRangeService.getTotalPreShiftMinutes(nextItem);
+    const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
+
+    nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
+    nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextStartMinutes + nextDuration);
+
+    return { newStartMinutes, newEndMinutes };
+  }
+
+  private resolveNextMovable(
+    nextItem: IContainerTemplateItem,
+    newEndMinutes: number,
+    postShiftTime: number,
+  ): void {
+    const nextStartMinutes = this.timeRangeService.getShiftStartMinutes(nextItem);
+    const nextDuration =
+      this.timeRangeService.getShiftEndMinutes(nextItem) - nextStartMinutes;
+    const nextPreShiftTime = this.timeRangeService.getTotalPreShiftMinutes(nextItem);
+    const newNextStartMinutes = newEndMinutes + postShiftTime + nextPreShiftTime;
+
+    nextItem.timeRangeStartItem = formatTimeFromMinutes(newNextStartMinutes);
+    nextItem.timeRangeEndItem = formatTimeFromMinutes(newNextStartMinutes + nextDuration);
+  }
+
+  private getWorkTimeMinutes(
+    item: IContainerTemplateItem,
+    startTime: { hours: number; minutes: number },
+  ): number {
+    if (item.absenceId) {
+      const endTime = item.endItem
+        ? this.timeRangeService.parseTimeString(item.endItem)
+        : null;
+      const startMins = startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
+      const endMins = endTime ? endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes : startMins;
+      return endMins - startMins;
+    }
+    return Math.round((item.shift?.workTime || 0) * this.MINUTES_PER_HOUR);
+  }
+
+  private applyTimeToItem(
+    item: IContainerTemplateItem,
+    isAbsence: boolean,
+    startMinutes: number,
+    endMinutes: number,
+  ): void {
+    if (isAbsence) {
+      item.startItem = formatTimeFromMinutes(startMinutes);
+      item.endItem = formatTimeFromMinutes(endMinutes);
+    } else {
+      item.timeRangeStartItem = formatTimeFromMinutes(startMinutes);
+      item.timeRangeEndItem = formatTimeFromMinutes(endMinutes);
+    }
   }
 
   compactShifts(

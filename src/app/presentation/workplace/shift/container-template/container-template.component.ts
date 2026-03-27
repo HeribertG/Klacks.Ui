@@ -10,8 +10,6 @@
  * @param lifecycleService - Manages initialization, lifecycle, and search state
  * @param shiftOpsService - Manages shift operations (arrangement, compaction, export)
  */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -33,21 +31,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   CdkDragDrop,
   DragDropModule,
-  moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
-import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container/container-template-slot';
 import {
-  IContainerTemplate,
   IContainerTemplateItem,
 } from 'src/app/domain/models/container/container-template-class';
-import { IAbsence } from 'src/app/domain/models/absence/absence-class';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,
@@ -84,8 +77,11 @@ import { AddressProviderService } from 'src/app/domain/services/address-provider
 import {
   formatTime,
   timeToString,
-  timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
+import {
+  formatClientWithAddress,
+  formatWorkTime,
+} from 'src/app/shared/helpers/container-template-format.helper';
 import { ContainerTemplateRouteService } from './services/container-template-route.service';
 import { ContainerTemplatePropertiesService } from './services/container-template-properties.service';
 import { ContainerTemplateTabService } from './services/container-template-tab.service';
@@ -96,6 +92,8 @@ import { ContainerTemplatePdfExportService } from './services/container-template
 import { RoutePdfExportService } from './services/route-pdf-export.service';
 import { MapRenderingService } from './services/map-rendering.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
+import { ContainerTemplateAbsenceService } from './services/container-template-absence.service';
+import { ContainerTemplateDragDropService } from './services/container-template-drag-drop.service';
 
 @Component({
   selector: 'app-container-template',
@@ -141,6 +139,8 @@ import { ShiftArrangementService } from './services/shift-arrangement.service';
     ContainerTemplateTabService,
     ContainerTemplateLifecycleService,
     ContainerTemplateShiftOperationsService,
+    ContainerTemplateAbsenceService,
+    ContainerTemplateDragDropService,
   ],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
@@ -196,6 +196,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   readonly tabService = inject(ContainerTemplateTabService);
   private lifecycleService = inject(ContainerTemplateLifecycleService);
   private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
+  readonly absenceService = inject(ContainerTemplateAbsenceService);
+  private dragDropService = inject(ContainerTemplateDragDropService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -220,12 +222,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     hidePointerLabels: true,
   };
 
-  private ngbModal = inject(NgbModal);
-
-  public absenceStartTime = OwnTime.forTime('08', '00');
-  public absenceEndTime = OwnTime.forTime('08', '30');
-  public absenceModalTitle = '';
-
   private currentSearchString = '';
   private currentIncludeAddress = false;
 
@@ -237,10 +233,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   get selectedShift(): IContainerTemplateItem | null {
     return this.shiftService.selectedShiftSignal();
-  }
-
-  get currentTemplates(): IContainerTemplate[] {
-    return this.containerService.getCurrentTemplates();
   }
 
   get TransportModeEnum(): typeof TransportModeEnum {
@@ -280,6 +272,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Bridges component-local dirty/canSave signals to the global SaveBar via WorkplaceStateService
     effect(() => {
       this.isDirty();
       this.canSaveComputed();
@@ -303,30 +296,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.lifecycleService.initialize();
 
-    this.containerService.onSaveCompleted = () => {
-      if (this.containerShift?.id && this.selectedWeekday) {
-        const weekdayNumber = this.containerService.getWeekdayNumber(
+    this.lifecycleService.registerSaveCompletedCallback(
+      () => this.containerShift,
+      () => this.selectedWeekday,
+      () => this.isHoliday,
+      () => {
+        this.updateAvailableTasks();
+        this.updateCurrentWeekdayAndSlot();
+        this.routeService.loadStartEndBaseForCurrentTemplate(
           this.selectedWeekday,
+          this.isHoliday,
         );
-
-        this.containerService
-          .loadTasksForWeekday(weekdayNumber)
-          .pipe(
-            switchMap(() =>
-              this.containerService.loadTemplates(this.containerShift!.id!),
-            ),
-          )
-          .subscribe(() => {
-            this.updateAvailableTasks();
-            this.updateCurrentWeekdayAndSlot();
-            this.routeService.loadStartEndBaseForCurrentTemplate(
-              this.selectedWeekday,
-              this.isHoliday,
-            );
-            this.cdr.markForCheck();
-          });
-      }
-    };
+        this.cdr.markForCheck();
+      },
+    );
 
     this.calculateDuration();
 
@@ -589,122 +572,23 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getConnectedDropLists(): string[] {
-    return ['available-tasks-list', 'selected-tasks-list', 'container-absences-list'];
+    return this.dragDropService.getConnectedDropLists();
   }
 
-  onDragStarted(event: any): void {}
-
-  onDragEnded(event: any): void {}
-
   onTaskDrop(event: CdkDragDrop<IContainerTemplateItem[]>): void {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-      if (event.container.id === 'selected-tasks-list') {
-        this.shiftOpsService.arrangeAndSetItems(
-          [...event.container.data],
-          this.timeFrom,
-          this.timeTo,
-          this.selectedWeekday,
-          this.isHoliday,
-        );
-      }
-    } else {
-      if (
-        event.container.id === 'selected-tasks-list' &&
-        event.previousContainer.id === 'container-absences-list'
-      ) {
-        const absence = (event.previousContainer.data as any)[
-          event.previousIndex
-        ] as IAbsence;
-        this.insertAbsenceAtPosition(absence, event.container.data, event.currentIndex);
-      } else if (
-        event.container.id === 'selected-tasks-list' &&
-        event.previousContainer.id === 'available-tasks-list'
-      ) {
-        const shift = (event.previousContainer.data as any)[
-          event.previousIndex
-        ] as IShift;
-        const containerTemplateItem: IContainerTemplateItem =
-          this.shiftOpsService.convertShiftToContainerTemplateItem(shift);
-
-        event.container.data.splice(
-          event.currentIndex,
-          0,
-          containerTemplateItem,
-        );
-        (event.previousContainer.data as any).splice(event.previousIndex, 1);
-
-        this.shiftOpsService.insertNewItemWithMinimalRepositioning(
-          [...event.container.data],
-          event.currentIndex,
-          this.timeFrom,
-          this.timeTo,
-          this.selectedWeekday,
-          this.isHoliday,
-        );
-      } else if (
-        event.previousContainer.id === 'selected-tasks-list' &&
-        event.container.id === 'available-tasks-list'
-      ) {
-        const item = event.previousContainer.data[event.previousIndex];
-        event.previousContainer.data.splice(event.previousIndex, 1);
-
-        this.shiftOpsService.arrangeAndSetItems(
-          [...event.previousContainer.data],
-          this.timeFrom,
-          this.timeTo,
-          this.selectedWeekday,
-          this.isHoliday,
-        );
-        const selectedIdentifier =
-          this.shiftService.selectedShift?.id ||
-          this.shiftService.selectedShift?.tmpId;
-        const itemIdentifier = item.id || item.tmpId;
-        if (selectedIdentifier === itemIdentifier) {
-          this.shiftService.setSelectedShift(null);
-        }
-      }
-    }
+    this.dragDropService.onTaskDrop(
+      event,
+      this.timeFrom,
+      this.timeTo,
+      this.selectedWeekday,
+      this.isHoliday,
+    );
     this.cdr.markForCheck();
   }
 
-  formatWorkTime(workTime: number): string {
-    const hours = Math.floor(workTime);
-    const minutes = Math.round((workTime - hours) * 60);
-    return `${hours}:${minutes.toString().padStart(2, '0')}`;
-  }
+  formatWorkTime = formatWorkTime;
 
-  formatClientWithAddress(item: IShift | IContainerTemplateItem): string {
-    const shift = 'containerTemplateId' in item || 'tmpId' in item ? (item as IContainerTemplateItem).shift : (item as IShift);
-
-    if (!shift?.client) {
-      return '-';
-    }
-
-    const client = shift.client;
-    const employeeAddress = client.addresses?.find(
-      (addr) => addr.type === AddressTypeEnum.customer,
-    );
-
-    if (!employeeAddress) {
-      return client.name || '-';
-    }
-
-    const addressParts = [
-      employeeAddress.street,
-      employeeAddress.zip,
-      employeeAddress.city,
-    ].filter((part) => part && part.trim() !== '');
-
-    const addressString = addressParts.join(', ');
-    return addressString
-      ? `${client.name}: ${addressString}`
-      : client.name || '-';
-  }
+  formatClientWithAddress = formatClientWithAddress;
 
   hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
     return this.shiftOpsService.hasTimeRangeViolation(item);
@@ -738,7 +622,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  onAvailableTasksDrop(event: CdkDragDrop<IShift[]>): void {}
+  onAvailableTasksDrop(): void {}
 
   getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
     return this.shiftOpsService.getTimeRangeStartTime(item);
@@ -749,20 +633,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   autofill(): void {
-    this.routeService.autofill(
-      this.containerShift,
-      this.selectedWeekday,
-      this.isHoliday,
-      this.timeFrom,
-      this.timeTo,
-      this.tabService.availableTasks,
-      this.timeRangeToleranceValue,
-      this.destroy$,
-      () => {
+    this.routeService.autofill({
+      containerShift: this.containerShift,
+      selectedWeekday: this.selectedWeekday,
+      isHoliday: this.isHoliday,
+      timeFrom: this.timeFrom,
+      timeTo: this.timeTo,
+      availableTasks: this.tabService.availableTasks,
+      timeRangeToleranceValue: this.timeRangeToleranceValue,
+      destroy$: this.destroy$,
+      onStateChanged: () => {
         this.updateAvailableTasks();
         this.cdr.markForCheck();
       },
-    );
+    });
   }
 
   optimizeRoute(): void {
@@ -885,112 +769,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
   }
 
-  private static readonly ABSENCE_DEFAULT_DURATION_MINUTES = 15;
-
-  private insertAbsenceAtPosition(
-    absence: IAbsence,
-    containerData: IContainerTemplateItem[],
-    currentIndex: number,
-  ): void {
-    const previousItem = currentIndex > 0 ? containerData[currentIndex - 1] : null;
-    let startMinutes: number;
-
-    if (previousItem) {
-      const endTime = previousItem.timeRangeEndItem || previousItem.endItem || '';
-      startMinutes = endTime ? timeToMinutes(endTime) : timeToMinutes(
-        timeToString(parseInt(this.timeFrom.hours), parseInt(this.timeFrom.minutes)),
-      );
-    } else {
-      startMinutes = timeToMinutes(
-        timeToString(parseInt(this.timeFrom.hours), parseInt(this.timeFrom.minutes)),
-      );
-    }
-
-    const endMinutes = startMinutes + ContainerTemplateComponent.ABSENCE_DEFAULT_DURATION_MINUTES;
-    const startTime = `${Math.floor(startMinutes / 60).toString().padStart(2, '0')}:${(startMinutes % 60).toString().padStart(2, '0')}:00`;
-    const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}:00`;
-
-    const item = this.shiftOpsService.convertAbsenceToContainerTemplateItem(
-      absence,
-      startTime,
-      endTime,
-    );
-
-    containerData.splice(currentIndex, 0, item);
-
-    this.shiftOpsService.arrangeAndSetItems(
-      [...containerData],
-      this.timeFrom,
-      this.timeTo,
-      this.selectedWeekday,
-      this.isHoliday,
-    );
-
-    this.cdr.markForCheck();
-  }
-
   onAbsenceRowDblClick(item: IContainerTemplateItem): void {
-    if (!item.absenceId) return;
-
-    const lang = this.translateService.currentLang || 'de';
-    this.absenceModalTitle = item.absence?.name?.[lang] || item.absence?.name?.['de'] || '';
-
-    const startParts = (item.startItem || '00:00').split(':');
-    this.absenceStartTime = OwnTime.forTime(
-      (startParts[0] || '00').padStart(2, '0'),
-      (startParts[1] || '00').padStart(2, '0'),
-    );
-
-    const endParts = (item.endItem || '00:00').split(':');
-    this.absenceEndTime = OwnTime.forTime(
-      (endParts[0] || '00').padStart(2, '0'),
-      (endParts[1] || '00').padStart(2, '0'),
-    );
-
-    this.ngbModal
-      .open(this.absenceTimeModal, { centered: true })
-      .result.then(
-        () => {
-          this.applyAbsenceTimeEdit(item);
-        },
-        () => {},
-      );
-  }
-
-  private applyAbsenceTimeEdit(item: IContainerTemplateItem): void {
-    const newStartTime = timeToString(
-      parseInt(this.absenceStartTime.hours),
-      parseInt(this.absenceStartTime.minutes),
-    );
-    const newEndTime = timeToString(
-      parseInt(this.absenceEndTime.hours),
-      parseInt(this.absenceEndTime.minutes),
-    );
-
-    const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
-    const itemId = item.id || item.tmpId;
-    const updatedItems = allItems.map((i) =>
-      (i.id || i.tmpId) === itemId
-        ? { ...i, startItem: newStartTime, endItem: newEndTime }
-        : i,
-    );
-
-    this.shiftOpsService.arrangeAndSetItems(
-      updatedItems,
+    this.absenceService.openAbsenceTimeModal(
+      item,
+      this.absenceTimeModal,
       this.timeFrom,
       this.timeTo,
       this.selectedWeekday,
       this.isHoliday,
     );
-
-    this.cdr.markForCheck();
   }
 
   onAbsenceStartTimeChange(time: OwnTime): void {
-    this.absenceStartTime = OwnTime.forTime(time.hours, time.minutes);
+    this.absenceService.onAbsenceStartTimeChange(time);
   }
 
   onAbsenceEndTimeChange(time: OwnTime): void {
-    this.absenceEndTime = OwnTime.forTime(time.hours, time.minutes);
+    this.absenceService.onAbsenceEndTimeChange(time);
   }
 }

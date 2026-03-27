@@ -14,7 +14,7 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, Subject, map } from 'rxjs';
+import { Observable, Subject, map, switchMap } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
@@ -25,6 +25,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { BranchManagementService } from 'src/app/domain/services/settings/branch-management.service';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 
 @Injectable()
@@ -38,6 +39,7 @@ export class ContainerTemplateLifecycleService {
   private branchService = inject(BranchManagementService);
   private activatedRoute = inject(ActivatedRoute);
   private dataShiftService = inject(DataShiftService);
+  private containerService = inject(DataManagementContainerService);
 
   initialize(): void {
     this.layoutService.setContainerToNormalSize();
@@ -62,6 +64,30 @@ export class ContainerTemplateLifecycleService {
 
   loadShift(id: string): Observable<IShift> {
     return this.dataShiftService.getShift(id);
+  }
+
+  registerSaveCompletedCallback(
+    getContainerShift: () => IShift | null,
+    getSelectedWeekday: () => string | null,
+    getIsHoliday: () => boolean,
+    onReloaded: () => void,
+  ): void {
+    this.containerService.onSaveCompleted = () => {
+      const containerShift = getContainerShift();
+      const selectedWeekday = getSelectedWeekday();
+      if (containerShift?.id && selectedWeekday) {
+        const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
+
+        this.containerService
+          .loadTasksForWeekday(weekdayNumber)
+          .pipe(
+            switchMap(() =>
+              this.containerService.loadTemplates(containerShift.id!),
+            ),
+          )
+          .subscribe(() => onReloaded());
+      }
+    };
   }
 
   markDirty(): void {

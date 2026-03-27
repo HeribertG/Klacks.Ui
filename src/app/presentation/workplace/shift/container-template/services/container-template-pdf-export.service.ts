@@ -6,8 +6,6 @@
  * @param items - Container template items with shift and address data
  * @param routeInfo - Route information for the route PDF export
  */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -16,8 +14,8 @@ import {
   IContainerTemplateItem,
   IRouteInfo,
 } from 'src/app/domain/models/container/container-template-class';
-import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 import { RoutePdfExportService } from './route-pdf-export.service';
+import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
 
 export type { RouteInfo, RouteLocation } from './route-pdf-export.service';
 
@@ -88,7 +86,7 @@ export class ContainerTemplatePdfExportService {
       this.formatStartTime(item),
       this.formatEndTime(item),
       this.formatDuration(item),
-      this.formatClientWithAddress(item),
+      formatClientWithAddress(item),
     ]);
 
     const headers = [
@@ -125,7 +123,7 @@ export class ContainerTemplatePdfExportService {
       },
     });
 
-    const pageCount = (pdf as any).internal.pages.length - 1;
+    const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
       pdf.setFontSize(FONT_SIZE_TINY);
@@ -224,31 +222,4 @@ export class ContainerTemplatePdfExportService {
     return '';
   }
 
-  private formatClientWithAddress(item: IContainerTemplateItem): string {
-    const shift = item.shift;
-
-    if (!shift?.client) {
-      return '-';
-    }
-
-    const client = shift.client;
-    const employeeAddress = client.addresses?.find(
-      (addr) => addr.type === AddressTypeEnum.customer
-    );
-
-    if (!employeeAddress) {
-      return client.name || '-';
-    }
-
-    const addressParts = [
-      employeeAddress.street,
-      employeeAddress.zip,
-      employeeAddress.city,
-    ].filter((part) => part && part.trim() !== '');
-
-    const addressString = addressParts.join(', ');
-    return addressString
-      ? `${client.name}: ${addressString}`
-      : client.name || '-';
-  }
 }
