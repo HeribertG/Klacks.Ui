@@ -561,14 +561,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   getSlotsForSelectedTab(): IContainerTemplateSlot[] {
     const filteredRows = this.getFilteredRowsForSelectedWeekday();
-    if (
-      filteredRows.length === 0 ||
-      this.tabService.selectedTabIndex >= filteredRows.length
-    ) {
-      return [];
-    }
-
-    return filteredRows[this.tabService.selectedTabIndex];
+    return filteredRows[this.tabService.selectedTabIndex] ?? [];
   }
 
   getConnectedDropLists(): string[] {
