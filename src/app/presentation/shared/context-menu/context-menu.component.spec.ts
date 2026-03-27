@@ -78,14 +78,16 @@ describe('ContextMenuComponent', () => {
         });
 
         // Mock the ViewChild component
-        component.main = {
+        const mockMain = {
             openMenu: vi.fn(),
             closeMenu: vi.fn()
         } as any;
+        component.main = mockMain;
+        vi.spyOn(component['cdr'], 'detectChanges').mockImplementation(() => {});
 
         component.openMenu(mockEvent);
 
-        expect(component.main.openMenu).toHaveBeenCalledWith(96, 196, 0, 0);
+        expect(mockMain.openMenu).toHaveBeenCalledWith(96, 196, 0, 0);
     });
 
     it('should close menu immediately when force is true', () => {

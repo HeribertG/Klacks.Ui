@@ -194,6 +194,7 @@ describe('CounterComponent', () => {
 
         component.onClickPaginationButton(1);
         component.onClickPaginationButton(1);
+        fixture.componentRef.setInput('currentNumber', component.currentNumber);
         fixture.detectChanges();
 
         const numberDisplay = fixture.nativeElement.querySelector('.ownPaginationBlock:nth-child(2)');

@@ -157,12 +157,15 @@ describe('ExpandableCardComponent', () => {
         });
 
         it('should show angle right icon when collapsed', () => {
-            component.showExpandButton = true;
+            fixture.componentRef.setInput('showExpandButton', true);
             component.ngOnInit();
             fixture.detectChanges();
             component['viewInitialized'] = true;
-            component.isExpanded = false;
+
+            const expandButton = compiled.query(By.css('.expand-button'));
+            expandButton.nativeElement.click();
             fixture.detectChanges();
+
             const angleRight = compiled.query(By.css('app-icon-angle-right'));
             expect(angleRight).toBeTruthy();
         });

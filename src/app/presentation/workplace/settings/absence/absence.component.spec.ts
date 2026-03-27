@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -58,6 +59,7 @@ describe('AbsenceComponent', () => {
       deleteAbsence: vi.fn(),
       setTemporaryFilter: vi.fn(),
       isTemoraryFilter_Dirty: vi.fn().mockReturnValue(false),
+      isRead: signal(false),
     };
 
     const ngbModalSpy = {

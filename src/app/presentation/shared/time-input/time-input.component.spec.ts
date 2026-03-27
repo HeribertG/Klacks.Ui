@@ -138,8 +138,8 @@ describe('TimeInputComponent', () => {
     });
 
     it('should display label when showLabel is true', () => {
-        component.showLabel = true;
-        component.label = 'Test Label';
+        fixture.componentRef.setInput('showLabel', true);
+        fixture.componentRef.setInput('label', 'Test Label');
         fixture.detectChanges();
 
         const labelElement = fixture.nativeElement.querySelector('label[for]');
@@ -157,9 +157,9 @@ describe('TimeInputComponent', () => {
     });
 
     it('should set label alignment style', () => {
-        component.showLabel = true;
-        component.label = 'Test Label';
-        component.labelAlign = 'center';
+        fixture.componentRef.setInput('showLabel', true);
+        fixture.componentRef.setInput('label', 'Test Label');
+        fixture.componentRef.setInput('labelAlign', 'center');
         fixture.detectChanges();
 
         const labelElement = fixture.nativeElement.querySelector('label[for]');
@@ -167,7 +167,7 @@ describe('TimeInputComponent', () => {
     });
 
     it('should set input values correctly', () => {
-        component.value = OwnTime.forDuration('123', '45');
+        fixture.componentRef.setInput('value', OwnTime.forDuration('123', '45'));
         fixture.detectChanges();
 
         const hoursInput = fixture.nativeElement.querySelector('.time-hour');
@@ -178,7 +178,7 @@ describe('TimeInputComponent', () => {
     });
 
     it('should disable inputs when disabled is true', () => {
-        component.disabled = true;
+        fixture.componentRef.setInput('disabled', true);
         fixture.detectChanges();
 
         const hoursInput = fixture.nativeElement.querySelector('.time-hour');

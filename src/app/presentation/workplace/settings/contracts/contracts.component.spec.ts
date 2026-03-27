@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -52,6 +52,7 @@ describe('ContractsComponent', () => {
       deleteContract: vi.fn().mockResolvedValue(true),
       readContracts: vi.fn().mockResolvedValue([]),
       validateContract: vi.fn().mockReturnValue([]),
+      isRead: signal(false),
     };
 
     mockModalService = {

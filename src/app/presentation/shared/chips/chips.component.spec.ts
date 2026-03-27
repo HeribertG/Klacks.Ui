@@ -142,7 +142,7 @@ describe('ChipsComponent', () => {
         let spanElement = fixture.nativeElement.querySelector('span.me-2');
         expect(spanElement.textContent.trim()).toBe(initialName);
 
-        component.name = updatedName;
+        fixture.componentRef.setInput('name', updatedName);
         fixture.detectChanges();
 
         spanElement = fixture.nativeElement.querySelector('span.me-2');

@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
+import { ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
@@ -71,6 +72,7 @@ describe('EmailSettingComponent', () => {
                 { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
+                { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
             ],
         }).compileComponents();
 

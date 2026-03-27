@@ -65,7 +65,6 @@ export class SpeechRecognitionService {
     this.initializeSpeechRecognition();
 
     if (this.useWhisperFallback) {
-      this.isSupported$.set(true);
       this.diagnostics.useWhisperFallback = true;
     } else if (this.isSupported$()) {
       this.detectAvailableLanguages();

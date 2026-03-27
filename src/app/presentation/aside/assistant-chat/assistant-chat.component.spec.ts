@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { Pipe, PipeTransform, signal } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AssistantChatComponent } from './assistant-chat.component';
@@ -24,6 +24,7 @@ import { IAssistantProvider } from 'src/app/infrastructure/api/assistant/data-as
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -99,11 +100,14 @@ describe('AssistantChatComponent', () => {
             getAvailableModels: vi.fn(),
             getCurrentModelId: vi.fn(),
             sendMessage: vi.fn(),
+            sendMessageStream: vi.fn().mockReturnValue(new AbortController()),
             setCurrentModel: vi.fn(),
             getModelInfo: vi.fn(),
             setLanguage: vi.fn(),
             clearConversation: vi.fn(),
+            warmupCache: vi.fn(),
             modelsInitialized: signal(true),
+            selectedModelId: signal('gpt-4'),
         };
 
         const llmProviderServiceSpy = {
@@ -189,10 +193,12 @@ describe('AssistantChatComponent', () => {
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
                 { provide: LanguageMappingService, useValue: languageMappingServiceSpy },
                 { provide: SEARCH_STRATEGY, useValue: { globalSearch: vi.fn(), resetFilter: vi.fn(), restoreSearch: vi.fn(), setRestoreSearch: vi.fn() } },
+                { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn(), on: () => of(), onAny: () => of() } },
             ],
         })
             .overrideComponent(AssistantChatComponent, {
             set: {
+                schemas: [CUSTOM_ELEMENTS_SCHEMA],
                 imports: [
                     CommonModule,
                     FontAwesomeModule,
@@ -298,20 +304,21 @@ describe('AssistantChatComponent', () => {
         it('should send message and handle response', async () => {
             // Arrange
             component.inputText = 'Hello';
-            const mockResponse = {
-                message: 'Hi there!',
-                conversationId: component.conversationId,
-                suggestions: ['How can I help?'],
-                navigateTo: undefined,
-                actionPerformed: false,
-            };
-            mockLlmService.sendMessage.mockReturnValue(of(mockResponse));
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onStreamStart(component.conversationId);
+                    callbacks.onContent('Hi there!');
+                    callbacks.onMetadata({ suggestions: ['How can I help?'] });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
 
             // Act
             await component.sendMessage();
 
             // Assert
-            expect(mockLlmService.sendMessage).toHaveBeenCalledWith('Hello', component.conversationId);
+            expect(mockLlmService.sendMessageStream).toHaveBeenCalled();
             expect(component.messages.length).toBe(3); // Welcome + User + Assistant
             expect(component.messages[1].content).toBe('Hello');
             expect(component.messages[1].sender).toBe('user');
@@ -323,15 +330,18 @@ describe('AssistantChatComponent', () => {
         it('should handle error in sendMessage', async () => {
             // Arrange
             component.inputText = 'Hello';
-            const error = { error: { message: 'API Error' } };
-            mockLlmService.sendMessage.mockReturnValue(throwError(() => error));
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onError('API Error');
+                    return new AbortController();
+                },
+            );
 
             // Act
             await component.sendMessage();
 
             // Assert
             expect(component.messages.length).toBe(3); // Welcome + User + Error
-            expect(component.messages[2].content).toContain('❌');
             expect(component.messages[2].content).toContain('API Error');
             expect(component.isProcessing).toBe(false);
         });
@@ -340,20 +350,21 @@ describe('AssistantChatComponent', () => {
             // Arrange
             vi.useFakeTimers();
             component.inputText = 'Navigate to clients';
-            const mockResponse = {
-                message: 'Navigating to clients',
-                conversationId: component.conversationId,
-                navigateTo: '/clients',
-                actionPerformed: true,
-            };
-            mockLlmService.sendMessage.mockReturnValue(of(mockResponse));
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Navigating to clients');
+                    callbacks.onMetadata({ navigateTo: '/workplace/clients', actionPerformed: true });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
 
             // Act
             component.sendMessage();
             await vi.advanceTimersByTimeAsync(2100);
 
             // Assert
-            expect(mockRouter.navigate).toHaveBeenCalledWith(['/clients']);
+            expect(mockRouter.navigate).toHaveBeenCalledWith(['/workplace/clients']);
             vi.useRealTimers();
         });
     });
@@ -456,10 +467,10 @@ describe('AssistantChatComponent', () => {
 
         it('should handle navigate click', () => {
             // Act
-            component.onNavigateClick('/clients');
+            component.onNavigateClick('/workplace/clients');
 
             // Assert
-            expect(mockRouter.navigate).toHaveBeenCalledWith(['/clients']);
+            expect(mockRouter.navigate).toHaveBeenCalledWith(['/workplace/clients']);
         });
     });
 

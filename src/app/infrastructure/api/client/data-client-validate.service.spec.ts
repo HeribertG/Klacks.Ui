@@ -55,7 +55,13 @@ describe('DataClientService - validateAddress', () => {
     service.validateAddress(address).subscribe();
 
     const req = httpMock.expectOne(`${environment.baseUrl}Addresses/Validate`);
-    expect(req.request.body).toEqual(address);
+    expect(req.request.body).toEqual({
+      street: address.street,
+      zip: address.zip,
+      city: address.city,
+      state: address.state,
+      country: address.country,
+    });
     req.flush({ isValid: true, matchType: 'exact', suggestions: [] });
   });
 

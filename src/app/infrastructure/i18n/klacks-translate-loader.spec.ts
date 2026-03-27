@@ -31,33 +31,41 @@ describe('KlacksTranslateLoader', () => {
       expect(translations).toEqual(mockTranslations);
     });
 
-    const req = httpTestingController.expectOne('./assets/i18n/de.json');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockTranslations);
+    const coreReq = httpTestingController.expectOne('./assets/i18n/de.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/de`);
+    expect(coreReq.request.method).toBe('GET');
+    coreReq.flush(mockTranslations);
+    pluginReq.flush({});
   });
 
   it('should load core language en from static assets', () => {
     loader.getTranslation('en').subscribe();
 
-    const req = httpTestingController.expectOne('./assets/i18n/en.json');
-    expect(req.request.method).toBe('GET');
-    req.flush({});
+    const coreReq = httpTestingController.expectOne('./assets/i18n/en.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/en`);
+    expect(coreReq.request.method).toBe('GET');
+    coreReq.flush({});
+    pluginReq.flush({});
   });
 
   it('should load core language fr from static assets', () => {
     loader.getTranslation('fr').subscribe();
 
-    const req = httpTestingController.expectOne('./assets/i18n/fr.json');
-    expect(req.request.method).toBe('GET');
-    req.flush({});
+    const coreReq = httpTestingController.expectOne('./assets/i18n/fr.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/fr`);
+    expect(coreReq.request.method).toBe('GET');
+    coreReq.flush({});
+    pluginReq.flush({});
   });
 
   it('should load core language it from static assets', () => {
     loader.getTranslation('it').subscribe();
 
-    const req = httpTestingController.expectOne('./assets/i18n/it.json');
-    expect(req.request.method).toBe('GET');
-    req.flush({});
+    const coreReq = httpTestingController.expectOne('./assets/i18n/it.json');
+    const pluginReq = httpTestingController.expectOne(`${apiUrl}config/translations/it`);
+    expect(coreReq.request.method).toBe('GET');
+    coreReq.flush({});
+    pluginReq.flush({});
   });
 
   it('should load plugin language merged with english base', () => {

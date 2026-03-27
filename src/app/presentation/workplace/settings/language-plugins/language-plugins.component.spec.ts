@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { TestBed } from '@angular/core/testing';
+import { ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
@@ -62,7 +63,7 @@ describe('LanguagePluginsComponent', () => {
   };
 
   const mockTranslateService = {
-    instant: vi.fn().mockReturnValue('Translated text'),
+    instant: vi.fn().mockImplementation((key: string) => key),
     get: vi.fn().mockReturnValue(of('Translated text')),
     onTranslationChange: of(),
     onLangChange: of(),
@@ -79,6 +80,7 @@ describe('LanguagePluginsComponent', () => {
         { provide: LanguageConfigService, useValue: mockLanguageConfigService },
         { provide: ToastShowService, useValue: mockToastService },
         { provide: TranslateService, useValue: mockTranslateService },
+        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
       ],
     });
 
@@ -128,7 +130,7 @@ describe('LanguagePluginsComponent', () => {
     expect(mockDataService.uninstall).toHaveBeenCalledWith('es');
     expect(plugin.isInstalled).toBe(false);
     expect(mockLanguageConfigService.reloadConfig).toHaveBeenCalled();
-    expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.language-plugins.success.uninstall', 'Success');
+    expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.language-plugins.success.uninstall', 'TOAST_SUCCESS');
   });
 
   it('should show error toast when uninstall fails', async () => {

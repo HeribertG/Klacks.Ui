@@ -231,17 +231,14 @@ describe('ClientEditService - Address Validation', () => {
   });
 
   describe('validateAddress', () => {
-    it('should handle HTTP 400 with validation data', async () => {
-      const validationPayload: IAddressValidationResult = {
+    it('should handle invalid validation result', async () => {
+      const validationResult: IAddressValidationResult = {
         isValid: false,
         matchType: 'none',
         suggestions: [{ displayName: 'Suggested Address', latitude: 50.0, longitude: 10.0 }],
       };
       (mockDataClientService.validateAddress as ReturnType<typeof vi.fn>).mockReturnValue(
-        throwError(() => ({
-          status: 400,
-          error: { validation: validationPayload },
-        })),
+        of(validationResult),
       );
 
       const client = createValidClient();

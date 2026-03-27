@@ -70,15 +70,15 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     delete (window as any).SpeechRecognition;
     delete (window as any).webkitSpeechRecognition;
 
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
-        SpeechRecognitionService,
         { provide: WhisperStreamingService, useValue: mockWhisperService },
         { provide: LanguageMappingService, useValue: mockLanguageMappingService },
       ],
     });
 
-    service = TestBed.inject(SpeechRecognitionService);
+    service = TestBed.runInInjectionContext(() => new SpeechRecognitionService());
   };
 
   describe('Edge browser fallback', () => {
@@ -193,10 +193,8 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     });
   });
 
-  // Skip: Service initializes in constructor before mocks can be properly applied
-  describe.skip('Chrome browser (no fallback)', () => {
+  describe('Chrome browser (no fallback)', () => {
     beforeEach(() => {
-      // Arrange
       resultsSubject = new Subject<string>();
       interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
@@ -235,20 +233,20 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
         configurable: true,
       });
 
-      (window as any).SpeechRecognition = vi.fn().mockImplementation(() => ({
-        continuous: false,
-        interimResults: false,
-        maxAlternatives: 1,
-        lang: 'en-US',
-        onstart: null,
-        onend: null,
-        onresult: null,
-        onerror: null,
-        onnomatch: null,
-        start: vi.fn(),
-        stop: vi.fn(),
-        abort: vi.fn(),
-      }));
+      (window as any).SpeechRecognition = vi.fn().mockImplementation(function (this: any) {
+        this.continuous = false;
+        this.interimResults = false;
+        this.maxAlternatives = 1;
+        this.lang = 'en-US';
+        this.onstart = null;
+        this.onend = null;
+        this.onresult = null;
+        this.onerror = null;
+        this.onnomatch = null;
+        this.start = vi.fn();
+        this.stop = vi.fn();
+        this.abort = vi.fn();
+      });
 
       Object.defineProperty(navigator, 'mediaDevices', {
         value: {
@@ -260,15 +258,15 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
         configurable: true,
       });
 
+      TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          SpeechRecognitionService,
           { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });
 
-      service = TestBed.inject(SpeechRecognitionService);
+      service = TestBed.runInInjectionContext(() => new SpeechRecognitionService());
     });
 
     it('should detect Chrome browser and NOT use Whisper fallback', () => {
@@ -295,10 +293,9 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     });
   });
 
-  // Skip: Service initializes in constructor - isSecureContext check happens before mock applied
-  describe.skip('Insecure context handling', () => {
+  describe('Insecure context handling', () => {
     beforeEach(() => {
-      // Arrange
+      TestBed.resetTestingModule();
       resultsSubject = new Subject<string>();
       interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
@@ -340,13 +337,12 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
 
       TestBed.configureTestingModule({
         providers: [
-          SpeechRecognitionService,
           { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });
 
-      service = TestBed.inject(SpeechRecognitionService);
+      service = TestBed.runInInjectionContext(() => new SpeechRecognitionService());
     });
 
     it('should not be supported in insecure context', () => {
@@ -363,10 +359,9 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
     });
   });
 
-  // Skip: Service initializes in constructor - mediaDevices check happens before mock applied
-  describe.skip('No microphone access', () => {
+  describe('No microphone access', () => {
     beforeEach(() => {
-      // Arrange
+      TestBed.resetTestingModule();
       resultsSubject = new Subject<string>();
       interimResultsSubject = new Subject<string>();
       errorsSubject = new Subject<string>();
@@ -414,13 +409,12 @@ describe('SpeechRecognitionService - Whisper Fallback', () => {
 
       TestBed.configureTestingModule({
         providers: [
-          SpeechRecognitionService,
           { provide: WhisperStreamingService, useValue: mockWhisperService },
           { provide: LanguageMappingService, useValue: mockLanguageMappingService },
         ],
       });
 
-      service = TestBed.inject(SpeechRecognitionService);
+      service = TestBed.runInInjectionContext(() => new SpeechRecognitionService());
     });
 
     it('should not be supported without microphone access', () => {
