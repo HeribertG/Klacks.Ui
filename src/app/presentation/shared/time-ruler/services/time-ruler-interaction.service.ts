@@ -12,7 +12,7 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container/containe
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
 import { TimeRangeService } from './time-range.service';
-import { TimeRulerDragDropService } from './time-ruler-drag-drop.service';
+import { TimeRulerDragDropService, DragUpdateResult } from './time-ruler-drag-drop.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { IShiftContextMenuEvent } from '../time-ruler.component';
 
@@ -91,13 +91,14 @@ export class TimeRulerInteractionService {
   handleMouseDown(
     event: MouseEvent,
     canvas: HTMLCanvasElement,
-    shiftRectangles: Map<IContainerTemplateItem, Rectangle>
+    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
+    allShifts: IContainerTemplateItem[]
   ): void {
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
       if (shiftRect.pointInRect(x, y) && (item.shift?.isTimeRange || !!item.absenceId)) {
-        const dragStarted = this.dragDropService.startDrag(y, item, shiftRect);
+        const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
         if (dragStarted) {
           event.preventDefault();
           event.stopPropagation();
@@ -111,7 +112,7 @@ export class TimeRulerInteractionService {
     event: MouseEvent,
     canvas: HTMLCanvasElement,
     shifts: IContainerTemplateItem[]
-  ): { newStartMinutes: number; newEndMinutes: number } | null {
+  ): DragUpdateResult | null {
     if (!this.dragDropService.dragState.isDragging) {
       return null;
     }
@@ -144,8 +145,11 @@ export class TimeRulerInteractionService {
   }
 
   sortShiftsByTime(shifts: IContainerTemplateItem[]): void {
-    const itemsToSort = shifts.filter((item) => item.shift?.isTimeRange);
-    const otherItems = shifts.filter((item) => !item.shift?.isTimeRange);
+    const isMovable = (item: IContainerTemplateItem): boolean =>
+      !!item.shift?.isTimeRange || !!item.shift?.isSporadic || !!item.absenceId;
+
+    const itemsToSort = shifts.filter(isMovable);
+    const fixedItems = shifts.filter((item) => !isMovable(item));
 
     itemsToSort.sort((a, b) => {
       const aStart = this.timeRangeService.getShiftStartMinutes(a);
@@ -153,7 +157,7 @@ export class TimeRulerInteractionService {
       return aStart - bStart;
     });
 
-    const newItemsArray = [...itemsToSort, ...otherItems];
+    const newItemsArray = [...itemsToSort, ...fixedItems];
 
     this.shiftService.setSelectedContainerTemplateItems(newItemsArray);
   }

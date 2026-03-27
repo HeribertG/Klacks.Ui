@@ -1,6 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Service for drag-drop operations on the time ruler canvas with dynamic item displacement.
+ * @param timeRangeService - Calculates effective start/end minutes including pre/post shift times
+ */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
@@ -8,14 +11,15 @@ import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/sh
 import { TimeRangeService } from './time-range.service';
 
 interface SnapDirection {
-  getEffectiveEdge: (shift: IContainerTemplateItem, timeRangeService: TimeRangeService) => number;
+  getEffectiveEdge: (startMinutes: number, endMinutes: number, timeRangeService: TimeRangeService, item: IContainerTemplateItem) => number;
   aggregate: typeof Math.min | typeof Math.max;
   boundaryCheck: (edge: number, boundary: number) => boolean;
   computeCandidate: (edge: number, pre: number, post: number, duration: number) => { start: number; end: number; effectiveStart: number; effectiveEnd: number };
 }
 
 const SNAP_ABOVE: SnapDirection = {
-  getEffectiveEdge: (shift, timeRangeService) => timeRangeService.getEffectiveStartMinutes(shift),
+  getEffectiveEdge: (startMinutes, _endMinutes, timeRangeService, item) =>
+    startMinutes - timeRangeService.getTotalPreShiftMinutes(item),
   aggregate: Math.min,
   boundaryCheck: (effectiveStart, boundary) => effectiveStart < boundary,
   computeCandidate: (edge, pre, post, duration) => {
@@ -28,7 +32,8 @@ const SNAP_ABOVE: SnapDirection = {
 };
 
 const SNAP_BELOW: SnapDirection = {
-  getEffectiveEdge: (shift, timeRangeService) => timeRangeService.getEffectiveEndMinutes(shift),
+  getEffectiveEdge: (_startMinutes, endMinutes, timeRangeService, item) =>
+    endMinutes + timeRangeService.getTotalPostShiftMinutes(item),
   aggregate: Math.max,
   boundaryCheck: (effectiveEnd, boundary) => effectiveEnd > boundary,
   computeCandidate: (edge, pre, post, duration) => {
@@ -40,6 +45,16 @@ const SNAP_BELOW: SnapDirection = {
   },
 };
 
+export interface ItemPosition {
+  startMinutes: number;
+  endMinutes: number;
+}
+
+export interface DragUpdateResult {
+  draggedPosition: { newStartMinutes: number; newEndMinutes: number };
+  displacements: Map<IContainerTemplateItem, ItemPosition>;
+}
+
 export interface DragState {
   isDragging: boolean;
   draggedShift: IContainerTemplateItem | null;
@@ -47,6 +62,7 @@ export interface DragState {
   dragStartMouseY: number | undefined;
   originalStartMinutes: number | undefined;
   originalEndMinutes: number | undefined;
+  originalPositions: Map<IContainerTemplateItem, ItemPosition>;
   pixelsPerMinute: number;
   snapToMinutes: number;
   displayFromMinutes: number;
@@ -64,6 +80,7 @@ export class TimeRulerDragDropService {
     dragStartMouseY: undefined,
     originalStartMinutes: undefined,
     originalEndMinutes: undefined,
+    originalPositions: new Map(),
     pixelsPerMinute: 0,
     snapToMinutes: 1,
     displayFromMinutes: 0,
@@ -93,7 +110,8 @@ export class TimeRulerDragDropService {
   public startDrag(
     mouseY: number,
     item: IContainerTemplateItem,
-    shiftRect: Rectangle
+    shiftRect: Rectangle,
+    allShifts: IContainerTemplateItem[]
   ): boolean {
     const isAbsence = !!item.absenceId;
     const isTimeRange = !!item.shift?.isTimeRange;
@@ -120,16 +138,23 @@ export class TimeRulerDragDropService {
     this._dragState.originalStartMinutes = startMinutes;
     this._dragState.originalEndMinutes = endMinutes;
 
+    this._dragState.originalPositions.clear();
+    for (const shift of allShifts) {
+      const shiftStart = this.timeRangeService.getShiftStartMinutes(shift);
+      const shiftEnd = this.timeRangeService.getShiftEndMinutes(shift);
+      this._dragState.originalPositions.set(shift, {
+        startMinutes: shiftStart,
+        endMinutes: shiftEnd,
+      });
+    }
+
     return true;
   }
 
   public updateDrag(
     mouseY: number,
-    allShifts: any[]
-  ): {
-    newStartMinutes: number;
-    newEndMinutes: number;
-  } | null {
+    allShifts: IContainerTemplateItem[]
+  ): DragUpdateResult | null {
     if (
       !this._dragState.isDragging ||
       this._dragState.dragStartMouseY === undefined ||
@@ -172,16 +197,20 @@ export class TimeRulerDragDropService {
     );
 
     if (snappedToEdge) {
-      return snappedToEdge;
+      newStartMinutes = snappedToEdge.newStartMinutes;
+      newEndMinutes = snappedToEdge.newEndMinutes;
     }
 
-    const adjustedPosition = this.resolveOverlaps(
+    const displacements = this.calculateDisplacements(
       newStartMinutes,
       newEndMinutes,
       allShifts
     );
 
-    return adjustedPosition;
+    return {
+      draggedPosition: { newStartMinutes, newEndMinutes },
+      displacements,
+    };
   }
 
   private applySnapToEdge(
@@ -214,10 +243,13 @@ export class TimeRulerDragDropService {
     } | null = null;
 
     for (const other of otherItems) {
-      const otherEffectiveStart =
-        this.timeRangeService.getEffectiveStartMinutes(other);
-      const otherEffectiveEnd =
-        this.timeRangeService.getEffectiveEndMinutes(other);
+      const origPos = this._dragState.originalPositions.get(other);
+      if (!origPos) continue;
+
+      const otherPre = this.timeRangeService.getTotalPreShiftMinutes(other);
+      const otherPost = this.timeRangeService.getTotalPostShiftMinutes(other);
+      const otherEffectiveStart = origPos.startMinutes - otherPre;
+      const otherEffectiveEnd = origPos.endMinutes + otherPost;
 
       const distanceToTop = effectiveEnd - otherEffectiveStart;
       if (
@@ -272,6 +304,109 @@ export class TimeRulerDragDropService {
     }
 
     return null;
+  }
+
+  private calculateDisplacements(
+    draggedStartMinutes: number,
+    draggedEndMinutes: number,
+    allItems: IContainerTemplateItem[]
+  ): Map<IContainerTemplateItem, ItemPosition> {
+    const displacements = new Map<IContainerTemplateItem, ItemPosition>();
+    const draggedShift = this._dragState.draggedShift;
+    if (!draggedShift) return displacements;
+
+    const draggedOrigPos = this._dragState.originalPositions.get(draggedShift);
+    if (!draggedOrigPos) return displacements;
+
+    const draggedPre = this.timeRangeService.getTotalPreShiftMinutes(draggedShift);
+    const draggedPost = this.timeRangeService.getTotalPostShiftMinutes(draggedShift);
+    const draggedEffEnd = draggedEndMinutes + draggedPost;
+    const draggedEffStart = draggedStartMinutes - draggedPre;
+
+    const movableItems = allItems.filter(
+      (item) =>
+        item !== draggedShift &&
+        (item.shift?.isTimeRange || item.shift?.isSporadic || !!item.absenceId)
+    );
+
+    const isMovingDown = draggedStartMinutes > draggedOrigPos.startMinutes;
+    const isMovingUp = draggedStartMinutes < draggedOrigPos.startMinutes;
+
+    if (isMovingDown) {
+      const candidates = movableItems
+        .filter((item) => {
+          const orig = this._dragState.originalPositions.get(item);
+          if (!orig) return false;
+          const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+          const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+          const itemEffStart = orig.startMinutes - itemPre;
+          const itemEffEnd = orig.endMinutes + itemPost;
+          const itemEffMidpoint = (itemEffStart + itemEffEnd) / 2;
+          return itemEffMidpoint >= draggedEffStart;
+        })
+        .sort((a, b) => {
+          const origA = this._dragState.originalPositions.get(a)!;
+          const origB = this._dragState.originalPositions.get(b)!;
+          return origA.startMinutes - origB.startMinutes;
+        });
+
+      let cursor = draggedEffEnd;
+
+      for (const item of candidates) {
+        const orig = this._dragState.originalPositions.get(item)!;
+        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+        const itemEffStart = orig.startMinutes - itemPre;
+        const itemDuration = orig.endMinutes - orig.startMinutes;
+
+        if (cursor > itemEffStart) {
+          const newStart = cursor + itemPre;
+          const newEnd = newStart + itemDuration;
+          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
+          cursor = newEnd + itemPost;
+        } else {
+          break;
+        }
+      }
+    } else if (isMovingUp) {
+      const candidates = movableItems
+        .filter((item) => {
+          const orig = this._dragState.originalPositions.get(item);
+          if (!orig) return false;
+          const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+          const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+          const itemEffStart = orig.startMinutes - itemPre;
+          const itemEffEnd = orig.endMinutes + itemPost;
+          const itemEffMidpoint = (itemEffStart + itemEffEnd) / 2;
+          return itemEffMidpoint <= draggedEffEnd;
+        })
+        .sort((a, b) => {
+          const origA = this._dragState.originalPositions.get(a)!;
+          const origB = this._dragState.originalPositions.get(b)!;
+          return origB.startMinutes - origA.startMinutes;
+        });
+
+      let cursor = draggedEffStart;
+
+      for (const item of candidates) {
+        const orig = this._dragState.originalPositions.get(item)!;
+        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+        const itemEffEnd = orig.endMinutes + itemPost;
+        const itemDuration = orig.endMinutes - orig.startMinutes;
+
+        if (cursor < itemEffEnd) {
+          const newEnd = cursor - itemPost;
+          const newStart = newEnd - itemDuration;
+          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
+          cursor = newStart - itemPre;
+        } else {
+          break;
+        }
+      }
+    }
+
+    return displacements;
   }
 
   public resolveOverlapsForShift(
@@ -342,7 +477,7 @@ export class TimeRulerDragDropService {
   private resolveOverlaps(
     startMinutes: number,
     endMinutes: number,
-    allShifts: any[]
+    allShifts: IContainerTemplateItem[]
   ): {
     newStartMinutes: number;
     newEndMinutes: number;
@@ -410,7 +545,7 @@ export class TimeRulerDragDropService {
     const effectiveEnd = endMinutes + postShiftTime;
 
     const conflictingShifts = otherShifts.filter((shift) =>
-      this.effectiveShiftsOverlap(effectiveStart, effectiveEnd, shift)
+      this.effectiveShiftsOverlapOriginal(effectiveStart, effectiveEnd, shift)
     );
 
     if (conflictingShifts.length === 0) {
@@ -418,9 +553,18 @@ export class TimeRulerDragDropService {
     }
 
     const boundaryEdge = direction.aggregate(
-      ...conflictingShifts.map((s) =>
-        direction.getEffectiveEdge(s, this.timeRangeService)
-      )
+      ...conflictingShifts.map((s) => {
+        const orig = this._dragState.originalPositions.get(s);
+        if (orig) {
+          return direction.getEffectiveEdge(orig.startMinutes, orig.endMinutes, this.timeRangeService, s);
+        }
+        return direction.getEffectiveEdge(
+          this.timeRangeService.getShiftStartMinutes(s),
+          this.timeRangeService.getShiftEndMinutes(s),
+          this.timeRangeService,
+          s
+        );
+      })
     );
 
     let candidate = direction.computeCandidate(
@@ -448,7 +592,7 @@ export class TimeRulerDragDropService {
     const maxIterations = 100;
 
     while (
-      this.hasEffectiveOverlap(
+      this.hasEffectiveOverlapOriginal(
         candidate.effectiveStart,
         candidate.effectiveEnd,
         otherShifts
@@ -456,7 +600,7 @@ export class TimeRulerDragDropService {
       iterations < maxIterations
     ) {
       const blockingShifts = otherShifts.filter((shift) =>
-        this.effectiveShiftsOverlap(
+        this.effectiveShiftsOverlapOriginal(
           candidate.effectiveStart,
           candidate.effectiveEnd,
           shift
@@ -466,9 +610,18 @@ export class TimeRulerDragDropService {
       if (blockingShifts.length === 0) break;
 
       const nextEdge = direction.aggregate(
-        ...blockingShifts.map((s) =>
-          direction.getEffectiveEdge(s, this.timeRangeService)
-        )
+        ...blockingShifts.map((s) => {
+          const orig = this._dragState.originalPositions.get(s);
+          if (orig) {
+            return direction.getEffectiveEdge(orig.startMinutes, orig.endMinutes, this.timeRangeService, s);
+          }
+          return direction.getEffectiveEdge(
+            this.timeRangeService.getShiftStartMinutes(s),
+            this.timeRangeService.getShiftEndMinutes(s),
+            this.timeRangeService,
+            s
+          );
+        })
       );
 
       candidate = direction.computeCandidate(
@@ -495,7 +648,7 @@ export class TimeRulerDragDropService {
     }
 
     if (
-      !this.hasEffectiveOverlap(
+      !this.hasEffectiveOverlapOriginal(
         candidate.effectiveStart,
         candidate.effectiveEnd,
         otherShifts
@@ -556,6 +709,31 @@ export class TimeRulerDragDropService {
     end2: number
   ): boolean {
     return start1 < end2 && end1 > start2;
+  }
+
+  private hasEffectiveOverlapOriginal(
+    effectiveStart: number,
+    effectiveEnd: number,
+    shifts: IContainerTemplateItem[]
+  ): boolean {
+    return shifts.some((shift) =>
+      this.effectiveShiftsOverlapOriginal(effectiveStart, effectiveEnd, shift)
+    );
+  }
+
+  private effectiveShiftsOverlapOriginal(
+    effectiveStart: number,
+    effectiveEnd: number,
+    otherShift: IContainerTemplateItem
+  ): boolean {
+    const orig = this._dragState.originalPositions.get(otherShift);
+    const otherStart = orig ? orig.startMinutes : this.timeRangeService.getShiftStartMinutes(otherShift);
+    const otherEnd = orig ? orig.endMinutes : this.timeRangeService.getShiftEndMinutes(otherShift);
+    const otherPre = this.timeRangeService.getTotalPreShiftMinutes(otherShift);
+    const otherPost = this.timeRangeService.getTotalPostShiftMinutes(otherShift);
+    const otherEffectiveStart = otherStart - otherPre;
+    const otherEffectiveEnd = otherEnd + otherPost;
+    return effectiveStart < otherEffectiveEnd && effectiveEnd > otherEffectiveStart;
   }
 
   public endDrag(): {
@@ -637,5 +815,6 @@ export class TimeRulerDragDropService {
     this._dragState.dragStartMouseY = undefined;
     this._dragState.originalStartMinutes = undefined;
     this._dragState.originalEndMinutes = undefined;
+    this._dragState.originalPositions.clear();
   }
 }

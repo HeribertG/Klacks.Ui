@@ -52,6 +52,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
   @Input() untilTime: OwnTime = OwnTime.forTime('24', '00');
   @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
+  @Output() itemsDisplaced = new EventEmitter<void>();
 
   private shifts: IContainerTemplateItem[] = [];
   private selectedShift: IContainerTemplateItem | null = null;
@@ -276,23 +277,24 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.interactionService.handleMouseDown(
       event,
       this.inboxCanvasRef.nativeElement,
-      this.shiftRectangles
+      this.shiftRectangles,
+      this.shifts
     );
   }
 
   onMouseMove(event: MouseEvent): void {
-    const newPosition = this.interactionService.handleMouseMove(
+    const result = this.interactionService.handleMouseMove(
       event,
       this.inboxCanvasRef.nativeElement,
       this.shifts
     );
 
-    if (!newPosition) return;
+    if (!result) return;
 
     const draggedShift = this.dragDropService.dragState.draggedShift;
     if (draggedShift) {
-      const formattedStart = this.dragDropService.formatTimeFromMinutes(newPosition.newStartMinutes);
-      const formattedEnd = this.dragDropService.formatTimeFromMinutes(newPosition.newEndMinutes);
+      const formattedStart = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newStartMinutes);
+      const formattedEnd = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newEndMinutes);
 
       if (draggedShift.absenceId) {
         draggedShift.startItem = formattedStart;
@@ -301,6 +303,24 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         draggedShift.timeRangeStartItem = formattedStart;
         draggedShift.timeRangeEndItem = formattedEnd;
       }
+
+      const originalPositions = this.dragDropService.dragState.originalPositions;
+
+      for (const item of this.shifts) {
+        if (item === draggedShift) continue;
+
+        const displaced = result.displacements.get(item);
+        if (displaced) {
+          this.applyPositionToItem(item, displaced.startMinutes, displaced.endMinutes);
+        } else {
+          const orig = originalPositions.get(item);
+          if (orig) {
+            this.applyPositionToItem(item, orig.startMinutes, orig.endMinutes);
+          }
+        }
+      }
+
+      this.itemsDisplaced.emit();
 
       if (this.renderCanvas && this.renderCtx) {
         this.renderService.redrawCanvas(
@@ -314,6 +334,23 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.untilTime
         );
       }
+    }
+  }
+
+  private applyPositionToItem(
+    item: IContainerTemplateItem,
+    startMinutes: number,
+    endMinutes: number
+  ): void {
+    const formattedStart = this.dragDropService.formatTimeFromMinutes(startMinutes);
+    const formattedEnd = this.dragDropService.formatTimeFromMinutes(endMinutes);
+
+    if (item.absenceId) {
+      item.startItem = formattedStart;
+      item.endItem = formattedEnd;
+    } else {
+      item.timeRangeStartItem = formattedStart;
+      item.timeRangeEndItem = formattedEnd;
     }
   }
 
