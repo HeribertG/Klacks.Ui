@@ -133,7 +133,9 @@ export class TimeRangeService {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      const timeString = item.timeRangeStartItem || item.startItem;
+      const timeString = item.absenceId
+        ? item.startItem
+        : (item.timeRangeStartItem || item.startItem);
       if (!timeString) return 0;
 
       const time = this.parseTimeString(timeString);
@@ -156,7 +158,9 @@ export class TimeRangeService {
     const isContainerItem = 'shiftId' in item;
 
     if (isContainerItem) {
-      const timeString = item.timeRangeEndItem || item.endItem;
+      const timeString = item.absenceId
+        ? item.endItem
+        : (item.timeRangeEndItem || item.endItem);
       if (!timeString) return 0;
 
       const time = this.parseTimeString(timeString);
