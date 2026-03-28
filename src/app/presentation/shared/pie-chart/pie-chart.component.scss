@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
 }
 
 .donut-wrapper {
@@ -13,21 +13,24 @@
 }
 
 .pie-chart-svg {
+  overflow: visible;
+
   .pie-slice {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    &:hover {
+    &:hover,
+    &.active {
       transform: var(--hover-transform);
 
       .slice-path {
-        filter: brightness(1.1);
+        filter: brightness(1.08) saturate(1.1);
       }
     }
 
     .slice-path {
-      stroke: var(--backgroundColorCard);
+      stroke: var(--backgroundColorCard, #fff);
       stroke-width: 3;
-      transition: filter 0.3s ease;
+      transition: filter 0.25s ease;
       cursor: pointer;
     }
   }
@@ -47,57 +50,56 @@
 }
 
 .donut-total-value {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 2.8rem;
+  font-weight: 800;
   color: var(--colorLabel);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .donut-total-label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--gridColorText);
   margin-top: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
 }
 
 .pie-chart-legend {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 8px;
-  background-color: var(--backgroundColorCard);
-  border: 1px solid var(--colorLine);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  &:hover,
+  &.active {
+    background-color: var(--colorLine, rgba(0, 0, 0, 0.04));
   }
 }
 
-.legend-color {
-  width: 16px;
-  height: 16px;
+.legend-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.legend-label {
+.legend-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   flex: 1;
   min-width: 0;
 }
@@ -112,7 +114,7 @@
 }
 
 .legend-value {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--gridColorText);
   font-weight: 500;
 }

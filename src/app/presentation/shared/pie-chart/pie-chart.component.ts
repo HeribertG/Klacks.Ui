@@ -1,7 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
-import { Component, Input, OnChanges, SimpleChanges,
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
   ChangeDetectionStrategy,
 } from '@angular/core';
 
@@ -34,6 +37,7 @@ export class PieChartComponent implements OnChanges {
     hoverTransform: string;
   }[] = [];
 
+  public hoveredIndex = -1;
   public centerX = 0;
   public centerY = 0;
   public outerRadius = 0;
@@ -48,16 +52,15 @@ export class PieChartComponent implements OnChanges {
 
   private calculateChart(): void {
     this.total = this.data?.reduce((sum, item) => sum + item.value, 0) ?? 0;
+    this.centerX = this.width / 2;
+    this.centerY = this.height / 2;
+    this.outerRadius = Math.min(this.width, this.height) / 2 - 20;
+    this.innerRadius = this.outerRadius * 0.8;
 
     if (!this.data || this.data.length === 0 || this.total === 0) {
       this.slices = [];
       return;
     }
-
-    this.centerX = this.width / 2;
-    this.centerY = this.height / 2;
-    this.outerRadius = Math.min(this.width, this.height) / 2 - 20;
-    this.innerRadius = this.outerRadius * 0.6;
     let currentAngle = -90;
 
     const hoverOffset = 12;
