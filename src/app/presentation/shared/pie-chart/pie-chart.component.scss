@@ -36,6 +36,10 @@
   }
 }
 
+:host-context([data-theme="dark"]) .pie-chart-svg {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
 .donut-center {
   position: absolute;
   top: 50%;
@@ -79,13 +83,27 @@
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  background-color: var(--backgroundColorCard);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
   cursor: pointer;
 
   &:hover,
   &.active {
-    background-color: var(--colorLine, rgba(0, 0, 0, 0.04));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+:host-context([data-theme="dark"]) .legend-item {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover,
+  &.active {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 }
 

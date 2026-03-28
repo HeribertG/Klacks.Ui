@@ -116,6 +116,14 @@ $splitButtonBlueColor: #5e84e6;
 
   --taskRowPossibleBackground: rgba(76, 175, 80, 0.08);
   --taskRowViolationBackground: rgba(244, 67, 54, 0.12);
+
+  --badgeEmployeeBackground: #e0f7f5;
+  --badgeEmployeeColor: #0d9488;
+  --badgeExternBackground: #dbeafe;
+  --badgeExternColor: #2563eb;
+  --badgeCustomerBackground: #fef3c7;
+  --badgeCustomerColor: #d97706;
+  --countBoxBackground: #e0f7f5;
 }
 
 :root[data-theme="dark"] {
@@ -208,4 +216,12 @@ $splitButtonBlueColor: #5e84e6;
 
   --taskRowPossibleBackground: rgba(76, 175, 80, 0.5);
   --taskRowViolationBackground: rgba(244, 67, 54, 0.5);
+
+  --badgeEmployeeBackground: rgba(27, 197, 189, 0.15);
+  --badgeEmployeeColor: #5eead4;
+  --badgeExternBackground: rgba(105, 147, 255, 0.15);
+  --badgeExternColor: #93bbff;
+  --badgeCustomerBackground: rgba(230, 126, 34, 0.15);
+  --badgeCustomerColor: #fbbf24;
+  --countBoxBackground: rgba(27, 197, 189, 0.12);
 }

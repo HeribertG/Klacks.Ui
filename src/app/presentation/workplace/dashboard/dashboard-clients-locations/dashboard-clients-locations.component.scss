@@ -126,31 +126,46 @@
 .location-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--backgroundColorSubCards);
-  border-radius: 5px;
-  border: 1px solid var(--cardBorderColor);
+  gap: 14px;
+  padding: 14px 18px;
+  background-color: var(--backgroundColorCard);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   width: 380px;
   flex: 0 0 380px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   overflow: hidden;
 
   &:hover {
-    border-color: var(--standartGreenColor);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   &.clickable {
     cursor: pointer;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     &:active {
-      transform: translateY(0);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+  }
+}
+
+:host-context([data-theme="dark"]) .location-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  &.clickable:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -158,11 +173,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--backgroundColorContributionTypeName);
-  color: var(--standartGreenColor);
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: var(--standartGreenColor);
+  color: white;
   flex-shrink: 0;
 }
 
@@ -175,20 +190,22 @@
 }
 
 .location-city {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--colorLabel);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
 
 .location-country {
-  font-size: 13px;
-  color: var(--colorLabel);
+  font-size: 12px;
+  color: var(--gridColorText);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  opacity: 0.7;
 }
 
 .location-types {
@@ -198,25 +215,26 @@
 }
 
 .type-badge {
-  padding: 3px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
 
   &.employee {
-    background-color: var(--backgroundColorContributionTypeName);
-    color: var(--standartBlueColor);
+    background-color: var(--badgeEmployeeBackground);
+    color: var(--badgeEmployeeColor);
   }
 
   &.extern {
-    background-color: var(--backgroundColorDropZoneHover);
-    color: var(--iconSelectedColor);
+    background-color: var(--badgeExternBackground);
+    color: var(--badgeExternColor);
   }
 
   &.customer {
-    background-color: var(--gridBackgroundColorInfo);
-    color: var(--standartBlueColor);
+    background-color: var(--badgeCustomerBackground);
+    color: var(--badgeCustomerColor);
   }
 }
 
@@ -224,23 +242,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  background-color: var(--backgroundColorCard);
-  border-radius: 5px;
+  gap: 2px;
+  padding: 10px 16px;
+  background-color: var(--countBoxBackground);
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
 .count-number {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--standartGreenColor);
+  letter-spacing: -0.02em;
 }
 
 .count-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--gridColorText);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .location-card > .btn {
