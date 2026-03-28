@@ -69,6 +69,41 @@
   }
 }
 
+.locations-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 4px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 5px;
+  padding: 2px;
+
+  .container-dashboard-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: none;
+    background: transparent;
+    color: var(--colorLabel);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background-color: var(--standartGreenColor);
+      color: colors.$standartWhiteColor;
+    }
+
+    &:hover:not(.active) {
+      background-color: var(--backgroundColorContributionTypeName);
+    }
+  }
+}
+
 .locations-summary {
   display: flex;
   gap: 24px;

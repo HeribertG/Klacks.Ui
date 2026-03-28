@@ -25,6 +25,8 @@ export interface IGroup {
   clientsCount: number;
   shiftsCount: number;
   customersCount: number;
+  employeesCount: number;
+  externEmpsCount: number;
   children?: IGroup[];
   clientIds?: string[];
   paymentInterval: PaymentInterval;
@@ -46,6 +48,8 @@ export class Group implements IGroup {
   clientsCount = 0;
   shiftsCount = 0;
   customersCount = 0;
+  employeesCount = 0;
+  externEmpsCount = 0;
   children: Group[] = [];
   clientIds?: string[] = [];
   groupItems: GroupItem[] = [];
@@ -78,6 +82,8 @@ export class Group implements IGroup {
     this.clientsCount = data.clientsCount || 0;
     this.shiftsCount = data.shiftsCount || 0;
     this.customersCount = data.customersCount || 0;
+    this.employeesCount = data.employeesCount || 0;
+    this.externEmpsCount = data.externEmpsCount || 0;
     this.paymentInterval = data.paymentInterval ?? PaymentInterval.Monthly;
     this.calendarSelectionId = data.calendarSelectionId;
     this.calendarSelection = data.calendarSelection;

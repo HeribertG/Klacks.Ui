@@ -1,9 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service for fetching dashboard data from the API.
+ * @param groupTreeCache$ - Cached observable for the group tree to avoid duplicate requests
+ */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { retry } from 'rxjs/operators';
+import { retry, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { IGroupTree } from 'src/app/domain/models/group/group-class';
 import { IClientLocationResource, IShiftCoverageStatistics } from 'src/app/domain/models/dashboard-class';
@@ -14,13 +18,21 @@ import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 })
 export class DataDashboardService {
   private httpClient = inject(HttpClient);
+  private groupTreeCache$: Observable<IGroupTree> | null = null;
 
   getClientsOverviewData(): Observable<IGroupTree> {
-    return this.httpClient
-      .get<IGroupTree>(`${environment.baseUrl}Groups/tree`, {
-        context: new HttpContext().set(SKIP_LOADING, true),
-      })
-      .pipe(retry(3));
+    if (!this.groupTreeCache$) {
+      this.groupTreeCache$ = this.httpClient
+        .get<IGroupTree>(`${environment.baseUrl}Groups/tree`, {
+          context: new HttpContext().set(SKIP_LOADING, true),
+        })
+        .pipe(retry(3), shareReplay(1));
+    }
+    return this.groupTreeCache$;
+  }
+
+  invalidateGroupTreeCache(): void {
+    this.groupTreeCache$ = null;
   }
 
   getClientsLocationsData(): Observable<IClientLocationResource[]> {

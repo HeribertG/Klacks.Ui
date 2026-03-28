@@ -20,6 +20,8 @@
       <p>{{ "dashboard.locations.noData" | translate }}</p>
     </div>
     } @else {
+
+    @if (viewMode() === 'city') {
     <div class="container-search form-group">
       <div class="input-group">
         <input
@@ -64,20 +66,49 @@
         }
       </select>
     </div>
+    }
 
     <div class="locations-container">
       <div class="locations-header">
-        <h3>{{ "dashboard.locations.byCity" | translate }}</h3>
+        <div class="locations-header-top">
+          <h3>{{ "dashboard.locations.headline" | translate }}</h3>
+          <div class="view-mode-toggle">
+            <button
+              type="button"
+              class="container-dashboard-btn"
+              [class.active]="viewMode() === 'city'"
+              (click)="onViewModeChange('city')"
+            >
+              {{ "dashboard.locations.byCity" | translate }}
+            </button>
+            <button
+              type="button"
+              class="container-dashboard-btn"
+              [class.active]="viewMode() === 'group'"
+              (click)="onViewModeChange('group')"
+            >
+              {{ "dashboard.locations.byGroup" | translate }}
+            </button>
+          </div>
+        </div>
         <div class="locations-summary">
+          @if (viewMode() === 'city') {
           <span class="summary-item"
             >{{ "dashboard.locations.totalLocations" | translate }}:
             {{ totalLocations() }}</span
           >
+          } @else {
+          <span class="summary-item"
+            >{{ "dashboard.locations.totalGroups" | translate }}:
+            {{ totalLocations() }}</span
+          >
+          }
           <span class="summary-item"
             >{{ "dashboard.locations.totalClients" | translate }}:
             {{ totalClients() }}</span
           >
         </div>
+        @if (viewMode() === 'city') {
         <button
           type="button"
           class="container-dashboard-btn"
@@ -95,6 +126,7 @@
           </svg>
           {{ "dashboard.locations.zoomToAll" | translate }}
         </button>
+        }
       </div>
 
       <div class="locations-grid">
@@ -109,7 +141,9 @@
           </div>
           <div class="location-info">
             <div class="location-city">{{ location.city }}</div>
+            @if (location.country) {
             <div class="location-country">{{ location.country }}</div>
+            }
             <div class="location-types">
               @if (location.employeeCount > 0) {
               <span class="type-badge employee">
