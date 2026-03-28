@@ -14,27 +14,34 @@
   }
   <div class="row-line-inline-simple">
     <input
-      [value]="value.hours"
+      [value]="partialHours ?? value.hours"
       [id]="hoursId"
       [name]="hoursName || 'hours'"
       (input)="onHoursInputChange($event)"
+      (focus)="onFocus($event)"
+      (blur)="onHoursBlur()"
       (keyup)="onInputKeyUp($event)"
       [disabled]="disabled"
       class="form-control time-hour hours"
       type="text"
+      inputmode="numeric"
       [attr.maxlength]="hoursMaxLength"
       [placeholder]="hoursPlaceholder"
     />
     <label class="delimiter-time">:</label>
     <input
+      #minutesInput
       [id]="minutesId"
       [value]="value.minutes"
       [name]="minutesName || 'minutes'"
       (input)="onMinutesInputChange($event)"
+      (focus)="onFocus($event)"
       (keyup)="onInputKeyUp($event)"
       [disabled]="disabled"
       class="form-control time-minute minutes"
       type="text"
+      inputmode="numeric"
+      maxlength="2"
       [placeholder]="minutesPlaceholder"
     />
   </div>

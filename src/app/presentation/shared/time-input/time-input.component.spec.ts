@@ -71,7 +71,7 @@ describe('TimeInputComponent', () => {
         expect(component.timeChange.emit).toHaveBeenCalled();
     });
 
-    it('should handle hours input change for time', () => {
+    it('should handle hours input change for time (two digits)', () => {
         component.forDuration = false;
         component.value = OwnTime.forTime('05', '15');
 
@@ -218,8 +218,8 @@ describe('TimeInputComponent', () => {
             expect(component.value.hours).toBe('23');
         });
 
-        it('should accept hours 0-23 for time mode', () => {
-            const validHours = ['0', '5', '12', '23'];
+        it('should accept two-digit hours 0-23 for time mode', () => {
+            const validHours = ['12', '23', '00', '08'];
 
             validHours.forEach((hour) => {
                 const mockEvent = { target: { value: hour } } as any;
@@ -228,19 +228,110 @@ describe('TimeInputComponent', () => {
             });
         });
 
-        it('should not allow hours above 23 for time mode', () => {
-            const invalidHours = [
-                { input: '24', expected: '23' },
-                { input: '50', expected: '23' },
-                { input: '100', expected: '23' }, // slice(-2) = '00', aber time mode limit auf 23
+        it('should auto-prefix single digit > 2 with zero', () => {
+            const testCases = [
+                { input: '3', expected: '03' },
+                { input: '5', expected: '05' },
+                { input: '9', expected: '09' },
             ];
 
-            invalidHours.forEach((testCase) => {
-                component.value = OwnTime.forTime('00', '00'); // Reset
+            testCases.forEach((testCase) => {
                 const mockEvent = { target: { value: testCase.input } } as any;
                 component.onHoursInputChange(mockEvent);
                 expect(component.value.hours).toBe(testCase.expected);
             });
+        });
+
+        it('should set partialHours for single digit <= 2', () => {
+            const testCases = ['0', '1', '2'];
+
+            testCases.forEach((digit) => {
+                component.partialHours = null;
+                const mockEvent = { target: { value: digit } } as any;
+                component.onHoursInputChange(mockEvent);
+                expect(component.partialHours).toBe(digit);
+            });
+        });
+
+        it('should not emit when entering single digit <= 2 (partial state)', () => {
+            vi.spyOn(component.valueChange, 'emit');
+
+            const mockEvent = { target: { value: '1' } } as any;
+            component.onHoursInputChange(mockEvent);
+
+            expect(component.valueChange.emit).not.toHaveBeenCalled();
+            expect(component.partialHours).toBe('1');
+        });
+
+        it('should complete partial hours on blur', () => {
+            vi.spyOn(component.valueChange, 'emit');
+
+            const mockEvent = { target: { value: '2' } } as any;
+            component.onHoursInputChange(mockEvent);
+            expect(component.partialHours).toBe('2');
+
+            component.onHoursBlur();
+
+            expect(component.partialHours).toBeNull();
+            expect(component.value.hours).toBe('02');
+            expect(component.valueChange.emit).toHaveBeenCalled();
+        });
+
+        it('should not allow hours above 23 for time mode', () => {
+            const invalidHours = [
+                { input: '24', expected: '23' },
+                { input: '50', expected: '23' },
+                { input: '100', expected: '23' },
+            ];
+
+            invalidHours.forEach((testCase) => {
+                component.value = OwnTime.forTime('00', '00');
+                const mockEvent = { target: { value: testCase.input } } as any;
+                component.onHoursInputChange(mockEvent);
+                expect(component.value.hours).toBe(testCase.expected);
+            });
+        });
+
+        it('should auto-tab to minutes after two digits', () => {
+            vi.useFakeTimers();
+            const minutesEl = fixture.nativeElement.querySelector('.time-minute') as HTMLInputElement;
+            vi.spyOn(minutesEl, 'focus');
+
+            const mockEvent = { target: { value: '14' } } as any;
+            component.onHoursInputChange(mockEvent);
+            vi.advanceTimersByTime(0);
+
+            expect(component.value.hours).toBe('14');
+            expect(minutesEl.focus).toHaveBeenCalled();
+            vi.useRealTimers();
+        });
+
+        it('should auto-tab to minutes after single digit > 2', () => {
+            vi.useFakeTimers();
+            const minutesEl = fixture.nativeElement.querySelector('.time-minute') as HTMLInputElement;
+            vi.spyOn(minutesEl, 'focus');
+
+            const mockEvent = { target: { value: '5' } } as any;
+            component.onHoursInputChange(mockEvent);
+            vi.advanceTimersByTime(0);
+
+            expect(component.value.hours).toBe('05');
+            expect(minutesEl.focus).toHaveBeenCalled();
+            vi.useRealTimers();
+        });
+
+        it('should not auto-tab for single digit <= 2', () => {
+            vi.useFakeTimers();
+            const minutesEl = fixture.nativeElement.querySelector('.time-minute') as HTMLInputElement;
+            vi.spyOn(minutesEl, 'focus');
+
+            const mockEvent = { target: { value: '1' } } as any;
+            component.onHoursInputChange(mockEvent);
+            vi.advanceTimersByTime(0);
+
+            expect(minutesEl.focus).not.toHaveBeenCalled();
+            expect(component.partialHours).toBe('1');
+            vi.useRealTimers();
         });
     });
 
@@ -279,6 +370,19 @@ describe('TimeInputComponent', () => {
 
             expect(component.value.hours).toBe('999');
         });
+
+        it('should not auto-tab in duration mode', () => {
+            vi.useFakeTimers();
+            const minutesEl = fixture.nativeElement.querySelector('.time-minute') as HTMLInputElement;
+            vi.spyOn(minutesEl, 'focus');
+
+            const mockEvent = { target: { value: '12' } } as any;
+            component.onHoursInputChange(mockEvent);
+            vi.advanceTimersByTime(0);
+
+            expect(minutesEl.focus).not.toHaveBeenCalled();
+            vi.useRealTimers();
+        });
     });
 
     describe('Minutes validation', () => {
@@ -296,7 +400,7 @@ describe('TimeInputComponent', () => {
             const testCases = [
                 { input: '60', expected: '59' },
                 { input: '99', expected: '59' },
-                { input: '100', expected: '00' }, // slice(-2) = '00', dann check > 59
+                { input: '100', expected: '00' },
             ];
 
             testCases.forEach((testCase) => {
@@ -327,7 +431,6 @@ describe('TimeInputComponent', () => {
         });
 
         it('should handle multiple digit input correctly', () => {
-            // Test slice(-2) functionality
             const mockEvent = {
                 target: { value: '159' },
             } as any;
@@ -350,7 +453,7 @@ describe('TimeInputComponent', () => {
 
     describe('Special input cases', () => {
         it('should handle non-numeric input by removing it', () => {
-            component.value = OwnTime.forDuration('00', '00'); // Reset
+            component.value = OwnTime.forDuration('00', '00');
             const mockEvent = {
                 target: { value: 'abc123def' },
             } as any;
@@ -398,6 +501,106 @@ describe('TimeInputComponent', () => {
 
             expect(component.value.hours).toBe('48');
             expect(component.value.minutes).toBe('30');
+        });
+    });
+
+    describe('Focus and selection', () => {
+        it('should select all text on focus', () => {
+            vi.useFakeTimers();
+            const hoursInput = fixture.nativeElement.querySelector('.time-hour') as HTMLInputElement;
+            hoursInput.value = '12';
+            vi.spyOn(hoursInput, 'select');
+
+            component.onFocus({ target: hoursInput } as any);
+            vi.advanceTimersByTime(0);
+
+            expect(hoursInput.select).toHaveBeenCalled();
+            vi.useRealTimers();
+        });
+
+        it('should show partialHours via input event', () => {
+            component.forDuration = false;
+            component.value = OwnTime.forTime('00', '00');
+            fixture.detectChanges();
+
+            const hoursInput = fixture.nativeElement.querySelector('.time-hour') as HTMLInputElement;
+            hoursInput.value = '2';
+            hoursInput.dispatchEvent(new Event('input'));
+            fixture.detectChanges();
+
+            expect(component.partialHours).toBe('2');
+            expect(hoursInput.value).toBe('2');
+        });
+
+        it('should show formatted hours when value is set', () => {
+            fixture.componentRef.setInput('forDuration', false);
+            fixture.componentRef.setInput('value', OwnTime.forTime('08', '30'));
+            fixture.detectChanges();
+
+            const hoursInput = fixture.nativeElement.querySelector('.time-hour') as HTMLInputElement;
+            expect(hoursInput.value).toBe('08');
+        });
+    });
+
+    describe('Full numpad input flow (forTime)', () => {
+        beforeEach(() => {
+            component.forDuration = false;
+            component.value = OwnTime.forTime('00', '00');
+        });
+
+        it('should handle typing "15" as two keystrokes', () => {
+            const mockEvent1 = { target: { value: '1' } } as any;
+            component.onHoursInputChange(mockEvent1);
+            expect(component.partialHours).toBe('1');
+
+            const mockEvent2 = { target: { value: '15' } } as any;
+            component.onHoursInputChange(mockEvent2);
+
+            expect(component.partialHours).toBeNull();
+            expect(component.value.hours).toBe('15');
+        });
+
+        it('should handle typing "08" as two keystrokes', () => {
+            const mockEvent1 = { target: { value: '0' } } as any;
+            component.onHoursInputChange(mockEvent1);
+            expect(component.partialHours).toBe('0');
+
+            const mockEvent2 = { target: { value: '08' } } as any;
+            component.onHoursInputChange(mockEvent2);
+
+            expect(component.partialHours).toBeNull();
+            expect(component.value.hours).toBe('08');
+        });
+
+        it('should handle typing "5" as instant auto-prefix to "05"', () => {
+            vi.spyOn(component.valueChange, 'emit');
+
+            const mockEvent = { target: { value: '5' } } as any;
+            component.onHoursInputChange(mockEvent);
+
+            expect(component.value.hours).toBe('05');
+            expect(component.valueChange.emit).toHaveBeenCalled();
+        });
+
+        it('should handle typing "23" correctly', () => {
+            const mockEvent1 = { target: { value: '2' } } as any;
+            component.onHoursInputChange(mockEvent1);
+            expect(component.partialHours).toBe('2');
+
+            const mockEvent2 = { target: { value: '23' } } as any;
+            component.onHoursInputChange(mockEvent2);
+
+            expect(component.value.hours).toBe('23');
+        });
+
+        it('should clamp "29" to "23"', () => {
+            const mockEvent1 = { target: { value: '2' } } as any;
+            component.onHoursInputChange(mockEvent1);
+
+            const mockEvent2 = { target: { value: '29' } } as any;
+            component.onHoursInputChange(mockEvent2);
+
+            expect(component.value.hours).toBe('23');
         });
     });
 });
