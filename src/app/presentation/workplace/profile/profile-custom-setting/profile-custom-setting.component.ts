@@ -13,7 +13,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
-import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { AVAILABLE_THEMES, ThemeMode, ThemeService } from 'src/app/presentation/services/theme.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
 @Component({
@@ -30,7 +30,8 @@ import { LanguageConfigService } from 'src/app/application/services/language-con
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileCustomSettingComponent implements OnInit {
-  isChecked = false;
+  selectedTheme: ThemeMode = 'light';
+  themes = AVAILABLE_THEMES;
 
   selectedLanguage: Language = DomainMessages.DEFAULT_LANG;
 
@@ -61,7 +62,7 @@ export class ProfileCustomSettingComponent implements OnInit {
         this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
       );
     }
-    this.setTheme();
+    this.initTheme();
   }
 
   onChange() {
@@ -79,20 +80,11 @@ export class ProfileCustomSettingComponent implements OnInit {
     this.localeService.setLocale(lang);
   }
 
-  onDarkModeChecked(): void {
-    const mode = this.isChecked ? 'dark' : 'light';
-    this.themeService.setTheme(mode);
-    this.isChecked
-      ? document.documentElement.setAttribute('data-theme', 'dark')
-      : document.documentElement.setAttribute('data-theme', 'light');
+  onThemeChanged(): void {
+    this.themeService.setTheme(this.selectedTheme);
   }
 
-  setTheme(): void {
-    const currentTheme = this.localStorageService.get('theme')
-      ? this.localStorageService.get('theme')
-      : null;
-    if (currentTheme === 'dark') {
-      this.isChecked = true;
-    }
+  private initTheme(): void {
+    this.selectedTheme = this.themeService.getCurrentTheme();
   }
 }

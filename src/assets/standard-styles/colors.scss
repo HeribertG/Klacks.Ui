@@ -225,3 +225,548 @@ $splitButtonBlueColor: #5e84e6;
   --badgeCustomerColor: #fbbf24;
   --countBoxBackground: rgba(27, 197, 189, 0.12);
 }
+
+:root[data-theme="high-contrast"] {
+  --VersionNumberColor: #000000;
+  --backgroundColorWorkplace: #ffffff;
+  --backgroundColorWindow: #ffffff;
+  --colorWorkplaceHeadline: #000000;
+  --colorWorkplaceHeadlineDecoration: #000000;
+
+  --backgroundColorSubCards: #f0f0f0;
+  --backgroundColorHeaderNav: #ffffff;
+  --backgroundColorHeaderWorkplace: #f0f0f0;
+  --backgroundColorCard: #ffffff;
+  --colorHeadline: #000000;
+  --colorSubHeadline: #333333;
+  --colorLabel: #000000;
+  --backgroundColorImgIconContainer: #ffffff;
+
+  --colorLine: #000000;
+  --gridColorLine: #000000;
+  --gridColorText: #000000;
+  --gridColorTextUpdate: #0050a0;
+  --gridColorTextDelete: #cc0000;
+  --gridColorCellComment: #333333;
+  --gridBackgroundColorCellComment: #fffde0;
+  --gridBackgroundColorCellShadow: #666666;
+  --gridBackgroundColorRowHover: #e0e0e0;
+  --gridBackgroundColorInfo: #fff3cd;
+
+  --cardBorderColor: #000000;
+  --inputBorderColor: #000000;
+  --backgroundColorFocus: #cce5ff;
+  --backgroundColorHover: #e8e8e8;
+
+  --standartTextColor: #000000;
+  --standartTextBackground: #ffffff;
+  --standartTextCaretColor: #000000;
+  --standartTextBackgroundReadOnly: #e0e0e0;
+
+  --backgroundColoPagination: #ffffff;
+  --backgroundColoPaginationSelected: #000000;
+  --coloPaginationSelected: #ffffff;
+  --paginationBorderColor: #000000;
+  --paginationBorderColorSelected: #000000;
+
+  --iconStandartColor: #000000;
+  --iconSelectedColor: #0050a0;
+
+  --backgroundOption: #ffffff;
+  --colorOption: #000000;
+
+  --SpinnerColor: #000000;
+
+  --backgroundOwnHeadLine: #e0e0e0;
+  --backgroundOwnHeadLineHover: #cccccc;
+
+  --backgroundColorDropZone: #ffffff;
+  --backgroundColorDropZoneHover: #cce5ff;
+
+  --backgroundColorContributionTypeName: #d4edda;
+  --backgroundColorContributionTypeVat: #fff3cd;
+
+  --colorPlaceholder: #767676;
+
+  --backgroundColorMenuDisabled: #e0e0e0;
+  --bColorMenuDisabled: #000000;
+
+  --standartRedColor: #cc0000;
+  --standartGreenColor: #008a00;
+  --waveColor: #ffffff;
+  --waveBackgroundColor: #008a00;
+
+  --backgroundFindCustomerList: #008a00;
+  --backgroundHoverFindCustomerList: #006d00;
+  --lightBorderColorFindCustomerList: #b2dfb2;
+  --darkBorderColorFindCustomerList: #006d00;
+  --colorFindCustomerList: #ffffff;
+
+  --colorHoverOnCalenderDay: #000000;
+
+  --gridContainerBackground: #333333;
+  --gridHeaderBackground: #e0e0e0;
+  --gridHeaderColor: #000000;
+  --gridHeaderBorderColor: #000000;
+  --gridRowHeaderColor: #000000;
+
+  --inboxColorLine: #000000;
+
+  --emailReaderBackground: #ffffff;
+  --emailReaderText: #000000;
+  --emailReaderMetaLabel: #000000;
+  --emailReaderMetaValue: #000000;
+  --emailReaderMuted: #333333;
+  --emailReaderBorder: #000000;
+  --emailReaderMetaBackground: #f0f0f0;
+  --emailReaderButtonBorder: #000000;
+  --emailReaderButtonHover: #cccccc;
+  --emailReaderFocusOutline: #0050a0;
+
+  --taskRowPossibleBackground: rgba(0, 138, 0, 0.15);
+  --taskRowViolationBackground: rgba(204, 0, 0, 0.2);
+
+  --badgeEmployeeBackground: #d4edda;
+  --badgeEmployeeColor: #006d00;
+  --badgeExternBackground: #cce5ff;
+  --badgeExternColor: #003d99;
+  --badgeCustomerBackground: #fff3cd;
+  --badgeCustomerColor: #996600;
+  --countBoxBackground: #d4edda;
+}
+
+:root[data-theme="blue"] {
+  --VersionNumberColor: #8faabe;
+  --backgroundColorWorkplace: #e8eef4;
+  --backgroundColorWindow: #f0f4f8;
+  --colorWorkplaceHeadline: #1a365d;
+  --colorWorkplaceHeadlineDecoration: #1a365d;
+
+  --backgroundColorSubCards: #dce4ee;
+  --backgroundColorHeaderNav: #ffffff;
+  --backgroundColorHeaderWorkplace: #dce4ee;
+  --backgroundColorCard: #ffffff;
+  --colorHeadline: #1a365d;
+  --colorSubHeadline: #718096;
+  --colorLabel: #2d3748;
+  --backgroundColorImgIconContainer: #ffffff;
+
+  --colorLine: #bee3f8;
+  --gridColorLine: #a0aec0;
+  --gridColorText: #4a5568;
+  --gridColorTextUpdate: #2b6cb0;
+  --gridColorTextDelete: #c53030;
+  --gridColorCellComment: #718096;
+  --gridBackgroundColorCellComment: #ebf8ff;
+  --gridBackgroundColorCellShadow: #a0aec0;
+  --gridBackgroundColorRowHover: #ebf4ff;
+  --gridBackgroundColorInfo: #fefcbf;
+
+  --cardBorderColor: #bee3f8;
+  --inputBorderColor: #a0c4e8;
+  --backgroundColorFocus: #dce4ee;
+  --backgroundColorHover: #f7fafc;
+
+  --standartTextColor: #2d3748;
+  --standartTextBackground: #ffffff;
+  --standartTextCaretColor: #4a5568;
+  --standartTextBackgroundReadOnly: #dce4ee;
+
+  --backgroundColoPagination: #ffffff;
+  --backgroundColoPaginationSelected: #dce4ee;
+  --coloPaginationSelected: #2d3748;
+  --paginationBorderColor: #bee3f8;
+  --paginationBorderColorSelected: #4299e1;
+
+  --iconStandartColor: #2d3748;
+  --iconSelectedColor: #4299e1;
+
+  --backgroundOption: #ffffff;
+  --colorOption: #2d3748;
+
+  --SpinnerColor: #4299e1;
+
+  --backgroundOwnHeadLine: #dce4ee;
+  --backgroundOwnHeadLineHover: #c8d6e5;
+
+  --backgroundColorDropZone: #ffffff;
+  --backgroundColorDropZoneHover: #dbeafe;
+
+  --backgroundColorContributionTypeName: #e6fffa;
+  --backgroundColorContributionTypeVat: #fefcbf;
+
+  --colorPlaceholder: #cbd5e0;
+
+  --backgroundColorMenuDisabled: #dce4ee;
+  --bColorMenuDisabled: #4a5568;
+
+  --standartRedColor: #e53e3e;
+  --standartGreenColor: #1bc5bd;
+  --waveColor: #ffffff;
+  --waveBackgroundColor: #4299e1;
+
+  --backgroundFindCustomerList: #4299e1;
+  --backgroundHoverFindCustomerList: #3182ce;
+  --lightBorderColorFindCustomerList: #bee3f8;
+  --darkBorderColorFindCustomerList: #3182ce;
+  --colorFindCustomerList: #ffffff;
+
+  --colorHoverOnCalenderDay: #1a365d;
+
+  --gridContainerBackground: #2d3748;
+  --gridHeaderBackground: #c8d6e5;
+  --gridHeaderColor: #2d3748;
+  --gridHeaderBorderColor: #bee3f8;
+  --gridRowHeaderColor: #1a365d;
+
+  --inboxColorLine: #ffffff;
+
+  --emailReaderBackground: #f7fafc;
+  --emailReaderText: #1a202c;
+  --emailReaderMetaLabel: #4a5568;
+  --emailReaderMetaValue: #2d3748;
+  --emailReaderMuted: #718096;
+  --emailReaderBorder: #bee3f8;
+  --emailReaderMetaBackground: #ebf8ff;
+  --emailReaderButtonBorder: #a0c4e8;
+  --emailReaderButtonHover: #dbeafe;
+  --emailReaderFocusOutline: #4299e1;
+
+  --taskRowPossibleBackground: rgba(76, 175, 80, 0.08);
+  --taskRowViolationBackground: rgba(244, 67, 54, 0.12);
+
+  --badgeEmployeeBackground: #e0f7f5;
+  --badgeEmployeeColor: #0d9488;
+  --badgeExternBackground: #dbeafe;
+  --badgeExternColor: #2b6cb0;
+  --badgeCustomerBackground: #fefcbf;
+  --badgeCustomerColor: #d69e2e;
+  --countBoxBackground: #dbeafe;
+}
+
+:root[data-theme="warm"] {
+  --VersionNumberColor: #b8a99a;
+  --backgroundColorWorkplace: #f5f0e8;
+  --backgroundColorWindow: #faf7f2;
+  --colorWorkplaceHeadline: #44332a;
+  --colorWorkplaceHeadlineDecoration: #44332a;
+
+  --backgroundColorSubCards: #ebe5d9;
+  --backgroundColorHeaderNav: #fffdf8;
+  --backgroundColorHeaderWorkplace: #ebe5d9;
+  --backgroundColorCard: #fffdf8;
+  --colorHeadline: #44332a;
+  --colorSubHeadline: #9a8a7b;
+  --colorLabel: #5d4e42;
+  --backgroundColorImgIconContainer: #fffdf8;
+
+  --colorLine: #ddd5c8;
+  --gridColorLine: #c4b8aa;
+  --gridColorText: #7a6b5f;
+  --gridColorTextUpdate: #b8860b;
+  --gridColorTextDelete: #cc3333;
+  --gridColorCellComment: #9a8a7b;
+  --gridBackgroundColorCellComment: #fef9e7;
+  --gridBackgroundColorCellShadow: #b8a99a;
+  --gridBackgroundColorRowHover: #f0ebe3;
+  --gridBackgroundColorInfo: #fef5e7;
+
+  --cardBorderColor: #ddd5c8;
+  --inputBorderColor: #d0c4b4;
+  --backgroundColorFocus: #ebe5d9;
+  --backgroundColorHover: #faf7f2;
+
+  --standartTextColor: #5d4e42;
+  --standartTextBackground: #fffdf8;
+  --standartTextCaretColor: #7a6b5f;
+  --standartTextBackgroundReadOnly: #ebe5d9;
+
+  --backgroundColoPagination: #fffdf8;
+  --backgroundColoPaginationSelected: #ebe5d9;
+  --coloPaginationSelected: #5d4e42;
+  --paginationBorderColor: #ddd5c8;
+  --paginationBorderColorSelected: #c4956a;
+
+  --iconStandartColor: #44332a;
+  --iconSelectedColor: #c4956a;
+
+  --backgroundOption: #fffdf8;
+  --colorOption: #5d4e42;
+
+  --SpinnerColor: #c4956a;
+
+  --backgroundOwnHeadLine: #ebe5d9;
+  --backgroundOwnHeadLineHover: #ddd5c8;
+
+  --backgroundColorDropZone: #fffdf8;
+  --backgroundColorDropZoneHover: #f0e8d8;
+
+  --backgroundColorContributionTypeName: #f0e8d8;
+  --backgroundColorContributionTypeVat: #fef5e7;
+
+  --colorPlaceholder: #d0c4b4;
+
+  --backgroundColorMenuDisabled: #ebe5d9;
+  --bColorMenuDisabled: #5d4e42;
+
+  --standartRedColor: #cc4444;
+  --standartGreenColor: #d4a574;
+  --waveColor: #fffdf8;
+  --waveBackgroundColor: #d4a574;
+
+  --backgroundFindCustomerList: #d4a574;
+  --backgroundHoverFindCustomerList: #c4956a;
+  --lightBorderColorFindCustomerList: #f0e0cc;
+  --darkBorderColorFindCustomerList: #c4956a;
+  --colorFindCustomerList: #ffffff;
+
+  --colorHoverOnCalenderDay: #44332a;
+
+  --gridContainerBackground: #5d4e42;
+  --gridHeaderBackground: #ddd5c8;
+  --gridHeaderColor: #44332a;
+  --gridHeaderBorderColor: #ddd5c8;
+  --gridRowHeaderColor: #44332a;
+
+  --inboxColorLine: #fffdf8;
+
+  --emailReaderBackground: #faf7f2;
+  --emailReaderText: #44332a;
+  --emailReaderMetaLabel: #7a6b5f;
+  --emailReaderMetaValue: #5d4e42;
+  --emailReaderMuted: #9a8a7b;
+  --emailReaderBorder: #ddd5c8;
+  --emailReaderMetaBackground: #f0ebe3;
+  --emailReaderButtonBorder: #d0c4b4;
+  --emailReaderButtonHover: #ebe5d9;
+  --emailReaderFocusOutline: #c4956a;
+
+  --taskRowPossibleBackground: rgba(212, 165, 116, 0.12);
+  --taskRowViolationBackground: rgba(204, 68, 68, 0.12);
+
+  --badgeEmployeeBackground: #f0e8d8;
+  --badgeEmployeeColor: #b8860b;
+  --badgeExternBackground: #e8ddd0;
+  --badgeExternColor: #8b6914;
+  --badgeCustomerBackground: #fef5e7;
+  --badgeCustomerColor: #d97706;
+  --countBoxBackground: #f0e8d8;
+}
+
+:root[data-theme="oled"] {
+  --VersionNumberColor: #555555;
+  --backgroundColorWorkplace: #000000;
+  --backgroundColorWindow: #000000;
+  --colorWorkplaceHeadline: #ffffff;
+  --colorWorkplaceHeadlineDecoration: #e0e0e0;
+
+  --backgroundColorSubCards: #111111;
+  --backgroundColorHeaderNav: #0a0a0a;
+  --backgroundColorHeaderWorkplace: #111111;
+  --backgroundColorCard: #0a0a0a;
+  --colorHeadline: #ffffff;
+  --colorSubHeadline: #888888;
+  --colorLabel: #aaaaaa;
+  --backgroundColorImgIconContainer: #0a0a0a;
+
+  --colorLine: #222222;
+  --gridColorLine: #333333;
+  --gridColorText: #e0e0e0;
+  --gridColorTextUpdate: #2aebe1;
+  --gridColorTextDelete: #e74c3c;
+  --gridColorCellComment: #777777;
+  --gridBackgroundColorCellComment: #1a1a00;
+  --gridBackgroundColorCellShadow: #111111;
+  --gridBackgroundColorRowHover: #1a1a1a;
+  --gridBackgroundColorInfo: #1a1200;
+
+  --cardBorderColor: #222222;
+  --inputBorderColor: #333333;
+  --backgroundColorFocus: #1a1a1a;
+  --backgroundColorHover: #1a1a1a;
+
+  --standartTextColor: #e0e0e0;
+  --standartTextBackground: #0a0a0a;
+  --standartTextCaretColor: #999999;
+  --standartTextBackgroundReadOnly: #1a1a1a;
+
+  --backgroundColoPagination: #0a0a0a;
+  --backgroundColoPaginationSelected: #1a1a1a;
+  --coloPaginationSelected: #e0e0e0;
+  --paginationBorderColor: #222222;
+  --paginationBorderColorSelected: #444444;
+
+  --iconStandartColor: #e0e0e0;
+  --iconSelectedColor: #82e0aa;
+
+  --backgroundOption: #0a0a0a;
+  --colorOption: #e0e0e0;
+
+  --SpinnerColor: #aed6f1;
+
+  --backgroundOwnHeadLine: #1a1a1a;
+  --backgroundOwnHeadLineHover: #222222;
+
+  --backgroundColorDropZone: #0a0a0a;
+  --backgroundColorDropZoneHover: #1a1a1a;
+
+  --backgroundColorContributionTypeName: #0a1a18;
+  --backgroundColorContributionTypeVat: #1a1500;
+
+  --colorPlaceholder: #333333;
+
+  --backgroundColorMenuDisabled: #1a1a1a;
+  --bColorMenuDisabled: #666666;
+
+  --standartRedColor: #e74c3c;
+  --standartGreenColor: #1bc5bd;
+  --waveColor: #0a0a0a;
+  --waveBackgroundColor: #1bc5bd;
+
+  --backgroundFindCustomerList: #1bc5bd;
+  --backgroundHoverFindCustomerList: #0bb7af;
+  --lightBorderColorFindCustomerList: #0a3a38;
+  --darkBorderColorFindCustomerList: #0bb7af;
+  --colorFindCustomerList: #000000;
+
+  --colorHoverOnCalenderDay: #ffffff;
+
+  --gridContainerBackground: #000000;
+  --gridHeaderBackground: #111111;
+  --gridHeaderColor: #e0e0e0;
+  --gridHeaderBorderColor: #222222;
+  --gridRowHeaderColor: #ffffff;
+
+  --inboxColorLine: #222222;
+
+  --emailReaderBackground: #0a0a0a;
+  --emailReaderText: #e0e0e0;
+  --emailReaderMetaLabel: #888888;
+  --emailReaderMetaValue: #bbbbbb;
+  --emailReaderMuted: #666666;
+  --emailReaderBorder: #222222;
+  --emailReaderMetaBackground: #111111;
+  --emailReaderButtonBorder: #333333;
+  --emailReaderButtonHover: #1a1a1a;
+  --emailReaderFocusOutline: #4a90d9;
+
+  --taskRowPossibleBackground: rgba(76, 175, 80, 0.3);
+  --taskRowViolationBackground: rgba(244, 67, 54, 0.3);
+
+  --badgeEmployeeBackground: rgba(27, 197, 189, 0.12);
+  --badgeEmployeeColor: #5eead4;
+  --badgeExternBackground: rgba(105, 147, 255, 0.12);
+  --badgeExternColor: #93bbff;
+  --badgeCustomerBackground: rgba(230, 126, 34, 0.12);
+  --badgeCustomerColor: #fbbf24;
+  --countBoxBackground: rgba(27, 197, 189, 0.1);
+}
+
+:root[data-theme="dimmed"] {
+  --VersionNumberColor: #808080;
+  --backgroundColorWorkplace: #2d3436;
+  --backgroundColorWindow: #1e272e;
+  --colorWorkplaceHeadline: #f5f6fa;
+  --colorWorkplaceHeadlineDecoration: #dcdde1;
+
+  --backgroundColorSubCards: #2f3640;
+  --backgroundColorHeaderNav: #353b48;
+  --backgroundColorHeaderWorkplace: #2f3640;
+  --backgroundColorCard: #353b48;
+  --colorHeadline: #f5f6fa;
+  --colorSubHeadline: #a4a9b3;
+  --colorLabel: #c8ccd4;
+  --backgroundColorImgIconContainer: #353b48;
+
+  --colorLine: #485460;
+  --gridColorLine: #485460;
+  --gridColorText: #dcdde1;
+  --gridColorTextUpdate: #74b9ff;
+  --gridColorTextDelete: #e17055;
+  --gridColorCellComment: #a4a9b3;
+  --gridBackgroundColorCellComment: #3d3d2a;
+  --gridBackgroundColorCellShadow: #1e272e;
+  --gridBackgroundColorRowHover: #3a4149;
+  --gridBackgroundColorInfo: #4a3f2a;
+
+  --cardBorderColor: #485460;
+  --inputBorderColor: #485460;
+  --backgroundColorFocus: #3a4149;
+  --backgroundColorHover: #3a4149;
+
+  --standartTextColor: #dcdde1;
+  --standartTextBackground: #2f3640;
+  --standartTextCaretColor: #a4a9b3;
+  --standartTextBackgroundReadOnly: #3a4149;
+
+  --backgroundColoPagination: #353b48;
+  --backgroundColoPaginationSelected: #485460;
+  --coloPaginationSelected: #dcdde1;
+  --paginationBorderColor: #485460;
+  --paginationBorderColorSelected: #7c9aff;
+
+  --iconStandartColor: #dcdde1;
+  --iconSelectedColor: #7c9aff;
+
+  --backgroundOption: #353b48;
+  --colorOption: #dcdde1;
+
+  --SpinnerColor: #7c9aff;
+
+  --backgroundOwnHeadLine: #3a4149;
+  --backgroundOwnHeadLineHover: #485460;
+
+  --backgroundColorDropZone: #353b48;
+  --backgroundColorDropZoneHover: #3a4149;
+
+  --backgroundColorContributionTypeName: #1a3a38;
+  --backgroundColorContributionTypeVat: #3d3520;
+
+  --colorPlaceholder: #485460;
+
+  --backgroundColorMenuDisabled: #3a4149;
+  --bColorMenuDisabled: #808080;
+
+  --standartRedColor: #e17055;
+  --standartGreenColor: #1bc5bd;
+  --waveColor: #353b48;
+  --waveBackgroundColor: #1bc5bd;
+
+  --backgroundFindCustomerList: #1bc5bd;
+  --backgroundHoverFindCustomerList: #0bb7af;
+  --lightBorderColorFindCustomerList: #1a3a38;
+  --darkBorderColorFindCustomerList: #0bb7af;
+  --colorFindCustomerList: #1e272e;
+
+  --colorHoverOnCalenderDay: #f5f6fa;
+
+  --gridContainerBackground: #1e272e;
+  --gridHeaderBackground: #2f3640;
+  --gridHeaderColor: #dcdde1;
+  --gridHeaderBorderColor: #485460;
+  --gridRowHeaderColor: #f5f6fa;
+
+  --inboxColorLine: #485460;
+
+  --emailReaderBackground: #2f3640;
+  --emailReaderText: #dcdde1;
+  --emailReaderMetaLabel: #a4a9b3;
+  --emailReaderMetaValue: #c8ccd4;
+  --emailReaderMuted: #808080;
+  --emailReaderBorder: #485460;
+  --emailReaderMetaBackground: #353b48;
+  --emailReaderButtonBorder: #485460;
+  --emailReaderButtonHover: #3a4149;
+  --emailReaderFocusOutline: #7c9aff;
+
+  --taskRowPossibleBackground: rgba(76, 175, 80, 0.2);
+  --taskRowViolationBackground: rgba(244, 67, 54, 0.2);
+
+  --badgeEmployeeBackground: rgba(27, 197, 189, 0.15);
+  --badgeEmployeeColor: #5eead4;
+  --badgeExternBackground: rgba(124, 154, 255, 0.15);
+  --badgeExternColor: #93bbff;
+  --badgeCustomerBackground: rgba(230, 126, 34, 0.15);
+  --badgeCustomerColor: #fbbf24;
+  --countBoxBackground: rgba(27, 197, 189, 0.12);
+}

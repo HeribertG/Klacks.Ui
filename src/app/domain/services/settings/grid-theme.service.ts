@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, inject, signal, effect, untracked } from '@angular/core';
-import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { ThemeMode, ThemeService } from 'src/app/presentation/services/theme.service';
 
 const GRID_THEME_DEFAULTS: Record<'light' | 'dark', Record<string, string>> = {
   light: {
@@ -37,8 +37,9 @@ export class GridThemeService {
     });
   }
 
-  private applyTheme(theme: 'light' | 'dark'): void {
-    const defaults = GRID_THEME_DEFAULTS[theme];
+  private applyTheme(theme: ThemeMode): void {
+    const key: 'light' | 'dark' = theme === 'dark' || theme === 'oled' ? 'dark' : 'light';
+    const defaults = GRID_THEME_DEFAULTS[key];
     const style = document.documentElement.style;
 
     for (const [prop, value] of Object.entries(defaults)) {
