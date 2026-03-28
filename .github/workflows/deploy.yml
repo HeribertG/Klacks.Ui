@@ -64,7 +64,7 @@ jobs:
           $COMPOSE_CMD build klacks-ui --no-cache
           
           echo "🔄 Restarting Klacks.Ui..."
-          $COMPOSE_CMD up -d klacks-ui
+          $COMPOSE_CMD up -d --no-deps --force-recreate klacks-ui
           
           echo "✅ Klacks.Ui deployment completed!"
           
