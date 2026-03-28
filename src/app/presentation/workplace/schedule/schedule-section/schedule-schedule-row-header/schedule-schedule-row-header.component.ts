@@ -55,6 +55,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { RowHeaderTooltipService } from './row-header-tooltip.service';
 import { RowHeaderReportService } from './row-header-report.service';
+import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -66,6 +67,7 @@ import { RowHeaderReportService } from './row-header-report.service';
     ResizeDirective,
     ClientFilterComponent,
     ContextMenuComponent,
+    ShiftPreferencesDialogComponent,
   ],
   providers: [
     BaseCreateRowHeaderService,
@@ -83,6 +85,8 @@ export class ScheduleScheduleRowHeaderComponent
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+  @ViewChild(ShiftPreferencesDialogComponent)
+  shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
 
   @Input() valueChangeVScrollbar!: number;
 
@@ -357,6 +361,23 @@ export class ScheduleScheduleRowHeaderComponent
         this.contextMenu.closeMenu(true);
         this.reportHelper.sendStaffSchedule(this.contextMenuRow);
         break;
+      case 'shiftPreferences':
+        this.contextMenu.closeMenu(true);
+        this.openShiftPreferencesDialog(this.contextMenuRow);
+        break;
+    }
+  }
+
+  private openShiftPreferencesDialog(row: number): void {
+    if (row < 0 || row >= this.dataService.rows) return;
+
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    if (groupIndex === undefined) return;
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (client?.id && this.shiftPreferencesDialog) {
+      const name = [client.firstName, client.name].filter(Boolean).join(' ');
+      this.shiftPreferencesDialog.open(client.id, name);
     }
   }
 

@@ -1,0 +1,153 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #shiftPreferencesModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "dialog.shiftPreferences.title" | translate }} — {{ clientName }}
+    </div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="onCancel()"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group shift-selector">
+      <label>{{ "dialog.shiftPreferences.addShift" | translate }}</label>
+      <div class="selector-row">
+        <select [(ngModel)]="selectedShiftId" class="form-control">
+          <option value="">
+            {{ "dialog.shiftPreferences.selectShift" | translate }}
+          </option>
+          @for (shift of availableShifts; track shift.id) {
+            <option [value]="shift.id">
+              {{ shift.abbreviation }} — {{ shift.name }}
+            </option>
+          }
+        </select>
+        <div class="add-buttons">
+          <button
+            class="btn btn-add whitelist"
+            [disabled]="!selectedShiftId"
+            (click)="addToCategory(ShiftPreferenceType.Whitelist)"
+            title="{{ 'dialog.shiftPreferences.addToWhitelist' | translate }}"
+          >
+            <i class="fa-solid fa-check"></i> WL
+          </button>
+          <button
+            class="btn btn-add preferred"
+            [disabled]="!selectedShiftId"
+            (click)="addToCategory(ShiftPreferenceType.Preferred)"
+            title="{{ 'dialog.shiftPreferences.addToPreferred' | translate }}"
+          >
+            <i class="fa-solid fa-star"></i> Bev
+          </button>
+          <button
+            class="btn btn-add blacklist"
+            [disabled]="!selectedShiftId"
+            (click)="addToCategory(ShiftPreferenceType.Blacklist)"
+            title="{{ 'dialog.shiftPreferences.addToBlacklist' | translate }}"
+          >
+            <i class="fa-solid fa-ban"></i> BL
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preference-columns">
+      <div class="preference-column">
+        <div class="column-header whitelist-header">
+          <i class="fa-solid fa-check"></i>
+          {{ "dialog.shiftPreferences.whitelist" | translate }}
+        </div>
+        <div class="column-body">
+          @for (pref of whitelistShifts; track pref.shiftId) {
+            <div class="preference-item">
+              <span class="shift-label">
+                {{ pref.shiftAbbreviation }} — {{ pref.shiftName }}
+              </span>
+              <span class="remove-btn" (click)="removeFromCategory(pref)">
+                &times;
+              </span>
+            </div>
+          }
+          @if (whitelistShifts.length === 0) {
+            <div class="empty-hint">
+              {{ "dialog.shiftPreferences.empty" | translate }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="preference-column">
+        <div class="column-header preferred-header">
+          <i class="fa-solid fa-star"></i>
+          {{ "dialog.shiftPreferences.preferred" | translate }}
+        </div>
+        <div class="column-body">
+          @for (pref of preferredShifts; track pref.shiftId) {
+            <div class="preference-item">
+              <span class="shift-label">
+                {{ pref.shiftAbbreviation }} — {{ pref.shiftName }}
+              </span>
+              <span class="remove-btn" (click)="removeFromCategory(pref)">
+                &times;
+              </span>
+            </div>
+          }
+          @if (preferredShifts.length === 0) {
+            <div class="empty-hint">
+              {{ "dialog.shiftPreferences.empty" | translate }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="preference-column">
+        <div class="column-header blacklist-header">
+          <i class="fa-solid fa-ban"></i>
+          {{ "dialog.shiftPreferences.blacklist" | translate }}
+        </div>
+        <div class="column-body">
+          @for (pref of blacklistShifts; track pref.shiftId) {
+            <div class="preference-item">
+              <span class="shift-label">
+                {{ pref.shiftAbbreviation }} — {{ pref.shiftName }}
+              </span>
+              <span class="remove-btn" (click)="removeFromCategory(pref)">
+                &times;
+              </span>
+            </div>
+          }
+          @if (blacklistShifts.length === 0) {
+            <div class="empty-hint">
+              {{ "dialog.shiftPreferences.empty" | translate }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </span>
+    <button type="button" class="btn save-btn" (click)="onSave()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

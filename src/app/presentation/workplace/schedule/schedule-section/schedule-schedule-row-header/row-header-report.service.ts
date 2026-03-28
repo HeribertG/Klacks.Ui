@@ -59,6 +59,8 @@ export class RowHeaderReportService {
         menuData.list.push(...MenuDataTemplate.sendStaffSchedule());
       }
     }
+    menuData.list.push(...MenuDataTemplate.divider());
+    menuData.list.push(...MenuDataTemplate.shiftPreferences());
     return menuData;
   }
 

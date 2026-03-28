@@ -266,6 +266,18 @@ export class MenuDataTemplate {
     return [item];
   }
 
+  public static shiftPreferences(): MenuItem[] {
+    return [
+      new MenuItem(
+        'shiftPreferences',
+        DomainMessages.SHIFT_PREFERENCES,
+        false,
+        '',
+        'fa-solid fa-sliders',
+      ),
+    ];
+  }
+
   public static deleteBreakPlaceholder(): MenuItem[] {
     return [
       new MenuItem(
