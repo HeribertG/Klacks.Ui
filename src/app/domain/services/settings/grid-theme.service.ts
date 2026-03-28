@@ -1,55 +1,43 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Reads grid header/container colors from CSS variables (set by colors.scss themes).
+ * @param themeService - Provides the current theme signal to trigger re-reads on theme change
+ */
 import { Injectable, inject, signal, effect, untracked } from '@angular/core';
-import { ThemeMode, ThemeService } from 'src/app/presentation/services/theme.service';
-
-const GRID_THEME_DEFAULTS: Record<'light' | 'dark', Record<string, string>> = {
-  light: {
-    '--gridContainerBackground': '#424949',
-    '--gridHeaderBackground': '#d5dbdb',
-    '--gridHeaderColor': '#4d4d4d',
-    '--gridHeaderBorderColor': '#d5dbdb',
-    '--gridRowHeaderColor': '#000000',
-  },
-  dark: {
-    '--gridContainerBackground': '#2c3e50',
-    '--gridHeaderBackground': '#34495e',
-    '--gridHeaderColor': '#ecf0f1',
-    '--gridHeaderBorderColor': '#2c3e50',
-    '--gridRowHeaderColor': '#ecf0f1',
-  },
-};
+import { ThemeService } from 'src/app/presentation/services/theme.service';
 
 @Injectable({ providedIn: 'root' })
 export class GridThemeService {
   private themeService = inject(ThemeService);
 
-  readonly containerBackground = signal<string>(GRID_THEME_DEFAULTS.light['--gridContainerBackground']);
-  readonly headerBackground = signal<string>(GRID_THEME_DEFAULTS.light['--gridHeaderBackground']);
-  readonly headerColor = signal<string>(GRID_THEME_DEFAULTS.light['--gridHeaderColor']);
-  readonly headerBorderColor = signal<string>(GRID_THEME_DEFAULTS.light['--gridHeaderBorderColor']);
-  readonly rowHeaderColor = signal<string>(GRID_THEME_DEFAULTS.light['--gridRowHeaderColor']);
+  readonly containerBackground = signal<string>('#424949');
+  readonly headerBackground = signal<string>('#d5dbdb');
+  readonly headerColor = signal<string>('#4d4d4d');
+  readonly headerBorderColor = signal<string>('#d5dbdb');
+  readonly rowHeaderColor = signal<string>('#000000');
 
   constructor() {
     effect(() => {
-      const theme = this.themeService.theme();
-      untracked(() => this.applyTheme(theme));
+      this.themeService.theme();
+      untracked(() => {
+        requestAnimationFrame(() => this.readFromCssVariables());
+      });
     });
   }
 
-  private applyTheme(theme: ThemeMode): void {
-    const key: 'light' | 'dark' = theme === 'dark' || theme === 'oled' ? 'dark' : 'light';
-    const defaults = GRID_THEME_DEFAULTS[key];
-    const style = document.documentElement.style;
+  private readFromCssVariables(): void {
+    const style = getComputedStyle(document.documentElement);
 
-    for (const [prop, value] of Object.entries(defaults)) {
-      style.setProperty(prop, value);
-    }
+    const read = (prop: string, fallback: string): string => {
+      const val = style.getPropertyValue(prop).trim();
+      return val || fallback;
+    };
 
-    this.containerBackground.set(defaults['--gridContainerBackground']);
-    this.headerBackground.set(defaults['--gridHeaderBackground']);
-    this.headerColor.set(defaults['--gridHeaderColor']);
-    this.headerBorderColor.set(defaults['--gridHeaderBorderColor']);
-    this.rowHeaderColor.set(defaults['--gridRowHeaderColor']);
+    this.containerBackground.set(read('--gridContainerBackground', '#424949'));
+    this.headerBackground.set(read('--gridHeaderBackground', '#d5dbdb'));
+    this.headerColor.set(read('--gridHeaderColor', '#4d4d4d'));
+    this.headerBorderColor.set(read('--gridHeaderBorderColor', '#d5dbdb'));
+    this.rowHeaderColor.set(read('--gridRowHeaderColor', '#000000'));
   }
 }
