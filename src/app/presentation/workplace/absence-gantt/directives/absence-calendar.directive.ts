@@ -124,7 +124,8 @@ export class AbsenceCalendarDirective {
       if (this.gridBody.contextMenu) {
         this.gridBody.contextMenu.closeMenu(true);
         this.stopEvent(event);
-        if (this.gridBody.drawCalendarGantt.rows > 0) {
+        const isHeader = event.offsetY < this.gridBody.calendarSetting.cellHeaderHeight;
+        if (this.gridBody.drawCalendarGantt.rows > 0 && !isHeader) {
           this.gridBody.onSelectByMouse(event);
           this.gridBody.createContextMenu(event);
           this.gridBody.contextMenu.openMenu(event);
