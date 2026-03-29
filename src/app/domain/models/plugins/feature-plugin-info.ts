@@ -15,6 +15,7 @@ export interface FeaturePluginInfo {
   minKlacksVersion: string;
   isInstalled: boolean;
   isEnabled: boolean;
+  isOperational: boolean;
   providedSkills: string[];
   navigation?: PluginNavigationManifest;
 }

@@ -26,7 +26,7 @@ export class FeaturePluginStateService {
 
   public pluginNavItems = computed<PluginNavItem[]>(() => {
     return this._plugins()
-      .filter((p) => p.isInstalled && p.isEnabled && p.navigation)
+      .filter((p) => p.isInstalled && p.isEnabled && p.isOperational && p.navigation)
       .map((p) => ({
         name: p.name,
         route: p.navigation!.route,
