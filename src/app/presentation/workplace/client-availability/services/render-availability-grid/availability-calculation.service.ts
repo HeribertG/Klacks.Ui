@@ -123,6 +123,10 @@ export class AvailabilityCalculationService {
     return `${y}-${m}-${d}`;
   }
 
+  public formatWeekdayOnly(date: Date): string {
+    return this.translateService.instant(WEEKDAY_KEYS[date.getDay()]);
+  }
+
   public formatDayLabel(date: Date, isMonthly: boolean): string {
     const dayName = this.translateService.instant(WEEKDAY_KEYS[date.getDay()]);
     const day = date.getDate();

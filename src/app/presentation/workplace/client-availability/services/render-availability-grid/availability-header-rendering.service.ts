@@ -6,8 +6,16 @@ import { AvailabilityCalculationService } from './availability-calculation.servi
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
+
+interface SegmentCache {
+  canvas: HTMLCanvasElement;
+  width: number;
+  height: number;
+  bgColor: string;
+}
 
 @Injectable()
 export class AvailabilityHeaderRenderingService {
@@ -16,10 +24,101 @@ export class AvailabilityHeaderRenderingService {
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
 
+  private daySegmentCache: SegmentCache | undefined;
+  private hourSegmentCache: SegmentCache | undefined;
+  private hourHolidayCache: SegmentCache | undefined;
+  private hourOfficialHolidayCache: SegmentCache | undefined;
+
   public renderHeader(ctx: CanvasRenderingContext2D, width: number): void {
     this.fillRect(ctx, 0, 0, width, this.settings.cellHeaderHeight, this.gridColors.controlBackGroundColor);
     this.renderDayRow(ctx, width);
     this.renderHourRow(ctx, width);
+  }
+
+  public invalidateCache(): void {
+    this.daySegmentCache = undefined;
+    this.hourSegmentCache = undefined;
+    this.hourHolidayCache = undefined;
+    this.hourOfficialHolidayCache = undefined;
+  }
+
+  private ensureDaySegmentCache(): HTMLCanvasElement {
+    const dayWidth = this.settings.columnsPerDay * this.settings.cellWidth;
+    const dayHeaderHeight = this.settings.dayHeaderHeight;
+    const bgColor = this.gridColors.controlBackGroundColor;
+
+    if (this.daySegmentCache
+      && this.daySegmentCache.width === dayWidth
+      && this.daySegmentCache.height === dayHeaderHeight
+      && this.daySegmentCache.bgColor === bgColor) {
+      return this.daySegmentCache.canvas;
+    }
+
+    this.daySegmentCache = this.createSegmentCanvas(dayWidth, dayHeaderHeight, bgColor);
+    return this.daySegmentCache.canvas;
+  }
+
+  private ensureHourSegmentCache(): HTMLCanvasElement {
+    const cellWidth = this.settings.cellWidth;
+    const hourHeaderHeight = this.settings.hourHeaderHeight;
+    const bgColor = this.gridColors.controlBackGroundColor;
+
+    if (this.hourSegmentCache
+      && this.hourSegmentCache.width === cellWidth
+      && this.hourSegmentCache.height === hourHeaderHeight
+      && this.hourSegmentCache.bgColor === bgColor) {
+      return this.hourSegmentCache.canvas;
+    }
+
+    this.hourSegmentCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
+    return this.hourSegmentCache.canvas;
+  }
+
+  private ensureHourHolidayCache(): HTMLCanvasElement {
+    const cellWidth = this.settings.cellWidth;
+    const hourHeaderHeight = this.settings.hourHeaderHeight;
+    const bgColor = this.gridColors.backGroundColorHolyday;
+
+    if (this.hourHolidayCache
+      && this.hourHolidayCache.width === cellWidth
+      && this.hourHolidayCache.height === hourHeaderHeight
+      && this.hourHolidayCache.bgColor === bgColor) {
+      return this.hourHolidayCache.canvas;
+    }
+
+    this.hourHolidayCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
+    return this.hourHolidayCache.canvas;
+  }
+
+  private ensureHourOfficialHolidayCache(): HTMLCanvasElement {
+    const cellWidth = this.settings.cellWidth;
+    const hourHeaderHeight = this.settings.hourHeaderHeight;
+    const bgColor = this.gridColors.backGroundColorOfficiallyHoliday;
+
+    if (this.hourOfficialHolidayCache
+      && this.hourOfficialHolidayCache.width === cellWidth
+      && this.hourOfficialHolidayCache.height === hourHeaderHeight
+      && this.hourOfficialHolidayCache.bgColor === bgColor) {
+      return this.hourOfficialHolidayCache.canvas;
+    }
+
+    this.hourOfficialHolidayCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
+    return this.hourOfficialHolidayCache.canvas;
+  }
+
+  private createSegmentCanvas(width: number, height: number, bgColor: string): SegmentCache {
+    const ratio = DrawHelper.pixelRatio();
+    const canvas = document.createElement('canvas');
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+    const ctx = canvas.getContext('2d')!;
+    ctx.scale(ratio, ratio);
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, width, height);
+    DrawHelper.drawBorder(ctx, 0, 0, width, height, bgColor, 2, Gradient3DBorderStyleEnum.Raised);
+
+    return { canvas, width, height, bgColor };
   }
 
   private renderDayRow(ctx: CanvasRenderingContext2D, width: number): void {
@@ -27,9 +126,10 @@ export class AvailabilityHeaderRenderingService {
     const cellWidth = this.settings.cellWidth;
     const dayWidth = columnsPerDay * cellWidth;
     const dayHeaderHeight = this.settings.dayHeaderHeight;
+    const isFullDay = this.settings.hourGroupingMode() === HourGroupingMode.FullDay;
     const isMonthly = this.settings.viewMode() === PaymentInterval.Monthly;
     const font = this.gridFonts.headerFontString;
-    const bgColor = this.gridColors.controlBackGroundColor;
+    const template = this.ensureDaySegmentCache();
 
     for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
       const date = new Date(this.calculation.startDate);
@@ -38,10 +138,11 @@ export class AvailabilityHeaderRenderingService {
 
       if (x > width) break;
 
-      this.fillRect(ctx, x, 0, dayWidth, dayHeaderHeight, bgColor);
-      DrawHelper.drawBorder(ctx, x, 0, dayWidth, dayHeaderHeight, bgColor, 2, Gradient3DBorderStyleEnum.Raised);
+      ctx.drawImage(template, 0, 0, template.width, template.height, x, 0, dayWidth, dayHeaderHeight);
 
-      const label = this.calculation.formatDayLabel(date, isMonthly);
+      const label = isFullDay
+        ? this.calculation.formatWeekdayOnly(date)
+        : this.calculation.formatDayLabel(date, isMonthly);
       this.drawCenteredText(
         ctx, label, x, 0, dayWidth, dayHeaderHeight,
         font, this.gridColors.headerForeGroundColor
@@ -54,18 +155,22 @@ export class AvailabilityHeaderRenderingService {
     const cellWidth = this.settings.cellWidth;
     const dayHeaderHeight = this.settings.dayHeaderHeight;
     const hourHeaderHeight = this.settings.hourHeaderHeight;
+    const isFullDay = this.settings.hourGroupingMode() === HourGroupingMode.FullDay;
     const font = this.gridFonts.firstSubFontString;
-    const bgColor = this.gridColors.controlBackGroundColor;
+
+    const normalTemplate = this.ensureHourSegmentCache();
+    const holidayTemplate = this.ensureHourHolidayCache();
+    const officialHolidayTemplate = this.ensureHourOfficialHolidayCache();
 
     for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
       const date = new Date(this.calculation.startDate);
       date.setDate(date.getDate() + dayIdx);
       const isHoliday = this.calculation.isHoliday(date);
-      const holidayBg = isHoliday
+      const template = isHoliday
         ? this.calculation.isOfficialHoliday(date)
-          ? this.gridColors.backGroundColorOfficiallyHoliday
-          : this.gridColors.backGroundColorHolyday
-        : undefined;
+          ? officialHolidayTemplate
+          : holidayTemplate
+        : normalTemplate;
 
       for (let slotIdx = 0; slotIdx < columnsPerDay; slotIdx++) {
         const col = dayIdx * columnsPerDay + slotIdx;
@@ -73,11 +178,11 @@ export class AvailabilityHeaderRenderingService {
 
         if (x > width) break;
 
-        const slotBg = holidayBg ?? bgColor;
-        this.fillRect(ctx, x, dayHeaderHeight, cellWidth, hourHeaderHeight, slotBg);
-        DrawHelper.drawBorder(ctx, x, dayHeaderHeight, cellWidth, dayHeaderHeight + hourHeaderHeight, slotBg, 2, Gradient3DBorderStyleEnum.Raised);
+        ctx.drawImage(template, 0, 0, template.width, template.height, x, dayHeaderHeight, cellWidth, hourHeaderHeight);
 
-        const label = this.calculation.getSlotLabel(slotIdx);
+        const label = isFullDay
+          ? `${date.getDate()}`
+          : this.calculation.getSlotLabel(slotIdx);
         this.drawCenteredText(
           ctx, label, x, dayHeaderHeight, cellWidth, hourHeaderHeight,
           font, this.gridColors.headerForeGroundColor
