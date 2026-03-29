@@ -37,6 +37,8 @@ import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/ev
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { TranslateService } from '@ngx-translate/core';
+import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -79,6 +81,8 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private eventBus = inject(EVENT_BUS_TOKEN);
   private asideService = inject(AsideService);
   private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
+  private assistantProviderService = inject(DataManagementAssistantProviderService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -140,17 +144,21 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   }
 
   private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
-    if (event.suggestions.length === 0) {
-      this.asideService.show(true);
+    if (this.isChatbotAvailable()) {
       return;
     }
 
+    const addressStr = [event.street, event.zip, event.city].filter(Boolean).join(', ');
+    const saveAnywayLabel = this.translateService.instant('address.validation.save-anyway');
+
+    const suggestionOptions = event.suggestions.map((s) => ({
+      label: s.displayName,
+      value: s.displayName,
+    }));
+
     const repliesConfig: ISuggestedRepliesConfig = {
-      prompt: `Adresse nicht gefunden: ${[event.street, event.zip, event.city].filter(Boolean).join(', ')}. Meinten Sie:`,
-      options: event.suggestions.map((s) => ({
-        label: s.displayName,
-        value: s.displayName,
-      })),
+      prompt: this.translateService.instant('address.validation.no-llm', { address: addressStr }),
+      options: [...suggestionOptions, { label: saveAnywayLabel, value: '__save_anyway__' }],
       selectionMode: 'single',
     };
 
@@ -159,14 +167,22 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       (values: string[]) => {
         if (values.length === 0) return;
 
+        if (values.includes('__save_anyway__')) {
+          this.dataManagementClientService.clientEditService.forceSaveClient();
+          return;
+        }
+
         const selected = event.suggestions.find((s) => s.displayName === values[0]);
         if (!selected) return;
 
         this.applySelectedAddress(selected.displayName, selected.latitude, selected.longitude);
       },
     );
+  }
 
-    this.asideService.show(true);
+  private isChatbotAvailable(): boolean {
+    const providers = this.assistantProviderService.getCurrentProviders();
+    return providers?.some(p => p.hasApiKey && p.isEnabled) ?? false;
   }
 
   private applySelectedAddress(displayName: string, latitude: number, longitude: number): void {

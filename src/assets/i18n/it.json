@@ -269,6 +269,8 @@
   "address.validation.not-found": "Indirizzo non trovato: {{address}}. CAP, città o via sembrano non validi.",
   "address.validation.missing-fields": "Indirizzo incompleto: {{address}}. CAP e città sono campi obbligatori.",
   "address.validation.state-mismatch": "Cantone/regione errato per: {{address}}. Previsto: {{expected}}.",
+  "address.validation.no-llm": "L'indirizzo non ha potuto essere verificato: {{address}}. L'assistente IA non è disponibile per aiutare con la correzione. È possibile correggere l'indirizzo o salvare comunque.",
+  "address.validation.save-anyway": "Salva comunque",
   "auth.forgot-password.email-address": "Indirizzo email",
   "auth.forgot-password.email-placeholder": "tua-email@esempio.com",
   "auth.forgot-password.error": "Errore nell'invio dell'email di reimpostazione.",

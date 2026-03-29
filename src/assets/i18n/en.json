@@ -269,6 +269,8 @@
   "address.validation.not-found": "Address not found: {{address}}. ZIP, city or street appear to be invalid.",
   "address.validation.missing-fields": "Incomplete address: {{address}}. ZIP and city are required fields.",
   "address.validation.state-mismatch": "Wrong state/region for: {{address}}. Expected: {{expected}}.",
+  "address.validation.no-llm": "The address could not be verified: {{address}}. The AI assistant is not available to help with correction. You can correct the address or save anyway.",
+  "address.validation.save-anyway": "Save anyway",
   "auth.forgot-password.email-address": "Email Address",
   "auth.forgot-password.email-placeholder": "your-email@example.com",
   "auth.forgot-password.error": "Error sending reset email.",

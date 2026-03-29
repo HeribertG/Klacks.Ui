@@ -44,6 +44,7 @@ export class ClientEditService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
+  private _skipAddressValidation = false;
 
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
@@ -173,6 +174,11 @@ export class ClientEditService {
     this.executeClientSave();
   }
 
+  public forceSaveClient(): void {
+    this._skipAddressValidation = true;
+    this.executeClientSave();
+  }
+
   private async validateAddress(address: IAddress): Promise<boolean> {
     try {
       const result = await firstValueFrom(
@@ -199,12 +205,6 @@ export class ClientEditService {
 
     this.lastSaveError.set(true);
     this.lastSaveErrorMessage.set(errorMessage);
-
-    this.eventBus.emit(DomainEventType.ERROR, {
-      message: errorMessage,
-      code: 'address-validation-failed',
-      context: 'ClientEditService.validateAddress',
-    });
 
     this.eventBus.emit<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED, {
       street: address.street,
@@ -300,6 +300,11 @@ export class ClientEditService {
       ...this.editClient()!,
       clientContracts: filteredContracts,
     };
+
+    if (this._skipAddressValidation) {
+      (clientToSave as unknown as Record<string, unknown>)['skipAddressValidation'] = true;
+      this._skipAddressValidation = false;
+    }
 
     const apiCall = clientToSave.id
       ? this.dataClientService.updateClient(clientToSave)

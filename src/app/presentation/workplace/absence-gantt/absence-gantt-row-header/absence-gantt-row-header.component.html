@@ -23,6 +23,9 @@
     class="calendar"
     (mousemove)="onMouseMove($event)"
     (click)="onClick($event)"
+    (contextmenu)="onRightClick($event)"
     aria-labelledby="Row Header of the Absence Gantt."
   ></canvas>
 </div>
+
+<app-context-menu #contextMenu></app-context-menu>

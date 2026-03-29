@@ -269,6 +269,8 @@
   "address.validation.not-found": "Adresse introuvable : {{address}}. Le code postal, la ville ou la rue semblent invalides.",
   "address.validation.missing-fields": "Adresse incomplète : {{address}}. Le code postal et la ville sont obligatoires.",
   "address.validation.state-mismatch": "Mauvais canton/région pour : {{address}}. Attendu : {{expected}}.",
+  "address.validation.no-llm": "L'adresse n'a pas pu être vérifiée : {{address}}. L'assistant IA n'est pas disponible pour aider à la correction. Vous pouvez corriger l'adresse ou enregistrer quand même.",
+  "address.validation.save-anyway": "Enregistrer quand même",
   "auth.forgot-password.email-address": "Adresse e-mail",
   "auth.forgot-password.email-placeholder": "votre-email@exemple.com",
   "auth.forgot-password.error": "Erreur lors de l'envoi de l'e-mail de réinitialisation.",

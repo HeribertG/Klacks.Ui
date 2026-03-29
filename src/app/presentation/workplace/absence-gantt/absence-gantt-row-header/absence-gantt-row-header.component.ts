@@ -32,9 +32,15 @@ import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorat
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { NgStyle } from '@angular/common';
+import { Router } from '@angular/router';
+import { takeUntil } from 'rxjs';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 
 @Component({
   selector: 'app-absence-gantt-row-header',
@@ -42,8 +48,8 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgStyle, ClientFilterComponent, ResizeDirective],
-  providers: [ProgressBarAnimationService],
+  imports: [NgStyle, ClientFilterComponent, ResizeDirective, ContextMenuComponent],
+  providers: [ProgressBarAnimationService, ContextMenuService],
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -52,6 +58,8 @@ export class AbsenceGanttRowHeaderComponent
 
   @ViewChild('boxCalendarRowHeader')
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
+  @ViewChild('contextMenu', { static: false })
+  contextMenu!: ContextMenuComponent;
 
   public scroll = inject(ScrollService);
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
@@ -60,6 +68,7 @@ export class AbsenceGanttRowHeaderComponent
   private drawCalendarGanttService = inject(DrawCalendarGanttService);
   private drawRowHeader = inject(DrawRowHeaderService);
   private rowHeaderIcons = inject(RowHeaderIconsService);
+  private router = inject(Router);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
@@ -68,6 +77,7 @@ export class AbsenceGanttRowHeaderComponent
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   private filterEl = viewChild<ElementRef>('filterEl');
+  private contextMenuRow = -1;
 
   /* #region dom */
   private set currentCursor(cursor: CursorEnum) {
@@ -100,6 +110,12 @@ export class AbsenceGanttRowHeaderComponent
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
+
+    this.contextMenu?.hasClicked
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((keys) => {
+        this.menuClicked(keys);
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -219,6 +235,53 @@ export class AbsenceGanttRowHeaderComponent
 
   onMouseLeave() {
     this.destroyFilter();
+  }
+
+  onRightClick(event: MouseEvent): void {
+    event.preventDefault();
+    if (!this.contextMenu) return;
+
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    const row =
+      Math.floor(
+        (pos.y - this.drawRowHeader.calendarSetting.cellHeaderHeight) /
+          this.drawRowHeader.calendarSetting.cellHeight,
+      ) + this.scroll.verticalScrollPosition;
+
+    if (row < 0 || row >= this.dataManagementBreak.rows) {
+      return;
+    }
+
+    const clientId = this.dataManagementBreak.readClientId(row);
+    if (!clientId) {
+      return;
+    }
+
+    this.contextMenuRow = row;
+    const menuData = new Menu();
+    menuData.list.push(...MenuDataTemplate.goToAddress());
+    this.contextMenu.menuData = menuData;
+
+    this.contextMenu.openMenu({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    } as MouseEvent);
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    if (keys[0] === 'goToAddress') {
+      this.contextMenu.closeMenu(true);
+      const clientId = this.dataManagementBreak.readClientId(this.contextMenuRow);
+      if (clientId) {
+        this.router.navigate(['/workplace/edit-address', clientId], {
+          queryParams: { returnUrl: '/workplace/absence' },
+        });
+      }
+    }
   }
 
   /* #endregion   mouse event */

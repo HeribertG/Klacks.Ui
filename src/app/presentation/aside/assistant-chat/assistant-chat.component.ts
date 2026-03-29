@@ -477,6 +477,10 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   private handleAddressValidationForChat(event: AddressValidationFailedEvent): void {
+    if (this.isInitializing() || this.hasNoApiKey()) {
+      return;
+    }
+
     const welcomeIndex = this.messages.findIndex(
       (m) => m.sender === 'assistant' && m.suggestions && m.suggestions.length > 0
     );

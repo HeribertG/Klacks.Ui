@@ -12,6 +12,7 @@ import { ToastService } from './toast.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { IToast } from './toast.interface';
 
 @Component({
@@ -90,7 +91,7 @@ import { IToast } from './toast.interface';
           class="reply-dismiss-btn"
           (click)="onDismissInteractive(toast)"
         >
-          Überspringen
+          {{ 'cancel' | translate }}
         </button>
       </div>
       }
@@ -104,7 +105,7 @@ import { IToast } from './toast.interface';
     style: 'z-index: 1200',
   },
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbToastModule],
+  imports: [CommonModule, FormsModule, NgbToastModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastsContainerComponent {
