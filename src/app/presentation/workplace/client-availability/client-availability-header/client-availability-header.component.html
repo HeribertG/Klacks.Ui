@@ -58,7 +58,7 @@
 
   <div class="header-right">
     <div class="grouping-slider">
-      <ngx-slider [(value)]="hourGrouping" [options]="groupingOptions"></ngx-slider>
+      <ngx-slider [value]="hourGrouping" [options]="groupingOptions()" [manualRefresh]="sliderRefresh" (userChangeEnd)="onGroupingChanged($event)"></ngx-slider>
     </div>
 
   </div>

@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, DestroyRef, inject, Input, OnInit, output, signal,
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, output, signal, WritableSignal,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
+import { NgxSliderModule, Options, ChangeContext } from '@angular-slider/ngx-slider';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -61,14 +61,16 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   currentMonth = new Date().getMonth() + 1;
   currentWeek = 1;
 
-  groupingOptions: Options = {};
+  groupingOptions: WritableSignal<Options> = signal({});
+  sliderRefresh = new EventEmitter<void>();
 
   ngOnInit(): void {
     this.currentWeek = this.calendarUtil.getISO8601WeekNumber(new Date());
-    this.groupingOptions = this.buildGroupingOptions();
+    this.groupingOptions.set(this.buildGroupingOptions());
 
     const rebuildOptions = () => {
-      this.groupingOptions = this.buildGroupingOptions();
+      this.groupingOptions.set(this.buildGroupingOptions());
+      this.sliderRefresh.emit();
     };
 
     this.translateService.onTranslationChange
@@ -98,6 +100,10 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
 
   set hourGrouping(value: number) {
     this.settings.hourGroupingMode.set(value as HourGroupingMode);
+  }
+
+  onGroupingChanged(change: ChangeContext): void {
+    this.settings.hourGroupingMode.set(change.value as HourGroupingMode);
   }
 
   get displayPeriod(): string {

@@ -66,8 +66,9 @@ export class DataManagementClientAvailabilityService {
     startHour: number,
     endHour: number
   ): boolean {
+    const prefix = `${clientId}_${date}_`;
     for (let h = startHour; h < endHour; h++) {
-      if (!this.isHourAvailable(clientId, date, h)) {
+      if (!(this.hourCache.get(prefix + h) ?? false)) {
         return false;
       }
     }

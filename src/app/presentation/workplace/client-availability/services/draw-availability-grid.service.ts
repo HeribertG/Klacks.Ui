@@ -31,7 +31,7 @@ export class DrawAvailabilityGridService {
   public drawGrid(): void {
     if (!this.canvasManager.isCanvasAvailable()) return;
 
-    this.renderGrid.renderHeader();
+    this.renderGrid.renderHeader(this.scrollX);
     this.renderGrid.renderGrid(this.scrollX, this.scrollY);
     this.compositeToMain();
     this.drawSelectedCell();
@@ -69,7 +69,7 @@ export class DrawAvailabilityGridService {
   }
 
   private moveCanvas(deltaCol: number, deltaRow: number): void {
-    this.renderGrid.renderHeader();
+    this.renderGrid.renderHeader(this.scrollX);
 
     const renderCanvas = this.canvasManager.renderCanvas;
     const renderCanvasCtx = this.canvasManager.renderCanvasCtx;
@@ -166,7 +166,7 @@ export class DrawAvailabilityGridService {
 
       ctx.drawImage(
         this.canvasManager.headerCanvas,
-        this.scrollX * ratio,
+        0,
         0,
         this.canvasManager.width * ratio,
         headerHeight * ratio,

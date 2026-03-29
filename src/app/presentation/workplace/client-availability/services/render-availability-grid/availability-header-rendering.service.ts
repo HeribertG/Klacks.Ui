@@ -29,10 +29,10 @@ export class AvailabilityHeaderRenderingService {
   private hourHolidayCache: SegmentCache | undefined;
   private hourOfficialHolidayCache: SegmentCache | undefined;
 
-  public renderHeader(ctx: CanvasRenderingContext2D, width: number): void {
-    this.fillRect(ctx, 0, 0, width, this.settings.cellHeaderHeight, this.gridColors.controlBackGroundColor);
-    this.renderDayRow(ctx, width);
-    this.renderHourRow(ctx, width);
+  public renderHeader(ctx: CanvasRenderingContext2D, viewportWidth: number, scrollX: number): void {
+    this.fillRect(ctx, 0, 0, viewportWidth, this.settings.cellHeaderHeight, this.gridColors.controlBackGroundColor);
+    this.renderDayRow(ctx, viewportWidth, scrollX);
+    this.renderHourRow(ctx, viewportWidth, scrollX);
   }
 
   public invalidateCache(): void {
@@ -121,7 +121,7 @@ export class AvailabilityHeaderRenderingService {
     return { canvas, width, height, bgColor };
   }
 
-  private renderDayRow(ctx: CanvasRenderingContext2D, width: number): void {
+  private renderDayRow(ctx: CanvasRenderingContext2D, viewportWidth: number, scrollX: number): void {
     const columnsPerDay = this.settings.columnsPerDay;
     const cellWidth = this.settings.cellWidth;
     const dayWidth = columnsPerDay * cellWidth;
@@ -129,14 +129,19 @@ export class AvailabilityHeaderRenderingService {
     const isFullDay = this.settings.hourGroupingMode() === HourGroupingMode.FullDay;
     const isMonthly = this.settings.viewMode() === PaymentInterval.Monthly;
     const font = this.gridFonts.headerFontString;
+    const textColor = this.gridColors.headerForeGroundColor;
     const template = this.ensureDaySegmentCache();
 
-    for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
+    const firstDay = Math.floor(scrollX / dayWidth);
+    const lastDay = Math.min(
+      Math.ceil((scrollX + viewportWidth) / dayWidth),
+      this.calculation.daysInView
+    );
+
+    for (let dayIdx = firstDay; dayIdx < lastDay; dayIdx++) {
       const date = new Date(this.calculation.startDate);
       date.setDate(date.getDate() + dayIdx);
-      const x = dayIdx * dayWidth;
-
-      if (x > width) break;
+      const x = dayIdx * dayWidth - scrollX;
 
       ctx.drawImage(template, 0, 0, template.width, template.height, x, 0, dayWidth, dayHeaderHeight);
 
@@ -145,49 +150,61 @@ export class AvailabilityHeaderRenderingService {
         : this.calculation.formatDayLabel(date, isMonthly);
       this.drawCenteredText(
         ctx, label, x, 0, dayWidth, dayHeaderHeight,
-        font, this.gridColors.headerForeGroundColor
+        font, textColor
       );
     }
   }
 
-  private renderHourRow(ctx: CanvasRenderingContext2D, width: number): void {
+  private renderHourRow(ctx: CanvasRenderingContext2D, viewportWidth: number, scrollX: number): void {
     const columnsPerDay = this.settings.columnsPerDay;
     const cellWidth = this.settings.cellWidth;
     const dayHeaderHeight = this.settings.dayHeaderHeight;
     const hourHeaderHeight = this.settings.hourHeaderHeight;
     const isFullDay = this.settings.hourGroupingMode() === HourGroupingMode.FullDay;
     const font = this.gridFonts.firstSubFontString;
+    const textColor = this.gridColors.headerForeGroundColor;
+    const totalCols = this.calculation.totalColumns;
 
     const normalTemplate = this.ensureHourSegmentCache();
     const holidayTemplate = this.ensureHourHolidayCache();
     const officialHolidayTemplate = this.ensureHourOfficialHolidayCache();
 
-    for (let dayIdx = 0; dayIdx < this.calculation.daysInView; dayIdx++) {
-      const date = new Date(this.calculation.startDate);
-      date.setDate(date.getDate() + dayIdx);
-      const isHoliday = this.calculation.isHoliday(date);
-      const template = isHoliday
-        ? this.calculation.isOfficialHoliday(date)
-          ? officialHolidayTemplate
-          : holidayTemplate
-        : normalTemplate;
+    const firstCol = Math.floor(scrollX / cellWidth);
+    const lastCol = Math.min(
+      Math.ceil((scrollX + viewportWidth) / cellWidth) + 1,
+      totalCols
+    );
 
-      for (let slotIdx = 0; slotIdx < columnsPerDay; slotIdx++) {
-        const col = dayIdx * columnsPerDay + slotIdx;
-        const x = col * cellWidth;
+    let prevDayIdx = -1;
+    let template = normalTemplate;
+    let currentDate: Date | undefined;
 
-        if (x > width) break;
+    for (let col = firstCol; col < lastCol; col++) {
+      const dayIdx = Math.floor(col / columnsPerDay);
+      const slotIdx = col % columnsPerDay;
+      const x = col * cellWidth - scrollX;
 
-        ctx.drawImage(template, 0, 0, template.width, template.height, x, dayHeaderHeight, cellWidth, hourHeaderHeight);
-
-        const label = isFullDay
-          ? `${date.getDate()}`
-          : this.calculation.getSlotLabel(slotIdx);
-        this.drawCenteredText(
-          ctx, label, x, dayHeaderHeight, cellWidth, hourHeaderHeight,
-          font, this.gridColors.headerForeGroundColor
-        );
+      if (dayIdx !== prevDayIdx) {
+        prevDayIdx = dayIdx;
+        currentDate = new Date(this.calculation.startDate);
+        currentDate.setDate(currentDate.getDate() + dayIdx);
+        const isHoliday = this.calculation.isHoliday(currentDate);
+        template = isHoliday
+          ? this.calculation.isOfficialHoliday(currentDate)
+            ? officialHolidayTemplate
+            : holidayTemplate
+          : normalTemplate;
       }
+
+      ctx.drawImage(template, 0, 0, template.width, template.height, x, dayHeaderHeight, cellWidth, hourHeaderHeight);
+
+      const label = isFullDay
+        ? `${currentDate!.getDate()}`
+        : this.calculation.getSlotLabel(slotIdx);
+      this.drawCenteredText(
+        ctx, label, x, dayHeaderHeight, cellWidth, hourHeaderHeight,
+        font, textColor
+      );
     }
   }
 

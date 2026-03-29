@@ -16,6 +16,7 @@ import { AvailabilityCanvasManagerService } from '../services/availability-canva
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
+import { AvailabilitySettingService } from '../services/availability-setting.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
@@ -32,6 +33,7 @@ export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDest
   public drawGrid = inject(DrawAvailabilityGridService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
   private filterService = inject(ClientAvailabilityFilterService);
+  private settings = inject(AvailabilitySettingService);
   private gridColorService = inject(GridColorService);
 
   valueChangeHScrollbar = input(0);
@@ -71,6 +73,14 @@ export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDest
       if (this.gridColorService.isReset()) {
         this.drawGrid.drawGrid();
       }
+    });
+
+    effect(() => {
+      this.settings.hourGroupingMode();
+      requestAnimationFrame(() => {
+        this.drawGrid.drawGrid();
+        this.updateScrollbarValues();
+      });
     });
   }
 

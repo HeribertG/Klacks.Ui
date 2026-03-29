@@ -58,14 +58,15 @@ export class AvailabilityCanvasManagerService {
 
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
     if (this.renderCanvas && this.renderCanvasCtx) {
-      this.renderCanvas.height = visibleRow * this.settings.cellHeight;
-      this.renderCanvas.width = visibleCol * this.settings.cellWidth;
-      this.renderCanvasCtx.clearRect(
-        0,
-        0,
-        this.renderCanvas.width,
-        this.renderCanvas.height
-      );
+      const newWidth = visibleCol * this.settings.cellWidth;
+      const newHeight = visibleRow * this.settings.cellHeight;
+
+      if (this.renderCanvas.width !== newWidth || this.renderCanvas.height !== newHeight) {
+        this.renderCanvas.width = newWidth;
+        this.renderCanvas.height = newHeight;
+      } else {
+        this.renderCanvasCtx.clearRect(0, 0, newWidth, newHeight);
+      }
     }
   }
 
@@ -96,15 +97,20 @@ export class AvailabilityCanvasManagerService {
     return this._height;
   }
 
+  private lastHeaderWidth = 0;
+
   public resizeHeaderCanvas(width: number): void {
     if (this.headerCanvas && this.headerCtx) {
-      this.headerCtx = DrawHelper.createHiDPICanvas(
-        this.headerCanvas,
-        width,
-        this.settings.cellHeaderHeight,
-        true
-      );
-      DrawHelper.setAntiAliasing(this.headerCtx);
+      if (width !== this.lastHeaderWidth) {
+        this.lastHeaderWidth = width;
+        this.headerCtx = DrawHelper.createHiDPICanvas(
+          this.headerCanvas,
+          width,
+          this.settings.cellHeaderHeight,
+          true
+        );
+        DrawHelper.setAntiAliasing(this.headerCtx);
+      }
     }
   }
 
@@ -132,9 +138,7 @@ export class AvailabilityCanvasManagerService {
     try {
       this.renderCanvas.width = this._width;
       this.renderCanvas.height = this._height;
-      this.renderCanvasCtx = this.renderCanvas.getContext('2d', {
-        willReadFrequently: true,
-      })!;
+      this.renderCanvasCtx = this.renderCanvas.getContext('2d')!;
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
     } catch (error) {
       console.error('Error creating render canvas context:', error);

@@ -14,6 +14,16 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 const OVERLAP = 1;
 const DAY_BORDER_WIDTH = 2;
 
+interface DayInfo {
+  dateString: string;
+  startHours: number[];
+  endHours: number[];
+  isWeekend: boolean;
+  isSunday: boolean;
+  isHoliday: boolean;
+  isOfficialHoliday: boolean;
+}
+
 @Injectable()
 export class RenderAvailabilityGridService {
   private settings = inject(AvailabilitySettingService);
@@ -40,15 +50,15 @@ export class RenderAvailabilityGridService {
     this.cellRendering.initialize();
   }
 
-  public renderHeader(): void {
+  public renderHeader(scrollX: number): void {
     const headerCtx = this.canvasManager.headerCtx;
     if (!headerCtx) return;
 
-    const width = this.calculation.getWidth();
-    this.canvasManager.resizeHeaderCanvas(width);
+    const viewportWidth = this.canvasManager.width;
+    this.canvasManager.resizeHeaderCanvas(viewportWidth);
 
     if (!this.canvasManager.headerCtx) return;
-    this.headerRendering.renderHeader(this.canvasManager.headerCtx, width);
+    this.headerRendering.renderHeader(this.canvasManager.headerCtx, viewportWidth, scrollX);
   }
 
   public renderGrid(scrollX: number, scrollY: number): void {
@@ -120,6 +130,42 @@ export class RenderAvailabilityGridService {
     this.renderDayBorders(ctx, 0, visibleCols, rowStart, rowEnd, startCol, startRow);
   }
 
+  private buildDayInfos(startCol: number, colCount: number): DayInfo[] {
+    const columnsPerDay = this.settings.columnsPerDay;
+    const groupSize = HOUR_GROUPING_SIZES[this.settings.hourGroupingMode()];
+    const totalCols = this.calculation.totalColumns;
+
+    const firstDay = Math.floor(startCol / columnsPerDay);
+    const lastDay = Math.floor(Math.min(startCol + colCount - 1, totalCols - 1) / columnsPerDay);
+
+    const infos: DayInfo[] = [];
+    for (let dayIdx = firstDay; dayIdx <= lastDay; dayIdx++) {
+      const date = new Date(this.calculation.startDate);
+      date.setDate(date.getDate() + dayIdx);
+
+      const slotStartHours: number[] = [];
+      const slotEndHours: number[] = [];
+      for (let s = 0; s < columnsPerDay; s++) {
+        const sh = s * groupSize;
+        slotStartHours.push(sh);
+        slotEndHours.push(sh + groupSize);
+      }
+
+      const isHoliday = this.calculation.isHoliday(date);
+
+      infos.push({
+        dateString: this.calculation.formatDateOnly(date),
+        startHours: slotStartHours,
+        endHours: slotEndHours,
+        isWeekend: this.calculation.isWeekend(date),
+        isSunday: this.calculation.isSunday(date),
+        isHoliday,
+        isOfficialHoliday: isHoliday && this.calculation.isOfficialHoliday(date),
+      });
+    }
+    return infos;
+  }
+
   private renderCellRange(
     ctx: CanvasRenderingContext2D,
     colFrom: number,
@@ -132,37 +178,39 @@ export class RenderAvailabilityGridService {
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
     const columnsPerDay = this.settings.columnsPerDay;
+    const totalCols = this.calculation.totalColumns;
+    const dayInfos = this.buildDayInfos(startCol + colFrom, colTo - colFrom);
+    const firstDay = Math.floor((startCol + colFrom) / columnsPerDay);
 
     for (let row = rowFrom; row < rowTo && (startRow + row) < this.clients.length; row++) {
       const client = this.clients[startRow + row];
       if (!client) continue;
+      const clientId = client.id;
+      const y = row * cellHeight;
 
-      for (let col = colFrom; col < colTo && (startCol + col) < this.calculation.totalColumns; col++) {
-        const dateHour = this.calculation.columnToDateHour(startCol + col);
+      for (let col = colFrom; col < colTo && (startCol + col) < totalCols; col++) {
+        const absCol = startCol + col;
+        const dayIdx = Math.floor(absCol / columnsPerDay) - firstDay;
+        const slotIdx = absCol % columnsPerDay;
+        const day = dayInfos[dayIdx];
 
         const isAvailable = this.dataManagement.isGroupAvailable(
-          client.id,
-          dateHour.dateString,
-          dateHour.startHour,
-          dateHour.endHour
+          clientId,
+          day.dateString,
+          day.startHours[slotIdx],
+          day.endHours[slotIdx]
         );
-
-        const isWeekend = this.calculation.isWeekend(dateHour.date);
-        const isSunday = this.calculation.isSunday(dateHour.date);
-        const isHoliday = this.calculation.isHoliday(dateHour.date);
-        const isOfficialHoliday = isHoliday && this.calculation.isOfficialHoliday(dateHour.date);
-        const isOddSlot = (startCol + col) % columnsPerDay % 2 !== 0;
 
         this.cellRendering.renderCell(
           ctx,
           col * cellWidth,
-          row * cellHeight,
+          y,
           isAvailable,
-          isOddSlot,
-          isWeekend,
-          isSunday,
-          isHoliday,
-          isOfficialHoliday
+          absCol % columnsPerDay % 2 !== 0,
+          day.isWeekend,
+          day.isSunday,
+          day.isHoliday,
+          day.isOfficialHoliday
         );
       }
     }
