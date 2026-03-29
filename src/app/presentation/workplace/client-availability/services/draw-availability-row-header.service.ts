@@ -12,10 +12,10 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 
 @Injectable()
 export class DrawAvailabilityRowHeaderService {
-  private settings = inject(ROW_HEADER_SETTINGS) as IRowHeaderSettings;
+  public settings = inject(ROW_HEADER_SETTINGS) as IRowHeaderSettings;
   private canvasManager = inject(SharedRowHeaderCanvasManagerService);
   private renderService = inject(SharedRenderRowHeaderService);
-  private scroll = inject(ScrollService);
+  public scroll = inject(ScrollService);
   private dataProvider = inject(ROW_HEADER_DATA);
 
   public readonly iconSize = 24;

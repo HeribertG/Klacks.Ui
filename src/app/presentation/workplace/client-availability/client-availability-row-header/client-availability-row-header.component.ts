@@ -16,8 +16,14 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -37,7 +43,8 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './client-availability-row-header.component.html',
   styleUrls: ['./client-availability-row-header.component.scss'],
   standalone: true,
-  imports: [ResizeDirective, NgStyle, ClientFilterComponent],
+  imports: [ResizeDirective, NgStyle, ClientFilterComponent, ContextMenuComponent],
+  providers: [ContextMenuService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -49,10 +56,15 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
   private renderGrid = inject(RenderAvailabilityGridService);
   private rowHeaderIcons = inject(RowHeaderIconsService);
   private dataClientAvailability = inject(DataClientAvailabilityService);
+  private router = inject(Router);
 
   public filterService = inject(ClientAvailabilityFilterService);
 
   private effects: EffectRef[] = [];
+  private ngUnsubscribe = new Subject<void>();
+  private contextMenuRow = -1;
+
+  contextMenu = viewChild<ContextMenuComponent>('contextMenu');
 
   valueChangeVScrollbar = input(0);
 
@@ -76,9 +88,15 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
 
   ngAfterViewInit(): void {
     this.drawRowHeader.createCanvas('availability-row-header-canvas');
+
+    this.contextMenu()?.hasClicked
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((keys) => this.menuClicked(keys));
   }
 
   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
     this.effects.forEach((ref) => {
       if (ref) {
         ref.destroy();
@@ -128,6 +146,44 @@ export class ClientAvailabilityRowHeaderComponent implements OnInit, AfterViewIn
 
   onMouseLeave(): void {
     this.destroyFilter();
+  }
+
+  onRightClick(event: MouseEvent): void {
+    event.preventDefault();
+    const menu = this.contextMenu();
+    if (!menu) return;
+
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    const row =
+      Math.floor(
+        (pos.y - this.drawRowHeader.settings.cellHeaderHeight) /
+          this.drawRowHeader.settings.cellHeight,
+      ) + this.drawRowHeader.scroll.verticalScrollPosition;
+
+    const clients = this.renderGrid.getClients();
+    if (row < 0 || row >= clients.length) return;
+
+    this.contextMenuRow = row;
+    const menuData = new Menu();
+    menuData.list.push(...MenuDataTemplate.goToAddress());
+    menu.menuData = menuData;
+    menu.openMenu({ clientX: event.clientX, clientY: event.clientY } as MouseEvent);
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    if (keys[0] === 'goToAddress') {
+      this.contextMenu()?.closeMenu(true);
+      const clients = this.renderGrid.getClients();
+      if (this.contextMenuRow >= 0 && this.contextMenuRow < clients.length) {
+        this.router.navigate(['/workplace/edit-address', clients[this.contextMenuRow].id], {
+          queryParams: { returnUrl: '/workplace/client-availability' },
+        });
+      }
+    }
   }
 
   async onFilterChange(): Promise<void> {

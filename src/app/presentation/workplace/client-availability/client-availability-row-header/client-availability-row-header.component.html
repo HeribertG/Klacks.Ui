@@ -15,5 +15,8 @@
     id="availability-row-header-canvas"
     (mousemove)="onMouseMove($event)"
     (click)="onClick($event)"
+    (contextmenu)="onRightClick($event)"
   ></canvas>
 </div>
+
+<app-context-menu #contextMenu></app-context-menu>
