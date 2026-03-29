@@ -34,14 +34,6 @@
     cursor: not-allowed;
   }
 
-  &.whitelist {
-    background-color: colors.$standartGreenColor;
-
-    &:hover:not(:disabled) {
-      background-color: colors.$splitButtonGreenColor;
-    }
-  }
-
   &.preferred {
     background-color: colors.$standartBlueColor;
 
@@ -81,10 +73,6 @@
   align-items: center;
   gap: 6px;
   color: colors.$standartWhiteColor;
-
-  &.whitelist-header {
-    background-color: colors.$standartGreenColor;
-  }
 
   &.preferred-header {
     background-color: colors.$standartBlueColor;

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog for managing client shift preferences (whitelist, preferred, blacklist).
- * Displays three columns with assigned shifts and a dropdown to add new ones.
+ * Dialog for managing client shift preferences (preferred, blacklist).
+ * Displays two columns with assigned shifts and a dropdown to add new ones.
  * @param clientId - The client whose preferences are being managed
  * @param clientName - Display name shown in the dialog title
  */
@@ -45,7 +45,6 @@ export class ShiftPreferencesDialogComponent {
   clientName = '';
   selectedShiftId = '';
 
-  whitelistShifts: IClientShiftPreference[] = [];
   preferredShifts: IClientShiftPreference[] = [];
   blacklistShifts: IClientShiftPreference[] = [];
   availableShifts: IAvailableShift[] = [];
@@ -65,9 +64,6 @@ export class ShiftPreferencesDialogComponent {
       shifts: this.dataService.getAvailableShifts(clientId),
     }).subscribe(({ preferences, shifts }) => {
       this.allShifts = shifts;
-      this.whitelistShifts = preferences.filter(
-        (p) => p.preferenceType === ShiftPreferenceType.Whitelist,
-      );
       this.preferredShifts = preferences.filter(
         (p) => p.preferenceType === ShiftPreferenceType.Preferred,
       );
@@ -81,7 +77,7 @@ export class ShiftPreferencesDialogComponent {
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
-      size: 'lg',
+      size: 'md',
     });
   }
 
@@ -101,9 +97,6 @@ export class ShiftPreferencesDialogComponent {
     };
 
     switch (type) {
-      case ShiftPreferenceType.Whitelist:
-        this.whitelistShifts = [...this.whitelistShifts, preference];
-        break;
       case ShiftPreferenceType.Preferred:
         this.preferredShifts = [...this.preferredShifts, preference];
         break;
@@ -117,9 +110,6 @@ export class ShiftPreferencesDialogComponent {
   }
 
   removeFromCategory(preference: IClientShiftPreference): void {
-    this.whitelistShifts = this.whitelistShifts.filter(
-      (p) => p.shiftId !== preference.shiftId,
-    );
     this.preferredShifts = this.preferredShifts.filter(
       (p) => p.shiftId !== preference.shiftId,
     );
@@ -130,11 +120,7 @@ export class ShiftPreferencesDialogComponent {
   }
 
   onSave(): void {
-    const all = [
-      ...this.whitelistShifts,
-      ...this.preferredShifts,
-      ...this.blacklistShifts,
-    ];
+    const all = [...this.preferredShifts, ...this.blacklistShifts];
 
     this.dataService.saveAll(this.clientId, all).subscribe(() => {
       this.modalRef?.close();
@@ -147,12 +133,9 @@ export class ShiftPreferencesDialogComponent {
 
   private updateAvailableShifts(): void {
     const assignedIds = new Set([
-      ...this.whitelistShifts.map((p) => p.shiftId),
       ...this.preferredShifts.map((p) => p.shiftId),
       ...this.blacklistShifts.map((p) => p.shiftId),
     ]);
-    this.availableShifts = this.allShifts.filter(
-      (s) => !assignedIds.has(s.id),
-    );
+    this.availableShifts = this.allShifts.filter((s) => !assignedIds.has(s.id));
   }
 }

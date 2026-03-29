@@ -1,14 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Model and enum for client shift preferences (whitelist, preferred, blacklist).
- * @param preferenceType - Category of the preference (0=Whitelist, 1=Preferred, 2=Blacklist)
+ * Model and enum for client shift preferences (preferred, blacklist).
+ * @param preferenceType - Category of the preference (0=Preferred, 1=Blacklist)
  */
 
 export enum ShiftPreferenceType {
-  Whitelist = 0,
-  Preferred = 1,
-  Blacklist = 2,
+  Preferred = 0,
+  Blacklist = 1,
 }
 
 export interface IAvailableShift {
