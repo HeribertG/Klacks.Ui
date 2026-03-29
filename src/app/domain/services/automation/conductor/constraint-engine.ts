@@ -229,7 +229,8 @@ function checkRestPeriodConstraint(
     for (let i = 1; i < sortedSlots.length; i++) {
       const prev = sortedSlots[i - 1];
       const curr = sortedSlots[i];
-      const prevEnd = new Date(`${prev.date}T${prev.end}`);
+      let prevEnd = new Date(`${prev.date}T${prev.end}`);
+      if (prev.end <= prev.start) prevEnd = new Date(prevEnd.getTime() + EVOLUTION_CONSTANTS.MS_PER_DAY);
       const currStart = new Date(`${curr.date}T${curr.start}`);
       const pauseHours = (currStart.getTime() - prevEnd.getTime()) / EVOLUTION_CONSTANTS.MS_PER_HOUR;
       if (pauseHours > 0 && pauseHours < agent.minRestHours && prev.date !== curr.date) {

@@ -21,8 +21,8 @@ export const DEFAULT_EVOLUTION_CONFIG: IEvolutionConfig = {
   mutationRate: 0.15,
   crossoverRate: 0.8,
   convergenceThreshold: 0.001,
-  stagnationLimit: 20,
+  stagnationLimit: 40,
   targetFitness: 0.95,
   timeLimitMs: 15000,
-  warmStartRatio: 0.2
+  warmStartRatio: 0.7
 };

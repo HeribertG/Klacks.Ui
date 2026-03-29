@@ -89,10 +89,11 @@ function makeConfig(overrides: Partial<CoreConfig> = {}): CoreConfig {
 function makeWeights(overrides: Partial<CorePenaltyWeights> = {}): CorePenaltyWeights {
   return {
     hardViolation: -1000,
-    softViolation: -200,
+    softViolation: -100,
     coverageBonus: 100,
     motivationBonus: 50,
     fairnessBonus: 30,
+    uncoveredPenalty: -600,
     ...overrides
   };
 }
