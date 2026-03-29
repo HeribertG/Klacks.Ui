@@ -74,7 +74,8 @@ body {
 }
 
 as-split-gutter {
-  background-color: var(--backgroundColorWorkplace) !important;
+  --as-gutter-background-color: var(--backgroundColorHeaderNav);
+  background-color: var(--backgroundColorHeaderNav) !important;
 }
 
 .bottom-border-space {
