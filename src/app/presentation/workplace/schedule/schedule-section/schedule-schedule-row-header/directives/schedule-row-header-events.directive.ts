@@ -56,7 +56,7 @@ export class ScheduleRowHeaderEventsDirective {
     const client = this.scheduleData.getGroupIndex(groupIndex);
     if (client?.id) {
       this.router.navigate(['/workplace/edit-address', client.id], {
-        queryParams: { readonly: 'true', returnUrl: '/workplace/schedule' }
+        queryParams: { returnUrl: '/workplace/schedule' }
       });
     }
   }

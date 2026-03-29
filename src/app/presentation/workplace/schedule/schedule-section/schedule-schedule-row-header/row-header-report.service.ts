@@ -78,7 +78,7 @@ export class RowHeaderReportService {
     const client = this.dataService.getGroupIndex(groupIndex);
     if (client?.id) {
       this.router.navigate(['/workplace/edit-address', client.id], {
-        queryParams: { readonly: 'true', returnUrl: '/workplace/schedule' },
+        queryParams: { returnUrl: '/workplace/schedule' },
       });
     }
   }
