@@ -3,265 +3,280 @@
 
 <div id="absence-mask-container" class="mask-container">
   @if (selectedRow > -1) {
-  <div id="absence-mask" class="mask">
-    <div id="absence-mask-header" class="mask-header custom-control-inline">
-      <ul id="absence-mask-tabs" class="nav nav-tabs">
-        <li class="nav-item">
-          @if (selectedBreak) {
-          <a
-            class="nav-link"
-            [ngClass]="{ active: tabId === 'mask' }"
-            (click)="tabId = 'mask'"
-            (keydown.enter)="tabId = 'mask'"
-            (keydown.space)="tabId = 'mask'"
-            role="tab"
-            [attr.aria-selected]="tabId === 'mask'"
-            tabindex="0"
-            id="absence-mask-tab"
-          >
-            {{
-              "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
-                | translate
-            }}
-          </a>
-          }
-        </li>
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link"
-            [ngClass]="{ active: tabId === 'list' }"
-            (click)="tabId = 'list'"
-            (keydown.enter)="tabId = 'list'"
-            (keydown.space)="tabId = 'list'"
-            role="tab"
-            [attr.aria-selected]="tabId === 'list'"
-            tabindex="0"
-            id="absence-list-tab"
-          >
-            {{
-              "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.list"
-                | translate
-            }}
-          </a>
-        </li>
-      </ul>
-      <span class="filler"></span>
-      <div
-        id="absence-mask-pdf-export-wrapper"
-        [ngStyle]="{
-          display:
-            tabId === 'list' && selectedRowData && selectedRowData.length > 0
-              ? 'inline'
-              : 'none'
-        }"
-      >
-        <div id="absence-mask-pdf-export" class="pdf-icon" (click)="onExportPDF()">
-          <app-icon-pdf-icon></app-icon-pdf-icon>
-        </div>
-      </div>
-    </div>
-
-    @if (selectedBreak) {
-    <div
-      id="absence-mask-form-tab"
-      class="collapse"
-      [ngStyle]="{ display: tabId === 'mask' ? 'inline' : 'none' }"
-    >
-      <div id="absence-mask-form-container" class="container-mask">
-        <div id="absence-mask-date-container" class="container-mask-date">
-          <div class="row-line">
-            <!-- internalFrom -->
-            <div class="form-group">
-              <label for="absence-mask-internal-from">
+    <div id="absence-mask" class="mask">
+      <div id="absence-mask-header" class="mask-header custom-control-inline">
+        <ul id="absence-mask-tabs" class="nav nav-tabs">
+          <li class="nav-item">
+            @if (selectedBreak) {
+              <a
+                class="nav-link"
+                [ngClass]="{ active: tabId === 'mask' }"
+                (click)="tabId = 'mask'"
+                (keydown.enter)="tabId = 'mask'"
+                (keydown.space)="tabId = 'mask'"
+                role="tab"
+                [attr.aria-selected]="tabId === 'mask'"
+                tabindex="0"
+                id="absence-mask-tab"
+              >
                 {{
-                  "absence-gantt.absence-gantt-mask.absence-gantt-mask.from"
+                  "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
                     | translate
                 }}
-              </label>
-              <div class="input-group-own short-width gap">
-                <input
-                  class="form-control input-date"
-                  name="internal-from"
-                  aria-label="internal-from"
-                  aria-labelledby="internalFrom"
-                  id="absence-mask-internal-from"
-                  [ngModel]="internalFrom"
-                  (ngModelChange)="internalFrom = $event; onChange()"
-                  ngbDatepicker
-                  #internalFromPicker="ngbDatepicker"
-                  [disabled]="isScheduleBreak"
-                />
-                <span
-                  id="absence-mask-internal-from-icon"
-                  class="input-group-text span-date"
-                  style="width: 40px"
-                  (click)="internalFromPicker.toggle()"
-                >
-                  <fa-icon
-                    [icon]="faCalendar"
-                    [style]="{ 'font-size': '16px', color: '#464e5f' }"
-                  ></fa-icon>
-                </span>
-              </div>
-            </div>
-
-            <!-- internalUntil -->
-            <div class="form-group">
-              <label for="absence-mask-internal-until">
-                {{
-                  "absence-gantt.absence-gantt-mask.absence-gantt-mask.until"
-                    | translate
-                }}
-              </label>
-              <div class="input-group-own short-width">
-                <input
-                  class="form-control input-date"
-                  name="internal-until"
-                  aria-label="internal-until"
-                  aria-labelledby="internal-until"
-                  id="absence-mask-internal-until"
-                  [ngModel]="internalUntil"
-                  (ngModelChange)="internalUntil = $event; onChange()"
-                  ngbDatepicker
-                  #internalUntilPicker="ngbDatepicker"
-                  [disabled]="isScheduleBreak"
-                />
-                <span
-                  id="absence-mask-internal-until-icon"
-                  class="input-group-text span-date"
-                  style="width: 40px"
-                  (click)="internalUntilPicker.toggle()"
-                >
-                  <fa-icon
-                    [icon]="faCalendar"
-                    [style]="{ 'font-size': '16px', color: '#464e5f' }"
-                  ></fa-icon>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          @if (dataManagementAbsence.hasAbsences()) {
-          <div class="row-line">
-            <div class="absence-reason-container">
-              <div class="form-group">
-                <label for="absence-mask-absence-type">
-                  {{
-                    "absence-gantt.absence-gantt-mask.absence-gantt-mask.type"
-                      | translate
-                  }}
-                </label>
-                <div class="input-group">
-                  <select
-                    id="absence-mask-absence-type"
-                    class="form-select type-select"
-                    [ngModel]="selectedBreak!.absenceId"
-                    name="absenceId"
-                    (ngModelChange)="
-                      onChange(); selectedBreak!.absenceId = $event
-                    "
-                    aria-label="type"
-                    [disabled]="isScheduleBreak"
-                  >
-                    @for (c of dataManagementAbsence.absenceList(); track c.id)
-                    {
-                    <option
-                      [value]="c.id"
-                      [selected]="selectedBreak!.absenceId === c.id"
-                    >
-                      {{ c.name | fallback : currentLang }}
-                    </option>
-                    }
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          }
-        </div>
-
-        @if (!isScheduleBreak) {
-        <div id="absence-mask-description-container" class="container-mask-description">
-          <div class="form-group">
-            <label for="absence-mask-information">
+              </a>
+            }
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tabId === 'list' }"
+              (click)="tabId = 'list'"
+              (keydown.enter)="tabId = 'list'"
+              (keydown.space)="tabId = 'list'"
+              role="tab"
+              [attr.aria-selected]="tabId === 'list'"
+              tabindex="0"
+              id="absence-list-tab"
+            >
               {{
-                "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+                "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.list"
                   | translate
               }}
-            </label>
-            <div id="absence-mask-information-wrapper" class="input-text">
-              <app-rich-text-editor
-                id="absence-mask-information"
-                [content]="selectedBreak.information || ''"
-                [showToolbar]="!isScheduleBreak"
-                [showToolbarOnlyOnFocus]="false"
-                [height]="'54px'"
-                editorId="absence-information-editor"
-                [disabled]="isScheduleBreak"
-                (contentChange)="onInformationChange($event)"
-              ></app-rich-text-editor>
-            </div>
+            </a>
+          </li>
+        </ul>
+        <span class="filler"></span>
+        <div
+          id="absence-mask-pdf-export-wrapper"
+          [ngStyle]="{
+            display:
+              tabId === 'list' && selectedRowData && selectedRowData.length > 0
+                ? 'inline'
+                : 'none',
+          }"
+        >
+          <div
+            id="absence-mask-pdf-export"
+            class="pdf-icon"
+            (click)="onExportPDF()"
+          >
+            <app-icon-pdf-icon></app-icon-pdf-icon>
           </div>
         </div>
-        }
       </div>
-    </div>
-    }
 
-    <div
-      id="absence-mask-list-tab"
-      class="collapse"
-      [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }"
-    >
-      <div id="absence-mask-grid-container" class="container-mask">
-        <app-absence-gantt-grid
-          id="absence-mask-grid"
-          [selectedRowData]="selectedRowData"
-          [selectedRow]="selectedRow"
-          (exportPDF)="onPDFExported()"
-          (breakSelected)="onBreakSelected($event)"
-        ></app-absence-gantt-grid>
+      @if (selectedBreak) {
+        <div
+          id="absence-mask-form-tab"
+          class="collapse"
+          [ngStyle]="{ display: tabId === 'mask' ? 'inline' : 'none' }"
+        >
+          <div id="absence-mask-form-container" class="container-mask">
+            <div id="absence-mask-date-container" class="container-mask-date">
+              <div class="row-line">
+                <!-- internalFrom -->
+                <div class="form-group">
+                  <label for="absence-mask-internal-from">
+                    {{
+                      "absence-gantt.absence-gantt-mask.absence-gantt-mask.from"
+                        | translate
+                    }}
+                  </label>
+                  <div class="input-group-own short-width gap">
+                    <input
+                      class="form-control input-date"
+                      name="internal-from"
+                      aria-label="internal-from"
+                      aria-labelledby="internalFrom"
+                      id="absence-mask-internal-from"
+                      [ngModel]="internalFrom"
+                      (ngModelChange)="internalFrom = $event; onChange()"
+                      ngbDatepicker
+                      #internalFromPicker="ngbDatepicker"
+                      [disabled]="isScheduleBreak"
+                    />
+                    <span
+                      id="absence-mask-internal-from-icon"
+                      class="input-group-text span-date"
+                      style="width: 40px"
+                      (click)="internalFromPicker.toggle()"
+                    >
+                      <fa-icon
+                        [icon]="faCalendar"
+                        [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                      ></fa-icon>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- internalUntil -->
+                <div class="form-group">
+                  <label for="absence-mask-internal-until">
+                    {{
+                      "absence-gantt.absence-gantt-mask.absence-gantt-mask.until"
+                        | translate
+                    }}
+                  </label>
+                  <div class="input-group-own short-width">
+                    <input
+                      class="form-control input-date"
+                      name="internal-until"
+                      aria-label="internal-until"
+                      aria-labelledby="internal-until"
+                      id="absence-mask-internal-until"
+                      [ngModel]="internalUntil"
+                      (ngModelChange)="internalUntil = $event; onChange()"
+                      ngbDatepicker
+                      #internalUntilPicker="ngbDatepicker"
+                      [disabled]="isScheduleBreak"
+                    />
+                    <span
+                      id="absence-mask-internal-until-icon"
+                      class="input-group-text span-date"
+                      style="width: 40px"
+                      (click)="internalUntilPicker.toggle()"
+                    >
+                      <fa-icon
+                        [icon]="faCalendar"
+                        [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                      ></fa-icon>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              @if (dataManagementAbsence.hasAbsences()) {
+                <div class="row-line">
+                  <div class="absence-reason-container">
+                    <div class="form-group">
+                      <label for="absence-mask-absence-type">
+                        {{
+                          "absence-gantt.absence-gantt-mask.absence-gantt-mask.type"
+                            | translate
+                        }}
+                      </label>
+                      <div class="input-group">
+                        <select
+                          id="absence-mask-absence-type"
+                          class="form-select type-select"
+                          [ngModel]="selectedBreak!.absenceId"
+                          name="absenceId"
+                          (ngModelChange)="
+                            onChange(); selectedBreak!.absenceId = $event
+                          "
+                          aria-label="type"
+                          [disabled]="isScheduleBreak"
+                        >
+                          @for (
+                            c of dataManagementAbsence.absenceList();
+                            track c.id
+                          ) {
+                            <option
+                              [value]="c.id"
+                              [selected]="selectedBreak!.absenceId === c.id"
+                            >
+                              {{ c.name | fallback: currentLang }}
+                            </option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (!isScheduleBreak) {
+              <div
+                id="absence-mask-description-container"
+                class="container-mask-description"
+              >
+                <div class="form-group">
+                  <label for="absence-mask-information">
+                    {{
+                      "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+                        | translate
+                    }}
+                  </label>
+                  <div id="absence-mask-information-wrapper" class="input-text">
+                    <app-rich-text-editor
+                      id="absence-mask-information"
+                      [content]="selectedBreak.information || ''"
+                      [showToolbar]="!isScheduleBreak"
+                      [showToolbarOnlyOnFocus]="false"
+                      [height]="'54px'"
+                      editorId="absence-information-editor"
+                      [disabled]="isScheduleBreak"
+                      (contentChange)="onInformationChange($event)"
+                    ></app-rich-text-editor>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div
+        id="absence-mask-list-tab"
+        class="collapse"
+        [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }"
+      >
+        <div id="absence-mask-grid-container" class="container-mask">
+          <app-absence-gantt-grid
+            id="absence-mask-grid"
+            [selectedRowData]="selectedRowData"
+            [selectedRow]="selectedRow"
+            (exportPDF)="onPDFExported()"
+            (breakSelected)="onBreakSelected($event)"
+          ></app-absence-gantt-grid>
+        </div>
       </div>
     </div>
-  </div>
-  } @if (!selectedBreak) {
-  <div id="absence-mask-dummy" class="mask">
-    <div class="dummy-div"></div>
-  </div>
+  }
+  @if (!selectedBreak) {
+    <div id="absence-mask-dummy" class="mask">
+      <div class="dummy-div"></div>
+    </div>
   }
 
   <div id="absence-mask-footer" class="input-group-flex mask-footer">
     @if (selectedRow > -1) {
-    <button id="absence-mask-new-button" class="btn new-btn button-new" (click)="onClickNewButton()">
-      {{ "button.new" | translate }}
-    </button>
-    } @if (selectedBreak) {
-    <button
-      id="absence-mask-delete-button"
-      class="btn delete-btn"
-      [disabled]="isScheduleBreak"
-      (click)="dataManagementBreak.deleteBreak(selectedRow, selectedBreak)"
-    >
-      {{ "button.delete" | translate }}
-    </button>
+      <button
+        id="absence-mask-new-button"
+        class="btn new-btn button-new"
+        (click)="onClickNewButton()"
+      >
+        {{ "button.new" | translate }}
+      </button>
+    }
+    @if (selectedBreak) {
+      <button
+        id="absence-mask-delete-button"
+        class="btn delete-btn"
+        [disabled]="isScheduleBreak"
+        (click)="dataManagementBreak.deleteBreak(selectedRow, selectedBreak)"
+      >
+        {{ "button.delete" | translate }}
+      </button>
     }
 
     <span class="filler"></span>
 
     @if (selectedBreak) {
-    <app-simple-pagination
-      id="absence-mask-pagination"
-      [collectionSize]="selectedRowBreaksMaxIndex!"
-      (pageChange)="onBreakChange($event)"
-      [(page)]="page"
-      [maxSize]="5"
-      [pageSize]="1"
-      [rotate]="true"
-      [ellipses]="false"
-      [boundaryLinks]="true"
-      [showSummary]="true"
-      summaryLabel="pagination.sum"
-    ></app-simple-pagination>
+      <app-simple-pagination
+        id="absence-mask-pagination"
+        [collectionSize]="selectedRowBreaksMaxIndex!"
+        (pageChange)="onBreakChange($event)"
+        [(page)]="page"
+        [maxSize]="5"
+        [pageSize]="1"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+        [showSummary]="true"
+        summaryLabel="pagination.sum"
+      ></app-simple-pagination>
     }
   </div>
 </div>

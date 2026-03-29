@@ -73,9 +73,8 @@ body {
   flex: 1 1 auto;
 }
 
-as-split-gutter {
+as-split {
   --as-gutter-background-color: var(--backgroundColorHeaderNav);
-  background-color: var(--backgroundColorHeaderNav) !important;
 }
 
 .bottom-border-space {
