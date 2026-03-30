@@ -13,7 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../../models/create-messaging-provider.model';
 
-const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS'] as const;
+const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
 
 interface ProviderConfigFields {
   [key: string]: string;
@@ -38,6 +38,41 @@ const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string;
     { key: 'SenderNumber', labelDe: 'Absendernummer', labelEn: 'Sender Number', type: 'tel', placeholder: '+49171...' },
     { key: 'GatewayUrl', labelDe: 'Gateway-URL', labelEn: 'Gateway URL', type: 'url', placeholder: 'https://api.twilio.com/...' },
   ],
+  Threema: [
+    { key: 'GatewayId', labelDe: 'Gateway-ID', labelEn: 'Gateway ID', type: 'text', placeholder: '*MYGATEWAY' },
+    { key: 'ApiSecret', labelDe: 'API-Secret', labelEn: 'API Secret', type: 'password', placeholder: 'a1b2c3d4e5...' },
+  ],
+  Viber: [
+    { key: 'AuthToken', labelDe: 'Auth-Token', labelEn: 'Auth Token', type: 'password', placeholder: '4a5e6f7g8h9i...' },
+    { key: 'SenderName', labelDe: 'Absendername', labelEn: 'Sender Name', type: 'text', placeholder: 'Klacks Bot' },
+  ],
+  LINE: [
+    { key: 'ChannelAccessToken', labelDe: 'Channel-Access-Token', labelEn: 'Channel Access Token', type: 'password', placeholder: 'eyJhbGciOi...' },
+    { key: 'ChannelSecret', labelDe: 'Channel-Secret', labelEn: 'Channel Secret', type: 'password', placeholder: 'abc123def456...' },
+  ],
+  KakaoTalk: [
+    { key: 'AppKey', labelDe: 'App-Schlüssel', labelEn: 'App Key', type: 'password', placeholder: 'a1b2c3d4...' },
+    { key: 'TemplateId', labelDe: 'Template-ID', labelEn: 'Template ID', type: 'text', placeholder: '12345' },
+  ],
+  WeChat: [
+    { key: 'AppId', labelDe: 'App-ID', labelEn: 'App ID', type: 'text', placeholder: 'wx1234567890abcdef' },
+    { key: 'AppSecret', labelDe: 'App-Secret', labelEn: 'App Secret', type: 'password', placeholder: 'abc123def456...' },
+  ],
+  Zalo: [
+    { key: 'AppId', labelDe: 'App-ID', labelEn: 'App ID', type: 'text', placeholder: '123456789...' },
+    { key: 'SecretKey', labelDe: 'Secret-Key', labelEn: 'Secret Key', type: 'password', placeholder: 'abc123...' },
+    { key: 'OaId', labelDe: 'OA-ID', labelEn: 'OA ID', type: 'text', placeholder: '987654321...' },
+  ],
+  MicrosoftTeams: [
+    { key: 'TenantId', labelDe: 'Tenant-ID', labelEn: 'Tenant ID', type: 'text', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+    { key: 'ClientId', labelDe: 'Client-ID (App-ID)', labelEn: 'Client ID (App ID)', type: 'text', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+    { key: 'ClientSecret', labelDe: 'Client-Secret', labelEn: 'Client Secret', type: 'password', placeholder: '~abc123...' },
+  ],
+  Slack: [
+    { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: 'xoxb-123456789-...' },
+    { key: 'SigningSecret', labelDe: 'Signing-Secret', labelEn: 'Signing Secret', type: 'password', placeholder: 'abc123def456...' },
+    { key: 'DefaultChannel', labelDe: 'Standard-Kanal', labelEn: 'Default Channel', type: 'text', placeholder: '#general' },
+  ],
 };
 
 @Component({
@@ -54,9 +89,9 @@ export class MessagingProviderEditComponent implements OnInit {
   @Input() existingConfigJson = '';
   @Output() saved = new EventEmitter<CreateMessagingProvider>();
   @Output() cancelled = new EventEmitter<void>();
+  @Output() providerTypeChanged = new EventEmitter<string>();
 
   name = '';
-  displayName = '';
   providerType = 'Telegram';
   isEnabled = true;
 
@@ -66,13 +101,13 @@ export class MessagingProviderEditComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.provider) {
-      this.name = this.provider.name;
-      this.displayName = this.provider.displayName;
+      this.name = this.provider.displayName || this.provider.name;
       this.providerType = this.provider.providerType;
       this.isEnabled = this.provider.isEnabled;
       this.parseExistingConfig();
     }
     this.initConfigFields();
+    this.providerTypeChanged.emit(this.providerType);
   }
 
   getFieldDefinitions(): typeof PROVIDER_FIELD_DEFINITIONS[string] {
@@ -82,17 +117,19 @@ export class MessagingProviderEditComponent implements OnInit {
   onProviderTypeChange(): void {
     this.configFields = {};
     this.initConfigFields();
+    this.providerTypeChanged.emit(this.providerType);
   }
 
   isFormValid(): boolean {
-    return !!(this.name && this.displayName && this.providerType);
+    return !!(this.name && this.providerType);
   }
 
   onSave(): void {
     if (!this.isFormValid()) return;
+    const internalName = this.name.toLowerCase().replace(/\s+/g, '-');
     const dto: CreateMessagingProvider = {
-      name: this.name,
-      displayName: this.displayName,
+      name: internalName,
+      displayName: this.name,
       providerType: this.providerType,
       configJson: this.buildConfigJson(),
       isEnabled: this.isEnabled,

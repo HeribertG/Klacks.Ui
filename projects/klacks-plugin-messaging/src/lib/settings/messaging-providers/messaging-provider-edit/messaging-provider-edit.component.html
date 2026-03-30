@@ -1,6 +1,6 @@
 <form id="messaging-provider-edit-form">
   <div id="messaging-provider-edit-name-row" class="row-line-modal-inline">
-    <div class="provider-field">
+    <div class="provider-field full-width">
       <label for="providerName">{{ 'settings.messaging-providers.field.name' | translate }}</label>
       <input
         id="messaging-provider-edit-name"
@@ -8,18 +8,7 @@
         [(ngModel)]="name"
         name="name"
         class="form-control"
-        [placeholder]="'telegram'"
-      />
-    </div>
-    <div class="provider-field">
-      <label for="providerDisplayName">{{ 'settings.messaging-providers.field.display-name' | translate }}</label>
-      <input
-        id="messaging-provider-edit-display-name"
-        type="text"
-        [(ngModel)]="displayName"
-        name="displayName"
-        class="form-control"
-        [placeholder]="'Telegram Bot'"
+        [placeholder]="'Mein SMS Dienst'"
       />
     </div>
   </div>

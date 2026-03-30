@@ -1,0 +1,134 @@
+<h2>Configurare un fornitore SMS</h2>
+
+<h3>Prerequisiti</h3>
+<p>
+Per inviare e ricevere messaggi SMS tramite Klacks, è necessario un account presso un
+fornitore di gateway SMS. Klacks supporta tutti i fornitori che offrono un'API REST,
+ad esempio:
+</p>
+<ul>
+  <li><strong>Twilio</strong> — diffuso a livello globale, pagamento a consumo</li>
+  <li><strong>Vonage (Nexmo)</strong> — fornitore europeo, conforme al GDPR</li>
+  <li><strong>MessageBird</strong> — fornitore olandese, data center nell'UE</li>
+</ul>
+
+<p>
+<em>Nota: i passaggi seguenti utilizzano Twilio come esempio.
+Altri fornitori possono utilizzare denominazioni diverse, ma il principio resta lo stesso.</em>
+</p>
+
+<hr>
+
+<h3>Passo 1 — Creare un account presso il fornitore SMS</h3>
+<ol>
+  <li>Registrarsi presso il fornitore scelto (ad es. <strong>twilio.com</strong>).</li>
+  <li>Verificare il numero di telefono e l'indirizzo e-mail.</li>
+  <li>Acquistare un <strong>numero mittente</strong>. Questo numero apparirà come mittente per gli SMS in uscita.</li>
+  <li>Annotare la <strong>chiave API</strong> (API Key / Auth Token) dalla dashboard del fornitore.</li>
+  <li>Annotare l'<strong>URL del gateway</strong> (endpoint API) del fornitore.</li>
+</ol>
+
+<table>
+  <tr><th>Fornitore</th><th>URL del gateway</th></tr>
+  <tr><td>Twilio</td><td><code>https://api.twilio.com/2010-04-01/Accounts/{AccountSID}/Messages.json</code></td></tr>
+  <tr><td>Vonage</td><td><code>https://rest.nexmo.com/sms/json</code></td></tr>
+  <tr><td>MessageBird</td><td><code>https://rest.messagebird.com/messages</code></td></tr>
+</table>
+
+<hr>
+
+<h3>Passo 2 — Configurare il fornitore SMS in Klacks</h3>
+<ol>
+  <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Fare clic su <strong>Aggiungi</strong>.</li>
+  <li>Compilare i campi come segue:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>Nome</td><td>Nome interno univoco</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Tipo di fornitore</td><td>Selezionare <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Chiave API</td><td>Auth Token / Chiave API dal fornitore</td><td><code>sk_live_abc123...</code></td></tr>
+  <tr><td>Numero mittente</td><td>Il numero di telefono acquistato in formato internazionale</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL del gateway</td><td>Endpoint API del fornitore SMS</td><td><code>https://api.twilio.com/...</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
+</table>
+
+<ol start="4">
+  <li>Fare clic su <strong>Salva</strong>.</li>
+  <li>Testare la connessione tramite il pulsante <strong>Test</strong> nell'elenco dei fornitori.</li>
+</ol>
+
+<hr>
+
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<p>
+Una volta configurato e attivato il fornitore SMS, il chatbot Klacksy può inviare
+messaggi. Non è necessario conoscere i numeri di telefono — basta usare il nome
+del dipendente o del cliente:
+</p>
+
+<pre>
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Avvisa Peter Müller che il suo turno di lunedì è annullato."
+</pre>
+
+<p>
+Klacksy cerca automaticamente il numero di telefono del destinatario e utilizza
+il fornitore SMS configurato. Il processo è completamente trasparente per voi —
+lavorate con i nomi, Klacksy si occupa del resto.
+</p>
+
+<p><strong>Prerequisito:</strong> Il destinatario deve avere un numero di cellulare registrato
+in Klacks (sotto Indirizzo &rarr; Dati di contatto).</p>
+
+<hr>
+
+<h3>Passo 4 — Ricevere SMS in arrivo (Webhook)</h3>
+<p>
+Per visualizzare gli SMS in arrivo in Klacks, è necessario configurare un webhook presso il fornitore SMS.
+</p>
+
+<ol>
+  <li>Andare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Annotare il <strong>segreto del webhook</strong> generato automaticamente per il fornitore SMS.</li>
+  <li>Configurare l'URL del webhook nella dashboard del fornitore SMS:
+    <pre>https://{il-vostro-dominio}/api/messaging/webhook/sms</pre>
+  </li>
+  <li>Gli SMS in arrivo appariranno ora in tempo reale nella <strong>casella di messaggistica</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Risoluzione dei problemi</h3>
+
+<table>
+  <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
+  <tr>
+    <td>Il test di connessione fallisce</td>
+    <td>Chiave API o URL del gateway errati</td>
+    <td>Verificare le credenziali nella dashboard del fornitore</td>
+  </tr>
+  <tr>
+    <td>L'SMS non viene consegnato</td>
+    <td>Numero mittente non verificato</td>
+    <td>Assicurarsi che il numero sia attivato presso il fornitore</td>
+  </tr>
+  <tr>
+    <td>Il destinatario non riceve l'SMS</td>
+    <td>Numero di telefono non in formato internazionale</td>
+    <td>Utilizzare il formato <code>+{prefisso paese}{numero}</code> (ad es. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>SMS in arrivo mancanti</td>
+    <td>Webhook non configurato</td>
+    <td>Verificare l'URL del webhook nella dashboard del fornitore</td>
+  </tr>
+  <tr>
+    <td>Credito dell'account esaurito</td>
+    <td>Budget a consumo esaurito</td>
+    <td>Ricaricare il credito presso il fornitore</td>
+  </tr>
+</table>

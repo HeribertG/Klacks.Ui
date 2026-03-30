@@ -16,7 +16,9 @@ import {
   inject,
   TemplateRef,
   ViewChild,
+  signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -28,11 +30,13 @@ import { MessagingProvidersHeaderComponent } from './messaging-providers-header/
 import { MessagingProvidersRowComponent } from './messaging-providers-row/messaging-providers-row.component';
 import { MessagingProviderEditComponent } from './messaging-provider-edit/messaging-provider-edit.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
   selector: 'app-messaging-providers',
   standalone: true,
   imports: [
+    CommonModule,
     TranslateModule,
     MessagingProvidersHeaderComponent,
     MessagingProvidersRowComponent,
@@ -49,6 +53,7 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private manualLoader = inject(ManualLoaderService);
   private destroy$ = new Subject<void>();
 
   @ViewChild('editModal') editModal!: TemplateRef<any>;
@@ -57,6 +62,9 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   isLoading = false;
   editingProvider: MessagingProvider | null = null;
   isNewProvider = false;
+  tabId = signal<'form' | 'help'>('form');
+  manualContent = signal('');
+  selectedProviderType = signal('Telegram');
 
   ngOnInit(): void {
     this.loadProviders();
@@ -88,6 +96,8 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   onAdd(): void {
     this.isNewProvider = true;
     this.editingProvider = null;
+    this.tabId.set('form');
+    this.loadManual();
     setTimeout(() => {
       this.ngbModal.open(this.editModal, { size: 'lg' });
     }, 0);
@@ -96,6 +106,8 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
   onEdit(provider: MessagingProvider): void {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
+    this.tabId.set('form');
+    this.loadManual();
     setTimeout(() => {
       this.ngbModal.open(this.editModal, { size: 'lg' });
     }, 0);
@@ -156,6 +168,20 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
     } finally {
       this.cdr.markForCheck();
     }
+  }
+
+  onProviderTypeChanged(providerType: string): void {
+    this.selectedProviderType.set(providerType);
+    if (providerType !== 'SMS') {
+      this.tabId.set('form');
+    }
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    this.manualLoader.loadManual('messaging-sms-manual', lang)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(content => this.manualContent.set(content));
   }
 
   async onSaved(dto: CreateMessagingProvider, modal: any): Promise<void> {

@@ -1,0 +1,134 @@
+<h2>SMS-Anbieter einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um SMS-Nachrichten über Klacks zu senden und zu empfangen, benötigen Sie ein Konto bei einem
+SMS-Gateway-Anbieter. Klacks unterstützt alle Anbieter, die eine REST-API bereitstellen,
+beispielsweise:
+</p>
+<ul>
+  <li><strong>Twilio</strong> — weltweit verbreitet, Pay-per-Use</li>
+  <li><strong>Vonage (Nexmo)</strong> — europäischer Anbieter, DSGVO-konform</li>
+  <li><strong>MessageBird</strong> — niederländischer Anbieter, EU-Rechenzentren</li>
+</ul>
+
+<p>
+<em>Hinweis: Die hier gezeigten Schritte verwenden Twilio als Beispiel.
+Bei anderen Anbietern unterscheiden sich die Bezeichnungen, das Prinzip bleibt gleich.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Konto beim SMS-Anbieter erstellen</h3>
+<ol>
+  <li>Registrieren Sie sich beim Anbieter Ihrer Wahl (z.B. <strong>twilio.com</strong>).</li>
+  <li>Verifizieren Sie Ihre Telefonnummer und E-Mail-Adresse.</li>
+  <li>Erwerben Sie eine <strong>Absendernummer</strong> (Sender Number). Diese Nummer erscheint als Absender bei ausgehenden SMS.</li>
+  <li>Notieren Sie sich den <strong>API-Schlüssel</strong> (API Key / Auth Token) aus dem Dashboard des Anbieters.</li>
+  <li>Notieren Sie sich die <strong>Gateway-URL</strong> (API-Endpunkt) des Anbieters.</li>
+</ol>
+
+<table>
+  <tr><th>Anbieter</th><th>Gateway-URL</th></tr>
+  <tr><td>Twilio</td><td><code>https://api.twilio.com/2010-04-01/Accounts/{AccountSID}/Messages.json</code></td></tr>
+  <tr><td>Vonage</td><td><code>https://rest.nexmo.com/sms/json</code></td></tr>
+  <tr><td>MessageBird</td><td><code>https://rest.messagebird.com/messages</code></td></tr>
+</table>
+
+<hr>
+
+<h3>Schritt 2 — SMS-Anbieter in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>API-Schlüssel</td><td>Auth Token / API Key vom Anbieter</td><td><code>sk_live_abc123...</code></td></tr>
+  <tr><td>Absendernummer</td><td>Ihre gekaufte Telefonnummer im internationalen Format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Gateway-URL</td><td>API-Endpunkt des SMS-Anbieters</td><td><code>https://api.twilio.com/...</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der SMS-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Telefonnummern kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+verwendet den konfigurierten SMS-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende SMS empfangen (Webhook)</h3>
+<p>
+Um eingehende SMS in Klacks anzuzeigen, muss beim SMS-Anbieter ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres SMS-Anbieters.</li>
+  <li>Konfigurieren Sie im Dashboard Ihres SMS-Anbieters die Webhook-URL:
+    <pre>https://{ihre-domain}/api/messaging/webhook/sms</pre>
+  </li>
+  <li>Eingehende SMS erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>API-Schlüssel oder Gateway-URL falsch</td>
+    <td>Prüfen Sie die Zugangsdaten im Anbieter-Dashboard</td>
+  </tr>
+  <tr>
+    <td>SMS wird nicht zugestellt</td>
+    <td>Absendernummer nicht verifiziert</td>
+    <td>Stellen Sie sicher, dass die Nummer beim Anbieter freigeschaltet ist</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine SMS</td>
+    <td>Telefonnummer nicht im internationalen Format</td>
+    <td>Verwenden Sie das Format <code>+{Ländervorwahl}{Nummer}</code> (z.B. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Eingehende SMS fehlen</td>
+    <td>Webhook nicht konfiguriert</td>
+    <td>Prüfen Sie die Webhook-URL im Anbieter-Dashboard</td>
+  </tr>
+  <tr>
+    <td>Konto-Guthaben aufgebraucht</td>
+    <td>Pay-per-Use Budget erschöpft</td>
+    <td>Laden Sie Guthaben beim Anbieter nach</td>
+  </tr>
+</table>

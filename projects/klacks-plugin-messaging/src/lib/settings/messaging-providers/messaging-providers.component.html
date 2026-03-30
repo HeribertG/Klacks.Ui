@@ -38,10 +38,52 @@
     </div>
   </div>
   <div class="modal-body">
-    <app-messaging-provider-edit
-      [provider]="editingProvider"
-      (saved)="onSaved($event, modal)"
-      (cancelled)="modal.dismiss()"
-    ></app-messaging-provider-edit>
+    <div id="messaging-providers-modal-tabs-container">
+      <ul id="messaging-providers-modal-tabs" class="nav nav-tabs">
+        <li id="messaging-providers-modal-tab-form-item" class="nav-item">
+          <a
+            id="messaging-providers-modal-tab-form-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'form' }"
+            (click)="tabId.set('form')"
+            >{{ 'settings.messaging-providers.modal.tab-form' | translate }}</a
+          >
+        </li>
+        @if (selectedProviderType() === 'SMS') {
+        <li id="messaging-providers-modal-tab-help-item" class="nav-item">
+          <a
+            id="messaging-providers-modal-tab-help-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'help' }"
+            (click)="tabId.set('help')"
+            >{{ 'settings.messaging-providers.modal.tab-help' | translate }}</a
+          >
+        </li>
+        }
+      </ul>
+    </div>
+
+    <div [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
+      <app-messaging-provider-edit
+        [provider]="editingProvider"
+        (saved)="onSaved($event, modal)"
+        (cancelled)="modal.dismiss()"
+        (providerTypeChanged)="onProviderTypeChanged($event)"
+      ></app-messaging-provider-edit>
+    </div>
+
+    @if (selectedProviderType() === 'SMS') {
+    <div
+      id="messaging-providers-modal-help-content"
+      class="collapse tab-content-box"
+      [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+    >
+      <div
+        id="messaging-providers-modal-manual-content"
+        class="manual-content"
+        [innerHTML]="manualContent()"
+      ></div>
+    </div>
+    }
   </div>
 </ng-template>
