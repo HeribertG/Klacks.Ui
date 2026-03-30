@@ -99,10 +99,11 @@ export class RowHeaderTooltipService {
         this.settings.cellHeight;
     const sectionHeight = this.settings.cellHeight / 3;
 
+    const isRtlDot = document.documentElement.dir === 'rtl';
     const textAreaWidth =
       canvas.getBoundingClientRect().width - this.settings.InfoSpotWidth;
     const dotRadius = 4.5 * this.settings.zoom;
-    const dotX = textAreaWidth - dotRadius - 4;
+    const dotX = isRtlDot ? dotRadius + 4 : textAreaWidth - dotRadius - 4;
     const dotY = dotRadius + 2;
     const hitRadius = dotRadius + 4;
 
@@ -166,10 +167,10 @@ export class RowHeaderTooltipService {
     const canvasWidth = canvas.width;
     const scale = canvasWidth / visualWidth;
 
-    const widthWithoutInfoSpot =
-      visualWidth - this.settings.InfoSpotWidth / scale;
+    const isRtl = document.documentElement.dir === 'rtl';
+    const infoSpotVisualWidth = this.settings.InfoSpotWidth / scale;
 
-    if (pos.x < widthWithoutInfoSpot) {
+    if (isRtl ? pos.x > infoSpotVisualWidth : pos.x < visualWidth - infoSpotVisualWidth) {
       this.tooltipService.hide();
       return;
     }

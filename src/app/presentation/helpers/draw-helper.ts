@@ -219,10 +219,17 @@ export abstract class DrawHelper {
     ctx.fillStyle = foregroundColor;
     ctx.textBaseline = 'top';
 
+    const isRtl = document.documentElement.dir === 'rtl';
+    const effectiveAlignment = isRtl
+      ? (textAlignment === TextAlignmentEnum.Left ? TextAlignmentEnum.Right
+        : textAlignment === TextAlignmentEnum.Right ? TextAlignmentEnum.Left
+        : textAlignment)
+      : textAlignment;
+
     let diffX = (w - ctx.measureText(text).width) / 2;
-    if (textAlignment === TextAlignmentEnum.Left) {
+    if (effectiveAlignment === TextAlignmentEnum.Left) {
       diffX = 3;
-    } else if (textAlignment === TextAlignmentEnum.Right) {
+    } else if (effectiveAlignment === TextAlignmentEnum.Right) {
       diffX = w - ctx.measureText(text).width - 2;
     }
 

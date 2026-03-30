@@ -371,7 +371,8 @@ export class SharedRenderRowHeaderService {
     }
 
     const dy = rec.height / 2 - this.iconSize / 2;
-    const dx = rec.width - (this.iconSize + 6);
+    const isRtl = document.documentElement.dir === 'rtl';
+    const dx = isRtl ? 6 : rec.width - (this.iconSize + 6);
 
     this.recFilterIcon = new Rectangle(
       dx,

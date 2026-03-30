@@ -125,7 +125,8 @@ export class BaseCreateRowHeaderService {
     if (!filterImage) return undefined;
 
     const iconMargin = 4;
-    const iconX = width - this.filterIconSize - iconMargin;
+    const isRtl = document.documentElement.dir === 'rtl';
+    const iconX = isRtl ? iconMargin : width - this.filterIconSize - iconMargin;
     const iconY = (this.settings.cellHeaderHeight - this.filterIconSize) / 2;
 
     ctx.drawImage(filterImage, iconX, iconY, this.filterIconSize, this.filterIconSize);
@@ -179,9 +180,12 @@ export class BaseCreateRowHeaderService {
     height: number,
     client?: ClientWork
   ): void {
+    const isRtl = document.documentElement.dir === 'rtl';
     const sectionHeight = height / 3;
     const symbolSize = 16 * this.settings.zoom;
-    const leftPadding = 4;
+    const infoOffset = isRtl ? this.settings.InfoSpotWidth : 0;
+    const leftPadding = isRtl ? width + infoOffset - 4 : 4 + infoOffset;
+    const textAlign: CanvasTextAlign = isRtl ? 'right' : 'left';
     const fontHeight = this.gridFonts.headerFontHeightZoom;
     const lineSpacing = 2;
     const twoLinesHeight = fontHeight * 2 + lineSpacing;
@@ -195,7 +199,7 @@ export class BaseCreateRowHeaderService {
       ctx.save();
       ctx.font = `${symbolSize}px Arial`;
       ctx.fillStyle = '#ef4444';
-      ctx.textAlign = 'left';
+      ctx.textAlign = textAlign;
       ctx.textBaseline = 'top';
       ctx.fillText('⊘', leftPadding, iconTopPadding);
       ctx.restore();
@@ -203,7 +207,7 @@ export class BaseCreateRowHeaderService {
 
     if (client && this.scheduleChangeService.isDirty(client.id)) {
       const dotRadius = 4.5 * this.settings.zoom;
-      const dotX = width - dotRadius - 4;
+      const dotX = isRtl ? dotRadius + 4 : width - dotRadius - 4;
       const dotY = dotRadius + 2;
       ctx.save();
       ctx.beginPath();
@@ -218,7 +222,7 @@ export class BaseCreateRowHeaderService {
       ctx.save();
       ctx.font = this.gridFonts.headerFontStringZoom;
       ctx.fillStyle = this.gridColors.headerForeGroundColor;
-      ctx.textAlign = 'left';
+      ctx.textAlign = textAlign;
       ctx.textBaseline = 'middle';
       ctx.fillText(idNumberText, leftPadding, firstLineY);
       ctx.restore();
@@ -234,13 +238,16 @@ export class BaseCreateRowHeaderService {
 
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
-    ctx.fillRect(this.settings.headerBorderWidth, backgroundY, backgroundWidth, backgroundHeight);
+    const bgX = isRtl
+      ? width + infoOffset - this.settings.headerBorderWidth - backgroundWidth
+      : this.settings.headerBorderWidth + infoOffset;
+    ctx.fillRect(bgX, backgroundY, backgroundWidth, backgroundHeight);
     ctx.restore();
 
     ctx.save();
     ctx.font = this.gridFonts.headerFontStringZoom;
     ctx.fillStyle = this.gridColors.headerForeGroundColor;
-    ctx.textAlign = 'left';
+    ctx.textAlign = textAlign;
     ctx.textBaseline = 'middle';
     ctx.fillText(text, leftPadding, secondLineY);
     ctx.restore();
@@ -253,6 +260,7 @@ export class BaseCreateRowHeaderService {
     width: number,
     height: number
   ): void {
+    const isRtl = document.documentElement.dir === 'rtl';
     const sectionHeight = height / 3;
     const fontHeight = this.gridFonts.headerFontHeightZoom;
     const lineSpacing = 2;
@@ -265,9 +273,9 @@ export class BaseCreateRowHeaderService {
     ctx.save();
     ctx.font = this.gridFonts.headerFontStringZoom;
     ctx.fillStyle = this.gridColors.headerForeGroundColor;
-    ctx.textAlign = 'right';
+    ctx.textAlign = isRtl ? 'left' : 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, width, secondLineY);
+    ctx.fillText(text, isRtl ? 0 : width, secondLineY);
     ctx.restore();
   }
 
@@ -344,32 +352,34 @@ export class BaseCreateRowHeaderService {
     height: number,
     clientIndex: number
   ) {
-    const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
+    const isRtl = document.documentElement.dir === 'rtl';
+    const infoLeft = isRtl ? 0 : width - this.settings.InfoSpotWidth;
+    const infoRight = isRtl ? this.settings.InfoSpotWidth : width;
 
     const scheduledHoursRect = new Rectangle(
-      widthWithoutInfoSpot,
+      infoLeft,
       this.settings.increaseBorder,
-      width,
+      infoRight,
       this.settings.cellHeaderHeight
     );
     const workedHoursRect = new Rectangle(
-      widthWithoutInfoSpot,
+      infoLeft,
       this.settings.cellHeaderHeight + this.settings.borderWidth,
-      width,
+      infoRight,
       this.settings.cellHeaderHeight * 2 + this.settings.borderWidth
     );
 
     const addHoursRect = new Rectangle(
-      widthWithoutInfoSpot,
+      infoLeft,
       this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2,
-      width,
+      infoRight,
       this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 2
     );
 
     const emptyRect = new Rectangle(
-      widthWithoutInfoSpot,
+      infoLeft,
       this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 3,
-      width,
+      infoRight,
       height
     );
 
@@ -473,20 +483,21 @@ export class BaseCreateRowHeaderService {
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
       if (ctx) {
+        const isRtl = document.documentElement.dir === 'rtl';
         this.fillCellBackground(ctx, width, height);
-        this.drawBorder(
-          ctx,
-          width - this.settings.InfoSpotWidth - this.settings.increaseBorder,
-          height,
-          this.settings.headerBorderWidth
-        );
+
+        const borderX = isRtl
+          ? this.settings.InfoSpotWidth + this.settings.increaseBorder
+          : width - this.settings.InfoSpotWidth - this.settings.increaseBorder;
+        this.drawBorder(ctx, borderX, height, this.settings.headerBorderWidth);
 
         const textAreaWidth = width - this.settings.InfoSpotWidth;
+        const textAreaOffset = isRtl ? this.settings.InfoSpotWidth : 0;
 
         this.drawGenderSymbols(
           ctx,
           this.getGenderSymbols(client),
-          textAreaWidth - 5,
+          isRtl ? textAreaWidth + textAreaOffset - 5 : textAreaWidth - 5,
           height
         );
 

@@ -123,25 +123,33 @@ export class ShiftCreateRowHeaderService {
     }
 
     if (icon) {
-      const iconX = rec.left + this.margin;
+      const isRtl = document.documentElement.dir === 'rtl';
+      const iconX = isRtl
+        ? rec.left + rec.width - this.margin - this.iconWidth
+        : rec.left + this.margin;
       const iconY = rec.top + (rec.height - this.iconHeight) / 2;
       ctx.drawImage(icon, iconX, iconY, this.iconWidth, this.iconHeight);
     }
   }
 
   private drawShiftName(ctx: CanvasRenderingContext2D, row: number, rec: Rectangle): void {
+    const isRtl = document.documentElement.dir === 'rtl';
     const shiftName = this.shiftData.getShiftName(row);
     const workTime = this.shiftData.getShiftWorkTime(row);
     const formattedWorkTime = this.shiftData.formatWorkTime(workTime);
     const displayText = `${shiftName} (${formattedWorkTime})`;
-    const textStartX = rec.left + this.margin + this.iconWidth + this.margin;
+    const textStartX = isRtl
+      ? rec.left
+      : rec.left + this.margin + this.iconWidth + this.margin;
 
     DrawHelper.drawText(
       ctx,
       displayText,
       textStartX,
       rec.top,
-      rec.width - textStartX - this.margin,
+      isRtl
+        ? rec.width - this.margin - this.iconWidth - this.margin * 2
+        : rec.width - textStartX - this.margin,
       rec.height,
       this.gridFonts.mainFontStringZoom,
       +this.gridFonts.mainFontSizeZoom,
