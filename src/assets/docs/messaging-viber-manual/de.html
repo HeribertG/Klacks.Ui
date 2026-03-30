@@ -1,0 +1,119 @@
+<h2>Viber Bot einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über Viber zu senden und zu empfangen, benötigen Sie einen
+Viber Bot Account. Viber ist besonders beliebt in Osteuropa und dem Nahen Osten.
+</p>
+
+<p>
+<em>Hinweis: Service Messages über Viber sind kostenpflichtig.
+Weitere Informationen finden Sie auf <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Viber Bot Account erstellen</h3>
+<ol>
+  <li>Registrieren Sie sich auf <strong>partners.viber.com</strong>.</li>
+  <li>Erstellen Sie einen neuen <strong>Bot Account</strong> im Viber Admin Panel.</li>
+  <li>Notieren Sie sich den <strong>Auth Token</strong>, der Ihnen nach der Erstellung zugewiesen wird.</li>
+  <li>Legen Sie einen <strong>Absendernamen</strong> fest (z.B. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 2 — Viber in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Viber</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Der Auth Token aus dem Viber Admin Panel</td><td><code>4a7f8b2c...</code></td></tr>
+  <tr><td>Absendername</td><td>Name, der beim Empfänger angezeigt wird</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Viber-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Telefonnummern kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Mobilnummer des Empfängers und
+verwendet den konfigurierten Viber-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende Viber-Nachrichten in Klacks anzuzeigen, muss im Viber Admin Panel ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Viber-Anbieters.</li>
+  <li>Konfigurieren Sie im Viber Admin Panel die Webhook-URL:
+    <pre>https://{ihre-domain}/api/messaging/webhook/viber</pre>
+  </li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Auth Token falsch</td>
+    <td>Prüfen Sie den Token im Viber Admin Panel</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Empfänger hat kein Viber-Konto</td>
+    <td>Stellen Sie sicher, dass der Empfänger Viber nutzt</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine Nachricht</td>
+    <td>Mobilnummer nicht korrekt hinterlegt</td>
+    <td>Prüfen Sie die Mobilnummer in den Kontaktdaten</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook nicht konfiguriert</td>
+    <td>Prüfen Sie die Webhook-URL im Viber Admin Panel</td>
+  </tr>
+  <tr>
+    <td>Konto-Guthaben aufgebraucht</td>
+    <td>Service-Message-Budget erschöpft</td>
+    <td>Laden Sie Guthaben im Viber Admin Panel nach</td>
+  </tr>
+</table>

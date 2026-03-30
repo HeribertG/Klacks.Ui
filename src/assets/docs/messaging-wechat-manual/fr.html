@@ -1,0 +1,121 @@
+<h2>Configurer WeChat</h2>
+
+<h3>Conditions préalables</h3>
+<p>
+Pour envoyer et recevoir des messages via WeChat avec Klacks, vous avez besoin d'un
+compte WeChat Official Account vérifié. WeChat est le messageur dominant en Chine
+avec environ 1,3 milliard d'utilisateurs.
+</p>
+
+<p>
+<em>Remarque : un Service Account est requis pour les messages push.
+La vérification d'un Official Account peut prendre plusieurs semaines.</em>
+</p>
+
+<hr>
+
+<h3>Étape 1 — Créer un WeChat Official Account</h3>
+<ol>
+  <li>Inscrivez-vous sur <strong>mp.weixin.qq.com</strong> et créez un Official Account.</li>
+  <li>Sélectionnez le type de compte <strong>Service Account</strong> (requis pour les messages push).</li>
+  <li>Complétez le <strong>processus de vérification</strong> (documents d'entreprise requis).</li>
+  <li>Notez l'<strong>App-ID</strong> (AppID) dans les paramètres développeur.</li>
+  <li>Notez l'<strong>App-Secret</strong> (AppSecret) dans les paramètres développeur.</li>
+</ol>
+
+<hr>
+
+<h3>Étape 2 — Configurer WeChat dans Klacks</h3>
+<ol>
+  <li>Accédez à <strong>Paramètres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
+  <li>Cliquez sur <strong>Ajouter</strong>.</li>
+  <li>Remplissez les champs comme suit :</li>
+</ol>
+
+<table>
+  <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>Nom</td><td>Nom interne unique</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nom affiché</td><td>Affiché dans l'interface utilisateur</td><td><code>WeChat</code></td></tr>
+  <tr><td>Type de fournisseur</td><td>Sélectionnez <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID des paramètres développeur WeChat</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret des paramètres développeur WeChat</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Activé</td><td>Active ou désactive le fournisseur</td><td>Oui</td></tr>
+</table>
+
+<ol start="4">
+  <li>Cliquez sur <strong>Enregistrer</strong>.</li>
+  <li>Testez la connexion à l'aide du bouton <strong>Tester</strong> dans la liste des fournisseurs.</li>
+</ol>
+
+<hr>
+
+<h3>Étape 3 — Envoyer des messages via le chatbot (Klacksy)</h3>
+<p>
+Une fois le fournisseur WeChat configuré et activé, le chatbot Klacksy peut envoyer
+des messages. Vous n'avez pas besoin de connaître les identifiants —
+utilisez simplement le nom de l'employé ou du client :
+</p>
+
+<pre>
+« Envoie un message à Max Muster : Votre rendez-vous est demain à 14h. »
+« Envoie un message à Anna Beispiel : Le service a été échangé. »
+« Préviens Peter Müller que son service de lundi est annulé. »
+</pre>
+
+<p>
+Klacksy recherche automatiquement l'OpenID WeChat du destinataire et
+utilise le fournisseur WeChat configuré. Le processus est entièrement transparent
+pour vous — vous travaillez avec des noms, Klacksy s'occupe du reste.
+</p>
+
+<p><strong>Condition préalable :</strong> Le destinataire doit avoir un OpenID WeChat
+enregistré dans Klacks (sous Adresse &rarr; Coordonnées).</p>
+
+<hr>
+
+<h3>Étape 4 — Recevoir des messages entrants (Webhook)</h3>
+<p>
+Pour afficher les messages WeChat entrants dans Klacks, un webhook doit être configuré.
+</p>
+
+<ol>
+  <li>Accédez à <strong>Paramètres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
+  <li>Notez le <strong>secret du webhook</strong> généré automatiquement pour votre fournisseur WeChat.</li>
+  <li>Configurez l'URL du webhook dans le tableau de bord WeChat Official Account :
+    <pre>https://{votre-domaine}/api/messaging/webhook/wechat</pre>
+  </li>
+  <li>Les messages entrants apparaîtront désormais en temps réel dans la <strong>boîte de réception de messagerie</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Dépannage</h3>
+
+<table>
+  <tr><th>Problème</th><th>Cause possible</th><th>Solution</th></tr>
+  <tr>
+    <td>Le test de connexion échoue</td>
+    <td>App-ID ou App-Secret incorrect</td>
+    <td>Vérifiez les identifiants dans le tableau de bord WeChat Official Account</td>
+  </tr>
+  <tr>
+    <td>Le message n'est pas livré</td>
+    <td>Compte non vérifié ou pas un Service Account</td>
+    <td>Assurez-vous que la vérification est terminée et qu'un Service Account est utilisé</td>
+  </tr>
+  <tr>
+    <td>Le destinataire ne reçoit pas le message</td>
+    <td>OpenID WeChat non enregistré ou invalide</td>
+    <td>Vérifiez si l'OpenID du destinataire est correctement enregistré dans Klacks</td>
+  </tr>
+  <tr>
+    <td>Les messages entrants manquent</td>
+    <td>Webhook non configuré</td>
+    <td>Vérifiez l'URL du webhook dans le tableau de bord WeChat Official Account</td>
+  </tr>
+  <tr>
+    <td>Jeton d'accès expiré</td>
+    <td>Le jeton n'est pas renouvelé automatiquement</td>
+    <td>Klacks renouvelle le jeton automatiquement — vérifiez l'App-ID et l'App-Secret</td>
+  </tr>
+</table>

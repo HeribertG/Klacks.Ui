@@ -1,0 +1,123 @@
+<h2>Zalo einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über Zalo mit Klacks zu senden und zu empfangen, benötigen Sie ein
+Zalo Official Account und eine registrierte App im Zalo Developer Portal. Zalo ist der
+dominierende Messenger in Vietnam mit ca. 75 Millionen Nutzern.
+</p>
+
+<p>
+<em>Hinweis: Eine OA-Verifizierung (Official Account) ist erforderlich,
+um Nachrichten an Nutzer senden zu können.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Zalo Official Account und App erstellen</h3>
+<ol>
+  <li>Erstellen Sie ein Official Account auf <strong>oa.zalo.me</strong>.</li>
+  <li>Durchlaufen Sie den <strong>OA-Verifizierungsprozess</strong>.</li>
+  <li>Registrieren Sie eine App im <strong>Zalo Developer Portal</strong> (<strong>developers.zalo.me</strong>).</li>
+  <li>Notieren Sie sich die <strong>App-ID</strong> (App ID) aus den App-Einstellungen.</li>
+  <li>Notieren Sie sich den <strong>Secret Key</strong> aus den App-Einstellungen.</li>
+  <li>Notieren Sie sich die <strong>OA-ID</strong> (Official Account ID) aus dem OA-Dashboard.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 2 — Zalo in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>zalo-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Zalo</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>App-ID</td><td>App ID aus dem Zalo Developer Portal</td><td><code>1234567890</code></td></tr>
+  <tr><td>Secret Key</td><td>Secret Key aus dem Zalo Developer Portal</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>OA-ID</td><td>Official Account ID aus dem OA-Dashboard</td><td><code>9876543210</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Zalo-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Telefonnummern kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+verwendet den konfigurierten Zalo-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende Zalo-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Zalo-Anbieters.</li>
+  <li>Konfigurieren Sie im Zalo Developer Portal die Webhook-URL:
+    <pre>https://{ihre-domain}/api/messaging/webhook/zalo</pre>
+  </li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>App-ID, Secret Key oder OA-ID falsch</td>
+    <td>Prüfen Sie die Zugangsdaten im Zalo Developer Portal</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>OA nicht verifiziert</td>
+    <td>Stellen Sie sicher, dass die OA-Verifizierung abgeschlossen ist</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine Nachricht</td>
+    <td>Mobilnummer nicht registriert oder Empfänger kein Zalo-Nutzer</td>
+    <td>Prüfen Sie, ob der Empfänger Zalo nutzt und die Nummer korrekt ist</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook nicht konfiguriert</td>
+    <td>Prüfen Sie die Webhook-URL im Zalo Developer Portal</td>
+  </tr>
+  <tr>
+    <td>OA-Zugriff verweigert</td>
+    <td>Access Token abgelaufen oder Berechtigungen fehlen</td>
+    <td>Erneuern Sie den Token und prüfen Sie die App-Berechtigungen im Developer Portal</td>
+  </tr>
+</table>

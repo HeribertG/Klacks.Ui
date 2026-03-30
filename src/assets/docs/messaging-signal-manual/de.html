@@ -1,0 +1,142 @@
+<h2>Signal-Messaging einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Signal-Nachrichten über Klacks zu senden und zu empfangen, benötigen Sie eine laufende
+Instanz der <strong>Signal-CLI REST API</strong>. Dabei handelt es sich um ein Open-Source-Projekt,
+das Signal über eine REST-Schnittstelle zugänglich macht.
+</p>
+<ul>
+  <li><strong>Docker</strong> muss auf dem Server installiert sein</li>
+  <li>Eine <strong>Telefonnummer</strong>, die bei Signal registriert wird (dedizierte Nummer empfohlen)</li>
+  <li>Das Docker-Image: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<hr>
+
+<h3>Schritt 1 — Signal-CLI REST API einrichten</h3>
+<ol>
+  <li>Starten Sie den Signal-CLI-Container mit Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Registrieren Sie Ihre Telefonnummer über die API:
+    <pre>curl -X POST 'http://localhost:8080/v1/register/{nummer}' \
+  -H 'Content-Type: application/json' \
+  -d '{"captcha": "", "use_voice": false}'</pre>
+    <p>Ersetzen Sie <code>{nummer}</code> durch Ihre Nummer im Format <code>+49171...</code></p>
+  </li>
+  <li>Verifizieren Sie die Nummer mit dem empfangenen Code:
+    <pre>curl -X POST 'http://localhost:8080/v1/register/{nummer}/verify/{code}'</pre>
+  </li>
+  <li>Testen Sie die API mit einem Healthcheck:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Hinweis: Weitere Details zur Konfiguration finden Sie in der
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+Signal-CLI REST API Dokumentation</a>.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 2 — Signal in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>signal-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Signal</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal-Nummer</td><td>Die registrierte Telefonnummer im internationalen Format</td><td><code>+491711234567</code></td></tr>
+  <tr><td>API-URL</td><td>URL der Signal-CLI REST API</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Signal-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Telefonnummern kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Signal-Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+verwendet den konfigurierten Signal-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende Signal-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Signal-Anbieters.</li>
+  <li>Konfigurieren Sie die Webhook-URL in der Signal-CLI REST API:
+    <pre>https://{ihre-domain}/api/messaging/webhook/signal</pre>
+  </li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Signal-CLI REST API nicht erreichbar</td>
+    <td>Prüfen Sie, ob der Docker-Container läuft: <code>docker ps</code></td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Signal-Nummer nicht registriert oder verifiziert</td>
+    <td>Wiederholen Sie die Registrierung und Verifizierung über die API</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine Nachricht</td>
+    <td>Empfänger nutzt kein Signal oder Nummer falsch</td>
+    <td>Stellen Sie sicher, dass der Empfänger Signal installiert hat und die Nummer im Format <code>+{Ländervorwahl}{Nummer}</code> hinterlegt ist</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook nicht konfiguriert</td>
+    <td>Prüfen Sie die Webhook-URL in der Signal-CLI REST API Konfiguration</td>
+  </tr>
+  <tr>
+    <td>Container startet nicht</td>
+    <td>Port 8080 bereits belegt</td>
+    <td>Verwenden Sie einen anderen Port: <code>-p 9090:8080</code> und passen Sie die API-URL in Klacks an</td>
+  </tr>
+</table>

@@ -49,7 +49,6 @@
             >{{ 'settings.messaging-providers.modal.tab-form' | translate }}</a
           >
         </li>
-        @if (selectedProviderType() === 'SMS') {
         <li id="messaging-providers-modal-tab-help-item" class="nav-item">
           <a
             id="messaging-providers-modal-tab-help-link"
@@ -59,7 +58,6 @@
             >{{ 'settings.messaging-providers.modal.tab-help' | translate }}</a
           >
         </li>
-        }
       </ul>
     </div>
 
@@ -72,7 +70,6 @@
       ></app-messaging-provider-edit>
     </div>
 
-    @if (selectedProviderType() === 'SMS') {
     <div
       id="messaging-providers-modal-help-content"
       class="collapse tab-content-box"
@@ -84,6 +81,5 @@
         [innerHTML]="manualContent()"
       ></div>
     </div>
-    }
   </div>
 </ng-template>

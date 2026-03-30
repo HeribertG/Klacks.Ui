@@ -1,0 +1,120 @@
+<h2>Telegram-Bot einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Telegram-Nachrichten über Klacks zu senden und zu empfangen, benötigen Sie einen
+Telegram-Bot. Bots werden über den offiziellen <strong>BotFather</strong> erstellt und sind kostenlos.
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Telegram-Bot erstellen</h3>
+<ol>
+  <li>Öffnen Sie Telegram und suchen Sie nach <strong>@BotFather</strong>.</li>
+  <li>Starten Sie einen Chat mit dem BotFather und senden Sie den Befehl <code>/newbot</code>.</li>
+  <li>Vergeben Sie einen <strong>Namen</strong> für Ihren Bot (z.B. <code>Klacks Benachrichtigungen</code>).</li>
+  <li>Vergeben Sie einen <strong>Benutzernamen</strong> für den Bot (muss auf <code>bot</code> enden, z.B. <code>klacks_notify_bot</code>).</li>
+  <li>Der BotFather gibt Ihnen ein <strong>Bot Token</strong> aus. Kopieren Sie dieses Token — es wird im nächsten Schritt benötigt.</li>
+</ol>
+
+<p>
+<em>Hinweis: Behandeln Sie das Bot Token wie ein Passwort.
+Teilen Sie es nicht öffentlich und speichern Sie es sicher.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 2 — Bot in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Telegram</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>Das Token vom BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>URL für eingehende Nachrichten (siehe Schritt 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Telegram-Bot konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Chat-IDs kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch den hinterlegten Telegram-Benutzernamen des Empfängers und
+verwendet den konfigurierten Bot. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss ein Telegram-Benutzername in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende Telegram-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Stellen Sie sicher, dass Ihre Klacks-Instanz über HTTPS öffentlich erreichbar ist.</li>
+  <li>Tragen Sie die folgende Webhook-URL in den Anbieter-Einstellungen ein:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks registriert den Webhook automatisch bei Telegram, sobald der Anbieter gespeichert und aktiviert wird.</li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Bot Token ungültig</td>
+    <td>Prüfen Sie das Token beim BotFather mit <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Empfänger hat den Bot nicht gestartet</td>
+    <td>Der Empfänger muss den Bot in Telegram öffnen und <code>/start</code> senden</td>
+  </tr>
+  <tr>
+    <td>Empfänger nicht gefunden</td>
+    <td>Telegram-Benutzername nicht hinterlegt</td>
+    <td>Tragen Sie den Telegram-Benutzernamen unter Adresse &rarr; Kontaktdaten ein</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook-URL nicht erreichbar</td>
+    <td>Prüfen Sie, ob Ihre Domain über HTTPS erreichbar ist und die URL korrekt ist</td>
+  </tr>
+  <tr>
+    <td>Webhook-Registrierung fehlgeschlagen</td>
+    <td>Kein gültiges SSL-Zertifikat</td>
+    <td>Telegram erfordert ein gültiges SSL-Zertifikat (kein selbstsigniertes)</td>
+  </tr>
+</table>

@@ -1,0 +1,120 @@
+<h2>Setting up a Telegram Bot</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send and receive Telegram messages through Klacks, you need a
+Telegram bot. Bots are created via the official <strong>BotFather</strong> and are free of charge.
+</p>
+
+<hr>
+
+<h3>Step 1 — Create a Telegram bot</h3>
+<ol>
+  <li>Open Telegram and search for <strong>@BotFather</strong>.</li>
+  <li>Start a chat with the BotFather and send the command <code>/newbot</code>.</li>
+  <li>Choose a <strong>name</strong> for your bot (e.g. <code>Klacks Notifications</code>).</li>
+  <li>Choose a <strong>username</strong> for the bot (must end with <code>bot</code>, e.g. <code>klacks_notify_bot</code>).</li>
+  <li>The BotFather will provide a <strong>bot token</strong>. Copy this token — it will be needed in the next step.</li>
+</ol>
+
+<p>
+<em>Note: Treat the bot token like a password.
+Do not share it publicly and store it securely.</em>
+</p>
+
+<hr>
+
+<h3>Step 2 — Configure the bot in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>Telegram</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>The token from BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook URL</td><td>URL for incoming messages (see Step 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the Telegram bot is configured and enabled, the chatbot Klacksy can send
+messages. You don't need to know any chat IDs — simply use the name of
+the employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's Telegram username and uses the
+configured bot. The process is fully transparent to you —
+you work with names, Klacksy takes care of the rest.
+</p>
+
+<p><strong>Prerequisite:</strong> The recipient must have a Telegram username stored in Klacks
+(under Address &rarr; Contact Details).</p>
+
+<hr>
+
+<h3>Step 4 — Receive incoming messages (Webhook)</h3>
+<p>
+To display incoming Telegram messages in Klacks, a webhook must be configured.
+</p>
+
+<ol>
+  <li>Make sure your Klacks instance is publicly reachable via HTTPS.</li>
+  <li>Enter the following webhook URL in the provider settings:
+    <pre>https://{your-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks automatically registers the webhook with Telegram once the provider is saved and enabled.</li>
+  <li>Incoming messages will now appear in real time in the <strong>Messaging Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>Bot token invalid</td>
+    <td>Check the token with BotFather using <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Message not delivered</td>
+    <td>Recipient has not started the bot</td>
+    <td>The recipient must open the bot in Telegram and send <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>Telegram username not stored</td>
+    <td>Enter the Telegram username under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Incoming messages missing</td>
+    <td>Webhook URL not reachable</td>
+    <td>Check that your domain is reachable via HTTPS and the URL is correct</td>
+  </tr>
+  <tr>
+    <td>Webhook registration failed</td>
+    <td>No valid SSL certificate</td>
+    <td>Telegram requires a valid SSL certificate (no self-signed)</td>
+  </tr>
+</table>

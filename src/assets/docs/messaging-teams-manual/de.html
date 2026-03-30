@@ -1,0 +1,127 @@
+<h2>Microsoft Teams einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten uber Microsoft Teams mit Klacks zu senden und zu empfangen, benotigen Sie
+ein Microsoft 365 Business Konto mit aktiver Teams-Lizenz. Die Integration erfolgt uber
+eine Azure App Registration und den Azure Bot Service.
+</p>
+
+<p>
+<em>Hinweis: Der Azure Bot Service ist fur Standard-Channels (einschliesslich Teams) kostenlos.
+Es fallen keine zusatzlichen Kosten fur den Bot-Dienst an. Eine Microsoft 365 Business Lizenz
+ist jedoch erforderlich.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 &mdash; Azure App Registration und Bot erstellen</h3>
+<ol>
+  <li>Melden Sie sich im <strong>Azure Portal</strong> an (<strong>portal.azure.com</strong>).</li>
+  <li>Navigieren Sie zu <strong>App registrations</strong> und klicken Sie auf <strong>New registration</strong>.</li>
+  <li>Vergeben Sie einen Namen (z.B. <code>Klacks-Teams-Bot</code>) und wahlen Sie den passenden Kontotyp.</li>
+  <li>Notieren Sie sich die <strong>Application (client) ID</strong> &mdash; dies ist Ihre <strong>Client-ID</strong>.</li>
+  <li>Notieren Sie sich die <strong>Directory (tenant) ID</strong> &mdash; dies ist Ihre <strong>Tenant-ID</strong>.</li>
+  <li>Erstellen Sie unter <strong>Certificates &amp; secrets</strong> ein neues <strong>Client Secret</strong> und notieren Sie den Wert.</li>
+  <li>Navigieren Sie zu <strong>Azure Bot</strong> (ehemals Bot Channel Registration) und erstellen Sie einen neuen Bot.</li>
+  <li>Verknupfen Sie den Bot mit der erstellten App Registration.</li>
+  <li>Aktivieren Sie unter <strong>Channels</strong> den <strong>Microsoft Teams</strong>-Kanal.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 2 &mdash; Microsoft Teams in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufugen</strong>.</li>
+  <li>Fullen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>teams-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberflache angezeigt</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wahlen Sie <strong>Teams</strong></td><td>Teams</td></tr>
+  <tr><td>Tenant-ID</td><td>Directory (Tenant) ID aus dem Azure Portal</td><td><code>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td></tr>
+  <tr><td>Client-ID</td><td>Application (Client) ID aus der App Registration</td><td><code>12345678-abcd-efgh-ijkl-1234567890ab</code></td></tr>
+  <tr><td>Client-Secret</td><td>Geheimer Schlussel aus Certificates &amp; Secrets</td><td><code>abc~DEF123...</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung uber den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 &mdash; Nachrichten uber den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Teams-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten uber Microsoft Teams versenden. Verwenden Sie einfach den Namen des
+Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Muller, dass sein Dienst am Montag ausfallt."
+</pre>
+
+<p>
+Klacksy sucht automatisch den verknupften Teams-Benutzer und sendet die Nachricht
+uber Microsoft Teams. Der Versand ist fur Sie vollstandig transparent &mdash;
+Sie arbeiten mit Namen, Klacksy kummert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Der Teams-Benutzer muss mit dem entsprechenden
+Klacks-Kontakt verknupft sein (unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 &mdash; Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende Teams-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Teams-Anbieters.</li>
+  <li>Konfigurieren Sie im Azure Portal unter Ihrem Bot die Messaging-Endpoint-URL:
+    <pre>https://{ihre-domain}/api/messaging/webhook/teams</pre>
+  </li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mogliche Ursache</th><th>Losung</th></tr>
+  <tr>
+    <td>Verbindungstest schlagt fehl</td>
+    <td>Client-ID, Tenant-ID oder Client-Secret falsch</td>
+    <td>Prufen Sie die Zugangsdaten im Azure Portal</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Teams-Kanal im Bot nicht aktiviert</td>
+    <td>Aktivieren Sie den Teams-Channel in der Azure Bot-Konfiguration</td>
+  </tr>
+  <tr>
+    <td>Empfanger erhalt keine Nachricht</td>
+    <td>Teams-Benutzer nicht mit Klacks-Kontakt verknupft</td>
+    <td>Verknupfen Sie den Teams-Benutzer unter Adresse &rarr; Kontaktdaten</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook-URL nicht konfiguriert</td>
+    <td>Prufen Sie die Messaging-Endpoint-URL im Azure Portal</td>
+  </tr>
+  <tr>
+    <td>Authentifizierungsfehler (401/403)</td>
+    <td>Client-Secret abgelaufen</td>
+    <td>Erstellen Sie ein neues Client-Secret im Azure Portal und aktualisieren Sie es in Klacks</td>
+  </tr>
+</table>

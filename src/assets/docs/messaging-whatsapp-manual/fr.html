@@ -1,0 +1,136 @@
+<h2>Configurer WhatsApp Business</h2>
+
+<h3>Conditions préalables</h3>
+<p>
+Pour envoyer et recevoir des messages WhatsApp via Klacks, vous avez besoin d'un
+accès à l'<strong>API WhatsApp Business</strong> de Meta. Celle-ci est gérée via
+le portail Meta Developer.
+</p>
+
+<p>
+<em>Remarque : L'API WhatsApp Business nécessite une identité commerciale vérifiée.
+Les 1 000 premières conversations par mois sont gratuites.</em>
+</p>
+
+<hr>
+
+<h3>Étape 1 — Configurer l'API WhatsApp Business</h3>
+<ol>
+  <li>Créez un compte sur <strong>developers.facebook.com</strong> (portail Meta Developer).</li>
+  <li>Créez une nouvelle application et sélectionnez le type <strong>Business</strong>.</li>
+  <li>Ajoutez le produit <strong>WhatsApp</strong> à votre application.</li>
+  <li>Enregistrez un <strong>numéro de téléphone</strong> pour l'envoi WhatsApp.</li>
+  <li>Vérifiez votre <strong>identité commerciale</strong> dans la Meta Business Suite.</li>
+  <li>Notez les valeurs suivantes du portail Developer :
+    <ul>
+      <li><strong>Access Token</strong> — sous WhatsApp &rarr; API Setup</li>
+      <li><strong>Phone Number ID</strong> — l'identifiant du numéro enregistré</li>
+      <li><strong>Business Account ID</strong> — depuis la Meta Business Suite</li>
+    </ul>
+  </li>
+</ol>
+
+<hr>
+
+<h3>Étape 2 — Configurer WhatsApp dans Klacks</h3>
+<ol>
+  <li>Accédez à <strong>Paramètres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
+  <li>Cliquez sur <strong>Ajouter</strong>.</li>
+  <li>Sélectionnez <strong>WhatsApp</strong> comme type de fournisseur.</li>
+  <li>Remplissez les champs comme suit :</li>
+</ol>
+
+<table>
+  <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>Nom</td><td>Nom interne unique</td><td><code>whatsapp-business</code></td></tr>
+  <tr><td>Nom d'affichage</td><td>Affiché dans l'interface utilisateur</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Type de fournisseur</td><td>Sélectionnez <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access Token</td><td>Jeton d'accès permanent du portail Meta Developer</td><td><code>EAABs...</code></td></tr>
+  <tr><td>Phone Number ID</td><td>Identifiant du numéro de téléphone WhatsApp enregistré</td><td><code>106540352...</code></td></tr>
+  <tr><td>Business Account ID</td><td>Identifiant de votre compte WhatsApp Business dans la Meta Business Suite</td><td><code>102939...</code></td></tr>
+  <tr><td>Activé</td><td>Active/désactive le fournisseur</td><td>Oui</td></tr>
+</table>
+
+<ol start="5">
+  <li>Cliquez sur <strong>Enregistrer</strong>.</li>
+  <li>Testez la connexion via le bouton <strong>Test</strong> dans la liste des fournisseurs.</li>
+</ol>
+
+<hr>
+
+<h3>Étape 3 — Envoyer des messages via le chatbot (Klacksy)</h3>
+<p>
+Une fois le fournisseur WhatsApp configuré et activé, le chatbot Klacksy peut
+envoyer des messages. Vous n'avez pas besoin de connaître les numéros de téléphone —
+utilisez simplement le nom de l'employé ou du client :
+</p>
+
+<pre>
+"Envoie un WhatsApp à Max Muster : Votre rendez-vous est demain à 14h00."
+"Envoie un message à Anna Beispiel via WhatsApp : Le service a été échangé."
+"Préviens Peter Müller par WhatsApp que son service de lundi est annulé."
+</pre>
+
+<p>
+Klacksy recherche automatiquement le numéro de mobile enregistré du destinataire et
+utilise le fournisseur WhatsApp configuré. Le processus est entièrement transparent pour vous —
+vous travaillez avec des noms, Klacksy s'occupe du reste.
+</p>
+
+<p><strong>Condition préalable :</strong> Le destinataire doit avoir un numéro de mobile enregistré dans Klacks
+(sous Adresse &rarr; Coordonnées). Le numéro doit être enregistré sur WhatsApp.</p>
+
+<hr>
+
+<h3>Étape 4 — Recevoir des messages entrants (Webhook)</h3>
+<p>
+Pour afficher les messages WhatsApp entrants dans Klacks, un webhook doit être configuré
+dans le portail Meta Developer.
+</p>
+
+<ol>
+  <li>Dans le portail Meta Developer, accédez à votre application &rarr; <strong>WhatsApp</strong> &rarr; <strong>Configuration</strong>.</li>
+  <li>Saisissez l'URL du webhook :
+    <pre>https://{votre-domaine}/api/messaging/webhook/whatsapp</pre>
+  </li>
+  <li>Abonnez-vous au champ <strong>messages</strong>.</li>
+  <li>Les messages WhatsApp entrants apparaissent désormais en temps réel dans la <strong>Boîte de réception</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Dépannage</h3>
+
+<table>
+  <tr><th>Problème</th><th>Cause possible</th><th>Solution</th></tr>
+  <tr>
+    <td>Le test de connexion échoue</td>
+    <td>Access Token invalide ou expiré</td>
+    <td>Créez un nouveau jeton permanent dans le portail Meta Developer</td>
+  </tr>
+  <tr>
+    <td>Le message n'est pas délivré</td>
+    <td>Phone Number ID ou Business Account ID incorrect</td>
+    <td>Vérifiez les identifiants dans le portail Meta Developer sous WhatsApp &rarr; API Setup</td>
+  </tr>
+  <tr>
+    <td>Le destinataire ne reçoit pas le message</td>
+    <td>Le destinataire n'a pas WhatsApp sur ce numéro</td>
+    <td>Assurez-vous que le numéro de mobile est enregistré sur WhatsApp</td>
+  </tr>
+  <tr>
+    <td>Erreur 403 — Permission refusée</td>
+    <td>Identité commerciale non vérifiée</td>
+    <td>Vérifiez votre entreprise dans la Meta Business Suite</td>
+  </tr>
+  <tr>
+    <td>Messages entrants manquants</td>
+    <td>Webhook non configuré ou URL inaccessible</td>
+    <td>Vérifiez l'URL du webhook et le certificat SSL dans le portail Meta Developer</td>
+  </tr>
+  <tr>
+    <td>Limite de messages atteinte</td>
+    <td>Quota mensuel (1 000 conversations) épuisé</td>
+    <td>Attendez le mois suivant ou demandez une limite plus élevée auprès de Meta</td>
+  </tr>
+</table>

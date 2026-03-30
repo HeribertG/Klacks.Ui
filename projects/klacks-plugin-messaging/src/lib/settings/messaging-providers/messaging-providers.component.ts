@@ -170,16 +170,33 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
     }
   }
 
+  private static readonly MANUAL_MAP: Record<string, string> = {
+    Telegram: 'messaging-telegram-manual',
+    WhatsApp: 'messaging-whatsapp-manual',
+    Signal: 'messaging-signal-manual',
+    SMS: 'messaging-sms-manual',
+    Threema: 'messaging-threema-manual',
+    Viber: 'messaging-viber-manual',
+    LINE: 'messaging-line-manual',
+    KakaoTalk: 'messaging-kakaotalk-manual',
+    WeChat: 'messaging-wechat-manual',
+    Zalo: 'messaging-zalo-manual',
+    MicrosoftTeams: 'messaging-teams-manual',
+    Slack: 'messaging-slack-manual',
+  };
+
   onProviderTypeChanged(providerType: string): void {
     this.selectedProviderType.set(providerType);
-    if (providerType !== 'SMS') {
-      this.tabId.set('form');
-    }
+    this.loadManual(providerType);
   }
 
-  loadManual(): void {
+  loadManual(providerType?: string): void {
+    const type = providerType || this.selectedProviderType();
+    const manualName = MessagingProvidersComponent.MANUAL_MAP[type];
+    if (!manualName) return;
+
     const lang = this.translate.currentLang || 'de';
-    this.manualLoader.loadManual('messaging-sms-manual', lang)
+    this.manualLoader.loadManual(manualName, lang)
       .pipe(takeUntil(this.destroy$))
       .subscribe(content => this.manualContent.set(content));
   }

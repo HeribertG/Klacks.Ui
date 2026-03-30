@@ -1,0 +1,119 @@
+<h2>Configurare un bot Viber</h2>
+
+<h3>Prerequisiti</h3>
+<p>
+Per inviare e ricevere messaggi tramite Viber, è necessario un account Bot Viber.
+Viber è particolarmente popolare nell'Europa orientale e nel Medio Oriente.
+</p>
+
+<p>
+<em>Nota: i messaggi di servizio tramite Viber sono a pagamento.
+Per ulteriori informazioni, visitare <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Passo 1 — Creare un account Bot Viber</h3>
+<ol>
+  <li>Registrarsi su <strong>partners.viber.com</strong>.</li>
+  <li>Creare un nuovo <strong>account Bot</strong> nel pannello di amministrazione Viber.</li>
+  <li>Annotare il <strong>Auth Token</strong> assegnato dopo la creazione.</li>
+  <li>Impostare un <strong>nome mittente</strong> (ad es. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Passo 2 — Configurare Viber in Klacks</h3>
+<ol>
+  <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Fare clic su <strong>Aggiungi</strong>.</li>
+  <li>Compilare i campi come segue:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>Nome</td><td>Nome interno univoco</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>Viber</code></td></tr>
+  <tr><td>Tipo di fornitore</td><td>Selezionare <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Il Auth Token dal pannello di amministrazione Viber</td><td><code>4a7f8b2c...</code></td></tr>
+  <tr><td>Nome mittente</td><td>Nome visualizzato dal destinatario</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
+</table>
+
+<ol start="4">
+  <li>Fare clic su <strong>Salva</strong>.</li>
+  <li>Testare la connessione tramite il pulsante <strong>Test</strong> nell'elenco dei fornitori.</li>
+</ol>
+
+<hr>
+
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<p>
+Una volta configurato e attivato il fornitore Viber, il chatbot Klacksy può inviare
+messaggi. Non è necessario conoscere i numeri di telefono — basta usare il nome
+del dipendente o del cliente:
+</p>
+
+<pre>
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Avvisa Peter Müller che il suo turno di lunedì è annullato."
+</pre>
+
+<p>
+Klacksy cerca automaticamente il numero di cellulare del destinatario e utilizza
+il fornitore Viber configurato. Il processo è completamente trasparente per voi —
+lavorate con i nomi, Klacksy si occupa del resto.
+</p>
+
+<p><strong>Prerequisito:</strong> Il destinatario deve avere un numero di cellulare registrato
+in Klacks (sotto Indirizzo &rarr; Dati di contatto).</p>
+
+<hr>
+
+<h3>Passo 4 — Ricevere messaggi in arrivo (Webhook)</h3>
+<p>
+Per visualizzare i messaggi Viber in arrivo in Klacks, è necessario configurare un webhook nel pannello di amministrazione Viber.
+</p>
+
+<ol>
+  <li>Andare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Annotare il <strong>segreto del webhook</strong> generato automaticamente per il fornitore Viber.</li>
+  <li>Configurare l'URL del webhook nel pannello di amministrazione Viber:
+    <pre>https://{il-vostro-dominio}/api/messaging/webhook/viber</pre>
+  </li>
+  <li>I messaggi in arrivo appariranno ora in tempo reale nella <strong>casella di messaggistica</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Risoluzione dei problemi</h3>
+
+<table>
+  <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
+  <tr>
+    <td>Il test di connessione fallisce</td>
+    <td>Auth Token errato</td>
+    <td>Verificare il token nel pannello di amministrazione Viber</td>
+  </tr>
+  <tr>
+    <td>Il messaggio non viene consegnato</td>
+    <td>Il destinatario non ha un account Viber</td>
+    <td>Assicurarsi che il destinatario utilizzi Viber</td>
+  </tr>
+  <tr>
+    <td>Il destinatario non riceve il messaggio</td>
+    <td>Numero di cellulare non correttamente registrato</td>
+    <td>Verificare il numero di cellulare nei dati di contatto</td>
+  </tr>
+  <tr>
+    <td>Messaggi in arrivo mancanti</td>
+    <td>Webhook non configurato</td>
+    <td>Verificare l'URL del webhook nel pannello di amministrazione Viber</td>
+  </tr>
+  <tr>
+    <td>Credito dell'account esaurito</td>
+    <td>Budget messaggi di servizio esaurito</td>
+    <td>Ricaricare il credito nel pannello di amministrazione Viber</td>
+  </tr>
+</table>

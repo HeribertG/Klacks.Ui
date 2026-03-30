@@ -1,0 +1,121 @@
+<h2>KakaoTalk einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über KakaoTalk mit Klacks zu senden und zu empfangen, benötigen Sie ein
+Kakao Developers Konto und einen registrierten Kakao Talk Channel. KakaoTalk ist der
+dominierende Messenger in Südkorea mit ca. 93% Marktanteil.
+</p>
+
+<p>
+<em>Hinweis: Für Business-Nachrichten ist ein Kakao Talk Channel erforderlich.
+Privatnachrichten ohne Channel sind nicht möglich.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Kakao Developers Konto erstellen</h3>
+<ol>
+  <li>Registrieren Sie sich auf <strong>developers.kakao.com</strong>.</li>
+  <li>Erstellen Sie eine neue Anwendung (App) im Developer-Dashboard.</li>
+  <li>Notieren Sie sich den <strong>App-Schlüssel</strong> (App Key) aus den App-Einstellungen.</li>
+  <li>Registrieren Sie einen <strong>Kakao Talk Channel</strong> und verknüpfen Sie ihn mit Ihrer App.</li>
+  <li>Erstellen Sie ein <strong>Nachrichten-Template</strong> und notieren Sie die <strong>Template-ID</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 2 — KakaoTalk in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>App-Schlüssel</td><td>App Key aus dem Kakao Developers Dashboard</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Template-ID</td><td>ID des Nachrichten-Templates</td><td><code>12345</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der KakaoTalk-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Telefonnummern kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+verwendet den konfigurierten KakaoTalk-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
+(unter Adresse &rarr; Kontaktdaten).</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<p>
+Um eingehende KakaoTalk-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+</p>
+
+<ol>
+  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres KakaoTalk-Anbieters.</li>
+  <li>Konfigurieren Sie im Kakao Developers Dashboard die Webhook-URL:
+    <pre>https://{ihre-domain}/api/messaging/webhook/kakaotalk</pre>
+  </li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>App-Schlüssel oder Template-ID falsch</td>
+    <td>Prüfen Sie die Zugangsdaten im Kakao Developers Dashboard</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Kakao Talk Channel nicht verknüpft</td>
+    <td>Stellen Sie sicher, dass der Channel mit der App verbunden ist</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine Nachricht</td>
+    <td>Mobilnummer nicht registriert oder Empfänger kein KakaoTalk-Nutzer</td>
+    <td>Prüfen Sie, ob der Empfänger KakaoTalk nutzt und die Nummer korrekt ist</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook nicht konfiguriert</td>
+    <td>Prüfen Sie die Webhook-URL im Kakao Developers Dashboard</td>
+  </tr>
+  <tr>
+    <td>Template-Fehler</td>
+    <td>Template nicht genehmigt oder ID falsch</td>
+    <td>Prüfen Sie den Template-Status im Kakao Developers Dashboard</td>
+  </tr>
+</table>

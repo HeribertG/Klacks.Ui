@@ -1,0 +1,121 @@
+<h2>Setting up KakaoTalk</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send and receive messages via KakaoTalk through Klacks, you need a
+Kakao Developers account and a registered Kakao Talk Channel. KakaoTalk is the
+dominant messenger in South Korea with approximately 93% market share.
+</p>
+
+<p>
+<em>Note: A Kakao Talk Channel is required for business messages.
+Private messages without a channel are not possible.</em>
+</p>
+
+<hr>
+
+<h3>Step 1 — Create a Kakao Developers account</h3>
+<ol>
+  <li>Sign up at <strong>developers.kakao.com</strong>.</li>
+  <li>Create a new application (app) in the developer dashboard.</li>
+  <li>Note down the <strong>App Key</strong> from the app settings.</li>
+  <li>Register a <strong>Kakao Talk Channel</strong> and link it to your app.</li>
+  <li>Create a <strong>message template</strong> and note down the <strong>Template ID</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Step 2 — Configure KakaoTalk in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>App Key</td><td>App Key from the Kakao Developers dashboard</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Template ID</td><td>ID of the message template</td><td><code>12345</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the KakaoTalk provider is configured and enabled, the chatbot Klacksy can send
+messages. You don't need to know any phone numbers — simply use the name of
+the employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's phone number and uses the
+configured KakaoTalk provider. The process is fully transparent to you —
+you work with names, Klacksy takes care of the rest.
+</p>
+
+<p><strong>Prerequisite:</strong> The recipient must have a mobile number stored in Klacks
+(under Address &rarr; Contact Details).</p>
+
+<hr>
+
+<h3>Step 4 — Receive incoming messages (Webhook)</h3>
+<p>
+To display incoming KakaoTalk messages in Klacks, a webhook must be configured.
+</p>
+
+<ol>
+  <li>Go to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Note the automatically generated <strong>webhook secret</strong> of your KakaoTalk provider.</li>
+  <li>Configure the webhook URL in the Kakao Developers dashboard:
+    <pre>https://{your-domain}/api/messaging/webhook/kakaotalk</pre>
+  </li>
+  <li>Incoming messages will now appear in real time in the <strong>Messaging Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>App Key or Template ID incorrect</td>
+    <td>Check the credentials in the Kakao Developers dashboard</td>
+  </tr>
+  <tr>
+    <td>Message not delivered</td>
+    <td>Kakao Talk Channel not linked</td>
+    <td>Make sure the channel is connected to the app</td>
+  </tr>
+  <tr>
+    <td>Recipient does not receive message</td>
+    <td>Mobile number not registered or recipient not a KakaoTalk user</td>
+    <td>Check if the recipient uses KakaoTalk and the number is correct</td>
+  </tr>
+  <tr>
+    <td>Incoming messages missing</td>
+    <td>Webhook not configured</td>
+    <td>Check the webhook URL in the Kakao Developers dashboard</td>
+  </tr>
+  <tr>
+    <td>Template error</td>
+    <td>Template not approved or ID incorrect</td>
+    <td>Check the template status in the Kakao Developers dashboard</td>
+  </tr>
+</table>
