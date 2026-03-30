@@ -50,6 +50,20 @@ export class AvailabilityCoordinateService {
     return -scrollX;
   }
 
+  absoluteColX(absoluteCol: number, scrollX: number): number {
+    if (this.isRtl) {
+      return this._viewportWidth - (absoluteCol + 1) * this._cellWidth + scrollX;
+    }
+    return absoluteCol * this._cellWidth - scrollX;
+  }
+
+  absoluteSpanX(absoluteCol: number, spanCols: number, scrollX: number): number {
+    if (this.isRtl) {
+      return this._viewportWidth - (absoluteCol + spanCols) * this._cellWidth + scrollX;
+    }
+    return absoluteCol * this._cellWidth - scrollX;
+  }
+
   mouseToAbsoluteX(mouseX: number, scrollX: number): number {
     if (this.isRtl) {
       const totalWidth = this._totalColumns * this._cellWidth;

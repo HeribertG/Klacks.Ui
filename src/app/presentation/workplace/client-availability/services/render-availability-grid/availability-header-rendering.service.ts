@@ -143,8 +143,7 @@ export class AvailabilityHeaderRenderingService {
     for (let dayIdx = firstDay; dayIdx < lastDay; dayIdx++) {
       const date = new Date(this.calculation.startDate);
       date.setDate(date.getDate() + dayIdx);
-      const visibleDayCol = dayIdx - firstDay;
-      const x = this.coord.spanX(visibleDayCol * columnsPerDay, columnsPerDay);
+      const x = this.coord.absoluteSpanX(dayIdx * columnsPerDay, columnsPerDay, scrollX);
 
       ctx.drawImage(template, 0, 0, template.width, template.height, x, 0, dayWidth, dayHeaderHeight);
 
@@ -185,8 +184,7 @@ export class AvailabilityHeaderRenderingService {
     for (let col = firstCol; col < lastCol; col++) {
       const dayIdx = Math.floor(col / columnsPerDay);
       const slotIdx = col % columnsPerDay;
-      const visibleCol = col - firstCol;
-      const x = this.coord.cellX(visibleCol);
+      const x = this.coord.absoluteColX(col, scrollX);
 
       if (dayIdx !== prevDayIdx) {
         prevDayIdx = dayIdx;

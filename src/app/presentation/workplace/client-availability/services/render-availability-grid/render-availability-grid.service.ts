@@ -242,7 +242,7 @@ export class RenderAvailabilityGridService {
       const absoluteCol = startCol + col;
       // Draw thick border at the start of each day (except the first column)
       if (absoluteCol > 0 && absoluteCol % columnsPerDay === 0) {
-        const x = this.coord.isRtl ? this.coord.cellX(col - 1) + cellWidth : this.coord.cellX(col);
+        const x = this.coord.isRtl ? this.coord.cellX(col) + cellWidth : this.coord.cellX(col);
         const rowCount = Math.min(rowTo, this.clients.length - startRow);
         
         ctx.beginPath();

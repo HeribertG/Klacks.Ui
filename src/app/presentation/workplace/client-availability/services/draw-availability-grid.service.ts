@@ -64,8 +64,10 @@ export class DrawAvailabilityGridService {
     const deltaCol = this.prevStartCol >= 0 ? newStartCol - this.prevStartCol : Number.MAX_SAFE_INTEGER;
     const deltaRow = this.prevStartRow >= 0 ? newStartRow - this.prevStartRow : Number.MAX_SAFE_INTEGER;
 
-    const canIncrementalH = Math.abs(deltaCol) > 0 && Math.abs(deltaCol) <= this.MAX_INCREMENTAL_SCROLL;
-    const canIncrementalV = Math.abs(deltaRow) > 0 && Math.abs(deltaRow) <= this.MAX_INCREMENTAL_SCROLL;
+
+    const canIncremental = !this.coord.isRtl;
+    const canIncrementalH = canIncremental && Math.abs(deltaCol) > 0 && Math.abs(deltaCol) <= this.MAX_INCREMENTAL_SCROLL;
+    const canIncrementalV = canIncremental && Math.abs(deltaRow) > 0 && Math.abs(deltaRow) <= this.MAX_INCREMENTAL_SCROLL;
     const noChangeH = deltaCol === 0;
     const noChangeV = deltaRow === 0;
 
@@ -95,7 +97,9 @@ export class DrawAvailabilityGridService {
 
     this.canvasManager.clearRenderCanvas();
 
-    const shiftX = -deltaCol * this.settings.cellWidth;
+    const shiftX = this.coord.isRtl
+      ? deltaCol * this.settings.cellWidth
+      : -deltaCol * this.settings.cellWidth;
     const shiftY = -deltaRow * this.settings.cellHeight;
     renderCanvasCtx.drawImage(tempCanvas, shiftX, shiftY);
 
@@ -147,7 +151,8 @@ export class DrawAvailabilityGridService {
     const firstVisibleCol = this.calculation.visibleCol(this.scrollX);
     const firstVisibleRow = this.calculation.visibleRow(this.scrollY);
 
-    const col = this.coord.cellX(this.selection.selectedCol() - firstVisibleCol);
+    const visibleCol = this.selection.selectedCol() - firstVisibleCol;
+    const col = this.coord.cellX(visibleCol);
     const row = (this.selection.selectedRow() - firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
 
     ctx.save();

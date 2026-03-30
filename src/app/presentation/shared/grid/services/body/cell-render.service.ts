@@ -106,6 +106,7 @@ export class BaseCellRenderService {
       endCol = Math.min(visibleCols, absDiff + BaseCellRenderService.OVERLAP);
     }
 
+
     for (let row = 0; row < visibleRows; row++) {
       let skipUntilCol = -1;
       for (let col = startCol; col < endCol; col++) {

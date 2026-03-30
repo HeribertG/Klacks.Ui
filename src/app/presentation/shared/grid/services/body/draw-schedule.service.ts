@@ -274,8 +274,8 @@ export class BaseDrawScheduleService {
         this.firstVisibleRow,
         this.firstVisibleCol
       );
-      this.scroll.resetDeltas(); // Reset deltas to prevent accumulation!
-      this.setSelection(); // Add missing setSelection call!
+      this.scroll.resetDeltas();
+      this.setSelection();
     }
 
     this.isScrolling = false;
@@ -316,13 +316,13 @@ export class BaseDrawScheduleService {
 
   private handleHorizontalScroll(visibleRow: number, visibleCol: number): void {
     const horizontalDiff = this.scroll.horizontalScrollDelta;
-
     this.scroll.resetDeltas();
 
     if (horizontalDiff === 0) return;
 
     const newFirstVisibleCol = this.scroll.horizontalScrollPosition;
     const newFirstVisibleRow = this.scroll.verticalScrollPosition;
+
 
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
