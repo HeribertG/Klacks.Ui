@@ -10,6 +10,7 @@ import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { HOUR_GROUPING_SIZES } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { AvailabilityCoordinateService } from '../availability-coordinate.service';
 
 const OVERLAP = 1;
 const DAY_BORDER_WIDTH = 2;
@@ -34,6 +35,7 @@ export class RenderAvailabilityGridService {
   private checkboxDrawing = inject(CheckboxDrawingService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
   private gridColors = inject(GridColorService);
+  private coord = inject(AvailabilityCoordinateService);
 
   private clients: { id: string; displayName: string }[] = [];
 
@@ -203,7 +205,7 @@ export class RenderAvailabilityGridService {
 
         this.cellRendering.renderCell(
           ctx,
-          col * cellWidth,
+          this.coord.cellX(col),
           y,
           isAvailable,
           absCol % columnsPerDay % 2 !== 0,
@@ -240,7 +242,7 @@ export class RenderAvailabilityGridService {
       const absoluteCol = startCol + col;
       // Draw thick border at the start of each day (except the first column)
       if (absoluteCol > 0 && absoluteCol % columnsPerDay === 0) {
-        const x = col * cellWidth;
+        const x = this.coord.isRtl ? this.coord.cellX(col - 1) + cellWidth : this.coord.cellX(col);
         const rowCount = Math.min(rowTo, this.clients.length - startRow);
         
         ctx.beginPath();

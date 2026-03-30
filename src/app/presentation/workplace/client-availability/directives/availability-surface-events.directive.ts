@@ -9,6 +9,7 @@ import { DataManagementClientAvailabilityService } from 'src/app/domain/services
 import { DrawAvailabilityGridService } from '../services/draw-availability-grid.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
+import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 
 const REPEAT_DELAY_MS = 100;
 const EDGE_ZONE_PX = 30;
@@ -27,6 +28,7 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
   private drawGrid = inject(DrawAvailabilityGridService);
   private selection = inject(AvailabilitySelectionService);
   private surface = inject(ClientAvailabilitySurfaceComponent);
+  private coord = inject(AvailabilityCoordinateService);
 
   private lastKeyTime = 0;
   private isDragging = false;
@@ -297,13 +299,13 @@ export class AvailabilitySurfaceEventsDirective implements OnDestroy {
 
   private getCellFromEvent(event: MouseEvent): { row: number; col: number } | null {
     const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
-    const x = event.clientX - rect.left + this.drawGrid.getScrollX();
+    const mouseX = event.clientX - rect.left;
     const y = event.clientY - rect.top - this.settings.cellHeaderHeight + this.drawGrid.getScrollY();
 
     if (y < 0) return null;
 
     const row = Math.floor(y / this.settings.cellHeight);
-    const col = Math.floor(x / this.settings.cellWidth);
+    const col = this.coord.mouseToColumn(mouseX, this.drawGrid.getScrollX());
 
     const clients = this.renderGrid.getClients();
     if (row < 0 || row >= clients.length) return null;

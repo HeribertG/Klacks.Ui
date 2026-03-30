@@ -9,6 +9,7 @@ import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
+import { AvailabilityCoordinateService } from '../availability-coordinate.service';
 
 interface SegmentCache {
   canvas: HTMLCanvasElement;
@@ -23,6 +24,7 @@ export class AvailabilityHeaderRenderingService {
   private calculation = inject(AvailabilityCalculationService);
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
+  private coord = inject(AvailabilityCoordinateService);
 
   private daySegmentCache: SegmentCache | undefined;
   private hourSegmentCache: SegmentCache | undefined;
@@ -141,7 +143,8 @@ export class AvailabilityHeaderRenderingService {
     for (let dayIdx = firstDay; dayIdx < lastDay; dayIdx++) {
       const date = new Date(this.calculation.startDate);
       date.setDate(date.getDate() + dayIdx);
-      const x = dayIdx * dayWidth - scrollX;
+      const visibleDayCol = dayIdx - firstDay;
+      const x = this.coord.spanX(visibleDayCol * columnsPerDay, columnsPerDay);
 
       ctx.drawImage(template, 0, 0, template.width, template.height, x, 0, dayWidth, dayHeaderHeight);
 
@@ -182,7 +185,8 @@ export class AvailabilityHeaderRenderingService {
     for (let col = firstCol; col < lastCol; col++) {
       const dayIdx = Math.floor(col / columnsPerDay);
       const slotIdx = col % columnsPerDay;
-      const x = col * cellWidth - scrollX;
+      const visibleCol = col - firstCol;
+      const x = this.coord.cellX(visibleCol);
 
       if (dayIdx !== prevDayIdx) {
         prevDayIdx = dayIdx;

@@ -8,6 +8,7 @@ import { AvailabilityCalculationService } from './render-availability-grid/avail
 import { AvailabilitySelectionService } from './availability-selection.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { AvailabilityCoordinateService } from './availability-coordinate.service';
 
 @Injectable()
 export class DrawAvailabilityGridService {
@@ -17,6 +18,7 @@ export class DrawAvailabilityGridService {
   private calculation = inject(AvailabilityCalculationService);
   private selection = inject(AvailabilitySelectionService);
   private gridColors = inject(GridColorService);
+  private coord = inject(AvailabilityCoordinateService);
 
   public vScrollbarRefreshTrigger = signal(0);
   public hScrollbarRefreshTrigger = signal(0);
@@ -28,8 +30,17 @@ export class DrawAvailabilityGridService {
   private prevStartRow = -1;
   private readonly MAX_INCREMENTAL_SCROLL = 4;
 
+  private updateCoordinates(): void {
+    this.coord.update(
+      this.settings.cellWidth,
+      this.canvasManager.width,
+      this.calculation.totalColumns
+    );
+  }
+
   public drawGrid(): void {
     if (!this.canvasManager.isCanvasAvailable()) return;
+    this.updateCoordinates();
 
     this.renderGrid.renderHeader(this.scrollX);
     this.renderGrid.renderGrid(this.scrollX, this.scrollY);
@@ -45,6 +56,7 @@ export class DrawAvailabilityGridService {
     this.scrollY = Math.floor(Math.max(0, moveY) / this.settings.cellHeight) * this.settings.cellHeight;
 
     if (!this.canvasManager.isCanvasAvailable()) return;
+    this.updateCoordinates();
 
     const newStartCol = this.calculation.visibleCol(this.scrollX);
     const newStartRow = this.calculation.visibleRow(this.scrollY);
@@ -135,7 +147,7 @@ export class DrawAvailabilityGridService {
     const firstVisibleCol = this.calculation.visibleCol(this.scrollX);
     const firstVisibleRow = this.calculation.visibleRow(this.scrollY);
 
-    const col = (this.selection.selectedCol() - firstVisibleCol) * this.settings.cellWidth;
+    const col = this.coord.cellX(this.selection.selectedCol() - firstVisibleCol);
     const row = (this.selection.selectedRow() - firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
 
     ctx.save();

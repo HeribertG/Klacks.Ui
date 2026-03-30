@@ -43,6 +43,7 @@ import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 import { AvailabilitySelectionService } from '../services/availability-selection.service';
+import { AvailabilityCoordinateService } from '../services/availability-coordinate.service';
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
@@ -58,6 +59,7 @@ import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
   ],
   providers: [
     AvailabilitySettingService,
+    AvailabilityCoordinateService,
     AvailabilityCanvasManagerService,
     DrawAvailabilityGridService,
     RenderAvailabilityGridService,
