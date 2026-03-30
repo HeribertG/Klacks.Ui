@@ -70,9 +70,12 @@ export class ScrollService {
     const oldValue = this._verticalScrollPosition;
     this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
     this._verticalScrollDelta += this._verticalScrollPosition - oldValue;
-    
+
     // Emit via Observable service
-    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
+    this.scrollEventService.emitScroll(
+      this._horizontalScrollPosition,
+      this._verticalScrollPosition,
+    );
   }
 
   get verticalScrollPosition() {
@@ -85,10 +88,13 @@ export class ScrollService {
     const oldValue = this._horizontalScrollPosition;
     this._horizontalScrollPosition = Math.max(0, Math.min(value, this.maxCols));
 
-    this._horizontalScrollDelta += this._horizontalScrollPosition - oldValue;
+    const thisDelta = this._horizontalScrollPosition - oldValue;
+    this._horizontalScrollDelta += thisDelta;
 
-    // Emit via Observable service
-    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
+    this.scrollEventService.emitScroll(
+      this._horizontalScrollPosition,
+      this._verticalScrollPosition,
+    );
   }
 
   get horizontalScrollPosition() {
@@ -97,7 +103,7 @@ export class ScrollService {
 
   updateScrollPosition(
     horizontal?: number,
-    vertical?: number
+    vertical?: number,
   ): {
     horizontalDelta: number;
     verticalDelta: number;
@@ -106,12 +112,15 @@ export class ScrollService {
     const oldV = this._verticalScrollPosition;
 
     if (horizontal !== undefined) {
-      this._horizontalScrollPosition = Math.max(0, Math.min(horizontal, this.maxCols));
+      this._horizontalScrollPosition = Math.max(
+        0,
+        Math.min(horizontal, this.maxCols),
+      );
     }
     if (vertical !== undefined) {
       this._verticalScrollPosition = Math.max(
         0,
-        Math.min(vertical, this.maxRows)
+        Math.min(vertical, this.maxRows),
       );
     }
 
@@ -122,7 +131,10 @@ export class ScrollService {
     this._verticalScrollDelta += deltaV;
 
     // Emit via Observable service
-    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
+    this.scrollEventService.emitScroll(
+      this._horizontalScrollPosition,
+      this._verticalScrollPosition,
+    );
 
     return {
       horizontalDelta: deltaH,
