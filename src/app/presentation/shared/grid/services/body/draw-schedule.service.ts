@@ -48,6 +48,23 @@ export class BaseDrawScheduleService {
   private isScrolling = false;
   private isScrollingToFast = false;
 
+  private updateCoordinates(): void {
+    const pixelRatio = DrawHelper.pixelRatio();
+    const renderCanvasWidth = this.canvasManager.renderCanvas
+      ? this.canvasManager.renderCanvas.width / pixelRatio
+      : this.width;
+    const viewportWidth = this.canvasManager.canvas
+      ? this.canvasManager.canvas.width / pixelRatio
+      : this.width;
+    this.coord.update(
+      this.settings.cellWidth,
+      renderCanvasWidth,
+      viewportWidth,
+      this.gridData.columns,
+      this.scroll.horizontalScrollPosition
+    );
+  }
+
   /* #region initial/final */
   public init(id: string): void {
     this.canvasManager.init(id);
@@ -74,6 +91,7 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   public redraw() {
+    this.updateCoordinates();
     this.redrawGrid();
     this.renderGrid();
     this.setSelection();
@@ -81,6 +99,7 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   public refresh() {
+    this.updateCoordinates();
     this.refreshGrid();
   }
 
@@ -225,6 +244,7 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   moveGrid(): void {
+    this.updateCoordinates();
     if (this.isScrolling) {
       this.isScrollingToFast = true;
       return;
@@ -440,10 +460,7 @@ export class BaseDrawScheduleService {
     const gridCell = this.gridData.getCell(tmpRow, tmpCol);
     const span = gridCell?.colSpan || 1;
 
-    const renderCanvasLogicalWidth = this.canvasManager.renderCanvas
-      ? this.canvasManager.renderCanvas.width / DrawHelper.pixelRatio()
-      : this.width;
-    const x = this.coord.cellXWithSpan(col, span, this.settings.cellWidth, renderCanvasLogicalWidth);
+    const x = this.coord.cellXWithSpan(col, span);
     const y = row * this.settings.cellHeight;
     const drawWidth = span * this.settings.cellWidth;
 
@@ -540,9 +557,8 @@ export class BaseDrawScheduleService {
     const canvas = this.canvasManager.canvas;
     if (!ctx || !canvas) return;
 
-    const canvasLogicalWidth = canvas.width / DrawHelper.pixelRatio();
-    const rawMinX = this.coord.cellX(minCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
-    const rawMaxX = this.coord.cellX(maxCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
+    const rawMinX = this.coord.cellX(minCol - this.firstVisibleCol);
+    const rawMaxX = this.coord.cellX(maxCol - this.firstVisibleCol);
     let col = Math.min(rawMinX, rawMaxX);
     let lastCol = Math.max(rawMinX, rawMaxX) + this.settings.cellWidth;
 
@@ -633,6 +649,7 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   calcCorrectCoordinate(event: MouseEvent) {
+    this.updateCoordinates();
     let row = -1;
     let col = -1;
     if (!this.canvasManager.canvas) return new MyPosition(row, col);
@@ -645,7 +662,7 @@ export class BaseDrawScheduleService {
         Math.floor(
           (y - this.settings.cellHeaderHeight) / this.settings.cellHeight
         ) + this.firstVisibleRow;
-      col = this.coord.colFromMouseX(x, this.settings.cellWidth, rect.width) + this.firstVisibleCol;
+      col = this.coord.visibleColFromMouseX(x) + this.firstVisibleCol;
       col = this.gridData.resolveSpanOwnerColumn(row, col);
     }
 
@@ -673,13 +690,7 @@ export class BaseDrawScheduleService {
   }
 
   private get firstVisibleCol(): number {
-    const scrollPos = this.scroll.horizontalScrollPosition;
-    if (this.coord.isRtl) {
-      const visibleCols = this.updateVisibleCol();
-      const maxCol = Math.max(0, this.gridData.columns - visibleCols);
-      return maxCol - scrollPos;
-    }
-    return scrollPos;
+    return this.coord.firstVisibleCol;
   }
 
   private set firstVisibleCol(value: number) {

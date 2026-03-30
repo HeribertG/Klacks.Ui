@@ -45,6 +45,7 @@ import { TooltipService } from '../../../tooltip/tooltip.service';
 import { TestAccessibilityService } from '../../services/grid-test-accessibility/test-accessibility.service';
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
 import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
+import { GridCoordinateService } from '../../services/grid-coordinate.service';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -108,6 +109,7 @@ export class GridSurfaceTemplateComponent
   private tooltipService = inject(TooltipService);
   public testAccessibility = inject(TestAccessibilityService);
   private gridTestAccessibility = inject(GridTestAccessibilityService);
+  private coord = inject(GridCoordinateService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
@@ -560,7 +562,8 @@ export class GridSurfaceTemplateComponent
       return;
     }
 
-    const x = (column - firstVisibleCol) * this.settings.cellWidth;
+    const visibleCol = column - firstVisibleCol;
+    const x = this.coord.cellX(visibleCol);
     const y =
       (row - firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
@@ -583,8 +586,9 @@ export class GridSurfaceTemplateComponent
     const visibleCols = this.calculateVisibleColumns();
     const maxSpan = Math.max(1, visibleCols - (column - firstVisibleCol));
     const clampedSpan = Math.min(editSpan, maxSpan);
+    const visibleCol = column - firstVisibleCol;
 
-    this.cellInputX = x;
+    this.cellInputX = this.coord.cellXWithSpan(visibleCol, clampedSpan);
     this.cellInputY = y;
     this.cellInputWidth = clampedSpan * this.settings.cellWidth;
     this.cellInputVisible = true;

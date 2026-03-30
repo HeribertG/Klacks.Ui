@@ -2,9 +2,9 @@
 
 /**
  * Central coordinate transformation service for RTL-aware grid rendering.
- * In RTL mode, columns are drawn in normal (LTR) order within canvases.
- * The RTL effect is achieved by adjusting scroll offsets so that the last
- * columns are visible first, and mouse coordinates are mirrored.
+ * Single source of truth for all column-to-pixel and pixel-to-column conversions.
+ * In RTL mode, columns are visually reversed: day 1 appears on the right, day N on the left.
+ * Consumers call update() once per draw cycle, then use parameter-free coordinate methods.
  */
 import { Injectable } from '@angular/core';
 
@@ -12,26 +12,67 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class GridCoordinateService {
+  private _cellWidth = 0;
+  private _renderCanvasWidth = 0;
+  private _viewportWidth = 0;
+  private _totalColumns = 0;
+  private _scrollPos = 0;
+
   get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
   }
 
-  cellX(visibleCol: number, cellWidth: number, _canvasWidth: number): number {
-    return visibleCol * cellWidth;
+  update(cellWidth: number, renderCanvasWidth: number, viewportWidth: number, totalColumns: number, scrollPos: number): void {
+    this._cellWidth = cellWidth;
+    this._renderCanvasWidth = renderCanvasWidth;
+    this._viewportWidth = viewportWidth;
+    this._totalColumns = totalColumns;
+    this._scrollPos = scrollPos;
   }
 
-  cellXWithSpan(visibleCol: number, _span: number, cellWidth: number, _canvasWidth: number): number {
-    return visibleCol * cellWidth;
+  get firstVisibleCol(): number {
+    return this._scrollPos;
   }
 
-  headerAlignment(scrollPos: number, cellWidth: number, headerCanvasWidth: number, viewportWidth: number): number {
+  cellX(visibleCol: number): number {
     if (this.isRtl) {
-      return -(headerCanvasWidth - viewportWidth - scrollPos * cellWidth);
+      return this._viewportWidth - (visibleCol + 1) * this._cellWidth;
     }
-    return -scrollPos * cellWidth;
+    return visibleCol * this._cellWidth;
   }
 
-  colFromMouseX(mouseX: number, cellWidth: number, _viewportWidth: number): number {
-    return Math.floor(mouseX / cellWidth);
+  cellXWithSpan(visibleCol: number, span: number): number {
+    if (this.isRtl) {
+      return this._viewportWidth - (visibleCol + span) * this._cellWidth;
+    }
+    return visibleCol * this._cellWidth;
+  }
+
+  headerCellX(logicalCol: number): number {
+    if (this.isRtl) {
+      return (this._totalColumns - 1 - logicalCol) * this._cellWidth;
+    }
+    return logicalCol * this._cellWidth;
+  }
+
+  headerAlignment(): number {
+    if (this.isRtl) {
+      return this._viewportWidth - (this._totalColumns - this.firstVisibleCol) * this._cellWidth;
+    }
+    return -this.firstVisibleCol * this._cellWidth;
+  }
+
+  visibleColFromMouseX(mouseX: number): number {
+    if (this.isRtl) {
+      return Math.floor((this._viewportWidth - mouseX) / this._cellWidth);
+    }
+    return Math.floor(mouseX / this._cellWidth);
+  }
+
+  fillHandleX(cellXPos: number): number {
+    if (this.isRtl) {
+      return cellXPos;
+    }
+    return cellXPos + this._cellWidth;
   }
 }
