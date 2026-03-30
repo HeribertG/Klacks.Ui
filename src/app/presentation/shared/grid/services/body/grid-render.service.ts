@@ -98,10 +98,14 @@ export class BaseGridRenderService {
       return;
     }
     const pixelRatio = DrawHelper.pixelRatio();
-    const alignment =
-      this.scroll.horizontalScrollPosition * this.settings.cellWidth * -1;
     const logicalWidth = Math.round(headerCanvas.width / pixelRatio);
     const logicalHeight = Math.round(headerCanvas.height / pixelRatio);
+    const scrollPos = this.scroll.horizontalScrollPosition;
+    const visibleWidth = this.canvasManager.canvas
+      ? Math.round(this.canvasManager.canvas.width / pixelRatio)
+      : logicalWidth;
+
+    const alignment = scrollPos * this.settings.cellWidth * -1;
 
     if (headerCanvas.width > 0 && headerCanvas.height > 0) {
       ctx.drawImage(
@@ -154,7 +158,7 @@ export class BaseGridRenderService {
       if (headerCell) {
         headerCtx.drawImage(
           headerCell,
-          col * this.settings.cellWidth,
+          DrawHelper.getColX(col, this.settings.cellWidth, expectedWidth),
           0,
           this.settings.cellWidth,
           this.settings.cellHeaderHeight,
@@ -192,8 +196,12 @@ export class BaseGridRenderService {
     );
     ctx.clip();
 
-    const col: number =
-      (position.column - firstVisibleCol) * this.settings.cellWidth;
+    const logicalCanvasWidth = Math.round(canvas.width / DrawHelper.pixelRatio());
+    const col: number = DrawHelper.getColX(
+      position.column - firstVisibleCol,
+      this.settings.cellWidth,
+      logicalCanvasWidth,
+    );
     const row: number =
       (position.row - firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
@@ -318,8 +326,14 @@ export class BaseGridRenderService {
     ctx.save();
     ctx.fillStyle = this.gridColors.focusBorderColor;
     ctx.globalAlpha = 0.2;
-    const col: number =
-      (position.column - firstVisibleCol) * this.settings.cellWidth;
+    const logicalCanvasWidth = Math.round(
+      (this.canvasManager.canvas?.width ?? 0) / DrawHelper.pixelRatio(),
+    );
+    const col: number = DrawHelper.getColX(
+      position.column - firstVisibleCol,
+      this.settings.cellWidth,
+      logicalCanvasWidth,
+    );
 
     ctx.fillRect(
       col,
@@ -358,9 +372,12 @@ export class BaseGridRenderService {
     if (tmpRow < this.gridData.rows && tmpCol < this.gridData.columns) {
       const img = this.createCell.createCell(tmpRow, tmpCol);
       if (img && this.canvasManager.renderCanvasCtx) {
+        const renderCanvasWidth = Math.round(
+          (this.canvasManager.renderCanvas?.width ?? 0) / DrawHelper.pixelRatio(),
+        );
         this.canvasManager.renderCanvasCtx.drawImage(
           img,
-          col * cellWidth,
+          DrawHelper.getColX(col, cellWidth, renderCanvasWidth),
           row * cellHeight,
           cellWidth,
           cellHeight,
@@ -378,7 +395,14 @@ export class BaseGridRenderService {
     const ctx = this.canvasManager.ctx;
     if (!ctx) return;
 
-    const column: number = (col - firstVisibleCol) * this.settings.cellWidth;
+    const logicalCanvasWidth = Math.round(
+      (this.canvasManager.canvas?.width ?? 0) / DrawHelper.pixelRatio(),
+    );
+    const column: number = DrawHelper.getColX(
+      col - firstVisibleCol,
+      this.settings.cellWidth,
+      logicalCanvasWidth,
+    );
     const rowSet: number =
       (row - firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;

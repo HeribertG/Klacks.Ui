@@ -6,6 +6,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateCellService } from './create-cell.service';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
 @Injectable({
   providedIn: 'root',
@@ -39,7 +40,8 @@ export class BaseCellRenderService {
 
     const img = this.createCell.createCell(tmpRow, tmpCol);
     if (img && this.canvasManager.renderCanvasCtx) {
-      const drawX = col * cellWidth;
+      const renderCanvasWidth = this.canvasManager.renderCanvas!.width / DrawHelper.pixelRatio();
+      const drawX = DrawHelper.getColX(col, cellWidth, renderCanvasWidth);
       const drawY = row * cellHeight;
       const drawWidth = span * cellWidth;
       this.canvasManager.renderCanvasCtx.drawImage(

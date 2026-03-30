@@ -245,6 +245,25 @@ export abstract class DrawHelper {
     ctx.restore();
   }
 
+  public static isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
+  public static getColX(col: number, cellWidth: number, canvasWidth: number): number {
+    const x = col * cellWidth;
+    if (this.isRtl()) {
+      return canvasWidth - x - cellWidth;
+    }
+    return x;
+  }
+
+  public static getColFromX(x: number, cellWidth: number, canvasWidth: number): number {
+    if (this.isRtl()) {
+      return Math.floor((canvasWidth - x) / cellWidth);
+    }
+    return Math.floor(x / cellWidth);
+  }
+
   public static createHiDPICanvas(
     canvas: HTMLCanvasElement,
     width: number,

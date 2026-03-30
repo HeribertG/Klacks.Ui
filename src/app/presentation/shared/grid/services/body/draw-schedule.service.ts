@@ -264,6 +264,10 @@ export class BaseDrawScheduleService {
       return false;
     }
 
+    if (DrawHelper.isRtl()) {
+      return false;
+    }
+
     if (direction < 0) {
       direction = direction * -1;
     }
@@ -434,7 +438,11 @@ export class BaseDrawScheduleService {
     const gridCell = this.gridData.getCell(tmpRow, tmpCol);
     const span = gridCell?.colSpan || 1;
 
-    const x = col * this.settings.cellWidth;
+    const renderCanvasLogicalWidth = this.canvasManager.renderCanvas
+      ? this.canvasManager.renderCanvas.width / DrawHelper.pixelRatio()
+      : this.width;
+    const baseX = DrawHelper.getColX(col, this.settings.cellWidth, renderCanvasLogicalWidth);
+    const x = DrawHelper.isRtl() ? baseX - (span - 1) * this.settings.cellWidth : baseX;
     const y = row * this.settings.cellHeight;
     const drawWidth = span * this.settings.cellWidth;
 
@@ -531,7 +539,12 @@ export class BaseDrawScheduleService {
     const canvas = this.canvasManager.canvas;
     if (!ctx || !canvas) return;
 
-    let col: number = (minCol - this.firstVisibleCol) * this.settings.cellWidth;
+    const canvasLogicalWidth = canvas.width / DrawHelper.pixelRatio();
+    const rawMinCol = DrawHelper.getColX(minCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
+    const rawMaxCol = DrawHelper.getColX(maxCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
+    let col = Math.min(rawMinCol, rawMaxCol);
+    let lastCol = Math.max(rawMinCol, rawMaxCol) + this.settings.cellWidth;
+
     let row: number =
       (minRow - this.firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
@@ -542,8 +555,6 @@ export class BaseDrawScheduleService {
       row = this.settings.cellHeaderHeight;
     }
 
-    let lastCol: number =
-      (maxCol - this.firstVisibleCol) * this.settings.cellWidth;
     let lastRow: number =
       (maxRow - this.firstVisibleRow) * this.settings.cellHeight +
       this.settings.cellHeaderHeight;
@@ -633,7 +644,8 @@ export class BaseDrawScheduleService {
         Math.floor(
           (y - this.settings.cellHeaderHeight) / this.settings.cellHeight
         ) + this.firstVisibleRow;
-      col = Math.floor(x / this.settings.cellWidth) + this.firstVisibleCol;
+      const canvasLogicalWidth = rect.width;
+      col = DrawHelper.getColFromX(x, this.settings.cellWidth, canvasLogicalWidth) + this.firstVisibleCol;
       col = this.gridData.resolveSpanOwnerColumn(row, col);
     }
 
