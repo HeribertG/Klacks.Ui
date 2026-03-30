@@ -15,6 +15,7 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
+import { GanttCoordinateService } from './gantt-coordinate.service';
 
 @Injectable()
 export class AbsenceGanttDragDropService {
@@ -23,6 +24,7 @@ export class AbsenceGanttDragDropService {
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   private drawCalendarGantt = inject(DrawCalendarGanttService);
   private scroll = inject(ScrollService);
+  private coord = inject(GanttCoordinateService);
 
   selectedArea: SelectedArea = SelectedArea.None;
 
@@ -158,10 +160,7 @@ export class AbsenceGanttDragDropService {
               this.drawCalendarGantt.selectedBreak
             ) {
               const pixelDelta = x - this.dragStartMouseX;
-
-              const columnDelta = Math.round(
-                pixelDelta / this.calendarSetting.cellWidth
-              );
+              const columnDelta = this.coord.pixelDeltaToColumnDelta(pixelDelta);
 
               const newStartColumn =
                 this.originalBreakPosition.startColumn + columnDelta;
@@ -239,8 +238,7 @@ export class AbsenceGanttDragDropService {
     const width = this.calendarSetting.cellWidth;
 
     if (x >= 0) {
-      const tmpCol =
-        Math.floor(x / width) + this.drawCalendarGantt.firstVisibleColumn();
+      const tmpCol = this.coord.mouseToColumn(x);
 
       const date = new Date(this.drawCalendarGantt.startDate);
       date.setDate(date.getDate() + tmpCol);
@@ -329,14 +327,13 @@ export class AbsenceGanttDragDropService {
 
   private calcDroppedCell(offsetX: number, offsetY: number): number[] {
     if (this.drawCalendarGantt.isCanvasAvailable()) {
-      let deltaX = Math.ceil(offsetX / this.calendarSetting.cellWidth) - 1;
+      const deltaX = this.coord.mouseToColumn(offsetX);
       let deltaY =
         Math.ceil(
           (offsetY - this.calendarSetting.cellHeaderHeight) /
             this.calendarSetting.cellHeight
         ) - 1;
 
-      deltaX += this.scroll.horizontalScrollPosition;
       deltaY += this.scroll.verticalScrollPosition;
 
       return [deltaX, deltaY];

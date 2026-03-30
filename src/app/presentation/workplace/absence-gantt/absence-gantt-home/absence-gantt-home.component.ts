@@ -43,6 +43,7 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
+import { GanttCoordinateService } from '../services/gantt-coordinate.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -57,6 +58,7 @@ import { AbsenceGanttContextMenuService } from '../services/absence-gantt-contex
   providers: [
     CalendarSettingService,
     ScrollbarService,
+    GanttCoordinateService,
     DrawCalendarGanttService,
     GanttCanvasManagerService,
     RenderCalendarGridService,

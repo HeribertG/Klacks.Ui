@@ -18,6 +18,7 @@ import { CalendarHeaderRenderingService } from './calendar-header-rendering.serv
 import { ValidityPeriodRenderingService } from './validity-period-rendering.service';
 import { BreakRenderingService } from './break-rendering.service';
 import { RowSelectionService } from './row-selection.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 @Injectable()
 export class RenderCalendarGridService {
@@ -34,6 +35,7 @@ export class RenderCalendarGridService {
   private validityPeriodRenderingService = inject(ValidityPeriodRenderingService);
   private breakRenderingService = inject(BreakRenderingService);
   private selectionService = inject(RowSelectionService);
+  private coord = inject(GanttCoordinateService);
 
   public get startDate(): Date {
     return this.calculationService.startDate;
@@ -281,10 +283,7 @@ export class RenderCalendarGridService {
 
   public drawRowIntern(index: number, isUnselect = false): void {
     const dy = index - this.scroll.verticalScrollPosition;
-    const left =
-      this.scroll.horizontalScrollPosition *
-      this.calendarSetting.cellWidth *
-      -1;
+    const left = this.coord.scrollDx;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
     const rowRec = new Rectangle(

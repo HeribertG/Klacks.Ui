@@ -16,6 +16,7 @@ import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { RenderCalendarGridService } from './render-calendar-grid';
+import { GanttCoordinateService } from './gantt-coordinate.service';
 
 @Injectable()
 export class DrawCalendarGanttService {
@@ -28,6 +29,7 @@ export class DrawCalendarGanttService {
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   private scroll = inject(ScrollService);
   private zone = inject(NgZone);
+  private coord = inject(GanttCoordinateService);
 
   public vScrollbarRefreshTrigger = signal<number>(0);
   public hScrollbarRefreshTrigger = signal<number>(0);
@@ -54,14 +56,17 @@ export class DrawCalendarGanttService {
   }
 
   public createRuler(): void {
+    this.updateCoordinates();
     this.renderCalendarGrid.renderRuler();
   }
 
   public renderCalendar(): void {
+    this.updateCoordinates();
     this.renderCalendarGrid.renderCalendar();
   }
 
   moveCalendar(moveX: boolean, moveY: boolean): void {
+    this.updateCoordinates();
     if (this.isBusy) {
       return;
     }
@@ -114,12 +119,19 @@ export class DrawCalendarGanttService {
 
   /* #region   draw */
 
+  private updateCoordinates(): void {
+    this.coord.update(
+      this.calendarSetting.cellWidth,
+      this.ganttCanvasManager.width,
+      this._columns,
+      this.scroll.horizontalScrollPosition
+    );
+  }
+
   @CanvasAvailable('queue')
   drawCalendar(): void {
-    const dx =
-      this.scroll.horizontalScrollPosition *
-      this.calendarSetting.cellWidth *
-      -1;
+    this.updateCoordinates();
+    const dx = this.coord.scrollDx;
     this.ganttCanvasManager.ctx!.clearRect(
       0,
       0,
@@ -219,6 +231,7 @@ export class DrawCalendarGanttService {
 
   @CanvasAvailable('queue')
   public resetAll(): void {
+    this.updateCoordinates();
     this.setMetrics();
     this.renderCalendarGrid.renderRuler();
     this.renderCalendarGrid.renderCalendar();
@@ -246,16 +259,14 @@ export class DrawCalendarGanttService {
 
     const col1 = Math.floor(daysBetweenDates(this.startDate, beginDate));
     const col2 = col1 + diff;
-    const d1 = col1 * this.calendarSetting.cellWidth;
-    const d2 = col2 * this.calendarSetting.cellWidth;
 
     const cellHeight = this.calendarSetting.cellHeight;
     const cellLayerHeight = Math.floor(cellHeight / 4);
 
     return new Rectangle(
-      Math.floor(d1),
+      Math.floor(this.coord.spanLeft(col1, col2)),
       cellLayerHeight,
-      Math.floor(d2 + this.calendarSetting.cellWidth),
+      Math.floor(this.coord.spanRight(col1, col2)),
       cellLayerHeight * 3
     );
   }
@@ -275,6 +286,7 @@ export class DrawCalendarGanttService {
 
   @CanvasAvailable('queue')
   calcCorrectCoordinate(event: MouseEvent) {
+    this.updateCoordinates();
     let row = -1;
     let col = -1;
     const rect = this.ganttCanvasManager.canvas!.getBoundingClientRect();
@@ -293,10 +305,7 @@ export class DrawCalendarGanttService {
   }
 
   public calcX2Column(x: number): number {
-    return (
-      Math.floor(x / this.calendarSetting.cellWidth) +
-      this.scroll.horizontalScrollPosition
-    );
+    return this.coord.mouseToColumn(x);
   }
 
   public calcLeftAnchorRectangle(rec: Rectangle): Rectangle {

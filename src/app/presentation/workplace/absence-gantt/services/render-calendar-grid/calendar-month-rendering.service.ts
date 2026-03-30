@@ -17,6 +17,7 @@ import {
 } from '../../../../shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from '../../../../shared/grid/enums/gradient-3d-border-style';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 @Injectable()
 export class CalendarMonthRenderingService {
@@ -27,6 +28,7 @@ export class CalendarMonthRenderingService {
   private gridSetting = inject(GridSettingsService);
   private gridFonts = inject(GridFontsService);
   private translateService = inject(TranslateService);
+  private coord = inject(GanttCoordinateService);
 
   public isCanvasAvailable(): boolean {
     return this.ganttCanvasManager.isCanvasAvailable();
@@ -36,13 +38,13 @@ export class CalendarMonthRenderingService {
     let lastDays = 0;
     for (let i = 0; i < 12; i++) {
       const actualDays = getDaysInMonth(this.holidayCollection.currentYear, i);
-      const leftDayCell = lastDays * this.calendarSetting.cellWidth;
-      const sizeDayCell = actualDays * this.calendarSetting.cellWidth;
+      const startCol = lastDays;
+      const endCol = lastDays + actualDays;
 
       const monthRec = new Rectangle(
-        leftDayCell,
+        Math.floor(this.coord.spanLeft(startCol, endCol)),
         0,
-        leftDayCell + sizeDayCell + this.calendarSetting.cellWidth,
+        Math.floor(this.coord.spanRight(startCol, endCol)),
         this.calendarSetting.cellHeight
       );
       lastDays += actualDays;
@@ -74,8 +76,9 @@ export class CalendarMonthRenderingService {
 
     monthsRect.forEach((x) => {
       if (this.ganttCanvasManager.backgroundRowCtx!) {
-        this.ganttCanvasManager.backgroundRowCtx!.moveTo(x.left, x.top);
-        this.ganttCanvasManager.backgroundRowCtx!.lineTo(x.left, x.bottom);
+        const borderX = this.coord.isRtl ? x.right : x.left;
+        this.ganttCanvasManager.backgroundRowCtx!.moveTo(borderX, x.top);
+        this.ganttCanvasManager.backgroundRowCtx!.lineTo(borderX, x.bottom);
         this.ganttCanvasManager.backgroundRowCtx!.stroke();
       }
     });
@@ -87,13 +90,13 @@ export class CalendarMonthRenderingService {
     let lastDays = 0;
     for (let i = 0; i < 12; i++) {
       const actualDays = getDaysInMonth(this.holidayCollection.currentYear, i);
+      const startCol = lastDays;
+      const endCol = lastDays + actualDays - 1;
 
-      const leftMonthCell = lastDays * this.calendarSetting.cellWidth;
-      const sizeMonthCell = actualDays * this.calendarSetting.cellWidth;
       const monthRec = new Rectangle(
-        leftMonthCell,
+        Math.floor(this.coord.spanLeft(startCol, endCol)),
         0,
-        leftMonthCell + sizeMonthCell,
+        Math.floor(this.coord.spanRight(startCol, endCol)),
         this.calendarSetting.cellHeight
       );
       lastDays += actualDays;

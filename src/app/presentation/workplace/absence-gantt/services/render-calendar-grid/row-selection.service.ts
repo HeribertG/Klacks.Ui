@@ -13,6 +13,7 @@ import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/objec
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 @Injectable()
 export class RowSelectionService {
@@ -24,6 +25,7 @@ export class RowSelectionService {
   private calendarSetting = inject(CalendarSettingService);
   private calculationService = inject(CalendarCalculationService);
   private breakRenderingService = inject(BreakRenderingService);
+  private coord = inject(GanttCoordinateService);
 
   private _selectedRow = -1;
   private _selectedBreakIndex = -1;
@@ -150,10 +152,7 @@ export class RowSelectionService {
         this.calendarSetting.cellHeaderHeight +
         (this.selectedRow - this.scroll.verticalScrollPosition) *
           this.calendarSetting.cellHeight;
-      const dx =
-        this.scroll.horizontalScrollPosition *
-        this.calendarSetting.cellWidth *
-        -1;
+      const dx = this.coord.scrollDx;
       const tmpBreak = data[this.selectedBreakIndex];
 
       if (tmpBreak) {

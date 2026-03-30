@@ -6,6 +6,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 @Injectable()
 export class ValidityPeriodRenderingService {
@@ -13,6 +14,7 @@ export class ValidityPeriodRenderingService {
   private gridColors = inject(GridColorService);
   private calendarSetting = inject(CalendarSettingService);
   private calculationService = inject(CalendarCalculationService);
+  private coord = inject(GanttCoordinateService);
 
   public drawPreValidFromGrayRectangle(clientIndex: number): void {
     const validFromColumn = this.calculationService.calcValidFromColumn(clientIndex);
@@ -21,10 +23,12 @@ export class ValidityPeriodRenderingService {
       return;
     }
 
+    const left = this.coord.spanLeft(0, validFromColumn - 1);
+    const right = this.coord.spanRight(0, validFromColumn - 1);
     const grayRectangle = new Rectangle(
+      Math.floor(left),
       0,
-      0,
-      validFromColumn * this.calendarSetting.cellWidth,
+      Math.floor(right),
       this.calendarSetting.cellHeight
     );
 
@@ -49,11 +53,13 @@ export class ValidityPeriodRenderingService {
     }
 
     const maxColumns = this.calculationService.calcDaysPerYear();
+    const left = this.coord.spanLeft(validUntilColumn, maxColumns - 1);
+    const right = this.coord.spanRight(validUntilColumn, maxColumns - 1);
 
     const grayRectangle = new Rectangle(
-      validUntilColumn * this.calendarSetting.cellWidth,
+      Math.floor(left),
       0,
-      maxColumns * this.calendarSetting.cellWidth,
+      Math.floor(right),
       this.calendarSetting.cellHeight
     );
 

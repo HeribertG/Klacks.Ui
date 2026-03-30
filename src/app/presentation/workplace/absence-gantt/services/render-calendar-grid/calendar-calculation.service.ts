@@ -8,6 +8,7 @@ import { HolidayCollectionService } from '../../../../shared/grid/services/holid
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 @Injectable()
 export class CalendarCalculationService {
@@ -16,6 +17,7 @@ export class CalendarCalculationService {
   private holidayCollection = inject(HolidayCollectionService);
   private ganttCanvasManager = inject(GanttCanvasManagerService);
   private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
+  private coord = inject(GanttCoordinateService);
 
   public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
 
@@ -35,11 +37,11 @@ export class CalendarCalculationService {
   }
 
   public calculateDayRectangle(dayIndex: number): Rectangle {
-    const d = dayIndex * this.calendarSetting.cellWidth;
+    const x = this.coord.columnX(dayIndex);
     return new Rectangle(
-      Math.floor(d),
+      Math.floor(x),
       0,
-      Math.floor(d + this.calendarSetting.cellWidth),
+      Math.floor(x + this.calendarSetting.cellWidth),
       this.calendarSetting.cellHeaderHeight
     );
   }
@@ -81,16 +83,14 @@ export class CalendarCalculationService {
 
     const col1 = Math.floor(daysBetweenDates(this.startDate, beginDate));
     const col2 = col1 + diff;
-    const d1 = col1 * this.calendarSetting.cellWidth;
-    const d2 = col2 * this.calendarSetting.cellWidth;
 
     const cellHeight = this.calendarSetting.cellHeight;
     const cellLayerHeight = Math.floor(cellHeight / 4);
 
     return new Rectangle(
-      Math.floor(d1),
+      Math.floor(this.coord.spanLeft(col1, col2)),
       cellLayerHeight,
-      Math.floor(d2 + this.calendarSetting.cellWidth),
+      Math.floor(this.coord.spanRight(col1, col2)),
       cellLayerHeight * 3
     );
   }
