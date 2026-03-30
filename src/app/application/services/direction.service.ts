@@ -18,9 +18,16 @@ export class DirectionService {
   private languageConfigService = inject(LanguageConfigService);
   private document = inject(DOCUMENT);
 
-  // TODO: Remove forced RTL override after testing
   readonly direction: Signal<'ltr' | 'rtl'> = computed(() => {
-    return 'rtl' as const;
+    const locale = this.localeService.locale();
+    const metadata = this.languageConfigService.metadata$();
+    const langMetadata = metadata[locale];
+
+    if (langMetadata?.direction) {
+      return langMetadata.direction;
+    }
+
+    return RTL_LANGUAGES.includes(locale) ? 'rtl' : 'ltr';
   });
 
   constructor() {

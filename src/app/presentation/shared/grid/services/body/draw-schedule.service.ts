@@ -17,12 +17,14 @@ import { BaseCreateCellService } from './create-cell.service';
 import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
 import { GridFontsService } from '../grid-fonts.service';
+import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
 
 @Injectable()
 export class BaseDrawScheduleService {
   public cellManipulation = inject(BaseCellManipulationService);
   public gridData = inject(BaseDataService);
 
+  protected coord = inject(GridCoordinateService);
   protected gridColors = inject(GridColorService);
   protected scroll = inject(ScrollService);
   protected settings = inject(BaseSettingsService);
@@ -264,7 +266,7 @@ export class BaseDrawScheduleService {
       return false;
     }
 
-    if (DrawHelper.isRtl()) {
+    if (this.coord.isRtl) {
       return false;
     }
 
@@ -441,8 +443,7 @@ export class BaseDrawScheduleService {
     const renderCanvasLogicalWidth = this.canvasManager.renderCanvas
       ? this.canvasManager.renderCanvas.width / DrawHelper.pixelRatio()
       : this.width;
-    const baseX = DrawHelper.getColX(col, this.settings.cellWidth, renderCanvasLogicalWidth);
-    const x = DrawHelper.isRtl() ? baseX - (span - 1) * this.settings.cellWidth : baseX;
+    const x = this.coord.cellXWithSpan(col, span, this.settings.cellWidth, renderCanvasLogicalWidth);
     const y = row * this.settings.cellHeight;
     const drawWidth = span * this.settings.cellWidth;
 
@@ -540,10 +541,10 @@ export class BaseDrawScheduleService {
     if (!ctx || !canvas) return;
 
     const canvasLogicalWidth = canvas.width / DrawHelper.pixelRatio();
-    const rawMinCol = DrawHelper.getColX(minCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
-    const rawMaxCol = DrawHelper.getColX(maxCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
-    let col = Math.min(rawMinCol, rawMaxCol);
-    let lastCol = Math.max(rawMinCol, rawMaxCol) + this.settings.cellWidth;
+    const rawMinX = this.coord.cellX(minCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
+    const rawMaxX = this.coord.cellX(maxCol - this.firstVisibleCol, this.settings.cellWidth, canvasLogicalWidth);
+    let col = Math.min(rawMinX, rawMaxX);
+    let lastCol = Math.max(rawMinX, rawMaxX) + this.settings.cellWidth;
 
     let row: number =
       (minRow - this.firstVisibleRow) * this.settings.cellHeight +
@@ -644,8 +645,7 @@ export class BaseDrawScheduleService {
         Math.floor(
           (y - this.settings.cellHeaderHeight) / this.settings.cellHeight
         ) + this.firstVisibleRow;
-      const canvasLogicalWidth = rect.width;
-      col = DrawHelper.getColFromX(x, this.settings.cellWidth, canvasLogicalWidth) + this.firstVisibleCol;
+      col = this.coord.colFromMouseX(x, this.settings.cellWidth, rect.width) + this.firstVisibleCol;
       col = this.gridData.resolveSpanOwnerColumn(row, col);
     }
 
@@ -673,7 +673,13 @@ export class BaseDrawScheduleService {
   }
 
   private get firstVisibleCol(): number {
-    return this.scroll.horizontalScrollPosition;
+    const scrollPos = this.scroll.horizontalScrollPosition;
+    if (this.coord.isRtl) {
+      const visibleCols = this.updateVisibleCol();
+      const maxCol = Math.max(0, this.gridData.columns - visibleCols);
+      return maxCol - scrollPos;
+    }
+    return scrollPos;
   }
 
   private set firstVisibleCol(value: number) {

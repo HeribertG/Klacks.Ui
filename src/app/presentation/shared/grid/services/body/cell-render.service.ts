@@ -7,6 +7,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateCellService } from './create-cell.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { GridCoordinateService } from 'src/app/presentation/shared/grid/services/grid-coordinate.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class BaseCellRenderService {
   protected dataService = inject(BaseDataService);
   protected settings = inject(BaseSettingsService);
   protected createCell = inject(BaseCreateCellService);
+  protected coord = inject(GridCoordinateService);
 
   private static readonly OVERLAP = 1;
 
@@ -41,7 +43,7 @@ export class BaseCellRenderService {
     const img = this.createCell.createCell(tmpRow, tmpCol);
     if (img && this.canvasManager.renderCanvasCtx) {
       const renderCanvasWidth = this.canvasManager.renderCanvas!.width / DrawHelper.pixelRatio();
-      const drawX = DrawHelper.getColX(col, cellWidth, renderCanvasWidth);
+      const drawX = this.coord.cellX(col, cellWidth, renderCanvasWidth);
       const drawY = row * cellHeight;
       const drawWidth = span * cellWidth;
       this.canvasManager.renderCanvasCtx.drawImage(
