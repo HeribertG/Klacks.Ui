@@ -10,12 +10,12 @@
 
 .first {
   padding-top: 10px;
-  margin-left: 30px;
-  padding-right: 40px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
 }
 
 .add-button {
-  padding-right: 50px;
+  padding-inline-end: 50px;
   font-size: 13px;
   text-decoration: underline;
   color: colors.$standartGreenColor;
@@ -28,7 +28,7 @@
 }
 
 .rule-result {
-  margin-left: 1em;
+  margin-inline-start: 1em;
 }
 
 .rule-state {
@@ -44,7 +44,7 @@
 }
 
 .modal-checkbox-container {
-  margin-left: 1em;
+  margin-inline-start: 1em;
   margin-top: 3em;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .last-right {
-  margin-right: 30px;
+  margin-inline-end: 30px;
   margin-top: -7px;
 }
 
@@ -93,7 +93,7 @@
 
 .red-font {
   margin-top: 10px;
-  padding-right: 30px;
+  padding-inline-end: 30px;
   color: var(--standartRedColor);
 }
 

@@ -8,7 +8,7 @@
     background-position: center;
     background-color: colors.$standartWhiteColor;
     
-    margin-left: 30px;
+    margin-inline-start: 30px;
     cursor: pointer;
     border: 2px dashed #b6b6c3;
     border-radius: 6px;
@@ -17,8 +17,7 @@
   }
   
   .ddinfo {
-    padding-left: 50px;
-    padding-right: 50px;
+    padding-inline: 50px;
    
   
     display: block;
@@ -29,7 +28,7 @@
   
   .delete-button {
     margin-top:-20px;
-    padding-right: 50px;
+    padding-inline-end: 50px;
     font-size: 13px;
     text-decoration: underline;
     color: var(--standartRedColor );

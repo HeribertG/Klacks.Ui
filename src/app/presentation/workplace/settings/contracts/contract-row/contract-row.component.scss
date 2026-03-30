@@ -8,7 +8,7 @@
   padding: 5px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 .attribute-date {
@@ -17,12 +17,12 @@
   padding: 5px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 .contract-name,
 .contract-hours,
 .contract-date {
   display: inline-block;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }

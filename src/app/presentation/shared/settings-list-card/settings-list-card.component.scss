@@ -22,7 +22,7 @@
     }
 
     .first {
-      margin-left: 30px;
+      margin-inline-start: 30px;
       height: 40px;
     }
 
@@ -35,7 +35,7 @@
 
     .attribute-name {
       width: 250px;
-      margin-right: 10px;
+      margin-inline-end: 10px;
       background-color: var(--standartGreenColor) !important;
       cursor: pointer;
 
@@ -46,7 +46,7 @@
 
     .delete-button {
       margin-top: 5px;
-      margin-left: 20px;
+      margin-inline-start: 20px;
       color: var(--standartRedColor);
       cursor: pointer;
 

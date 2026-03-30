@@ -16,7 +16,7 @@ table select,
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  padding-right: 30px !important;
+  padding-inline-end: 30px !important;
   width: 100%;
 }
 
@@ -50,10 +50,10 @@ table input:not([type="checkbox"]):not(.is-invalid):not(.is-valid),
   border: none !important;
   background: transparent !important;
   outline: none !important;
-  border-top-left-radius: 4px !important;
-  border-bottom-left-radius: 4px !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  border-start-start-radius: 4px !important;
+  border-end-start-radius: 4px !important;
+  border-start-end-radius: 0 !important;
+  border-end-end-radius: 0 !important;
 }
 
 table input.is-invalid,
@@ -61,11 +61,11 @@ table input.is-invalid,
   border: 1px solid #dc3545 !important;
   background: transparent !important;
   background-image: none !important;
-  padding-right: 0.75rem !important;
-  border-top-left-radius: 4px !important;
-  border-bottom-left-radius: 4px !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  padding-inline-end: 0.75rem !important;
+  border-start-start-radius: 4px !important;
+  border-end-start-radius: 4px !important;
+  border-start-end-radius: 0 !important;
+  border-end-end-radius: 0 !important;
 }
 
 table input.is-valid,
@@ -73,11 +73,11 @@ table input.is-valid,
   border: 1px solid #198754 !important;
   background: transparent !important;
   background-image: none !important;
-  padding-right: 0.75rem !important;
-  border-top-left-radius: 4px !important;
-  border-bottom-left-radius: 4px !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  padding-inline-end: 0.75rem !important;
+  border-start-start-radius: 4px !important;
+  border-end-start-radius: 4px !important;
+  border-start-end-radius: 0 !important;
+  border-end-end-radius: 0 !important;
 }
 
 table .input-group-text,
@@ -97,7 +97,7 @@ table .input-group-text,
 }
 
 .sort-arrow {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   font-size: 12px;
 }
 

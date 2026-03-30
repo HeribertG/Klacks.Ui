@@ -31,7 +31,7 @@
 }
 
 .refresh-button {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: none;
   border: none;
   cursor: pointer;
@@ -82,7 +82,7 @@
 }
 
 .sort-button {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: none;
   border: 1px solid var(--inboxColorLine);
   border-radius: 4px;
@@ -172,7 +172,7 @@
   font-size: 11px;
   color: var(--gridColorLine);
   white-space: nowrap;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .email-row-bottom {
@@ -180,7 +180,7 @@
   align-items: center;
   gap: 6px;
   margin-top: 2px;
-  padding-left: 16px;
+  padding-inline-start: 16px;
 }
 
 .email-subject {

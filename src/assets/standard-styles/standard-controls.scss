@@ -82,7 +82,7 @@ option {
 }
 
 .checkbox-label {
-  padding-right: 25px;
+  padding-inline-end: 25px;
   white-space: nowrap;
   color: var(--colorLabel);
 }
@@ -133,7 +133,7 @@ span[type="button"] {
 
   /* Dropdown arrow styling */
   &::after {
-    margin-left: 8px;
+    margin-inline-start: 8px;
   }
 }
 

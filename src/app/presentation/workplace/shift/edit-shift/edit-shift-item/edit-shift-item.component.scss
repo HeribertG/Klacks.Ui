@@ -47,15 +47,15 @@ label {
   margin-top: 40px;
 }
 .firstColumn {
-  margin-left: 30px;
+  margin-inline-start: 30px;
 }
 
 .endColumn {
-  margin-right: 30px;
+  margin-inline-end: 30px;
 }
 
 .gap {
-  margin-left: 20px;
+  margin-inline-start: 20px;
   width: 130px;
 }
 
@@ -82,7 +82,7 @@ label {
 
 .own-boolean {
   width: 40px;
-  margin-left: 0px;
+  margin-inline-start: 0px;
 }
 
 .container-bank-box {
@@ -96,11 +96,11 @@ label {
 }
 
 .expand-button {
-  margin-right: 30px;
+  margin-inline-end: 30px;
 }
 
 .main-switch-wrapper {
-  margin-right: 60px;
+  margin-inline-end: 60px;
 }
 
 .is-container {
@@ -125,8 +125,8 @@ label {
 .abbreviation-right {
   display: flex;
   align-items: flex-end;
-  margin-left: 20px;
-  margin-right: 30px;
+  margin-inline-start: 20px;
+  margin-inline-end: 30px;
 }
 
 .abbreviation-right .btn {

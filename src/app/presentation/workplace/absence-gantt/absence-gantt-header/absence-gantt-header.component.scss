@@ -4,13 +4,13 @@
 
 .absence-reason {
   width: calc(100% - 200px);
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 
 .custom-slider {
   width: 180px;
   height: 40px !important;
-  padding-right: 20px;
+  padding-inline-end: 20px;
 }
 .custom-counter-span {
   padding-top: 5px;
@@ -23,7 +23,7 @@
   display: flex;
   width: auto;
   justify-content: right;
-  padding-right: 20px;
+  padding-inline-end: 20px;
   padding-top: 8px;
 }
 .ngx-slider .ngx-slider-pointer {
@@ -42,8 +42,8 @@
     top: auto;
     bottom: 0;
     background-color: #333;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
   }
 
   .custom-slider .ngx-slider .ngx-slider-pointer:after {
@@ -61,12 +61,12 @@
   .btn-setting {
     color: var(--paginationBorderColor);
     height: 30px;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     margin-top: 8px;
     border: 1px solid var(--paginationBorderColor);
     background-color: var(--backgroundColoPagination);
     app-icon-slider-grey {
-      margin-right: 3px;
+      margin-inline-end: 3px;
     }
   }
   .btn-setting:hover {
@@ -78,7 +78,7 @@
   }
   .pdf-export-button {
     margin-top: 5px;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     cursor: pointer;
     display: inline-block;
     padding: 5px;

@@ -48,15 +48,15 @@
 }
 
 .container-header-modal {
-  padding-left: 20px;
+  padding-inline-start: 20px;
   font-size: 16px;
   font-weight: 600;
   color: var(--colorHeadline);
 }
 
 .first-modal {
-  padding-left: 30px;
-  margin-right: 20px;
+  padding-inline-start: 30px;
+  margin-inline-end: 20px;
 }
 
 .modal-body .form-group {
@@ -167,21 +167,21 @@
 .red-font {
   font-size: 13px;
   margin-top: 10px;
-  padding-right: 30px;
+  padding-inline-end: 30px;
   color: var(--standartRedColor);
 }
 
 .blue-font {
   font-size: 13px;
   margin-top: 10px;
-  padding-right: 30px;
+  padding-inline-end: 30px;
   color: colors.$standartBlueColor;
 }
 
 .darkgrey-font {
   font-size: 13px;
   margin-top: 10px;
-  padding-right: 30px;
+  padding-inline-end: 30px;
   color: var(--colorLabel);
 }
 
@@ -206,7 +206,7 @@
 }
 
 .gap-modal {
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .color-red {

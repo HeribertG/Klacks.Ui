@@ -168,7 +168,7 @@
   .group-tree-toggle {
     width: 16px;
     flex-shrink: 0;
-    margin-right: 4px;
+    margin-inline-end: 4px;
 
     .toggle-icon {
       cursor: pointer;
@@ -192,6 +192,6 @@
   }
 
   .group-tree-children {
-    padding-left: 16px;
+    padding-inline-start: 16px;
   }
 }

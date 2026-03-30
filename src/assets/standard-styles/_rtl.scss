@@ -1,0 +1,46 @@
+// RTL utility mixins and CSS Logical Properties reference for bidirectional layout support.
+//
+// Migration guide — replace physical properties with logical equivalents:
+//
+//   margin-left                → margin-inline-start
+//   margin-right               → margin-inline-end
+//   padding-left               → padding-inline-start
+//   padding-right              → padding-inline-end
+//   left                       → inset-inline-start
+//   right                      → inset-inline-end
+//   text-align: left           → text-align: start
+//   text-align: right          → text-align: end
+//   border-left                → border-inline-start
+//   border-right               → border-inline-end
+//   float: left                → float: inline-start
+//   float: right               → float: inline-end
+//   border-top-left-radius     → border-start-start-radius
+//   border-top-right-radius    → border-start-end-radius
+//   border-bottom-left-radius  → border-end-start-radius
+//   border-bottom-right-radius → border-end-end-radius
+
+@mixin rtl-only {
+  :host-context([dir="rtl"]) & {
+    @content;
+  }
+}
+
+@mixin ltr-only {
+  :host-context([dir="ltr"]) & {
+    @content;
+  }
+}
+
+@mixin mirror-transform {
+  @include rtl-only {
+    transform: scaleX(-1);
+  }
+}
+
+@mixin flip-icon {
+  display: inline-block;
+
+  @include rtl-only {
+    transform: scaleX(-1);
+  }
+}

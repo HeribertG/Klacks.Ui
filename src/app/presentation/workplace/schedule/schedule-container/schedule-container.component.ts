@@ -33,6 +33,7 @@ import { CommonModule } from '@angular/common';
 import { ScheduleSectionComponent } from '../schedule-section/schedule-section.component';
 import { ShiftSectionComponent } from '../shift-section/shift-section.component';
 import { ShiftToScheduleDragDropService } from '../services/shift-to-schedule-drag-drop.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-schedule-container',
@@ -55,6 +56,8 @@ export class ScheduleContainerComponent {
   public horizontalSize = 205;
   public hScrollPosition = 0;
   public IsInfoVisible = false;
+
+  direction = inject(DirectionService).direction;
 
   public shiftDragService = inject(ShiftToScheduleDragDropService);
   private readonly destroyRef = inject(DestroyRef);

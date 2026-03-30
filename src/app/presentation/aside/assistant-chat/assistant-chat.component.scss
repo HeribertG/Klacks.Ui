@@ -80,7 +80,7 @@
   border: none;
   padding: 0;
   width: 100%;
-  text-align: left;
+  text-align: start;
 
   .current-model {
     display: flex;
@@ -123,8 +123,7 @@
   .dropdown-menu {
     position: absolute;
     top: calc(100% + 4px);
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     background: var(--backgroundColorCard);
     border: 1px solid colors.$CurrentGreyColor;
     border-radius: 6px;
@@ -157,7 +156,7 @@
 
       &.selected {
         background: rgba(colors.$standartGreenColor, 0.1);
-        border-left: 3px solid colors.$standartGreenColor;
+        border-inline-start: 3px solid colors.$standartGreenColor;
       }
 
       .model-info {
@@ -751,12 +750,12 @@
 @media (max-width: 480px) {
   .chat-container {
     width: calc(100vw - 24px);
-    right: 12px;
+    inset-inline-end: 12px;
     height: 70vh;
   }
 
   .chat-toggle-btn {
-    right: 12px;
+    inset-inline-end: 12px;
     bottom: 12px;
   }
 }

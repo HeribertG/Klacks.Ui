@@ -69,6 +69,7 @@ import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/dire
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -142,6 +143,8 @@ export class ScheduleSectionComponent
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
   public hScrollbarSize = 17;
+
+  direction = inject(DirectionService).direction;
 
   protected dataManagement = inject(DataManagementScheduleService);
   private scrollService = inject(ScrollService);

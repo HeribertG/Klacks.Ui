@@ -23,20 +23,20 @@
 }
 
 .gap {
-  margin-right: 30px;
+  margin-inline-end: 30px;
 }
 
 .container-mask {
   margin-top: 45px;
   display: flex;
   flex-direction: row;
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 
 .container-mask-date {
   display: flex;
   flex-direction: column;
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 textarea {
   height: 102px;
@@ -48,7 +48,7 @@ textarea {
 .container-mask-description {
   display: flex;
   flex-direction: row;
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 
 .input-group-own {
@@ -56,25 +56,25 @@ textarea {
 }
 
 .input-date {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
   width: 120px;
 }
 
 .span-date {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
 }
 
 .name-icon {
   width: 17px;
   height: 18px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 .input-group-flex {
   display: flex !important;
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 
 .btn {
@@ -140,7 +140,7 @@ option {
 
 .pdf-icon {
   margin-top: 10px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
   cursor: pointer;
   margin-top: 5px;
   display: inline-block;

@@ -6,14 +6,14 @@ $adjustment_constant_height: 5px;
 
 .icon {
   cursor: pointer;
-  margin-left: 38px;
+  margin-inline-start: 38px;
   padding-top: 30px;
 }
 
 .icon_group {
   cursor: pointer;
   margin-top: 80px;
-  margin-left: 38px;
+  margin-inline-start: 38px;
 }
 
 .icon_user {
@@ -52,7 +52,7 @@ $adjustment_constant_height: 5px;
 
 .imgIconContainer {
   cursor: pointer;
-  margin-left: 28px;
+  margin-inline-start: 28px;
   box-sizing: content-box;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -103,7 +103,7 @@ $adjustment_constant_height: 5px;
 .unread-badge {
   position: absolute;
   top: -6px;
-  right: -10px;
+  inset-inline-end: -10px;
   background-color: #dc3545;
   color: #fff;
   font-size: 10px;

@@ -12,4 +12,5 @@ export interface LanguageMetadata {
   name: string;
   displayName: string;
   speechLocale: string;
+  direction?: 'ltr' | 'rtl';
 }

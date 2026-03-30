@@ -75,6 +75,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
 import { ScheduleErrorListComponent } from './schedule-error-list/schedule-error-list.component';
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -123,6 +124,8 @@ export class ShiftSectionComponent
   shiftSurface!: GridSurfaceTemplateComponent;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+
+  direction = inject(DirectionService).direction;
 
   private dataManagement = inject(DataManagementScheduleService);
   private injector = inject(Injector);

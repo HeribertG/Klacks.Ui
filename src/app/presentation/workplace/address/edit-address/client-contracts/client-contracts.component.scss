@@ -12,7 +12,7 @@
 
 .select-icon {
   position: absolute;
-  right: 8px;
+  inset-inline-end: 8px;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -26,7 +26,7 @@ table select,
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  padding-right: 30px !important;
+  padding-inline-end: 30px !important;
   width: 100%;
 }
 
@@ -43,7 +43,7 @@ table input.is-invalid,
   border: 1px solid #dc3545 !important;
   background: transparent !important;
   background-image: none !important;
-  padding-right: 0.75rem !important;
+  padding-inline-end: 0.75rem !important;
   border-radius: 4px !important;
 }
 
@@ -52,7 +52,7 @@ table input.is-valid,
   border: 1px solid #198754 !important;
   background: transparent !important;
   background-image: none !important;
-  padding-right: 0.75rem !important;
+  padding-inline-end: 0.75rem !important;
   border-radius: 4px !important;
 }
 
@@ -73,7 +73,7 @@ table .input-group-text,
 }
 
 .sort-arrow {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   font-size: 12px;
 }
 

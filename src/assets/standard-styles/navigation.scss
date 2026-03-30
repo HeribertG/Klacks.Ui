@@ -6,12 +6,12 @@
 }
 
 .icon {
-  margin-left: 10px;
-  padding-right: 10px;
+  margin-inline-start: 10px;
+  padding-inline-end: 10px;
 }
 
 label {
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .dropdown-menu {
@@ -62,7 +62,7 @@ ul li:hover {
   flex-flow: column;
   width: 140px;
   height: 200px;
-  margin-left: 35px;
+  margin-inline-start: 35px;
   overflow-x: auto;
   font-size: 13px;
   background-color: var(--backgroundColorCard);
@@ -72,7 +72,7 @@ ul li:hover {
   display: flex;
   flex-flow: column;
   width: 140px;
-  margin-left: 25px;
+  margin-inline-start: 25px;
   font-size: 13px;
   overflow-x: auto;
   background-color: var(--backgroundColorCard);
@@ -84,7 +84,7 @@ ul li:hover {
   width: 200px;
   max-height: 200px;
   height: auto;
-  margin-left: 25px;
+  margin-inline-start: 25px;
   overflow-x: hidden;
   font-size: 13px;
   background-color: var(--backgroundColorCard);
@@ -96,7 +96,7 @@ ul li:hover {
   width: 180px;
   max-height: 200px;
   height: auto;
-  margin-left: 25px;
+  margin-inline-start: 25px;
   font-size: 13px;
   background-color: var(--backgroundColorCard);
 }
@@ -107,7 +107,7 @@ ul li:hover {
   width: 140px;
   max-height: 200px;
   height: auto;
-  margin-left: 25px;
+  margin-inline-start: 25px;
   overflow-x: auto;
   font-size: 13px;
   background-color: var(--backgroundColorCard);
@@ -119,7 +119,7 @@ ul li:hover {
   width: 200px;
   max-height: 200px;
   height: auto;
-  margin-left: 25px;
+  margin-inline-start: 25px;
   overflow-x: auto;
   font-size: 13px;
   background-color: var(--backgroundColorCard);

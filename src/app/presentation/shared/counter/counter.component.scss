@@ -13,8 +13,7 @@
   text-align: center;
   line-height: 30px;
   height: 30px;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-inline: 5px;
   font-weight: normal;
   font-size: 11pt;
 }
@@ -23,16 +22,16 @@
   width: 25px;
   border: 1px solid var(--paginationBorderColor);
   background-color: var(--backgroundColoPagination);
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+  border-start-start-radius: 5px;
+  border-end-start-radius: 5px;
 }
 
 .ownPaginationBlockRight {
   width: 25px;
   border: 1px solid var(--paginationBorderColor);
   background-color: var(--backgroundColoPagination);
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-start-end-radius: 5px;
+  border-end-end-radius: 5px;
 }
 
 .ownPaginationBlockRight:hover,

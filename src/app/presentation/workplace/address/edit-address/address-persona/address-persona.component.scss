@@ -12,7 +12,7 @@
 }
 
 .medium-width-tel {
-  margin-left: 20px;
+  margin-inline-start: 20px;
   width: 180px;
 }
 
@@ -38,11 +38,11 @@
 }
 
 .firstColumn {
-  margin-left: 30px;
+  margin-inline-start: 30px;
 }
 
 .gap {
-  margin-left: 20px;
+  margin-inline-start: 20px;
   width: 130px;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .add-button {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   margin-top: 5px;
   color: colors.$standartGreenColor;
   font-weight: 800;
@@ -72,7 +72,7 @@
 }
 
 .del-button {
-  margin-left: 5px;
+  margin-inline-start: 5px;
   margin-top: 5px;
   color: rosybrown;
   font-weight: 800;
@@ -85,17 +85,17 @@
   background-color: #e5eaee;
   color: black;
   font-size: 13px;
-  margin-right: 20px;
+  margin-inline-end: 20px;
 }
 
 .zip {
   width: 90px;
-  margin-right: 20px;
+  margin-inline-end: 20px;
 }
 
 .gender {
   width: 160px;
-  margin-right: 20px;
+  margin-inline-end: 20px;
 }
 
 .place {
@@ -131,7 +131,7 @@ select.is-invalid {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 
 .map-btn-streetview {
@@ -141,7 +141,7 @@ select.is-invalid {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 
 select.is-valid {

@@ -8,7 +8,7 @@
 @use "../../../../../../assets/standard-styles/menu.scss";
 
 .entry-info {
-  padding-right: 20px;
+  padding-inline-end: 20px;
   margin-top: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -22,7 +22,7 @@
 .red-font {
   font-size: 13px;
   margin-top: 10px;
-  padding-right: 30px;
+  padding-inline-end: 30px;
   color: var(--standartRedColor);
 }
 
@@ -32,7 +32,7 @@ input[type="checkbox"]:indeterminate {
 }
 
 .ownStyle-button-disabled {
-  margin-right: 30px;
+  margin-inline-end: 30px;
   padding: 0px;
   padding-top: 3px;
   width: 50px;
@@ -44,7 +44,7 @@ input[type="checkbox"]:indeterminate {
 }
 
 .ownStyle-button {
-  margin-right: 30px;
+  margin-inline-end: 30px;
   padding: 0px;
   padding-top: 3px;
   width: 50px;

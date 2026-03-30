@@ -6,8 +6,8 @@
 
 .first {
   padding-top: 10px;
-  margin-left: 30px;
-  padding-right: 40px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
 }
 
 .my-password {
@@ -23,10 +23,10 @@
   .form-control {
     flex: 1;
     height: 32px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+    border-start-start-radius: 5px;
+    border-end-start-radius: 5px;
   }
 
   .input-group-text {
@@ -36,10 +36,10 @@
     width: 45px;
     height: 32px;
     border: 1px solid #ced4da;
-    border-left: none;
+    border-inline-start: none;
     background-color: #e9ecef;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-start-end-radius: 5px;
+    border-end-end-radius: 5px;
     cursor: pointer;
 
     &:hover {
@@ -82,7 +82,7 @@ select {
   .test-button-container {
     display: flex;
     justify-content: flex-end;
-    margin-right: 40px;
+    margin-inline-end: 40px;
   }
 
   .test-email-button {
@@ -110,16 +110,16 @@ select {
 }
 
 .firstColumn {
-  margin-left: 30px;
+  margin-inline-start: 30px;
 }
 
 .secondColumn {
-  margin-left: 40px;
+  margin-inline-start: 40px;
 }
 
 .password-input {
-  border-top-left-radius: 5px !important;
-  border-bottom-left-radius: 5px !important;
+  border-start-start-radius: 5px !important;
+  border-end-start-radius: 5px !important;
 }
 
 .password-label {

@@ -18,7 +18,7 @@
   display: flex;
   flex-flow: row;
   height: fit-content;
-  margin-right: 15px;
+  margin-inline-end: 15px;
   background-color: var(--backgroundColorWorkplace);
 }
 
@@ -29,7 +29,7 @@
 .name-icon {
   width: 17px;
   height: 18px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 [draggable="true"]:hover {

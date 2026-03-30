@@ -67,7 +67,7 @@
   flex-direction: column;
   width: 220px;
   flex-shrink: 0;
-  border-right: 1px solid var(--gridColorLine);
+  border-inline-end: 1px solid var(--gridColorLine);
   overflow: hidden;
 }
 
@@ -82,7 +82,7 @@
 .editor-right-panel {
   width: 220px;
   flex-shrink: 0;
-  border-left: 1px solid var(--gridColorLine);
+  border-inline-start: 1px solid var(--gridColorLine);
   overflow: hidden;
 }
 

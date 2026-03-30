@@ -94,6 +94,7 @@ import { MapRenderingService } from './services/map-rendering.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
 import { ContainerTemplateAbsenceService } from './services/container-template-absence.service';
 import { ContainerTemplateDragDropService } from './services/container-template-drag-drop.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-container-template',
@@ -184,6 +185,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     },
     { value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
   ];
+
+  direction = inject(DirectionService).direction;
 
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);

@@ -4,8 +4,8 @@
 
 .first {
   padding-top: 10px;
-  margin-left: 30px;
-  padding-right: 40px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
 }
 
 .openroute-info {
@@ -36,8 +36,8 @@
   }
 
   .api-input {
-    border-top-left-radius: 5px !important;
-    border-bottom-left-radius: 5px !important;
+    border-start-start-radius: 5px !important;
+    border-end-start-radius: 5px !important;
   }
 
   .input-group-text {
@@ -46,10 +46,10 @@
     justify-content: center;
     width: 45px;
     border: 1px solid #ced4da;
-    border-left: none;
+    border-inline-start: none;
     background-color: #e9ecef;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-start-end-radius: 5px;
+    border-end-end-radius: 5px;
     cursor: pointer;
 
     &:hover {

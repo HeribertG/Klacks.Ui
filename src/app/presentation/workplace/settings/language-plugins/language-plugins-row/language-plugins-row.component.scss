@@ -3,7 +3,7 @@
 @use "../../../../../../assets/standard-styles/colors.scss" as colors;
 
 .first {
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 
 .custom-control-inline {
@@ -22,7 +22,7 @@
 span {
   font-size: 13px;
   color: var(--colorLabel);
-  margin-right: 15px;
+  margin-inline-end: 15px;
 }
 
 .col-language {
@@ -60,7 +60,7 @@ span {
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  padding-right: 20px;
+  padding-inline-end: 20px;
 }
 
 .status-badge {

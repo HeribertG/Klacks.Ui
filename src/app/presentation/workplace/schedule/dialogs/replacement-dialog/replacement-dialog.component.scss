@@ -50,8 +50,7 @@
       .search-results {
         position: absolute;
         top: 100%;
-        left: 0;
-        right: 0;
+        inset-inline: 0;
         max-height: 200px;
         overflow-y: auto;
         background-color: var(--backgroundColorCard);

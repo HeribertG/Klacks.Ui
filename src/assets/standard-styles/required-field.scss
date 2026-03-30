@@ -1,7 +1,7 @@
 /* Required field asterisk styling */
 .required-asterisk {
   font-weight: bold;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 /* Invalid field styling */
@@ -53,5 +53,5 @@ label:has(.required-asterisk) {
 
 .validation-summary ul {
   margin-bottom: 0;
-  padding-left: 1.25rem;
+  padding-inline-start: 1.25rem;
 }

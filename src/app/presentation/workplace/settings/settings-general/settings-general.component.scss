@@ -6,8 +6,8 @@
 
 .first {
   padding-top: 10px;
-  margin-left: 30px;
-  padding-right: 40px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
 }
 
 .fileupload {
@@ -23,7 +23,7 @@
   background-color: var(--backgroundColorCard);
   height: 150px;
   width: 180px;
-  margin-left: 10px;
+  margin-inline-start: 10px;
   cursor: pointer;
   border: 2px dashed #b6b6c3;
   border-radius: 6px;
@@ -44,7 +44,7 @@
 .image-container {
   height: 200px;
   width: 200px;
-  margin-right: 50px;
+  margin-inline-end: 50px;
 }
 
 .image-container-show {
@@ -54,7 +54,7 @@
   border-radius: 6px;
   margin-bottom: 25px;
   background-color: var(--backgroundColorCard);
-  margin-right: 50px;
+  margin-inline-end: 50px;
 }
 
 .row-line {
@@ -66,12 +66,12 @@
   overflow-x: hidden;
   overflow-y: hidden;
   margin-top: 40px;
-  margin-left: 65px;
+  margin-inline-start: 65px;
   width: 64px;
   height: 64px;
 }
 
 .delete-button-icon {
-  margin-left: 30px;
+  margin-inline-start: 30px;
   margin-top: 60px;
 }

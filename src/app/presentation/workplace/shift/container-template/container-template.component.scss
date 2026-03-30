@@ -290,9 +290,7 @@
               width: 50px;
               max-width: 50px;
               position: sticky;
-              right: 0;
-
-              right: 0;
+              inset-inline-end: 0;
               background-color: var(--backgroundColorCard) !important;
               text-align: center;
               cursor: pointer;
@@ -314,7 +312,7 @@
             th {
               @extend .table-header;
               padding: 0.75rem 1rem;
-              text-align: left;
+              text-align: start;
               white-space: nowrap;
               text-transform: uppercase;
               background-color: var(--backgroundColorCard);
@@ -329,7 +327,7 @@
               &.action-column1 {
                 position: sticky;
                 top: 0;
-                right: 0;
+                inset-inline-end: 0;
                 z-index: 15;
                 min-width: 50px;
                 width: 50px;
@@ -362,7 +360,7 @@
                 background-color: var(
                   --backgroundColoPaginationSelected
                 ) !important;
-                border-left: 3px solid var(--paginationBorderColorSelected);
+                border-inline-start: 3px solid var(--paginationBorderColorSelected);
 
                 .action-column {
                   background-color: var(
@@ -561,7 +559,7 @@
             th {
               @extend .table-header;
               padding: 0.75rem 1rem;
-              text-align: left;
+              text-align: start;
               white-space: nowrap;
               text-transform: uppercase;
               background-color: var(--backgroundColorCard);
@@ -588,7 +586,7 @@
                 background-color: var(
                   --backgroundColoPaginationSelected
                 ) !important;
-                border-left: 3px solid var(--paginationBorderColorSelected);
+                border-inline-start: 3px solid var(--paginationBorderColorSelected);
 
                 &:hover {
                   background-color: var(
@@ -658,7 +656,7 @@
 
   .icon-table {
     padding-top: 15px;
-    padding-right: 30px;
+    padding-inline-end: 30px;
   }
 
   .tolerance-slider {
@@ -666,7 +664,7 @@
     align-items: center;
     gap: 0.5rem;
     padding-top: 10px;
-    padding-right: 20px;
+    padding-inline-end: 20px;
     min-width: 220px;
     height: 40px !important;
 
@@ -689,8 +687,8 @@
       top: auto;
       bottom: 0;
       background-color: #333;
-      border-top-left-radius: 3px;
-      border-top-right-radius: 3px;
+      border-start-start-radius: 3px;
+      border-start-end-radius: 3px;
     }
 
     .custom-slider .ngx-slider .ngx-slider-pointer:after {

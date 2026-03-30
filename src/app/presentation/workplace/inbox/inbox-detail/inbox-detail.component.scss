@@ -24,7 +24,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 12px;
+  margin-inline-end: 12px;
 }
 
 .detail-actions {
@@ -88,7 +88,7 @@
   font-weight: 600;
   color: var(--emailReaderMetaLabel);
   min-width: 60px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 .meta-value {

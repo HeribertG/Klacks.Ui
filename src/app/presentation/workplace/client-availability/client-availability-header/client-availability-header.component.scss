@@ -19,7 +19,7 @@
     .grouping-slider {
       width: 180px;
       height: 40px !important;
-      padding-right: 20px;
+      padding-inline-end: 20px;
     }
 
   }
@@ -32,7 +32,7 @@
   font-size: 28px;
   color: var(--standartTextColor);
   margin-top: 8px;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 
 .btn-nav {
@@ -59,8 +59,8 @@
     top: auto;
     bottom: 0;
     background-color: #333;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
   }
 
   .grouping-slider .ngx-slider .ngx-slider-pointer:after {
@@ -74,7 +74,7 @@
 
 .grouping-slider {
   height: 30px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
   margin-top: 8px;
   background-color: transparent;
 }

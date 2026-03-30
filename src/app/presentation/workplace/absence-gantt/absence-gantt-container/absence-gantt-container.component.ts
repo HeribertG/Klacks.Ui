@@ -25,6 +25,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-absence-gantt-container',
@@ -54,6 +55,8 @@ export class AbsenceGanttContainerComponent {
   vScrollbar = viewChild.required<VScrollbarComponent>('vScrollbar');
   absenceMask = viewChild.required<AbsenceGanttMaskComponent>('absenceMask');
   contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+
+  direction = inject(DirectionService).direction;
 
   private dataManagementBreakService = inject(DataManagementBreakPlaceholderService);
   private workplaceStateService = inject(WorkplaceStateService);

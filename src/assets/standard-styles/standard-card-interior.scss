@@ -7,7 +7,7 @@
 
 .container-header {
   padding-top: 25px;
-  padding-left: 30px;
+  padding-inline-start: 30px;
   font-size: 16px;
   font-weight: 600;
   color: var(--colorHeadline);
@@ -17,7 +17,7 @@
 .container-subline {
   margin-top: 4px;
   margin-bottom: -8px;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   font-size: 12px;
   font-weight: 600;
   color: var(--colorSubHeadline);
@@ -41,8 +41,8 @@
 
 .first {
   padding-top: 10px;
-  margin-left: 30px;
-  padding-right: 40px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
 }
 
 button {

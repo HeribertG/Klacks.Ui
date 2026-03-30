@@ -74,7 +74,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding-left: 8px;
+    padding-inline-start: 8px;
     background-color: var(--backgroundColorSubCards);
 
     .btn-filter {
@@ -95,13 +95,13 @@
     }
 
     .shift-row-count {
-      margin-left: 8px;
+      margin-inline-start: 8px;
       font-size: 13px;
       color: var(--colorLabel);
     }
 
     .shift-pdf-button {
-      margin-right: 8px;
+      margin-inline-end: 8px;
       cursor: pointer;
       display: inline-block;
       padding: 3px;

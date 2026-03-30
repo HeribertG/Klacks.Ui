@@ -11,6 +11,7 @@ import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-inbox-home',
@@ -21,6 +22,8 @@ import { SearchService } from 'src/app/application/services/search.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxHomeComponent implements OnInit {
+  direction = inject(DirectionService).direction;
+
   private inboxService = inject(InboxService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);

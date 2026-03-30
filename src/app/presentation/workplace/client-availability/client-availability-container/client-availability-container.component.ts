@@ -1,13 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, computed, signal, viewChild,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, inject,
 } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
 import { ClientAvailabilitySurfaceComponent } from '../client-availability-surface/client-availability-surface.component';
 import { ClientAvailabilityRowHeaderComponent } from '../client-availability-row-header/client-availability-row-header.component';
+import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
   selector: 'app-client-availability-container',
@@ -27,6 +28,8 @@ import { ClientAvailabilityRowHeaderComponent } from '../client-availability-row
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientAvailabilityContainerComponent {
+  direction = inject(DirectionService).direction;
+
   surface = viewChild.required<ClientAvailabilitySurfaceComponent>('surface');
   rowHeader = viewChild.required<ClientAvailabilityRowHeaderComponent>('rowHeader');
 

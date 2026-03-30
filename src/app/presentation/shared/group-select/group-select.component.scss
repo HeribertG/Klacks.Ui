@@ -16,7 +16,7 @@
 
   .required-marker {
     color: #e53935;
-    margin-left: 4px;
+    margin-inline-start: 4px;
   }
 }
 
@@ -64,7 +64,7 @@
   }
 
   .group-select-icon {
-    margin-left: 8px;
+    margin-inline-start: 8px;
     display: flex;
     align-items: center;
   }
@@ -74,8 +74,7 @@
 .group-select-dropdown {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   z-index: 1000;
   margin-top: 4px;
   max-height: 300px;
@@ -95,7 +94,7 @@
 // Grundlegende Baum-Stile
 .group-tree-root {
   list-style: none;
-  padding-left: 0;
+  padding-inline-start: 0;
   margin-bottom: 0;
 }
 
@@ -108,7 +107,7 @@
 .group-tree-children {
   ul {
     list-style: none;
-    padding-left: 0;
+    padding-inline-start: 0;
     margin-bottom: 0;
   }
 }
@@ -153,7 +152,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   cursor: pointer;
 
   .option-circle {
@@ -196,7 +195,7 @@
 }
 
 app-icon-refresh-grey {
-  margin-right: 30px;
+  margin-inline-end: 30px;
 }
 
 .all-groups-option {

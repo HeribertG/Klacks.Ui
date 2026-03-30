@@ -15,8 +15,8 @@
 .palette-panel {
   width: 220px;
   min-width: 220px;
-  border-right: 1px solid var(--cardBorderColor);
-  padding-right: 12px;
+  border-inline-end: 1px solid var(--cardBorderColor);
+  padding-inline-end: 12px;
   overflow-y: auto;
   max-height: 500px;
 }
@@ -54,7 +54,7 @@
   }
 
   .badge {
-    margin-left: auto;
+    margin-inline-start: auto;
     font-size: 10px;
     background: var(--backgroundColorFocus);
     color: var(--colorLabel);
@@ -64,7 +64,7 @@
 }
 
 .palette-fields {
-  padding-left: 18px;
+  padding-inline-start: 18px;
 }
 
 .palette-field {
@@ -282,7 +282,7 @@
   .chip-actions {
     display: flex;
     gap: 2px;
-    margin-left: 4px;
+    margin-inline-start: 4px;
   }
 }
 
@@ -432,7 +432,7 @@
 
   i {
     font-size: 10px;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 
@@ -623,7 +623,7 @@
 
   i {
     font-size: 10px;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 
@@ -759,16 +759,16 @@
   border-top: 2px solid var(--standartTextColor);
 }
 
-.border-right-icon {
-  border-right: 2px solid var(--standartTextColor);
+.border-inline-end-icon {
+  border-inline-end: 2px solid var(--standartTextColor);
 }
 
 .border-bottom-icon {
   border-bottom: 2px solid var(--standartTextColor);
 }
 
-.border-left-icon {
-  border-left: 2px solid var(--standartTextColor);
+.border-inline-start-icon {
+  border-inline-start: 2px solid var(--standartTextColor);
 }
 
 // --- Table Footer ---
@@ -831,13 +831,13 @@
 // --- Formula Fields ---
 
 .formula-column {
-  border-left: 3px solid #9b59b6;
+  border-inline-start: 3px solid #9b59b6;
 
   .formula-prefix {
     font-size: 9px;
     font-weight: 600;
     color: #9b59b6;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 
@@ -876,24 +876,24 @@
 }
 
 .formula-chip {
-  border-left: 3px solid #9b59b6;
+  border-inline-start: 3px solid #9b59b6;
 
   .formula-prefix {
     font-size: 9px;
     font-weight: 600;
     color: #9b59b6;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 
 .formula-add-btn {
-  margin-left: 6px;
+  margin-inline-start: 6px;
 
   .formula-icon {
     font-size: 10px;
     font-weight: 600;
     color: #9b59b6;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 }
 
@@ -928,10 +928,7 @@
 
 .formula-editor-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;

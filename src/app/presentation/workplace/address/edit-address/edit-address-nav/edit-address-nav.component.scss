@@ -7,8 +7,8 @@
 }
 
 .icon {
-  margin-left: 10px;
-  padding-right: 10px;
+  margin-inline-start: 10px;
+  padding-inline-end: 10px;
 }
 
 .list-State {
@@ -39,7 +39,7 @@ ul li {
   flex-flow: column;
   width: 140px;
   height: 200px;
-  margin-left: 35px;
+  margin-inline-start: 35px;
   overflow-x: hidden;
 }
 
@@ -69,16 +69,16 @@ button {
   width: 30px;
   border: 1px solid var(--paginationBorderColor);
   background-color: var(--backgroundColoPagination);
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+  border-start-start-radius: 5px;
+  border-end-start-radius: 5px;
 }
 
 .onwPaginationB lockRight {
   width: 30px;
   border: 1px solid var(--paginationBorderColor);
   background-color: var(--backgroundColoPagination);
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-start-end-radius: 5px;
+  border-end-end-radius: 5px;
 }
 
 .onwPaginationBlockRight,
@@ -97,10 +97,10 @@ button {
   color: var(--colorFindClientList) !important;
   background-color: var(--backgroundFindClientList) !important;
   border-top: 1px solid var(--backgroundFindClientList);
-  border-left: 1px solid var(--backgroundFindClientList);
+  border-inline-start: 1px solid var(--backgroundFindClientList);
   padding: 5px;
   border-bottom: 1px solid var(--lightBorderColorFindClientList);
-  border-right: 1px solid var(--lightBorderColorFindClientList);
+  border-inline-end: 1px solid var(--lightBorderColorFindClientList);
   border-radius: 5px;
   margin-bottom: 3px;
 }
@@ -108,5 +108,5 @@ button {
 .onwListButton.onwPaginationBlockRight {
   background-color: var(--backgroundHoverFindClientList) !important;
   border-top: 1px solid var(--darkBorderColorFindClientList);
-  border-left: 1px solid var(--darkBorderColorFindClientList);
+  border-inline-start: 1px solid var(--darkBorderColorFindClientList);
 }

@@ -9,7 +9,7 @@
   font-size: 28px;
   color: var(--standartTextColor);
   margin-top: 8px;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 
 .btn-nav {
@@ -28,7 +28,7 @@
 .custom-slider {
   width: 180px;
   height: 40px !important;
-  padding-right: 20px;
+  padding-inline-end: 20px;
 }
 
 .ngx-slider .ngx-slider-pointer {
@@ -47,8 +47,8 @@
     top: auto; /* to remove the default positioning */
     bottom: 0;
     background-color: #333;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
   }
 
   .custom-slider .ngx-slider .ngx-slider-pointer:after {
@@ -67,7 +67,7 @@
   .btn-setting {
     color: var(--paginationBorderColor);
     height: 30px;
-    margin-right: 30px;
+    margin-inline-end: 30px;
     margin-top: 8px;
     border: 1px solid var(--paginationBorderColor);
     background-color: var(--backgroundColoPagination);
@@ -80,7 +80,7 @@
 
 .custom-slider {
   height: 30px;
-  margin-right: 10px;
+  margin-inline-end: 10px;
   margin-top: 8px;
   background-color: transparent;
 }
@@ -102,7 +102,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -124,7 +124,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -151,7 +151,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -173,7 +173,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -195,7 +195,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -217,7 +217,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  margin-left: 30px;
+  margin-inline-start: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;

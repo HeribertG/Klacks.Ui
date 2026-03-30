@@ -1,4 +1,4 @@
-<as-split id="absence-gantt-main-split" direction="horizontal">
+<as-split id="absence-gantt-main-split" direction="horizontal" [dir]="direction()">
   <!-- (Haupt) Split-Bereich -->
   <as-split-area id="absence-gantt-main-area">
     <as-split
@@ -17,6 +17,7 @@
           #splitElHorizontal
           [gutterSize]="6"
           direction="horizontal"
+          [dir]="direction()"
           aria-orientation="horizontal"
           aria-label="as-split"
           unit="pixel"

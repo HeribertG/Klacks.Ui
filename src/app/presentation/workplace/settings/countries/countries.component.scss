@@ -3,8 +3,8 @@
 @use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 .add-button {
-  margin-left: 140px;
-  padding-right: 150px;
+  margin-inline-start: 140px;
+  padding-inline-end: 150px;
   font-size: 13px;
   text-decoration: underline;
   color: colors.$standartGreenColor;

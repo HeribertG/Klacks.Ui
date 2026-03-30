@@ -1,7 +1,7 @@
 @use "../../../../../../assets/standard-styles/colors.scss";
 
 .first {
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 
 .custom-control-inline {
@@ -16,7 +16,7 @@ label {
   font-weight: 500;
   font-size: 13px;
   margin-bottom: 0;
-  margin-right: 15px;
+  margin-inline-end: 15px;
 }
 
 .col-name {

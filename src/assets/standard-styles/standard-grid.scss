@@ -2,8 +2,7 @@
 
 .container-table {
   padding-top: 25px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-inline: 30px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gridColorLine);
@@ -12,8 +11,7 @@
 
 .container-table-max {
   padding-top: 25px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-inline: 30px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gridColorLine);
@@ -41,8 +39,7 @@
 
 .container-table-borderless-no-height {
   padding-top: 25px;
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-inline: 30px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gridColorLine);
@@ -100,7 +97,7 @@
 }
 
 .gap {
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .table-cell {
@@ -127,8 +124,7 @@ t .table-cell-top {
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 0.5px solid var(--colorLine);
-  border-right: 0.5px solid var(--colorLine);
-  border-left: 0.5px solid var(--colorLine);
+  border-inline: 0.5px solid var(--colorLine);
 }
 
 .table-cell-small-border-with-bottom {
@@ -136,8 +132,7 @@ t .table-cell-top {
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 1px solid var(--colorLine);
-  border-right: 0.5px solid var(--colorLine);
-  border-left: 0.5px solid var(--colorLine);
+  border-inline: 0.5px solid var(--colorLine);
 }
 
 .table-cell-empty {
@@ -197,7 +192,7 @@ t .table-cell-top {
 }
 
 .icon-padding {
-  padding-right: 10px;
+  padding-inline-end: 10px;
 }
 
 .header-right {
@@ -275,7 +270,7 @@ t .table-cell-top {
   cursor: move;
 
   .handle {
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
 }
 

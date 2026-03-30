@@ -2,7 +2,7 @@
 
 ul {
   list-style: none;
-  margin-left: -10px;
+  margin-inline-start: -10px;
 }
 
 .menu-container {
@@ -15,7 +15,7 @@ ul {
   padding: 4px;
   position: absolute;
   border-bottom: 1px solid var(--cardBorderColor);
-  border-right: 1px solid var(--cardBorderColor);
+  border-inline-end: 1px solid var(--cardBorderColor);
   animation-duration: 0s;
   z-index: 999;
 }

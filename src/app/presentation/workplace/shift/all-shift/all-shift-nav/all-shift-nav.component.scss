@@ -6,8 +6,8 @@
 }
 
 .icon {
-  margin-left: 10px;
-  padding-right: 10px;
+  margin-inline-start: 10px;
+  padding-inline-end: 10px;
 }
 
 .list-State {
@@ -86,7 +86,7 @@ ul li {
   white-space: normal;
   word-wrap: break-word;
   max-width: 100%;
-  padding-left: 20px;
+  padding-inline-start: 20px;
   margin-bottom: 8px;
 }
 
