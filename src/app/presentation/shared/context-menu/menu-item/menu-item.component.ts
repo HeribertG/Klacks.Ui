@@ -29,7 +29,10 @@ export class MenuItemComponent {
   @Input() menuItem: MenuItem | undefined;
   @Output() hasClicked = new EventEmitter<string>();
 
+  private readonly SUBMENU_OVERLAP = 6;
+  private readonly SUBMENU_CLOSE_DELAY = 150;
   private myTimer = new Timer();
+  private closeTimer = new Timer();
 
   onClick(): void {
     if (this.menuItem?.disabled) {
@@ -46,6 +49,7 @@ export class MenuItemComponent {
     }
   }
   onMouseOver(): void {
+    this.closeTimer.stop();
     if (this.menuItem?.hasMenu && !this.menuItem?.disabled) {
       this.myTimer.start(() => {
         this.myTimer.stop();
@@ -55,11 +59,18 @@ export class MenuItemComponent {
   }
   onMouseLeave(): void {
     this.myTimer.stop();
-    if (this.subMenu) {
-      if (this.subMenu.isVisible) {
-        this.subMenu.closeMenu();
-      }
+    if (this.subMenu?.isVisible) {
+      this.closeTimer.start(() => {
+        this.closeTimer.stop();
+        if (this.subMenu?.isVisible) {
+          this.subMenu.closeMenu();
+        }
+      }, this.SUBMENU_CLOSE_DELAY);
     }
+  }
+
+  onSubMenuEnter(): void {
+    this.closeTimer.stop();
   }
 
   onColor(value: string | undefined): string {
@@ -83,6 +94,10 @@ export class MenuItemComponent {
     if (event.cancelBubble) event.cancelBubble = true;
   }
 
+  get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   private show(): void {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
     const boundingRect = nativeElement.getBoundingClientRect();
@@ -91,8 +106,11 @@ export class MenuItemComponent {
       if (this.subMenu.isVisible) {
         return;
       }
+      const openX = this.isRtl
+        ? boundingRect.left + this.SUBMENU_OVERLAP
+        : boundingRect.right - this.SUBMENU_OVERLAP;
       this.subMenu.openMenu(
-        boundingRect.right + 4,
+        openX,
         boundingRect.top,
         boundingRect.width,
         boundingRect.height

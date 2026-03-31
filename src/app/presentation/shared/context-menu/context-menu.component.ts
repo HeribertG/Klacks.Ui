@@ -55,7 +55,9 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     if (this.main) {
-      this.main.openMenu(event.clientX - 4, event.clientY - 4, 0, 0);
+      const isRtl = document.documentElement.dir === 'rtl';
+      const openX = isRtl ? event.clientX + 4 : event.clientX - 4;
+      this.main.openMenu(openX, event.clientY - 4, 0, 0);
     }
   }
   closeMenu(force = false) {

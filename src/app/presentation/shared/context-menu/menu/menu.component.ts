@@ -5,9 +5,11 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   forwardRef,
   inject,
   Input,
+  Output,
   ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
@@ -31,6 +33,7 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
 })
 export class MenuComponent {
   @Input() menu: Menu | undefined;
+  @Output() mouseEntered = new EventEmitter<void>();
   @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
 
   private cdr = inject(ChangeDetectorRef);
@@ -40,6 +43,10 @@ export class MenuComponent {
   rightPanelStyle: any = {};
   parentRect = new Rectangle();
   private animationFrameId: number | null = null;
+
+  private get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
 
   openMenu(
     clientX: number,
@@ -81,6 +88,10 @@ export class MenuComponent {
     this.cdr.markForCheck();
   }
 
+  onMouseEnter(): void {
+    this.mouseEntered.emit();
+  }
+
   stopEvent(event: any): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
@@ -115,8 +126,14 @@ export class MenuComponent {
         y = -top;
       }
 
-      if (left + width >= viewportWidth) {
-        x = -(this.parentRect.width + width) + 4;
+      if (this.isRtl) {
+        if (left - width < 0) {
+          x = this.parentRect.width + width - 4;
+        }
+      } else {
+        if (left + width >= viewportWidth) {
+          x = -(this.parentRect.width + width) + 4;
+        }
       }
     } else {
       if (top + height >= viewportHeight) {
@@ -127,8 +144,14 @@ export class MenuComponent {
         y = -top;
       }
 
-      if (left + width >= viewportWidth) {
-        x = -width + 8;
+      if (this.isRtl) {
+        if (left - width < 0) {
+          x = width - 8;
+        }
+      } else {
+        if (left + width >= viewportWidth) {
+          x = -width + 8;
+        }
       }
     }
 
@@ -137,20 +160,22 @@ export class MenuComponent {
 
   private recalcPosition(): void {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
-    const width = nativeElement.children[0].clientWidth + 4;
-    const height = nativeElement.children[0].clientHeight + 4;
+    const menuWidth = nativeElement.children[0].clientWidth + 4;
+    const menuHeight = nativeElement.children[0].clientHeight + 4;
 
-    // is Menu-Div is visible, ergo if it have width and height
-    if (width > 0 && height > 0) {
+    if (menuWidth > 0 && menuHeight > 0) {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId);
         this.animationFrameId = null;
       }
       const res = this.isElementInViewport();
+      const leftPos = this.isRtl
+        ? this.parentRect.left - menuWidth + res[0]
+        : this.parentRect.left + res[0];
       this.rightPanelStyle = {
         display: 'block',
         position: 'fixed',
-        'left.px': this.parentRect.left + res[0],
+        'left.px': leftPos,
         'top.px': this.parentRect.bottom + res[1],
         opacity: 1,
       };

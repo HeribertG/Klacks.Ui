@@ -39,9 +39,9 @@
 
     <div class="menu-item-arrow">
       @if (menuItem.hasMenu) {
-      <i class="fas fa-regular fa-angle-right"></i>
+      <i class="fas fa-regular" [class.fa-angle-right]="!isRtl" [class.fa-angle-left]="isRtl"></i>
       } @if (menuItem.menu && menuItem.hasMenu) {
-      <app-menu [menu]="menuItem.menu" #subMenu></app-menu>
+      <app-menu [menu]="menuItem.menu" (mouseEntered)="onSubMenuEnter()" #subMenu></app-menu>
       }
     </div>
   </div>

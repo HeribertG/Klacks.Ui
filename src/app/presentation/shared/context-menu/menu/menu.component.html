@@ -4,6 +4,7 @@
   [ngStyle]="rightPanelStyle"
   (appClickOutside)="closeMenu()"
   (mouseleave)="closeMenu()"
+  (mouseenter)="onMouseEnter()"
   (contextmenu)="stopEvent($event)"
 >
   @for (item of menu.list; track item.name || $index) {
