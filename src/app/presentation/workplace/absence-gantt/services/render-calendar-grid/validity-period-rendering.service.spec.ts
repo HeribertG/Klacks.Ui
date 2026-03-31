@@ -7,6 +7,7 @@ import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('ValidityPeriodRenderingService', () => {
     let service: ValidityPeriodRenderingService;
@@ -14,6 +15,7 @@ describe('ValidityPeriodRenderingService', () => {
     let mockGridColors: any;
     let mockCalendarSetting: any;
     let mockCalculationService: any;
+    let mockCoord: any;
     let mockRowCtx: any;
 
     beforeEach(() => {
@@ -42,6 +44,12 @@ describe('ValidityPeriodRenderingService', () => {
             calcDaysPerYear: vi.fn()
         };
 
+        mockCoord = {
+            spanLeft: vi.fn((start: number, _end: number) => start * mockCalendarSetting.cellWidth),
+            spanRight: vi.fn((_start: number, end: number) => (end + 1) * mockCalendarSetting.cellWidth),
+            update: vi.fn(),
+        };
+
         TestBed.configureTestingModule({
             providers: [
                 ValidityPeriodRenderingService,
@@ -54,6 +62,10 @@ describe('ValidityPeriodRenderingService', () => {
                 {
                     provide: CalendarCalculationService,
                     useValue: mockCalculationService,
+                },
+                {
+                    provide: GanttCoordinateService,
+                    useValue: mockCoord,
                 },
             ],
         });

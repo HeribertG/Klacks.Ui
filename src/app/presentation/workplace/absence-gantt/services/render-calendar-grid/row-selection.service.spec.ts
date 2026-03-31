@@ -11,6 +11,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 import { signal } from '@angular/core';
 import { BreakPlaceholder } from 'src/app/domain/models/break/break-class';
 
@@ -24,6 +25,7 @@ describe('RowSelectionService', () => {
     let mockCalendarSetting: any;
     let mockCalculationService: any;
     let mockBreakRenderingService: any;
+    let mockCoord: any;
     let mockCtx: any;
     let mockRows: number;
     let mockFirstVisibleRow: number;
@@ -127,6 +129,16 @@ describe('RowSelectionService', () => {
             drawBreakSelectBorderInternAnchor: vi.fn()
         };
 
+        mockCoord = {
+            scrollDx: 0,
+            columnX: vi.fn((col: number) => col * mockCalendarSetting.cellWidth),
+            columnRight: vi.fn((col: number) => (col + 1) * mockCalendarSetting.cellWidth),
+            spanLeft: vi.fn((start: number, _end: number) => start * mockCalendarSetting.cellWidth),
+            spanRight: vi.fn((_start: number, end: number) => (end + 1) * mockCalendarSetting.cellWidth),
+            mouseToColumn: vi.fn((x: number) => Math.floor(x / mockCalendarSetting.cellWidth)),
+            update: vi.fn(),
+        };
+
         TestBed.configureTestingModule({
             providers: [
                 RowSelectionService,
@@ -152,6 +164,10 @@ describe('RowSelectionService', () => {
                 {
                     provide: BreakRenderingService,
                     useValue: mockBreakRenderingService,
+                },
+                {
+                    provide: GanttCoordinateService,
+                    useValue: mockCoord,
                 },
             ],
         });

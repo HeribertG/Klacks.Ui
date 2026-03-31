@@ -9,6 +9,7 @@ import { HolidayCollectionService } from '../../../../shared/grid/services/holid
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('CalendarCalculationService', () => {
     let service: CalendarCalculationService;
@@ -97,6 +98,18 @@ describe('CalendarCalculationService', () => {
                 {
                     provide: DataManagementBreakPlaceholderService,
                     useValue: mockDataManagementBreak,
+                },
+                {
+                    provide: GanttCoordinateService,
+                    useValue: {
+                        update: vi.fn(),
+                        scrollDx: 0,
+                        columnX: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth),
+                        columnRight: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        spanLeft: vi.fn().mockImplementation((start: number) => start * mockCalendarSetting.cellWidth),
+                        spanRight: vi.fn().mockImplementation((_start: number, end: number) => end * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        mouseToColumn: vi.fn().mockImplementation((mouseX: number) => Math.floor(mouseX / mockCalendarSetting.cellWidth) + mockHorizontalScrollPosition),
+                    },
                 },
             ],
         });

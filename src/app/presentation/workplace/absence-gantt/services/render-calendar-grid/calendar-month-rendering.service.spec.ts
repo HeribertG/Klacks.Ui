@@ -12,6 +12,7 @@ import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.se
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('CalendarMonthRenderingService', () => {
     let service: CalendarMonthRenderingService;
@@ -118,6 +119,18 @@ describe('CalendarMonthRenderingService', () => {
                 { provide: GridSettingsService, useValue: mockGridSetting },
                 { provide: GridFontsService, useValue: mockGridFonts },
                 { provide: TranslateService, useValue: mockTranslateService },
+                {
+                    provide: GanttCoordinateService,
+                    useValue: {
+                        update: vi.fn(),
+                        scrollDx: 0,
+                        columnX: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth),
+                        columnRight: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        spanLeft: vi.fn().mockImplementation((start: number) => start * mockCalendarSetting.cellWidth),
+                        spanRight: vi.fn().mockImplementation((_start: number, end: number) => end * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        mouseToColumn: vi.fn(),
+                    },
+                },
             ],
         });
 

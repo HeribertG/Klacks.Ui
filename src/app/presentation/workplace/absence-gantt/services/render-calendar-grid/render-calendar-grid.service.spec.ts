@@ -16,6 +16,7 @@ import { ValidityPeriodRenderingService } from './validity-period-rendering.serv
 import { BreakRenderingService } from './break-rendering.service';
 import { RowSelectionService } from './row-selection.service';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { GanttCoordinateService } from '../gantt-coordinate.service';
 
 describe('RenderCalendarGridService', () => {
     let service: RenderCalendarGridService;
@@ -166,7 +167,8 @@ describe('RenderCalendarGridService', () => {
                 { provide: CalendarHeaderRenderingService, useValue: mockHeaderRenderingService },
                 { provide: ValidityPeriodRenderingService, useValue: mockValidityPeriodRenderingService },
                 { provide: BreakRenderingService, useValue: mockBreakRenderingService },
-                { provide: RowSelectionService, useValue: mockSelectionService }
+                { provide: RowSelectionService, useValue: mockSelectionService },
+                { provide: GanttCoordinateService, useValue: { update: vi.fn(), scrollDx: 0, columnX: vi.fn(), columnRight: vi.fn(), spanLeft: vi.fn(), spanRight: vi.fn(), mouseToColumn: vi.fn() } }
             ]
         });
 

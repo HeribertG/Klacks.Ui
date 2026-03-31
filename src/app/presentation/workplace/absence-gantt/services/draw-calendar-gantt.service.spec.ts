@@ -11,6 +11,7 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
+import { GanttCoordinateService } from './gantt-coordinate.service';
 
 describe('DrawCalendarGanttService', () => {
     let service: DrawCalendarGanttService;
@@ -110,7 +111,19 @@ describe('DrawCalendarGanttService', () => {
                 { provide: CalendarSettingService, useValue: mockCalendarSetting },
                 { provide: DataManagementBreakPlaceholderService, useValue: mockDataManagementBreak },
                 { provide: DataManagementAbsenceGanttService, useValue: {} },
-                { provide: ScrollService, useValue: mockScrollService }
+                { provide: ScrollService, useValue: mockScrollService },
+                {
+                    provide: GanttCoordinateService,
+                    useValue: {
+                        update: vi.fn(),
+                        scrollDx: 0,
+                        columnX: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth),
+                        columnRight: vi.fn().mockImplementation((col: number) => col * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        spanLeft: vi.fn().mockImplementation((start: number) => start * mockCalendarSetting.cellWidth),
+                        spanRight: vi.fn().mockImplementation((_start: number, end: number) => end * mockCalendarSetting.cellWidth + mockCalendarSetting.cellWidth),
+                        mouseToColumn: vi.fn().mockImplementation((mouseX: number) => Math.floor(mouseX / mockCalendarSetting.cellWidth) + mockScrollService.horizontalScrollPosition),
+                    },
+                }
             ]
         });
 
