@@ -9,6 +9,8 @@ import {
 import { format } from 'date-fns';
 import { MultiLanguage } from '../translation/multi-language-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { getGregorianDateForHijriInYear } from './hijri-calendar';
+import { getGregorianDateForLunarInYear } from './lunar-calendar';
 
 export interface ICalendarRulesFilter extends IBaseFilter {
   list: StateCountryToken[];
@@ -126,6 +128,8 @@ export class HolidaysListHelper {
   private yearNumber: number = new Date(Date.now()).getFullYear();
   private readonly WEEKDAY_NAME: string = 'SUMOTUWETHFRSA'; //  Sunday (SU),Monday (MO),Tuesday (TU),Wednesday (WE),Thursday (TH),Friday (FR),Saturday (SA)
   private readonly EASTER_STRING: string = 'EASTER';
+  private readonly HIJRI_PREFIX: string = 'HIJRI_';
+  private readonly LUNAR_PREFIX: string = 'LUNAR_';
   private readonly EASTER_STRING_LENGTH: number = 6;
   private readonly DAY_OFFSET_START_INDEX: number = 6;
   private readonly DAY_OFFSET_END_INDEX: number = 9;
@@ -327,6 +331,30 @@ export class HolidaysListHelper {
     return msFromStartOfYear / this.MS_IN_A_DAY;
   }
 
+  private parseCalendarPrefix(
+    ruleString: string,
+    prefix: string
+  ): { day: number; month: number; offset: number } {
+    const remainder = ruleString.substring(prefix.length);
+    const parts = remainder.split('_');
+
+    const day = Number.parseInt(parts[0]);
+
+    let monthPart = parts[1];
+    let offset = 0;
+    const plusIndex = monthPart.indexOf('+');
+    const minusIndex = monthPart.indexOf('-');
+    const operatorIndex = plusIndex >= 0 ? plusIndex : minusIndex;
+
+    if (operatorIndex >= 0) {
+      offset = Number.parseInt(monthPart.substring(operatorIndex));
+      monthPart = monthPart.substring(0, operatorIndex);
+    }
+
+    const month = Number.parseInt(monthPart);
+    return { day, month, offset };
+  }
+
   private convertDate(
     easterDate: Date,
     currentYear: number,
@@ -336,6 +364,24 @@ export class HolidaysListHelper {
       ruleString.substring(0, this.EASTER_STRING_LENGTH) === this.EASTER_STRING
     ) {
       return this.calcEasternRelatedDate(easterDate, ruleString);
+    }
+
+    if (ruleString.startsWith(this.HIJRI_PREFIX)) {
+      const { day, month, offset } = this.parseCalendarPrefix(
+        ruleString,
+        this.HIJRI_PREFIX
+      );
+      const baseDate = getGregorianDateForHijriInYear(day, month, currentYear);
+      return offset !== 0 ? this.addDays(baseDate, offset) : baseDate;
+    }
+
+    if (ruleString.startsWith(this.LUNAR_PREFIX)) {
+      const { day, month, offset } = this.parseCalendarPrefix(
+        ruleString,
+        this.LUNAR_PREFIX
+      );
+      const baseDate = getGregorianDateForLunarInYear(day, month, currentYear);
+      return offset !== 0 ? this.addDays(baseDate, offset) : baseDate;
     }
 
     const month: number = Number.parseInt(
