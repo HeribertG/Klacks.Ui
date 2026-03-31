@@ -35,6 +35,20 @@ ngb-pagination ::ng-deep .page-link:not(:disabled):not(.disabled):active:focus {
   box-shadow: 0 0 0 0.1rem dimgrey;
 }
 
+ngb-pagination ::ng-deep .page-item:first-child .page-link {
+  border-start-start-radius: var(--bs-pagination-border-radius);
+  border-end-start-radius: var(--bs-pagination-border-radius);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+ngb-pagination ::ng-deep .page-item:last-child .page-link {
+  border-start-end-radius: var(--bs-pagination-border-radius);
+  border-end-end-radius: var(--bs-pagination-border-radius);
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
 
 .maxSize-selection {
   margin-inline-end: 10px;
