@@ -20,8 +20,9 @@ export class CounterComponent {
   @Input() maxNumber: number | undefined = 99;
   @Input() currentNumber = 1;
 
-  public faAngleRight = faAngleRight;
-  public faAngleLeft = faAngleLeft;
+  private readonly isRtl = document.documentElement.dir === 'rtl';
+  public faAngleRight = this.isRtl ? faAngleLeft : faAngleRight;
+  public faAngleLeft = this.isRtl ? faAngleRight : faAngleLeft;
 
   onClickPaginationButton(changeValue: number): void {
     let tmpMaxNumber = 99;
