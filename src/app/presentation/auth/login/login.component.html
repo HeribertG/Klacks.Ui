@@ -89,30 +89,11 @@
           <label class="mylabel" for="loginForm-password">{{
             "login.password" | translate
           }}</label>
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            autocomplete
-            [(ngModel)]="password"
-            name="password"
-            id="loginForm-password"
-            class="form-control input-password"
-            required
-            aria-describedby="password"
+          <app-password-input
+            [(value)]="password"
+            inputId="loginForm-password"
+            inputClass="input-password"
           />
-
-          <button
-            type="button"
-            class="input-group-text password-button"
-            (click)="showPassword = !showPassword"
-            [attr.aria-label]="(showPassword ? 'login.hide-password' : 'login.show-password') | translate"
-            [attr.aria-pressed]="showPassword"
-          >
-            <fa-icon
-              [icon]="!showPassword ? faEye : faEyeSlash"
-              class="password-icon"
-              aria-hidden="true"
-            ></fa-icon>
-          </button>
         </div>
       </div>
 

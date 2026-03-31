@@ -18,7 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
@@ -26,7 +26,6 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -43,7 +42,7 @@ import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/da
     FormsModule,
     TranslateModule,
     RouterModule,
-    FontAwesomeModule,
+    PasswordInputComponent,
     NgbModule
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,11 +68,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   public currentLang = StorageKeys.CURRENT_LANG;
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
   public isClicked = false;
   public password = '';
-  public showPassword = false;
   public token = '';
   public username = '';
 

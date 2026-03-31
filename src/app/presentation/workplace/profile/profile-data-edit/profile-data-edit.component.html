@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="profile-data-edit-container" class="container-dashboard">
   <div id="profile-data-edit-header" class="container-header">
     {{ "setting.data-edit.header" | translate }}
@@ -32,26 +30,11 @@
         <label for="profile-data-edit-old-password">{{
           "setting.data-edit.current-password" | translate
         }}</label>
-        <input
-          [type]="showOldPassword ? 'text' : 'password'"
-          (change)="onChange()"
-          [(ngModel)]="
-            dataManagementProfileService.changePasswordWrapper!.oldPassword
-          "
-          name="oldPassword"
-          class="form-control"
-          id="profile-data-edit-old-password"
+        <app-password-input
+          [(value)]="dataManagementProfileService.changePasswordWrapper!.oldPassword"
+          inputId="profile-data-edit-old-password"
+          (valueChange)="onChange()"
         />
-        <span
-          id="profile-data-edit-old-password-toggle"
-          class="input-group-text"
-          (click)="showOldPassword = !showOldPassword"
-        >
-          <fa-icon
-            [icon]="showOldPassword ? faEye : faEyeSlash"
-            class="password-icon"
-          ></fa-icon>
-        </span>
       </div>
     </div>
 

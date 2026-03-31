@@ -9,8 +9,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/interfaces/email-test.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 
 interface EmailModel {
   outgoingServer: string;
@@ -34,7 +33,7 @@ interface ContactModel {
   templateUrl: './email-setting.component.html',
   styleUrls: ['./email-setting.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, FormField],
+  imports: [TranslateModule, FormField, PasswordInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
@@ -44,9 +43,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
-  public showPassword = signal(false);
   public isTestingEmail = false;
 
   private ngUnsubscribe = new Subject<void>();
@@ -125,10 +121,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-  }
-
-  toggleShowPassword(): void {
-    this.showPassword.update(v => !v);
   }
 
   public testEmailConfiguration(): void {

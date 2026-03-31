@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="email-setting-container" class="container-dashboard">
   <div id="email-setting-header" class="container-header">{{ "settings.email-setting.headline" | translate }}</div>
 
@@ -135,35 +133,13 @@
           <label class="password-label" for="outgoingServerAuthKey"
             >{{ "settings.email-setting.smtp-auth-key" | translate }}</label
           >
-          @if (showPassword()) {
-            <input
-              type="text"
-              class="form-control password-input"
-              [formField]="emailForm.password"
-              id="outgoingServerAuthKey"
-              aria-label="outgoingServerAuthKey"
-              autocomplete="new-password"
-            />
-          } @else {
-            <input
-              type="password"
-              class="form-control password-input"
-              [formField]="emailForm.password"
-              id="outgoingServerAuthKey"
-              aria-label="outgoingServerAuthKey"
-              autocomplete="new-password"
-            />
-          }
-          <span
-            id="setting-email-password-toggle"
-            class="input-group-text"
-            (click)="toggleShowPassword()"
-          >
-            <fa-icon
-              [icon]="showPassword() ? faEye : faEyeSlash"
-              class="password-icon"
-            ></fa-icon>
-          </span>
+          <app-password-input
+            [value]="emailForm.password().value()"
+            (valueChange)="emailForm.password().value.set($event)"
+            inputId="outgoingServerAuthKey"
+            autocomplete="new-password"
+            inputClass="password-input"
+          />
         </div>
       </div>
     </div>

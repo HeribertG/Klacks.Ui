@@ -44,3 +44,17 @@
     transform: scaleX(-1);
   }
 }
+
+[dir="rtl"] .input-group > :first-child {
+  border-start-start-radius: var(--bs-border-radius) !important;
+  border-end-start-radius: var(--bs-border-radius) !important;
+  border-start-end-radius: 0 !important;
+  border-end-end-radius: 0 !important;
+}
+
+[dir="rtl"] .input-group > :last-child {
+  border-start-end-radius: var(--bs-border-radius) !important;
+  border-end-end-radius: var(--bs-border-radius) !important;
+  border-start-start-radius: 0 !important;
+  border-end-start-radius: 0 !important;
+}

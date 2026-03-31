@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="deepl-form">
   <div id="deepl-header" class="container-header">
     {{ 'setting.deepl.headline' | translate }}
@@ -26,35 +24,13 @@
   <div class="form-group first">
     <div class="input-group my-password">
       <label for="deepl-apikey">{{ 'setting.deepl.apikey' | translate }}</label>
-      @if (showApiKey()) {
-        <input
-          id="deepl-apikey"
-          type="text"
-          class="form-control api-input"
-          [formField]="apiKeyForm.apiKey"
-          aria-label="deeplApiKey"
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
-        />
-      } @else {
-        <input
-          id="deepl-apikey"
-          type="password"
-          class="form-control api-input"
-          [formField]="apiKeyForm.apiKey"
-          aria-label="deeplApiKey"
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
-        />
-      }
-      <span
-        id="deepl-apikey-toggle"
-        class="input-group-text"
-        (click)="toggleShowApiKey()"
-      >
-        <fa-icon
-          [icon]="showApiKey() ? faEye : faEyeSlash"
-          class="password-icon"
-        ></fa-icon>
-      </span>
+      <app-password-input
+        [value]="apiKeyForm.apiKey().value()"
+        (valueChange)="apiKeyForm.apiKey().value.set($event)"
+        inputId="deepl-apikey"
+        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
+        inputClass="api-input"
+      />
     </div>
   </div>
 </div>

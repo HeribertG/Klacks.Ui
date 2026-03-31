@@ -19,8 +19,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 
 // Anwendungsmodule
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -45,7 +44,7 @@ import {
     NgbModule,
     SpinnerModule,
     TranslateModule,
-    FontAwesomeModule,
+    PasswordInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -53,12 +52,9 @@ export class ProfileDataEditComponent implements OnInit, DoCheck {
   @Output() isChangingEvent = new EventEmitter();
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
   public newPassword1 = '';
   public passwordStrength = '';
   public passwordStrengthFlag = false;
-  public showOldPassword = false;
 
   public dataManagementProfileService = inject(DataManagementProfileService);
   private cdr = inject(ChangeDetectorRef);

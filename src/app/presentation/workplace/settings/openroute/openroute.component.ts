@@ -1,26 +1,21 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, effect } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { form } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
 
 @Component({
   selector: 'app-openroute',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, FormField],
+  imports: [TranslateModule, PasswordInputComponent],
   templateUrl: './openroute.component.html',
   styleUrls: ['./openroute.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenrouteComponent implements OnInit {
   private appSettingsManagementService = inject(AppSettingsManagementService);
-
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
-  public showApiKey = signal(false);
 
   private isInitialized = false;
   private apiKeyModel = signal({ apiKey: '' });
@@ -41,7 +36,4 @@ export class OpenrouteComponent implements OnInit {
     this.isInitialized = true;
   }
 
-  toggleShowApiKey(): void {
-    this.showApiKey.update(v => !v);
-  }
 }
