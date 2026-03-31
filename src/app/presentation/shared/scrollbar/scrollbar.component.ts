@@ -172,11 +172,16 @@ export class ScrollbarComponent
   ngOnInit() {
     this.axisConfig = this.orientation === 'horizontal' ? HORIZONTAL_CONFIG : VERTICAL_CONFIG;
 
+    const swapArrows = this.isHorizontalRtl;
     this.safeTriangleSvgBackward = this.sanitizer.bypassSecurityTrustHtml(
-      this.axisConfig.svgBackward(this.scrollbarService)
+      swapArrows
+        ? this.axisConfig.svgForward(this.scrollbarService)
+        : this.axisConfig.svgBackward(this.scrollbarService)
     );
     this.safeTriangleSvgForward = this.sanitizer.bypassSecurityTrustHtml(
-      this.axisConfig.svgForward(this.scrollbarService)
+      swapArrows
+        ? this.axisConfig.svgBackward(this.scrollbarService)
+        : this.axisConfig.svgForward(this.scrollbarService)
     );
 
     this.animationService.setContext({
@@ -189,7 +194,11 @@ export class ScrollbarComponent
       getMousePosition: () => {
         if (!this.lastMouseEvent) return null;
         const canvas = this.canvasRef.nativeElement;
-        return this.lastMouseEvent[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
+        let pos = this.lastMouseEvent[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
+        if (this.isHorizontalRtl) {
+          pos = canvas[this.axisConfig.canvasSizeProp] - pos;
+        }
+        return pos;
       },
       isScrollbarClick: () => this.isScrollbarClick,
       updateValue: (newValue: number) => this.updateValue(newValue),
@@ -420,6 +429,10 @@ export class ScrollbarComponent
     return Math.round(result);
   }
 
+  private get isHorizontalRtl(): boolean {
+    return this.orientation === 'horizontal' && document.documentElement.dir === 'rtl';
+  }
+
   private calculateMainAxisPosition(
     canvas: HTMLCanvasElement,
     value: number,
@@ -441,15 +454,16 @@ export class ScrollbarComponent
     }
 
     if (maxScrollValue <= 0) {
-      return 0;
+      return this.isHorizontalRtl ? Math.round(availableSpace) : 0;
     }
 
     if (safeValue >= maxScrollValue) {
-      return Math.round(availableSpace);
+      return this.isHorizontalRtl ? 0 : Math.round(availableSpace);
     }
 
     const proportion = Math.max(0, Math.min(1, safeValue / maxScrollValue));
-    return Math.round(proportion * availableSpace);
+    const position = Math.round(proportion * availableSpace);
+    return this.isHorizontalRtl ? Math.round(availableSpace) - position : position;
   }
 
   private updateCanvasSize(width: number, height?: number): void {
@@ -498,7 +512,9 @@ export class ScrollbarComponent
 
       const mousePos = event[this.axisConfig.clientPos];
       const canvasOffset = canvas[this.axisConfig.canvasOffset];
-      const direction = mousePos < this.value * this.metrics.tickSize + canvasOffset ? -1 : 1;
+      const thumbPos = this.thumbPositionForValue(this.value) + canvasOffset;
+      const clickedBefore = mousePos < thumbPos;
+      const direction = (clickedBefore !== this.isHorizontalRtl) ? -1 : 1;
       this.animationService.startBarAnimation(direction);
     }
   }
@@ -541,7 +557,7 @@ export class ScrollbarComponent
   private onPointerDown(event: PointerEvent): void {
     this.mousePointThumb = this.isMouseOverThumb(event);
     if (this.mousePointThumb && event.buttons === this.MOUSE_PRIMARY_BUTTON) {
-      const thumbPosition = this.value * this.metrics.tickSize;
+      const thumbPosition = this.thumbPositionForValue(this.value);
       this.mousePosToThumbPos = event[this.axisConfig.clientPos] - thumbPosition;
 
       const canvas = this.canvasRef.nativeElement;
@@ -549,6 +565,20 @@ export class ScrollbarComponent
         canvas.setPointerCapture(event.pointerId);
       }
     }
+  }
+
+  private thumbPositionForValue(value: number): number {
+    if (this.isHorizontalRtl) {
+      const canvas = this.canvasRef.nativeElement;
+      const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
+      const thumbSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] ?? 0;
+      const availableSpace = canvasMainSize - thumbSize;
+      const maxScrollValue = this.maxValue - this.visibleValue + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+      if (maxScrollValue <= 0) return 0;
+      const proportion = Math.max(0, Math.min(1, value / maxScrollValue));
+      return availableSpace - Math.round(proportion * availableSpace);
+    }
+    return value * this.metrics.tickSize;
   }
 
   private onPointerUp(event: PointerEvent): void {
@@ -569,8 +599,20 @@ export class ScrollbarComponent
     const pos = event[this.axisConfig.clientPos] - this.mousePosToThumbPos;
     this.zone.runOutsideAngular(() => {
       if (this.mousePointThumb) {
-        const correctValue = Math.round(pos / this.metrics.tickSize);
-        this.updateValue(correctValue);
+        if (this.isHorizontalRtl) {
+          const canvas = this.canvasRef.nativeElement;
+          const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
+          const thumbSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] ?? 0;
+          const availableSpace = canvasMainSize - thumbSize;
+          const maxScrollValue = this.maxValue - this.visibleValue + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+          if (availableSpace > 0 && maxScrollValue > 0) {
+            const proportion = (availableSpace - pos) / availableSpace;
+            this.updateValue(Math.round(proportion * maxScrollValue));
+          }
+        } else {
+          const correctValue = Math.round(pos / this.metrics.tickSize);
+          this.updateValue(correctValue);
+        }
       }
     });
   }
@@ -612,7 +654,10 @@ export class ScrollbarComponent
   isMouseOverThumb(event: MouseEvent): boolean {
     const canvas = this.canvasRef.nativeElement;
     if (canvas) {
-      const pos: number = event[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
+      let pos: number = event[this.axisConfig.clientPos] - canvas[this.axisConfig.canvasOffset];
+      if (this.isHorizontalRtl) {
+        pos = canvas[this.axisConfig.canvasSizeProp] - pos;
+      }
       return this.isMouseOverThumbSub(pos);
     }
 

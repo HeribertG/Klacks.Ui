@@ -248,3 +248,103 @@ describe('ScrollbarComponent (horizontal)', () => {
         expect(result).toBe(53);
     });
 });
+
+describe('ScrollbarComponent (horizontal RTL)', () => {
+    let component: ScrollbarComponent;
+    let fixture: ComponentFixture<ScrollbarComponent>;
+    let domSanitizer: any;
+    let originalDir: string;
+
+    beforeEach(async () => {
+        originalDir = document.documentElement.dir;
+        document.documentElement.dir = 'rtl';
+
+        const setup = createTestBed('horizontal');
+
+        await TestBed.configureTestingModule({
+            imports: [ScrollbarComponent],
+            providers: [
+                { provide: ScrollbarService, useValue: setup.scrollbarServiceSpy },
+                { provide: DomSanitizer, useValue: setup.domSanitizerSpy },
+            ],
+        }).compileComponents();
+
+        domSanitizer = TestBed.inject(DomSanitizer) as any;
+        fixture = TestBed.createComponent(ScrollbarComponent);
+        component = setupComponent(fixture, 'horizontal');
+    });
+
+    afterEach(() => {
+        document.documentElement.dir = originalDir;
+    });
+
+    it('should swap arrow SVGs in RTL', () => {
+        component.ngOnInit();
+        expect(domSanitizer.bypassSecurityTrustHtml).toHaveBeenCalledWith('<svg>right</svg>');
+        expect(domSanitizer.bypassSecurityTrustHtml).toHaveBeenCalledWith('<svg>left</svg>');
+    });
+
+    it('should place thumb at end when value is 0', () => {
+        component.ngOnInit();
+        const mockCanvas = component.canvasRef.nativeElement;
+        mockCanvas.width = 500;
+        component.maxValue = 100;
+        component.visibleValue = 20;
+
+        const result = (component as any).calculateMainAxisPosition(mockCanvas, 0, 10, 50);
+        expect(result).toBe(450);
+    });
+
+    it('should place thumb at start when value is at max scroll', () => {
+        component.ngOnInit();
+        const mockCanvas = component.canvasRef.nativeElement;
+        mockCanvas.width = 500;
+        component.maxValue = 100;
+        component.visibleValue = 20;
+        const maxScroll = 100 - 20 + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+
+        const result = (component as any).calculateMainAxisPosition(mockCanvas, maxScroll, 10, 50);
+        expect(result).toBe(0);
+    });
+
+    it('should mirror thumb position proportionally', () => {
+        component.ngOnInit();
+        const mockCanvas = component.canvasRef.nativeElement;
+        mockCanvas.width = 500;
+        component.maxValue = 100;
+        component.visibleValue = 20;
+
+        const ltrPos = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
+
+        document.documentElement.dir = 'ltr';
+        const ltrDirect = (component as any).calculateMainAxisPosition(mockCanvas, 10, 10, 50);
+        document.documentElement.dir = 'rtl';
+
+        expect(ltrPos + ltrDirect).toBeLessThanOrEqual(450);
+    });
+
+    it('should flip mouse position for hit detection', () => {
+        component.ngOnInit();
+        const mockCanvas = component.canvasRef.nativeElement;
+        mockCanvas.width = 500;
+        Object.defineProperty(mockCanvas, 'offsetLeft', { value: 0, writable: true });
+
+        (component as any).metrics = { tickSize: 10, thumbLength: 100 };
+        (component as any).imagesThumps = {
+            imgThumb: { width: 100, height: 20 },
+            imgSelectedThumb: undefined,
+            invisibleTicks: 80,
+        };
+
+        component.value = 0;
+
+        const eventAtRight = { clientX: 490, clientY: 25 } as MouseEvent;
+        const isOver = component.isMouseOverThumb(eventAtRight);
+
+        const eventAtLeft = { clientX: 10, clientY: 25 } as MouseEvent;
+        const isOverLeft = component.isMouseOverThumb(eventAtLeft);
+
+        expect(isOver).toBe(true);
+        expect(isOverLeft).toBe(false);
+    });
+});
