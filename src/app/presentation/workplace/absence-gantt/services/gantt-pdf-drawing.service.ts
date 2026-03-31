@@ -36,6 +36,17 @@ export class GanttPdfDrawingService {
   private holidaysHelper = new HolidaysListHelper();
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
 
+  get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
+  private mirrorX(calendarStartX: number, calendarWidth: number, ltrX: number, elementWidth: number): number {
+    if (this.isRtl) {
+      return calendarStartX + calendarWidth - (ltrX - calendarStartX) - elementWidth;
+    }
+    return ltrX;
+  }
+
   /**
    * Draws the background of a row with monthly backgrounds and day lines
    * @param params - Drawing parameters with position and configuration
@@ -43,19 +54,15 @@ export class GanttPdfDrawingService {
   drawRowBackground(params: RowDrawingParams): void {
     const { x, y, pdf, config } = params;
 
-    const actualRowHeaderWidth = config.pageWidth * 0.12;
-
-    const availableCalendarWidth =
-      config.pageWidth * 0.83 - config.lineWidth * 2;
-
+    const availableCalendarWidth = this.getCalendarWidth(config);
     const daysInYear = this.getDaysInYear(config.year);
     const dayWidth = availableCalendarWidth / daysInYear;
-
-    const calendarStartX = x + actualRowHeaderWidth + config.lineWidth * 2;
+    const calendarStartX = this.getCalendarStartX(x, config);
 
     let currentX = calendarStartX;
+    const monthOrder = this.isRtl ? [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-    for (let month = 0; month < 12; month++) {
+    for (const month of monthOrder) {
       const daysInMonth = this.getDaysInMonth(config.year, month);
       const monthWidth = daysInMonth * dayWidth;
 
@@ -81,7 +88,7 @@ export class GanttPdfDrawingService {
 
     currentX = calendarStartX;
 
-    for (let month = 0; month < 12; month++) {
+    for (const month of monthOrder) {
       const daysInMonth = this.getDaysInMonth(config.year, month);
       const monthWidth = daysInMonth * dayWidth;
 
@@ -127,7 +134,8 @@ export class GanttPdfDrawingService {
       const dayOfWeek = currentDate.getDay();
 
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        const xPos = startX + dayOfYear * dayWidth;
+        const ltrX = startX + dayOfYear * dayWidth;
+        const xPos = this.mirrorX(startX, calendarWidth, ltrX, dayWidth);
         pdf.rect(xPos, startY, dayWidth, rowHeight, 'F');
       }
 
@@ -150,7 +158,9 @@ export class GanttPdfDrawingService {
     pdf.setLineWidth(config.lineWidth);
 
     for (let day = 1; day < daysInMonth; day++) {
-      const lineX = startX + day * dayWidth;
+      const lineX = this.isRtl
+        ? startX + monthWidth - day * dayWidth
+        : startX + day * dayWidth;
       pdf.line(lineX, startY, lineX, startY + rowHeight);
     }
   }
@@ -167,34 +177,34 @@ export class GanttPdfDrawingService {
     drawTopBorder = false
   ): void {
     const width = config.pageWidth * 0.12;
+    const headerX = this.isRtl
+      ? x + this.getCalendarWidth(config) + config.lineWidth * 2
+      : x;
 
-    // Header background
     pdf.setFillColor(backgroundColor);
-    pdf.rect(x, y, width, height, 'F');
+    pdf.rect(headerX, y, width, height, 'F');
 
-    // Header border - draw individual lines to avoid double lines
     pdf.setDrawColor(config.monthBorderColor);
     pdf.setLineWidth(1);
 
-    // Left line
-    pdf.line(x, y, x, y + height);
+    pdf.line(headerX, y, headerX, y + height);
+    pdf.line(headerX + width, y, headerX + width, y + height);
+    pdf.line(headerX, y + height, headerX + width, y + height);
 
-    // Right line
-    pdf.line(x + width, y, x + width, y + height);
-
-    // Bottom line
-    pdf.line(x, y + height, x + width, y + height);
-
-    // Top line only if explicitly requested
     if (drawTopBorder) {
-      pdf.line(x, y, x + width, y);
+      pdf.line(headerX, y, headerX + width, y);
     }
 
-    // Text
     pdf.setTextColor(textColor);
     pdf.setFontSize(10);
-    const textY = y + height / 2 + 3; // Center vertically
-    pdf.text(text, x + 5, textY);
+    const textY = y + height / 2 + 3;
+
+    if (this.isRtl) {
+      const textWidth = pdf.getTextWidth(text);
+      pdf.text(text, headerX + width - 5 - textWidth, textY);
+    } else {
+      pdf.text(text, headerX + 5, textY);
+    }
   }
 
   /**
@@ -245,6 +255,13 @@ export class GanttPdfDrawingService {
     return config.pageWidth * 0.83 - config.lineWidth * 2;
   }
 
+  private getCalendarStartX(x: number, config: GanttDrawingConfig): number {
+    if (this.isRtl) {
+      return x;
+    }
+    return x + config.pageWidth * 0.12 + config.lineWidth * 2;
+  }
+
   drawMonthHeaders(
     pdf: jsPDF,
     x: number,
@@ -252,18 +269,11 @@ export class GanttPdfDrawingService {
     config: GanttDrawingConfig,
     headerHeight = 20
   ): void {
-    const actualRowHeaderWidth = config.pageWidth * 0.12;
-
-    // Available width for calendar = 83% minus 2 line thicknesses spacing
-    const availableCalendarWidth =
-      config.pageWidth * 0.83 - config.lineWidth * 2;
-
+    const availableCalendarWidth = this.getCalendarWidth(config);
     const daysInYear = this.getDaysInYear(config.year);
     const dayWidth = availableCalendarWidth / daysInYear;
+    const calendarStartX = this.getCalendarStartX(x, config);
 
-    const calendarStartX = x + actualRowHeaderWidth + config.lineWidth * 2;
-
-    // Month names (dynamically localized via i18n)
     const monthKeys = [
       'Januar',
       'Februar',
@@ -282,10 +292,10 @@ export class GanttPdfDrawingService {
       this.translateService.instant(key)
     );
 
-    // Iterate through all months (only month background, no weekends)
     let currentX = calendarStartX;
+    const monthOrder = this.isRtl ? [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-    for (let month = 0; month < 12; month++) {
+    for (const month of monthOrder) {
       const daysInMonth = this.getDaysInMonth(config.year, month);
       const monthWidth = daysInMonth * dayWidth;
 
@@ -294,23 +304,19 @@ export class GanttPdfDrawingService {
         ? config.evenMonthColor
         : config.oddMonthColor;
 
-      // Draw header background
       pdf.setFillColor(backgroundColor);
       pdf.rect(currentX, y, monthWidth, headerHeight, 'F');
 
-      // Draw header border
       pdf.setDrawColor(config.monthBorderColor);
       pdf.setLineWidth(1);
       pdf.rect(currentX, y, monthWidth, headerHeight, 'S');
 
-      // Draw month name
       pdf.setTextColor('#000000');
       pdf.setFontSize(9);
 
-      // Center text in month column
       const textWidth = pdf.getTextWidth(monthNames[month]);
       const textX = currentX + (monthWidth - textWidth) / 2;
-      const textY = y + headerHeight / 2 + 3; // Center vertically
+      const textY = y + headerHeight / 2 + 3;
 
       pdf.text(monthNames[month], textX, textY);
 
@@ -349,31 +355,25 @@ export class GanttPdfDrawingService {
     rowHeight: number
   ): void {
     if (!breakData.from || !breakData.until) {
-      return; // No valid data
+      return;
     }
 
-    // Calendar start position (after row header + spacing)
-    const actualRowHeaderWidth = config.pageWidth * 0.12;
-    const calendarStartX = x + actualRowHeaderWidth + config.lineWidth * 2;
+    const calendarStartX = this.getCalendarStartX(x, config);
     const availableCalendarWidth = this.getCalendarWidth(config);
 
-    // Calculate days in year and day width
     const daysInYear = this.getDaysInYear(config.year);
     const dayWidth = availableCalendarWidth / daysInYear;
 
-    // Start and end dates of the break
     const breakStart = new Date(breakData.from);
     const breakEnd = new Date(breakData.until);
 
-    // Check if break is in current year
     if (
       breakStart.getFullYear() !== config.year &&
       breakEnd.getFullYear() !== config.year
     ) {
-      return; // Break is not in this year
+      return;
     }
 
-    // Calculate day of year for start and end (using UTC to avoid DST issues)
     const yearStartUTC = Date.UTC(config.year, 0, 1);
     const breakStartUTC = Date.UTC(breakStart.getFullYear(), breakStart.getMonth(), breakStart.getDate());
     const breakEndUTC = Date.UTC(breakEnd.getFullYear(), breakEnd.getMonth(), breakEnd.getDate());
@@ -387,9 +387,9 @@ export class GanttPdfDrawingService {
       Math.floor((breakEndUTC - yearStartUTC) / (24 * 60 * 60 * 1000))
     );
 
-    // Calculate position and width of break bar
-    const barStartX = calendarStartX + dayOfYearStart * dayWidth;
     const barWidth = (dayOfYearEnd - dayOfYearStart + 1) * dayWidth;
+    const ltrBarStartX = calendarStartX + dayOfYearStart * dayWidth;
+    const barStartX = this.mirrorX(calendarStartX, availableCalendarWidth, ltrBarStartX, barWidth);
 
     let breakColor = '#ff6b6b';
 
@@ -452,52 +452,59 @@ export class GanttPdfDrawingService {
       return;
     }
 
-    // No border around the legend anymore
-
-    // Start position for legend items - intelligent layout
-    let currentX = x + 5;
-    let currentY = y + 15; // Some distance from top edge
     const colorBoxSize = 8;
-    const lineHeight = 15; // Height of a line
-    const itemSpacing = 20; // Spacing between items
+    const lineHeight = 15;
+    const itemSpacing = 20;
+    const textGap = 3;
+
+    let currentX = this.isRtl ? x + width - 5 : x + 5;
+    let currentY = y + 15;
 
     selectedAbsenceTypes.forEach((absenceType, index) => {
-      // Calculate required width for this item
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(8);
       const displayName = absenceType.name || `Type ${index + 1}`;
       const textWidth = pdf.getTextWidth(displayName);
-      const itemWidth = colorBoxSize + textWidth + itemSpacing;
+      const itemWidth = colorBoxSize + textGap + textWidth + itemSpacing;
 
-      // Check if line break needed (if item doesn't fit in current line)
-      if (currentX + itemWidth > x + width - 5 && index > 0) {
-        currentX = x + 5; // Start new line
-        currentY += lineHeight;
+      if (this.isRtl) {
+        if (currentX - itemWidth < x + 5 && index > 0) {
+          currentX = x + width - 5;
+          currentY += lineHeight;
+        }
+
+        const textX = currentX - textWidth;
+        const boxX = textX - textGap - colorBoxSize;
+
+        pdf.setFillColor(absenceType.color || '#ff6b6b');
+        pdf.rect(boxX, currentY - colorBoxSize / 2, colorBoxSize, colorBoxSize, 'F');
+
+        pdf.setDrawColor('#333333');
+        pdf.setLineWidth(0.5);
+        pdf.rect(boxX, currentY - colorBoxSize / 2, colorBoxSize, colorBoxSize, 'S');
+
+        pdf.setTextColor('#000000');
+        pdf.text(displayName, textX, currentY + 2);
+
+        currentX -= itemWidth;
+      } else {
+        if (currentX + itemWidth > x + width - 5 && index > 0) {
+          currentX = x + 5;
+          currentY += lineHeight;
+        }
+
+        pdf.setFillColor(absenceType.color || '#ff6b6b');
+        pdf.rect(currentX, currentY - colorBoxSize / 2, colorBoxSize, colorBoxSize, 'F');
+
+        pdf.setDrawColor('#333333');
+        pdf.setLineWidth(0.5);
+        pdf.rect(currentX, currentY - colorBoxSize / 2, colorBoxSize, colorBoxSize, 'S');
+
+        pdf.setTextColor('#000000');
+        pdf.text(displayName, currentX + colorBoxSize + textGap, currentY + 2);
+
+        currentX += itemWidth;
       }
-
-      pdf.setFillColor(absenceType.color || '#ff6b6b');
-      pdf.rect(
-        currentX,
-        currentY - colorBoxSize / 2,
-        colorBoxSize,
-        colorBoxSize,
-        'F'
-      );
-
-      pdf.setDrawColor('#333333');
-      pdf.setLineWidth(0.5);
-      pdf.rect(
-        currentX,
-        currentY - colorBoxSize / 2,
-        colorBoxSize,
-        colorBoxSize,
-        'S'
-      );
-
-      pdf.setTextColor('#000000');
-      pdf.text(displayName, currentX + colorBoxSize + 3, currentY + 2);
-
-      currentX += itemWidth;
     });
   }
 

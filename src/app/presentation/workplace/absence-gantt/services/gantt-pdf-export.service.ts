@@ -96,6 +96,10 @@ export class GanttPdfExportService {
     }
   }
 
+  private get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   private addPageHeader(
     pdf: jsPDF,
     title: string,
@@ -104,7 +108,13 @@ export class GanttPdfExportService {
   ): void {
     pdf.setFontSize(this.FONT_SIZE_TITLE);
     pdf.setFont(this.FONT_FAMILY, this.FONT_WEIGHT_BOLD);
-    pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+
+    if (this.isRtl) {
+      const titleWidth = pdf.getTextWidth(title);
+      pdf.text(title, this.A3_LANDSCAPE.width - this.MARGINS.right - titleWidth, this.MARGINS.top);
+    } else {
+      pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+    }
 
     pdf.setFontSize(this.FONT_SIZE_NORMAL);
     pdf.setFont(this.FONT_FAMILY, this.FONT_WEIGHT_NORMAL);
@@ -115,12 +125,18 @@ export class GanttPdfExportService {
     const dateString = `${generatedText}: ${new Date().toLocaleDateString()}`;
     const pageString = `${pageText} ${pageNumber} ${ofText} ${totalPages}`;
 
-    pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + this.SUBTITLE_OFFSET);
-    pdf.text(
-      pageString,
-      this.A3_LANDSCAPE.width - this.MARGINS.right - this.PAGE_NUMBER_RIGHT_OFFSET,
-      this.MARGINS.top + this.SUBTITLE_OFFSET,
-    );
+    if (this.isRtl) {
+      const dateWidth = pdf.getTextWidth(dateString);
+      pdf.text(dateString, this.A3_LANDSCAPE.width - this.MARGINS.right - dateWidth, this.MARGINS.top + this.SUBTITLE_OFFSET);
+      pdf.text(pageString, this.MARGINS.left, this.MARGINS.top + this.SUBTITLE_OFFSET);
+    } else {
+      pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + this.SUBTITLE_OFFSET);
+      pdf.text(
+        pageString,
+        this.A3_LANDSCAPE.width - this.MARGINS.right - this.PAGE_NUMBER_RIGHT_OFFSET,
+        this.MARGINS.top + this.SUBTITLE_OFFSET,
+      );
+    }
   }
 
   /**
@@ -303,29 +319,26 @@ export class GanttPdfExportService {
       }
     }
 
-    // Additional info (only on the last page)
     if (totalClients > 0) {
       pdf.setFontSize(this.FONT_SIZE_NORMAL);
-      pdf.text(
-        `Total ${totalClients} clients exported`,
-        this.MARGINS.left,
-        currentY + this.FOOTER_SPACING,
-      );
-      pdf.text(
-        `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(
-          config.year,
-        )} days)`,
-        this.MARGINS.left,
-        currentY + this.FOOTER_YEAR_OFFSET,
-      );
+      const totalText = `Total ${totalClients} clients exported`;
+      const yearText = `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(config.year)} days)`;
+      const footerX = this.isRtl
+        ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(totalText), pdf.getTextWidth(yearText))
+        : this.MARGINS.left;
+
+      pdf.text(totalText, footerX, currentY + this.FOOTER_SPACING);
+      pdf.text(yearText, footerX, currentY + this.FOOTER_YEAR_OFFSET);
     } else {
       pdf.setFontSize(this.FONT_SIZE_NO_DATA);
-      pdf.text('No client data available', this.MARGINS.left, currentY + this.FOOTER_SPACING);
-      pdf.text(
-        'Please ensure that data has been loaded',
-        this.MARGINS.left,
-        currentY + this.FOOTER_SPACING * 2,
-      );
+      const noDataText = 'No client data available';
+      const ensureText = 'Please ensure that data has been loaded';
+      const footerX = this.isRtl
+        ? this.A3_LANDSCAPE.width - this.MARGINS.right - Math.max(pdf.getTextWidth(noDataText), pdf.getTextWidth(ensureText))
+        : this.MARGINS.left;
+
+      pdf.text(noDataText, footerX, currentY + this.FOOTER_SPACING);
+      pdf.text(ensureText, footerX, currentY + this.FOOTER_SPACING * 2);
     }
 
     const fileName = `gantt-real-data-${new Date().getTime()}.pdf`;
