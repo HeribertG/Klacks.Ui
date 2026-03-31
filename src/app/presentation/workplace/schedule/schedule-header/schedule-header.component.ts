@@ -92,6 +92,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
   @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
+
+  readonly isRtl = document.documentElement.dir === 'rtl';
+  readonly tooltipPlacement = this.isRtl ? 'left' : 'right';
+
   value = 100;
   options: Options = {
     floor: 50,

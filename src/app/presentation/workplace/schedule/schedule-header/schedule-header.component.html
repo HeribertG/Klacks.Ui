@@ -7,7 +7,11 @@
     (click)="goToPrevious()"
     aria-label="previous period"
   >
-    <app-icon-angle-left />
+    @if (isRtl) {
+      <app-icon-angle-right />
+    } @else {
+      <app-icon-angle-left />
+    }
   </button>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
@@ -15,7 +19,7 @@
       id="dropdownSetting"
       ngbDropdownToggle
       aria-label="calendar settings"
-      placement="right"
+      [placement]="tooltipPlacement"
       ngbTooltip="{{ 'schedule.selector.select-calendar' | translate }}"
       autoClose="true"
     >
@@ -53,7 +57,11 @@
     (click)="goToNext()"
     aria-label="next period"
   >
-    <app-icon-angle-right />
+    @if (isRtl) {
+      <app-icon-angle-left />
+    } @else {
+      <app-icon-angle-right />
+    }
   </button>
 
   @if (isEmailConfigured()) {

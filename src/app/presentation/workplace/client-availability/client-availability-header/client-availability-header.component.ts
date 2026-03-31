@@ -53,6 +53,9 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   private gridSettingsService = inject(GridSettingsService);
   private calendarUtil = inject(CalendarUtilService);
 
+  readonly isRtl = document.documentElement.dir === 'rtl';
+  readonly tooltipPlacement = this.isRtl ? 'left' : 'right';
+
   @Input() viewMode: PaymentInterval = PaymentInterval.Weekly;
 
   periodChanged = output<PeriodResetData>();
