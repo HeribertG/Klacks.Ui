@@ -409,14 +409,9 @@ export class ReportPdfService {
     const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
     const styles: Record<string, { cellWidth: number; halign: string; fontSize: number; fontStyle: string }> = {};
     fields.forEach(f => {
-      const ltrAlign = f.style.alignment === 0 ? 'left' : f.style.alignment === 1 ? 'center' : 'right';
-      const halign = this.isRtl && ltrAlign !== 'center'
-        ? (ltrAlign === 'left' ? 'right' : 'left')
-        : ltrAlign;
-
       styles[f.dataBinding] = {
         cellWidth: (f.width / totalWidth) * contentWidth,
-        halign,
+        halign: this.resolveHalign(f.style.alignment),
         fontSize: f.style.fontSize,
         fontStyle: this.getJsPdfFontStyle(f.style.bold, f.style.italic),
       };
@@ -530,7 +525,7 @@ export class ReportPdfService {
           fontStyle: this.getJsPdfFontStyle(freeRow.style.bold, freeRow.style.italic),
           fontSize: freeRow.style.fontSize,
           textColor: this.hexToRgbArray(freeRow.style.textColor),
-          halign: freeRow.style.alignment === 0 ? 'left' : freeRow.style.alignment === 1 ? 'center' : 'right',
+          halign: this.resolveHalign(freeRow.style.alignment),
         },
       }]);
     }
@@ -570,7 +565,7 @@ export class ReportPdfService {
         const text = footerField.hideLabel
           ? value
           : `${this.translateFieldName(footerField, template)}: ${value}`;
-        const halign = footerField.style.alignment === 0 ? 'left' : footerField.style.alignment === 1 ? 'center' : 'right';
+        const halign = this.resolveHalign(footerField.style.alignment);
         footRow[colIndex] = { content: text, styles: { halign } };
       }
     }
@@ -584,11 +579,14 @@ export class ReportPdfService {
     const w = cell.width;
     const h = cell.height;
 
+    const logicalLeft = this.isRtl ? 'right' : 'left';
+    const logicalRight = this.isRtl ? 'left' : 'right';
+
     const sides: { key: 'top' | 'right' | 'bottom' | 'left'; x1: number; y1: number; x2: number; y2: number }[] = [
       { key: 'top', x1: x, y1: y, x2: x + w, y2: y },
-      { key: 'right', x1: x + w, y1: y, x2: x + w, y2: y + h },
+      { key: logicalRight, x1: x + w, y1: y, x2: x + w, y2: y + h },
       { key: 'bottom', x1: x, y1: y + h, x2: x + w, y2: y + h },
-      { key: 'left', x1: x, y1: y, x2: x, y2: y + h },
+      { key: logicalLeft, x1: x, y1: y, x2: x, y2: y + h },
     ];
 
     for (const side of sides) {
@@ -706,6 +704,14 @@ export class ReportPdfService {
     doc.setDrawColor(rgb.r, rgb.g, rgb.b);
     doc.setLineWidth(0.2);
     doc.line(x, lineY, x + textWidth, lineY);
+  }
+
+  private resolveHalign(alignment: number): string {
+    const ltr = alignment === 0 ? 'left' : alignment === 1 ? 'center' : 'right';
+    if (this.isRtl && ltr !== 'center') {
+      return ltr === 'left' ? 'right' : 'left';
+    }
+    return ltr;
   }
 
   private getJsPdfFontStyle(bold: boolean, italic: boolean): string {
