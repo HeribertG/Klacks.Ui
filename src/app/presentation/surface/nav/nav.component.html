@@ -7,7 +7,7 @@
         id="open-absences"
         (click)="onClickAbsence()"
         [attr.aria-label]="'Manage absences (Alt+1)'"
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="{{ absence }} (Alt+1)"
       >
         <app-icon-gantt #absenceIcon></app-icon-gantt>
@@ -22,7 +22,7 @@
           id="open-groups"
           (click)="onClickGroup()"
           [attr.aria-label]="'Manage groups (Alt+2)'"
-          placement="right"
+          [placement]="tooltipPlacement"
           ngbTooltip="{{ all_group }} (Alt+2)"
         >
           <app-icon-group #groupIcon></app-icon-group>
@@ -37,7 +37,7 @@
         id="open-shifts"
         (click)="onClickShift()"
         [attr.aria-label]="'Manage shifts (Alt+3)'"
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="{{ all_shift }} (Alt+3)"
       >
         <app-icon-order #shiftIcon></app-icon-order>
@@ -51,7 +51,7 @@
         id="open-schedules"
         (click)="onClickSchedule()"
         [attr.aria-label]="'Manage schedules (Alt+4)'"
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="{{ all_schedule }} (Alt+4)"
       >
         <app-time-schedule #scheduleIcon></app-time-schedule>
@@ -65,7 +65,7 @@
         id="open-employees"
         (click)="onClickClients()"
         [attr.aria-label]="'Manage employees (Alt+5)'"
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="{{ all_employee }} (Alt+5)"
       >
         <app-icon-clients #employeesIcon></app-icon-clients>
@@ -81,7 +81,7 @@
         [attr.aria-label]="
           ('client-availability.nav.tooltip' | translate) + ' (Alt+6)'
         "
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+6)"
       >
         <app-icon-availability #availabilityIcon></app-icon-availability>
@@ -95,7 +95,7 @@
         id="open-floor-plan"
         (click)="onClickFloorPlan()"
         [attr.aria-label]="'Open Floor Plan'"
-        placement="right"
+        [placement]="tooltipPlacement"
         ngbTooltip="Floor Plan"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,7 +114,7 @@
           id="open-inbox"
           (click)="onClickInbox()"
           [attr.aria-label]="'Open Inbox (Alt+9)'"
-          placement="right"
+          [placement]="tooltipPlacement"
           ngbTooltip="{{ inbox }} (Alt+9)"
         >
           <app-icon-mail #mailIcon></app-icon-mail>
@@ -135,7 +135,7 @@
           [id]="'open-plugin-' + plugin.name"
           (click)="onClickPlugin(plugin)"
           [attr.aria-label]="'Open ' + plugin.name"
-          placement="right"
+          [placement]="tooltipPlacement"
           ngbTooltip="{{ plugin.labelKey | translate }}"
         >
           <app-plugin-icon

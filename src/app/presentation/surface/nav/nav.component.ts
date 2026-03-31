@@ -112,6 +112,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   public inboxVisibilityService = inject(InboxVisibilityService);
   public featurePluginState = inject(FeaturePluginStateService);
 
+  public tooltipPlacement = document.documentElement.dir === 'rtl' ? 'left' : 'right';
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
   private currentPage = signal<NavigationPage>('');
