@@ -42,6 +42,10 @@ export class ReportPdfService {
   private http = inject(HttpClient);
   private formulaService = inject(FormulaEvaluationService);
 
+  private get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   async generatePdf(context: ReportGenerationContext): Promise<Blob> {
     const { template, provider, data } = context;
     const isLandscape = template.pageSetup.orientation === 1;
@@ -284,7 +288,11 @@ export class ReportPdfService {
   }
 
   private getZoneStartX(ctx: PdfRenderContext, alignment: TextAlignment, zoneFields: ReportField[]): number {
-    if (alignment === TextAlignment.Left) return ctx.marginLeft;
+    const effectiveAlignment = this.isRtl
+      ? (alignment === TextAlignment.Left ? TextAlignment.Right : alignment === TextAlignment.Right ? TextAlignment.Left : alignment)
+      : alignment;
+
+    if (effectiveAlignment === TextAlignment.Left) return ctx.marginLeft;
 
     let totalWidth = 0;
     for (const field of zoneFields) {
@@ -300,7 +308,7 @@ export class ReportPdfService {
       }
     }
 
-    if (alignment === TextAlignment.Center) return ctx.marginLeft + (ctx.contentWidth - totalWidth) / 2;
+    if (effectiveAlignment === TextAlignment.Center) return ctx.marginLeft + (ctx.contentWidth - totalWidth) / 2;
     return ctx.marginLeft + ctx.contentWidth - totalWidth;
   }
 
@@ -387,10 +395,11 @@ export class ReportPdfService {
     fields: ReportField[],
     template: ReportTemplate
   ): { header: string; dataKey: string }[] {
-    return fields.map(f => ({
+    const columns = fields.map(f => ({
       header: this.translateFieldName(f, template, false),
       dataKey: f.dataBinding,
     }));
+    return this.isRtl ? [...columns].reverse() : columns;
   }
 
   private buildColumnStyles(
@@ -400,9 +409,14 @@ export class ReportPdfService {
     const totalWidth = fields.reduce((sum, f) => sum + f.width, 0);
     const styles: Record<string, { cellWidth: number; halign: string; fontSize: number; fontStyle: string }> = {};
     fields.forEach(f => {
+      const ltrAlign = f.style.alignment === 0 ? 'left' : f.style.alignment === 1 ? 'center' : 'right';
+      const halign = this.isRtl && ltrAlign !== 'center'
+        ? (ltrAlign === 'left' ? 'right' : 'left')
+        : ltrAlign;
+
       styles[f.dataBinding] = {
         cellWidth: (f.width / totalWidth) * contentWidth,
-        halign: f.style.alignment === 0 ? 'left' : f.style.alignment === 1 ? 'center' : 'right',
+        halign,
         fontSize: f.style.fontSize,
         fontStyle: this.getJsPdfFontStyle(f.style.bold, f.style.italic),
       };
@@ -641,10 +655,13 @@ export class ReportPdfService {
         this.applyTextColor(ctx.doc, field.style.textColor);
 
         const fullText = `${this.translateFieldName(field, ctx.template)}: ${value}`;
-        ctx.doc.text(fullText, ctx.marginLeft, yPos);
+        const footerX = this.isRtl
+          ? ctx.marginLeft + ctx.contentWidth - ctx.doc.getTextWidth(fullText)
+          : ctx.marginLeft;
+        ctx.doc.text(fullText, footerX, yPos);
 
         if (field.style.underline) {
-          this.renderUnderline(ctx.doc, fullText, ctx.marginLeft, yPos, field);
+          this.renderUnderline(ctx.doc, fullText, footerX, yPos, field);
         }
 
         yPos += field.style.fontSize * 0.5 + 2;
