@@ -22,6 +22,10 @@ export interface ScheduleDrawingConfig {
 export class SchedulePdfDrawingService {
   private gridColorService = inject(GridColorService);
 
+  get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   createDefaultConfig(): ScheduleDrawingConfig {
     return {
       pageWidth: 841.89,
@@ -46,13 +50,14 @@ export class SchedulePdfDrawingService {
     days: { weekdayName: string; dayOfMonth: number; weekdayType: number }[],
     colWidth: number,
   ): void {
-    const headerX = x + config.rowHeaderWidth;
+    const headerX = this.isRtl ? x : x + config.rowHeaderWidth;
 
     pdf.setFontSize(7);
     pdf.setFont(config.fontFamily, 'bold');
 
     for (let i = 0; i < days.length; i++) {
-      const day = days[i];
+      const dayIdx = this.isRtl ? days.length - 1 - i : i;
+      const day = days[dayIdx];
       const cellX = headerX + i * colWidth;
 
       pdf.setFillColor('#f5f5f5');
@@ -86,15 +91,17 @@ export class SchedulePdfDrawingService {
     slot2: string,
     slot3: string,
   ): void {
+    const availableWidth = config.pageWidth - config.marginLeft - config.marginRight;
+    const headerX = this.isRtl ? x + availableWidth - config.rowHeaderWidth : x;
+
     pdf.setFillColor('#f5f5f5');
-    pdf.rect(x, y, config.rowHeaderWidth, height, 'F');
+    pdf.rect(headerX, y, config.rowHeaderWidth, height, 'F');
 
     pdf.setDrawColor(config.borderColor);
     pdf.setLineWidth(config.lineWidth);
-    pdf.rect(x, y, config.rowHeaderWidth, height, 'S');
+    pdf.rect(headerX, y, config.rowHeaderWidth, height, 'S');
 
     const centerY = y + height / 2;
-    const nameX = x + 4;
     const hasSlots = !!(slot1 || slot2 || slot3);
 
     pdf.setFont(config.fontFamily, 'bold');
@@ -103,21 +110,46 @@ export class SchedulePdfDrawingService {
 
     const maxNameWidth = config.rowHeaderWidth - 8;
     const truncatedName = this.truncateText(pdf, name, maxNameWidth);
-    pdf.text(truncatedName, nameX, hasSlots ? centerY - 5 : centerY + 2);
 
-    if (hasSlots) {
-      pdf.setFont(config.fontFamily, 'normal');
-      pdf.setFontSize(6);
-      pdf.setTextColor('#404040');
+    if (this.isRtl) {
+      const nameWidth = pdf.getTextWidth(truncatedName);
+      const nameX = headerX + config.rowHeaderWidth - 4 - nameWidth;
+      pdf.text(truncatedName, nameX, hasSlots ? centerY - 5 : centerY + 2);
 
-      if (slot1) {
-        pdf.text(slot1, nameX, centerY + 2);
+      if (hasSlots) {
+        pdf.setFont(config.fontFamily, 'normal');
+        pdf.setFontSize(6);
+        pdf.setTextColor('#404040');
+
+        const baseX = headerX + config.rowHeaderWidth - 4;
+        if (slot1) {
+          pdf.text(slot1, baseX - pdf.getTextWidth(slot1), centerY + 2);
+        }
+        if (slot2) {
+          pdf.text(slot2, baseX - 30 - pdf.getTextWidth(slot2), centerY + 2);
+        }
+        if (slot3) {
+          pdf.text(slot3, baseX - 60 - pdf.getTextWidth(slot3), centerY + 2);
+        }
       }
-      if (slot2) {
-        pdf.text(slot2, nameX + 30, centerY + 2);
-      }
-      if (slot3) {
-        pdf.text(slot3, nameX + 60, centerY + 2);
+    } else {
+      const nameX = headerX + 4;
+      pdf.text(truncatedName, nameX, hasSlots ? centerY - 5 : centerY + 2);
+
+      if (hasSlots) {
+        pdf.setFont(config.fontFamily, 'normal');
+        pdf.setFontSize(6);
+        pdf.setTextColor('#404040');
+
+        if (slot1) {
+          pdf.text(slot1, nameX, centerY + 2);
+        }
+        if (slot2) {
+          pdf.text(slot2, nameX + 30, centerY + 2);
+        }
+        if (slot3) {
+          pdf.text(slot3, nameX + 60, centerY + 2);
+        }
       }
     }
   }

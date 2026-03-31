@@ -40,6 +40,10 @@ export class SchedulePdfExportService {
   private readonly FONT_SIZE_TITLE = 14;
   private readonly FONT_SIZE_NORMAL = 9;
 
+  private get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   exportSchedule(): void {
     const config = this.drawingService.createDefaultConfig();
     const clients = this.dataManagementSchedule.clients;
@@ -118,9 +122,10 @@ export class SchedulePdfExportService {
           block.slot3,
         );
 
-        const scheduleX = this.MARGINS.left + config.rowHeaderWidth;
+        const scheduleX = this.isRtl ? this.MARGINS.left : this.MARGINS.left + config.rowHeaderWidth;
 
         for (let col = 0; col < coreDays; col++) {
+          const dayIdx = this.isRtl ? coreDays - 1 - col : col;
           const cellX = scheduleX + col * colWidth;
           this.drawingService.drawDayBackground(
             pdf,
@@ -128,7 +133,7 @@ export class SchedulePdfExportService {
             currentY,
             colWidth,
             blockHeight,
-            days[col].weekdayType,
+            days[dayIdx].weekdayType,
           );
         }
 
@@ -137,7 +142,8 @@ export class SchedulePdfExportService {
           const subRowY = currentY + subRowIdx * config.subRowHeight;
 
           for (let col = 0; col < coreDays; col++) {
-            const cellData = subRow[col];
+            const dayIdx = this.isRtl ? coreDays - 1 - col : col;
+            const cellData = subRow[dayIdx];
             if (!cellData) continue;
 
             const cellX = scheduleX + col * colWidth;
@@ -225,7 +231,13 @@ export class SchedulePdfExportService {
   ): void {
     pdf.setFontSize(this.FONT_SIZE_TITLE);
     pdf.setFont(this.FONT_FAMILY, 'bold');
-    pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+
+    if (this.isRtl) {
+      const titleWidth = pdf.getTextWidth(title);
+      pdf.text(title, this.A4_LANDSCAPE.width - this.MARGINS.right - titleWidth, this.MARGINS.top);
+    } else {
+      pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+    }
 
     pdf.setFontSize(this.FONT_SIZE_NORMAL);
     pdf.setFont(this.FONT_FAMILY, 'normal');
@@ -237,12 +249,18 @@ export class SchedulePdfExportService {
     const dateString = `${generatedText}: ${new Date().toLocaleDateString()}`;
     const pageString = `${pageText} ${pageNumber} ${ofText} ${totalPages}`;
 
-    pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + 15);
-    pdf.text(
-      pageString,
-      this.A4_LANDSCAPE.width - this.MARGINS.right - 80,
-      this.MARGINS.top + 15,
-    );
+    if (this.isRtl) {
+      const dateWidth = pdf.getTextWidth(dateString);
+      pdf.text(dateString, this.A4_LANDSCAPE.width - this.MARGINS.right - dateWidth, this.MARGINS.top + 15);
+      pdf.text(pageString, this.MARGINS.left, this.MARGINS.top + 15);
+    } else {
+      pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + 15);
+      pdf.text(
+        pageString,
+        this.A4_LANDSCAPE.width - this.MARGINS.right - 80,
+        this.MARGINS.top + 15,
+      );
+    }
   }
 
   private buildDayHeaders(
