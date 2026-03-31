@@ -717,7 +717,6 @@
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.schedule-header.schedule-header.week": "Semaine : ",
   "schedule.schedule-header.schedule-header.biweekly": "2 semaines : ",
-  "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",
   "schedule.shift-section.tab.errors": "Liste des erreurs",
   "schedule.error-list.filter.errors": "Erreurs",

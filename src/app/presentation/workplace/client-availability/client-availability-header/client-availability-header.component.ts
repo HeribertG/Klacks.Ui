@@ -5,7 +5,7 @@ import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, output, sig
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSliderModule, Options, ChangeContext } from '@angular-slider/ngx-slider';
-import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
@@ -36,7 +36,6 @@ const GROUPING_LABEL_KEYS = [
     FormsModule,
     NgxSliderModule,
     NgbDropdownModule,
-    NgbTooltipModule,
     TranslateModule,
     PeriodCalendarMonthlyComponent,
     PeriodCalendarWeeklyComponent,
@@ -54,7 +53,6 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   private calendarUtil = inject(CalendarUtilService);
 
   readonly isRtl = document.documentElement.dir === 'rtl';
-  readonly tooltipPlacement = this.isRtl ? 'left' : 'right';
 
   @Input() viewMode: PaymentInterval = PaymentInterval.Weekly;
 

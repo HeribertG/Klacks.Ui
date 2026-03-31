@@ -94,7 +94,6 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
-  readonly tooltipPlacement = this.isRtl ? 'left' : 'right';
 
   value = 100;
   options: Options = {
