@@ -207,7 +207,7 @@ export class BaseCreateRowHeaderService {
 
     if (client && this.scheduleChangeService.isDirty(client.id)) {
       const dotRadius = 4.5 * this.settings.zoom;
-      const dotX = isRtl ? dotRadius + 4 : width - dotRadius - 4;
+      const dotX = isRtl ? infoOffset + dotRadius + 4 : width - dotRadius - 4;
       const dotY = dotRadius + 2;
       ctx.save();
       ctx.beginPath();
@@ -275,7 +275,7 @@ export class BaseCreateRowHeaderService {
     ctx.fillStyle = this.gridColors.headerForeGroundColor;
     ctx.textAlign = isRtl ? 'left' : 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, isRtl ? 0 : width, secondLineY);
+    ctx.fillText(text, isRtl ? this.settings.InfoSpotWidth + 2 : width, secondLineY);
     ctx.restore();
   }
 
@@ -486,10 +486,18 @@ export class BaseCreateRowHeaderService {
         const isRtl = document.documentElement.dir === 'rtl';
         this.fillCellBackground(ctx, width, height);
 
-        const borderX = isRtl
-          ? this.settings.InfoSpotWidth + this.settings.increaseBorder
-          : width - this.settings.InfoSpotWidth - this.settings.increaseBorder;
-        this.drawBorder(ctx, borderX, height, this.settings.headerBorderWidth);
+        if (isRtl) {
+          const textStart = this.settings.InfoSpotWidth + this.settings.increaseBorder;
+          DrawHelper.drawBorder(
+            ctx, textStart, 0, width - textStart, height,
+            this.gridColors.controlBackGroundColor,
+            this.settings.headerBorderWidth,
+            Gradient3DBorderStyleEnum.Raised
+          );
+        } else {
+          const borderX = width - this.settings.InfoSpotWidth - this.settings.increaseBorder;
+          this.drawBorder(ctx, borderX, height, this.settings.headerBorderWidth);
+        }
 
         const textAreaWidth = width - this.settings.InfoSpotWidth;
         const textAreaOffset = isRtl ? this.settings.InfoSpotWidth : 0;
