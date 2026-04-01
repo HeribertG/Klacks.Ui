@@ -72,7 +72,7 @@ describe('ButtonNewComponent', () => {
         const iconContainer = fixture.nativeElement.querySelector('button div');
         expect(iconContainer).toBeTruthy();
         expect(iconContainer.style.marginTop).toBe('-2px');
-        expect(iconContainer.style.marginLeft).toBe('-6px');
+        expect(iconContainer.style.marginInlineStart).toBe('-6px');
     });
 
     it('should have correct SVG attributes', () => {

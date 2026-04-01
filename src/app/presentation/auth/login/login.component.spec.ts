@@ -106,7 +106,6 @@ describe('LoginComponent', () => {
         expect(component.username).toBe('');
         expect(component.password).toBe('');
         expect(component.isClicked).toBe(false);
-        expect(component.showPassword).toBe(false);
     });
 
     it('should set default language on ngOnInit', () => {

@@ -90,7 +90,6 @@ describe('EmailSettingComponent', () => {
     describe('Initialization', () => {
         it('should have default values', () => {
             // Assert
-            expect(component.showPassword()).toBe(false);
             expect(component.isTestingEmail).toBe(false);
         });
 
@@ -226,29 +225,6 @@ describe('EmailSettingComponent', () => {
         });
     });
 
-    describe('Password Visibility', () => {
-        it('should toggle password visibility', () => {
-            // Arrange
-            expect(component.showPassword()).toBe(false);
-
-            // Act
-            component.toggleShowPassword();
-
-            // Assert
-            expect(component.showPassword()).toBe(true);
-        });
-
-        it('should toggle password visibility back to hidden', () => {
-            // Arrange
-            component.showPassword.set(true);
-
-            // Act
-            component.toggleShowPassword();
-
-            // Assert
-            expect(component.showPassword()).toBe(false);
-        });
-    });
 
     describe('Component Lifecycle', () => {
         it('should unsubscribe on destroy', () => {

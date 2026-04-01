@@ -70,7 +70,7 @@ describe('ButtonPdfComponent', () => {
         const iconContainer = fixture.nativeElement.querySelector('.btn div');
         expect(iconContainer).toBeTruthy();
         expect(iconContainer.style.marginTop).toBe('-2px');
-        expect(iconContainer.style.marginLeft).toBe('-7px');
+        expect(iconContainer.style.marginInlineStart).toBe('-7px');
     });
 
     it('should toggle CSS classes when buttonDisabled changes', () => {
