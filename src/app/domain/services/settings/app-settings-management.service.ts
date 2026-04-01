@@ -11,11 +11,13 @@ import {
   IImapServerSettings,
   IWorkSettings,
   ISchedulingDefaultSettings,
+  IDataRetentionSettings,
   AppContactSettings,
   EmailServerSettings,
   ImapServerSettings,
   WorkSettings,
-  SchedulingDefaultSettings
+  SchedulingDefaultSettings,
+  DataRetentionSettings
 } from 'src/app/domain/models/settings/app-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -25,6 +27,7 @@ interface SettingsModels {
   imap: IImapServerSettings;
   work: IWorkSettings;
   schedulingDefaults: ISchedulingDefaultSettings;
+  dataRetention: IDataRetentionSettings;
   openRouteServiceApiKey: string;
   deeplApiKey: string;
 }
@@ -108,6 +111,8 @@ export class AppSettingsManagementService {
     [AppSetting.SCHEDULING_MAX_DAILY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxDailyHours = parseFloat(v) || 10)],
     [AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(v) || 50)],
     [AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxConsecutiveDays = parseInt(v, 10) || 6)],
+
+    [AppSetting.DATA_RETENTION_DAYS, (v, m) => (m.dataRetention.dataRetentionDays = parseInt(v, 10) || 3650)],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -115,6 +120,7 @@ export class AppSettingsManagementService {
   public imapSettings = signal<IImapServerSettings>(new ImapServerSettings());
   public workSettings = signal<IWorkSettings>(new WorkSettings());
   public schedulingDefaultSettings = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
+  public dataRetentionSettings = signal<IDataRetentionSettings>(new DataRetentionSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
 
@@ -123,6 +129,7 @@ export class AppSettingsManagementService {
   private imapSettingsOriginal = signal<IImapServerSettings>(new ImapServerSettings());
   private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
   private schedulingDefaultSettingsOriginal = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
+  private dataRetentionSettingsOriginal = signal<IDataRetentionSettings>(new DataRetentionSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
 
@@ -140,6 +147,7 @@ export class AppSettingsManagementService {
       this.imapSettings();
       this.workSettings();
       this.schedulingDefaultSettings();
+      this.dataRetentionSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
 
@@ -200,6 +208,7 @@ export class AppSettingsManagementService {
       imap: new ImapServerSettings(),
       work: new WorkSettings(),
       schedulingDefaults: new SchedulingDefaultSettings(),
+      dataRetention: new DataRetentionSettings(),
       openRouteServiceApiKey: '',
       deeplApiKey: '',
     };
@@ -216,6 +225,7 @@ export class AppSettingsManagementService {
     this.imapSettings.set(models.imap);
     this.workSettings.set(models.work);
     this.schedulingDefaultSettings.set(models.schedulingDefaults);
+    this.dataRetentionSettings.set(models.dataRetention);
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
 
@@ -224,6 +234,7 @@ export class AppSettingsManagementService {
     this.imapSettingsOriginal.set(cloneObject(models.imap));
     this.workSettingsOriginal.set(cloneObject(models.work));
     this.schedulingDefaultSettingsOriginal.set(cloneObject(models.schedulingDefaults));
+    this.dataRetentionSettingsOriginal.set(cloneObject(models.dataRetention));
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
   }
@@ -289,6 +300,8 @@ export class AppSettingsManagementService {
     { key: AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWeeklyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWeeklyHours.toString() },
     { key: AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxConsecutiveDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxConsecutiveDays.toString() },
 
+    { key: AppSetting.DATA_RETENTION_DAYS, getCurrent: () => this.dataRetentionSettings().dataRetentionDays.toString(), getOriginal: () => this.dataRetentionSettingsOriginal().dataRetentionDays.toString() },
+
     { key: AppSetting.OPENROUTESERVICE_API_KEY, getCurrent: () => this.openRouteServiceApiKey(), getOriginal: () => this.openRouteServiceApiKeyOriginal() },
     { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
   ];
@@ -343,6 +356,7 @@ export class AppSettingsManagementService {
       this.imapSettingsOriginal.set(cloneObject(this.imapSettings()));
       this.workSettingsOriginal.set(cloneObject(this.workSettings()));
       this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
+      this.dataRetentionSettingsOriginal.set(cloneObject(this.dataRetentionSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
     }
@@ -359,6 +373,8 @@ export class AppSettingsManagementService {
     const workOriginal = this.workSettingsOriginal();
     const sched = this.schedulingDefaultSettings();
     const schedOriginal = this.schedulingDefaultSettingsOriginal();
+    const retention = this.dataRetentionSettings();
+    const retentionOriginal = this.dataRetentionSettingsOriginal();
 
     return (
       !compareComplexObjects(contact, contactOriginal) ||
@@ -366,6 +382,7 @@ export class AppSettingsManagementService {
       !compareComplexObjects(imap, imapOriginal) ||
       !compareComplexObjects(work, workOriginal) ||
       !compareComplexObjects(sched, schedOriginal) ||
+      !compareComplexObjects(retention, retentionOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal()
     );

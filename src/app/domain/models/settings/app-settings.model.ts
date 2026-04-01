@@ -114,6 +114,14 @@ export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   schedulingMaxConsecutiveDays = 6;
 }
 
+export interface IDataRetentionSettings {
+  dataRetentionDays: number;
+}
+
+export class DataRetentionSettings implements IDataRetentionSettings {
+  dataRetentionDays = 3650;
+}
+
 export interface IWorkSettings {
   vacationDaysPerYear: number;
   probationPeriod: number;

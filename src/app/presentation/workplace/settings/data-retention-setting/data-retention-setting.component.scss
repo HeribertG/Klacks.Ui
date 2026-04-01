@@ -1,0 +1,44 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.first {
+  padding-top: 10px;
+  margin-inline-start: 30px;
+  padding-inline-end: 40px;
+}
+
+input {
+  width: 80px;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.secondColumn {
+  margin-inline-start: 40px;
+}
+
+.info-text {
+  margin-inline-start: 30px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.hint-column {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 6px;
+}
+
+.hint-text {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
