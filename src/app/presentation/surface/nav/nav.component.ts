@@ -272,9 +272,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadSavedLanguage(): void {
     const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
-    if (savedLang) {
-      this.onChangeLanguage(savedLang);
-    }
+    const lang = savedLang || LocaleService.detectBrowserLanguage();
+    this.onChangeLanguage(lang);
   }
 
   private updateCurrentPage(): void {

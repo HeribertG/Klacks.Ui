@@ -18,8 +18,14 @@ export class DirectionService {
   private languageConfigService = inject(LanguageConfigService);
   private document = inject(DOCUMENT);
 
-  // TODO: Remove RTL force after testing
-  readonly direction: Signal<'ltr' | 'rtl'> = computed(() => 'rtl');
+  readonly direction: Signal<'ltr' | 'rtl'> = computed(() => {
+    const lang = this.localeService.locale().split('-')[0];
+    const meta = this.languageConfigService.getLanguageMetadata(lang);
+    if (meta?.direction) {
+      return meta.direction;
+    }
+    return RTL_LANGUAGES.includes(lang) ? 'rtl' : 'ltr';
+  });
 
   constructor() {
     effect(() => {
