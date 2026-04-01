@@ -22,7 +22,7 @@
 @keyframes lds-ripple {
    0% {
       top: 36px;
-      left: 36px;
+      inset-inline-start: 36px;
       width: 0;
       height: 0;
       opacity: 1;
@@ -30,7 +30,7 @@
 
    100% {
       top: 0px;
-      left: 0px;
+      inset-inline-start: 0px;
       width: 72px;
       height: 72px;
       opacity: 0;

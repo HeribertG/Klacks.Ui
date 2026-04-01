@@ -119,7 +119,7 @@ export class TimeRulerRenderService {
     ctx.fillStyle = this.gridColorService.mainFontColor;
     ctx.lineWidth = this.TIME_MARK_LINE_WIDTH;
     ctx.font = this.TIME_MARK_FONT;
-    ctx.textAlign = this.TIME_MARK_TEXT_ALIGN;
+    ctx.textAlign = document.documentElement.dir === 'rtl' ? 'right' : 'left';
     ctx.textBaseline = this.TIME_MARK_TEXT_BASELINE;
 
     const pixelsPerMinute = height / range.totalMinutes;

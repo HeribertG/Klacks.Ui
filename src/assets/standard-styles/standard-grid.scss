@@ -236,6 +236,10 @@ t .table-cell-top {
   text-align: center;
   margin: 5px;
   box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
+
+  [dir="rtl"] & {
+    box-shadow: -2px 2px 4px var(--gridBackgroundColorCellShadow);
+  }
 }
 
 .cell-comment-left {
@@ -254,6 +258,10 @@ t .table-cell-top {
   text-align: start;
   margin: 5px;
   box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
+
+  [dir="rtl"] & {
+    box-shadow: -2px 2px 4px var(--gridBackgroundColorCellShadow);
+  }
 }
 
 .cell-with-comment:hover span.cell-comment {

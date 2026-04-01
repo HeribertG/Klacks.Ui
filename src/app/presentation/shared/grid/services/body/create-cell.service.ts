@@ -435,18 +435,19 @@ export class BaseCreateCellService {
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
     const margin = this.iconMargin * this.settings.zoom;
+    const isRtl = document.documentElement.dir === 'rtl';
 
     switch (corner) {
       case IconCornerEnum.TopLeft:
-        return { x: margin, y: margin };
+        return { x: isRtl ? cellWidth - width - margin : margin, y: margin };
       case IconCornerEnum.TopRight:
-        return { x: cellWidth - width - margin, y: margin };
+        return { x: isRtl ? margin : cellWidth - width - margin, y: margin };
       case IconCornerEnum.BottomLeft:
-        return { x: margin, y: cellHeight - height - margin };
+        return { x: isRtl ? cellWidth - width - margin : margin, y: cellHeight - height - margin };
       case IconCornerEnum.BottomRight:
-        return { x: cellWidth - width - margin, y: cellHeight - height - margin };
+        return { x: isRtl ? margin : cellWidth - width - margin, y: cellHeight - height - margin };
       default:
-        return { x: margin, y: margin };
+        return { x: isRtl ? cellWidth - width - margin : margin, y: margin };
     }
   }
 

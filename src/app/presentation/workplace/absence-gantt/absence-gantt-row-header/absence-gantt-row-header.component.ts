@@ -292,19 +292,29 @@ export class AbsenceGanttRowHeaderComponent
     const canvas = this.drawRowHeader.rowHeaderCanvasManager.canvas;
     if (!canvas) return;
 
+    const isRtl = document.documentElement.dir === 'rtl';
     const rect = canvas.getBoundingClientRect();
     const icon = this.drawRowHeader.recFilterIcon;
     const iconRight = rect.left + icon.left + icon.width;
     const iconBottom = rect.top + icon.top + icon.height;
 
-    this.filterStyle = { visibility: 'hidden', left: '0px', top: iconBottom + 'px' };
+    this.filterStyle = { visibility: 'hidden', ...(isRtl ? { right: '0px' } : { left: '0px' }), top: iconBottom + 'px' };
 
     requestAnimationFrame(() => {
       const el = this.filterEl()?.nativeElement;
       const popupWidth = el?.offsetWidth ?? 0;
-      let left = iconRight - popupWidth;
-      if (left < 0) left = 0;
-      this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+      const viewportWidth = window.innerWidth;
+
+      if (isRtl) {
+        let left = rect.left + icon.left;
+        if (left + popupWidth > viewportWidth) left = viewportWidth - popupWidth;
+        if (left < 0) left = 0;
+        this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+      } else {
+        let left = iconRight - popupWidth;
+        if (left < 0) left = 0;
+        this.filterStyle = { visibility: 'visible', left: left + 'px', top: iconBottom + 'px' };
+      }
       this.cdr.markForCheck();
     });
   }

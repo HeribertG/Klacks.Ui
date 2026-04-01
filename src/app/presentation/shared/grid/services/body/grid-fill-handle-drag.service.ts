@@ -189,8 +189,11 @@ export class GridFillHandleDragService {
     ctx.globalAlpha = 0.3;
     ctx.fillStyle = '#4a90d9';
 
+    const isRtl = document.documentElement.dir === 'rtl';
+    const viewportWidth = this.scrollGrid.visibleCols * cellWidth;
+
     for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
-      const x = (col - firstVisibleCol) * cellWidth;
+      const x = isRtl ? viewportWidth - (col - firstVisibleCol + 1) * cellWidth : (col - firstVisibleCol) * cellWidth;
       const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight;
       ctx.fillRect(x, y, cellWidth, cellHeight);
     }
@@ -212,7 +215,7 @@ export class GridFillHandleDragService {
         const isActive = this.gridData.isCellActive(state.startPosition.row, col);
 
         if (!isActive) {
-          const x = (col - firstVisibleCol) * cellWidth + cellWidth / 2;
+          const x = isRtl ? viewportWidth - (col - firstVisibleCol + 1) * cellWidth + cellWidth / 2 : (col - firstVisibleCol) * cellWidth + cellWidth / 2;
           const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight + cellHeight / 2;
           ctx.fillText(previewText, x, y);
         }

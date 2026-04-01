@@ -5,6 +5,11 @@
   position: relative;
   display: inline-block !important;
   box-shadow: 1px 1px 1px #aaaaaa;
+
+  [dir="rtl"] & {
+    box-shadow: -1px 1px 1px #aaaaaa;
+  }
+
   margin-top: 10px;
   font-size: 13px;
   color: var(--colorLabel);
@@ -14,8 +19,8 @@
   width: 0;
   height: 0;
   color: #f4d03f !important;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
+  border-inline-start: 10px solid transparent;
+  border-inline-end: 10px solid transparent;
   border-bottom: 10px solid;
   position: absolute;
   top: -10px;

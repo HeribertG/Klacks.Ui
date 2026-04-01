@@ -183,13 +183,7 @@ export class MenuComponent {
   }
 
   private getPosition(element: HTMLElement): [x: number, y: number] {
-    let x = 0;
-    let y = 0;
-    while (element) {
-      x += element.offsetLeft - element.scrollLeft + element.clientLeft;
-      y += element.offsetTop - element.scrollTop + element.clientTop;
-      element = element.offsetParent as HTMLElement;
-    }
-    return [x, y];
+    const rect = element.getBoundingClientRect();
+    return [rect.left + window.scrollX, rect.top + window.scrollY];
   }
 }

@@ -12,17 +12,7 @@ export interface ClientRect {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getScreenCoordinates(obj: any): unknown {
-  const p = { x: Number, y: Number };
-  p.x = obj.offsetLeft;
-  p.y = obj.offsetTop;
-  while (obj.offsetParent) {
-    p.x = p.x + obj.offsetParent.offsetLeft;
-    p.y = p.y + obj.offsetParent.offsetTop;
-    if (obj === document.getElementsByTagName('body')[0]) {
-      break;
-    } else {
-      obj = obj.offsetParent;
-    }
-  }
+  const rect = obj.getBoundingClientRect();
+  const p = { x: rect.left + window.scrollX, y: rect.top + window.scrollY };
   return p;
 }

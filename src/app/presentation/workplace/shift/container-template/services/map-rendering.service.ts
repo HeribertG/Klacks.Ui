@@ -259,19 +259,20 @@ export class MapRenderingService {
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement
   ): void {
+    const isRtl = document.documentElement.dir === 'rtl';
     ctx.fillStyle = COLOR_ATTRIBUTION_BG;
     ctx.fillRect(
-      OSM_ATTRIBUTION_MARGIN,
+      isRtl ? canvas.width - OSM_ATTRIBUTION_WIDTH - OSM_ATTRIBUTION_MARGIN : OSM_ATTRIBUTION_MARGIN,
       canvas.height - OSM_ATTRIBUTION_HEIGHT - OSM_ATTRIBUTION_MARGIN + 1,
       OSM_ATTRIBUTION_WIDTH,
       OSM_ATTRIBUTION_HEIGHT
     );
     ctx.fillStyle = COLOR_GRAY_DARK;
     ctx.font = CANVAS_FONT_NORMAL_10;
-    ctx.textAlign = 'left';
+    ctx.textAlign = isRtl ? 'right' : 'left';
     ctx.fillText(
       OSM_ATTRIBUTION_TEXT,
-      OSM_ATTRIBUTION_TEXT_OFFSET,
+      isRtl ? canvas.width - OSM_ATTRIBUTION_TEXT_OFFSET : OSM_ATTRIBUTION_TEXT_OFFSET,
       canvas.height - PAGE_NUMBER_OFFSET_Y
     );
   }

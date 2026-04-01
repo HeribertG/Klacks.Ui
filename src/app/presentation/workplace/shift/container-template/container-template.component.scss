@@ -723,6 +723,19 @@
   }
 }
 
+@keyframes autofill-slide-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-400%);
+  }
+}
+
+:host-context([dir="rtl"]) .autofill-progress-bar {
+  animation-name: autofill-slide-rtl;
+}
+
 .icon-table.disabled {
   opacity: 0.3;
   pointer-events: none;
