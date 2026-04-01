@@ -22,8 +22,12 @@ describe('CalendarSettingService', () => {
             expect(service.cellWidth).toBe(8);
         });
 
-        it('should have cellHeaderHeight = 55', () => {
-            expect(service.cellHeaderHeight).toBe(55);
+        it('should have monthHeaderHeight = 30', () => {
+            expect(service.monthHeaderHeight).toBe(30);
+        });
+
+        it('should have cellHeaderHeight = 40', () => {
+            expect(service.cellHeaderHeight).toBe(40);
         });
 
         it('should have increaseBorder = 0.5', () => {

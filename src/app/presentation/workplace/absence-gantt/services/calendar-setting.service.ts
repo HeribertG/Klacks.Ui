@@ -11,7 +11,8 @@ export class CalendarSettingService implements IRowHeaderSettings {
 
   cellHeight = 45;
   cellWidth = this.BASE_CELL_WIDTH;
-  cellHeaderHeight = 55;
+  monthHeaderHeight = 30;
+  cellHeaderHeight = 40;
   increaseBorder = 0.5;
   borderWidth = 1;
   anchorWidth = 10;

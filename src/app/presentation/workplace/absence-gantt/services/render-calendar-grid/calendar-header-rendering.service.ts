@@ -31,7 +31,7 @@ export class CalendarHeaderRenderingService {
     this.ganttCanvasManager.headerCtx!.drawImage(
       this.ganttCanvasManager.backgroundRowCanvas!,
       0,
-      this.calendarSetting.cellHeight
+      this.calendarSetting.monthHeaderHeight
     );
   }
 

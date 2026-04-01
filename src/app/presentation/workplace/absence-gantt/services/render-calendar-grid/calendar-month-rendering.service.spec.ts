@@ -66,7 +66,8 @@ describe('CalendarMonthRenderingService', () => {
 
         mockCalendarSetting = {
             cellWidth: 10,
-            cellHeight: 30
+            cellHeight: 30,
+            monthHeaderHeight: 30
         };
 
         mockGridSetting = {

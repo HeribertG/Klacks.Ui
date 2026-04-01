@@ -109,6 +109,7 @@ describe('GanttCanvasManagerService', () => {
         mockCalendarSetting = {
             cellWidth: 10,
             cellHeight: 30,
+            monthHeaderHeight: 20,
             cellHeaderHeight: 50
         };
 

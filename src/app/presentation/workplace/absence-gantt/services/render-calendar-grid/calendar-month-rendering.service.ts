@@ -97,7 +97,7 @@ export class CalendarMonthRenderingService {
         Math.floor(this.coord.spanLeft(startCol, endCol)),
         0,
         Math.floor(this.coord.spanRight(startCol, endCol)),
-        this.calendarSetting.cellHeight
+        this.calendarSetting.monthHeaderHeight
       );
       lastDays += actualDays;
       DrawHelper.fillRectangle(
@@ -117,6 +117,7 @@ export class CalendarMonthRenderingService {
         Gradient3DBorderStyleEnum.Raised
       );
 
+      const fontSizeInPx = Math.round(+this.gridFonts.mainFontSize * (4 / 3));
       DrawHelper.drawText(
         this.ganttCanvasManager.headerCtx!,
         this.translateService.instant(this.gridSetting.monthsName[i]),
@@ -125,7 +126,7 @@ export class CalendarMonthRenderingService {
         monthRec.width,
         monthRec.height,
         this.gridFonts.mainFontString,
-        +this.gridFonts.mainFontSize,
+        fontSizeInPx,
         this.gridColors.headerForeGroundColor,
         TextAlignmentEnum.Center,
         BaselineAlignmentEnum.Center

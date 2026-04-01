@@ -28,6 +28,7 @@ describe('CalendarCalculationService', () => {
         mockCalendarSetting = {
             cellWidth: 10,
             cellHeight: 30,
+            monthHeaderHeight: 20,
             cellHeaderHeight: 50,
             anchorWidth: 5
         };
@@ -183,7 +184,7 @@ describe('CalendarCalculationService', () => {
 
             const result = service.calculateHeaderDayRect(dayRect, false);
 
-            expect(result.top).toBe(mockCalendarSetting.cellHeight);
+            expect(result.top).toBe(mockCalendarSetting.monthHeaderHeight);
             expect(result.bottom).toBe(mockCalendarSetting.cellHeaderHeight);
         });
 
@@ -211,7 +212,7 @@ describe('CalendarCalculationService', () => {
             const result = service.calculateHeaderDayRect(dayRect, false);
 
             const expectedRankHeight = mockCalendarSetting.cellHeaderHeight -
-                mockCalendarSetting.cellHeight;
+                mockCalendarSetting.monthHeaderHeight;
 
             expect(result.height).toBe(expectedRankHeight);
         });

@@ -38,11 +38,15 @@ export class CalendarCalculationService {
 
   public calculateDayRectangle(dayIndex: number): Rectangle {
     const x = this.coord.columnX(dayIndex);
+    const height = Math.max(
+      this.calendarSetting.cellHeaderHeight,
+      this.calendarSetting.cellHeight
+    );
     return new Rectangle(
       Math.floor(x),
       0,
       Math.floor(x + this.calendarSetting.cellWidth),
-      this.calendarSetting.cellHeaderHeight
+      height
     );
   }
 
@@ -50,10 +54,10 @@ export class CalendarCalculationService {
     dayRect: Rectangle,
     isSaturday: boolean
   ): Rectangle {
-    const rankTop = this.calendarSetting.cellHeight;
+    const rankTop = this.calendarSetting.monthHeaderHeight;
     const rankHeight =
       this.calendarSetting.cellHeaderHeight -
-      this.calendarSetting.cellHeight;
+      this.calendarSetting.monthHeaderHeight;
     return new Rectangle(
       isSaturday ? dayRect.right - this.MINCELLWITHFORDAYRANK : dayRect.left,
       rankTop,

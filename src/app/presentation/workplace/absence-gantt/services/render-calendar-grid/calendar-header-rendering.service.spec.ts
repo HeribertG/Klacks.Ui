@@ -40,7 +40,8 @@ describe('CalendarHeaderRenderingService', () => {
         mockCalendarSetting = {
             cellWidth: 8,
             cellHeight: 45,
-            cellHeaderHeight: 55
+            monthHeaderHeight: 30,
+            cellHeaderHeight: 40
         };
 
         mockGridFonts = {
@@ -72,7 +73,7 @@ describe('CalendarHeaderRenderingService', () => {
             expect(mockHeaderCtx.drawImage).toHaveBeenCalledWith(
                 mockGanttCanvasManager.backgroundRowCanvas,
                 0,
-                mockCalendarSetting.cellHeight
+                mockCalendarSetting.monthHeaderHeight
             );
         });
     });
