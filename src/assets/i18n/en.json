@@ -1,4 +1,4 @@
-﻿{
+{
   "accessibility.skip-to-main": "Skip to main content",
   "accessibility.close": "Close",
   "accessibility.loading": "Loading...",
@@ -1889,5 +1889,12 @@
   "scenario.name": "Name",
   "scenario.description": "Description",
   "scenario.fromDate": "From",
-  "scenario.untilDate": "Until"
+  "scenario.untilDate": "Until",
+  "legal.imprint.title": "Legal Notice",
+  "legal.imprint.content": "<p>The operator of this application will provide the legal notice once the configuration is complete.</p><p>Please contact your organization's administrator for more information.</p>",
+  "legal.privacy.title": "Privacy Policy",
+  "legal.privacy.content": "<p>The operator of this application will provide the privacy policy once the configuration is complete.</p><p>Please contact your organization's administrator for more information.</p>",
+  "legal.back-to-login": "Back to Login",
+  "legal.imprint-link": "Legal Notice",
+  "legal.privacy-link": "Privacy Policy"
 }

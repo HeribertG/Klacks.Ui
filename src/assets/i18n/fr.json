@@ -1,4 +1,4 @@
-﻿{
+{
   "accessibility.skip-to-main": "Aller au contenu principal",
   "accessibility.close": "Fermer",
   "accessibility.loading": "Chargement...",
@@ -264,7 +264,7 @@
   "address.edit-address.note.toolbar.list": "Liste",
   "address.edit-address.note.toolbar.paste": "Coller",
   "address.edit-address.note.toolbar.underline": "Souligner",
-  "address.validation.failed": "L'adresse n'a pas pu \u00eatre v\u00e9rifi\u00e9e : {{address}}. Veuillez v\u00e9rifier la rue, le code postal et la ville.",
+  "address.validation.failed": "L'adresse n'a pas pu être vérifiée : {{address}}. Veuillez vérifier la rue, le code postal et la ville.",
   "address.validation.city-only": "Rue ou numéro de maison introuvable pour : {{address}}. Le code postal et la ville sont corrects, mais la rue n'a pas pu être vérifiée.",
   "address.validation.not-found": "Adresse introuvable : {{address}}. Le code postal, la ville ou la rue semblent invalides.",
   "address.validation.missing-fields": "Adresse incomplète : {{address}}. Le code postal et la ville sont obligatoires.",
@@ -1889,5 +1889,12 @@
   "scenario.name": "Nom",
   "scenario.description": "Description",
   "scenario.fromDate": "De",
-  "scenario.untilDate": "Jusqu'à"
+  "scenario.untilDate": "Jusqu'à",
+  "legal.imprint.title": "Mentions légales",
+  "legal.imprint.content": "<p>L'opérateur de cette application fournira les mentions légales une fois la configuration terminée.</p><p>Veuillez contacter l'administrateur de votre organisation pour plus d'informations.</p>",
+  "legal.privacy.title": "Politique de confidentialité",
+  "legal.privacy.content": "<p>L'opérateur de cette application fournira la politique de confidentialité une fois la configuration terminée.</p><p>Veuillez contacter l'administrateur de votre organisation pour plus d'informations.</p>",
+  "legal.back-to-login": "Retour à la connexion",
+  "legal.imprint-link": "Mentions légales",
+  "legal.privacy-link": "Confidentialité"
 }

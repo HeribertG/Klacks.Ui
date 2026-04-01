@@ -144,6 +144,11 @@
 
       <p></p>
     </form>
+    <div class="legal-links">
+      <a [routerLink]="['/imprint']">{{ "legal.imprint-link" | translate }}</a>
+      <span class="legal-separator">|</span>
+      <a [routerLink]="['/privacy']">{{ "legal.privacy-link" | translate }}</a>
+    </div>
   </div>
   }
 </div>

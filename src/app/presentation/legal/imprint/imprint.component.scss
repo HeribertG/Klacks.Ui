@@ -1,0 +1,34 @@
+@use "../../../../assets/standard-styles/colors.scss";
+
+.legal-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: var(--backgroundColorWindow);
+}
+
+.legal-container {
+  background-color: white;
+  border-radius: 5px;
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    margin-bottom: 24px;
+    color: var(--textColor, #333);
+  }
+}
+
+.legal-content {
+  line-height: 1.6;
+  color: var(--textColor, #555);
+}
+
+.legal-back {
+  margin-top: 30px;
+  text-align: center;
+}

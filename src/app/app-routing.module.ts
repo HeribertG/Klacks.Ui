@@ -24,6 +24,20 @@ const routes: Routes = [
         (m) => m.OAuth2CallbackComponent,
       ),
   },
+  {
+    path: 'imprint',
+    loadComponent: () =>
+      import('./presentation/legal/imprint/imprint.component').then(
+        (m) => m.ImprintComponent,
+      ),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./presentation/legal/privacy/privacy.component').then(
+        (m) => m.PrivacyComponent,
+      ),
+  },
   { path: 'error', component: ErrorComponent },
   { path: 'no-access', component: NoAccessComponent },
   { path: 'page-not-found', component: PageNotFoundComponent },

@@ -1,4 +1,4 @@
-﻿{
+{
   "accessibility.skip-to-main": "Zum Hauptinhalt springen",
   "accessibility.close": "Schließen",
   "accessibility.loading": "Laden...",
@@ -1889,5 +1889,12 @@
   "scenario.name": "Name",
   "scenario.description": "Beschreibung",
   "scenario.fromDate": "Von",
-  "scenario.untilDate": "Bis"
+  "scenario.untilDate": "Bis",
+  "legal.imprint.title": "Impressum",
+  "legal.imprint.content": "<p>Der Betreiber dieser Anwendung stellt die Impressumsangaben bereit, sobald die Konfiguration abgeschlossen ist.</p><p>Bitte wenden Sie sich an den Administrator Ihrer Organisation für weitere Informationen.</p>",
+  "legal.privacy.title": "Datenschutzerklärung",
+  "legal.privacy.content": "<p>Der Betreiber dieser Anwendung stellt die Datenschutzerklärung bereit, sobald die Konfiguration abgeschlossen ist.</p><p>Bitte wenden Sie sich an den Administrator Ihrer Organisation für weitere Informationen.</p>",
+  "legal.back-to-login": "Zurück zur Anmeldung",
+  "legal.imprint-link": "Impressum",
+  "legal.privacy-link": "Datenschutz"
 }

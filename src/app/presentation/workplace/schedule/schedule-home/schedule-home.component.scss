@@ -17,7 +17,7 @@ $nav_width: 100px;
 .schedule-body {
   order: 2;
   flex: 1;
-  height: calc(100vh - (#{$main-header_height} + #{$header_height}));
+  height: calc(100vh - (#{$main-header_height} + #{$header_height} + var(--footer_height, 0px)));
   background-color: var(--backgroundColorWorkplace);
   box-sizing: content-box;
   overflow-x: hidden;

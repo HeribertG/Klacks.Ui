@@ -3,7 +3,7 @@ $nav_width: 100px;
 
 :host {
   display: block;
-  height: calc(100vh - #{$header_height});
+  height: calc(100vh - #{$header_height} - var(--footer_height, 0px));
   width: calc(100vw - #{$nav_width});
   overflow: hidden;
 }

@@ -5,8 +5,12 @@
 
 $header_height: 65px;
 $savebar_height: var(--savebar_height);
-$main-footer_height: 0px;
+$main-footer_height: 32px;
 $nav_width: 100px;
+
+:host {
+  --footer_height: #{$main-footer_height};
+}
 
 app-header {
   order: 1;
@@ -17,18 +21,15 @@ app-header {
 
 app-nav {
   order: 2;
-  flex: 0 1 $nav_width;
+  flex: 0 0 $nav_width;
   background-color: var(--backgroundColorHeaderNav);
   height: calc(100vh - (#{$header_height} + #{$main-footer_height}));
 }
 
 app-main {
-  min-height: min-content;
   order: 3;
   flex: 1;
-  height: calc(
-    100vh - (#{$header_height} + #{$main-footer_height} + #{$savebar_height})
-  );
+  height: calc(100vh - (#{$header_height} + #{$main-footer_height} + #{$savebar_height}));
   width: calc(100% - #{$nav_width});
   background-color: var(--backgroundColorWorkplace);
   box-sizing: border-box;
@@ -53,7 +54,7 @@ app-main {
 app-footer {
   order: 5;
   height: $main-footer_height;
-  flex: 0 1 100%;
+  flex: 0 0 100%;
   background-color: var(--backgroundColorHeaderNav);
 }
 
@@ -61,7 +62,7 @@ app-footer {
   font-size: 13px;
   text-decoration: underline;
   cursor: pointer;
-  
+
   &:focus {
     outline: 2px solid colors.$standartBlueColor;
     outline-offset: 2px;
@@ -91,5 +92,6 @@ app-footer {
   display: flex;
   flex-wrap: wrap;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
+  overflow: hidden;
 }

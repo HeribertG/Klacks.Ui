@@ -8,6 +8,13 @@
 @use "assets/standard-styles/standard-controls.scss";
 @use "assets/standard-styles/rtl";
 
+/* Self-hosted Roboto font (GDPR compliant, no external requests) */
+@import "@fontsource/roboto/300.css";
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
+@import "@fontsource/roboto/400-italic.css";
+
 [dir="rtl"] as-split-area {
   direction: rtl;
 }

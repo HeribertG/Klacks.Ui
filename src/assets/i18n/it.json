@@ -1,4 +1,4 @@
-﻿{
+{
   "accessibility.skip-to-main": "Vai al contenuto principale",
   "accessibility.close": "Chiudi",
   "accessibility.loading": "Caricamento...",
@@ -264,7 +264,7 @@
   "address.edit-address.note.toolbar.list": "Elenco",
   "address.edit-address.note.toolbar.paste": "Incolla",
   "address.edit-address.note.toolbar.underline": "Sottolineato",
-  "address.validation.failed": "L'indirizzo non ha potuto essere verificato: {{address}}. Si prega di controllare via, CAP e citt\u00e0.",
+  "address.validation.failed": "L'indirizzo non ha potuto essere verificato: {{address}}. Si prega di controllare via, CAP e città.",
   "address.validation.city-only": "Via o numero civico non trovato per: {{address}}. CAP e città sono corretti, ma la via non è stata verificata.",
   "address.validation.not-found": "Indirizzo non trovato: {{address}}. CAP, città o via sembrano non validi.",
   "address.validation.missing-fields": "Indirizzo incompleto: {{address}}. CAP e città sono campi obbligatori.",
@@ -1889,5 +1889,12 @@
   "scenario.name": "Nome",
   "scenario.description": "Descrizione",
   "scenario.fromDate": "Da",
-  "scenario.untilDate": "Fino a"
+  "scenario.untilDate": "Fino a",
+  "legal.imprint.title": "Note legali",
+  "legal.imprint.content": "<p>L'operatore di questa applicazione fornirà le note legali una volta completata la configurazione.</p><p>Contattare l'amministratore della propria organizzazione per ulteriori informazioni.</p>",
+  "legal.privacy.title": "Informativa sulla privacy",
+  "legal.privacy.content": "<p>L'operatore di questa applicazione fornirà l'informativa sulla privacy una volta completata la configurazione.</p><p>Contattare l'amministratore della propria organizzazione per ulteriori informazioni.</p>",
+  "legal.back-to-login": "Torna al login",
+  "legal.imprint-link": "Note legali",
+  "legal.privacy-link": "Privacy"
 }
