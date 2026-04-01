@@ -5,7 +5,7 @@
 
 $header_height: 65px;
 $savebar_height: var(--savebar_height);
-$main-footer_height: 32px;
+$main-footer_height: 18px;
 $nav_width: 100px;
 
 :host {
@@ -29,7 +29,9 @@ app-nav {
 app-main {
   order: 3;
   flex: 1;
-  height: calc(100vh - (#{$header_height} + #{$main-footer_height} + #{$savebar_height}));
+  height: calc(
+    100vh - (#{$header_height} + #{$main-footer_height} + #{$savebar_height})
+  );
   width: calc(100% - #{$nav_width});
   background-color: var(--backgroundColorWorkplace);
   box-sizing: border-box;
@@ -52,12 +54,13 @@ app-main {
 }
 
 app-footer {
-  order: 5;
   position: absolute;
   bottom: 0;
   inset-inline-start: $nav_width;
+  margin-inline-start: 1px;
   height: $main-footer_height;
-  width: calc(100% - #{$nav_width});
+  width: calc(100% - #{$nav_width} - 1px);
+  max-width: calc(1445px - #{$nav_width});
   background-color: var(--backgroundColorHeaderNav);
 }
 
@@ -85,7 +88,6 @@ app-footer {
   color: var(--standartRedColor);
 }
 
-
 .blue-font {
   margin-top: 10px;
   color: colors.$standartBlueColor;
@@ -97,4 +99,5 @@ app-footer {
   height: 100vh;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }

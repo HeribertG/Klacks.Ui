@@ -1,12 +1,16 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
+$login-background: "../../../../assets/png/login-background.png" !default;
+
 .legal-page {
+  height: 100vh;
+  overflow-y: auto;
+  padding: 40px 20px;
+  background-image: url(#{$login-background});
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
-  padding: 40px 20px;
-  background-color: var(--backgroundColorWindow);
 }
 
 .legal-container {
