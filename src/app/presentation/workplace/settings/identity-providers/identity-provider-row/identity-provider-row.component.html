@@ -29,7 +29,7 @@
   <div id="identity-provider-modal-body" class="modal-body">
     @if (editProvider(); as p) {
       <div id="identity-provider-modal-inputs-row" class="row-line-modal-inline">
-        <div id="identity-provider-modal-name-section" style="margin-left: 30px; width: 150px">
+        <div id="identity-provider-modal-name-section" style="margin-inline-start: 30px; width: 150px">
           <label for="providerName">{{ 'settings.identity-provider.name' | translate }}</label>
           <input
             type="text"
@@ -40,7 +40,7 @@
           />
         </div>
 
-        <div id="identity-provider-modal-type-section" style="margin-left: 30px; width: 200px">
+        <div id="identity-provider-modal-type-section" style="margin-inline-start: 30px; width: 200px">
           <label for="type">{{ 'settings.identity-provider.type' | translate }}</label>
           <select class="form-select" [(ngModel)]="p.type" (ngModelChange)="onTypeChange()" id="type">
             @for (option of providerTypeOptions; track option.value) {
@@ -58,7 +58,7 @@
             id="identity-provider-modal-test-btn"
             type="button"
             class="btn btn-outline-secondary"
-            style="margin-right: 10px"
+            style="margin-inline-end: 10px"
             (click)="onTestConnection()"
             [disabled]="providerService.isTesting()"
           >
@@ -73,7 +73,7 @@
             id="identity-provider-modal-sync-btn"
             type="button"
             class="btn btn-outline-primary"
-            style="margin-right: 10px"
+            style="margin-inline-end: 10px"
             (click)="onSyncClients()"
             [disabled]="providerService.isSyncing()"
           >
@@ -164,7 +164,7 @@
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100px">
+          <div style="margin-inline-start: 30px; width: 100px">
             <label for="sortOrder">{{ 'settings.identity-provider.sort-order' | translate }}</label>
             <input type="number" class="form-control" id="sortOrder" [(ngModel)]="p.sortOrder" style="width: 100px" />
           </div>
@@ -178,15 +178,15 @@
         [ngStyle]="{ display: tabId() === 'connection' ? 'block' : 'none' }"
       >
         <div class="form-row-inline">
-          <div style="margin-left: 30px; width: 300px">
+          <div style="margin-inline-start: 30px; width: 300px">
             <label for="host">{{ 'settings.identity-provider.host' | translate }}</label>
             <input type="text" class="form-control" id="host" [(ngModel)]="p.host" placeholder="ldap.example.com" style="width: 300px" />
           </div>
-          <div style="margin-left: 30px; width: 100px">
+          <div style="margin-inline-start: 30px; width: 100px">
             <label for="port">{{ 'settings.identity-provider.port' | translate }}</label>
             <input type="number" class="form-control" id="port" [(ngModel)]="p.port" style="width: 100px" />
           </div>
-          <div style="margin-left: 30px; padding-top: 22px;">
+          <div style="margin-inline-start: 30px; padding-top: 22px;">
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="useSsl" [(ngModel)]="p.useSsl" (ngModelChange)="onUseSslChange()" />
               <label class="form-check-label" for="useSsl">
@@ -197,28 +197,28 @@
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="baseDn">{{ 'settings.identity-provider.base-dn' | translate }}</label>
             <input type="text" class="form-control" id="baseDn" [(ngModel)]="p.baseDn" placeholder="DC=example,DC=com" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="bindDn">{{ 'settings.identity-provider.bind-dn' | translate }}</label>
             <input type="text" class="form-control" id="bindDn" [(ngModel)]="p.bindDn" placeholder="CN=admin,DC=example,DC=com" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 300px">
+          <div style="margin-inline-start: 30px; width: 300px">
             <label for="bindPassword">{{ 'settings.identity-provider.bind-password' | translate }}</label>
             <input type="password" class="form-control" id="bindPassword" [(ngModel)]="p.bindPassword" style="width: 300px" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="userFilter">{{ 'settings.identity-provider.user-filter' | translate }}</label>
             <input type="text" class="form-control" id="userFilter" [(ngModel)]="p.userFilter" placeholder="(&(objectClass=user)(objectCategory=person))" style="width: calc(100% - 60px)" />
           </div>
@@ -226,7 +226,7 @@
 
         <!-- Test & Sync Results -->
         @if (testResult(); as result) {
-          <div class="alert" style="margin-left: 30px; margin-right: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
             @if (result.success) {
               <strong>{{ 'settings.identity-provider.test-success' | translate }}</strong>
               @if (result.userCount !== undefined) {
@@ -245,7 +245,7 @@
         }
 
         @if (syncResult(); as result) {
-          <div class="alert" style="margin-left: 30px; margin-right: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
             @if (result.success) {
               <strong>{{ 'settings.identity-provider.sync-success' | translate }}</strong>
               <br />{{ 'settings.identity-provider.total-processed' | translate }}: {{ result.totalProcessed }}
@@ -269,46 +269,46 @@
         [ngStyle]="{ display: tabId() === 'oauth' ? 'block' : 'none' }"
       >
         <div class="form-row-inline">
-          <div style="margin-left: 30px; width: 250px">
+          <div style="margin-inline-start: 30px; width: 250px">
             <label for="clientId">{{ 'settings.identity-provider.client-id' | translate }}</label>
             <input type="text" class="form-control" id="clientId" [(ngModel)]="p.clientId" style="width: 250px" />
           </div>
-          <div style="margin-left: 30px; width: 250px">
+          <div style="margin-inline-start: 30px; width: 250px">
             <label for="clientSecret">{{ 'settings.identity-provider.client-secret' | translate }}</label>
             <input type="password" class="form-control" id="clientSecret" [(ngModel)]="p.clientSecret" style="width: 250px" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="tenantId">{{ 'settings.identity-provider.tenant-id' | translate }}</label>
             <input type="text" class="form-control" id="tenantId" [(ngModel)]="p.tenantId" placeholder="Azure AD Tenant ID (optional)" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="authorizationUrl">{{ 'settings.identity-provider.authorization-url' | translate }}</label>
             <input type="text" class="form-control" id="authorizationUrl" [(ngModel)]="p.authorizationUrl" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="tokenUrl">{{ 'settings.identity-provider.token-url' | translate }}</label>
             <input type="text" class="form-control" id="tokenUrl" [(ngModel)]="p.tokenUrl" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="userInfoUrl">{{ 'settings.identity-provider.user-info-url' | translate }}</label>
             <input type="text" class="form-control" id="userInfoUrl" [(ngModel)]="p.userInfoUrl" style="width: calc(100% - 60px)" />
           </div>
         </div>
 
         <div class="form-row-inline" style="margin-top: 15px;">
-          <div style="margin-left: 30px; width: 100%">
+          <div style="margin-inline-start: 30px; width: 100%">
             <label for="scopes">{{ 'settings.identity-provider.scopes' | translate }}</label>
             <input type="text" class="form-control" id="scopes" [(ngModel)]="p.scopes" placeholder="openid profile email" style="width: calc(100% - 60px)" />
           </div>

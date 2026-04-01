@@ -65,7 +65,7 @@
             [class.selected]="selectedGroupId === ALL_GROUPS_ID"
             (click)="selectGroup(node, $event)"
           >
-            <div class="group-tree-node-indicator" [style.padding-left.px]="0">
+            <div class="group-tree-node-indicator" [style.padding-inline-start.px]="0">
               <span class="group-tree-toggle-placeholder"></span>
             </div>
             <div
@@ -116,7 +116,7 @@
   >
     <div
       class="group-tree-node-indicator"
-      [style.padding-left.px]="node.depth * 20"
+      [style.padding-inline-start.px]="node.depth * 20"
     >
       @if (hasChildren(node)) {
       <span

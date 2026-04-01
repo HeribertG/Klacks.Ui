@@ -47,7 +47,7 @@
 }
 
 .action {
-  text-align: right;
+  text-align: end;
 }
 
 .table-header {
@@ -85,7 +85,7 @@
 }
 
 .cell-right {
-  text-align: right;
+  text-align: end;
 }
 
 .cell-center {
@@ -196,7 +196,7 @@ t .table-cell-top {
 }
 
 .header-right {
-  float: right;
+  float: inline-end;
   align-content: flex-end;
 }
 
@@ -232,7 +232,7 @@ t .table-cell-top {
   color: var(--gridColorCellComment);
   width: 200px;
   top: 50px;
-  left: 20px;
+  inset-inline-start: 20px;
   text-align: center;
   margin: 5px;
   box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
@@ -250,8 +250,8 @@ t .table-cell-top {
   color: var(--gridColorCellComment);
   width: 200px;
   top: 50px;
-  left: 20px;
-  text-align: left;
+  inset-inline-start: 20px;
+  text-align: start;
   margin: 5px;
   box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
 }

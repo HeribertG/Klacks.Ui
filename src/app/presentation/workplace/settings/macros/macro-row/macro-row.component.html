@@ -29,7 +29,7 @@
     <div id="macro-modal-inputs-row" class="row-line-modal-inline">
       <div
         id="macro-modal-name-section"
-        style="margin-left: 30px; width: 150px"
+        style="margin-inline-start: 30px; width: 150px"
       >
         <label for="macroName">{{ 'setting.macro.name-modal' | translate }}</label>
         <input
@@ -43,7 +43,7 @@
 
       <div
         id="macro-modal-type-section"
-        style="margin-left: 30px; width: 200px"
+        style="margin-inline-start: 30px; width: 200px"
       >
         <label for="type">{{ 'setting.macro.type-modal' | translate }}</label>
         <select class="form-select" [formField]="macroForm.type" id="type">
@@ -62,7 +62,7 @@
         id="macro-modal-check-btn"
         type="button"
         class="btn btn-outline-secondary"
-        style="margin-right: 10px"
+        style="margin-inline-end: 10px"
         (click)="onCheckMacro()"
       >
         <i class="fas fa-check"></i>&nbsp;{{ 'setting.macro.check-btn' | translate }}
@@ -72,7 +72,7 @@
         id="macro-modal-run-btn"
         type="button"
         class="btn btn-outline-secondary"
-        style="margin-right: 10px"
+        style="margin-inline-end: 10px"
         (click)="onRunMacro()"
       >
         <i class="fas fa-running"></i>&nbsp;{{ 'setting.macro.run-btn' | translate }}

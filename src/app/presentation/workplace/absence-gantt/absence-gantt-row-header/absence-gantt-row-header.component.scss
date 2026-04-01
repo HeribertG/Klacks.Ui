@@ -17,7 +17,7 @@ canvas {
 .gantt-filter-windows {
   opacity: 1;
   position: fixed;
-  left: 0px;
+  inset-inline-start: 0px;
   top: 0px;
   height: auto;
   display: inline-block;

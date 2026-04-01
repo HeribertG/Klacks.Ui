@@ -19,8 +19,8 @@
     border-inline-end: 1px solid colors.$standartRedBorderDarkColor;
     border-inline-start: 1px solid colors.$standartRedBorderLiteColor;
     border-top: 1px solid colors.$standartRedBorderLiteColor;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
   
     font-weight: 700;
     min-height: 25px;
@@ -35,8 +35,8 @@
     border-inline-end: 1px solid colors.$standartRedBorderDarkColor;
     border-inline-start: 1px solid colors.$standartRedBorderLiteColor;
     border-top: 1px solid colors.$standartRedBorderLiteColor;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-end-start-radius: 3px;
+    border-end-end-radius: 3px;
     font-weight: 400;
     width: calc(100% - 3px);
     color:colors.$standartWhiteColor;

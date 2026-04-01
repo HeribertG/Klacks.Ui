@@ -54,8 +54,7 @@ export class TooltipComponent implements OnInit, OnDestroy {
     this.text.set(config.text);
 
     const offset = 10;
-    let x = config.x + offset;
-    let y = config.y + offset;
+    const isRtl = document.documentElement.dir === 'rtl';
 
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -65,7 +64,14 @@ export class TooltipComponent implements OnInit, OnDestroy {
     const estimatedWidth = Math.min(maxLineLength * 7 + 20, 400);
     const estimatedHeight = lines.length * 18 + 12;
 
-    if (x + estimatedWidth > viewportWidth) {
+    let x = isRtl
+      ? config.x - estimatedWidth - offset
+      : config.x + offset;
+    let y = config.y + offset;
+
+    if (isRtl && x < 0) {
+      x = config.x + offset;
+    } else if (!isRtl && x + estimatedWidth > viewportWidth) {
       x = config.x - estimatedWidth - offset;
     }
 

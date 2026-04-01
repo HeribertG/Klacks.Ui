@@ -91,7 +91,7 @@ thead {
   box-sizing: border-box;
   position: absolute;
   top: 1px;
-  left: 1px;
+  inset-inline-start: 1px;
 
   &:focus {
     background-color: var(--backgroundColorCard);

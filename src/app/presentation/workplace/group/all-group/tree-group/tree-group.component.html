@@ -114,7 +114,7 @@
              (cdkDragEnded)="onDragEnded()">
           <div
             class="tree-node-indicator"
-            [style.padding-left.px]="node.depth * 20"
+            [style.padding-inline-start.px]="node.depth * 20"
           >
             @if (hasChildren(node)) {
             <span
