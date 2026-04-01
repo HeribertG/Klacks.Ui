@@ -23,7 +23,7 @@ app-nav {
   order: 2;
   flex: 0 0 $nav_width;
   background-color: var(--backgroundColorHeaderNav);
-  height: calc(100vh - (#{$header_height} + #{$main-footer_height}));
+  height: calc(100vh - #{$header_height});
 }
 
 app-main {
@@ -53,8 +53,11 @@ app-main {
 
 app-footer {
   order: 5;
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: $nav_width;
   height: $main-footer_height;
-  flex: 0 0 100%;
+  width: calc(100% - #{$nav_width});
   background-color: var(--backgroundColorHeaderNav);
 }
 
