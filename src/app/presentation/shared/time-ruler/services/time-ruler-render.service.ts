@@ -171,14 +171,25 @@ export class TimeRulerRenderService {
       }
 
       if (lineLength > 0) {
+        const isRtl = document.documentElement.dir === 'rtl';
+        const rulerW = this.RULER_WIDTH;
         ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(lineLength, y);
+        if (isRtl) {
+          ctx.moveTo(rulerW, y);
+          ctx.lineTo(rulerW - lineLength, y);
+        } else {
+          ctx.moveTo(0, y);
+          ctx.lineTo(lineLength, y);
+        }
         ctx.stroke();
 
         if (showLabel) {
           const timeLabel = this.timeRangeService.formatTime(minute);
-          ctx.fillText(timeLabel, lineLength + this.LABEL_OFFSET, y);
+          if (isRtl) {
+            ctx.fillText(timeLabel, rulerW - lineLength - this.LABEL_OFFSET, y);
+          } else {
+            ctx.fillText(timeLabel, lineLength + this.LABEL_OFFSET, y);
+          }
         }
       }
     }
@@ -677,6 +688,10 @@ export class TimeRulerRenderService {
     });
   }
 
+  get contentOffsetX(): number {
+    return document.documentElement.dir === 'rtl' ? this.RULER_WIDTH : 0;
+  }
+
   drawFromCache(
     ctx: CanvasRenderingContext2D,
     renderCanvas: HTMLCanvasElement,
@@ -692,7 +707,7 @@ export class TimeRulerRenderService {
     DrawImageHelper.drawCanvasLogical(
       ctx,
       renderCanvas,
-      0,
+      this.contentOffsetX,
       0,
       boundaryWidth,
       height
@@ -720,13 +735,16 @@ export class TimeRulerRenderService {
     const rulerWidth = this.RULER_WIDTH;
     const boundaryWidth = width - rulerWidth;
 
-    inboxCtx.clearRect(0, 0, boundaryWidth, height);
+    const offsetX = this.contentOffsetX;
+    inboxCtx.clearRect(offsetX, 0, boundaryWidth, height);
     this.drawFromCache(inboxCtx, renderCanvas, inboxCanvas);
 
     if (selectedShift) {
       const { range, boxWidth, marginLeftRight } =
         this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
 
+      inboxCtx.save();
+      inboxCtx.translate(offsetX, 0);
       const selectedRect = this.drawSingleShiftBox(
         inboxCtx,
         selectedShift,
@@ -738,6 +756,7 @@ export class TimeRulerRenderService {
         shifts,
         shiftRectangles
       );
+      inboxCtx.restore();
 
       if (selectedRect) {
         shiftRectangles.set(selectedShift, selectedRect);
@@ -767,14 +786,15 @@ export class TimeRulerRenderService {
     const rulerWidth = this.RULER_WIDTH;
     const boundaryWidth = width - rulerWidth;
 
-    inboxCtx.clearRect(0, 0, boundaryWidth, height);
+    const offsetX = this.contentOffsetX;
+    inboxCtx.clearRect(offsetX, 0, boundaryWidth, height);
 
     this.drawFromCache(inboxCtx, renderCanvas, inboxCanvas);
 
     const { range, boxWidth, marginLeftRight } =
       this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
 
-    inboxCtx.clearRect(0, 0, boundaryWidth, height);
+    inboxCtx.clearRect(offsetX, 0, boundaryWidth, height);
 
     const tempCanvas = document.createElement('canvas');
     const tempCtx = DrawHelper.createHiDPICanvas(
@@ -828,12 +848,14 @@ export class TimeRulerRenderService {
     DrawImageHelper.drawCanvasLogical(
       inboxCtx,
       renderCanvas,
-      0,
+      offsetX,
       0,
       boundaryWidth,
       height
     );
 
+    inboxCtx.save();
+    inboxCtx.translate(offsetX, 0);
     const draggedRect = this.drawSingleShiftBox(
       inboxCtx,
       draggedShift,
@@ -845,6 +867,7 @@ export class TimeRulerRenderService {
       shifts,
       shiftRectangles
     );
+    inboxCtx.restore();
 
     if (draggedRect) {
       shiftRectangles.set(draggedShift, draggedRect);

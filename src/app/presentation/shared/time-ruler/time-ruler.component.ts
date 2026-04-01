@@ -179,16 +179,24 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       range.totalMinutes
     );
 
+    const contentOffsetX = this.renderService.contentOffsetX;
+    const rulerOffsetX = document.documentElement.dir === 'rtl' ? 0 : boundaryWidth;
+
     inboxCtx.fillStyle = this.gridColorService.backGroundColor;
-    inboxCtx.fillRect(0, 0, boundaryWidth, height);
+    inboxCtx.fillRect(contentOffsetX, 0, boundaryWidth, height);
 
     rulerCtx.fillStyle = this.gridColorService.toolTipBackGroundColor;
     rulerCtx.fillRect(0, 0, rulerWidth, height);
 
     this.renderService.drawTimeRuler(rulerCtx, height, this.fromTime, this.untilTime);
+
+    inboxCtx.save();
+    inboxCtx.translate(contentOffsetX, 0);
     this.renderService.drawRedBoundaryLines(
       inboxCtx, boundaryWidth, height, this.fromTime, this.untilTime
     );
+    inboxCtx.restore();
+
     this.renderService.renderShiftsToCache(
       this.renderCtx, boundaryWidth, height, this.shifts,
       this.shiftRectangles, this.fromTime, this.untilTime
@@ -204,6 +212,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         boundaryWidth, height, this.fromTime, this.untilTime
       );
 
+      inboxCtx.save();
+      inboxCtx.translate(contentOffsetX, 0);
       const selectedRect = this.renderService.drawSingleShiftBox(
         inboxCtx,
         this.selectedShift,
@@ -215,6 +225,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.shifts,
         this.shiftRectangles
       );
+      inboxCtx.restore();
 
       if (selectedRect) {
         this.shiftRectangles.set(this.selectedShift, selectedRect);
@@ -224,7 +235,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     DrawImageHelper.drawCanvasLogical(
       inboxCtx,
       rulerCanvas,
-      boundaryWidth,
+      rulerOffsetX,
       0,
       rulerWidth,
       height

@@ -13,6 +13,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
 import { TimeRangeService } from './time-range.service';
 import { TimeRulerDragDropService, DragUpdateResult } from './time-ruler-drag-drop.service';
+import { TimeRulerRenderService } from './time-ruler-render.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { IShiftContextMenuEvent } from '../time-ruler.component';
 
@@ -26,6 +27,7 @@ export class TimeRulerInteractionService {
   private dragDropService = inject(TimeRulerDragDropService);
   private shiftService = inject(ContainerTemplateShiftService);
   private timeRangeService = inject(TimeRangeService);
+  private renderService = inject(TimeRulerRenderService);
 
   resolveCanvasCoordinates(
     event: MouseEvent,
@@ -41,7 +43,7 @@ export class TimeRulerInteractionService {
     const scaleY = logicalDimensions.height / rect.height;
 
     return {
-      x: clickX * scaleX,
+      x: clickX * scaleX - this.renderService.contentOffsetX,
       y: clickY * scaleY,
     };
   }
