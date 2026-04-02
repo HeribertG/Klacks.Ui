@@ -30,7 +30,7 @@
     "@codemirror/lang-xml": "^6.1.0",
     "@codemirror/legacy-modes": "^6.5.1",
     "@fontsource/roboto": "^5.2.10",
-    "@fortawesome/angular-fontawesome": "^3.0.0",
+    "@fortawesome/angular-fontawesome": "^4.0.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fsegurai/ngx-codemirror": "^20.0.0",
@@ -87,7 +87,7 @@
     "ng-packagr": "^21.2.1",
     "puppeteer": "^24.23.0",
     "rollup": "^4.53.3",
-    "typescript": "^5.7.3",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.33.1",
     "vite": "^6.1.1",
     "vitest": "^4.0.14"
