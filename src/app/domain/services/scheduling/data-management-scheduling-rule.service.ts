@@ -83,6 +83,14 @@ export class DataManagementSchedulingRuleService {
     rule.holidayRate = this.settingsService.holidayRateRaw;
     rule.saRate = this.settingsService.saRateRaw;
     rule.soRate = this.settingsService.soRateRaw;
+    rule.workOnMonday = sched.workOnMonday;
+    rule.workOnTuesday = sched.workOnTuesday;
+    rule.workOnWednesday = sched.workOnWednesday;
+    rule.workOnThursday = sched.workOnThursday;
+    rule.workOnFriday = sched.workOnFriday;
+    rule.workOnSaturday = sched.workOnSaturday;
+    rule.workOnSunday = sched.workOnSunday;
+    rule.performsShiftWork = sched.performsShiftWork;
     return rule;
   }
 

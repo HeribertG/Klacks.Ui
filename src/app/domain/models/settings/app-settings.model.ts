@@ -96,6 +96,14 @@ export interface ISchedulingDefaultSettings {
   schedulingMaxDailyHours: number;
   schedulingMaxWeeklyHours: number;
   schedulingMaxConsecutiveDays: number;
+  workOnMonday: boolean;
+  workOnTuesday: boolean;
+  workOnWednesday: boolean;
+  workOnThursday: boolean;
+  workOnFriday: boolean;
+  workOnSaturday: boolean;
+  workOnSunday: boolean;
+  performsShiftWork: boolean;
 }
 
 export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
@@ -112,6 +120,14 @@ export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   schedulingMaxDailyHours = 10;
   schedulingMaxWeeklyHours = 50;
   schedulingMaxConsecutiveDays = 6;
+  workOnMonday = true;
+  workOnTuesday = true;
+  workOnWednesday = true;
+  workOnThursday = true;
+  workOnFriday = true;
+  workOnSaturday = false;
+  workOnSunday = false;
+  performsShiftWork = false;
 }
 
 export interface IDataRetentionSettings {

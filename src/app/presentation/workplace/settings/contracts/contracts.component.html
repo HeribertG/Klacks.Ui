@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
@@ -5,7 +6,7 @@
 <ng-template #contractModal id="contract-modal-template" let-modal>
   <div id="contract-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ 'setting.contract.headline-modal' | translate }}
+      {{ "setting.contract.headline-modal" | translate }}
     </div>
     <span class="filler"></span>
 
@@ -31,7 +32,9 @@
     @if (editingContract) {
       <div id="contract-modal-name-row" class="contract-name">
         <div id="contract-modal-name-section" class="contract-name-section">
-          <label for="contractName">{{ 'setting.contract.name-modal' | translate }}</label>
+          <label for="contractName">{{
+            "setting.contract.name-modal" | translate
+          }}</label>
           <input
             type="text"
             [formField]="contractForm.name"
@@ -53,9 +56,7 @@
         >
           <app-time-input
             id="contract-modal-guaranteed-hours-input"
-            [label]="
-              'setting.contract.guaranteedHours-modal' | translate
-            "
+            [label]="'setting.contract.guaranteedHours-modal' | translate"
             [value]="guaranteedHours()"
             (valueChange)="onGuaranteedHoursChange($event)"
             hoursName="guaranteedHoursHours"
@@ -118,7 +119,9 @@
           id="contract-modal-night-rate-item"
           class="rate-config-item align-left"
         >
-          <label for="nightRate">{{ 'setting.contract.nightRate-modal' | translate }}</label>
+          <label for="nightRate">{{
+            "setting.contract.nightRate-modal" | translate
+          }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -135,7 +138,9 @@
           id="contract-modal-holiday-rate-item"
           class="rate-config-item align-center"
         >
-          <label for="holidayRate">{{ 'setting.contract.holidayRate-modal' | translate }}</label>
+          <label for="holidayRate">{{
+            "setting.contract.holidayRate-modal" | translate
+          }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -152,7 +157,9 @@
           id="contract-modal-sa-rate-item"
           class="rate-config-item align-center"
         >
-          <label for="saRate">{{ 'setting.contract.saRate-modal' | translate }}</label>
+          <label for="saRate">{{
+            "setting.contract.saRate-modal" | translate
+          }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -169,7 +176,9 @@
           id="contract-modal-so-rate-item"
           class="rate-config-item align-right"
         >
-          <label for="soRate">{{ 'setting.contract.soRate-modal' | translate }}</label>
+          <label for="soRate">{{
+            "setting.contract.soRate-modal" | translate
+          }}</label>
           <div class="rate-input-group">
             <input
               type="number"
@@ -181,6 +190,66 @@
             <span class="rate-unit">%</span>
           </div>
         </div>
+      </div>
+
+      <!-- Work Days -->
+      <div id="contract-modal-workdays-row" class="contract-workdays">
+        <label class="workdays-label">{{
+          "setting.contract.workDays-modal" | translate
+        }}</label>
+        <div class="workdays-checkboxes">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingContract.workOnMonday" />
+            {{ "settings.work.monday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="editingContract.workOnTuesday"
+            />
+            {{ "settings.work.tuesday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="editingContract.workOnWednesday"
+            />
+            {{ "settings.work.wednesday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="editingContract.workOnThursday"
+            />
+            {{ "settings.work.thursday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingContract.workOnFriday" />
+            {{ "settings.work.friday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="editingContract.workOnSaturday"
+            />
+            {{ "settings.work.saturday" | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingContract.workOnSunday" />
+            {{ "settings.work.sunday" | translate }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Shift Work -->
+      <div id="contract-modal-shift-work-row" class="contract-shift-work">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="editingContract.performsShiftWork"
+          />
+          {{ "setting.contract.performsShiftWork-modal" | translate }}
+        </label>
       </div>
 
       <!-- Validity Period -->
@@ -212,9 +281,14 @@
       </div>
 
       <!-- Payment Interval -->
-      <div id="contract-modal-payment-interval-row" class="payment-interval-section">
+      <div
+        id="contract-modal-payment-interval-row"
+        class="payment-interval-section"
+      >
         <div id="contract-modal-payment-interval" class="selection-section">
-          <span class="selection-label">{{ 'setting.contract.paymentInterval-modal' | translate }}</span>
+          <span class="selection-label">{{
+            "setting.contract.paymentInterval-modal" | translate
+          }}</span>
           <div class="selector-container">
             <div ngbDropdown #paymentIntervalDropdown="ngbDropdown">
               <button
@@ -247,7 +321,9 @@
       <!-- Calendar & Scheduling Rule Selection -->
       <div id="contract-modal-selections-row" class="contract-selections">
         <div id="contract-modal-calendar-section" class="selection-section">
-          <span class="selection-label">{{ 'setting.contract.calendarSelection-modal' | translate }}</span>
+          <span class="selection-label">{{
+            "setting.contract.calendarSelection-modal" | translate
+          }}</span>
           <div class="selector-container">
             <div ngbDropdown #calendarDropdown="ngbDropdown">
               <button
@@ -268,7 +344,7 @@
                   (click)="onCalendarSelectionChange('')"
                   [class.active]="!calendarSelectionId()"
                 >
-                  {{ 'setting.contract.noCalendar' | translate }}
+                  {{ "setting.contract.noCalendar" | translate }}
                 </button>
                 @for (
                   calendar of dataManagementContractService.availableCalendars;
@@ -287,8 +363,13 @@
           </div>
         </div>
 
-        <div id="contract-modal-scheduling-rule-section" class="selection-section">
-          <span class="selection-label">{{ 'setting.contract.schedulingRuleSelection-modal' | translate }}</span>
+        <div
+          id="contract-modal-scheduling-rule-section"
+          class="selection-section"
+        >
+          <span class="selection-label">{{
+            "setting.contract.schedulingRuleSelection-modal" | translate
+          }}</span>
           <div class="selector-container">
             <div ngbDropdown #schedulingRuleDropdown="ngbDropdown">
               <button
@@ -308,7 +389,7 @@
                   (click)="onSchedulingRuleSelectionChange('')"
                   [class.active]="!schedulingRuleId()"
                 >
-                  {{ 'setting.contract.noSchedulingRule' | translate }}
+                  {{ "setting.contract.noSchedulingRule" | translate }}
                 </button>
                 @for (
                   rule of dataManagementContractService.availableSchedulingRules;
@@ -339,7 +420,7 @@
               id="contract-modal-validation-alert"
               class="alert alert-danger"
             >
-              <strong>{{ 'validation.errors' | translate }}:</strong>
+              <strong>{{ "validation.errors" | translate }}:</strong>
               <ul id="contract-modal-validation-list">
                 @for (error of getValidationErrors(); track error) {
                   <li>{{ error }}</li>

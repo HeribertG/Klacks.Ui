@@ -156,3 +156,39 @@
   font-weight: 500;
   color: var(--colorWorkplaceHeadline);
 }
+
+.contract-workdays {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 6px;
+  padding-top: 6px;
+}
+
+.contract-shift-work {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 10px;
+}
+
+.workdays-label {
+  font-weight: 500;
+  color: var(--colorWorkplaceHeadline);
+  white-space: nowrap;
+}
+
+.workdays-checkboxes {
+  display: flex;
+  gap: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--colorWorkplaceHeadline);
+  white-space: nowrap;
+}

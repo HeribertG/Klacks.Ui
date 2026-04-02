@@ -112,6 +112,15 @@ export class AppSettingsManagementService {
     [AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, (v, m) => (m.schedulingDefaults.schedulingMaxWeeklyHours = parseFloat(v) || 50)],
     [AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, (v, m) => (m.schedulingDefaults.schedulingMaxConsecutiveDays = parseInt(v, 10) || 6)],
 
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_MONDAY, (v, m) => (m.schedulingDefaults.workOnMonday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_TUESDAY, (v, m) => (m.schedulingDefaults.workOnTuesday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY, (v, m) => (m.schedulingDefaults.workOnWednesday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_THURSDAY, (v, m) => (m.schedulingDefaults.workOnThursday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_FRIDAY, (v, m) => (m.schedulingDefaults.workOnFriday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_SATURDAY, (v, m) => (m.schedulingDefaults.workOnSaturday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_WORK_ON_SUNDAY, (v, m) => (m.schedulingDefaults.workOnSunday = v === 'true')],
+    [AppSetting.SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK, (v, m) => (m.schedulingDefaults.performsShiftWork = v === 'true')],
+
     [AppSetting.DATA_RETENTION_DAYS, (v, m) => (m.dataRetention.dataRetentionDays = parseInt(v, 10) || 3650)],
   ]);
 
@@ -299,6 +308,15 @@ export class AppSettingsManagementService {
     { key: AppSetting.SCHEDULING_MAX_DAILY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxDailyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxDailyHours.toString() },
     { key: AppSetting.SCHEDULING_MAX_WEEKLY_HOURS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxWeeklyHours.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxWeeklyHours.toString() },
     { key: AppSetting.SCHEDULING_MAX_CONSECUTIVE_DAYS, getCurrent: () => this.schedulingDefaultSettings().schedulingMaxConsecutiveDays.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().schedulingMaxConsecutiveDays.toString() },
+
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_MONDAY, getCurrent: () => this.schedulingDefaultSettings().workOnMonday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnMonday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_TUESDAY, getCurrent: () => this.schedulingDefaultSettings().workOnTuesday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnTuesday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY, getCurrent: () => this.schedulingDefaultSettings().workOnWednesday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnWednesday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_THURSDAY, getCurrent: () => this.schedulingDefaultSettings().workOnThursday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnThursday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_FRIDAY, getCurrent: () => this.schedulingDefaultSettings().workOnFriday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnFriday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_SATURDAY, getCurrent: () => this.schedulingDefaultSettings().workOnSaturday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnSaturday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_SUNDAY, getCurrent: () => this.schedulingDefaultSettings().workOnSunday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnSunday.toString() },
+    { key: AppSetting.SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK, getCurrent: () => this.schedulingDefaultSettings().performsShiftWork.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().performsShiftWork.toString() },
 
     { key: AppSetting.DATA_RETENTION_DAYS, getCurrent: () => this.dataRetentionSettings().dataRetentionDays.toString(), getOriginal: () => this.dataRetentionSettingsOriginal().dataRetentionDays.toString() },
 

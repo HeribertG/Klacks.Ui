@@ -27,3 +27,25 @@ input {
 .secondColumn {
   margin-inline-start: 40px;
 }
+
+.workdays-inline {
+  display: flex;
+  gap: 16px;
+  margin-top: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  input[type="checkbox"] {
+    width: auto;
+  }
+}
+
+.shift-work-label {
+  margin-top: 5px;
+}

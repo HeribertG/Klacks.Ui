@@ -212,6 +212,48 @@
         />
       </div>
     </div>
+    <div id="scheduling-defaults-workdays-row" class="row-line" style="margin-top: 16px;">
+      <div class="form-group firstColumn">
+        <label>{{ 'settings.work.default-work-days' | translate }}</label>
+        <div class="workdays-inline">
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnMonday" />
+            {{ 'settings.work.monday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnTuesday" />
+            {{ 'settings.work.tuesday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnWednesday" />
+            {{ 'settings.work.wednesday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnThursday" />
+            {{ 'settings.work.thursday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnFriday" />
+            {{ 'settings.work.friday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnSaturday" />
+            {{ 'settings.work.saturday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [formField]="schedulingForm.workOnSunday" />
+            {{ 'settings.work.sunday' | translate }}
+          </label>
+        </div>
+      </div>
+      <div class="form-group secondColumn">
+        <label>&#8203;</label>
+        <label class="checkbox-label shift-work-label">
+          <input type="checkbox" [formField]="schedulingForm.performsShiftWork" />
+          {{ 'settings.work.performs-shift-work' | translate }}
+        </label>
+      </div>
+    </div>
     <div class="bottom-border-space"></div>
   </form>
   }

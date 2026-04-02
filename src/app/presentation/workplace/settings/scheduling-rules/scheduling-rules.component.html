@@ -333,6 +333,51 @@
       </div>
     </div>
 
+    <!-- Work Days -->
+    <div id="scheduling-rule-modal-workdays-row" class="row-line-modal-inline rule-workdays-row">
+      <div class="rule-workdays-section">
+        <label>{{ 'setting.schedulingRule.workDays' | translate }}</label>
+        <div class="workdays-inline">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnMonday" />
+            {{ 'settings.work.monday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnTuesday" />
+            {{ 'settings.work.tuesday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnWednesday" />
+            {{ 'settings.work.wednesday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnThursday" />
+            {{ 'settings.work.thursday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnFriday" />
+            {{ 'settings.work.friday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnSaturday" />
+            {{ 'settings.work.saturday' | translate }}
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="editingRule.workOnSunday" />
+            {{ 'settings.work.sunday' | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shift Work -->
+    <div id="scheduling-rule-modal-shift-work-row" class="row-line-modal-inline rule-workdays-row">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editingRule.performsShiftWork" />
+        {{ 'setting.schedulingRule.performsShiftWork' | translate }}
+      </label>
+    </div>
+
     <!-- Validation Errors -->
     @if (getValidationErrors().length > 0) {
     <div id="scheduling-rule-modal-validation-row" class="row-line-modal-inline">

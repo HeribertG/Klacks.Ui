@@ -31,6 +31,14 @@ interface SchedulingDefaultsFormModel {
   holidayRate: number;
   saRate: number;
   soRate: number;
+  workOnMonday: boolean;
+  workOnTuesday: boolean;
+  workOnWednesday: boolean;
+  workOnThursday: boolean;
+  workOnFriday: boolean;
+  workOnSaturday: boolean;
+  workOnSunday: boolean;
+  performsShiftWork: boolean;
 }
 
 @Component({
@@ -64,6 +72,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     holidayRate: 10,
     saRate: 10,
     soRate: 10,
+    workOnMonday: true,
+    workOnTuesday: true,
+    workOnWednesday: true,
+    workOnThursday: true,
+    workOnFriday: true,
+    workOnSaturday: false,
+    workOnSunday: false,
+    performsShiftWork: false,
   });
 
   schedulingForm = form(this.formModel);
@@ -113,6 +129,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       holidayRate: svc.holidayRate,
       saRate: svc.saRate,
       soRate: svc.soRate,
+      workOnMonday: sched.workOnMonday,
+      workOnTuesday: sched.workOnTuesday,
+      workOnWednesday: sched.workOnWednesday,
+      workOnThursday: sched.workOnThursday,
+      workOnFriday: sched.workOnFriday,
+      workOnSaturday: sched.workOnSaturday,
+      workOnSunday: sched.workOnSunday,
+      performsShiftWork: sched.performsShiftWork,
     });
   }
 
@@ -133,6 +157,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       schedulingMaxDailyHours: data.schedulingMaxDailyHours,
       schedulingMaxWeeklyHours: data.schedulingMaxWeeklyHours,
       schedulingMaxConsecutiveDays: data.schedulingMaxConsecutiveDays,
+      workOnMonday: data.workOnMonday,
+      workOnTuesday: data.workOnTuesday,
+      workOnWednesday: data.workOnWednesday,
+      workOnThursday: data.workOnThursday,
+      workOnFriday: data.workOnFriday,
+      workOnSaturday: data.workOnSaturday,
+      workOnSunday: data.workOnSunday,
+      performsShiftWork: data.performsShiftWork,
     }));
     svc.nightRate = data.nightRate;
     svc.holidayRate = data.holidayRate;

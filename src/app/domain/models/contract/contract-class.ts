@@ -26,6 +26,14 @@ export interface IContract {
   calendarSelection: ICalendarSelection | undefined;
   calendarSelectionId: string | undefined;
   schedulingRuleId: string | undefined;
+  workOnMonday: boolean;
+  workOnTuesday: boolean;
+  workOnWednesday: boolean;
+  workOnThursday: boolean;
+  workOnFriday: boolean;
+  workOnSaturday: boolean;
+  workOnSunday: boolean;
+  performsShiftWork: boolean;
 }
 
 export class Contract implements IContract {
@@ -46,4 +54,12 @@ export class Contract implements IContract {
   calendarSelection: ICalendarSelection | undefined = undefined;
   calendarSelectionId: string | undefined = undefined;
   schedulingRuleId: string | undefined = undefined;
+  workOnMonday = true;
+  workOnTuesday = true;
+  workOnWednesday = true;
+  workOnThursday = true;
+  workOnFriday = true;
+  workOnSaturday = false;
+  workOnSunday = false;
+  performsShiftWork = false;
 }

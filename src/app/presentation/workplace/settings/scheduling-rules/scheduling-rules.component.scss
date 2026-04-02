@@ -42,3 +42,30 @@
   border-radius: 4px;
   text-align: end;
 }
+
+.rule-workdays-row {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  padding-bottom: 6px;
+}
+
+.rule-workdays-section label:first-child {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.workdays-inline {
+  display: flex;
+  gap: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--colorWorkplaceHeadline);
+  white-space: nowrap;
+}

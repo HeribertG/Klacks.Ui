@@ -21,6 +21,14 @@ export interface ISchedulingRule {
   holidayRate: number | null;
   saRate: number | null;
   soRate: number | null;
+  workOnMonday: boolean | null;
+  workOnTuesday: boolean | null;
+  workOnWednesday: boolean | null;
+  workOnThursday: boolean | null;
+  workOnFriday: boolean | null;
+  workOnSaturday: boolean | null;
+  workOnSunday: boolean | null;
+  performsShiftWork: boolean | null;
 }
 
 export class SchedulingRule implements ISchedulingRule {
@@ -44,4 +52,12 @@ export class SchedulingRule implements ISchedulingRule {
   holidayRate: number | null = null;
   saRate: number | null = null;
   soRate: number | null = null;
+  workOnMonday: boolean | null = null;
+  workOnTuesday: boolean | null = null;
+  workOnWednesday: boolean | null = null;
+  workOnThursday: boolean | null = null;
+  workOnFriday: boolean | null = null;
+  workOnSaturday: boolean | null = null;
+  workOnSunday: boolean | null = null;
+  performsShiftWork: boolean | null = null;
 }

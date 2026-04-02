@@ -1,6 +1,6 @@
 <div id="settings-home-container" class="container-dashboard">
   <div id="settings-home-headline" class="container-headline">
-    {{ 'setting.title' | translate }}
+    {{ "setting.title" | translate }}
     <div class="headline-actions">
       <button class="headline-action-button" (click)="expandAll()">
         <app-expand-all-grey></app-expand-all-grey>
@@ -12,10 +12,16 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('general')" (keydown.enter)="toggleSection('general')">
-    <span>{{ 'setting.section.general' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('general')"
+    (keydown.enter)="toggleSection('general')"
+  >
+    <span>{{ "setting.section.general" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['general']) {
+      @if (sections["general"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -23,7 +29,7 @@
     </button>
   </div>
 
-  @if (sections['general']) {
+  @if (sections["general"]) {
     <div id="settings-home-general-row" class="container-profilline">
       <app-settings-general
         id="settings-general"
@@ -51,10 +57,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('users')" (keydown.enter)="toggleSection('users')">
-    <span>{{ 'setting.section.users' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('users')"
+    (keydown.enter)="toggleSection('users')"
+  >
+    <span>{{ "setting.section.users" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['users']) {
+      @if (sections["users"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -62,7 +74,7 @@
     </button>
   </div>
 
-  @if (sections['users']) {
+  @if (sections["users"]) {
     <div id="settings-home-user-admin-row" class="container-profilline">
       <app-user-administration
         id="settings-user-administration"
@@ -88,10 +100,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('organization')" (keydown.enter)="toggleSection('organization')">
-    <span>{{ 'setting.section.organization' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('organization')"
+    (keydown.enter)="toggleSection('organization')"
+  >
+    <span>{{ "setting.section.organization" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['organization']) {
+      @if (sections["organization"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -99,7 +117,7 @@
     </button>
   </div>
 
-  @if (sections['organization']) {
+  @if (sections["organization"]) {
     <div id="settings-home-branches-contracts-row" class="container-profilline">
       <app-branches
         id="settings-branches"
@@ -132,10 +150,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('work')" (keydown.enter)="toggleSection('work')">
-    <span>{{ 'setting.section.work' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('work')"
+    (keydown.enter)="toggleSection('work')"
+  >
+    <span>{{ "setting.section.work" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['work']) {
+      @if (sections["work"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -143,7 +167,7 @@
     </button>
   </div>
 
-  @if (sections['work']) {
+  @if (sections["work"]) {
     <div id="settings-home-work-row" class="container-profilline">
       <app-work-setting
         id="settings-work-setting"
@@ -153,7 +177,10 @@
       </app-work-setting>
     </div>
 
-    <div id="settings-home-scheduling-defaults-row" class="container-profilline">
+    <div
+      id="settings-home-scheduling-defaults-row"
+      class="container-profilline"
+    >
       <app-scheduling-defaults-setting
         id="settings-scheduling-defaults"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
@@ -172,10 +199,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('absence')" (keydown.enter)="toggleSection('absence')">
-    <span>{{ 'setting.section.absence' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('absence')"
+    (keydown.enter)="toggleSection('absence')"
+  >
+    <span>{{ "setting.section.absence" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['absence']) {
+      @if (sections["absence"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -183,7 +216,7 @@
     </button>
   </div>
 
-  @if (sections['absence']) {
+  @if (sections["absence"]) {
     <div id="settings-home-absence-row" class="container-profilline">
       <app-absence
         id="settings-absence"
@@ -193,13 +226,13 @@
       </app-absence>
     </div>
 
-    <div id="settings-home-calendar-selection-row" class="container-profilline">
-      <app-calendar-selection
-        id="settings-calendar-selection"
+    <div id="settings-home-absence-detail-row" class="container-profilline">
+      <app-absence-detail
+        id="settings-absence-detail"
         class="container-setting-small first border-right-card border-bottom-card"
-        (click)="isfocused('app-calendar-selection')"
+        (click)="isfocused('app-absence-detail')"
       >
-      </app-calendar-selection>
+      </app-absence-detail>
     </div>
 
     <div id="settings-home-calendar-row" class="container-profilline">
@@ -211,21 +244,27 @@
       </app-calendar-rules>
     </div>
 
-    <div id="settings-home-absence-detail-row" class="container-profilline">
-      <app-absence-detail
-        id="settings-absence-detail"
+    <div id="settings-home-calendar-selection-row" class="container-profilline">
+      <app-calendar-selection
+        id="settings-calendar-selection"
         class="container-setting-small first border-right-card border-bottom-card"
-        (click)="isfocused('app-absence-detail')"
+        (click)="isfocused('app-calendar-selection')"
       >
-      </app-absence-detail>
+      </app-calendar-selection>
     </div>
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('communication')" (keydown.enter)="toggleSection('communication')">
-    <span>{{ 'setting.section.communication' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('communication')"
+    (keydown.enter)="toggleSection('communication')"
+  >
+    <span>{{ "setting.section.communication" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['communication']) {
+      @if (sections["communication"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -233,7 +272,7 @@
     </button>
   </div>
 
-  @if (sections['communication']) {
+  @if (sections["communication"]) {
     <div id="settings-home-email-row" class="container-profilline">
       <app-email-setting
         id="settings-email-setting"
@@ -274,14 +313,19 @@
       >
       </app-report-defaults>
     </div>
-
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('appearance')" (keydown.enter)="toggleSection('appearance')">
-    <span>{{ 'setting.section.appearance' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('appearance')"
+    (keydown.enter)="toggleSection('appearance')"
+  >
+    <span>{{ "setting.section.appearance" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['appearance']) {
+      @if (sections["appearance"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -289,7 +333,7 @@
     </button>
   </div>
 
-  @if (sections['appearance']) {
+  @if (sections["appearance"]) {
     <div id="settings-home-grid-macros-row" class="container-profilline">
       <app-grid-color
         id="settings-grid-color"
@@ -308,10 +352,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('integrations')" (keydown.enter)="toggleSection('integrations')">
-    <span>{{ 'setting.section.integrations' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('integrations')"
+    (keydown.enter)="toggleSection('integrations')"
+  >
+    <span>{{ "setting.section.integrations" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['integrations']) {
+      @if (sections["integrations"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -319,7 +369,7 @@
     </button>
   </div>
 
-  @if (sections['integrations']) {
+  @if (sections["integrations"]) {
     <div id="settings-home-llm-row" class="container-profilline">
       <app-llm-models
         id="settings-llm-models"
@@ -335,7 +385,6 @@
       >
       </app-llm-providers>
     </div>
-
 
     <div id="settings-home-openroute-deepl-row" class="container-profilline">
       <app-openroute
@@ -354,7 +403,10 @@
     </div>
 
     @if (featurePluginState.isPluginEnabled(messagingPluginName)) {
-      <div id="settings-home-messaging-providers-row" class="container-profilline">
+      <div
+        id="settings-home-messaging-providers-row"
+        class="container-profilline"
+      >
         <app-messaging-providers
           id="settings-messaging-providers"
           class="container-profile first border-right-card border-bottom-card"
@@ -384,10 +436,16 @@
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="section-header first" tabindex="0" role="button" (click)="toggleSection('workspace')" (keydown.enter)="toggleSection('workspace')">
-    <span>{{ 'setting.section.workspace' | translate }}</span>
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('workspace')"
+    (keydown.enter)="toggleSection('workspace')"
+  >
+    <span>{{ "setting.section.workspace" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections['workspace']) {
+      @if (sections["workspace"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -395,7 +453,7 @@
     </button>
   </div>
 
-  @if (sections['workspace']) {
+  @if (sections["workspace"]) {
     <div id="settings-home-floor-plan-row" class="container-profilline">
       <app-floor-plan-settings
         id="settings-floor-plan"
