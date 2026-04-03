@@ -2,6 +2,7 @@
 
 import { Group } from '../group/group-class';
 import { IClient } from '../client/client-class';
+import { IShiftExpense } from './shift-expense.model';
 
 export enum ShiftStatus {
   OriginalOrder = 0,
@@ -68,6 +69,7 @@ export interface IShift {
   client?: IClient | undefined;
   addressName: string | undefined;
   isNew?: boolean;
+  defaultExpenses: IShiftExpense[];
 }
 
 export class Shift implements IShift {
@@ -113,5 +115,6 @@ export class Shift implements IShift {
   clientId: string | undefined = undefined;
   client?: IClient | undefined = undefined;
   addressName: string | undefined = undefined;
-  isNew?: boolean = false; // Default: false, wird auf true gesetzt bei neuen Cut-Shifts
+  isNew?: boolean = false;
+  defaultExpenses: IShiftExpense[] = [];
 }

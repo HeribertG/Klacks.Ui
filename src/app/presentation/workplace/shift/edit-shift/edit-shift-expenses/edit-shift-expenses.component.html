@@ -1,0 +1,109 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form class="container-card">
+  <div class="container-header header-container" id="shift-expenses-header">
+    <div>
+      {{ "shift.expenses.tab" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    @if (!isReadOnly) {
+      <button class="btn new-btn" (click)="onAdd()">
+        {{ "shift.expenses.add" | translate }}
+      </button>
+    }
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    @if (expenses.length === 0) {
+      <div class="empty-state">
+        {{ "shift.expenses.empty" | translate }}
+      </div>
+    } @else {
+      <div class="container-table-borderless-no-height">
+        <table class="table" id="shift-expenses-table">
+          <thead>
+            <tr>
+              <th class="table-header" style="width: 350px">
+                <div class="table-header-cell custom-control-inline">
+                  {{ "shift.expenses.description" | translate }}
+                </div>
+              </th>
+              <th class="table-header" style="width: 120px">
+                <div class="table-header-cell custom-control-inline cell-right">
+                  {{ "shift.expenses.amount" | translate }}
+                </div>
+              </th>
+              <th class="table-header" style="width: 120px">
+                <div class="table-header-cell custom-control-inline cell-center">
+                  {{ "shift.expenses.taxable" | translate }}
+                </div>
+              </th>
+              @if (!isReadOnly) {
+                <th class="table-header action" style="width: 90px; max-width: 90px; min-width: 90px"></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (expense of expenses; track $index) {
+              <tr class="table-row">
+                <td class="table-cell">
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    [(ngModel)]="expense.description"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="onChange()"
+                    [disabled]="isReadOnly"
+                  />
+                </td>
+                <td class="table-cell cell-right">
+                  <input
+                    type="number"
+                    class="form-control form-control-sm amount-input"
+                    [(ngModel)]="expense.amount"
+                    [ngModelOptions]="{ standalone: true }"
+                    (input)="onChange()"
+                    [disabled]="isReadOnly"
+                    step="0.01"
+                    min="0"
+                  />
+                </td>
+                <td class="table-cell cell-center">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="expense.taxable"
+                    [ngModelOptions]="{ standalone: true }"
+                    (change)="onChange()"
+                    [disabled]="isReadOnly"
+                  />
+                </td>
+                @if (!isReadOnly) {
+                  <td class="table-cell cell-right">
+                    <div>
+                      <div class="icon" (click)="onDelete(expense)">
+                        <app-icon-trash-red></app-icon-trash-red>
+                      </div>
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+  <div class="bottom-border-space"></div>
+</form>

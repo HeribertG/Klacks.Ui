@@ -1,0 +1,24 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/menu.scss";
+@use "../../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../../assets/standard-styles/modal-buttons.scss";
+
+.amount-input {
+  width: 120px;
+  text-align: end;
+  margin-inline-start: auto;
+}
+
+.empty-state {
+  padding: 12px 30px;
+  color: var(--colorWorkplaceHeadline);
+  opacity: 0.6;
+}
+
+.expand-button {
+  margin-inline-end: 30px;
+}

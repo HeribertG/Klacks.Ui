@@ -257,19 +257,14 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
       this.dataShiftService.getShift(id)
         .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
-          this.prepareShift(this.createShiftFromPlainObject(x));
+          const shift = this.createShiftFromPlainObject(x);
+          if (shift.fromDate && x.client) {
+            const index = this.setCurrentAddressIndex(x.client, shift.fromDate);
+            shift.addressName = this.visualNameAndAddress(x.client, index);
+          }
+          this.prepareShift(shift);
           if (this.editShift && this.editShift.id) {
             setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
-          }
-          if (this.editShift && this.editShift.fromDate && x.client) {
-            const index = this.setCurrentAddressIndex(
-              x.client,
-              this.editShift.fromDate
-            );
-            this.editShift.addressName = this.visualNameAndAddress(
-              x.client,
-              index
-            );
           }
 
           this.fireIsReadEvent();
@@ -332,19 +327,14 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (x) => {
-            this.prepareShift(this.createShiftFromPlainObject(x));
+            const shift = this.createShiftFromPlainObject(x);
+            if (shift.fromDate && x.client) {
+              const index = this.setCurrentAddressIndex(x.client, shift.fromDate);
+              shift.addressName = this.visualNameAndAddress(x.client, index);
+            }
+            this.prepareShift(shift);
             if (!this.isSaveAndClose && this.editShift && this.editShift.id) {
               setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
-            }
-            if (this.editShift && this.editShift.fromDate && x.client) {
-              const index = this.setCurrentAddressIndex(
-                x.client,
-                this.editShift.fromDate
-              );
-              this.editShift.addressName = this.visualNameAndAddress(
-                x.client,
-                index
-              );
             }
 
             if (this.onSaveCompleted) {
