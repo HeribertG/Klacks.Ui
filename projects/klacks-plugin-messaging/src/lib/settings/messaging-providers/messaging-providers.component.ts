@@ -25,12 +25,11 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataMessagingService } from '../../services/data-messaging.service';
 import { MessagingProvider } from '../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../models/create-messaging-provider.model';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { PLUGIN_TOAST_SERVICE, PLUGIN_MANUAL_LOADER } from 'klacks-plugin-contracts';
 import { MessagingProvidersHeaderComponent } from './messaging-providers-header/messaging-providers-header.component';
 import { MessagingProvidersRowComponent } from './messaging-providers-row/messaging-providers-row.component';
 import { MessagingProviderEditComponent } from './messaging-provider-edit/messaging-provider-edit.component';
-import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
-import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { PluginSettingsListCardComponent } from '../../shared/settings-list-card/settings-list-card.component';
 
 @Component({
   selector: 'lib-messaging-providers',
@@ -41,7 +40,7 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
     MessagingProvidersHeaderComponent,
     MessagingProvidersRowComponent,
     MessagingProviderEditComponent,
-    SettingsListCardComponent,
+    PluginSettingsListCardComponent,
   ],
   templateUrl: './messaging-providers.component.html',
   styleUrls: ['./messaging-providers.component.scss'],
@@ -49,11 +48,11 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 })
 export class MessagingProvidersComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
-  private toastService = inject(ToastShowService);
+  private toastService = inject(PLUGIN_TOAST_SERVICE);
   private ngbModal = inject(NgbModal);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
-  private manualLoader = inject(ManualLoaderService);
+  private manualLoader = inject(PLUGIN_MANUAL_LOADER);
   private destroy$ = new Subject<void>();
 
   @ViewChild('editModal') editModal!: TemplateRef<any>;

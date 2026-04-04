@@ -11,12 +11,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataMessagingService } from '../../services/data-messaging.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { PLUGIN_EVENT_STREAM } from 'klacks-plugin-contracts';
 import { Message } from '../../models/message.model';
 import { IncomingMessage } from '../../models/incoming-message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
 import { MessageStatus } from '../../enums/message-status.enum';
-import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { PluginSettingsListCardComponent } from '../../shared/settings-list-card/settings-list-card.component';
 
 @Component({
   selector: 'lib-messaging-inbox',
@@ -26,7 +26,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
     DatePipe,
     NgClass,
     FormsModule,
-    SettingsListCardComponent,
+    PluginSettingsListCardComponent,
   ],
   templateUrl: './messaging-inbox.component.html',
   styleUrls: ['./messaging-inbox.component.scss'],
@@ -34,7 +34,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 })
 export class MessagingInboxComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
-  private signalRService = inject(AssistantSignalRService);
+  private pluginEvents = inject(PLUGIN_EVENT_STREAM);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -86,7 +86,7 @@ export class MessagingInboxComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToIncomingMessages(): void {
-    this.signalRService.incomingMessage$
+    this.pluginEvents
       .pipe(takeUntil(this.destroy$))
       .subscribe((incoming: IncomingMessage) => {
         const newMsg: Message = {

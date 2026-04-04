@@ -7,7 +7,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, retry } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { PLUGIN_API_BASE_URL } from 'klacks-plugin-contracts';
 import { MessagingProvider } from '../models/messaging-provider.model';
 import { Message } from '../models/message.model';
 import { CreateMessagingProvider } from '../models/create-messaging-provider.model';
@@ -17,7 +17,7 @@ import { MessageDirection } from '../enums/message-direction.enum';
 @Injectable({ providedIn: 'root' })
 export class DataMessagingService {
   private httpClient = inject(HttpClient);
-  private readonly apiUrl = environment.baseUrl.replace('backend/', '');
+  private apiUrl = inject(PLUGIN_API_BASE_URL);
 
   getProviders(): Observable<MessagingProvider[]> {
     return this.httpClient.get<MessagingProvider[]>(`${this.apiUrl}messaging/providers`).pipe(retry(3));

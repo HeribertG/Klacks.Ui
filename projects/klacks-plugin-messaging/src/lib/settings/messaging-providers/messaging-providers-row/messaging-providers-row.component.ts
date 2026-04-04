@@ -11,12 +11,12 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
-import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { PluginTrashIconRedComponent } from '../../../shared/icons/trash-icon-red.component';
 
 @Component({
   selector: 'lib-messaging-providers-row',
   standalone: true,
-  imports: [TranslateModule, TrashIconRedComponent],
+  imports: [TranslateModule, PluginTrashIconRedComponent],
   templateUrl: './messaging-providers-row.component.html',
   styleUrls: ['./messaging-providers-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

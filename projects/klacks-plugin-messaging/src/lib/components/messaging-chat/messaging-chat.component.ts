@@ -27,9 +27,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { DataMessagingService } from '../../services/data-messaging.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
-import { VoiceModeService } from 'src/app/presentation/aside/assistant-chat/services/voice-mode.service';
+import {
+  PLUGIN_EVENT_STREAM,
+  PLUGIN_VOICE_SERVICE,
+  PLUGIN_SPEECH_SERVICE,
+  IPluginVoiceService,
+  IPluginSpeechService,
+} from 'klacks-plugin-contracts';
 import { Message } from '../../models/message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
 
@@ -42,17 +46,17 @@ import { MessageDirection } from '../../enums/message-direction.enum';
     TranslateModule,
     FontAwesomeModule,
   ],
-  providers: [VoiceModeService],
+  providers: [],
   templateUrl: './messaging-chat.component.html',
   styleUrls: ['./messaging-chat.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagingChatComponent implements OnInit, OnDestroy {
   private dataService = inject(DataMessagingService);
-  private signalRService = inject(AssistantSignalRService);
+  private pluginEvents = inject(PLUGIN_EVENT_STREAM);
   private cdr = inject(ChangeDetectorRef);
-  public speechService = inject(SpeechRecognitionService);
-  private voiceModeService = inject(VoiceModeService);
+  public speechService = inject(PLUGIN_SPEECH_SERVICE);
+  private voiceModeService = inject(PLUGIN_VOICE_SERVICE);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
@@ -200,7 +204,7 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToIncomingMessages(): void {
-    this.signalRService.incomingMessage$
+    this.pluginEvents
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.loadMessages();
