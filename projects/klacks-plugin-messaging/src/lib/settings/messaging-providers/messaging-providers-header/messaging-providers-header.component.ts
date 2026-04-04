@@ -7,7 +7,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-messaging-providers-header',
+  selector: 'lib-messaging-providers-header',
   standalone: true,
   imports: [TranslateModule],
   templateUrl: './messaging-providers-header.component.html',

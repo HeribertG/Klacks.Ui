@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, Injector, effect, runInInjectionContext, Signal } from '@angular/core';
-import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
 export interface IProgressLoader {
   readonly isRead: Signal<number> | Signal<boolean> | (() => boolean) | (() => number);

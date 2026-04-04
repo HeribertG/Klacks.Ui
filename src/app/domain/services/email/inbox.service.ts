@@ -9,7 +9,7 @@ import {
   IReceivedEmailListItem,
 } from 'src/app/domain/models/email/received-email.model';
 import { IEmailFolder } from 'src/app/domain/models/email/email-folder.model';
-import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
+import { SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
 import { EmailSignalRService } from 'src/app/infrastructure/signalr/email-signalr.service';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 
@@ -154,7 +154,7 @@ export class InboxService {
   fetchAndReload(): void {
     this.isLoading.set(true);
     this.dataReceivedEmailService.fetchNow().subscribe({
-      next: (result) => {
+      next: (_result) => {
         this.loadFolders();
       },
       error: (err) => {

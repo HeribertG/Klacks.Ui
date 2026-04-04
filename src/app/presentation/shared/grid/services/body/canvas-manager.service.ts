@@ -140,8 +140,7 @@ export class BaseCanvasManagerService {
         true
       );
       DrawHelper.setAntiAliasing(this.ctx);
-    } catch {
-    }
+    } catch { /* Canvas initialization may fail in headless/test environments */ }
   }
 
   private createRenderCanvas(): void {

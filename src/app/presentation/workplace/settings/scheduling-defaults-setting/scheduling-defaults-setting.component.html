@@ -214,7 +214,7 @@
     </div>
     <div id="scheduling-defaults-workdays-row" class="row-line" style="margin-top: 16px;">
       <div class="form-group firstColumn">
-        <label>{{ 'settings.work.default-work-days' | translate }}</label>
+        <label for="scheduling-defaults-workdays">{{ 'settings.work.default-work-days' | translate }}</label>
         <div class="workdays-inline">
           <label class="checkbox-label">
             <input type="checkbox" [formField]="schedulingForm.workOnMonday" />
@@ -247,7 +247,7 @@
         </div>
       </div>
       <div class="form-group secondColumn">
-        <label>&#8203;</label>
+        <label for="scheduling-defaults-shift-work">&#8203;</label>
         <label class="checkbox-label shift-work-label">
           <input type="checkbox" [formField]="schedulingForm.performsShiftWork" />
           {{ 'settings.work.performs-shift-work' | translate }}

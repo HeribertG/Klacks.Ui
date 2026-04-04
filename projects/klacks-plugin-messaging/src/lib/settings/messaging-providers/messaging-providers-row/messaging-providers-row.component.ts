@@ -14,7 +14,7 @@ import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 
 @Component({
-  selector: 'app-messaging-providers-row',
+  selector: 'lib-messaging-providers-row',
   standalone: true,
   imports: [TranslateModule, TrashIconRedComponent],
   templateUrl: './messaging-providers-row.component.html',

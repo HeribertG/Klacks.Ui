@@ -200,10 +200,11 @@ export class UiActionEngineService {
       case 'elementExists':
         if (!condition.selector) return false;
         return this.findElement(this.resolveSelector(condition.selector, context)!) !== null;
-      case 'elementHasValue':
+      case 'elementHasValue': {
         if (!condition.selector) return false;
         const el = this.findElement(this.resolveSelector(condition.selector, context)!);
         return el ? (el as HTMLInputElement).value === condition.value : false;
+      }
       default:
         return false;
     }
@@ -249,11 +250,12 @@ export class UiActionEngineService {
     switch (condition.type) {
       case 'paramExists':
         return condition.key !== undefined && context.params[condition.key] !== undefined && context.params[condition.key] !== null;
-      case 'paramEquals':
+      case 'paramEquals': {
         if (!condition.key) return false;
         const paramValue = context.params[condition.key];
         const paramStr = paramValue !== undefined && paramValue !== null ? String(paramValue) : undefined;
         return condition.operator === '==' ? paramStr === condition.value : paramStr !== condition.value;
+      }
       default:
         return false;
     }

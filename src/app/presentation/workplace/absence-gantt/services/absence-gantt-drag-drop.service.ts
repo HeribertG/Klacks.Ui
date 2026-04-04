@@ -235,7 +235,7 @@ export class AbsenceGanttDragDropService {
   }
 
   createBreakSelection(selectedRow: number, x: number): void {
-    const width = this.calendarSetting.cellWidth;
+    const _width = this.calendarSetting.cellWidth;
 
     if (x >= 0) {
       const tmpCol = this.coord.mouseToColumn(x);

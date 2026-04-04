@@ -18,11 +18,11 @@ import { IWeekdayContainerTemplateItemsMap } from './container-template-shift.se
   providedIn: 'root',
 })
 export class ContainerTaskService {
-  private static readonly WEEKDAY_DEFINITIONS: ReadonlyArray<{
+  private static readonly WEEKDAY_DEFINITIONS: readonly {
     flag: keyof IShift;
     value: string;
     labelKey: string;
-  }> = [
+  }[] = [
     { flag: 'isSunday', value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
     { flag: 'isMonday', value: 'monday', labelKey: 'shift.container-template.weekday.monday' },
     { flag: 'isTuesday', value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' },

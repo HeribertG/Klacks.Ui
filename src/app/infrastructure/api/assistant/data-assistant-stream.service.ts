@@ -8,7 +8,7 @@
 
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { IAssistantChatRequest, IAssistantChatResponse } from './data-assistant.service';
+import { IAssistantChatRequest } from './data-assistant.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 
 export interface StreamCallbacks {
@@ -27,12 +27,12 @@ export interface StreamMetadata {
   suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
   actionPerformed?: boolean;
-  functionCalls?: any[];
+  functionCalls?: Record<string, unknown>[];
 }
 
 interface SseEvent {
   type: string;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -135,27 +135,28 @@ export class DataAssistantStreamService {
   }
 
   private dispatchEvent(event: SseEvent, callbacks: StreamCallbacks): void {
+    const data = event.data;
     switch (event.type) {
       case 'stream_start':
-        callbacks.onStreamStart?.(event.data.conversationId);
+        callbacks.onStreamStart?.(data['conversationId'] as string);
         break;
       case 'content':
-        callbacks.onContent?.(event.data.text);
+        callbacks.onContent?.(data['text'] as string);
         break;
       case 'function_call':
-        callbacks.onFunctionCall?.(event.data);
+        callbacks.onFunctionCall?.(data as { functionName: string; parameters: Record<string, unknown> });
         break;
       case 'function_result':
-        callbacks.onFunctionResult?.(event.data);
+        callbacks.onFunctionResult?.(data as { functionName: string; functionResult: string; executionType: string; uiActionSteps?: string });
         break;
       case 'metadata':
-        callbacks.onMetadata?.(event.data);
+        callbacks.onMetadata?.(data as StreamMetadata);
         break;
       case 'done':
         callbacks.onDone?.();
         break;
       case 'error':
-        callbacks.onError?.(event.data.errorMessage || 'Unknown error');
+        callbacks.onError?.((data['errorMessage'] as string) || 'Unknown error');
         break;
     }
   }

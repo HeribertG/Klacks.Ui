@@ -12,8 +12,6 @@ import {
   Output,
   EventEmitter,
   ViewChild,
-  OnChanges,
-  SimpleChanges,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import {
@@ -37,7 +35,7 @@ import {
   imports: [ScrollbarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HScrollbarComponent implements OnChanges {
+export class HScrollbarComponent {
   @Input() maxValue = 365;
   @Input() visibleValue = 180;
   @Input() value = 0;
@@ -45,8 +43,6 @@ export class HScrollbarComponent implements OnChanges {
   @Output() maxValueChange = new EventEmitter<number>();
 
   @ViewChild(ScrollbarComponent) scrollbar!: ScrollbarComponent;
-
-  ngOnChanges(_changes: SimpleChanges) {}
 
   onValueChange(newValue: number) {
     this.value = newValue;

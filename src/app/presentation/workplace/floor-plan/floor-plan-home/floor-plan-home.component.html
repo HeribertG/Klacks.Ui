@@ -19,7 +19,7 @@
       } @else {
         <div class="floor-plan-grid">
           @for (plan of dataManagement.floorPlans(); track plan.id) {
-            <div class="floor-plan-card" (click)="onSelectFloorPlan(plan)">
+            <div class="floor-plan-card" (click)="onSelectFloorPlan(plan)" (keydown.enter)="onSelectFloorPlan(plan)" tabindex="0">
               <div class="floor-plan-card-thumbnail">
                 @if (plan.thumbnailData) {
                   <img [src]="plan.thumbnailData" [alt]="plan.name" class="thumbnail-img" />

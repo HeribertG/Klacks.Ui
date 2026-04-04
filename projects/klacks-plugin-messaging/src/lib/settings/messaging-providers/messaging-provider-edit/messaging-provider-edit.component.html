@@ -71,7 +71,9 @@
   <span
     id="messaging-provider-edit-cancel-btn"
     class="link-button red-font"
+    tabindex="0"
     (click)="onCancel()"
+    (keydown.enter)="onCancel()"
   >{{ 'cancel' | translate }}</span>
   <button
     id="messaging-provider-edit-save-btn"

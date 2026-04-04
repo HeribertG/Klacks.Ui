@@ -177,7 +177,7 @@ export class RenderAvailabilityGridService {
     startCol: number,
     startRow: number
   ): void {
-    const cellWidth = this.settings.cellWidth;
+    const _cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
     const columnsPerDay = this.settings.columnsPerDay;
     const totalCols = this.calculation.totalColumns;

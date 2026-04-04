@@ -5,18 +5,19 @@
   </div>
   <div class="modal-body">
     <div class="mb-3">
-      <label class="form-label">{{ 'scenario.name' | translate }}</label>
+      <label class="form-label" for="scenario-name-input">{{ 'scenario.name' | translate }}</label>
       <input
+        id="scenario-name-input"
         type="text"
         class="form-control"
         [ngModel]="scenarioName()"
         (ngModelChange)="scenarioName.set($event)"
-        autofocus
       />
     </div>
     <div class="mb-3">
-      <label class="form-label">{{ 'scenario.description' | translate }}</label>
+      <label class="form-label" for="scenario-description-input">{{ 'scenario.description' | translate }}</label>
       <input
+        id="scenario-description-input"
         type="text"
         class="form-control"
         [ngModel]="description()"
@@ -25,8 +26,9 @@
     </div>
     <div class="row">
       <div class="col-6">
-        <label class="form-label">{{ 'scenario.fromDate' | translate }}</label>
+        <label class="form-label" for="scenario-from-date-input">{{ 'scenario.fromDate' | translate }}</label>
         <input
+          id="scenario-from-date-input"
           type="date"
           class="form-control"
           [ngModel]="fromDate()"
@@ -34,8 +36,9 @@
         />
       </div>
       <div class="col-6">
-        <label class="form-label">{{ 'scenario.untilDate' | translate }}</label>
+        <label class="form-label" for="scenario-until-date-input">{{ 'scenario.untilDate' | translate }}</label>
         <input
+          id="scenario-until-date-input"
           type="date"
           class="form-control"
           [ngModel]="untilDate()"

@@ -15,9 +15,7 @@ import { CreateMessagingProvider } from '../../../models/create-messaging-provid
 
 const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
 
-interface ProviderConfigFields {
-  [key: string]: string;
-}
+type ProviderConfigFields = Record<string, string>;
 
 const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string }[]> = {
   Telegram: [
@@ -76,7 +74,7 @@ const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string;
 };
 
 @Component({
-  selector: 'app-messaging-provider-edit',
+  selector: 'lib-messaging-provider-edit',
   standalone: true,
   imports: [FormsModule, TranslateModule],
   templateUrl: './messaging-provider-edit.component.html',

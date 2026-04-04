@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { environment } from 'src/environments/environment';
 
-import { ReportSection, ReportSectionType } from 'src/app/domain/models/report/report-section.model';
+import { ReportSection } from 'src/app/domain/models/report/report-section.model';
 import {
   ReportField,
   ReportFieldType,

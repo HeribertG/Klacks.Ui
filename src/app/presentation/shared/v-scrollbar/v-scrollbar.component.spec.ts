@@ -4,14 +4,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VScrollbarComponent } from './v-scrollbar.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { NgZone } from '@angular/core';
 import { ScrollbarService } from '../scrollbar/scrollbar.service';
-import { SCROLLBAR_CONSTANTS } from '../scrollbar/constants';
 
 describe('VScrollbarComponent', () => {
     let component: VScrollbarComponent;
     let fixture: ComponentFixture<VScrollbarComponent>;
-    let domSanitizer: any;
+    let _domSanitizer: any;
 
     beforeEach(async () => {
         const scrollbarServiceSpy = {
@@ -45,7 +43,7 @@ describe('VScrollbarComponent', () => {
             ],
         }).compileComponents();
 
-        domSanitizer = TestBed.inject(DomSanitizer) as any;
+        _domSanitizer = TestBed.inject(DomSanitizer) as any;
 
         fixture = TestBed.createComponent(VScrollbarComponent);
         component = fixture.componentInstance;

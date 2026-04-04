@@ -34,7 +34,7 @@ import { Message } from '../../models/message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
 
 @Component({
-  selector: 'app-messaging-chat',
+  selector: 'lib-messaging-chat',
   standalone: true,
   imports: [
     FormsModule,

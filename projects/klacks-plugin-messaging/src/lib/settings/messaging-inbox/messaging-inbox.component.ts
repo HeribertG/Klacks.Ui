@@ -19,7 +19,7 @@ import { MessageStatus } from '../../enums/message-status.enum';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 
 @Component({
-  selector: 'app-messaging-inbox',
+  selector: 'lib-messaging-inbox',
   standalone: true,
   imports: [
     TranslateModule,

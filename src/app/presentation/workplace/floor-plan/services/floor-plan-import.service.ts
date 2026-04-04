@@ -24,7 +24,7 @@ export class FloorPlanImportService {
   }
 
   async importDXF(file: File): Promise<string> {
-    const text = await this.readFileAsText(file);
+    const _text = await this.readFileAsText(file);
 
     const svgParts: string[] = [];
     svgParts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">');

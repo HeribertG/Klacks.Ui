@@ -23,12 +23,12 @@
     <!-- Name input row at top -->
     <div class="floor-plan-name-row">
       <div class="model-field">
-        <label>{{ 'floor-plan.name' | translate }}</label>
-        <input type="text" class="form-control" [(ngModel)]="editingPlan!.name" />
+        <label for="floor-plan-name-input">{{ 'floor-plan.name' | translate }}</label>
+        <input id="floor-plan-name-input" type="text" class="form-control" [(ngModel)]="editingPlan!.name" />
       </div>
       <div class="model-field">
-        <label>{{ 'floor-plan.description' | translate }}</label>
-        <input type="text" class="form-control" [(ngModel)]="editingPlan!.description" />
+        <label for="floor-plan-description-input">{{ 'floor-plan.description' | translate }}</label>
+        <input id="floor-plan-description-input" type="text" class="form-control" [(ngModel)]="editingPlan!.description" />
       </div>
     </div>
     <!-- Full editor layout -->

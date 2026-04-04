@@ -14,7 +14,7 @@ export class ShiftArrangementService {
   arrangeShifts(
     items: IContainerTemplateItem[],
     containerTimeFrom: string,
-    containerTimeUntil: string
+    _containerTimeUntil: string
   ): IContainerTemplateItem[] {
     if (!items || items.length === 0) {
       return items;
@@ -117,7 +117,7 @@ export class ShiftArrangementService {
     items: IContainerTemplateItem[],
     newItemIndex: number,
     containerTimeFrom: string,
-    containerTimeUntil: string
+    _containerTimeUntil: string
   ): IContainerTemplateItem[] {
     if (!items || items.length === 0) {
       return items;

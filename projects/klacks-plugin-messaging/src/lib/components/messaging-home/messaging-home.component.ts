@@ -19,7 +19,7 @@ import { MessageDirection } from '../../enums/message-direction.enum';
 import { IClient } from 'src/app/domain/models/client/client-class';
 
 @Component({
-  selector: 'app-messaging-home',
+  selector: 'lib-messaging-home',
   standalone: true,
   imports: [
     TranslateModule,

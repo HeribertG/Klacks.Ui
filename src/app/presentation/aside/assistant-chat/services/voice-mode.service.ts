@@ -6,7 +6,7 @@
  * @param translateService - Used for language detection and error messages
  * @param languageMappingService - Maps app language codes to speech recognition locale codes
  */
-import { Injectable, inject, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { SpeechRecognitionService } from './speech-recognition.service';

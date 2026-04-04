@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-﻿import {
+import {
   Component,
   OnInit,
   OnDestroy,
@@ -514,7 +514,7 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
     this.sendHiddenMessage(prompt, true);
   }
 
-  private async sendHiddenMessage(prompt: string, suppressSuggestions: boolean = false): Promise<void> {
+  private async sendHiddenMessage(prompt: string, suppressSuggestions = false): Promise<void> {
     if (this.isProcessing) return;
 
     this.isProcessing = true;

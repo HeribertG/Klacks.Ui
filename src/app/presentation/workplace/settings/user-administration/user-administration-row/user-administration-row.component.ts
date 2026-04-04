@@ -3,7 +3,6 @@
 import {
   Component, ChangeDetectionStrategy,
   EventEmitter,
-  inject,
   Input,
   OnChanges,
   Output,

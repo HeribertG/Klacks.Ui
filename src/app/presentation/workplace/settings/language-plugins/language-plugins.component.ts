@@ -97,7 +97,7 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.marketplaceBrowse?.search(), 0);
   }
 
-  onMarketplaceInstalled(code: string): void {
+  onMarketplaceInstalled(_code: string): void {
     this.loadPlugins();
     this.languageConfigService.reloadConfig();
   }

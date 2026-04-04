@@ -56,7 +56,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private shifts: IContainerTemplateItem[] = [];
   private selectedShift: IContainerTemplateItem | null = null;
-  private shiftRectangles: Map<IContainerTemplateItem, Rectangle> = new Map();
+  private shiftRectangles = new Map<IContainerTemplateItem, Rectangle>();
 
   private _lastFromTimeString = '';
   private _lastUntilTimeString = '';

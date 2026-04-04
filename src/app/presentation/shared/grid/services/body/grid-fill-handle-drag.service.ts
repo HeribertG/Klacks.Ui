@@ -25,6 +25,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
+import { BaseCanvasManagerService } from './canvas-manager.service';
 
 export interface FillHandleDragContext {
   gridSurface: GridSurfaceTemplateComponent;
@@ -176,7 +177,7 @@ export class GridFillHandleDragService {
 
     this.context.gridSurface.drawSchedule.refresh();
 
-    const ctx = (this.context.gridSurface.drawSchedule as any)['canvasManager'].ctx;
+    const ctx = (this.context.gridSurface.drawSchedule as unknown as { canvasManager: BaseCanvasManagerService })['canvasManager'].ctx;
     if (!ctx) return;
 
     const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;

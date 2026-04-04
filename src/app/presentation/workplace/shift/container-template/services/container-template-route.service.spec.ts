@@ -83,7 +83,7 @@ function createAbsenceItem(overrides: Partial<IContainerTemplateItem> = {}): ICo
     travelTimeBefore: '00:00:00',
     timeRangeStartItem: '00:00:00',
     timeRangeEndItem: '00:30:00',
-    absence: { name: 'Lunch Break' } as any,
+    absence: { name: 'Lunch Break' } as unknown as IContainerTemplateItem['absence'],
     ...overrides,
   } as IContainerTemplateItem;
 }

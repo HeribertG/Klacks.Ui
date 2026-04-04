@@ -121,7 +121,7 @@ export class RouteOptimizationService {
     fromTime: string,
     untilTime: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
-    timeRangeTolerance: number = 0.5,
+    timeRangeTolerance = 0.5,
     timeBlocks: ITimeBlock[] = []
   ): Observable<IAutofillResult> {
     const body = {

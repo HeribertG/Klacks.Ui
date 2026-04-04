@@ -33,7 +33,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
-  selector: 'app-messaging-providers',
+  selector: 'lib-messaging-providers',
   standalone: true,
   imports: [
     CommonModule,

@@ -14,6 +14,8 @@
         class="layer-row"
         [class.active]="isActive(layer)"
         (click)="onSetActive(layer)"
+        (keydown.enter)="onSetActive(layer)"
+        tabindex="0"
       >
         <button
           class="layer-icon-btn"
@@ -60,7 +62,6 @@
               (blur)="commitRename(layer.id)"
               (keydown.enter)="commitRename(layer.id)"
               (keydown.escape)="cancelRename()"
-              autofocus
             />
           } @else {
             <span class="layer-name">{{ layer.name }}</span>

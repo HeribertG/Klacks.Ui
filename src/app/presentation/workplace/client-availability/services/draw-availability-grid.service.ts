@@ -6,7 +6,6 @@ import { AvailabilityCanvasManagerService } from './availability-canvas-manager.
 import { RenderAvailabilityGridService } from './render-availability-grid';
 import { AvailabilityCalculationService } from './render-availability-grid/availability-calculation.service';
 import { AvailabilitySelectionService } from './availability-selection.service';
-import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { AvailabilityCoordinateService } from './availability-coordinate.service';
 

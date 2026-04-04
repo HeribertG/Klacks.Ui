@@ -248,7 +248,7 @@ export class AppSettingsManagementService {
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
   }
 
-  private readonly saveDefinitions: ReadonlyArray<{ key: string; getCurrent: () => string; getOriginal: () => string }> = [
+  private readonly saveDefinitions: readonly { key: string; getCurrent: () => string; getOriginal: () => string }[] = [
     { key: AppSetting.APP_NAME, getCurrent: () => this.contactSettings().name, getOriginal: () => this.contactSettingsOriginal().name },
     { key: AppSetting.APP_ADDRESS_NAME, getCurrent: () => this.contactSettings().addressName, getOriginal: () => this.contactSettingsOriginal().addressName },
     { key: AppSetting.APP_ADDRESS_SUPPLEMENT, getCurrent: () => this.contactSettings().supplementAddress, getOriginal: () => this.contactSettingsOriginal().supplementAddress },

@@ -239,7 +239,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     }
   }
 
-  private static readonly ENTITY_INFO_MAP: ReadonlyArray<{ pattern: string; name: string; key: string }> = [
+  private static readonly ENTITY_INFO_MAP: readonly { pattern: string; name: string; key: string }[] = [
     { pattern: ResponseInterceptor.ERROR_PATTERNS.ABSENCES, name: 'Absence', key: 'ABSENCE' },
     { pattern: ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS, name: 'Assigned Group', key: 'ASSIGNED_GROUP' },
     { pattern: ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS, name: 'Bank Detail', key: 'BANK_DETAIL' },

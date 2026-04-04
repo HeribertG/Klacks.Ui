@@ -5,7 +5,7 @@ import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ScrollbarComponent } from './scrollbar.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ElementRef, NgZone } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { ScrollbarService } from './scrollbar.service';
 import { SCROLLBAR_CONSTANTS } from './constants';
 

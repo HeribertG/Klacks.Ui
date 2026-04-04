@@ -18,7 +18,6 @@ import {
 import { NgStyle } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
@@ -26,7 +25,6 @@ import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-clas
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { DrawAvailabilityRowHeaderService } from '../services/draw-availability-row-header.service';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';

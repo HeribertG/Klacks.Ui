@@ -6,11 +6,6 @@ import { CheckboxDrawingService } from './checkbox-drawing.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 
-interface CellTemplate {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-}
-
 @Injectable()
 export class AvailabilityCellRenderingService {
   private static readonly ZEBRA_DARK_STEP = 8;

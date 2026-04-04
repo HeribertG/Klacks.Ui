@@ -26,7 +26,7 @@ import { MessagingProvider } from '../../models/messaging-provider.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
 
 @Component({
-  selector: 'app-messaging-nav',
+  selector: 'lib-messaging-nav',
   standalone: true,
   imports: [
     FormsModule,

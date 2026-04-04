@@ -32,7 +32,7 @@
       {{ 'settings.language-plugins.modal.title' | translate }}
     </div>
     <span class="filler"></span>
-    <div class="close" aria-label="Close" (click)="modal.dismiss()">
+    <div class="close" aria-label="Close" tabindex="0" (click)="modal.dismiss()" (keydown.enter)="modal.dismiss()">
       <span aria-hidden="true" style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);">&times;</span>
     </div>
   </div>
@@ -43,7 +43,7 @@
     </app-marketplace-browse>
   </div>
   <div class="modal-footer">
-    <span class="link-button red-font" (click)="modal.dismiss()">
+    <span class="link-button red-font" tabindex="0" (click)="modal.dismiss()" (keydown.enter)="modal.dismiss()">
       {{ 'close' | translate }}
     </span>
   </div>

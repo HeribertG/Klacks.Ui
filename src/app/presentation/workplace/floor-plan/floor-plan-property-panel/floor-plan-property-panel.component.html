@@ -13,8 +13,9 @@
       <div class="property-section">
         <div class="property-section-title">{{ 'floor-plan.properties.position' | translate }}</div>
         <div class="property-row">
-          <label class="property-label">X</label>
+          <label class="property-label" for="prop-x">X</label>
           <input
+            id="prop-x"
             type="number"
             class="property-input"
             [ngModel]="properties().x"
@@ -22,8 +23,9 @@
           />
         </div>
         <div class="property-row">
-          <label class="property-label">Y</label>
+          <label class="property-label" for="prop-y">Y</label>
           <input
+            id="prop-y"
             type="number"
             class="property-input"
             [ngModel]="properties().y"
@@ -35,8 +37,9 @@
       <div class="property-section">
         <div class="property-section-title">{{ 'floor-plan.properties.size' | translate }}</div>
         <div class="property-row">
-          <label class="property-label">W</label>
+          <label class="property-label" for="prop-w">W</label>
           <input
+            id="prop-w"
             type="number"
             class="property-input"
             [ngModel]="properties().width"
@@ -44,8 +47,9 @@
           />
         </div>
         <div class="property-row">
-          <label class="property-label">H</label>
+          <label class="property-label" for="prop-h">H</label>
           <input
+            id="prop-h"
             type="number"
             class="property-input"
             [ngModel]="properties().height"
@@ -57,8 +61,9 @@
       <div class="property-section">
         <div class="property-section-title">{{ 'floor-plan.properties.transform' | translate }}</div>
         <div class="property-row">
-          <label class="property-label">{{ 'floor-plan.properties.rotation' | translate }}</label>
+          <label class="property-label" for="prop-rotation">{{ 'floor-plan.properties.rotation' | translate }}</label>
           <input
+            id="prop-rotation"
             type="number"
             class="property-input"
             [ngModel]="properties().angle"
@@ -68,8 +73,9 @@
           />
         </div>
         <div class="property-row">
-          <label class="property-label">{{ 'floor-plan.properties.opacity' | translate }}</label>
+          <label class="property-label" for="prop-opacity">{{ 'floor-plan.properties.opacity' | translate }}</label>
           <input
+            id="prop-opacity"
             type="range"
             class="property-range"
             [ngModel]="properties().opacity"
@@ -85,8 +91,9 @@
       <div class="property-section">
         <div class="property-section-title">{{ 'floor-plan.properties.appearance' | translate }}</div>
         <div class="property-row">
-          <label class="property-label">{{ 'floor-plan.properties.stroke' | translate }}</label>
+          <label class="property-label" for="prop-stroke">{{ 'floor-plan.properties.stroke' | translate }}</label>
           <input
+            id="prop-stroke"
             type="color"
             class="property-color"
             [value]="properties().stroke"
@@ -94,8 +101,9 @@
           />
         </div>
         <div class="property-row">
-          <label class="property-label">{{ 'floor-plan.properties.fill' | translate }}</label>
+          <label class="property-label" for="prop-fill">{{ 'floor-plan.properties.fill' | translate }}</label>
           <input
+            id="prop-fill"
             type="color"
             class="property-color"
             [value]="properties().fill"
@@ -103,8 +111,9 @@
           />
         </div>
         <div class="property-row">
-          <label class="property-label">{{ 'floor-plan.properties.stroke-width' | translate }}</label>
+          <label class="property-label" for="prop-stroke-width">{{ 'floor-plan.properties.stroke-width' | translate }}</label>
           <input
+            id="prop-stroke-width"
             type="number"
             class="property-input"
             [ngModel]="properties().strokeWidth"

@@ -2,7 +2,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, catchError, switchMap } from 'rxjs';
+import { Observable, of, catchError } from 'rxjs';
 import { LanguageConfigService } from './language-config.service';
 import { DataLanguagePluginService } from 'src/app/infrastructure/api/settings/data-language-plugin.service';
 

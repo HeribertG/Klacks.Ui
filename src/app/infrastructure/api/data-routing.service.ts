@@ -7,7 +7,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map, catchError, of, switchMap } from 'rxjs';
+import { Observable, map, catchError, of } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 export interface RouteCoordinate {

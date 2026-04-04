@@ -93,7 +93,7 @@ export class GridColorService {
     });
   }
 
-  private applyThemeDefaults(headerBg: string, headerColor: string, containerBg: string, rowColor: string, borderColor: string): void {
+  private applyThemeDefaults(headerBg: string, headerColor: string, containerBg: string, rowColor: string, _borderColor: string): void {
     let changed = false;
 
     const dbOverrideControl = this.hasDbOverride(ConstantKeys.CONTROL_BACKGROUND_COLOR_KEY);

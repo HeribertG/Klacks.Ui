@@ -8,10 +8,10 @@
   idPrefix="messaging-providers"
   (addClick)="onAdd()"
 >
-  <app-messaging-providers-header header id="messaging-providers-table-header"></app-messaging-providers-header>
+  <lib-messaging-providers-header header id="messaging-providers-table-header"></lib-messaging-providers-header>
   <div rows>
     @for (provider of providers; track provider.id; let i = $index) {
-      <app-messaging-providers-row
+      <lib-messaging-providers-row
         [id]="'messaging-providers-row-' + i"
         [data]="provider"
         (editEvent)="onEdit($event)"
@@ -62,12 +62,12 @@
     </div>
 
     <div [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
-      <app-messaging-provider-edit
+      <lib-messaging-provider-edit
         [provider]="editingProvider"
         (saved)="onSaved($event, modal)"
         (cancelled)="modal.dismiss()"
         (providerTypeChanged)="onProviderTypeChanged($event)"
-      ></app-messaging-provider-edit>
+      ></lib-messaging-provider-edit>
     </div>
 
     <div

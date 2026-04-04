@@ -106,18 +106,18 @@ export class ClientDataMapper {
       membership: value.membership
         ? { ...value.membership, id: undefined, clientId: undefined }
         : value.membership,
-      addresses: value.addresses.map(({ id, clientId, ...rest }) => rest as IAddress),
-      annotations: value.annotations.map(({ id, clientId, ...rest }) => rest as IAnnotation),
-      communications: value.communications.map(({ id, clientId, ...rest }) => rest as ICommunication),
-      clientContracts: value.clientContracts.map(({ id, clientId, ...rest }) => rest as IClientContract),
-      groupItems: value.groupItems.map(({ clientId, ...rest }) => rest as IClientGroupItem),
+      addresses: value.addresses.map(({ id: _id, clientId: _clientId, ...rest }) => rest as IAddress),
+      annotations: value.annotations.map(({ id: _id, clientId: _clientId, ...rest }) => rest as IAnnotation),
+      communications: value.communications.map(({ id: _id, clientId: _clientId, ...rest }) => rest as ICommunication),
+      clientContracts: value.clientContracts.map(({ id: _id, clientId: _clientId, ...rest }) => rest as IClientContract),
+      groupItems: value.groupItems.map(({ clientId: _clientId, ...rest }) => rest as IClientGroupItem),
     };
   }
 
   private static removeEmptyIds(value: IClient): IClient {
     const cleanItem = <T extends { id?: string; clientId?: string }>(item: T): T => {
       if (item.id === '') {
-        const { id, clientId, ...rest } = item;
+        const { id: _id, clientId: _clientId, ...rest } = item;
         return rest as T;
       }
       return item;

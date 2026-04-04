@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
-import { FloorPlanWorkDropService, FloorPlanDragData } from '../services/floor-plan-work-drop.service';
+import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 
 const CANVAS_DEFAULT_WIDTH = 1200;

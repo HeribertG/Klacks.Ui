@@ -10,7 +10,6 @@ export interface CanvasAvailable {
   isCanvasAvailable: () => boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CANVAS_QUEUE = Symbol('canvasMethodQueue');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

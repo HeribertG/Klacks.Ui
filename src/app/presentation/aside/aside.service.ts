@@ -14,7 +14,7 @@ export class AsideService {
   public isVisible = signal<boolean>(false);
   public openedWithContext = signal<boolean>(false);
 
-  show(withContext: boolean = false): void {
+  show(withContext = false): void {
     this.openedWithContext.set(withContext);
     this.isVisible.set(true);
   }

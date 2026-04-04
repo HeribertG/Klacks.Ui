@@ -131,7 +131,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.marketplaceBrowse?.search(), 0);
   }
 
-  onMarketplaceInstalled(name: string): void {
+  onMarketplaceInstalled(_name: string): void {
     this.loadPlugins();
     this.pluginState.refresh();
   }
