@@ -5,19 +5,25 @@ import { LocaleService } from './locale.service';
 describe('LocaleService', () => {
   let service: LocaleService;
   let originalLanguageGetter: PropertyDescriptor | undefined;
+  let originalLanguagesGetter: PropertyDescriptor | undefined;
 
   beforeEach(() => {
     originalLanguageGetter = Object.getOwnPropertyDescriptor(navigator, 'language');
+    originalLanguagesGetter = Object.getOwnPropertyDescriptor(navigator, 'languages');
   });
 
   afterEach(() => {
     if (originalLanguageGetter) {
       Object.defineProperty(navigator, 'language', originalLanguageGetter);
     }
+    if (originalLanguagesGetter) {
+      Object.defineProperty(navigator, 'languages', originalLanguagesGetter);
+    }
   });
 
   function mockNavigatorLanguage(value: string) {
     Object.defineProperty(navigator, 'language', { get: () => value, configurable: true });
+    Object.defineProperty(navigator, 'languages', { get: () => value ? [value] : [], configurable: true });
   }
 
   function createService(): LocaleService {
