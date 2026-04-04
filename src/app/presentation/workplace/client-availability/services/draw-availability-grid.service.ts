@@ -179,14 +179,13 @@ export class DrawAvailabilityGridService {
 
     if (this.canvasManager.headerCanvas) {
       const headerHeight = this.settings.cellHeaderHeight;
-      const ratio = DrawHelper.pixelRatio();
 
       ctx.drawImage(
         this.canvasManager.headerCanvas,
         0,
         0,
-        this.canvasManager.width * ratio,
-        headerHeight * ratio,
+        this.canvasManager.headerCanvas.width,
+        this.canvasManager.headerCanvas.height,
         0,
         0,
         this.canvasManager.width,

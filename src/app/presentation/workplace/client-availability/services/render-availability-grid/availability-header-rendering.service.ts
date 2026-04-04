@@ -4,6 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { AvailabilitySettingService } from '../availability-setting.service';
 import { AvailabilityCalculationService } from './availability-calculation.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { GridThemeService } from 'src/app/domain/services/settings/grid-theme.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HourGroupingMode } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
@@ -23,16 +24,15 @@ export class AvailabilityHeaderRenderingService {
   private settings = inject(AvailabilitySettingService);
   private calculation = inject(AvailabilityCalculationService);
   private gridColors = inject(GridColorService);
+  private gridTheme = inject(GridThemeService);
   private gridFonts = inject(GridFontsService);
   private coord = inject(AvailabilityCoordinateService);
 
   private daySegmentCache: SegmentCache | undefined;
   private hourSegmentCache: SegmentCache | undefined;
-  private hourHolidayCache: SegmentCache | undefined;
-  private hourOfficialHolidayCache: SegmentCache | undefined;
 
   public renderHeader(ctx: CanvasRenderingContext2D, viewportWidth: number, scrollX: number): void {
-    this.fillRect(ctx, 0, 0, viewportWidth, this.settings.cellHeaderHeight, this.gridColors.controlBackGroundColor);
+    this.fillRect(ctx, 0, 0, viewportWidth, this.settings.cellHeaderHeight, this.gridTheme.containerBackground());
     this.renderDayRow(ctx, viewportWidth, scrollX);
     this.renderHourRow(ctx, viewportWidth, scrollX);
   }
@@ -40,8 +40,6 @@ export class AvailabilityHeaderRenderingService {
   public invalidateCache(): void {
     this.daySegmentCache = undefined;
     this.hourSegmentCache = undefined;
-    this.hourHolidayCache = undefined;
-    this.hourOfficialHolidayCache = undefined;
   }
 
   private ensureDaySegmentCache(): HTMLCanvasElement {
@@ -74,38 +72,6 @@ export class AvailabilityHeaderRenderingService {
 
     this.hourSegmentCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
     return this.hourSegmentCache.canvas;
-  }
-
-  private ensureHourHolidayCache(): HTMLCanvasElement {
-    const cellWidth = this.settings.cellWidth;
-    const hourHeaderHeight = this.settings.hourHeaderHeight;
-    const bgColor = this.gridColors.backGroundColorHolyday;
-
-    if (this.hourHolidayCache
-      && this.hourHolidayCache.width === cellWidth
-      && this.hourHolidayCache.height === hourHeaderHeight
-      && this.hourHolidayCache.bgColor === bgColor) {
-      return this.hourHolidayCache.canvas;
-    }
-
-    this.hourHolidayCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
-    return this.hourHolidayCache.canvas;
-  }
-
-  private ensureHourOfficialHolidayCache(): HTMLCanvasElement {
-    const cellWidth = this.settings.cellWidth;
-    const hourHeaderHeight = this.settings.hourHeaderHeight;
-    const bgColor = this.gridColors.backGroundColorOfficiallyHoliday;
-
-    if (this.hourOfficialHolidayCache
-      && this.hourOfficialHolidayCache.width === cellWidth
-      && this.hourOfficialHolidayCache.height === hourHeaderHeight
-      && this.hourOfficialHolidayCache.bgColor === bgColor) {
-      return this.hourOfficialHolidayCache.canvas;
-    }
-
-    this.hourOfficialHolidayCache = this.createSegmentCanvas(cellWidth, hourHeaderHeight, bgColor);
-    return this.hourOfficialHolidayCache.canvas;
   }
 
   private createSegmentCanvas(width: number, height: number, bgColor: string): SegmentCache {
@@ -167,9 +133,7 @@ export class AvailabilityHeaderRenderingService {
     const textColor = this.gridColors.headerForeGroundColor;
     const totalCols = this.calculation.totalColumns;
 
-    const normalTemplate = this.ensureHourSegmentCache();
-    const holidayTemplate = this.ensureHourHolidayCache();
-    const officialHolidayTemplate = this.ensureHourOfficialHolidayCache();
+    const template = this.ensureHourSegmentCache();
 
     const firstCol = Math.floor(scrollX / cellWidth);
     const lastCol = Math.min(
@@ -177,26 +141,13 @@ export class AvailabilityHeaderRenderingService {
       totalCols
     );
 
-    let prevDayIdx = -1;
-    let template = normalTemplate;
-    let currentDate: Date | undefined;
-
     for (let col = firstCol; col < lastCol; col++) {
       const dayIdx = Math.floor(col / columnsPerDay);
       const slotIdx = col % columnsPerDay;
       const x = this.coord.absoluteColX(col, scrollX);
 
-      if (dayIdx !== prevDayIdx) {
-        prevDayIdx = dayIdx;
-        currentDate = new Date(this.calculation.startDate);
-        currentDate.setDate(currentDate.getDate() + dayIdx);
-        const isHoliday = this.calculation.isHoliday(currentDate);
-        template = isHoliday
-          ? this.calculation.isOfficialHoliday(currentDate)
-            ? officialHolidayTemplate
-            : holidayTemplate
-          : normalTemplate;
-      }
+      const currentDate = new Date(this.calculation.startDate);
+      currentDate.setDate(currentDate.getDate() + dayIdx);
 
       ctx.drawImage(template, 0, 0, template.width, template.height, x, dayHeaderHeight, cellWidth, hourHeaderHeight);
 

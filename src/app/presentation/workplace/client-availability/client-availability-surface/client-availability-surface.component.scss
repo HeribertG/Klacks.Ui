@@ -9,6 +9,7 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+  background-color: var(--gridContainerBackground);
 
   canvas {
     position: absolute;
