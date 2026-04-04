@@ -8,7 +8,7 @@
     "declarationMap": true,
     "types": [],
     "paths": {
-      "src/*": ["./src/*"],
+      "klacks-plugin-contracts": ["../klacks-plugin-contracts/src/public-api.ts"],
       "klacks-plugin-messaging": ["./projects/klacks-plugin-messaging/src/public-api.ts"]
     }
   },
