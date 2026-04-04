@@ -10,6 +10,10 @@
     "strict": true,
     "noImplicitOverride": true,
     "paths": {
+      "klacks-plugin-contracts": [
+        "./projects/klacks-plugin-contracts/src/public-api.ts",
+        "./dist/klacks-plugin-contracts"
+      ],
       "klacks-plugin-messaging": [
         "./projects/klacks-plugin-messaging/src/public-api.ts",
         "./dist/klacks-plugin-messaging"
@@ -39,6 +43,9 @@
     "strictTemplates": true
   },
   "references": [
+    {
+      "path": "./projects/klacks-plugin-contracts/tsconfig.lib.json"
+    },
     {
       "path": "./projects/klacks-plugin-messaging/tsconfig.lib.json"
     },

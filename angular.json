@@ -148,6 +148,26 @@
         }
       }
     },
+    "klacks-plugin-contracts": {
+      "projectType": "library",
+      "root": "projects/klacks-plugin-contracts",
+      "sourceRoot": "projects/klacks-plugin-contracts/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/klacks-plugin-contracts/tsconfig.lib.json"
+            },
+            "development": {
+              "tsConfig": "projects/klacks-plugin-contracts/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
     "klacks-plugin-messaging": {
       "projectType": "library",
       "root": "projects/klacks-plugin-messaging",
