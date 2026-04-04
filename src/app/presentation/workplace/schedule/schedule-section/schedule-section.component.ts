@@ -60,6 +60,8 @@ import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correcti
 import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../dialogs/expenses-dialog/expenses-dialog.component';
+import { ContainerWorkEditDialogComponent, AvailableShift } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
@@ -85,6 +87,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
     ReplacementDialogComponent,
     WorkEditDialogComponent,
     ExpensesDialogComponent,
+    ContainerWorkEditDialogComponent,
   ],
   providers: [
     BaseSettingsService,
@@ -131,6 +134,8 @@ export class ScheduleSectionComponent
   workEditDialog!: WorkEditDialogComponent;
   @ViewChild(ExpensesDialogComponent)
   expensesDialog!: ExpensesDialogComponent;
+  @ViewChild(ContainerWorkEditDialogComponent)
+  containerWorkEditDialog!: ContainerWorkEditDialogComponent;
 
   horizontalSize = input(200);
   zoom = input(1.0);
@@ -177,7 +182,7 @@ export class ScheduleSectionComponent
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
     this.scheduleSurface.drawSchedule.showFillHandle = true;
-    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog);
+    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog);
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
@@ -544,5 +549,23 @@ export class ScheduleSectionComponent
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
     this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService);
+  }
+
+  onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const availableShifts = this.mapShiftsToAvailable(this.dataManagement.shiftSchedules);
+    this.facade.dialog.openContainerWorkEditDialog(event.row, event.column, dataService, availableShifts);
+  }
+
+  private mapShiftsToAvailable(shifts: IShiftSchedule[]): AvailableShift[] {
+    return shifts.map(s => ({
+      id: s.shiftId,
+      name: s.shiftName,
+      abbreviation: s.abbreviation,
+      startShift: s.startShift,
+      endShift: s.endShift,
+      workTime: s.workTime,
+      clientId: '',
+    }));
   }
 }

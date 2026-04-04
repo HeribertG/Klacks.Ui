@@ -32,6 +32,7 @@ export class GridScheduleEventsService {
 
   workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
   workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  containerWorkDoubleClick = new EventEmitter<GridDoubleClickEvent>();
 
   handleDoubleClick(pos: MyPosition): boolean {
     if (this.gridSurface.nameId !== 'surface') {
@@ -90,7 +91,12 @@ export class GridScheduleEventsService {
       return false;
     }
 
-    this.workDoubleClick.emit({ row: pos.row, column: pos.column });
+    const shift = this.dataManagementSchedule.shiftSchedules.find(s => s.shiftId === entry.entryId);
+    if (shift?.shiftType === 1) {
+      this.containerWorkDoubleClick.emit({ row: pos.row, column: pos.column });
+    } else {
+      this.workDoubleClick.emit({ row: pos.row, column: pos.column });
+    }
     return true;
   }
 

@@ -718,6 +718,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   compactSelectedShifts(): void {
     this.shiftOpsService.compactSelectedShifts(
       this.timeFrom,
+      this.timeTo,
       this.selectedWeekday,
       this.isHoliday,
     );

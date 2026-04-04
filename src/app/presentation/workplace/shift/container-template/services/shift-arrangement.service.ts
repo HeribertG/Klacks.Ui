@@ -14,11 +14,18 @@ export class ShiftArrangementService {
   arrangeShifts(
     items: IContainerTemplateItem[],
     containerTimeFrom: string,
-    _containerTimeUntil: string
+    containerTimeUntil: string
   ): IContainerTemplateItem[] {
     if (!items || items.length === 0) {
       return items;
     }
+
+    // Sortiere Items chronologisch nach ihrer Startzeit
+    const sortedItems = this.sortItemsChronologically(
+      [...items],
+      containerTimeFrom,
+      containerTimeUntil
+    );
 
     const arrangedItems: IContainerTemplateItem[] = [];
     const containerFromTime =
@@ -32,8 +39,8 @@ export class ShiftArrangementService {
       containerFromTime.hours * this.MINUTES_PER_HOUR +
       containerFromTime.minutes;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = { ...items[i] };
+    for (let i = 0; i < sortedItems.length; i++) {
+      const item = { ...sortedItems[i] };
 
       const isAbsence = !!item.absenceId;
       const isMovable = item.shift?.isTimeRange || item.shift?.isSporadic || isAbsence;
@@ -277,7 +284,8 @@ export class ShiftArrangementService {
 
   compactShifts(
     items: IContainerTemplateItem[],
-    containerTimeFrom: string
+    containerTimeFrom: string,
+    containerTimeUntil?: string
   ): IContainerTemplateItem[] {
     if (!items || items.length === 0) {
       return items;
@@ -289,12 +297,21 @@ export class ShiftArrangementService {
       return items;
     }
 
+    // Sortiere Items chronologisch (für Kompaktierung wichtig)
+    const sortedItems = containerTimeUntil
+      ? this.sortItemsChronologically([...items], containerTimeFrom, containerTimeUntil)
+      : [...items].sort((a, b) => {
+          const startA = this.timeRangeService.getShiftStartMinutes(a);
+          const startB = this.timeRangeService.getShiftStartMinutes(b);
+          return startA - startB;
+        });
+
     const compactedItems: IContainerTemplateItem[] = [];
     let currentEffectivePosition =
       containerFromTime.hours * this.MINUTES_PER_HOUR +
       containerFromTime.minutes;
 
-    for (const item of items) {
+    for (const item of sortedItems) {
       const compactedItem = { ...item };
       const isAbsence = !!item.absenceId;
       const isMovable = item.shift?.isTimeRange || item.shift?.isSporadic || isAbsence;
@@ -341,5 +358,64 @@ export class ShiftArrangementService {
     }
 
     return compactedItems;
+  }
+
+  /**
+   * Sortiert Items chronologisch nach ihrer effektiven Startzeit.
+   * Für Mitternachts-Container (Ende < Start) werden Zeiten nach dem Container-Start zuerst angezeigt.
+   * Beispiel: Container 22:00-06:00 → Reihenfolge: 23:00, 00:30, 01:00 (nicht 00:30, 01:00, 23:00)
+   */
+  private sortItemsChronologically(
+    items: IContainerTemplateItem[],
+    containerTimeFrom: string,
+    containerTimeUntil: string
+  ): IContainerTemplateItem[] {
+    // Parse Container-Zeiten
+    const containerStartTime = this.timeRangeService.parseTimeString(containerTimeFrom);
+    const containerEndTime = this.timeRangeService.parseTimeString(containerTimeUntil);
+
+    if (!containerStartTime || !containerEndTime) {
+      // Einfache chronologische Sortierung wenn keine Container-Zeiten bekannt
+      return items.sort((a, b) => {
+        const startA = this.timeRangeService.getShiftStartMinutes(a);
+        const startB = this.timeRangeService.getShiftStartMinutes(b);
+        return startA - startB;
+      });
+    }
+
+    const containerStartMinutes = containerStartTime.hours * this.MINUTES_PER_HOUR + containerStartTime.minutes;
+    const containerEndMinutes = containerEndTime.hours * this.MINUTES_PER_HOUR + containerEndTime.minutes;
+    const crossesMidnight = containerEndMinutes < containerStartMinutes;
+
+    if (!crossesMidnight) {
+      // Normaler Container (z.B. 08:00-16:00) - einfache chronologische Sortierung
+      return items.sort((a, b) => {
+        const startA = this.timeRangeService.getShiftStartMinutes(a);
+        const startB = this.timeRangeService.getShiftStartMinutes(b);
+        return startA - startB;
+      });
+    }
+
+    // Mitternachts-Container (z.B. 22:00-06:00)
+    // Zeiten >= Container-Start kommen zuerst (Sort-Key: 0), dann Zeiten < Container-Start (Sort-Key: 1)
+    return items.sort((a, b) => {
+      const getSortKey = (item: IContainerTemplateItem): number => {
+        const itemStart = this.timeRangeService.getShiftStartMinutes(item);
+        // Wenn Zeit >= Container-Start → 0 (zuerst), sonst → 1 (danach)
+        return itemStart >= containerStartMinutes ? 0 : 1;
+      };
+
+      const keyA = getSortKey(a);
+      const keyB = getSortKey(b);
+
+      if (keyA !== keyB) {
+        return keyA - keyB;
+      }
+
+      // Gleicher Sort-Key → nach Startzeit sortieren
+      const startA = this.timeRangeService.getShiftStartMinutes(a);
+      const startB = this.timeRangeService.getShiftStartMinutes(b);
+      return startA - startB;
+    });
   }
 }

@@ -20,6 +20,7 @@ import { CorrectionDialogComponent } from '../../dialogs/correction-dialog/corre
 import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../../dialogs/expenses-dialog/expenses-dialog.component';
+import { AvailableShift, ContainerWorkEditDialogComponent } from '../../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
 import { ScheduleDataService } from './schedule-data.service';
 
 @Injectable()
@@ -28,17 +29,20 @@ export class ScheduleDialogService {
   private replacementDialog: ReplacementDialogComponent | null = null;
   private workEditDialog: WorkEditDialogComponent | null = null;
   private expensesDialog: ExpensesDialogComponent | null = null;
+  private containerWorkEditDialog: ContainerWorkEditDialogComponent | null = null;
 
   setDialogs(
     correctionDialog: CorrectionDialogComponent,
     replacementDialog: ReplacementDialogComponent,
     workEditDialog: WorkEditDialogComponent,
     expensesDialog: ExpensesDialogComponent,
+    containerWorkEditDialog: ContainerWorkEditDialogComponent,
   ): void {
     this.correctionDialog = correctionDialog;
     this.replacementDialog = replacementDialog;
     this.workEditDialog = workEditDialog;
     this.expensesDialog = expensesDialog;
+    this.containerWorkEditDialog = containerWorkEditDialog;
   }
 
   openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService): void {
@@ -106,6 +110,17 @@ export class ScheduleDialogService {
         entry.endTime,
         entry.information,
       );
+    }
+  }
+
+  openContainerWorkEditDialog(row: number, column: number, dataService: ScheduleDataService, availableShifts: AvailableShift[]): void {
+    if (!this.containerWorkEditDialog) return;
+
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts);
     }
   }
 }

@@ -93,6 +93,7 @@ export class GridSurfaceTemplateComponent
   @Output() rightClick = new EventEmitter<GridSurfaceRightClickEvent>();
   @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
   @Output() workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  @Output() containerWorkDoubleClick = new EventEmitter<GridDoubleClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
@@ -498,6 +499,10 @@ export class GridSurfaceTemplateComponent
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
     this.workDoubleClick.emit(event);
+  }
+
+  onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
+    this.containerWorkDoubleClick.emit(event);
   }
 
   onInputRightClick(event: CellInputRightClickEvent): void {

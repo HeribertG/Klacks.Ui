@@ -158,6 +158,7 @@ export class ContainerTemplateShiftOperationsService {
   compactAndSetItems(
     containerTemplateItems: IContainerTemplateItem[],
     timeFrom: OwnTime,
+    timeTo: OwnTime,
     selectedWeekday: string | null,
     isHoliday: boolean,
   ): void {
@@ -170,10 +171,15 @@ export class ContainerTemplateShiftOperationsService {
       parseInt(timeFrom.hours),
       parseInt(timeFrom.minutes),
     );
+    const containerTimeUntil = timeToString(
+      parseInt(timeTo.hours),
+      parseInt(timeTo.minutes),
+    );
 
     const compactedItems = this.arrangementService.compactShifts(
       containerTemplateItems,
       containerTimeFrom,
+      containerTimeUntil,
     );
 
     this.shiftService.setSelectedContainerTemplateItems(compactedItems);
@@ -306,6 +312,7 @@ export class ContainerTemplateShiftOperationsService {
 
   compactSelectedShifts(
     timeFrom: OwnTime,
+    timeTo: OwnTime,
     selectedWeekday: string | null,
     isHoliday: boolean,
   ): void {
@@ -319,6 +326,7 @@ export class ContainerTemplateShiftOperationsService {
     this.compactAndSetItems(
       itemsWithResetTravelTimes,
       timeFrom,
+      timeTo,
       selectedWeekday,
       isHoliday,
     );
