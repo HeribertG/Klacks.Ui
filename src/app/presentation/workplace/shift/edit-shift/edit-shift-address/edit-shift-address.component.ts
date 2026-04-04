@@ -7,6 +7,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   EventEmitter,
   HostListener,
   inject,
@@ -64,6 +65,12 @@ export class EditShiftAddressComponent implements OnInit {
   visibleTable = 'inline';
   selectedClientName = '';
   selectedClient: IClient | undefined = undefined;
+
+  private isResetEffect = effect(() => {
+    this.dataManagementShiftService.isReset();
+    this.dataManagementShiftService.isRead();
+    this.cdr.markForCheck();
+  });
 
   ngOnInit(): void {
     this.setFilter();

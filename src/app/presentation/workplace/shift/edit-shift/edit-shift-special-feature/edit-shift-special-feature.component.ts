@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   EventEmitter,
   inject,
   Input,
@@ -57,6 +58,11 @@ export class EditShiftSpecialFeatureComponent
   public isQuantityValid: boolean | undefined;
   private objectForUnsubscribe: Subscription | undefined;
   public sporadicType = 0;
+
+  private isResetEffect = effect(() => {
+    this.dataManagementShiftService.isReset();
+    this.cdr.markForCheck();
+  });
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe =

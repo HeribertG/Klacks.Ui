@@ -9,6 +9,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  effect,
   EventEmitter,
   inject,
   Input,
@@ -46,6 +47,12 @@ export class EditShiftExpensesComponent {
   private cdr = inject(ChangeDetectorRef);
 
   visibleTable = 'inline';
+
+  private isResetEffect = effect(() => {
+    this.dataManagementShiftService.isReset();
+    this.dataManagementShiftService.isRead();
+    this.cdr.markForCheck();
+  });
 
   get expenses(): IShiftExpense[] {
     return this.dataManagementShiftService.editShift?.defaultExpenses ?? [];
