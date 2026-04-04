@@ -5,4 +5,18 @@
  * Defines shared interfaces and InjectionTokens for plugin-host communication.
  */
 
-export const KLACKS_PLUGIN_CONTRACTS_VERSION = '0.0.1';
+export { IPluginWorkplaceHost } from './lib/plugin-workplace-host';
+export { IPluginClient } from './lib/plugin-client';
+export { IPluginToastService } from './lib/plugin-toast';
+export { IPluginManualLoader } from './lib/plugin-manual-loader';
+export { IPluginVoiceService, IPluginSpeechService, IPluginVoiceCallbacks } from './lib/plugin-voice';
+export { PluginEventStream } from './lib/plugin-event-stream';
+export {
+  PLUGIN_WORKPLACE_HOST,
+  PLUGIN_TOAST_SERVICE,
+  PLUGIN_MANUAL_LOADER,
+  PLUGIN_EVENT_STREAM,
+  PLUGIN_API_BASE_URL,
+  PLUGIN_VOICE_SERVICE,
+  PLUGIN_SPEECH_SERVICE,
+} from './lib/tokens';
