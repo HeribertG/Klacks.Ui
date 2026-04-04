@@ -39,6 +39,14 @@ describe('ContractsComponent', () => {
     calendarSelection: undefined,
     calendarSelectionId: 'cal-1',
     schedulingRuleId: undefined,
+    workOnMonday: true,
+    workOnTuesday: true,
+    workOnWednesday: true,
+    workOnThursday: true,
+    workOnFriday: true,
+    workOnSaturday: false,
+    workOnSunday: false,
+    performsShiftWork: false,
   };
 
   beforeEach(async () => {
