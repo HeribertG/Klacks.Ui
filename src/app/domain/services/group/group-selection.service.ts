@@ -59,14 +59,23 @@ export class GroupSelectionService {
           this.selectedGroupId;
         this.dataManagementBreak.readYear();
         break;
-      case EntityName.SCHEDULE:
-        this.dataManagementScheduleService.workFilter.selectedGroup =
-          this.selectedGroupId;
-        this.dataManagementScheduleService.workFilter.paymentInterval =
+      case EntityName.SCHEDULE: {
+        const schedFilter = this.dataManagementScheduleService.workFilter;
+        schedFilter.selectedGroup = this.selectedGroupId;
+        schedFilter.paymentInterval =
           this._selectedGroup()?.paymentInterval
           ?? this.appSettingsService.workSettings().paymentInterval;
+        if (schedFilter.paymentInterval === 0 || schedFilter.paymentInterval === 1) {
+          const now = new Date();
+          const d = new Date(now);
+          d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+          const jan1 = new Date(d.getFullYear(), 0, 1);
+          schedFilter.currentWeek = Math.floor(Math.round((d.getTime() - jan1.getTime()) / 86400000) / 7) + 1;
+          schedFilter.currentYear = now.getFullYear();
+        }
         this.dataManagementScheduleService.readDatas();
         break;
+      }
       case EntityName.SHIFT:
         this.dataManagementShiftService.currentFilter.selectedGroup =
           this.selectedGroupId;

@@ -104,7 +104,17 @@ export interface IWorkFilter extends IBaseFilter {
 export class WorkFilter implements IWorkFilter {
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
-  currentWeek?: number = undefined;
+  currentWeek?: number = WorkFilter.getCurrentISOWeek();
+
+  private static getCurrentISOWeek(): number {
+    const date = new Date();
+    date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+    const thursday = date.getTime();
+    date.setMonth(0);
+    date.setDate(1);
+    const jan1st = date.getTime();
+    return Math.floor(Math.round((thursday - jan1st) / 86400000) / 7) + 1;
+  }
   paymentInterval = 2;
   searchString = '';
   orderBy = '';
