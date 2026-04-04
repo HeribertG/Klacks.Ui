@@ -119,13 +119,12 @@ export class ScrollbarComponent
   }
 
   set value(newValue: number) {
+    const upper = (this.maxValue ?? 0) - (this.visibleValue ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     const clampedValue = Math.max(
       0,
       Math.min(
-        newValue,
-        this.maxValue -
-          this.visibleValue +
-          SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE
+        newValue ?? 0,
+        isFinite(upper) ? upper : 0
       )
     );
 
@@ -444,16 +443,16 @@ export class ScrollbarComponent
     const safeTrackSize = trackSize ?? 0;
 
     const maxScrollValue =
-      this.maxValue -
-      this.visibleValue +
+      (this.maxValue ?? 0) -
+      (this.visibleValue ?? 0) +
       SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     const availableSpace = canvasMainSize - safeTrackSize;
 
-    if (availableSpace <= 0) {
+    if (availableSpace <= 0 || !isFinite(availableSpace)) {
       return 0;
     }
 
-    if (maxScrollValue <= 0) {
+    if (maxScrollValue <= 0 || !isFinite(maxScrollValue)) {
       return this.isHorizontalRtl ? Math.round(availableSpace) : 0;
     }
 
@@ -604,13 +603,13 @@ export class ScrollbarComponent
           const canvasMainSize = canvas[this.axisConfig.canvasSizeProp] ?? 0;
           const thumbSize = this.imagesThumps.imgThumb?.[this.axisConfig.thumbSizeProp] ?? 0;
           const availableSpace = canvasMainSize - thumbSize;
-          const maxScrollValue = this.maxValue - this.visibleValue + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+          const maxScrollValue = (this.maxValue ?? 0) - (this.visibleValue ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
           if (availableSpace > 0 && maxScrollValue > 0) {
             const proportion = (availableSpace - pos) / availableSpace;
             this.updateValue(Math.round(proportion * maxScrollValue));
           }
         } else {
-          const correctValue = Math.round(pos / this.metrics.tickSize);
+          const correctValue = this.metrics.tickSize > 0 ? Math.round(pos / this.metrics.tickSize) : 0;
           this.updateValue(correctValue);
         }
       }
@@ -631,12 +630,12 @@ export class ScrollbarComponent
   }
 
   private clampValue(value: number): number {
+    const upper = (this.imagesThumps.invisibleTicks ?? 0) + SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     return Math.max(
       0,
       Math.min(
-        value,
-        this.imagesThumps.invisibleTicks +
-          SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE
+        value ?? 0,
+        isFinite(upper) ? upper : 0
       )
     );
   }
