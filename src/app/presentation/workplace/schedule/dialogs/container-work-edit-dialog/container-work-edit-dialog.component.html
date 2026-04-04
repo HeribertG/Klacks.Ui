@@ -1,0 +1,151 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #containerWorkEditModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.containerWorkEdit.title" | translate }}</div>
+    <span class="filler"></span>
+    <div class="close" (click)="onCancel(modal)">&times;</div>
+  </div>
+
+  <div class="modal-body container-work-edit-body">
+    @if (isLoading) {
+      <div class="loading-overlay">
+        <p>{{ "common.loading" | translate }}</p>
+      </div>
+    } @else {
+      <!-- Zone 1: Timeline (left) -->
+      <div class="zone zone-timeline">
+        <div class="zone-header">
+          <h6>{{ "dialog.containerWorkEdit.zone.timeline" | translate }}</h6>
+        </div>
+        <div class="timeline-bars">
+          @for (work of stateService.subWorks(); track work.id) {
+            <div class="timeline-bar work-bar" [title]="formatTime(work.startTime) + ' - ' + formatTime(work.endTime)">
+              <span class="bar-label">{{ formatTime(work.startTime) }}</span>
+            </div>
+          }
+          @for (brk of stateService.subBreaks(); track brk.id) {
+            <div class="timeline-bar break-bar" [title]="formatTime(brk.startTime) + ' - ' + formatTime(brk.endTime)">
+              <span class="bar-label">{{ formatTime(brk.startTime) }}</span>
+            </div>
+          }
+          @if (stateService.subWorks().length === 0 && stateService.subBreaks().length === 0) {
+            <div class="timeline-empty">
+              <p>{{ "dialog.containerWorkEdit.timeline.empty" | translate }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right side: Zone 2 + Zone 3 stacked -->
+      <div class="zone-right-column">
+        <!-- Zone 2: Selected items table -->
+        <div class="zone zone-selected">
+          <div class="zone-header">
+            <h6>{{ "dialog.containerWorkEdit.zone.selected" | translate }}</h6>
+          </div>
+          <div class="table-scroll-container">
+            <table class="shifts-table">
+              <thead>
+                <tr>
+                  <th class="icon-column"></th>
+                  <th>{{ "dialog.containerWorkEdit.col.name" | translate }}</th>
+                  <th>{{ "dialog.containerWorkEdit.col.abbreviation" | translate }}</th>
+                  <th>{{ "dialog.containerWorkEdit.col.time" | translate }}</th>
+                  <th class="action-column"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (work of stateService.subWorks(); track work.id) {
+                  <tr>
+                    <td class="icon-column">
+                      <span class="type-badge work-badge">W</span>
+                    </td>
+                    <td>{{ work.shiftId }}</td>
+                    <td>-</td>
+                    <td>{{ formatTime(work.startTime) }} - {{ formatTime(work.endTime) }}</td>
+                    <td class="action-column" (click)="onRemoveSubWork(work.id)">
+                      <span class="remove-btn">&times;</span>
+                    </td>
+                  </tr>
+                }
+                @for (brk of stateService.subBreaks(); track brk.id) {
+                  <tr class="break-row">
+                    <td class="icon-column">
+                      <span class="type-badge break-badge">B</span>
+                    </td>
+                    <td>{{ brk.absenceId }}</td>
+                    <td>-</td>
+                    <td>{{ formatTime(brk.startTime) }} - {{ formatTime(brk.endTime) }}</td>
+                    <td class="action-column" (click)="onRemoveSubBreak(brk.id)">
+                      <span class="remove-btn">&times;</span>
+                    </td>
+                  </tr>
+                }
+                @if (stateService.subWorks().length === 0 && stateService.subBreaks().length === 0) {
+                  <tr>
+                    <td colspan="5" class="empty-cell">
+                      {{ "dialog.containerWorkEdit.selected.empty" | translate }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Zone 3: Available shifts table -->
+        <div class="zone zone-available">
+          <div class="zone-header">
+            <h6>{{ "dialog.containerWorkEdit.zone.available" | translate }}</h6>
+          </div>
+          <div class="table-scroll-container">
+            <table class="shifts-table">
+              <thead>
+                <tr>
+                  <th>{{ "dialog.containerWorkEdit.col.name" | translate }}</th>
+                  <th>{{ "dialog.containerWorkEdit.col.abbreviation" | translate }}</th>
+                  <th>{{ "dialog.containerWorkEdit.col.time" | translate }}</th>
+                  <th class="action-column"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (shift of availableShifts; track shift.id) {
+                  <tr>
+                    <td>{{ shift.name }}</td>
+                    <td>{{ shift.abbreviation }}</td>
+                    <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
+                    <td class="action-column" (click)="onAddShift(shift)">
+                      <span class="add-btn">+</span>
+                    </td>
+                  </tr>
+                }
+                @if (availableShifts.length === 0) {
+                  <tr>
+                    <td colspan="4" class="empty-cell">
+                      {{ "dialog.containerWorkEdit.available.empty" | translate }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel(modal)">
+      {{ "cancel" | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      [disabled]="!stateService.isDirty()"
+      (click)="onSave(modal)"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
