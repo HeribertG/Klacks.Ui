@@ -63,11 +63,12 @@ export class EditShiftExpensesComponent {
   }
 
   onAdd(): void {
-    if (!this.dataManagementShiftService.editShift) return;
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) return;
 
     const expense = new ShiftExpense();
-    expense.shiftId = this.dataManagementShiftService.editShift.id ?? '';
-    this.dataManagementShiftService.editShift.defaultExpenses.push(expense);
+    expense.shiftId = shift.id ?? '';
+    shift.defaultExpenses = [...shift.defaultExpenses, expense];
     this.isChangingEvent.emit(true);
     this.cdr.markForCheck();
   }
@@ -77,13 +78,10 @@ export class EditShiftExpensesComponent {
   }
 
   onDelete(expense: IShiftExpense): void {
-    if (!this.dataManagementShiftService.editShift) return;
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) return;
 
-    const list = this.dataManagementShiftService.editShift.defaultExpenses;
-    const index = list.indexOf(expense);
-    if (index >= 0) {
-      list.splice(index, 1);
-    }
+    shift.defaultExpenses = shift.defaultExpenses.filter(e => e !== expense);
     this.isChangingEvent.emit(true);
     this.cdr.markForCheck();
   }
