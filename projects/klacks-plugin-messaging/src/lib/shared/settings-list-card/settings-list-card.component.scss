@@ -1,0 +1,75 @@
+@use "sass:color";
+@use "standard-card-interior";
+@use "colors" as colors;
+
+.settings-list-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.container-box {
+  height: 242px;
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+
+  ::ng-deep > div {
+    > * {
+      display: block;
+      margin-bottom: 0;
+    }
+
+    .first {
+      margin-inline-start: 30px;
+      height: 40px;
+    }
+
+    .custom-control-inline {
+      display: flex;
+      align-items: center;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .attribute-name {
+      width: 250px;
+      margin-inline-end: 10px;
+      background-color: var(--standartGreenColor) !important;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .delete-button {
+      margin-top: 5px;
+      margin-inline-start: 20px;
+      color: var(--standartRedColor);
+      cursor: pointer;
+
+      &.disabled {
+        color: var(--colorLabel);
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.add-row {
+  padding-top: 5px;
+  text-align: center;
+}
+
+.add-button {
+  font-size: 13px;
+  text-decoration: underline;
+  color: colors.$standartGreenColor;
+  cursor: pointer;
+
+  &:hover {
+    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
+}

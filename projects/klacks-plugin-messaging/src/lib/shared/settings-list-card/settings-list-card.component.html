@@ -1,0 +1,24 @@
+<div [id]="idPrefix + '-card'" class="settings-list-card">
+  <div [id]="idPrefix + '-header'" class="container-header">{{ headline }}</div>
+  <div class="container-line"></div>
+
+  @if (showHeader) {
+    <ng-content select="[header]"></ng-content>
+  }
+
+  <div [id]="idPrefix + '-rows'" class="container-box">
+    <ng-content select="[rows]"></ng-content>
+  </div>
+
+  @if (showAddButton) {
+    <div class="add-row">
+      <span
+        [id]="idPrefix + '-add-btn'"
+        class="add-button"
+        tabindex="0"
+        (click)="onAddClick()"
+        (keydown.enter)="onAddClick()"
+      >{{ addLabel }}</span>
+    </div>
+  }
+</div>
