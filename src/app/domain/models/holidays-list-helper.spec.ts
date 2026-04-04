@@ -68,9 +68,9 @@ describe('HolidaysListHelper', () => {
         holidaysHelper.currentYear = 1959;
         holidaysHelper.computeHolidays();
         const easter1959 = holidaysHelper.holidayList.find(h => h.currentDate?.getFullYear() === 1959)?.currentDate;
-        console.log(`[TEST-DATA] Rule: EASTER | Year: 1959 | Result: ${easter1959?.toLocaleDateString('de-DE')} (expected: 30.03.1959)`);
+        console.log(`[TEST-DATA] Rule: EASTER | Year: 1959 | Result: ${easter1959?.toLocaleDateString('de-DE')} (expected: 29.03.1959)`);
         expect(holidaysHelper.holidayList.length).toBe(3);
-        expect(holidaysHelper.isHoliday(new Date('3/30/1959'))).toBe(HolidayStatus.OfficialHoliday);
+        expect(holidaysHelper.isHoliday(new Date('3/29/1959'))).toBe(HolidayStatus.OfficialHoliday);
     });
 
     it('should compute pentecost', () => {
