@@ -17,7 +17,6 @@ import { DrawAvailabilityGridService } from '../services/draw-availability-grid.
 import { DataManagementClientAvailabilityService } from 'src/app/domain/services/client-availability/data-management-client-availability.service';
 import { ClientAvailabilityFilterService } from 'src/app/domain/services/client-availability/client-availability-filter.service';
 import { AvailabilitySettingService } from '../services/availability-setting.service';
-import { AvailabilitySelectionService } from '../services/availability-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
@@ -28,7 +27,9 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   imports: [ResizeDirective, AvailabilitySurfaceEventsDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientAvailabilitySurfaceComponent implements AfterViewInit, OnDestroy {
+export class ClientAvailabilitySurfaceComponent
+  implements AfterViewInit, OnDestroy
+{
   private canvasManager = inject(AvailabilityCanvasManagerService);
   public drawGrid = inject(DrawAvailabilityGridService);
   private dataManagement = inject(DataManagementClientAvailabilityService);
