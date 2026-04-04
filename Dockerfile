@@ -17,6 +17,11 @@ COPY . .
 
 # Build with increased memory
 ENV NODE_OPTIONS="--max-old-space-size=1536"
+
+# Build plugin contracts first (required by messaging plugin)
+RUN ng build klacks-plugin-contracts
+
+# Build main application (includes all plugins)
 RUN ng build --configuration=production
 
 # Production stage
