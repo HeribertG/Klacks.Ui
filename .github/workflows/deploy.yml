@@ -35,7 +35,19 @@ jobs:
       run: npx ng build klacks-plugin-contracts
 
     - name: Run Vitest
-      run: npm run test:no-report
+      run: |
+        npm run test:no-report || true
+        if [ -f test-results/results.json ]; then
+          FAILED=$(node -e "const r=require('./test-results/results.json'); const f=r.testResults?.filter(t=>t.status==='failed')?.length||0; console.log(f);")
+          echo "Failed tests: $FAILED"
+          if [ "$FAILED" != "0" ]; then
+            echo "::error::$FAILED test(s) failed"
+            exit 1
+          fi
+        else
+          echo "::error::No test results found"
+          exit 1
+        fi
       env:
         NODE_OPTIONS: '--max-old-space-size=1536'
 
