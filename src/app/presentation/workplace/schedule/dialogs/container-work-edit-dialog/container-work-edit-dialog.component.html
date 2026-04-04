@@ -18,22 +18,13 @@
         <div class="zone-header">
           <h6>{{ "dialog.containerWorkEdit.zone.timeline" | translate }}</h6>
         </div>
-        <div class="timeline-bars">
-          @for (work of stateService.subWorks(); track work.id) {
-            <div class="timeline-bar work-bar" [title]="formatTime(work.startTime) + ' - ' + formatTime(work.endTime)">
-              <span class="bar-label">{{ formatTime(work.startTime) }}</span>
-            </div>
-          }
-          @for (brk of stateService.subBreaks(); track brk.id) {
-            <div class="timeline-bar break-bar" [title]="formatTime(brk.startTime) + ' - ' + formatTime(brk.endTime)">
-              <span class="bar-label">{{ formatTime(brk.startTime) }}</span>
-            </div>
-          }
-          @if (stateService.subWorks().length === 0 && stateService.subBreaks().length === 0) {
-            <div class="timeline-empty">
-              <p>{{ "dialog.containerWorkEdit.timeline.empty" | translate }}</p>
-            </div>
-          }
+        <div class="timeline-canvas-container">
+          <app-time-ruler
+            [fromTime]="timeFrom"
+            [untilTime]="timeTo"
+            (shiftRightClick)="onShiftRightClick($event)"
+            (itemsDisplaced)="onItemsDisplaced()"
+          ></app-time-ruler>
         </div>
       </div>
 
