@@ -88,7 +88,8 @@ export class MessagingInboxComponent implements OnInit, OnDestroy {
   private subscribeToIncomingMessages(): void {
     this.pluginEvents
       .pipe(takeUntil(this.destroy$))
-      .subscribe((incoming: IncomingMessage) => {
+      .subscribe((payload: unknown) => {
+        const incoming = payload as IncomingMessage;
         const newMsg: Message = {
           id: incoming.messageId,
           providerId: '',

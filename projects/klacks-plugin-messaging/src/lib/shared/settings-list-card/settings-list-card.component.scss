@@ -1,6 +1,6 @@
 @use "sass:color";
-@use "standard-card-interior";
-@use "colors" as colors;
+@use "../../../../../../src/assets/standard-styles/standard-card-interior";
+@use "../../../../../../src/assets/standard-styles/colors" as colors;
 
 .settings-list-card {
   display: flex;

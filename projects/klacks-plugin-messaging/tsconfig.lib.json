@@ -1,16 +1,37 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "../../",
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
+    "skipLibCheck": true,
     "types": [],
     "paths": {
-      "klacks-plugin-contracts": ["../klacks-plugin-contracts/src/public-api.ts"],
-      "klacks-plugin-messaging": ["./projects/klacks-plugin-messaging/src/public-api.ts"]
+      "klacks-plugin-contracts": [
+        "./dist/klacks-plugin-contracts"
+      ]
     }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   },
   "include": [
     "src/**/*.ts"

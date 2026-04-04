@@ -31,8 +31,6 @@ import {
   PLUGIN_EVENT_STREAM,
   PLUGIN_VOICE_SERVICE,
   PLUGIN_SPEECH_SERVICE,
-  IPluginVoiceService,
-  IPluginSpeechService,
 } from 'klacks-plugin-contracts';
 import { Message } from '../../models/message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';

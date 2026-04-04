@@ -28,4 +28,6 @@ export interface IPluginVoiceService {
 
 export interface IPluginSpeechService {
   readonly isListening: boolean;
+  isTranscribing(): boolean;
+  isSupported$(): boolean;
 }
