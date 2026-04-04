@@ -102,6 +102,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private calendarUtil = inject(CalendarUtilService);
   private appSettingsService = inject(AppSettingsManagementService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private selectionService = inject(AvailabilitySelectionService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -141,6 +142,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
     });
 
     this.groupSelection.registerClientAvailabilityCallback(async (groupId) => {
+      this.selectionService.clearSelection();
       this.filterService.selectedGroupId = groupId;
       this.applyViewMode();
       this.setStartDate();
