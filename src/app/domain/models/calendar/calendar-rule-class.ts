@@ -239,7 +239,7 @@ export class HolidaysListHelper {
     const goldenNumber = currentYear % 19;
     const century = Math.floor(currentYear / 100);
     const epactOffset = Math.floor((8 * century + 13) / 25);
-    const leapCenturyCorrection = century / 4;
+    const leapCenturyCorrection = Math.floor(century / 4);
     const fixedConstantM =
       (15 - epactOffset + century - leapCenturyCorrection) % 30;
     const fixedConstantN = (4 + century - leapCenturyCorrection) % 7;
