@@ -60,7 +60,8 @@ import { CorrectionDialogComponent } from '../dialogs/correction-dialog/correcti
 import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../dialogs/expenses-dialog/expenses-dialog.component';
-import { ContainerWorkEditDialogComponent, AvailableShift } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { ContainerWorkEditDialogComponent } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';

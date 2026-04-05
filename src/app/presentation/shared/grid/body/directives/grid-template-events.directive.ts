@@ -100,9 +100,9 @@ export class GridTemplateEventsDirective {
 
   constructor() {
     this.fillHandleDrag.initialize({ gridSurface: this.gridSurface, el: this.el });
-    this.scheduleEvents.workChangeDoubleClick.subscribe((event) => this.workChangeDoubleClick.emit(event));
-    this.scheduleEvents.workDoubleClick.subscribe((event) => this.workDoubleClick.emit(event));
-    this.scheduleEvents.containerWorkDoubleClick.subscribe((event) => this.containerWorkDoubleClick.emit(event));
+    this.scheduleEvents.workChangeDoubleClick.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => this.workChangeDoubleClick.emit(event));
+    this.scheduleEvents.workDoubleClick.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => this.workDoubleClick.emit(event));
+    this.scheduleEvents.containerWorkDoubleClick.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => this.containerWorkDoubleClick.emit(event));
 
     fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove').pipe(
       throttleTime(16),

@@ -13,6 +13,7 @@ import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/s
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
@@ -92,7 +93,7 @@ export class GridScheduleEventsService {
     }
 
     const shift = this.dataManagementSchedule.shiftSchedules.find(s => s.shiftId === entry.entryId);
-    if (shift?.shiftType === 1) {
+    if (shift?.shiftType === ShiftType.IsContainer) {
       this.containerWorkDoubleClick.emit({ row: pos.row, column: pos.column });
     } else {
       this.workDoubleClick.emit({ row: pos.row, column: pos.column });

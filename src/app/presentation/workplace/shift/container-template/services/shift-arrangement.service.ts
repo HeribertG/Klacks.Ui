@@ -20,7 +20,6 @@ export class ShiftArrangementService {
       return items;
     }
 
-    // Sortiere Items chronologisch nach ihrer Startzeit
     const sortedItems = this.sortItemsChronologically(
       [...items],
       containerTimeFrom,
@@ -297,7 +296,6 @@ export class ShiftArrangementService {
       return items;
     }
 
-    // Sortiere Items chronologisch (für Kompaktierung wichtig)
     const sortedItems = containerTimeUntil
       ? this.sortItemsChronologically([...items], containerTimeFrom, containerTimeUntil)
       : [...items].sort((a, b) => {
@@ -361,21 +359,19 @@ export class ShiftArrangementService {
   }
 
   /**
-   * Sortiert Items chronologisch nach ihrer effektiven Startzeit.
-   * Für Mitternachts-Container (Ende < Start) werden Zeiten nach dem Container-Start zuerst angezeigt.
-   * Beispiel: Container 22:00-06:00 → Reihenfolge: 23:00, 00:30, 01:00 (nicht 00:30, 01:00, 23:00)
+   * Sorts items chronologically by effective start time.
+   * For midnight-crossing containers (end < start), times after container start come first.
+   * Example: Container 22:00-06:00 → order: 23:00, 00:30, 01:00 (not 00:30, 01:00, 23:00)
    */
   private sortItemsChronologically(
     items: IContainerTemplateItem[],
     containerTimeFrom: string,
     containerTimeUntil: string
   ): IContainerTemplateItem[] {
-    // Parse Container-Zeiten
     const containerStartTime = this.timeRangeService.parseTimeString(containerTimeFrom);
     const containerEndTime = this.timeRangeService.parseTimeString(containerTimeUntil);
 
     if (!containerStartTime || !containerEndTime) {
-      // Einfache chronologische Sortierung wenn keine Container-Zeiten bekannt
       return items.sort((a, b) => {
         const startA = this.timeRangeService.getShiftStartMinutes(a);
         const startB = this.timeRangeService.getShiftStartMinutes(b);
@@ -388,7 +384,6 @@ export class ShiftArrangementService {
     const crossesMidnight = containerEndMinutes < containerStartMinutes;
 
     if (!crossesMidnight) {
-      // Normaler Container (z.B. 08:00-16:00) - einfache chronologische Sortierung
       return items.sort((a, b) => {
         const startA = this.timeRangeService.getShiftStartMinutes(a);
         const startB = this.timeRangeService.getShiftStartMinutes(b);
@@ -396,25 +391,16 @@ export class ShiftArrangementService {
       });
     }
 
-    // Mitternachts-Container (z.B. 22:00-06:00)
-    // Zeiten >= Container-Start kommen zuerst (Sort-Key: 0), dann Zeiten < Container-Start (Sort-Key: 1)
     return items.sort((a, b) => {
-      const getSortKey = (item: IContainerTemplateItem): number => {
-        const itemStart = this.timeRangeService.getShiftStartMinutes(item);
-        // Wenn Zeit >= Container-Start → 0 (zuerst), sonst → 1 (danach)
-        return itemStart >= containerStartMinutes ? 0 : 1;
-      };
-
-      const keyA = getSortKey(a);
-      const keyB = getSortKey(b);
+      const startA = this.timeRangeService.getShiftStartMinutes(a);
+      const startB = this.timeRangeService.getShiftStartMinutes(b);
+      const keyA = startA >= containerStartMinutes ? 0 : 1;
+      const keyB = startB >= containerStartMinutes ? 0 : 1;
 
       if (keyA !== keyB) {
         return keyA - keyB;
       }
 
-      // Gleicher Sort-Key → nach Startzeit sortieren
-      const startA = this.timeRangeService.getShiftStartMinutes(a);
-      const startB = this.timeRangeService.getShiftStartMinutes(b);
       return startA - startB;
     });
   }
