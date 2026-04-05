@@ -8,7 +8,7 @@
  * @param availableShifts - List of shifts that can be added as sub-works
  */
 
-import { ChangeDetectionStrategy, Component, effect, inject, Injector, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, Injector, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -42,6 +42,7 @@ export class ContainerWorkEditDialogComponent {
   @ViewChild('containerWorkEditModal') modalTemplate!: TemplateRef<unknown>;
 
   private ngbModal = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
   private childrenService = inject(ContainerWorkChildrenService);
   private containerShiftService = inject(ContainerTemplateShiftService);
   private injector = inject(Injector);
@@ -53,6 +54,7 @@ export class ContainerWorkEditDialogComponent {
   protected currentDate: Date | null = null;
   protected availableShifts: AvailableShift[] = [];
   protected isLoading = false;
+  protected timeRulerReady = false;
   protected timeFrom: OwnTime = OwnTime.forTime('06', '00');
   protected timeTo: OwnTime = OwnTime.forTime('22', '00');
 
@@ -60,27 +62,32 @@ export class ContainerWorkEditDialogComponent {
   private syncEffectRef: ReturnType<typeof effect> | null = null;
 
   open(workId: string, shiftId: string, currentDate: Date, availableShifts: AvailableShift[]): void {
-    this.startSyncEffect();
     this.workId = workId;
     this.shiftId = shiftId;
     this.currentDate = currentDate;
     this.availableShifts = availableShifts;
     this.isLoading = true;
-
-    this.childrenService.loadChildren(workId).subscribe({
-      next: (children) => {
-        this.stateService.initialize(children);
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      },
-    });
+    this.timeRulerReady = false;
 
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
       size: 'xl',
+    });
+
+    this.childrenService.loadChildren(workId).subscribe({
+      next: (children) => {
+        this.stateService.initialize(children);
+        this.isLoading = false;
+        setTimeout(() => {
+          this.startSyncEffect();
+          this.timeRulerReady = true;
+          this.cdr.markForCheck();
+        }, 100);
+      },
+      error: () => {
+        this.isLoading = false;
+      },
     });
   }
 

@@ -19,12 +19,14 @@
           <h6>{{ "dialog.containerWorkEdit.zone.timeline" | translate }}</h6>
         </div>
         <div class="timeline-canvas-container">
-          <app-time-ruler
-            [fromTime]="timeFrom"
-            [untilTime]="timeTo"
-            (shiftRightClick)="onShiftRightClick($event)"
-            (itemsDisplaced)="onItemsDisplaced()"
-          ></app-time-ruler>
+          @if (timeRulerReady) {
+            <app-time-ruler
+              [fromTime]="timeFrom"
+              [untilTime]="timeTo"
+              (shiftRightClick)="onShiftRightClick($event)"
+              (itemsDisplaced)="onItemsDisplaced()"
+            ></app-time-ruler>
+          }
         </div>
       </div>
 
