@@ -57,21 +57,10 @@ export class ContainerWorkEditDialogComponent {
   protected timeTo: OwnTime = OwnTime.forTime('22', '00');
 
   private modalRef: NgbModalRef | null = null;
-
-  constructor() {
-    effect(() => {
-      const works = this.stateService.subWorks();
-      const breaks = this.stateService.subBreaks();
-      const items = [
-        ...works.map(w => this.subWorkToContainerItem(w)),
-        ...breaks.map(b => this.subBreakToContainerItem(b)),
-      ];
-      this.containerShiftService.setSelectedContainerTemplateItems(items);
-      this.updateTimeRange(works, breaks);
-    }, { injector: this.injector, allowSignalWrites: true });
-  }
+  private syncEffectRef: ReturnType<typeof effect> | null = null;
 
   open(workId: string, shiftId: string, currentDate: Date, availableShifts: AvailableShift[]): void {
+    this.startSyncEffect();
     this.workId = workId;
     this.shiftId = shiftId;
     this.currentDate = currentDate;
@@ -248,5 +237,19 @@ export class ContainerWorkEditDialogComponent {
 
     this.timeFrom = OwnTime.forTime(fromHours, fromMins);
     this.timeTo = OwnTime.forTime(toHours, toMins);
+  }
+
+  private startSyncEffect(): void {
+    if (this.syncEffectRef) return;
+    this.syncEffectRef = effect(() => {
+      const works = this.stateService.subWorks();
+      const breaks = this.stateService.subBreaks();
+      const items = [
+        ...works.map(w => this.subWorkToContainerItem(w)),
+        ...breaks.map(b => this.subBreakToContainerItem(b)),
+      ];
+      this.containerShiftService.setSelectedContainerTemplateItems(items);
+      this.updateTimeRange(works, breaks);
+    }, { injector: this.injector, allowSignalWrites: true });
   }
 }
