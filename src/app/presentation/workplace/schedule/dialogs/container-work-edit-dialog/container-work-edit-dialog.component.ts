@@ -87,6 +87,9 @@ import { MapRenderingService } from '../../../shift/container-template/services/
 import { ShiftArrangementService } from '../../../shift/container-template/services/shift-arrangement.service';
 import { ContainerWorkModalLifecycleService } from './services/container-work-modal-lifecycle.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
+import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
 
@@ -172,6 +175,8 @@ export class ContainerWorkEditDialogComponent {
   private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
   readonly absenceService = inject(ContainerTemplateAbsenceService);
   private dragDropService = inject(ContainerTemplateDragDropService);
+  private lockService = inject(ContainerLockService);
+  private toastService = inject(ToastShowService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
   private modalRef: NgbModalRef | null = null;
@@ -240,6 +245,28 @@ export class ContainerWorkEditDialogComponent {
   }
 
   open(workId: string, _shiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
+    this.lockService
+      .acquire(ContainerLockResourceType.containerWork, workId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: lock => {
+          if (!lock.acquired) {
+            const message = this.translateService.instant(
+              'container.lock.lockedByOther',
+              { user: lock.userName },
+            );
+            this.toastService.showInfo(message);
+            return;
+          }
+          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
+        },
+        error: () => {
+          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
+        },
+      });
+  }
+
+  private openModalInternal(workId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
     this.lifecycleService.initialize(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
 
     this.timeFrom = this.lifecycleService.getTimeFrom();
@@ -266,6 +293,7 @@ export class ContainerWorkEditDialogComponent {
   }
 
   private cleanup(): void {
+    this.lockService.release();
     this.destroy$.next();
     this.lifecycleService.reset();
     this.modalRef = null;

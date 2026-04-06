@@ -95,6 +95,10 @@ import { ShiftArrangementService } from './services/shift-arrangement.service';
 import { ContainerTemplateAbsenceService } from './services/container-template-absence.service';
 import { ContainerTemplateDragDropService } from './services/container-template-drag-drop.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
+import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-container-template',
@@ -201,6 +205,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
   readonly absenceService = inject(ContainerTemplateAbsenceService);
   private dragDropService = inject(ContainerTemplateDragDropService);
+  private lockService = inject(ContainerLockService);
+  private toastService = inject(ToastShowService);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -339,13 +346,34 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.lockService.release();
     this.destroy$.next();
     this.destroy$.complete();
     this.containerService.destroy();
   }
 
+  private acquireLock(shiftId: string): void {
+    this.lockService
+      .acquire(ContainerLockResourceType.containerTemplate, shiftId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: lock => {
+          if (!lock.acquired) {
+            const message = this.translateService.instant(
+              'container.lock.lockedByOther',
+              { user: lock.userName },
+            );
+            this.toastService.showInfo(message);
+            this.router.navigate(['/workplace/shift']);
+          }
+        },
+        error: () => {},
+      });
+  }
+
   private loadContainerShift(id: string): void {
     this.isLoading = true;
+    this.acquireLock(id);
     this.lifecycleService
       .loadShift(id)
       .pipe(

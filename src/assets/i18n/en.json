@@ -97,6 +97,8 @@
   "dialog.replacement.toInvoice": "To invoice",
   "dialog.replacement.error.zeroTime": "Please enter a valid time range",
   "dialog.replacement.error.outsideWork": "Time range must be within the shift",
+  "dialog.containerWorkEdit.title": "Edit Container Work",
+  "container.lock.lockedByOther": "This container is currently being edited by {{user}}.",
   "dialog.workEdit.title": "Edit Work",
   "dialog.workEdit.startTime": "From",
   "dialog.workEdit.endTime": "To",

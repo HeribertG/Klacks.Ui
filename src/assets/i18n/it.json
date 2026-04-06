@@ -97,6 +97,8 @@
   "dialog.replacement.toInvoice": "Da fatturare",
   "dialog.replacement.error.zeroTime": "Inserire un intervallo di tempo valido",
   "dialog.replacement.error.outsideWork": "L'intervallo di tempo deve essere all'interno del turno",
+  "dialog.containerWorkEdit.title": "Modifica lavoro collettivo",
+  "container.lock.lockedByOther": "Questo contenitore è attualmente in fase di modifica da parte di {{user}}.",
   "dialog.workEdit.title": "Modifica lavoro",
   "dialog.workEdit.startTime": "Da",
   "dialog.workEdit.endTime": "A",
