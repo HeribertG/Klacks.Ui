@@ -1,6 +1,6 @@
 <div id="owner-address-container" class="container-dashboard">
   <div id="owner-address-header" class="container-header">
-    {{ 'setting.owner-address.headline' | translate }}
+    {{ "setting.owner-address.headline" | translate }}
   </div>
 
   <div id="owner-address-line" class="container-line"></div>
@@ -8,7 +8,9 @@
   <div id="owner-address-form">
     <div id="owner-address-name-phone-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-name">{{ 'setting.owner-address.name' | translate }}</label>
+        <label for="setting-owner-address-name">{{
+          "setting.owner-address.name" | translate
+        }}</label>
         <input
           id="setting-owner-address-name"
           type="text"
@@ -20,7 +22,9 @@
 
       <div>
         <div class="form-group secondColumn">
-          <label for="setting-owner-address-tel">{{ 'setting.owner-address.phone' | translate }}</label>
+          <label for="setting-owner-address-tel">{{
+            "setting.owner-address.phone" | translate
+          }}</label>
           <input
             id="setting-owner-address-tel"
             type="text"
@@ -34,7 +38,9 @@
 
     <div id="owner-address-supplement-email-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-supplement">{{ 'setting.owner-address.supplement' | translate }}</label>
+        <label for="setting-owner-address-supplement">{{
+          "setting.owner-address.supplement" | translate
+        }}</label>
         <input
           id="setting-owner-address-supplement"
           type="text"
@@ -46,7 +52,9 @@
 
       <div>
         <div class="form-group secondColumn">
-          <label for="setting-owner-address-email">{{ 'setting.owner-address.email' | translate }}</label>
+          <label for="setting-owner-address-email">{{
+            "setting.owner-address.email" | translate
+          }}</label>
           <input
             id="setting-owner-address-email"
             type="email"
@@ -58,26 +66,11 @@
       </div>
     </div>
 
-    <div id="owner-address-telegram-row" class="row-line">
-      <div class="form-group firstColumn"></div>
-      <div>
-        <div class="form-group secondColumn">
-          <label for="setting-owner-address-telegram">{{ 'setting.owner-address.telegram' | translate }}</label>
-          <input
-            id="setting-owner-address-telegram"
-            type="text"
-            class="form-control"
-            [formField]="addressForm.telegram"
-            aria-label="appAddressTelegram"
-            placeholder="8559310736"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div id="owner-address-street-row" class="row-line-single">
+    <div id="owner-address-street-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-street">{{ 'setting.owner-address.street' | translate }}</label>
+        <label for="setting-owner-address-street">{{
+          "setting.owner-address.street" | translate
+        }}</label>
         <input
           id="setting-owner-address-street"
           type="text"
@@ -86,11 +79,26 @@
           aria-label="appAddressAddress"
         />
       </div>
+      <div class="form-group secondColumn">
+        <label for="setting-owner-address-telegram">{{
+          "setting.owner-address.telegram" | translate
+        }}</label>
+        <input
+          id="setting-owner-address-telegram"
+          type="text"
+          class="form-control"
+          [formField]="addressForm.telegram"
+          aria-label="appAddressTelegram"
+          placeholder="8559310736"
+        />
+      </div>
     </div>
 
     <div id="owner-address-zip-row" class="row-line-single">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-zip">{{ 'setting.owner-address.zip' | translate }}</label>
+        <label for="setting-owner-address-zip">{{
+          "setting.owner-address.zip" | translate
+        }}</label>
         <input
           id="setting-owner-address-zip"
           type="text"
@@ -103,7 +111,9 @@
 
     <div id="owner-address-city-row" class="row-line-single">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-city">{{ 'setting.owner-address.place' | translate }}</label>
+        <label for="setting-owner-address-city">{{
+          "setting.owner-address.place" | translate
+        }}</label>
         <input
           id="setting-owner-address-city"
           type="text"
@@ -116,7 +126,9 @@
 
     <div id="owner-address-state-country-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-country">{{ 'setting.owner-address.country' | translate }}</label>
+        <label for="setting-owner-address-country">{{
+          "setting.owner-address.country" | translate
+        }}</label>
         <select
           id="setting-owner-address-country"
           class="form-control form-select"
@@ -125,7 +137,7 @@
           aria-label="appAddressCountry"
         >
           <option value="">
-            {{ 'setting.owner-address.noCountry' | translate }}
+            {{ "setting.owner-address.noCountry" | translate }}
           </option>
           @for (
             country of clientConfigService.countries();
@@ -139,7 +151,9 @@
       </div>
 
       <div class="form-group secondColumn">
-        <label for="setting-owner-address-state">{{ 'setting.owner-address.state' | translate }}</label>
+        <label for="setting-owner-address-state">{{
+          "setting.owner-address.state" | translate
+        }}</label>
         <select
           id="setting-owner-address-state"
           class="form-control form-select"
@@ -149,7 +163,7 @@
           aria-label="appAddressState"
         >
           <option value="">
-            {{ 'setting.owner-address.noState' | translate }}
+            {{ "setting.owner-address.noState" | translate }}
           </option>
           @for (state of filteredStateList(); track state.state) {
             <option [value]="state.state">
@@ -162,7 +176,9 @@
 
     <div id="owner-address-calendar-row" class="row-line-single">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-calendar">{{ 'setting.owner-address.calendar' | translate }}</label>
+        <label for="setting-owner-address-calendar">{{
+          "setting.owner-address.calendar" | translate
+        }}</label>
         <select
           id="setting-owner-address-calendar"
           class="form-control form-select"
@@ -171,12 +187,9 @@
           aria-label="appCalendarSelection"
         >
           <option value="">
-            {{ 'setting.owner-address.noCalendar' | translate }}
+            {{ "setting.owner-address.noCalendar" | translate }}
           </option>
-          @for (
-            calendar of filteredCalendarSelections();
-            track calendar.id
-          ) {
+          @for (calendar of filteredCalendarSelections(); track calendar.id) {
             <option [value]="calendar.id">
               {{ calendar.name }}
             </option>
