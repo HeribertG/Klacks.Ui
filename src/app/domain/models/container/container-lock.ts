@@ -10,9 +10,11 @@ export interface IContainerLock {
   resourceId: string;
   userId: string;
   userName: string;
+  instanceId: string;
   acquiredAt: string;
   lastHeartbeatAt: string;
   acquired: boolean;
+  isSelfConflict: boolean;
 }
 
 export const ContainerLockResourceType = {

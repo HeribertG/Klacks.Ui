@@ -12,6 +12,7 @@ import { DataContainerLockService } from 'src/app/infrastructure/api/container/d
 import { IContainerLock } from 'src/app/domain/models/container/container-lock';
 
 const HEARTBEAT_INTERVAL_MS = 30000;
+const INSTANCE_ID_KEY = 'klacks.containerLock.instanceId';
 
 @Injectable({ providedIn: 'root' })
 export class ContainerLockService {
@@ -21,9 +22,18 @@ export class ContainerLockService {
   private stopHeartbeat$ = new Subject<void>();
   readonly currentLock = signal<IContainerLock | null>(null);
 
+  get instanceId(): string {
+    let id = sessionStorage.getItem(INSTANCE_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem(INSTANCE_ID_KEY, id);
+    }
+    return id;
+  }
+
   acquire(resourceType: string, resourceId: string): Observable<IContainerLock> {
     this.stopCurrent();
-    return this.dataService.acquire(resourceType, resourceId).pipe(
+    return this.dataService.acquire(resourceType, resourceId, this.instanceId).pipe(
       tap(lock => {
         this.currentLock.set(lock);
         if (lock.acquired) {

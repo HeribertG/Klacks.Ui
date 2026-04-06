@@ -99,6 +99,7 @@
   "dialog.replacement.error.outsideWork": "L'intervallo di tempo deve essere all'interno del turno",
   "dialog.containerWorkEdit.title": "Modifica lavoro collettivo",
   "container.lock.lockedByOther": "Questo contenitore è attualmente in fase di modifica da parte di {{user}}.",
+  "container.lock.lockedBySelf": "Stai già modificando questo contenitore in un'altra finestra.",
   "dialog.workEdit.title": "Modifica lavoro",
   "dialog.workEdit.startTime": "Da",
   "dialog.workEdit.endTime": "A",

@@ -251,10 +251,10 @@ export class ContainerWorkEditDialogComponent {
       .subscribe({
         next: lock => {
           if (!lock.acquired) {
-            const message = this.translateService.instant(
-              'container.lock.lockedByOther',
-              { user: lock.userName },
-            );
+            const key = lock.isSelfConflict
+              ? 'container.lock.lockedBySelf'
+              : 'container.lock.lockedByOther';
+            const message = this.translateService.instant(key, { user: lock.userName });
             this.toastService.showInfo(message);
             return;
           }

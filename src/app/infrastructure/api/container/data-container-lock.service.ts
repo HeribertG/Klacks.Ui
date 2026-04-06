@@ -15,10 +15,10 @@ import { IContainerLock } from 'src/app/domain/models/container/container-lock';
 export class DataContainerLockService {
   private httpClient = inject(HttpClient);
 
-  acquire(resourceType: string, resourceId: string): Observable<IContainerLock> {
+  acquire(resourceType: string, resourceId: string, instanceId: string): Observable<IContainerLock> {
     return this.httpClient.post<IContainerLock>(
       `${environment.baseUrl}ContainerLocks/Acquire`,
-      { resourceType, resourceId },
+      { resourceType, resourceId, instanceId },
     );
   }
 
