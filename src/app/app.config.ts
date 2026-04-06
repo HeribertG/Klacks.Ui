@@ -62,6 +62,7 @@ import { SEARCH_STRATEGY } from './domain/interfaces/search-strategy.interface';
 import { SearchStrategyService } from './presentation/search/search-strategy.service';
 import { SCHEDULE_SIGNALR } from './domain/interfaces/schedule-signalr.interface';
 import { SignalRService } from './infrastructure/signalr/signalr.service';
+import { providePluginHost, provideMessagingVoice } from './infrastructure/plugins/provide-plugin-host';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -153,6 +154,8 @@ export const appConfig: ApplicationConfig = {
       provide: SCHEDULE_SIGNALR,
       useExisting: SignalRService,
     },
+    ...providePluginHost(),
+    ...provideMessagingVoice(),
     importProvidersFrom(
       NgbModule,
       FormsModule,

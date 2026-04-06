@@ -91,6 +91,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
       plugin.isInstalled = false;
       plugin.isEnabled = false;
       await this.pluginState.refresh();
+      await this.reloadTranslations();
       this.toastService.showSuccess(
         this.translate.instant('settings.feature-plugins.success.uninstall'),
         this.translate.instant('TOAST_SUCCESS')
@@ -112,6 +113,7 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
       }
       plugin.isEnabled = newState;
       await this.pluginState.refresh();
+      await this.reloadTranslations();
       const messageKey = newState
         ? 'settings.feature-plugins.success.enable'
         : 'settings.feature-plugins.success.disable';
@@ -131,8 +133,18 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.marketplaceBrowse?.search(), 0);
   }
 
-  onMarketplaceInstalled(_name: string): void {
+  async onMarketplaceInstalled(_name: string): Promise<void> {
     this.loadPlugins();
-    this.pluginState.refresh();
+    await this.pluginState.refresh();
+    await this.reloadTranslations();
+  }
+
+  private async reloadTranslations(): Promise<void> {
+    const currentLang = this.translate.currentLang;
+    if (!currentLang) {
+      return;
+    }
+    await firstValueFrom(this.translate.reloadLang(currentLang));
+    this.translate.use(currentLang);
   }
 }

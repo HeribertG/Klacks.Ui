@@ -7,7 +7,6 @@ import { AdminGuard } from './presentation/auth/admin.guard';
 import { InboxGuard } from './presentation/auth/inbox.guard';
 import { featurePluginGuard } from './presentation/auth/feature-plugin.guard';
 import { MESSAGING_PLUGIN_NAME } from './domain/constants/feature-plugin.constants';
-import { providePluginHost, provideMessagingVoice } from 'src/app/infrastructure/plugins/provide-plugin-host';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
@@ -114,7 +113,6 @@ const routes: Routes = [
             (m) => m.SettingsHomeComponent,
           ),
         canActivate: [AdminGuard],
-        providers: [...providePluginHost()],
       },
       {
         path: 'group',
@@ -208,7 +206,6 @@ const routes: Routes = [
             (m) => m.MESSAGING_ROUTES,
           ),
         canActivate: [AuthGuard, featurePluginGuard(MESSAGING_PLUGIN_NAME)],
-        providers: [...providePluginHost(), ...provideMessagingVoice()],
       },
       {
         path: 'floor-plan',
