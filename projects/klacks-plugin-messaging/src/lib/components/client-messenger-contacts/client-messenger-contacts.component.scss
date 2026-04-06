@@ -1,0 +1,92 @@
+@use "sass:color";
+@use "../../../../../../src/assets/standard-styles/standard-card-interior";
+@use "../../../../../../src/assets/standard-styles/colors" as colors;
+
+:host {
+  display: block;
+  height: 100%;
+  position: relative;
+}
+
+.messenger-contact-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 12px;
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  margin-top: 8px;
+}
+
+.type-col {
+  flex: 0 0 180px;
+}
+
+.value-col {
+  flex: 1 1 220px;
+}
+
+.description-col {
+  flex: 1 1 220px;
+}
+
+.action-col {
+  flex: 0 0 130px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-bottom: 6px;
+}
+
+.save-row-btn {
+  background-color: var(--standartGreenColor);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.del-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--standartRedColor);
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.messenger-contact-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  margin-top: 18px;
+}
+
+.add-button {
+  font-size: 13px;
+  text-decoration: underline;
+  color: colors.$standartGreenColor;
+  cursor: pointer;
+
+  &:hover {
+    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
+}
+
+.bottom-border-space {
+  height: 24px;
+}

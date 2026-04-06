@@ -43,6 +43,16 @@
   </div>
   }
 
+  @if (featurePluginState.isPluginEnabled(messagingPluginName) && dataManagementClientService.editClient()?.id) {
+  <div class="container-profilline">
+    <lib-client-messenger-contacts
+      [clientId]="dataManagementClientService.editClient()!.id!"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </lib-client-messenger-contacts>
+  </div>
+  }
+
   <div class="container-profilline">
     <app-note
       (isChangingEvent)="onIsChanging($event)"

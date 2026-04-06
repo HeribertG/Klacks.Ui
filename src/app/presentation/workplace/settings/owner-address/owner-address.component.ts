@@ -14,7 +14,6 @@ interface AddressModel {
   phone: string;
   supplementAddress: string;
   email: string;
-  telegram: string;
   address: string;
   zip: string;
   place: string;
@@ -44,7 +43,6 @@ export class OwnerAddressComponent implements OnInit {
     phone: '',
     supplementAddress: '',
     email: '',
-    telegram: '',
     address: '',
     zip: '',
     place: '',
@@ -79,7 +77,6 @@ export class OwnerAddressComponent implements OnInit {
           phone: model.phone,
           supplementAddress: model.supplementAddress,
           email: model.email,
-          telegram: model.telegram,
           address: model.address,
           zip: model.zip,
           place: model.place,
@@ -104,7 +101,6 @@ export class OwnerAddressComponent implements OnInit {
       phone: contact.phone,
       supplementAddress: contact.supplementAddress,
       email: contact.email,
-      telegram: contact.telegram,
       address: contact.address,
       zip: contact.zip,
       place: contact.place,

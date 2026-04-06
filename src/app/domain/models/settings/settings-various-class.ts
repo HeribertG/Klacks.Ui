@@ -23,7 +23,6 @@ export class AppSetting {
   public static APP_ADDRESS_COUNTRY = 'APP_ADDRESS_COUNTRY';
   public static APP_ADDRESS_PHONE = 'APP_ADDRESS_PHONE';
   public static APP_ADDRESS_MAIL = 'APP_ADDRESS_MAIL';
-  public static APP_ADDRESS_TELEGRAM = 'APP_ADDRESS_TELEGRAM';
   public static APP_ACCOUNTING_START = 'APP_ACCOUNTING_START';
 
   public static APP_AUTHENTICATION_TYPE = 'authenticationType';

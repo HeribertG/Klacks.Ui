@@ -1,0 +1,88 @@
+<div id="client-messenger-contacts-card" class="container-dashboard">
+  <div id="client-messenger-contacts-header" class="container-header">
+    {{ 'client.messenger-contacts.title' | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div id="client-messenger-contacts-form">
+    @for (entry of contacts(); track $index; let i = $index) {
+      <div class="row-line messenger-contact-row">
+        <div class="form-group type-col">
+          <label [for]="'client-messenger-type-' + i">
+            {{ 'client.messenger-contacts.field.type' | translate }}
+          </label>
+          <select
+            [id]="'client-messenger-type-' + i"
+            class="form-control form-select"
+            [(ngModel)]="entry.type"
+            [name]="'client-messenger-type-' + i"
+          >
+            @for (option of typeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group value-col">
+          <label [for]="'client-messenger-value-' + i">
+            {{ 'client.messenger-contacts.field.value' | translate }}
+          </label>
+          <input
+            [id]="'client-messenger-value-' + i"
+            type="text"
+            class="form-control"
+            [(ngModel)]="entry.value"
+            [name]="'client-messenger-value-' + i"
+          />
+        </div>
+
+        <div class="form-group description-col">
+          <label [for]="'client-messenger-description-' + i">
+            {{ 'client.messenger-contacts.field.description' | translate }}
+          </label>
+          <input
+            [id]="'client-messenger-description-' + i"
+            type="text"
+            class="form-control"
+            [(ngModel)]="entry.description"
+            [name]="'client-messenger-description-' + i"
+          />
+        </div>
+
+        <div class="form-group action-col">
+          <button
+            type="button"
+            class="btn btn-sm save-row-btn"
+            (click)="onSaveRow(i)"
+          >
+            {{ 'save' | translate }}
+          </button>
+          <span
+            class="del-button"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'client.messenger-contacts.action.delete' | translate"
+            (click)="onDelete(i)"
+            (keydown.enter)="onDelete(i)"
+            >&minus;</span
+          >
+        </div>
+      </div>
+    }
+
+    <div class="row-line messenger-contact-actions">
+      <span
+        id="client-messenger-add-btn"
+        class="add-button"
+        tabindex="0"
+        role="button"
+        (click)="onAdd()"
+        (keydown.enter)="onAdd()"
+        >+ {{ 'client.messenger-contacts.action.add' | translate }}</span
+      >
+    </div>
+
+    <div class="bottom-border-space"></div>
+  </div>
+</div>

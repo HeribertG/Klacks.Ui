@@ -44,7 +44,7 @@ import { SchedulingDefaultsSettingComponent } from '../scheduling-defaults-setti
 import { ImapSettingComponent } from '../imap-setting/imap-setting.component';
 import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
 import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
-import { MessagingProvidersComponent } from 'klacks-plugin-messaging';
+import { MessagingProvidersComponent, OwnerMessengersComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
@@ -96,6 +96,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     SpamRulesComponent,
     LanguagePluginsComponent,
     MessagingProvidersComponent,
+    OwnerMessengersComponent,
     FeaturePluginsComponent,
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,

@@ -23,6 +23,9 @@ import { ClientGroupsComponent } from '../client-groups/client-groups.component'
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { ClientImageComponent } from '../client-image/client-image.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { ClientMessengerContactsComponent } from 'klacks-plugin-messaging';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
@@ -53,7 +56,8 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
     ClientGroupsComponent,
     NoteComponent,
     ClientImageComponent,
-    EditAddressNavComponent
+    EditAddressNavComponent,
+    ClientMessengerContactsComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -73,6 +77,8 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   public dataManagementClientService = inject(DataManagementClientService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
+  public featurePluginState = inject(FeaturePluginStateService);
+  public readonly messagingPluginName = MESSAGING_PLUGIN_NAME;
   private urlParameterService = inject(UrlParameterService);
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);

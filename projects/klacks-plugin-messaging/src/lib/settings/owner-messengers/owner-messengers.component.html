@@ -1,0 +1,95 @@
+<div id="owner-messengers-card" class="container-dashboard">
+  <div id="owner-messengers-header" class="container-header">
+    {{ 'settings.owner-messengers.title' | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div id="owner-messengers-form">
+    @for (entry of entries(); track $index; let i = $index) {
+      <div class="row-line owner-messenger-row">
+        <div class="form-group type-col">
+          <label [for]="'owner-messenger-type-' + i">
+            {{ 'settings.owner-messengers.field.type' | translate }}
+          </label>
+          <select
+            [id]="'owner-messenger-type-' + i"
+            class="form-control form-select"
+            [(ngModel)]="entry.type"
+            (ngModelChange)="onChange()"
+            [name]="'owner-messenger-type-' + i"
+          >
+            @for (option of typeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group value-col">
+          <label [for]="'owner-messenger-value-' + i">
+            {{ 'settings.owner-messengers.field.value' | translate }}
+          </label>
+          <input
+            [id]="'owner-messenger-value-' + i"
+            type="text"
+            class="form-control"
+            [(ngModel)]="entry.value"
+            (ngModelChange)="onChange()"
+            [name]="'owner-messenger-value-' + i"
+            [placeholder]="'settings.owner-messengers.field.value-placeholder' | translate"
+          />
+        </div>
+
+        <div class="form-group description-col">
+          <label [for]="'owner-messenger-description-' + i">
+            {{ 'settings.owner-messengers.field.description' | translate }}
+          </label>
+          <input
+            [id]="'owner-messenger-description-' + i"
+            type="text"
+            class="form-control"
+            [(ngModel)]="entry.description"
+            (ngModelChange)="onChange()"
+            [name]="'owner-messenger-description-' + i"
+          />
+        </div>
+
+        <div class="form-group action-col">
+          <span
+            class="del-button"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'settings.owner-messengers.action.delete' | translate"
+            (click)="onDelete(i)"
+            (keydown.enter)="onDelete(i)"
+            >&minus;</span
+          >
+        </div>
+      </div>
+    }
+
+    <div class="row-line owner-messenger-actions">
+      <span
+        id="owner-messengers-add-btn"
+        class="add-button"
+        tabindex="0"
+        role="button"
+        (click)="onAdd()"
+        (keydown.enter)="onAdd()"
+        >+ {{ 'settings.owner-messengers.action.add' | translate }}</span
+      >
+
+      <button
+        id="owner-messengers-save-btn"
+        type="button"
+        class="btn save-btn"
+        [disabled]="!isDirty() || isLoading()"
+        (click)="onSave()"
+      >
+        {{ 'save' | translate }}
+      </button>
+    </div>
+
+    <div class="bottom-border-space"></div>
+  </div>
+</div>
