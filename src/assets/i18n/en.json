@@ -99,7 +99,7 @@
   "dialog.replacement.error.outsideWork": "Time range must be within the shift",
   "dialog.containerWorkEdit.title": "Edit Container Work",
   "container.lock.lockedByOther": "This container is currently being edited by {{user}}.",
-  "container.lock.lockedBySelf": "You are already editing this container in another window.",
+  "container.lock.lockedBySelf": "Container is already open and therefore locked.",
   "dialog.workEdit.title": "Edit Work",
   "dialog.workEdit.startTime": "From",
   "dialog.workEdit.endTime": "To",

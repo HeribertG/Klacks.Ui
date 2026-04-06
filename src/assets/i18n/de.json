@@ -99,7 +99,7 @@
   "dialog.replacement.error.outsideWork": "Zeitbereich muss innerhalb der Schicht liegen",
   "dialog.containerWorkEdit.title": "Container bearbeiten",
   "container.lock.lockedByOther": "Dieser Container wird gerade von {{user}} bearbeitet.",
-  "container.lock.lockedBySelf": "Du bearbeitest diesen Container bereits in einem anderen Fenster.",
+  "container.lock.lockedBySelf": "Container ist schon geöffnet und deswegen gesperrt.",
   "dialog.workEdit.title": "Arbeit bearbeiten",
   "dialog.workEdit.startTime": "Von",
   "dialog.workEdit.endTime": "Bis",

@@ -99,7 +99,7 @@
   "dialog.replacement.error.outsideWork": "La plage horaire doit être à l'intérieur du service",
   "dialog.containerWorkEdit.title": "Modifier le travail collectif",
   "container.lock.lockedByOther": "Ce conteneur est actuellement en cours de modification par {{user}}.",
-  "container.lock.lockedBySelf": "Vous modifiez déjà ce conteneur dans une autre fenêtre.",
+  "container.lock.lockedBySelf": "Le conteneur est déjà ouvert et donc verrouillé.",
   "dialog.workEdit.title": "Modifier le travail",
   "dialog.workEdit.startTime": "De",
   "dialog.workEdit.endTime": "À",

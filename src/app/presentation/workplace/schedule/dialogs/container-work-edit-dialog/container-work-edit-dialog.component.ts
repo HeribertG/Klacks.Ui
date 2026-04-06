@@ -232,6 +232,8 @@ export class ContainerWorkEditDialogComponent {
         this.lifecycleService.isEmploymentTabActive();
         this.lifecycleService.selectedTabIndex();
         this.lifecycleService.containerAbsences();
+        this.lifecycleService.isReadOnly();
+        this.lifecycleService.readOnlyReason();
         this.shiftService.selectedContainerTemplateItemsSignal();
         this.cdr.markForCheck();
       }, { injector: this.injector });
@@ -250,6 +252,7 @@ export class ContainerWorkEditDialogComponent {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: lock => {
+          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
           if (!lock.acquired) {
             const key = lock.isSelfConflict
               ? 'container.lock.lockedBySelf'
@@ -258,8 +261,8 @@ export class ContainerWorkEditDialogComponent {
             this.toastService.showInfo(message);
             this.lifecycleService.isReadOnly.set(true);
             this.lifecycleService.readOnlyReason.set(message);
+            this.cdr.markForCheck();
           }
-          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
         },
         error: () => {
           this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
