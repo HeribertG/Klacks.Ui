@@ -121,7 +121,7 @@ export class ScheduleDialogService {
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts);
+      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts, entry.startTime, entry.endTime);
     }
   }
 }
