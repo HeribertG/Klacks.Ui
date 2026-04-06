@@ -98,7 +98,6 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-container-template',
@@ -207,7 +206,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private dragDropService = inject(ContainerTemplateDragDropService);
   private lockService = inject(ContainerLockService);
   private toastService = inject(ToastShowService);
-  private router = inject(Router);
+  public isReadOnly = false;
+  public readOnlyReason = '';
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -364,7 +364,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
               : 'container.lock.lockedByOther';
             const message = this.translateService.instant(key, { user: lock.userName });
             this.toastService.showInfo(message);
-            this.router.navigate(['/workplace/shift']);
+            this.isReadOnly = true;
+            this.readOnlyReason = message;
+            this.cdr.markForCheck();
           }
         },
         error: () => {},

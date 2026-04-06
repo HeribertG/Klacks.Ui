@@ -24,7 +24,15 @@
     </div>
   </div>
 
-  <div class="modal-body container-work-edit-body">
+  <div
+    class="modal-body container-work-edit-body"
+    [class.readonly-mode]="lifecycleService.isReadOnly()"
+  >
+    @if (lifecycleService.isReadOnly()) {
+      <div class="readonly-banner">
+        {{ lifecycleService.readOnlyReason() }}
+      </div>
+    }
     <div class="time-controls-bar">
       <app-time-input
         [label]="'shift.container-template.from' | translate"
@@ -679,7 +687,7 @@
     <button
       type="button"
       class="btn save-btn"
-      [disabled]="!lifecycleService.isDirty()"
+      [disabled]="!lifecycleService.isDirty() || lifecycleService.isReadOnly()"
       (click)="onSave()"
     >
       {{ "save" | translate }}

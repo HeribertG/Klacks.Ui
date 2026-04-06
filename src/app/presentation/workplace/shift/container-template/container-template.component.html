@@ -4,8 +4,14 @@
 <div
   id="container-template-wrapper"
   class="container-template-container"
+  [class.readonly-mode]="isReadOnly"
   (contextmenu)="onContainerContextMenu($event)"
 >
+  @if (isReadOnly) {
+    <div class="readonly-banner">
+      {{ readOnlyReason }}
+    </div>
+  }
   <!-- Header -->
   <div id="container-template-header" class="header">
     <div class="header-content">

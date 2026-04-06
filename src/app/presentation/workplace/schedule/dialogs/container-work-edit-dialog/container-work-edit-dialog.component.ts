@@ -256,7 +256,8 @@ export class ContainerWorkEditDialogComponent {
               : 'container.lock.lockedByOther';
             const message = this.translateService.instant(key, { user: lock.userName });
             this.toastService.showInfo(message);
-            return;
+            this.lifecycleService.isReadOnly.set(true);
+            this.lifecycleService.readOnlyReason.set(message);
           }
           this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
         },

@@ -29,19 +29,30 @@ export class AuthInterceptor implements HttpInterceptor {
 
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     const connectionId = this.signalRService.connectionId;
+    const instanceId = this.getOrCreateInstanceId();
+
+    let headers = req.headers.set('X-Instance-Id', instanceId);
 
     if (token) {
-      let headers = req.headers.set('Authorization', `Bearer ${token}`);
+      headers = headers.set('Authorization', `Bearer ${token}`);
 
       if (connectionId) {
         headers = headers.set('X-SignalR-ConnectionId', connectionId);
       }
-
-      const authReq = req.clone({ headers });
-      return next.handle(authReq);
     }
 
-    return next.handle(req);
+    const authReq = req.clone({ headers });
+    return next.handle(authReq);
+  }
+
+  private getOrCreateInstanceId(): string {
+    const key = 'klacks.containerLock.instanceId';
+    let id = sessionStorage.getItem(key);
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem(key, id);
+    }
+    return id;
   }
 
   private isInternalRequest(url: string): boolean {

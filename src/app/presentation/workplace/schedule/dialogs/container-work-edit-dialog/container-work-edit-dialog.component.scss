@@ -766,6 +766,31 @@ tr.timerange-violation {
   }
 }
 
+.readonly-banner {
+  background: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffe69c;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.readonly-mode {
+  .time-controls-bar,
+  .content {
+    pointer-events: none;
+    opacity: 0.85;
+    user-select: none;
+  }
+
+  .readonly-banner {
+    pointer-events: auto;
+    opacity: 1;
+  }
+}
+
 .day-tabs {
   display: flex;
   gap: 4px;

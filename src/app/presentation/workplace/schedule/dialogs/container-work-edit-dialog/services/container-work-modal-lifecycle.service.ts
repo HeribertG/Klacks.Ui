@@ -56,6 +56,8 @@ export class ContainerWorkModalLifecycleService {
   readonly selectedTabIndex = signal(0);
   readonly isEmploymentTabActive = signal(false);
   readonly containerAbsences = signal<IAbsence[]>([]);
+  readonly isReadOnly = signal(false);
+  readonly readOnlyReason = signal<string>('');
 
   workId = '';
   currentDate: Date | null = null;
@@ -139,6 +141,8 @@ export class ContainerWorkModalLifecycleService {
     this.isEmploymentTabActive.set(false);
     this.selectedTabIndex.set(0);
     this.containerAbsences.set([]);
+    this.isReadOnly.set(false);
+    this.readOnlyReason.set('');
 
     this.availableShiftsAsIShift = availableShifts.map(s => this.convertAvailableShiftToIShift(s));
 
