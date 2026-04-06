@@ -363,7 +363,7 @@ export class ShiftArrangementService {
    * For midnight-crossing containers (end < start), times after container start come first.
    * Example: Container 22:00-06:00 → order: 23:00, 00:30, 01:00 (not 00:30, 01:00, 23:00)
    */
-  private sortItemsChronologically(
+  sortItemsChronologically(
     items: IContainerTemplateItem[],
     containerTimeFrom: string,
     containerTimeUntil: string

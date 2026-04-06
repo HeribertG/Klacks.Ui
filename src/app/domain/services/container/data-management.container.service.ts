@@ -29,6 +29,7 @@ import {
   IWeekdayContainerTemplateItemsMap,
 } from './container-template-shift.service';
 import { ContainerTaskService } from './container-task.service';
+import { sortContainerItemsChronologically } from '../../../shared/helpers/container-template-sort.helper';
 import {
   ISaveable,
   IResettable,
@@ -526,7 +527,11 @@ export class DataManagementContainerService
           return item;
         });
 
-        weekdayContainerTemplateItemsMap[weekdayName] = enrichedItems;
+        weekdayContainerTemplateItemsMap[weekdayName] = sortContainerItemsChronologically(
+          enrichedItems,
+          template.fromTime,
+          template.untilTime,
+        );
       }
     });
 

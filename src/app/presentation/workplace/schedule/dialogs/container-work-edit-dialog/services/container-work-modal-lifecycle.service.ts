@@ -22,6 +22,7 @@ import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 
 const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const DEFAULT_TIME_FROM_HOURS = '06';
@@ -297,7 +298,11 @@ export class ContainerWorkModalLifecycleService {
       });
     }
 
-    this.shiftService.setSelectedContainerTemplateItems(items);
+    const sortedItems = this.containerStartTime && this.containerEndTime
+      ? sortContainerItemsChronologically(items, this.containerStartTime, this.containerEndTime)
+      : items;
+
+    this.shiftService.setSelectedContainerTemplateItems(sortedItems);
   }
 
   private buildChildrenFromItems(items: IContainerTemplateItem[]): ContainerWorkChildren {
