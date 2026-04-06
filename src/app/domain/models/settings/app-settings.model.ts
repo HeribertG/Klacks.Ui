@@ -11,6 +11,7 @@ export interface IAppContactSettings {
   country: string;
   phone: string;
   email: string;
+  telegram: string;
   accountingStart: number;
   mark: string;
   globalCalendarCountry: string;
@@ -42,6 +43,7 @@ export class AppContactSettings implements IAppContactSettings {
   country = '';
   phone = '';
   email = '';
+  telegram = '';
   accountingStart = 0;
   mark = '';
   globalCalendarCountry = '';
