@@ -21,6 +21,34 @@ export interface SubWorkResource {
   workTime: number;
   parentWorkId: string;
   information: string | null;
+  transportMode: number | null;
+  startBase: string | null;
+  endBase: string | null;
+  shift?: {
+    id: string;
+    name: string;
+    abbreviation: string;
+    startShift: string;
+    endShift: string;
+    workTime: number;
+    clientId: string;
+    isTimeRange: boolean;
+    isSporadic: boolean;
+    client?: {
+      id: string;
+      name: string | null;
+      firstName: string | null;
+      company: string | null;
+      addresses?: {
+        id: string;
+        street: string | null;
+        zip: string | null;
+        city: string | null;
+        latitude: number | null;
+        longitude: number | null;
+      }[];
+    };
+  };
 }
 
 export interface SubBreakResource {
@@ -32,11 +60,36 @@ export interface SubBreakResource {
   endTime: string;
   workTime: number;
   parentWorkId: string;
+  absence?: {
+    id: string;
+    name: Record<string, string>;
+    abbreviation: Record<string, string>;
+    color: string;
+    description: Record<string, string>;
+    appliesToContainer: boolean;
+  };
+}
+
+export interface WorkChangeResource {
+  id: string;
+  workId: string;
+  changeTime: number;
+  surcharges: number;
+  startTime: string;
+  endTime: string;
+  type: number;
+  replaceClientId: string | null;
+  description: string;
+  toInvoice: boolean;
 }
 
 export interface ContainerWorkChildren {
   subWorks: SubWorkResource[];
   subBreaks: SubBreakResource[];
+  subWorkChanges: WorkChangeResource[];
+  parentStartBase?: string | null;
+  parentEndBase?: string | null;
+  parentTransportMode?: number | null;
 }
 
 @Injectable({

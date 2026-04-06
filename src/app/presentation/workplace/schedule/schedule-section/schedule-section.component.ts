@@ -554,19 +554,41 @@ export class ScheduleSectionComponent
 
   onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const availableShifts = this.mapShiftsToAvailable(this.dataManagement.shiftSchedules);
+    const clickedDate = dataService.getDateForColumn(event.column);
+    const availableShifts = this.mapShiftsToAvailable(
+      this.dataManagement.shiftSchedules,
+      clickedDate,
+    );
     this.facade.dialog.openContainerWorkEditDialog(event.row, event.column, dataService, availableShifts);
   }
 
-  private mapShiftsToAvailable(shifts: IShiftSchedule[]): AvailableShift[] {
-    return shifts.map(s => ({
-      id: s.shiftId,
-      name: s.shiftName,
-      abbreviation: s.abbreviation,
-      startShift: s.startShift,
-      endShift: s.endShift,
-      workTime: s.workTime,
-      clientId: '',
-    }));
+  private mapShiftsToAvailable(shifts: IShiftSchedule[], targetDate: Date | undefined): AvailableShift[] {
+    return shifts
+      .filter(s => this.isShiftSelectableForContainer(s, targetDate))
+      .map(s => ({
+        id: s.shiftId,
+        name: s.shiftName,
+        abbreviation: s.abbreviation,
+        startShift: s.startShift,
+        endShift: s.endShift,
+        workTime: s.workTime,
+        clientId: '',
+      }));
+  }
+
+  private isShiftSelectableForContainer(shift: IShiftSchedule, targetDate: Date | undefined): boolean {
+    if (shift.isInTemplateContainer) return false;
+    if (shift.engaged >= shift.sumEmployees * shift.quantity) return false;
+    if (targetDate && !this.isSameDay(shift.date, targetDate)) return false;
+    return true;
+  }
+
+  private isSameDay(a: Date | string, b: Date): boolean {
+    const da = a instanceof Date ? a : new Date(a);
+    return (
+      da.getFullYear() === b.getFullYear() &&
+      da.getMonth() === b.getMonth() &&
+      da.getDate() === b.getDate()
+    );
   }
 }

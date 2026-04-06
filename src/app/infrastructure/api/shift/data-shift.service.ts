@@ -30,6 +30,13 @@ export class DataShiftService {
       .pipe(retry(3));
   }
 
+  getShiftsByIds(ids: string[]) {
+    return this.httpClient.post<IShift[]>(
+      `${environment.baseUrl}Shifts/ByIds`,
+      ids,
+    );
+  }
+
 
   updateShift(value: IShift) {
     delete value.addressName;

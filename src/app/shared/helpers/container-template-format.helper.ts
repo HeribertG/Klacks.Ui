@@ -25,24 +25,22 @@ export function formatClientWithAddress(item: IShift | IContainerTemplateItem): 
   }
 
   const client = shift.client;
-  const customerAddress = client.addresses?.find(
-    (addr) => addr.type === AddressTypeEnum.customer,
-  );
+  const displayName = client.name || client.company || '-';
 
-  if (!customerAddress) {
-    return client.name || '-';
+  const address =
+    client.addresses?.find((addr) => addr.type === AddressTypeEnum.customer) ??
+    client.addresses?.[0];
+
+  if (!address) {
+    return displayName;
   }
 
-  const addressParts = [
-    customerAddress.street,
-    customerAddress.zip,
-    customerAddress.city,
-  ].filter((part) => part && part.trim() !== '');
+  const addressParts = [address.street, address.zip, address.city].filter(
+    (part) => part && part.trim() !== '',
+  );
 
   const addressString = addressParts.join(', ');
-  return addressString
-    ? `${client.name}: ${addressString}`
-    : client.name || '-';
+  return addressString ? `${displayName}: ${addressString}` : displayName;
 }
 
 export function formatWorkTime(workTime: number): string {

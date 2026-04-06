@@ -10,7 +10,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataContainerWorkChildrenService, ContainerWorkChildren } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
 
-export { ContainerWorkChildren, SubWorkResource, SubBreakResource } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
+export { ContainerWorkChildren, SubWorkResource, SubBreakResource, WorkChangeResource } from 'src/app/infrastructure/api/schedule/data-container-work-children.service';
 
 @Injectable({
   providedIn: 'root',

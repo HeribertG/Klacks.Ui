@@ -97,6 +97,7 @@
   "dialog.replacement.toInvoice": "Abrechnen",
   "dialog.replacement.error.zeroTime": "Bitte geben Sie eine gültige Zeitspanne ein",
   "dialog.replacement.error.outsideWork": "Zeitbereich muss innerhalb der Schicht liegen",
+  "dialog.containerWorkEdit.title": "Container bearbeiten",
   "dialog.workEdit.title": "Arbeit bearbeiten",
   "dialog.workEdit.startTime": "Von",
   "dialog.workEdit.endTime": "Bis",
