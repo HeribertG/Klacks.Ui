@@ -24,7 +24,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { DataMessagingService } from '../../services/data-messaging.service';
 import {
@@ -64,6 +64,11 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   selectedProvider = signal<string | null>(null);
   selectedDirection = signal<MessageDirection | undefined>(undefined);
   selectedProviderIds = signal<string[]>([]);
+  showAll = signal<boolean>(false);
+  hasMore = signal<boolean>(false);
+
+  private readonly defaultPageSize = 50;
+  private readonly showAllPageSize = 10000;
 
   inputText = '';
 
@@ -72,6 +77,7 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   faPaperPlane = faPaperPlane;
   faChevronUp = faChevronUp;
   faChevronDown = faChevronDown;
+  faHouse = faHouse;
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -109,23 +115,22 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   }
 
   loadMessages(): void {
-    if (!this.selectedContact()) {
-      this.messages.set([]);
-      return;
-    }
-
     this.isLoading.set(true);
     const providerId = this.selectedProviderIds().length === 1
       ? this.selectedProviderIds()[0]
       : undefined;
     const direction = this.selectedDirection();
     const sender = this.selectedContact() ?? undefined;
+    const pageSize = this.showAll() ? this.showAllPageSize : this.defaultPageSize;
 
-    this.dataService.getMessages(providerId, direction, sender)
+    this.dataService.getMessages(providerId, direction, sender, pageSize, 0)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
         next: (msgs) => {
           this.messages.set(msgs);
+          if (!this.showAll()) {
+            this.hasMore.set(msgs.length >= this.defaultPageSize);
+          }
           this.isLoading.set(false);
           this.cdr.markForCheck();
           setTimeout(() => this.scrollToBottom());
@@ -161,10 +166,19 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       });
   }
 
-  applyFilter(filter: { direction?: MessageDirection; providerIds?: string[] }): void {
+  clearContact(): void {
+    this.selectedContact.set(null);
+    this.selectedProvider.set(null);
+    this.loadMessages();
+  }
+
+  applyFilter(filter: { direction?: MessageDirection; providerIds?: string[]; showAll?: boolean }): void {
     this.selectedDirection.set(filter.direction);
     if (filter.providerIds) {
       this.selectedProviderIds.set(filter.providerIds);
+    }
+    if (filter.showAll !== undefined) {
+      this.showAll.set(filter.showAll);
     }
     this.loadMessages();
   }

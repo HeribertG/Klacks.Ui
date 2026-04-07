@@ -15,6 +15,7 @@
     class="container-address-nav border-right-card border-bottom-card"
   >
     <lib-messaging-nav
+      [hasMore]="messagingChat.hasMore()"
       (filterChanged)="onFilterChanged($event)"
     ></lib-messaging-nav>
   </div>

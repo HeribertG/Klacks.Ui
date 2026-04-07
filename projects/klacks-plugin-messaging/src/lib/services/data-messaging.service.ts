@@ -43,7 +43,7 @@ export class DataMessagingService {
     return this.httpClient.post<{ success: boolean }>(`${this.apiUrl}messaging/providers/${id}/test`, {});
   }
 
-  getMessages(providerId?: string, direction?: MessageDirection, sender?: string, count = 20, offset = 0): Observable<Message[]> {
+  getMessages(providerId?: string, direction?: MessageDirection, sender?: string, count = 50, offset = 0): Observable<Message[]> {
     let params = new HttpParams()
       .set('count', count.toString())
       .set('offset', offset.toString());

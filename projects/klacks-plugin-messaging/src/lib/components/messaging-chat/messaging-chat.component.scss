@@ -20,6 +20,36 @@
   margin-right: 30px;
 }
 
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-home {
+  background: none;
+  border: none;
+  color: var(--colorLabel);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding-right: 30px;
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    color: var(--standartTextColor);
+  }
+}
+
 .empty-state {
   display: flex;
   align-items: center;
@@ -92,6 +122,50 @@
 
 .input-container {
   padding: 16px 30px;
+}
+
+.recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.recipient-label {
+  color: var(--colorLabel);
+  font-weight: 600;
+  margin: 0;
+}
+
+.recipient-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+  font-size: 13px;
+}
+
+.btn-clear-recipient {
+  background: none;
+  border: none;
+  color: var(--colorLabel);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 6px;
+
+  &:hover {
+    color: var(--standartTextColor);
+  }
+}
+
+.recipient-warning {
+  color: #dc3545;
+  font-size: 11px;
 }
 
 .scroll-buttons {

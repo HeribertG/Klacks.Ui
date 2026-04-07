@@ -15,6 +15,7 @@ import {
   OnDestroy,
   EventEmitter,
   Output,
+  Input,
   inject,
   signal,
 } from '@angular/core';
@@ -37,7 +38,8 @@ import { MessageDirection } from '../../enums/message-direction.enum';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagingNavComponent implements OnInit, OnDestroy {
-  @Output() filterChanged = new EventEmitter<{ direction?: MessageDirection; providerIds?: string[] }>();
+  @Input() hasMore = false;
+  @Output() filterChanged = new EventEmitter<{ direction?: MessageDirection; providerIds?: string[]; showAll?: boolean }>();
 
   private dataService = inject(DataMessagingService);
   private cdr = inject(ChangeDetectorRef);
@@ -45,6 +47,7 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
   providers = signal<MessagingProvider[]>([]);
   selectedProviders = signal<Set<string>>(new Set());
   selectedDirection = signal<MessageDirection | undefined>(undefined);
+  showAllValue = false;
 
   directionValue: MessageDirection | undefined = undefined;
 
@@ -88,6 +91,11 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
     this.directionValue = undefined;
     this.selectedDirection.set(undefined);
     this.selectedProviders.set(new Set());
+    this.showAllValue = false;
+    this.emitFilter();
+  }
+
+  onShowAllChange(): void {
     this.emitFilter();
   }
 
@@ -102,6 +110,7 @@ export class MessagingNavComponent implements OnInit, OnDestroy {
     this.filterChanged.emit({
       direction: this.selectedDirection(),
       providerIds,
+      showAll: this.showAllValue,
     });
   }
 }

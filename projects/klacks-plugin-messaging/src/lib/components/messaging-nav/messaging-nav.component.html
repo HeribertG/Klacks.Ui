@@ -40,21 +40,39 @@
       </label>
     </li>
 
-    <li class="list-group-item-divider"></li>
+    @if (providers().length > 1) {
+      <li class="list-group-item-divider"></li>
 
-    <li class="list-group-item-label">
-      {{ "messaging.nav.providers" | translate }}
-    </li>
-    @for (provider of providers(); track provider.id) {
+      <li class="list-group-item-label">
+        {{ "messaging.nav.providers" | translate }}
+      </li>
+      @for (provider of providers(); track provider.id) {
+        <li class="list-group-item-action">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [checked]="isProviderSelected(provider.id)"
+              (change)="onProviderToggle(provider.id)"
+              [name]="'provider_' + provider.id"
+            />
+            {{ provider.displayName }}
+          </label>
+        </li>
+      }
+    }
+
+    @if (hasMore || showAllValue) {
+      <li class="list-group-item-divider"></li>
+
       <li class="list-group-item-action">
         <label class="checkbox-label">
           <input
             type="checkbox"
-            [checked]="isProviderSelected(provider.id)"
-            (change)="onProviderToggle(provider.id)"
-            [name]="'provider_' + provider.id"
+            name="showAll"
+            [(ngModel)]="showAllValue"
+            (ngModelChange)="onShowAllChange()"
           />
-          {{ provider.displayName }}
+          {{ "messaging.nav.show-all" | translate }}
         </label>
       </li>
     }

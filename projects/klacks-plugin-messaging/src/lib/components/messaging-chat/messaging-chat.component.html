@@ -1,13 +1,23 @@
 <div class="chat-container">
   <div class="container-header header-container">
-    @if (selectedContact()) {
-      {{ selectedContact() }}
-      @if (selectedProvider()) {
-        <span class="provider-badge">{{ selectedProvider() }}</span>
+    <div class="header-title">
+      @if (selectedContact()) {
+        {{ selectedContact() }}
+        @if (selectedProvider()) {
+          <span class="provider-badge">{{ selectedProvider() }}</span>
+        }
+      } @else {
+        {{ "messaging.chat.inbox-title" | translate }}
       }
-    } @else {
-      {{ "messaging.chat.select-contact" | translate }}
-    }
+    </div>
+    <button
+      type="button"
+      class="btn-home"
+      [title]="'messaging.chat.home-tooltip' | translate"
+      (click)="clearContact()"
+    >
+      <fa-icon [icon]="faHouse" aria-hidden="true"></fa-icon>
+    </button>
   </div>
 
   <div class="container-line"></div>
