@@ -90,6 +90,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
 
@@ -177,6 +178,7 @@ export class ContainerWorkEditDialogComponent {
   private dragDropService = inject(ContainerTemplateDragDropService);
   private lockService = inject(ContainerLockService);
   private toastService = inject(ToastShowService);
+  private modalService = inject(ModalService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
   private modalRef: NgbModalRef | null = null;
@@ -546,12 +548,17 @@ export class ContainerWorkEditDialogComponent {
   }
 
   onCancel(): void {
-    if (this.lifecycleService.isDirty()) {
-      const confirmed = confirm(
-        this.translateService.instant('dialog.containerWorkEdit.confirmCancel'),
-      );
-      if (!confirmed) return;
+    if (!this.lifecycleService.isDirty()) {
+      this.modalRef?.dismiss();
+      return;
     }
-    this.modalRef?.dismiss();
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('dialog.containerWorkEdit.confirmCancelTitle'),
+      message: this.translateService.instant('dialog.containerWorkEdit.confirmCancel'),
+      confirmText: this.translateService.instant('dialog.containerWorkEdit.discardButton'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.modalRef?.dismiss(),
+    });
   }
 }

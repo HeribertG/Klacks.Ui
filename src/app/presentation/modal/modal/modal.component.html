@@ -49,7 +49,7 @@
       class="btn btn-danger normal-btn"
       (click)="modal.close()"
     >
-      {{ "button.delete" | translate }}
+      {{ modalService.deleteMessageOkButton || (modalService.deleteMessageOkButtonDefault || ("button.delete" | translate)) }}
     </button>
   </div>
 </ng-template>
