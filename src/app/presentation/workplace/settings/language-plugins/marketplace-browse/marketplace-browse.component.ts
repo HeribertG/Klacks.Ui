@@ -9,17 +9,16 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, input, o
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { firstValueFrom } from 'rxjs';
 import { DataLanguagePluginService } from 'src/app/infrastructure/api/settings/data-language-plugin.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MarketplacePackage } from 'src/app/domain/models/settings/marketplace-package';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-marketplace-browse',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, FormsModule, FontAwesomeModule],
+  imports: [TranslateModule, DecimalPipe, FormsModule, SearchInputComponent],
   templateUrl: './marketplace-browse.component.html',
   styleUrls: ['./marketplace-browse.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,8 +28,6 @@ export class MarketplaceBrowseComponent {
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
-
-  faSearch = faSearch;
 
   installedCodes = input<Set<string>>(new Set());
   installed = output<string>();

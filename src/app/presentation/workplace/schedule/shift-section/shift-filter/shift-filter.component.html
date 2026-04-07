@@ -1,22 +1,11 @@
 <div class="shift-filter-dropdown">
-  <div class="input-group search-input-group">
-    <input
-      id="shift-filter-search"
-      type="search"
-      class="form-control form-control-sm"
-      placeholder="{{ 'schedule.shift-filter.search-placeholder' | translate }}"
-      [(ngModel)]="dataManagement.shiftScheduleFilter.searchString"
-      (search)="onShiftFilterChange()"
-      (input)="onSearchInputChange()"
-    />
-    <button
-      class="btn btn-sm search-button input-group-text"
-      type="button"
-      (click)="onShiftFilterChange()"
-    >
-      <fa-icon [icon]="faSearch"></fa-icon>
-    </button>
-  </div>
+  <app-search-input
+    inputId="shift-filter-search"
+    placeholderKey="schedule.shift-filter.search-placeholder"
+    [value]="dataManagement.shiftScheduleFilter.searchString || ''"
+    (valueChange)="onShiftSearchValueChange($event)"
+    (search)="onShiftFilterChange()"
+  ></app-search-input>
 
   <label class="checkbox-label">
     <input

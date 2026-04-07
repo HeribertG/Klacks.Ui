@@ -8,17 +8,16 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, input, output } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { firstValueFrom } from 'rxjs';
 import { DataFeaturePluginService } from 'src/app/infrastructure/api/plugins/data-feature-plugin.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MarketplacePlugin } from 'src/app/domain/models/plugins/marketplace-plugin';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-feature-plugin-marketplace-browse',
   standalone: true,
-  imports: [TranslateModule, FormsModule, FontAwesomeModule],
+  imports: [TranslateModule, FormsModule, SearchInputComponent],
   templateUrl: './feature-plugin-marketplace-browse.component.html',
   styleUrls: ['./feature-plugin-marketplace-browse.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,8 +27,6 @@ export class FeaturePluginMarketplaceBrowseComponent {
   private toastService = inject(ToastShowService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
-
-  faSearch = faSearch;
 
   installedNames = input<Set<string>>(new Set());
   installed = output<string>();

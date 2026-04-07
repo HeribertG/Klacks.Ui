@@ -61,6 +61,17 @@
         [ngbTooltip]="'shift.container-template.tooltip.duration' | translate"
       ></app-time-input>
 
+      <div class="shift-filter-group">
+        <label for="modal-shift-filter">
+          {{ "label.search" | translate }}
+        </label>
+        <app-search-input
+          inputId="modal-shift-filter"
+          [value]="shiftFilter()"
+          (valueChange)="shiftFilter.set($event)"
+        ></app-search-input>
+      </div>
+
       <span class="filler"></span>
 
       @if (addressProvider.allAddresses().length > 0) {
@@ -619,13 +630,13 @@
                           <tbody
                             cdkDropList
                             id="available-tasks-list"
-                            [cdkDropListData]="lifecycleService.availableTasks"
+                            [cdkDropListData]="filteredAvailableTasks"
                             [cdkDropListConnectedTo]="['selected-tasks-list']"
                             [cdkDropListSortingDisabled]="true"
                             (cdkDropListDropped)="onAvailableTasksDrop()"
                           >
                             @for (
-                              shift of lifecycleService.availableTasks;
+                              shift of filteredAvailableTasks;
                               track shift.id
                             ) {
                               <tr
@@ -684,6 +695,17 @@
       class="link-button red-font"
       (click)="onCancel()"
     >{{ "cancel" | translate }}</span>
+    @if (lifecycleService.isDirty() && !lifecycleService.isReadOnly()) {
+      <span
+        type="button"
+        class="link-button red-font"
+        role="button"
+        tabindex="0"
+        (click)="onReset()"
+        (keydown.enter)="onReset()"
+        (keydown.space)="onReset()"
+      >{{ "reset" | translate }}</span>
+    }
     <button
       type="button"
       class="btn save-btn"

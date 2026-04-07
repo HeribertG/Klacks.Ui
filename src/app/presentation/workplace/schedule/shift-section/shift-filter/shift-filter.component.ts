@@ -19,9 +19,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-shift-filter',
@@ -31,7 +30,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
     FormsModule,
     TranslateModule,
     NgbDropdownModule,
-    FontAwesomeModule,
+    SearchInputComponent,
   ],
   templateUrl: './shift-filter.component.html',
   styleUrls: ['./shift-filter.component.scss'],
@@ -39,14 +38,14 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 })
 export class ShiftFilterComponent {
   public dataManagement = inject(DataManagementScheduleService);
-  public faSearch = faSearch;
 
   onShiftFilterChange(): void {
     this.dataManagement.readShiftSchedule();
   }
 
-  onSearchInputChange(): void {
-    if (!this.dataManagement.shiftScheduleFilter.searchString) {
+  onShiftSearchValueChange(value: string): void {
+    this.dataManagement.shiftScheduleFilter.searchString = value || undefined;
+    if (!value) {
       this.onShiftFilterChange();
     }
   }

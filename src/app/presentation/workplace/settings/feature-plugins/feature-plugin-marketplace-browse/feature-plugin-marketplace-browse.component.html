@@ -1,23 +1,10 @@
 <div class="marketplace-browse">
-  <div class="container-search form-group">
-    <div class="input-group">
-      <input
-        type="search"
-        class="form-control"
-        [(ngModel)]="searchTerm"
-        (keydown.enter)="search()"
-        [placeholder]="'settings.feature-plugins.marketplace.search-placeholder' | translate"
-      />
-      <button
-        class="btn btn-outline-secondary container-search-button input-group-text"
-        type="button"
-        (click)="search()"
-        [disabled]="isLoading"
-      >
-        <fa-icon [icon]="faSearch"></fa-icon>
-      </button>
-    </div>
-  </div>
+  <app-search-input
+    placeholderKey="settings.feature-plugins.marketplace.search-placeholder"
+    [(value)]="searchTerm"
+    [isLoading]="isLoading"
+    (search)="search()"
+  ></app-search-input>
 
   @if (isLoading) {
     <div class="text-center p-4">

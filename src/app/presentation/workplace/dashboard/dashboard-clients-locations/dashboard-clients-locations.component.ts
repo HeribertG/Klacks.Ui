@@ -14,7 +14,8 @@ import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, Af
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSearch, faStreetView } from '@fortawesome/free-solid-svg-icons';
+import { faStreetView } from '@fortawesome/free-solid-svg-icons';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataGeocodingService } from 'src/app/infrastructure/api/data-geocoding.service';
@@ -62,7 +63,7 @@ const LOCATION_VIEW_MODE_STORAGE_KEY = 'dashboard-location-view-mode';
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent],
+  imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -77,7 +78,6 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   private toastService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
-  public faSearch = faSearch;
   public faStreetView = faStreetView;
 
   public locations = signal<LocationData[]>([]);

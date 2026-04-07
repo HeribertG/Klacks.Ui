@@ -1,0 +1,26 @@
+<div class="container-search form-group">
+  <div class="input-group">
+    <input
+      type="search"
+      class="form-control"
+      [id]="inputId || null"
+      [placeholder]="translatedPlaceholder"
+      [disabled]="disabled"
+      [ngModel]="value"
+      (ngModelChange)="onModelChange($event)"
+      (keydown.enter)="onSubmit()"
+    />
+
+    @if (showButton) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary container-search-button input-group-text"
+        [class.container-search-button-disabled]="disabled || buttonDisabled || isLoading"
+        [disabled]="disabled || buttonDisabled || isLoading"
+        (click)="onSubmit()"
+      >
+        <fa-icon [icon]="faSearch"></fa-icon>
+      </button>
+    }
+  </div>
+</div>

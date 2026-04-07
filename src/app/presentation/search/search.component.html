@@ -1,26 +1,11 @@
 @if (searchService.showSearch()) {
 <div class="container-search form-group">
-  <div class="input-group">
-    <input
-      type="search"
-      class="form-control"
-      placeholder="{{ 'placeholder.search' | translate }}"
-      name="searchString"
-      id="search"
-      [(ngModel)]="searchString"
-      (keyup)="onKeyupSearch($event)"
-      (keydown.enter)="onClickSearch()"
-    />
-
-    <button
-      id="search-button"
-      class="btn btn-outline-secondary container-search-button input-group-text"
-      type="button"
-      (click)="onClickSearch()"
-    >
-      <fa-icon [icon]="faSearch"></fa-icon>
-    </button>
-  </div>
+  <app-search-input
+    inputId="search"
+    [(value)]="searchString"
+    (valueChange)="onSearchValueChange($event)"
+    (search)="onClickSearch()"
+  ></app-search-input>
 
   @if (searchService.showIncludeAddress()) {
   <div class="include-address">

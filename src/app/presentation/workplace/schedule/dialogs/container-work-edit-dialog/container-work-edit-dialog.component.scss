@@ -2,6 +2,7 @@
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/standard-search-input.scss";
 
 ::ng-deep .container-work-edit-fullscreen .modal-dialog {
   max-width: 95vw;
@@ -31,6 +32,23 @@
   background-color: var(--backgroundColorWorkplace);
   border-bottom: 1px solid var(--colorLine);
   flex-shrink: 0;
+
+  .shift-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    label {
+      color: var(--colorLabel);
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .container-search .form-control {
+      min-width: 220px;
+      font-size: 13px;
+    }
+  }
 
   .address-selects {
     display: flex;
@@ -793,9 +811,10 @@ tr.timerange-violation {
 
 .day-tabs {
   display: flex;
-  gap: 4px;
-  padding: 4px 8px 0 8px;
-  border-bottom: 1px solid var(--colorWorkplaceBorder);
+  gap: 0.25rem;
+  padding: 0.5rem 1rem 0;
+  border-bottom: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColorWorkplace);
   align-items: flex-end;
 
   .filler {
@@ -803,18 +822,29 @@ tr.timerange-violation {
   }
 
   .day-tab {
-    background: transparent;
-    border: 1px solid var(--colorWorkplaceBorder);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--paginationBorderColor);
     border-bottom: none;
     border-radius: 4px 4px 0 0;
-    padding: 4px 12px;
-    font-size: 12px;
+    background-color: var(--backgroundColoPagination);
+    color: var(--colorLabel);
     cursor: pointer;
-    color: var(--colorWorkplaceText);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    position: relative;
+    bottom: -1px;
+
+    &:hover {
+      opacity: 0.8;
+    }
 
     &.active {
-      background: var(--colorWorkplaceSurface);
-      font-weight: 600;
+      background-color: var(--backgroundColorCard);
+      color: var(--coloPaginationSelected);
+      border-color: var(--paginationBorderColorSelected);
+      border-bottom: 1px solid var(--backgroundColorCard);
     }
 
     &.employment-tab {

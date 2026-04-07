@@ -22,29 +22,13 @@
     } @else {
 
     @if (viewMode() === 'city') {
-    <div class="container-search form-group">
-      <div class="input-group">
-        <input
-          type="search"
-          class="form-control"
-          id="address-search"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="onSearchQueryChange($event)"
-          (keydown.enter)="onSearchAddress()"
-          placeholder="{{
-            'dashboard.locations.searchPlaceholder' | translate
-          }}"
-        />
-        <button
-          id="address-search-btn"
-          type="button"
-          class="btn btn-outline-secondary container-search-button input-group-text"
-          (click)="onSearchAddress()"
-        >
-          <fa-icon [icon]="faSearch"></fa-icon>
-        </button>
-      </div>
-    </div>
+    <app-search-input
+      inputId="address-search"
+      placeholderKey="dashboard.locations.searchPlaceholder"
+      [value]="searchQuery()"
+      (valueChange)="onSearchQueryChange($event)"
+      (search)="onSearchAddress()"
+    ></app-search-input>
     <div
       #mapContainer
       id="map-container"

@@ -12,20 +12,19 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   standalone: true,
-  imports: [FormsModule, FontAwesomeModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent {
@@ -34,7 +33,6 @@ export class SearchComponent {
   private workplaceState = inject(WorkplaceStateService);
   public searchService = inject(SearchService);
 
-  public faSearch = faSearch;
   public includeAddress = false;
   public includeClient = false;
   public searchString = '';
@@ -64,8 +62,8 @@ export class SearchComponent {
     );
   }
 
-  onKeyupSearch(event: any): void {
-    if (event.srcElement && event.srcElement.value.toString() === '') {
+  onSearchValueChange(value: string): void {
+    if (value === '') {
       this.searchStrategyService.resetFilterWithoutSignalWrite();
     }
   }

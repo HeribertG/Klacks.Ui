@@ -231,9 +231,22 @@ export class ContainerWorkModalLifecycleService {
   }
 
   reset(): void {
-    this.shiftService.setSelectedContainerTemplateItems([]);
+    if (!this.workId) return;
     this.shiftService.setSelectedShift(null);
-    this.isDirty.set(false);
+    this.isLoading.set(true);
+    this.childrenService.loadChildren(this.workId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: children => {
+          this.initializeItemsFromChildren(children);
+          this.applyParentRouteValues(children);
+          this.isDirty.set(false);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
+      });
   }
 
   getTimeFrom(): OwnTime {

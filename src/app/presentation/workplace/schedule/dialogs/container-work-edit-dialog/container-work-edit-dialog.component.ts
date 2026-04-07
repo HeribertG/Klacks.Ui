@@ -18,6 +18,7 @@ import {
   afterNextRender,
   Injector,
   effect,
+  signal,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -91,6 +92,7 @@ import { ContainerLockService } from 'src/app/domain/services/container/containe
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
 
@@ -119,6 +121,7 @@ const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
     IconTransportMixComponent,
     IconWizardComponent,
     NgxSliderModule,
+    SearchInputComponent,
   ],
   templateUrl: './container-work-edit-dialog.component.html',
   styleUrl: './container-work-edit-dialog.component.scss',
@@ -203,6 +206,19 @@ export class ContainerWorkEditDialogComponent {
   };
 
   formatTime = formatTime;
+
+  shiftFilter = signal('');
+
+  get filteredAvailableTasks(): IShift[] {
+    const term = this.shiftFilter().trim().toLowerCase();
+    const tasks = this.lifecycleService.availableTasks;
+    if (!term) return tasks;
+    return tasks.filter(s =>
+      (s.name ?? '').toLowerCase().includes(term) ||
+      (s.abbreviation ?? '').toLowerCase().includes(term) ||
+      formatClientWithAddress(s).toLowerCase().includes(term),
+    );
+  }
 
   get selectedContainerTemplateItems(): IContainerTemplateItem[] {
     return this.shiftService.selectedContainerTemplateItemsSignal();
@@ -545,6 +561,18 @@ export class ContainerWorkEditDialogComponent {
         },
         error: () => {},
       });
+  }
+
+  onReset(): void {
+    if (!this.lifecycleService.isDirty()) return;
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('dialog.containerWorkEdit.confirmResetTitle'),
+      message: this.translateService.instant('dialog.containerWorkEdit.confirmReset'),
+      confirmText: this.translateService.instant('reset'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.lifecycleService.reset(),
+    });
   }
 
   onCancel(): void {
