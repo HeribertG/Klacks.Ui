@@ -8,7 +8,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { PLUGIN_WORKPLACE_HOST, IPluginClient } from 'klacks-plugin-contracts';
+import { PLUGIN_WORKPLACE_HOST, PLUGIN_GROUP_SELECTION, IPluginClient } from 'klacks-plugin-contracts';
 import { MessagingChatComponent } from '../messaging-chat/messaging-chat.component';
 import { MessagingNavComponent } from '../messaging-nav/messaging-nav.component';
 import { MessageDirection } from '../../enums/message-direction.enum';
@@ -29,6 +29,7 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
   @ViewChild('messagingChat') messagingChat!: MessagingChatComponent;
 
   private host = inject(PLUGIN_WORKPLACE_HOST);
+  private groupSelection = inject(PLUGIN_GROUP_SELECTION);
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -57,6 +58,7 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
 
   private onClientSelected(client: IPluginClient): void {
     const displayName = `${client.idNumber}, ${client.firstName} ${client.name}`.trim();
+    this.groupSelection.clearSelection();
     this.messagingChat.selectedContact.set(displayName);
     this.messagingChat.loadMessages();
   }

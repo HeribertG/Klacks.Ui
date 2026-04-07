@@ -19,6 +19,9 @@ import {
   ElementRef,
   inject,
   signal,
+  computed,
+  Injector,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -26,12 +29,17 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMicrophone, faMicrophoneSlash, faPaperPlane, faChevronUp, faChevronDown, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
-import { DataMessagingService } from '../../services/data-messaging.service';
+import { DataMessagingService, BroadcastPreview } from '../../services/data-messaging.service';
+import { MessagingProvider } from '../../models/messaging-provider.model';
 import {
   PLUGIN_EVENT_STREAM,
   PLUGIN_VOICE_SERVICE,
   PLUGIN_SPEECH_SERVICE,
+  PLUGIN_GROUP_SELECTION,
+  PLUGIN_TOAST_SERVICE,
 } from 'klacks-plugin-contracts';
+import { effect, EffectRef } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Message } from '../../models/message.model';
 import { MessageDirection } from '../../enums/message-direction.enum';
 
@@ -55,6 +63,10 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   public speechService = inject(PLUGIN_SPEECH_SERVICE);
   private voiceModeService = inject(PLUGIN_VOICE_SERVICE);
+  private groupSelection = inject(PLUGIN_GROUP_SELECTION);
+  private toast = inject(PLUGIN_TOAST_SERVICE);
+  private translate = inject(TranslateService);
+  private injector = inject(Injector);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLDivElement>;
 
@@ -66,6 +78,20 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   selectedProviderIds = signal<string[]>([]);
   showAll = signal<boolean>(false);
   hasMore = signal<boolean>(false);
+
+  availableProviders = signal<MessagingProvider[]>([]);
+  broadcastPreview = signal<BroadcastPreview | null>(null);
+  broadcastLoading = signal<boolean>(false);
+
+  selectedGroupId = this.groupSelection.selectedGroupId;
+  isBroadcastMode = computed<boolean>(() => !!this.selectedGroupId() && !this.selectedContact());
+  broadcastEligible = computed<number>(() => {
+    const p = this.broadcastPreview();
+    return p ? p.withMessengerContact + p.withPhoneFallback : 0;
+  });
+  canBroadcast = computed<boolean>(() => this.isBroadcastMode() && this.broadcastEligible() > 0);
+
+  private groupEffectRef: EffectRef | null = null;
 
   private readonly defaultPageSize = 50;
   private readonly showAllPageSize = 10000;
@@ -103,12 +129,81 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
     }, this.ngUnsubscribe);
 
     this.loadMessages();
+    this.loadAvailableProviders();
     this.subscribeToIncomingMessages();
+    this.subscribeToGroupSelection();
+  }
+
+  private loadAvailableProviders(): void {
+    this.dataService.getProviders()
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (providers) => {
+          this.availableProviders.set(providers.filter(p => p.isEnabled));
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private subscribeToGroupSelection(): void {
+    runInInjectionContext(this.injector, () => {
+      this.groupEffectRef = effect(() => {
+        const groupId = this.selectedGroupId();
+        if (groupId && !this.selectedContact()) {
+          this.loadBroadcastPreview(groupId);
+        } else {
+          this.broadcastPreview.set(null);
+        }
+        this.cdr.markForCheck();
+      });
+    });
+  }
+
+  private loadBroadcastPreview(groupId: string): void {
+    const provider = this.singleSelectedProvider();
+    if (!provider) {
+      this.broadcastPreview.set(null);
+      return;
+    }
+    this.broadcastLoading.set(true);
+    this.dataService.previewBroadcast(provider.name, groupId)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (preview) => {
+          this.broadcastPreview.set(preview);
+          this.broadcastLoading.set(false);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.broadcastPreview.set(null);
+          this.broadcastLoading.set(false);
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private singleSelectedProvider(): { id: string; name: string } | null {
+    const ids = this.selectedProviderIds();
+    if (ids.length === 1) {
+      const match = this.availableProviders().find(p => p.id === ids[0]);
+      return match ? { id: match.id, name: match.name } : { id: ids[0], name: this.selectedProvider() ?? ids[0] };
+    }
+
+    if (ids.length === 0 && this.availableProviders().length === 1) {
+      const only = this.availableProviders()[0];
+      return { id: only.id, name: only.name };
+    }
+
+    return null;
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    if (this.groupEffectRef) {
+      this.groupEffectRef.destroy();
+      this.groupEffectRef = null;
+    }
     if (this.voiceModeEnabled) {
       this.voiceModeService.disableVoiceMode();
     }
@@ -143,6 +238,11 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   }
 
   sendMessage(): void {
+    if (this.isBroadcastMode()) {
+      this.sendBroadcast();
+      return;
+    }
+
     if (!this.selectedContact() || !this.inputText.trim()) {
       return;
     }
@@ -161,6 +261,53 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
           this.loadMessages();
         },
         error: () => {
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private sendBroadcast(): void {
+    const groupId = this.selectedGroupId();
+    const provider = this.singleSelectedProvider();
+    const preview = this.broadcastPreview();
+    if (!groupId || !provider || !preview || !this.inputText.trim()) {
+      return;
+    }
+
+    const eligible = this.broadcastEligible();
+    if (eligible === 0) {
+      return;
+    }
+
+    if (eligible >= 2) {
+      const confirmed = window.confirm(
+        this.translate.instant('messaging.chat.broadcast-confirm', { count: eligible })
+      );
+      if (!confirmed) return;
+    }
+
+    const content = this.inputText.trim();
+    this.inputText = '';
+    this.broadcastLoading.set(true);
+
+    this.dataService.sendBroadcast(provider.name, groupId, content)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (result) => {
+          this.broadcastLoading.set(false);
+          this.toast.showSuccess(
+            this.translate.instant('messaging.chat.broadcast-result', {
+              sent: result.sent,
+              failed: result.failed,
+              skipped: result.skippedNoContact,
+            }),
+            this.translate.instant('messaging.chat.broadcast-result-title')
+          );
+          this.loadMessages();
+        },
+        error: () => {
+          this.broadcastLoading.set(false);
+          this.toast.showError(this.translate.instant('messaging.chat.broadcast-error'));
           this.cdr.markForCheck();
         },
       });

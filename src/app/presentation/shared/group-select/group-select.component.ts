@@ -417,6 +417,7 @@ export class GroupSelectComponent
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
       case EntityName.CLIENT_AVAILABILITY:
+      case EntityName.MESSAGING:
         return true;
       case EntityName.SHIFT:
         const filter = this.dataManagementShiftService.currentFilter;

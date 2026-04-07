@@ -61,4 +61,36 @@ export class DataMessagingService {
   sendMessage(dto: SendMessage): Observable<{ success: boolean; externalMessageId?: string; errorMessage?: string }> {
     return this.httpClient.post<{ success: boolean; externalMessageId?: string; errorMessage?: string }>(`${this.apiUrl}messaging/messages/send`, dto);
   }
+
+  previewBroadcast(provider: string, groupId: string): Observable<BroadcastPreview> {
+    const params = new HttpParams()
+      .set('provider', provider)
+      .set('groupId', groupId);
+    return this.httpClient.get<BroadcastPreview>(`${this.apiUrl}messaging/broadcast/preview`, { params });
+  }
+
+  sendBroadcast(provider: string, groupId: string, content: string, contentType = 'text'): Observable<BroadcastSendResult> {
+    return this.httpClient.post<BroadcastSendResult>(`${this.apiUrl}messaging/broadcast/send`, {
+      provider,
+      groupId,
+      content,
+      contentType,
+    });
+  }
+}
+
+export interface BroadcastPreview {
+  total: number;
+  withMessengerContact: number;
+  withPhoneFallback: number;
+  skipped: number;
+  providerSupportsPhoneFallback: boolean;
+}
+
+export interface BroadcastSendResult {
+  broadcastId: string;
+  total: number;
+  sent: number;
+  failed: number;
+  skippedNoContact: number;
 }

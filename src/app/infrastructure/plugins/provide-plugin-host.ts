@@ -7,7 +7,7 @@
  * @param provideMessagingVoice - Provides messaging-specific services (voice, speech)
  */
 
-import { Provider } from '@angular/core';
+import { Provider, computed } from '@angular/core';
 import {
   PLUGIN_WORKPLACE_HOST,
   PLUGIN_TOAST_SERVICE,
@@ -16,8 +16,11 @@ import {
   PLUGIN_API_BASE_URL,
   PLUGIN_VOICE_SERVICE,
   PLUGIN_SPEECH_SERVICE,
+  PLUGIN_GROUP_SELECTION,
   IPluginWorkplaceHost,
+  IPluginGroupSelection,
 } from 'klacks-plugin-contracts';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -64,6 +67,20 @@ export function providePluginHost(): Provider[] {
     {
       provide: PLUGIN_API_BASE_URL,
       useValue: environment.baseUrl.replace('backend/', ''),
+    },
+    {
+      provide: PLUGIN_GROUP_SELECTION,
+      useFactory: (groupSelection: GroupSelectionService): IPluginGroupSelection => {
+        const selectedGroupId = computed<string | null>(() => {
+          groupSelection.selectedGroupChanged();
+          return groupSelection.selectedGroupId ?? null;
+        });
+        return {
+          selectedGroupId,
+          clearSelection: () => groupSelection.clearSelection(),
+        };
+      },
+      deps: [GroupSelectionService],
     },
   ];
 }

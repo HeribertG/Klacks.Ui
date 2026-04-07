@@ -72,6 +72,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
     [RouteName.SCHEDULE]: EntityName.SCHEDULE,
     [RouteName.ABSENCE]: EntityName.ABSENCE,
     [RouteName.CLIENT_AVAILABILITY]: EntityName.CLIENT_AVAILABILITY,
+    [RouteName.MESSAGING]: EntityName.MESSAGING,
     [RouteName.DASHBOARD]: EntityName.DASHBOARD,
   };
 

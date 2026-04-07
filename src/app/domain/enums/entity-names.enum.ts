@@ -16,6 +16,7 @@ export enum EntityName {
   ABSENCE = 'DataManagementAbsenceService',
   DASHBOARD = 'Dashboard',
   CLIENT_AVAILABILITY = 'DataManagementClientAvailabilityService',
+  MESSAGING = 'Messaging',
 }
 
 export enum RouteName {
@@ -35,6 +36,7 @@ export enum RouteName {
   ABSENCE = 'absence',
   CLIENT_AVAILABILITY = 'client-availability',
   DASHBOARD = 'dashboard',
+  MESSAGING = 'messaging',
 }
 
 export function isValidRouteName(value: string): value is RouteName {
