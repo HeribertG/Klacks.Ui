@@ -17,7 +17,7 @@ ul {
   border-bottom: 1px solid var(--cardBorderColor);
   border-inline-end: 1px solid var(--cardBorderColor);
   animation-duration: 0s;
-  z-index: 999;
+  z-index: 1080;
 }
 
 :host-context(.menu-item-arrow) .menu-container {

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject,
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { Menu } from './context-menu-class';
@@ -24,6 +24,8 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
 export class ContextMenuComponent implements OnInit, OnDestroy {
   private contextMenuService = inject(ContextMenuService);
   private cdr = inject(ChangeDetectorRef);
+  private hostElementRef = inject(ElementRef);
+  private movedToBody = false;
 
   @ViewChild('main', { static: false }) main!: MenuComponent;
   @Input() menuData: Menu = new Menu();
@@ -45,10 +47,19 @@ export class ContextMenuComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+    const host = this.hostElementRef.nativeElement as HTMLElement;
+    if (this.movedToBody && host.parentNode === document.body) {
+      document.body.removeChild(host);
+    }
   }
 
   openMenu(event: MouseEvent) {
     this.myTimer.stop();
+    if (!this.movedToBody) {
+      const host = this.hostElementRef.nativeElement as HTMLElement;
+      document.body.appendChild(host);
+      this.movedToBody = true;
+    }
     this.rightPanelStyle = {
       display: 'contents',
     };
