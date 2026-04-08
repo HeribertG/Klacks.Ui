@@ -177,7 +177,9 @@ export class ContainerWorkModalLifecycleService {
           }
           this.originalChildShiftIds.set(originalIds);
           this.isLoading.set(false);
-          this.loadAvailableShiftsWithClient(availableShifts.map(s => s.id));
+          const inputIds = availableShifts.map(s => s.id);
+          const combinedIds = Array.from(new Set([...inputIds, ...originalIds]));
+          this.loadAvailableShiftsWithClient(combinedIds);
           this.loadContainerAbsences();
         },
         error: () => {
@@ -203,10 +205,16 @@ export class ContainerWorkModalLifecycleService {
         for (const s of fullShifts) {
           if (s?.id) byId.set(s.id, s);
         }
-        this.availableShiftsAsIShift = this.availableShiftsAsIShift.map(shift => {
-          const full = byId.get(shift.id!);
-          return full ? { ...full } : shift;
-        });
+        const merged = new Map<string, IShift>();
+        for (const shift of this.availableShiftsAsIShift) {
+          if (!shift.id) continue;
+          const full = byId.get(shift.id);
+          merged.set(shift.id, full ? { ...full } : shift);
+        }
+        for (const [id, shift] of byId) {
+          if (!merged.has(id)) merged.set(id, shift);
+        }
+        this.availableShiftsAsIShift = Array.from(merged.values());
         this.availableShiftsVersion.update(v => v + 1);
         this.isAvailableShiftsLoading.set(false);
       });
