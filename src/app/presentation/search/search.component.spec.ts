@@ -92,25 +92,13 @@ describe('SearchComponent', () => {
     });
 
     it('should reset filter when search input is cleared', () => {
-        const mockEvent = {
-            srcElement: {
-                value: '',
-            },
-        };
-
-        component.onKeyupSearch(mockEvent);
+        component.onSearchValueChange('');
 
         expect(searchStrategyService.resetFilterWithoutSignalWrite).toHaveBeenCalled();
     });
 
     it('should not reset filter when search input has value', () => {
-        const mockEvent = {
-            srcElement: {
-                value: 'some text',
-            },
-        };
-
-        component.onKeyupSearch(mockEvent);
+        component.onSearchValueChange('some text');
 
         expect(searchStrategyService.resetFilterWithoutSignalWrite).not.toHaveBeenCalled();
     });
@@ -162,7 +150,7 @@ describe('SearchComponent', () => {
         searchService.showSearch.mockReturnValue(true);
         fixture.detectChanges();
 
-        const searchInput = fixture.nativeElement.querySelector('input[name="searchString"]');
+        const searchInput = fixture.nativeElement.querySelector('app-search-input');
         expect(searchInput).toBeTruthy();
     });
 
@@ -199,7 +187,7 @@ describe('SearchComponent', () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const searchInput = fixture.nativeElement.querySelector('input[name="searchString"]') as HTMLInputElement;
+        const searchInput = fixture.nativeElement.querySelector('app-search-input input') as HTMLInputElement;
         expect(searchInput.value).toBe('test value');
     });
 });
