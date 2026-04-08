@@ -272,7 +272,7 @@ export class ContainerWorkEditDialogComponent {
 
   open(
     workId: string,
-    _shiftId: string,
+    shiftId: string,
     currentDate: Date,
     availableShifts: AvailableShift[],
     containerStartTime?: string,
@@ -285,6 +285,7 @@ export class ContainerWorkEditDialogComponent {
         next: (lock) => {
           this.openModalInternal(
             workId,
+            shiftId,
             currentDate,
             availableShifts,
             containerStartTime,
@@ -306,6 +307,7 @@ export class ContainerWorkEditDialogComponent {
         error: () => {
           this.openModalInternal(
             workId,
+            shiftId,
             currentDate,
             availableShifts,
             containerStartTime,
@@ -317,6 +319,7 @@ export class ContainerWorkEditDialogComponent {
 
   private openModalInternal(
     workId: string,
+    shiftId: string,
     currentDate: Date,
     availableShifts: AvailableShift[],
     containerStartTime?: string,
@@ -324,6 +327,7 @@ export class ContainerWorkEditDialogComponent {
   ): void {
     this.lifecycleService.initialize(
       workId,
+      shiftId,
       currentDate,
       availableShifts,
       containerStartTime,
@@ -458,7 +462,9 @@ export class ContainerWorkEditDialogComponent {
 
   autofill(): void {
     this.routeService.autofill({
-      containerShift: null,
+      containerShift: this.lifecycleService.containerShiftId
+        ? ({ id: this.lifecycleService.containerShiftId } as IShift)
+        : null,
       selectedWeekday: this.lifecycleService.weekday,
       isHoliday: this.lifecycleService.isHoliday,
       timeFrom: this.timeFrom,
