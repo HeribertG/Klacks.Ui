@@ -22,6 +22,7 @@ import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edi
 import { ExpensesDialogComponent } from '../../dialogs/expenses-dialog/expenses-dialog.component';
 import { ContainerWorkEditDialogComponent } from '../../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
+import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { ScheduleDataService } from './schedule-data.service';
 
 @Injectable()
@@ -121,7 +122,9 @@ export class ScheduleDialogService {
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
-      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts, entry.startTime, entry.endTime);
+      const weekday = dataService.getWeekday(column);
+      const isHoliday = weekday === WeekDaysEnum.Holiday || weekday === WeekDaysEnum.OfficiallyHoliday;
+      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts, entry.startTime, entry.endTime, isHoliday);
     }
   }
 }

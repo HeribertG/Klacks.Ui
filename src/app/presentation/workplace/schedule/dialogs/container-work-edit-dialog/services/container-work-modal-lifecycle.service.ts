@@ -147,13 +147,14 @@ export class ContainerWorkModalLifecycleService {
     );
   }
 
-  initialize(workId: string, containerShiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
+  initialize(workId: string, containerShiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string, isHoliday = false): void {
     this.containerStartTime = containerStartTime ?? null;
     this.containerEndTime = containerEndTime ?? null;
     this.workId = workId;
     this.containerShiftId = containerShiftId;
     this.currentDate = currentDate;
     this.weekday = WEEKDAY_NAMES[currentDate.getDay()];
+    this.isHoliday = isHoliday;
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isAvailableShiftsLoading.set(true);
