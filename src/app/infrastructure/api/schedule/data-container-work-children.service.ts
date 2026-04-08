@@ -7,7 +7,7 @@
  */
 
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -98,8 +98,9 @@ export interface ContainerWorkChildren {
 export class DataContainerWorkChildrenService {
   private httpClient = inject(HttpClient);
 
-  loadChildren(workId: string): Observable<ContainerWorkChildren> {
-    return this.httpClient.get<ContainerWorkChildren>(`${environment.baseUrl}Works/${workId}/Children`);
+  loadChildren(workId: string, isHoliday = false): Observable<ContainerWorkChildren> {
+    const params = new HttpParams().set('isHoliday', isHoliday.toString());
+    return this.httpClient.get<ContainerWorkChildren>(`${environment.baseUrl}Works/${workId}/Children`, { params });
   }
 
   saveChildren(workId: string, children: ContainerWorkChildren): Observable<ContainerWorkChildren> {

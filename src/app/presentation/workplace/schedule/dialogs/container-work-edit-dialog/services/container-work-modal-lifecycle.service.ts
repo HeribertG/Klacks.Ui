@@ -165,7 +165,7 @@ export class ContainerWorkModalLifecycleService {
 
     this.availableShiftsAsIShift = availableShifts.map(s => this.convertAvailableShiftToIShift(s));
 
-    this.childrenService.loadChildren(workId)
+    this.childrenService.loadChildren(workId, this.isHoliday)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: children => {
