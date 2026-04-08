@@ -109,6 +109,7 @@ export class ContainerWorkModalLifecycleService {
     if (containerStart === 0) return false;
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
     return items.some(item => {
+      if (item.shift?.isTimeRange) return false;
       const start = item.startItem ? this.parseTimeToMinutes(item.startItem) : -1;
       return start >= 0 && start < containerStart;
     });
