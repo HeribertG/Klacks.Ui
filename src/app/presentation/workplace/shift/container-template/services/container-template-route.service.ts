@@ -10,8 +10,9 @@
  * @param appSettingsService - Provides OpenRouteService API key availability
  */
 import { Injectable, inject } from '@angular/core';
-import { Subject, TimeoutError } from 'rxjs';
-import { takeUntil } from 'rxjs';
+import { Subject, TimeoutError, of } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import {
@@ -28,6 +29,7 @@ import {
   RouteOptimizationService,
   ITimeBlock,
   ITimeBlockResult,
+  IAutofillResult,
 } from 'src/app/domain/services/route-optimization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
@@ -68,6 +70,7 @@ export class ContainerTemplateRouteService {
   private addressProvider = inject(AddressProviderService);
   private appSettingsService = inject(AppSettingsManagementService);
   private sortingService = inject(TableSortingService);
+  private dataShiftService = inject(DataShiftService);
 
   public selectedStartBase = '';
   public selectedEndBase = '';
@@ -160,38 +163,40 @@ export class ContainerTemplateRouteService {
             return;
           }
 
-          const newItems = this.convertAutofillResultToItems(
-            result.selectedShiftIds,
-            localShiftPool,
+          const missingIds = result.selectedShiftIds.filter(
+            id => !localShiftPool.some(s => s.id === id),
           );
 
-          this.lastRouteInfo = {
-            startBase: this.selectedStartBase,
-            endBase: this.selectedEndBase,
-            totalDistanceKm: result.totalDistanceKm,
-            estimatedTravelTime: result.estimatedTravelTime,
-            travelTimeFromStartBase: result.travelTimeFromStartBase,
-            distanceFromStartBaseKm: result.distanceFromStartBaseKm,
-            distanceToEndBaseKm: result.distanceToEndBaseKm,
-            travelTimeToEndBase: result.travelTimeToEndBase,
-            optimizedRoute: result.optimizedRoute,
-            segmentDirections: result.segmentDirections,
+          const guardedWeekday = selectedWeekday!;
+          const proceed = (enrichedPool: IShift[]): void => {
+            const newItems = this.convertAutofillResultToItems(
+              result.selectedShiftIds,
+              enrichedPool,
+            );
+            this.applyAutofillResult(
+              result,
+              newItems,
+              timeFrom,
+              guardedWeekday,
+              isHoliday,
+              onStateChanged,
+            );
           };
 
-          this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
-          this.applyOptimizedRoute(result, newItems, timeFrom, selectedWeekday, isHoliday);
-          this.toastService.showSuccess(
-            this.translateService.instant(
-              'shift.container-template.toast.autofill-success',
-              {
-                selected: result.selectedShiftCount,
-                total: result.totalAvailableShifts,
-                distance: result.totalDistanceKm.toFixed(2),
-              },
-            ),
-            'Autofill',
-          );
-          onStateChanged?.();
+          if (missingIds.length === 0) {
+            proceed(localShiftPool);
+            return;
+          }
+
+          this.dataShiftService
+            .getShiftsByIds(missingIds)
+            .pipe(
+              takeUntil(destroy$),
+              catchError(() => of([] as IShift[])),
+            )
+            .subscribe(fetchedShifts => {
+              proceed([...localShiftPool, ...fetchedShifts]);
+            });
         },
         error: (error) => {
           this.isAutofillRunning = false;
@@ -202,6 +207,43 @@ export class ContainerTemplateRouteService {
           onStateChanged?.();
         },
       });
+  }
+
+  private applyAutofillResult(
+    result: IAutofillResult,
+    newItems: IContainerTemplateItem[],
+    timeFrom: OwnTime,
+    selectedWeekday: string,
+    isHoliday: boolean,
+    onStateChanged?: () => void,
+  ): void {
+    this.lastRouteInfo = {
+      startBase: this.selectedStartBase,
+      endBase: this.selectedEndBase,
+      totalDistanceKm: result.totalDistanceKm,
+      estimatedTravelTime: result.estimatedTravelTime,
+      travelTimeFromStartBase: result.travelTimeFromStartBase,
+      distanceFromStartBaseKm: result.distanceFromStartBaseKm,
+      distanceToEndBaseKm: result.distanceToEndBaseKm,
+      travelTimeToEndBase: result.travelTimeToEndBase,
+      optimizedRoute: result.optimizedRoute,
+      segmentDirections: result.segmentDirections,
+    };
+
+    this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
+    this.applyOptimizedRoute(result, newItems, timeFrom, selectedWeekday, isHoliday);
+    this.toastService.showSuccess(
+      this.translateService.instant(
+        'shift.container-template.toast.autofill-success',
+        {
+          selected: result.selectedShiftCount,
+          total: result.totalAvailableShifts,
+          distance: result.totalDistanceKm.toFixed(2),
+        },
+      ),
+      'Autofill',
+    );
+    onStateChanged?.();
   }
 
   convertAutofillResultToItems(
