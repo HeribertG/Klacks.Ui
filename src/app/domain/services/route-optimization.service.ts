@@ -122,7 +122,8 @@ export class RouteOptimizationService {
     untilTime: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar,
     timeRangeTolerance = 0.5,
-    timeBlocks: ITimeBlock[] = []
+    timeBlocks: ITimeBlock[] = [],
+    additionalAvailableWorkIds: string[] = []
   ): Observable<IAutofillResult> {
     const body = {
       containerId,
@@ -135,6 +136,7 @@ export class RouteOptimizationService {
       transportMode,
       timeRangeTolerance,
       timeBlocks,
+      additionalAvailableWorkIds,
     };
 
     return this.http.post<IAutofillResult>(

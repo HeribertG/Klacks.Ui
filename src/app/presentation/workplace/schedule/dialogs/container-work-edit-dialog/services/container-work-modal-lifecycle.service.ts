@@ -58,6 +58,7 @@ export class ContainerWorkModalLifecycleService {
   readonly containerAbsences = signal<IAbsence[]>([]);
   readonly isReadOnly = signal(false);
   readonly readOnlyReason = signal<string>('');
+  private originalChildShiftIds = signal<ReadonlySet<string>>(new Set());
 
   workId = '';
   currentDate: Date | null = null;
@@ -118,6 +119,22 @@ export class ContainerWorkModalLifecycleService {
     return `${day}.${month}`;
   }
 
+  getUnassignedOriginalChildIds(): string[] {
+    const originals = this.originalChildShiftIds();
+    if (originals.size === 0) return [];
+    const currentShiftIds = new Set(
+      this.shiftService
+        .selectedContainerTemplateItemsSignal()
+        .map(item => item.shiftId)
+        .filter((id): id is string => id != null),
+    );
+    const result: string[] = [];
+    for (const id of originals) {
+      if (!currentShiftIds.has(id)) result.push(id);
+    }
+    return result;
+  }
+
   get availableTasks(): IShift[] {
     const selectedShiftIds = this.shiftService
       .selectedContainerTemplateItemsSignal()
@@ -152,6 +169,11 @@ export class ContainerWorkModalLifecycleService {
         next: children => {
           this.initializeItemsFromChildren(children);
           this.applyParentRouteValues(children);
+          const originalIds = new Set<string>();
+          for (const subWork of children.subWorks) {
+            if (subWork.shiftId) originalIds.add(subWork.shiftId);
+          }
+          this.originalChildShiftIds.set(originalIds);
           this.isLoading.set(false);
           this.loadAvailableShiftsWithClient(availableShifts.map(s => s.id));
           this.loadContainerAbsences();

@@ -26,15 +26,10 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  CdkDragDrop,
-  DragDropModule,
-} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
-import {
-  IContainerTemplateItem,
-} from 'src/app/domain/models/container/container-template-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import {
   ContainerTransportModeEnum,
   TransportModeEnum,
@@ -63,15 +58,16 @@ import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.compo
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
-import { NgbModal, NgbModalRef, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  NgbModalRef,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
-import {
-  formatTime,
-  timeToString,
-} from 'src/app/shared/helpers/time-format.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import {
   formatClientWithAddress,
   formatWorkTime,
@@ -91,7 +87,10 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
@@ -213,10 +212,11 @@ export class ContainerWorkEditDialogComponent {
     const term = this.shiftFilter().trim().toLowerCase();
     const tasks = this.lifecycleService.availableTasks;
     if (!term) return tasks;
-    return tasks.filter(s =>
-      (s.name ?? '').toLowerCase().includes(term) ||
-      (s.abbreviation ?? '').toLowerCase().includes(term) ||
-      formatClientWithAddress(s).toLowerCase().includes(term),
+    return tasks.filter(
+      (s) =>
+        (s.name ?? '').toLowerCase().includes(term) ||
+        (s.abbreviation ?? '').toLowerCase().includes(term) ||
+        formatClientWithAddress(s).toLowerCase().includes(term),
     );
   }
 
@@ -238,23 +238,29 @@ export class ContainerWorkEditDialogComponent {
 
   constructor() {
     afterNextRender(() => {
-      effect(() => {
-        this.lifecycleService.isLoading();
-        this.cdr.markForCheck();
-      }, { injector: this.injector });
+      effect(
+        () => {
+          this.lifecycleService.isLoading();
+          this.cdr.markForCheck();
+        },
+        { injector: this.injector },
+      );
 
-      effect(() => {
-        this.lifecycleService.isDirty();
-        this.lifecycleService.availableShiftsVersion();
-        this.lifecycleService.isAvailableShiftsLoading();
-        this.lifecycleService.isEmploymentTabActive();
-        this.lifecycleService.selectedTabIndex();
-        this.lifecycleService.containerAbsences();
-        this.lifecycleService.isReadOnly();
-        this.lifecycleService.readOnlyReason();
-        this.shiftService.selectedContainerTemplateItemsSignal();
-        this.cdr.markForCheck();
-      }, { injector: this.injector });
+      effect(
+        () => {
+          this.lifecycleService.isDirty();
+          this.lifecycleService.availableShiftsVersion();
+          this.lifecycleService.isAvailableShiftsLoading();
+          this.lifecycleService.isEmploymentTabActive();
+          this.lifecycleService.selectedTabIndex();
+          this.lifecycleService.containerAbsences();
+          this.lifecycleService.isReadOnly();
+          this.lifecycleService.readOnlyReason();
+          this.shiftService.selectedContainerTemplateItemsSignal();
+          this.cdr.markForCheck();
+        },
+        { injector: this.injector },
+      );
     });
 
     this.timeChange$
@@ -264,18 +270,33 @@ export class ContainerWorkEditDialogComponent {
       });
   }
 
-  open(workId: string, _shiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
+  open(
+    workId: string,
+    _shiftId: string,
+    currentDate: Date,
+    availableShifts: AvailableShift[],
+    containerStartTime?: string,
+    containerEndTime?: string,
+  ): void {
     this.lockService
       .acquire(ContainerLockResourceType.containerWork, workId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: lock => {
-          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
+        next: (lock) => {
+          this.openModalInternal(
+            workId,
+            currentDate,
+            availableShifts,
+            containerStartTime,
+            containerEndTime,
+          );
           if (!lock.acquired) {
             const key = lock.isSelfConflict
               ? 'container.lock.lockedBySelf'
               : 'container.lock.lockedByOther';
-            const message = this.translateService.instant(key, { user: lock.userName });
+            const message = this.translateService.instant(key, {
+              user: lock.userName,
+            });
             this.toastService.showInfo(message);
             this.lifecycleService.isReadOnly.set(true);
             this.lifecycleService.readOnlyReason.set(message);
@@ -283,13 +304,31 @@ export class ContainerWorkEditDialogComponent {
           }
         },
         error: () => {
-          this.openModalInternal(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
+          this.openModalInternal(
+            workId,
+            currentDate,
+            availableShifts,
+            containerStartTime,
+            containerEndTime,
+          );
         },
       });
   }
 
-  private openModalInternal(workId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
-    this.lifecycleService.initialize(workId, currentDate, availableShifts, containerStartTime, containerEndTime);
+  private openModalInternal(
+    workId: string,
+    currentDate: Date,
+    availableShifts: AvailableShift[],
+    containerStartTime?: string,
+    containerEndTime?: string,
+  ): void {
+    this.lifecycleService.initialize(
+      workId,
+      currentDate,
+      availableShifts,
+      containerStartTime,
+      containerEndTime,
+    );
 
     this.timeFrom = this.lifecycleService.getTimeFrom();
     this.timeTo = this.lifecycleService.getTimeTo();
@@ -367,7 +406,11 @@ export class ContainerWorkEditDialogComponent {
   }
 
   isTimeRangePartial(shift: IShift): boolean {
-    return this.shiftOpsService.isTimeRangePartial(shift, this.timeFrom, this.timeTo);
+    return this.shiftOpsService.isTimeRangePartial(
+      shift,
+      this.timeFrom,
+      this.timeTo,
+    );
   }
 
   onRemoveAllTasks(): void {
@@ -398,7 +441,8 @@ export class ContainerWorkEditDialogComponent {
   onAvailableTasksDrop(): void {}
 
   onTransportModeChange(mode: number): void {
-    this.routeService.selectedTransportMode = mode as ContainerTransportModeEnum;
+    this.routeService.selectedTransportMode =
+      mode as ContainerTransportModeEnum;
     this.lifecycleService.markDirty();
     this.cdr.markForCheck();
   }
@@ -419,14 +463,14 @@ export class ContainerWorkEditDialogComponent {
       isHoliday: this.lifecycleService.isHoliday,
       timeFrom: this.timeFrom,
       timeTo: this.timeTo,
-      availableTasks: this.lifecycleService.availableTasks,
+      additionalAvailableWorkIds: this.lifecycleService.getUnassignedOriginalChildIds(),
       timeRangeToleranceValue: this.timeRangeToleranceValue,
       destroy$: this.destroy$,
       onStateChanged: () => {
         this.lifecycleService.markDirty();
         this.cdr.markForCheck();
       },
-    });
+    }, this.lifecycleService.availableTasks);
   }
 
   optimizeRoute(): void {
@@ -553,7 +597,8 @@ export class ContainerWorkEditDialogComponent {
   }
 
   onSave(): void {
-    this.lifecycleService.save()
+    this.lifecycleService
+      .save()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -567,8 +612,12 @@ export class ContainerWorkEditDialogComponent {
     if (!this.lifecycleService.isDirty()) return;
     this.modalService.openModal({
       type: ModalType.Confirmation,
-      title: this.translateService.instant('dialog.containerWorkEdit.confirmResetTitle'),
-      message: this.translateService.instant('dialog.containerWorkEdit.confirmReset'),
+      title: this.translateService.instant(
+        'dialog.containerWorkEdit.confirmResetTitle',
+      ),
+      message: this.translateService.instant(
+        'dialog.containerWorkEdit.confirmReset',
+      ),
       confirmText: this.translateService.instant('reset'),
       cancelText: this.translateService.instant('cancel'),
       onConfirm: () => this.lifecycleService.reset(),
@@ -582,9 +631,15 @@ export class ContainerWorkEditDialogComponent {
     }
     this.modalService.openModal({
       type: ModalType.Confirmation,
-      title: this.translateService.instant('dialog.containerWorkEdit.confirmCancelTitle'),
-      message: this.translateService.instant('dialog.containerWorkEdit.confirmCancel'),
-      confirmText: this.translateService.instant('dialog.containerWorkEdit.discardButton'),
+      title: this.translateService.instant(
+        'dialog.containerWorkEdit.confirmCancelTitle',
+      ),
+      message: this.translateService.instant(
+        'dialog.containerWorkEdit.confirmCancel',
+      ),
+      confirmText: this.translateService.instant(
+        'dialog.containerWorkEdit.discardButton',
+      ),
       cancelText: this.translateService.instant('cancel'),
       onConfirm: () => this.modalRef?.dismiss(),
     });

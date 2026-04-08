@@ -665,14 +665,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       isHoliday: this.isHoliday,
       timeFrom: this.timeFrom,
       timeTo: this.timeTo,
-      availableTasks: this.tabService.availableTasks,
+      additionalAvailableWorkIds: [],
       timeRangeToleranceValue: this.timeRangeToleranceValue,
       destroy$: this.destroy$,
       onStateChanged: () => {
         this.updateAvailableTasks();
         this.cdr.markForCheck();
       },
-    });
+    }, this.tabService.availableTasks);
   }
 
   optimizeRoute(): void {

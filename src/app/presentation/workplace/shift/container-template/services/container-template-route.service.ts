@@ -49,7 +49,7 @@ export interface AutofillRequest {
   isHoliday: boolean;
   timeFrom: OwnTime;
   timeTo: OwnTime;
-  availableTasks: IShift[];
+  additionalAvailableWorkIds: string[];
   timeRangeToleranceValue: number;
   destroy$: Subject<void>;
   onStateChanged?: () => void;
@@ -89,10 +89,10 @@ export class ContainerTemplateRouteService {
     return this.selectedTransportMode === ContainerTransportModeEnum.mix;
   }
 
-  autofill(request: AutofillRequest): void {
+  autofill(request: AutofillRequest, localShiftPool: IShift[]): void {
     const {
       containerShift, selectedWeekday, isHoliday,
-      timeFrom, timeTo, availableTasks,
+      timeFrom, timeTo, additionalAvailableWorkIds,
       timeRangeToleranceValue, destroy$, onStateChanged,
     } = request;
 
@@ -143,6 +143,7 @@ export class ContainerTemplateRouteService {
         this.selectedTransportMode,
         timeRangeToleranceValue / 100,
         timeBlocks,
+        additionalAvailableWorkIds,
       )
       .pipe(takeUntil(destroy$))
       .subscribe({
@@ -161,7 +162,7 @@ export class ContainerTemplateRouteService {
 
           const newItems = this.convertAutofillResultToItems(
             result.selectedShiftIds,
-            availableTasks,
+            localShiftPool,
           );
 
           this.lastRouteInfo = {
