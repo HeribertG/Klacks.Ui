@@ -460,6 +460,10 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
         break;
+      case 'openContainer':
+        this.contextMenu.closeMenu(true);
+        this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn });
+        break;
       case 'expenses':
         this.contextMenu.closeMenu(true);
         this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService);

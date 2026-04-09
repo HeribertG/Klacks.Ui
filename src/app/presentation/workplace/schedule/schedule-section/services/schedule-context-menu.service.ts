@@ -30,6 +30,7 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
@@ -127,6 +128,10 @@ export class ScheduleContextMenuService {
         menuData.list.push(...MenuDataTemplate.delete());
 
         if (entry?.entryType === WorkScheduleEntryType.Work) {
+          if (this.isContainerWork(entry.entryId)) {
+            menuData.list.push(...MenuDataTemplate.divider());
+            menuData.list.push(...MenuDataTemplate.openContainer());
+          }
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.correction());
           menuData.list.push(...MenuDataTemplate.replacement());
@@ -303,6 +308,13 @@ export class ScheduleContextMenuService {
       return `${parts[0]}:${parts[1]}`;
     }
     return time;
+  }
+
+  private isContainerWork(shiftId: string): boolean {
+    const shift = this.dataManagement.shiftSchedules.find(
+      (s) => s.shiftId === shiftId,
+    );
+    return shift?.shiftType === ShiftType.IsContainer;
   }
 
   private hasWorkChanges(

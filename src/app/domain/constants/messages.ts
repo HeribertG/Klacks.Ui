@@ -118,6 +118,7 @@ export class DomainMessages {
   public static CORRECTION = 'contextMenu.correction';
   public static REPLACEMENT = 'contextMenu.replacement';
   public static EDIT_WORK = 'contextMenu.editWork';
+  public static OPEN_CONTAINER = 'contextMenu.openContainer';
   public static EXPENSES = 'contextMenu.expenses';
   public static CONFIRM = 'contextMenu.confirm';
   public static UNCONFIRM = 'contextMenu.unconfirm';

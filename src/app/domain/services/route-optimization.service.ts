@@ -64,7 +64,6 @@ export interface IAutofillResult extends IRouteOptimizationResult {
 
 export interface ITimeBlock {
   id: string;
-  name: string;
   fixedStartTime?: string;
   fixedEndTime?: string;
   durationMinutes: number;
@@ -73,7 +72,6 @@ export interface ITimeBlock {
 
 export interface ITimeBlockResult {
   id: string;
-  name: string;
   startTime: string;
   endTime: string;
   insertionPosition: number;

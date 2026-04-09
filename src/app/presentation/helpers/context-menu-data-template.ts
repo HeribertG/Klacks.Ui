@@ -178,6 +178,23 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static openContainer(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'openContainer',
+          DomainMessages.OPEN_CONTAINER,
+          false,
+          '',
+          'fa-solid fa-folder-open'
+        ),
+      ]
+    );
+
+    return value;
+  }
+
   public static editWork(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(

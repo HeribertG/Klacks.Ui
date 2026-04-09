@@ -33,7 +33,6 @@ function convertAbsencesToTimeBlocks(
 
       return {
         id: item.absenceId!,
-        name: item.absence?.name || 'Block',
         fixedStartTime: hasFixedTime ? item.startItem : undefined,
         fixedEndTime: hasFixedTime ? item.endItem : undefined,
         durationMinutes: Math.max(durationMinutes, 1),
@@ -227,7 +226,6 @@ describe('applyPlacedTimeBlocks', () => {
     const absences = [createAbsenceItem({ absenceId: 'a1' })];
     const placed: ITimeBlockResult[] = [{
       id: 'a1',
-      name: 'Lunch',
       startTime: '12:00:00',
       endTime: '13:00:00',
       insertionPosition: 1,
@@ -250,7 +248,6 @@ describe('applyPlacedTimeBlocks', () => {
     const absences = [createAbsenceItem({ absenceId: 'a1' })];
     const placed: ITimeBlockResult[] = [{
       id: 'a1',
-      name: 'Night Break',
       startTime: '23:30:00',
       endTime: '00:30:00',
       insertionPosition: 0,
@@ -272,7 +269,6 @@ describe('applyPlacedTimeBlocks', () => {
     const absences = [createAbsenceItem({ absenceId: 'a1' })];
     const placed: ITimeBlockResult[] = [{
       id: 'a1',
-      name: 'Break',
       startTime: '12:00:00',
       endTime: '13:00:00',
       insertionPosition: 99,
@@ -292,8 +288,8 @@ describe('applyPlacedTimeBlocks', () => {
       createAbsenceItem({ absenceId: 'a2' }),
     ];
     const placed: ITimeBlockResult[] = [
-      { id: 'a1', name: 'Break 1', startTime: '10:00:00', endTime: '10:30:00', insertionPosition: 1, isMovable: false },
-      { id: 'a2', name: 'Break 2', startTime: '14:00:00', endTime: '14:30:00', insertionPosition: 3, isMovable: false },
+      { id: 'a1', startTime: '10:00:00', endTime: '10:30:00', insertionPosition: 1, isMovable: false },
+      { id: 'a2', startTime: '14:00:00', endTime: '14:30:00', insertionPosition: 3, isMovable: false },
     ];
 
     const result = applyPlacedTimeBlocks(placed, absences, shifts);

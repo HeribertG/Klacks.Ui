@@ -347,8 +347,13 @@ export class ContainerTemplateRouteService {
         },
         error: (error) => {
           this.isOptimizing = false;
+          const serverMessage =
+            (typeof error?.error === 'string' ? error.error : error?.error?.message) ||
+            error.message ||
+            error.statusText ||
+            'Unknown error';
           this.toastService.showError(
-            error.message || error.statusText || 'Unknown error',
+            serverMessage,
             'route-optimization-error',
           );
           onStateChanged?.();
@@ -537,7 +542,6 @@ export class ContainerTemplateRouteService {
 
         return {
           id: item.absenceId!,
-          name: item.absence?.name || 'Block',
           fixedStartTime: hasFixedTime ? item.startItem : undefined,
           fixedEndTime: hasFixedTime ? item.endItem : undefined,
           durationMinutes: Math.max(durationMinutes, 1),
