@@ -396,7 +396,7 @@ export class ContainerWorkModalLifecycleService {
         subBreaks.push({
           id: item.id || crypto.randomUUID(),
           absenceId: item.absenceId,
-          clientId: '',
+          clientId: EMPTY_GUID,
           currentDate: this.currentDate ? formatDateOnly(this.currentDate) : '',
           startTime: item.startItem || '',
           endTime: item.endItem || '',
