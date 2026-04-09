@@ -67,6 +67,7 @@ export interface SubBreakResource {
     color: string;
     description: Record<string, string>;
     appliesToContainer: boolean;
+    isUnpaid: boolean;
   };
 }
 
@@ -90,6 +91,7 @@ export interface ContainerWorkChildren {
   parentStartBase?: string | null;
   parentEndBase?: string | null;
   parentTransportMode?: number | null;
+  parentWorkTime?: number;
 }
 
 @Injectable({
