@@ -1,4 +1,5 @@
 {
+  "messaging.sendTelegramInvitation": "Send Telegram invitation",
   "accessibility.skip-to-main": "Skip to main content",
   "accessibility.close": "Close",
   "accessibility.loading": "Loading...",

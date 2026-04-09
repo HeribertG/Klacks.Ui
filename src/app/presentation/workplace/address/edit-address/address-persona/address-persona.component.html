@@ -208,6 +208,17 @@
       </button>
       }
 
+      @if (canSendTelegramInvitation()) {
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="sendTelegramInvitation()"
+        ngbTooltip="{{ 'messaging.sendTelegramInvitation' | translate }}"
+      >
+        {{ 'messaging.sendTelegramInvitation' | translate }}
+      </button>
+      }
+
       @if (!isDisabled()) {
 
       <app-button-new

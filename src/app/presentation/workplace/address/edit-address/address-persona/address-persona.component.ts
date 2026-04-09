@@ -55,6 +55,8 @@ import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
+import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
@@ -85,7 +87,9 @@ export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   public dataManagementClientService = inject(DataManagementClientService);
+  public featurePluginState = inject(FeaturePluginStateService);
   private authorizationService = inject(AuthorizationService);
+  private messagingInvitationService = inject(DataMessagingInvitationService);
   private ngbModal = inject(NgbModal);
   private locale = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
@@ -237,6 +241,29 @@ export class AddressPersonaComponent
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
+  }
+
+  canSendTelegramInvitation(): boolean {
+    const client = this.dataManagementClientService.editClient();
+    return (
+      !!client
+      && !!client.id
+      && client.type === EntityTypeEnum.employee
+      && this.featurePluginState.isPluginEnabled('messaging')
+    );
+  }
+
+  sendTelegramInvitation(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client?.id) return;
+    this.messagingInvitationService.sendTelegramInvitation(client.id).subscribe({
+      next: (resp) => {
+        console.info('Telegram invitation result:', resp.result);
+      },
+      error: (err) => {
+        console.error('Telegram invitation failed', err);
+      },
+    });
   }
 
   isCustomerWithCoordinates(): boolean {
