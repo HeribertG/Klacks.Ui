@@ -18,8 +18,8 @@ export { ContainerWorkChildren, SubWorkResource, SubBreakResource, WorkChangeRes
 export class ContainerWorkChildrenService {
   private api = inject(DataContainerWorkChildrenService);
 
-  loadChildren(workId: string): Observable<ContainerWorkChildren> {
-    return this.api.loadChildren(workId);
+  loadChildren(workId: string, isHoliday = false): Observable<ContainerWorkChildren> {
+    return this.api.loadChildren(workId, isHoliday);
   }
 
   saveChildren(workId: string, children: ContainerWorkChildren): Observable<ContainerWorkChildren> {

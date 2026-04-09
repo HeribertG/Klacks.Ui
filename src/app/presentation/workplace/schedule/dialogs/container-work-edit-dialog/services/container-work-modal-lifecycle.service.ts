@@ -109,6 +109,7 @@ export class ContainerWorkModalLifecycleService {
     if (containerStart === 0) return false;
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
     return items.some(item => {
+      if (item.shift?.isTimeRange) return false;
       const start = item.startItem ? this.parseTimeToMinutes(item.startItem) : -1;
       return start >= 0 && start < containerStart;
     });
@@ -147,13 +148,14 @@ export class ContainerWorkModalLifecycleService {
     );
   }
 
-  initialize(workId: string, containerShiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string): void {
+  initialize(workId: string, containerShiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string, isHoliday = false): void {
     this.containerStartTime = containerStartTime ?? null;
     this.containerEndTime = containerEndTime ?? null;
     this.workId = workId;
     this.containerShiftId = containerShiftId;
     this.currentDate = currentDate;
     this.weekday = WEEKDAY_NAMES[currentDate.getDay()];
+    this.isHoliday = isHoliday;
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isAvailableShiftsLoading.set(true);
@@ -165,7 +167,7 @@ export class ContainerWorkModalLifecycleService {
 
     this.availableShiftsAsIShift = availableShifts.map(s => this.convertAvailableShiftToIShift(s));
 
-    this.childrenService.loadChildren(workId)
+    this.childrenService.loadChildren(workId, this.isHoliday)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: children => {

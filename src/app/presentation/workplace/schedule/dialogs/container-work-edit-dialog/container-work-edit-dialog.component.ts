@@ -277,6 +277,7 @@ export class ContainerWorkEditDialogComponent {
     availableShifts: AvailableShift[],
     containerStartTime?: string,
     containerEndTime?: string,
+    isHoliday = false,
   ): void {
     this.lockService
       .acquire(ContainerLockResourceType.containerWork, workId)
@@ -290,6 +291,7 @@ export class ContainerWorkEditDialogComponent {
             availableShifts,
             containerStartTime,
             containerEndTime,
+            isHoliday,
           );
           if (!lock.acquired) {
             const key = lock.isSelfConflict
@@ -312,6 +314,7 @@ export class ContainerWorkEditDialogComponent {
             availableShifts,
             containerStartTime,
             containerEndTime,
+            isHoliday,
           );
         },
       });
@@ -324,6 +327,7 @@ export class ContainerWorkEditDialogComponent {
     availableShifts: AvailableShift[],
     containerStartTime?: string,
     containerEndTime?: string,
+    isHoliday = false,
   ): void {
     this.lifecycleService.initialize(
       workId,
@@ -332,6 +336,7 @@ export class ContainerWorkEditDialogComponent {
       availableShifts,
       containerStartTime,
       containerEndTime,
+      isHoliday,
     );
 
     this.timeFrom = this.lifecycleService.getTimeFrom();
