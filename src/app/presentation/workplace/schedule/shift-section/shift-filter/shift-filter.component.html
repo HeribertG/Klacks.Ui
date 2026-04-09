@@ -4,7 +4,7 @@
     placeholderKey="schedule.shift-filter.search-placeholder"
     [value]="dataManagement.shiftScheduleFilter.searchString || ''"
     (valueChange)="onShiftSearchValueChange($event)"
-    (search)="onShiftFilterChange()"
+    (searchSubmit)="onShiftFilterChange()"
   ></app-search-input>
 
   <label class="checkbox-label">

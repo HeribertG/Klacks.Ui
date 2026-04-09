@@ -70,7 +70,7 @@ import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.compo
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
@@ -107,6 +107,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
     TranslateModule,
     DragDropModule,
     NgbTooltipModule,
+    NgbDropdownModule,
     TimeInputComponent,
     TimeRulerComponent,
     IconShiftSegmentComponent,
@@ -745,12 +746,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     event.preventDefault();
   }
 
-  compactSelectedShifts(): void {
+  compactSelectedShifts(keepTravelAndBriefing: boolean = false): void {
     this.shiftOpsService.compactSelectedShifts(
       this.timeFrom,
       this.timeTo,
       this.selectedWeekday,
       this.isHoliday,
+      keepTravelAndBriefing,
     );
     this.cdr.markForCheck();
   }

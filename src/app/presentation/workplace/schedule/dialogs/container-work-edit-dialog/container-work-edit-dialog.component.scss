@@ -275,9 +275,7 @@
 
             &:hover {
               .action-column {
-                background-color: var(
-                  --gridBackgroundColorRowHover
-                ) !important;
+                background-color: var(--gridBackgroundColorRowHover) !important;
               }
             }
 
@@ -285,7 +283,8 @@
               background-color: var(
                 --backgroundColoPaginationSelected
               ) !important;
-              border-inline-start: 3px solid var(--paginationBorderColorSelected);
+              border-inline-start: 3px solid
+                var(--paginationBorderColorSelected);
 
               .action-column {
                 background-color: var(
@@ -473,7 +472,8 @@
               background-color: var(
                 --backgroundColoPaginationSelected
               ) !important;
-              border-inline-start: 3px solid var(--paginationBorderColorSelected);
+              border-inline-start: 3px solid
+                var(--paginationBorderColorSelected);
 
               &:hover {
                 background-color: var(
@@ -851,4 +851,8 @@ tr.timerange-violation {
       font-style: italic;
     }
   }
+}
+
+.d-inline-block {
+  margin-top: 13px;
 }

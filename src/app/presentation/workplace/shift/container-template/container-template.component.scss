@@ -387,7 +387,8 @@
                 background-color: var(
                   --backgroundColoPaginationSelected
                 ) !important;
-                border-inline-start: 3px solid var(--paginationBorderColorSelected);
+                border-inline-start: 3px solid
+                  var(--paginationBorderColorSelected);
 
                 .action-column {
                   background-color: var(
@@ -613,7 +614,8 @@
                 background-color: var(
                   --backgroundColoPaginationSelected
                 ) !important;
-                border-inline-start: 3px solid var(--paginationBorderColorSelected);
+                border-inline-start: 3px solid
+                  var(--paginationBorderColorSelected);
 
                 &:hover {
                   background-color: var(
@@ -927,4 +929,8 @@ tr.timerange-violation {
       }
     }
   }
+}
+
+.d-inline-block {
+  margin-top: 13px;
 }

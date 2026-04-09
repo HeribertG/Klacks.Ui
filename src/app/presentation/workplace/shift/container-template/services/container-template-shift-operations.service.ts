@@ -315,16 +315,20 @@ export class ContainerTemplateShiftOperationsService {
     timeTo: OwnTime,
     selectedWeekday: string | null,
     isHoliday: boolean,
+    keepTravelAndBriefing: boolean = false,
   ): void {
     const currentItems =
       this.shiftService.selectedContainerTemplateItemsSignal();
-    const itemsWithResetTravelTimes = currentItems.map((item) => ({
-      ...item,
-      travelTimeBefore: '00:00',
-      travelTimeAfter: '00:00',
-    }));
+    const preparedItems = keepTravelAndBriefing
+      ? currentItems.map((item) => ({ ...item }))
+      : currentItems.map((item) => ({
+          ...item,
+          travelTimeBefore: '00:00',
+          travelTimeAfter: '00:00',
+          briefingTime: '00:00',
+        }));
     this.compactAndSetItems(
-      itemsWithResetTravelTimes,
+      preparedItems,
       timeFrom,
       timeTo,
       selectedWeekday,

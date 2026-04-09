@@ -4,7 +4,7 @@
     inputId="search"
     [(value)]="searchString"
     (valueChange)="onSearchValueChange($event)"
-    (search)="onClickSearch()"
+    (searchSubmit)="onClickSearch()"
   ></app-search-input>
 
   @if (searchService.showIncludeAddress()) {

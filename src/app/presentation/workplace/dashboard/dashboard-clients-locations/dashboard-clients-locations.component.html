@@ -27,7 +27,7 @@
       placeholderKey="dashboard.locations.searchPlaceholder"
       [value]="searchQuery()"
       (valueChange)="onSearchQueryChange($event)"
-      (search)="onSearchAddress()"
+      (searchSubmit)="onSearchAddress()"
     ></app-search-input>
     <div
       #mapContainer

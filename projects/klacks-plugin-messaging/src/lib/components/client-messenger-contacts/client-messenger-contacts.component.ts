@@ -25,10 +25,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { PLUGIN_TOAST_SERVICE } from 'klacks-plugin-contracts';
 import { DataMessengerContactService } from '../../services/data-messenger-contact.service';
-import {
-  MessengerContact,
-  CreateMessengerContact,
-} from '../../models/messenger-contact.model';
+import { CreateMessengerContact } from '../../models/messenger-contact.model';
 import {
   MessengerType,
   MESSENGER_TYPE_LABELS,

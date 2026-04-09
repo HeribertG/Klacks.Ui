@@ -41,17 +41,17 @@ const DEFAULT_PLACEHOLDER_KEY = 'placeholder.search';
 export class SearchInputComponent implements OnDestroy {
   private translateService = inject(TranslateService);
 
-  @Input() placeholderKey: string = DEFAULT_PLACEHOLDER_KEY;
-  @Input() value: string = '';
-  @Input() showButton: boolean = true;
-  @Input() disabled: boolean = false;
-  @Input() buttonDisabled: boolean = false;
-  @Input() isLoading: boolean = false;
-  @Input() debounceMs: number = 0;
-  @Input() inputId: string = '';
+  @Input() placeholderKey = DEFAULT_PLACEHOLDER_KEY;
+  @Input() value = '';
+  @Input() showButton = true;
+  @Input() disabled = false;
+  @Input() buttonDisabled = false;
+  @Input() isLoading = false;
+  @Input() debounceMs = 0;
+  @Input() inputId = '';
 
   @Output() valueChange = new EventEmitter<string>();
-  @Output() search = new EventEmitter<string>();
+  @Output() searchSubmit = new EventEmitter<string>();
 
   faSearch = faSearch;
 
@@ -82,7 +82,7 @@ export class SearchInputComponent implements OnDestroy {
 
   onSubmit(): void {
     if (this.disabled || this.buttonDisabled || this.isLoading) return;
-    this.search.emit(this.value);
+    this.searchSubmit.emit(this.value);
   }
 
   private scheduleDebounced(next: string): void {

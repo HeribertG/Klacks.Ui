@@ -59,6 +59,7 @@ import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.com
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import {
+  NgbDropdownModule,
   NgbModal,
   NgbModalRef,
   NgbTooltipModule,
@@ -103,6 +104,7 @@ const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
     TranslateModule,
     DragDropModule,
     NgbTooltipModule,
+    NgbDropdownModule,
     TimeInputComponent,
     TimeRulerComponent,
     IconShiftSegmentComponent,
@@ -257,6 +259,7 @@ export class ContainerWorkEditDialogComponent {
           this.lifecycleService.isReadOnly();
           this.lifecycleService.readOnlyReason();
           this.shiftService.selectedContainerTemplateItemsSignal();
+          this.calculateDuration();
           this.cdr.markForCheck();
         },
         { injector: this.injector },
@@ -384,10 +387,44 @@ export class ContainerWorkEditDialogComponent {
   }
 
   private calculateDuration(): void {
-    this.duration = this.shiftOpsService.calculateDuration(
+    const envelope = this.shiftOpsService.calculateDuration(
       this.timeFrom,
       this.timeTo,
     );
+    this.duration = this.subtractUnpaidBreaks(envelope);
+  }
+
+  private subtractUnpaidBreaks(envelope: OwnTime): OwnTime {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+    let totalMinutes = envelope.toMinutes();
+    for (const item of items) {
+      if (!item.absence?.isUnpaid || !item.startItem || !item.endItem) {
+        continue;
+      }
+      totalMinutes -= this.breakDurationMinutes(item.startItem, item.endItem);
+    }
+    if (totalMinutes < 0) {
+      totalMinutes = 0;
+    }
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return OwnTime.forDuration(
+      hours.toString().padStart(2, '0'),
+      minutes.toString().padStart(2, '0'),
+    );
+  }
+
+  private breakDurationMinutes(start: string, end: string): number {
+    const toMinutes = (hm: string): number => {
+      const parts = hm.split(':');
+      return (parseInt(parts[0] || '0', 10) * 60) + parseInt(parts[1] || '0', 10);
+    };
+    const s = toMinutes(start);
+    const e = toMinutes(end);
+    if (s === e) {
+      return 0;
+    }
+    return e > s ? e - s : (1440 - s) + e;
   }
 
   getConnectedDropLists(): string[] {
@@ -554,12 +591,13 @@ export class ContainerWorkEditDialogComponent {
     event.preventDefault();
   }
 
-  compactSelectedShifts(): void {
+  compactSelectedShifts(keepTravelAndBriefing: boolean = false): void {
     this.shiftOpsService.compactSelectedShifts(
       this.timeFrom,
       this.timeTo,
       this.lifecycleService.weekday,
       this.lifecycleService.isHoliday,
+      keepTravelAndBriefing,
     );
     this.lifecycleService.markDirty();
     this.cdr.markForCheck();

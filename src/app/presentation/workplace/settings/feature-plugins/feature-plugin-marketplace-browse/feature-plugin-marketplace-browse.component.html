@@ -3,7 +3,7 @@
     placeholderKey="settings.feature-plugins.marketplace.search-placeholder"
     [(value)]="searchTerm"
     [isLoading]="isLoading"
-    (search)="search()"
+    (searchSubmit)="search()"
   ></app-search-input>
 
   @if (isLoading) {

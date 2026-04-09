@@ -286,14 +286,42 @@
                         | translate
                     "
                   ></app-icon-pdf-icon>
-                  <app-icon-compact
-                    class="icon-table"
-                    (click)="compactSelectedShifts()"
-                    [ngbTooltip]="
-                      'shift.container-template.tooltip.compact-shifts'
-                        | translate
-                    "
-                  ></app-icon-compact>
+                  <div ngbDropdown class="d-inline-block">
+                    <app-icon-compact
+                      class="icon-table"
+                      ngbDropdownToggle
+                      id="compactShiftsDropdownDialog"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.compact-menu'
+                          | translate
+                      "
+                    ></app-icon-compact>
+                    <div
+                      ngbDropdownMenu
+                      aria-labelledby="compactShiftsDropdownDialog"
+                    >
+                      <button
+                        type="button"
+                        ngbDropdownItem
+                        (click)="compactSelectedShifts()"
+                      >
+                        {{
+                          'shift.container-template.compact.without-travel'
+                            | translate
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        ngbDropdownItem
+                        (click)="compactSelectedShifts(true)"
+                      >
+                        {{
+                          'shift.container-template.compact.with-travel'
+                            | translate
+                        }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 @if (
                   routeService.isAutofillRunning || routeService.isOptimizing
