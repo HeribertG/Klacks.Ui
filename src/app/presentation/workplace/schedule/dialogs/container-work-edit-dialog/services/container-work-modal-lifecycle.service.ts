@@ -256,10 +256,7 @@ export class ContainerWorkModalLifecycleService {
     );
   }
 
-  private handleSaveResponse(response: ContainerWorkChildren): void {
-    if (typeof response.parentWorkTime !== 'number') {
-      return;
-    }
+  private handleSaveResponse(_response: ContainerWorkChildren): void {
     this.workScheduleLoader.refreshAllLoadedPeriodHours();
   }
 
