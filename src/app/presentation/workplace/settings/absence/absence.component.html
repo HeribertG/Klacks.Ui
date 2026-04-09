@@ -192,6 +192,18 @@
           {{ "setting.absence.modal.internal" | translate }}
         </label>
       </div>
+      @if (absenceForm.hideInGantt().value() && absenceForm.appliesToContainer().value()) {
+        <div id="absence-modal-is-unpaid-row" class="row-line">
+          <label class="checkbox-label">
+            <input
+              id="absence-modal-is-unpaid"
+              type="checkbox"
+              [formField]="absenceForm.isUnpaid"
+            />
+            {{ "setting.absence.modal.is-unpaid" | translate }}
+          </label>
+        </div>
+      }
     </div>
   </form>
 

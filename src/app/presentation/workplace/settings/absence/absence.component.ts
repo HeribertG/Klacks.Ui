@@ -55,6 +55,7 @@ interface AbsenceFormModel {
   color: string;
   hideInGantt: boolean;
   macroId: string;
+  isUnpaid: boolean;
 }
 
 @Component({
@@ -118,6 +119,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     color: '#000000',
     hideInGantt: false,
     macroId: '',
+    isUnpaid: false,
   });
 
   absenceForm = form(this.formModel, f => {
@@ -131,6 +133,14 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     const current = this.formModel();
     if (current.abbreviation && current.abbreviation.length > 4) {
       this.formModel.set({ ...current, abbreviation: current.abbreviation.substring(0, 4) });
+    }
+  });
+
+  private isUnpaidGateEffect = effect(() => {
+    const current = this.formModel();
+    const gateOpen = current.hideInGantt && current.appliesToContainer;
+    if (!gateOpen && current.isUnpaid) {
+      this.formModel.set({ ...current, isUnpaid: false });
     }
   });
 
@@ -343,6 +353,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       color: absence.color || '#000000',
       hideInGantt: absence.hideInGantt || false,
       macroId: absence.macroId || '',
+      isUnpaid: absence.isUnpaid || false,
     });
   }
 
@@ -373,6 +384,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentAbsence.appliesToContainer = formData.appliesToContainer;
     this.currentAbsence.color = formData.color;
     this.currentAbsence.hideInGantt = formData.hideInGantt;
+    this.currentAbsence.isUnpaid = formData.isUnpaid;
     this.currentAbsence.macroId = formData.macroId || undefined;
   }
 

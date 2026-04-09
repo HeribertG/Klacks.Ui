@@ -775,6 +775,7 @@
   "setting.absence.modal.description": "Descrizione",
   "setting.absence.modal.edit": "Modifica assenza",
   "setting.absence.modal.internal": "Solo per uso interno",
+  "setting.absence.modal.is-unpaid": "Non pagato",
   "setting.absence.modal.name": "Nome",
   "setting.absence.modal.abbreviation": "Abbreviazione",
   "setting.absence.modal.sum-day": "Numero di giorni predefinito",

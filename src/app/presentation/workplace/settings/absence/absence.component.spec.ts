@@ -285,6 +285,7 @@ describe('AbsenceComponent', () => {
         withHoliday: false,
         color: '#00FF00',
         hideInGantt: false,
+        isUnpaid: false,
       });
 
       // Act
@@ -309,6 +310,7 @@ describe('AbsenceComponent', () => {
         withHoliday: false,
         color: '#0000FF',
         hideInGantt: true,
+        isUnpaid: false,
       });
 
       // Act
@@ -335,6 +337,7 @@ describe('AbsenceComponent', () => {
         withHoliday: true,
         color: '#ABCDEF',
         hideInGantt: true,
+        isUnpaid: false,
       });
 
       // Act
