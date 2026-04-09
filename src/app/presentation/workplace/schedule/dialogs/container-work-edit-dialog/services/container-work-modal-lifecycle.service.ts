@@ -9,7 +9,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, of, tap } from 'rxjs';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IAbsence } from 'src/app/domain/models/absence/absence-class';
@@ -23,6 +23,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.se
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
+import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 
 const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const DEFAULT_TIME_FROM_HOURS = '06';
@@ -48,6 +49,7 @@ export class ContainerWorkModalLifecycleService {
   private dataShiftService = inject(DataShiftService);
   private dataAbsenceService = inject(DataAbsenceService);
   private destroyRef = inject(DestroyRef);
+  private workScheduleLoader = inject(WorkScheduleLoaderService);
 
   readonly isDirty = signal(false);
   readonly isLoading = signal(false);
@@ -249,7 +251,16 @@ export class ContainerWorkModalLifecycleService {
     const children = this.buildChildrenFromItems(items);
     children.parentStartBase = this.routeService.selectedStartBase || null;
     children.parentEndBase = this.routeService.selectedEndBase || null;
-    return this.childrenService.saveChildren(this.workId, children);
+    return this.childrenService.saveChildren(this.workId, children).pipe(
+      tap(response => this.handleSaveResponse(response)),
+    );
+  }
+
+  private handleSaveResponse(response: ContainerWorkChildren): void {
+    if (typeof response.parentWorkTime !== 'number') {
+      return;
+    }
+    this.workScheduleLoader.refreshAllLoadedPeriodHours();
   }
 
   private applyParentRouteValues(children: ContainerWorkChildren): void {
@@ -336,7 +347,7 @@ export class ContainerWorkModalLifecycleService {
       items.push({
         id: subBreak.id,
         absenceId: subBreak.absenceId,
-        absence: subBreak.absence as any,
+        absence: subBreak.absence as IAbsence | undefined,
         shiftId: undefined,
         startItem: subBreak.startTime,
         endItem: subBreak.endTime,

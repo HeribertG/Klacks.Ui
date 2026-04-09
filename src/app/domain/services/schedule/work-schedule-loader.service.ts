@@ -163,7 +163,7 @@ export class WorkScheduleLoaderService {
       });
   }
 
-  private refreshAllLoadedPeriodHours(): void {
+  refreshAllLoadedPeriodHours(): void {
     if (this.clients.length === 0 || !this._currentFilter) return;
 
     const clientIds = this.clients.map((c) => c.id);
