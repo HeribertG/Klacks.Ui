@@ -16,6 +16,7 @@ import { TimeRulerDragDropService, DragUpdateResult } from './time-ruler-drag-dr
 import { TimeRulerRenderService } from './time-ruler-render.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { IShiftContextMenuEvent } from '../time-ruler.component';
+import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
 interface CanvasLogicalCoordinates {
   x: number;
@@ -51,7 +52,9 @@ export class TimeRulerInteractionService {
   handleCanvasClick(
     event: MouseEvent,
     canvas: HTMLCanvasElement,
-    shiftRectangles: Map<IContainerTemplateItem, Rectangle>
+    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
+    blockSelectionService: TimeRulerBlockSelectionService,
+    allShifts: IContainerTemplateItem[]
   ): void {
     if (this.dragDropService.dragState.isDragging) {
       return;
@@ -61,12 +64,12 @@ export class TimeRulerInteractionService {
 
     for (const [item, shiftRect] of shiftRectangles) {
       if (shiftRect.pointInRect(x, y)) {
-        this.shiftService.setSelectedShift(item);
+        blockSelectionService.toggleItem(item, event.ctrlKey, event.shiftKey, allShifts);
         return;
       }
     }
 
-    this.shiftService.setSelectedShift(null);
+    blockSelectionService.clearSelection();
   }
 
   handleContextMenu(
@@ -94,16 +97,29 @@ export class TimeRulerInteractionService {
     event: MouseEvent,
     canvas: HTMLCanvasElement,
     shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
-    allShifts: IContainerTemplateItem[]
+    allShifts: IContainerTemplateItem[],
+    blockSelectionService: TimeRulerBlockSelectionService
   ): void {
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
       if (shiftRect.pointInRect(x, y) && (item.shift?.isTimeRange || !!item.absenceId)) {
-        const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
-        if (dragStarted) {
-          event.preventDefault();
-          event.stopPropagation();
+        const isBlockMember = blockSelectionService.isSelected(item);
+
+        if (isBlockMember && blockSelectionService.isDraggable()) {
+          const dragStarted = this.dragDropService.startBlockDrag(
+            y, item, shiftRect, allShifts, blockSelectionService
+          );
+          if (dragStarted) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        } else {
+          const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
+          if (dragStarted) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
         }
         return;
       }
