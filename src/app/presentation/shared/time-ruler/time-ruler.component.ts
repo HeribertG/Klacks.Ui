@@ -32,6 +32,7 @@ import { TimeRangeService } from './services/time-range.service';
 import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
 import { TimeRulerRenderService } from './services/time-ruler-render.service';
 import { TimeRulerInteractionService } from './services/time-ruler-interaction.service';
+import { TimeRulerBlockSelectionService } from './services/time-ruler-block-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 
@@ -45,7 +46,7 @@ export interface IShiftContextMenuEvent {
   imports: [],
   templateUrl: './time-ruler.component.html',
   styleUrl: './time-ruler.component.scss',
-  providers: [TimeRulerDragDropService, TimeRulerInteractionService],
+  providers: [TimeRulerDragDropService, TimeRulerInteractionService, TimeRulerBlockSelectionService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
@@ -55,7 +56,6 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Output() itemsDisplaced = new EventEmitter<void>();
 
   private shifts: IContainerTemplateItem[] = [];
-  private selectedShift: IContainerTemplateItem | null = null;
   private shiftRectangles = new Map<IContainerTemplateItem, Rectangle>();
 
   private _lastFromTimeString = '';
@@ -72,6 +72,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private shiftService = inject(ContainerTemplateShiftService);
   private renderService = inject(TimeRulerRenderService);
   private interactionService = inject(TimeRulerInteractionService);
+  private blockSelectionService = inject(TimeRulerBlockSelectionService);
   private injector = inject(Injector);
   private resizeObserver?: ResizeObserver;
 
@@ -94,11 +95,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     effect(
       () => {
-        const newSelectedShift = this.shiftService.selectedShiftSignal();
-        const selectionChanged = this.selectedShift !== newSelectedShift;
-        this.selectedShift = newSelectedShift;
+        const selectedItems = this.blockSelectionService.selectedItems();
+        void selectedItems.size;
 
-        if (this.inboxCanvasRef && selectionChanged) {
+        if (this.inboxCanvasRef) {
           this.redrawWithSelection();
         }
       },
@@ -109,6 +109,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngAfterViewInit(): void {
     this.setupCanvas();
     this.setupResizeObserver();
+    document.addEventListener('keydown', this.onKeyDown);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -129,6 +130,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    document.removeEventListener('keydown', this.onKeyDown);
   }
 
   private setupCanvas(): void {
@@ -203,7 +205,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
     this.renderService.drawFromCache(inboxCtx, this.renderCanvas, inboxCanvas);
 
-    if (this.selectedShift) {
+    if (this.blockSelectionService.hasBlock()) {
       const {
         range: shiftRange,
         boxWidth,
@@ -214,22 +216,30 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
       inboxCtx.save();
       inboxCtx.translate(contentOffsetX, 0);
-      const selectedRect = this.renderService.drawSingleShiftBox(
-        inboxCtx,
-        this.selectedShift,
-        shiftRange,
-        boxWidth,
-        marginLeftRight,
-        height,
-        true,
-        this.shifts,
-        this.shiftRectangles
-      );
-      inboxCtx.restore();
 
-      if (selectedRect) {
-        this.shiftRectangles.set(this.selectedShift, selectedRect);
+      for (const selectedItem of this.blockSelectionService.selectedItems()) {
+        const selectedRect = this.renderService.drawSingleShiftBox(
+          inboxCtx,
+          selectedItem,
+          shiftRange,
+          boxWidth,
+          marginLeftRight,
+          height,
+          true,
+          this.shifts,
+          this.shiftRectangles
+        );
+        if (selectedRect) {
+          this.shiftRectangles.set(selectedItem, selectedRect);
+        }
       }
+
+      this.renderService.drawBlockSelectionRect(
+        inboxCtx,
+        this.blockSelectionService.calculateBlockBounds(marginLeftRight, boxWidth, shiftRange, height)
+      );
+
+      inboxCtx.restore();
     }
 
     DrawImageHelper.drawCanvasLogical(
@@ -244,14 +254,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private redrawWithSelection(): void {
     if (!this.renderCanvas) return;
+    const selectedItem = this.blockSelectionService.getSelectedSingle();
     this.renderService.redrawWithSelection(
       this.inboxCanvasRef.nativeElement,
       this.renderCanvas,
-      this.selectedShift,
+      selectedItem,
       this.shifts,
       this.shiftRectangles,
       this.fromTime,
-      this.untilTime
+      this.untilTime,
+      this.blockSelectionService
     );
   }
 
@@ -271,7 +283,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.interactionService.handleCanvasClick(
       event,
       this.inboxCanvasRef.nativeElement,
-      this.shiftRectangles
+      this.shiftRectangles,
+      this.blockSelectionService,
+      this.shifts
     );
   }
 
@@ -289,7 +303,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       event,
       this.inboxCanvasRef.nativeElement,
       this.shiftRectangles,
-      this.shifts
+      this.shifts,
+      this.blockSelectionService
     );
   }
 
@@ -302,49 +317,57 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if (!result) return;
 
-    const draggedShift = this.dragDropService.dragState.draggedShift;
-    if (draggedShift) {
-      const formattedStart = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newStartMinutes);
-      const formattedEnd = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newEndMinutes);
+    const dragState = this.dragDropService.dragState;
+    const draggedShift = dragState.draggedShift;
+    if (!draggedShift) return;
 
-      if (draggedShift.absenceId) {
-        draggedShift.startItem = formattedStart;
-        draggedShift.endItem = formattedEnd;
-      } else {
-        draggedShift.timeRangeStartItem = formattedStart;
-        draggedShift.timeRangeEndItem = formattedEnd;
-      }
+    const isBlockDrag = dragState.isBlockDrag;
+    const blockItems = isBlockDrag ? this.blockSelectionService.selectedItems() : new Set([draggedShift]);
 
-      const originalPositions = this.dragDropService.dragState.originalPositions;
-
-      for (const item of this.shifts) {
-        if (item === draggedShift) continue;
-
-        const displaced = result.displacements.get(item);
-        if (displaced) {
-          this.applyPositionToItem(item, displaced.startMinutes, displaced.endMinutes);
+    for (const item of blockItems) {
+      const displaced = result.displacements.get(item);
+      if (displaced) {
+        this.applyPositionToItem(item, displaced.startMinutes, displaced.endMinutes);
+      } else if (item === draggedShift) {
+        const formattedStart = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newStartMinutes);
+        const formattedEnd = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newEndMinutes);
+        if (item.absenceId) {
+          item.startItem = formattedStart;
+          item.endItem = formattedEnd;
         } else {
-          const orig = originalPositions.get(item);
-          if (orig) {
-            this.applyPositionToItem(item, orig.startMinutes, orig.endMinutes);
-          }
+          item.timeRangeStartItem = formattedStart;
+          item.timeRangeEndItem = formattedEnd;
         }
       }
+    }
 
-      this.itemsDisplaced.emit();
+    for (const item of this.shifts) {
+      if (blockItems.has(item)) continue;
 
-      if (this.renderCanvas && this.renderCtx) {
-        this.renderService.redrawCanvas(
-          this.inboxCanvasRef.nativeElement,
-          this.renderCanvas,
-          this.renderCtx,
-          draggedShift,
-          this.shifts,
-          this.shiftRectangles,
-          this.fromTime,
-          this.untilTime
-        );
+      const displaced = result.displacements.get(item);
+      if (displaced) {
+        this.applyPositionToItem(item, displaced.startMinutes, displaced.endMinutes);
+      } else {
+        const orig = dragState.originalPositions.get(item);
+        if (orig) {
+          this.applyPositionToItem(item, orig.startMinutes, orig.endMinutes);
+        }
       }
+    }
+
+    this.itemsDisplaced.emit();
+
+    if (this.renderCanvas && this.renderCtx) {
+      this.renderService.redrawCanvas(
+        this.inboxCanvasRef.nativeElement,
+        this.renderCanvas,
+        this.renderCtx,
+        draggedShift,
+        this.shifts,
+        this.shiftRectangles,
+        this.fromTime,
+        this.untilTime
+      );
     }
   }
 
@@ -364,6 +387,12 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       item.timeRangeEndItem = formattedEnd;
     }
   }
+
+  private onKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      this.blockSelectionService.clearSelection();
+    }
+  };
 
   onMouseUp(event: MouseEvent): void {
     const dragHandled = this.interactionService.handleMouseUp(event, this.shifts);
