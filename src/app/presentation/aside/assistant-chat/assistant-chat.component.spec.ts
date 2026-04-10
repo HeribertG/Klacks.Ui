@@ -14,7 +14,6 @@ import { CommonModule } from '@angular/common';
 import { AssistantChatComponent } from './assistant-chat.component';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
-import { VoiceModeService } from './services/voice-mode.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -40,7 +39,6 @@ describe('AssistantChatComponent', () => {
     let mockLlmService: any;
     let mockLlmProviderService: any;
     let mockSpeechService: any;
-    let mockVoiceModeService: any;
     let mockTranslateService: TranslateService;
     let mockRouter: any;
     let mockFunctionExecutionService: any;
@@ -140,17 +138,6 @@ describe('AssistantChatComponent', () => {
             useWhisperFallback: false,
         });
 
-        const voiceModeServiceSpy = {
-            voiceModeEnabled: false,
-            isListening: false,
-            isTranscribing: false,
-            initialize: vi.fn(),
-            toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
-            disableVoiceMode: vi.fn(),
-            isUsingWhisper: vi.fn().mockReturnValue(false),
-            destroy: vi.fn(),
-        };
-
         const routerSpy = {
             navigate: vi.fn()
         };
@@ -209,7 +196,6 @@ describe('AssistantChatComponent', () => {
                     IconMMLComponent,
                 ],
                 providers: [
-                    { provide: VoiceModeService, useValue: voiceModeServiceSpy },
                     { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
                     {
                         provide: ConversationOrchestratorService,
@@ -232,7 +218,6 @@ describe('AssistantChatComponent', () => {
         mockLlmService = TestBed.inject(DataManagementAssistantService) as any;
         mockLlmProviderService = TestBed.inject(DataManagementAssistantProviderService) as any;
         mockSpeechService = TestBed.inject(SpeechRecognitionService) as any;
-        mockVoiceModeService = voiceModeServiceSpy;
         mockRouter = TestBed.inject(Router) as any;
         mockFunctionExecutionService = TestBed.inject(AssistantFunctionExecutionService) as any;
         mockLanguageMappingService = TestBed.inject(LanguageMappingService) as any;
@@ -389,28 +374,20 @@ describe('AssistantChatComponent', () => {
             mockSpeechService.interimResults = new BehaviorSubject('');
         });
 
-        it('should delegate to voiceModeService when toggling voice mode', async () => {
+        it('should delegate to orchestrator when toggling voice mode via onVoiceButtonClick', () => {
             // Act
-            await component.toggleVoiceMode();
+            component.onVoiceButtonClick();
 
-            // Assert
-            expect(mockVoiceModeService.toggleVoiceMode).toHaveBeenCalled();
+            // Assert - orchestrator.toggleVoiceMode should have been called (state is Idle)
+            expect(component.orchestrator.toggleVoiceMode).toHaveBeenCalled();
         });
 
-        it('should reflect voiceModeService state for voiceModeEnabled', () => {
-            mockVoiceModeService.voiceModeEnabled = false;
+        it('should reflect orchestrator state for voiceModeEnabled', () => {
             expect(component.voiceModeEnabled).toBe(false);
-
-            mockVoiceModeService.voiceModeEnabled = true;
-            expect(component.voiceModeEnabled).toBe(true);
         });
 
-        it('should reflect voiceModeService state for isListening', () => {
-            mockVoiceModeService.isListening = false;
+        it('should reflect orchestrator state for isListening', () => {
             expect(component.isListening).toBe(false);
-
-            mockVoiceModeService.isListening = true;
-            expect(component.isListening).toBe(true);
         });
     });
 

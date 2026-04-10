@@ -48,7 +48,6 @@ import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggest
 import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
-import { VoiceModeService } from './services/voice-mode.service';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
@@ -75,7 +74,6 @@ import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assist
   styleUrls: ['./assistant-chat.component.scss'],
   providers: [
     AssistantFunctionExecutionService,
-    VoiceModeService,
     ChatFunctionExecutionService,
     ConversationOrchestratorService,
     AudioCaptureService,
@@ -90,7 +88,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
-  private voiceModeService = inject(VoiceModeService);
   readonly orchestrator = inject(ConversationOrchestratorService);
   readonly ConversationState = ConversationState;
   private asideService = inject(AsideService);
@@ -141,15 +138,15 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private currentStreamController: AbortController | null = null;
 
   get voiceModeEnabled(): boolean {
-    return this.voiceModeService.voiceModeEnabled;
+    return this.orchestrator.voiceModeEnabled();
   }
 
   get isListening(): boolean {
-    return this.voiceModeService.isListening;
+    return this.orchestrator.state() === ConversationState.Listening;
   }
 
   get isTranscribing(): boolean {
-    return this.voiceModeService.isTranscribing;
+    return this.orchestrator.state() === ConversationState.Enhancing;
   }
 
   availableModels: IAssistantModel[] = [];
@@ -165,17 +162,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   ngOnInit(): void {
     this.conversationId = this.generateConversationId();
-
-    this.voiceModeService.initialize(
-      {
-        getInputText: () => this.inputText,
-        setInputText: (text: string) => { this.inputText = text; },
-        sendMessage: () => this.sendMessage(),
-        getIsProcessing: () => this.isProcessing,
-        detectChanges: () => this.cdr.detectChanges(),
-      },
-      this.destroy$,
-    );
 
     const currentLangForSpeech = this.translateService.currentLang || this.translateService.defaultLang;
     const speechLocale = this.languageMappingService.getSpeechLocale(currentLangForSpeech);
@@ -260,7 +246,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   ngOnDestroy(): void {
     this.currentStreamController?.abort();
-    this.voiceModeService.disableVoiceMode();
     this.ttsService.stop();
     this.destroy$.next();
     this.destroy$.complete();
@@ -373,10 +358,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
       },
     );
-  }
-
-  async toggleVoiceMode(): Promise<void> {
-    await this.voiceModeService.toggleVoiceMode();
   }
 
   onVoiceButtonClick(): void {
@@ -651,6 +632,6 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
   }
 
   isUsingWhisper(): boolean {
-    return this.voiceModeService.isUsingWhisper();
+    return this.speechService.getDiagnostics().useWhisperFallback;
   }
 }

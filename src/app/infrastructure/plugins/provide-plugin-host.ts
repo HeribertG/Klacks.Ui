@@ -29,7 +29,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
-import { VoiceModeService } from 'src/app/presentation/aside/assistant-chat/services/voice-mode.service';
+import { VoiceModeAdapterService } from './voice-mode-adapter.service';
 import { environment } from 'src/environments/environment';
 
 export function providePluginHost(): Provider[] {
@@ -89,7 +89,7 @@ export function provideMessagingVoice(): Provider[] {
   return [
     {
       provide: PLUGIN_VOICE_SERVICE,
-      useClass: VoiceModeService,
+      useClass: VoiceModeAdapterService,
     },
     {
       provide: PLUGIN_SPEECH_SERVICE,

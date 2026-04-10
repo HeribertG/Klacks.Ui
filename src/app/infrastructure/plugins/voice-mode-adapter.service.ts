@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Manages voice mode lifecycle: enabling/disabling, silence detection, and auto-send after silence.
+ * Adapter implementing IPluginVoiceService using SpeechRecognitionService.
+ * Provides voice mode for plugins (e.g. MessagingChat) without coupling to the assistant-chat orchestrator.
  * @param speechService - Underlying speech recognition service for microphone access
  * @param translateService - Used for language detection and error messages
  * @param languageMappingService - Maps app language codes to speech recognition locale codes
@@ -9,20 +10,15 @@
 import { Injectable, inject, NgZone } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { SpeechRecognitionService } from './speech-recognition.service';
+import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
-
-export interface VoiceModeCallbacks {
-  getInputText: () => string;
-  setInputText: (text: string) => void;
-  sendMessage: () => Promise<void>;
-  getIsProcessing: () => boolean;
-  detectChanges: () => void;
-}
+import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
+import { IPluginVoiceService, IPluginVoiceCallbacks } from 'klacks-plugin-contracts';
 
 @Injectable()
-export class VoiceModeService {
+export class VoiceModeAdapterService implements IPluginVoiceService {
   private speechService = inject(SpeechRecognitionService);
+  private transcriptionService = inject(DataTranscriptionService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private ngZone = inject(NgZone);
@@ -33,10 +29,10 @@ export class VoiceModeService {
 
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly SILENCE_AUTO_SEND_DELAY_MS = 3000;
-  private callbacks!: VoiceModeCallbacks;
+  private callbacks!: IPluginVoiceCallbacks;
   private destroy$ = new Subject<void>();
 
-  initialize(callbacks: VoiceModeCallbacks, destroy$: Subject<void>): void {
+  initialize(callbacks: IPluginVoiceCallbacks, destroy$: Subject<void>): void {
     this.callbacks = callbacks;
     this.destroy$ = destroy$;
   }
@@ -90,7 +86,7 @@ export class VoiceModeService {
     }
 
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
-    const speechLang = this.getSpeechLanguageCode(currentLang);
+    const speechLang = this.languageMappingService.getSpeechLocale(currentLang);
 
     this.callbacks.setInputText('');
     this.isListening = true;
@@ -154,18 +150,26 @@ export class VoiceModeService {
     }
 
     this.clearSilenceTimer();
-
-    if (this.isUsingWhisper()) {
-      this.isTranscribing = true;
-    }
-
+    this.isTranscribing = true;
     this.speechService.stopListening();
     this.isListening = false;
+    this.callbacks.detectChanges();
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (this.callbacks.getInputText().trim() && !this.callbacks.getIsProcessing()) {
+    const rawText = this.callbacks.getInputText().trim();
+    if (rawText && !this.callbacks.getIsProcessing()) {
+      const locale = this.languageMappingService.getSpeechLocale(
+        this.translateService.currentLang || this.translateService.defaultLang
+      );
+      const enhancedText = await this.transcriptionService.enhance(rawText, locale);
+      this.callbacks.setInputText(enhancedText);
+      this.isTranscribing = false;
+      this.callbacks.detectChanges();
       await this.callbacks.sendMessage();
+    } else {
+      this.isTranscribing = false;
+      this.callbacks.detectChanges();
     }
 
     if (this.voiceModeEnabled && !this.callbacks.getIsProcessing()) {
@@ -193,9 +197,5 @@ export class VoiceModeService {
       clearTimeout(this.silenceTimer);
       this.silenceTimer = null;
     }
-  }
-
-  private getSpeechLanguageCode(langCode: string): string {
-    return this.languageMappingService.getSpeechLocale(langCode);
   }
 }
