@@ -113,6 +113,26 @@
             </div>
           </div>
 
+          <!-- TTS button for assistant messages -->
+          @if (message.sender === 'assistant' && message.content && !message.isStreaming) {
+          <button
+            type="button"
+            class="tts-button"
+            [class.loading]="ttsService.isLoading() && ttsService.playingMessageId() === message.id"
+            [class.playing]="ttsService.isPlaying() && ttsService.playingMessageId() === message.id"
+            (click)="speakMessage(message)"
+            [attr.aria-label]="'assistant-chat.speak-message' | translate"
+          >
+            @if (ttsService.isLoading() && ttsService.playingMessageId() === message.id) {
+              <span class="tts-spinner"></span>
+            } @else if (ttsService.isPlaying() && ttsService.playingMessageId() === message.id) {
+              <fa-icon [icon]="faStop"></fa-icon>
+            } @else {
+              <fa-icon [icon]="faVolumeHigh"></fa-icon>
+            }
+          </button>
+          }
+
           <!-- Action buttons for assistant messages -->
           @if (message.sender === 'assistant' && message.navigateTo) {
           <button
@@ -187,7 +207,12 @@
     <!-- Voice input indicator - only for Web Speech API, not for Whisper -->
     @if (isListening && !speechService.isWhisperLoading() && !isUsingWhisper()) {
     <div class="voice-indicator">🎤 {{ "assistant-chat.speak-now" | translate }}</div>
-    } @if (speechService.isSupported$() === false) {
+    }
+    <!-- Orchestrator interim transcription feedback -->
+    @if (orchestrator.state() === ConversationState.Listening && orchestrator.interimText()) {
+    <div class="interim-text">{{ orchestrator.interimText() }}</div>
+    }
+    @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">
       ⚠️ {{ "assistant-chat.speech-not-supported" | translate }}
     </div>
@@ -199,30 +224,30 @@
         id="assistant-chat-voice-btn"
         type="button"
         class="btn-voice"
-        [class.voice-enabled]="voiceModeEnabled"
-        [class.listening]="isListening"
-        [class.transcribing]="isTranscribing || speechService.isTranscribing()"
+        [class.voice-enabled]="orchestrator.voiceModeEnabled()"
+        [class.listening]="orchestrator.state() === ConversationState.Listening"
+        [class.transcribing]="orchestrator.state() === ConversationState.Enhancing || speechService.isTranscribing()"
+        [class.processing]="orchestrator.state() === ConversationState.Processing"
+        [class.speaking]="orchestrator.state() === ConversationState.Speaking"
         [class.not-supported]="!speechService.isSupported$()"
-        [disabled]="isProcessing || isTranscribing || speechService.isTranscribing() || isInitializing() || hasNoApiKey()"
-        (click)="toggleVoiceMode()"
+        [disabled]="isProcessing && orchestrator.state() !== ConversationState.Speaking && orchestrator.state() !== ConversationState.Processing"
+        (click)="onVoiceButtonClick()"
         title="{{
           !speechService.isSupported$()
             ? ('assistant-chat.speech-not-available' | translate)
-            : voiceModeEnabled
+            : orchestrator.voiceModeEnabled()
             ? ('assistant-chat.voice-mode-off' | translate)
             : ('assistant-chat.voice-mode-on' | translate)
         }}"
       >
-        @if (isTranscribing || speechService.isTranscribing()) {
+        @if (orchestrator.state() === ConversationState.Enhancing || orchestrator.state() === ConversationState.Processing) {
           <span class="transcribing-waves">
             <span></span>
             <span></span>
             <span></span>
           </span>
         } @else {
-          <fa-icon
-            [icon]="voiceModeEnabled ? faMicrophone : faMicrophoneSlash"
-          ></fa-icon>
+          <fa-icon [icon]="getVoiceButtonIcon()"></fa-icon>
         }
       </button>
 

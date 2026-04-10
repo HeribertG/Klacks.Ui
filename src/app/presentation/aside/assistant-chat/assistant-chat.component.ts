@@ -26,6 +26,10 @@ import {
   faUser,
   faTimes,
   faChevronDown,
+  faVolumeHigh,
+  faStop,
+  faSpinner,
+  type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,6 +49,11 @@ import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/su
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { VoiceModeService } from './services/voice-mode.service';
+import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
+import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
+import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
+import { AudioQueueService } from './services/audio-queue.service';
+import { TextToSpeechService } from './services/text-to-speech.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
@@ -68,6 +77,10 @@ import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assist
     AssistantFunctionExecutionService,
     VoiceModeService,
     ChatFunctionExecutionService,
+    ConversationOrchestratorService,
+    AudioCaptureService,
+    SttStreamService,
+    AudioQueueService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -78,8 +91,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private assistantProviderService = inject(DataManagementAssistantProviderService);
   private chatFunctionExecution = inject(ChatFunctionExecutionService);
   private voiceModeService = inject(VoiceModeService);
+  readonly orchestrator = inject(ConversationOrchestratorService);
+  readonly ConversationState = ConversationState;
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
+  ttsService = inject(TextToSpeechService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private router = inject(Router);
@@ -112,6 +128,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   faUser = faUser;
   faTimes = faTimes;
   faChevronDown = faChevronDown;
+  faVolumeHigh = faVolumeHigh;
+  faStop = faStop;
+  faSpinner = faSpinner;
 
   activeSuggestedReplies = signal<ISuggestedRepliesConfig | null>(null);
 
@@ -156,6 +175,19 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         detectChanges: () => this.cdr.detectChanges(),
       },
       this.destroy$,
+    );
+
+    const currentLangForSpeech = this.translateService.currentLang || this.translateService.defaultLang;
+    const speechLocale = this.languageMappingService.getSpeechLocale(currentLangForSpeech);
+    this.orchestrator.initialize(
+      {
+        getInputText: () => this.inputText,
+        setInputText: (text: string) => { this.inputText = text; },
+        sendMessage: () => this.sendMessage(),
+        getAbortController: () => this.currentStreamController,
+        detectChanges: () => this.cdr.detectChanges(),
+      },
+      speechLocale,
     );
 
     this.translateService.onLangChange
@@ -229,6 +261,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   ngOnDestroy(): void {
     this.currentStreamController?.abort();
     this.voiceModeService.disableVoiceMode();
+    this.ttsService.stop();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -289,6 +322,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             assistantMessage.isStreaming = true;
             this.shouldScrollToBottom = true;
             this.cdr.detectChanges();
+            this.orchestrator.onStreamContent(text);
           });
         },
         onMetadata: (data: StreamMetadata) => {
@@ -321,6 +355,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.isProcessing = false;
             this.currentStreamController = null;
             this.cdr.detectChanges();
+            this.orchestrator.onStreamDone();
           });
         },
         onError: (message: string) => {
@@ -342,6 +377,30 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   async toggleVoiceMode(): Promise<void> {
     await this.voiceModeService.toggleVoiceMode();
+  }
+
+  onVoiceButtonClick(): void {
+    const currentState = this.orchestrator.state();
+    if (currentState === ConversationState.Speaking || currentState === ConversationState.Processing) {
+      this.orchestrator.interrupt();
+    } else {
+      this.orchestrator.toggleVoiceMode();
+    }
+  }
+
+  getVoiceButtonIcon(): IconDefinition {
+    const currentState = this.orchestrator.state();
+    if (currentState === ConversationState.Speaking) return this.faStop;
+    if (currentState === ConversationState.Listening) return this.faMicrophone;
+    if (currentState === ConversationState.Enhancing || currentState === ConversationState.Processing) return this.faSpinner;
+    if (this.orchestrator.voiceModeEnabled()) return this.faMicrophone;
+    return this.faMicrophoneSlash;
+  }
+
+  speakMessage(message: ChatMessage): void {
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    const locale = this.languageMappingService.getSpeechLocale(currentLang);
+    this.ttsService.speak(message.content, message.id, locale);
   }
 
   onSuggestionClick(suggestion: string): void {

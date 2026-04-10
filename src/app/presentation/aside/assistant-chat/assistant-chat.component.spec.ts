@@ -16,6 +16,7 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { VoiceModeService } from './services/voice-mode.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
+import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
@@ -210,6 +211,19 @@ describe('AssistantChatComponent', () => {
                 providers: [
                     { provide: VoiceModeService, useValue: voiceModeServiceSpy },
                     { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
+                    {
+                        provide: ConversationOrchestratorService,
+                        useValue: {
+                            state: signal(ConversationState.Idle),
+                            voiceModeEnabled: signal(false),
+                            interimText: signal(''),
+                            initialize: vi.fn(),
+                            toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
+                            interrupt: vi.fn(),
+                            onStreamContent: vi.fn(),
+                            onStreamDone: vi.fn(),
+                        },
+                    },
                 ],
             },
         })
