@@ -1,0 +1,85 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.speech.headline" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="settings-form">
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sttEngine">{{ "setting.speech.stt-provider" | translate }}</label>
+        <select class="form-select" [(ngModel)]="sttEngine" id="sttEngine" (ngModelChange)="onSettingChanged()">
+          @for (provider of sttProviders; track provider.value) {
+            <option [value]="provider.value">{{ provider.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="ttsProvider">{{ "setting.speech.tts-provider" | translate }}</label>
+        <select class="form-select" [(ngModel)]="ttsProvider" id="ttsProvider" (ngModelChange)="onSettingChanged()">
+          @for (provider of ttsProviders; track provider.value) {
+            <option [value]="provider.value">{{ provider.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (sttEngine !== 'browser') {
+      <div class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sttApiKey">{{ "setting.speech.stt-apikey" | translate }}</label>
+          <div class="input-with-button">
+            <input type="password" class="form-input" [(ngModel)]="sttApiKey" id="sttApiKey" (ngModelChange)="onSettingChanged()" />
+            <button type="button" class="btn-test" (click)="testSttConnection()">{{ "setting.speech.stt-test" | translate }}</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="ttsVoice">{{ "setting.speech.tts-voice" | translate }}</label>
+        <select class="form-select" [(ngModel)]="ttsVoice" id="ttsVoice" (ngModelChange)="onSettingChanged()">
+          @for (voice of ttsVoices; track voice.value) {
+            <option [value]="voice.value">{{ voice.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="transcriptionModel">{{ "setting.speech.transcription-model" | translate }}</label>
+        <select class="form-select" [(ngModel)]="transcriptionModel" id="transcriptionModel" (ngModelChange)="onSettingChanged()">
+          @for (model of transcriptionModels; track model.value) {
+            <option [value]="model.value">{{ model.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="outputMode">{{ "setting.speech.output-mode" | translate }}</label>
+        <select class="form-select" [(ngModel)]="outputMode" id="outputMode" (ngModelChange)="onSettingChanged()">
+          @for (mode of outputModes; track mode.value) {
+            <option [value]="mode.value">{{ mode.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="silenceThreshold">{{ "setting.speech.silence-threshold" | translate }}: {{ silenceThresholdMs }}ms</label>
+        <input type="range" id="silenceThreshold" class="form-range" min="500" max="3000" step="100" [(ngModel)]="silenceThresholdMs" (ngModelChange)="onSettingChanged()" />
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="enhancementEnabled" (ngModelChange)="onSettingChanged()" />
+          {{ "setting.speech.enhancement-enabled" | translate }}
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

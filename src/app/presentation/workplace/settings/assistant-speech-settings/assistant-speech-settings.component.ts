@@ -13,8 +13,9 @@
  */
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({
   selector: 'app-assistant-speech-settings',
@@ -26,6 +27,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
   private appSettingsService = inject(AppSettingsManagementService);
+  private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
 
   private isInitialized = false;
 
@@ -65,14 +68,17 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     { value: 'ms-MY-OsmanNeural', label: 'Melayu - Osman' },
   ];
 
-  readonly sttEngines = [
-    { value: 'browser', labelKey: 'setting.speech.stt-webspeech' },
-    { value: 'whisper', labelKey: 'setting.speech.stt-whisper' },
+  readonly sttProviders = [
+    { value: 'browser', labelKey: 'setting.speech.stt-browser' },
+    { value: 'deepgram', labelKey: 'setting.speech.stt-deepgram' },
+    { value: 'groq-whisper', labelKey: 'setting.speech.stt-groq' },
+    { value: 'assemblyai', labelKey: 'setting.speech.stt-assemblyai' },
   ];
 
   readonly ttsProviders = [
     { value: 'edge', labelKey: 'setting.speech.tts-edge' },
-    { value: 'browser', labelKey: 'setting.speech.tts-browser' },
+    { value: 'openai', labelKey: 'setting.speech.tts-openai' },
+    { value: 'elevenlabs', labelKey: 'setting.speech.tts-elevenlabs' },
   ];
 
   readonly outputModes = [
@@ -117,5 +123,36 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       outputMode: this.outputMode,
       silenceThresholdMs: this.silenceThresholdMs,
     });
+  }
+
+  async testSttConnection(): Promise<void> {
+    try {
+      const token = localStorage.getItem('JWT_TOKEN') ?? '';
+      const response = await fetch('https://localhost:5001/api/backend/assistant/stt/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ providerId: this.sttEngine, apiKey: this.sttApiKey }),
+      });
+
+      if (response.ok) {
+        this.toastShowService.showSuccess(
+          this.translateService.instant('setting.speech.stt-test-success'),
+          this.translateService.instant('setting.speech.stt-test')
+        );
+      } else {
+        this.toastShowService.showError(
+          this.translateService.instant('setting.speech.stt-test-failed'),
+          this.translateService.instant('setting.speech.stt-test')
+        );
+      }
+    } catch {
+      this.toastShowService.showError(
+        this.translateService.instant('setting.speech.stt-test-failed'),
+        this.translateService.instant('setting.speech.stt-test')
+      );
+    }
   }
 }
