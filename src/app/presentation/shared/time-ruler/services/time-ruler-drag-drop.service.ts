@@ -9,6 +9,7 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container/containe
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { formatTimeFromMinutes as formatTimeFromMinutesHelper } from 'src/app/shared/helpers/time-format.helper';
 import { TimeRangeService } from './time-range.service';
+import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
 interface SnapDirection {
   getEffectiveEdge: (startMinutes: number, endMinutes: number, timeRangeService: TimeRangeService, item: IContainerTemplateItem) => number;
@@ -67,6 +68,11 @@ export interface DragState {
   snapToMinutes: number;
   displayFromMinutes: number;
   totalMinutes: number;
+  isBlockDrag: boolean;
+  blockItems: Set<IContainerTemplateItem>;
+  blockOriginalPositions: Map<IContainerTemplateItem, ItemPosition>;
+  blockEffectiveStart: number;
+  blockEffectiveEnd: number;
 }
 
 @Injectable()
@@ -85,6 +91,11 @@ export class TimeRulerDragDropService {
     snapToMinutes: 1,
     displayFromMinutes: 0,
     totalMinutes: 0,
+    isBlockDrag: false,
+    blockItems: new Set(),
+    blockOriginalPositions: new Map(),
+    blockEffectiveStart: 0,
+    blockEffectiveEnd: 0,
   };
 
   private readonly MINUTES_PER_HOUR = 60;
@@ -151,6 +162,34 @@ export class TimeRulerDragDropService {
     return true;
   }
 
+  public startBlockDrag(
+    mouseY: number,
+    anchorItem: IContainerTemplateItem,
+    shiftRect: Rectangle,
+    allShifts: IContainerTemplateItem[],
+    blockSelectionService: TimeRulerBlockSelectionService
+  ): boolean {
+    const started = this.startDrag(mouseY, anchorItem, shiftRect, allShifts);
+    if (!started) return false;
+
+    this._dragState.isBlockDrag = true;
+    this._dragState.blockItems = new Set(blockSelectionService.selectedItems());
+
+    const bounds = blockSelectionService.getBlockEffectiveBounds();
+    if (bounds) {
+      this._dragState.blockEffectiveStart = bounds.effectiveStart;
+      this._dragState.blockEffectiveEnd = bounds.effectiveEnd;
+    }
+
+    for (const item of this._dragState.blockItems) {
+      const start = this.timeRangeService.getShiftStartMinutes(item);
+      const end = this.timeRangeService.getShiftEndMinutes(item);
+      this._dragState.blockOriginalPositions.set(item, { startMinutes: start, endMinutes: end });
+    }
+
+    return true;
+  }
+
   public updateDrag(
     mouseY: number,
     allShifts: IContainerTemplateItem[]
@@ -190,22 +229,48 @@ export class TimeRulerDragDropService {
     );
     newEndMinutes = newStartMinutes + duration;
 
-    const snappedToEdge = this.applySnapToEdge(
-      newStartMinutes,
-      newEndMinutes,
-      allShifts
-    );
+    let displacements: Map<IContainerTemplateItem, ItemPosition>;
 
-    if (snappedToEdge) {
-      newStartMinutes = snappedToEdge.newStartMinutes;
-      newEndMinutes = snappedToEdge.newEndMinutes;
+    if (this._dragState.isBlockDrag) {
+      const anchorOrigStart = this._dragState.originalStartMinutes!;
+      const blockDelta = newStartMinutes - anchorOrigStart;
+
+      displacements = new Map();
+
+      for (const blockItem of this._dragState.blockItems) {
+        if (blockItem === this._dragState.draggedShift) continue;
+        const origPos = this._dragState.blockOriginalPositions.get(blockItem);
+        if (!origPos) continue;
+        const itemDuration = origPos.endMinutes - origPos.startMinutes;
+        const newItemStart = origPos.startMinutes + blockDelta;
+        const newItemEnd = newItemStart + itemDuration;
+        displacements.set(blockItem, { startMinutes: newItemStart, endMinutes: newItemEnd });
+      }
+
+      const blockDisplacements = this.calculateBlockDisplacements(
+        blockDelta, allShifts
+      );
+      for (const [item, pos] of blockDisplacements) {
+        displacements.set(item, pos);
+      }
+    } else {
+      const snappedToEdge = this.applySnapToEdge(
+        newStartMinutes,
+        newEndMinutes,
+        allShifts
+      );
+
+      if (snappedToEdge) {
+        newStartMinutes = snappedToEdge.newStartMinutes;
+        newEndMinutes = snappedToEdge.newEndMinutes;
+      }
+
+      displacements = this.calculateDisplacements(
+        newStartMinutes,
+        newEndMinutes,
+        allShifts
+      );
     }
-
-    const displacements = this.calculateDisplacements(
-      newStartMinutes,
-      newEndMinutes,
-      allShifts
-    );
 
     return {
       draggedPosition: { newStartMinutes, newEndMinutes },
@@ -387,6 +452,113 @@ export class TimeRulerDragDropService {
         });
 
       let cursor = draggedEffStart;
+
+      for (const item of candidates) {
+        const orig = this._dragState.originalPositions.get(item)!;
+        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+        const itemEffEnd = orig.endMinutes + itemPost;
+        const itemDuration = orig.endMinutes - orig.startMinutes;
+
+        if (cursor < itemEffEnd) {
+          const newEnd = cursor - itemPost;
+          const newStart = newEnd - itemDuration;
+          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
+          cursor = newStart - itemPre;
+        } else {
+          break;
+        }
+      }
+    }
+
+    return displacements;
+  }
+
+  private calculateBlockDisplacements(
+    blockDelta: number,
+    allItems: IContainerTemplateItem[]
+  ): Map<IContainerTemplateItem, ItemPosition> {
+    const displacements = new Map<IContainerTemplateItem, ItemPosition>();
+    const blockItems = this._dragState.blockItems;
+
+    let blockEffStart = Infinity;
+    let blockEffEnd = -Infinity;
+
+    for (const item of blockItems) {
+      const origPos = this._dragState.blockOriginalPositions.get(item);
+      if (!origPos) continue;
+      const newStart = origPos.startMinutes + blockDelta;
+      const itemDuration = origPos.endMinutes - origPos.startMinutes;
+      const newEnd = newStart + itemDuration;
+      const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
+      const post = this.timeRangeService.getTotalPostShiftMinutes(item);
+      blockEffStart = Math.min(blockEffStart, newStart - pre);
+      blockEffEnd = Math.max(blockEffEnd, newEnd + post);
+    }
+
+    const movableItems = allItems.filter(
+      item => !blockItems.has(item) &&
+        (item.shift?.isTimeRange || item.shift?.isSporadic || !!item.absenceId)
+    );
+
+    const isMovingDown = blockDelta > 0;
+    const isMovingUp = blockDelta < 0;
+
+    if (isMovingDown) {
+      const candidates = movableItems
+        .filter(item => {
+          const orig = this._dragState.originalPositions.get(item);
+          if (!orig) return false;
+          const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
+          const post = this.timeRangeService.getTotalPostShiftMinutes(item);
+          const effStart = orig.startMinutes - pre;
+          const effEnd = orig.endMinutes + post;
+          const midpoint = (effStart + effEnd) / 2;
+          return midpoint >= blockEffStart;
+        })
+        .sort((a, b) => {
+          const origA = this._dragState.originalPositions.get(a)!;
+          const origB = this._dragState.originalPositions.get(b)!;
+          return origA.startMinutes - origB.startMinutes;
+        });
+
+      let cursor = blockEffEnd;
+
+      for (const item of candidates) {
+        const orig = this._dragState.originalPositions.get(item)!;
+        const itemPre = this.timeRangeService.getTotalPreShiftMinutes(item);
+        const itemPost = this.timeRangeService.getTotalPostShiftMinutes(item);
+        const itemEffStart = orig.startMinutes - itemPre;
+        const itemDuration = orig.endMinutes - orig.startMinutes;
+
+        if (cursor > itemEffStart) {
+          const newStart = cursor + itemPre;
+          const newEnd = newStart + itemDuration;
+          displacements.set(item, { startMinutes: newStart, endMinutes: newEnd });
+          cursor = newEnd + itemPost;
+        } else {
+          break;
+        }
+      }
+    } else if (isMovingUp) {
+      const candidates = movableItems
+        .filter(item => {
+          const orig = this._dragState.originalPositions.get(item);
+          if (!orig) return false;
+          const pre = this.timeRangeService.getTotalPreShiftMinutes(item);
+          const post = this.timeRangeService.getTotalPostShiftMinutes(item);
+          const effStart = orig.startMinutes - pre;
+          const effEnd = orig.endMinutes + post;
+          const midpoint = (effStart + effEnd) / 2;
+          return midpoint <= blockEffEnd;
+        })
+        .sort((a, b) => {
+          const origA = this._dragState.originalPositions.get(a)!;
+          const origB = this._dragState.originalPositions.get(b)!;
+          return origB.startMinutes - origA.startMinutes;
+        });
+
+      let cursor = blockEffStart;
 
       for (const item of candidates) {
         const orig = this._dragState.originalPositions.get(item)!;
@@ -816,5 +988,10 @@ export class TimeRulerDragDropService {
     this._dragState.originalStartMinutes = undefined;
     this._dragState.originalEndMinutes = undefined;
     this._dragState.originalPositions.clear();
+    this._dragState.isBlockDrag = false;
+    this._dragState.blockItems = new Set();
+    this._dragState.blockOriginalPositions.clear();
+    this._dragState.blockEffectiveStart = 0;
+    this._dragState.blockEffectiveEnd = 0;
   }
 }
