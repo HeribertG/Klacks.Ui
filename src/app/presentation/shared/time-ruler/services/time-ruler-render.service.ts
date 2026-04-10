@@ -72,7 +72,7 @@ export class TimeRulerRenderService {
   private readonly BOUNDARY_GRADIENT_OPACITY = 0.2;
   private readonly BOUNDARY_GRADIENT_OPACITY_TRANSPARENT = 0.0;
 
-  private readonly SHIFT_BOX_MARGIN_LEFT_RIGHT = 8;
+  private readonly SHIFT_BOX_MARGIN_LEFT_RIGHT = 15;
   private readonly SHIFT_BOX_BORDER_DEPTH = 4;
   private readonly SHIFT_BOX_SELECTION_OPACITY = 0.2;
   private readonly TRAVEL_TIME_BACKGROUND_COLOR = '#F5F5DC';
