@@ -309,6 +309,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   onMouseMove(event: MouseEvent): void {
+    if (this.interactionService.isPaintSelecting) {
+      this.interactionService.handlePaintSelectMove(
+        event,
+        this.inboxCanvasRef.nativeElement,
+        this.shiftRectangles,
+        this.blockSelectionService
+      );
+      return;
+    }
+
     const result = this.interactionService.handleMouseMove(
       event,
       this.inboxCanvasRef.nativeElement,
@@ -395,6 +405,11 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   };
 
   onMouseUp(event: MouseEvent): void {
+    if (this.interactionService.isPaintSelecting) {
+      this.interactionService.endPaintSelect();
+      return;
+    }
+
     const dragHandled = this.interactionService.handleMouseUp(event, this.shifts);
 
     if (dragHandled) {

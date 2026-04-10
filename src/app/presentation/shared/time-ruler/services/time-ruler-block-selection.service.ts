@@ -128,6 +128,15 @@ export class TimeRulerBlockSelectionService {
     return { effectiveStart: minStart, effectiveEnd: maxEnd };
   }
 
+  addToSelection(item: IContainerTemplateItem): boolean {
+    const current = this.selectedItems();
+    if (current.has(item)) return false;
+    const newSet = new Set(current);
+    newSet.add(item);
+    this.selectedItems.set(newSet);
+    return true;
+  }
+
   private handleCtrlClick(item: IContainerTemplateItem): void {
     const current = new Set(this.selectedItems());
     if (current.has(item)) {

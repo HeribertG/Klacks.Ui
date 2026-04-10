@@ -30,6 +30,12 @@ export class TimeRulerInteractionService {
   private timeRangeService = inject(TimeRangeService);
   private renderService = inject(TimeRulerRenderService);
 
+  private _isPaintSelecting = false;
+
+  get isPaintSelecting(): boolean {
+    return this._isPaintSelecting;
+  }
+
   resolveCanvasCoordinates(
     event: MouseEvent,
     canvas: HTMLCanvasElement
@@ -114,6 +120,11 @@ export class TimeRulerInteractionService {
             event.preventDefault();
             event.stopPropagation();
           }
+        } else if (event.ctrlKey) {
+          this._isPaintSelecting = true;
+          blockSelectionService.toggleItem(item, true, event.shiftKey, allShifts);
+          event.preventDefault();
+          event.stopPropagation();
         } else {
           const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
           if (dragStarted) {
@@ -124,6 +135,29 @@ export class TimeRulerInteractionService {
         return;
       }
     }
+  }
+
+  handlePaintSelectMove(
+    event: MouseEvent,
+    canvas: HTMLCanvasElement,
+    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
+    blockSelectionService: TimeRulerBlockSelectionService
+  ): boolean {
+    if (!this._isPaintSelecting) return false;
+
+    const { x, y } = this.resolveCanvasCoordinates(event, canvas);
+
+    for (const [item, shiftRect] of shiftRectangles) {
+      if (shiftRect.pointInRect(x, y)) {
+        return blockSelectionService.addToSelection(item);
+      }
+    }
+
+    return false;
+  }
+
+  endPaintSelect(): void {
+    this._isPaintSelecting = false;
   }
 
   handleMouseMove(
