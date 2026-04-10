@@ -115,31 +115,37 @@ export class TimeRulerInteractionService {
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 
     for (const [item, shiftRect] of shiftRectangles) {
-      if (shiftRect.pointInRect(x, y) && (item.shift?.isTimeRange || !!item.absenceId)) {
-        const isBlockMember = blockSelectionService.isSelected(item);
+      if (!shiftRect.pointInRect(x, y)) continue;
 
-        if (isBlockMember && blockSelectionService.isDraggable()) {
-          const dragStarted = this.dragDropService.startBlockDrag(
-            y, item, shiftRect, allShifts, blockSelectionService
-          );
-          if (dragStarted) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        } else if (event.ctrlKey) {
-          this._isPaintSelecting = true;
-          blockSelectionService.toggleItem(item, true, event.shiftKey, allShifts);
-          event.preventDefault();
-          event.stopPropagation();
-        } else {
-          const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
-          if (dragStarted) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }
+      if (event.ctrlKey) {
+        this._isPaintSelecting = true;
+        blockSelectionService.toggleItem(item, true, event.shiftKey, allShifts);
+        event.preventDefault();
+        event.stopPropagation();
         return;
       }
+
+      const isDraggable = item.shift?.isTimeRange || !!item.absenceId;
+      if (!isDraggable) return;
+
+      const isBlockMember = blockSelectionService.isSelected(item);
+
+      if (isBlockMember && blockSelectionService.isDraggable()) {
+        const dragStarted = this.dragDropService.startBlockDrag(
+          y, item, shiftRect, allShifts, blockSelectionService
+        );
+        if (dragStarted) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      } else {
+        const dragStarted = this.dragDropService.startDrag(y, item, shiftRect, allShifts);
+        if (dragStarted) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+      return;
     }
   }
 
