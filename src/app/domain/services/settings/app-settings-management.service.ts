@@ -19,6 +19,7 @@ import {
   SchedulingDefaultSettings,
   DataRetentionSettings
 } from 'src/app/domain/models/settings/app-settings.model';
+import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 interface SettingsModels {
@@ -30,6 +31,7 @@ interface SettingsModels {
   dataRetention: IDataRetentionSettings;
   openRouteServiceApiKey: string;
   deeplApiKey: string;
+  speech: ISpeechSettings;
 }
 
 @Injectable({
@@ -122,6 +124,15 @@ export class AppSettingsManagementService {
     [AppSetting.SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK, (v, m) => (m.schedulingDefaults.performsShiftWork = v === 'true')],
 
     [AppSetting.DATA_RETENTION_DAYS, (v, m) => (m.dataRetention.dataRetentionDays = parseInt(v, 10) || 3650)],
+
+    [AppSetting.ASSISTANT_STT_ENGINE, (v, m) => (m.speech.sttEngine = v)],
+    [AppSetting.ASSISTANT_STT_API_KEY, (v, m) => (m.speech.sttApiKey = v)],
+    [AppSetting.ASSISTANT_TTS_VOICE, (v, m) => (m.speech.ttsVoice = v)],
+    [AppSetting.ASSISTANT_TTS_PROVIDER, (v, m) => (m.speech.ttsProvider = v)],
+    [AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, (v, m) => (m.speech.transcriptionModel = v)],
+    [AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, (v, m) => (m.speech.enhancementEnabled = v === 'true')],
+    [AppSetting.ASSISTANT_OUTPUT_MODE, (v, m) => (m.speech.outputMode = v)],
+    [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = parseInt(v, 10) || 1500)],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -132,6 +143,7 @@ export class AppSettingsManagementService {
   public dataRetentionSettings = signal<IDataRetentionSettings>(new DataRetentionSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
+  public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -141,6 +153,7 @@ export class AppSettingsManagementService {
   private dataRetentionSettingsOriginal = signal<IDataRetentionSettings>(new DataRetentionSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
+  private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -159,6 +172,7 @@ export class AppSettingsManagementService {
       this.dataRetentionSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
+      this.speechSettings();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -220,6 +234,7 @@ export class AppSettingsManagementService {
       dataRetention: new DataRetentionSettings(),
       openRouteServiceApiKey: '',
       deeplApiKey: '',
+      speech: new SpeechSettings(),
     };
 
     for (const setting of settings) {
@@ -237,6 +252,7 @@ export class AppSettingsManagementService {
     this.dataRetentionSettings.set(models.dataRetention);
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
+    this.speechSettings.set(models.speech);
 
     this.contactSettingsOriginal.set(cloneObject(models.contact));
     this.emailSettingsOriginal.set(cloneObject(models.email));
@@ -246,6 +262,7 @@ export class AppSettingsManagementService {
     this.dataRetentionSettingsOriginal.set(cloneObject(models.dataRetention));
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
+    this.speechSettingsOriginal.set(cloneObject(models.speech));
   }
 
   private readonly saveDefinitions: readonly { key: string; getCurrent: () => string; getOriginal: () => string }[] = [
@@ -322,6 +339,15 @@ export class AppSettingsManagementService {
 
     { key: AppSetting.OPENROUTESERVICE_API_KEY, getCurrent: () => this.openRouteServiceApiKey(), getOriginal: () => this.openRouteServiceApiKeyOriginal() },
     { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
+
+    { key: AppSetting.ASSISTANT_STT_ENGINE, getCurrent: () => this.speechSettings().sttEngine, getOriginal: () => this.speechSettingsOriginal().sttEngine },
+    { key: AppSetting.ASSISTANT_STT_API_KEY, getCurrent: () => this.speechSettings().sttApiKey, getOriginal: () => this.speechSettingsOriginal().sttApiKey },
+    { key: AppSetting.ASSISTANT_TTS_VOICE, getCurrent: () => this.speechSettings().ttsVoice, getOriginal: () => this.speechSettingsOriginal().ttsVoice },
+    { key: AppSetting.ASSISTANT_TTS_PROVIDER, getCurrent: () => this.speechSettings().ttsProvider, getOriginal: () => this.speechSettingsOriginal().ttsProvider },
+    { key: AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, getCurrent: () => this.speechSettings().transcriptionModel, getOriginal: () => this.speechSettingsOriginal().transcriptionModel },
+    { key: AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, getCurrent: () => String(this.speechSettings().enhancementEnabled), getOriginal: () => String(this.speechSettingsOriginal().enhancementEnabled) },
+    { key: AppSetting.ASSISTANT_OUTPUT_MODE, getCurrent: () => this.speechSettings().outputMode, getOriginal: () => this.speechSettingsOriginal().outputMode },
+    { key: AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, getCurrent: () => String(this.speechSettings().silenceThresholdMs), getOriginal: () => String(this.speechSettingsOriginal().silenceThresholdMs) },
   ];
 
   save(): void {
@@ -377,6 +403,7 @@ export class AppSettingsManagementService {
       this.dataRetentionSettingsOriginal.set(cloneObject(this.dataRetentionSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
+      this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
     }
   }
 
@@ -402,7 +429,8 @@ export class AppSettingsManagementService {
       !compareComplexObjects(sched, schedOriginal) ||
       !compareComplexObjects(retention, retentionOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
-      this.deeplApiKey() !== this.deeplApiKeyOriginal()
+      this.deeplApiKey() !== this.deeplApiKeyOriginal() ||
+      !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal())
     );
   }
 

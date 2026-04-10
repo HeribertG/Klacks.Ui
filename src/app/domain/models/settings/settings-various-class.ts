@@ -89,6 +89,15 @@ export class AppSetting {
   public static GLOBAL_CALENDAR_COUNTRY = 'globalCalendarCountry';
   public static GLOBAL_CALENDAR_STATE = 'globalCalendarState';
   public static GLOBAL_CALENDAR_SELECTION_ID = 'globalCalendarSelectionId';
+
+  public static ASSISTANT_STT_ENGINE = 'ASSISTANT_STT_ENGINE';
+  public static ASSISTANT_STT_API_KEY = 'ASSISTANT_STT_API_KEY';
+  public static ASSISTANT_TTS_VOICE = 'ASSISTANT_TTS_VOICE';
+  public static ASSISTANT_TTS_PROVIDER = 'ASSISTANT_TTS_PROVIDER';
+  public static ASSISTANT_TRANSCRIPTION_MODEL = 'ASSISTANT_TRANSCRIPTION_MODEL';
+  public static ASSISTANT_ENHANCEMENT_ENABLED = 'ASSISTANT_ENHANCEMENT_ENABLED';
+  public static ASSISTANT_OUTPUT_MODE = 'ASSISTANT_OUTPUT_MODE';
+  public static ASSISTANT_SILENCE_THRESHOLD_MS = 'ASSISTANT_SILENCE_THRESHOLD_MS';
 }
 
 export interface IMacroType {
