@@ -31,6 +31,7 @@ export class TimeRulerInteractionService {
   private renderService = inject(TimeRulerRenderService);
 
   private _isPaintSelecting = false;
+  private _suppressNextClick = false;
 
   get isPaintSelecting(): boolean {
     return this._isPaintSelecting;
@@ -62,6 +63,11 @@ export class TimeRulerInteractionService {
     blockSelectionService: TimeRulerBlockSelectionService,
     allShifts: IContainerTemplateItem[]
   ): void {
+    if (this._suppressNextClick) {
+      this._suppressNextClick = false;
+      return;
+    }
+
     if (this.dragDropService.dragState.isDragging) {
       return;
     }
@@ -158,6 +164,7 @@ export class TimeRulerInteractionService {
 
   endPaintSelect(): void {
     this._isPaintSelecting = false;
+    this._suppressNextClick = true;
   }
 
   handleMouseMove(
