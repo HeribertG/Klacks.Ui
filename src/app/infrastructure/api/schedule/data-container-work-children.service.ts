@@ -92,6 +92,8 @@ export interface ContainerWorkChildren {
   parentEndBase?: string | null;
   parentTransportMode?: number | null;
   parentWorkTime?: number;
+  parentStartTime?: string | null;
+  parentEndTime?: string | null;
 }
 
 @Injectable({

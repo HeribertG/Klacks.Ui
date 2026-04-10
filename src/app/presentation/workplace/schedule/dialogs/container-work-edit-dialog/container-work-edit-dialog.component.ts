@@ -375,6 +375,7 @@ export class ContainerWorkEditDialogComponent {
   onTimeFromChange(time: OwnTime): void {
     this.timeFrom = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+    this.lifecycleService.updateParentStartTime(this.timeFrom);
     this.lifecycleService.markDirty();
     this.timeChange$.next();
   }
@@ -382,6 +383,7 @@ export class ContainerWorkEditDialogComponent {
   onTimeToChange(time: OwnTime): void {
     this.timeTo = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+    this.lifecycleService.updateParentEndTime(this.timeTo);
     this.lifecycleService.markDirty();
     this.timeChange$.next();
   }

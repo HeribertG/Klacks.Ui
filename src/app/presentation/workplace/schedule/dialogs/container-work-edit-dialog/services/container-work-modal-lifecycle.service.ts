@@ -70,6 +70,8 @@ export class ContainerWorkModalLifecycleService {
 
   private containerStartTime: string | null = null;
   private containerEndTime: string | null = null;
+  private parentStartTimeChanged: string | null = null;
+  private parentEndTimeChanged: string | null = null;
   private availableShiftsAsIShift: IShift[] = [];
 
   get crossesMidnight(): boolean {
@@ -251,6 +253,8 @@ export class ContainerWorkModalLifecycleService {
     const children = this.buildChildrenFromItems(items);
     children.parentStartBase = this.routeService.selectedStartBase || null;
     children.parentEndBase = this.routeService.selectedEndBase || null;
+    children.parentStartTime = this.parentStartTimeChanged;
+    children.parentEndTime = this.parentEndTimeChanged;
     return this.childrenService.saveChildren(this.workId, children).pipe(
       tap(response => this.handleSaveResponse(response)),
     );
@@ -268,12 +272,24 @@ export class ContainerWorkModalLifecycleService {
       ContainerTransportModeEnum.byCar;
   }
 
+  updateParentStartTime(time: OwnTime): void {
+    this.parentStartTimeChanged = `${time.hours}:${time.minutes}:00`;
+    this.containerStartTime = `${time.hours}:${time.minutes}`;
+  }
+
+  updateParentEndTime(time: OwnTime): void {
+    this.parentEndTimeChanged = `${time.hours}:${time.minutes}:00`;
+    this.containerEndTime = `${time.hours}:${time.minutes}`;
+  }
+
   markDirty(): void {
     this.isDirty.set(true);
   }
 
   reset(): void {
     if (!this.workId) return;
+    this.parentStartTimeChanged = null;
+    this.parentEndTimeChanged = null;
     this.shiftService.setSelectedShift(null);
     this.isLoading.set(true);
     this.childrenService.loadChildren(this.workId)
