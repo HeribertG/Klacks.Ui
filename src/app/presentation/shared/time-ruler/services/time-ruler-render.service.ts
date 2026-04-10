@@ -21,6 +21,7 @@ import { TimeRangeService } from './time-range.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { TimeRulerBlockSelectionService } from './time-ruler-block-selection.service';
 
 export interface ShiftBoxDrawParams {
   ctx: CanvasRenderingContext2D;
@@ -78,6 +79,8 @@ export class TimeRulerRenderService {
   private readonly TRAVEL_TIME_BACKGROUND_COLOR = '#F5F5DC';
   private readonly BRIEFING_TIME_BACKGROUND_COLOR = 'rgb(149, 185, 208)';
   private readonly TASK_BACKGROUND_COLOR = '#cdcdd8';
+  private readonly BLOCK_SELECTION_BORDER_WIDTH = 2;
+  private readonly BLOCK_SELECTION_FILL_OPACITY = 0.15;
 
   private readonly MINUTES_PER_DAY = 24 * 60;
 
@@ -600,6 +603,25 @@ export class TimeRulerRenderService {
     );
   }
 
+  drawBlockSelectionRect(
+    ctx: CanvasRenderingContext2D,
+    blockBounds: Rectangle | null
+  ): void {
+    if (!blockBounds) return;
+
+    const fillColor = this.convertColorToRgba(
+      this.gridColorService.focusBorderColor,
+      this.BLOCK_SELECTION_FILL_OPACITY
+    );
+
+    ctx.fillStyle = fillColor;
+    ctx.fillRect(blockBounds.left, blockBounds.top, blockBounds.width, blockBounds.height);
+
+    ctx.strokeStyle = this.gridColorService.focusBorderColor;
+    ctx.lineWidth = this.BLOCK_SELECTION_BORDER_WIDTH;
+    ctx.strokeRect(blockBounds.left, blockBounds.top, blockBounds.width, blockBounds.height);
+  }
+
   drawDebriefing(
     params: ShiftBoxDrawParams,
     bodyEndMinutes: number,
@@ -721,7 +743,8 @@ export class TimeRulerRenderService {
     shifts: IContainerTemplateItem[],
     shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
     fromTime: OwnTime,
-    untilTime: OwnTime
+    untilTime: OwnTime,
+    blockSelectionService?: TimeRulerBlockSelectionService
   ): void {
     const container = inboxCanvas.parentElement;
     if (!container) return;
@@ -761,6 +784,31 @@ export class TimeRulerRenderService {
       if (selectedRect) {
         shiftRectangles.set(selectedShift, selectedRect);
       }
+    }
+
+    if (blockSelectionService && blockSelectionService.hasBlock()) {
+      const { range: blockRange, boxWidth: blockBoxWidth, marginLeftRight: blockMargin } =
+        this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
+
+      inboxCtx.save();
+      inboxCtx.translate(offsetX, 0);
+
+      for (const item of blockSelectionService.selectedItems()) {
+        if (item === selectedShift) continue;
+        const itemRect = this.drawSingleShiftBox(
+          inboxCtx, item, blockRange, blockBoxWidth, blockMargin,
+          height, true, shifts, shiftRectangles
+        );
+        if (itemRect) {
+          shiftRectangles.set(item, itemRect);
+        }
+      }
+
+      this.drawBlockSelectionRect(
+        inboxCtx,
+        blockSelectionService.calculateBlockBounds(blockMargin, blockBoxWidth, blockRange, height)
+      );
+      inboxCtx.restore();
     }
   }
 
