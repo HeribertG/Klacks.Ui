@@ -1,7 +1,11 @@
-.audit-tab {
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.audit-tab-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding-top: 20px;
+  padding-bottom: 30px;
 
   .filter-row {
     display: flex;

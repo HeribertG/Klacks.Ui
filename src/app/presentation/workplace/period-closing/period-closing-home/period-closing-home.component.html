@@ -3,45 +3,26 @@
     {{ 'periodClosing.title' | translate }}
   </div>
 
-  <div id="period-closing-description" class="container-subtitle">
-    {{ 'periodClosing.description' | translate }}
+  <div id="period-closing-periods-row" class="container-profilline">
+    <app-periods-tab
+      id="period-closing-periods"
+      class="container-profile first border-right-card border-bottom-card"
+    ></app-periods-tab>
   </div>
 
-  <div class="tab-bar">
-    <button
-      type="button"
-      class="tab-button"
-      [class.active]="activeTab() === 'periods'"
-      (click)="setTab('periods')">
-      {{ 'periodClosing.tabs.periods' | translate }}
-    </button>
-    <button
-      type="button"
-      class="tab-button"
-      [class.active]="activeTab() === 'exports'"
-      (click)="setTab('exports')">
-      {{ 'periodClosing.tabs.exports' | translate }}
-    </button>
-    <button
-      type="button"
-      class="tab-button"
-      [class.active]="activeTab() === 'audit'"
-      (click)="setTab('audit')">
-      {{ 'periodClosing.tabs.audit' | translate }}
-    </button>
+  <div id="period-closing-exports-row" class="container-profilline">
+    <app-exports-tab
+      id="period-closing-exports"
+      class="container-profile first border-right-card border-bottom-card"
+    ></app-exports-tab>
   </div>
 
-  <div class="tab-body">
-    @switch (activeTab()) {
-      @case ('periods') {
-        <app-periods-tab></app-periods-tab>
-      }
-      @case ('exports') {
-        <app-exports-tab></app-exports-tab>
-      }
-      @case ('audit') {
-        <app-audit-tab></app-audit-tab>
-      }
-    }
+  <div id="period-closing-audit-row" class="container-profilline">
+    <app-audit-tab
+      id="period-closing-audit"
+      class="container-profile first border-right-card border-bottom-card"
+    ></app-audit-tab>
   </div>
+
+  <div class="bottom-border-space"></div>
 </div>

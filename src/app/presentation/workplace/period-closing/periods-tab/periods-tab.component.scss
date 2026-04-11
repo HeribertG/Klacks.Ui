@@ -1,8 +1,11 @@
-.periods-tab {
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.periods-tab-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 0.5rem 0;
+  padding-top: 20px;
+  padding-bottom: 30px;
 }
 
 .filter-row {

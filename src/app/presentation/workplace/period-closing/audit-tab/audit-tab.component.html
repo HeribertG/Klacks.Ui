@@ -1,87 +1,97 @@
-<div class="audit-tab">
-  <section class="filter-row">
-    <label class="form-group">
-      {{ 'periodClosing.form.startDate' | translate }}
-      <input type="date" class="form-control form-control-sm" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)">
-    </label>
-    <label class="form-group">
-      {{ 'periodClosing.form.endDate' | translate }}
-      <input type="date" class="form-control form-control-sm" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)">
-    </label>
-    <button type="button" class="btn btn-primary btn-sm" (click)="refresh()">
-      {{ 'periodClosing.action.refresh' | translate }}
-    </button>
-  </section>
-
-  <h3 class="section-title">{{ 'periodClosing.tabs.audit' | translate }}</h3>
-  <div class="table-wrapper">
-    <table class="table table-sm table-hover">
-      <thead>
-        <tr>
-          <th>{{ 'periodClosing.audit.columnDate' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnAction' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnRange' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnGroup' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnAffected' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnUser' | translate }}</th>
-          <th>{{ 'periodClosing.audit.columnReason' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (e of auditEntries(); track e.id) {
-          <tr>
-            <td>{{ e.performedAt | date:'short' }}</td>
-            <td>
-              @if (e.action === PeriodAuditAction.Seal) {
-                {{ 'periodClosing.audit.action.seal' | translate }}
-              } @else {
-                {{ 'periodClosing.audit.action.unseal' | translate }}
-              }
-            </td>
-            <td>{{ e.startDate }} – {{ e.endDate }}</td>
-            <td>{{ e.groupName ?? ('periodClosing.form.groupAll' | translate) }}</td>
-            <td>{{ e.affectedCount }}</td>
-            <td>{{ e.performedBy }}</td>
-            <td>{{ e.reason }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<div id="audit-tab-container" class="container-dashboard">
+  <div id="audit-tab-header" class="container-header">
+    {{ 'periodClosing.tabs.audit' | translate }}
   </div>
 
-  <h3 class="section-title">{{ 'periodClosing.tabs.exports' | translate }}</h3>
-  <div class="table-wrapper">
-    <table class="table table-sm table-hover">
-      <thead>
-        <tr>
-          <th>{{ 'periodClosing.export.columnDate' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnFormat' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnRange' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnGroup' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnFile' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnSize' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnRecords' | translate }}</th>
-          <th>{{ 'periodClosing.export.columnUser' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (e of exportEntries(); track e.id) {
+  <div id="audit-tab-line" class="container-line"></div>
+
+  <div class="first audit-tab-body">
+    <section class="filter-row">
+      <label class="form-group">
+        {{ 'periodClosing.form.startDate' | translate }}
+        <input type="date" class="form-control form-control-sm" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)">
+      </label>
+      <label class="form-group">
+        {{ 'periodClosing.form.endDate' | translate }}
+        <input type="date" class="form-control form-control-sm" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)">
+      </label>
+      <button type="button" class="btn btn-primary btn-sm" (click)="refresh()">
+        {{ 'periodClosing.action.refresh' | translate }}
+      </button>
+    </section>
+
+    <h3 class="section-title">{{ 'periodClosing.tabs.audit' | translate }}</h3>
+    <div class="table-wrapper">
+      <table class="table table-sm table-hover">
+        <thead>
           <tr>
-            <td>{{ e.exportedAt | date:'short' }}</td>
-            <td>{{ e.format }}</td>
-            <td>{{ e.startDate }} – {{ e.endDate }}</td>
-            <td>{{ e.groupName ?? ('periodClosing.form.groupAll' | translate) }}</td>
-            <td>{{ e.fileName }}</td>
-            <td>{{ e.fileSize }}</td>
-            <td>{{ e.recordCount }}</td>
-            <td>{{ e.exportedBy }}</td>
+            <th>{{ 'periodClosing.audit.columnDate' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnAction' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnRange' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnGroup' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnAffected' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnUser' | translate }}</th>
+            <th>{{ 'periodClosing.audit.columnReason' | translate }}</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (e of auditEntries(); track e.id) {
+            <tr>
+              <td>{{ e.performedAt | date:'short' }}</td>
+              <td>
+                @if (e.action === PeriodAuditAction.Seal) {
+                  {{ 'periodClosing.audit.action.seal' | translate }}
+                } @else {
+                  {{ 'periodClosing.audit.action.unseal' | translate }}
+                }
+              </td>
+              <td>{{ e.startDate }} – {{ e.endDate }}</td>
+              <td>{{ e.groupName ?? ('periodClosing.form.groupAll' | translate) }}</td>
+              <td>{{ e.affectedCount }}</td>
+              <td>{{ e.performedBy }}</td>
+              <td>{{ e.reason }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-title">{{ 'periodClosing.tabs.exports' | translate }}</h3>
+    <div class="table-wrapper">
+      <table class="table table-sm table-hover">
+        <thead>
+          <tr>
+            <th>{{ 'periodClosing.export.columnDate' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnFormat' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnRange' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnGroup' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnFile' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnSize' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnRecords' | translate }}</th>
+            <th>{{ 'periodClosing.export.columnUser' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of exportEntries(); track e.id) {
+            <tr>
+              <td>{{ e.exportedAt | date:'short' }}</td>
+              <td>{{ e.format }}</td>
+              <td>{{ e.startDate }} – {{ e.endDate }}</td>
+              <td>{{ e.groupName ?? ('periodClosing.form.groupAll' | translate) }}</td>
+              <td>{{ e.fileName }}</td>
+              <td>{{ e.fileSize }}</td>
+              <td>{{ e.recordCount }}</td>
+              <td>{{ e.exportedBy }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (auditEntries().length === 0 && exportEntries().length === 0) {
+      <p class="empty-state text-muted">{{ 'periodClosing.audit.empty' | translate }}</p>
+    }
   </div>
 
-  @if (auditEntries().length === 0 && exportEntries().length === 0) {
-    <p class="empty-state text-muted">{{ 'periodClosing.audit.empty' | translate }}</p>
-  }
+  <div class="bottom-border-space"></div>
 </div>

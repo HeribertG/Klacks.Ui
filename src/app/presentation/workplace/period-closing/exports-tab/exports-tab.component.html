@@ -1,66 +1,76 @@
-<div class="exports-tab">
-  <section class="filter-row">
-    <div class="filter-field">
-      <label class="form-label" for="startDate">{{ 'periodClosing.form.startDate' | translate }}</label>
-      <input
-        id="startDate"
-        type="date"
-        class="form-control form-control-sm"
-        [ngModel]="startDate()"
-        (ngModelChange)="startDate.set($event)">
-    </div>
-    <div class="filter-field">
-      <label class="form-label" for="endDate">{{ 'periodClosing.form.endDate' | translate }}</label>
-      <input
-        id="endDate"
-        type="date"
-        class="form-control form-control-sm"
-        [ngModel]="endDate()"
-        (ngModelChange)="endDate.set($event)">
-    </div>
-    <div class="filter-field">
-      <label class="form-label" for="exportFormat">{{ 'periodClosing.form.format' | translate }}</label>
-      <select
-        id="exportFormat"
-        class="form-select form-select-sm"
-        [ngModel]="format()"
-        (ngModelChange)="format.set($event)">
-        @for (f of formats; track f.key) {
-          <option [value]="f.key">{{ f.labelKey | translate }}</option>
-        }
-      </select>
-    </div>
-    <div class="filter-field filter-field-narrow">
-      <label class="form-label" for="exportLanguage">{{ 'periodClosing.form.language' | translate }}</label>
-      <input
-        id="exportLanguage"
-        type="text"
-        class="form-control form-control-sm"
-        maxlength="5"
-        [ngModel]="language()"
-        (ngModelChange)="language.set($event)">
-    </div>
-    <div class="filter-field filter-field-narrow">
-      <label class="form-label" for="exportCurrency">{{ 'periodClosing.form.currency' | translate }}</label>
-      <input
-        id="exportCurrency"
-        type="text"
-        class="form-control form-control-sm"
-        maxlength="3"
-        [ngModel]="currency()"
-        (ngModelChange)="currency.set($event)">
-    </div>
-    <div class="filter-field filter-action">
-      <button
-        type="button"
-        class="btn btn-primary btn-sm"
-        [disabled]="busy()"
-        (click)="onExport()">
-        @if (busy()) {
-          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-        }
-        {{ 'periodClosing.action.export' | translate }}
-      </button>
-    </div>
-  </section>
+<div id="exports-tab-container" class="container-dashboard">
+  <div id="exports-tab-header" class="container-header">
+    {{ 'periodClosing.tabs.exports' | translate }}
+  </div>
+
+  <div id="exports-tab-line" class="container-line"></div>
+
+  <div class="first exports-tab-body">
+    <section class="filter-row">
+      <div class="filter-field">
+        <label class="form-label" for="exportsStartDate">{{ 'periodClosing.form.startDate' | translate }}</label>
+        <input
+          id="exportsStartDate"
+          type="date"
+          class="form-control form-control-sm"
+          [ngModel]="startDate()"
+          (ngModelChange)="startDate.set($event)">
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="exportsEndDate">{{ 'periodClosing.form.endDate' | translate }}</label>
+        <input
+          id="exportsEndDate"
+          type="date"
+          class="form-control form-control-sm"
+          [ngModel]="endDate()"
+          (ngModelChange)="endDate.set($event)">
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="exportFormat">{{ 'periodClosing.form.format' | translate }}</label>
+        <select
+          id="exportFormat"
+          class="form-select form-select-sm"
+          [ngModel]="format()"
+          (ngModelChange)="format.set($event)">
+          @for (f of formats; track f.key) {
+            <option [value]="f.key">{{ f.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field filter-field-narrow">
+        <label class="form-label" for="exportLanguage">{{ 'periodClosing.form.language' | translate }}</label>
+        <input
+          id="exportLanguage"
+          type="text"
+          class="form-control form-control-sm"
+          maxlength="5"
+          [ngModel]="language()"
+          (ngModelChange)="language.set($event)">
+      </div>
+      <div class="filter-field filter-field-narrow">
+        <label class="form-label" for="exportCurrency">{{ 'periodClosing.form.currency' | translate }}</label>
+        <input
+          id="exportCurrency"
+          type="text"
+          class="form-control form-control-sm"
+          maxlength="3"
+          [ngModel]="currency()"
+          (ngModelChange)="currency.set($event)">
+      </div>
+      <div class="filter-field filter-action">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="busy()"
+          (click)="onExport()">
+          @if (busy()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          }
+          {{ 'periodClosing.action.export' | translate }}
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div class="bottom-border-space"></div>
 </div>
