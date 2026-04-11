@@ -34,6 +34,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   sttEngine = 'browser';
   sttApiKey = '';
+  sttApiKeyConfigured = false;
   ttsVoice = 'auto';
   ttsProvider = 'edge';
   transcriptionModel = 'deepseek-chat';
@@ -98,7 +99,13 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     const speech = this.appSettingsService.speechSettings();
 
     this.sttEngine = speech.sttEngine;
-    this.sttApiKey = speech.sttApiKey;
+    if (speech.sttApiKey === '***') {
+      this.sttApiKeyConfigured = true;
+      this.sttApiKey = '';
+    } else {
+      this.sttApiKeyConfigured = false;
+      this.sttApiKey = speech.sttApiKey;
+    }
     this.ttsVoice = speech.ttsVoice;
     this.ttsProvider = speech.ttsProvider;
     this.transcriptionModel = speech.transcriptionModel;
@@ -113,9 +120,10 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       return;
     }
 
+    const apiKeyToSave = this.sttApiKey.length > 0 ? this.sttApiKey : (this.sttApiKeyConfigured ? '***' : '');
     this.appSettingsService.speechSettings.set({
       sttEngine: this.sttEngine,
-      sttApiKey: this.sttApiKey,
+      sttApiKey: apiKeyToSave,
       ttsVoice: this.ttsVoice,
       ttsProvider: this.ttsProvider,
       transcriptionModel: this.transcriptionModel,
@@ -134,7 +142,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ providerId: this.sttEngine, apiKey: this.sttApiKey }),
+        body: JSON.stringify({ providerId: this.sttEngine }),
       });
 
       if (response.ok) {

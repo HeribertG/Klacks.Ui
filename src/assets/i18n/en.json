@@ -1081,6 +1081,7 @@
   "setting.speech.stt-groq": "Groq Whisper — Fast & affordable",
   "setting.speech.stt-assemblyai": "AssemblyAI — Streaming",
   "setting.speech.stt-apikey": "STT API Key",
+  "setting.speech.stt-apikey-configured": "Configured",
   "setting.speech.stt-test": "Test",
   "setting.speech.stt-test-success": "Connection successful",
   "setting.speech.stt-test-failed": "Connection failed",
