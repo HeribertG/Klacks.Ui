@@ -1,0 +1,86 @@
+<div class="periods-tab">
+  <section class="filter-row">
+    <div class="filter-field">
+      <label class="form-label" for="startDate">{{ 'periodClosing.form.startDate' | translate }}</label>
+      <input
+        id="startDate"
+        type="date"
+        class="form-control form-control-sm"
+        [ngModel]="startDate()"
+        (ngModelChange)="startDate.set($event)">
+    </div>
+    <div class="filter-field">
+      <label class="form-label" for="endDate">{{ 'periodClosing.form.endDate' | translate }}</label>
+      <input
+        id="endDate"
+        type="date"
+        class="form-control form-control-sm"
+        [ngModel]="endDate()"
+        (ngModelChange)="endDate.set($event)">
+    </div>
+    <div class="filter-field filter-action">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="loadSummary()" [disabled]="loading()">
+        {{ 'periodClosing.action.refresh' | translate }}
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading-hint text-muted">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </div>
+  }
+
+  @if (!loading() && summary().length > 0) {
+    <section class="summary-section">
+      <div class="summary-card">
+        <span class="summary-label">{{ 'periodClosing.tabs.periods' | translate }}</span>
+        <span class="summary-value">{{ sealedWork() }} / {{ totalWork() }}</span>
+        @if (fullySealed()) {
+          <span class="badge bg-success ms-2">&#10003;</span>
+        } @else {
+          <span class="badge bg-warning text-dark ms-2">{{ sealedWork() }}</span>
+        }
+      </div>
+
+      <table class="table table-sm table-hover mt-2">
+        <thead>
+          <tr>
+            <th>{{ 'date' | translate }}</th>
+            <th class="text-end">{{ 'periodClosing.tabs.periods' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of summary(); track row.date) {
+            <tr [class.table-success]="row.isFullySealed">
+              <td>{{ row.date | date:'mediumDate' }}</td>
+              <td class="text-end">{{ row.sealedWorkCount }} / {{ row.totalWorkCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  <section class="actions-section">
+    <div class="reason-field">
+      <label class="form-label" for="reason">{{ 'periodClosing.form.reason' | translate }}</label>
+      <textarea
+        id="reason"
+        rows="2"
+        class="form-control form-control-sm"
+        [placeholder]="'periodClosing.form.reasonPlaceholder' | translate"
+        [ngModel]="reason()"
+        (ngModelChange)="reason.set($event)"></textarea>
+    </div>
+
+    <div class="button-row mt-2">
+      <button type="button" class="btn btn-primary btn-sm" (click)="onSeal()">
+        {{ 'periodClosing.action.seal' | translate }}
+      </button>
+      <button type="button" class="btn btn-danger btn-sm" (click)="onUnseal()">
+        {{ 'periodClosing.action.unseal' | translate }}
+      </button>
+    </div>
+  </section>
+</div>
