@@ -17,6 +17,7 @@ import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/d
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 export enum ConversationState {
   Idle = 'IDLE',
@@ -52,7 +53,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private sentenceBuffer = '';
   private pendingSentences: string[] = [];
-  private locale = 'de';
+  private locale = SpeechDefaults.Locale;
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     this.callbacks = callbacks;
@@ -121,7 +122,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     if (this.state() !== ConversationState.Processing && this.state() !== ConversationState.Speaking) return;
 
     const speechSettings = this.settings.speechSettings();
-    if (speechSettings.outputMode === 'text') return;
+    if (speechSettings.outputMode === OutputMode.Text) return;
 
     this.sentenceBuffer += text;
     const sentences = this.extractSentences();
@@ -144,7 +145,7 @@ export class ConversationOrchestratorService implements OnDestroy {
       this.sentenceBuffer = '';
     }
 
-    if (this.settings.speechSettings().outputMode === 'text' || this.pendingSentences.length === 0) {
+    if (this.settings.speechSettings().outputMode === OutputMode.Text || this.pendingSentences.length === 0) {
       this.transitionToListening();
     }
   }
@@ -178,8 +179,8 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.interimText.set('');
 
     const speechSettings = this.settings.speechSettings();
-    if (speechSettings.sttEngine !== 'browser') {
-      this.sttStream.connect();
+    if (speechSettings.sttEngine !== SttEngine.Browser) {
+      this.sttStream.connect(this.locale);
       await this.audioCapture.start();
     } else {
       await this.audioCapture.start();

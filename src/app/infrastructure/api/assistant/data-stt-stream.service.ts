@@ -24,14 +24,14 @@ export class SttStreamService implements OnDestroy {
 
   private ws: WebSocket | null = null;
 
-  connect(): void {
+  connect(locale: string = 'de'): void {
     if (this.ws) this.disconnect();
 
     const baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
     const wsUrl = baseUrl.replace(/^http/, 'ws') + 'stt/stream';
     const token = localStorage.getItem(StorageKeys.TOKEN);
 
-    this.ws = new WebSocket(`${wsUrl}?access_token=${token}`);
+    this.ws = new WebSocket(`${wsUrl}?access_token=${token}&locale=${encodeURIComponent(locale)}`);
     this.ws.binaryType = 'arraybuffer';
 
     this.ws.onopen = () => this.isConnected.set(true);
