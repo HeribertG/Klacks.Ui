@@ -54,6 +54,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private sentenceBuffer = '';
   private pendingSentences: string[] = [];
   private locale = SpeechDefaults.Locale;
+  private synthesisChain: Promise<void> = Promise.resolve();
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     this.callbacks = callbacks;
@@ -111,6 +112,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.audioQueue.stop();
     this.pendingSentences = [];
     this.sentenceBuffer = '';
+    this.synthesisChain = Promise.resolve();
 
     const controller = this.callbacks?.getAbortController();
     if (controller) controller.abort();
@@ -129,7 +131,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
     for (const sentence of sentences) {
       this.pendingSentences.push(sentence);
-      this.synthesizeAndEnqueue(sentence);
+      this.synthesisChain = this.synthesisChain.then(() => this.synthesizeAndEnqueue(sentence));
     }
 
     if (this.state() === ConversationState.Processing && this.pendingSentences.length > 0) {
@@ -141,7 +143,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     if (this.sentenceBuffer.trim()) {
       const finalSentence = this.sentenceBuffer.trim();
       this.pendingSentences.push(finalSentence);
-      this.synthesizeAndEnqueue(finalSentence);
+      this.synthesisChain = this.synthesisChain.then(() => this.synthesizeAndEnqueue(finalSentence));
       this.sentenceBuffer = '';
     }
 
@@ -170,6 +172,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.interimText.set('');
     this.sentenceBuffer = '';
     this.pendingSentences = [];
+    this.synthesisChain = Promise.resolve();
   }
 
   private async transitionToListening(): Promise<void> {
@@ -215,12 +218,13 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.state.set(ConversationState.Processing);
     this.sentenceBuffer = '';
     this.pendingSentences = [];
+    this.synthesisChain = Promise.resolve();
     await this.callbacks?.sendMessage();
   }
 
   private extractSentences(): string[] {
     const sentences: string[] = [];
-    const regex = /[^.!?:]+[.!?:]\s*/g;
+    const regex = /[^.!?]+[.!?]\s*/g;
     let match: RegExpExecArray | null;
     let lastIndex = 0;
 
