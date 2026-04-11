@@ -88,6 +88,22 @@
       </button>
     </div>
 
+    @if (isAdmin()) {
+      <div class="icon">
+        <button
+          type="button"
+          class="icon-button"
+          id="open-period-closing"
+          (click)="onClickPeriodClosing()"
+          [attr.aria-label]="'periodClosing.title' | translate"
+          [placement]="tooltipPlacement"
+          ngbTooltip="{{ 'periodClosing.title' | translate }}"
+        >
+          <app-icon-period-closing #periodClosingIcon></app-icon-period-closing>
+        </button>
+      </div>
+    }
+
     <!-- <div class="icon">
       <button
         type="button"
@@ -188,21 +204,6 @@
           [attr.aria-label]="'Open Settings (Alt+8)'"
         >
           <app-icon-setting #settingsIcon></app-icon-setting>
-        </button>
-      </div>
-    }
-    @if (isAdmin()) {
-      <div class="icon">
-        <button
-          type="button"
-          class="icon-button"
-          id="open-period-closing"
-          (click)="onClickPeriodClosing()"
-          [attr.aria-label]="'periodClosing.title' | translate"
-          [placement]="tooltipPlacement"
-          ngbTooltip="{{ 'periodClosing.title' | translate }}"
-        >
-          <app-icon-setting></app-icon-setting>
         </button>
       </div>
     }

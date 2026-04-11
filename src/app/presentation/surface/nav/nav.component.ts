@@ -45,6 +45,7 @@ import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
 import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
 import { IconMailComponent } from '../../icons/icon-mail.component';
 import { PluginIconComponent } from '../../icons/plugin-icon.component';
+import { IconPeriodClosingComponent } from '../../icons/icon-period-closing.component';
 
 type NavigationPage =
   | 'absence'
@@ -79,6 +80,7 @@ type NavigationPage =
     IconAvailabilityComponent,
     IconMailComponent,
     PluginIconComponent,
+    IconPeriodClosingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -92,7 +94,10 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
   @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
   @ViewChild('mailIcon') mailIcon!: IconMailComponent;
-  @ViewChildren(PluginIconComponent) pluginIcons!: QueryList<PluginIconComponent>;
+  @ViewChild('periodClosingIcon')
+  periodClosingIcon!: IconPeriodClosingComponent;
+  @ViewChildren(PluginIconComponent)
+  pluginIcons!: QueryList<PluginIconComponent>;
 
   // Services
   public authorizationService = inject(AuthorizationService);
@@ -113,7 +118,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   public inboxVisibilityService = inject(InboxVisibilityService);
   public featurePluginState = inject(FeaturePluginStateService);
 
-  public tooltipPlacement = document.documentElement.dir === 'rtl' ? 'left' : 'right';
+  public tooltipPlacement =
+    document.documentElement.dir === 'rtl' ? 'left' : 'right';
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = signal<string>('');
   private currentPage = signal<NavigationPage>('');
@@ -379,6 +385,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.settingsIcon,
       this.availabilityIcon,
       this.mailIcon,
+      this.periodClosingIcon,
     ];
 
     icons.forEach((icon) => {
@@ -409,6 +416,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       settings: this.settingsIcon,
       availability: this.availabilityIcon,
       inbox: this.mailIcon,
+      'period-closing': this.periodClosingIcon,
     };
 
     const icon = iconMap[iconName as keyof typeof iconMap];
@@ -430,7 +438,9 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private isPluginPage(page: string): boolean {
-    return this.featurePluginState.pluginNavItems().some((p) => p.name === page);
+    return this.featurePluginState
+      .pluginNavItems()
+      .some((p) => p.name === page);
   }
 
   private setSelectedIconColor(): void {
