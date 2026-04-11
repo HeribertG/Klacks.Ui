@@ -10,12 +10,19 @@ import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const TTS_SYNTHESIZE_ENDPOINT = 'tts/synthesize';
+const TTS_VOICES_ENDPOINT = 'tts/voices';
 
 export interface TtsSynthesizeRequest {
   text: string;
   locale: string;
   providerId?: string;
   voiceId?: string;
+}
+
+export interface TtsVoiceDto {
+  voiceId: string;
+  locale: string;
+  displayName: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +46,27 @@ export class DataTtsService {
       return await response.blob();
     } catch {
       return null;
+    }
+  }
+
+  async getVoices(providerId?: string): Promise<TtsVoiceDto[]> {
+    try {
+      const token = localStorage.getItem(StorageKeys.TOKEN);
+      const url = providerId
+        ? `${this.baseUrl}${TTS_VOICES_ENDPOINT}?providerId=${providerId}`
+        : `${this.baseUrl}${TTS_VOICES_ENDPOINT}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) return [];
+      return (await response.json()) as TtsVoiceDto[];
+    } catch {
+      return [];
     }
   }
 }

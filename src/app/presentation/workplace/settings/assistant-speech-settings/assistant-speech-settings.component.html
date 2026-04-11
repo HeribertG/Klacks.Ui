@@ -45,7 +45,7 @@
       <div class="form-group firstColumn">
         <label for="ttsVoice">{{ "setting.speech.tts-voice" | translate }}</label>
         <select class="form-select" [(ngModel)]="ttsVoice" id="ttsVoice" (ngModelChange)="onSettingChanged()">
-          @for (voice of ttsVoices; track voice.value) {
+          @for (voice of ttsVoices(); track voice.value) {
             <option [value]="voice.value">{{ voice.label }}</option>
           }
         </select>
@@ -54,7 +54,7 @@
       <div class="form-group secondColumn">
         <label for="transcriptionModel">{{ "setting.speech.transcription-model" | translate }}</label>
         <select class="form-select" [(ngModel)]="transcriptionModel" id="transcriptionModel" (ngModelChange)="onSettingChanged()">
-          @for (model of transcriptionModels; track model.value) {
+          @for (model of transcriptionModels(); track model.value) {
             <option [value]="model.value">{{ model.label }}</option>
           }
         </select>

@@ -11,12 +11,15 @@
  * @param outputMode - Selected output mode (text, audio, or both)
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
  */
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
+import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
+import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 @Component({
@@ -32,6 +35,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
   private dataSttService = inject(DataSttService);
+  private dataTtsService = inject(DataTtsService);
+  private dataAssistantService = inject(DataAssistantService);
 
   private isInitialized = false;
 
@@ -45,32 +50,9 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
 
-  readonly ttsVoices = [
-    { value: VoiceId.Auto, label: 'Auto (per Sprache)' },
-    { value: 'de-DE-ConradNeural', label: 'Deutsch - Conrad' },
-    { value: 'de-DE-KatjaNeural', label: 'Deutsch - Katja' },
-    { value: 'en-US-GuyNeural', label: 'English - Guy' },
-    { value: 'en-US-JennyNeural', label: 'English - Jenny' },
-    { value: 'fr-FR-HenriNeural', label: 'Français - Henri' },
-    { value: 'fr-FR-DeniseNeural', label: 'Français - Denise' },
-    { value: 'es-ES-AlvaroNeural', label: 'Español - Alvaro' },
-    { value: 'es-ES-ElviraNeural', label: 'Español - Elvira' },
-    { value: 'it-IT-DiegoNeural', label: 'Italiano - Diego' },
-    { value: 'it-IT-ElsaNeural', label: 'Italiano - Elsa' },
-    { value: 'pt-BR-AntonioNeural', label: 'Português - Antonio' },
-    { value: 'tr-TR-AhmetNeural', label: 'Türkçe - Ahmet' },
-    { value: 'pl-PL-MarekNeural', label: 'Polski - Marek' },
-    { value: 'ja-JP-KeitaNeural', label: '日本語 - Keita' },
-    { value: 'ko-KR-InJoonNeural', label: '한국어 - InJoon' },
-    { value: 'zh-CN-YunxiNeural', label: '中文 - Yunxi' },
-    { value: 'zh-TW-YunJheNeural', label: '繁體中文 - YunJhe' },
-    { value: 'ar-SA-HamedNeural', label: 'العربية - Hamed' },
-    { value: 'he-IL-AvriNeural', label: 'עברית - Avri' },
-    { value: 'th-TH-NiwatNeural', label: 'ไทย - Niwat' },
-    { value: 'vi-VN-NamMinhNeural', label: 'Tiếng Việt - NamMinh' },
-    { value: 'id-ID-ArdiNeural', label: 'Indonesia - Ardi' },
-    { value: 'ms-MY-OsmanNeural', label: 'Melayu - Osman' },
-  ];
+  readonly ttsVoices = signal<{ value: string; label: string }[]>([
+    { value: VoiceId.Auto, label: 'Auto' },
+  ]);
 
   readonly sttProviders = [
     { value: SttEngine.Browser, labelKey: 'setting.speech.stt-browser' },
@@ -91,11 +73,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     { value: OutputMode.Both, labelKey: 'setting.speech.output-both' },
   ];
 
-  readonly transcriptionModels = [
-    { value: SpeechDefaults.TranscriptionModel, label: 'DeepSeek Chat' },
-    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-    { value: 'claude-haiku', label: 'Claude Haiku' },
-  ];
+  readonly transcriptionModels = signal<{ value: string; label: string }[]>([]);
 
   async ngOnInit(): Promise<void> {
     await this.appSettingsService.loadSettingsAsync();
@@ -116,6 +94,23 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.outputMode = speech.outputMode;
     this.silenceThresholdMs = speech.silenceThresholdMs;
     this.isInitialized = true;
+
+    const voices = await this.dataTtsService.getVoices();
+    this.ttsVoices.set([
+      { value: VoiceId.Auto, label: 'Auto' },
+      ...voices.map(v => ({ value: v.voiceId, label: `${v.locale} - ${v.displayName}` })),
+    ]);
+
+    try {
+      const models = await firstValueFrom(this.dataAssistantService.getModels());
+      this.transcriptionModels.set(
+        models
+          .filter(m => m.isEnabled)
+          .map(m => ({ value: m.modelId, label: m.displayName ?? m.modelId })),
+      );
+    } catch {
+      this.transcriptionModels.set([]);
+    }
   }
 
   onSettingChanged(): void {
