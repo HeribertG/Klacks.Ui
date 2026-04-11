@@ -14,4 +14,5 @@ export interface ExportLog {
   recordCount: number;
   exportedAt: string;
   exportedBy: string;
+  exportedByName: string | null;
 }

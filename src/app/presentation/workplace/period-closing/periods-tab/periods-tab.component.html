@@ -50,22 +50,32 @@
           }
         </div>
 
-        <table class="table table-sm table-hover mt-2">
-          <thead>
-            <tr>
-              <th>{{ 'date' | translate }}</th>
-              <th class="text-end">{{ 'periodClosing.tabs.periods' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of summary(); track row.date) {
-              <tr [class.table-success]="row.isFullySealed">
-                <td>{{ row.date | date:'mediumDate' }}</td>
-                <td class="text-end">{{ row.sealedWorkCount }} / {{ row.totalWorkCount }}</td>
+        <div id="periods-summary-section" class="container-table">
+          <table id="periods-summary-table" class="table table-borderless">
+            <thead id="periods-summary-head">
+              <tr>
+                <th id="periods-summary-header-date" class="table-header header-date">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.periods.columnDate' | translate }}</p>
+                  </div>
+                </th>
+                <th id="periods-summary-header-sealed" class="table-header header-sealed">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.periods.columnSealed' | translate }}</p>
+                  </div>
+                </th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody id="periods-summary-body">
+              @for (row of summary(); track row.date; let i = $index) {
+                <tr [id]="'periods-summary-row-' + i" class="table-row" [class.active]="row.isFullySealed">
+                  <td [id]="'periods-summary-cell-date-' + i" class="table-cell">{{ row.date | date:'mediumDate' }}</td>
+                  <td [id]="'periods-summary-cell-sealed-' + i" class="table-cell cell-right">{{ row.sealedWorkCount }} / {{ row.totalWorkCount }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </section>
     }
 

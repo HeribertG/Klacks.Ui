@@ -1,4 +1,5 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 
 .periods-tab-body {
   display: flex;
@@ -53,6 +54,17 @@
 
 .summary-value {
   color: var(--bs-secondary, #6c757d);
+}
+
+.header-date {
+  width: 180px;
+  min-width: 180px;
+}
+
+.header-sealed {
+  width: 200px;
+  min-width: 200px;
+  text-align: end;
 }
 
 .actions-section {

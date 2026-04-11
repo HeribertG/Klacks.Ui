@@ -16,4 +16,5 @@ export interface PeriodAuditLog {
   affectedCount: number;
   performedAt: string;
   performedBy: string;
+  performedByName: string | null;
 }
