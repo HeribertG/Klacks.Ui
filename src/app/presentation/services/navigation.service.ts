@@ -118,6 +118,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/floor-plan']);
   }
 
+  navigateToPeriodClosing(): void {
+    this.router.navigate(['/workplace/period-closing']);
+  }
+
   navigateToRouterToken(routerToken: string): void {
     this.router.navigate([routerToken]);
   }

@@ -59,6 +59,7 @@ type NavigationPage =
   | 'edit-address'
   | 'edit-group'
   | 'inbox'
+  | 'period-closing'
   | (string & {});
 
 @Component({
@@ -145,6 +146,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'floor-plan';
       case 'inbox':
         return 'inbox';
+      case 'period-closing':
+        return 'period-closing';
       default:
         if (this.isPluginPage(page)) {
           return 'plugin:' + page;
@@ -329,6 +332,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickSettings(): void {
     this.currentPage.set('settings');
     this.navigationService.navigateToSettings();
+  }
+
+  onClickPeriodClosing(): void {
+    this.currentPage.set('period-closing');
+    this.navigationService.navigateToPeriodClosing();
   }
 
   onClickAvailability(): void {

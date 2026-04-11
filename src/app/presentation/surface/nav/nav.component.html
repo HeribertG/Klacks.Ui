@@ -191,5 +191,20 @@
         </button>
       </div>
     }
+    @if (isAdmin()) {
+      <div class="icon">
+        <button
+          type="button"
+          class="icon-button"
+          id="open-period-closing"
+          (click)="onClickPeriodClosing()"
+          [attr.aria-label]="'periodClosing.title' | translate"
+          [placement]="tooltipPlacement"
+          ngbTooltip="{{ 'periodClosing.title' | translate }}"
+        >
+          <app-icon-setting></app-icon-setting>
+        </button>
+      </div>
+    }
   </div>
 </div>
