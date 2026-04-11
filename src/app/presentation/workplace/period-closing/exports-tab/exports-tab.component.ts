@@ -65,9 +65,9 @@ export class ExportsTabComponent {
         const fileName = this.extractFileName(res.headers.get('content-disposition'))
           ?? `order-export_${this.startDate()}_${this.endDate()}.${this.format()}`;
         this.triggerDownload(blob, fileName);
-        this.toastShowService.showSuccess(
-          this.translate.instant('periodClosing.success.exported', { file: fileName })
-        );
+        const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
+        const header = this.translate.instant('periodClosing.action.export');
+        this.toastShowService.showSuccess(msg, header);
         this.busy.set(false);
       },
       error: (err) => {
