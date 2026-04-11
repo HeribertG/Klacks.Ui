@@ -34,16 +34,8 @@ input {
   margin-top: 5px;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-
-  input[type="checkbox"] {
-    width: auto;
-  }
+.checkbox-label input[type="checkbox"] {
+  width: auto;
 }
 
 .shift-work-label {

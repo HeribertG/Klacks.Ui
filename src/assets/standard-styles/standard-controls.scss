@@ -82,6 +82,10 @@ option {
 }
 
 .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
   padding-inline-end: 25px;
   white-space: nowrap;
   color: var(--colorLabel);

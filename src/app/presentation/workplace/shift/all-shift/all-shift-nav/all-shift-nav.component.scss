@@ -80,8 +80,6 @@ ul li {
 }
 
 .checkbox-label {
-  display: flex;
-  align-items: center;
   gap: 8px;
   white-space: normal;
   word-wrap: break-word;
@@ -92,7 +90,6 @@ ul li {
 
 .checkbox-label input[type="checkbox"] {
   flex-shrink: 0;
-  cursor: pointer;
 }
 
 .checkbox-label input[type="checkbox"]:disabled {
