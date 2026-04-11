@@ -1,0 +1,47 @@
+<div id="period-closing-container" class="container-dashboard">
+  <div id="period-closing-headline" class="container-headline">
+    {{ 'periodClosing.title' | translate }}
+  </div>
+
+  <div id="period-closing-description" class="container-subtitle">
+    {{ 'periodClosing.description' | translate }}
+  </div>
+
+  <div class="tab-bar">
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab() === 'periods'"
+      (click)="setTab('periods')">
+      {{ 'periodClosing.tabs.periods' | translate }}
+    </button>
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab() === 'exports'"
+      (click)="setTab('exports')">
+      {{ 'periodClosing.tabs.exports' | translate }}
+    </button>
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab() === 'audit'"
+      (click)="setTab('audit')">
+      {{ 'periodClosing.tabs.audit' | translate }}
+    </button>
+  </div>
+
+  <div class="tab-body">
+    @switch (activeTab()) {
+      @case ('periods') {
+        <app-periods-tab></app-periods-tab>
+      }
+      @case ('exports') {
+        <app-exports-tab></app-exports-tab>
+      }
+      @case ('audit') {
+        <app-audit-tab></app-audit-tab>
+      }
+    }
+  </div>
+</div>
