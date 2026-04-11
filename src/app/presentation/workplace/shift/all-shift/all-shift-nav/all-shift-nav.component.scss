@@ -79,24 +79,6 @@ ul li {
   opacity: 0.5;
 }
 
-.checkbox-label {
-  gap: 8px;
-  white-space: normal;
-  word-wrap: break-word;
-  max-width: 100%;
-  padding-inline-start: 20px;
-  margin-bottom: 8px;
-}
-
-.checkbox-label input[type="checkbox"] {
-  flex-shrink: 0;
-}
-
-.checkbox-label input[type="checkbox"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
 .info-box {
   color: var(--colorHeadline);
   background-color: var(--gridBackgroundColorInfo);
