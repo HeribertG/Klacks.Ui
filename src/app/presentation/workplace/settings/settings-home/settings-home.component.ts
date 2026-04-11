@@ -46,6 +46,7 @@ import { SpamRulesComponent } from '../spam-rules/spam-rules.component';
 import { LanguagePluginsComponent } from '../language-plugins/language-plugins.component';
 import { MessagingProvidersComponent, OwnerMessengersComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
+import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
@@ -98,6 +99,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     MessagingProvidersComponent,
     OwnerMessengersComponent,
     FeaturePluginsComponent,
+    AssistantSpeechSettingsComponent,
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,
     DataRetentionSettingComponent,

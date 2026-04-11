@@ -65,6 +65,11 @@
 .input-container.disabled {
   opacity: 0.5;
   pointer-events: none;
+
+  .btn-voice {
+    pointer-events: auto;
+    opacity: 1;
+  }
 }
 
 .model-selection-header {
@@ -408,6 +413,55 @@
   30% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+.tts-button {
+  background: none;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--colorLabel);
+  font-size: 12px;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  align-self: flex-start;
+
+  &:hover {
+    background: var(--backgroundColorFocus);
+    color: colors.$standartGreenColor;
+    border-color: colors.$standartGreenColor;
+  }
+
+  &.loading {
+    cursor: wait;
+    border-color: colors.$standartGreenColor;
+  }
+
+  &.playing {
+    background: colors.$standartGreenColor;
+    color: colors.$standartWhiteColor;
+    border-color: colors.$standartGreenColor;
+
+    &:hover {
+      background: colors.$splitButtonGreenColor;
+      color: colors.$standartWhiteColor;
+    }
+  }
+
+  .tts-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--cardBorderColor);
+    border-top-color: colors.$standartGreenColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
   }
 }
 
