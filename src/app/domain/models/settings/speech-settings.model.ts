@@ -11,6 +11,8 @@
  * @param outputMode - How Klacksy responses are presented: text, audio, or both
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
  */
+import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+
 export interface ISpeechSettings {
   sttEngine: string;
   sttApiKey: string;
@@ -23,12 +25,12 @@ export interface ISpeechSettings {
 }
 
 export class SpeechSettings implements ISpeechSettings {
-  sttEngine = 'browser';
+  sttEngine = SttEngine.Browser;
   sttApiKey = '';
-  ttsVoice = 'auto';
-  ttsProvider = 'edge';
-  transcriptionModel = 'deepseek-chat';
+  ttsVoice = VoiceId.Auto;
+  ttsProvider = TtsProvider.Edge;
+  transcriptionModel = SpeechDefaults.TranscriptionModel;
   enhancementEnabled = true;
-  outputMode = 'both';
-  silenceThresholdMs = 1500;
+  outputMode = OutputMode.Both;
+  silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
 }

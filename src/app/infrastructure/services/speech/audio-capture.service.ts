@@ -8,12 +8,13 @@
  */
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
+import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 @Injectable()
 export class AudioCaptureService implements OnDestroy {
   readonly isCapturing = signal(false);
   readonly isSpeechDetected = signal(false);
-  readonly silenceThresholdMs = signal(1500);
+  readonly silenceThresholdMs = signal(SpeechDefaults.SilenceThresholdMs);
 
   readonly audioChunk$ = new Subject<ArrayBuffer>();
   readonly silenceDetected$ = new Subject<void>();
@@ -23,7 +24,7 @@ export class AudioCaptureService implements OnDestroy {
   private mediaStream: MediaStream | null = null;
   private workletNode: ScriptProcessorNode | null = null;
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly vadThreshold = 0.01;
+  private readonly vadThreshold = SpeechDefaults.VadThreshold;
 
   setSilenceThresholdMs(ms: number): void {
     this.silenceThresholdMs.set(ms);
@@ -33,13 +34,13 @@ export class AudioCaptureService implements OnDestroy {
     if (this.isCapturing()) return;
 
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      audio: { sampleRate: SpeechDefaults.SampleRate, channelCount: SpeechDefaults.ChannelCount, echoCancellation: true, noiseSuppression: true },
     });
 
-    this.audioContext = new AudioContext({ sampleRate: 16000 });
+    this.audioContext = new AudioContext({ sampleRate: SpeechDefaults.SampleRate });
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
 
-    this.workletNode = this.audioContext.createScriptProcessor(4096, 1, 1);
+    this.workletNode = this.audioContext.createScriptProcessor(SpeechDefaults.AudioProcessorBufferSize, SpeechDefaults.ChannelCount, SpeechDefaults.ChannelCount);
     this.workletNode.onaudioprocess = (event: AudioProcessingEvent) => {
       const inputData = event.inputBuffer.getChannelData(0);
       this.processAudioChunk(inputData);

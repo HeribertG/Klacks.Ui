@@ -17,6 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
+import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
 @Component({
   selector: 'app-assistant-speech-settings',
@@ -34,18 +35,18 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   private isInitialized = false;
 
-  sttEngine = 'browser';
+  sttEngine = SttEngine.Browser;
   sttApiKey = '';
   sttApiKeyConfigured = false;
-  ttsVoice = 'auto';
-  ttsProvider = 'edge';
-  transcriptionModel = 'deepseek-chat';
+  ttsVoice = VoiceId.Auto;
+  ttsProvider = TtsProvider.Edge;
+  transcriptionModel = SpeechDefaults.TranscriptionModel;
   enhancementEnabled = true;
-  outputMode = 'both';
-  silenceThresholdMs = 1500;
+  outputMode = OutputMode.Both;
+  silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
 
   readonly ttsVoices = [
-    { value: 'auto', label: 'Auto (per Sprache)' },
+    { value: VoiceId.Auto, label: 'Auto (per Sprache)' },
     { value: 'de-DE-ConradNeural', label: 'Deutsch - Conrad' },
     { value: 'de-DE-KatjaNeural', label: 'Deutsch - Katja' },
     { value: 'en-US-GuyNeural', label: 'English - Guy' },
@@ -72,26 +73,26 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   ];
 
   readonly sttProviders = [
-    { value: 'browser', labelKey: 'setting.speech.stt-browser' },
-    { value: 'deepgram', labelKey: 'setting.speech.stt-deepgram' },
-    { value: 'groq-whisper', labelKey: 'setting.speech.stt-groq' },
-    { value: 'assemblyai', labelKey: 'setting.speech.stt-assemblyai' },
+    { value: SttEngine.Browser, labelKey: 'setting.speech.stt-browser' },
+    { value: SttEngine.Deepgram, labelKey: 'setting.speech.stt-deepgram' },
+    { value: SttEngine.GroqWhisper, labelKey: 'setting.speech.stt-groq' },
+    { value: SttEngine.AssemblyAi, labelKey: 'setting.speech.stt-assemblyai' },
   ];
 
   readonly ttsProviders = [
-    { value: 'edge', labelKey: 'setting.speech.tts-edge' },
-    { value: 'openai', labelKey: 'setting.speech.tts-openai' },
-    { value: 'elevenlabs', labelKey: 'setting.speech.tts-elevenlabs' },
+    { value: TtsProvider.Edge, labelKey: 'setting.speech.tts-edge' },
+    { value: TtsProvider.OpenAi, labelKey: 'setting.speech.tts-openai' },
+    { value: TtsProvider.ElevenLabs, labelKey: 'setting.speech.tts-elevenlabs' },
   ];
 
   readonly outputModes = [
-    { value: 'text', labelKey: 'setting.speech.output-text-only' },
-    { value: 'audio', labelKey: 'setting.speech.output-audio-only' },
-    { value: 'both', labelKey: 'setting.speech.output-both' },
+    { value: OutputMode.Text, labelKey: 'setting.speech.output-text-only' },
+    { value: OutputMode.Audio, labelKey: 'setting.speech.output-audio-only' },
+    { value: OutputMode.Both, labelKey: 'setting.speech.output-both' },
   ];
 
   readonly transcriptionModels = [
-    { value: 'deepseek-chat', label: 'DeepSeek Chat' },
+    { value: SpeechDefaults.TranscriptionModel, label: 'DeepSeek Chat' },
     { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
     { value: 'claude-haiku', label: 'Claude Haiku' },
   ];
