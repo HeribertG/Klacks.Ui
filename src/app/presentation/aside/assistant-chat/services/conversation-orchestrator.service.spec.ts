@@ -10,6 +10,7 @@ import { ConversationOrchestratorService, ConversationState, ConversationCallbac
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
+import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
@@ -35,6 +36,7 @@ describe('ConversationOrchestratorService', () => {
     error$: Subject<Error>;
   };
   let mockTranscription: { enhance: ReturnType<typeof vi.fn> };
+  let mockDataTts: { synthesize: ReturnType<typeof vi.fn> };
   let mockAudioQueue: {
     enqueue: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
@@ -91,6 +93,10 @@ describe('ConversationOrchestratorService', () => {
       enhance: vi.fn().mockResolvedValue('enhanced'),
     };
 
+    mockDataTts = {
+      synthesize: vi.fn().mockResolvedValue(new Blob()),
+    };
+
     mockAudioQueue = {
       enqueue: vi.fn(),
       stop: vi.fn(),
@@ -99,18 +105,13 @@ describe('ConversationOrchestratorService', () => {
       playbackFinished$: new Subject(),
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      blob: () => Promise.resolve(new Blob()),
-    });
-    localStorage.setItem('JWT_TOKEN', 'fake-token');
-
     TestBed.configureTestingModule({
       providers: [
         ConversationOrchestratorService,
         { provide: AudioCaptureService, useValue: mockAudioCapture },
         { provide: SttStreamService, useValue: mockSttStream },
         { provide: DataTranscriptionService, useValue: mockTranscription },
+        { provide: DataTtsService, useValue: mockDataTts },
         { provide: AudioQueueService, useValue: mockAudioQueue },
         { provide: AppSettingsManagementService, useValue: { speechSettings: vi.fn(() => currentSettings) } },
       ],
@@ -120,7 +121,6 @@ describe('ConversationOrchestratorService', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    localStorage.removeItem('JWT_TOKEN');
   });
 
   // --- Existing smoke tests ---

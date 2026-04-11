@@ -11,11 +11,10 @@
 import { Injectable, OnDestroy, signal, inject, NgZone } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
+import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
@@ -40,6 +39,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly audioCapture = inject(AudioCaptureService);
   private readonly sttStream = inject(SttStreamService);
   private readonly transcription = inject(DataTranscriptionService);
+  private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
   private readonly settings = inject(AppSettingsManagementService);
   private readonly ngZone = inject(NgZone);
@@ -237,24 +237,10 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private async synthesizeAndEnqueue(sentence: string): Promise<void> {
     try {
-      const baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
-      const token = localStorage.getItem(StorageKeys.TOKEN);
-
-      const response = await fetch(`${baseUrl}tts/synthesize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ text: sentence, locale: this.locale }),
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
+      const blob = await this.dataTts.synthesize({ text: sentence, locale: this.locale });
+      if (blob) {
         this.audioQueue.enqueue(blob);
       }
-    } catch {
-      // TTS failure — skip this sentence
     } finally {
       const idx = this.pendingSentences.indexOf(sentence);
       if (idx >= 0) {
