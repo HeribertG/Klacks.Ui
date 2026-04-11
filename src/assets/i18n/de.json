@@ -2016,5 +2016,6 @@
   "periodClosing.export.columnSize": "Größe",
   "periodClosing.export.columnRecords": "Einträge",
   "periodClosing.export.columnDate": "Erzeugt am",
-  "periodClosing.export.columnUser": "Benutzer"
+  "periodClosing.export.columnUser": "Benutzer",
+  "periodClosing.audit.empty": "Keine Einträge im ausgewählten Zeitraum."
 }

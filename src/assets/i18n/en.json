@@ -2016,5 +2016,6 @@
   "periodClosing.export.columnSize": "Size",
   "periodClosing.export.columnRecords": "Records",
   "periodClosing.export.columnDate": "Created at",
-  "periodClosing.export.columnUser": "User"
+  "periodClosing.export.columnUser": "User",
+  "periodClosing.audit.empty": "No entries in the selected date range."
 }
