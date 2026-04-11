@@ -30,6 +30,10 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { VoiceModeAdapterService } from './voice-mode-adapter.service';
+import { ConversationOrchestratorService } from 'src/app/presentation/aside/assistant-chat/services/conversation-orchestrator.service';
+import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
+import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
+import { AudioQueueService } from 'src/app/presentation/aside/assistant-chat/services/audio-queue.service';
 import { environment } from 'src/environments/environment';
 
 export function providePluginHost(): Provider[] {
@@ -87,6 +91,10 @@ export function providePluginHost(): Provider[] {
 
 export function provideMessagingVoice(): Provider[] {
   return [
+    AudioCaptureService,
+    SttStreamService,
+    AudioQueueService,
+    ConversationOrchestratorService,
     {
       provide: PLUGIN_VOICE_SERVICE,
       useClass: VoiceModeAdapterService,
