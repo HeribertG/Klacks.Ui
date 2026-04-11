@@ -73,19 +73,24 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
           this.navigationService.navigateToDashboard();
           break;
         case '1':
-          this.navigationService.navigateToAbsence();
+          this.navigationService.navigateToSchedule();
           break;
         case '2':
-          this.navigationService.navigateToGroup();
+          this.navigationService.navigateToAbsence();
           break;
         case '3':
-          this.navigationService.navigateToShift();
+          this.navigationService.navigateToClientAvailability();
           break;
         case '4':
-          this.navigationService.navigateToSchedule();
+          this.navigationService.navigateToShift();
           break;
         case '5':
           this.navigationService.navigateToClient();
+          break;
+        case '6':
+          if (this.isAdmin) {
+            this.navigationService.navigateToGroup();
+          }
           break;
         case '7':
           this.navigationService.navigateToProfile();
@@ -94,6 +99,9 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
           if (this.isAdmin) {
             this.navigationService.navigateToSettings();
           }
+          break;
+        case '9':
+          this.navigationService.navigateToInbox();
           break;
       }
     } catch (error) {

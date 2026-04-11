@@ -85,17 +85,17 @@ type NavigationPage =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
-  @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
-  @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
   @ViewChild('scheduleIcon') scheduleIcon!: IconTimeScheduleComponent;
-  @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
-  @ViewChild('userIcon') userIcon!: IconUserComponent;
-  @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
+  @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
   @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
-  @ViewChild('mailIcon') mailIcon!: IconMailComponent;
+  @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
+  @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
+  @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
   @ViewChild('periodClosingIcon')
   periodClosingIcon!: IconPeriodClosingComponent;
+  @ViewChild('mailIcon') mailIcon!: IconMailComponent;
+  @ViewChild('userIcon') userIcon!: IconUserComponent;
+  @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
   @ViewChildren(PluginIconComponent)
   pluginIcons!: QueryList<PluginIconComponent>;
 
@@ -376,16 +376,16 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   // Icon Management
   private resetIconColor(): void {
     const icons = [
-      this.absenceIcon,
-      this.groupIcon,
-      this.shiftIcon,
       this.scheduleIcon,
+      this.absenceIcon,
+      this.availabilityIcon,
+      this.shiftIcon,
       this.employeesIcon,
+      this.groupIcon,
+      this.periodClosingIcon,
+      this.mailIcon,
       this.userIcon,
       this.settingsIcon,
-      this.availabilityIcon,
-      this.mailIcon,
-      this.periodClosingIcon,
     ];
 
     icons.forEach((icon) => {

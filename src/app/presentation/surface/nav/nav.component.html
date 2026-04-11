@@ -4,31 +4,45 @@
       <button
         type="button"
         class="icon-button"
+        id="open-schedules"
+        (click)="onClickSchedule()"
+        [attr.aria-label]="'Manage schedules (Alt+1)'"
+        [placement]="tooltipPlacement"
+        ngbTooltip="{{ all_schedule }} (Alt+1)"
+      >
+        <app-time-schedule #scheduleIcon></app-time-schedule>
+      </button>
+    </div>
+
+    <div class="icon">
+      <button
+        type="button"
+        class="icon-button"
         id="open-absences"
         (click)="onClickAbsence()"
-        [attr.aria-label]="'Manage absences (Alt+1)'"
+        [attr.aria-label]="'Manage absences (Alt+2)'"
         [placement]="tooltipPlacement"
-        ngbTooltip="{{ absence }} (Alt+1)"
+        ngbTooltip="{{ absence }} (Alt+2)"
       >
         <app-icon-gantt #absenceIcon></app-icon-gantt>
       </button>
     </div>
 
-    @if (isAdmin()) {
-      <div class="icon">
-        <button
-          type="button"
-          class="icon-button"
-          id="open-groups"
-          (click)="onClickGroup()"
-          [attr.aria-label]="'Manage groups (Alt+2)'"
-          [placement]="tooltipPlacement"
-          ngbTooltip="{{ all_group }} (Alt+2)"
-        >
-          <app-icon-group #groupIcon></app-icon-group>
-        </button>
-      </div>
-    }
+    <div class="icon">
+      <button
+        type="button"
+        class="icon-button"
+        id="open-availability"
+        (click)="onClickAvailability()"
+        [attr.aria-label]="
+          ('client-availability.nav.tooltip' | translate) + ' (Alt+3)'
+        "
+        [placement]="tooltipPlacement"
+        ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+3)"
+      >
+        <app-icon-availability #availabilityIcon></app-icon-availability>
+      </button>
+    </div>
 
     <div class="icon">
       <button
@@ -36,25 +50,11 @@
         class="icon-button"
         id="open-shifts"
         (click)="onClickShift()"
-        [attr.aria-label]="'Manage shifts (Alt+3)'"
+        [attr.aria-label]="'Manage shifts (Alt+4)'"
         [placement]="tooltipPlacement"
-        ngbTooltip="{{ all_shift }} (Alt+3)"
+        ngbTooltip="{{ all_shift }} (Alt+4)"
       >
         <app-icon-order #shiftIcon></app-icon-order>
-      </button>
-    </div>
-
-    <div class="icon">
-      <button
-        type="button"
-        class="icon-button"
-        id="open-schedules"
-        (click)="onClickSchedule()"
-        [attr.aria-label]="'Manage schedules (Alt+4)'"
-        [placement]="tooltipPlacement"
-        ngbTooltip="{{ all_schedule }} (Alt+4)"
-      >
-        <app-time-schedule #scheduleIcon></app-time-schedule>
       </button>
     </div>
 
@@ -72,21 +72,21 @@
       </button>
     </div>
 
-    <div class="icon">
-      <button
-        type="button"
-        class="icon-button"
-        id="open-availability"
-        (click)="onClickAvailability()"
-        [attr.aria-label]="
-          ('client-availability.nav.tooltip' | translate) + ' (Alt+6)'
-        "
-        [placement]="tooltipPlacement"
-        ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+6)"
-      >
-        <app-icon-availability #availabilityIcon></app-icon-availability>
-      </button>
-    </div>
+    @if (isAdmin()) {
+      <div class="icon">
+        <button
+          type="button"
+          class="icon-button"
+          id="open-groups"
+          (click)="onClickGroup()"
+          [attr.aria-label]="'Manage groups (Alt+6)'"
+          [placement]="tooltipPlacement"
+          ngbTooltip="{{ all_group }} (Alt+6)"
+        >
+          <app-icon-group #groupIcon></app-icon-group>
+        </button>
+      </div>
+    }
 
     @if (isAdmin()) {
       <div class="icon">
