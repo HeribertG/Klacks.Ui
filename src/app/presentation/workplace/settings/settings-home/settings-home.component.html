@@ -349,6 +349,13 @@
       >
       </app-macros>
     </div>
+
+    <div id="settings-home-floor-plan-row" class="container-profilline">
+      <app-floor-plan-settings
+        id="settings-floor-plan"
+        class="container-setting-small first border-right-card border-bottom-card"
+      ></app-floor-plan-settings>
+    </div>
   }
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -356,12 +363,12 @@
     class="section-header first"
     tabindex="0"
     role="button"
-    (click)="toggleSection('integrations')"
-    (keydown.enter)="toggleSection('integrations')"
+    (click)="toggleSection('llm')"
+    (keydown.enter)="toggleSection('llm')"
   >
-    <span>{{ "setting.section.integrations" | translate }}</span>
+    <span>{{ "setting.section.llm" | translate }}</span>
     <button class="section-toggle-button">
-      @if (sections["integrations"]) {
+      @if (sections["llm"]) {
         <app-icon-angle-down></app-icon-angle-down>
       } @else {
         <app-icon-angle-right></app-icon-angle-right>
@@ -369,7 +376,7 @@
     </button>
   </div>
 
-  @if (sections["integrations"]) {
+  @if (sections["llm"]) {
     <div id="settings-home-llm-row" class="container-profilline">
       <app-llm-models
         id="settings-llm-models"
@@ -385,7 +392,56 @@
       >
       </app-llm-providers>
     </div>
+  }
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('klacksy')"
+    (keydown.enter)="toggleSection('klacksy')"
+  >
+    <span>{{ "setting.section.klacksy" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["klacksy"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["klacksy"]) {
+    <div id="settings-home-assistant-speech-row" class="container-profilline">
+      <app-assistant-speech-settings
+        id="settings-assistant-speech"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-assistant-speech-settings')"
+      >
+      </app-assistant-speech-settings>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('externalServices')"
+    (keydown.enter)="toggleSection('externalServices')"
+  >
+    <span>{{ "setting.section.externalServices" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["externalServices"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["externalServices"]) {
     <div id="settings-home-openroute-deepl-row" class="container-profilline">
       <app-openroute
         id="settings-openroute"
@@ -426,7 +482,27 @@
         </lib-owner-messengers>
       </div>
     }
+  }
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('plugins')"
+    (keydown.enter)="toggleSection('plugins')"
+  >
+    <span>{{ "setting.section.plugins" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["plugins"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["plugins"]) {
     <div id="settings-home-language-plugins-row" class="container-profilline">
       <app-language-plugins
         id="settings-language-plugins"
@@ -443,42 +519,6 @@
         (click)="isfocused('app-feature-plugins')"
       >
       </app-feature-plugins>
-    </div>
-
-    <div id="settings-home-assistant-speech-row" class="container-profilline">
-      <app-assistant-speech-settings
-        id="settings-assistant-speech"
-        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-        (click)="isfocused('app-assistant-speech-settings')"
-      >
-      </app-assistant-speech-settings>
-    </div>
-  }
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div
-    class="section-header first"
-    tabindex="0"
-    role="button"
-    (click)="toggleSection('workspace')"
-    (keydown.enter)="toggleSection('workspace')"
-  >
-    <span>{{ "setting.section.workspace" | translate }}</span>
-    <button class="section-toggle-button">
-      @if (sections["workspace"]) {
-        <app-icon-angle-down></app-icon-angle-down>
-      } @else {
-        <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-
-  @if (sections["workspace"]) {
-    <div id="settings-home-floor-plan-row" class="container-profilline">
-      <app-floor-plan-settings
-        id="settings-floor-plan"
-        class="container-setting-small first border-right-card border-bottom-card"
-      ></app-floor-plan-settings>
     </div>
   }
 

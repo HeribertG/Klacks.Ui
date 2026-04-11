@@ -126,8 +126,10 @@ export class SettingsHomeComponent implements OnInit {
     absence: true,
     communication: true,
     appearance: true,
-    integrations: true,
-    workspace: true,
+    llm: true,
+    klacksy: true,
+    externalServices: true,
+    plugins: true,
   };
 
   get settingsService(): DataManagementSettingsService {
