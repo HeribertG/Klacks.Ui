@@ -56,7 +56,7 @@ export class DataPeriodClosingService {
     groupId: string | null;
   }): Observable<HttpResponse<Blob>> {
     return this.httpClient.post(
-      `${environment.baseUrl}Exports/Export`,
+      `${environment.baseUrl}OrderExport`,
       request,
       { responseType: 'blob', observe: 'response' }
     );
