@@ -1,0 +1,27 @@
+.exports-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-field-narrow {
+  max-width: 6rem;
+}
+
+.filter-action {
+  padding-bottom: 0.1rem;
+}

@@ -5,7 +5,7 @@
  * sealed-period summary, audit log, and export log.
  */
 
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
@@ -45,5 +45,20 @@ export class DataPeriodClosingService {
   getExportLog(from: string, to: string): Observable<ExportLog[]> {
     const params = new HttpParams().set('from', from).set('to', to);
     return this.httpClient.get<ExportLog[]>(`${this.base}/ExportLog`, { params }).pipe(retry(3));
+  }
+
+  downloadOrderExport(request: {
+    startDate: string;
+    endDate: string;
+    format: string;
+    language: string;
+    currencyCode: string;
+    groupId: string | null;
+  }): Observable<HttpResponse<Blob>> {
+    return this.httpClient.post(
+      `${environment.baseUrl}Exports/Export`,
+      request,
+      { responseType: 'blob', observe: 'response' }
+    );
   }
 }
