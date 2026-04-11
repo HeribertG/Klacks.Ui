@@ -1,0 +1,33 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/**
+ * Shared styling for ngx-slider instances.
+ * Must be @use'd in the scss of every component that embeds an ngx-slider.
+ * Uses :host ::ng-deep + the internal .ngx-slider class so specificity
+ * exceeds the library's own (0,2,0) default rule.
+ */
+
+:host ::ng-deep .ngx-slider {
+  .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto;
+    bottom: 0;
+    background-color: #333;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
+    cursor: pointer;
+
+    &:after {
+      display: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .ngx-slider-bubble {
+    bottom: 14px;
+  }
+}

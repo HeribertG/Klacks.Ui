@@ -2,6 +2,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/standard-slider.scss";
 
 :host {
   display: block;
@@ -706,26 +707,6 @@
 
     ngx-slider {
       flex: 1;
-    }
-  }
-
-  ::ng-deep {
-    .custom-slider .ngx-slider .ngx-slider-pointer {
-      width: 8px;
-      height: 16px;
-      top: auto;
-      bottom: 0;
-      background-color: #333;
-      border-start-start-radius: 3px;
-      border-start-end-radius: 3px;
-    }
-
-    .custom-slider .ngx-slider .ngx-slider-pointer:after {
-      display: none;
-    }
-
-    .custom-slider .ngx-slider .ngx-slider-bubble {
-      bottom: 14px;
     }
   }
 }

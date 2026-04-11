@@ -1,3 +1,5 @@
+@use "../../../../../assets/standard-styles/standard-slider.scss";
+
 .availability-header {
   display: flex;
   align-items: center;
@@ -50,26 +52,6 @@
 
 .dropdown-menu {
   background-color: var(--backgroundColoPagination);
-}
-
-::ng-deep {
-  .grouping-slider .ngx-slider .ngx-slider-pointer {
-    width: 8px;
-    height: 16px;
-    top: auto;
-    bottom: 0;
-    background-color: #333;
-    border-start-start-radius: 3px;
-    border-start-end-radius: 3px;
-  }
-
-  .grouping-slider .ngx-slider .ngx-slider-pointer:after {
-    display: none;
-  }
-
-  .grouping-slider .ngx-slider .ngx-slider-bubble {
-    bottom: 14px;
-  }
 }
 
 .grouping-slider {

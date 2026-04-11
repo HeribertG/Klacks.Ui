@@ -11,23 +11,36 @@
  * @param outputMode - Selected output mode (text, audio, or both)
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
  */
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { firstValueFrom } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
-import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import {
+  SttEngine,
+  TtsProvider,
+  OutputMode,
+  VoiceId,
+  SpeechDefaults,
+} from 'src/app/domain/constants/speech-constants';
 
 @Component({
   selector: 'app-assistant-speech-settings',
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormsModule, NgxSliderModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
@@ -50,6 +63,14 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
 
+  readonly silenceOptions: Options = {
+    floor: 500,
+    ceil: 3000,
+    step: 100,
+    showSelectionBar: true,
+    translate: (value: number): string => `${value}ms`,
+  };
+
   readonly ttsVoices = signal<{ value: string; label: string }[]>([
     { value: VoiceId.Auto, label: 'Auto' },
   ]);
@@ -64,7 +85,10 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   readonly ttsProviders = [
     { value: TtsProvider.Edge, labelKey: 'setting.speech.tts-edge' },
     { value: TtsProvider.OpenAi, labelKey: 'setting.speech.tts-openai' },
-    { value: TtsProvider.ElevenLabs, labelKey: 'setting.speech.tts-elevenlabs' },
+    {
+      value: TtsProvider.ElevenLabs,
+      labelKey: 'setting.speech.tts-elevenlabs',
+    },
   ];
 
   readonly outputModes = [
@@ -98,15 +122,23 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     const voices = await this.dataTtsService.getVoices();
     this.ttsVoices.set([
       { value: VoiceId.Auto, label: 'Auto' },
-      ...voices.map(v => ({ value: v.voiceId, label: `${v.locale} - ${v.displayName}` })),
+      ...voices.map((v) => ({
+        value: v.voiceId,
+        label: `${v.locale} - ${v.displayName}`,
+      })),
     ]);
 
     try {
-      const models = await firstValueFrom(this.dataAssistantService.getModels());
+      const models = await firstValueFrom(
+        this.dataAssistantService.getModels(),
+      );
       this.transcriptionModels.set(
         models
-          .filter(m => m.isEnabled)
-          .map(m => ({ value: m.modelId, label: m.displayName ?? m.modelId })),
+          .filter((m) => m.isEnabled)
+          .map((m) => ({
+            value: m.modelId,
+            label: m.displayName ?? m.modelId,
+          })),
       );
     } catch {
       this.transcriptionModels.set([]);
@@ -118,7 +150,12 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       return;
     }
 
-    const apiKeyToSave = this.sttApiKey.length > 0 ? this.sttApiKey : (this.sttApiKeyConfigured ? '***' : '');
+    const apiKeyToSave =
+      this.sttApiKey.length > 0
+        ? this.sttApiKey
+        : this.sttApiKeyConfigured
+          ? '***'
+          : '';
     this.appSettingsService.speechSettings.set({
       sttEngine: this.sttEngine,
       sttApiKey: apiKeyToSave,

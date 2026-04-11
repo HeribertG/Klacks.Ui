@@ -1,5 +1,11 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-slider.scss";
+
+:host {
+  display: block;
+  padding-bottom: 35px;
+}
 
 .first {
   padding-top: 10px;
@@ -40,15 +46,9 @@ select {
   }
 }
 
-.form-range {
+.custom-slider {
   width: 420px;
-}
-
-.key-configured-badge {
-  margin-inline-start: 8px;
-  font-size: 0.75rem;
-  color: var(--color-success, #4caf50);
-  font-weight: 500;
+  padding-top: 6px;
 }
 
 .checkbox-label {

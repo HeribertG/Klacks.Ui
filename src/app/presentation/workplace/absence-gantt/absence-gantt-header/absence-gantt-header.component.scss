@@ -1,6 +1,7 @@
 @forward "../../../../../assets/standard-styles/colors.scss";
 @forward "../../../../../assets/standard-styles/standard-controls.scss";
 @forward "../../../../../assets/standard-styles/navigation.scss";
+@use "../../../../../assets/standard-styles/standard-slider.scss";
 
 .absence-reason {
   width: calc(100% - 200px);
@@ -26,38 +27,7 @@
   padding-inline-end: 20px;
   padding-top: 8px;
 }
-.ngx-slider .ngx-slider-pointer {
-  cursor: pointer;
-  width: 6px;
-  height: 6px;
-  top: -10px;
-  z-index: 3;
-  border-radius: 3px;
-}
-
 ::ng-deep {
-  .custom-slider .ngx-slider .ngx-slider-pointer {
-    width: 8px;
-    height: 16px;
-    top: auto;
-    bottom: 0;
-    background-color: #333;
-    border-start-start-radius: 3px;
-    border-start-end-radius: 3px;
-  }
-
-  .custom-slider .ngx-slider .ngx-slider-pointer:after {
-    display: none;
-  }
-
-  .custom-slider .ngx-slider .ngx-slider-bubble {
-    bottom: 14px;
-  }
-  .ngx-slider-span .ngx-slider-span .ngx-slider-bubble .ngx-slider {
-    font-size: 13px !important;
-    font-weight: 500;
-  }
-
   .btn-setting {
     color: var(--paginationBorderColor);
     height: 30px;

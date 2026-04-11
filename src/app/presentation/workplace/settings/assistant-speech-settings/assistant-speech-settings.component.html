@@ -73,7 +73,13 @@
 
       <div class="form-group secondColumn">
         <label for="silenceThreshold">{{ "setting.speech.silence-threshold" | translate }}: {{ silenceThresholdMs }}ms</label>
-        <input type="range" id="silenceThreshold" class="form-range" min="500" max="3000" step="100" [(ngModel)]="silenceThresholdMs" (ngModelChange)="onSettingChanged()" />
+        <div id="silenceThreshold" class="custom-slider">
+          <ngx-slider
+            [(value)]="silenceThresholdMs"
+            [options]="silenceOptions"
+            (valueChange)="onSettingChanged()"
+          ></ngx-slider>
+        </div>
       </div>
     </div>
 
