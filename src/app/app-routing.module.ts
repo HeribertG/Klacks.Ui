@@ -214,6 +214,14 @@ const routes: Routes = [
             (m) => m.FloorPlanHomeComponent,
           ),
       },
+      {
+        path: 'period-closing',
+        loadComponent: () =>
+          import('./presentation/workplace/period-closing/period-closing-home/period-closing-home.component').then(
+            (m) => m.PeriodClosingHomeComponent,
+          ),
+        canActivate: [AdminGuard],
+      },
     ],
   },
 ];
