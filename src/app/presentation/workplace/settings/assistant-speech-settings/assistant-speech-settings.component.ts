@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 
 @Component({
   selector: 'app-assistant-speech-settings',
@@ -29,6 +30,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private appSettingsService = inject(AppSettingsManagementService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private dataSttService = inject(DataSttService);
 
   private isInitialized = false;
 
@@ -134,32 +136,16 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   }
 
   async testSttConnection(): Promise<void> {
-    try {
-      const token = localStorage.getItem('JWT_TOKEN') ?? '';
-      const response = await fetch('https://localhost:5001/api/backend/assistant/stt/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ providerId: this.sttEngine }),
-      });
-
-      if (response.ok) {
-        this.toastShowService.showSuccess(
-          this.translateService.instant('setting.speech.stt-test-success'),
-          this.translateService.instant('setting.speech.stt-test')
-        );
-      } else {
-        this.toastShowService.showError(
-          this.translateService.instant('setting.speech.stt-test-failed'),
-          this.translateService.instant('setting.speech.stt-test')
-        );
-      }
-    } catch {
+    const result = await this.dataSttService.testConnection(this.sttEngine);
+    if (result.success) {
+      this.toastShowService.showSuccess(
+        this.translateService.instant('setting.speech.stt-test-success'),
+        this.translateService.instant('setting.speech.stt-test'),
+      );
+    } else {
       this.toastShowService.showError(
         this.translateService.instant('setting.speech.stt-test-failed'),
-        this.translateService.instant('setting.speech.stt-test')
+        this.translateService.instant('setting.speech.stt-test'),
       );
     }
   }
