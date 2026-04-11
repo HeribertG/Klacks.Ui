@@ -85,6 +85,14 @@ export class ConversationOrchestratorService implements OnDestroy {
         });
       });
 
+    this.audioCapture.audioChunk$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(chunk => {
+        if (this.state() === ConversationState.Listening) {
+          this.sttStream.sendAudio(chunk);
+        }
+      });
+
     this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
   }
 
@@ -173,10 +181,6 @@ export class ConversationOrchestratorService implements OnDestroy {
     if (speechSettings.sttEngine !== 'browser') {
       this.sttStream.connect();
       await this.audioCapture.start();
-
-      this.audioCapture.audioChunk$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(chunk => this.sttStream.sendAudio(chunk));
     } else {
       await this.audioCapture.start();
     }
@@ -252,7 +256,10 @@ export class ConversationOrchestratorService implements OnDestroy {
     } catch {
       // TTS failure — skip this sentence
     } finally {
-      this.pendingSentences = this.pendingSentences.filter(s => s !== sentence);
+      const idx = this.pendingSentences.indexOf(sentence);
+      if (idx >= 0) {
+        this.pendingSentences.splice(idx, 1);
+      }
     }
   }
 }
