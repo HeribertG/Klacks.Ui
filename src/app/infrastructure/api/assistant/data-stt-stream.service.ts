@@ -31,7 +31,7 @@ export class SttStreamService implements OnDestroy {
     const wsUrl = baseUrl.replace(/^http/, 'ws') + 'stt/stream';
     const token = localStorage.getItem(StorageKeys.TOKEN);
 
-    this.ws = new WebSocket(`${wsUrl}?token=${token}`);
+    this.ws = new WebSocket(`${wsUrl}?access_token=${token}`);
     this.ws.binaryType = 'arraybuffer';
 
     this.ws.onopen = () => this.isConnected.set(true);
