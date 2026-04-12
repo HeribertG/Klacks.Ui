@@ -42,12 +42,7 @@ export class RowSelectionService {
       if (!data || this._selectedBreakIndex < 0 || this._selectedBreakIndex >= data.length) {
         return undefined;
       }
-      const br = data[this._selectedBreakIndex];
-      this.selectedBreak_dummy = undefined;
-      if (br) {
-        this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(br as BreakPlaceholder);
-      }
-      return br;
+      return data[this._selectedBreakIndex];
     }
     return undefined;
   }
@@ -59,6 +54,7 @@ export class RowSelectionService {
 
     this._selectedBreakIndex = -1;
     this._selectedRow = -1;
+    this.selectedBreak_dummy = undefined;
 
     if (value < 0) {
       this._selectedRow = 0;
@@ -78,6 +74,35 @@ export class RowSelectionService {
       return;
     }
     this._selectedBreakIndex = value;
+    this.captureSelectedBreakDummy();
+  }
+
+  public refreshSelectedBreakDummy(): void {
+    this.captureSelectedBreakDummy();
+  }
+
+  private captureSelectedBreakDummy(): void {
+    this.selectedBreak_dummy = undefined;
+    if (
+      this._selectedRow < 0 ||
+      this._selectedRow >= this.dataManagementBreak.rows
+    ) {
+      return;
+    }
+    const data = this.dataManagementBreak.readData(this._selectedRow);
+    if (
+      !data ||
+      this._selectedBreakIndex < 0 ||
+      this._selectedBreakIndex >= data.length
+    ) {
+      return;
+    }
+    const br = data[this._selectedBreakIndex];
+    if (br) {
+      this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(
+        br as BreakPlaceholder
+      );
+    }
   }
 
   public get selectedBreakIndex() {

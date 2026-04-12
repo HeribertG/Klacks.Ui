@@ -24,6 +24,11 @@ export function compareProperty(o1: any, o2: any, property: string): boolean {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function compareComplexObjects(o1: any, o2: any, listOfExcludedObject?: string[]): boolean {
   try {
+    if (o1 instanceof Date || o2 instanceof Date) {
+      if (!(o1 instanceof Date) || !(o2 instanceof Date)) return false;
+      return o1.getTime() === o2.getTime();
+    }
+
     for (const p in o1) {
       if (p !== null) {
         if (!checkProperty(o1, o2, p, listOfExcludedObject)) return false;
@@ -53,6 +58,11 @@ export function compareComplexObjects(o1: any, o2: any, listOfExcludedObject?: s
 
     if (value1 === undefined || value2 === undefined) return value1 === value2;
     if (value1 === null || value2 === null) return value1 === value2;
+
+    if (value1 instanceof Date || value2 instanceof Date) {
+      if (!(value1 instanceof Date) || !(value2 instanceof Date)) return false;
+      return value1.getTime() === value2.getTime();
+    }
 
     if (Array.isArray(value1)) {
       return Array.isArray(value2) && compareArray(value1, value2, listExcludedObject);

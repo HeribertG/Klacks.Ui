@@ -442,20 +442,145 @@ describe('RowSelectionService', () => {
             expect(service.isSelectedBreak_Dirty()).toBe(false);
         });
 
-        it('should return true when break is selected', () => {
+        it('should return false when selected break has not been mutated', () => {
             // Arrange
             const mockBreak = {
                 id: 'break-1',
                 from: new Date(2024, 0, 1),
                 until: new Date(2024, 0, 5),
             } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
 
             service.selectedRow = 5;
             service.selectedBreakIndex = 0;
+
+            // Act & Assert
+            expect(service.isSelectedBreak_Dirty()).toBe(false);
+        });
+
+        it('should return true when selected break "from" date was mutated after selection', () => {
+            // Arrange: simulate real-world flow where user selects a break then drags it
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as BreakPlaceholder;
             mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+
+            // Simulate drag: mutate the live break reference
+            mockBreak.from = new Date(2024, 0, 3);
 
             // Act & Assert
             expect(service.isSelectedBreak_Dirty()).toBe(true);
+        });
+
+        it('should return true when selected break "until" date was mutated after selection', () => {
+            // Arrange
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+
+            // Simulate right-anchor drag
+            mockBreak.until = new Date(2024, 0, 10);
+
+            // Act & Assert
+            expect(service.isSelectedBreak_Dirty()).toBe(true);
+        });
+
+        it('should still report dirty after multiple reads of selectedBreak getter between mutation and check', () => {
+            // Regression test: prior bug was that the selectedBreak getter had a side effect
+            // (overwriting selectedBreak_dummy), causing multiple reads during onMouseMove to
+            // silently reset the dirty baseline to the already-mutated state.
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+
+            // Simulate onMouseMove: read getter, mutate, read again (multiple times)
+            void service.selectedBreak;
+            mockBreak.from = new Date(2024, 0, 2);
+            void service.selectedBreak;
+            void service.selectedBreak;
+            mockBreak.from = new Date(2024, 0, 3);
+            void service.selectedBreak;
+
+            // Act & Assert: dummy should still be the ORIGINAL baseline, not the last mutation
+            expect(service.isSelectedBreak_Dirty()).toBe(true);
+        });
+    });
+
+    describe('selectedBreak getter - no side effects (bugfix)', () => {
+        it('should not mutate selectedBreak_dummy when read repeatedly', () => {
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+
+            const dummyAfterSelection = service.selectedBreak_dummy;
+            expect(dummyAfterSelection).toBeDefined();
+
+            // Mutate the live break and read the getter
+            mockBreak.from = new Date(2024, 0, 2);
+            void service.selectedBreak;
+
+            // The dummy must remain the cloned baseline from selection time
+            expect(service.selectedBreak_dummy?.from).toEqual(new Date(2024, 0, 1));
+        });
+
+        it('should refresh selectedBreak_dummy when selectedBreakIndex changes', () => {
+            const breakA = {
+                id: 'a',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 2),
+            } as unknown as BreakPlaceholder;
+            const breakB = {
+                id: 'b',
+                from: new Date(2024, 5, 1),
+                until: new Date(2024, 5, 2),
+            } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([breakA, breakB]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+            expect(service.selectedBreak_dummy?.id).toBe('a');
+
+            service.selectedBreakIndex = 1;
+            expect(service.selectedBreak_dummy?.id).toBe('b');
+        });
+
+        it('should clear selectedBreak_dummy when selectedRow changes', () => {
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as BreakPlaceholder;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+            expect(service.selectedBreak_dummy).toBeDefined();
+
+            service.selectedRow = 6;
+            expect(service.selectedBreak_dummy).toBeUndefined();
         });
     });
 
