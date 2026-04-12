@@ -41,6 +41,7 @@ import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-le
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-break-placeholder.component';
+import { IconThunderCircleComponent } from 'src/app/presentation/icons/icon-thunder-circle.component';
 import { IconAvailabilityCheckComponent } from 'src/app/presentation/icons/icon-availability-check.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
 import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
@@ -79,6 +80,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
     IconAngleRightComponent,
     PdfIconComponent,
     IconBreakPlaceholderComponent,
+    IconThunderCircleComponent,
     IconFlyComponent,
     IconRefreshScheduleComponent,
     IconAvailabilityCheckComponent,
@@ -91,6 +93,7 @@ import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
+  @ViewChild('scheduleCommandsIcon') scheduleCommandsIcon!: IconThunderCircleComponent;
   @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
 
@@ -205,6 +208,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   toggleScheduleCommands(): void {
     (this.dataService as ScheduleDataService).showScheduleCommands.update((v) => !v);
+    this.updateScheduleCommandsIcon();
   }
 
   ngOnInit(): void {
@@ -213,12 +217,19 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.updateBreakPlaceholderIcon();
+    this.updateScheduleCommandsIcon();
     this.updateAvailabilityCheckIcon();
   }
 
   private updateBreakPlaceholderIcon(): void {
     if (this.breakPlaceholderIcon) {
       this.breakPlaceholderIcon.ChangeColor(this.showBreakPlaceholders);
+    }
+  }
+
+  private updateScheduleCommandsIcon(): void {
+    if (this.scheduleCommandsIcon) {
+      this.scheduleCommandsIcon.ChangeColor(this.showScheduleCommands);
     }
   }
 
