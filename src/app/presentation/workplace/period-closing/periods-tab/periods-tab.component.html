@@ -6,6 +6,7 @@
   <div id="periods-tab-line" class="container-line"></div>
 
   <div class="first periods-tab-body">
+    <!-- Period dropdown -->
     <section class="filter-row">
       <div class="filter-field">
         <label class="form-label" for="periodsSelect">{{ 'periodClosing.form.period' | translate }}</label>
@@ -42,45 +43,69 @@
       </div>
     </section>
 
+    <!-- Loading -->
     @if (loading()) {
       <div class="loading-hint text-muted">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       </div>
     }
 
+    <!-- Day table -->
     @if (!loading() && summary().length > 0) {
       <section class="summary-section">
         <div class="summary-card">
           <span class="summary-label">{{ 'periodClosing.tabs.periods' | translate }}</span>
           <span class="summary-value">{{ sealedWork() }} / {{ totalWork() }}</span>
-          @if (fullySealed()) {
+          @if (allSealed()) {
             <span class="badge bg-success ms-2">&#10003;</span>
           } @else {
             <span class="badge bg-warning text-dark ms-2">{{ sealedWork() }}</span>
           }
         </div>
 
-        <div id="periods-summary-section" class="container-table">
-          <table id="periods-summary-table" class="table table-borderless">
-            <thead id="periods-summary-head">
+        <div class="container-table">
+          <table class="table table-borderless">
+            <thead>
               <tr>
-                <th id="periods-summary-header-date" class="table-header header-date">
-                  <div class="table-header-cell">
-                    <p class="gap noselect">{{ 'periodClosing.periods.columnDate' | translate }}</p>
-                  </div>
-                </th>
-                <th id="periods-summary-header-sealed" class="table-header header-sealed">
+                <th class="table-header header-sealed-check">
                   <div class="table-header-cell">
                     <p class="gap noselect">{{ 'periodClosing.periods.columnSealed' | translate }}</p>
                   </div>
                 </th>
+                <th class="table-header header-date">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.periods.columnDate' | translate }}</p>
+                  </div>
+                </th>
+                <th class="table-header header-status">
+                  <div class="table-header-cell">
+                    <p class="gap noselect">{{ 'periodClosing.periods.columnStatus' | translate }}</p>
+                  </div>
+                </th>
               </tr>
             </thead>
-            <tbody id="periods-summary-body">
+            <tbody>
               @for (row of summary(); track row.date; let i = $index) {
-                <tr [id]="'periods-summary-row-' + i" class="table-row" [class.active]="row.isFullySealed">
-                  <td [id]="'periods-summary-cell-date-' + i" class="table-cell">{{ row.date | date:'mediumDate' }}</td>
-                  <td [id]="'periods-summary-cell-sealed-' + i" class="table-cell cell-right">{{ row.sealedWorkCount }} / {{ row.totalWorkCount }}</td>
+                <tr
+                  class="table-row"
+                  [class.active]="row.isFullySealed"
+                  [class.disabled-row]="!hasEntries(row)">
+                  <td class="table-cell cell-checkbox">
+                    @if (sealingDay() === row.date) {
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    } @else {
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="row.isFullySealed"
+                        [disabled]="!hasEntries(row) || bulkLoading()"
+                        (change)="onDaySealToggle(row)" />
+                    }
+                  </td>
+                  <td class="table-cell">{{ row.date | date:'mediumDate' }}</td>
+                  <td class="table-cell cell-right">
+                    {{ row.sealedWorkCount }}/{{ row.totalWorkCount }} Work, {{ row.sealedBreakCount }}/{{ row.totalBreakCount }} Break
+                  </td>
                 </tr>
               }
             </tbody>
@@ -89,27 +114,60 @@
       </section>
     }
 
-    <section class="actions-section">
-      <div class="reason-field">
-        <label class="form-label" for="periodsReason">{{ 'periodClosing.form.reason' | translate }}</label>
-        <textarea
-          id="periodsReason"
-          rows="2"
-          class="form-control form-control-sm"
-          [placeholder]="'periodClosing.form.reasonPlaceholder' | translate"
-          [ngModel]="reason()"
-          (ngModelChange)="reason.set($event)"></textarea>
-      </div>
+    <!-- Unseal reason dialog (inline) -->
+    @if (unsealReasonDay()) {
+      <section class="reason-dialog">
+        <div class="reason-dialog-content">
+          <label class="form-label" for="unsealReason">{{ 'periodClosing.form.reason' | translate }}</label>
+          <textarea
+            id="unsealReason"
+            rows="2"
+            class="form-control form-control-sm"
+            [placeholder]="'periodClosing.form.reasonPlaceholder' | translate"
+            [ngModel]="unsealReasonText()"
+            (ngModelChange)="unsealReasonText.set($event)"></textarea>
+          <div class="reason-dialog-buttons mt-2">
+            @if (unsealReasonDay() === '__bulk__') {
+              <button type="button" class="btn btn-danger btn-sm" (click)="confirmBulkUnseal()">
+                {{ 'periodClosing.action.unseal' | translate }}
+              </button>
+            } @else {
+              <button type="button" class="btn btn-danger btn-sm" (click)="confirmUnsealDay()">
+                {{ 'periodClosing.action.unseal' | translate }}
+              </button>
+            }
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelUnsealDay()">
+              {{ 'periodClosing.action.cancel' | translate }}
+            </button>
+          </div>
+        </div>
+      </section>
+    }
 
-      <div class="button-row mt-2">
-        <button type="button" class="btn btn-primary btn-sm" (click)="onSeal()" [disabled]="!hasPeriods()">
-          {{ 'periodClosing.action.seal' | translate }}
-        </button>
-        <button type="button" class="btn btn-danger btn-sm" (click)="onUnseal()" [disabled]="!hasPeriods()">
-          {{ 'periodClosing.action.unseal' | translate }}
-        </button>
-      </div>
-    </section>
+    <!-- Bulk action buttons -->
+    @if (hasPeriods() && !loading()) {
+      <section class="actions-section">
+        <div class="button-row">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="onBulkSeal()"
+            [disabled]="bulkLoading() || allSealed() || !hasAnyEntries()">
+            @if (bulkLoading()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            {{ 'periodClosing.action.sealAll' | translate }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            (click)="onBulkUnseal()"
+            [disabled]="bulkLoading() || !hasAnyEntries()">
+            {{ 'periodClosing.action.unsealAll' | translate }}
+          </button>
+        </div>
+      </section>
+    }
   </div>
 
   <div class="bottom-border-space"></div>

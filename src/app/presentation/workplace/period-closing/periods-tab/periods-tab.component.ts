@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Periods tab: admin selects an existing billing period from a dropdown,
- * then seals or reopens work entries for that period. Unseal requires a
- * non-empty reason. The dropdown only shows periods that actually contain
- * non-deleted work or break entries on non-deleted clients.
+ * Day-level sealed management for a selected billing period.
+ * Shows all days in the period with seal checkboxes and bulk actions.
+ * @param api - PeriodClosing API service for seal/unseal/summary
+ * @param toastShowService - Toast notifications
+ * @param translate - i18n service
  */
 
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
@@ -36,11 +37,13 @@ export class PeriodsTabComponent implements OnInit {
 
   public usedPeriods = signal<UsedPeriod[]>([]);
   public selectedPeriodKey = signal<string | null>(null);
-  public groupId = signal<string | null>(null);
-  public reason = signal<string>('');
   public summary = signal<SealedPeriodSummary[]>([]);
   public loading = signal<boolean>(false);
   public loadingPeriods = signal<boolean>(false);
+  public sealingDay = signal<string | null>(null);
+  public bulkLoading = signal<boolean>(false);
+  public unsealReasonDay = signal<string | null>(null);
+  public unsealReasonText = signal<string>('');
 
   public selectedPeriod = computed<UsedPeriod | null>(() => {
     const key = this.selectedPeriodKey();
@@ -67,8 +70,9 @@ export class PeriodsTabComponent implements OnInit {
 
   public totalWork = computed(() => this.summary().reduce((a, s) => a + s.totalWorkCount, 0));
   public sealedWork = computed(() => this.summary().reduce((a, s) => a + s.sealedWorkCount, 0));
-  public fullySealed = computed(() => this.totalWork() > 0 && this.totalWork() === this.sealedWork());
+  public allSealed = computed(() => this.totalWork() > 0 && this.totalWork() === this.sealedWork());
   public hasPeriods = computed(() => this.usedPeriods().length > 0);
+  public hasAnyEntries = computed(() => this.summary().some((s) => s.totalWorkCount > 0 || s.totalBreakCount > 0));
 
   ngOnInit(): void {
     this.loadUsedPeriods();
@@ -101,7 +105,7 @@ export class PeriodsTabComponent implements OnInit {
       return;
     }
     this.loading.set(true);
-    this.api.getSealedPeriods(period.startDate, period.endDate, this.groupId()).subscribe({
+    this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId).subscribe({
       next: (s) => {
         this.summary.set(s);
         this.loading.set(false);
@@ -110,70 +114,158 @@ export class PeriodsTabComponent implements OnInit {
     });
   }
 
-  onSeal(): void {
+  onDaySealToggle(row: SealedPeriodSummary): void {
+    if (row.isFullySealed) {
+      this.unsealReasonDay.set(row.date);
+      this.unsealReasonText.set('');
+    } else {
+      this.sealDay(row.date);
+    }
+  }
+
+  confirmUnsealDay(): void {
+    const day = this.unsealReasonDay();
+    const reason = this.unsealReasonText().trim();
+    if (!day || !reason) {
+      this.toastShowService.showInfo(this.translate.instant('periodClosing.error.reasonRequired'));
+      return;
+    }
+    this.unsealDay(day, reason);
+    this.unsealReasonDay.set(null);
+    this.unsealReasonText.set('');
+  }
+
+  cancelUnsealDay(): void {
+    this.unsealReasonDay.set(null);
+    this.unsealReasonText.set('');
+  }
+
+  onBulkSeal(): void {
     const period = this.selectedPeriod();
     if (!period) {
       return;
     }
+    this.bulkLoading.set(true);
     this.api
       .seal({
         startDate: period.startDate,
         endDate: period.endDate,
-        groupId: this.groupId(),
-        reason: this.reason() || null,
+        groupId: period.groupId,
+        reason: null,
       })
       .subscribe({
         next: (count) => {
           const msg = this.translate.instant('periodClosing.success.sealed', { count });
           const header = this.translate.instant('periodClosing.action.seal');
           this.toastShowService.showSuccess(msg, header);
-          this.reason.set('');
+          this.bulkLoading.set(false);
           this.loadSummary();
         },
         error: (err) => {
-          const msg: string = err?.error?.message ?? err?.message ?? 'Error';
-          this.toastShowService.showError(msg);
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.bulkLoading.set(false);
         },
       });
   }
 
-  onUnseal(): void {
+  onBulkUnseal(): void {
+    this.unsealReasonDay.set('__bulk__');
+    this.unsealReasonText.set('');
+  }
+
+  confirmBulkUnseal(): void {
     const period = this.selectedPeriod();
-    if (!period) {
-      return;
-    }
-    if (!this.reason().trim()) {
+    const reason = this.unsealReasonText().trim();
+    if (!period || !reason) {
       this.toastShowService.showInfo(this.translate.instant('periodClosing.error.reasonRequired'));
       return;
     }
+    this.bulkLoading.set(true);
+    this.unsealReasonDay.set(null);
+    this.unsealReasonText.set('');
     this.api
       .unseal({
         startDate: period.startDate,
         endDate: period.endDate,
-        groupId: this.groupId(),
-        reason: this.reason().trim(),
+        groupId: period.groupId,
+        reason,
       })
       .subscribe({
         next: (count) => {
           const msg = this.translate.instant('periodClosing.success.unsealed', { count });
           const header = this.translate.instant('periodClosing.action.unseal');
           this.toastShowService.showSuccess(msg, header);
-          this.reason.set('');
+          this.bulkLoading.set(false);
           this.loadSummary();
         },
         error: (err) => {
-          const msg: string = err?.error?.message ?? err?.message ?? 'Error';
-          this.toastShowService.showError(msg);
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.bulkLoading.set(false);
         },
       });
   }
 
   public periodKey(p: UsedPeriod): string {
-    return `${p.startDate}_${p.endDate}_${p.paymentInterval}`;
+    return `${p.startDate}_${p.endDate}_${p.paymentInterval}_${p.groupId ?? 'none'}`;
   }
 
   public formatPeriodLabel(p: UsedPeriod): string {
-    return `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
+    const label = `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
+    return p.groupName ? `${label} — ${p.groupName}` : label;
+  }
+
+  public hasEntries(row: SealedPeriodSummary): boolean {
+    return row.totalWorkCount > 0 || row.totalBreakCount > 0;
+  }
+
+  private sealDay(date: string): void {
+    const period = this.selectedPeriod();
+    if (!period) {
+      return;
+    }
+    this.sealingDay.set(date);
+    this.api
+      .seal({
+        startDate: date,
+        endDate: date,
+        groupId: period.groupId,
+        reason: null,
+      })
+      .subscribe({
+        next: () => {
+          this.sealingDay.set(null);
+          this.loadSummary();
+        },
+        error: (err) => {
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.sealingDay.set(null);
+        },
+      });
+  }
+
+  private unsealDay(date: string, reason: string): void {
+    const period = this.selectedPeriod();
+    if (!period) {
+      return;
+    }
+    this.sealingDay.set(date);
+    this.api
+      .unseal({
+        startDate: date,
+        endDate: date,
+        groupId: period.groupId,
+        reason,
+      })
+      .subscribe({
+        next: () => {
+          this.sealingDay.set(null);
+          this.loadSummary();
+        },
+        error: (err) => {
+          this.toastShowService.showError(err?.error?.message ?? err?.message ?? 'Error');
+          this.sealingDay.set(null);
+        },
+      });
   }
 
   private formatDate(iso: string): string {
