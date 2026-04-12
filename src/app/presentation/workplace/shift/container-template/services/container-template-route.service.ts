@@ -384,7 +384,6 @@ export class ContainerTemplateRouteService {
 
     const shiftItems = currentItems.filter((item) => !!item.shiftId);
     const absenceItems = currentItems.filter((item) => !!item.absenceId);
-
     const reorderedShiftItems = this.itemManipulationService.applyOptimizedRoute(
       {
         optimizedRoute: result.optimizedRoute,

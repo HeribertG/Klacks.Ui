@@ -259,18 +259,22 @@ export class ContainerTemplateItemManipulationService {
         );
         const adjustedEnd = adjustedStart + shiftWorkTimeMinutes;
 
-        const absenceBetween = this.hasAbsenceBetween(
+        const absenceBetween = this.findAbsenceBetween(
           currentStartTimeMinutes, adjustedStart, fixedAbsences,
         );
 
         let travelBefore = travelTimeToThisShiftMinutes;
         if (absenceBetween && reorderedItems.length > 0) {
+          const prevEndMinutes = currentStartTimeMinutes;
+          const travelAfterMinutes = Math.max(0, absenceBetween.start - prevEndMinutes);
+          const travelBeforeMinutes = Math.max(0, adjustedStart - briefingTimeMinutes - absenceBetween.end);
+
           const prevItem = reorderedItems[reorderedItems.length - 1];
           reorderedItems[reorderedItems.length - 1] = {
             ...prevItem,
-            travelTimeAfter: this.formatMinutesToHHMM(travelTimeToThisShiftMinutes),
+            travelTimeAfter: this.formatMinutesToHHMM(travelAfterMinutes),
           };
-          travelBefore = 0;
+          travelBefore = travelBeforeMinutes;
         }
 
         const newStartShift = formatTimeFromMinutes(adjustedStart);
@@ -388,14 +392,14 @@ export class ContainerTemplateItemManipulationService {
       .sort((a, b) => a.start - b.start);
   }
 
-  private hasAbsenceBetween(
+  private findAbsenceBetween(
     windowStart: number,
     windowEnd: number,
     absences: { start: number; end: number }[],
-  ): boolean {
-    return absences.some(
+  ): { start: number; end: number } | null {
+    return absences.find(
       (a) => a.start >= windowStart && a.start < windowEnd,
-    );
+    ) ?? null;
   }
 
   private resolveAbsenceConflict(
