@@ -77,10 +77,10 @@ export class PeriodsTabComponent implements OnInit {
     const { start, end } = this.getPeriodBounds(period);
     const dataMap = new Map(apiData.map((s) => [s.date, s]));
     const days: SealedPeriodSummary[] = [];
-    const current = new Date(start);
-    const endDate = new Date(end);
+    const current = new Date(`${start}T00:00:00`);
+    const endDate = new Date(`${end}T00:00:00`);
     while (current <= endDate) {
-      const iso = current.toISOString().slice(0, 10);
+      const iso = this.toLocalIso(current);
       days.push(dataMap.get(iso) ?? { date: iso, totalWorkCount: 0, sealedWorkCount: 0, totalBreakCount: 0, sealedBreakCount: 0, isFullySealed: false });
       current.setDate(current.getDate() + 1);
     }
@@ -302,9 +302,16 @@ export class PeriodsTabComponent implements OnInit {
     const firstDay = new Date(mid.getFullYear(), mid.getMonth(), 1);
     const lastDay = new Date(mid.getFullYear(), mid.getMonth() + 1, 0);
     return {
-      start: firstDay.toISOString().slice(0, 10),
-      end: lastDay.toISOString().slice(0, 10),
+      start: this.toLocalIso(firstDay),
+      end: this.toLocalIso(lastDay),
     };
+  }
+
+  private toLocalIso(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   private formatDate(iso: string): string {
