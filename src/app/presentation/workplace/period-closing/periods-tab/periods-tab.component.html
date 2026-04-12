@@ -93,7 +93,7 @@
                 <tr
                   class="table-row"
                   [class.active]="row.isFullySealed"
-                  [class.disabled-row]="!hasEntries(row)">
+                  [class.empty-row]="!hasEntries(row)">
                   <td class="table-cell cell-checkbox">
                     @if (sealingDay() === row.date) {
                       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -102,7 +102,7 @@
                         type="checkbox"
                         class="form-check-input"
                         [checked]="row.isFullySealed"
-                        [disabled]="!hasEntries(row) || bulkLoading()"
+                        [disabled]="bulkLoading()"
                         (change)="onDaySealToggle(row)" />
                     }
                   </td>
