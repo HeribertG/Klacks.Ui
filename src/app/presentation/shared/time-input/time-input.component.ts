@@ -36,6 +36,7 @@ export class TimeInputComponent {
   @Output() keyUp = new EventEmitter<Event>();
 
   partialHours: string | null = null;
+  partialMinutes: string | null = null;
 
   private updateValue(): void {
     this.valueChange.emit(this.value);
@@ -88,8 +89,42 @@ export class TimeInputComponent {
 
   onMinutesInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.value.minutes = input.value;
+    const raw = input.value.replace(/\D/g, '');
+
+    if (raw.length === 0) {
+      this.partialMinutes = null;
+      this.value.minutes = raw;
+      this.updateValue();
+      return;
+    }
+
+    if (raw.length === 1 && parseInt(raw[0]) > 5) {
+      this.partialMinutes = null;
+      this.value.minutes = '0' + raw;
+      this.updateValue();
+      return;
+    }
+
+    if (raw.length === 1) {
+      this.partialMinutes = raw;
+      return;
+    }
+
+    this.partialMinutes = null;
+    const lastTwo = raw.slice(-2);
+    const parsed = parseInt(lastTwo, 10);
+    this.value.minutes = parsed > 59
+      ? '59'
+      : lastTwo.padStart(2, '0');
     this.updateValue();
+  }
+
+  onMinutesBlur(): void {
+    if (this.partialMinutes !== null) {
+      this.value.minutes = '0' + this.partialMinutes;
+      this.partialMinutes = null;
+      this.updateValue();
+    }
   }
 
   onHoursBlur(): void {

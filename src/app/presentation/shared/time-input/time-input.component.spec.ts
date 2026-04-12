@@ -410,14 +410,17 @@ describe('TimeInputComponent', () => {
             });
         });
 
-        it('should pad single digit minutes with zero', () => {
+        it('should store single digit minutes as partial and pad on blur', () => {
             const mockEvent = {
                 target: { value: '5' },
             } as any;
 
             component.onMinutesInputChange(mockEvent);
+            expect(component.partialMinutes).toBe('5');
 
+            component.onMinutesBlur();
             expect(component.value.minutes).toBe('05');
+            expect(component.partialMinutes).toBeNull();
         });
 
         it('should accept valid minutes 00-59', () => {

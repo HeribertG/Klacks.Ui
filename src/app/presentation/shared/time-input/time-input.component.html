@@ -32,10 +32,11 @@
     <input
       #minutesInput
       [id]="minutesId"
-      [value]="value.minutes"
+      [value]="partialMinutes !== null ? partialMinutes : value.minutes"
       [name]="minutesName || 'minutes'"
       (input)="onMinutesInputChange($event)"
       (focus)="onFocus($event)"
+      (blur)="onMinutesBlur()"
       (keyup)="onInputKeyUp($event)"
       [disabled]="disabled"
       class="form-control time-minute minutes"
