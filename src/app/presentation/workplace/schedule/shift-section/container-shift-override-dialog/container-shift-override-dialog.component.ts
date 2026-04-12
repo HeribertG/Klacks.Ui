@@ -63,13 +63,13 @@ import {
   formatClientWithAddress,
   formatWorkTime,
 } from 'src/app/shared/helpers/container-template-format.helper';
-import { ContainerTemplateShiftOperationsService } from '../../shift/container-template/services/container-template-shift-operations.service';
-import { ContainerTemplateDragDropService } from '../../shift/container-template/services/container-template-drag-drop.service';
-import { ContainerTemplatePropertiesService } from '../../shift/container-template/services/container-template-properties.service';
-import { ContainerTemplateRouteService } from '../../shift/container-template/services/container-template-route.service';
-import { ContainerTemplateItemManipulationService } from '../../shift/container-template/services/container-template-item-manipulation.service';
-import { MapRenderingService } from '../../shift/container-template/services/map-rendering.service';
-import { ShiftArrangementService } from '../../shift/container-template/services/shift-arrangement.service';
+import { ContainerTemplateShiftOperationsService } from '../../../shift/container-template/services/container-template-shift-operations.service';
+import { ContainerTemplateDragDropService } from '../../../shift/container-template/services/container-template-drag-drop.service';
+import { ContainerTemplatePropertiesService } from '../../../shift/container-template/services/container-template-properties.service';
+import { ContainerTemplateRouteService } from '../../../shift/container-template/services/container-template-route.service';
+import { ContainerTemplateItemManipulationService } from '../../../shift/container-template/services/container-template-item-manipulation.service';
+import { MapRenderingService } from '../../../shift/container-template/services/map-rendering.service';
+import { ShiftArrangementService } from '../../../shift/container-template/services/shift-arrangement.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';

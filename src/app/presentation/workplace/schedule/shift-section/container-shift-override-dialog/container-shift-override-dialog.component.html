@@ -236,7 +236,7 @@
                   ) {
                     <app-icon-route
                       class="icon-table"
-                      [class.disabled]="routeService.isRouteOptimizationRunning"
+                      [class.disabled]="routeService.isOptimizing"
                       (click)="optimizeRoute()"
                       [ngbTooltip]="
                         'shift.container-template.tooltip.optimize-route'
@@ -363,7 +363,7 @@
                                   </span>
                                 }
                               </td>
-                              <td>{{ formatClientWithAddress(shift.shift) }}</td>
+                              <td>{{ shift.shift ? formatClientWithAddress(shift.shift) : '' }}</td>
                               <td class="action-column" (click)="onRemoveTask(shift)">
                                 <app-icon-trash-red></app-icon-trash-red>
                               </td>
