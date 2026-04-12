@@ -51,15 +51,19 @@
     }
 
     <!-- Day table -->
-    @if (!loading() && summary().length > 0) {
+    @if (!loading() && displayDays().length > 0) {
       <section class="summary-section">
         <div class="summary-card">
           <span class="summary-label">{{ 'periodClosing.tabs.periods' | translate }}</span>
           <span class="summary-value">{{ sealedWork() }} / {{ totalWork() }}</span>
-          @if (allSealed()) {
-            <span class="badge bg-success ms-2">&#10003;</span>
-          } @else {
-            <span class="badge bg-warning text-dark ms-2">{{ sealedWork() }}</span>
+          @if (sealedDayCount() > 0) {
+            <span class="badge bg-success ms-2">{{ sealedDayCount() }} &#10003;</span>
+          }
+          @if (partialDayCount() > 0) {
+            <span class="badge bg-warning text-dark ms-2">{{ partialDayCount() }}</span>
+          }
+          @if (emptyDayCount() > 0) {
+            <span class="badge bg-secondary ms-2">{{ emptyDayCount() }}</span>
           }
         </div>
 
@@ -85,7 +89,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of summary(); track row.date; let i = $index) {
+              @for (row of displayDays(); track row.date; let i = $index) {
                 <tr
                   class="table-row"
                   [class.active]="row.isFullySealed"

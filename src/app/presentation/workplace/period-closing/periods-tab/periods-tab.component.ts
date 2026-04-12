@@ -68,11 +68,33 @@ export class PeriodsTabComponent implements OnInit {
       }));
   });
 
-  public totalWork = computed(() => this.summary().reduce((a, s) => a + s.totalWorkCount, 0));
-  public sealedWork = computed(() => this.summary().reduce((a, s) => a + s.sealedWorkCount, 0));
+  public displayDays = computed<SealedPeriodSummary[]>(() => {
+    const period = this.selectedPeriod();
+    const apiData = this.summary();
+    if (!period) {
+      return [];
+    }
+    const { start, end } = this.getPeriodBounds(period);
+    const dataMap = new Map(apiData.map((s) => [s.date, s]));
+    const days: SealedPeriodSummary[] = [];
+    const current = new Date(start);
+    const endDate = new Date(end);
+    while (current <= endDate) {
+      const iso = current.toISOString().slice(0, 10);
+      days.push(dataMap.get(iso) ?? { date: iso, totalWorkCount: 0, sealedWorkCount: 0, totalBreakCount: 0, sealedBreakCount: 0, isFullySealed: false });
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  });
+
+  public totalWork = computed(() => this.displayDays().reduce((a, s) => a + s.totalWorkCount, 0));
+  public sealedWork = computed(() => this.displayDays().reduce((a, s) => a + s.sealedWorkCount, 0));
   public allSealed = computed(() => this.totalWork() > 0 && this.totalWork() === this.sealedWork());
   public hasPeriods = computed(() => this.usedPeriods().length > 0);
-  public hasAnyEntries = computed(() => this.summary().some((s) => s.totalWorkCount > 0 || s.totalBreakCount > 0));
+  public hasAnyEntries = computed(() => this.displayDays().some((s) => s.totalWorkCount > 0 || s.totalBreakCount > 0));
+  public sealedDayCount = computed(() => this.displayDays().filter((s) => s.isFullySealed).length);
+  public partialDayCount = computed(() => this.displayDays().filter((s) => this.hasEntries(s) && !s.isFullySealed).length);
+  public emptyDayCount = computed(() => this.displayDays().filter((s) => !this.hasEntries(s)).length);
 
   ngOnInit(): void {
     this.loadUsedPeriods();
@@ -145,11 +167,12 @@ export class PeriodsTabComponent implements OnInit {
     if (!period) {
       return;
     }
+    const bounds = this.getPeriodBounds(period);
     this.bulkLoading.set(true);
     this.api
       .seal({
-        startDate: period.startDate,
-        endDate: period.endDate,
+        startDate: bounds.start,
+        endDate: bounds.end,
         groupId: period.groupId,
         reason: null,
       })
@@ -183,10 +206,11 @@ export class PeriodsTabComponent implements OnInit {
     this.bulkLoading.set(true);
     this.unsealReasonDay.set(null);
     this.unsealReasonText.set('');
+    const bounds = this.getPeriodBounds(period);
     this.api
       .unseal({
-        startDate: period.startDate,
-        endDate: period.endDate,
+        startDate: bounds.start,
+        endDate: bounds.end,
         groupId: period.groupId,
         reason,
       })
@@ -266,6 +290,21 @@ export class PeriodsTabComponent implements OnInit {
           this.sealingDay.set(null);
         },
       });
+  }
+
+  private getPeriodBounds(p: UsedPeriod): { start: string; end: string } {
+    if (p.paymentInterval !== 2) {
+      return { start: p.startDate, end: p.endDate };
+    }
+    const s = new Date(`${p.startDate}T00:00:00`);
+    const e = new Date(`${p.endDate}T00:00:00`);
+    const mid = new Date((s.getTime() + e.getTime()) / 2);
+    const firstDay = new Date(mid.getFullYear(), mid.getMonth(), 1);
+    const lastDay = new Date(mid.getFullYear(), mid.getMonth() + 1, 0);
+    return {
+      start: firstDay.toISOString().slice(0, 10),
+      end: lastDay.toISOString().slice(0, 10),
+    };
   }
 
   private formatDate(iso: string): string {
