@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Shift Preferences...",
   "contextMenu.noScheduleTemplates": "No schedule template available",
   "contextMenu.deleteBreakPlaceholder": "Delete",
+  "contextMenu.editContainerShift": "Edit shift",
+  "contextMenu.resetContainerShift": "Reset shift",
   "contextMenu.adoptAbsence": "Adopt absence",
   "contextMenu.email.markRead": "Mark as read",
   "contextMenu.email.markUnread": "Mark as unread",

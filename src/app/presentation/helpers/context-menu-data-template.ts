@@ -307,4 +307,28 @@ export class MenuDataTemplate {
     ];
   }
 
+  public static editContainerShift(): MenuItem[] {
+    return [
+      new MenuItem(
+        'editContainerShift',
+        DomainMessages.EDIT_CONTAINER_SHIFT,
+        false,
+        '',
+        'fa-solid fa-pen'
+      ),
+    ];
+  }
+
+  public static resetContainerShift(): MenuItem[] {
+    return [
+      new MenuItem(
+        'resetContainerShift',
+        DomainMessages.RESET_CONTAINER_SHIFT,
+        false,
+        '',
+        'fa-solid fa-rotate-left'
+      ),
+    ];
+  }
+
 }

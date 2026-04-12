@@ -47,6 +47,8 @@ const IN_CONTAINER_ICON = 'pp-icon-in-container';
 
 interface DayInfo {
   isInTemplateContainer: boolean;
+  hasOverride: boolean;
+  hasWorkForOverride: boolean;
   sumEmployees: number;
   quantity: number;
   sporadicScope: ShiftSporadic;
@@ -106,6 +108,10 @@ export class ShiftDataService extends BaseDataService {
         c.cellType = CellTypeEnum.Standard;
         if (dayInfo.isInTemplateContainer) {
           c.icons = [new CellIcon(IN_CONTAINER_ICON, IconCornerEnum.BottomLeft)];
+        }
+        if (dayInfo.hasOverride) {
+          c.icons = c.icons || [];
+          c.icons.push(new CellIcon('fa-solid fa-pencil', IconCornerEnum.TopLeft));
         }
         const badges: CellBadge[] = [];
         if (dayInfo.sumEmployees > 1) {
@@ -185,6 +191,26 @@ export class ShiftDataService extends BaseDataService {
     return false;
   }
 
+  public hasOverride(row: number, col: number): boolean {
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+      const dayInfo = shiftRow.activeDays.get(dateKey);
+      return dayInfo?.hasOverride ?? false;
+    }
+    return false;
+  }
+
+  public hasWorkForOverride(row: number, col: number): boolean {
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+      const dayInfo = shiftRow.activeDays.get(dateKey);
+      return dayInfo?.hasWorkForOverride ?? false;
+    }
+    return false;
+  }
+
   public override columnStatus(column: number): HeaderCellTypeEnum {
     if (this.isColumnSealed(column)) {
       return HeaderCellTypeEnum.Sealed;
@@ -241,6 +267,8 @@ export class ShiftDataService extends BaseDataService {
       const dateKey = this.formatDateKey(schedule.date);
       shiftRow.activeDays.set(dateKey, {
         isInTemplateContainer: schedule.isInTemplateContainer,
+        hasOverride: false,
+        hasWorkForOverride: false,
         sumEmployees: schedule.sumEmployees,
         quantity: schedule.quantity,
         sporadicScope: schedule.sporadicScope,

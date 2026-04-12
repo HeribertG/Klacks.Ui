@@ -126,6 +126,8 @@ export class DomainMessages {
   public static readonly SEND_STAFF_SCHEDULE = 'contextMenu.sendStaffSchedule';
   public static readonly SHIFT_PREFERENCES = 'contextMenu.shiftPreferences';
   public static DELETE_BREAK_PLACEHOLDER = 'contextMenu.deleteBreakPlaceholder';
+  public static EDIT_CONTAINER_SHIFT = 'contextMenu.editContainerShift';
+  public static RESET_CONTAINER_SHIFT = 'contextMenu.resetContainerShift';
   public static ADOPT_ABSENCE = 'contextMenu.adoptAbsence';
   public static EMAIL_MARK_READ = 'contextMenu.email.markRead';
   public static EMAIL_MARK_UNREAD = 'contextMenu.email.markUnread';

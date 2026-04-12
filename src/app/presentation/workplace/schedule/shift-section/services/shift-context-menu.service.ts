@@ -34,6 +34,19 @@ export class ShiftContextMenuService {
       menuData.list.push(...MenuDataTemplate.showInSchedule());
     }
 
+    if (dataService.isInTemplateContainer(row, column)) {
+      if (menuData.list.length > 0) {
+        menuData.list.push(...MenuDataTemplate.divider());
+      }
+      menuData.list.push(...MenuDataTemplate.editContainerShift());
+
+      const hasOverride = dataService.hasOverride(row, column);
+      const hasWork = dataService.hasWorkForOverride(row, column);
+      if (hasOverride && !hasWork) {
+        menuData.list.push(...MenuDataTemplate.resetContainerShift());
+      }
+    }
+
     return menuData;
   }
 

@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Préférences de service...",
   "contextMenu.noScheduleTemplates": "Aucun modèle de planning disponible",
   "contextMenu.deleteBreakPlaceholder": "Supprimer",
+  "contextMenu.editContainerShift": "Modifier le service",
+  "contextMenu.resetContainerShift": "Réinitialiser le service",
   "contextMenu.adoptAbsence": "Reprendre l'absence",
   "contextMenu.email.markRead": "Marquer comme lu",
   "contextMenu.email.markUnread": "Marquer comme non lu",

@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Preferenze turno...",
   "contextMenu.noScheduleTemplates": "Nessun modello di piano turni disponibile",
   "contextMenu.deleteBreakPlaceholder": "Eliminare",
+  "contextMenu.editContainerShift": "Modifica servizio",
+  "contextMenu.resetContainerShift": "Reimposta servizio",
   "contextMenu.adoptAbsence": "Riprendere l'assenza",
   "contextMenu.email.markRead": "Segna come letto",
   "contextMenu.email.markUnread": "Segna come non letto",

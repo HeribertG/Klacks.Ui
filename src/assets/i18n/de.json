@@ -57,6 +57,8 @@
   "contextMenu.shiftPreferences": "Dienst-Präferenzen...",
   "contextMenu.noScheduleTemplates": "Kein Dienstplan-Template vorhanden",
   "contextMenu.deleteBreakPlaceholder": "Löschen",
+  "contextMenu.editContainerShift": "Dienst editieren",
+  "contextMenu.resetContainerShift": "Dienst zurücksetzen",
   "contextMenu.adoptAbsence": "Absenz übernehmen",
   "contextMenu.email.markRead": "Als gelesen markieren",
   "contextMenu.email.markUnread": "Als ungelesen markieren",
