@@ -18,6 +18,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
@@ -42,6 +43,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
+import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 
 const IN_CONTAINER_ICON = 'pp-icon-in-container';
 
@@ -49,6 +51,7 @@ interface DayInfo {
   isInTemplateContainer: boolean;
   hasOverride: boolean;
   hasWorkForOverride: boolean;
+  overrideId?: string;
   sumEmployees: number;
   quantity: number;
   sporadicScope: ShiftSporadic;
@@ -75,6 +78,7 @@ export class ShiftDataService extends BaseDataService {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private appSettingsService = inject(AppSettingsManagementService);
   private workNotificationService = inject(WorkNotificationService);
+  private overrideDataService = inject(DataContainerShiftOverrideService);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -90,6 +94,14 @@ export class ShiftDataService extends BaseDataService {
 
     this.refreshSignal.set(true);
     setTimeout(() => this.refreshSignal.set(false), 0);
+
+    const visibleStart = this.dataManagementSchedule.visibleStartDate;
+    const visibleEnd = this.dataManagementSchedule.visibleEndDate;
+    if (visibleStart && visibleEnd) {
+      const fromDate = this.formatDateKey(visibleStart);
+      const toDate = this.formatDateKey(visibleEnd);
+      this.loadOverrideData(fromDate, toDate);
+    }
   }
 
   public override getCell(row: number, col: number): GridCell {
@@ -296,7 +308,7 @@ export class ShiftDataService extends BaseDataService {
     )}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  private getDateKeyForColumn(col: number): string {
+  public getDateKeyForColumn(col: number): string {
     if (this.startDate) {
       const date = addDays(this.startDate, col);
       return this.formatDateKey(date);
@@ -389,6 +401,52 @@ export class ShiftDataService extends BaseDataService {
       }
     }
     return undefined;
+  }
+
+  public getOverrideId(row: number, col: number): string | null {
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+      const dayInfo = shiftRow.activeDays.get(dateKey);
+      return dayInfo?.overrideId ?? null;
+    }
+    return null;
+  }
+
+  public loadOverrideData(fromDate: string, toDate: string): void {
+    const containerShiftIds = this.shiftRows
+      .filter(row => Array.from(row.activeDays.values()).some(d => d.isInTemplateContainer))
+      .map(row => row.shiftId);
+
+    if (containerShiftIds.length === 0) {
+      return;
+    }
+
+    const requests = containerShiftIds.map(shiftId =>
+      this.overrideDataService.getOverridesForRange(shiftId, fromDate, toDate)
+    );
+
+    forkJoin(requests).subscribe(results => {
+      for (let i = 0; i < containerShiftIds.length; i++) {
+        const shiftId = containerShiftIds[i];
+        const overrides = results[i];
+        const shiftRow = this.shiftRows.find(r => r.shiftId === shiftId);
+        if (!shiftRow) continue;
+
+        for (const override of overrides) {
+          const dateKey = this.formatDateKey(override.date);
+          const dayInfo = shiftRow.activeDays.get(dateKey);
+          if (dayInfo) {
+            dayInfo.hasOverride = true;
+            dayInfo.hasWorkForOverride = override.hasWork;
+            dayInfo.overrideId = override.id;
+          }
+        }
+      }
+
+      this.refreshSignal.set(true);
+      setTimeout(() => this.refreshSignal.set(false), 0);
+    });
   }
 
   getShiftId(row: number): string | undefined {

@@ -76,6 +76,8 @@ import { ScheduleErrorListComponent } from './schedule-error-list/schedule-error
 import { CollisionDetectionService } from 'src/app/domain/services/schedule/collision-detection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { ContainerShiftOverrideDialogComponent } from './container-shift-override-dialog/container-shift-override-dialog.component';
+import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -94,6 +96,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
     ContextMenuComponent,
     PdfIconComponent,
     ScheduleErrorListComponent,
+    ContainerShiftOverrideDialogComponent,
   ],
   providers: [
     { provide: BaseDataService, useClass: ShiftDataService },
@@ -124,6 +127,8 @@ export class ShiftSectionComponent
   shiftSurface!: GridSurfaceTemplateComponent;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+  @ViewChild(ContainerShiftOverrideDialogComponent)
+  overrideDialog!: ContainerShiftOverrideDialogComponent;
 
   direction = inject(DirectionService).direction;
 
@@ -143,6 +148,7 @@ export class ShiftSectionComponent
   private shiftPdfExportService = inject(ShiftPdfExportService);
   public collisionService = inject(CollisionDetectionService);
   private gridColorService = inject(GridColorService);
+  private overrideDataService = inject(DataContainerShiftOverrideService);
 
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
@@ -361,6 +367,8 @@ export class ShiftSectionComponent
     this.contextMenu.menuData = this.contextMenuService.createContextMenu(row, column, shiftDataService);
   }
 
+  private static readonly WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
 
@@ -369,6 +377,35 @@ export class ShiftSectionComponent
         this.contextMenu.closeMenu(true);
         const shiftDataService = this.dataService as ShiftDataService;
         this.contextMenuService.showSelectedShiftInScheduleSection(shiftDataService);
+        break;
+      }
+      case 'editContainerShift': {
+        this.contextMenu.closeMenu(true);
+        const shiftDataService = this.dataService as ShiftDataService;
+        const pos = this.cellManipulation.Position;
+        const shiftId = shiftDataService.getShiftId(pos.row);
+        const dateStr = shiftDataService.getDateKeyForColumn(pos.column);
+        if (shiftId && dateStr) {
+          const date = new Date(dateStr);
+          const weekday = ShiftSectionComponent.WEEKDAY_NAMES[date.getDay()];
+          this.overrideDialog.open(shiftId, dateStr, weekday, false);
+        }
+        break;
+      }
+      case 'resetContainerShift': {
+        this.contextMenu.closeMenu(true);
+        const shiftDataService = this.dataService as ShiftDataService;
+        const pos = this.cellManipulation.Position;
+        const shiftId = shiftDataService.getShiftId(pos.row);
+        const dateStr = shiftDataService.getDateKeyForColumn(pos.column);
+        if (shiftId && dateStr) {
+          const overrideId = shiftDataService.getOverrideId(pos.row, pos.column);
+          if (overrideId) {
+            this.overrideDataService.deleteOverride(shiftId, overrideId).subscribe(() => {
+              shiftDataService.setMetrics();
+            });
+          }
+        }
         break;
       }
     }
