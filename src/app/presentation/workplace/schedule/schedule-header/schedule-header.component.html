@@ -109,6 +109,17 @@
     <app-icon-break-placeholder #breakPlaceholderIcon />
   </button>
 
+  <button
+    id="schedule-commands-toggle"
+    type="button"
+    class="icon-button schedule-commands-toggle"
+    [class.active]="showScheduleCommands"
+    (click)="toggleScheduleCommands()"
+    ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
+  >
+    <i class="fas fa-terminal"></i>
+  </button>
+
   @if (hasAvailabilityData()) {
     <button
       id="schedule-availability-check-btn"

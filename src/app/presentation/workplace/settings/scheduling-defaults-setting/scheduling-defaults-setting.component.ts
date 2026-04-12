@@ -39,6 +39,14 @@ interface SchedulingDefaultsFormModel {
   workOnSaturday: boolean;
   workOnSunday: boolean;
   performsShiftWork: boolean;
+  commandKeywordFree: string;
+  commandKeywordEarly: string;
+  commandKeywordLate: string;
+  commandKeywordNight: string;
+  commandKeywordNegFree: string;
+  commandKeywordNegEarly: string;
+  commandKeywordNegLate: string;
+  commandKeywordNegNight: string;
 }
 
 @Component({
@@ -80,6 +88,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     workOnSaturday: false,
     workOnSunday: false,
     performsShiftWork: false,
+    commandKeywordFree: 'FREE',
+    commandKeywordEarly: 'EARLY',
+    commandKeywordLate: 'LATE',
+    commandKeywordNight: 'NIGHT',
+    commandKeywordNegFree: '-FREE',
+    commandKeywordNegEarly: '-EARLY',
+    commandKeywordNegLate: '-LATE',
+    commandKeywordNegNight: '-NIGHT',
   });
 
   schedulingForm = form(this.formModel);
@@ -137,6 +153,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       workOnSaturday: sched.workOnSaturday,
       workOnSunday: sched.workOnSunday,
       performsShiftWork: sched.performsShiftWork,
+      commandKeywordFree: sched.commandKeywordFree,
+      commandKeywordEarly: sched.commandKeywordEarly,
+      commandKeywordLate: sched.commandKeywordLate,
+      commandKeywordNight: sched.commandKeywordNight,
+      commandKeywordNegFree: sched.commandKeywordNegFree,
+      commandKeywordNegEarly: sched.commandKeywordNegEarly,
+      commandKeywordNegLate: sched.commandKeywordNegLate,
+      commandKeywordNegNight: sched.commandKeywordNegNight,
     });
   }
 
@@ -165,6 +189,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       workOnSaturday: data.workOnSaturday,
       workOnSunday: data.workOnSunday,
       performsShiftWork: data.performsShiftWork,
+      commandKeywordFree: data.commandKeywordFree,
+      commandKeywordEarly: data.commandKeywordEarly,
+      commandKeywordLate: data.commandKeywordLate,
+      commandKeywordNight: data.commandKeywordNight,
+      commandKeywordNegFree: data.commandKeywordNegFree,
+      commandKeywordNegEarly: data.commandKeywordNegEarly,
+      commandKeywordNegLate: data.commandKeywordNegLate,
+      commandKeywordNegNight: data.commandKeywordNegNight,
     }));
     svc.nightRate = data.nightRate;
     svc.holidayRate = data.holidayRate;

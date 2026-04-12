@@ -110,6 +110,7 @@ export enum WorkScheduleEntryType {
   Expenses = 2,
   Break = 3,
   ScheduleNote = 4,
+  ScheduleCommand = 5,
 }
 
 export type WorkScheduleByDate = Map<string, IScheduleCell[]>;

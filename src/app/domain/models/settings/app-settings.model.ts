@@ -104,6 +104,14 @@ export interface ISchedulingDefaultSettings {
   workOnSaturday: boolean;
   workOnSunday: boolean;
   performsShiftWork: boolean;
+  commandKeywordFree: string;
+  commandKeywordEarly: string;
+  commandKeywordLate: string;
+  commandKeywordNight: string;
+  commandKeywordNegFree: string;
+  commandKeywordNegEarly: string;
+  commandKeywordNegLate: string;
+  commandKeywordNegNight: string;
 }
 
 export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
@@ -128,6 +136,14 @@ export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   workOnSaturday = false;
   workOnSunday = false;
   performsShiftWork = false;
+  commandKeywordFree = 'FREE';
+  commandKeywordEarly = 'EARLY';
+  commandKeywordLate = 'LATE';
+  commandKeywordNight = 'NIGHT';
+  commandKeywordNegFree = '-FREE';
+  commandKeywordNegEarly = '-EARLY';
+  commandKeywordNegLate = '-LATE';
+  commandKeywordNegNight = '-NIGHT';
 }
 
 export interface IDataRetentionSettings {

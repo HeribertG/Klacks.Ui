@@ -42,6 +42,7 @@ import { EmptyCellFormatterService } from '../schedule-section/services/cell-for
 import { WorkCellFormatterService } from '../schedule-section/services/cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from '../schedule-section/services/cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from '../schedule-section/services/cell-formatters/schedule-note-cell-formatter.service';
+import { ScheduleCommandCellFormatterService } from '../schedule-section/services/cell-formatters/schedule-command-cell-formatter.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { AbsenceMenuService } from 'src/app/domain/services/schedule/absence-menu.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -83,6 +84,7 @@ import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-expor
     WorkCellFormatterService,
     BreakCellFormatterService,
     ScheduleNoteCellFormatterService,
+    ScheduleCommandCellFormatterService,
     SchedulePdfExportService,
     SchedulePdfDrawingService,
     ShiftPdfExportService,

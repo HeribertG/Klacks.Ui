@@ -30,6 +30,7 @@ import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-sched
 import { Break } from 'src/app/domain/models/break/break-class';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
+import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { ScheduleDataService } from './schedule-data.service';
 
 @Injectable()
@@ -42,6 +43,7 @@ export class ScheduleEntryActionsService {
   private dataScheduleService = inject(DataScheduleService);
   private dataBreakService = inject(DataBreakService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
+  private scheduleCommandService = inject(DataManagementScheduleCommandService);
 
   addWorkFromShiftMenu(
     shiftId: string,
@@ -291,6 +293,15 @@ export class ScheduleEntryActionsService {
     content: string
   ): void {
     this.scheduleNoteService.update({ id, clientId, currentDate, content }).subscribe({
+      next: () => this.dataManagement.readDatas(),
+    });
+  }
+
+  deleteScheduleCommand(row: number, column: number, dataService: ScheduleDataService): void {
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    if (!entry || entry.entryType !== WorkScheduleEntryType.ScheduleCommand) return;
+
+    this.scheduleCommandService.delete(entry.id).subscribe({
       next: () => this.dataManagement.readDatas(),
     });
   }

@@ -23,6 +23,7 @@ import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataManagementExpensesService } from '../expenses/data-management-expenses.service';
 import { DataManagementScheduleNoteService } from '../schedule-note/data-management-schedule-note.service';
+import { DataManagementScheduleCommandService } from '../schedule-command/data-management-schedule-command.service';
 import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { GroupSelectionService } from '../group/group-selection.service';
@@ -69,6 +70,7 @@ export class ScheduleEntryCrudService {
   private breakService = inject(DataManagementBreakService);
   private expensesService = inject(DataManagementExpensesService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
+  private scheduleCommandService = inject(DataManagementScheduleCommandService);
   private appSettingsService = inject(AppSettingsManagementService);
   private injector = inject(Injector);
 
@@ -319,6 +321,13 @@ export class ScheduleEntryCrudService {
         break;
       }
 
+      case WorkScheduleEntryType.ScheduleCommand: {
+        await firstValueFrom(this.scheduleCommandService.delete(params.id));
+        await this.refreshClientScheduleForDays(params.clientId, params.date);
+        this.triggerScheduleRefresh();
+        break;
+      }
+
       case WorkScheduleEntryType.Work:
       default: {
         const response = await this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd);
@@ -345,6 +354,7 @@ export class ScheduleEntryCrudService {
     const expensesEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Expenses);
     const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
     const scheduleNoteEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.ScheduleNote);
+    const scheduleCommandEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.ScheduleCommand);
 
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
@@ -409,6 +419,14 @@ export class ScheduleEntryCrudService {
       for (const entry of scheduleNoteEntries) {
         deletePromises.push(
           firstValueFrom(this.scheduleNoteService.delete(entry.id)).then(() => {})
+        );
+      }
+    }
+
+    if (scheduleCommandEntries.length > 0) {
+      for (const entry of scheduleCommandEntries) {
+        deletePromises.push(
+          firstValueFrom(this.scheduleCommandService.delete(entry.id)).then(() => {})
         );
       }
     }

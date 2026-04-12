@@ -16,7 +16,7 @@
  * - Uses: Cell formatter services for display formatting
  */
 import { WeekDay } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
@@ -41,6 +41,7 @@ import { EmptyCellFormatterService } from './cell-formatters/empty-cell-formatte
 import { WorkCellFormatterService } from './cell-formatters/work-cell-formatter.service';
 import { BreakCellFormatterService } from './cell-formatters/break-cell-formatter.service';
 import { ScheduleNoteCellFormatterService } from './cell-formatters/schedule-note-cell-formatter.service';
+import { ScheduleCommandCellFormatterService } from './cell-formatters/schedule-command-cell-formatter.service';
 import { BreakCellParams } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
@@ -58,12 +59,15 @@ export class ScheduleDataService extends BaseDataService {
   private workFormatter = inject(WorkCellFormatterService);
   private breakFormatter = inject(BreakCellFormatterService);
   private scheduleNoteFormatter = inject(ScheduleNoteCellFormatterService);
+  private scheduleCommandFormatter = inject(ScheduleCommandCellFormatterService);
   private gridColorService = inject(GridColorService);
   private absenceLookup = inject(AbsenceLookupService);
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private translateService = inject(TranslateService);
   private settings = inject(BaseSettingsService);
   private gridFonts = inject(GridFontsService);
+
+  public showScheduleCommands = signal(false);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -103,6 +107,14 @@ export class ScheduleDataService extends BaseDataService {
         case WorkScheduleEntryType.ScheduleNote:
           cell = this.scheduleNoteFormatter.formatCell(entry);
           this.applyNoteColSpan(cell, row, col);
+          break;
+        case WorkScheduleEntryType.ScheduleCommand:
+          if (!this.showScheduleCommands()) {
+            cell = this.emptyFormatter.formatCell(undefined);
+          } else {
+            cell = this.scheduleCommandFormatter.formatCell(entry);
+            this.applyNoteColSpan(cell, row, col);
+          }
           break;
         case WorkScheduleEntryType.Work:
         default:
@@ -211,7 +223,8 @@ export class ScheduleDataService extends BaseDataService {
       return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
     }
 
-    if (entry.entryType === WorkScheduleEntryType.ScheduleNote) {
+    if (entry.entryType === WorkScheduleEntryType.ScheduleNote ||
+        entry.entryType === WorkScheduleEntryType.ScheduleCommand) {
       return entry.description?.de || entry.description?.en || '';
     }
 
@@ -247,7 +260,8 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
 
-    if (entry && entry.entryType === WorkScheduleEntryType.ScheduleNote) {
+    if (entry && (entry.entryType === WorkScheduleEntryType.ScheduleNote ||
+        entry.entryType === WorkScheduleEntryType.ScheduleCommand)) {
       return true;
     }
 

@@ -51,6 +51,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { ScheduleReportContextService } from 'src/app/domain/services/report/schedule-report-context.service';
@@ -196,6 +197,14 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   toggleBreakPlaceholders(): void {
     this.dataManagementSchedule.toggleBreakPlaceholders();
     this.updateBreakPlaceholderIcon();
+  }
+
+  get showScheduleCommands(): boolean {
+    return (this.dataService as ScheduleDataService).showScheduleCommands();
+  }
+
+  toggleScheduleCommands(): void {
+    (this.dataService as ScheduleDataService).showScheduleCommands.update((v) => !v);
   }
 
   ngOnInit(): void {

@@ -123,6 +123,15 @@ export class AppSettingsManagementService {
     [AppSetting.SCHEDULING_DEFAULT_WORK_ON_SUNDAY, (v, m) => (m.schedulingDefaults.workOnSunday = v === 'true')],
     [AppSetting.SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK, (v, m) => (m.schedulingDefaults.performsShiftWork = v === 'true')],
 
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_FREE, (v, m) => (m.schedulingDefaults.commandKeywordFree = v || 'FREE')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_EARLY, (v, m) => (m.schedulingDefaults.commandKeywordEarly = v || 'EARLY')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_LATE, (v, m) => (m.schedulingDefaults.commandKeywordLate = v || 'LATE')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_NIGHT, (v, m) => (m.schedulingDefaults.commandKeywordNight = v || 'NIGHT')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_FREE, (v, m) => (m.schedulingDefaults.commandKeywordNegFree = v || '-FREE')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY, (v, m) => (m.schedulingDefaults.commandKeywordNegEarly = v || '-EARLY')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_LATE, (v, m) => (m.schedulingDefaults.commandKeywordNegLate = v || '-LATE')],
+    [AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT, (v, m) => (m.schedulingDefaults.commandKeywordNegNight = v || '-NIGHT')],
+
     [AppSetting.DATA_RETENTION_DAYS, (v, m) => (m.dataRetention.dataRetentionDays = parseInt(v, 10) || 3650)],
 
     [AppSetting.ASSISTANT_STT_ENGINE, (v, m) => (m.speech.sttEngine = v)],
@@ -334,6 +343,15 @@ export class AppSettingsManagementService {
     { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_SATURDAY, getCurrent: () => this.schedulingDefaultSettings().workOnSaturday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnSaturday.toString() },
     { key: AppSetting.SCHEDULING_DEFAULT_WORK_ON_SUNDAY, getCurrent: () => this.schedulingDefaultSettings().workOnSunday.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().workOnSunday.toString() },
     { key: AppSetting.SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK, getCurrent: () => this.schedulingDefaultSettings().performsShiftWork.toString(), getOriginal: () => this.schedulingDefaultSettingsOriginal().performsShiftWork.toString() },
+
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_FREE, getCurrent: () => this.schedulingDefaultSettings().commandKeywordFree, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordFree },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_EARLY, getCurrent: () => this.schedulingDefaultSettings().commandKeywordEarly, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordEarly },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_LATE, getCurrent: () => this.schedulingDefaultSettings().commandKeywordLate, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordLate },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_NIGHT, getCurrent: () => this.schedulingDefaultSettings().commandKeywordNight, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordNight },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_FREE, getCurrent: () => this.schedulingDefaultSettings().commandKeywordNegFree, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordNegFree },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY, getCurrent: () => this.schedulingDefaultSettings().commandKeywordNegEarly, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordNegEarly },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_LATE, getCurrent: () => this.schedulingDefaultSettings().commandKeywordNegLate, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordNegLate },
+    { key: AppSetting.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT, getCurrent: () => this.schedulingDefaultSettings().commandKeywordNegNight, getOriginal: () => this.schedulingDefaultSettingsOriginal().commandKeywordNegNight },
 
     { key: AppSetting.DATA_RETENTION_DAYS, getCurrent: () => this.dataRetentionSettings().dataRetentionDays.toString(), getOriginal: () => this.dataRetentionSettingsOriginal().dataRetentionDays.toString() },
 

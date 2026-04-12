@@ -254,6 +254,99 @@
         </label>
       </div>
     </div>
+    <div id="scheduling-defaults-command-keywords-header" class="row-line" style="margin-top: 16px;">
+      <div class="form-group firstColumn">
+        <label><strong>{{ 'settings.scheduling.command-keywords' | translate }}</strong></label>
+      </div>
+    </div>
+    <div id="scheduling-defaults-command-free-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdCommandKeywordFree">{{ 'settings.scheduling.command-free' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordFree"
+          aria-label="sdCommandKeywordFree"
+          id="sdCommandKeywordFree"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdCommandKeywordNegFree">{{ 'settings.scheduling.command-neg-free' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordNegFree"
+          aria-label="sdCommandKeywordNegFree"
+          id="sdCommandKeywordNegFree"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-command-early-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdCommandKeywordEarly">{{ 'settings.scheduling.command-early' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordEarly"
+          aria-label="sdCommandKeywordEarly"
+          id="sdCommandKeywordEarly"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdCommandKeywordNegEarly">{{ 'settings.scheduling.command-neg-early' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordNegEarly"
+          aria-label="sdCommandKeywordNegEarly"
+          id="sdCommandKeywordNegEarly"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-command-late-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdCommandKeywordLate">{{ 'settings.scheduling.command-late' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordLate"
+          aria-label="sdCommandKeywordLate"
+          id="sdCommandKeywordLate"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdCommandKeywordNegLate">{{ 'settings.scheduling.command-neg-late' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordNegLate"
+          aria-label="sdCommandKeywordNegLate"
+          id="sdCommandKeywordNegLate"
+        />
+      </div>
+    </div>
+    <div id="scheduling-defaults-command-night-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="sdCommandKeywordNight">{{ 'settings.scheduling.command-night' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordNight"
+          aria-label="sdCommandKeywordNight"
+          id="sdCommandKeywordNight"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="sdCommandKeywordNegNight">{{ 'settings.scheduling.command-neg-night' | translate }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [formField]="schedulingForm.commandKeywordNegNight"
+          aria-label="sdCommandKeywordNegNight"
+          id="sdCommandKeywordNegNight"
+        />
+      </div>
+    </div>
     <div class="bottom-border-space"></div>
   </form>
   }

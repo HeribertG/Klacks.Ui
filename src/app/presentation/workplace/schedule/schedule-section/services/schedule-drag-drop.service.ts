@@ -19,8 +19,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataManagementScheduleNoteService } from 'src/app/domain/services/schedule-note/data-management-schedule-note.service';
+import { DataManagementScheduleCommandService } from 'src/app/domain/services/schedule-command/data-management-schedule-command.service';
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { ScheduleNoteResource } from 'src/app/domain/models/schedule-note/schedule-note';
+import { ScheduleCommandResource } from 'src/app/domain/models/schedule-command/schedule-command';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
@@ -43,7 +46,9 @@ export interface DropTargetInfo {
 export class ScheduleDragDropService {
   private dataManagement = inject(DataManagementScheduleService);
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
+  private scheduleCommandService = inject(DataManagementScheduleCommandService);
   private absenceLookup = inject(AbsenceLookupService);
+  private appSettingsManagement = inject(AppSettingsManagementService);
   private entryActions = inject(ScheduleEntryActionsService);
   private translateService = inject(TranslateService);
   private scrollService = inject(ScrollService);
@@ -137,6 +142,17 @@ export class ScheduleDragDropService {
       return;
     }
 
+    if (existingEntry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
+      const commandKeywords = this.getCommandKeywords();
+      const matchedCommand = commandKeywords.find(
+        (kw) => kw.toUpperCase() === trimmedValue.toUpperCase(),
+      );
+      if (matchedCommand) {
+        this.updateScheduleCommand(existingEntry.sourceId, client.id, date, matchedCommand);
+      }
+      return;
+    }
+
     const abbreviation = trimmedValue.toUpperCase();
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
@@ -159,6 +175,15 @@ export class ScheduleDragDropService {
     const matchingAbsence = this.findAbsenceWithoutDetails(abbreviation);
     if (matchingAbsence) {
       this.entryActions.addBreakFromAbsenceMenu(matchingAbsence.id!, event.row, event.column, dataService);
+      return;
+    }
+
+    const commandKeywords = this.getCommandKeywords();
+    const matchedCommand = commandKeywords.find(
+      (kw) => kw.toUpperCase() === trimmedValue.toUpperCase(),
+    );
+    if (matchedCommand) {
+      this.createScheduleCommand(client.id, date, matchedCommand);
       return;
     }
 
@@ -204,6 +229,46 @@ export class ScheduleDragDropService {
     }
 
     return null;
+  }
+
+  private getCommandKeywords(): string[] {
+    const settings = this.appSettingsManagement.schedulingDefaultSettings();
+    return [
+      settings.commandKeywordFree,
+      settings.commandKeywordEarly,
+      settings.commandKeywordLate,
+      settings.commandKeywordNight,
+      settings.commandKeywordNegFree,
+      settings.commandKeywordNegEarly,
+      settings.commandKeywordNegLate,
+      settings.commandKeywordNegNight,
+    ];
+  }
+
+  private createScheduleCommand(clientId: string, date: Date, keyword: string): void {
+    const dateStr = formatDateOnly(date);
+    const resource: ScheduleCommandResource = {
+      id: crypto.randomUUID(),
+      clientId,
+      currentDate: dateStr,
+      commandKeyword: keyword,
+    };
+    this.scheduleCommandService.create(resource).subscribe({
+      next: () => this.dataManagement.readDatas(),
+    });
+  }
+
+  private updateScheduleCommand(id: string, clientId: string, date: Date, keyword: string): void {
+    const dateStr = formatDateOnly(date);
+    const resource: ScheduleCommandResource = {
+      id,
+      clientId,
+      currentDate: dateStr,
+      commandKeyword: keyword,
+    };
+    this.scheduleCommandService.update(resource).subscribe({
+      next: () => this.dataManagement.readDatas(),
+    });
   }
 
   private isSameDay(date1: Date | string, date2: Date | string): boolean {

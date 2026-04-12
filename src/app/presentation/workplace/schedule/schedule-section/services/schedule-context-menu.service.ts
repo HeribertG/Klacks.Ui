@@ -102,7 +102,7 @@ export class ScheduleContextMenuService {
 
       const isLocked = entry ? (entry.lockLevel > 0 || entry.isGroupRestricted) : false;
 
-      if (entry?.entryType === WorkScheduleEntryType.ScheduleNote) {
+      if (entry?.entryType === WorkScheduleEntryType.ScheduleNote || entry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
         if (!isLocked) {
           menuData.list.push(...MenuDataTemplate.edit());
           menuData.list.push(...MenuDataTemplate.divider());

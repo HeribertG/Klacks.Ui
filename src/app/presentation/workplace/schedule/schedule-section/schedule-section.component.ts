@@ -449,7 +449,7 @@ export class ScheduleSectionComponent
       case 'edit': {
         this.contextMenu.closeMenu(true);
         const editEntry = dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
-        if (editEntry?.entryType === WorkScheduleEntryType.ScheduleNote) {
+        if (editEntry?.entryType === WorkScheduleEntryType.ScheduleNote || editEntry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
           this.cellManipulation.startEditing();
         } else {
           this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
