@@ -28,7 +28,6 @@ import { ContainerTemplateItemManipulationService } from './container-template-i
 import {
   RouteOptimizationService,
   ITimeBlock,
-  ITimeBlockResult,
   IAutofillResult,
 } from 'src/app/domain/services/route-optimization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -231,7 +230,16 @@ export class ContainerTemplateRouteService {
     };
 
     this.saveRouteInfoToTemplate(selectedWeekday, isHoliday);
-    this.applyOptimizedRoute(result, newItems, timeFrom, selectedWeekday, isHoliday);
+    const existingAbsences = this.shiftService
+      .selectedContainerTemplateItemsSignal()
+      .filter((item) => !!item.absenceId);
+    this.applyOptimizedRoute(
+      result,
+      [...newItems, ...existingAbsences],
+      timeFrom,
+      selectedWeekday,
+      isHoliday,
+    );
     this.toastService.showSuccess(
       this.translateService.instant(
         'shift.container-template.toast.autofill-success',
@@ -386,10 +394,10 @@ export class ContainerTemplateRouteService {
       },
       shiftItems,
       containerStartTimeMinutes,
+      absenceItems,
     );
 
-    const reorderedItems = this.applyPlacedTimeBlocks(
-      result.placedTimeBlocks,
+    const reorderedItems = this.interleaveAbsencesWithShifts(
       absenceItems,
       reorderedShiftItems,
     );
@@ -550,33 +558,37 @@ export class ContainerTemplateRouteService {
       });
   }
 
-  applyPlacedTimeBlocks(
-    placedBlocks: ITimeBlockResult[] | undefined,
+  interleaveAbsencesWithShifts(
     absenceItems: IContainerTemplateItem[],
     reorderedShiftItems: IContainerTemplateItem[],
   ): IContainerTemplateItem[] {
-    if (!placedBlocks || placedBlocks.length === 0) {
-      return [...reorderedShiftItems, ...absenceItems];
+    if (absenceItems.length === 0) {
+      return [...reorderedShiftItems];
     }
 
     const result: IContainerTemplateItem[] = [...reorderedShiftItems];
 
-    for (const block of placedBlocks) {
-      const absenceItem = absenceItems.find(
-        (item) => item.absenceId === block.id,
-      );
-      if (absenceItem) {
-        const updatedItem: IContainerTemplateItem = {
-          ...absenceItem,
-          startItem: block.startTime,
-          endItem: block.endTime,
-          timeRangeStartItem: block.startTime,
-          timeRangeEndItem: block.endTime,
-        };
+    const sortedAbsences = [...absenceItems].sort((a, b) => {
+      const aStart = timeToMinutes(a.startItem || '00:00');
+      const bStart = timeToMinutes(b.startItem || '00:00');
+      return aStart - bStart;
+    });
 
-        const insertIdx = Math.min(block.insertionPosition, result.length);
-        result.splice(insertIdx, 0, updatedItem);
+    for (const absence of sortedAbsences) {
+      const absenceStart = timeToMinutes(absence.startItem || '00:00');
+      let insertIdx = result.length;
+
+      for (let i = 0; i < result.length; i++) {
+        const itemStart = timeToMinutes(
+          result[i].timeRangeStartItem || result[i].startItem || '00:00',
+        );
+        if (absenceStart < itemStart) {
+          insertIdx = i;
+          break;
+        }
       }
+
+      result.splice(insertIdx, 0, absence);
     }
 
     return result;

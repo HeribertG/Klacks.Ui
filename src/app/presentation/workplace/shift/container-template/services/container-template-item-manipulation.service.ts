@@ -210,7 +210,8 @@ export class ContainerTemplateItemManipulationService {
   applyOptimizedRoute(
     routeData: RouteOptimizationData,
     currentItems: IContainerTemplateItem[],
-    containerStartTimeMinutes: number
+    containerStartTimeMinutes: number,
+    absenceItems: IContainerTemplateItem[] = [],
   ): IContainerTemplateItem[] {
     const reorderedItems: IContainerTemplateItem[] = [];
     const itemsByShiftId = new Map<string, IContainerTemplateItem>();
@@ -220,6 +221,8 @@ export class ContainerTemplateItemManipulationService {
         itemsByShiftId.set(item.shiftId, item);
       }
     });
+
+    const fixedAbsences = this.buildFixedAbsenceIntervals(absenceItems);
 
     let currentStartTimeMinutes = containerStartTimeMinutes;
 
@@ -249,25 +252,40 @@ export class ContainerTemplateItemManipulationService {
         const arrivalTimeMinutes =
           currentStartTimeMinutes + travelTimeToThisShiftMinutes;
         const shiftStartMinutes = arrivalTimeMinutes + briefingTimeMinutes;
-        const newStartShift = formatTimeFromMinutes(shiftStartMinutes);
-        const newEndShift = formatTimeFromMinutes(
-          shiftStartMinutes + shiftWorkTimeMinutes
+        const shiftEndMinutes = shiftStartMinutes + shiftWorkTimeMinutes;
+
+        const adjustedStart = this.resolveAbsenceConflict(
+          shiftStartMinutes, shiftEndMinutes, fixedAbsences,
+        );
+        const adjustedEnd = adjustedStart + shiftWorkTimeMinutes;
+
+        const absenceBetween = this.hasAbsenceBetween(
+          currentStartTimeMinutes, adjustedStart, fixedAbsences,
         );
 
-        const travelTimeBeforeHHMM = this.formatMinutesToHHMM(
-          travelTimeToThisShiftMinutes
-        );
+        let travelBefore = travelTimeToThisShiftMinutes;
+        if (absenceBetween && reorderedItems.length > 0) {
+          const prevItem = reorderedItems[reorderedItems.length - 1];
+          reorderedItems[reorderedItems.length - 1] = {
+            ...prevItem,
+            travelTimeAfter: this.formatMinutesToHHMM(travelTimeToThisShiftMinutes),
+          };
+          travelBefore = 0;
+        }
+
+        const newStartShift = formatTimeFromMinutes(adjustedStart);
+        const newEndShift = formatTimeFromMinutes(adjustedEnd);
 
         const newItem: IContainerTemplateItem = {
           ...item,
           timeRangeStartItem: newStartShift,
           timeRangeEndItem: newEndShift,
-          travelTimeBefore: travelTimeBeforeHHMM,
+          travelTimeBefore: this.formatMinutesToHHMM(travelBefore),
         };
 
         reorderedItems.push(newItem);
         currentStartTimeMinutes =
-          shiftStartMinutes + shiftWorkTimeMinutes + debriefingTimeMinutes;
+          adjustedStart + shiftWorkTimeMinutes + debriefingTimeMinutes;
       }
     }
 
@@ -355,6 +373,49 @@ export class ContainerTemplateItemManipulationService {
       return 0;
     }
     return 0;
+  }
+
+  private buildFixedAbsenceIntervals(
+    absenceItems: IContainerTemplateItem[],
+  ): { start: number; end: number }[] {
+    return absenceItems
+      .filter((item) => !!item.absenceId && !!item.startItem && !!item.endItem)
+      .map((item) => {
+        const start = timeToMinutes(item.startItem!);
+        const end = timeToMinutes(item.endItem!);
+        return { start, end: end > start ? end : end + this.MINUTES_PER_DAY };
+      })
+      .sort((a, b) => a.start - b.start);
+  }
+
+  private hasAbsenceBetween(
+    windowStart: number,
+    windowEnd: number,
+    absences: { start: number; end: number }[],
+  ): boolean {
+    return absences.some(
+      (a) => a.start >= windowStart && a.start < windowEnd,
+    );
+  }
+
+  private resolveAbsenceConflict(
+    shiftStart: number,
+    shiftEnd: number,
+    absences: { start: number; end: number }[],
+  ): number {
+    let adjustedStart = shiftStart;
+    const duration = shiftEnd - shiftStart;
+
+    for (const absence of absences) {
+      const adjustedEnd = adjustedStart + duration;
+      const overlaps =
+        adjustedStart < absence.end && adjustedEnd > absence.start;
+      if (overlaps) {
+        adjustedStart = absence.end;
+      }
+    }
+
+    return adjustedStart;
   }
 
   private getMinTravelTime(transportMode?: TransportModeEnum): number {
