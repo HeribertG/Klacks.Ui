@@ -24,6 +24,7 @@ import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.int
 import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-schedule-loader.service';
 import { ScheduleChangeService } from './schedule-change.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
+import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -37,6 +38,7 @@ export class WorkScheduleLoaderService {
   private breakPlaceholderLoader = inject(BreakPlaceholderScheduleLoaderService);
   private scheduleChangeService = inject(ScheduleChangeService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private periodClosingService = inject(DataPeriodClosingService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -62,8 +64,8 @@ export class WorkScheduleLoaderService {
   public startDate: Date | null = null;
   public endDate: Date | null = null;
 
-  // Signal to notify UI when period hours are updated
   public periodHoursUpdated = signal<number>(0);
+  public sealedDates = new Set<string>();
 
   private _pendingOnLoaded?: () => void;
   private _pendingDates?: { startDate: string; endDate: string };
@@ -114,6 +116,7 @@ export class WorkScheduleLoaderService {
         this.updateClientNeededRows();
         this.applyBreakPlaceholderRows();
 
+        this.loadSealedDates(response.startDate, response.endDate);
         this._isRead.update(v => v + 1);
 
         const selectedGroup = this._pendingWorkFilter?.selectedGroup ?? '';
@@ -594,5 +597,18 @@ export class WorkScheduleLoaderService {
 
   private joinSignalRGroup(startDate: string, endDate: string): void {
     this.signalRService.joinScheduleGroup(startDate, endDate);
+  }
+
+  private loadSealedDates(startDate: string, endDate: string): void {
+    this.periodClosingService.getSealedPeriods(startDate, endDate, null).subscribe({
+      next: (summaries) => {
+        this.sealedDates = new Set(
+          summaries.filter((s) => s.isFullySealed).map((s) => s.date),
+        );
+      },
+      error: () => {
+        this.sealedDates = new Set();
+      },
+    });
   }
 }

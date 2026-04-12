@@ -306,13 +306,12 @@ export class ScheduleDataService extends BaseDataService {
 
     return false;
   }
-  override isColumnSealed(_column: number): boolean {
-    // const dayVisibleBeforeMonth =
-    //   this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
-    // if (_column < dayVisibleBeforeMonth) {
-    //   return true;
-    // }
-    return false;
+  override isColumnSealed(column: number): boolean {
+    const date = this.getDateForColumn(column);
+    if (!date) {
+      return false;
+    }
+    return this.dataManagementSchedule.sealedDates.has(formatDateOnly(date));
   }
 
   override getHeaderFontColor(column: number): string | null {

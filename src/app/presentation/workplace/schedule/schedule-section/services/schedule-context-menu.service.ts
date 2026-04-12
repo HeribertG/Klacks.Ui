@@ -155,6 +155,8 @@ export class ScheduleContextMenuService {
         menuData.list.push(...MenuDataTemplate.divider());
         menuData.list.push(...MenuDataTemplate.showInShift());
       }
+    } else if (context.dataService.isColumnSealed(context.column)) {
+      return menuData;
     } else {
       menuData.list.push(...MenuDataTemplate.paste());
 

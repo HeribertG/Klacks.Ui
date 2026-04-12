@@ -166,6 +166,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.endDate ?? this._cachedEndDate;
   }
 
+  get sealedDates(): Set<string> {
+    return this.workScheduleLoader.sealedDates;
+  }
+
   get availableShiftsByDay(): readonly (readonly string[])[] {
     return this.availableShiftsCalc.availableShiftsByDay;
   }
