@@ -8,25 +8,35 @@
   <div class="first periods-tab-body">
     <section class="filter-row">
       <div class="filter-field">
-        <label class="form-label" for="periodsStartDate">{{ 'periodClosing.form.startDate' | translate }}</label>
-        <input
-          id="periodsStartDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="startDate()"
-          (ngModelChange)="startDate.set($event)">
-      </div>
-      <div class="filter-field">
-        <label class="form-label" for="periodsEndDate">{{ 'periodClosing.form.endDate' | translate }}</label>
-        <input
-          id="periodsEndDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="endDate()"
-          (ngModelChange)="endDate.set($event)">
+        <label class="form-label" for="periodsSelect">{{ 'periodClosing.form.period' | translate }}</label>
+        @if (loadingPeriods()) {
+          <div class="loading-hint text-muted">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </div>
+        } @else if (!hasPeriods()) {
+          <div class="text-muted">{{ 'periodClosing.form.periodEmpty' | translate }}</div>
+        } @else {
+          <select
+            id="periodsSelect"
+            class="form-select form-select-sm"
+            [ngModel]="selectedPeriodKey()"
+            (ngModelChange)="onPeriodChange($event)">
+            @for (group of periodGroups(); track group.intervalKey) {
+              <optgroup [label]="group.intervalKey | translate">
+                @for (period of group.periods; track periodKey(period)) {
+                  <option [value]="periodKey(period)">{{ formatPeriodLabel(period) }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+        }
       </div>
       <div class="filter-field filter-action">
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="loadSummary()" [disabled]="loading()">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="loadSummary()"
+          [disabled]="loading() || !hasPeriods()">
           {{ 'periodClosing.action.refresh' | translate }}
         </button>
       </div>
@@ -92,10 +102,10 @@
       </div>
 
       <div class="button-row mt-2">
-        <button type="button" class="btn btn-primary btn-sm" (click)="onSeal()">
+        <button type="button" class="btn btn-primary btn-sm" (click)="onSeal()" [disabled]="!hasPeriods()">
           {{ 'periodClosing.action.seal' | translate }}
         </button>
-        <button type="button" class="btn btn-danger btn-sm" (click)="onUnseal()">
+        <button type="button" class="btn btn-danger btn-sm" (click)="onUnseal()" [disabled]="!hasPeriods()">
           {{ 'periodClosing.action.unseal' | translate }}
         </button>
       </div>

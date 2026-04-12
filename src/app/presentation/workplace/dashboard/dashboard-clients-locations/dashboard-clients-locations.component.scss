@@ -2,28 +2,9 @@
 @use "src/assets/standard-styles/standard-controls.scss";
 @use "src/assets/standard-styles/colors.scss" as colors;
 
-.container-search {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  color: var(--colorLabel);
-  font-size: 13px;
-  font-weight: normal;
-
-  .input-group {
-    width: 400px;
-  }
-}
-
-.container-search-button {
-  background-color: colors.$standartBlueColor;
-  color: colors.$standartWhiteColor;
-  font-size: 13px;
-  font-weight: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+app-search-input {
+  padding-bottom: 10px;
+  width: 600px;
 }
 
 ::placeholder {

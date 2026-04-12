@@ -15,6 +15,7 @@ import { PeriodAuditLog } from './models/period-audit-log';
 import { SealedPeriodSummary } from './models/sealed-period-summary';
 import { SealRequest } from './models/seal-request';
 import { UnsealRequest } from './models/unseal-request';
+import { UsedPeriod } from './models/used-period';
 
 @Injectable({ providedIn: 'root' })
 export class DataPeriodClosingService {
@@ -35,6 +36,10 @@ export class DataPeriodClosingService {
       params = params.set('groupId', groupId);
     }
     return this.httpClient.get<SealedPeriodSummary[]>(`${this.base}/SealedPeriods`, { params }).pipe(retry(3));
+  }
+
+  getUsedPeriods(): Observable<UsedPeriod[]> {
+    return this.httpClient.get<UsedPeriod[]>(`${this.base}/UsedPeriods`).pipe(retry(3));
   }
 
   getAuditLog(from: string, to: string): Observable<PeriodAuditLog[]> {
