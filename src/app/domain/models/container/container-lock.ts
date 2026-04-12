@@ -20,6 +20,7 @@ export interface IContainerLock {
 export const ContainerLockResourceType = {
   containerTemplate: 'ContainerTemplate',
   containerWork: 'ContainerWork',
+  containerShiftOverride: 'ContainerShiftOverride',
 } as const;
 
 export type ContainerLockResourceTypeValue =
