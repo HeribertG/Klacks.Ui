@@ -1,0 +1,529 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #overrideModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">
+      {{ "dialog.containerShiftOverride.title" | translate }}
+      <span class="modal-title-date">{{ lifecycleService.date }}</span>
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="onCancel()">
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+
+  <div
+    class="modal-body override-edit-body"
+    [class.readonly-mode]="lifecycleService.isReadOnly()"
+  >
+    @if (lifecycleService.isReadOnly()) {
+      <div class="readonly-banner">
+        {{ lifecycleService.readOnlyReason() | translate }}
+      </div>
+    }
+
+    <div class="time-controls-bar">
+      <app-time-input
+        [label]="'shift.container-template.from' | translate"
+        [value]="timeFrom"
+        (valueChange)="onTimeFromChange($event)"
+        [showLabel]="true"
+        [forDuration]="false"
+        [ngbTooltip]="'shift.container-template.tooltip.time-from' | translate"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'shift.container-template.until' | translate"
+        [value]="timeTo"
+        (valueChange)="onTimeToChange($event)"
+        [showLabel]="true"
+        [forDuration]="false"
+        [ngbTooltip]="'shift.container-template.tooltip.time-until' | translate"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'shift.container-template.duration' | translate"
+        [value]="duration"
+        [showLabel]="true"
+        [forDuration]="true"
+        [disabled]="true"
+        [ngbTooltip]="'shift.container-template.tooltip.duration' | translate"
+      ></app-time-input>
+
+      <div class="shift-filter-group">
+        <label for="override-shift-filter">
+          {{ "label.search" | translate }}
+        </label>
+        <app-search-input
+          inputId="override-shift-filter"
+          [value]="shiftFilter()"
+          (valueChange)="shiftFilter.set($event)"
+        ></app-search-input>
+      </div>
+
+      <span class="filler"></span>
+
+      @if (addressProvider.allAddresses().length > 0) {
+        <div class="address-selects">
+          <div class="address-select-group">
+            <label for="override-start-base">
+              {{ "shift.container-template.start-base" | translate }}
+            </label>
+            <select
+              id="override-start-base"
+              class="form-select"
+              [(ngModel)]="routeService.selectedStartBase"
+              (change)="lifecycleService.markDirty()"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.start-base' | translate
+              "
+            >
+              <option [value]="''">-</option>
+              @for (address of addressProvider.allAddresses(); track address.name) {
+                <option [value]="address.address">{{ address.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="address-select-group">
+            <label for="override-end-base">
+              {{ "shift.container-template.end-base" | translate }}
+            </label>
+            <select
+              id="override-end-base"
+              class="form-select"
+              [(ngModel)]="routeService.selectedEndBase"
+              (change)="lifecycleService.markDirty()"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.end-base' | translate
+              "
+            >
+              <option [value]="''">-</option>
+              @for (address of addressProvider.allAddresses(); track address.name) {
+                <option [value]="address.address">{{ address.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (routeService.selectedStartBase && routeService.selectedEndBase) {
+          <div class="transport-mode-group">
+            <label>
+              {{ "shift.container-template.transport-mode" | translate }}
+            </label>
+            <div class="transport-mode-buttons">
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="routeService.selectedTransportMode === 0"
+                (click)="onTransportModeChange(0)"
+                [ngbTooltip]="
+                  'shift.container-template.transport-mode.by-car' | translate
+                "
+              >
+                <app-icon-by-car></app-icon-by-car>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="routeService.selectedTransportMode === 1"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    onTransportModeChange(1)
+                "
+                [ngbTooltip]="
+                  routeService.hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.by-bicycle'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-by-bicycle></app-icon-by-bicycle>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="routeService.selectedTransportMode === 2"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    onTransportModeChange(2)
+                "
+                [ngbTooltip]="
+                  routeService.hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.by-foot'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-by-foot></app-icon-by-foot>
+              </button>
+              <button
+                type="button"
+                class="transport-mode-btn"
+                [class.active]="routeService.selectedTransportMode === 3"
+                [class.disabled]="!routeService.hasOpenRouteServiceApiKey"
+                [disabled]="!routeService.hasOpenRouteServiceApiKey"
+                (click)="
+                  routeService.hasOpenRouteServiceApiKey &&
+                    onTransportModeChange(3)
+                "
+                [ngbTooltip]="
+                  routeService.hasOpenRouteServiceApiKey
+                    ? ('shift.container-template.transport-mode.mix'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
+                "
+              >
+                <app-icon-transport-mix></app-icon-transport-mix>
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="content" (contextmenu)="onContainerContextMenu($event)">
+      <as-split
+        direction="horizontal"
+        [dir]="direction()"
+        [gutterSize]="6"
+        unit="percent"
+      >
+        <!-- Zone 1: TimeRuler -->
+        <as-split-area [size]="30" [minSize]="15" [maxSize]="50">
+          <div class="zone zone-left">
+            <app-time-ruler
+              [fromTime]="timeFrom"
+              [untilTime]="timeTo"
+              (shiftRightClick)="onShiftRightClick($event)"
+              (itemsDisplaced)="onItemsDisplaced()"
+            ></app-time-ruler>
+          </div>
+        </as-split-area>
+
+        <!-- Right side: Zone 2 and Zone 3 stacked vertically -->
+        <as-split-area [size]="70" [minSize]="30">
+          <as-split direction="vertical" [gutterSize]="6" unit="percent">
+            <!-- Zone 2: Selected tasks -->
+            <as-split-area [size]="50" [minSize]="20">
+              <div class="zone zone-center">
+                <div class="header-table">
+                  <h3>
+                    {{
+                      "shift.container-template.selected-tasks.title" | translate
+                    }}
+                  </h3>
+                  <span class="filler"></span>
+                  @if (
+                    routeService.selectedStartBase &&
+                    routeService.selectedEndBase
+                  ) {
+                    <app-icon-route
+                      class="icon-table"
+                      [class.disabled]="routeService.isRouteOptimizationRunning"
+                      (click)="optimizeRoute()"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.optimize-route'
+                          | translate
+                      "
+                    ></app-icon-route>
+                  }
+                  <app-icon-compact
+                    class="icon-table"
+                    (click)="compactSelectedShifts()"
+                    [ngbTooltip]="
+                      'shift.container-template.tooltip.compact' | translate
+                    "
+                  ></app-icon-compact>
+                </div>
+
+                @if (lifecycleService.isLoading()) {
+                  <div class="loading-indicator">
+                    <p>{{ "common.loading" | translate }}</p>
+                  </div>
+                } @else {
+                  <div class="shifts-grid-container">
+                    <div class="shifts-grid">
+                      <table class="shifts-table">
+                        <thead>
+                          <tr>
+                            <th class="icon-column"></th>
+                            <th>
+                              {{
+                                "shift.container-template.grid.name" | translate
+                              }}
+                            </th>
+                            <th>
+                              {{
+                                "shift.container-template.grid.abbreviation"
+                                  | translate
+                              }}
+                            </th>
+                            <th>
+                              {{
+                                "shift.container-template.grid.time" | translate
+                              }}
+                            </th>
+                            <th>
+                              {{
+                                "shift.container-template.grid.client" | translate
+                              }}
+                            </th>
+                            <th
+                              class="action-column1"
+                              (click)="onRemoveAllTasks()"
+                            >
+                              <app-icon-trash-red></app-icon-trash-red>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          cdkDropList
+                          id="selected-override-tasks-list"
+                          [cdkDropListData]="selectedContainerTemplateItems"
+                          [cdkDropListConnectedTo]="getConnectedDropLists()"
+                          (cdkDropListDropped)="onTaskDrop($event)"
+                        >
+                          @if (selectedContainerTemplateItems.length === 0) {
+                            <tr class="empty-drop-zone">
+                              <td colspan="6">
+                                <div class="no-shifts">
+                                  <p>
+                                    {{
+                                      "shift.container-template.selected-tasks.placeholder"
+                                        | translate
+                                    }}
+                                  </p>
+                                </div>
+                              </td>
+                            </tr>
+                          }
+                          @for (
+                            shift of selectedContainerTemplateItems;
+                            track shift.id || shift.tmpId
+                          ) {
+                            <tr
+                              cdkDrag
+                              cdkDragLockAxis="y"
+                              (click)="onShiftRowClick(shift)"
+                              (contextmenu)="
+                                onTableRowRightClick($event, shift)
+                              "
+                              [class.selected]="shift === selectedShift"
+                              [class.timerange-violation]="
+                                hasTimeRangeViolation(shift)
+                              "
+                            >
+                              <td class="icon-column">
+                                @if (shift.shift?.isSporadic) {
+                                  <app-icon-unknown-time></app-icon-unknown-time>
+                                } @else if (shift.shift?.isTimeRange) {
+                                  <app-icon-time-window></app-icon-time-window>
+                                } @else {
+                                  <app-icon-shift-segment></app-icon-shift-segment>
+                                }
+                              </td>
+                              <td>{{ shift.shift?.name }}</td>
+                              <td>{{ shift.shift?.abbreviation }}</td>
+                              <td>
+                                @if (shift.shift?.isTimeRange) {
+                                  <div
+                                    class="time-range-inputs"
+                                    (click)="$event.stopPropagation()"
+                                  >
+                                    <app-time-input
+                                      [value]="getTimeRangeStartTime(shift)"
+                                      (valueChange)="
+                                        onTimeRangeStartChange(shift, $event)
+                                      "
+                                      [showLabel]="false"
+                                      [forDuration]="false"
+                                    ></app-time-input>
+                                  </div>
+                                } @else {
+                                  <span class="time-display">
+                                    {{ formatTime(shift.startItem) }} -
+                                    {{ formatTime(shift.endItem) }}
+                                  </span>
+                                }
+                              </td>
+                              <td>{{ formatClientWithAddress(shift.shift) }}</td>
+                              <td class="action-column" (click)="onRemoveTask(shift)">
+                                <app-icon-trash-red></app-icon-trash-red>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                }
+              </div>
+            </as-split-area>
+
+            <!-- Zone 3: Available tasks -->
+            <as-split-area [size]="50" [minSize]="20">
+              <div class="zone zone-right">
+                <div class="header-table">
+                  <h3>
+                    {{
+                      "shift.container-template.available-tasks.title"
+                        | translate
+                    }}
+                  </h3>
+                </div>
+
+                <div class="shifts-grid-container">
+                  <div class="shifts-grid">
+                    @if (filteredAvailableTasks.length > 0) {
+                      <table id="available-override-tasks-table" class="shifts-table">
+                        <thead>
+                          <tr>
+                            <th class="icon-column"></th>
+                            <th
+                              (click)="onHeaderClick('name')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.name" | translate
+                              }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('abbreviation')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.abbreviation"
+                                  | translate
+                              }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('startShift')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.time" | translate
+                              }}
+                            </th>
+                            <th>
+                              {{
+                                "shift.container-template.grid.work-time"
+                                  | translate
+                              }}
+                            </th>
+                            <th
+                              (click)="onHeaderClick('client')"
+                              style="cursor: pointer"
+                            >
+                              {{
+                                "shift.container-template.grid.client"
+                                  | translate
+                              }}
+                            </th>
+                            <th class="action-column"></th>
+                          </tr>
+                        </thead>
+                        <tbody
+                          cdkDropList
+                          id="available-override-tasks-drop-list"
+                          [cdkDropListData]="filteredAvailableTasks"
+                          [cdkDropListConnectedTo]="['selected-override-tasks-list']"
+                          [cdkDropListSortingDisabled]="true"
+                          (cdkDropListDropped)="onAvailableTasksDrop()"
+                        >
+                          @for (shift of filteredAvailableTasks; track shift.id) {
+                            <tr
+                              cdkDrag
+                              cdkDragLockAxis="y"
+                              [class.partial-timerange]="
+                                isTimeRangePartial(shift)
+                              "
+                            >
+                              <td class="icon-column">
+                                @if (shift.isSporadic) {
+                                  <app-icon-unknown-time></app-icon-unknown-time>
+                                } @else if (shift.isTimeRange) {
+                                  <app-icon-time-window></app-icon-time-window>
+                                } @else {
+                                  <app-icon-shift-segment></app-icon-shift-segment>
+                                }
+                              </td>
+                              <td>{{ shift.name }}</td>
+                              <td>{{ shift.abbreviation }}</td>
+                              <td>
+                                {{ formatTime(shift.startShift) }} -
+                                {{ formatTime(shift.endShift) }}
+                              </td>
+                              <td>{{ formatWorkTime(shift.workTime) }}</td>
+                              <td>{{ formatClientWithAddress(shift) }}</td>
+                              <td class="action-column"></td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <div class="no-shifts">
+                        <p>
+                          {{
+                            "shift.container-template.grid.no-shifts" | translate
+                          }}
+                        </p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </as-split-area>
+          </as-split>
+        </as-split-area>
+      </as-split>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span type="button" class="link-button red-font" (click)="onCancel()">{{
+      "cancel" | translate
+    }}</span>
+    @if (lifecycleService.isDirty() && !lifecycleService.isReadOnly()) {
+      <span
+        type="button"
+        class="link-button red-font"
+        role="button"
+        tabindex="0"
+        (click)="onReset()"
+        (keydown.enter)="onReset()"
+        (keydown.space)="onReset()"
+        >{{ "reset" | translate }}</span
+      >
+    }
+    <button
+      type="button"
+      class="btn save-btn"
+      [disabled]="!lifecycleService.isDirty() || lifecycleService.isReadOnly()"
+      (click)="onSave()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<app-context-menu
+  #contextMenu
+  (hasClicked)="onContextMenuClick($event)"
+></app-context-menu>
