@@ -210,7 +210,7 @@ export class PeriodsTabComponent implements OnInit {
   }
 
   public formatPeriodLabel(p: UsedPeriod): string {
-    const label = `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
+    const label = p.paymentInterval === 2 ? this.formatMonthYear(p.startDate, p.endDate) : `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
     return p.groupName ? `${label} — ${p.groupName}` : label;
   }
 
@@ -271,6 +271,13 @@ export class PeriodsTabComponent implements OnInit {
   private formatDate(iso: string): string {
     const d = new Date(`${iso}T00:00:00`);
     return d.toLocaleDateString();
+  }
+
+  private formatMonthYear(startIso: string, endIso: string): string {
+    const start = new Date(`${startIso}T00:00:00`);
+    const end = new Date(`${endIso}T00:00:00`);
+    const mid = new Date((start.getTime() + end.getTime()) / 2);
+    return mid.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   }
 
   private intervalTranslationKey(interval: number): string {
