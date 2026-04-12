@@ -791,6 +791,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private openPropertiesDialog(): void {
+    const target = this.propertiesService.contextMenuTargetItem;
+    if (target?.absenceId) {
+      this.absenceService.openAbsenceTimeModal(
+        target,
+        this.absenceTimeModal,
+        this.timeFrom,
+        this.timeTo,
+        this.selectedWeekday,
+        this.isHoliday,
+      );
+      return;
+    }
     this.propertiesService.openPropertiesDialog(
       this.propertiesModal,
       this.selectedWeekday,

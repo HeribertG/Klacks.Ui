@@ -16,7 +16,7 @@ import { newGuid } from './guid.helper';
 const MINUTES_PER_HOUR = 60;
 
 export function formatClientWithAddress(item: IShift | IContainerTemplateItem): string {
-  const shift = 'containerTemplateId' in item || 'tmpId' in item
+  const shift = 'shiftId' in item
     ? (item as IContainerTemplateItem).shift
     : (item as IShift);
 

@@ -221,9 +221,29 @@ export class ContainerWorkModalLifecycleService {
           if (!merged.has(id)) merged.set(id, shift);
         }
         this.availableShiftsAsIShift = Array.from(merged.values());
+        this.enrichSelectedItemsWithClientData();
         this.availableShiftsVersion.update(v => v + 1);
         this.isAvailableShiftsLoading.set(false);
       });
+  }
+
+  private enrichSelectedItemsWithClientData(): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+    const shiftById = new Map<string, IShift>();
+    for (const s of this.availableShiftsAsIShift) {
+      if (s.id) shiftById.set(s.id, s);
+    }
+    let changed = false;
+    const updated = items.map(item => {
+      if (!item.shiftId) return item;
+      const fullShift = shiftById.get(item.shiftId);
+      if (!fullShift?.client) return item;
+      changed = true;
+      return { ...item, shift: fullShift };
+    });
+    if (changed) {
+      this.shiftService.setSelectedContainerTemplateItems(updated);
+    }
   }
 
   private loadContainerAbsences(): void {

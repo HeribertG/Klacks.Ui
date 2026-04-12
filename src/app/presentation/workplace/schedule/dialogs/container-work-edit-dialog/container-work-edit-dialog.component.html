@@ -7,12 +7,7 @@
       {{ "dialog.containerWorkEdit.title" | translate }}
     </div>
     <span class="filler"></span>
-    <div
-      type="button"
-      class="close"
-      aria-label="Close"
-      (click)="onCancel()"
-    >
+    <div type="button" class="close" aria-label="Close" (click)="onCancel()">
       <span
         aria-hidden="true"
         style="
@@ -20,7 +15,8 @@
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
-      >&times;</span>
+        >&times;</span
+      >
     </div>
   </div>
 
@@ -85,7 +81,9 @@
               class="form-select"
               [(ngModel)]="routeService.selectedStartBase"
               (change)="lifecycleService.markDirty()"
-              [ngbTooltip]="'shift.container-template.tooltip.start-base' | translate"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.start-base' | translate
+              "
             >
               <option [value]="''">-</option>
               @for (
@@ -108,7 +106,9 @@
               class="form-select"
               [(ngModel)]="routeService.selectedEndBase"
               (change)="lifecycleService.markDirty()"
-              [ngbTooltip]="'shift.container-template.tooltip.end-base' | translate"
+              [ngbTooltip]="
+                'shift.container-template.tooltip.end-base' | translate
+              "
             >
               <option [value]="''">-</option>
               @for (
@@ -132,10 +132,10 @@
                 type="button"
                 class="transport-mode-btn"
                 [class.active]="routeService.selectedTransportMode === 0"
-                (click)="
-                  onTransportModeChange(0)
+                (click)="onTransportModeChange(0)"
+                [ngbTooltip]="
+                  'shift.container-template.transport-mode.by-car' | translate
                 "
-                [ngbTooltip]="'shift.container-template.transport-mode.by-car' | translate"
               >
                 <app-icon-by-car></app-icon-by-car>
               </button>
@@ -151,8 +151,10 @@
                 "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
-                    ? ('shift.container-template.transport-mode.by-bicycle' | translate)
-                    : ('shift.container-template.transport-mode.api-key-required' | translate)
+                    ? ('shift.container-template.transport-mode.by-bicycle'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
                 "
               >
                 <app-icon-by-bicycle></app-icon-by-bicycle>
@@ -169,8 +171,10 @@
                 "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
-                    ? ('shift.container-template.transport-mode.by-foot' | translate)
-                    : ('shift.container-template.transport-mode.api-key-required' | translate)
+                    ? ('shift.container-template.transport-mode.by-foot'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
                 "
               >
                 <app-icon-by-foot></app-icon-by-foot>
@@ -187,8 +191,10 @@
                 "
                 [ngbTooltip]="
                   routeService.hasOpenRouteServiceApiKey
-                    ? ('shift.container-template.transport-mode.mix' | translate)
-                    : ('shift.container-template.transport-mode.api-key-required' | translate)
+                    ? ('shift.container-template.transport-mode.mix'
+                      | translate)
+                    : ('shift.container-template.transport-mode.api-key-required'
+                      | translate)
                 "
               >
                 <app-icon-transport-mix></app-icon-transport-mix>
@@ -199,11 +205,13 @@
       }
     </div>
 
-    <div
-      class="content"
-      (contextmenu)="onContainerContextMenu($event)"
-    >
-      <as-split direction="horizontal" [dir]="direction()" [gutterSize]="6" unit="percent">
+    <div class="content" (contextmenu)="onContainerContextMenu($event)">
+      <as-split
+        direction="horizontal"
+        [dir]="direction()"
+        [gutterSize]="6"
+        unit="percent"
+      >
         <!-- Zone 1: TimeRuler -->
         <as-split-area [size]="30" [minSize]="15" [maxSize]="50">
           <div class="zone zone-left">
@@ -225,12 +233,14 @@
                 <div class="header-table">
                   <h3>
                     {{
-                      "shift.container-template.selected-tasks.title" | translate
+                      "shift.container-template.selected-tasks.title"
+                        | translate
                     }}
                   </h3>
                   <span class="filler"></span>
                   @if (
-                    routeService.selectedStartBase && routeService.selectedEndBase
+                    routeService.selectedStartBase &&
+                    routeService.selectedEndBase
                   ) {
                     <app-icon-wizard
                       class="icon-table"
@@ -241,14 +251,15 @@
                       "
                     ></app-icon-wizard>
                     <div
-                      class="tolerance-slider custom-slider"
+                      class="tolerance-slider"
                       [ngbTooltip]="
                         'shift.container-template.tooltip.tolerance-slider'
                           | translate
                       "
                     >
                       <span class="tolerance-endpoint">{{
-                        "shift.container-template.tolerance.flexible" | translate
+                        "shift.container-template.tolerance.flexible"
+                          | translate
                       }}</span>
                       <ngx-slider
                         [(value)]="timeRangeToleranceValue"
@@ -306,7 +317,7 @@
                         (click)="compactSelectedShifts()"
                       >
                         {{
-                          'shift.container-template.compact.without-travel'
+                          "shift.container-template.compact.without-travel"
                             | translate
                         }}
                       </button>
@@ -316,7 +327,7 @@
                         (click)="compactSelectedShifts(true)"
                       >
                         {{
-                          'shift.container-template.compact.with-travel'
+                          "shift.container-template.compact.with-travel"
                             | translate
                         }}
                       </button>
@@ -345,7 +356,9 @@
                         <tr>
                           <th class="icon-column"></th>
                           <th>
-                            {{ "shift.container-template.grid.name" | translate }}
+                            {{
+                              "shift.container-template.grid.name" | translate
+                            }}
                           </th>
                           <th>
                             {{
@@ -354,7 +367,9 @@
                             }}
                           </th>
                           <th>
-                            {{ "shift.container-template.grid.time" | translate }}
+                            {{
+                              "shift.container-template.grid.time" | translate
+                            }}
                           </th>
                           <th>
                             {{
@@ -367,7 +382,10 @@
                               "shift.container-template.grid.client" | translate
                             }}
                           </th>
-                          <th class="action-column1" (click)="onRemoveAllTasks()">
+                          <th
+                            class="action-column1"
+                            (click)="onRemoveAllTasks()"
+                          >
                             <app-icon-trash-red></app-icon-trash-red>
                           </th>
                         </tr>
@@ -403,14 +421,18 @@
                             "
                             [class.absence-item]="!!shift.absenceId"
                             [style.background-color]="
-                              shift.absenceId ? shift.absence?.color + '30' : null
+                              shift.absenceId
+                                ? shift.absence?.color + '30'
+                                : null
                             "
                           >
                             <td class="icon-column">
                               @if (shift.absenceId) {
                                 <span
                                   class="absence-color-rect"
-                                  [style.background-color]="shift.absence?.color"
+                                  [style.background-color]="
+                                    shift.absence?.color
+                                  "
                                 ></span>
                               } @else if (shift.shift?.isSporadic) {
                                 <app-icon-unknown-time></app-icon-unknown-time>
@@ -504,7 +526,11 @@
             <as-split-area [size]="50" [minSize]="20">
               <div class="zone zone-right">
                 <div class="day-tabs">
-                  @for (tab of lifecycleService.tabs; track tab.date.getTime(); let i = $index) {
+                  @for (
+                    tab of lifecycleService.tabs;
+                    track tab.date.getTime();
+                    let i = $index
+                  ) {
                     <button
                       type="button"
                       class="day-tab"
@@ -536,19 +562,39 @@
                           <thead>
                             <tr>
                               <th class="icon-column"></th>
-                              <th>{{ "shift.container-template.grid.name" | translate }}</th>
-                              <th>{{ "shift.container-template.grid.abbreviation" | translate }}</th>
-                              <th>{{ "setting.absence.modal.description" | translate }}</th>
+                              <th>
+                                {{
+                                  "shift.container-template.grid.name"
+                                    | translate
+                                }}
+                              </th>
+                              <th>
+                                {{
+                                  "shift.container-template.grid.abbreviation"
+                                    | translate
+                                }}
+                              </th>
+                              <th>
+                                {{
+                                  "setting.absence.modal.description"
+                                    | translate
+                                }}
+                              </th>
                             </tr>
                           </thead>
                           <tbody
                             cdkDropList
                             id="container-absences-list"
-                            [cdkDropListData]="lifecycleService.containerAbsences()"
+                            [cdkDropListData]="
+                              lifecycleService.containerAbsences()
+                            "
                             [cdkDropListConnectedTo]="['selected-tasks-list']"
                             [cdkDropListSortingDisabled]="true"
                           >
-                            @for (absence of lifecycleService.containerAbsences(); track absence.id) {
+                            @for (
+                              absence of lifecycleService.containerAbsences();
+                              track absence.id
+                            ) {
                               <tr cdkDrag>
                                 <td class="icon-column">
                                   <span
@@ -558,20 +604,23 @@
                                 </td>
                                 <td>
                                   {{
-                                    absence.name?.[translateService.currentLang] ||
-                                      absence.name?.["de"]
+                                    absence.name?.[
+                                      translateService.currentLang
+                                    ] || absence.name?.["de"]
                                   }}
                                 </td>
                                 <td>
                                   {{
-                                    absence.abbreviation?.[translateService.currentLang] ||
-                                      absence.abbreviation?.["de"]
+                                    absence.abbreviation?.[
+                                      translateService.currentLang
+                                    ] || absence.abbreviation?.["de"]
                                   }}
                                 </td>
                                 <td>
                                   {{
-                                    absence.description?.[translateService.currentLang] ||
-                                      absence.description?.["de"]
+                                    absence.description?.[
+                                      translateService.currentLang
+                                    ] || absence.description?.["de"]
                                   }}
                                 </td>
                               </tr>
@@ -718,11 +767,9 @@
   </div>
 
   <div class="modal-footer">
-    <span
-      type="button"
-      class="link-button red-font"
-      (click)="onCancel()"
-    >{{ "cancel" | translate }}</span>
+    <span type="button" class="link-button red-font" (click)="onCancel()">{{
+      "cancel" | translate
+    }}</span>
     @if (lifecycleService.isDirty() && !lifecycleService.isReadOnly()) {
       <span
         type="button"
@@ -732,7 +779,8 @@
         (click)="onReset()"
         (keydown.enter)="onReset()"
         (keydown.space)="onReset()"
-      >{{ "reset" | translate }}</span>
+        >{{ "reset" | translate }}</span
+      >
     }
     <button
       type="button"
@@ -770,114 +818,149 @@
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
-      >&times;</span>
+        >&times;</span
+      >
     </div>
   </div>
   <div class="modal-body first-modal">
     @if (propertiesService.contextMenuTargetItem) {
-      @if (propertiesService.contextMenuTargetItem.shift?.isTimeRange) {
+      @if (propertiesService.contextMenuTargetItem.absenceId) {
         <div class="row-line-modal-inline1">
           <div class="property-field">
-            <label for="timeRangeStartItem">
+            <label>
               {{
-                "shift.container-template.properties.time-range-start"
-                  | translate
+                "shift.container-template.properties.start-time" | translate
               }}
             </label>
             <app-time-input
-              id="timeRangeStartItem"
-              [value]="propertiesService.getPropertiesTimeRangeStart()"
-              (valueChange)="
-                propertiesService.onPropertiesTimeRangeStartChange($event)
-              "
+              [value]="absenceService.absenceStartTime"
+              (valueChange)="onAbsenceStartTimeChange($event)"
               [showLabel]="false"
               [forDuration]="false"
             ></app-time-input>
           </div>
           <div class="property-field">
             <label>
-              {{ "shift.container-template.properties.work-time" | translate }}
-            </label>
-            <div class="readonly-value">
               {{
-                formatWorkTime(
-                  propertiesService.contextMenuTargetItem.shift?.workTime || 0
-                )
+                "shift.container-template.properties.end-time" | translate
               }}
+            </label>
+            <app-time-input
+              [value]="absenceService.absenceEndTime"
+              (valueChange)="onAbsenceEndTimeChange($event)"
+              [showLabel]="false"
+              [forDuration]="false"
+            ></app-time-input>
+          </div>
+        </div>
+      } @else {
+        @if (propertiesService.contextMenuTargetItem.shift?.isTimeRange) {
+          <div class="row-line-modal-inline1">
+            <div class="property-field">
+              <label for="timeRangeStartItem">
+                {{
+                  "shift.container-template.properties.time-range-start"
+                    | translate
+                }}
+              </label>
+              <app-time-input
+                id="timeRangeStartItem"
+                [value]="propertiesService.getPropertiesTimeRangeStart()"
+                (valueChange)="
+                  propertiesService.onPropertiesTimeRangeStartChange($event)
+                "
+                [showLabel]="false"
+                [forDuration]="false"
+              ></app-time-input>
             </div>
+            <div class="property-field">
+              <label>
+                {{
+                  "shift.container-template.properties.work-time" | translate
+                }}
+              </label>
+              <div class="readonly-value">
+                {{
+                  formatWorkTime(
+                    propertiesService.contextMenuTargetItem.shift?.workTime || 0
+                  )
+                }}
+              </div>
+            </div>
+          </div>
+        }
+        <div class="row-line-modal-inline1">
+          <div class="property-field">
+            <label for="briefingTime">
+              {{
+                "shift.container-template.properties.briefing-time" | translate
+              }}
+            </label>
+            <app-time-input
+              id="briefingTime"
+              [value]="propertiesService.getPropertiesBriefingTime()"
+              (valueChange)="
+                propertiesService.onPropertiesBriefingTimeChange($event)
+              "
+              [showLabel]="false"
+              [forDuration]="true"
+            ></app-time-input>
+          </div>
+          <div class="property-field">
+            <label for="debriefingTime">
+              {{
+                "shift.container-template.properties.debriefing-time"
+                  | translate
+              }}
+            </label>
+            <app-time-input
+              id="debriefingTime"
+              [value]="propertiesService.getPropertiesDebriefingTime()"
+              (valueChange)="
+                propertiesService.onPropertiesDebriefingTimeChange($event)
+              "
+              [showLabel]="false"
+              [forDuration]="true"
+            ></app-time-input>
+          </div>
+        </div>
+        <div class="row-line-modal-inline1">
+          <div class="property-field">
+            <label for="travelTimeBefore">
+              {{
+                "shift.container-template.properties.travel-time-before"
+                  | translate
+              }}
+            </label>
+            <app-time-input
+              id="travelTimeBefore"
+              [value]="propertiesService.getPropertiesTravelTimeBefore()"
+              (valueChange)="
+                propertiesService.onPropertiesTravelTimeBeforeChange($event)
+              "
+              [showLabel]="false"
+              [forDuration]="true"
+            ></app-time-input>
+          </div>
+          <div class="property-field">
+            <label for="travelTimeAfter">
+              {{
+                "shift.container-template.properties.travel-time-after"
+                  | translate
+              }}
+            </label>
+            <app-time-input
+              id="travelTimeAfter"
+              [value]="propertiesService.getPropertiesTravelTimeAfter()"
+              (valueChange)="
+                propertiesService.onPropertiesTravelTimeAfterChange($event)
+              "
+              [showLabel]="false"
+              [forDuration]="true"
+            ></app-time-input>
           </div>
         </div>
       }
-      <div class="row-line-modal-inline1">
-        <div class="property-field">
-          <label for="briefingTime">
-            {{
-              "shift.container-template.properties.briefing-time" | translate
-            }}
-          </label>
-          <app-time-input
-            id="briefingTime"
-            [value]="propertiesService.getPropertiesBriefingTime()"
-            (valueChange)="
-              propertiesService.onPropertiesBriefingTimeChange($event)
-            "
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-        <div class="property-field">
-          <label for="debriefingTime">
-            {{
-              "shift.container-template.properties.debriefing-time" | translate
-            }}
-          </label>
-          <app-time-input
-            id="debriefingTime"
-            [value]="propertiesService.getPropertiesDebriefingTime()"
-            (valueChange)="
-              propertiesService.onPropertiesDebriefingTimeChange($event)
-            "
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-      </div>
-      <div class="row-line-modal-inline1">
-        <div class="property-field">
-          <label for="travelTimeBefore">
-            {{
-              "shift.container-template.properties.travel-time-before"
-                | translate
-            }}
-          </label>
-          <app-time-input
-            id="travelTimeBefore"
-            [value]="propertiesService.getPropertiesTravelTimeBefore()"
-            (valueChange)="
-              propertiesService.onPropertiesTravelTimeBeforeChange($event)
-            "
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-        <div class="property-field">
-          <label for="travelTimeAfter">
-            {{
-              "shift.container-template.properties.travel-time-after"
-                | translate
-            }}
-          </label>
-          <app-time-input
-            id="travelTimeAfter"
-            [value]="propertiesService.getPropertiesTravelTimeAfter()"
-            (valueChange)="
-              propertiesService.onPropertiesTravelTimeAfterChange($event)
-            "
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-      </div>
 
       @if (routeService.isTransportModeMix) {
         <div class="transport-mode-group">
@@ -965,7 +1048,8 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss()"
-    >{{ "cancel" | translate }}</span>
+      >{{ "cancel" | translate }}</span
+    >
     <button type="button" class="btn save-btn" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
@@ -992,7 +1076,8 @@
           border: 1px transparent solid;
           color: var(--colorWorkplaceHeadline);
         "
-      >&times;</span>
+        >&times;</span
+      >
     </div>
   </div>
   <div class="modal-body first-modal">
@@ -1026,7 +1111,8 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss()"
-    >{{ "cancel" | translate }}</span>
+      >{{ "cancel" | translate }}</span
+    >
     <button type="button" class="btn save-btn" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
