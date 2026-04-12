@@ -603,6 +603,25 @@ export class TimeRulerRenderService {
     );
   }
 
+  private drawSelectedShiftHighlight(
+    ctx: CanvasRenderingContext2D,
+    rect: Rectangle,
+  ): void {
+    const DARKEN_OPACITY = 0.12;
+    const DASH_PATTERN = [4, 3];
+    const BORDER_WIDTH = 1.5;
+
+    ctx.fillStyle = `rgba(30, 144, 255, ${DARKEN_OPACITY})`;
+    ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
+
+    ctx.save();
+    ctx.setLineDash(DASH_PATTERN);
+    ctx.strokeStyle = this.gridColorService.focusBorderColor;
+    ctx.lineWidth = BORDER_WIDTH;
+    ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
+    ctx.restore();
+  }
+
   drawBlockSelectionRect(
     ctx: CanvasRenderingContext2D,
     blockBounds: Rectangle | null
@@ -783,6 +802,9 @@ export class TimeRulerRenderService {
 
       if (selectedRect) {
         shiftRectangles.set(selectedShift, selectedRect);
+        if (!blockSelectionService?.hasBlock()) {
+          this.drawSelectedShiftHighlight(inboxCtx, selectedRect);
+        }
       }
     }
 

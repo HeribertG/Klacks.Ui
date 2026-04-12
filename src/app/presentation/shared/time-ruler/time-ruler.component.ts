@@ -97,6 +97,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       () => {
         const selectedItems = this.blockSelectionService.selectedItems();
         void selectedItems.size;
+        void this.shiftService.selectedShiftSignal();
 
         if (this.inboxCanvasRef) {
           this.redrawWithSelection();
@@ -254,7 +255,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private redrawWithSelection(): void {
     if (!this.renderCanvas) return;
-    const selectedItem = this.blockSelectionService.getSelectedSingle();
+    const selectedItem = this.blockSelectionService.getSelectedSingle()
+      ?? this.shiftService.selectedShiftSignal();
     this.renderService.redrawWithSelection(
       this.inboxCanvasRef.nativeElement,
       this.renderCanvas,

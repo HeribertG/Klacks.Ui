@@ -76,7 +76,12 @@ export class TimeRulerInteractionService {
 
     for (const [item, shiftRect] of shiftRectangles) {
       if (shiftRect.pointInRect(x, y)) {
-        blockSelectionService.toggleItem(item, event.ctrlKey, event.shiftKey, allShifts);
+        if (event.ctrlKey || event.shiftKey) {
+          blockSelectionService.toggleItem(item, event.ctrlKey, event.shiftKey, allShifts);
+        } else {
+          blockSelectionService.clearSelection();
+          this.shiftService.setSelectedShift(item);
+        }
         return;
       }
     }
