@@ -474,20 +474,31 @@
         <as-split-area [size]="50" [minSize]="20">
           <div class="zone zone-right">
             <div class="day-tabs">
-              @for (
-                tab of tabs();
-                track tab.date.getTime();
-                let i = $index
-              ) {
+              @if (tabs().length > 0) {
+                @for (
+                  tab of tabs();
+                  track tab.date.getTime();
+                  let i = $index
+                ) {
+                  <button
+                    type="button"
+                    class="day-tab"
+                    [class.active]="
+                      !isEmploymentTabActive() && selectedTabIndex() === i
+                    "
+                    (click)="dayTabClick.emit(i)"
+                  >
+                    {{ tab.label }}
+                  </button>
+                }
+              } @else {
                 <button
                   type="button"
                   class="day-tab"
-                  [class.active]="
-                    !isEmploymentTabActive() && selectedTabIndex() === i
-                  "
-                  (click)="dayTabClick.emit(i)"
+                  [class.active]="!isEmploymentTabActive()"
+                  (click)="shiftsTabClick.emit()"
                 >
-                  {{ tab.label }}
+                  {{ "dialog.containerShiftOverride.tab.shifts" | translate }}
                 </button>
               }
               <span class="filler"></span>
