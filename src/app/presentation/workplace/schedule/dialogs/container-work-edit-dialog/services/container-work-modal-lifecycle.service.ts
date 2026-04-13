@@ -21,6 +21,7 @@ import { ContainerTemplateRouteService } from 'src/app/presentation/workplace/sh
 import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
+import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
@@ -46,6 +47,7 @@ export class ContainerWorkModalLifecycleService {
   private routeService = inject(ContainerTemplateRouteService);
   private dataShiftService = inject(DataShiftService);
   private dataAbsenceService = inject(DataAbsenceService);
+  private templateApiService = inject(DataContainerTemplateService);
   private destroyRef = inject(DestroyRef);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
 
@@ -64,6 +66,7 @@ export class ContainerWorkModalLifecycleService {
   containerShiftId = '';
   currentDate: Date | null = null;
   weekday = 'monday';
+  weekdayNumber = 1;
   isHoliday = false;
 
   private containerStartTime: string | null = null;
@@ -157,6 +160,7 @@ export class ContainerWorkModalLifecycleService {
     this.containerShiftId = containerShiftId;
     this.currentDate = currentDate;
     this.weekday = WEEKDAY_NAMES[currentDate.getDay()];
+    this.weekdayNumber = currentDate.getDay();
     this.isHoliday = isHoliday;
     this.isDirty.set(false);
     this.isLoading.set(true);
@@ -181,15 +185,36 @@ export class ContainerWorkModalLifecycleService {
           }
           this.originalChildShiftIds.set(originalIds);
           this.isLoading.set(false);
-          const inputIds = availableShifts.map(s => s.id);
-          const combinedIds = Array.from(new Set([...inputIds, ...originalIds]));
-          this.loadAvailableShiftsWithClient(combinedIds);
+          this.loadAvailableTasks(originalIds);
           this.loadContainerAbsences();
         },
         error: () => {
           this.isLoading.set(false);
           this.isAvailableShiftsLoading.set(false);
         },
+      });
+  }
+
+  private loadAvailableTasks(originalChildShiftIds: ReadonlySet<string>): void {
+    const fromTime = this.containerStartTime ?? '06:00';
+    const untilTime = this.containerEndTime ?? '18:00';
+    this.templateApiService
+      .getAvailableTasks(
+        this.containerShiftId,
+        this.weekdayNumber,
+        fromTime,
+        untilTime,
+        undefined,
+        undefined,
+        this.isHoliday ? true : undefined,
+        undefined,
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(tasks => {
+        this.availableShiftsAsIShift = tasks;
+        const taskIds = tasks.map(t => t.id!).filter(Boolean);
+        const combinedIds = Array.from(new Set([...taskIds, ...originalChildShiftIds]));
+        this.loadAvailableShiftsWithClient(combinedIds);
       });
   }
 
