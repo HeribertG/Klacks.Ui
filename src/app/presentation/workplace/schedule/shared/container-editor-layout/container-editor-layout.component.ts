@@ -10,6 +10,7 @@
  */
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
@@ -96,6 +97,7 @@ export class ContainerEditorLayoutComponent {
   protected sortingService = inject(TableSortingService);
   private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
   private dragDropService = inject(ContainerTemplateDragDropService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Inputs — Data
   timeFrom = input<OwnTime>(OwnTime.forTime('06', '00'));
@@ -208,7 +210,7 @@ export class ContainerEditorLayoutComponent {
   }
 
   onHeaderClick(columnKey: string): void {
-    this.sortingService.onHeaderClick(columnKey, () => {});
+    this.sortingService.onHeaderClick(columnKey, () => this.cdr.markForCheck());
   }
 
   onTableRowRightClickInternal(event: MouseEvent, item: IContainerTemplateItem): void {

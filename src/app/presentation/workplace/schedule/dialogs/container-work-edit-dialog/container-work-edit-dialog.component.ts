@@ -525,12 +525,6 @@ export class ContainerWorkEditDialogComponent {
     this.shiftService.setSelectedShift(item);
   }
 
-  onHeaderClick(columnKey: string): void {
-    this.sortingService.onHeaderClick(columnKey, () => {
-      this.cdr.markForCheck();
-    });
-  }
-
   onShiftRightClick(event: IShiftContextMenuEvent): void {
     this.propertiesService.contextMenuTargetItem = event.item;
     this.shiftService.setSelectedShift(event.item);
