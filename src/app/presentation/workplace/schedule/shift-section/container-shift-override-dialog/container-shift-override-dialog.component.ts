@@ -258,9 +258,8 @@ export class ContainerShiftOverrideDialogComponent {
     containerStartTime?: string,
     containerEndTime?: string,
   ): void {
-    const lockKey = `${containerId}:${date}`;
     this.lockService
-      .acquire(ContainerLockResourceType.containerShiftOverride, lockKey)
+      .acquire(ContainerLockResourceType.containerShiftOverride, containerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: lock => {

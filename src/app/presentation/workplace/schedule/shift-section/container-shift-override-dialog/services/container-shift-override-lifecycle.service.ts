@@ -102,6 +102,7 @@ export class ContainerShiftOverrideLifecycleService {
           this.isReadOnly.set(true);
           this.readOnlyReason.set('dialog.containerShiftOverride.readOnlyHasWork');
         }
+        this.loadAvailableTasks();
         this.isLoading.set(false);
       }),
       catchError((err: HttpErrorResponse) => {
@@ -131,10 +132,32 @@ export class ContainerShiftOverrideLifecycleService {
           this.applyRouteValues(template.startBase, template.endBase, template.transportMode);
           this.initializeItemsFromTemplateItems(template.containerTemplateItems);
         }
+        this.loadAvailableTasks();
         this.isLoading.set(false);
       }),
       switchMap(() => of(undefined as void)),
     );
+  }
+
+  loadAvailableTasks(): void {
+    const fromTime = this.containerStartTime ?? '06:00';
+    const untilTime = this.containerEndTime ?? '18:00';
+    this.templateApiService
+      .getAvailableTasks(
+        this.containerId,
+        this.weekdayNumber,
+        fromTime,
+        untilTime,
+        undefined,
+        undefined,
+        this.isHoliday ? true : undefined,
+        undefined,
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(tasks => {
+        this.availableShiftsAsIShift = tasks;
+        this.availableShiftsVersion.update(v => v + 1);
+      });
   }
 
   private applyRouteValues(

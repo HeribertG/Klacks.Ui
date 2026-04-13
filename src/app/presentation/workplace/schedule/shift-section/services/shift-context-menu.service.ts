@@ -29,12 +29,16 @@ export class ShiftContextMenuService {
   createContextMenu(row: number, column: number, dataService: ShiftDataService): Menu {
     const menuData = new Menu();
     const engagedCount = dataService.getEngagedCount(row, column);
+    const isContainer = dataService.isInTemplateContainer(row, column);
+    const shiftType = dataService.getShiftType(row);
+    console.log('[SHIFT-CTX-MENU] createContextMenu', { row, column, engagedCount, isContainer, shiftType });
 
     if (engagedCount > 0) {
       menuData.list.push(...MenuDataTemplate.showInSchedule());
     }
 
-    if (dataService.isInTemplateContainer(row, column)) {
+    const isContainerShift = dataService.getShiftType(row) === 1;
+    if (isContainerShift) {
       if (menuData.list.length > 0) {
         menuData.list.push(...MenuDataTemplate.divider());
       }

@@ -352,14 +352,20 @@ export class ShiftSectionComponent
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
-    if (!this.contextMenu) return;
+    console.log('[SHIFT-CTX] onRightClick called', { row: event.row, column: event.column });
+    if (!this.contextMenu) {
+      console.log('[SHIFT-CTX] contextMenu is NULL');
+      return;
+    }
 
     this.contextMenu.closeMenu(true);
     this.createContextMenu(event.row, event.column);
+    console.log('[SHIFT-CTX] menuData items:', this.contextMenu.menuData?.list?.length, this.contextMenu.menuData?.list?.map((m: any) => m.id));
     this.contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
+    console.log('[SHIFT-CTX] openMenu called');
   }
 
   private createContextMenu(row: number, column: number): void {

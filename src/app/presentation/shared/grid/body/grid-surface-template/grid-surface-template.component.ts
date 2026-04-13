@@ -484,13 +484,19 @@ export class GridSurfaceTemplateComponent
   }
 
   onCanvasRightClick(event: GridRightClickEvent): void {
-    this.rightClick.emit({
-      row: event.row,
-      column: event.column,
-      clientX: event.clientX,
-      clientY: event.clientY,
-      source: 'canvas',
-    });
+    console.log('[SURFACE] onCanvasRightClick', { nameId: this.nameId, row: event.row, column: event.column, subscribers: this.rightClick.observed });
+    try {
+      this.rightClick.emit({
+        row: event.row,
+        column: event.column,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        source: 'canvas',
+      });
+      console.log('[SURFACE] rightClick.emit completed');
+    } catch (e) {
+      console.error('[SURFACE] rightClick.emit ERROR:', e);
+    }
   }
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {

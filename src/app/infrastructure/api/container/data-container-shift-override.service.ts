@@ -21,8 +21,7 @@ export class DataContainerShiftOverrideService {
     return this.httpClient
       .get<IContainerShiftOverride>(
         `${environment.baseUrl}Containers/${containerId}/overrides/${date}`
-      )
-      .pipe(retry(3));
+      );
   }
 
   getOverridesForRange(containerId: string, fromDate: string, toDate: string): Observable<IContainerShiftOverride[]> {

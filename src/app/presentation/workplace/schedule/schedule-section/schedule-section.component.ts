@@ -374,7 +374,11 @@ export class ScheduleSectionComponent
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
-    if (!this.contextMenu) return;
+    console.log('[SCHEDULE-CTX] onRightClick called', { row: event.row, column: event.column });
+    if (!this.contextMenu) {
+      console.log('[SCHEDULE-CTX] contextMenu is null/undefined!');
+      return;
+    }
 
     this.contextMenu.closeMenu(true);
 
@@ -387,6 +391,7 @@ export class ScheduleSectionComponent
       this.createContextMenu(event.row, event.column);
     }
 
+    console.log('[SCHEDULE-CTX] menuData items:', this.contextMenu.menuData?.list?.length);
     this.contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
