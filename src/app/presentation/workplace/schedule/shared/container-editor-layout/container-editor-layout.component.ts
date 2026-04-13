@@ -127,6 +127,7 @@ export class ContainerEditorLayoutComponent {
   // Inputs — IDs
   dropListId = input('selected-tasks-list');
   availableDropListId = input('available-tasks-list');
+  absencesDropListId = input('container-absences-list');
 
   // Outputs — Time
   @Output() timeFromChange = new EventEmitter<OwnTime>();
@@ -200,6 +201,7 @@ export class ContainerEditorLayoutComponent {
 
   onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
     this.shiftOpsService.onTimeRangeStartChange(item, newTime);
+    this.markDirty.emit();
   }
 
   onHeaderClick(columnKey: string): void {

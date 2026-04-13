@@ -200,7 +200,7 @@
                 }}
               </h3>
               <span class="filler"></span>
-              @if (selectedStartBase() && selectedEndBase()) {
+              @if (showAutofill()) {
                 <app-icon-wizard
                   class="icon-table"
                   [class.disabled]="isAutofillRunning()"
@@ -498,7 +498,7 @@
                   [class.active]="!isEmploymentTabActive()"
                   (click)="shiftsTabClick.emit()"
                 >
-                  {{ "dialog.containerShiftOverride.tab.shifts" | translate }}
+                  {{ "shift.container-template.available-tasks.title" | translate }}
                 </button>
               }
               <span class="filler"></span>
@@ -540,7 +540,7 @@
                       </thead>
                       <tbody
                         cdkDropList
-                        id="container-absences-list"
+                        [id]="absencesDropListId()"
                         [cdkDropListData]="containerAbsences()"
                         [cdkDropListConnectedTo]="[dropListId()]"
                         [cdkDropListSortingDisabled]="true"
