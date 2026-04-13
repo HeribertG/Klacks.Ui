@@ -569,3 +569,84 @@ as-split-area {
 tr.timerange-violation {
   background-color: var(--taskRowViolationBackground);
 }
+
+.tolerance-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 10px;
+  padding-inline-end: 20px;
+  min-width: 220px;
+  height: 40px !important;
+
+  .tolerance-endpoint {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    white-space: nowrap;
+  }
+
+  ngx-slider {
+    flex: 1;
+  }
+}
+
+::ng-deep .container-shift-override-fullscreen .ngx-slider {
+  .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto;
+    bottom: 0;
+    background-color: #333;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
+    cursor: pointer;
+
+    &:after {
+      display: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .ngx-slider-bubble {
+    bottom: 14px;
+  }
+}
+
+.autofill-progress {
+  height: 2px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.autofill-progress-bar {
+  height: 100%;
+  width: 30%;
+  background-color: #4caf50;
+  animation: autofill-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes autofill-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@keyframes autofill-slide-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-400%);
+  }
+}
+
+:host-context([dir="rtl"]) .autofill-progress-bar {
+  animation-name: autofill-slide-rtl;
+}

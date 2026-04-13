@@ -234,6 +234,33 @@
                     routeService.selectedStartBase &&
                     routeService.selectedEndBase
                   ) {
+                    <app-icon-wizard
+                      class="icon-table"
+                      [class.disabled]="routeService.isAutofillRunning"
+                      (click)="autofill()"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.autofill' | translate
+                      "
+                    ></app-icon-wizard>
+                    <div
+                      class="tolerance-slider"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.tolerance-slider'
+                          | translate
+                      "
+                    >
+                      <span class="tolerance-endpoint">{{
+                        "shift.container-template.tolerance.flexible"
+                          | translate
+                      }}</span>
+                      <ngx-slider
+                        [(value)]="timeRangeToleranceValue"
+                        [options]="timeRangeToleranceOptions"
+                      ></ngx-slider>
+                      <span class="tolerance-endpoint">{{
+                        "shift.container-template.tolerance.exact" | translate
+                      }}</span>
+                    </div>
                     <app-icon-route
                       class="icon-table"
                       [class.disabled]="routeService.isOptimizing"
@@ -243,15 +270,70 @@
                           | translate
                       "
                     ></app-icon-route>
+                    @if (routeService.hasRouteInfo) {
+                      <app-icon-route-file
+                        class="icon-table"
+                        (click)="exportRouteToPdf()"
+                        [ngbTooltip]="
+                          'shift.container-template.tooltip.export-route-pdf'
+                            | translate
+                        "
+                      ></app-icon-route-file>
+                    }
                   }
-                  <app-icon-compact
+                  <app-icon-pdf-icon
                     class="icon-table"
-                    (click)="compactSelectedShifts()"
+                    (click)="exportSelectedShiftsToPdf()"
                     [ngbTooltip]="
-                      'shift.container-template.tooltip.compact' | translate
+                      'shift.container-template.tooltip.export-shifts-pdf'
+                        | translate
                     "
-                  ></app-icon-compact>
+                  ></app-icon-pdf-icon>
+                  <div ngbDropdown class="d-inline-block">
+                    <app-icon-compact
+                      class="icon-table"
+                      ngbDropdownToggle
+                      id="compactShiftsDropdownOverride"
+                      [ngbTooltip]="
+                        'shift.container-template.tooltip.compact-menu'
+                          | translate
+                      "
+                    ></app-icon-compact>
+                    <div
+                      ngbDropdownMenu
+                      aria-labelledby="compactShiftsDropdownOverride"
+                    >
+                      <button
+                        type="button"
+                        ngbDropdownItem
+                        (click)="compactSelectedShifts()"
+                      >
+                        {{
+                          "shift.container-template.compact.without-travel"
+                            | translate
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        ngbDropdownItem
+                        (click)="compactSelectedShifts(true)"
+                      >
+                        {{
+                          "shift.container-template.compact.with-travel"
+                            | translate
+                        }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
+
+                @if (
+                  routeService.isAutofillRunning || routeService.isOptimizing
+                ) {
+                  <div class="autofill-progress">
+                    <div class="autofill-progress-bar"></div>
+                  </div>
+                }
 
                 @if (lifecycleService.isLoading()) {
                   <div class="loading-indicator">

@@ -46,7 +46,10 @@ import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-wi
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
+import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
+import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
@@ -57,6 +60,7 @@ import {
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import {
@@ -109,13 +113,17 @@ const MODAL_WINDOW_CLASS = 'container-shift-override-fullscreen';
     IconUnknownTimeComponent,
     TrashIconRedComponent,
     IconCompactComponent,
+    PdfIconComponent,
     IconRouteComponent,
+    IconRouteFileComponent,
+    IconWizardComponent,
     IconByCarComponent,
     IconByFootComponent,
     IconByBicycleComponent,
     IconTransportMixComponent,
     ContextMenuComponent,
     SearchInputComponent,
+    NgxSliderModule,
   ],
   templateUrl: './container-shift-override-dialog.component.html',
   styleUrl: './container-shift-override-dialog.component.scss',
@@ -157,6 +165,16 @@ export class ContainerShiftOverrideDialogComponent {
   }
 
   public duration: OwnTime = OwnTime.forDuration('00', '00');
+
+  timeRangeToleranceValue = 50;
+  timeRangeToleranceOptions: Options = {
+    floor: 0,
+    ceil: 100,
+    step: 10,
+    showSelectionBar: true,
+    hideLimitLabels: true,
+    hidePointerLabels: true,
+  };
 
   direction = inject(DirectionService).direction;
 
@@ -470,16 +488,52 @@ export class ContainerShiftOverrideDialogComponent {
     event.preventDefault();
   }
 
-  compactSelectedShifts(): void {
+  compactSelectedShifts(keepTravelAndBriefing: boolean = false): void {
     this.shiftOpsService.compactSelectedShifts(
       this.timeFrom,
       this.timeTo,
       this.lifecycleService.weekday,
       this.lifecycleService.isHoliday,
-      false,
+      keepTravelAndBriefing,
     );
     this.lifecycleService.markDirty();
     this.cdr.markForCheck();
+  }
+
+  autofill(): void {
+    this.routeService.autofill({
+      containerShift: this.lifecycleService.containerId
+        ? ({ id: this.lifecycleService.containerId } as IShift)
+        : null,
+      selectedWeekday: this.lifecycleService.weekday,
+      isHoliday: this.lifecycleService.isHoliday,
+      timeFrom: this.timeFrom,
+      timeTo: this.timeTo,
+      additionalAvailableWorkIds: [],
+      timeRangeToleranceValue: this.timeRangeToleranceValue,
+      destroy$: this.destroy$,
+      onStateChanged: () => {
+        this.lifecycleService.markDirty();
+        this.cdr.markForCheck();
+      },
+    }, this.lifecycleService.availableTasks);
+  }
+
+  exportSelectedShiftsToPdf(): void {
+    this.shiftOpsService.exportSelectedShiftsToPdf(
+      null,
+      this.lifecycleService.weekday,
+      this.timeFrom,
+      this.timeTo,
+    );
+  }
+
+  exportRouteToPdf(): void {
+    this.shiftOpsService.exportRouteToPdf(
+      null,
+      this.lifecycleService.weekday,
+      this.timeFrom,
+    );
   }
 
   private openContextMenu(event: MouseEvent): void {
