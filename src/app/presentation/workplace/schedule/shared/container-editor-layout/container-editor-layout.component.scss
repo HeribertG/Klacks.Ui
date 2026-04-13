@@ -702,6 +702,14 @@ as-split-area {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+tr.partial-timerange {
+  background-color: var(--taskRowPossibleBackground);
+
+  td {
+    color: rgba(var(--colorTextRgb, 0, 0, 0), 0.6);
+  }
+}
+
 tr.timerange-violation {
   background-color: var(--taskRowViolationBackground);
 }
