@@ -78,6 +78,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { ContainerShiftOverrideDialogComponent } from './container-shift-override-dialog/container-shift-override-dialog.component';
 import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/container/data-container-shift-override.service';
+import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-shift-section',
@@ -352,28 +353,22 @@ export class ShiftSectionComponent
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
-    console.log('[SHIFT-CTX] onRightClick called', { row: event.row, column: event.column });
     if (!this.contextMenu) {
-      console.log('[SHIFT-CTX] contextMenu is NULL');
       return;
     }
 
     this.contextMenu.closeMenu(true);
     this.createContextMenu(event.row, event.column);
-    console.log('[SHIFT-CTX] menuData items:', this.contextMenu.menuData?.list?.length, this.contextMenu.menuData?.list?.map((m: any) => m.id));
     this.contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
-    console.log('[SHIFT-CTX] openMenu called');
   }
 
   private createContextMenu(row: number, column: number): void {
     const shiftDataService = this.dataService as ShiftDataService;
     this.contextMenu.menuData = this.contextMenuService.createContextMenu(row, column, shiftDataService);
   }
-
-  private static readonly WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
@@ -393,7 +388,7 @@ export class ShiftSectionComponent
         const dateStr = shiftDataService.getDateKeyForColumn(pos.column);
         if (shiftId && dateStr) {
           const date = new Date(dateStr);
-          const weekday = ShiftSectionComponent.WEEKDAY_NAMES[date.getDay()];
+          const weekday = WEEKDAY_NAMES[date.getDay()];
           this.overrideDialog.open(shiftId, dateStr, weekday, false);
         }
         break;

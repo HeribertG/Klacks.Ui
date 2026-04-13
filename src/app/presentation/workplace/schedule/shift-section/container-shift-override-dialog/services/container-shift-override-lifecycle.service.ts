@@ -22,8 +22,7 @@ import { DataContainerShiftOverrideService } from 'src/app/infrastructure/api/co
 import { DataContainerTemplateService } from 'src/app/infrastructure/api/container/data-container-template.service';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { HttpErrorResponse } from '@angular/common/http';
-
-const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -44,6 +43,7 @@ export class ContainerShiftOverrideLifecycleService {
   readonly isReadOnly = signal(false);
   readonly readOnlyReason = signal('');
   readonly availableShiftsVersion = signal(0);
+  readonly lastError = signal<string | null>(null);
 
   containerId = '';
   date = '';
@@ -77,7 +77,7 @@ export class ContainerShiftOverrideLifecycleService {
     this.containerId = containerId;
     this.date = date;
     this.weekday = weekday;
-    this.weekdayNumber = WEEKDAY_NAMES.indexOf(weekday);
+    this.weekdayNumber = (WEEKDAY_NAMES as readonly string[]).indexOf(weekday);
     this.isHoliday = isHoliday;
     this.containerStartTime = containerStartTime ?? null;
     this.containerEndTime = containerEndTime ?? null;
@@ -86,6 +86,7 @@ export class ContainerShiftOverrideLifecycleService {
     this.isLoading.set(true);
     this.isReadOnly.set(false);
     this.readOnlyReason.set('');
+    this.lastError.set(null);
     this.shiftService.setCurrentWeekday(weekday);
     this.shiftService.setSelectedContainerTemplateItems([]);
     this.shiftService.setSelectedShift(null);
@@ -110,6 +111,7 @@ export class ContainerShiftOverrideLifecycleService {
           return this.loadFromTemplate();
         }
         this.isLoading.set(false);
+        this.lastError.set(err?.message ?? 'Failed to load override');
         return throwError(() => err);
       }),
       switchMap(() => of(undefined as void)),

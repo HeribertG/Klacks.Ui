@@ -8,6 +8,8 @@
 
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
+
+export const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
 /**

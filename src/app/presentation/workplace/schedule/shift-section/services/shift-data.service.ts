@@ -17,7 +17,8 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
@@ -79,6 +80,7 @@ export class ShiftDataService extends BaseDataService {
   private appSettingsService = inject(AppSettingsManagementService);
   private workNotificationService = inject(WorkNotificationService);
   private overrideDataService = inject(DataContainerShiftOverrideService);
+  private destroyRef = inject(DestroyRef);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -426,7 +428,7 @@ export class ShiftDataService extends BaseDataService {
       this.overrideDataService.getOverridesForRange(shiftId, fromDate, toDate)
     );
 
-    forkJoin(requests).subscribe(results => {
+    forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(results => {
       for (let i = 0; i < containerShiftIds.length; i++) {
         const shiftId = containerShiftIds[i];
         const overrides = results[i];

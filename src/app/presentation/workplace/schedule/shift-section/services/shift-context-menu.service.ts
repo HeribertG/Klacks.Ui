@@ -29,9 +29,6 @@ export class ShiftContextMenuService {
   createContextMenu(row: number, column: number, dataService: ShiftDataService): Menu {
     const menuData = new Menu();
     const engagedCount = dataService.getEngagedCount(row, column);
-    const isContainer = dataService.isInTemplateContainer(row, column);
-    const shiftType = dataService.getShiftType(row);
-    console.log('[SHIFT-CTX-MENU] createContextMenu', { row, column, engagedCount, isContainer, shiftType });
 
     if (engagedCount > 0) {
       menuData.list.push(...MenuDataTemplate.showInSchedule());

@@ -301,7 +301,9 @@ export class ContainerShiftOverrideDialogComponent {
           this.calculateDuration();
           this.cdr.markForCheck();
         },
-        error: () => {},
+        error: () => {
+          this.toastService.showError('Failed to load override data');
+        },
       });
 
     this.timeFrom = this.lifecycleService.getTimeFrom();
