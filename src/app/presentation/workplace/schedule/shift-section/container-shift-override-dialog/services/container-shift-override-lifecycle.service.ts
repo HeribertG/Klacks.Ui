@@ -25,6 +25,7 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { HttpErrorResponse } from '@angular/common/http';
 import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -202,6 +203,7 @@ export class ContainerShiftOverrideLifecycleService {
     this.routeService.selectedEndBase = endBase ?? '';
     this.routeService.selectedTransportMode =
       transportMode ?? ContainerTransportModeEnum.byCar;
+    this.routeService.isOverrideMode = true;
   }
 
   private initializeItemsFromOverride(override: IContainerShiftOverride): void {
@@ -237,6 +239,7 @@ export class ContainerShiftOverrideLifecycleService {
     const items: IContainerTemplateItem[] = templateItems.map(item => ({
       ...item,
       id: undefined,
+      tmpId: newGuid(),
       containerTemplateId: undefined,
     }));
     const sorted = this.containerStartTime && this.containerEndTime

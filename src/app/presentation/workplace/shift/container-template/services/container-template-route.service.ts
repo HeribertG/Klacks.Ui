@@ -78,6 +78,7 @@ export class ContainerTemplateRouteService {
   public lastRouteInfo: IRouteInfo | null = null;
   public isAutofillRunning = false;
   public isOptimizing = false;
+  public isOverrideMode = false;
 
   get hasRouteInfo(): boolean {
     return this.lastRouteInfo !== null;
@@ -402,16 +403,14 @@ export class ContainerTemplateRouteService {
     );
 
     if (reorderedItems.length > 0) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
-
       this.shiftService.setSelectedContainerTemplateItems(reorderedItems);
-      this.containerService.updateTaskOrderInTemplates(
-        reorderedItems,
-        weekdayNumber,
-        isHoliday,
-      );
-      this.workplaceStateService.areObjectsDirty();
 
+      if (!this.isOverrideMode) {
+        const weekdayNumber = this.containerService.getWeekdayNumber(selectedWeekday);
+        this.containerService.updateTaskOrderInTemplates(reorderedItems, weekdayNumber, isHoliday);
+      }
+
+      this.workplaceStateService.areObjectsDirty();
       this.sortingService.restoreSortState('startShift', 'asc');
     }
   }
@@ -420,7 +419,7 @@ export class ContainerTemplateRouteService {
     selectedWeekday: string | null,
     isHoliday: boolean,
   ): void {
-    if (!selectedWeekday || !this.lastRouteInfo) {
+    if (!selectedWeekday || !this.lastRouteInfo || this.isOverrideMode) {
       return;
     }
 
