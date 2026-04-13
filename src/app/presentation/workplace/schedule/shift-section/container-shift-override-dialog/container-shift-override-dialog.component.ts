@@ -70,6 +70,9 @@ import { ContainerTemplateRouteService } from '../../../shift/container-template
 import { ContainerTemplateItemManipulationService } from '../../../shift/container-template/services/container-template-item-manipulation.service';
 import { MapRenderingService } from '../../../shift/container-template/services/map-rendering.service';
 import { ShiftArrangementService } from '../../../shift/container-template/services/shift-arrangement.service';
+import { ContainerTemplatePdfExportService } from '../../../shift/container-template/services/container-template-pdf-export.service';
+import { RoutePdfExportService } from '../../../shift/container-template/services/route-pdf-export.service';
+import { ContainerTemplateAbsenceService } from '../../../shift/container-template/services/container-template-absence.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
@@ -124,10 +127,13 @@ const MODAL_WINDOW_CLASS = 'container-shift-override-fullscreen';
     ContextMenuService,
     ContainerTemplateItemManipulationService,
     MapRenderingService,
+    RoutePdfExportService,
+    ContainerTemplatePdfExportService,
     ShiftArrangementService,
     ContainerTemplateRouteService,
     ContainerTemplatePropertiesService,
     ContainerTemplateShiftOperationsService,
+    ContainerTemplateAbsenceService,
     ContainerTemplateDragDropService,
     ContainerShiftOverrideLifecycleService,
   ],
