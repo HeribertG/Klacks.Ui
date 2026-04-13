@@ -13,6 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, catchError, of, switchMap, tap, throwError } from 'rxjs';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { IAbsence } from 'src/app/domain/models/absence/absence-class';
+import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { IContainerShiftOverride, IContainerShiftOverrideItem } from 'src/app/domain/models/container/container-shift-override';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -36,6 +38,7 @@ export class ContainerShiftOverrideLifecycleService {
   private routeService = inject(ContainerTemplateRouteService);
   private overrideApiService = inject(DataContainerShiftOverrideService);
   private templateApiService = inject(DataContainerTemplateService);
+  private dataAbsenceService = inject(DataAbsenceService);
   private destroyRef = inject(DestroyRef);
 
   readonly isDirty = signal(false);
@@ -44,6 +47,8 @@ export class ContainerShiftOverrideLifecycleService {
   readonly readOnlyReason = signal('');
   readonly availableShiftsVersion = signal(0);
   readonly lastError = signal<string | null>(null);
+  readonly isEmploymentTabActive = signal(false);
+  readonly containerAbsences = signal<IAbsence[]>([]);
 
   containerId = '';
   date = '';
@@ -51,6 +56,7 @@ export class ContainerShiftOverrideLifecycleService {
   weekdayNumber = 1;
   isHoliday = false;
   currentOverride: IContainerShiftOverride | null = null;
+  containerShiftAbbreviation = '';
   containerStartTime: string | null = null;
   containerEndTime: string | null = null;
 
@@ -95,6 +101,7 @@ export class ContainerShiftOverrideLifecycleService {
       takeUntilDestroyed(this.destroyRef),
       tap(override => {
         this.currentOverride = override;
+        this.containerShiftAbbreviation = override.shift?.abbreviation ?? '';
         this.containerStartTime = override.fromTime ?? containerStartTime ?? null;
         this.containerEndTime = override.untilTime ?? containerEndTime ?? null;
         this.applyRouteValues(override.startBase, override.endBase, override.transportMode);
@@ -159,6 +166,30 @@ export class ContainerShiftOverrideLifecycleService {
       .subscribe(tasks => {
         this.availableShiftsAsIShift = tasks;
         this.availableShiftsVersion.update(v => v + 1);
+      });
+  }
+
+  selectEmploymentTab(): void {
+    this.isEmploymentTabActive.set(true);
+    this.shiftService.setSelectedShift(null);
+    if (this.containerAbsences().length === 0) {
+      this.loadContainerAbsences();
+    }
+  }
+
+  selectShiftsTab(): void {
+    this.isEmploymentTabActive.set(false);
+    this.shiftService.setSelectedShift(null);
+  }
+
+  private loadContainerAbsences(): void {
+    this.dataAbsenceService.readAbsenceList()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => of([] as IAbsence[])),
+      )
+      .subscribe(absences => {
+        this.containerAbsences.set(absences.filter(a => a.appliesToContainer));
       });
   }
 
@@ -299,6 +330,7 @@ export class ContainerShiftOverrideLifecycleService {
     this.isLoading.set(false);
     this.isReadOnly.set(false);
     this.readOnlyReason.set('');
+    this.isEmploymentTabActive.set(false);
     this.currentOverride = null;
     this.shiftService.setSelectedShift(null);
     this.shiftService.setSelectedContainerTemplateItems([]);

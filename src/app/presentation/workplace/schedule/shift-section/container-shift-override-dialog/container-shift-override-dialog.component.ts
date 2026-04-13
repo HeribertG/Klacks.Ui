@@ -253,6 +253,8 @@ export class ContainerShiftOverrideDialogComponent {
           this.lifecycleService.availableShiftsVersion();
           this.lifecycleService.isReadOnly();
           this.lifecycleService.readOnlyReason();
+          this.lifecycleService.isEmploymentTabActive();
+          this.lifecycleService.containerAbsences();
           this.shiftService.selectedContainerTemplateItemsSignal();
           this.calculateDuration();
           this.cdr.markForCheck();
@@ -275,7 +277,9 @@ export class ContainerShiftOverrideDialogComponent {
     isHoliday: boolean,
     containerStartTime?: string,
     containerEndTime?: string,
+    shiftAbbreviation?: string,
   ): void {
+    this.lifecycleService.containerShiftAbbreviation = shiftAbbreviation ?? '';
     this.lockService
       .acquire(ContainerLockResourceType.containerShiftOverride, containerId)
       .pipe(takeUntil(this.destroy$))

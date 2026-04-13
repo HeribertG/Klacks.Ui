@@ -4,7 +4,7 @@
 <ng-template #overrideModal let-modal>
   <div class="modal-header">
     <div class="modal-title">
-      {{ "dialog.containerShiftOverride.title" | translate }}
+      {{ lifecycleService.containerShiftAbbreviation || ("dialog.containerShiftOverride.title" | translate) }}
       <span class="modal-title-date">{{ lifecycleService.date }}</span>
     </div>
     <span class="filler"></span>
@@ -459,117 +459,159 @@
               </div>
             </as-split-area>
 
-            <!-- Zone 3: Available tasks -->
+            <!-- Zone 3: Available tasks + Absences (Tabs) -->
             <as-split-area [size]="50" [minSize]="20">
               <div class="zone zone-right">
-                <div class="header-table">
-                  <h3>
-                    {{
-                      "shift.container-template.available-tasks.title"
-                        | translate
-                    }}
-                  </h3>
+                <div class="day-tabs">
+                  <button
+                    type="button"
+                    class="day-tab"
+                    [class.active]="!lifecycleService.isEmploymentTabActive()"
+                    (click)="lifecycleService.selectShiftsTab()"
+                  >
+                    {{ "shift.container-template.available-tasks.title" | translate }}
+                  </button>
+                  <span class="filler"></span>
+                  <button
+                    type="button"
+                    class="day-tab employment-tab"
+                    [class.active]="lifecycleService.isEmploymentTabActive()"
+                    (click)="lifecycleService.selectEmploymentTab()"
+                  >
+                    {{ "shift.container-template.tab.employment" | translate }}
+                  </button>
                 </div>
 
-                <div class="shifts-grid-container">
-                  <div class="shifts-grid">
-                    @if (filteredAvailableTasks.length > 0) {
-                      <table id="available-override-tasks-table" class="shifts-table">
-                        <thead>
-                          <tr>
-                            <th class="icon-column"></th>
-                            <th
-                              (click)="onHeaderClick('name')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.name" | translate
-                              }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('abbreviation')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.abbreviation"
-                                  | translate
-                              }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('startShift')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.time" | translate
-                              }}
-                            </th>
-                            <th>
-                              {{
-                                "shift.container-template.grid.work-time"
-                                  | translate
-                              }}
-                            </th>
-                            <th
-                              (click)="onHeaderClick('client')"
-                              style="cursor: pointer"
-                            >
-                              {{
-                                "shift.container-template.grid.client"
-                                  | translate
-                              }}
-                            </th>
-                            <th class="action-column"></th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          cdkDropList
-                          id="available-override-tasks-drop-list"
-                          [cdkDropListData]="filteredAvailableTasks"
-                          [cdkDropListConnectedTo]="['selected-override-tasks-list']"
-                          [cdkDropListSortingDisabled]="true"
-                          (cdkDropListDropped)="onAvailableTasksDrop()"
-                        >
-                          @for (shift of filteredAvailableTasks; track shift.id) {
-                            <tr
-                              cdkDrag
-                              cdkDragLockAxis="y"
-                              [class.partial-timerange]="
-                                isTimeRangePartial(shift)
-                              "
-                            >
-                              <td class="icon-column">
-                                @if (shift.isSporadic) {
-                                  <app-icon-unknown-time></app-icon-unknown-time>
-                                } @else if (shift.isTimeRange) {
-                                  <app-icon-time-window></app-icon-time-window>
-                                } @else {
-                                  <app-icon-shift-segment></app-icon-shift-segment>
-                                }
-                              </td>
-                              <td>{{ shift.name }}</td>
-                              <td>{{ shift.abbreviation }}</td>
-                              <td>
-                                {{ formatTime(shift.startShift) }} -
-                                {{ formatTime(shift.endShift) }}
-                              </td>
-                              <td>{{ formatWorkTime(shift.workTime) }}</td>
-                              <td>{{ formatClientWithAddress(shift) }}</td>
-                              <td class="action-column"></td>
+                @if (lifecycleService.isEmploymentTabActive()) {
+                  <div class="shifts-grid-container">
+                    <div class="shifts-grid">
+                      @if (lifecycleService.containerAbsences().length > 0) {
+                        <table class="shifts-table">
+                          <thead>
+                            <tr>
+                              <th class="icon-column"></th>
+                              <th>{{ "shift.container-template.grid.name" | translate }}</th>
+                              <th>{{ "shift.container-template.grid.abbreviation" | translate }}</th>
+                              <th>{{ "setting.absence.modal.description" | translate }}</th>
                             </tr>
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <div class="no-shifts">
-                        <p>
-                          {{
-                            "shift.container-template.grid.no-shifts" | translate
-                          }}
-                        </p>
-                      </div>
-                    }
+                          </thead>
+                          <tbody
+                            cdkDropList
+                            id="container-override-absences-list"
+                            [cdkDropListData]="lifecycleService.containerAbsences()"
+                            [cdkDropListConnectedTo]="['selected-override-tasks-list']"
+                            [cdkDropListSortingDisabled]="true"
+                          >
+                            @for (absence of lifecycleService.containerAbsences(); track absence.id) {
+                              <tr cdkDrag>
+                                <td class="icon-column">
+                                  <span
+                                    class="absence-color-rect"
+                                    [style.background-color]="absence.color"
+                                  ></span>
+                                </td>
+                                <td>
+                                  {{ absence.name?.[translateService.currentLang] || absence.name?.["de"] }}
+                                </td>
+                                <td>
+                                  {{ absence.abbreviation?.[translateService.currentLang] || absence.abbreviation?.["de"] }}
+                                </td>
+                                <td>
+                                  {{ absence.description?.[translateService.currentLang] || absence.description?.["de"] }}
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="no-shifts">
+                          <p>{{ "shift.container-template.grid.no-container-absences" | translate }}</p>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
+                } @else {
+                  <div class="shifts-grid-container">
+                    <div class="shifts-grid">
+                      @if (filteredAvailableTasks.length > 0) {
+                        <table id="available-override-tasks-table" class="shifts-table">
+                          <thead>
+                            <tr>
+                              <th class="icon-column"></th>
+                              <th
+                                (click)="onHeaderClick('name')"
+                                style="cursor: pointer"
+                              >
+                                {{ "shift.container-template.grid.name" | translate }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('abbreviation')"
+                                style="cursor: pointer"
+                              >
+                                {{ "shift.container-template.grid.abbreviation" | translate }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('startShift')"
+                                style="cursor: pointer"
+                              >
+                                {{ "shift.container-template.grid.time" | translate }}
+                              </th>
+                              <th>
+                                {{ "shift.container-template.grid.work-time" | translate }}
+                              </th>
+                              <th
+                                (click)="onHeaderClick('client')"
+                                style="cursor: pointer"
+                              >
+                                {{ "shift.container-template.grid.client" | translate }}
+                              </th>
+                              <th class="action-column"></th>
+                            </tr>
+                          </thead>
+                          <tbody
+                            cdkDropList
+                            id="available-override-tasks-drop-list"
+                            [cdkDropListData]="filteredAvailableTasks"
+                            [cdkDropListConnectedTo]="['selected-override-tasks-list']"
+                            [cdkDropListSortingDisabled]="true"
+                            (cdkDropListDropped)="onAvailableTasksDrop()"
+                          >
+                            @for (shift of filteredAvailableTasks; track shift.id) {
+                              <tr
+                                cdkDrag
+                                cdkDragLockAxis="y"
+                                [class.partial-timerange]="isTimeRangePartial(shift)"
+                              >
+                                <td class="icon-column">
+                                  @if (shift.isSporadic) {
+                                    <app-icon-unknown-time></app-icon-unknown-time>
+                                  } @else if (shift.isTimeRange) {
+                                    <app-icon-time-window></app-icon-time-window>
+                                  } @else {
+                                    <app-icon-shift-segment></app-icon-shift-segment>
+                                  }
+                                </td>
+                                <td>{{ shift.name }}</td>
+                                <td>{{ shift.abbreviation }}</td>
+                                <td>
+                                  {{ formatTime(shift.startShift) }} -
+                                  {{ formatTime(shift.endShift) }}
+                                </td>
+                                <td>{{ formatWorkTime(shift.workTime) }}</td>
+                                <td>{{ formatClientWithAddress(shift) }}</td>
+                                <td class="action-column"></td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <div class="no-shifts">
+                          <p>{{ "shift.container-template.grid.no-shifts" | translate }}</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
               </div>
             </as-split-area>
           </as-split>

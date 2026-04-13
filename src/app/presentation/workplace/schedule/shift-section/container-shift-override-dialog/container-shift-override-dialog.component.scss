@@ -650,3 +650,55 @@ tr.timerange-violation {
 :host-context([dir="rtl"]) .autofill-progress-bar {
   animation-name: autofill-slide-rtl;
 }
+
+.day-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem 0;
+  border-bottom: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColorWorkplace);
+  align-items: flex-end;
+
+  .filler {
+    flex: 1 1 auto;
+  }
+
+  .day-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--paginationBorderColor);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    background-color: var(--backgroundColoPagination);
+    color: var(--colorLabel);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    position: relative;
+    bottom: -1px;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &.active {
+      background-color: var(--backgroundColorCard);
+      color: var(--coloPaginationSelected);
+      border-color: var(--paginationBorderColorSelected);
+      border-bottom: 1px solid var(--backgroundColorCard);
+    }
+
+    &.employment-tab {
+      font-style: italic;
+    }
+  }
+}
+
+.absence-color-rect {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  vertical-align: middle;
+}

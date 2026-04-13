@@ -458,6 +458,13 @@ export class ShiftDataService extends BaseDataService {
     return undefined;
   }
 
+  getShiftAbbreviation(row: number): string {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].abbreviation;
+    }
+    return '';
+  }
+
   getShiftName(row: number): string {
     if (row < this.shiftRows.length) {
       return this.shiftRows[row].shiftName;
