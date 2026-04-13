@@ -32,6 +32,11 @@ import {
   DictionaryEntry,
 } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
 import {
+  DataCustomSttProviderService,
+  CustomSttProvider,
+} from 'src/app/infrastructure/api/assistant/data-custom-stt-provider.service';
+import { CustomSttProviderModalComponent } from './custom-stt-provider-modal/custom-stt-provider-modal.component';
+import {
   SttEngine,
   TtsProvider,
   OutputMode,
@@ -44,7 +49,7 @@ import {
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgxSliderModule],
+  imports: [TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
@@ -55,6 +60,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private dataTtsService = inject(DataTtsService);
   private dataAssistantService = inject(DataAssistantService);
   private dataDictionaryService = inject(DataTranscriptionDictionaryService);
+  private dataCustomSttService = inject(DataCustomSttProviderService);
 
   private isInitialized = false;
 
@@ -66,6 +72,10 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     description: '',
   };
   editingEntryId = signal<string | null>(null);
+
+  customSttProviders = signal<CustomSttProvider[]>([]);
+  showSttModal = signal(false);
+  editingSttProvider = signal<CustomSttProvider | null>(null);
 
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
@@ -161,6 +171,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     }
 
     this.dictionaryEntries.set(await this.dataDictionaryService.getAll());
+    this.customSttProviders.set(await this.dataCustomSttService.getAll());
   }
 
   onSettingChanged(): void {
@@ -251,5 +262,35 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   formatVariants(variants: string[]): string {
     return variants.join(', ');
+  }
+
+  openNewSttProvider(): void {
+    this.editingSttProvider.set(null);
+    this.showSttModal.set(true);
+  }
+
+  openEditSttProvider(provider: CustomSttProvider): void {
+    this.editingSttProvider.set(provider);
+    this.showSttModal.set(true);
+  }
+
+  async onSttProviderSaved(provider: CustomSttProvider): Promise<void> {
+    if (provider.id) {
+      await this.dataCustomSttService.update(provider);
+    } else {
+      await this.dataCustomSttService.create(provider);
+    }
+    this.customSttProviders.set(await this.dataCustomSttService.getAll());
+    this.showSttModal.set(false);
+  }
+
+  async deleteSttProvider(id: string): Promise<void> {
+    await this.dataCustomSttService.delete(id);
+    this.customSttProviders.set(await this.dataCustomSttService.getAll());
+  }
+
+  async toggleSttProvider(provider: CustomSttProvider): Promise<void> {
+    provider.isEnabled = !provider.isEnabled;
+    await this.dataCustomSttService.update(provider);
   }
 }

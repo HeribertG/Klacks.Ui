@@ -1,0 +1,75 @@
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: default;
+}
+
+.modal-content {
+  position: relative;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  font-weight: 600;
+  font-size: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-body {
+  padding: 16px 20px;
+
+  .form-group {
+    margin-bottom: 12px;
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 6px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-save {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+}

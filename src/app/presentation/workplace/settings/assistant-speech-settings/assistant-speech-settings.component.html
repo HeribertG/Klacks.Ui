@@ -149,5 +149,48 @@
         </span>
       </div>
     </div>
+
+    <div class="container-line section-divider"></div>
+    <div class="section-header">{{ "setting.speech.stt-custom-headline" | translate }}</div>
+
+    <div class="stt-provider-table">
+      <div class="stt-provider-header">
+        <span class="col-stt-name">{{ "setting.speech.stt-provider-name" | translate }}</span>
+        <span class="col-stt-type">{{ "setting.speech.stt-provider-type" | translate }}</span>
+        <span class="col-stt-enabled">{{ "setting.speech.stt-provider-enabled" | translate }}</span>
+        <span class="col-stt-actions"></span>
+      </div>
+
+      @for (provider of customSttProviders(); track provider.id) {
+        <div class="stt-provider-row">
+          <span class="col-stt-name">
+            @if (provider.isSystem) { <span class="system-badge" title="System">&#128274;</span> }
+            {{ provider.name }}
+          </span>
+          <span class="col-stt-type">{{ provider.connectionType === 'rest' ? 'REST' : 'WebSocket' }}</span>
+          <span class="col-stt-enabled">
+            <input type="checkbox" [checked]="provider.isEnabled" (change)="toggleSttProvider(provider)" />
+          </span>
+          <span class="col-stt-actions">
+            <button class="btn-icon" (click)="openEditSttProvider(provider)">&#9998;</button>
+            @if (!provider.isSystem) {
+              <button class="btn-icon btn-danger" (click)="deleteSttProvider(provider.id)">&#128465;</button>
+            }
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="stt-add-button">
+      <button class="btn-reset" (click)="openNewSttProvider()">{{ "setting.speech.stt-new-provider" | translate }}</button>
+    </div>
+
+    @if (showSttModal()) {
+      <app-custom-stt-provider-modal
+        [provider]="editingSttProvider()"
+        (providerSaved)="onSttProviderSaved($event)"
+        (dismissed)="showSttModal.set(false)"
+      />
+    }
   </div>
 </div>

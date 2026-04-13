@@ -159,3 +159,54 @@ select {
   font-size: 18px;
   font-weight: bold;
 }
+
+.stt-provider-table {
+  margin-inline-start: 30px;
+  margin-inline-end: 40px;
+}
+
+.stt-provider-header {
+  display: flex;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stt-provider-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.col-stt-name {
+  flex: 2;
+}
+
+.col-stt-type {
+  flex: 1;
+}
+
+.col-stt-enabled {
+  flex: 0 0 60px;
+  text-align: center;
+}
+
+.col-stt-actions {
+  flex: 0 0 60px;
+  display: flex;
+  gap: 4px;
+}
+
+.system-badge {
+  font-size: 12px;
+  margin-inline-end: 4px;
+}
+
+.stt-add-button {
+  margin-inline-start: 30px;
+  margin-top: 8px;
+}
