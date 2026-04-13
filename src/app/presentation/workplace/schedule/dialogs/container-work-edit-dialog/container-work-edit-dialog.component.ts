@@ -24,9 +24,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs';
-import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -38,15 +37,9 @@ import { ContainerTemplateShiftService } from 'src/app/domain/services/container
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
-import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
-import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
-import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
-import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
-import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
-import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
-import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
+import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
+import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
+import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import {
@@ -54,18 +47,13 @@ import {
   MenuItem,
 } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
-import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
-import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
-import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
-import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import {
   NgbDropdownModule,
   NgbModal,
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
-import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
+import { Options } from '@angular-slider/ngx-slider';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -92,7 +80,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
+import { ContainerEditorLayoutComponent } from 'src/app/presentation/workplace/schedule/shared/container-editor-layout/container-editor-layout.component';
 
 const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
 
@@ -100,29 +88,15 @@ const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
   selector: 'app-container-work-edit-dialog',
   imports: [
     FormsModule,
-    AngularSplitModule,
     TranslateModule,
-    DragDropModule,
     NgbTooltipModule,
     NgbDropdownModule,
     TimeInputComponent,
-    TimeRulerComponent,
-    IconShiftSegmentComponent,
-    IconTimeWindowComponent,
-    IconUnknownTimeComponent,
-    TrashIconRedComponent,
-    IconCompactComponent,
-    PdfIconComponent,
-    IconRouteComponent,
-    IconRouteFileComponent,
-    ContextMenuComponent,
     IconByCarComponent,
     IconByFootComponent,
     IconByBicycleComponent,
-    IconTransportMixComponent,
-    IconWizardComponent,
-    NgxSliderModule,
-    SearchInputComponent,
+    ContextMenuComponent,
+    ContainerEditorLayoutComponent,
   ],
   templateUrl: './container-work-edit-dialog.component.html',
   styleUrl: './container-work-edit-dialog.component.scss',
