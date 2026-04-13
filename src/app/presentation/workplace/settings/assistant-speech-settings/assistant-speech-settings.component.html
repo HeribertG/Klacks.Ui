@@ -95,94 +95,93 @@
     <div class="container-line section-divider"></div>
     <div class="section-header">{{ "setting.speech.prompt-headline" | translate }}</div>
 
-    <div class="row-line">
-      <div class="form-group prompt-group">
-        <textarea class="form-input prompt-textarea" [(ngModel)]="transcriptionPrompt" (ngModelChange)="onSettingChanged()" rows="6"></textarea>
-        <div class="prompt-hint">{{ "setting.speech.prompt-hint" | translate }}</div>
-        <button class="btn-reset" (click)="resetPrompt()">{{ "setting.speech.prompt-reset" | translate }}</button>
-      </div>
+    <div class="prompt-group">
+      <textarea class="form-input prompt-textarea" [(ngModel)]="transcriptionPrompt" (ngModelChange)="onSettingChanged()" rows="6"></textarea>
+      <div class="prompt-hint">{{ "setting.speech.prompt-hint" | translate }}</div>
+      <button class="btn btn-outline-secondary prompt-reset-btn" type="button" (click)="resetPrompt()">{{ "setting.speech.prompt-reset" | translate }}</button>
     </div>
 
     <div class="container-line section-divider"></div>
     <div class="section-header">{{ "setting.speech.dictionary-headline" | translate }}</div>
 
-    <div class="dictionary-table">
-      <div class="dictionary-header">
-        <span class="col-term">{{ "setting.speech.dict-term" | translate }}</span>
-        <span class="col-category">{{ "setting.speech.dict-category" | translate }}</span>
-        <span class="col-variants">{{ "setting.speech.dict-variants" | translate }}</span>
-        <span class="col-description">{{ "setting.speech.dict-description" | translate }}</span>
-        <span class="col-actions"></span>
-      </div>
-
-      @for (entry of dictionaryEntries(); track entry.id) {
-        <div class="dictionary-row">
-          @if (editingEntryId() === entry.id) {
-            <input class="form-input col-term" [(ngModel)]="entry.correctTerm" />
-            <input class="form-input col-category" [(ngModel)]="entry.category" />
-            <input class="form-input col-variants" [ngModel]="formatVariants(entry.phoneticVariants)" (ngModelChange)="entry.phoneticVariants = parseVariants($event)" />
-            <input class="form-input col-description" [(ngModel)]="entry.description" />
-            <span class="col-actions">
-              <button class="btn-icon" (click)="updateDictionaryEntry(entry)">&#10003;</button>
-              <button class="btn-icon" (click)="editingEntryId.set(null)">&#10005;</button>
-            </span>
-          } @else {
-            <span class="col-term">{{ entry.correctTerm }}</span>
-            <span class="col-category">{{ entry.category }}</span>
-            <span class="col-variants">{{ formatVariants(entry.phoneticVariants) }}</span>
-            <span class="col-description">{{ entry.description }}</span>
-            <span class="col-actions">
-              <button class="btn-icon" (click)="editingEntryId.set(entry.id)">&#9998;</button>
-              <button class="btn-icon btn-danger" (click)="deleteDictionaryEntry(entry.id)">&#128465;</button>
-            </span>
+    <div class="container-table">
+      <table class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header header-dict-term">{{ "setting.speech.dict-term" | translate }}</th>
+            <th class="table-header header-dict-variants">{{ "setting.speech.dict-variants" | translate }}</th>
+            <th class="table-header action"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of dictionaryEntries(); track entry.id) {
+            <tr class="table-row">
+              @if (editingEntryId() === entry.id) {
+                <td class="table-cell"><input class="form-input" [(ngModel)]="entry.correctTerm" /></td>
+                <td class="table-cell"><input class="form-input" [ngModel]="formatVariants(entry.phoneticVariants)" (ngModelChange)="entry.phoneticVariants = parseVariants($event)" /></td>
+                <td class="table-cell action">
+                  <button class="btn-icon" (click)="updateDictionaryEntry(entry)">&#10003;</button>
+                  <button class="btn-icon" (click)="editingEntryId.set(null)">&#10005;</button>
+                </td>
+              } @else {
+                <td class="table-cell">{{ entry.correctTerm }}</td>
+                <td class="table-cell">{{ formatVariants(entry.phoneticVariants) }}</td>
+                <td class="table-cell action">
+                  <button class="btn-icon" (click)="editingEntryId.set(entry.id)">&#9998;</button>
+                  <button class="btn-icon btn-danger" (click)="deleteDictionaryEntry(entry.id)">&#128465;</button>
+                </td>
+              }
+            </tr>
           }
-        </div>
-      }
-
-      <div class="dictionary-row dictionary-add">
-        <input class="form-input col-term" [(ngModel)]="newEntry.correctTerm" [placeholder]="'setting.speech.dict-term' | translate" />
-        <input class="form-input col-category" [(ngModel)]="newEntry.category" [placeholder]="'setting.speech.dict-category' | translate" />
-        <input class="form-input col-variants" [ngModel]="formatVariants(newEntry.phoneticVariants || [])" (ngModelChange)="newEntry.phoneticVariants = parseVariants($event)" [placeholder]="'setting.speech.dict-variants-hint' | translate" />
-        <input class="form-input col-description" [(ngModel)]="newEntry.description" [placeholder]="'setting.speech.dict-description' | translate" />
-        <span class="col-actions">
-          <button class="btn-icon btn-add" (click)="addDictionaryEntry()">+</button>
-        </span>
-      </div>
+          <tr>
+            <td class="table-cell"><input class="form-input" [(ngModel)]="newEntry.correctTerm" [placeholder]="'setting.speech.dict-term' | translate" /></td>
+            <td class="table-cell"><input class="form-input" [ngModel]="formatVariants(newEntry.phoneticVariants || [])" (ngModelChange)="newEntry.phoneticVariants = parseVariants($event)" [placeholder]="'setting.speech.dict-variants-hint' | translate" /></td>
+            <td class="table-cell action">
+              <button class="btn-icon btn-add" (click)="addDictionaryEntry()">+</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="container-line section-divider"></div>
     <div class="section-header">{{ "setting.speech.stt-custom-headline" | translate }}</div>
 
-    <div class="stt-provider-table">
-      <div class="stt-provider-header">
-        <span class="col-stt-name">{{ "setting.speech.stt-provider-name" | translate }}</span>
-        <span class="col-stt-type">{{ "setting.speech.stt-provider-type" | translate }}</span>
-        <span class="col-stt-enabled">{{ "setting.speech.stt-provider-enabled" | translate }}</span>
-        <span class="col-stt-actions"></span>
-      </div>
-
-      @for (provider of customSttProviders(); track provider.id) {
-        <div class="stt-provider-row">
-          <span class="col-stt-name">
-            @if (provider.isSystem) { <span class="system-badge" title="System">&#128274;</span> }
-            {{ provider.name }}
-          </span>
-          <span class="col-stt-type">{{ provider.connectionType === 'rest' ? 'REST' : 'WebSocket' }}</span>
-          <span class="col-stt-enabled">
-            <input type="checkbox" [checked]="provider.isEnabled" (change)="toggleSttProvider(provider)" />
-          </span>
-          <span class="col-stt-actions">
-            <button class="btn-icon" (click)="openEditSttProvider(provider)">&#9998;</button>
-            @if (!provider.isSystem) {
-              <button class="btn-icon btn-danger" (click)="deleteSttProvider(provider.id)">&#128465;</button>
-            }
-          </span>
-        </div>
-      }
+    <div class="container-table">
+      <table class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header header-stt-name">{{ "setting.speech.stt-provider-name" | translate }}</th>
+            <th class="table-header header-stt-type">{{ "setting.speech.stt-provider-type" | translate }}</th>
+            <th class="table-header header-stt-enabled">{{ "setting.speech.stt-provider-enabled" | translate }}</th>
+            <th class="table-header action"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (provider of customSttProviders(); track provider.id) {
+            <tr class="table-row">
+              <td class="table-cell">
+                @if (provider.isSystem) { <span class="system-badge" title="System">&#128274;</span> }
+                {{ provider.name }}
+              </td>
+              <td class="table-cell">{{ provider.connectionType === 'rest' ? 'REST' : 'WebSocket' }}</td>
+              <td class="table-cell">
+                <input type="checkbox" [checked]="provider.isEnabled" (change)="toggleSttProvider(provider)" />
+              </td>
+              <td class="table-cell action">
+                <button class="btn-icon" (click)="openEditSttProvider(provider)">&#9998;</button>
+                @if (!provider.isSystem) {
+                  <button class="btn-icon btn-danger" (click)="deleteSttProvider(provider.id)">&#128465;</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
     <div class="stt-add-button">
-      <button class="btn-reset" (click)="openNewSttProvider()">{{ "setting.speech.stt-new-provider" | translate }}</button>
+      <button class="btn btn-outline-secondary" type="button" (click)="openNewSttProvider()">{{ "setting.speech.stt-new-provider" | translate }}</button>
     </div>
 
     @if (showSttModal()) {

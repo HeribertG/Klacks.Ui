@@ -1,16 +1,11 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-slider.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 
 :host {
   display: block;
   padding-bottom: 35px;
-}
-
-.first {
-  padding-top: 10px;
-  margin-inline-start: 30px;
-  padding-inline-end: 40px;
 }
 
 select {
@@ -66,12 +61,11 @@ select {
 
 .prompt-group {
   margin-inline-start: 30px;
-  margin-inline-end: 40px;
+  padding-inline-end: 30px;
 }
 
 .prompt-textarea {
   width: 100%;
-  max-width: 880px;
   font-family: monospace;
   font-size: 13px;
   resize: vertical;
@@ -81,63 +75,39 @@ select {
   font-size: 11px;
   color: var(--text-secondary);
   margin-top: 4px;
+  margin-bottom: 8px;
 }
 
-.btn-reset {
-  margin-top: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
+.prompt-reset-btn {
+  font-size: 13px;
 }
 
-.dictionary-table {
-  margin-inline-start: 30px;
-  margin-inline-end: 40px;
+.container-table {
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
 }
 
-.dictionary-header {
-  display: flex;
-  gap: 8px;
-  font-weight: 600;
-  font-size: 12px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border-color);
+.header-dict-term {
+  width: 220px;
 }
 
-.dictionary-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border-subtle);
+.header-dict-variants {
+  width: auto;
 }
 
-.col-term {
-  flex: 1;
-  min-width: 120px;
+.header-stt-name {
+  width: 260px;
 }
 
-.col-category {
-  flex: 0.6;
-  min-width: 80px;
+.header-stt-type {
+  width: 120px;
 }
 
-.col-variants {
-  flex: 1.5;
-  min-width: 150px;
+.header-stt-enabled {
+  width: 80px;
 }
 
-.col-description {
-  flex: 1;
-  min-width: 100px;
-}
-
-.col-actions {
-  flex: 0 0 60px;
-  display: flex;
-  gap: 4px;
-}
-
-.dictionary-row .form-input {
+.form-input {
   width: 100%;
   padding: 2px 6px;
   font-size: 13px;
@@ -160,47 +130,6 @@ select {
   font-weight: bold;
 }
 
-.stt-provider-table {
-  margin-inline-start: 30px;
-  margin-inline-end: 40px;
-}
-
-.stt-provider-header {
-  display: flex;
-  gap: 8px;
-  font-weight: 600;
-  font-size: 12px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.stt-provider-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.col-stt-name {
-  flex: 2;
-}
-
-.col-stt-type {
-  flex: 1;
-}
-
-.col-stt-enabled {
-  flex: 0 0 60px;
-  text-align: center;
-}
-
-.col-stt-actions {
-  flex: 0 0 60px;
-  display: flex;
-  gap: 4px;
-}
-
 .system-badge {
   font-size: 12px;
   margin-inline-end: 4px;
@@ -208,5 +137,5 @@ select {
 
 .stt-add-button {
   margin-inline-start: 30px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
