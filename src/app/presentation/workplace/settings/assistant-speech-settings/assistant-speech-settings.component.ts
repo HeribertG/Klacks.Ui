@@ -59,6 +59,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
   transcriptionModel = SpeechDefaults.TranscriptionModel;
+  transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
   enhancementEnabled = true;
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
@@ -118,6 +119,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.outputMode = speech.outputMode;
     this.silenceThresholdMs = speech.silenceThresholdMs;
     this.isInitialized = true;
+    this.transcriptionPrompt = speech.transcriptionPrompt;
 
     const voices = await this.dataTtsService.getVoices();
     this.ttsVoices.set([
@@ -162,10 +164,16 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       ttsVoice: this.ttsVoice,
       ttsProvider: this.ttsProvider,
       transcriptionModel: this.transcriptionModel,
+      transcriptionPrompt: this.transcriptionPrompt,
       enhancementEnabled: this.enhancementEnabled,
       outputMode: this.outputMode,
       silenceThresholdMs: this.silenceThresholdMs,
     });
+  }
+
+  resetPrompt(): void {
+    this.transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
+    this.onSettingChanged();
   }
 
   async testSttConnection(): Promise<void> {

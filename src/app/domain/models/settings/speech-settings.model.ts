@@ -19,6 +19,7 @@ export interface ISpeechSettings {
   ttsVoice: string;
   ttsProvider: string;
   transcriptionModel: string;
+  transcriptionPrompt: string;
   enhancementEnabled: boolean;
   outputMode: string;
   silenceThresholdMs: number;
@@ -30,6 +31,7 @@ export class SpeechSettings implements ISpeechSettings {
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
   transcriptionModel = SpeechDefaults.TranscriptionModel;
+  transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
   enhancementEnabled = true;
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;

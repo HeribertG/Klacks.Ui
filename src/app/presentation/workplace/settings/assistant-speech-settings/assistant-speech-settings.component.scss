@@ -50,3 +50,41 @@ select {
   width: 420px;
   padding-top: 6px;
 }
+
+.section-divider {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.section-header {
+  font-weight: 600;
+  font-size: 14px;
+  margin-inline-start: 30px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.prompt-group {
+  margin-inline-start: 30px;
+  margin-inline-end: 40px;
+}
+
+.prompt-textarea {
+  width: 100%;
+  max-width: 880px;
+  font-family: monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.prompt-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.btn-reset {
+  margin-top: 8px;
+  padding: 4px 12px;
+  cursor: pointer;
+}

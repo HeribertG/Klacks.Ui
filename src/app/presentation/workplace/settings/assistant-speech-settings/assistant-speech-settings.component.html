@@ -91,5 +91,16 @@
         </label>
       </div>
     </div>
+
+    <div class="container-line section-divider"></div>
+    <div class="section-header">{{ "setting.speech.prompt-headline" | translate }}</div>
+
+    <div class="row-line">
+      <div class="form-group prompt-group">
+        <textarea class="form-input prompt-textarea" [(ngModel)]="transcriptionPrompt" (ngModelChange)="onSettingChanged()" rows="6"></textarea>
+        <div class="prompt-hint">{{ "setting.speech.prompt-hint" | translate }}</div>
+        <button class="btn-reset" (click)="resetPrompt()">{{ "setting.speech.prompt-reset" | translate }}</button>
+      </div>
+    </div>
   </div>
 </div>

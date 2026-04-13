@@ -29,6 +29,15 @@ export class VoiceId {
 export class SpeechDefaults {
   static readonly Locale = 'de';
   static readonly TranscriptionModel = 'deepseek-chat';
+  static readonly DefaultTranscriptionPrompt = `You are a transcription enhancer. Clean up the following speech-to-text output:
+- Remove filler words (um, uh, like, also, ähm, halt, sozusagen)
+- Apply self-corrections: if the speaker corrects themselves, keep only the corrected version
+- Fix grammar and punctuation
+- Format numbers properly
+- Preserve the original meaning and tone
+- Output ONLY the cleaned text, nothing else
+- Keep the same language as the input
+{0}`;
   static readonly SilenceThresholdMs = 1500;
   static readonly VadThreshold = 0.01;
   static readonly SampleRate = 16000;
