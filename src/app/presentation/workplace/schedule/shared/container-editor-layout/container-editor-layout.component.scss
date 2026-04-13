@@ -5,6 +5,13 @@
 @use "../../../../../../assets/standard-styles/standard-search-input.scss";
 @use "../../../../../../assets/standard-styles/standard-slider.scss";
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
 .time-controls-bar {
   display: flex;
   align-items: flex-end;
