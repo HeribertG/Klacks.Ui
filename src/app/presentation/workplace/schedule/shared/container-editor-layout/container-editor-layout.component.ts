@@ -102,11 +102,15 @@ export class ContainerEditorLayoutComponent {
   isReadOnly = input(false);
   readOnlyReason = input('');
   availableTasks = input<IShift[]>([]);
+  filteredAvailableTasks = input<IShift[]>([]);
   containerAbsences = input<IAbsence[]>([]);
   isEmploymentTabActive = input(false);
+  isAvailableShiftsLoading = input(false);
   selectedItems = input<IContainerTemplateItem[]>([]);
   selectedShift = input<IContainerTemplateItem | null>(null);
   shiftFilter = input('');
+  tabs = input<{ date: Date; label: string }[]>([]);
+  selectedTabIndex = input(0);
 
   // Inputs — Toolbar state
   isAutofillRunning = input(false);
@@ -151,11 +155,13 @@ export class ContainerEditorLayoutComponent {
   // Outputs — Tabs
   @Output() employmentTabClick = new EventEmitter<void>();
   @Output() shiftsTabClick = new EventEmitter<void>();
+  @Output() dayTabClick = new EventEmitter<number>();
 
   // Outputs — Row interaction
   @Output() shiftRowClick = new EventEmitter<IContainerTemplateItem>();
   @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
   @Output() tableRowRightClick = new EventEmitter<{ event: MouseEvent; item: IContainerTemplateItem }>();
+  @Output() absenceRowDblClick = new EventEmitter<IContainerTemplateItem>();
   @Output() itemsDisplaced = new EventEmitter<void>();
 
   // Outputs — Address/Transport
@@ -185,6 +191,18 @@ export class ContainerEditorLayoutComponent {
     return this.shiftOpsService.isTimeRangePartial(shift, this.timeFrom(), this.timeTo());
   }
 
+  hasTimeRangeViolation(item: IContainerTemplateItem): boolean {
+    return this.shiftOpsService.hasTimeRangeViolation(item);
+  }
+
+  getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
+    return this.shiftOpsService.getTimeRangeStartTime(item);
+  }
+
+  onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
+    this.shiftOpsService.onTimeRangeStartChange(item, newTime);
+  }
+
   onHeaderClick(columnKey: string): void {
     this.sortingService.onHeaderClick(columnKey, () => {});
   }
@@ -197,5 +215,11 @@ export class ContainerEditorLayoutComponent {
 
   onContainerContextMenu(event: MouseEvent): void {
     event.preventDefault();
+  }
+
+  onTransportModeClick(mode: number): void {
+    if (mode !== 0 && !this.hasOpenRouteServiceApiKey()) return;
+    this.transportModeChange.emit(mode);
+    this.markDirty.emit();
   }
 }
