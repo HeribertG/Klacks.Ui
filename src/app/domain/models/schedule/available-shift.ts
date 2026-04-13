@@ -16,4 +16,6 @@ export interface AvailableShift {
   endShift: string;
   workTime: number;
   clientId: string;
+  isTimeRange?: boolean;
+  isSporadic?: boolean;
 }

@@ -582,10 +582,13 @@ export class ScheduleSectionComponent
         endShift: s.endShift,
         workTime: s.workTime,
         clientId: '',
+        isTimeRange: s.isTimeRange,
+        isSporadic: s.isSporadic,
       }));
   }
 
   private isShiftSelectableForContainer(shift: IShiftSchedule, targetDate: Date | undefined): boolean {
+    if (shift.shiftType === 1) return false;
     if (shift.isInTemplateContainer) return false;
     if (shift.engaged >= shift.sumEmployees * shift.quantity) return false;
     if (targetDate && !this.isSameDay(shift.date, targetDate)) return false;

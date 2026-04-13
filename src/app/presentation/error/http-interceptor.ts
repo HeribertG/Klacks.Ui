@@ -86,6 +86,10 @@ export class ResponseInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
+    if (url.includes('Containers/') && url.includes('/overrides') && error.status === 404) {
+      return throwError(() => error);
+    }
+
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
       return throwError(() => error);

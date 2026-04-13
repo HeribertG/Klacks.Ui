@@ -21,11 +21,9 @@ import { ContainerTemplateRouteService } from 'src/app/presentation/workplace/sh
 import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/absence/data-absence.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
-
-const WEEKDAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -539,8 +537,8 @@ export class ContainerWorkModalLifecycleService {
       endShift: shift.endShift,
       workTime: shift.workTime,
       clientId: shift.clientId,
-      isTimeRange: false,
-      isSporadic: false,
+      isTimeRange: shift.isTimeRange ?? false,
+      isSporadic: shift.isSporadic ?? false,
     } as IShift;
   }
 }
