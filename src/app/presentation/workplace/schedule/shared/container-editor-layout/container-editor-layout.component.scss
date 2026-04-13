@@ -553,7 +553,7 @@ as-split-area {
   text-align: center;
 }
 
-.readonly-mode {
+:host(.readonly-mode) {
   .time-controls-bar,
   .content {
     pointer-events: none;

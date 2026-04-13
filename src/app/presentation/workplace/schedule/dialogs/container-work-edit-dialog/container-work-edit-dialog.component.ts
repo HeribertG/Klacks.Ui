@@ -48,12 +48,10 @@ import {
 } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
 import {
-  NgbDropdownModule,
   NgbModal,
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { Options } from '@angular-slider/ngx-slider';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
@@ -90,7 +88,6 @@ const MODAL_WINDOW_CLASS = 'container-work-edit-fullscreen';
     FormsModule,
     TranslateModule,
     NgbTooltipModule,
-    NgbDropdownModule,
     TimeInputComponent,
     IconByCarComponent,
     IconByFootComponent,
@@ -171,14 +168,6 @@ export class ContainerWorkEditDialogComponent {
   absenceTimeModal!: TemplateRef<unknown>;
 
   timeRangeToleranceValue = 50;
-  timeRangeToleranceOptions: Options = {
-    floor: 0,
-    ceil: 100,
-    step: 10,
-    showSelectionBar: true,
-    hideLimitLabels: true,
-    hidePointerLabels: true,
-  };
 
   formatTime = formatTime;
 

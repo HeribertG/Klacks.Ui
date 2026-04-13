@@ -56,6 +56,9 @@ import {
 
 @Component({
   selector: 'app-container-editor-layout',
+  host: {
+    '[class.readonly-mode]': 'isReadOnly()',
+  },
   imports: [
     FormsModule,
     AngularSplitModule,

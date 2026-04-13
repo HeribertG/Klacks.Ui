@@ -20,17 +20,14 @@
     </div>
   </div>
 
-  <div
-    class="modal-body container-work-edit-body"
-    [class.readonly-mode]="lifecycleService.isReadOnly()"
-  >
+  <div class="modal-body container-work-edit-body">
     <app-container-editor-layout
       [timeFrom]="timeFrom"
       [timeTo]="timeTo"
       [duration]="duration"
       [isLoading]="lifecycleService.isLoading()"
       [isReadOnly]="lifecycleService.isReadOnly()"
-      [readOnlyReason]="lifecycleService.readOnlyReason() | translate"
+      [readOnlyReason]="lifecycleService.readOnlyReason()"
       [availableTasks]="filteredAvailableTasks"
       [isAvailableShiftsLoading]="lifecycleService.isAvailableShiftsLoading()"
       [containerAbsences]="lifecycleService.containerAbsences()"
