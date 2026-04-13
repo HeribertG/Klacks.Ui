@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="container-dashboard">
   <div class="container-header">
     {{ "setting.speech.headline" | translate }}
@@ -7,35 +9,69 @@
   <div class="settings-form">
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="sttEngine">{{ "setting.speech.stt-provider" | translate }}</label>
-        <select class="form-select" [(ngModel)]="sttEngine" id="sttEngine" (ngModelChange)="onSettingChanged()">
+        <label for="sttEngine">{{
+          "setting.speech.stt-provider" | translate
+        }}</label>
+        <select
+          class="form-select"
+          [(ngModel)]="sttEngine"
+          id="sttEngine"
+          (ngModelChange)="onSettingChanged()"
+        >
           @for (provider of sttProviders; track provider.value) {
-            <option [value]="provider.value">{{ provider.labelKey | translate }}</option>
+            <option [value]="provider.value">
+              {{ provider.labelKey | translate }}
+            </option>
           }
         </select>
       </div>
 
       <div class="form-group secondColumn">
-        <label for="ttsProvider">{{ "setting.speech.tts-provider" | translate }}</label>
-        <select class="form-select" [(ngModel)]="ttsProvider" id="ttsProvider" (ngModelChange)="onSettingChanged()">
+        <label for="ttsProvider">{{
+          "setting.speech.tts-provider" | translate
+        }}</label>
+        <select
+          class="form-select"
+          [(ngModel)]="ttsProvider"
+          id="ttsProvider"
+          (ngModelChange)="onSettingChanged()"
+        >
           @for (provider of ttsProviders; track provider.value) {
-            <option [value]="provider.value">{{ provider.labelKey | translate }}</option>
+            <option [value]="provider.value">
+              {{ provider.labelKey | translate }}
+            </option>
           }
         </select>
       </div>
     </div>
 
-    @if (sttEngine !== 'browser') {
+    @if (sttEngine !== "browser") {
       <div class="row-line">
         <div class="form-group firstColumn">
-          <label for="sttApiKey">{{ "setting.speech.stt-apikey" | translate }}
+          <label for="sttApiKey"
+            >{{ "setting.speech.stt-apikey" | translate }}
             @if (sttApiKeyConfigured && sttApiKey.length === 0) {
-              <span class="key-configured-badge">{{ "setting.speech.stt-apikey-configured" | translate }}</span>
+              <span class="key-configured-badge">{{
+                "setting.speech.stt-apikey-configured" | translate
+              }}</span>
             }
           </label>
           <div class="input-with-button">
-            <input type="password" class="form-input" [(ngModel)]="sttApiKey" id="sttApiKey" (ngModelChange)="onSettingChanged()" [placeholder]="sttApiKeyConfigured ? '••••••••' : ''" />
-            <button type="button" class="btn-test" (click)="testSttConnection()">{{ "setting.speech.stt-test" | translate }}</button>
+            <input
+              type="password"
+              class="form-input"
+              [(ngModel)]="sttApiKey"
+              id="sttApiKey"
+              (ngModelChange)="onSettingChanged()"
+              [placeholder]="sttApiKeyConfigured ? '••••••••' : ''"
+            />
+            <button
+              type="button"
+              class="btn-test"
+              (click)="testSttConnection()"
+            >
+              {{ "setting.speech.stt-test" | translate }}
+            </button>
           </div>
         </div>
       </div>
@@ -43,8 +79,15 @@
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="ttsVoice">{{ "setting.speech.tts-voice" | translate }}</label>
-        <select class="form-select" [(ngModel)]="ttsVoice" id="ttsVoice" (ngModelChange)="onSettingChanged()">
+        <label for="ttsVoice">{{
+          "setting.speech.tts-voice" | translate
+        }}</label>
+        <select
+          class="form-select"
+          [(ngModel)]="ttsVoice"
+          id="ttsVoice"
+          (ngModelChange)="onSettingChanged()"
+        >
           @for (voice of ttsVoices(); track voice.value) {
             <option [value]="voice.value">{{ voice.label }}</option>
           }
@@ -52,8 +95,15 @@
       </div>
 
       <div class="form-group secondColumn">
-        <label for="transcriptionModel">{{ "setting.speech.transcription-model" | translate }}</label>
-        <select class="form-select" [(ngModel)]="transcriptionModel" id="transcriptionModel" (ngModelChange)="onSettingChanged()">
+        <label for="transcriptionModel">{{
+          "setting.speech.transcription-model" | translate
+        }}</label>
+        <select
+          class="form-select"
+          [(ngModel)]="transcriptionModel"
+          id="transcriptionModel"
+          (ngModelChange)="onSettingChanged()"
+        >
           @for (model of transcriptionModels(); track model.value) {
             <option [value]="model.value">{{ model.label }}</option>
           }
@@ -63,16 +113,28 @@
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="outputMode">{{ "setting.speech.output-mode" | translate }}</label>
-        <select class="form-select" [(ngModel)]="outputMode" id="outputMode" (ngModelChange)="onSettingChanged()">
+        <label for="outputMode">{{
+          "setting.speech.output-mode" | translate
+        }}</label>
+        <select
+          class="form-select"
+          [(ngModel)]="outputMode"
+          id="outputMode"
+          (ngModelChange)="onSettingChanged()"
+        >
           @for (mode of outputModes; track mode.value) {
-            <option [value]="mode.value">{{ mode.labelKey | translate }}</option>
+            <option [value]="mode.value">
+              {{ mode.labelKey | translate }}
+            </option>
           }
         </select>
       </div>
 
       <div class="form-group secondColumn">
-        <label for="silenceThreshold">{{ "setting.speech.silence-threshold" | translate }}: {{ silenceThresholdMs }}ms</label>
+        <label for="silenceThreshold"
+          >{{ "setting.speech.silence-threshold" | translate }}:
+          {{ silenceThresholdMs }}ms</label
+        >
         <div id="silenceThreshold" class="custom-slider">
           <ngx-slider
             [(value)]="silenceThresholdMs"
@@ -86,30 +148,55 @@
     <div class="row-line">
       <div class="form-group firstColumn">
         <label class="checkbox-label">
-          <input type="checkbox" [(ngModel)]="enhancementEnabled" (ngModelChange)="onSettingChanged()" />
+          <input
+            type="checkbox"
+            [(ngModel)]="enhancementEnabled"
+            (ngModelChange)="onSettingChanged()"
+          />
           {{ "setting.speech.enhancement-enabled" | translate }}
         </label>
       </div>
     </div>
 
     <div class="container-line section-divider"></div>
-    <div class="section-header">{{ "setting.speech.prompt-headline" | translate }}</div>
+    <div class="section-header">
+      {{ "setting.speech.prompt-headline" | translate }}
+    </div>
 
     <div class="prompt-group">
-      <textarea class="form-input prompt-textarea" [(ngModel)]="transcriptionPrompt" (ngModelChange)="onSettingChanged()" rows="6"></textarea>
-      <div class="prompt-hint">{{ "setting.speech.prompt-hint" | translate }}</div>
-      <button class="btn btn-outline-secondary prompt-reset-btn" type="button" (click)="resetPrompt()">{{ "setting.speech.prompt-reset" | translate }}</button>
+      <textarea
+        class="form-input prompt-textarea"
+        [(ngModel)]="transcriptionPrompt"
+        (ngModelChange)="onSettingChanged()"
+        rows="6"
+      ></textarea>
+      <div class="prompt-hint">
+        {{ "setting.speech.prompt-hint" | translate }}
+      </div>
+      <button
+        class="btn btn-outline-secondary prompt-reset-btn"
+        type="button"
+        (click)="resetPrompt()"
+      >
+        {{ "setting.speech.prompt-reset" | translate }}
+      </button>
     </div>
 
     <div class="container-line section-divider"></div>
-    <div class="section-header">{{ "setting.speech.dictionary-headline" | translate }}</div>
+    <div class="section-header">
+      {{ "setting.speech.dictionary-headline" | translate }}
+    </div>
 
     <div class="container-table">
       <table class="table table-borderless">
         <thead>
           <tr>
-            <th class="table-header header-dict-term">{{ "setting.speech.dict-term" | translate }}</th>
-            <th class="table-header header-dict-variants">{{ "setting.speech.dict-variants" | translate }}</th>
+            <th class="table-header header-dict-term">
+              {{ "setting.speech.dict-term" | translate }}
+            </th>
+            <th class="table-header header-dict-variants">
+              {{ "setting.speech.dict-variants" | translate }}
+            </th>
             <th class="table-header action"></th>
           </tr>
         </thead>
@@ -117,27 +204,67 @@
           @for (entry of dictionaryEntries(); track entry.id) {
             <tr class="table-row">
               @if (editingEntryId() === entry.id) {
-                <td class="table-cell"><input class="form-input" [(ngModel)]="entry.correctTerm" /></td>
-                <td class="table-cell"><input class="form-input" [ngModel]="formatVariants(entry.phoneticVariants)" (ngModelChange)="entry.phoneticVariants = parseVariants($event)" /></td>
+                <td class="table-cell">
+                  <input class="form-input" [(ngModel)]="entry.correctTerm" />
+                </td>
+                <td class="table-cell">
+                  <input
+                    class="form-input"
+                    [ngModel]="formatVariants(entry.phoneticVariants)"
+                    (ngModelChange)="
+                      entry.phoneticVariants = parseVariants($event)
+                    "
+                  />
+                </td>
                 <td class="table-cell action">
-                  <button class="btn-icon" (click)="updateDictionaryEntry(entry)">&#10003;</button>
-                  <button class="btn-icon" (click)="editingEntryId.set(null)">&#10005;</button>
+                  <button
+                    class="btn-icon"
+                    (click)="updateDictionaryEntry(entry)"
+                  >
+                    &#10003;
+                  </button>
+                  <button class="btn-icon" (click)="editingEntryId.set(null)">
+                    &#10005;
+                  </button>
                 </td>
               } @else {
                 <td class="table-cell">{{ entry.correctTerm }}</td>
-                <td class="table-cell">{{ formatVariants(entry.phoneticVariants) }}</td>
+                <td class="table-cell">
+                  {{ formatVariants(entry.phoneticVariants) }}
+                </td>
                 <td class="table-cell action">
-                  <button class="btn-icon" (click)="editingEntryId.set(entry.id)">&#9998;</button>
-                  <button class="btn-icon btn-danger" (click)="deleteDictionaryEntry(entry.id)">&#128465;</button>
+                  <button class="btn-icon" (click)="editingEntryId.set(entry.id)">
+                    <app-icon-pencil-icon-grey />
+                  </button>
+                  <button class="btn-icon" (click)="deleteDictionaryEntry(entry.id)">
+                    <app-icon-trash-red />
+                  </button>
                 </td>
               }
             </tr>
           }
           <tr>
-            <td class="table-cell"><input class="form-input" [(ngModel)]="newEntry.correctTerm" [placeholder]="'setting.speech.dict-term' | translate" /></td>
-            <td class="table-cell"><input class="form-input" [ngModel]="formatVariants(newEntry.phoneticVariants || [])" (ngModelChange)="newEntry.phoneticVariants = parseVariants($event)" [placeholder]="'setting.speech.dict-variants-hint' | translate" /></td>
+            <td class="table-cell">
+              <input
+                class="form-input"
+                [(ngModel)]="newEntry.correctTerm"
+                [placeholder]="'setting.speech.dict-term' | translate"
+              />
+            </td>
+            <td class="table-cell">
+              <input
+                class="form-input"
+                [ngModel]="formatVariants(newEntry.phoneticVariants || [])"
+                (ngModelChange)="
+                  newEntry.phoneticVariants = parseVariants($event)
+                "
+                [placeholder]="'setting.speech.dict-variants-hint' | translate"
+              />
+            </td>
             <td class="table-cell action">
-              <button class="btn-icon btn-add" (click)="addDictionaryEntry()">+</button>
+              <button class="btn-icon btn-add" (click)="addDictionaryEntry()">
+                +
+              </button>
             </td>
           </tr>
         </tbody>
@@ -145,15 +272,23 @@
     </div>
 
     <div class="container-line section-divider"></div>
-    <div class="section-header">{{ "setting.speech.stt-custom-headline" | translate }}</div>
+    <div class="section-header">
+      {{ "setting.speech.stt-custom-headline" | translate }}
+    </div>
 
     <div class="container-table">
       <table class="table table-borderless">
         <thead>
           <tr>
-            <th class="table-header header-stt-name">{{ "setting.speech.stt-provider-name" | translate }}</th>
-            <th class="table-header header-stt-type">{{ "setting.speech.stt-provider-type" | translate }}</th>
-            <th class="table-header header-stt-enabled">{{ "setting.speech.stt-provider-enabled" | translate }}</th>
+            <th class="table-header header-stt-name">
+              {{ "setting.speech.stt-provider-name" | translate }}
+            </th>
+            <th class="table-header header-stt-type">
+              {{ "setting.speech.stt-provider-type" | translate }}
+            </th>
+            <th class="table-header header-stt-enabled">
+              {{ "setting.speech.stt-provider-enabled" | translate }}
+            </th>
             <th class="table-header action"></th>
           </tr>
         </thead>
@@ -161,17 +296,29 @@
           @for (provider of customSttProviders(); track provider.id) {
             <tr class="table-row">
               <td class="table-cell">
-                @if (provider.isSystem) { <span class="system-badge" title="System">&#128274;</span> }
+                @if (provider.isSystem) {
+                  <span class="system-badge" title="System">&#128274;</span>
+                }
                 {{ provider.name }}
               </td>
-              <td class="table-cell">{{ provider.connectionType === 'rest' ? 'REST' : 'WebSocket' }}</td>
               <td class="table-cell">
-                <input type="checkbox" [checked]="provider.isEnabled" (change)="toggleSttProvider(provider)" />
+                {{ provider.connectionType === "rest" ? "REST" : "WebSocket" }}
+              </td>
+              <td class="table-cell">
+                <input
+                  type="checkbox"
+                  [checked]="provider.isEnabled"
+                  (change)="toggleSttProvider(provider)"
+                />
               </td>
               <td class="table-cell action">
-                <button class="btn-icon" (click)="openEditSttProvider(provider)">&#9998;</button>
+                <button class="btn-icon" (click)="openEditSttProvider(provider)">
+                  <app-icon-pencil-icon-grey />
+                </button>
                 @if (!provider.isSystem) {
-                  <button class="btn-icon btn-danger" (click)="deleteSttProvider(provider.id)">&#128465;</button>
+                  <button class="btn-icon" (click)="deleteSttProvider(provider.id)">
+                    <app-icon-trash-red />
+                  </button>
                 }
               </td>
             </tr>
@@ -181,7 +328,9 @@
     </div>
 
     <div class="stt-add-button">
-      <button class="btn btn-outline-secondary" type="button" (click)="openNewSttProvider()">{{ "setting.speech.stt-new-provider" | translate }}</button>
+      <span class="add-button" (click)="openNewSttProvider()">{{
+        "setting.speech.stt-new-provider" | translate
+      }}</span>
     </div>
 
     @if (showSttModal()) {

@@ -36,6 +36,8 @@ import {
   CustomSttProvider,
 } from 'src/app/infrastructure/api/assistant/data-custom-stt-provider.service';
 import { CustomSttProviderModalComponent } from './custom-stt-provider-modal/custom-stt-provider-modal.component';
+import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import {
   SttEngine,
   TtsProvider,
@@ -49,7 +51,7 @@ import {
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent],
+  imports: [TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent, PencilIconGreyComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
