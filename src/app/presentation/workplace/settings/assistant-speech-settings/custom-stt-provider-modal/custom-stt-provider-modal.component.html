@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="modal-overlay">
   <button type="button" class="modal-backdrop" (click)="onClose()" aria-label="Close dialog"></button>
   <div class="modal-content" role="dialog" aria-modal="true">
@@ -7,39 +9,51 @@
         {{ (provider() ? "setting.speech.stt-edit-provider" : "setting.speech.stt-new-provider") | translate }}
       </div>
       <span class="filler"></span>
-      <button type="button" class="close" (click)="onClose()" aria-label="Close">&times;</button>
+      <div type="button" class="close" (click)="onClose()" aria-label="Close">
+        <span aria-hidden="true" style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);">&times;</span>
+      </div>
     </div>
 
     <div class="modal-body">
-      <div class="form-group">
-        <label for="stt-name">{{ "setting.speech.stt-provider-name" | translate }}</label>
-        <input id="stt-name" class="form-control" [(ngModel)]="name" />
+      <div class="row-line-modal-inline">
+        <div class="modal-field full-width">
+          <label for="stt-name">{{ "setting.speech.stt-provider-name" | translate }}</label>
+          <input id="stt-name" class="form-control" [(ngModel)]="name" />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="stt-type">{{ "setting.speech.stt-provider-type" | translate }}</label>
-        <select id="stt-type" class="form-control" [(ngModel)]="connectionType">
-          <option value="rest">REST Upload</option>
-          <option value="websocket">WebSocket Stream</option>
-        </select>
+      <div class="row-line-modal-inline">
+        <div class="modal-field full-width">
+          <label for="stt-type">{{ "setting.speech.stt-provider-type" | translate }}</label>
+          <select id="stt-type" class="form-control" [(ngModel)]="connectionType">
+            <option value="rest">REST Upload</option>
+            <option value="websocket">WebSocket Stream</option>
+          </select>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="stt-url">{{ "setting.speech.stt-provider-url" | translate }}</label>
-        <input id="stt-url" class="form-control" [(ngModel)]="apiUrl" placeholder="https://..." />
+      <div class="row-line-modal-inline">
+        <div class="modal-field full-width">
+          <label for="stt-url">{{ "setting.speech.stt-provider-url" | translate }}</label>
+          <input id="stt-url" class="form-control" [(ngModel)]="apiUrl" placeholder="https://..." />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="stt-apikey">{{ "setting.speech.stt-provider-apikey" | translate }}</label>
-        <input id="stt-apikey" type="password" class="form-control" [(ngModel)]="apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
+      <div class="row-line-modal-inline">
+        <div class="modal-field full-width">
+          <label for="stt-apikey">{{ "setting.speech.stt-provider-apikey" | translate }}</label>
+          <input id="stt-apikey" type="password" class="form-control" [(ngModel)]="apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="stt-model">{{ "setting.speech.stt-provider-model" | translate }}</label>
-        <input id="stt-model" class="form-control" [(ngModel)]="languageModel" placeholder="(optional)" />
+      <div class="row-line-modal-inline">
+        <div class="modal-field full-width">
+          <label for="stt-model">{{ "setting.speech.stt-provider-model" | translate }}</label>
+          <input id="stt-model" class="form-control" [(ngModel)]="languageModel" placeholder="(optional)" />
+        </div>
       </div>
 
-      <div class="form-group">
+      <div class="row-line-modal-inline">
         <label class="checkbox-label" for="stt-enabled">
           <input id="stt-enabled" type="checkbox" [(ngModel)]="isEnabled" />
           {{ "setting.speech.stt-provider-enabled" | translate }}
@@ -48,8 +62,8 @@
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="cancel-btn" (click)="onClose()">{{ "cancel" | translate }}</button>
-      <button type="button" class="save-btn" (click)="onSave()">{{ "save" | translate }}</button>
+      <span class="link-button red-font" (click)="onClose()">{{ "cancel" | translate }}</span>
+      <button type="button" class="btn save-btn" (click)="onSave()">{{ "save" | translate }}</button>
     </div>
 
   </div>
