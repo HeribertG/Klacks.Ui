@@ -26,47 +26,22 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs';
-import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
-import {
-  ContainerTransportModeEnum,
-  TransportModeEnum,
-} from 'src/app/domain/enums/transport-mode.enum';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
-import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
-import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
-import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
-import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
-import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
-import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
-import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
-import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
-import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
-import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
-import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
-import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
-import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 import {
-  NgbDropdownModule,
   NgbModal,
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
-import {
-  formatClientWithAddress,
-  formatWorkTime,
-} from 'src/app/shared/helpers/container-template-format.helper';
+import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import { ContainerEditorLayoutComponent } from '../../shared/container-editor-layout/container-editor-layout.component';
 import { ContainerTemplateShiftOperationsService } from '../../../shift/container-template/services/container-template-shift-operations.service';
 import { ContainerTemplateDragDropService } from '../../../shift/container-template/services/container-template-drag-drop.service';
 import { ContainerTemplatePropertiesService } from '../../../shift/container-template/services/container-template-properties.service';
@@ -77,7 +52,6 @@ import { ShiftArrangementService } from '../../../shift/container-template/servi
 import { ContainerTemplatePdfExportService } from '../../../shift/container-template/services/container-template-pdf-export.service';
 import { RoutePdfExportService } from '../../../shift/container-template/services/route-pdf-export.service';
 import { ContainerTemplateAbsenceService } from '../../../shift/container-template/services/container-template-absence.service';
-import { DirectionService } from 'src/app/application/services/direction.service';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -85,7 +59,6 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { ContainerShiftOverrideLifecycleService } from './services/container-shift-override-lifecycle.service';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
@@ -101,29 +74,10 @@ const MODAL_WINDOW_CLASS = 'container-shift-override-fullscreen';
   selector: 'app-container-shift-override-dialog',
   imports: [
     FormsModule,
-    AngularSplitModule,
     TranslateModule,
-    DragDropModule,
     NgbTooltipModule,
-    NgbDropdownModule,
-    TimeInputComponent,
-    TimeRulerComponent,
-    IconShiftSegmentComponent,
-    IconTimeWindowComponent,
-    IconUnknownTimeComponent,
-    TrashIconRedComponent,
-    IconCompactComponent,
-    PdfIconComponent,
-    IconRouteComponent,
-    IconRouteFileComponent,
-    IconWizardComponent,
-    IconByCarComponent,
-    IconByFootComponent,
-    IconByBicycleComponent,
-    IconTransportMixComponent,
     ContextMenuComponent,
-    SearchInputComponent,
-    NgxSliderModule,
+    ContainerEditorLayoutComponent,
   ],
   templateUrl: './container-shift-override-dialog.component.html',
   styleUrl: './container-shift-override-dialog.component.scss',
@@ -167,21 +121,10 @@ export class ContainerShiftOverrideDialogComponent {
   public duration: OwnTime = OwnTime.forDuration('00', '00');
 
   timeRangeToleranceValue = 50;
-  timeRangeToleranceOptions: Options = {
-    floor: 0,
-    ceil: 100,
-    step: 10,
-    showSelectionBar: true,
-    hideLimitLabels: true,
-    hidePointerLabels: true,
-  };
-
-  direction = inject(DirectionService).direction;
 
   private shiftService = inject(ContainerTemplateShiftService);
   public translateService = inject(TranslateService);
   public sortingService = inject(TableSortingService);
-  public addressProvider = inject(AddressProviderService);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
   private ngbModal = inject(NgbModal);
@@ -203,10 +146,6 @@ export class ContainerShiftOverrideDialogComponent {
 
   private propertiesService = inject(ContainerTemplatePropertiesService);
 
-  formatTime = formatTime;
-  formatWorkTime = formatWorkTime;
-  formatClientWithAddress = formatClientWithAddress;
-
   shiftFilter = signal('');
 
   get filteredAvailableTasks(): IShift[] {
@@ -227,14 +166,6 @@ export class ContainerShiftOverrideDialogComponent {
 
   get selectedShift(): IContainerTemplateItem | null {
     return this.shiftService.selectedShiftSignal();
-  }
-
-  get TransportModeEnum(): typeof TransportModeEnum {
-    return TransportModeEnum;
-  }
-
-  get ContainerTransportModeEnum(): typeof ContainerTransportModeEnum {
-    return ContainerTransportModeEnum;
   }
 
   constructor() {
