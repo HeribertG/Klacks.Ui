@@ -556,7 +556,7 @@ export class ContainerWorkEditDialogComponent {
     event.preventDefault();
   }
 
-  compactSelectedShifts(keepTravelAndBriefing: boolean = false): void {
+  compactSelectedShifts(keepTravelAndBriefing = false): void {
     this.shiftOpsService.compactSelectedShifts(
       this.timeFrom,
       this.timeTo,
