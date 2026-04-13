@@ -28,6 +28,10 @@ import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.se
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import {
+  DataTranscriptionDictionaryService,
+  DictionaryEntry,
+} from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
+import {
   SttEngine,
   TtsProvider,
   OutputMode,
@@ -50,8 +54,18 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private dataSttService = inject(DataSttService);
   private dataTtsService = inject(DataTtsService);
   private dataAssistantService = inject(DataAssistantService);
+  private dataDictionaryService = inject(DataTranscriptionDictionaryService);
 
   private isInitialized = false;
+
+  dictionaryEntries = signal<DictionaryEntry[]>([]);
+  newEntry: Partial<DictionaryEntry> = {
+    correctTerm: '',
+    category: '',
+    phoneticVariants: [],
+    description: '',
+  };
+  editingEntryId = signal<string | null>(null);
 
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
@@ -145,6 +159,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     } catch {
       this.transcriptionModels.set([]);
     }
+
+    this.dictionaryEntries.set(await this.dataDictionaryService.getAll());
   }
 
   onSettingChanged(): void {
@@ -189,5 +205,51 @@ export class AssistantSpeechSettingsComponent implements OnInit {
         this.translateService.instant('setting.speech.stt-test'),
       );
     }
+  }
+
+  async addDictionaryEntry(): Promise<void> {
+    if (!this.newEntry.correctTerm?.trim()) return;
+    const created = await this.dataDictionaryService.create({
+      correctTerm: this.newEntry.correctTerm!,
+      category: this.newEntry.category || null,
+      phoneticVariants: this.newEntry.phoneticVariants || [],
+      description: this.newEntry.description || null,
+    });
+    if (created) {
+      this.dictionaryEntries.set([...this.dictionaryEntries(), created]);
+      this.newEntry = {
+        correctTerm: '',
+        category: '',
+        phoneticVariants: [],
+        description: '',
+      };
+    }
+  }
+
+  async updateDictionaryEntry(entry: DictionaryEntry): Promise<void> {
+    const success = await this.dataDictionaryService.update(entry);
+    if (success) {
+      this.editingEntryId.set(null);
+    }
+  }
+
+  async deleteDictionaryEntry(id: string): Promise<void> {
+    const success = await this.dataDictionaryService.delete(id);
+    if (success) {
+      this.dictionaryEntries.set(
+        this.dictionaryEntries().filter((e) => e.id !== id),
+      );
+    }
+  }
+
+  parseVariants(input: string): string[] {
+    return input
+      .split(',')
+      .map((v) => v.trim())
+      .filter((v) => v.length > 0);
+  }
+
+  formatVariants(variants: string[]): string {
+    return variants.join(', ');
   }
 }

@@ -102,5 +102,52 @@
         <button class="btn-reset" (click)="resetPrompt()">{{ "setting.speech.prompt-reset" | translate }}</button>
       </div>
     </div>
+
+    <div class="container-line section-divider"></div>
+    <div class="section-header">{{ "setting.speech.dictionary-headline" | translate }}</div>
+
+    <div class="dictionary-table">
+      <div class="dictionary-header">
+        <span class="col-term">{{ "setting.speech.dict-term" | translate }}</span>
+        <span class="col-category">{{ "setting.speech.dict-category" | translate }}</span>
+        <span class="col-variants">{{ "setting.speech.dict-variants" | translate }}</span>
+        <span class="col-description">{{ "setting.speech.dict-description" | translate }}</span>
+        <span class="col-actions"></span>
+      </div>
+
+      @for (entry of dictionaryEntries(); track entry.id) {
+        <div class="dictionary-row">
+          @if (editingEntryId() === entry.id) {
+            <input class="form-input col-term" [(ngModel)]="entry.correctTerm" />
+            <input class="form-input col-category" [(ngModel)]="entry.category" />
+            <input class="form-input col-variants" [ngModel]="formatVariants(entry.phoneticVariants)" (ngModelChange)="entry.phoneticVariants = parseVariants($event)" />
+            <input class="form-input col-description" [(ngModel)]="entry.description" />
+            <span class="col-actions">
+              <button class="btn-icon" (click)="updateDictionaryEntry(entry)">&#10003;</button>
+              <button class="btn-icon" (click)="editingEntryId.set(null)">&#10005;</button>
+            </span>
+          } @else {
+            <span class="col-term">{{ entry.correctTerm }}</span>
+            <span class="col-category">{{ entry.category }}</span>
+            <span class="col-variants">{{ formatVariants(entry.phoneticVariants) }}</span>
+            <span class="col-description">{{ entry.description }}</span>
+            <span class="col-actions">
+              <button class="btn-icon" (click)="editingEntryId.set(entry.id)">&#9998;</button>
+              <button class="btn-icon btn-danger" (click)="deleteDictionaryEntry(entry.id)">&#128465;</button>
+            </span>
+          }
+        </div>
+      }
+
+      <div class="dictionary-row dictionary-add">
+        <input class="form-input col-term" [(ngModel)]="newEntry.correctTerm" [placeholder]="'setting.speech.dict-term' | translate" />
+        <input class="form-input col-category" [(ngModel)]="newEntry.category" [placeholder]="'setting.speech.dict-category' | translate" />
+        <input class="form-input col-variants" [ngModel]="formatVariants(newEntry.phoneticVariants || [])" (ngModelChange)="newEntry.phoneticVariants = parseVariants($event)" [placeholder]="'setting.speech.dict-variants-hint' | translate" />
+        <input class="form-input col-description" [(ngModel)]="newEntry.description" [placeholder]="'setting.speech.dict-description' | translate" />
+        <span class="col-actions">
+          <button class="btn-icon btn-add" (click)="addDictionaryEntry()">+</button>
+        </span>
+      </div>
+    </div>
   </div>
 </div>
