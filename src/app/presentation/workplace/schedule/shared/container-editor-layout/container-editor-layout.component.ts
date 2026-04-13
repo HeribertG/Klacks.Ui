@@ -102,7 +102,6 @@ export class ContainerEditorLayoutComponent {
   isReadOnly = input(false);
   readOnlyReason = input('');
   availableTasks = input<IShift[]>([]);
-  filteredAvailableTasks = input<IShift[]>([]);
   containerAbsences = input<IAbsence[]>([]);
   isEmploymentTabActive = input(false);
   isAvailableShiftsLoading = input(false);

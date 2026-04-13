@@ -588,7 +588,7 @@
             } @else {
               <div class="shifts-grid-container">
                 <div class="shifts-grid">
-                  @if (filteredAvailableTasks().length > 0) {
+                  @if (availableTasks().length > 0) {
                     <table id="available-tasks-table" class="shifts-table">
                       <thead>
                         <tr>
@@ -646,13 +646,13 @@
                       <tbody
                         cdkDropList
                         [id]="availableDropListId()"
-                        [cdkDropListData]="filteredAvailableTasks()"
+                        [cdkDropListData]="availableTasks()"
                         [cdkDropListConnectedTo]="[dropListId()]"
                         [cdkDropListSortingDisabled]="true"
                         (cdkDropListDropped)="availableTasksDrop.emit()"
                       >
                         @for (
-                          shift of filteredAvailableTasks();
+                          shift of availableTasks();
                           track shift.id
                         ) {
                           <tr
