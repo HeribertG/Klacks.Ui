@@ -1,19 +1,24 @@
 <div class="modal-overlay">
   <button type="button" class="modal-backdrop" (click)="onClose()" aria-label="Close dialog"></button>
   <div class="modal-content" role="dialog" aria-modal="true">
+
     <div class="modal-header">
-      {{ (provider() ? "setting.speech.stt-edit-provider" : "setting.speech.stt-new-provider") | translate }}
+      <div class="container-header-modal modal-title">
+        {{ (provider() ? "setting.speech.stt-edit-provider" : "setting.speech.stt-new-provider") | translate }}
+      </div>
+      <span class="filler"></span>
+      <button type="button" class="close" (click)="onClose()" aria-label="Close">&times;</button>
     </div>
 
     <div class="modal-body">
       <div class="form-group">
         <label for="stt-name">{{ "setting.speech.stt-provider-name" | translate }}</label>
-        <input id="stt-name" class="form-input" [(ngModel)]="name" />
+        <input id="stt-name" class="form-control" [(ngModel)]="name" />
       </div>
 
       <div class="form-group">
         <label for="stt-type">{{ "setting.speech.stt-provider-type" | translate }}</label>
-        <select id="stt-type" class="form-select" [(ngModel)]="connectionType">
+        <select id="stt-type" class="form-control" [(ngModel)]="connectionType">
           <option value="rest">REST Upload</option>
           <option value="websocket">WebSocket Stream</option>
         </select>
@@ -21,17 +26,17 @@
 
       <div class="form-group">
         <label for="stt-url">{{ "setting.speech.stt-provider-url" | translate }}</label>
-        <input id="stt-url" class="form-input" [(ngModel)]="apiUrl" placeholder="https://..." />
+        <input id="stt-url" class="form-control" [(ngModel)]="apiUrl" placeholder="https://..." />
       </div>
 
       <div class="form-group">
         <label for="stt-apikey">{{ "setting.speech.stt-provider-apikey" | translate }}</label>
-        <input id="stt-apikey" type="password" class="form-input" [(ngModel)]="apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
+        <input id="stt-apikey" type="password" class="form-control" [(ngModel)]="apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
       </div>
 
       <div class="form-group">
         <label for="stt-model">{{ "setting.speech.stt-provider-model" | translate }}</label>
-        <input id="stt-model" class="form-input" [(ngModel)]="languageModel" placeholder="(optional)" />
+        <input id="stt-model" class="form-control" [(ngModel)]="languageModel" placeholder="(optional)" />
       </div>
 
       <div class="form-group">
@@ -43,8 +48,9 @@
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn-cancel" (click)="onClose()">{{ "button.cancel" | translate }}</button>
-      <button type="button" class="btn-save" (click)="onSave()">{{ "button.save" | translate }}</button>
+      <button type="button" class="cancel-btn" (click)="onClose()">{{ "cancel" | translate }}</button>
+      <button type="button" class="save-btn" (click)="onSave()">{{ "save" | translate }}</button>
     </div>
+
   </div>
 </div>
