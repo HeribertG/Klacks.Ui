@@ -32,8 +32,7 @@ import { ContainerTemplateDragDropService } from '../../../shift/container-templ
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
-import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
-import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { TimeRulerComponent, IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
@@ -88,10 +87,10 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContainerEditorLayoutComponent {
-  direction = inject(DirectionService).direction;
-  translateService = inject(TranslateService);
-  addressProvider = inject(AddressProviderService);
-  sortingService = inject(TableSortingService);
+  protected direction = inject(DirectionService).direction;
+  protected translateService = inject(TranslateService);
+  protected addressProvider = inject(AddressProviderService);
+  protected sortingService = inject(TableSortingService);
   private shiftOpsService = inject(ContainerTemplateShiftOperationsService);
   private dragDropService = inject(ContainerTemplateDragDropService);
 
