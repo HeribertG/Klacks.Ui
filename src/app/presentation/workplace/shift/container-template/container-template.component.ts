@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Observable, Subject, EMPTY } from 'rxjs';
 import { takeUntil, debounceTime, switchMap, tap } from 'rxjs';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -269,38 +269,49 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   });
 
   constructor() {
+    this.wireSearchEffect();
+    this.wireDirtyBridgeEffect();
+    this.wireTemplateGridEffect();
+    this.wireResetEffect();
+  }
+
+  private wireSearchEffect(): void {
     effect(() => {
       const searchString = this.lifecycleService.searchStateService.containerTemplateSearch();
-      const includeAddress =
-        this.lifecycleService.searchStateService.containerTemplateIncludeAddress();
-      if (
-        this.currentSearchString !== searchString ||
-        this.currentIncludeAddress !== includeAddress
-      ) {
-        this.currentSearchString = searchString;
-        this.currentIncludeAddress = includeAddress;
-        this.onSearchChanged();
-      }
-    });
+      const includeAddress = this.lifecycleService.searchStateService.containerTemplateIncludeAddress();
+      const changed =
+        this.currentSearchString !== searchString
+        || this.currentIncludeAddress !== includeAddress;
+      if (!changed) return;
 
-    // Bridges component-local dirty/canSave signals to the global SaveBar via WorkplaceStateService
+      this.currentSearchString = searchString;
+      this.currentIncludeAddress = includeAddress;
+      this.onSearchChanged();
+    });
+  }
+
+  // Bridges component-local dirty/canSave signals to the global SaveBar via WorkplaceStateService
+  private wireDirtyBridgeEffect(): void {
     effect(() => {
       this.isDirty();
       this.canSaveComputed();
       this.lifecycleService.workplaceStateService.areObjectsDirty();
     });
+  }
 
+  private wireTemplateGridEffect(): void {
     effect(() => {
       this.templateGrid = this.containerService.templateGrid();
       this.isLoading = this.containerService.loading();
       this.cdr.markForCheck();
     });
+  }
 
+  private wireResetEffect(): void {
     effect(() => {
-      if (this.containerService.isReset()) {
-        this.updateAvailableTasks();
-        this.cdr.markForCheck();
-      }
+      if (!this.containerService.isReset()) return;
+      this.updateAvailableTasks();
+      this.cdr.markForCheck();
     });
   }
 
@@ -381,43 +392,41 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .loadShift(id)
       .pipe(
         takeUntil(this.destroy$),
-        tap((shift) => {
-          this.containerShift = shift;
-          this.setTimeFromShift(shift);
-          this.setActiveWeekdays(shift);
-        }),
-        switchMap((shift) =>
-          this.containerService.initializeTemplateGrid(shift),
-        ),
-        switchMap(() => {
-          if (this.selectedWeekday) {
-            const weekdayNumber = this.containerService.getWeekdayNumber(
-              this.selectedWeekday,
-            );
-            return this.containerService.loadTasksForWeekday(weekdayNumber).pipe(
-              switchMap(() =>
-                this.containerService.loadTemplates(this.containerShift!.id!),
-              ),
-            );
-          }
-          return [];
-        }),
+        tap((shift) => this.applyLoadedShift(shift)),
+        switchMap((shift) => this.containerService.initializeTemplateGrid(shift)),
+        switchMap(() => this.loadTasksAndTemplatesForWeekday()),
       )
       .subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.updateAvailableTasks();
-          this.routeService.loadStartEndBaseForCurrentTemplate(
-            this.selectedWeekday,
-            this.isHoliday,
-          );
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        },
+        next: () => this.onShiftLoaded(),
+        error: () => this.onShiftLoadFailed(),
       });
+  }
+
+  private applyLoadedShift(shift: IShift): void {
+    this.containerShift = shift;
+    this.setTimeFromShift(shift);
+    this.setActiveWeekdays(shift);
+  }
+
+  private loadTasksAndTemplatesForWeekday(): Observable<unknown> {
+    if (!this.selectedWeekday) return EMPTY;
+
+    const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+    return this.containerService.loadTasksForWeekday(weekdayNumber).pipe(
+      switchMap(() => this.containerService.loadTemplates(this.containerShift!.id!)),
+    );
+  }
+
+  private onShiftLoaded(): void {
+    this.isLoading = false;
+    this.updateAvailableTasks();
+    this.routeService.loadStartEndBaseForCurrentTemplate(this.selectedWeekday, this.isHoliday);
+    this.cdr.markForCheck();
+  }
+
+  private onShiftLoadFailed(): void {
+    this.isLoading = false;
+    this.cdr.markForCheck();
   }
 
   private setTimeFromShift(shift: IShift): void {
