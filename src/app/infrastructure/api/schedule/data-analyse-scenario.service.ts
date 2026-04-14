@@ -23,9 +23,10 @@ export class DataAnalyseScenarioService {
   private httpClient = inject(HttpClient);
   private baseUrl = environment.baseUrl + 'AnalyseScenarios';
 
-  getByGroup(groupId: string): Observable<IAnalyseScenario[]> {
+  getByGroup(groupId?: string): Observable<IAnalyseScenario[]> {
+    const url = groupId ? `${this.baseUrl}?groupId=${groupId}` : this.baseUrl;
     return this.httpClient
-      .get<IAnalyseScenario[]>(`${this.baseUrl}?groupId=${groupId}`)
+      .get<IAnalyseScenario[]>(url)
       .pipe(retry(3));
   }
 

@@ -28,7 +28,7 @@ export class AnalyseScenarioService {
   public isScenarioMode = computed(() => this.activeScenario() !== null);
   public activeToken = computed(() => this.activeScenario()?.token ?? null);
 
-  loadScenarios(groupId: string): void {
+  loadScenarios(groupId?: string): void {
     this.dataService.getByGroup(groupId).subscribe(scenarios => {
       this.scenarios.set(scenarios.filter(s => s.status === AnalyseScenarioStatus.Active));
     });

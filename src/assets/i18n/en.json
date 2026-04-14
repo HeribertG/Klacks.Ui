@@ -2001,6 +2001,8 @@
   "scenario.description": "Description",
   "scenario.fromDate": "From",
   "scenario.untilDate": "Until",
+  "scenario.error.noDateRange": "The schedule has not been loaded yet - please open the schedule first.",
+  "scenario.error.createFailed": "Failed to create scenario (error {{status}}): {{message}}",
   "legal.imprint.title": "Legal Notice",
   "legal.imprint.content": "<h2>Contact Address</h2><p>Klacks Software<br>Heribert Gasparoli<br>Kirchstrasse 52<br>CH-3097 Liebefeld<br>Switzerland</p><p>Phone: +41 79 102 14 02<br>Email: hgasparoli@hotmail.com<br>Website: https://157.180.42.127:7643/</p><h2>Authorized Representative</h2><p>Heribert Gasparoli, Owner</p><h2>Dispute Resolution (Canton of Bern)</h2><p>We always strive to resolve any disagreements arising from our contracts amicably. If no agreement can be reached, the competent conciliation authority of the Canton of Bern (Bern-Mittelland region) is the first point of contact for civil law disputes:</p><p>Schlichtungsbehörde Bern-Mittelland<br>Effingerstrasse 34<br>CH-3008 Bern</p><h2>Disclaimer</h2><p>The author assumes no liability for the correctness, accuracy, timeliness, reliability, or completeness of the information provided. Liability claims against the author for damages of a material or immaterial nature arising from access to, use or non-use of the published information, from misuse of the connection, or from technical malfunctions are excluded.</p>",
   "legal.privacy.title": "Privacy Policy",

@@ -11,7 +11,7 @@ export interface IAnalyseScenario {
   id: string;
   name: string;
   description?: string;
-  groupId: string;
+  groupId?: string;
   fromDate: string;
   untilDate: string;
   token: string;
@@ -22,7 +22,7 @@ export interface IAnalyseScenario {
 export interface ICreateAnalyseScenarioRequest {
   name: string;
   description?: string;
-  groupId: string;
+  groupId?: string;
   fromDate: string;
   untilDate: string;
 }

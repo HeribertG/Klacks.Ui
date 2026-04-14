@@ -1,11 +1,27 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #createScenarioModal>
   <div class="modal-header">
-    <h5 class="modal-title">{{ 'scenario.create' | translate }}</h5>
-    <button type="button" class="btn-close" (click)="onCancel()" aria-label="Close"></button>
+    <div class="container-header-modal modal-title">
+      {{ 'scenario.create' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="onCancel()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+    </div>
   </div>
+
   <div class="modal-body">
-    <div class="mb-3">
-      <label class="form-label" for="scenario-name-input">{{ 'scenario.name' | translate }}</label>
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
+    <div class="form-group">
+      <label for="scenario-name-input">{{ 'scenario.name' | translate }}</label>
       <input
         id="scenario-name-input"
         type="text"
@@ -14,8 +30,9 @@
         (ngModelChange)="scenarioName.set($event)"
       />
     </div>
-    <div class="mb-3">
-      <label class="form-label" for="scenario-description-input">{{ 'scenario.description' | translate }}</label>
+
+    <div class="form-group">
+      <label for="scenario-description-input">{{ 'scenario.description' | translate }}</label>
       <input
         id="scenario-description-input"
         type="text"
@@ -24,36 +41,15 @@
         (ngModelChange)="description.set($event)"
       />
     </div>
-    <div class="row">
-      <div class="col-6">
-        <label class="form-label" for="scenario-from-date-input">{{ 'scenario.fromDate' | translate }}</label>
-        <input
-          id="scenario-from-date-input"
-          type="date"
-          class="form-control"
-          [ngModel]="fromDate()"
-          (ngModelChange)="fromDate.set($event)"
-        />
-      </div>
-      <div class="col-6">
-        <label class="form-label" for="scenario-until-date-input">{{ 'scenario.untilDate' | translate }}</label>
-        <input
-          id="scenario-until-date-input"
-          type="date"
-          class="form-control"
-          [ngModel]="untilDate()"
-          (ngModelChange)="untilDate.set($event)"
-        />
-      </div>
-    </div>
   </div>
+
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="onCancel()">
+    <span class="link-button red-font" (click)="onCancel()">
       {{ 'common.cancel' | translate }}
-    </button>
+    </span>
     <button
       type="button"
-      class="btn btn-primary"
+      class="btn save-btn"
       [disabled]="!isValid() || isSaving()"
       (click)="onConfirm()"
     >
