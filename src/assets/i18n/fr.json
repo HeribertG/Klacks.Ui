@@ -2097,5 +2097,6 @@
   "klacksyTraining.filter.locale": "Langue",
   "klacksyTraining.saveReviewed": "Enregistrer comme revu",
   "klacksyTraining.flagNeedsReview": "Marquer comme à revoir",
+  "klacksyTraining.metrics.title": "Métriques",
   "common.add": "Ajouter"
 }

@@ -1,0 +1,11 @@
+<div>
+  <h2>{{ 'klacksyTraining.metrics.title' | translate }}</h2>
+  <ul>
+    <li>Total: {{ counts().total }}</li>
+    <li>Pending: {{ counts().pending }}</li>
+    <li>Generated: {{ counts().generated }}</li>
+    <li>Reviewed: {{ counts().reviewed }}</li>
+    <li>Needs review: {{ counts().needsReview }}</li>
+    <li>Obsolete: {{ counts().obsolete }}</li>
+  </ul>
+</div>

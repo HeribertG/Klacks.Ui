@@ -1,0 +1,12 @@
+<div>
+  <label>Locale
+    <select [(ngModel)]="locale" (change)="reload()">
+      <option>de</option><option>en</option><option>fr</option><option>it</option>
+    </select>
+  </label>
+  <ul>
+    @for (i of items(); track i.id) {
+      <li>{{ i.timestamp | date:'short' }} — "{{ i.utterance }}"</li>
+    }
+  </ul>
+</div>

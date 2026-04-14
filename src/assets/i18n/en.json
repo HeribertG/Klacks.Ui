@@ -2101,5 +2101,6 @@
   "klacksyTraining.filter.locale": "Locale",
   "klacksyTraining.saveReviewed": "Save as reviewed",
   "klacksyTraining.flagNeedsReview": "Flag as needs-review",
+  "klacksyTraining.metrics.title": "Metrics",
   "common.add": "Add"
 }
