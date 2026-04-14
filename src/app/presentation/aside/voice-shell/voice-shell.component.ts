@@ -52,8 +52,6 @@ export class VoiceShellComponent implements OnInit {
 
   readonly isIdle = computed<boolean>(() => this.orchestrator.state() === ConversationState.Idle);
 
-  protected readonly transcriptMessages: readonly unknown[] = [];
-
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private errorClearTimer: ReturnType<typeof setTimeout> | null = null;
 

@@ -1,0 +1,22 @@
+<div class="overlay" role="dialog" [attr.aria-label]="'klacksy.voice.transcript.title' | translate">
+  <header class="overlay-header">
+    <span>{{ 'klacksy.voice.transcript.title' | translate }}</span>
+    <button type="button" class="overlay-close" (click)="close()" aria-label="close">×</button>
+  </header>
+
+  <div class="overlay-body">
+    @for (msg of visibleMessages(); track msg.id) {
+      <div
+        class="message-row"
+        [class.role-user]="msg.sender === 'user'"
+        [class.role-assistant]="msg.sender === 'assistant'"
+      >
+        <div class="bubble">{{ msg.content }}</div>
+      </div>
+    }
+  </div>
+
+  <footer class="overlay-footer">
+    {{ 'klacksy.voice.transcript.hint' | translate }}
+  </footer>
+</div>

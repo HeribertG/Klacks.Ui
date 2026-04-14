@@ -12,10 +12,12 @@ import {
 } from '../assistant-chat/services/conversation-orchestrator.service';
 import { AsideService } from '../aside.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
+import type { ChatMessage } from '../assistant-chat/chat-message.interface';
 
 interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;
   voiceModeEnabled: ReturnType<typeof signal<boolean>>;
+  messages: ReturnType<typeof signal<ReadonlyArray<ChatMessage>>>;
   errors$: Subject<IVoiceShellErrorHint>;
   startSession: ReturnType<typeof vi.fn>;
   endSession: ReturnType<typeof vi.fn>;
@@ -26,6 +28,7 @@ function makeOrchestratorMock(): MockOrchestrator {
   return {
     state: signal<ConversationState>(ConversationState.Idle),
     voiceModeEnabled: signal<boolean>(false),
+    messages: signal<ReadonlyArray<ChatMessage>>([]),
     errors$: new Subject<IVoiceShellErrorHint>(),
     startSession: vi.fn().mockResolvedValue(undefined),
     endSession: vi.fn(),
