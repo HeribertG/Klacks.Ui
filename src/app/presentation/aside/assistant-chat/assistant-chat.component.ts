@@ -238,6 +238,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnDestroy(): void {
+    this.ttsService.stop();
     this.destroy$.next();
     this.destroy$.complete();
   }

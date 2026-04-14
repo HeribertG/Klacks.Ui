@@ -3,7 +3,8 @@
 /**
  * Tests for ConversationOrchestratorService state machine.
  */
-import { TestBed } from '@angular/core/testing';
+import { Component, inject } from '@angular/core';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from './conversation-orchestrator.service';
@@ -380,21 +381,28 @@ describe('ConversationOrchestratorService', () => {
   });
 });
 
-describe('ConversationOrchestratorService — root provider guarantee', () => {
-  it('should be provided at root level', () => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    const instanceA = TestBed.inject(ConversationOrchestratorService);
-    const instanceB = TestBed.inject(ConversationOrchestratorService);
-    expect(instanceA).toBe(instanceB);
-  });
+@Component({ standalone: true, template: '' })
+class HostHarnessComponent {
+  readonly orchestrator = inject(ConversationOrchestratorService);
+}
 
-  it('state signal should persist across independent injector lookups', () => {
+describe('ConversationOrchestratorService — root provider guarantee', () => {
+  it('state survives host-component destroy (root singleton invariant)', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    const first = TestBed.inject(ConversationOrchestratorService);
-    (first as unknown as { state: { set: (v: ConversationState) => void } }).state.set(ConversationState.Listening);
-    const second = TestBed.inject(ConversationOrchestratorService);
-    expect(second.state()).toBe(ConversationState.Listening);
+    TestBed.configureTestingModule({ imports: [HostHarnessComponent] });
+
+    const firstInstance = TestBed.inject(ConversationOrchestratorService);
+    const fixture: ComponentFixture<HostHarnessComponent> = TestBed.createComponent(HostHarnessComponent);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.orchestrator).toBe(firstInstance);
+
+    const before = firstInstance.state();
+
+    fixture.destroy();
+
+    const secondInstance = TestBed.inject(ConversationOrchestratorService);
+    expect(secondInstance).toBe(firstInstance);
+    expect(secondInstance.state()).toBe(before);
   });
 });
