@@ -1,0 +1,31 @@
+<div
+  class="voice-shell"
+  [class.error-active]="errorHint() !== null && !errorHint()!.persistent"
+  [class.error-persistent]="errorHint()?.persistent"
+  (click)="handleClick()"
+  (contextmenu)="handleContextMenu($event)"
+  (touchstart)="handleTouchStart()"
+  (touchend)="handleTouchEnd()"
+  (touchcancel)="handleTouchEnd()"
+  [attr.title]="errorHint() ? (errorHint()!.i18nKey | translate) : null"
+>
+  <app-voice-shell-icon [state]="iconState()" />
+
+  @if (isIdle()) {
+    <button
+      type="button"
+      class="close-btn"
+      (click)="handleClose($event)"
+      [attr.aria-label]="'klacksy.voice.close' | translate"
+    >
+      ×
+    </button>
+  }
+</div>
+
+@if (transcriptOpen()) {
+  <app-transcript-overlay
+    [messages]="transcriptMessages"
+    (closed)="handleOverlayClose()"
+  />
+}

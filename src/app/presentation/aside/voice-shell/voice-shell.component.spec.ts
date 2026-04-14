@@ -1,0 +1,160 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { VoiceShellComponent } from './voice-shell.component';
+import {
+  ConversationOrchestratorService,
+  ConversationState,
+} from '../assistant-chat/services/conversation-orchestrator.service';
+import { AsideService } from '../aside.service';
+import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
+
+interface MockOrchestrator {
+  state: ReturnType<typeof signal<ConversationState>>;
+  voiceModeEnabled: ReturnType<typeof signal<boolean>>;
+  errors$: Subject<IVoiceShellErrorHint>;
+  toggleVoiceMode: ReturnType<typeof vi.fn>;
+  interrupt: ReturnType<typeof vi.fn>;
+}
+
+function makeOrchestratorMock(): MockOrchestrator {
+  return {
+    state: signal<ConversationState>(ConversationState.Idle),
+    voiceModeEnabled: signal<boolean>(false),
+    errors$: new Subject<IVoiceShellErrorHint>(),
+    toggleVoiceMode: vi.fn(),
+    interrupt: vi.fn(),
+  };
+}
+
+describe('VoiceShellComponent — click matrix', () => {
+  let fixture: ComponentFixture<VoiceShellComponent>;
+  let component: VoiceShellComponent;
+  let orch: MockOrchestrator;
+
+  beforeEach(() => {
+    orch = makeOrchestratorMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    fixture = TestBed.createComponent(VoiceShellComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('idle → click starts session via toggleVoiceMode', () => {
+    orch.state.set(ConversationState.Idle);
+    component.handleClick();
+    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+  });
+
+  it('listening → click ends session via toggleVoiceMode', () => {
+    orch.state.set(ConversationState.Listening);
+    component.handleClick();
+    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+  });
+
+  it('enhancing → click is ignored', () => {
+    orch.state.set(ConversationState.Enhancing);
+    component.handleClick();
+    expect(orch.toggleVoiceMode).not.toHaveBeenCalled();
+    expect(orch.interrupt).not.toHaveBeenCalled();
+  });
+
+  it('processing → click ends session via toggleVoiceMode', () => {
+    orch.state.set(ConversationState.Processing);
+    component.handleClick();
+    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+  });
+
+  it('speaking → click interrupts and returns to listening', () => {
+    orch.state.set(ConversationState.Speaking);
+    component.handleClick();
+    expect(orch.interrupt).toHaveBeenCalledOnce();
+  });
+});
+
+describe('VoiceShellComponent — error hint', () => {
+  it('sets errorHint signal when orchestrator emits an error', () => {
+    const orch = makeOrchestratorMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(VoiceShellComponent);
+    fixture.detectChanges();
+    orch.errors$.next({
+      kind: 'stt-connection',
+      i18nKey: 'klacksy.voice.errors.stt-failed',
+      persistent: false,
+    });
+    expect(fixture.componentInstance.errorHint()?.kind).toBe('stt-connection');
+  });
+
+  it('auto-clears non-persistent error after 3000ms', () => {
+    vi.useFakeTimers();
+    const orch = makeOrchestratorMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(VoiceShellComponent);
+    fixture.detectChanges();
+    orch.errors$.next({ kind: 'network', i18nKey: 'x', persistent: false });
+    expect(fixture.componentInstance.errorHint()).not.toBeNull();
+    vi.advanceTimersByTime(3000);
+    expect(fixture.componentInstance.errorHint()).toBeNull();
+    vi.useRealTimers();
+  });
+});
+
+describe('VoiceShellComponent — close button', () => {
+  it('close button only rendered in idle state', () => {
+    const orch = makeOrchestratorMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(VoiceShellComponent);
+    orch.state.set(ConversationState.Idle);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.close-btn')).toBeTruthy();
+    orch.state.set(ConversationState.Listening);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.close-btn')).toBeNull();
+  });
+
+  it('close button click calls asideService.hide()', () => {
+    const orch = makeOrchestratorMock();
+    const aside = { hide: vi.fn() };
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: AsideService, useValue: aside },
+      ],
+    });
+    const fixture = TestBed.createComponent(VoiceShellComponent);
+    orch.state.set(ConversationState.Idle);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.close-btn')!.click();
+    expect(aside.hide).toHaveBeenCalledOnce();
+  });
+});

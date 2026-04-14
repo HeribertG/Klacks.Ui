@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+.voice-shell {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  cursor: pointer;
+  user-select: none;
+
+  &.error-active::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid #ef4444;
+    animation: error-blink 0.3s ease-in-out 0s 10;
+  }
+
+  &.error-persistent::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid #ef4444;
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: #475569;
+  color: white;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #1e293b;
+  }
+}
+
+@keyframes error-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
