@@ -2098,5 +2098,8 @@
   "klacksyTraining.tabs.feedback": "Rückmeldungen",
   "klacksyTraining.tabs.metrics": "Metriken",
   "klacksyTraining.filter.status": "Status",
-  "klacksyTraining.filter.locale": "Sprache"
+  "klacksyTraining.filter.locale": "Sprache",
+  "klacksyTraining.saveReviewed": "Als reviewed speichern",
+  "klacksyTraining.flagNeedsReview": "Als needs-review markieren",
+  "common.add": "Hinzufügen"
 }

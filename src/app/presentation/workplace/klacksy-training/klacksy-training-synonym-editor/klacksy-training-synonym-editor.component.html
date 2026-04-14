@@ -1,0 +1,17 @@
+<div class="editor">
+  <h2>{{ target.targetId }} · {{ locale }}</h2>
+  <div class="label">{{ target.labelKey | translate }}</div>
+  <ul class="synonyms">
+    @for (s of synonyms(); track s) {
+      <li>{{ s }} <button class="remove" (click)="remove(s)">✕</button></li>
+    }
+  </ul>
+  <div class="add-row">
+    <input type="text" [(ngModel)]="newSynonym" placeholder="new synonym" (keydown.enter)="add()" />
+    <button (click)="add()">{{ 'common.add' | translate }}</button>
+  </div>
+  <div class="actions">
+    <button class="primary" (click)="save('reviewed')">{{ 'klacksyTraining.saveReviewed' | translate }}</button>
+    <button (click)="save('needs-review')">{{ 'klacksyTraining.flagNeedsReview' | translate }}</button>
+  </div>
+</div>

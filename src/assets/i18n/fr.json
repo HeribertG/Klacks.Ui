@@ -2094,5 +2094,8 @@
   "klacksyTraining.tabs.feedback": "Retours",
   "klacksyTraining.tabs.metrics": "Métriques",
   "klacksyTraining.filter.status": "Statut",
-  "klacksyTraining.filter.locale": "Langue"
+  "klacksyTraining.filter.locale": "Langue",
+  "klacksyTraining.saveReviewed": "Enregistrer comme revu",
+  "klacksyTraining.flagNeedsReview": "Marquer comme à revoir",
+  "common.add": "Ajouter"
 }
