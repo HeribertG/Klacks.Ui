@@ -56,8 +56,9 @@ export class AsideComponent {
   constructor() {
     effect(() => {
       const visible = this.isVisible();
+      const audio = this.isAudioMode();
 
-      if (visible) {
+      if (visible && !audio) {
         this.renderer.addClass(this.elementRef.nativeElement, 'visible');
       } else {
         this.renderer.removeClass(this.elementRef.nativeElement, 'visible');

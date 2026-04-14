@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ChatMessage } from '../../assistant-chat/chat-message.interface';
+import { ChatMessage } from '../../aside/assistant-chat/chat-message.interface';
 import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-constants';
 
 @Component({

@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect } from 'vitest';
 import { VoiceShellIconComponent } from './voice-shell-icon.component';
 import { VoiceShellClass } from 'src/app/domain/constants/voice-shell-constants';
-import { ConversationState } from '../../assistant-chat/services/conversation-orchestrator.service';
+import { ConversationState } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
 
 describe('VoiceShellIconComponent', () => {
   it('applies state-idle class when state is Idle', () => {

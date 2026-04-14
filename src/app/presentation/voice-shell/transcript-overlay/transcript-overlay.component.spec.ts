@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranscriptOverlayComponent } from './transcript-overlay.component';
-import type { ChatMessage } from '../../assistant-chat/chat-message.interface';
+import type { ChatMessage } from '../../aside/assistant-chat/chat-message.interface';
 
 function makeMessages(n: number): ChatMessage[] {
   return Array.from({ length: n }, (_, i) => ({

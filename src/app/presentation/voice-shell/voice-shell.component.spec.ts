@@ -9,10 +9,10 @@ import { VoiceShellComponent } from './voice-shell.component';
 import {
   ConversationOrchestratorService,
   ConversationState,
-} from '../assistant-chat/services/conversation-orchestrator.service';
-import { AsideService } from '../aside.service';
+} from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { AsideService } from '../aside/aside.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
-import type { ChatMessage } from '../assistant-chat/chat-message.interface';
+import type { ChatMessage } from '../aside/assistant-chat/chat-message.interface';
 
 interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;

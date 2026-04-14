@@ -24,8 +24,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import {
   ConversationOrchestratorService,
   ConversationState,
-} from '../assistant-chat/services/conversation-orchestrator.service';
-import { AsideService } from '../aside.service';
+} from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { AsideService } from '../aside/aside.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
 import { TranscriptOverlayComponent } from './transcript-overlay/transcript-overlay.component';
 import {

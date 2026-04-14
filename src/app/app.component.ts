@@ -10,7 +10,7 @@ import { ToastsContainerComponent } from './presentation/toast/toast.component';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
 import { AsideComponent } from './presentation/aside/aside.component';
 import { AsideService } from './presentation/aside/aside.service';
-import { VoiceShellComponent } from './presentation/aside/voice-shell/voice-shell.component';
+import { VoiceShellComponent } from './presentation/voice-shell/voice-shell.component';
 import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
