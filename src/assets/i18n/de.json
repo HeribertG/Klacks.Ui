@@ -2092,5 +2092,9 @@
   "periodClosing.export.columnRecords": "EINTRÄGE",
   "periodClosing.export.columnDate": "ERZEUGT AM",
   "periodClosing.export.columnUser": "BENUTZER",
-  "periodClosing.audit.empty": "Keine Einträge im ausgewählten Zeitraum."
+  "periodClosing.audit.empty": "Keine Einträge im ausgewählten Zeitraum.",
+  "klacksyTraining.title": "Klacksy Training",
+  "klacksyTraining.tabs.targets": "Ziele",
+  "klacksyTraining.tabs.feedback": "Rückmeldungen",
+  "klacksyTraining.tabs.metrics": "Metriken"
 }

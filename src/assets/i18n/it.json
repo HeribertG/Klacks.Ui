@@ -2088,5 +2088,9 @@
   "periodClosing.modal.size": "Dimensione",
   "periodClosing.modal.records": "Voci",
   "periodClosing.modal.language": "Lingua",
-  "periodClosing.modal.currency": "Valuta"
+  "periodClosing.modal.currency": "Valuta",
+  "klacksyTraining.title": "Addestramento Klacksy",
+  "klacksyTraining.tabs.targets": "Obiettivi",
+  "klacksyTraining.tabs.feedback": "Feedback",
+  "klacksyTraining.tabs.metrics": "Metriche"
 }

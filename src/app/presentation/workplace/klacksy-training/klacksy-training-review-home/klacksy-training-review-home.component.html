@@ -1,0 +1,18 @@
+<div class="klacksy-training-home">
+  <h1>{{ 'klacksyTraining.title' | translate }}</h1>
+  <nav class="tabs">
+    <button (click)="setTab('targets')" [class.active]="activeTab() === 'targets'">
+      {{ 'klacksyTraining.tabs.targets' | translate }}
+    </button>
+    <button (click)="setTab('feedback')" [class.active]="activeTab() === 'feedback'">
+      {{ 'klacksyTraining.tabs.feedback' | translate }}
+    </button>
+    <button (click)="setTab('metrics')" [class.active]="activeTab() === 'metrics'">
+      {{ 'klacksyTraining.tabs.metrics' | translate }}
+    </button>
+  </nav>
+
+  @if (activeTab() === 'targets') { <app-klacksy-training-review /> }
+  @if (activeTab() === 'feedback') { <app-klacksy-training-feedback-review /> }
+  @if (activeTab() === 'metrics') { <app-klacksy-training-metrics /> }
+</div>

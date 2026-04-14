@@ -2088,5 +2088,9 @@
   "periodClosing.modal.size": "Taille",
   "periodClosing.modal.records": "Entrées",
   "periodClosing.modal.language": "Langue",
-  "periodClosing.modal.currency": "Devise"
+  "periodClosing.modal.currency": "Devise",
+  "klacksyTraining.title": "Entraînement Klacksy",
+  "klacksyTraining.tabs.targets": "Cibles",
+  "klacksyTraining.tabs.feedback": "Retours",
+  "klacksyTraining.tabs.metrics": "Métriques"
 }
