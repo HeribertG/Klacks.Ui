@@ -2092,5 +2092,7 @@
   "klacksyTraining.title": "Entraînement Klacksy",
   "klacksyTraining.tabs.targets": "Cibles",
   "klacksyTraining.tabs.feedback": "Retours",
-  "klacksyTraining.tabs.metrics": "Métriques"
+  "klacksyTraining.tabs.metrics": "Métriques",
+  "klacksyTraining.filter.status": "Statut",
+  "klacksyTraining.filter.locale": "Langue"
 }

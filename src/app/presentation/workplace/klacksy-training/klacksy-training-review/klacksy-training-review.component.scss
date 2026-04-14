@@ -1,0 +1,7 @@
+.review { display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+.filter { grid-column: 1 / -1; display: flex; gap: 16px; }
+.target-list { list-style: none; padding: 0; max-height: 70vh; overflow-y: auto; }
+.target-list li { padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; gap: 8px; }
+.target-list li.selected { background: #e3f2fd; }
+.status-pending { color: #999; } .status-generated { color: #e68900; }
+.status-reviewed { color: #43a047; } .status-needs-review { color: #d32f2f; }

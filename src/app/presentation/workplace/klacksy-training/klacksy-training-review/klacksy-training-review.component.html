@@ -1,0 +1,33 @@
+<div class="review">
+  <div class="filter">
+    <label>{{ 'klacksyTraining.filter.status' | translate }}
+      <select [(ngModel)]="status" (change)="reload()">
+        <option value="">—</option>
+        <option value="pending">pending</option>
+        <option value="generated">generated</option>
+        <option value="reviewed">reviewed</option>
+        <option value="needs-review">needs-review</option>
+      </select>
+    </label>
+    <label>{{ 'klacksyTraining.filter.locale' | translate }}
+      <select [(ngModel)]="locale" (change)="reload()">
+        <option value="de">de</option><option value="en">en</option>
+        <option value="fr">fr</option><option value="it">it</option>
+      </select>
+    </label>
+  </div>
+
+  <ul class="target-list">
+    @for (t of targets(); track t.targetId) {
+      <li (click)="select(t)" [class.selected]="selected()?.targetId === t.targetId">
+        <span class="id">{{ t.targetId }}</span>
+        <span class="route">{{ t.route }}</span>
+        <span class="status" [class]="'status-' + t.synonymStatus">{{ t.synonymStatus }}</span>
+      </li>
+    }
+  </ul>
+
+  @if (selected(); as sel) {
+    <app-klacksy-training-synonym-editor [target]="sel" [locale]="locale()" (saved)="reload()" />
+  }
+</div>
