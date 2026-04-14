@@ -26,6 +26,7 @@ import { sortContainerItemsChronologically } from 'src/app/shared/helpers/contai
 import { HttpErrorResponse } from '@angular/common/http';
 import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { newGuid } from 'src/app/shared/helpers/guid.helper';
+import { IOpenContainerShiftOverrideOptions } from '../open-container-shift-override-options';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -73,38 +74,31 @@ export class ContainerShiftOverrideLifecycleService {
     );
   }
 
-  initialize(
-    containerId: string,
-    date: string,
-    weekday: string,
-    isHoliday: boolean,
-    containerStartTime?: string,
-    containerEndTime?: string,
-  ): Observable<void> {
-    this.containerId = containerId;
-    this.date = date;
-    this.weekday = weekday;
-    this.weekdayNumber = (WEEKDAY_NAMES as readonly string[]).indexOf(weekday);
-    this.isHoliday = isHoliday;
-    this.containerStartTime = containerStartTime ?? null;
-    this.containerEndTime = containerEndTime ?? null;
+  initialize(options: IOpenContainerShiftOverrideOptions): Observable<void> {
+    this.containerId = options.containerId;
+    this.date = options.date;
+    this.weekday = options.weekday;
+    this.weekdayNumber = (WEEKDAY_NAMES as readonly string[]).indexOf(options.weekday);
+    this.isHoliday = options.isHoliday;
+    this.containerStartTime = options.containerStartTime ?? null;
+    this.containerEndTime = options.containerEndTime ?? null;
     this.currentOverride = null;
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isReadOnly.set(false);
     this.readOnlyReason.set('');
     this.lastError.set(null);
-    this.shiftService.setCurrentWeekday(weekday);
+    this.shiftService.setCurrentWeekday(options.weekday);
     this.shiftService.setSelectedContainerTemplateItems([]);
     this.shiftService.setSelectedShift(null);
 
-    return this.overrideApiService.getOverride(containerId, date).pipe(
+    return this.overrideApiService.getOverride(options.containerId, options.date).pipe(
       takeUntilDestroyed(this.destroyRef),
       tap(override => {
         this.currentOverride = override;
         this.containerShiftAbbreviation = override.shift?.abbreviation ?? '';
-        this.containerStartTime = override.fromTime ?? containerStartTime ?? null;
-        this.containerEndTime = override.untilTime ?? containerEndTime ?? null;
+        this.containerStartTime = override.fromTime ?? options.containerStartTime ?? null;
+        this.containerEndTime = override.untilTime ?? options.containerEndTime ?? null;
         this.applyRouteValues(override.startBase, override.endBase, override.transportMode);
         this.initializeItemsFromOverride(override);
         if (override.hasWork) {

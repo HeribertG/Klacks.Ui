@@ -54,6 +54,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
+import { IOpenContainerWorkOptions } from './open-container-work-options';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import {
   formatClientWithAddress,
@@ -236,29 +237,13 @@ export class ContainerWorkEditDialogComponent {
       });
   }
 
-  open(
-    workId: string,
-    shiftId: string,
-    currentDate: Date,
-    availableShifts: AvailableShift[],
-    containerStartTime?: string,
-    containerEndTime?: string,
-    isHoliday = false,
-  ): void {
+  open(options: IOpenContainerWorkOptions): void {
     this.lockService
-      .acquire(ContainerLockResourceType.containerWork, workId)
+      .acquire(ContainerLockResourceType.containerWork, options.workId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lock) => {
-          this.openModalInternal(
-            workId,
-            shiftId,
-            currentDate,
-            availableShifts,
-            containerStartTime,
-            containerEndTime,
-            isHoliday,
-          );
+          this.openModalInternal(options);
           if (!lock.acquired) {
             const key = lock.isSelfConflict
               ? 'container.lock.lockedBySelf'
@@ -273,37 +258,13 @@ export class ContainerWorkEditDialogComponent {
           }
         },
         error: () => {
-          this.openModalInternal(
-            workId,
-            shiftId,
-            currentDate,
-            availableShifts,
-            containerStartTime,
-            containerEndTime,
-            isHoliday,
-          );
+          this.openModalInternal(options);
         },
       });
   }
 
-  private openModalInternal(
-    workId: string,
-    shiftId: string,
-    currentDate: Date,
-    availableShifts: AvailableShift[],
-    containerStartTime?: string,
-    containerEndTime?: string,
-    isHoliday = false,
-  ): void {
-    this.lifecycleService.initialize(
-      workId,
-      shiftId,
-      currentDate,
-      availableShifts,
-      containerStartTime,
-      containerEndTime,
-      isHoliday,
-    );
+  private openModalInternal(options: IOpenContainerWorkOptions): void {
+    this.lifecycleService.initialize(options);
 
     this.timeFrom = this.lifecycleService.getTimeFrom();
     this.timeTo = this.lifecycleService.getTimeTo();

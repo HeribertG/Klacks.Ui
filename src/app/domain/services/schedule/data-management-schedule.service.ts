@@ -7,6 +7,7 @@ import {
   effect,
   Injector,
   runInInjectionContext,
+  WritableSignal,
 } from '@angular/core';
 import {
   IClientWork,
@@ -64,26 +65,27 @@ export class DataManagementScheduleService implements ILoadable {
   private setupCrudEffects(): void {
     runInInjectionContext(this.injector, () => {
       effect(() => {
-        if (this.scheduleEntryCrud.scheduleRefreshed()) {
-          this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
-        }
+        if (this.scheduleEntryCrud.scheduleRefreshed())
+          this.bumpReadCounter(this.isRead);
       });
 
       effect(() => {
-        if (this.scheduleEntryCrud.shiftScheduleRefreshed()) {
-          this.isShiftScheduleRead.update(v => ({ count: v.count + 1, resetScroll: false }));
-        }
+        if (this.scheduleEntryCrud.shiftScheduleRefreshed())
+          this.bumpReadCounter(this.isShiftScheduleRead);
       });
 
       effect(() => {
-        if (this.breakPlaceholderLoader.isLoaded()) {
-          if (this.showBreakPlaceholders()) {
-            this.workScheduleLoader.applyBreakPlaceholderRows();
-            this.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
-          }
-        }
+        if (!this.breakPlaceholderLoader.isLoaded()) return;
+        if (!this.showBreakPlaceholders()) return;
+
+        this.workScheduleLoader.applyBreakPlaceholderRows();
+        this.bumpReadCounter(this.isRead);
       });
     });
+  }
+
+  private bumpReadCounter(target: WritableSignal<{ count: number; resetScroll: boolean }>): void {
+    target.update(v => ({ count: v.count + 1, resetScroll: false }));
   }
 
   public showBreakPlaceholders = signal(false);

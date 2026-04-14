@@ -390,7 +390,13 @@ export class ShiftSectionComponent
           const date = new Date(dateStr);
           const weekday = WEEKDAY_NAMES[date.getDay()];
           const abbreviation = shiftDataService.getShiftAbbreviation(pos.row);
-          this.overrideDialog.open(shiftId, dateStr, weekday, false, undefined, undefined, abbreviation);
+          this.overrideDialog.open({
+            containerId: shiftId,
+            date: dateStr,
+            weekday,
+            isHoliday: false,
+            shiftAbbreviation: abbreviation,
+          });
         }
         break;
       }

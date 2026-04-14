@@ -124,7 +124,15 @@ export class ScheduleDialogService {
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
       const weekday = dataService.getWeekday(column);
       const isHoliday = weekday === WeekDaysEnum.Holiday || weekday === WeekDaysEnum.OfficiallyHoliday;
-      this.containerWorkEditDialog.open(entry.sourceId, entry.entryId, date, availableShifts, entry.startTime, entry.endTime, isHoliday);
+      this.containerWorkEditDialog.open({
+        workId: entry.sourceId,
+        shiftId: entry.entryId,
+        currentDate: date,
+        availableShifts,
+        containerStartTime: entry.startTime,
+        containerEndTime: entry.endTime,
+        isHoliday,
+      });
     }
   }
 }

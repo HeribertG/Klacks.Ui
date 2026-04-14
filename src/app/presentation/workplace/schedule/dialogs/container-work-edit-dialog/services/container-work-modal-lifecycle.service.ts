@@ -25,6 +25,7 @@ import { DataContainerTemplateService } from 'src/app/infrastructure/api/contain
 import { formatDateOnly, WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 import { sortContainerItemsChronologically } from 'src/app/shared/helpers/container-template-sort.helper';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
+import { IOpenContainerWorkOptions } from '../open-container-work-options';
 const DEFAULT_TIME_FROM_HOURS = '06';
 const DEFAULT_TIME_FROM_MINUTES = '00';
 const DEFAULT_TIME_TO_HOURS = '18';
@@ -153,15 +154,15 @@ export class ContainerWorkModalLifecycleService {
     );
   }
 
-  initialize(workId: string, containerShiftId: string, currentDate: Date, availableShifts: AvailableShift[], containerStartTime?: string, containerEndTime?: string, isHoliday = false): void {
-    this.containerStartTime = containerStartTime ?? null;
-    this.containerEndTime = containerEndTime ?? null;
-    this.workId = workId;
-    this.containerShiftId = containerShiftId;
-    this.currentDate = currentDate;
-    this.weekday = WEEKDAY_NAMES[currentDate.getDay()];
-    this.weekdayNumber = currentDate.getDay();
-    this.isHoliday = isHoliday;
+  initialize(options: IOpenContainerWorkOptions): void {
+    this.containerStartTime = options.containerStartTime ?? null;
+    this.containerEndTime = options.containerEndTime ?? null;
+    this.workId = options.workId;
+    this.containerShiftId = options.shiftId;
+    this.currentDate = options.currentDate;
+    this.weekday = WEEKDAY_NAMES[options.currentDate.getDay()];
+    this.weekdayNumber = options.currentDate.getDay();
+    this.isHoliday = options.isHoliday ?? false;
     this.isDirty.set(false);
     this.isLoading.set(true);
     this.isAvailableShiftsLoading.set(true);
@@ -171,9 +172,9 @@ export class ContainerWorkModalLifecycleService {
     this.isReadOnly.set(false);
     this.readOnlyReason.set('');
 
-    this.availableShiftsAsIShift = availableShifts.map(s => this.convertAvailableShiftToIShift(s));
+    this.availableShiftsAsIShift = options.availableShifts.map(s => this.convertAvailableShiftToIShift(s));
 
-    this.childrenService.loadChildren(workId, this.isHoliday)
+    this.childrenService.loadChildren(this.workId, this.isHoliday)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: children => {

@@ -341,15 +341,11 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       if (displaced) {
         this.applyPositionToItem(item, displaced.startMinutes, displaced.endMinutes);
       } else if (item === draggedShift) {
-        const formattedStart = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newStartMinutes);
-        const formattedEnd = this.dragDropService.formatTimeFromMinutes(result.draggedPosition.newEndMinutes);
-        if (item.absenceId) {
-          item.startItem = formattedStart;
-          item.endItem = formattedEnd;
-        } else {
-          item.timeRangeStartItem = formattedStart;
-          item.timeRangeEndItem = formattedEnd;
-        }
+        this.applyPositionToItem(
+          item,
+          result.draggedPosition.newStartMinutes,
+          result.draggedPosition.newEndMinutes
+        );
       }
     }
 

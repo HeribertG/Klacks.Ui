@@ -61,6 +61,7 @@ import { ContainerTemplatePdfExportService } from '../../../shift/container-temp
 import { RoutePdfExportService } from '../../../shift/container-template/services/route-pdf-export.service';
 import { ContainerTemplateAbsenceService } from '../../../shift/container-template/services/container-template-absence.service';
 import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
+import { IOpenContainerShiftOverrideOptions } from './open-container-shift-override-options';
 import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
@@ -222,22 +223,14 @@ export class ContainerShiftOverrideDialogComponent {
       });
   }
 
-  open(
-    containerId: string,
-    date: string,
-    weekday: string,
-    isHoliday: boolean,
-    containerStartTime?: string,
-    containerEndTime?: string,
-    shiftAbbreviation?: string,
-  ): void {
-    this.lifecycleService.containerShiftAbbreviation = shiftAbbreviation ?? '';
+  open(options: IOpenContainerShiftOverrideOptions): void {
+    this.lifecycleService.containerShiftAbbreviation = options.shiftAbbreviation ?? '';
     this.lockService
-      .acquire(ContainerLockResourceType.containerShiftOverride, containerId)
+      .acquire(ContainerLockResourceType.containerShiftOverride, options.containerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: lock => {
-          this.openModalInternal(containerId, date, weekday, isHoliday, containerStartTime, containerEndTime);
+          this.openModalInternal(options);
           if (!lock.acquired) {
             const key = lock.isSelfConflict
               ? 'container.lock.lockedBySelf'
@@ -252,21 +245,14 @@ export class ContainerShiftOverrideDialogComponent {
           }
         },
         error: () => {
-          this.openModalInternal(containerId, date, weekday, isHoliday, containerStartTime, containerEndTime);
+          this.openModalInternal(options);
         },
       });
   }
 
-  private openModalInternal(
-    containerId: string,
-    date: string,
-    weekday: string,
-    isHoliday: boolean,
-    containerStartTime?: string,
-    containerEndTime?: string,
-  ): void {
+  private openModalInternal(options: IOpenContainerShiftOverrideOptions): void {
     this.lifecycleService
-      .initialize(containerId, date, weekday, isHoliday, containerStartTime, containerEndTime)
+      .initialize(options)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -563,14 +549,14 @@ export class ContainerShiftOverrideDialogComponent {
       onConfirm: () => {
         this.lifecycleService.reset();
         this.lifecycleService
-          .initialize(
-            this.lifecycleService.containerId,
-            this.lifecycleService.date,
-            this.lifecycleService.weekday,
-            this.lifecycleService.isHoliday,
-            this.lifecycleService.containerStartTime ?? undefined,
-            this.lifecycleService.containerEndTime ?? undefined,
-          )
+          .initialize({
+            containerId: this.lifecycleService.containerId,
+            date: this.lifecycleService.date,
+            weekday: this.lifecycleService.weekday,
+            isHoliday: this.lifecycleService.isHoliday,
+            containerStartTime: this.lifecycleService.containerStartTime ?? undefined,
+            containerEndTime: this.lifecycleService.containerEndTime ?? undefined,
+          })
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
