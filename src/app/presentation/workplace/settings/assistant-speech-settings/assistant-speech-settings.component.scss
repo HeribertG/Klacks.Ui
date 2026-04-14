@@ -32,7 +32,7 @@ select {
   gap: 8px;
   align-items: center;
 
-  .form-input {
+  .form-control {
     flex: 1;
   }
 
@@ -90,6 +90,11 @@ select {
   .table-header {
     text-transform: uppercase;
   }
+
+  .form-control {
+    padding: 2px 6px;
+    font-size: 13px;
+  }
 }
 
 .header-dict-term {
@@ -110,12 +115,6 @@ select {
 
 .header-stt-enabled {
   width: 80px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 2px 6px;
-  font-size: 13px;
 }
 
 .btn-icon {

@@ -59,7 +59,7 @@
           <div class="input-with-button">
             <input
               type="password"
-              class="form-input"
+              class="form-control"
               [(ngModel)]="sttApiKey"
               id="sttApiKey"
               (ngModelChange)="onSettingChanged()"
@@ -165,7 +165,7 @@
 
     <div class="form-group prompt-group">
       <textarea
-        class="form-input prompt-textarea"
+        class="form-control prompt-textarea"
         [(ngModel)]="transcriptionPrompt"
         (ngModelChange)="onSettingChanged()"
         rows="6"
@@ -205,11 +205,11 @@
             <tr class="table-row">
               @if (editingEntryId() === entry.id) {
                 <td class="table-cell">
-                  <input class="form-input" [(ngModel)]="entry.correctTerm" />
+                  <input class="form-control" [(ngModel)]="entry.correctTerm" />
                 </td>
                 <td class="table-cell">
                   <input
-                    class="form-input"
+                    class="form-control"
                     [ngModel]="formatVariants(entry.phoneticVariants)"
                     (ngModelChange)="
                       entry.phoneticVariants = parseVariants($event)
@@ -252,14 +252,14 @@
           <tr>
             <td class="table-cell">
               <input
-                class="form-input"
+                class="form-control"
                 [(ngModel)]="newEntry.correctTerm"
                 [placeholder]="'setting.speech.dict-term' | translate"
               />
             </td>
             <td class="table-cell">
               <input
-                class="form-input"
+                class="form-control"
                 [ngModel]="formatVariants(newEntry.phoneticVariants || [])"
                 (ngModelChange)="
                   newEntry.phoneticVariants = parseVariants($event)
