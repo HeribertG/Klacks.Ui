@@ -2,10 +2,16 @@
 .dropdown-menu {
   background-color: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);
+  font-family: Roboto;
+  font-size: small;
+  font-weight: normal;
 }
 
 .dropdown-item {
   color: var(--colorHeadline);
+  font-family: Roboto;
+  font-size: small;
+  font-weight: normal;
 }
 
 .dropdown-item:hover {

@@ -3,6 +3,7 @@
     id="scenario-selector-btn"
     class="btn btn-sm scenario-btn"
     ngbDropdownToggle
+    placement="right"
     ngbTooltip="{{ 'scenario.select' | translate }}"
     [class.scenario-active]="analyseScenarioService.isScenarioMode()"
   >
@@ -10,20 +11,20 @@
       <span class="scenario-indicator"></span>
       {{ analyseScenarioService.activeScenario()?.name }}
     } @else {
-      {{ 'scenario.title' | translate }}
+      {{ "scenario.title" | translate }}
     }
   </button>
   <div ngbDropdownMenu>
     @if (analyseScenarioService.isScenarioMode()) {
       <button ngbDropdownItem (click)="onExitScenario()">
-        {{ 'scenario.exit' | translate }}
+        {{ "scenario.exit" | translate }}
       </button>
       <div class="dropdown-divider"></div>
       <button ngbDropdownItem class="text-success" (click)="onAccept()">
-        {{ 'scenario.accept' | translate }}
+        {{ "scenario.accept" | translate }}
       </button>
       <button ngbDropdownItem class="text-danger" (click)="onReject()">
-        {{ 'scenario.reject' | translate }}
+        {{ "scenario.reject" | translate }}
       </button>
       <div class="dropdown-divider"></div>
     }
@@ -31,14 +32,16 @@
       <button
         ngbDropdownItem
         (click)="onSelectScenario(scenario)"
-        [class.active]="scenario.id === analyseScenarioService.activeScenario()?.id"
+        [class.active]="
+          scenario.id === analyseScenarioService.activeScenario()?.id
+        "
       >
         {{ scenario.name }}
       </button>
     }
-    <div class="dropdown-divider"></div>
-    <button ngbDropdownItem (click)="onCreateNew()">
-      + {{ 'scenario.create' | translate }}
+
+    <button class="new-btn" ngbDropdownItem (click)="onCreateNew()">
+      + {{ "scenario.create" | translate }}
     </button>
   </div>
 </div>

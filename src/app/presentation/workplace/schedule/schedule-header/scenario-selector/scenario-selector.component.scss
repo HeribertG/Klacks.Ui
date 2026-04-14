@@ -1,8 +1,15 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/menu.scss";
+
 .scenario-btn {
   margin-inline-start: 8px;
   border: 1px solid #dee2e6;
   background-color: transparent;
   color: #495057;
+  font-family: Roboto;
+  font-size: small;
+  font-weight: normal;
 
   &.scenario-active {
     background-color: #fff3cd;
@@ -18,4 +25,17 @@
   border-radius: 50%;
   background-color: #ffc107;
   margin-inline-end: 4px;
+}
+
+.new-btn {
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$splitButtonGreenColor;
+  }
 }

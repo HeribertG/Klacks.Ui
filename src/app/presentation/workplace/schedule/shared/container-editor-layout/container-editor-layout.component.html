@@ -82,9 +82,7 @@
           class="form-select"
           [ngModel]="selectedEndBase()"
           (ngModelChange)="endBaseChange.emit($event); markDirty.emit()"
-          [ngbTooltip]="
-            'shift.container-template.tooltip.end-base' | translate
-          "
+          [ngbTooltip]="'shift.container-template.tooltip.end-base' | translate"
         >
           <option [value]="''">-</option>
           @for (address of addressProvider.allAddresses(); track address.name) {
@@ -233,7 +231,8 @@
                   [class.disabled]="isOptimizing()"
                   (click)="optimizeRouteClick.emit()"
                   [ngbTooltip]="
-                    'shift.container-template.tooltip.optimize-route' | translate
+                    'shift.container-template.tooltip.optimize-route'
+                      | translate
                   "
                 ></app-icon-route>
                 @if (hasRouteInfo()) {
@@ -251,12 +250,13 @@
                 class="icon-table"
                 (click)="exportShiftsPdfClick.emit()"
                 [ngbTooltip]="
-                  'shift.container-template.tooltip.export-shifts-pdf' | translate
+                  'shift.container-template.tooltip.export-shifts-pdf'
+                    | translate
                 "
               ></app-icon-pdf-icon>
-              <div ngbDropdown class="d-inline-block">
+
+              <div ngbDropdown class="d-inline-block icon-table">
                 <app-icon-compact
-                  class="icon-table"
                   ngbDropdownToggle
                   id="compactShiftsDropdownLayout"
                   [ngbTooltip]="
@@ -309,9 +309,7 @@
                     <tr>
                       <th class="icon-column"></th>
                       <th>
-                        {{
-                          "shift.container-template.grid.name" | translate
-                        }}
+                        {{ "shift.container-template.grid.name" | translate }}
                       </th>
                       <th>
                         {{
@@ -320,9 +318,7 @@
                         }}
                       </th>
                       <th>
-                        {{
-                          "shift.container-template.grid.time" | translate
-                        }}
+                        {{ "shift.container-template.grid.time" | translate }}
                       </th>
                       <th>
                         {{
@@ -330,9 +326,7 @@
                         }}
                       </th>
                       <th>
-                        {{
-                          "shift.container-template.grid.client" | translate
-                        }}
+                        {{ "shift.container-template.grid.client" | translate }}
                       </th>
                       <th
                         class="action-column1"
@@ -366,16 +360,16 @@
                         cdkDragLockAxis="y"
                         (click)="shiftRowClick.emit(item)"
                         (dblclick)="absenceRowDblClick.emit(item)"
-                        (contextmenu)="onTableRowRightClickInternal($event, item)"
+                        (contextmenu)="
+                          onTableRowRightClickInternal($event, item)
+                        "
                         [class.selected]="item === selectedShift()"
                         [class.timerange-violation]="
                           hasTimeRangeViolation(item)
                         "
                         [class.absence-item]="!!item.absenceId"
                         [style.background-color]="
-                          item.absenceId
-                            ? item.absence?.color + '30'
-                            : null
+                          item.absenceId ? item.absence?.color + '30' : null
                         "
                       >
                         <td class="icon-column">
@@ -475,11 +469,7 @@
           <div class="zone zone-right">
             <div class="day-tabs">
               @if (tabs().length > 0) {
-                @for (
-                  tab of tabs();
-                  track tab.date.getTime();
-                  let i = $index
-                ) {
+                @for (tab of tabs(); track tab.date.getTime(); let i = $index) {
                   <button
                     type="button"
                     class="day-tab"
@@ -498,7 +488,9 @@
                   [class.active]="!isEmploymentTabActive()"
                   (click)="shiftsTabClick.emit()"
                 >
-                  {{ "shift.container-template.available-tasks.title" | translate }}
+                  {{
+                    "shift.container-template.available-tasks.title" | translate
+                  }}
                 </button>
               }
               <span class="filler"></span>
@@ -662,10 +654,7 @@
                         [cdkDropListSortingDisabled]="true"
                         (cdkDropListDropped)="availableTasksDrop.emit()"
                       >
-                        @for (
-                          shift of availableTasks();
-                          track shift.id
-                        ) {
+                        @for (shift of availableTasks(); track shift.id) {
                           <tr
                             cdkDrag
                             cdkDragLockAxis="y"
