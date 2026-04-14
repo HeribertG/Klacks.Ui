@@ -122,6 +122,31 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
   }
 
+  /**
+   * Start a voice session (enable voice mode).
+   * Public alias over enable() so external UI can start without reaching into internals.
+   */
+  startSession(): Promise<void> {
+    return this.enable();
+  }
+
+  /**
+   * End the current voice session: aborts the in-flight SSE stream, disables voice mode,
+   * and resets to Idle. Safe to call in any state.
+   */
+  endSession(): void {
+    this.callbacks?.getAbortController()?.abort();
+    this.disable();
+  }
+
+  /**
+   * Interrupt in-flight speaking/processing and return to Listening.
+   * Public alias over the existing interrupt() — kept for spec alignment.
+   */
+  interruptAndListen(): void {
+    this.interrupt();
+  }
+
   interrupt(): void {
     if (this.state() !== ConversationState.Speaking && this.state() !== ConversationState.Processing) return;
 

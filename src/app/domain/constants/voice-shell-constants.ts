@@ -12,6 +12,8 @@ export class VoiceShellColors {
   static readonly Processing = '#f59e0b';
   static readonly Speaking = '#10b981';
   static readonly Error = '#ef4444';
+  static readonly CloseButtonBg = '#475569';
+  static readonly CloseButtonBgHover = '#1e293b';
 }
 
 export class VoiceShellClass {
@@ -27,6 +29,8 @@ export class VoiceShellClass {
 
 export class VoiceShellTiming {
   static readonly ErrorBlinkMs = 3000;
+  static readonly ErrorBlinkStepMs = 300;
+  static readonly ErrorBlinkIterations = 10;
   static readonly LongPressMs = 500;
   static readonly PulseDurationMs = 1500;
   static readonly SpinDurationMs = 1200;

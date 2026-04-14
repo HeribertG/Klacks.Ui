@@ -34,16 +34,6 @@ import {
 } from 'src/app/domain/constants/voice-shell-constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 
-type IconState = 'idle' | 'listening' | 'enhancing' | 'processing' | 'speaking';
-
-const ICON_STATE_MAP: Record<ConversationState, IconState> = {
-  [ConversationState.Idle]: 'idle',
-  [ConversationState.Listening]: 'listening',
-  [ConversationState.Enhancing]: 'enhancing',
-  [ConversationState.Processing]: 'processing',
-  [ConversationState.Speaking]: 'speaking',
-};
-
 @Component({
   selector: 'app-voice-shell',
   standalone: true,
@@ -60,7 +50,6 @@ export class VoiceShellComponent implements OnInit {
   readonly errorHint = signal<IVoiceShellErrorHint | null>(null);
   readonly transcriptOpen = signal<boolean>(false);
 
-  readonly iconState = computed<IconState>(() => ICON_STATE_MAP[this.orchestrator.state()]);
   readonly isIdle = computed<boolean>(() => this.orchestrator.state() === ConversationState.Idle);
 
   protected readonly transcriptMessages: readonly unknown[] = [];
@@ -78,16 +67,16 @@ export class VoiceShellComponent implements OnInit {
     const state = this.orchestrator.state();
     switch (state) {
       case ConversationState.Idle:
-        this.orchestrator.toggleVoiceMode();
+        this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
-        this.orchestrator.toggleVoiceMode();
+        this.orchestrator.endSession();
         break;
       case ConversationState.Processing:
-        this.orchestrator.toggleVoiceMode();
+        this.orchestrator.endSession();
         break;
       case ConversationState.Speaking:
-        this.orchestrator.interrupt();
+        this.orchestrator.interruptAndListen();
         break;
       case ConversationState.Enhancing:
         break;
@@ -96,7 +85,7 @@ export class VoiceShellComponent implements OnInit {
 
   handleContextMenu(event: MouseEvent): void {
     event.preventDefault();
-    this.transcriptOpen.update((v) => !v);
+    this.transcriptOpen.set(true);
   }
 
   handleTouchStart(): void {

@@ -365,6 +365,78 @@ describe('ConversationOrchestratorService', () => {
     expect(mockAudioQueue.enqueue).toHaveBeenCalledTimes(2);
   });
 
+  // --- Public API wrappers (spec-aligned) ---
+
+  it('startSession() enables voice mode and transitions to LISTENING', async () => {
+    await service.startSession();
+
+    expect(service.voiceModeEnabled()).toBe(true);
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(mockAudioCapture.start).toHaveBeenCalled();
+  });
+
+  it('endSession() aborts the in-flight SSE stream and drops the orchestrator to IDLE', async () => {
+    const abortSpy = vi.fn();
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => ({ abort: abortSpy } as unknown as AbortController),
+      detectChanges: vi.fn(),
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.startSession();
+    expect(service.state()).toBe(ConversationState.Listening);
+
+    service.endSession();
+
+    expect(abortSpy).toHaveBeenCalled();
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('endSession() is safe to call from Idle (no abort controller throws)', () => {
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+    };
+    service.initialize(callbacks, 'de');
+
+    expect(() => service.endSession()).not.toThrow();
+    expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('interruptAndListen() triggers the same side-effect as interrupt()', async () => {
+    let inputText = 'hello';
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => inputText,
+      setInputText: (text: string) => { inputText = text; },
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+    };
+
+    service.initialize(callbacks, 'de');
+    await service.startSession();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    const interruptSpy = vi.spyOn(service, 'interrupt');
+    service.interruptAndListen();
+
+    expect(interruptSpy).toHaveBeenCalledOnce();
+    expect(mockAudioQueue.stop).toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Listening);
+  });
+
   it('Test 11: disable (voiceModeEnabled=true → false) resets state to IDLE', async () => {
     const callbacks: ConversationCallbacks = {
       getInputText: () => '',

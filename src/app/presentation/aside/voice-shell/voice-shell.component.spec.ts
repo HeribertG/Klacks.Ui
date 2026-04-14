@@ -17,8 +17,9 @@ interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;
   voiceModeEnabled: ReturnType<typeof signal<boolean>>;
   errors$: Subject<IVoiceShellErrorHint>;
-  toggleVoiceMode: ReturnType<typeof vi.fn>;
-  interrupt: ReturnType<typeof vi.fn>;
+  startSession: ReturnType<typeof vi.fn>;
+  endSession: ReturnType<typeof vi.fn>;
+  interruptAndListen: ReturnType<typeof vi.fn>;
 }
 
 function makeOrchestratorMock(): MockOrchestrator {
@@ -26,8 +27,9 @@ function makeOrchestratorMock(): MockOrchestrator {
     state: signal<ConversationState>(ConversationState.Idle),
     voiceModeEnabled: signal<boolean>(false),
     errors$: new Subject<IVoiceShellErrorHint>(),
-    toggleVoiceMode: vi.fn(),
-    interrupt: vi.fn(),
+    startSession: vi.fn().mockResolvedValue(undefined),
+    endSession: vi.fn(),
+    interruptAndListen: vi.fn(),
   };
 }
 
@@ -50,35 +52,38 @@ describe('VoiceShellComponent — click matrix', () => {
     fixture.detectChanges();
   });
 
-  it('idle → click starts session via toggleVoiceMode', () => {
+  it('idle → click starts session via startSession', () => {
     orch.state.set(ConversationState.Idle);
     component.handleClick();
-    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+    expect(orch.startSession).toHaveBeenCalledOnce();
   });
 
-  it('listening → click ends session via toggleVoiceMode', () => {
+  it('listening → click ends session via endSession', () => {
     orch.state.set(ConversationState.Listening);
     component.handleClick();
-    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+    expect(orch.endSession).toHaveBeenCalledOnce();
   });
 
   it('enhancing → click is ignored', () => {
     orch.state.set(ConversationState.Enhancing);
     component.handleClick();
-    expect(orch.toggleVoiceMode).not.toHaveBeenCalled();
-    expect(orch.interrupt).not.toHaveBeenCalled();
+    expect(orch.startSession).not.toHaveBeenCalled();
+    expect(orch.endSession).not.toHaveBeenCalled();
+    expect(orch.interruptAndListen).not.toHaveBeenCalled();
   });
 
-  it('processing → click ends session via toggleVoiceMode', () => {
+  it('processing → click invokes endSession (which aborts SSE and returns to Idle; abort-controller side-effect covered in orchestrator spec)', () => {
     orch.state.set(ConversationState.Processing);
     component.handleClick();
-    expect(orch.toggleVoiceMode).toHaveBeenCalledOnce();
+    expect(orch.endSession).toHaveBeenCalledOnce();
+    expect(orch.startSession).not.toHaveBeenCalled();
+    expect(orch.interruptAndListen).not.toHaveBeenCalled();
   });
 
   it('speaking → click interrupts and returns to listening', () => {
     orch.state.set(ConversationState.Speaking);
     component.handleClick();
-    expect(orch.interrupt).toHaveBeenCalledOnce();
+    expect(orch.interruptAndListen).toHaveBeenCalledOnce();
   });
 });
 

@@ -1,5 +1,11 @@
+/* Keep in sync with VoiceShellColors / VoiceShellTiming */
 :host {
   display: block;
+  --voice-shell-error-color: #ef4444;
+  --voice-shell-close-bg: #475569;
+  --voice-shell-close-bg-hover: #1e293b;
+  --voice-shell-error-blink-step-ms: 300ms;
+  --voice-shell-error-blink-iterations: 10;
 }
 
 .voice-shell {
@@ -15,8 +21,8 @@
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    border: 3px solid #ef4444;
-    animation: error-blink 0.3s ease-in-out 0s 10;
+    border: 3px solid var(--voice-shell-error-color);
+    animation: error-blink var(--voice-shell-error-blink-step-ms) ease-in-out 0s var(--voice-shell-error-blink-iterations);
   }
 
   &.error-persistent::after {
@@ -24,7 +30,7 @@
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    border: 3px solid #ef4444;
+    border: 3px solid var(--voice-shell-error-color);
   }
 }
 
@@ -36,7 +42,7 @@
   height: 16px;
   border-radius: 50%;
   border: none;
-  background: #475569;
+  background: var(--voice-shell-close-bg);
   color: white;
   font-size: 12px;
   line-height: 1;
@@ -48,7 +54,7 @@
   justify-content: center;
 
   &:hover {
-    background: #1e293b;
+    background: var(--voice-shell-close-bg-hover);
   }
 }
 

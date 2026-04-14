@@ -9,7 +9,7 @@
   (touchcancel)="handleTouchEnd()"
   [attr.title]="errorHint() ? (errorHint()!.i18nKey | translate) : null"
 >
-  <app-voice-shell-icon [state]="iconState()" />
+  <app-voice-shell-icon [state]="orchestrator.state()" />
 
   @if (isIdle()) {
     <button
