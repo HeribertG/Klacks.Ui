@@ -2102,5 +2102,10 @@
   "klacksyTraining.saveReviewed": "Als reviewed speichern",
   "klacksyTraining.flagNeedsReview": "Als needs-review markieren",
   "klacksyTraining.metrics.title": "Metriken",
-  "common.add": "Hinzufügen"
+  "common.add": "Hinzufügen",
+  "nav.success.scrolled": "Hier sind die {{label}} — ich habe den Bereich für dich geöffnet.",
+  "nav.success.routed": "Ich habe {{label}} geöffnet.",
+  "nav.fail.targetMissing": "Ich finde den Bereich auf dieser Seite nicht — prüf mal ob dir dafür Rechte fehlen.",
+  "nav.fail.permissionDenied": "Für diesen Bereich hast du leider keine Berechtigung.",
+  "nav.greeting.empty": "Ja? Was kann ich für dich tun?"
 }

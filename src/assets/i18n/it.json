@@ -2098,5 +2098,10 @@
   "klacksyTraining.saveReviewed": "Salva come rivisto",
   "klacksyTraining.flagNeedsReview": "Segna come da rivedere",
   "klacksyTraining.metrics.title": "Metriche",
-  "common.add": "Aggiungi"
+  "common.add": "Aggiungi",
+  "nav.success.scrolled": "Ecco {{label}} — ho aperto la sezione per te.",
+  "nav.success.routed": "Ho aperto {{label}}.",
+  "nav.fail.targetMissing": "Non trovo questa sezione su questa pagina — controlla se mancano i permessi.",
+  "nav.fail.permissionDenied": "Non hai i permessi per quella sezione.",
+  "nav.greeting.empty": "Sì? Cosa posso fare per te?"
 }
