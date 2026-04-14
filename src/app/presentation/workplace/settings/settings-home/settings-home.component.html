@@ -80,6 +80,10 @@
         id="settings-user-administration"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-user-administration')"
+        data-klacksy-target="user-management"
+        data-klacksy-label-key="settings.userManagement"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-user-administration>
     </div>
@@ -278,6 +282,10 @@
         id="settings-email-setting"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-email-setting')"
+        data-klacksy-target="email-config"
+        data-klacksy-label-key="settings.email"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-email-setting>
     </div>
@@ -389,6 +397,10 @@
         id="settings-llm-providers"
         class="container-setting-small border-bottom-card"
         (click)="isfocused('app-llm-providers')"
+        data-klacksy-target="llm-provider"
+        data-klacksy-label-key="settings.llmProvider"
+        data-klacksy-category="settings.ai"
+        data-klacksy-route="/workplace/settings"
       >
       </app-llm-providers>
     </div>
