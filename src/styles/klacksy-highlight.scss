@@ -1,0 +1,18 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Klacksy in-page-navigation highlight animation.
+
+.klacksy-highlight {
+  animation: klacksy-pulse 2s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes klacksy-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(33, 150, 243, 0.7); }
+  70%  { box-shadow: 0 0 0 12px rgba(33, 150, 243, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(33, 150, 243, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .klacksy-highlight { animation: none; outline: 2px solid rgba(33,150,243,.7); }
+}
