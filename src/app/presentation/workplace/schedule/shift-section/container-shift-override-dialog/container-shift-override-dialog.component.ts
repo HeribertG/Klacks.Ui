@@ -31,7 +31,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
-import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
+import { ContainerTransportModeEnum, TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
@@ -40,7 +40,15 @@ import {
   NgbModalRef,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { formatClientWithAddress } from 'src/app/shared/helpers/container-template-format.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import {
+  formatClientWithAddress,
+  formatWorkTime,
+} from 'src/app/shared/helpers/container-template-format.helper';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
+import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
+import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
+import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { ContainerEditorLayoutComponent } from '../../shared/container-editor-layout/container-editor-layout.component';
 import { ContainerTemplateShiftOperationsService } from '../../../shift/container-template/services/container-template-shift-operations.service';
 import { ContainerTemplateDragDropService } from '../../../shift/container-template/services/container-template-drag-drop.service';
@@ -78,6 +86,10 @@ const MODAL_WINDOW_CLASS = 'container-shift-override-fullscreen';
     NgbTooltipModule,
     ContextMenuComponent,
     ContainerEditorLayoutComponent,
+    TimeInputComponent,
+    IconByCarComponent,
+    IconByFootComponent,
+    IconByBicycleComponent,
   ],
   templateUrl: './container-shift-override-dialog.component.html',
   styleUrl: './container-shift-override-dialog.component.scss',
@@ -143,8 +155,17 @@ export class ContainerShiftOverrideDialogComponent {
   modalTemplate!: TemplateRef<unknown>;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+  @ViewChild('propertiesModal', { static: false })
+  propertiesModal!: TemplateRef<unknown>;
+  @ViewChild('absenceTimeModal', { static: false })
+  absenceTimeModal!: TemplateRef<unknown>;
 
-  private propertiesService = inject(ContainerTemplatePropertiesService);
+  readonly propertiesService = inject(ContainerTemplatePropertiesService);
+  readonly absenceService = inject(ContainerTemplateAbsenceService);
+
+  protected readonly TransportModeEnum = TransportModeEnum;
+  protected readonly formatTime = formatTime;
+  protected readonly formatWorkTime = formatWorkTime;
 
   shiftFilter = signal('');
 
@@ -409,8 +430,50 @@ export class ContainerShiftOverrideDialogComponent {
     this.openContextMenu(event);
   }
 
-  onContextMenuClick(_keys: string[]): void {
+  onContextMenuClick(keys: string[]): void {
+    if (keys.includes('properties')) {
+      this.openPropertiesDialog();
+    }
     this.contextMenu.closeMenu(true);
+  }
+
+  private openPropertiesDialog(): void {
+    const target = this.propertiesService.contextMenuTargetItem;
+    if (target?.absenceId) {
+      this.absenceService.openAbsenceTimeModal(
+        target,
+        this.absenceTimeModal,
+        this.timeFrom,
+        this.timeTo,
+        this.lifecycleService.weekday,
+        this.lifecycleService.isHoliday,
+      );
+      return;
+    }
+    this.propertiesService.openPropertiesDialog(
+      this.propertiesModal,
+      this.lifecycleService.weekday,
+      this.lifecycleService.isHoliday,
+    );
+  }
+
+  onAbsenceRowDblClick(item: IContainerTemplateItem): void {
+    this.absenceService.openAbsenceTimeModal(
+      item,
+      this.absenceTimeModal,
+      this.timeFrom,
+      this.timeTo,
+      this.lifecycleService.weekday,
+      this.lifecycleService.isHoliday,
+    );
+  }
+
+  onAbsenceStartTimeChange(time: OwnTime): void {
+    this.absenceService.onAbsenceStartTimeChange(time);
+  }
+
+  onAbsenceEndTimeChange(time: OwnTime): void {
+    this.absenceService.onAbsenceEndTimeChange(time);
   }
 
   onContainerContextMenu(event: MouseEvent): void {
