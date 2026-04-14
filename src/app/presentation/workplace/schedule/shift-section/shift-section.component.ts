@@ -234,103 +234,114 @@ export class ShiftSectionComponent
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
-      const dataReadEffect = effect(() => {
-        const readState = this.dataManagement.isShiftScheduleRead();
-        if (readState.count > 0) {
-          this.shiftSurface.Refresh(readState.resetScroll);
-          this.cdr.markForCheck();
-        }
-      });
-      this.effects.push(dataReadEffect);
-
-      const vScrollbarSizeEffect = effect(() => {
-        const isLocked = this.scrollService.lockedRows();
-        const hasRows = this.dataService.rows > 0;
-        this.vScrollbarSize = (isLocked || !hasRows) ? 0 : this.defaultVScrollbarSize;
-        this.updateScrollbarSizes();
-        this.cdr.markForCheck();
-      });
-      this.effects.push(vScrollbarSizeEffect);
-
-
-      const positionEffect = effect(() => {
-        const pos = this.cellManipulation.positionSignal();
-        this.selectedRow = pos.row;
-        if (pos.row >= 0 && pos.column >= 0) {
-          this.isSelectedRowActive = this.dataService.isCellActive(
-            pos.row,
-            pos.column
-          );
-        } else {
-          this.isSelectedRowActive = false;
-        }
-        this.cdr.detectChanges();
-      });
-      this.effects.push(positionEffect);
-
-      const hoveredCellEffect = effect(() => {
-        const hoveredCell = this.cellManipulation.hoveredCell();
-        this.tooltipService.handleHoveredCell(
-          hoveredCell,
-          this.dataService,
-          this.shiftSurface,
-          this.tooltipState,
-          false
-        );
-      });
-      this.effects.push(hoveredCellEffect);
-
-      const shiftUpdateEffect = effect(() => {
-        const updateId = this.workNotificationService.shiftUpdateSignal();
-        if (updateId) {
-          this.shiftSurface.Refresh(false);
-        }
-      });
-      this.effects.push(shiftUpdateEffect);
-
-      const showInShiftEffect = effect(() => {
-        const request = this.showInShiftService.request();
-        if (request) {
-          this.scrollToShift(request.shiftId, request.column);
-          this.showInShiftService.clear();
-        }
-      });
-      this.effects.push(showInShiftEffect);
-
-      const colorResetEffect = effect(() => {
-        if (this.gridColorService.isReset()) {
-          this.shiftSurface.Refresh(false);
-        }
-      });
-      this.effects.push(colorResetEffect);
-
-      let zoomInitialized = false;
-      const zoomEffect = effect(() => {
-        const zoomValue = this.zoom();
-        if (zoomInitialized) {
-          this.settings.zoom = zoomValue;
-        }
-        zoomInitialized = true;
-      });
-      this.effects.push(zoomEffect);
-
-      let refreshInitialized = false;
-      const refreshTriggerEffect = effect(() => {
-        const _trigger = this.refreshTrigger();
-        if (refreshInitialized) {
-          this.shiftSurface.Refresh();
-        }
-        refreshInitialized = true;
-      });
-      this.effects.push(refreshTriggerEffect);
-
-      const hScrollPositionEffect = effect(() => {
-        const position = this.hScrollPosition();
-        this.hScrollPositionValue = position;
-        this.scrollService.horizontalScrollPosition = position;
-      });
-      this.effects.push(hScrollPositionEffect);
+      this.wireDataReadEffect();
+      this.wireScrollbarSizeEffect();
+      this.wirePositionEffect();
+      this.wireHoveredCellEffect();
+      this.wireShiftUpdateEffect();
+      this.wireShowInShiftEffect();
+      this.wireColorResetEffect();
+      this.wireZoomEffect();
+      this.wireRefreshTriggerEffect();
+      this.wireHScrollPositionEffect();
     });
+  }
+
+  private wireDataReadEffect(): void {
+    this.effects.push(effect(() => {
+      const readState = this.dataManagement.isShiftScheduleRead();
+      if (readState.count === 0) return;
+
+      this.shiftSurface.Refresh(readState.resetScroll);
+      this.cdr.markForCheck();
+    }));
+  }
+
+  private wireScrollbarSizeEffect(): void {
+    this.effects.push(effect(() => {
+      const isLocked = this.scrollService.lockedRows();
+      const hasRows = this.dataService.rows > 0;
+      this.vScrollbarSize = (isLocked || !hasRows) ? 0 : this.defaultVScrollbarSize;
+      this.updateScrollbarSizes();
+      this.cdr.markForCheck();
+    }));
+  }
+
+  private wirePositionEffect(): void {
+    this.effects.push(effect(() => {
+      const pos = this.cellManipulation.positionSignal();
+      this.selectedRow = pos.row;
+      this.isSelectedRowActive = pos.row >= 0 && pos.column >= 0
+        ? this.dataService.isCellActive(pos.row, pos.column)
+        : false;
+      this.cdr.detectChanges();
+    }));
+  }
+
+  private wireHoveredCellEffect(): void {
+    this.effects.push(effect(() => {
+      const hoveredCell = this.cellManipulation.hoveredCell();
+      this.tooltipService.handleHoveredCell(
+        hoveredCell,
+        this.dataService,
+        this.shiftSurface,
+        this.tooltipState,
+        false,
+      );
+    }));
+  }
+
+  private wireShiftUpdateEffect(): void {
+    this.effects.push(effect(() => {
+      const updateId = this.workNotificationService.shiftUpdateSignal();
+      if (updateId)
+        this.shiftSurface.Refresh(false);
+    }));
+  }
+
+  private wireShowInShiftEffect(): void {
+    this.effects.push(effect(() => {
+      const request = this.showInShiftService.request();
+      if (!request) return;
+
+      this.scrollToShift(request.shiftId, request.column);
+      this.showInShiftService.clear();
+    }));
+  }
+
+  private wireColorResetEffect(): void {
+    this.effects.push(effect(() => {
+      if (this.gridColorService.isReset())
+        this.shiftSurface.Refresh(false);
+    }));
+  }
+
+  private wireZoomEffect(): void {
+    let initialized = false;
+    this.effects.push(effect(() => {
+      const zoomValue = this.zoom();
+      if (initialized)
+        this.settings.zoom = zoomValue;
+      initialized = true;
+    }));
+  }
+
+  private wireRefreshTriggerEffect(): void {
+    let initialized = false;
+    this.effects.push(effect(() => {
+      void this.refreshTrigger();
+      if (initialized)
+        this.shiftSurface.Refresh();
+      initialized = true;
+    }));
+  }
+
+  private wireHScrollPositionEffect(): void {
+    this.effects.push(effect(() => {
+      const position = this.hScrollPosition();
+      this.hScrollPositionValue = position;
+      this.scrollService.horizontalScrollPosition = position;
+    }));
   }
 
   private scrollToShift(shiftId: string, column: number): void {

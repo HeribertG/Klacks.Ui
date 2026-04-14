@@ -245,110 +245,122 @@ export class ScheduleSectionComponent
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
-      const dataReadEffect = effect(() => {
-        const readState = this.dataManagement.isRead();
-        if (readState.count > 0) {
-          this.scheduleSurface.Refresh(readState.resetScroll);
-        }
-      });
-      this.effects.push(dataReadEffect);
-
-      const vScrollbarSizeEffect = effect(() => {
-        const isLocked = this.scrollService.lockedRows();
-        this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
-        this.updateScrollbarSizes();
-        this.cdr.markForCheck();
-      });
-      this.effects.push(vScrollbarSizeEffect);
-
-      const hScrollbarSizeEffect = effect(() => {
-        const isLocked = this.scrollService.lockedCols();
-        this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
-        this.updateScrollbarSizes();
-        this.cdr.markForCheck();
-      });
-      this.effects.push(hScrollbarSizeEffect);
-
-      const hScrollPositionEffect = effect(() => {
-        const position = this.hScrollService.horizontalPosition();
-        if (this.initialSyncDone && this.hScrollbar.value !== position) {
-          this.hScrollbar.value = position;
-          this.scrollService.horizontalScrollPosition = position;
-          this.cdr.markForCheck();
-        }
-      });
-      this.effects.push(hScrollPositionEffect);
-
-      const hoveredCellEffect = effect(() => {
-        const hoveredCell = this.cellManipulation.hoveredCell();
-        this.facade.tooltip.handleHoveredCell(
-          hoveredCell,
-          this.scheduleSurface.dataService,
-          this.scheduleSurface,
-          this.tooltipState,
-          true
-        );
-      });
-      this.effects.push(hoveredCellEffect);
-
-      const scheduleUpdateEffect = effect(() => {
-        const updateId = this.facade.workNotification.scheduleUpdateSignal();
-        if (updateId) {
-          this.scheduleSurface.Refresh(false);
-        }
-      });
-      this.effects.push(scheduleUpdateEffect);
-
-      const showInScheduleEffect = effect(() => {
-        const request = this.facade.showInSchedule.request();
-        if (request) {
-          if (request.clientId && request.date) {
-            this.scrollToClient(request.clientId, request.date);
-          } else if (request.shiftId !== undefined && request.column !== undefined) {
-            this.scrollToScheduleEntry(request.shiftId, request.column);
-          }
-          this.facade.showInSchedule.clear();
-        }
-      });
-      this.effects.push(showInScheduleEffect);
-
-      const periodHoursEffect = effect(() => {
-        const _timestamp = this.facade.workScheduleLoader.periodHoursUpdated();
-
-        if (this.scheduleSurface) {
-          this.scheduleSurface.Refresh(false);
-        }
-      });
-      this.effects.push(periodHoursEffect);
-
-      const colorResetEffect = effect(() => {
-        if (this.facade.gridColor.isReset()) {
-          this.scheduleSurface.Refresh(false);
-        }
-      });
-      this.effects.push(colorResetEffect);
-
-      let zoomInitialized = false;
-      const zoomEffect = effect(() => {
-        const zoomValue = this.zoom();
-        if (zoomInitialized) {
-          this.settings.zoom = zoomValue;
-        }
-        zoomInitialized = true;
-      });
-      this.effects.push(zoomEffect);
-
-      let refreshInitialized = false;
-      const refreshTriggerEffect = effect(() => {
-        const _trigger = this.refreshTrigger();
-        if (refreshInitialized) {
-          this.scheduleSurface.Refresh();
-        }
-        refreshInitialized = true;
-      });
-      this.effects.push(refreshTriggerEffect);
-
+      this.wireDataReadEffect();
+      this.wireScrollbarEffects();
+      this.wireHScrollPositionEffect();
+      this.wireHoveredCellEffect();
+      this.wireScheduleUpdateEffect();
+      this.wireShowInScheduleEffect();
+      this.wirePeriodHoursEffect();
+      this.wireColorResetEffect();
+      this.wireZoomEffect();
+      this.wireRefreshTriggerEffect();
     });
+  }
+
+  private wireDataReadEffect(): void {
+    this.effects.push(effect(() => {
+      const readState = this.dataManagement.isRead();
+      if (readState.count > 0)
+        this.scheduleSurface.Refresh(readState.resetScroll);
+    }));
+  }
+
+  private wireScrollbarEffects(): void {
+    this.effects.push(effect(() => {
+      const isLocked = this.scrollService.lockedRows();
+      this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
+      this.updateScrollbarSizes();
+      this.cdr.markForCheck();
+    }));
+
+    this.effects.push(effect(() => {
+      const isLocked = this.scrollService.lockedCols();
+      this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
+      this.updateScrollbarSizes();
+      this.cdr.markForCheck();
+    }));
+  }
+
+  private wireHScrollPositionEffect(): void {
+    this.effects.push(effect(() => {
+      const position = this.hScrollService.horizontalPosition();
+      if (!this.initialSyncDone || this.hScrollbar.value === position) return;
+
+      this.hScrollbar.value = position;
+      this.scrollService.horizontalScrollPosition = position;
+      this.cdr.markForCheck();
+    }));
+  }
+
+  private wireHoveredCellEffect(): void {
+    this.effects.push(effect(() => {
+      const hoveredCell = this.cellManipulation.hoveredCell();
+      this.facade.tooltip.handleHoveredCell(
+        hoveredCell,
+        this.scheduleSurface.dataService,
+        this.scheduleSurface,
+        this.tooltipState,
+        true,
+      );
+    }));
+  }
+
+  private wireScheduleUpdateEffect(): void {
+    this.effects.push(effect(() => {
+      const updateId = this.facade.workNotification.scheduleUpdateSignal();
+      if (updateId)
+        this.scheduleSurface.Refresh(false);
+    }));
+  }
+
+  private wireShowInScheduleEffect(): void {
+    this.effects.push(effect(() => {
+      const request = this.facade.showInSchedule.request();
+      if (!request) return;
+
+      if (request.clientId && request.date)
+        this.scrollToClient(request.clientId, request.date);
+      else if (request.shiftId !== undefined && request.column !== undefined)
+        this.scrollToScheduleEntry(request.shiftId, request.column);
+
+      this.facade.showInSchedule.clear();
+    }));
+  }
+
+  private wirePeriodHoursEffect(): void {
+    this.effects.push(effect(() => {
+      void this.facade.workScheduleLoader.periodHoursUpdated();
+      if (this.scheduleSurface)
+        this.scheduleSurface.Refresh(false);
+    }));
+  }
+
+  private wireColorResetEffect(): void {
+    this.effects.push(effect(() => {
+      if (this.facade.gridColor.isReset())
+        this.scheduleSurface.Refresh(false);
+    }));
+  }
+
+  private wireZoomEffect(): void {
+    let initialized = false;
+    this.effects.push(effect(() => {
+      const zoomValue = this.zoom();
+      if (initialized)
+        this.settings.zoom = zoomValue;
+      initialized = true;
+    }));
+  }
+
+  private wireRefreshTriggerEffect(): void {
+    let initialized = false;
+    this.effects.push(effect(() => {
+      void this.refreshTrigger();
+      if (initialized)
+        this.scheduleSurface.Refresh();
+      initialized = true;
+    }));
   }
 
   onVisibleValueHScrollbarChange(value: number): void {
