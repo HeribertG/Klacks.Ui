@@ -112,6 +112,14 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     });
   }
 
+  get messages(): ReadonlyArray<ChatMessage> {
+    return this.orchestrator.messages();
+  }
+
+  set messages(next: ReadonlyArray<ChatMessage>) {
+    this.orchestrator.replaceMessages(next);
+  }
+
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
   faPaperPlane = faPaperPlane;
@@ -124,7 +132,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   activeSuggestedReplies = signal<ISuggestedRepliesConfig | null>(null);
 
-  messages: ChatMessage[] = [];
   inputText = '';
   isProcessing = false;
   conversationId = '';
@@ -202,7 +209,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          this.messages.push({
+          this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
             content: msg.content,
@@ -217,7 +224,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          this.messages.push({
+          this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
             content: msg.content,
@@ -268,20 +275,21 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       timestamp: new Date(),
     };
 
-    this.messages.push(userMessage);
+    this.orchestrator.addMessage(userMessage);
     const messageText = this.inputText;
     this.inputText = '';
     this.isProcessing = true;
     this.shouldScrollToBottom = true;
 
+    const assistantMessageId = this.generateMessageId();
     const assistantMessage: ChatMessage = {
-      id: this.generateMessageId(),
+      id: assistantMessageId,
       sender: 'assistant',
       content: '',
       timestamp: new Date(),
       isStreaming: true,
     };
-    this.messages.push(assistantMessage);
+    this.orchestrator.addMessage(assistantMessage);
     this.cdr.detectChanges();
 
     this.currentStreamController = this.assistantService.sendMessageStream(
@@ -295,8 +303,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onContent: (text: string) => {
           this.ngZone.run(() => {
-            assistantMessage.content += text;
-            assistantMessage.isStreaming = true;
+            const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
+            const nextContent = (current?.content ?? '') + text;
+            this.orchestrator.updateMessage(assistantMessageId, {
+              content: nextContent,
+              isStreaming: true,
+            });
             this.shouldScrollToBottom = true;
             this.cdr.detectChanges();
             this.orchestrator.onStreamContent(text);
@@ -304,11 +316,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onMetadata: (data: StreamMetadata) => {
           this.ngZone.run(() => {
-            assistantMessage.isStreaming = false;
-            assistantMessage.suggestions = data.suggestedReplies ? undefined : data.suggestions;
-            assistantMessage.suggestedReplies = data.suggestedReplies;
-            assistantMessage.navigateTo = data.navigateTo;
-            assistantMessage.actionPerformed = data.actionPerformed;
+            this.orchestrator.updateMessage(assistantMessageId, {
+              isStreaming: false,
+              suggestions: data.suggestedReplies ? undefined : data.suggestions,
+              suggestedReplies: data.suggestedReplies,
+              navigateTo: data.navigateTo,
+              actionPerformed: data.actionPerformed,
+            });
 
             if (data.suggestedReplies) {
               this.activeSuggestedReplies.set(data.suggestedReplies);
@@ -316,7 +330,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             }
 
             if (data.functionCalls && data.functionCalls.length > 0) {
-              this.chatFunctionExecution.executeFunctionCalls(data.functionCalls, this.messages);
+              this.chatFunctionExecution.executeFunctionCalls(data.functionCalls);
             } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith('/workplace/')) {
               setTimeout(() => {
                 this.router.navigate([data.navigateTo!]);
@@ -328,7 +342,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onDone: () => {
           this.ngZone.run(() => {
-            assistantMessage.isStreaming = false;
+            this.orchestrator.updateMessage(assistantMessageId, { isStreaming: false });
             this.isProcessing = false;
             this.currentStreamController = null;
             this.cdr.detectChanges();
@@ -337,12 +351,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onError: (message: string) => {
           this.ngZone.run(() => {
-            assistantMessage.isStreaming = false;
-            if (!assistantMessage.content) {
-              assistantMessage.content = message;
-            } else {
-              assistantMessage.content += '\n\n' + message;
-            }
+            const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
+            const existing = current?.content ?? '';
+            const merged = existing ? `${existing}\n\n${message}` : message;
+            this.orchestrator.updateMessage(assistantMessageId, {
+              isStreaming: false,
+              content: merged,
+            });
             this.isProcessing = false;
             this.currentStreamController = null;
             this.cdr.detectChanges();
@@ -460,12 +475,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         this.translateService.instant('assistant-chat.welcome.suggestion-4'),
       ],
     };
-    this.messages.push(welcomeMessage);
+    this.orchestrator.addMessage(welcomeMessage);
   }
 
   private updateWelcomeMessage(langCode: string): void {
-    if (this.messages.length > 0 && this.messages[0].sender === 'assistant') {
-      this.messages.splice(0, 1);
+    const current = this.orchestrator.messages();
+    if (current.length > 0 && current[0].sender === 'assistant') {
+      this.orchestrator.replaceMessages(current.slice(1));
     }
     this.addWelcomeMessage(langCode);
   }
@@ -514,11 +530,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       return;
     }
 
-    const welcomeIndex = this.messages.findIndex(
+    const current = this.orchestrator.messages();
+    const welcomeIndex = current.findIndex(
       (m) => m.sender === 'assistant' && m.suggestions && m.suggestions.length > 0
     );
     if (welcomeIndex === 0) {
-      this.messages.splice(welcomeIndex, 1);
+      this.orchestrator.replaceMessages(current.slice(1));
     }
 
     this.asideService.show(true);
@@ -566,14 +583,14 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
         suggestedReplies: suppressSuggestions ? undefined : response?.suggestedReplies,
       };
 
-      this.messages.push(assistantMessage);
+      this.orchestrator.addMessage(assistantMessage);
       this.shouldScrollToBottom = true;
 
       if (response?.functionCalls && response.functionCalls.length > 0) {
-        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls, this.messages);
+        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls);
       }
     } catch {
-      this.messages.push({
+      this.orchestrator.addMessage({
         id: this.generateMessageId(),
         sender: 'assistant',
         content: this.translateService.instant('assistant-chat.error.generic'),
@@ -588,7 +605,7 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
   }
 
   clearChat(): void {
-    this.messages = [];
+    this.orchestrator.clearMessages();
     this.activeSuggestedReplies.set(null);
     this.toastShowService.dismissInteractiveReplies();
 

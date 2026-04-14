@@ -2,25 +2,29 @@
 
 /**
  * Orchestrates function call execution from assistant responses: UI actions, navigation, and backend calls.
+ * Mutates the conversation log via ConversationOrchestratorService so all observers (chat panel and
+ * voice-shell transcript overlay) receive signal updates.
  * @param functionExecutionService - Handles individual function execution against the backend API
  * @param uiActionEngine - Executes UI action step configurations in the frontend
+ * @param orchestrator - Holds the conversation messages signal and exposes update helpers
  */
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
-import { ChatMessage } from '../chat-message.interface';
+import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
 @Injectable()
 export class ChatFunctionExecutionService {
   private functionExecutionService = inject(AssistantFunctionExecutionService);
   private uiActionEngine = inject(UiActionEngineService);
+  private orchestrator = inject(ConversationOrchestratorService);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async executeFunctionCalls(functionCalls: any[], messages: ChatMessage[]): Promise<void> {
+  async executeFunctionCalls(functionCalls: any[]): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uiActionCalls: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,7 +45,7 @@ export class ChatFunctionExecutionService {
 
     for (const call of uiActionCalls) {
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
-      await this.executeUiActionSteps(uiActionSteps, call, messages);
+      await this.executeUiActionSteps(uiActionSteps, call);
     }
 
     for (const call of navigationCalls) {
@@ -60,10 +64,10 @@ export class ChatFunctionExecutionService {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(functionCall)
         );
-        this.applyFunctionResult(result, messages);
+        this.applyFunctionResult(result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        this.applyFunctionError(error, messages);
+        this.applyFunctionError(error);
       }
     }
 
@@ -74,10 +78,10 @@ export class ChatFunctionExecutionService {
         const result = await firstValueFrom(
           this.functionExecutionService.executeFunction(backendCalls[0])
         );
-        this.applyFunctionResult(result, messages);
+        this.applyFunctionResult(result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
-        this.applyFunctionError(error, messages);
+        this.applyFunctionError(error);
       }
       return;
     }
@@ -85,36 +89,38 @@ export class ChatFunctionExecutionService {
     try {
       const results = await this.functionExecutionService.executeFunctionsBatch(backendCalls);
       for (const result of results) {
-        this.applyFunctionResult(result, messages);
+        this.applyFunctionResult(result);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      this.applyFunctionError(error, messages);
+      this.applyFunctionError(error);
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionResult(result: any, messages: ChatMessage[]): void {
+  private applyFunctionResult(result: any): void {
+    const messages = this.orchestrator.messages();
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage) return;
 
     if (!result.success && result.error && !result.error.includes('not implemented')) {
       if (!lastMessage.content) {
-        lastMessage.content = result.error;
+        this.orchestrator.updateMessage(lastMessage.id, { content: result.error });
       }
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private applyFunctionError(error: any, messages: ChatMessage[]): void {
+  private applyFunctionError(error: any): void {
+    const messages = this.orchestrator.messages();
     const lastMsg = messages[messages.length - 1];
     if (lastMsg && !lastMsg.content) {
-      lastMsg.content = error?.message || 'Function execution failed';
+      this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || 'Function execution failed' });
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async executeUiActionSteps(stepsJson: string, call: any, messages: ChatMessage[]): Promise<void> {
+  private async executeUiActionSteps(stepsJson: string, call: any): Promise<void> {
     try {
       const config: IUiActionConfig = JSON.parse(stepsJson);
       if (!config.steps || config.steps.length === 0) return;
@@ -128,9 +134,10 @@ export class ChatFunctionExecutionService {
       await this.uiActionEngine.executeConfig(config, context);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      const messages = this.orchestrator.messages();
       const lastMsg = messages[messages.length - 1];
       if (lastMsg && !lastMsg.content) {
-        lastMsg.content = error?.message || 'UI action execution failed';
+        this.orchestrator.updateMessage(lastMsg.id, { content: error?.message || 'UI action execution failed' });
       }
     }
   }

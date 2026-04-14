@@ -199,16 +199,32 @@ describe('AssistantChatComponent', () => {
                     { provide: ChatFunctionExecutionService, useValue: { executeFunctionCalls: vi.fn().mockResolvedValue(undefined) } },
                     {
                         provide: ConversationOrchestratorService,
-                        useValue: {
-                            state: signal(ConversationState.Idle),
-                            voiceModeEnabled: signal(false),
-                            interimText: signal(''),
-                            initialize: vi.fn(),
-                            toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
-                            interrupt: vi.fn(),
-                            onStreamContent: vi.fn(),
-                            onStreamDone: vi.fn(),
-                            onStreamError: vi.fn(),
+                        useFactory: () => {
+                            const messagesSig = signal<readonly any[]>([]);
+                            return {
+                                state: signal(ConversationState.Idle),
+                                voiceModeEnabled: signal(false),
+                                interimText: signal(''),
+                                messages: messagesSig.asReadonly(),
+                                addMessage: vi.fn((msg: any) => messagesSig.update((c) => [...c, msg])),
+                                replaceMessages: vi.fn((next: readonly any[]) => messagesSig.set([...next])),
+                                updateMessage: vi.fn((id: string, patch: any) =>
+                                    messagesSig.update((current) => {
+                                        const idx = current.findIndex((m: any) => m.id === id);
+                                        if (idx < 0) return current;
+                                        const out = current.slice();
+                                        out[idx] = { ...out[idx], ...patch };
+                                        return out;
+                                    }),
+                                ),
+                                clearMessages: vi.fn(() => messagesSig.set([])),
+                                initialize: vi.fn(),
+                                toggleVoiceMode: vi.fn().mockResolvedValue(undefined),
+                                interrupt: vi.fn(),
+                                onStreamContent: vi.fn(),
+                                onStreamDone: vi.fn(),
+                                onStreamError: vi.fn(),
+                            };
                         },
                     },
                 ],

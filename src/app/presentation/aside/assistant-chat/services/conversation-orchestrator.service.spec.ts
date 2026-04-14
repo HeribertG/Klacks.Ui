@@ -437,6 +437,59 @@ describe('ConversationOrchestratorService', () => {
     expect(service.state()).toBe(ConversationState.Listening);
   });
 
+  // --- Messages signal (root-level conversation log) ---
+
+  it('messages signal starts empty', () => {
+    expect(service.messages().length).toBe(0);
+  });
+
+  it('addMessage appends to the messages signal', () => {
+    service.addMessage({
+      id: 'm1',
+      sender: 'user',
+      content: 'hello',
+      timestamp: new Date(),
+    });
+    expect(service.messages().length).toBe(1);
+    expect(service.messages()[0].id).toBe('m1');
+  });
+
+  it('clearMessages empties the messages signal', () => {
+    service.addMessage({
+      id: 'm1',
+      sender: 'user',
+      content: 'hello',
+      timestamp: new Date(),
+    });
+    service.clearMessages();
+    expect(service.messages().length).toBe(0);
+  });
+
+  it('replaceMessages overwrites the entire log', () => {
+    service.addMessage({ id: 'a', sender: 'user', content: 'x', timestamp: new Date() });
+    service.replaceMessages([
+      { id: 'b', sender: 'assistant', content: 'y', timestamp: new Date() },
+      { id: 'c', sender: 'user', content: 'z', timestamp: new Date() },
+    ]);
+    expect(service.messages().length).toBe(2);
+    expect(service.messages()[0].id).toBe('b');
+  });
+
+  it('updateMessage patches an existing message in place (signal-friendly)', () => {
+    service.addMessage({ id: 'm1', sender: 'assistant', content: '', timestamp: new Date(), isStreaming: true });
+    service.updateMessage('m1', { content: 'partial', isStreaming: false });
+    const updated = service.messages()[0];
+    expect(updated.content).toBe('partial');
+    expect(updated.isStreaming).toBe(false);
+    expect(updated.id).toBe('m1');
+  });
+
+  it('updateMessage is a no-op for unknown ids', () => {
+    service.addMessage({ id: 'm1', sender: 'assistant', content: 'a', timestamp: new Date() });
+    service.updateMessage('nope', { content: 'b' });
+    expect(service.messages()[0].content).toBe('a');
+  });
+
   it('Test 11: disable (voiceModeEnabled=true → false) resets state to IDLE', async () => {
     const callbacks: ConversationCallbacks = {
       getInputText: () => '',

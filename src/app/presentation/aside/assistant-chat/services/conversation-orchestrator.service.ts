@@ -8,7 +8,7 @@
  * @param voiceModeEnabled - Whether voice mode is active
  * @param interimText - Live transcription preview while user speaks
  */
-import { Injectable, OnDestroy, signal, inject, NgZone } from '@angular/core';
+import { Injectable, OnDestroy, Signal, signal, inject, NgZone } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
@@ -19,6 +19,7 @@ import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
+import { ChatMessage } from '../chat-message.interface';
 
 export enum ConversationState {
   Idle = 'IDLE',
@@ -50,8 +51,51 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly voiceModeEnabled = signal(false);
   readonly interimText = signal('');
 
+  private readonly messagesSignal = signal<ReadonlyArray<ChatMessage>>([]);
+  readonly messages: Signal<ReadonlyArray<ChatMessage>> = this.messagesSignal.asReadonly();
+
   private readonly errorsSubject = new Subject<IVoiceShellErrorHint>();
   readonly errors$: Observable<IVoiceShellErrorHint> = this.errorsSubject.asObservable();
+
+  /**
+   * Append a single message to the conversation log.
+   * @param message - The message to append; identity is preserved by id
+   */
+  addMessage(message: ChatMessage): void {
+    this.messagesSignal.update((current) => [...current, message]);
+  }
+
+  /**
+   * Replace the entire conversation log (e.g. after a splice or filter).
+   * @param next - New ordered list of messages
+   */
+  replaceMessages(next: ReadonlyArray<ChatMessage>): void {
+    this.messagesSignal.set([...next]);
+  }
+
+  /**
+   * Patch a single existing message identified by id and notify subscribers
+   * by replacing the array (signal-friendly alternative to in-place mutation).
+   * No-op if the id is not present.
+   * @param id - Message identifier
+   * @param patch - Partial fields to merge over the existing message
+   */
+  updateMessage(id: string, patch: Partial<ChatMessage>): void {
+    this.messagesSignal.update((current) => {
+      const idx = current.findIndex((m) => m.id === id);
+      if (idx < 0) return current;
+      const next = current.slice();
+      next[idx] = { ...next[idx], ...patch };
+      return next;
+    });
+  }
+
+  /**
+   * Drop all messages.
+   */
+  clearMessages(): void {
+    this.messagesSignal.set([]);
+  }
 
   private callbacks: ConversationCallbacks | null = null;
   private destroy$ = new Subject<void>();
