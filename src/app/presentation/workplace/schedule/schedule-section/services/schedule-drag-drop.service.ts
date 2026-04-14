@@ -194,7 +194,7 @@ export class ScheduleDragDropService {
     const dateStr = formatDateOnly(date);
     const resource: ScheduleNoteResource = { id, clientId, currentDate: dateStr, content };
     this.scheduleNoteService.update(resource).subscribe(() => {
-      this.dataManagement.readDatas();
+      this.dataManagement.readDatas(false);
     });
   }
 
@@ -207,7 +207,7 @@ export class ScheduleDragDropService {
       content,
     };
     this.scheduleNoteService.create(resource).subscribe(() => {
-      this.dataManagement.readDatas();
+      this.dataManagement.readDatas(false);
     });
   }
 
@@ -254,7 +254,7 @@ export class ScheduleDragDropService {
       commandKeyword: keyword,
     };
     this.scheduleCommandService.create(resource).subscribe({
-      next: () => this.dataManagement.readDatas(),
+      next: () => this.dataManagement.readDatas(false),
     });
   }
 
@@ -267,7 +267,7 @@ export class ScheduleDragDropService {
       commandKeyword: keyword,
     };
     this.scheduleCommandService.update(resource).subscribe({
-      next: () => this.dataManagement.readDatas(),
+      next: () => this.dataManagement.readDatas(false),
     });
   }
 

@@ -204,7 +204,7 @@ export class DataManagementScheduleService implements ILoadable {
     return this.clients.length;
   }
 
-  readDatas() {
+  readDatas(resetScroll = true) {
     this._showProgressSpinner.set(true);
 
     if (this._readDatasDebounce) {
@@ -227,8 +227,8 @@ export class DataManagementScheduleService implements ILoadable {
       );
       this._cachedStartDate = new Date(dates.startDate);
       this._cachedEndDate = new Date(dates.endDate);
-      this.readWorkSchedule();
-      this.readShiftSchedule(true, dates.startDate, dates.endDate);
+      this.readWorkSchedule(resetScroll);
+      this.readShiftSchedule(resetScroll, dates.startDate, dates.endDate);
       this.breakPlaceholderLoader.load(
         dates.startDate,
         dates.endDate,

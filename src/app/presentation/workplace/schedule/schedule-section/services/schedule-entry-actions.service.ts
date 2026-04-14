@@ -207,12 +207,12 @@ export class ScheduleEntryActionsService {
 
     if (entry.entryType === WorkScheduleEntryType.Work) {
       this.dataScheduleService.confirmWork(entry.id).subscribe({
-        next: () => this.dataManagement.readDatas(),
+        next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error confirming work:', err),
       });
     } else if (entry.entryType === WorkScheduleEntryType.Break) {
       this.dataBreakService.confirmBreak(entry.id).subscribe({
-        next: () => this.dataManagement.readDatas(),
+        next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error confirming break:', err),
       });
     }
@@ -224,12 +224,12 @@ export class ScheduleEntryActionsService {
 
     if (entry.entryType === WorkScheduleEntryType.Work) {
       this.dataScheduleService.unconfirmWork(entry.id).subscribe({
-        next: () => this.dataManagement.readDatas(),
+        next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error unconfirming work:', err),
       });
     } else if (entry.entryType === WorkScheduleEntryType.Break) {
       this.dataBreakService.unconfirmBreak(entry.id).subscribe({
-        next: () => this.dataManagement.readDatas(),
+        next: () => this.dataManagement.readDatas(false),
         error: (err) => console.error('Error unconfirming break:', err),
       });
     }
@@ -282,7 +282,7 @@ export class ScheduleEntryActionsService {
     if (!entry || entry.entryType !== WorkScheduleEntryType.ScheduleNote) return;
 
     this.scheduleNoteService.delete(entry.id).subscribe({
-      next: () => this.dataManagement.readDatas(),
+      next: () => this.dataManagement.readDatas(false),
     });
   }
 
@@ -293,7 +293,7 @@ export class ScheduleEntryActionsService {
     content: string
   ): void {
     this.scheduleNoteService.update({ id, clientId, currentDate, content }).subscribe({
-      next: () => this.dataManagement.readDatas(),
+      next: () => this.dataManagement.readDatas(false),
     });
   }
 
@@ -302,7 +302,7 @@ export class ScheduleEntryActionsService {
     if (!entry || entry.entryType !== WorkScheduleEntryType.ScheduleCommand) return;
 
     this.scheduleCommandService.delete(entry.id).subscribe({
-      next: () => this.dataManagement.readDatas(),
+      next: () => this.dataManagement.readDatas(false),
     });
   }
 
