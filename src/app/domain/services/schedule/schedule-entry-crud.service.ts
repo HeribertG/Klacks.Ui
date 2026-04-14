@@ -10,8 +10,8 @@
  */
 
 import { inject, Injectable, Injector, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { firstValueFrom, Observable } from 'rxjs';
+import { IPeriodHours, IScheduleCell, IWorkScheduleFilter, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
 import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
@@ -261,68 +261,25 @@ export class ScheduleEntryCrudService {
   }
 
   async deleteWorkScheduleEntry(params: DeleteWorkScheduleEntryParams, workFilter: IWorkFilter): Promise<void> {
-    const periodStart = this.workScheduleLoader.startDate
-      ? formatDateOnly(this.workScheduleLoader.startDate)
-      : formatDateOnly(new Date());
-    const periodEnd = this.workScheduleLoader.endDate
-      ? formatDateOnly(this.workScheduleLoader.endDate)
-      : formatDateOnly(new Date());
+    const { periodStart, periodEnd } = this.getLoaderPeriodRange();
 
     switch (params.entryType) {
       case WorkScheduleEntryType.Break: {
         const response = await firstValueFrom(this.breakService.deleteBreak(params.sourceId, periodStart, periodEnd));
-        if (response.periodHours) {
-          this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
-        }
-        if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
-          const startDate = addDays(params.date, -1);
-          const endDate = addDays(params.date, 1);
-          this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
-          this.triggerScheduleRefresh();
-        }
+        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
         break;
       }
 
       case WorkScheduleEntryType.WorkChange: {
         const response = await firstValueFrom(this.dataWorkChangeService.delete(params.id));
-        if (response.clientResults) {
-          let workDate = params.date;
-          if (response.work?.currentDate) {
-            const [year, month, day] = response.work.currentDate.split('-').map(Number);
-            workDate = new Date(year, month - 1, day);
-          }
-          const startDate = addDays(workDate, -1);
-          const endDate = addDays(workDate, 1);
-
-          for (const clientResult of response.clientResults) {
-            if (clientResult.periodHours) {
-              this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
-            }
-            if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0) {
-              this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
-            }
-          }
-          this.triggerScheduleRefresh();
-        }
+        this.applyWorkChangeDeleteResponse(response, params.date);
         break;
       }
 
-      case WorkScheduleEntryType.Expenses: {
-        await firstValueFrom(this.expensesService.delete(params.id));
-        await this.refreshClientScheduleForDays(params.clientId, params.date);
-        this.triggerScheduleRefresh();
-        break;
-      }
-
-      case WorkScheduleEntryType.ScheduleNote: {
-        await firstValueFrom(this.scheduleNoteService.delete(params.id));
-        await this.refreshClientScheduleForDays(params.clientId, params.date);
-        this.triggerScheduleRefresh();
-        break;
-      }
-
+      case WorkScheduleEntryType.Expenses:
+      case WorkScheduleEntryType.ScheduleNote:
       case WorkScheduleEntryType.ScheduleCommand: {
-        await firstValueFrom(this.scheduleCommandService.delete(params.id));
+        await firstValueFrom(this.getGenericDeleter(params.entryType)(params.id));
         await this.refreshClientScheduleForDays(params.clientId, params.date);
         this.triggerScheduleRefresh();
         break;
@@ -331,115 +288,152 @@ export class ScheduleEntryCrudService {
       case WorkScheduleEntryType.Work:
       default: {
         const response = await this.workCrud.deleteWorkById(params.sourceId, periodStart, periodEnd);
-        if (response.periodHours) {
-          this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
-        }
-        if (response.scheduleEntries && response.scheduleEntries.length >= 0) {
-          const startDate = addDays(params.date, -1);
-          const endDate = addDays(params.date, 1);
-          this.workScheduleLoader.replaceClientEntriesForDays(params.clientId, startDate, endDate, response.scheduleEntries);
-          this.triggerScheduleRefresh();
-        }
+        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
         this.updateShiftEngagedLocally(params.entryId, params.date, -1, workFilter);
         break;
       }
     }
   }
 
+  private getLoaderPeriodRange(): { periodStart: string; periodEnd: string } {
+    const fallback = new Date();
+    return {
+      periodStart: formatDateOnly(this.workScheduleLoader.startDate ?? fallback),
+      periodEnd: formatDateOnly(this.workScheduleLoader.endDate ?? fallback),
+    };
+  }
+
+  private applySingleClientDeleteResponse(
+    response: { periodHours?: IPeriodHours | null; scheduleEntries?: IScheduleCell[] | null },
+    clientId: string,
+    centerDate: Date,
+  ): void {
+    if (response.periodHours)
+      this.workScheduleLoader.periodHours.set(clientId, response.periodHours);
+
+    if (!response.scheduleEntries || response.scheduleEntries.length < 0) return;
+
+    const startDate = addDays(centerDate, -1);
+    const endDate = addDays(centerDate, 1);
+    this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, response.scheduleEntries);
+    this.triggerScheduleRefresh();
+  }
+
+  private applyWorkChangeDeleteResponse(
+    response: { clientResults?: { clientId: string; periodHours?: IPeriodHours | null; scheduleEntries?: IScheduleCell[] | null }[] | null; work?: { currentDate?: string } | null },
+    fallbackDate: Date,
+  ): void {
+    if (!response.clientResults) return;
+
+    const workDate = this.resolveWorkDate(response.work?.currentDate, fallbackDate);
+    const startDate = addDays(workDate, -1);
+    const endDate = addDays(workDate, 1);
+
+    for (const clientResult of response.clientResults) {
+      if (clientResult.periodHours)
+        this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
+      if (clientResult.scheduleEntries && clientResult.scheduleEntries.length >= 0)
+        this.workScheduleLoader.replaceClientEntriesForDays(clientResult.clientId, startDate, endDate, clientResult.scheduleEntries);
+    }
+    this.triggerScheduleRefresh();
+  }
+
+  private resolveWorkDate(currentDate: string | undefined, fallback: Date): Date {
+    if (!currentDate) return fallback;
+    const [year, month, day] = currentDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  private getGenericDeleter(entryType: WorkScheduleEntryType): (id: string) => Observable<unknown> {
+    switch (entryType) {
+      case WorkScheduleEntryType.Expenses: return (id) => this.expensesService.delete(id);
+      case WorkScheduleEntryType.ScheduleNote: return (id) => this.scheduleNoteService.delete(id);
+      case WorkScheduleEntryType.ScheduleCommand: return (id) => this.scheduleCommandService.delete(id);
+      default: throw new Error(`No generic deleter for entry type ${entryType}`);
+    }
+  }
+
   async bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[], workFilter: IWorkFilter): Promise<void> {
     if (entries.length === 0) return;
 
-    const workEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Work);
-    const workChangeEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.WorkChange);
-    const expensesEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Expenses);
-    const breakEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.Break);
-    const scheduleNoteEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.ScheduleNote);
-    const scheduleCommandEntries = entries.filter(e => e.entryType === WorkScheduleEntryType.ScheduleCommand);
+    const grouped = this.groupEntriesByType(entries);
+    const { periodStart, periodEnd } = this.getLoaderPeriodRange();
 
-    const periodStart = this.workScheduleLoader.startDate
-      ? formatDateOnly(this.workScheduleLoader.startDate)
-      : formatDateOnly(new Date());
-    const periodEnd = this.workScheduleLoader.endDate
-      ? formatDateOnly(this.workScheduleLoader.endDate)
-      : formatDateOnly(new Date());
+    await Promise.all(this.buildBulkDeletePromises(grouped, periodStart, periodEnd));
+    await Promise.all(this.buildBulkRefreshPromises(entries));
 
-    const deletePromises: Promise<void>[] = [];
+    this.bulkUpdateShiftEngagedLocally(entries, workFilter);
+    this.workScheduleLoader.updateClientNeededRows();
+  }
 
-    if (workEntries.length > 0) {
-      const workIds = workEntries.map(e => e.sourceId);
-      deletePromises.push(
-        this.workCrud.bulkDeleteWorks(workIds).then((response) => {
-          if (response.periodHours) {
-            for (const [clientId, hours] of Object.entries(response.periodHours)) {
-              this.workScheduleLoader.periodHours.set(clientId, hours);
-            }
-          }
-        })
-      );
+  private groupEntriesByType(entries: DeleteWorkScheduleEntryParams[]): Map<WorkScheduleEntryType, DeleteWorkScheduleEntryParams[]> {
+    const groups = new Map<WorkScheduleEntryType, DeleteWorkScheduleEntryParams[]>();
+    for (const entry of entries) {
+      const bucket = groups.get(entry.entryType) ?? [];
+      bucket.push(entry);
+      groups.set(entry.entryType, bucket);
+    }
+    return groups;
+  }
+
+  private buildBulkDeletePromises(
+    grouped: Map<WorkScheduleEntryType, DeleteWorkScheduleEntryParams[]>,
+    periodStart: string,
+    periodEnd: string,
+  ): Promise<void>[] {
+    const promises: Promise<void>[] = [];
+
+    const workIds = (grouped.get(WorkScheduleEntryType.Work) ?? []).map(e => e.sourceId);
+    if (workIds.length > 0)
+      promises.push(this.workCrud.bulkDeleteWorks(workIds).then(r => this.applyBulkPeriodHours(r)));
+
+    for (const entry of grouped.get(WorkScheduleEntryType.WorkChange) ?? [])
+      promises.push(firstValueFrom(this.dataWorkChangeService.delete(entry.id)).then(r => this.applyWorkChangeBulkResponse(r)));
+
+    const breakIds = (grouped.get(WorkScheduleEntryType.Break) ?? []).map(e => e.sourceId);
+    if (breakIds.length > 0)
+      promises.push(firstValueFrom(this.breakService.bulkDeleteBreaks({ breakIds, periodStart, periodEnd })).then(r => this.applyBulkPeriodHours(r)));
+
+    for (const entryType of [WorkScheduleEntryType.Expenses, WorkScheduleEntryType.ScheduleNote, WorkScheduleEntryType.ScheduleCommand]) {
+      for (const entry of grouped.get(entryType) ?? [])
+        promises.push(firstValueFrom(this.getGenericDeleter(entryType)(entry.id)).then(() => { /* no post-processing */ }));
     }
 
-    if (workChangeEntries.length > 0) {
-      for (const entry of workChangeEntries) {
-        deletePromises.push(
-          firstValueFrom(this.dataWorkChangeService.delete(entry.id)).then((response) => {
-            if (response.clientResults) {
-              for (const clientResult of response.clientResults) {
-                if (clientResult.periodHours) {
-                  this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
-                }
-              }
-            }
-          })
-        );
-      }
+    return promises;
+  }
+
+  private applyBulkPeriodHours(response: { periodHours?: Record<string, IPeriodHours> | null }): void {
+    if (!response.periodHours) return;
+    for (const [clientId, hours] of Object.entries(response.periodHours))
+      this.workScheduleLoader.periodHours.set(clientId, hours);
+  }
+
+  private applyWorkChangeBulkResponse(response: { clientResults?: { clientId: string; periodHours?: IPeriodHours | null }[] | null }): void {
+    if (!response.clientResults) return;
+    for (const clientResult of response.clientResults) {
+      if (clientResult.periodHours)
+        this.workScheduleLoader.periodHours.set(clientResult.clientId, clientResult.periodHours);
     }
+  }
 
-    if (breakEntries.length > 0) {
-      const breakIds = breakEntries.map(e => e.sourceId);
-      deletePromises.push(
-        firstValueFrom(this.breakService.bulkDeleteBreaks({ breakIds, periodStart, periodEnd })).then((response) => {
-          if (response.periodHours) {
-            for (const [clientId, hours] of Object.entries(response.periodHours)) {
-              this.workScheduleLoader.periodHours.set(clientId, hours);
-            }
-          }
-        })
-      );
+  private buildBulkRefreshPromises(entries: DeleteWorkScheduleEntryParams[]): Promise<void>[] {
+    const clientRanges = this.collectClientDateRanges(entries);
+    const promises: Promise<void>[] = [];
+    for (const [clientId, ranges] of clientRanges) {
+      const mergedRanges = this.mergeClientDateRanges(ranges);
+      for (const range of mergedRanges)
+        promises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
     }
+    return promises;
+  }
 
-    if (expensesEntries.length > 0) {
-      for (const entry of expensesEntries) {
-        deletePromises.push(
-          firstValueFrom(this.expensesService.delete(entry.id)).then(() => {})
-        );
-      }
-    }
-
-    if (scheduleNoteEntries.length > 0) {
-      for (const entry of scheduleNoteEntries) {
-        deletePromises.push(
-          firstValueFrom(this.scheduleNoteService.delete(entry.id)).then(() => {})
-        );
-      }
-    }
-
-    if (scheduleCommandEntries.length > 0) {
-      for (const entry of scheduleCommandEntries) {
-        deletePromises.push(
-          firstValueFrom(this.scheduleCommandService.delete(entry.id)).then(() => {})
-        );
-      }
-    }
-
-    await Promise.all(deletePromises);
-
+  private collectClientDateRanges(entries: DeleteWorkScheduleEntryParams[]): Map<string, { start: Date; end: Date }[]> {
     const clientShiftDates = new Map<string, Set<number>>();
     for (const entry of entries) {
       const key = `${entry.clientId}|${entry.entryId}`;
-      if (!clientShiftDates.has(key)) {
-        clientShiftDates.set(key, new Set());
-      }
-      clientShiftDates.get(key)!.add(entry.date.getTime());
+      const dates = clientShiftDates.get(key) ?? new Set<number>();
+      dates.add(entry.date.getTime());
+      clientShiftDates.set(key, dates);
     }
 
     const clientRanges = new Map<string, { start: Date; end: Date }[]>();
@@ -448,25 +442,11 @@ export class ScheduleEntryCrudService {
       const sortedDates = Array.from(dates).sort((a, b) => a - b);
       const ranges = this.mergeOverlappingDateRanges(sortedDates);
 
-      if (!clientRanges.has(clientId)) {
-        clientRanges.set(clientId, []);
-      }
-      clientRanges.get(clientId)!.push(...ranges);
+      const existing = clientRanges.get(clientId) ?? [];
+      existing.push(...ranges);
+      clientRanges.set(clientId, existing);
     }
-
-    const refreshPromises: Promise<void>[] = [];
-    for (const [clientId, ranges] of clientRanges) {
-      const mergedRanges = this.mergeClientDateRanges(ranges);
-      for (const range of mergedRanges) {
-        refreshPromises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
-      }
-    }
-
-    await Promise.all(refreshPromises);
-
-    this.bulkUpdateShiftEngagedLocally(entries, workFilter);
-
-    this.workScheduleLoader.updateClientNeededRows();
+    return clientRanges;
   }
 
   public refreshClientScheduleForDays(clientId: string, centerDate: Date): Promise<void> {
