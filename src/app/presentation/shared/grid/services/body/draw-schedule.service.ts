@@ -511,11 +511,10 @@ export class BaseDrawScheduleService {
         let maxRow: number =
           this.position.row > pos.row ? this.position.row : pos.row;
 
-        maxCol += 1;
         maxRow += 1;
 
-        if (maxCol > this.gridData.columns) {
-          maxCol = this.gridData.columns;
+        if (maxCol >= this.gridData.columns) {
+          maxCol = this.gridData.columns - 1;
         }
         if (maxRow > this.gridData.rows) {
           maxRow = this.gridData.rows;
