@@ -30,7 +30,7 @@ import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
 import { TimeRangeService } from './services/time-range.service';
 import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
-import { TimeRulerRenderService } from './services/time-ruler-render.service';
+import { IShiftSceneContext, TimeRulerRenderService } from './services/time-ruler-render.service';
 import { TimeRulerInteractionService } from './services/time-ruler-interaction.service';
 import { TimeRulerBlockSelectionService } from './services/time-ruler-block-selection.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -201,8 +201,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     inboxCtx.restore();
 
     this.renderService.renderShiftsToCache(
-      this.renderCtx, boundaryWidth, height, this.shifts,
-      this.shiftRectangles, this.fromTime, this.untilTime
+      this.renderCtx, boundaryWidth, height, this.buildScene(),
     );
     this.renderService.drawFromCache(inboxCtx, this.renderCanvas, inboxCanvas);
 
@@ -261,12 +260,18 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.inboxCanvasRef.nativeElement,
       this.renderCanvas,
       selectedItem,
-      this.shifts,
-      this.shiftRectangles,
-      this.fromTime,
-      this.untilTime,
-      this.blockSelectionService
+      this.buildScene(),
+      this.blockSelectionService,
     );
+  }
+
+  private buildScene(): IShiftSceneContext {
+    return {
+      shifts: this.shifts,
+      shiftRectangles: this.shiftRectangles,
+      fromTime: this.fromTime,
+      untilTime: this.untilTime,
+    };
   }
 
   private setupResizeObserver(): void {
@@ -371,10 +376,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.renderCanvas,
         this.renderCtx,
         draggedShift,
-        this.shifts,
-        this.shiftRectangles,
-        this.fromTime,
-        this.untilTime
+        this.buildScene(),
       );
     }
   }
@@ -422,8 +424,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
       if (this.renderCtx) {
         this.renderService.renderShiftsToCache(
-          this.renderCtx, boundaryWidth, height, this.shifts,
-          this.shiftRectangles, this.fromTime, this.untilTime
+          this.renderCtx, boundaryWidth, height, this.buildScene(),
         );
       }
 

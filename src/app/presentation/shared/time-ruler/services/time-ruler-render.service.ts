@@ -31,6 +31,17 @@ export interface ShiftBoxDrawParams {
   height: number;
 }
 
+/**
+ * Scene-level inputs reused across every public render method.
+ * Bundles the mutable scene state (shifts + rectangle map) and the time window.
+ */
+export interface IShiftSceneContext {
+  shifts: IContainerTemplateItem[];
+  shiftRectangles: Map<IContainerTemplateItem, Rectangle>;
+  fromTime: OwnTime;
+  untilTime: OwnTime;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -697,24 +708,21 @@ export class TimeRulerRenderService {
     renderCtx: CanvasRenderingContext2D,
     width: number,
     height: number,
-    shifts: IContainerTemplateItem[],
-    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
-    fromTime: OwnTime,
-    untilTime: OwnTime
+    scene: IShiftSceneContext,
   ): void {
-    if (!shifts || shifts.length === 0) return;
+    if (!scene.shifts || scene.shifts.length === 0) return;
 
-    shiftRectangles.clear();
+    scene.shiftRectangles.clear();
 
     renderCtx.fillStyle = this.gridColorService.backGroundColor;
     renderCtx.fillRect(0, 0, width, height);
 
-    this.drawRedBoundaryLines(renderCtx, width, height, fromTime, untilTime);
+    this.drawRedBoundaryLines(renderCtx, width, height, scene.fromTime, scene.untilTime);
 
     const { range, boxWidth, marginLeftRight } =
-      this.calculateShiftBoxParameters(width, height, fromTime, untilTime);
+      this.calculateShiftBoxParameters(width, height, scene.fromTime, scene.untilTime);
 
-    shifts.forEach((shift) => {
+    scene.shifts.forEach((shift) => {
       this.drawSingleShiftBox(
         renderCtx,
         shift,
@@ -723,8 +731,8 @@ export class TimeRulerRenderService {
         marginLeftRight,
         height,
         false,
-        shifts,
-        shiftRectangles
+        scene.shifts,
+        scene.shiftRectangles,
       );
     });
   }
@@ -759,11 +767,8 @@ export class TimeRulerRenderService {
     inboxCanvas: HTMLCanvasElement,
     renderCanvas: HTMLCanvasElement,
     selectedShift: IContainerTemplateItem | null,
-    shifts: IContainerTemplateItem[],
-    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
-    fromTime: OwnTime,
-    untilTime: OwnTime,
-    blockSelectionService?: TimeRulerBlockSelectionService
+    scene: IShiftSceneContext,
+    blockSelectionService?: TimeRulerBlockSelectionService,
   ): void {
     const container = inboxCanvas.parentElement;
     if (!container) return;
@@ -783,7 +788,7 @@ export class TimeRulerRenderService {
 
     if (selectedShift) {
       const { range, boxWidth, marginLeftRight } =
-        this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
+        this.calculateShiftBoxParameters(boundaryWidth, height, scene.fromTime, scene.untilTime);
 
       inboxCtx.save();
       inboxCtx.translate(offsetX, 0);
@@ -795,13 +800,13 @@ export class TimeRulerRenderService {
         marginLeftRight,
         height,
         true,
-        shifts,
-        shiftRectangles
+        scene.shifts,
+        scene.shiftRectangles,
       );
       inboxCtx.restore();
 
       if (selectedRect) {
-        shiftRectangles.set(selectedShift, selectedRect);
+        scene.shiftRectangles.set(selectedShift, selectedRect);
         if (!blockSelectionService?.hasBlock()) {
           this.drawSelectedShiftHighlight(inboxCtx, selectedRect);
         }
@@ -810,7 +815,7 @@ export class TimeRulerRenderService {
 
     if (blockSelectionService && blockSelectionService.hasBlock()) {
       const { range: blockRange, boxWidth: blockBoxWidth, marginLeftRight: blockMargin } =
-        this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
+        this.calculateShiftBoxParameters(boundaryWidth, height, scene.fromTime, scene.untilTime);
 
       inboxCtx.save();
       inboxCtx.translate(offsetX, 0);
@@ -819,16 +824,16 @@ export class TimeRulerRenderService {
         if (item === selectedShift) continue;
         const itemRect = this.drawSingleShiftBox(
           inboxCtx, item, blockRange, blockBoxWidth, blockMargin,
-          height, true, shifts, shiftRectangles
+          height, true, scene.shifts, scene.shiftRectangles,
         );
         if (itemRect) {
-          shiftRectangles.set(item, itemRect);
+          scene.shiftRectangles.set(item, itemRect);
         }
       }
 
       this.drawBlockSelectionRect(
         inboxCtx,
-        blockSelectionService.calculateBlockBounds(blockMargin, blockBoxWidth, blockRange, height)
+        blockSelectionService.calculateBlockBounds(blockMargin, blockBoxWidth, blockRange, height),
       );
       inboxCtx.restore();
     }
@@ -839,10 +844,7 @@ export class TimeRulerRenderService {
     renderCanvas: HTMLCanvasElement,
     renderCtx: CanvasRenderingContext2D,
     draggedShift: IContainerTemplateItem,
-    shifts: IContainerTemplateItem[],
-    shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
-    fromTime: OwnTime,
-    untilTime: OwnTime
+    scene: IShiftSceneContext,
   ): void {
     const container = inboxCanvas.parentElement;
     if (!container) return;
@@ -862,7 +864,7 @@ export class TimeRulerRenderService {
     this.drawFromCache(inboxCtx, renderCanvas, inboxCanvas);
 
     const { range, boxWidth, marginLeftRight } =
-      this.calculateShiftBoxParameters(boundaryWidth, height, fromTime, untilTime);
+      this.calculateShiftBoxParameters(boundaryWidth, height, scene.fromTime, scene.untilTime);
 
     inboxCtx.clearRect(offsetX, 0, boundaryWidth, height);
 
@@ -870,7 +872,7 @@ export class TimeRulerRenderService {
     const tempCtx = DrawHelper.createHiDPICanvas(
       tempCanvas,
       boundaryWidth,
-      height
+      height,
     );
     DrawHelper.setAntiAliasing(tempCtx);
 
@@ -880,7 +882,7 @@ export class TimeRulerRenderService {
       0,
       0,
       boundaryWidth,
-      height
+      height,
     );
 
     const logicalDimensions = DrawImageHelper.getLogicalDimensions(renderCanvas);
@@ -888,18 +890,18 @@ export class TimeRulerRenderService {
       0,
       0,
       logicalDimensions.width,
-      logicalDimensions.height
+      logicalDimensions.height,
     );
     renderCtx.fillStyle = this.gridColorService.backGroundColor;
     renderCtx.fillRect(
       0,
       0,
       logicalDimensions.width,
-      logicalDimensions.height
+      logicalDimensions.height,
     );
-    this.drawRedBoundaryLines(renderCtx, boundaryWidth, height, fromTime, untilTime);
+    this.drawRedBoundaryLines(renderCtx, boundaryWidth, height, scene.fromTime, scene.untilTime);
 
-    shifts.forEach((shift) => {
+    scene.shifts.forEach((shift) => {
       if (shift !== draggedShift) {
         this.drawSingleShiftBox(
           renderCtx,
@@ -909,8 +911,8 @@ export class TimeRulerRenderService {
           marginLeftRight,
           height,
           false,
-          shifts,
-          shiftRectangles
+          scene.shifts,
+          scene.shiftRectangles,
         );
       }
     });
@@ -921,7 +923,7 @@ export class TimeRulerRenderService {
       offsetX,
       0,
       boundaryWidth,
-      height
+      height,
     );
 
     inboxCtx.save();
@@ -934,13 +936,13 @@ export class TimeRulerRenderService {
       marginLeftRight,
       height,
       true,
-      shifts,
-      shiftRectangles
+      scene.shifts,
+      scene.shiftRectangles,
     );
     inboxCtx.restore();
 
     if (draggedRect) {
-      shiftRectangles.set(draggedShift, draggedRect);
+      scene.shiftRectangles.set(draggedShift, draggedRect);
     }
 
     const renderLogicalDimensions = DrawImageHelper.getLogicalDimensions(renderCanvas);
