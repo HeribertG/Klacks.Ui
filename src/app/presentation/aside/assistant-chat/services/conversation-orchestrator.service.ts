@@ -168,6 +168,19 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
   }
 
+  /**
+   * Bridge invoked by AssistantChatComponent's SSE onError callback.
+   * chatStreamService exposes callbacks instead of observables, so the component
+   * forwards the SSE network error here to keep all error-hint emission centralized.
+   */
+  onStreamError(): void {
+    this.reportError({
+      kind: 'network',
+      i18nKey: 'klacksy.voice.errors.network-failed',
+      persistent: false,
+    });
+  }
+
   ngOnDestroy(): void {
     const controller = this.callbacks?.getAbortController();
     if (controller) controller.abort();
@@ -200,10 +213,21 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.interimText.set('');
 
     const speechSettings = this.settings.speechSettings();
-    try {
-      if (speechSettings.sttEngine !== SttEngine.Browser) {
+
+    if (speechSettings.sttEngine !== SttEngine.Browser) {
+      try {
         this.sttStream.connect(this.locale);
+      } catch {
+        this.reportError({
+          kind: 'stt-connection',
+          i18nKey: 'klacksy.voice.errors.stt-failed',
+          persistent: false,
+        });
+        return;
       }
+    }
+
+    try {
       await this.audioCapture.start();
     } catch {
       this.reportError({
@@ -284,14 +308,6 @@ export class ConversationOrchestratorService implements OnDestroy {
         this.pendingSentences.splice(idx, 1);
       }
     }
-  }
-
-  onStreamError(): void {
-    this.reportError({
-      kind: 'network',
-      i18nKey: 'klacksy.voice.errors.network-failed',
-      persistent: false,
-    });
   }
 
   protected reportError(hint: IVoiceShellErrorHint): void {
