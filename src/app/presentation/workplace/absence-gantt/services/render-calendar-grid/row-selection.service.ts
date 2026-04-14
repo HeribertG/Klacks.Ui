@@ -77,6 +77,10 @@ export class RowSelectionService {
     this.captureSelectedBreakDummy();
   }
 
+  public get selectedBreakIndex() {
+    return this._selectedBreakIndex;
+  }
+
   public refreshSelectedBreakDummy(): void {
     this.captureSelectedBreakDummy();
   }
@@ -103,10 +107,6 @@ export class RowSelectionService {
         br as BreakPlaceholder
       );
     }
-  }
-
-  public get selectedBreakIndex() {
-    return this._selectedBreakIndex;
   }
 
   public drawSelectionRow(): void {

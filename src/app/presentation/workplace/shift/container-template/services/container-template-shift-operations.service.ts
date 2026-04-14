@@ -315,7 +315,7 @@ export class ContainerTemplateShiftOperationsService {
     timeTo: OwnTime,
     selectedWeekday: string | null,
     isHoliday: boolean,
-    keepTravelAndBriefing: boolean = false,
+    keepTravelAndBriefing = false,
   ): void {
     const currentItems =
       this.shiftService.selectedContainerTemplateItemsSignal();

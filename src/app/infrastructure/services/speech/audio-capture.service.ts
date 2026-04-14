@@ -73,8 +73,8 @@ export class AudioCaptureService implements OnDestroy {
 
   private processAudioChunk(float32Data: Float32Array): void {
     let sumSquares = 0;
-    for (let i = 0; i < float32Data.length; i++) {
-      sumSquares += float32Data[i] * float32Data[i];
+    for (const sample of float32Data) {
+      sumSquares += sample * sample;
     }
     const rms = Math.sqrt(sumSquares / float32Data.length);
     const hasSpeech = rms > this.vadThreshold;

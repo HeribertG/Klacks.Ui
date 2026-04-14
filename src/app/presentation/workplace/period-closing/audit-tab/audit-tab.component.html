@@ -7,7 +7,10 @@
     <div
       type="button"
       class="close"
+      role="button"
+      tabindex="0"
       (click)="modal.dismiss('Cross click')"
+      (keydown.enter)="modal.dismiss('Cross click')"
       aria-label="close"
     >
       <span aria-hidden="true">&times;</span>
@@ -61,7 +64,10 @@
     <div
       type="button"
       class="close"
+      role="button"
+      tabindex="0"
       (click)="modal.dismiss('Cross click')"
+      (keydown.enter)="modal.dismiss('Cross click')"
       aria-label="close"
     >
       <span aria-hidden="true">&times;</span>

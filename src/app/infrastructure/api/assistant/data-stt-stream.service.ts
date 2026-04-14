@@ -24,7 +24,7 @@ export class SttStreamService implements OnDestroy {
 
   private ws: WebSocket | null = null;
 
-  connect(locale: string = 'de'): void {
+  connect(locale = 'de'): void {
     if (this.ws) this.disconnect();
 
     const baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
@@ -49,6 +49,7 @@ export class SttStreamService implements OnDestroy {
           confidence: data.confidence,
         });
       } catch {
+        this.error$.next('Failed to parse transcript payload');
       }
     };
 

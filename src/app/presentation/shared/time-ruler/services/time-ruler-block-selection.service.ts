@@ -7,20 +7,24 @@
  * @param lastClickedItem - Last clicked item for Shift+Click range selection anchor
  */
 
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { TimeRangeService } from './time-range.service';
 
 const BLOCK_BOUNDS_HORIZONTAL_EXTENSION_PX = 2;
 
+interface IBlockBoundsRange {
+  displayFromMinutes: number;
+  totalMinutes: number;
+}
+
 @Injectable()
 export class TimeRulerBlockSelectionService {
   readonly selectedItems: WritableSignal<Set<IContainerTemplateItem>> = signal(new Set());
 
   private lastClickedItem: IContainerTemplateItem | null = null;
-
-  constructor(private readonly timeRangeService: TimeRangeService) {}
+  private readonly timeRangeService = inject(TimeRangeService);
 
   toggleItem(
     item: IContainerTemplateItem,
@@ -74,7 +78,7 @@ export class TimeRulerBlockSelectionService {
   calculateBlockBounds(
     marginLeftRight: number,
     boxWidth: number,
-    range: any,
+    range: IBlockBoundsRange,
     height: number
   ): Rectangle | null {
     const items = this.selectedItems();

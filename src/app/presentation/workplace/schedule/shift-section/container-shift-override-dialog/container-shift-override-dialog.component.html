@@ -115,8 +115,9 @@
       @if (propertiesService.contextMenuTargetItem.absenceId) {
         <div class="row-line-modal-inline1">
           <div class="property-field">
-            <label>{{ "shift.container-template.properties.start-time" | translate }}</label>
+            <label for="overrideInlineAbsenceStartTime">{{ "shift.container-template.properties.start-time" | translate }}</label>
             <app-time-input
+              id="overrideInlineAbsenceStartTime"
               [value]="absenceService.absenceStartTime"
               (valueChange)="onAbsenceStartTimeChange($event)"
               [showLabel]="false"
@@ -124,8 +125,9 @@
             ></app-time-input>
           </div>
           <div class="property-field">
-            <label>{{ "shift.container-template.properties.end-time" | translate }}</label>
+            <label for="overrideInlineAbsenceEndTime">{{ "shift.container-template.properties.end-time" | translate }}</label>
             <app-time-input
+              id="overrideInlineAbsenceEndTime"
               [value]="absenceService.absenceEndTime"
               (valueChange)="onAbsenceEndTimeChange($event)"
               [showLabel]="false"
@@ -147,8 +149,8 @@
               ></app-time-input>
             </div>
             <div class="property-field">
-              <label>{{ "shift.container-template.properties.work-time" | translate }}</label>
-              <div class="readonly-value">{{ formatWorkTime(propertiesService.contextMenuTargetItem.shift?.workTime || 0) }}</div>
+              <label for="overrideWorkTimeDisplay">{{ "shift.container-template.properties.work-time" | translate }}</label>
+              <div id="overrideWorkTimeDisplay" class="readonly-value">{{ formatWorkTime(propertiesService.contextMenuTargetItem.shift?.workTime || 0) }}</div>
             </div>
           </div>
         }
@@ -199,8 +201,8 @@
       }
       @if (routeService.isTransportModeMix) {
         <div class="transport-mode-group">
-          <label>{{ "shift.container-template.transport-mode" | translate }}</label>
-          <div class="transport-mode-buttons">
+          <label for="overrideTransportModeButtons">{{ "shift.container-template.transport-mode" | translate }}</label>
+          <div id="overrideTransportModeButtons" class="transport-mode-buttons">
             <button type="button" class="transport-mode-btn"
               [class.active]="propertiesService.getPropertiesTransportMode() === TransportModeEnum.byCar"
               (click)="propertiesService.selectPropertiesTransportMode(TransportModeEnum.byCar)"
@@ -251,8 +253,9 @@
   <div class="modal-body first-modal">
     <div class="row-line-modal-inline1">
       <div class="property-field">
-        <label>{{ "shift.container-template.properties.start-time" | translate }}</label>
+        <label for="overrideAbsenceModalStartTime">{{ "shift.container-template.properties.start-time" | translate }}</label>
         <app-time-input
+          id="overrideAbsenceModalStartTime"
           [value]="absenceService.absenceStartTime"
           (valueChange)="onAbsenceStartTimeChange($event)"
           [showLabel]="false"
@@ -260,8 +263,9 @@
         ></app-time-input>
       </div>
       <div class="property-field">
-        <label>{{ "shift.container-template.properties.end-time" | translate }}</label>
+        <label for="overrideAbsenceModalEndTime">{{ "shift.container-template.properties.end-time" | translate }}</label>
         <app-time-input
+          id="overrideAbsenceModalEndTime"
           [value]="absenceService.absenceEndTime"
           (valueChange)="onAbsenceEndTimeChange($event)"
           [showLabel]="false"
