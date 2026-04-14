@@ -31,11 +31,13 @@
 
   <app-group-select></app-group-select>
 
-  <app-icon-mml
-    id="header-assistant-button"
-    class="assistant-btn"
-    (click)="onToggleAssistant()"
-  ></app-icon-mml>
+  @if (!hideAssistantButton()) {
+    <app-icon-mml
+      id="header-assistant-button"
+      class="assistant-btn"
+      (click)="onToggleAssistant()"
+    ></app-icon-mml>
+  }
 
   <app-icon-sign-out
     id="header-logout-button"

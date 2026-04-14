@@ -38,7 +38,7 @@ export class VoiceShellTiming {
 }
 
 export class VoiceShellLayout {
-  static readonly OffsetTopPx = 36;
+  static readonly OffsetTopPx = 70;
   static readonly OffsetRightPx = 16;
   static readonly IconSizePx = 56;
   static readonly CloseButtonSizePx = 16;

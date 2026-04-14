@@ -25,6 +25,8 @@ import { IClient } from 'src/app/domain/models/client/client-class';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../icons/icon-logo.component';
@@ -55,8 +57,15 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   private navigationService = inject(NavigationService);
   private themeService = inject(ThemeService);
   private asideService = inject(AsideService);
+  private appSettings = inject(AppSettingsManagementService);
 
   public authorised = signal<boolean>(false);
+  public readonly isAudioMode = computed<boolean>(
+    () => this.appSettings.speechSettings().outputMode === OutputMode.Audio,
+  );
+  public readonly hideAssistantButton = computed<boolean>(
+    () => this.isAudioMode() && this.asideService.isVisible(),
+  );
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public hasLogoImage = computed(() => !!this.logoImage());
   public logoDimensions = computed(() =>
