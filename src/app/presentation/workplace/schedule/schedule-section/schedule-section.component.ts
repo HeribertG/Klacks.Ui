@@ -412,84 +412,55 @@ export class ScheduleSectionComponent
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const handler = this.menuHandlers[keys[0]];
+    if (!handler) return;
 
-    switch (keys[0]) {
-      case 'showInShift':
-        this.contextMenu.closeMenu(true);
-        this.showSelectedShiftInShiftSection();
-        break;
-      case 'copy':
-        this.contextMenu.closeMenu(true);
-        this.cellManipulation.copy();
-        break;
-      case 'cut':
-        this.contextMenu.closeMenu(true);
-        this.cellManipulation.copy();
-        this.facade.entryActions.deleteSelectedEntries(dataService);
-        break;
-      case 'paste':
-        this.contextMenu.closeMenu(true);
-        this.cellManipulation.paste();
-        break;
-      case 'del':
-        this.contextMenu.closeMenu(true);
-        this.facade.entryActions.deleteSelectedEntries(dataService);
-        break;
-      case 'shift':
-        this.contextMenu.closeMenu(true);
-        this.facade.entryActions.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'absence':
-        this.contextMenu.closeMenu(true);
-        this.facade.entryActions.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'correction':
-        this.contextMenu.closeMenu(true);
-        this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'replacement':
-        this.contextMenu.closeMenu(true);
-        this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'edit': {
-        this.contextMenu.closeMenu(true);
-        const editEntry = dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
-        if (editEntry?.entryType === WorkScheduleEntryType.ScheduleNote || editEntry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
-          this.cellManipulation.startEditing();
-        } else {
-          this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
-        }
-        break;
-      }
-      case 'editWork':
-        this.contextMenu.closeMenu(true);
-        this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'openContainer':
-        this.contextMenu.closeMenu(true);
-        this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn });
-        break;
-      case 'expenses':
-        this.contextMenu.closeMenu(true);
-        this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'confirm':
-        this.contextMenu.closeMenu(true);
-        this.facade.entryActions.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'unconfirm':
-        this.contextMenu.closeMenu(true);
-        this.facade.entryActions.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService);
-        break;
-      case 'deleteBreakPlaceholder':
-        this.contextMenu.closeMenu(true);
-        this.deleteBreakPlaceholder();
-        break;
-      case 'adoptAbsence':
-        this.contextMenu.closeMenu(true);
-        this.adoptBreakPlaceholder(keys[1]);
-        break;
-    }
+    this.contextMenu.closeMenu(true);
+    handler(dataService, keys);
+  }
+
+  private readonly menuHandlers: Record<string, (dataService: ScheduleDataService, keys: string[]) => void> = {
+    showInShift: () => this.showSelectedShiftInShiftSection(),
+    copy: () => this.cellManipulation.copy(),
+    cut: (dataService) => {
+      this.cellManipulation.copy();
+      this.facade.entryActions.deleteSelectedEntries(dataService);
+    },
+    paste: () => this.cellManipulation.paste(),
+    del: (dataService) => this.facade.entryActions.deleteSelectedEntries(dataService),
+    shift: (dataService, keys) =>
+      this.facade.entryActions.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService),
+    absence: (dataService, keys) =>
+      this.facade.entryActions.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService),
+    correction: (dataService) =>
+      this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+    replacement: (dataService) =>
+      this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+    edit: (dataService) => this.handleEditMenu(dataService),
+    editWork: (dataService) =>
+      this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+    openContainer: () =>
+      this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn }),
+    expenses: (dataService) =>
+      this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+    confirm: (dataService) =>
+      this.facade.entryActions.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService),
+    unconfirm: (dataService) =>
+      this.facade.entryActions.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService),
+    deleteBreakPlaceholder: () => this.deleteBreakPlaceholder(),
+    adoptAbsence: (_dataService, keys) => this.adoptBreakPlaceholder(keys[1]),
+  };
+
+  private handleEditMenu(dataService: ScheduleDataService): void {
+    const editEntry = dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
+    const isInlineEditable =
+      editEntry?.entryType === WorkScheduleEntryType.ScheduleNote
+      || editEntry?.entryType === WorkScheduleEntryType.ScheduleCommand;
+
+    if (isInlineEditable)
+      this.cellManipulation.startEditing();
+    else
+      this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
   }
 
   private showSelectedShiftInShiftSection(): void {
