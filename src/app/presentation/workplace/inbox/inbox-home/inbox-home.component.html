@@ -1,4 +1,13 @@
-<as-split direction="horizontal" [dir]="direction()" [gutterSize]="6" unit="percent">
+<as-split
+  direction="horizontal"
+  [dir]="direction()"
+  [gutterSize]="6"
+  unit="percent"
+  data-klacksy-target="inbox"
+  data-klacksy-label-key="nav.inbox"
+  data-klacksy-category="communication"
+  data-klacksy-route="/workplace/inbox"
+>
   <as-split-area [size]="15" [minSize]="10" [maxSize]="25">
     <app-inbox-folder-list></app-inbox-folder-list>
   </as-split-area>

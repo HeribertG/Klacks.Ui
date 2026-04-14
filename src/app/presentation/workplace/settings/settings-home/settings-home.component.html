@@ -34,6 +34,10 @@
       <app-settings-general
         id="settings-general"
         class="container-profile first border-right-card border-bottom-card"
+        data-klacksy-target="settings-general"
+        data-klacksy-label-key="settings.general"
+        data-klacksy-category="settings.general"
+        data-klacksy-route="/workplace/settings"
       >
       </app-settings-general>
     </div>
@@ -43,6 +47,10 @@
         id="settings-owner-address"
         class="container-profile container-owner-address first border-right-card border-bottom-card"
         (click)="isfocused('app-setting-owner-address')"
+        data-klacksy-target="owner-address"
+        data-klacksy-label-key="settings.ownerAddress"
+        data-klacksy-category="settings.general"
+        data-klacksy-route="/workplace/settings"
       >
       </app-owner-address>
     </div>
@@ -51,6 +59,10 @@
       <app-data-retention-setting
         id="settings-data-retention"
         class="container-setting-small first border-right-card border-bottom-card"
+        data-klacksy-target="data-retention"
+        data-klacksy-label-key="settings.dataRetention"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-data-retention-setting>
     </div>
@@ -93,12 +105,20 @@
         id="settings-group-scope"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-group-scope')"
+        data-klacksy-target="group-scope"
+        data-klacksy-label-key="settings.groupScope"
+        data-klacksy-category="settings.organization"
+        data-klacksy-route="/workplace/settings"
       ></app-group-scope>
 
       <app-identity-providers
         id="settings-identity-providers"
         class="container-setting-small border-right-card border-bottom-card"
         (click)="isfocused('app-identity-providers')"
+        data-klacksy-target="identity-providers"
+        data-klacksy-label-key="settings.identityProviders"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       ></app-identity-providers>
     </div>
   }
@@ -127,12 +147,20 @@
         id="settings-branches"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-branches')"
+        data-klacksy-target="branches"
+        data-klacksy-label-key="settings.branches"
+        data-klacksy-category="settings.organization"
+        data-klacksy-route="/workplace/settings"
       ></app-branches>
 
       <app-contracts
         id="settings-contracts"
         class="container-setting-small border-right-card border-bottom-card"
         (click)="isfocused('app-contracts')"
+        data-klacksy-target="contracts"
+        data-klacksy-label-key="settings.contracts"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       ></app-contracts>
     </div>
 
@@ -141,6 +169,10 @@
         id="settings-state"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-state')"
+        data-klacksy-target="states"
+        data-klacksy-label-key="settings.states"
+        data-klacksy-category="settings.geography"
+        data-klacksy-route="/workplace/settings"
       >
       </app-state>
 
@@ -148,6 +180,10 @@
         id="settings-countries"
         class="container-setting-small border-bottom-card"
         (click)="isfocused('app-countries')"
+        data-klacksy-target="countries"
+        data-klacksy-label-key="settings.countries"
+        data-klacksy-category="settings.geography"
+        data-klacksy-route="/workplace/settings"
       >
       </app-countries>
     </div>
@@ -177,6 +213,10 @@
         id="settings-work-setting"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-work-setting')"
+        data-klacksy-target="work-setting"
+        data-klacksy-label-key="settings.workSetting"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-work-setting>
     </div>
@@ -189,6 +229,10 @@
         id="settings-scheduling-defaults"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-scheduling-defaults-setting')"
+        data-klacksy-target="scheduling-defaults"
+        data-klacksy-label-key="settings.schedulingDefaults"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-scheduling-defaults-setting>
     </div>
@@ -198,6 +242,10 @@
         id="settings-scheduling-rules"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-scheduling-rules')"
+        data-klacksy-target="scheduling-rules"
+        data-klacksy-label-key="settings.schedulingRules"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       ></app-scheduling-rules>
     </div>
   }
@@ -226,6 +274,10 @@
         id="settings-absence"
         class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
         (click)="isfocused('app-absence')"
+        data-klacksy-target="absence-types"
+        data-klacksy-label-key="settings.absence"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-absence>
     </div>
@@ -235,6 +287,10 @@
         id="settings-absence-detail"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-absence-detail')"
+        data-klacksy-target="absence-detail"
+        data-klacksy-label-key="settings.absenceDetail"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-absence-detail>
     </div>
@@ -244,6 +300,10 @@
         id="settings-calendar-rules"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-calendar-rules')"
+        data-klacksy-target="calendar-rules"
+        data-klacksy-label-key="settings.calendarRules"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-calendar-rules>
     </div>
@@ -253,6 +313,10 @@
         id="settings-calendar-selection"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-calendar-selection')"
+        data-klacksy-target="calendar-selection"
+        data-klacksy-label-key="settings.calendarSelection"
+        data-klacksy-category="settings.scheduling"
+        data-klacksy-route="/workplace/settings"
       >
       </app-calendar-selection>
     </div>
@@ -295,6 +359,10 @@
         id="settings-imap-setting"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-imap-setting')"
+        data-klacksy-target="imap-setting"
+        data-klacksy-label-key="settings.imap"
+        data-klacksy-category="settings.integrations"
+        data-klacksy-route="/workplace/settings"
       >
       </app-imap-setting>
     </div>
@@ -304,6 +372,10 @@
         id="settings-spam-rules"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-spam-rules')"
+        data-klacksy-target="spam-rules"
+        data-klacksy-label-key="settings.spamRules"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-spam-rules>
     </div>
@@ -313,11 +385,19 @@
         id="settings-reports"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-reports')"
+        data-klacksy-target="reports"
+        data-klacksy-label-key="settings.reports"
+        data-klacksy-category="settings.reports"
+        data-klacksy-route="/workplace/settings"
       >
       </app-reports>
       <app-report-defaults
         id="settings-report-defaults"
         class="container-setting-small border-right-card border-bottom-card"
+        data-klacksy-target="report-defaults"
+        data-klacksy-label-key="settings.reportDefaults"
+        data-klacksy-category="settings.reports"
+        data-klacksy-route="/workplace/settings"
       >
       </app-report-defaults>
     </div>
@@ -347,6 +427,10 @@
         id="settings-grid-color"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-grid-color')"
+        data-klacksy-target="grid-color"
+        data-klacksy-label-key="settings.gridColor"
+        data-klacksy-category="settings.ui"
+        data-klacksy-route="/workplace/settings"
       >
       </app-grid-color>
 
@@ -354,6 +438,10 @@
         id="settings-macros"
         class="container-setting-small border-right-card border-bottom-card"
         (click)="isfocused('app-macros')"
+        data-klacksy-target="macros"
+        data-klacksy-label-key="settings.macros"
+        data-klacksy-category="settings.ui"
+        data-klacksy-route="/workplace/settings"
       >
       </app-macros>
     </div>
@@ -362,6 +450,10 @@
       <app-floor-plan-settings
         id="settings-floor-plan"
         class="container-setting-small first border-right-card border-bottom-card"
+        data-klacksy-target="floor-plan-settings"
+        data-klacksy-label-key="settings.floorPlan"
+        data-klacksy-category="settings.ui"
+        data-klacksy-route="/workplace/settings"
       ></app-floor-plan-settings>
     </div>
   }
@@ -390,6 +482,10 @@
         id="settings-llm-models"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-llm-models')"
+        data-klacksy-target="llm-models"
+        data-klacksy-label-key="settings.llmModels"
+        data-klacksy-category="settings.ai"
+        data-klacksy-route="/workplace/settings"
       >
       </app-llm-models>
 
@@ -430,6 +526,10 @@
         id="settings-assistant-speech"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
         (click)="isfocused('app-assistant-speech-settings')"
+        data-klacksy-target="assistant-speech"
+        data-klacksy-label-key="settings.assistantSpeech"
+        data-klacksy-category="settings.ai"
+        data-klacksy-route="/workplace/settings"
       >
       </app-assistant-speech-settings>
     </div>
@@ -459,6 +559,10 @@
         id="settings-openroute"
         class="container-setting-small first border-right-card border-bottom-card"
         (click)="isfocused('app-openroute')"
+        data-klacksy-target="openroute"
+        data-klacksy-label-key="settings.openroute"
+        data-klacksy-category="settings.integrations"
+        data-klacksy-route="/workplace/settings"
       >
       </app-openroute>
 
@@ -466,6 +570,10 @@
         id="settings-deepl"
         class="container-setting-small border-right-card border-bottom-card"
         (click)="isfocused('app-deepl')"
+        data-klacksy-target="deepl"
+        data-klacksy-label-key="settings.deepl"
+        data-klacksy-category="settings.integrations"
+        data-klacksy-route="/workplace/settings"
       >
       </app-deepl>
     </div>
@@ -479,6 +587,10 @@
           id="settings-messaging-providers"
           class="container-profile first border-right-card border-bottom-card"
           (click)="isfocused('lib-messaging-providers')"
+          data-klacksy-target="messaging-providers"
+          data-klacksy-label-key="settings.messagingProviders"
+          data-klacksy-category="settings.integrations"
+          data-klacksy-route="/workplace/settings"
         >
         </lib-messaging-providers>
       </div>
@@ -490,6 +602,10 @@
           id="settings-owner-messengers"
           class="container-profile first border-right-card border-bottom-card"
           (click)="isfocused('lib-owner-messengers')"
+          data-klacksy-target="owner-messengers"
+          data-klacksy-label-key="settings.ownerMessengers"
+          data-klacksy-category="settings.integrations"
+          data-klacksy-route="/workplace/settings"
         >
         </lib-owner-messengers>
       </div>
@@ -520,6 +636,10 @@
         id="settings-language-plugins"
         class="container-profile first border-right-card border-bottom-card"
         (click)="isfocused('app-language-plugins')"
+        data-klacksy-target="language-plugins"
+        data-klacksy-label-key="settings.languagePlugins"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-language-plugins>
     </div>
@@ -529,6 +649,10 @@
         id="settings-feature-plugins"
         class="container-profile first border-right-card border-bottom-card"
         (click)="isfocused('app-feature-plugins')"
+        data-klacksy-target="feature-plugins"
+        data-klacksy-label-key="settings.featurePlugins"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
       >
       </app-feature-plugins>
     </div>
