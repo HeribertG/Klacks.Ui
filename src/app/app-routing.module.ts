@@ -222,6 +222,14 @@ const routes: Routes = [
           ),
         canActivate: [AdminGuard],
       },
+      {
+        path: 'klacksy-training',
+        loadComponent: () =>
+          import('./presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component').then(
+            (m) => m.KlacksyTrainingReviewHomeComponent,
+          ),
+        canActivate: [AdminGuard],
+      },
     ],
   },
 ];
