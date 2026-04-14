@@ -21,6 +21,7 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
+import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -125,7 +126,7 @@ export class ShiftDataService extends BaseDataService {
         }
         if (dayInfo.hasOverride) {
           c.icons = c.icons || [];
-          c.icons.push(new CellIcon('fa-solid fa-pencil', IconCornerEnum.TopLeft));
+          c.icons.push(new CellIcon('pp-icon-pencil', IconCornerEnum.TopLeft));
         }
         const badges: CellBadge[] = [];
         if (dayInfo.sumEmployees > 1) {
@@ -417,7 +418,7 @@ export class ShiftDataService extends BaseDataService {
 
   public loadOverrideData(fromDate: string, toDate: string): void {
     const containerShiftIds = this.shiftRows
-      .filter(row => Array.from(row.activeDays.values()).some(d => d.isInTemplateContainer))
+      .filter(row => row.shiftType === ShiftType.IsContainer)
       .map(row => row.shiftId);
 
     if (containerShiftIds.length === 0) {
@@ -428,26 +429,28 @@ export class ShiftDataService extends BaseDataService {
       this.overrideDataService.getOverridesForRange(shiftId, fromDate, toDate)
     );
 
-    forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(results => {
-      for (let i = 0; i < containerShiftIds.length; i++) {
-        const shiftId = containerShiftIds[i];
-        const overrides = results[i];
-        const shiftRow = this.shiftRows.find(r => r.shiftId === shiftId);
-        if (!shiftRow) continue;
+    forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (results) => {
+        for (let i = 0; i < containerShiftIds.length; i++) {
+          const shiftId = containerShiftIds[i];
+          const overrides = results[i];
+          const shiftRow = this.shiftRows.find(r => r.shiftId === shiftId);
+          if (!shiftRow) continue;
 
-        for (const override of overrides) {
-          const dateKey = this.formatDateKey(override.date);
-          const dayInfo = shiftRow.activeDays.get(dateKey);
-          if (dayInfo) {
-            dayInfo.hasOverride = true;
-            dayInfo.hasWorkForOverride = override.hasWork;
-            dayInfo.overrideId = override.id;
+          for (const override of overrides) {
+            const dateKey = this.formatDateKey(override.date);
+            const dayInfo = shiftRow.activeDays.get(dateKey);
+            if (dayInfo) {
+              dayInfo.hasOverride = true;
+              dayInfo.hasWorkForOverride = override.hasWork;
+              dayInfo.overrideId = override.id;
+            }
           }
         }
-      }
 
-      this.refreshSignal.set(true);
-      setTimeout(() => this.refreshSignal.set(false), 0);
+        this.refreshSignal.set(true);
+        setTimeout(() => this.refreshSignal.set(false), 0);
+      }
     });
   }
 

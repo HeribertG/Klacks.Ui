@@ -5,6 +5,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconInContainerComponent } from 'src/app/presentation/icons/icon-in-container.component';
+import { IconPencilComponent } from 'src/app/presentation/icons/icon-pencil.component';
 import { DEFAULT_ICON_SIZE } from '../../classes/cell-icon';
 
 @Injectable()
@@ -41,6 +42,8 @@ export class CellIconsService {
         return IconBoxContainerComponent.getSvg(color);
       case 'pp-icon-in-container':
         return IconInContainerComponent.getSvg(color);
+      case 'pp-icon-pencil':
+        return IconPencilComponent.getSvg(color);
       default:
         return undefined;
     }
