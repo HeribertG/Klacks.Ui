@@ -19,7 +19,6 @@ import {
 } from '@angular/core';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
-import { VoiceShellComponent } from './voice-shell/voice-shell.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
@@ -33,7 +32,6 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
   standalone: true,
   imports: [
     AssistantChatComponent,
-    VoiceShellComponent,
     TrashIconRedComponent,
     TranslateModule,
     FocusTrapDirective,

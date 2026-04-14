@@ -8,5 +8,8 @@
   </main>
   <app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
   <app-aside></app-aside>
+  @if (showVoiceShell()) {
+    <app-voice-shell />
+  }
   <app-tooltip></app-tooltip>
 </div>

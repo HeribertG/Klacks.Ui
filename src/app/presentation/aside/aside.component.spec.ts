@@ -7,7 +7,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AsideComponent } from './aside.component';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
-import { VoiceShellComponent } from './voice-shell/voice-shell.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 
@@ -18,19 +17,10 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 })
 class AssistantChatStubComponent {}
 
-@Component({
-  selector: 'app-voice-shell',
-  standalone: true,
-  template: '',
-})
-class VoiceShellStubComponent {}
-
-describe('AsideComponent — shell switch', () => {
-  let outputModeSignal: ReturnType<typeof signal<string>>;
+describe('AsideComponent — panel rendering', () => {
   let isVisibleSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(() => {
-    outputModeSignal = signal<string>(OutputMode.Both);
     isVisibleSignal = signal<boolean>(true);
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -38,7 +28,7 @@ describe('AsideComponent — shell switch', () => {
         {
           provide: AppSettingsManagementService,
           useValue: {
-            speechSettings: signal({ outputMode: outputModeSignal() } as never),
+            speechSettings: signal({ outputMode: OutputMode.Text } as never),
           },
         },
         {
@@ -53,30 +43,27 @@ describe('AsideComponent — shell switch', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     });
     TestBed.overrideComponent(AsideComponent, {
-      remove: { imports: [AssistantChatComponent, VoiceShellComponent] },
-      add: { imports: [AssistantChatStubComponent, VoiceShellStubComponent] },
+      remove: { imports: [AssistantChatComponent] },
+      add: { imports: [AssistantChatStubComponent] },
     });
   });
 
-  it('renders app-assistant-chat when outputMode is text', () => {
-    TestBed.overrideProvider(AppSettingsManagementService, {
-      useValue: { speechSettings: signal({ outputMode: OutputMode.Text } as never) },
-    });
+  it('renders the aside panel with app-assistant-chat when outputMode is text', () => {
     const fixture = TestBed.createComponent(AsideComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.aside-panel')).toBeTruthy();
     expect(host.querySelector('app-assistant-chat')).toBeTruthy();
-    expect(host.querySelector('app-voice-shell')).toBeNull();
   });
 
-  it('renders app-voice-shell when outputMode is audio', () => {
+  it('renders nothing when outputMode is audio (voice-shell lives at app root)', () => {
     TestBed.overrideProvider(AppSettingsManagementService, {
       useValue: { speechSettings: signal({ outputMode: OutputMode.Audio } as never) },
     });
     const fixture = TestBed.createComponent(AsideComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    expect(host.querySelector('app-voice-shell')).toBeTruthy();
+    expect(host.querySelector('.aside-panel')).toBeNull();
     expect(host.querySelector('app-assistant-chat')).toBeNull();
   });
 
@@ -85,7 +72,7 @@ describe('AsideComponent — shell switch', () => {
     const fixture = TestBed.createComponent(AsideComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.aside-panel')).toBeNull();
     expect(host.querySelector('app-assistant-chat')).toBeNull();
-    expect(host.querySelector('app-voice-shell')).toBeNull();
   });
 });

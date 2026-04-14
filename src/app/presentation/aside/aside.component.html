@@ -1,41 +1,37 @@
-<div
-  class="aside-panel"
-  role="dialog"
-  [attr.aria-modal]="isVisible()"
-  [attr.aria-label]="'aside.header.title' | translate"
-  appFocusTrap
-  (keydown.escape)="close()"
->
-  <div class="aside-header">
-    <h3 id="aside-title">{{ "aside.header.title" | translate }}</h3>
-    <div class="header-buttons">
-      <button
-        id="assistant-chat-clear-btn"
-        type="button"
-        class="delete-btn"
-        (click)="clearChat()"
-        [attr.aria-label]="'aside.header.clear-chat' | translate"
-      >
-        <app-icon-trash-red aria-hidden="true"></app-icon-trash-red>
-      </button>
-      <button
-        id="aside-close-btn"
-        type="button"
-        class="close-btn"
-        (click)="close()"
-        [attr.aria-label]="'aside.header.close' | translate"
-      >
-        <span aria-hidden="true">×</span>
-      </button>
+@if (isVisible() && !isAudioMode()) {
+  <div
+    class="aside-panel"
+    role="dialog"
+    [attr.aria-modal]="isVisible()"
+    [attr.aria-label]="'aside.header.title' | translate"
+    appFocusTrap
+    (keydown.escape)="close()"
+  >
+    <div class="aside-header">
+      <h3 id="aside-title">{{ "aside.header.title" | translate }}</h3>
+      <div class="header-buttons">
+        <button
+          id="assistant-chat-clear-btn"
+          type="button"
+          class="delete-btn"
+          (click)="clearChat()"
+          [attr.aria-label]="'aside.header.clear-chat' | translate"
+        >
+          <app-icon-trash-red aria-hidden="true"></app-icon-trash-red>
+        </button>
+        <button
+          id="aside-close-btn"
+          type="button"
+          class="close-btn"
+          (click)="close()"
+          [attr.aria-label]="'aside.header.close' | translate"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+    </div>
+    <div class="aside-content">
+      <app-assistant-chat />
     </div>
   </div>
-  <div class="aside-content">
-    @if (isVisible()) {
-      @if (isAudioMode()) {
-        <app-voice-shell />
-      } @else {
-        <app-assistant-chat />
-      }
-    }
-  </div>
-</div>
+}
