@@ -23,6 +23,7 @@ export interface IUiActionStep {
   timeout?: number;
   delay?: number;
   route?: string;
+  target?: string;
   routeMap?: Record<string, string>;
   routeKeyFrom?: string;
   appendParamFrom?: string;

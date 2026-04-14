@@ -7,6 +7,7 @@ import { IUiActionConfig, IUiActionContext, IUiActionStep } from '../../interfac
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
+import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 
 const DEFAULT_WAIT_TIMEOUT = 3000;
 const POLL_INTERVAL = 200;
@@ -20,6 +21,7 @@ export class UiActionEngineService {
   private valueResolver = inject(UiActionValueResolverService);
   private searchStateService = inject(SearchStateService);
   private searchStrategyService = inject<ISearchStrategy>(SEARCH_STRATEGY);
+  private klacksyNavigation = inject(KlacksyNavigationService);
 
   async executeConfig(config: IUiActionConfig, context: IUiActionContext): Promise<void> {
     const onError = config.onError ?? 'stop';
@@ -88,7 +90,16 @@ export class UiActionEngineService {
       throw new Error('Navigate action requires a route');
     }
 
-    await this.router.navigate([route], { queryParams: step.queryParams });
+    const resolvedRoute = this.appendQueryParams(route, step.queryParams);
+    await this.klacksyNavigation.navigateAndScroll(resolvedRoute, step.target);
+  }
+
+  private appendQueryParams(route: string, queryParams?: Record<string, string>): string {
+    if (!queryParams || Object.keys(queryParams).length === 0) return route;
+    const query = Object.entries(queryParams)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join('&');
+    return `${route}?${query}`;
   }
 
   private async executeWaitForElement(step: IUiActionStep, context: IUiActionContext): Promise<void> {

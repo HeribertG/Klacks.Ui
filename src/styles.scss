@@ -7,6 +7,7 @@
 @use "assets/standard-styles/datepicker.scss";
 @use "assets/standard-styles/standard-controls.scss";
 @use "assets/standard-styles/rtl";
+@use "styles/klacksy-highlight";
 
 /* Self-hosted Roboto font (GDPR compliant, no external requests) */
 @import "@fontsource/roboto/300.css";
@@ -98,5 +99,3 @@ as-split {
   padding: 0 !important;
   border: 1px solid var(--cardBorderColor) !important;
 }
-
-@use "styles/klacksy-highlight";
