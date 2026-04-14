@@ -30,6 +30,12 @@
     </div>
   </div>
   <div class="aside-content">
-    <app-assistant-chat></app-assistant-chat>
+    @if (isVisible()) {
+      @if (isAudioMode()) {
+        <app-voice-shell />
+      } @else {
+        <app-assistant-chat />
+      }
+    }
   </div>
 </div>
