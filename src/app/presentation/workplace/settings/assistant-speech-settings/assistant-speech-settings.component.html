@@ -163,7 +163,7 @@
       {{ "setting.speech.prompt-headline" | translate }}
     </div>
 
-    <div class="prompt-group">
+    <div class="form-group prompt-group">
       <textarea
         class="form-input prompt-textarea"
         [(ngModel)]="transcriptionPrompt"
@@ -233,10 +233,16 @@
                   {{ formatVariants(entry.phoneticVariants) }}
                 </td>
                 <td class="table-cell action">
-                  <button class="btn-icon" (click)="editingEntryId.set(entry.id)">
+                  <button
+                    class="btn-icon"
+                    (click)="editingEntryId.set(entry.id)"
+                  >
                     <app-icon-pencil-icon-grey />
                   </button>
-                  <button class="btn-icon" (click)="deleteDictionaryEntry(entry.id)">
+                  <button
+                    class="btn-icon"
+                    (click)="deleteDictionaryEntry(entry.id)"
+                  >
                     <app-icon-trash-red />
                   </button>
                 </td>
@@ -312,11 +318,17 @@
                 />
               </td>
               <td class="table-cell action">
-                <button class="btn-icon" (click)="openEditSttProvider(provider)">
+                <button
+                  class="btn-icon"
+                  (click)="openEditSttProvider(provider)"
+                >
                   <app-icon-pencil-icon-grey />
                 </button>
                 @if (!provider.isSystem) {
-                  <button class="btn-icon" (click)="deleteSttProvider(provider.id)">
+                  <button
+                    class="btn-icon"
+                    (click)="deleteSttProvider(provider.id)"
+                  >
                     <app-icon-trash-red />
                   </button>
                 }
