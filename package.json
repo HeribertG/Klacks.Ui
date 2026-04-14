@@ -12,6 +12,7 @@
     "test:watch": "ng test --watch",
     "lint": "ng lint",
     "scan:targets": "tsx tools/scan-klacksy-targets.ts",
+    "generate:synonyms": "tsx tools/generate-synonyms.ts",
     "wake-word-lint": "tsx tools/wake-word-lint.ts",
     "postinstall": "npm rebuild esbuild",
     "prepare": "husky"
