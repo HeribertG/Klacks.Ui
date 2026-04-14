@@ -11,6 +11,7 @@ import {
 } from 'src/app/domain/models/client/client-class';
 import { ClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import {
   EVENT_BUS_TOKEN,
   IEventBus,
@@ -64,12 +65,7 @@ describe('ClientEditService', () => {
       client.name = 'Doe';
 
       service.editClient.set(client);
-
-      const dummy = new Client();
-      dummy.id = client.id;
-      dummy.firstName = client.firstName;
-      dummy.name = client.name;
-      service.editClientDummy = dummy;
+      service.editClientDummy = cloneObject(client);
 
       expect(service.isDirty()).toBe(false);
     });
@@ -81,12 +77,7 @@ describe('ClientEditService', () => {
       client.name = 'Doe';
 
       service.editClient.set(client);
-
-      const dummy = new Client();
-      dummy.id = client.id;
-      dummy.firstName = client.firstName;
-      dummy.name = client.name;
-      service.editClientDummy = dummy;
+      service.editClientDummy = cloneObject(client);
 
       service.editClient.update((c) => {
         if (c) c.firstName = 'Jane';
