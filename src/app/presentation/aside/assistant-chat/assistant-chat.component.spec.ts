@@ -208,6 +208,7 @@ describe('AssistantChatComponent', () => {
                             interrupt: vi.fn(),
                             onStreamContent: vi.fn(),
                             onStreamDone: vi.fn(),
+                            onStreamError: vi.fn(),
                         },
                     },
                 ],
