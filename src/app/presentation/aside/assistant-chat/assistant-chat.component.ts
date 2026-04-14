@@ -346,6 +346,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.isProcessing = false;
             this.currentStreamController = null;
             this.cdr.detectChanges();
+            this.orchestrator.onStreamError();
           });
         },
       },

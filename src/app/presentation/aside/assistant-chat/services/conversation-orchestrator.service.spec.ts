@@ -5,9 +5,10 @@
  */
 import { Component, inject } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { ConversationOrchestratorService, ConversationState, ConversationCallbacks } from './conversation-orchestrator.service';
+import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
@@ -145,6 +146,14 @@ describe('ConversationOrchestratorService', () => {
   it('should ignore interrupt when in IDLE state', () => {
     expect(() => service.interrupt()).not.toThrow();
     expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('emits an error hint when STT fails', async () => {
+    const next = firstValueFrom(service.errors$);
+    (service as unknown as { reportError: (e: IVoiceShellErrorHint) => void })
+      .reportError({ kind: 'stt-connection', i18nKey: 'klacksy.voice.errors.stt-failed', persistent: false });
+    const hint = await next;
+    expect(hint.kind).toBe('stt-connection');
   });
 
   // --- State transition tests ---

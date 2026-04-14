@@ -9,7 +9,7 @@
  * @param interimText - Live transcription preview while user speaks
  */
 import { Injectable, OnDestroy, signal, inject, NgZone } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
@@ -18,6 +18,7 @@ import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.se
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 
 export enum ConversationState {
   Idle = 'IDLE',
@@ -48,6 +49,9 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly state = signal(ConversationState.Idle);
   readonly voiceModeEnabled = signal(false);
   readonly interimText = signal('');
+
+  private readonly errorsSubject = new Subject<IVoiceShellErrorHint>();
+  readonly errors$: Observable<IVoiceShellErrorHint> = this.errorsSubject.asObservable();
 
   private callbacks: ConversationCallbacks | null = null;
   private destroy$ = new Subject<void>();
@@ -93,6 +97,18 @@ export class ConversationOrchestratorService implements OnDestroy {
         if (this.state() === ConversationState.Listening) {
           this.sttStream.sendAudio(chunk);
         }
+      });
+
+    this.sttStream.error$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.ngZone.run(() => {
+          this.reportError({
+            kind: 'stt-connection',
+            i18nKey: 'klacksy.voice.errors.stt-failed',
+            persistent: false,
+          });
+        });
       });
 
     this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
@@ -184,11 +200,19 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.interimText.set('');
 
     const speechSettings = this.settings.speechSettings();
-    if (speechSettings.sttEngine !== SttEngine.Browser) {
-      this.sttStream.connect(this.locale);
+    try {
+      if (speechSettings.sttEngine !== SttEngine.Browser) {
+        this.sttStream.connect(this.locale);
+      }
       await this.audioCapture.start();
-    } else {
-      await this.audioCapture.start();
+    } catch {
+      this.reportError({
+        kind: 'mic-permission',
+        i18nKey: 'klacksy.voice.errors.microphone-denied',
+        persistent: true,
+      });
+      this.voiceModeEnabled.set(false);
+      this.state.set(ConversationState.Idle);
     }
   }
 
@@ -248,11 +272,29 @@ export class ConversationOrchestratorService implements OnDestroy {
       if (blob) {
         this.audioQueue.enqueue(blob);
       }
+    } catch {
+      this.reportError({
+        kind: 'tts-failure',
+        i18nKey: 'klacksy.voice.errors.tts-failed',
+        persistent: false,
+      });
     } finally {
       const idx = this.pendingSentences.indexOf(sentence);
       if (idx >= 0) {
         this.pendingSentences.splice(idx, 1);
       }
     }
+  }
+
+  onStreamError(): void {
+    this.reportError({
+      kind: 'network',
+      i18nKey: 'klacksy.voice.errors.network-failed',
+      persistent: false,
+    });
+  }
+
+  protected reportError(hint: IVoiceShellErrorHint): void {
+    this.errorsSubject.next(hint);
   }
 }
