@@ -10,7 +10,7 @@ import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AudioCaptureService implements OnDestroy {
   readonly isCapturing = signal(false);
   readonly isSpeechDetected = signal(false);

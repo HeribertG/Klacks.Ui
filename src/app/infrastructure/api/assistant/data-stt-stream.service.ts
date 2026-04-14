@@ -16,7 +16,7 @@ export interface SttTranscriptResult {
   confidence: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SttStreamService implements OnDestroy {
   readonly isConnected = signal(false);
   readonly transcript$ = new Subject<SttTranscriptResult>();

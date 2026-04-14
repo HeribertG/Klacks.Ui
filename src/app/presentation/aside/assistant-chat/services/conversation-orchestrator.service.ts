@@ -35,7 +35,7 @@ export interface ConversationCallbacks {
   detectChanges: () => void;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ConversationOrchestratorService implements OnDestroy {
   private readonly audioCapture = inject(AudioCaptureService);
   private readonly sttStream = inject(SttStreamService);
@@ -153,6 +153,8 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    const controller = this.callbacks?.getAbortController();
+    if (controller) controller.abort();
     this.disable();
     this.destroy$.next();
     this.destroy$.complete();

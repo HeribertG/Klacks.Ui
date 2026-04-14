@@ -49,9 +49,6 @@ import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/su
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
-import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
-import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
-import { AudioQueueService } from './services/audio-queue.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -75,10 +72,6 @@ import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assist
   providers: [
     AssistantFunctionExecutionService,
     ChatFunctionExecutionService,
-    ConversationOrchestratorService,
-    AudioCaptureService,
-    SttStreamService,
-    AudioQueueService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -245,8 +238,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnDestroy(): void {
-    this.currentStreamController?.abort();
-    this.ttsService.stop();
     this.destroy$.next();
     this.destroy$.complete();
   }

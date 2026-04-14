@@ -9,7 +9,7 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AudioQueueService implements OnDestroy {
   readonly isPlaying = signal(false);
   readonly queueLength = signal(0);

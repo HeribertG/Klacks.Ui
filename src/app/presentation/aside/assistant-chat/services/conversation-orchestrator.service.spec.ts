@@ -379,3 +379,22 @@ describe('ConversationOrchestratorService', () => {
     expect(mockSttStream.disconnect).toHaveBeenCalled();
   });
 });
+
+describe('ConversationOrchestratorService — root provider guarantee', () => {
+  it('should be provided at root level', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const instanceA = TestBed.inject(ConversationOrchestratorService);
+    const instanceB = TestBed.inject(ConversationOrchestratorService);
+    expect(instanceA).toBe(instanceB);
+  });
+
+  it('state signal should persist across independent injector lookups', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const first = TestBed.inject(ConversationOrchestratorService);
+    (first as unknown as { state: { set: (v: ConversationState) => void } }).state.set(ConversationState.Listening);
+    const second = TestBed.inject(ConversationOrchestratorService);
+    expect(second.state()).toBe(ConversationState.Listening);
+  });
+});
