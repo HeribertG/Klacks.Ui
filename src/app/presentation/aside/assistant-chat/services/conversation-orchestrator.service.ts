@@ -51,8 +51,8 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly voiceModeEnabled = signal(false);
   readonly interimText = signal('');
 
-  private readonly messagesSignal = signal<ReadonlyArray<ChatMessage>>([]);
-  readonly messages: Signal<ReadonlyArray<ChatMessage>> = this.messagesSignal.asReadonly();
+  private readonly messagesSignal = signal<readonly ChatMessage[]>([]);
+  readonly messages: Signal<readonly ChatMessage[]> = this.messagesSignal.asReadonly();
 
   private readonly errorsSubject = new Subject<IVoiceShellErrorHint>();
   readonly errors$: Observable<IVoiceShellErrorHint> = this.errorsSubject.asObservable();
@@ -69,7 +69,7 @@ export class ConversationOrchestratorService implements OnDestroy {
    * Replace the entire conversation log (e.g. after a splice or filter).
    * @param next - New ordered list of messages
    */
-  replaceMessages(next: ReadonlyArray<ChatMessage>): void {
+  replaceMessages(next: readonly ChatMessage[]): void {
     this.messagesSignal.set([...next]);
   }
 

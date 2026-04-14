@@ -112,11 +112,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     });
   }
 
-  get messages(): ReadonlyArray<ChatMessage> {
+  get messages(): readonly ChatMessage[] {
     return this.orchestrator.messages();
   }
 
-  set messages(next: ReadonlyArray<ChatMessage>) {
+  set messages(next: readonly ChatMessage[]) {
     this.orchestrator.replaceMessages(next);
   }
 

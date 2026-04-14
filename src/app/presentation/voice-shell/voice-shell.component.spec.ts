@@ -17,7 +17,7 @@ import type { ChatMessage } from '../aside/assistant-chat/chat-message.interface
 interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;
   voiceModeEnabled: ReturnType<typeof signal<boolean>>;
-  messages: ReturnType<typeof signal<ReadonlyArray<ChatMessage>>>;
+  messages: ReturnType<typeof signal<readonly ChatMessage[]>>;
   errors$: Subject<IVoiceShellErrorHint>;
   startSession: ReturnType<typeof vi.fn>;
   endSession: ReturnType<typeof vi.fn>;
@@ -28,7 +28,7 @@ function makeOrchestratorMock(): MockOrchestrator {
   return {
     state: signal<ConversationState>(ConversationState.Idle),
     voiceModeEnabled: signal<boolean>(false),
-    messages: signal<ReadonlyArray<ChatMessage>>([]),
+    messages: signal<readonly ChatMessage[]>([]),
     errors$: new Subject<IVoiceShellErrorHint>(),
     startSession: vi.fn().mockResolvedValue(undefined),
     endSession: vi.fn(),

@@ -53,7 +53,6 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
-import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { IOpenContainerWorkOptions } from './open-container-work-options';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import {

@@ -1,8 +1,12 @@
 <div
   class="voice-shell"
+  role="button"
+  tabindex="0"
   [class.error-active]="errorHint() !== null && !errorHint()!.persistent"
   [class.error-persistent]="errorHint()?.persistent"
   (click)="handleClick()"
+  (keydown.enter)="handleClick()"
+  (keydown.space)="handleClick(); $event.preventDefault()"
   (contextmenu)="handleContextMenu($event)"
   (touchstart)="handleTouchStart()"
   (touchend)="handleTouchEnd()"

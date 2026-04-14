@@ -32,7 +32,7 @@ export class VoiceShellIconComponent {
     }
   });
 
-  readonly waveBars: ReadonlyArray<number> = [0, 1, 2, 3, 4];
+  readonly waveBars: readonly number[] = [0, 1, 2, 3, 4];
   readonly isListening = computed(() => this.state() === ConversationState.Listening);
   readonly isSpeaking = computed(() => this.state() === ConversationState.Speaking);
   readonly isSpinning = computed(() => {

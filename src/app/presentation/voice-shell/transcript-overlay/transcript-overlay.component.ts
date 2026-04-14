@@ -34,10 +34,10 @@ import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-constants
 export class TranscriptOverlayComponent {
   private readonly hostRef = inject(ElementRef<HTMLElement>);
 
-  readonly messages = input.required<ReadonlyArray<ChatMessage>>();
+  readonly messages = input.required<readonly ChatMessage[]>();
   readonly closed = output<void>();
 
-  readonly visibleMessages = computed<ReadonlyArray<ChatMessage>>(() => {
+  readonly visibleMessages = computed<readonly ChatMessage[]>(() => {
     const all = this.messages();
     const max = VoiceShellLayout.TranscriptMaxMessages;
     return all.length <= max ? all : all.slice(all.length - max);
