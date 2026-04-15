@@ -95,30 +95,70 @@ async function callLlm(target: TargetEntry, locale: string, label: string): Prom
 
 async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
+const SKIP_PLUGINS = process.env.SYNONYM_SKIP_PLUGINS === '1' || process.argv.includes('--core-only');
+const PLUGINS_ONLY = process.env.SYNONYM_PLUGINS_ONLY === '1' || process.argv.includes('--plugins-only');
+
+function pluginOverlayHasTarget(loc: string, targetId: string): boolean {
+  const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
+  if (!existsSync(file)) return false;
+  try {
+    const overlay = JSON.parse(readFileSync(file, 'utf8'));
+    return targetId in overlay;
+  } catch {
+    return false;
+  }
+}
+
+async function generatePluginsForTarget(t: TargetEntry, label: string, force: boolean): Promise<number> {
+  let calls = 0;
+  for (const loc of PLUGIN_LOCALES) {
+    if (!force && pluginOverlayHasTarget(loc, t.targetId)) continue;
+    console.log(`→ ${t.targetId} / ${loc} (plugin)`);
+    const synonyms = await callLlm(t, loc, label);
+    await sleep(200);
+    const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
+    mkdirSync(dirname(file), { recursive: true });
+    const overlay = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+    overlay[t.targetId] = { synonyms, status: 'generated' };
+    writeFileSync(file, JSON.stringify(overlay, null, 2) + '\n', 'utf8');
+    calls++;
+  }
+  return calls;
+}
+
 async function run(): Promise<void> {
   const manifest: TargetEntry[] = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+  if (SKIP_PLUGINS) console.log('[generate-synonyms] Core-only mode (plugin locales skipped)');
+  if (PLUGINS_ONLY) console.log('[generate-synonyms] Plugins-only mode (only missing plugin overlays)');
+
+  let processed = 0;
   for (const t of manifest) {
-    if (t.synonymStatus !== 'pending') continue;
     const label = t.labelKey.split('.').pop() ?? t.targetId;
-    for (const loc of CORE_LOCALES) {
-      console.log(`→ ${t.targetId} / ${loc}`);
-      t.synonyms[loc] = await callLlm(t, loc, label);
-      await sleep(200);
+
+    if (PLUGINS_ONLY) {
+      const calls = await generatePluginsForTarget(t, label, false);
+      if (calls > 0) processed++;
+    } else {
+      if (t.synonymStatus !== 'pending') continue;
+      for (const loc of CORE_LOCALES) {
+        console.log(`→ ${t.targetId} / ${loc}`);
+        t.synonyms[loc] = await callLlm(t, loc, label);
+        await sleep(200);
+      }
+      t.synonymStatus = 'generated';
+      if (!SKIP_PLUGINS) {
+        await generatePluginsForTarget(t, label, true);
+      }
+      processed++;
     }
-    t.synonymStatus = 'generated';
-    for (const loc of PLUGIN_LOCALES) {
-      console.log(`→ ${t.targetId} / ${loc} (plugin)`);
-      const synonyms = await callLlm(t, loc, label);
-      await sleep(200);
-      const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
-      mkdirSync(dirname(file), { recursive: true });
-      const overlay = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
-      overlay[t.targetId] = { synonyms, status: 'generated' };
-      writeFileSync(file, JSON.stringify(overlay, null, 2) + '\n', 'utf8');
+
+    if (processed > 0 && processed % 5 === 0) {
+      writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+      console.log(`[generate-synonyms] Manifest checkpoint after ${processed} targets.`);
     }
   }
   writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
-  console.log('Done.');
+  console.log(`Done. Processed ${processed} targets.`);
 }
 
 run().catch(e => { console.error(e); process.exit(1); });

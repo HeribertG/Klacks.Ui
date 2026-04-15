@@ -57,12 +57,44 @@ cd C:\SourceCode\Klacks.Ui
 # 1. Scan templates → navigation-targets.json with all anchors
 npm run scan:targets
 
-# 2. Generate initial synonyms (status: 'generated')
+# 2a. Generate initial synonyms (all 4 core + 22 plugin locales, ~2.5 h)
 npm run generate:synonyms
+
+# 2b. Core locales only (de/en/fr/it) — fast, about 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Backfill missing plugin locales — about 45 min
+npm run generate:synonyms -- --plugins-only
 
 # 3. Check wake-word consistency
 npm run wake-word-lint
 </pre>
+
+<p>
+<strong>Important:</strong> With <code>npm run</code> you must include <code>--</code> so
+the options are forwarded to the script. Without it, npm swallows the flag and the
+script runs in default mode.
+</p>
+
+<p>
+Alternative without npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API key</h4>
+<p>
+The LLM API key is resolved in this order:
+</p>
+<ol>
+  <li>Env variable <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DB table <code>llm_providers</code> (provider <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatically via <code>psql</code> call</li>
+  <li>Otherwise an error is raised</li>
+</ol>
+<p>
+Default provider is DeepSeek. Use a different provider via
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (or any other configured LLM provider in
+the settings).
+</p>
 
 <h4>Step 1 - scan:targets</h4>
 <p>
@@ -76,11 +108,31 @@ Each new anchor then appears in the "Targets" tab with status <code>pending</cod
 Generates initial synonyms for each new anchor from the <code>data-klacksy-label-key</code>
 and the category. Status afterwards: <code>generated</code> (must be reviewed by admin).
 </p>
+<p>
+The script writes manifest checkpoints every 5 targets, so an interrupted run does not
+lose already generated data.
+</p>
 
 <h4>Step 3 - wake-word-lint</h4>
 <p>
 Checks consistency of the wake-word variants (Hello Klacksy / Hey Klacksy / ...) across
 all languages. Prevents synonyms from overriding the wake-word.
+</p>
+
+<hr>
+
+<h3>Voice mode</h3>
+<p>
+The microphone icon in the chat activates voice mode. Once active:
+</p>
+<ul>
+  <li>The microphone listens continuously and transcribes</li>
+  <li>On a short silence → the current transcription is auto-sent</li>
+</ul>
+<p>
+<strong>Important:</strong> As soon as you start typing in the input field, voice mode
+is automatically disabled — otherwise the microphone would overwrite your typed text
+with its transcription and send it prematurely.
 </p>
 
 <hr>

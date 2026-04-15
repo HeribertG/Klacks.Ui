@@ -57,12 +57,44 @@ cd C:\SourceCode\Klacks.Ui
 # 1. Templates scannen → navigation-targets.json mit allen Anchors
 npm run scan:targets
 
-# 2. Initial-Synonyme generieren (Status: 'generated')
+# 2a. Initial-Synonyme generieren (alle 4 Core + 22 Plugin-Locales, ~2.5 h)
 npm run generate:synonyms
+
+# 2b. Nur Core-Locales (de/en/fr/it) — schnell, ca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Nur fehlende Plugin-Locales nachfuellen — ca. 45 min
+npm run generate:synonyms -- --plugins-only
 
 # 3. Wake-Word-Konsistenz pruefen
 npm run wake-word-lint
 </pre>
+
+<p>
+<strong>Wichtig:</strong> Bei <code>npm run</code> muss <code>--</code> stehen, damit die
+Optionen an das Skript weitergereicht werden. Ohne <code>--</code> verschluckt npm das Flag
+und das Skript laeuft im Standard-Modus.
+</p>
+
+<p>
+Alternative ohne npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API-Key</h4>
+<p>
+Der LLM-API-Key wird in dieser Reihenfolge gesucht:
+</p>
+<ol>
+  <li>Env-Variable <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DB-Tabelle <code>llm_providers</code> (Provider <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatisch via <code>psql</code>-Aufruf</li>
+  <li>Sonst Fehlermeldung</li>
+</ol>
+<p>
+Standard-Provider ist DeepSeek. Anderer Provider via
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (oder ein anderer eingerichteter
+LLM-Provider in den Settings).
+</p>
 
 <h4>Schritt 1 - scan:targets</h4>
 <p>
@@ -76,11 +108,31 @@ Jeder neue Anker erscheint danach im Tab "Ziele" mit Status <code>pending</code>
 Erzeugt fuer jeden neuen Anker initiale Synonyme aus dem <code>data-klacksy-label-key</code>
 und der Kategorie. Status danach: <code>generated</code> (muss vom Admin reviewed werden).
 </p>
+<p>
+Das Skript schreibt Manifest-Checkpoints alle 5 Targets, sodass ein Abbruch keine bereits
+generierten Daten verliert.
+</p>
 
 <h4>Schritt 3 - wake-word-lint</h4>
 <p>
 Prueft die Konsistenz der Wake-Word-Variante (Hallo Klacksy / Hey Klacksy / ...) ueber
 alle Sprachen. Verhindert, dass Synonyme das Wake-Word ueberschreiben.
+</p>
+
+<hr>
+
+<h3>Voice-Mode</h3>
+<p>
+Das Mikrofon-Symbol im Chat aktiviert den Voice-Mode. Sobald aktiv:
+</p>
+<ul>
+  <li>Mikrofon hoert mit, transkribiert kontinuierlich</li>
+  <li>Bei kurzer Stille → automatisches Senden der bisherigen Transkription</li>
+</ul>
+<p>
+<strong>Wichtig:</strong> Sobald du in das Textfeld zu tippen beginnst, wird der Voice-Mode
+automatisch beendet — sonst wuerde das Mikrofon deinen getippten Text mit eigenen
+Transkriptionen ueberschreiben und vorzeitig senden.
 </p>
 
 <hr>

@@ -58,12 +58,44 @@ cd C:\SourceCode\Klacks.Ui
 # 1. Scanner les templates → navigation-targets.json avec toutes les ancres
 npm run scan:targets
 
-# 2. Générer les synonymes initiaux (statut : 'generated')
+# 2a. Générer tous les synonymes (4 core + 22 plugin locales, environ 2,5 h)
 npm run generate:synonyms
+
+# 2b. Locales core uniquement (de/en/fr/it) — rapide, environ 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Compléter les locales plugin manquantes — environ 45 min
+npm run generate:synonyms -- --plugins-only
 
 # 3. Vérifier la cohérence du wake-word
 npm run wake-word-lint
 </pre>
+
+<p>
+<strong>Important :</strong> Avec <code>npm run</code>, il faut ajouter <code>--</code>
+pour que les options soient transmises au script. Sans cela, npm avale l'option et le
+script s'exécute en mode par défaut.
+</p>
+
+<p>
+Alternative sans npm : <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Clé d'API</h4>
+<p>
+La clé d'API du LLM est résolue dans cet ordre :
+</p>
+<ol>
+  <li>Variable d'environnement <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Table DB <code>llm_providers</code> (provider <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatiquement via un appel <code>psql</code></li>
+  <li>Sinon une erreur est levée</li>
+</ol>
+<p>
+Le provider par défaut est DeepSeek. Utilisez un autre provider via
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (ou tout autre provider LLM configuré
+dans les paramètres).
+</p>
 
 <h4>Étape 1 - scan:targets</h4>
 <p>
@@ -80,11 +112,31 @@ Génère des synonymes initiaux pour chaque nouvelle ancre à partir du
 <code>data-klacksy-label-key</code> et de la catégorie. Statut ensuite :
 <code>generated</code> (doit être validé par un administrateur).
 </p>
+<p>
+Le script écrit des points de contrôle du manifeste tous les 5 cibles, de sorte qu'une
+interruption ne perd pas les données déjà générées.
+</p>
 
 <h4>Étape 3 - wake-word-lint</h4>
 <p>
 Vérifie la cohérence des variantes du wake-word (Bonjour Klacksy / Hey Klacksy / ...) à
 travers toutes les langues. Empêche les synonymes de remplacer le wake-word.
+</p>
+
+<hr>
+
+<h3>Mode vocal</h3>
+<p>
+L'icône du microphone dans le chat active le mode vocal. Une fois activé :
+</p>
+<ul>
+  <li>Le microphone écoute en continu et transcrit</li>
+  <li>Lors d'un court silence → la transcription actuelle est envoyée automatiquement</li>
+</ul>
+<p>
+<strong>Important :</strong> Dès que vous commencez à taper dans le champ de saisie, le
+mode vocal est automatiquement désactivé — sinon le microphone écraserait votre texte
+saisi avec sa transcription et l'enverrait prématurément.
 </p>
 
 <hr>
