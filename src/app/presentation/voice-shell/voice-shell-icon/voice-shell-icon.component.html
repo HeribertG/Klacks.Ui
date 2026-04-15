@@ -1,17 +1,30 @@
-<div class="icon-root" [class]="stateClass()">
+<div class="icon-root" [class]="stateClass()" [attr.aria-label]="ariaKey() | translate" role="img">
   @if (isListening()) {
     <span class="pulse-ring" aria-hidden="true"></span>
   }
   <div class="icon-core">
     @if (isSpeaking()) {
-      <div class="wave-group" role="img" aria-label="speaking">
+      <div class="wave-group" aria-hidden="true">
         @for (i of waveBars; track i) {
           <span class="wave-bar" [style.animation-delay.ms]="i * 150"></span>
         }
       </div>
-    } @else if (isSpinning()) {
-      <span class="spinner" aria-hidden="true">&#8943;</span>
-    } @else {
+    } @else if (isEnhancing()) {
+      <svg class="transcribe-icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <rect class="tx-bar tx-bar-1" x="2" y="10" width="1.6" height="4" fill="currentColor" rx="0.6"/>
+        <rect class="tx-bar tx-bar-2" x="5" y="7" width="1.6" height="10" fill="currentColor" rx="0.6"/>
+        <rect class="tx-bar tx-bar-3" x="8" y="9" width="1.6" height="6" fill="currentColor" rx="0.6"/>
+        <rect class="tx-line tx-line-1" x="12" y="8" width="10" height="1.6" fill="currentColor" rx="0.6"/>
+        <rect class="tx-line tx-line-2" x="12" y="11" width="8" height="1.6" fill="currentColor" rx="0.6"/>
+        <rect class="tx-line tx-line-3" x="12" y="14" width="6" height="1.6" fill="currentColor" rx="0.6"/>
+      </svg>
+    } @else if (isProcessing()) {
+      <svg class="thinking-dots" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <circle class="dot dot-1" cx="5" cy="12" r="2.2" fill="currentColor"/>
+        <circle class="dot dot-2" cx="12" cy="12" r="2.2" fill="currentColor"/>
+        <circle class="dot dot-3" cx="19" cy="12" r="2.2" fill="currentColor"/>
+      </svg>
+    } @else if (showMic()) {
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
         <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21h-2v-3.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0z"/>
       </svg>

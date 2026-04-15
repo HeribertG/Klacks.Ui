@@ -8,13 +8,14 @@
 
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { VoiceShellClass } from 'src/app/domain/constants/voice-shell-constants';
 import { ConversationState } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
 
 @Component({
   selector: 'app-voice-shell-icon',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './voice-shell-icon.component.html',
   styleUrl: './voice-shell-icon.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,11 +33,23 @@ export class VoiceShellIconComponent {
     }
   });
 
+  readonly ariaKey = computed<string>(() => {
+    switch (this.state()) {
+      case ConversationState.Idle: return 'klacksy.voice.aria.idle';
+      case ConversationState.Listening: return 'klacksy.voice.aria.listening';
+      case ConversationState.Enhancing: return 'klacksy.voice.aria.transcribing';
+      case ConversationState.Processing: return 'klacksy.voice.aria.thinking';
+      case ConversationState.Speaking: return 'klacksy.voice.aria.speaking';
+    }
+  });
+
   readonly waveBars: readonly number[] = [0, 1, 2, 3, 4];
   readonly isListening = computed(() => this.state() === ConversationState.Listening);
+  readonly isEnhancing = computed(() => this.state() === ConversationState.Enhancing);
+  readonly isProcessing = computed(() => this.state() === ConversationState.Processing);
   readonly isSpeaking = computed(() => this.state() === ConversationState.Speaking);
-  readonly isSpinning = computed(() => {
+  readonly showMic = computed(() => {
     const s = this.state();
-    return s === ConversationState.Enhancing || s === ConversationState.Processing;
+    return s === ConversationState.Idle || s === ConversationState.Listening;
   });
 }

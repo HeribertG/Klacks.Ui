@@ -9,6 +9,7 @@
 export class VoiceShellColors {
   static readonly Idle = '#94a3b8';
   static readonly Listening = '#007bff';
+  static readonly Enhancing = '#a855f7';
   static readonly Processing = '#f59e0b';
   static readonly Speaking = '#10b981';
   static readonly Error = '#ef4444';
