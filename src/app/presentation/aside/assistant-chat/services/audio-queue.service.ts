@@ -20,6 +20,7 @@ export class AudioQueueService implements OnDestroy {
   private currentObjectUrl: string | null = null;
 
   enqueue(audioBlob: Blob): void {
+    console.log('[VS] audio-queue enqueue, size=', audioBlob.size, 'type=', audioBlob.type);
     this.queue.push(audioBlob);
     this.queueLength.set(this.queue.length);
 
@@ -61,18 +62,24 @@ export class AudioQueueService implements OnDestroy {
     this.isPlaying.set(true);
 
     this.currentAudio.onended = () => {
+      console.log('[VS] audio-queue playback ended');
       this.revokeObjectUrl();
       this.playNext();
     };
 
-    this.currentAudio.onerror = () => {
+    this.currentAudio.onerror = (ev) => {
+      console.error('[VS] audio-queue playback ERROR', ev, this.currentAudio?.error);
       this.revokeObjectUrl();
       this.playNext();
     };
 
-    this.currentAudio.play().catch(() => {
-      this.playNext();
-    });
+    console.log('[VS] audio-queue starting play, url=', this.currentObjectUrl);
+    this.currentAudio.play()
+      .then(() => console.log('[VS] audio-queue play() promise resolved'))
+      .catch((err) => {
+        console.error('[VS] audio-queue play() rejected:', err);
+        this.playNext();
+      });
   }
 
   private revokeObjectUrl(): void {

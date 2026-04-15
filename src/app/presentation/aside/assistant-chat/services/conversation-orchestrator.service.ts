@@ -402,11 +402,14 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private async synthesizeAndEnqueue(sentence: string): Promise<void> {
     try {
+      console.log('[VS] TTS synthesize:', JSON.stringify(sentence.slice(0, 40)), 'locale=', this.locale);
       const blob = await this.dataTts.synthesize({ text: sentence, locale: this.locale });
+      console.log('[VS] TTS synthesize result: blob=', blob ? `size=${blob.size} type=${blob.type}` : 'NULL');
       if (blob) {
         this.audioQueue.enqueue(blob);
       }
-    } catch {
+    } catch (err) {
+      console.error('[VS] TTS synthesize threw', err);
       this.reportError({
         kind: 'tts-failure',
         i18nKey: 'klacksy.voice.errors.tts-failed',
