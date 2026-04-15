@@ -48,6 +48,31 @@ export class WhisperStreamingService {
     return this.errors$.asObservable();
   }
 
+  async transcribeBlob(blob: Blob, language = 'de'): Promise<string> {
+    if (!this.pipeline) {
+      const loaded = await this.loadModel();
+      if (!loaded) {
+        throw new Error('Whisper model failed to load');
+      }
+    }
+
+    this.isTranscribing.set(true);
+    const audioUrl = URL.createObjectURL(blob);
+    try {
+      const whisperLanguage = this.mapLanguageCode(language);
+      const result = await this.pipeline(audioUrl, {
+        language: whisperLanguage,
+        task: 'transcribe',
+        chunk_length_s: 30,
+        stride_length_s: 5,
+      });
+      return result?.text?.trim() ?? '';
+    } finally {
+      URL.revokeObjectURL(audioUrl);
+      this.isTranscribing.set(false);
+    }
+  }
+
   async loadModel(): Promise<boolean> {
     if (this.pipeline) {
       return true;

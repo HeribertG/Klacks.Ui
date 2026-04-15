@@ -59,6 +59,10 @@ export class SpeechRecognitionService {
   public isWhisperModelLoaded = this.whisperStreamingService.isModelLoaded;
   public isTranscribing = this.whisperStreamingService.isTranscribing;
 
+  transcribeBlob(blob: Blob, language = 'de'): Promise<string> {
+    return this.whisperStreamingService.transcribeBlob(blob, language);
+  }
+
   constructor() {
     this.diagnostics = this.collectDiagnostics();
     this.initializeSpeechRecognition();

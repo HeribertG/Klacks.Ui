@@ -19,14 +19,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faMicrophone,
-  faMicrophoneSlash,
   faCheck,
   faXmark,
   faPlay,
   faStop,
   faRotate,
 } from '@fortawesome/free-solid-svg-icons';
-import { Subscription } from 'rxjs';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 import { MicrophoneTestDefaults } from 'src/app/domain/constants/microphone-test-constants';
@@ -48,10 +46,8 @@ interface TestResult {
 export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   private speechService = inject(SpeechRecognitionService);
   private micSelection = inject(MicrophoneSelectionService);
-  private subscriptions: Subscription[] = [];
 
   public faMicrophone = faMicrophone;
-  public faMicrophoneSlash = faMicrophoneSlash;
   public faCheck = faCheck;
   public faXmark = faXmark;
   public faPlay = faPlay;
@@ -59,10 +55,9 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   public faRotate = faRotate;
 
   public isTestRunning = signal(false);
-  public isRecording = signal(false);
-  public transcribedText = signal('');
   public errorMessage = signal('');
   public testResults = signal<TestResult[]>([]);
+  public transcribedText = signal('');
 
   public availableDevices = this.micSelection.availableDevices;
   public selectedDeviceId = this.micSelection.selectedDeviceId;
@@ -80,6 +75,7 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   public isWhisperLoading = this.speechService.isWhisperLoading;
   public whisperLoadProgress = this.speechService.whisperLoadProgress;
   public isWhisperModelLoaded = this.speechService.isWhisperModelLoaded;
+  public isTranscribing = this.speechService.isTranscribing;
 
   private mediaRecorder: MediaRecorder | null = null;
   private playbackStream: MediaStream | null = null;
@@ -94,10 +90,6 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
-    if (this.isRecording()) {
-      this.speechService.stopListening();
-    }
     this.stopRecordPlayback();
     this.stopLevelMeter();
     this.playbackStream?.getTracks().forEach((t) => t.stop());
@@ -115,7 +107,6 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   async runDiagnostics(): Promise<void> {
     this.isTestRunning.set(true);
     this.errorMessage.set('');
-    this.transcribedText.set('');
 
     const results: TestResult[] = [
       { name: 'setting.microphone-test.test-secure-context', status: 'pending' },
@@ -192,36 +183,6 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
     this.isTestRunning.set(false);
   }
 
-  startRecording(): void {
-    if (this.isRecording()) {
-      this.speechService.stopListening();
-      this.isRecording.set(false);
-      return;
-    }
-
-    this.transcribedText.set('');
-    this.errorMessage.set('');
-    this.isRecording.set(true);
-
-    const resultSub = this.speechService.startListening('de-DE').subscribe({
-      next: (text) => {
-        this.transcribedText.set(text);
-        this.isRecording.set(false);
-      },
-      error: (err) => {
-        this.errorMessage.set(err.message || 'Recording error');
-        this.isRecording.set(false);
-      },
-    });
-    this.subscriptions.push(resultSub);
-
-    const errorSub = this.speechService.errors.subscribe((error) => {
-      this.errorMessage.set(error);
-      this.isRecording.set(false);
-    });
-    this.subscriptions.push(errorSub);
-  }
-
   async toggleRecordPlayback(): Promise<void> {
     if (this.isPlaybackRecording()) {
       this.stopRecordPlayback();
@@ -229,6 +190,7 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
     }
 
     this.errorMessage.set('');
+    this.transcribedText.set('');
     this.disposePlayback();
 
     const deviceId = this.micSelection.selectedDeviceId();
@@ -256,6 +218,7 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
       this.playbackStream?.getTracks().forEach((t) => t.stop());
       this.playbackStream = null;
       this.isPlaybackRecording.set(false);
+      this.transcribeRecording(blob);
     };
     this.mediaRecorder.start();
     this.isPlaybackRecording.set(true);
@@ -263,6 +226,15 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
       () => this.stopRecordPlayback(),
       MicrophoneTestDefaults.MaxRecordingDurationMs,
     );
+  }
+
+  private async transcribeRecording(blob: Blob): Promise<void> {
+    try {
+      const text = await this.speechService.transcribeBlob(blob, 'de');
+      this.transcribedText.set(text);
+    } catch (err) {
+      this.errorMessage.set(err instanceof Error ? err.message : 'Transcription failed');
+    }
   }
 
   stopRecordPlayback(): void {

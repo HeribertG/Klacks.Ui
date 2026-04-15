@@ -58,30 +58,7 @@
         {{ "setting.microphone-test.run-diagnostics" | translate }}
       </button>
 
-      <button
-        class="btn test-button"
-        [class.btn-danger]="isRecording()"
-        [class.btn-success]="!isRecording()"
-        (click)="startRecording()"
-        [disabled]="isTestRunning() || isWhisperLoading()"
-      >
-        @if (isRecording()) {
-          <fa-icon [icon]="faStop"></fa-icon>
-          {{ "setting.microphone-test.stop-recording" | translate }}
-        } @else {
-          <fa-icon [icon]="faMicrophone"></fa-icon>
-          {{ "setting.microphone-test.start-recording" | translate }}
-        }
-      </button>
     </div>
-
-    @if (isWhisperLoading()) {
-      <div class="whisper-loading">
-        <span class="spinner-border spinner-border-sm"></span>
-        {{ "setting.microphone-test.loading-whisper" | translate }}
-        {{ whisperLoadProgress() }}%
-      </div>
-    }
 
     @if (testResults().length > 0) {
       <div class="test-results">
@@ -110,15 +87,6 @@
             </li>
           }
         </ul>
-      </div>
-    }
-
-    @if (transcribedText()) {
-      <div class="transcription-result">
-        <h4>{{ "setting.microphone-test.transcription-result" | translate }}</h4>
-        <div class="transcription-text">
-          {{ transcribedText() }}
-        </div>
       </div>
     }
 
@@ -162,6 +130,28 @@
         <audio class="playback-audio" controls [src]="playbackUrl()!"></audio>
       } @else if (!isPlaybackRecording()) {
         <p class="info-text">{{ "setting.microphone-test.no-recording-yet" | translate }}</p>
+      }
+
+      @if (isWhisperLoading()) {
+        <div class="whisper-loading">
+          <span class="spinner-border spinner-border-sm"></span>
+          {{ "setting.microphone-test.loading-whisper" | translate }}
+          {{ whisperLoadProgress() }}%
+        </div>
+      }
+
+      @if (isTranscribing()) {
+        <div class="whisper-loading">
+          <span class="spinner-border spinner-border-sm"></span>
+          {{ "setting.microphone-test.transcribing" | translate }}
+        </div>
+      }
+
+      @if (transcribedText()) {
+        <div class="transcription-result">
+          <h5>{{ "setting.microphone-test.transcription-result" | translate }}</h5>
+          <div class="transcription-text">{{ transcribedText() }}</div>
+        </div>
       }
     </div>
   </div>
