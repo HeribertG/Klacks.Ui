@@ -12,6 +12,7 @@ import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/se
   standalone: true,
   imports: [TranslateModule],
   templateUrl: './klacksy-training-metrics.component.html',
+  styleUrls: ['./klacksy-training-metrics.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingMetricsComponent implements OnInit {

@@ -6,9 +6,10 @@
  * @param silenceThresholdMs - Duration of silence before emitting silence-detected event
  * @param audioChunk$ - Observable of PCM audio chunks (ArrayBuffer, Int16 samples)
  */
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
+import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 
 @Injectable({ providedIn: 'root' })
 export class AudioCaptureService implements OnDestroy {
@@ -25,6 +26,7 @@ export class AudioCaptureService implements OnDestroy {
   private workletNode: ScriptProcessorNode | null = null;
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly vadThreshold = SpeechDefaults.VadThreshold;
+  private readonly micSelection = inject(MicrophoneSelectionService);
 
   setSilenceThresholdMs(ms: number): void {
     this.silenceThresholdMs.set(ms);
@@ -33,9 +35,7 @@ export class AudioCaptureService implements OnDestroy {
   async start(): Promise<void> {
     if (this.isCapturing()) return;
 
-    this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: { sampleRate: SpeechDefaults.SampleRate, channelCount: SpeechDefaults.ChannelCount, echoCancellation: true, noiseSuppression: true },
-    });
+    this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
 
     this.audioContext = new AudioContext({ sampleRate: SpeechDefaults.SampleRate });
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
@@ -50,6 +50,31 @@ export class AudioCaptureService implements OnDestroy {
     this.workletNode.connect(this.audioContext.destination);
 
     this.isCapturing.set(true);
+  }
+
+  private async acquireStream(deviceId: string | null): Promise<MediaStream> {
+    const baseConstraints: MediaTrackConstraints = {
+      sampleRate: SpeechDefaults.SampleRate,
+      channelCount: SpeechDefaults.ChannelCount,
+      echoCancellation: true,
+      noiseSuppression: true,
+    };
+
+    if (!deviceId) {
+      return navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
+    }
+
+    try {
+      return await navigator.mediaDevices.getUserMedia({
+        audio: { ...baseConstraints, deviceId: { exact: deviceId } },
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'OverconstrainedError') {
+        this.micSelection.selectDevice(null);
+        return navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
+      }
+      throw err;
+    }
   }
 
   stop(): void {

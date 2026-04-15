@@ -9,13 +9,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingReviewComponent } from '../klacksy-training-review/klacksy-training-review.component';
 import { KlacksyTrainingFeedbackReviewComponent } from '../klacksy-training-feedback-review/klacksy-training-feedback-review.component';
 import { KlacksyTrainingMetricsComponent } from '../klacksy-training-metrics/klacksy-training-metrics.component';
+import { KlacksyTrainingManualComponent } from '../klacksy-training-manual/klacksy-training-manual.component';
 
-type Tab = 'targets' | 'feedback' | 'metrics';
+type Tab = 'targets' | 'feedback' | 'metrics' | 'manual';
 
 @Component({
   selector: 'app-klacksy-training-review-home',
   standalone: true,
-  imports: [TranslateModule, KlacksyTrainingReviewComponent, KlacksyTrainingFeedbackReviewComponent, KlacksyTrainingMetricsComponent],
+  imports: [TranslateModule, KlacksyTrainingReviewComponent, KlacksyTrainingFeedbackReviewComponent, KlacksyTrainingMetricsComponent, KlacksyTrainingManualComponent],
   templateUrl: './klacksy-training-review-home.component.html',
   styleUrls: ['./klacksy-training-review-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

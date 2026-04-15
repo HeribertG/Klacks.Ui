@@ -9,11 +9,12 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
+import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-klacksy-training-synonym-editor',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule, TrashIconRedComponent],
   templateUrl: './klacksy-training-synonym-editor.component.html',
   styleUrls: ['./klacksy-training-synonym-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

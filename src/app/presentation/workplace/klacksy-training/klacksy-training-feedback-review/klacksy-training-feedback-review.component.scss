@@ -25,31 +25,3 @@
   width: auto;
   min-width: 120px;
 }
-
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-pending {
-  background-color: var(--backgroundColorHeaderNav);
-  color: var(--colorSubHeadline);
-}
-
-.status-generated {
-  background-color: rgba(230, 137, 0, 0.15);
-  color: #b86b00;
-}
-
-.status-reviewed {
-  background-color: rgba(67, 160, 71, 0.15);
-  color: #2e7d32;
-}
-
-.status-needs-review {
-  background-color: rgba(211, 47, 47, 0.15);
-  color: #c62828;
-}

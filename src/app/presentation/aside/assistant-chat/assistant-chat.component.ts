@@ -456,10 +456,20 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
+    if (this.orchestrator.voiceModeEnabled() && this.isPrintableKey(event)) {
+      this.orchestrator.endSession();
+    }
+
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  private isPrintableKey(event: KeyboardEvent): boolean {
+    if (event.ctrlKey || event.altKey || event.metaKey) return false;
+    if (event.key.length === 1) return true;
+    return event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Enter';
   }
 
   private addWelcomeMessage(_langCode: string): void {

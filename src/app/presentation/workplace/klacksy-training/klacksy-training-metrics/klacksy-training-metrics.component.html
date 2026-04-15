@@ -1,11 +1,56 @@
-<div>
-  <h2>{{ 'klacksyTraining.metrics.title' | translate }}</h2>
-  <ul>
-    <li>Total: {{ counts().total }}</li>
-    <li>Pending: {{ counts().pending }}</li>
-    <li>Generated: {{ counts().generated }}</li>
-    <li>Reviewed: {{ counts().reviewed }}</li>
-    <li>Needs review: {{ counts().needsReview }}</li>
-    <li>Obsolete: {{ counts().obsolete }}</li>
-  </ul>
+<div id="klacksyTrainingMetrics">
+  <div class="container-header header-container">
+    {{ 'klacksyTraining.metrics.title' | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-table">
+    <table id="klacksyTrainingMetricsTable" class="table table-borderless">
+      <thead>
+        <tr>
+          <th class="table-header" style="width: 60%">
+            <div class="table-header-cell">
+              <p class="gap noselect">
+                {{ 'klacksyTraining.metrics.status' | translate }}
+              </p>
+            </div>
+          </th>
+          <th class="table-header cell-right" style="width: 40%">
+            <div class="table-header-cell">
+              <p class="gap noselect">
+                {{ 'klacksyTraining.metrics.count' | translate }}
+              </p>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="klacksy-training-metrics-row-total" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.metrics.total' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().total }}</td>
+        </tr>
+        <tr id="klacksy-training-metrics-row-pending" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.status.pending' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().pending }}</td>
+        </tr>
+        <tr id="klacksy-training-metrics-row-generated" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.status.generated' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().generated }}</td>
+        </tr>
+        <tr id="klacksy-training-metrics-row-reviewed" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.status.reviewed' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().reviewed }}</td>
+        </tr>
+        <tr id="klacksy-training-metrics-row-needs-review" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.status.needsReview' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().needsReview }}</td>
+        </tr>
+        <tr id="klacksy-training-metrics-row-obsolete" class="table-row">
+          <td class="table-cell">{{ 'klacksyTraining.status.obsolete' | translate }}</td>
+          <td class="table-cell cell-right">{{ counts().obsolete }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

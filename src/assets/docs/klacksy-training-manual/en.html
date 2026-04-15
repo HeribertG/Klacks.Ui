@@ -1,0 +1,102 @@
+<h2>Klacksy Training - Manual</h2>
+
+<h3>What is the training tool?</h3>
+<p>
+The training tool controls the in-page navigation of the Klacksy chatbot. When a user
+says or types "Klacksy show me the addresses", Klacksy navigates to the matching page
+and scrolls to the relevant section.
+</p>
+
+<p>
+For this to work, Klacksy needs a list of <strong>synonyms</strong> in every language
+for each anchor on a page (e.g. "addresses", "clients", "contacts" for the target
+<code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab "Targets"</h3>
+<p>
+List of all anchors found in the frontend (HTML attribute <code>data-klacksy-target</code>).
+Status filter:
+</p>
+<ul>
+  <li><strong>pending</strong>: anchor exists, no synonyms yet</li>
+  <li><strong>generated</strong>: synonyms auto-generated, need review</li>
+  <li><strong>reviewed</strong>: synonyms approved by an admin</li>
+  <li><strong>needs-review</strong>: flagged for re-review</li>
+</ul>
+<p>
+Clicking a target opens the synonym editor below. Add or remove synonyms there and
+approve with "Save as reviewed".
+</p>
+
+<h3>Tab "Feedback"</h3>
+<p>
+Shows user inputs that Klacksy <strong>could not match</strong> (no fitting synonym
+found). Use this list to discover which synonyms are missing.
+</p>
+
+<h3>Tab "Metrics"</h3>
+<p>
+Overview of all targets by status. Helps tracking the training progress.
+</p>
+
+<hr>
+
+<h3>Build pipeline (CLI)</h3>
+<p>
+When templates receive new <code>data-klacksy-target</code> anchors, the manifest and
+initial synonyms must be regenerated. The following commands also run automatically in
+CI and the Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Scan templates → navigation-targets.json with all anchors
+npm run scan:targets
+
+# 2. Generate initial synonyms (status: 'generated')
+npm run generate:synonyms
+
+# 3. Check wake-word consistency
+npm run wake-word-lint
+</pre>
+
+<h4>Step 1 - scan:targets</h4>
+<p>
+Scans all Angular templates for <code>data-klacksy-target</code> attributes and creates
+the manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Each new anchor then appears in the "Targets" tab with status <code>pending</code>.
+</p>
+
+<h4>Step 2 - generate:synonyms</h4>
+<p>
+Generates initial synonyms for each new anchor from the <code>data-klacksy-label-key</code>
+and the category. Status afterwards: <code>generated</code> (must be reviewed by admin).
+</p>
+
+<h4>Step 3 - wake-word-lint</h4>
+<p>
+Checks consistency of the wake-word variants (Hello Klacksy / Hey Klacksy / ...) across
+all languages. Prevents synonyms from overriding the wake-word.
+</p>
+
+<hr>
+
+<h3>Typical training loop</h3>
+<ol>
+  <li>Add anchor to template:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Restart API (cache is re-read on start)</li>
+  <li>Open "Targets" tab → new targets appear with status <code>generated</code></li>
+  <li>Check/add synonyms → "Save as reviewed" → status <code>reviewed</code></li>
+  <li>Test with Klacksy, e.g. "Klacksy show me the addresses"</li>
+  <li>If Klacksy does not match → "Feedback" tab → add missing synonym</li>
+  <li>Monitor "Metrics" tab until everything is <code>reviewed</code></li>
+</ol>

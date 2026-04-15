@@ -1,4 +1,4 @@
-.klacksy-training-home { padding: 24px; }
-.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.tabs button { padding: 8px 16px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
-.tabs button.active { background: #2196f3; color: white; border-color: #2196f3; }
+@use "../../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/colors.scss";

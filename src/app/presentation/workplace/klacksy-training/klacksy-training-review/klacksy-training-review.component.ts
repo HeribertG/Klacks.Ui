@@ -35,4 +35,8 @@ export class KlacksyTrainingReviewComponent implements OnInit {
   }
 
   protected select(t: NavigationTargetDto): void { this.selected.set(t); }
+
+  protected statusKey(s: string): string {
+    return s === 'needs-review' ? 'needsReview' : s;
+  }
 }

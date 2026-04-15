@@ -2,27 +2,81 @@
 
 /**
  * Generates synonyms for pending navigation targets via LLM.
- * Env: SYNONYM_LLM_BASE_URL, SYNONYM_LLM_API_KEY, SYNONYM_LLM_MODEL (default deepseek-chat).
+ * Env (optional): SYNONYM_LLM_BASE_URL, SYNONYM_LLM_API_KEY, SYNONYM_LLM_MODEL, SYNONYM_LLM_PROVIDER_ID.
+ * Falls back to the enabled provider in llm_providers (default: deepseek) when env vars are absent.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 interface TargetEntry {
   targetId: string; route: string; labelKey: string; category?: string;
   synonyms: Record<string, string[]>; synonymStatus: string;
 }
 
+interface LlmConfig { url: string; key: string; model: string; }
+
 const UI_ROOT = resolve(__dirname, '..');
 const MANIFEST = resolve(UI_ROOT, '../Klacks.Api/Application/Skills/Definitions/navigation-targets.json');
 const PLUGINS_ROOT = resolve(UI_ROOT, '../Klacks.Api/Plugins/Languages');
 const CORE_LOCALES = ['de', 'en', 'fr', 'it'];
 const PLUGIN_LOCALES = ['ar','cs','da','el','es','fi','he','id','ja','ko','ms','nb','nl','pl','pt','ro','sv','th','vi','zh-CN','zh-TW'];
+const PSQL_PATH = process.env.PSQL_PATH ?? 'C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe';
+const DB_HOST = process.env.KLACKS_DB_HOST ?? 'localhost';
+const DB_PORT = process.env.KLACKS_DB_PORT ?? '5434';
+const DB_USER = process.env.KLACKS_DB_USER ?? 'postgres';
+const DB_PASSWORD = process.env.KLACKS_DB_PASSWORD ?? 'admin';
+const DB_NAME = process.env.KLACKS_DB_NAME ?? 'klacks';
+
+let cachedConfig: LlmConfig | null = null;
+
+function fetchProviderFromDb(providerId: string): { apiKey: string; baseUrl: string } | null {
+  try {
+    const sql = `SELECT api_key || '|' || COALESCE(base_url, '') FROM llm_providers WHERE provider_id='${providerId}' AND is_enabled=true AND api_key IS NOT NULL AND LENGTH(api_key) > 0 LIMIT 1`;
+    const out = execFileSync(PSQL_PATH, ['-h', DB_HOST, '-p', DB_PORT, '-U', DB_USER, '-d', DB_NAME, '-t', '-A', '-c', sql], {
+      encoding: 'utf8',
+      env: { ...process.env, PGPASSWORD: DB_PASSWORD }
+    }).trim();
+    if (!out) return null;
+    const sep = out.indexOf('|');
+    const apiKey = sep === -1 ? out : out.slice(0, sep);
+    const baseUrl = sep === -1 ? '' : out.slice(sep + 1);
+    return { apiKey, baseUrl };
+  } catch {
+    return null;
+  }
+}
+
+function resolveConfig(): LlmConfig {
+  if (cachedConfig) return cachedConfig;
+
+  const providerId = process.env.SYNONYM_LLM_PROVIDER_ID ?? 'deepseek';
+  const model = process.env.SYNONYM_LLM_MODEL ?? `${providerId}-chat`;
+
+  let key = process.env.SYNONYM_LLM_API_KEY ?? '';
+  let url = process.env.SYNONYM_LLM_BASE_URL ?? '';
+
+  if (!key || !url) {
+    const dbProvider = fetchProviderFromDb(providerId);
+    if (!key && dbProvider?.apiKey) {
+      key = dbProvider.apiKey;
+      console.log(`[generate-synonyms] Using ApiKey from llm_providers (${providerId})`);
+    }
+    if (!url && dbProvider?.baseUrl) {
+      const trimmed = dbProvider.baseUrl.replace(/\/$/, '');
+      url = `${trimmed}/chat/completions`;
+    }
+  }
+
+  if (!url) url = 'https://api.deepseek.com/v1/chat/completions';
+  if (!key) throw new Error('SYNONYM_LLM_API_KEY not set and no enabled provider with ApiKey found in llm_providers.');
+
+  cachedConfig = { url, key, model };
+  return cachedConfig;
+}
 
 async function callLlm(target: TargetEntry, locale: string, label: string): Promise<string[]> {
-  const url = process.env.SYNONYM_LLM_BASE_URL ?? 'https://api.deepseek.com/chat/completions';
-  const key = process.env.SYNONYM_LLM_API_KEY;
-  const model = process.env.SYNONYM_LLM_MODEL ?? 'deepseek-chat';
-  if (!key) throw new Error('SYNONYM_LLM_API_KEY not set');
+  const { url, key, model } = resolveConfig();
 
   const prompt = `You generate in-app navigation synonyms. Target: "${label}". Category: "${target.category ?? ''}". App: Klacks (workforce scheduling). Language: ${locale}. Generate 20 natural user phrases, lowercase, no duplicates, EXCLUDE the bot name "klacksy" and its variants. Output strict JSON array of strings.`;
 

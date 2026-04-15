@@ -23,7 +23,7 @@ describe('KlacksyTrainingFeedbackReviewComponent', () => {
 
   it('loads feedback on init', () => {
     expect(service.listFeedback).toHaveBeenCalledWith('de', 50);
-    const items = fixture.nativeElement.querySelectorAll('li');
-    expect(items.length).toBe(1);
+    const rows = fixture.nativeElement.querySelectorAll('#klacksyTrainingFeedbackTable tbody tr');
+    expect(rows.length).toBe(1);
   });
 });

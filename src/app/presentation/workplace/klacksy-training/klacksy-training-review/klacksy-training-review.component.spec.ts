@@ -21,7 +21,7 @@ describe('KlacksyTrainingReviewComponent', () => {
 
   it('loads targets on init', () => {
     expect(service.listTargets).toHaveBeenCalled();
-    const items = fixture.nativeElement.querySelectorAll('.target-list li');
-    expect(items.length).toBe(1);
+    const rows = fixture.nativeElement.querySelectorAll('#klacksyTrainingTargetsTable tbody tr');
+    expect(rows.length).toBe(1);
   });
 });

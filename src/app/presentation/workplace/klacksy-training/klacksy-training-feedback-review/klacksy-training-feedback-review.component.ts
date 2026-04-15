@@ -14,6 +14,7 @@ import { KlacksyTrainingService, NavigationFeedbackDto } from '../../../../core/
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './klacksy-training-feedback-review.component.html',
+  styleUrls: ['./klacksy-training-feedback-review.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KlacksyTrainingFeedbackReviewComponent implements OnInit {

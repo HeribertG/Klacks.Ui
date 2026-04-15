@@ -1,0 +1,102 @@
+<h2>Klacksy Training - Anleitung</h2>
+
+<h3>Was ist das Training-Tool?</h3>
+<p>
+Das Training-Tool steuert die In-Page-Navigation des Chatbots Klacksy. Wenn ein Benutzer
+"Klacksy zeig mir die Adressen" sagt oder schreibt, navigiert Klacksy zur passenden Seite
+und scrollt zum entsprechenden Abschnitt.
+</p>
+
+<p>
+Damit das funktioniert, braucht Klacksy fuer jeden Anker auf einer Seite eine Liste von
+<strong>Synonymen</strong> in jeder Sprache (z. B. "Adressen", "Kunden", "Kontakte" fuer
+das Ziel <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab "Ziele"</h3>
+<p>
+Liste aller im Frontend gefundenen Anker (HTML-Attribute <code>data-klacksy-target</code>).
+Status-Filter:
+</p>
+<ul>
+  <li><strong>pending</strong>: Anker existiert, aber noch keine Synonyme</li>
+  <li><strong>generated</strong>: Synonyme wurden automatisch generiert, brauchen Pruefung</li>
+  <li><strong>reviewed</strong>: Synonyme von einem Admin freigegeben</li>
+  <li><strong>needs-review</strong>: Markiert fuer erneute Pruefung</li>
+</ul>
+<p>
+Anklicken eines Ziels oeffnet den Synonym-Editor darunter. Dort koennen Synonyme
+hinzugefuegt, geloescht und mit "Als ueberprueft speichern" freigegeben werden.
+</p>
+
+<h3>Tab "Rueckmeldungen"</h3>
+<p>
+Zeigt User-Eingaben, die Klacksy <strong>nicht zuordnen konnte</strong> (kein passendes
+Synonym gefunden). Anhand dieser Liste laesst sich erkennen, welche Synonyme noch fehlen.
+</p>
+
+<h3>Tab "Metriken"</h3>
+<p>
+Uebersicht ueber alle Ziele nach Status. Hilft, den Trainings-Fortschritt zu verfolgen.
+</p>
+
+<hr>
+
+<h3>Build-Pipeline (CLI)</h3>
+<p>
+Wenn Templates neue <code>data-klacksy-target</code>-Anker bekommen haben, muessen das
+Manifest und die Initial-Synonyme regeneriert werden. Die folgenden Befehle laufen auch
+automatisch in CI und im Husky-Pre-Commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Templates scannen → navigation-targets.json mit allen Anchors
+npm run scan:targets
+
+# 2. Initial-Synonyme generieren (Status: 'generated')
+npm run generate:synonyms
+
+# 3. Wake-Word-Konsistenz pruefen
+npm run wake-word-lint
+</pre>
+
+<h4>Schritt 1 - scan:targets</h4>
+<p>
+Durchsucht alle Angular-Templates nach <code>data-klacksy-target</code>-Attributen und
+erzeugt das Manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Jeder neue Anker erscheint danach im Tab "Ziele" mit Status <code>pending</code>.
+</p>
+
+<h4>Schritt 2 - generate:synonyms</h4>
+<p>
+Erzeugt fuer jeden neuen Anker initiale Synonyme aus dem <code>data-klacksy-label-key</code>
+und der Kategorie. Status danach: <code>generated</code> (muss vom Admin reviewed werden).
+</p>
+
+<h4>Schritt 3 - wake-word-lint</h4>
+<p>
+Prueft die Konsistenz der Wake-Word-Variante (Hallo Klacksy / Hey Klacksy / ...) ueber
+alle Sprachen. Verhindert, dass Synonyme das Wake-Word ueberschreiben.
+</p>
+
+<hr>
+
+<h3>Typischer Trainings-Loop</h3>
+<ol>
+  <li>Anker in Template ergaenzen:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>API neu starten (Cache wird beim Start neu eingelesen)</li>
+  <li>Tab "Ziele" oeffnen → neue Targets erscheinen mit Status <code>generated</code></li>
+  <li>Synonyme pruefen/ergaenzen → "Als ueberprueft speichern" → Status <code>reviewed</code></li>
+  <li>Mit Klacksy testen, z. B. "Klacksy zeig mir die Adressen"</li>
+  <li>Falls Klacksy nicht matcht → Tab "Rueckmeldungen" → fehlendes Synonym ergaenzen</li>
+  <li>Tab "Metriken" ueberwachen, bis alles <code>reviewed</code> ist</li>
+</ol>

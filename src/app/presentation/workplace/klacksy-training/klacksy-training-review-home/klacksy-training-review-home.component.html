@@ -1,18 +1,98 @@
-<div class="klacksy-training-home">
-  <h1>{{ 'klacksyTraining.title' | translate }}</h1>
-  <nav class="tabs">
-    <button (click)="setTab('targets')" [class.active]="activeTab() === 'targets'">
-      {{ 'klacksyTraining.tabs.targets' | translate }}
-    </button>
-    <button (click)="setTab('feedback')" [class.active]="activeTab() === 'feedback'">
-      {{ 'klacksyTraining.tabs.feedback' | translate }}
-    </button>
-    <button (click)="setTab('metrics')" [class.active]="activeTab() === 'metrics'">
-      {{ 'klacksyTraining.tabs.metrics' | translate }}
-    </button>
-  </nav>
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div
+  id="klacksy-training-home-container"
+  class="container-dashboard"
+  data-klacksy-target="klacksy-training"
+  data-klacksy-label-key="klacksyTraining.title"
+  data-klacksy-category="settings.assistant"
+  data-klacksy-route="/workplace/klacksy-training"
+>
+  <div id="klacksy-training-headline" class="container-headline">
+    {{ 'klacksyTraining.title' | translate }}
+  </div>
 
-  @if (activeTab() === 'targets') { <app-klacksy-training-review /> }
-  @if (activeTab() === 'feedback') { <app-klacksy-training-feedback-review /> }
-  @if (activeTab() === 'metrics') { <app-klacksy-training-metrics /> }
+  <div class="container-profilline">
+    <div class="container-profile first border-right-card border-bottom-card">
+      <div class="container-header header-container">
+        {{ 'klacksyTraining.card.header' | translate }}
+      </div>
+
+      <div class="container-line"></div>
+
+      <div class="standard-tabs-header">
+        <ul id="klacksy-training-tabs" class="nav nav-tabs">
+          <li class="nav-item">
+            <a
+              id="klacksy-training-tab-targets"
+              class="nav-link"
+              [class.active]="activeTab() === 'targets'"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'targets'"
+              tabindex="0"
+              (click)="setTab('targets')"
+            >
+              {{ 'klacksyTraining.tabs.targets' | translate }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              id="klacksy-training-tab-feedback"
+              class="nav-link"
+              [class.active]="activeTab() === 'feedback'"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'feedback'"
+              tabindex="0"
+              (click)="setTab('feedback')"
+            >
+              {{ 'klacksyTraining.tabs.feedback' | translate }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              id="klacksy-training-tab-metrics"
+              class="nav-link"
+              [class.active]="activeTab() === 'metrics'"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'metrics'"
+              tabindex="0"
+              (click)="setTab('metrics')"
+            >
+              {{ 'klacksyTraining.tabs.metrics' | translate }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              id="klacksy-training-tab-manual"
+              class="nav-link"
+              [class.active]="activeTab() === 'manual'"
+              role="tab"
+              [attr.aria-selected]="activeTab() === 'manual'"
+              tabindex="0"
+              (click)="setTab('manual')"
+            >
+              {{ 'klacksyTraining.tabs.manual' | translate }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="standard-tab-body">
+        @if (activeTab() === 'targets') {
+          <app-klacksy-training-review />
+        }
+        @if (activeTab() === 'feedback') {
+          <app-klacksy-training-feedback-review />
+        }
+        @if (activeTab() === 'metrics') {
+          <app-klacksy-training-metrics />
+        }
+        @if (activeTab() === 'manual') {
+          <app-klacksy-training-manual />
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-border-space"></div>
 </div>

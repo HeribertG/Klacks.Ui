@@ -12,11 +12,11 @@ describe('KlacksyTrainingReviewHomeComponent', () => {
     fixture = TestBed.createComponent(KlacksyTrainingReviewHomeComponent);
   });
 
-  it('switches tab when button clicked', () => {
+  it('switches tab when nav-link clicked', () => {
     fixture.detectChanges();
-    const buttons: HTMLButtonElement[] = fixture.nativeElement.querySelectorAll('.tabs button');
-    buttons[1].click();
+    const links: HTMLAnchorElement[] = fixture.nativeElement.querySelectorAll('#klacksy-training-tabs .nav-link');
+    links[1].click();
     fixture.detectChanges();
-    expect(buttons[1].classList.contains('active')).toBe(true);
+    expect(links[1].classList.contains('active')).toBe(true);
   });
 });

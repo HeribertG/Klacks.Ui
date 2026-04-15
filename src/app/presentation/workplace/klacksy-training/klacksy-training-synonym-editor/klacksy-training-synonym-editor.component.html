@@ -1,17 +1,92 @@
-<div class="editor">
-  <h2>{{ target.targetId }} · {{ locale }}</h2>
-  <div class="label">{{ target.labelKey | translate }}</div>
-  <ul class="synonyms">
-    @for (s of synonyms(); track s) {
-      <li>{{ s }} <button class="remove" (click)="remove(s)">✕</button></li>
-    }
-  </ul>
-  <div class="add-row">
-    <input type="text" [(ngModel)]="newSynonym" placeholder="new synonym" (keydown.enter)="add()" />
-    <button (click)="add()">{{ 'common.add' | translate }}</button>
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div id="klacksyTrainingSynonymEditor" class="synonym-editor">
+  <div class="container-header header-container">
+    {{ target.targetId }}
+    <span class="locale-tag">{{ locale }}</span>
+    <span class="filler"></span>
+    <span class="label">{{ target.labelKey | translate }}</span>
   </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-table">
+    <table id="klacksyTrainingSynonymsTable" class="table table-borderless">
+      <thead>
+        <tr>
+          <th class="table-header" style="width: 80%">
+            <div class="table-header-cell">
+              <p class="gap noselect">
+                {{ 'klacksyTraining.editor.synonym' | translate }}
+              </p>
+            </div>
+          </th>
+          <th class="table-header action" style="width: 20%"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of synonyms(); track s; let i = $index) {
+          <tr [id]="'klacksy-training-synonym-row-' + i" class="table-row">
+            <td class="table-cell">{{ s }}</td>
+            <td class="table-cell cell-right">
+              <div
+                [id]="'klacksy-training-synonym-remove-' + i"
+                class="icon icon-padding"
+                (click)="remove(s)"
+                role="button"
+                tabindex="0"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <app-icon-trash-red />
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td class="table-cell-empty" colspan="2">
+              {{ 'klacksyTraining.editor.empty' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="add-row">
+    <input
+      id="klacksy-training-new-synonym"
+      type="text"
+      class="form-control form-control-sm new-synonym-input"
+      [(ngModel)]="newSynonym"
+      [placeholder]="'klacksyTraining.editor.placeholder' | translate"
+      (keydown.enter)="add()"
+    />
+    <button
+      id="klacksy-training-add-synonym"
+      type="button"
+      class="btn new-btn"
+      (click)="add()"
+    >
+      {{ 'common.add' | translate }}
+    </button>
+  </div>
+
   <div class="actions">
-    <button class="primary" (click)="save('reviewed')">{{ 'klacksyTraining.saveReviewed' | translate }}</button>
-    <button (click)="save('needs-review')">{{ 'klacksyTraining.flagNeedsReview' | translate }}</button>
+    <button
+      id="klacksy-training-save-reviewed"
+      type="button"
+      class="btn btn-primary"
+      (click)="save('reviewed')"
+    >
+      {{ 'klacksyTraining.saveReviewed' | translate }}
+    </button>
+    <button
+      id="klacksy-training-flag-needs-review"
+      type="button"
+      class="btn btn-secondary"
+      (click)="save('needs-review')"
+    >
+      {{ 'klacksyTraining.flagNeedsReview' | translate }}
+    </button>
   </div>
 </div>

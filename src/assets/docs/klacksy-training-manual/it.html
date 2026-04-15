@@ -1,0 +1,108 @@
+<h2>Addestramento Klacksy - Manuale</h2>
+
+<h3>Cos'è lo strumento di addestramento?</h3>
+<p>
+Lo strumento di addestramento controlla la navigazione in-page del chatbot Klacksy.
+Quando un utente dice o scrive "Klacksy mostrami gli indirizzi", Klacksy naviga alla
+pagina corrispondente e scorre fino alla sezione pertinente.
+</p>
+
+<p>
+Per funzionare, Klacksy ha bisogno di una lista di <strong>sinonimi</strong> in ogni
+lingua per ciascuna ancora di una pagina (ad esempio "indirizzi", "clienti", "contatti"
+per l'obiettivo <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Scheda "Obiettivi"</h3>
+<p>
+Lista di tutte le ancore trovate nel frontend (attributo HTML
+<code>data-klacksy-target</code>). Filtro di stato:
+</p>
+<ul>
+  <li><strong>pending</strong>: l'ancora esiste, nessun sinonimo ancora</li>
+  <li><strong>generated</strong>: sinonimi generati automaticamente, da rivedere</li>
+  <li><strong>reviewed</strong>: sinonimi approvati da un amministratore</li>
+  <li><strong>needs-review</strong>: contrassegnato per nuova revisione</li>
+</ul>
+<p>
+Cliccando su un obiettivo si apre l'editor dei sinonimi sottostante. I sinonimi possono
+essere aggiunti, rimossi e approvati con "Salva come rivisto".
+</p>
+
+<h3>Scheda "Feedback"</h3>
+<p>
+Mostra gli input degli utenti che Klacksy <strong>non è riuscito ad associare</strong>
+(nessun sinonimo corrispondente trovato). Questa lista aiuta a individuare i sinonimi
+mancanti.
+</p>
+
+<h3>Scheda "Metriche"</h3>
+<p>
+Panoramica di tutti gli obiettivi per stato. Aiuta a monitorare i progressi
+dell'addestramento.
+</p>
+
+<hr>
+
+<h3>Pipeline di build (CLI)</h3>
+<p>
+Quando i template ricevono nuove ancore <code>data-klacksy-target</code>, il manifest e
+i sinonimi iniziali devono essere rigenerati. I seguenti comandi vengono eseguiti
+automaticamente anche in CI e nel pre-commit Husky:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Scansiona i template → navigation-targets.json con tutte le ancore
+npm run scan:targets
+
+# 2. Genera i sinonimi iniziali (stato: 'generated')
+npm run generate:synonyms
+
+# 3. Verifica la coerenza della wake-word
+npm run wake-word-lint
+</pre>
+
+<h4>Passo 1 - scan:targets</h4>
+<p>
+Scansiona tutti i template Angular alla ricerca di attributi
+<code>data-klacksy-target</code> e crea il manifest
+<code>Application/Skills/Definitions/navigation-targets.json</code>.
+Ogni nuova ancora appare poi nella scheda "Obiettivi" con stato <code>pending</code>.
+</p>
+
+<h4>Passo 2 - generate:synonyms</h4>
+<p>
+Genera sinonimi iniziali per ciascuna nuova ancora a partire dalla
+<code>data-klacksy-label-key</code> e dalla categoria. Stato successivo:
+<code>generated</code> (deve essere rivisto dall'amministratore).
+</p>
+
+<h4>Passo 3 - wake-word-lint</h4>
+<p>
+Verifica la coerenza delle varianti della wake-word (Ciao Klacksy / Hey Klacksy / ...)
+in tutte le lingue. Impedisce ai sinonimi di sovrascrivere la wake-word.
+</p>
+
+<hr>
+
+<h3>Tipico ciclo di addestramento</h3>
+<ol>
+  <li>Aggiungere un'ancora nel template:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Riavviare l'API (la cache viene riletta all'avvio)</li>
+  <li>Aprire la scheda "Obiettivi" → i nuovi obiettivi appaiono con stato
+    <code>generated</code></li>
+  <li>Verificare/aggiungere sinonimi → "Salva come rivisto" → stato
+    <code>reviewed</code></li>
+  <li>Testare con Klacksy, ad esempio "Klacksy mostrami gli indirizzi"</li>
+  <li>Se Klacksy non associa → scheda "Feedback" → aggiungere il sinonimo mancante</li>
+  <li>Monitorare la scheda "Metriche" finché tutto è <code>reviewed</code></li>
+</ol>

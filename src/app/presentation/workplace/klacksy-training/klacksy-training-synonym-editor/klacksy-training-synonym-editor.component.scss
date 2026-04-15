@@ -1,5 +1,49 @@
-.editor { padding: 16px; border: 1px solid #ddd; border-radius: 4px; }
-.synonyms { list-style: none; padding: 0; }
-.synonyms li { display: flex; justify-content: space-between; padding: 4px 0; }
-.actions { margin-top: 16px; display: flex; gap: 8px; }
-.primary { background: #43a047; color: white; }
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.synonym-editor {
+  margin-top: 30px;
+}
+
+.filler {
+  flex: 1 1 auto;
+}
+
+.locale-tag {
+  display: inline-block;
+  margin-inline-start: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: var(--backgroundColorHeaderNav);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--colorSubHeadline);
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--colorSubHeadline);
+}
+
+.add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 30px;
+  margin-top: 20px;
+}
+
+.new-synonym-input {
+  width: 280px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  padding-inline: 30px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}

@@ -23,9 +23,11 @@ describe('KlacksyTrainingMetricsComponent', () => {
   });
 
   it('computes counts from targets', () => {
-    const items = fixture.nativeElement.querySelectorAll('li');
-    expect(items[0].textContent).toContain('Total: 2');
-    expect(items[1].textContent).toContain('Pending: 1');
-    expect(items[3].textContent).toContain('Reviewed: 1');
+    const totalCell = fixture.nativeElement.querySelector('#klacksy-training-metrics-row-total td.cell-right');
+    const pendingCell = fixture.nativeElement.querySelector('#klacksy-training-metrics-row-pending td.cell-right');
+    const reviewedCell = fixture.nativeElement.querySelector('#klacksy-training-metrics-row-reviewed td.cell-right');
+    expect(totalCell.textContent.trim()).toBe('2');
+    expect(pendingCell.textContent.trim()).toBe('1');
+    expect(reviewedCell.textContent.trim()).toBe('1');
   });
 });
