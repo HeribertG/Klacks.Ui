@@ -59,7 +59,17 @@ export class AudioQueueService implements OnDestroy {
 
     this.currentObjectUrl = URL.createObjectURL(blob);
     this.currentAudio = new Audio(this.currentObjectUrl);
+    this.currentAudio.volume = 1.0;
     this.isPlaying.set(true);
+
+    const audioEl = this.currentAudio as HTMLAudioElement & {
+      setSinkId?: (id: string) => Promise<void>;
+    };
+    if (typeof audioEl.setSinkId === 'function') {
+      audioEl.setSinkId('default').catch((err) => {
+        console.warn('[VS] setSinkId("default") failed', err);
+      });
+    }
 
     this.currentAudio.onended = () => {
       console.log('[VS] audio-queue playback ended');
