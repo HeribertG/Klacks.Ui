@@ -27,6 +27,7 @@ export class AudioCaptureService implements OnDestroy {
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly vadThreshold = SpeechDefaults.VadThreshold;
   private readonly micSelection = inject(MicrophoneSelectionService);
+  private recordedPcm: Int16Array[] = [];
   private debugRmsLogCounter = 0;
   private debugMaxRms = 0;
 
@@ -93,6 +94,7 @@ export class AudioCaptureService implements OnDestroy {
     this.audioContext = null;
     this.mediaStream?.getTracks().forEach(t => t.stop());
     this.mediaStream = null;
+    this.recordedPcm = [];
     this.isCapturing.set(false);
     this.isSpeechDetected.set(false);
   }
@@ -130,7 +132,51 @@ export class AudioCaptureService implements OnDestroy {
 
     if (this.isSpeechDetected()) {
       const int16 = this.float32ToInt16(float32Data);
+      this.recordedPcm.push(int16);
       this.audioChunk$.next(int16.buffer as unknown as ArrayBuffer);
+    }
+  }
+
+  takeRecordedBlob(): Blob {
+    const total = this.recordedPcm.reduce((s, a) => s + a.length, 0);
+    const merged = new Int16Array(total);
+    let offset = 0;
+    for (const chunk of this.recordedPcm) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+    this.recordedPcm = [];
+    return this.pcmToWavBlob(merged, SpeechDefaults.SampleRate, SpeechDefaults.ChannelCount);
+  }
+
+  private pcmToWavBlob(pcm: Int16Array, sampleRate: number, channels: number): Blob {
+    const byteLength = pcm.byteLength;
+    const buffer = new ArrayBuffer(44 + byteLength);
+    const view = new DataView(buffer);
+
+    this.writeAsciiString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + byteLength, true);
+    this.writeAsciiString(view, 8, 'WAVE');
+    this.writeAsciiString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, channels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * channels * 2, true);
+    view.setUint16(32, channels * 2, true);
+    view.setUint16(34, 16, true);
+    this.writeAsciiString(view, 36, 'data');
+    view.setUint32(40, byteLength, true);
+
+    const pcmBytes = new Uint8Array(buffer, 44);
+    pcmBytes.set(new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength));
+
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
+  private writeAsciiString(view: DataView, offset: number, value: string): void {
+    for (let i = 0; i < value.length; i++) {
+      view.setUint8(offset + i, value.charCodeAt(i));
     }
   }
 

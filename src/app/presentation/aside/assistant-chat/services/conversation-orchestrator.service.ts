@@ -11,13 +11,12 @@
 import { Injectable, OnDestroy, Signal, signal, inject, NgZone } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
+import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
-import { SpeechRecognitionService } from './speech-recognition.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
@@ -42,15 +41,13 @@ export interface ConversationCallbacks {
 @Injectable({ providedIn: 'root' })
 export class ConversationOrchestratorService implements OnDestroy {
   private readonly audioCapture = inject(AudioCaptureService);
+  private readonly whisper = inject(WhisperStreamingService);
   private readonly sttStream = inject(SttStreamService);
   private readonly transcription = inject(DataTranscriptionService);
   private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
-  private readonly browserStt = inject(SpeechRecognitionService);
   private readonly settings = inject(AppSettingsManagementService);
   private readonly ngZone = inject(NgZone);
-
-  private browserSttSub: Subscription | null = null;
 
   readonly state = signal(ConversationState.Idle);
   readonly voiceModeEnabled = signal(false);
@@ -275,44 +272,11 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.audioQueue.stop();
     this.audioCapture.stop();
     this.sttStream.disconnect();
-    this.stopBrowserStt();
     this.state.set(ConversationState.Idle);
     this.interimText.set('');
     this.sentenceBuffer = '';
     this.pendingSentences = [];
     this.synthesisChain = Promise.resolve();
-  }
-
-  private startBrowserStt(): void {
-    if (this.browserSttSub) return;
-    console.log('[VS] starting browser STT, locale=', this.locale);
-
-    this.browserSttSub = this.browserStt.interimResults.subscribe((text) => {
-      console.log('[VS] browser STT interim text:', JSON.stringify(text));
-      this.ngZone.run(() => {
-        this.callbacks?.setInputText(text);
-        this.callbacks?.detectChanges();
-      });
-    });
-
-    this.browserStt.startListening(this.locale).subscribe({
-      next: (text) => {
-        console.log('[VS] browser STT final flush:', JSON.stringify(text));
-        this.ngZone.run(() => {
-          this.callbacks?.setInputText(text);
-          this.callbacks?.detectChanges();
-        });
-      },
-      error: (err) => console.error('[VS] browser STT error', err),
-    });
-  }
-
-  private stopBrowserStt(): void {
-    if (this.browserSttSub) {
-      this.browserSttSub.unsubscribe();
-      this.browserSttSub = null;
-    }
-    this.browserStt.stopListening();
   }
 
   private async transitionToListening(): Promise<void> {
@@ -338,8 +302,6 @@ export class ConversationOrchestratorService implements OnDestroy {
         });
         return;
       }
-    } else {
-      this.startBrowserStt();
     }
 
     try {
@@ -362,6 +324,38 @@ export class ConversationOrchestratorService implements OnDestroy {
     console.log('[VS] onSilenceDetected, state=', this.state(), 'callbacks=', this.callbacks ? 'SET' : 'NULL');
     if (this.state() !== ConversationState.Listening) return;
 
+    const speechSettings = this.settings.speechSettings();
+
+    if (speechSettings.sttEngine === SttEngine.Browser) {
+      const blob = this.audioCapture.takeRecordedBlob();
+      this.audioCapture.stop();
+      console.log('[VS] browser engine: transcribing', blob.size, 'bytes via Whisper');
+      if (blob.size < 1000) {
+        console.log('[VS] blob too small, loop back');
+        await this.transitionToListening();
+        return;
+      }
+      this.state.set(ConversationState.Enhancing);
+      try {
+        const text = await this.whisper.transcribeBlob(blob, this.locale);
+        console.log('[VS] Whisper result:', JSON.stringify(text));
+        this.callbacks?.setInputText(text);
+        this.callbacks?.detectChanges();
+      } catch (err) {
+        console.error('[VS] Whisper transcription failed', err);
+        this.reportError({
+          kind: 'stt-connection',
+          i18nKey: 'klacksy.voice.errors.stt-failed',
+          persistent: false,
+        });
+        await this.transitionToListening();
+        return;
+      }
+    } else {
+      this.audioCapture.stop();
+      this.sttStream.disconnect();
+    }
+
     const rawText = this.callbacks?.getInputText() || '';
     console.log('[VS] rawText="' + rawText + '" (length=' + rawText.length + ')');
     if (!rawText.trim()) {
@@ -369,12 +363,6 @@ export class ConversationOrchestratorService implements OnDestroy {
       await this.transitionToListening();
       return;
     }
-
-    this.audioCapture.stop();
-    this.sttStream.disconnect();
-    this.stopBrowserStt();
-
-    const speechSettings = this.settings.speechSettings();
 
     if (speechSettings.enhancementEnabled) {
       this.state.set(ConversationState.Enhancing);
