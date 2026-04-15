@@ -62,7 +62,7 @@ describe('ConversationOrchestratorService', () => {
 
   beforeEach(() => {
     currentSettings = {
-      sttEngine: 'browser',
+      sttEngine: 'stream',
       sttApiKey: '',
       ttsVoice: 'auto',
       ttsProvider: 'edge',

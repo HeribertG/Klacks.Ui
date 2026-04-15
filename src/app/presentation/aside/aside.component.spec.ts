@@ -56,7 +56,7 @@ describe('AsideComponent — panel rendering', () => {
     expect(host.querySelector('app-assistant-chat')).toBeTruthy();
   });
 
-  it('renders nothing when outputMode is audio (voice-shell lives at app root)', () => {
+  it('hides aside-panel when outputMode is audio but bootstraps assistant-chat hidden for orchestrator init', () => {
     TestBed.overrideProvider(AppSettingsManagementService, {
       useValue: { speechSettings: signal({ outputMode: OutputMode.Audio } as never) },
     });
@@ -64,7 +64,8 @@ describe('AsideComponent — panel rendering', () => {
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('.aside-panel')).toBeNull();
-    expect(host.querySelector('app-assistant-chat')).toBeNull();
+    expect(host.querySelector('.voice-bootstrap-host')).toBeTruthy();
+    expect(host.querySelector('.voice-bootstrap-host app-assistant-chat')).toBeTruthy();
   });
 
   it('renders nothing when asideService.isVisible() is false', () => {

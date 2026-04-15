@@ -71,7 +71,12 @@ describe('AudioCaptureService', () => {
             disconnect: () => undefined,
             onaudioprocess: null,
           }),
+          createGain: () => ({
+            connect: () => undefined,
+            gain: { value: 0 },
+          }),
           destination: {},
+          sampleRate: 44100,
           close: () => Promise.resolve(),
         } as unknown as AudioContext;
       };
