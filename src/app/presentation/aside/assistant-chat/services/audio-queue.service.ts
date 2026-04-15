@@ -33,6 +33,9 @@ export class AudioQueueService implements OnDestroy {
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
+      if (this.currentAudio.parentNode) {
+        this.currentAudio.parentNode.removeChild(this.currentAudio);
+      }
       this.currentAudio = null;
     }
     this.revokeObjectUrl();
@@ -60,25 +63,27 @@ export class AudioQueueService implements OnDestroy {
     this.currentObjectUrl = URL.createObjectURL(blob);
     this.currentAudio = new Audio(this.currentObjectUrl);
     this.currentAudio.volume = 1.0;
+    this.currentAudio.style.display = 'none';
+    document.body.appendChild(this.currentAudio);
     this.isPlaying.set(true);
 
-    const audioEl = this.currentAudio as HTMLAudioElement & {
-      setSinkId?: (id: string) => Promise<void>;
+    const detachCurrent = () => {
+      const el = this.currentAudio;
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
     };
-    if (typeof audioEl.setSinkId === 'function') {
-      audioEl.setSinkId('default').catch((err) => {
-        console.warn('[VS] setSinkId("default") failed', err);
-      });
-    }
 
     this.currentAudio.onended = () => {
       console.log('[VS] audio-queue playback ended');
+      detachCurrent();
       this.revokeObjectUrl();
       this.playNext();
     };
 
     this.currentAudio.onerror = (ev) => {
       console.error('[VS] audio-queue playback ERROR', ev, this.currentAudio?.error);
+      detachCurrent();
       this.revokeObjectUrl();
       this.playNext();
     };

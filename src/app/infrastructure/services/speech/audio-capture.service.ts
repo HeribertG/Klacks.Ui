@@ -45,7 +45,7 @@ export class AudioCaptureService implements OnDestroy {
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
     console.log('[VS] stream acquired, tracks=', this.mediaStream.getTracks().map(t => ({ label: t.label, enabled: t.enabled, muted: t.muted })));
 
-    this.audioContext = new AudioContext({ sampleRate: SpeechDefaults.SampleRate });
+    this.audioContext = new AudioContext();
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
 
     this.workletNode = this.audioContext.createScriptProcessor(SpeechDefaults.AudioProcessorBufferSize, SpeechDefaults.ChannelCount, SpeechDefaults.ChannelCount);
@@ -54,8 +54,11 @@ export class AudioCaptureService implements OnDestroy {
       this.processAudioChunk(inputData);
     };
 
+    const silentGain = this.audioContext.createGain();
+    silentGain.gain.value = 0;
     source.connect(this.workletNode);
-    this.workletNode.connect(this.audioContext.destination);
+    this.workletNode.connect(silentGain);
+    silentGain.connect(this.audioContext.destination);
 
     this.isCapturing.set(true);
     console.log('[VS] audio-capture started, vadThreshold=', this.vadThreshold, 'silenceMs=', this.silenceThresholdMs());
@@ -146,7 +149,8 @@ export class AudioCaptureService implements OnDestroy {
       offset += chunk.length;
     }
     this.recordedPcm = [];
-    return this.pcmToWavBlob(merged, SpeechDefaults.SampleRate, SpeechDefaults.ChannelCount);
+    const rate = this.audioContext?.sampleRate ?? SpeechDefaults.SampleRate;
+    return this.pcmToWavBlob(merged, rate, SpeechDefaults.ChannelCount);
   }
 
   private pcmToWavBlob(pcm: Int16Array, sampleRate: number, channels: number): Blob {

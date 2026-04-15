@@ -209,10 +209,14 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   onStreamContent(text: string): void {
-    if (this.state() !== ConversationState.Processing && this.state() !== ConversationState.Speaking) return;
+    if (this.state() !== ConversationState.Processing && this.state() !== ConversationState.Speaking) {
+      return;
+    }
 
     const speechSettings = this.settings.speechSettings();
-    if (speechSettings.outputMode === OutputMode.Text) return;
+    if (speechSettings.outputMode === OutputMode.Text) {
+      return;
+    }
 
     this.sentenceBuffer += text;
     const sentences = this.extractSentences();
@@ -233,6 +237,9 @@ export class ConversationOrchestratorService implements OnDestroy {
       this.pendingSentences.push(finalSentence);
       this.synthesisChain = this.synthesisChain.then(() => this.synthesizeAndEnqueue(finalSentence));
       this.sentenceBuffer = '';
+      if (this.state() === ConversationState.Processing) {
+        this.state.set(ConversationState.Speaking);
+      }
     }
 
     if (this.settings.speechSettings().outputMode === OutputMode.Text || this.pendingSentences.length === 0) {
@@ -357,9 +364,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
 
     const rawText = this.callbacks?.getInputText() || '';
-    console.log('[VS] rawText="' + rawText + '" (length=' + rawText.length + ')');
     if (!rawText.trim()) {
-      console.log('[VS] rawText empty → loop back to listening');
       await this.transitionToListening();
       return;
     }
