@@ -285,29 +285,25 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private startBrowserStt(): void {
     if (this.browserSttSub) return;
-    const diag = this.browserStt.getDiagnostics();
-    console.log('[VS] browser STT diagnostics:', diag);
-    console.log('[VS] browser STT isSupported=', this.browserStt.isSupported$());
     console.log('[VS] starting browser STT, locale=', this.locale);
 
-    this.browserSttSub = this.browserStt.startListening(this.locale).subscribe({
+    this.browserSttSub = this.browserStt.interimResults.subscribe((text) => {
+      console.log('[VS] browser STT interim text:', JSON.stringify(text));
+      this.ngZone.run(() => {
+        this.callbacks?.setInputText(text);
+        this.callbacks?.detectChanges();
+      });
+    });
+
+    this.browserStt.startListening(this.locale).subscribe({
       next: (text) => {
-        console.log('[VS] browser STT final text:', JSON.stringify(text));
+        console.log('[VS] browser STT final flush:', JSON.stringify(text));
         this.ngZone.run(() => {
           this.callbacks?.setInputText(text);
           this.callbacks?.detectChanges();
         });
       },
-      error: (err) => {
-        console.error('[VS] browser STT error', err);
-      },
-      complete: () => {
-        console.log('[VS] browser STT observable completed');
-      },
-    });
-
-    this.browserStt.errors.subscribe((err) => {
-      console.error('[VS] browser STT error channel:', err);
+      error: (err) => console.error('[VS] browser STT error', err),
     });
   }
 
