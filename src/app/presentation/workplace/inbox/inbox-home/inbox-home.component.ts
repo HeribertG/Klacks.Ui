@@ -12,12 +12,14 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
   selector: 'app-inbox-home',
   templateUrl: './inbox-home.component.html',
   styleUrls: ['./inbox-home.component.scss'],
   standalone: true,
+  hostDirectives: [FullViewportDirective],
   imports: [AngularSplitModule, InboxFolderListComponent, InboxListComponent, InboxDetailComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

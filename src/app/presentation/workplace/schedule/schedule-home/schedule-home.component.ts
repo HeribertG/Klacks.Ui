@@ -61,6 +61,7 @@ import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { SchedulePdfDrawingService } from '../schedule-section/services/schedule-pdf-drawing.service';
 import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-export.service';
+import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
   selector: 'app-schedule-home',
@@ -68,6 +69,7 @@ import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-expor
   styleUrls: ['./schedule-home.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [FullViewportDirective],
   imports: [ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },

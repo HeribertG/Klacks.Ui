@@ -47,12 +47,14 @@ import { AvailabilityCoordinateService } from '../services/availability-coordina
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
+import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
   selector: 'app-client-availability-home',
   templateUrl: './client-availability-home.component.html',
   styleUrls: ['./client-availability-home.component.scss'],
   standalone: true,
+  hostDirectives: [FullViewportDirective],
   imports: [
     ClientAvailabilityHeaderComponent,
     ClientAvailabilityContainerComponent,

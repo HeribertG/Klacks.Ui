@@ -16,6 +16,15 @@
   cursor: pointer;
   user-select: none;
 
+  /* Standard pages on wide screens: anchor to the right edge of the
+     centered 1445px container instead of the viewport edge.
+     Full-viewport pages (body.full-viewport) keep the viewport-edge default. */
+  @media screen and (min-width: 1025px) {
+    :host-context(body:not(.full-viewport)) & {
+      right: max(16px, calc((100vw - 1445px) / 2 + 16px));
+    }
+  }
+
   &.error-active::after {
     content: "";
     position: absolute;

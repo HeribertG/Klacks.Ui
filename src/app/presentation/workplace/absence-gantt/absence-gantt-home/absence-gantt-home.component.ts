@@ -44,6 +44,7 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { AbsenceGanttDragDropService } from '../services/absence-gantt-drag-drop.service';
 import { AbsenceGanttContextMenuService } from '../services/absence-gantt-context-menu.service';
 import { GanttCoordinateService } from '../services/gantt-coordinate.service';
+import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -51,6 +52,7 @@ import { GanttCoordinateService } from '../services/gantt-coordinate.service';
   styleUrls: ['./absence-gantt-home.component.scss'],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [FullViewportDirective],
   imports: [
     AbsenceGanttHeaderComponent,
     AbsenceGanttContainerComponent
