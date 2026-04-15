@@ -12,12 +12,37 @@
       </p>
     </div>
 
-    @if (defaultMicrophone()) {
-      <div class="microphone-info">
-        <span class="microphone-label-title">{{ "setting.microphone-test.default-microphone" | translate }}</span>
-        <span class="microphone-label">{{ defaultMicrophone() }}</span>
+    <div class="microphone-picker">
+      <label for="mic-device-picker" class="microphone-label-title">
+        {{ "setting.microphone-test.device-picker-label" | translate }}
+      </label>
+      <div class="picker-row">
+        <select
+          id="mic-device-picker"
+          class="form-control"
+          [ngModel]="selectedDeviceId() ?? ''"
+          (ngModelChange)="onDeviceChange($event)"
+        >
+          <option value="">{{ "setting.microphone-test.device-picker-default-option" | translate }}</option>
+          @for (device of availableDevices(); track device.deviceId) {
+            <option [value]="device.deviceId">
+              {{ device.label || ("setting.microphone-test.device-picker-hint" | translate) }}
+            </option>
+          }
+        </select>
+        <button
+          type="button"
+          class="btn btn-secondary refresh-button"
+          (click)="refreshDevices()"
+          [attr.aria-label]="'setting.microphone-test.refresh-devices' | translate"
+        >
+          <fa-icon [icon]="faRotate"></fa-icon>
+        </button>
       </div>
-    }
+      @if (!hasDeviceLabels() && !hasNoDevices()) {
+        <small class="picker-hint">{{ "setting.microphone-test.device-picker-hint" | translate }}</small>
+      }
+    </div>
 
     <div class="button-group">
       <button
@@ -103,6 +128,42 @@
         {{ errorMessage() }}
       </div>
     }
+
+    <div class="record-playback-section">
+      <h4>{{ "setting.microphone-test.record-playback" | translate }}</h4>
+
+      <div class="button-group">
+        <button
+          class="btn test-button"
+          [class.btn-danger]="isPlaybackRecording()"
+          [class.btn-primary]="!isPlaybackRecording()"
+          (click)="toggleRecordPlayback()"
+        >
+          @if (isPlaybackRecording()) {
+            <fa-icon [icon]="faStop"></fa-icon>
+            {{ "setting.microphone-test.stop-recording-playback" | translate }}
+          } @else {
+            <fa-icon [icon]="faMicrophone"></fa-icon>
+            {{ "setting.microphone-test.record-playback" | translate }}
+          }
+        </button>
+      </div>
+
+      @if (isPlaybackRecording()) {
+        <div class="level-meter" [attr.aria-label]="'setting.microphone-test.level-meter-label' | translate">
+          @for (bar of levelBars(); track $index) {
+            <span class="level-bar" [class.active]="bar === 1"></span>
+          }
+        </div>
+        <p class="info-text">{{ "setting.microphone-test.recording-in-progress" | translate }}</p>
+      }
+
+      @if (playbackUrl()) {
+        <audio class="playback-audio" controls [src]="playbackUrl()!"></audio>
+      } @else if (!isPlaybackRecording()) {
+        <p class="info-text">{{ "setting.microphone-test.no-recording-yet" | translate }}</p>
+      }
+    </div>
   </div>
 
   <div class="bottom-border-space"></div>
