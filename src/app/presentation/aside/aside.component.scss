@@ -104,3 +104,12 @@
     width: 100%;
   }
 }
+
+.voice-bootstrap-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}

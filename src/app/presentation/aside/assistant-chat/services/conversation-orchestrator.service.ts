@@ -105,6 +105,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private synthesisChain: Promise<void> = Promise.resolve();
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
+    console.log('[VS] orchestrator.initialize called, locale=', locale);
     this.callbacks = callbacks;
     this.locale = locale;
 
@@ -259,6 +260,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async enable(): Promise<void> {
+    console.log('[VS] enable(), callbacks=', this.callbacks ? 'SET' : 'NULL');
     this.voiceModeEnabled.set(true);
     await this.transitionToListening();
   }
@@ -276,17 +278,21 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async transitionToListening(): Promise<void> {
+    console.log('[VS] transitionToListening, voiceModeEnabled=', this.voiceModeEnabled());
     if (!this.voiceModeEnabled()) return;
 
     this.state.set(ConversationState.Listening);
     this.interimText.set('');
 
     const speechSettings = this.settings.speechSettings();
+    console.log('[VS] sttEngine=', speechSettings.sttEngine, 'outputMode=', speechSettings.outputMode);
 
     if (speechSettings.sttEngine !== SttEngine.Browser) {
       try {
+        console.log('[VS] connecting sttStream with locale=', this.locale);
         this.sttStream.connect(this.locale);
-      } catch {
+      } catch (err) {
+        console.error('[VS] sttStream.connect threw', err);
         this.reportError({
           kind: 'stt-connection',
           i18nKey: 'klacksy.voice.errors.stt-failed',
@@ -297,8 +303,11 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
 
     try {
+      console.log('[VS] audioCapture.start()');
       await this.audioCapture.start();
-    } catch {
+      console.log('[VS] audioCapture.start() returned OK, isCapturing=', this.audioCapture.isCapturing());
+    } catch (err) {
+      console.error('[VS] audioCapture.start() threw', err);
       this.reportError({
         kind: 'mic-permission',
         i18nKey: 'klacksy.voice.errors.microphone-denied',
@@ -310,10 +319,13 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   private async onSilenceDetected(): Promise<void> {
+    console.log('[VS] onSilenceDetected, state=', this.state(), 'callbacks=', this.callbacks ? 'SET' : 'NULL');
     if (this.state() !== ConversationState.Listening) return;
 
     const rawText = this.callbacks?.getInputText() || '';
+    console.log('[VS] rawText="' + rawText + '" (length=' + rawText.length + ')');
     if (!rawText.trim()) {
+      console.log('[VS] rawText empty → loop back to listening');
       await this.transitionToListening();
       return;
     }

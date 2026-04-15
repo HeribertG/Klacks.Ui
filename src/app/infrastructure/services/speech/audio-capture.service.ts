@@ -27,15 +27,22 @@ export class AudioCaptureService implements OnDestroy {
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly vadThreshold = SpeechDefaults.VadThreshold;
   private readonly micSelection = inject(MicrophoneSelectionService);
+  private debugRmsLogCounter = 0;
+  private debugMaxRms = 0;
 
   setSilenceThresholdMs(ms: number): void {
     this.silenceThresholdMs.set(ms);
   }
 
   async start(): Promise<void> {
-    if (this.isCapturing()) return;
+    if (this.isCapturing()) {
+      console.log('[VS] audio-capture already capturing, noop');
+      return;
+    }
 
+    console.log('[VS] audio-capture start, selectedDeviceId=', this.micSelection.selectedDeviceId());
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
+    console.log('[VS] stream acquired, tracks=', this.mediaStream.getTracks().map(t => ({ label: t.label, enabled: t.enabled, muted: t.muted })));
 
     this.audioContext = new AudioContext({ sampleRate: SpeechDefaults.SampleRate });
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
@@ -50,6 +57,7 @@ export class AudioCaptureService implements OnDestroy {
     this.workletNode.connect(this.audioContext.destination);
 
     this.isCapturing.set(true);
+    console.log('[VS] audio-capture started, vadThreshold=', this.vadThreshold, 'silenceMs=', this.silenceThresholdMs());
   }
 
   private async acquireStream(deviceId: string | null): Promise<MediaStream> {
@@ -104,8 +112,15 @@ export class AudioCaptureService implements OnDestroy {
     const rms = Math.sqrt(sumSquares / float32Data.length);
     const hasSpeech = rms > this.vadThreshold;
 
+    if (rms > this.debugMaxRms) this.debugMaxRms = rms;
+    this.debugRmsLogCounter++;
+    if (this.debugRmsLogCounter % 20 === 0) {
+      console.log('[VS] VAD tick: rms=', rms.toFixed(5), 'max=', this.debugMaxRms.toFixed(5), 'threshold=', this.vadThreshold, 'speech=', this.isSpeechDetected());
+    }
+
     if (hasSpeech) {
       if (!this.isSpeechDetected()) {
+        console.log('[VS] SPEECH STARTED rms=', rms.toFixed(5));
         this.isSpeechDetected.set(true);
         this.speechStarted$.next();
       }
@@ -121,6 +136,7 @@ export class AudioCaptureService implements OnDestroy {
 
   private resetSilenceTimer(): void {
     this.silenceTimer = setTimeout(() => {
+      console.log('[VS] SILENCE DETECTED (timer fired after', this.silenceThresholdMs(), 'ms)');
       this.isSpeechDetected.set(false);
       this.silenceDetected$.next();
     }, this.silenceThresholdMs());

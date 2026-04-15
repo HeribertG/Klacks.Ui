@@ -63,11 +63,14 @@ export class VoiceShellComponent implements OnInit {
 
   handleClick(): void {
     const state = this.orchestrator.state();
+    console.log('[VS] click, state=', state, 'voiceModeEnabled=', this.orchestrator.voiceModeEnabled());
     switch (state) {
       case ConversationState.Idle:
+        console.log('[VS] calling startSession');
         this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
+        console.log('[VS] calling endSession');
         this.orchestrator.endSession();
         break;
       case ConversationState.Processing:

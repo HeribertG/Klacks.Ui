@@ -35,3 +35,9 @@
     </div>
   </div>
 }
+
+@if (isAudioMode()) {
+  <div class="voice-bootstrap-host" aria-hidden="true">
+    <app-assistant-chat />
+  </div>
+}
