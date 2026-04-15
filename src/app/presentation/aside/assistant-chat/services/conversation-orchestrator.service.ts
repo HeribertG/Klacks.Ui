@@ -11,11 +11,13 @@
 import { Injectable, OnDestroy, Signal, signal, inject, NgZone } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
+import { SpeechRecognitionService } from './speech-recognition.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
@@ -44,8 +46,11 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly transcription = inject(DataTranscriptionService);
   private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
+  private readonly browserStt = inject(SpeechRecognitionService);
   private readonly settings = inject(AppSettingsManagementService);
   private readonly ngZone = inject(NgZone);
+
+  private browserSttSub: Subscription | null = null;
 
   readonly state = signal(ConversationState.Idle);
   readonly voiceModeEnabled = signal(false);
@@ -270,11 +275,37 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.audioQueue.stop();
     this.audioCapture.stop();
     this.sttStream.disconnect();
+    this.stopBrowserStt();
     this.state.set(ConversationState.Idle);
     this.interimText.set('');
     this.sentenceBuffer = '';
     this.pendingSentences = [];
     this.synthesisChain = Promise.resolve();
+  }
+
+  private startBrowserStt(): void {
+    if (this.browserSttSub) return;
+    console.log('[VS] starting browser STT via SpeechRecognitionService, locale=', this.locale);
+    this.browserSttSub = this.browserStt.startListening(this.locale).subscribe({
+      next: (text) => {
+        console.log('[VS] browser STT text:', text);
+        this.ngZone.run(() => {
+          this.callbacks?.setInputText(text);
+          this.callbacks?.detectChanges();
+        });
+      },
+      error: (err) => {
+        console.error('[VS] browser STT error', err);
+      },
+    });
+  }
+
+  private stopBrowserStt(): void {
+    if (this.browserSttSub) {
+      this.browserSttSub.unsubscribe();
+      this.browserSttSub = null;
+    }
+    this.browserStt.stopListening();
   }
 
   private async transitionToListening(): Promise<void> {
@@ -300,6 +331,8 @@ export class ConversationOrchestratorService implements OnDestroy {
         });
         return;
       }
+    } else {
+      this.startBrowserStt();
     }
 
     try {
@@ -332,6 +365,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
     this.audioCapture.stop();
     this.sttStream.disconnect();
+    this.stopBrowserStt();
 
     const speechSettings = this.settings.speechSettings();
 
