@@ -285,10 +285,14 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private startBrowserStt(): void {
     if (this.browserSttSub) return;
-    console.log('[VS] starting browser STT via SpeechRecognitionService, locale=', this.locale);
+    const diag = this.browserStt.getDiagnostics();
+    console.log('[VS] browser STT diagnostics:', diag);
+    console.log('[VS] browser STT isSupported=', this.browserStt.isSupported$());
+    console.log('[VS] starting browser STT, locale=', this.locale);
+
     this.browserSttSub = this.browserStt.startListening(this.locale).subscribe({
       next: (text) => {
-        console.log('[VS] browser STT text:', text);
+        console.log('[VS] browser STT final text:', JSON.stringify(text));
         this.ngZone.run(() => {
           this.callbacks?.setInputText(text);
           this.callbacks?.detectChanges();
@@ -297,6 +301,13 @@ export class ConversationOrchestratorService implements OnDestroy {
       error: (err) => {
         console.error('[VS] browser STT error', err);
       },
+      complete: () => {
+        console.log('[VS] browser STT observable completed');
+      },
+    });
+
+    this.browserStt.errors.subscribe((err) => {
+      console.error('[VS] browser STT error channel:', err);
     });
   }
 
