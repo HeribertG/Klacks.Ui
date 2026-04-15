@@ -79,6 +79,10 @@ select {
   margin-bottom: 8px;
 }
 
+.firstColumn .prompt-hint {
+  max-width: 420px;
+}
+
 .prompt-reset-btn {
   font-size: 13px;
 }
