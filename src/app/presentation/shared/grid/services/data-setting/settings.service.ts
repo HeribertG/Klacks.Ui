@@ -1,7 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Injectable, signal, inject } from '@angular/core';
-import { ClipboardModeEnum, GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
+import {
+  ClipboardModeEnum,
+  GridSelectionModeEnum,
+} from 'src/app/presentation/shared/grid/enums/divers';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 @Injectable()
@@ -9,6 +12,16 @@ export class BaseSettingsService {
   private gridFonts = inject(GridFontsService);
 
   public zoomSignal = signal<number>(1);
+  public timelineMode = signal<boolean>(false);
+
+  private _isTimelineMode = false;
+
+  private readonly TABLE_CELL_HEIGHT = 50;
+  private readonly TIMELINE_CELL_HEIGHT_MULTIPLIER = 6;
+
+  public get isTimelineMode(): boolean {
+    return this._isTimelineMode;
+  }
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;
   selectionMode: GridSelectionModeEnum = GridSelectionModeEnum.Cell;
@@ -18,7 +31,7 @@ export class BaseSettingsService {
 
   InfoSpotWidth = 70 * this._zoom;
   headerBorderWidth = 2;
-  cellHeight = 50 * this._zoom;
+  cellHeight = this.TABLE_CELL_HEIGHT * this._zoom;
   cellWidth = 90 * this._zoom;
   cellHeaderHeight = 30 * this._zoom;
   increaseBorder = 0.5;
@@ -36,7 +49,7 @@ export class BaseSettingsService {
     this._zoom = value;
     this.gridFonts.zoom = value;
     this.InfoSpotWidth = 70 * this._zoom;
-    this.cellHeight = 50 * this._zoom;
+    this.cellHeight = this.computeCellHeight();
     this.cellWidth = Math.round(90 * this._zoom);
     this.cellHeaderHeight = 30 * this._zoom;
     this.boundaryBorderWidth = 2 * this._zoom;
@@ -52,7 +65,21 @@ export class BaseSettingsService {
     this.zoomSignal.set(value);
   }
 
+  setTimelineMode(enabled: boolean): void {
+    this._isTimelineMode = enabled;
+    this.timelineMode.set(enabled);
+    this.cellHeight = this.computeCellHeight();
+  }
+
+  private computeCellHeight(): number {
+    const base = this.TABLE_CELL_HEIGHT * this._zoom;
+    return this._isTimelineMode
+      ? base * this.TIMELINE_CELL_HEIGHT_MULTIPLIER
+      : base;
+  }
+
   getGroupLineHeight(neededRows: number): number {
-    return this.cellHeight * neededRows + this.increaseBorder;
+    const rows = this._isTimelineMode ? 1 : neededRows;
+    return this.cellHeight * rows + this.increaseBorder;
   }
 }

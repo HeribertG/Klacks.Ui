@@ -118,9 +118,13 @@ export class TimeRulerRenderService {
     ctx: CanvasRenderingContext2D,
     height: number,
     fromTime: OwnTime,
-    untilTime: OwnTime
+    untilTime: OwnTime,
+    paddingMinutesOverride?: number
   ): void {
-    const paddingMinutes = this.calculatePaddingMinutes(fromTime, untilTime);
+    const paddingMinutes =
+      paddingMinutesOverride !== undefined
+        ? paddingMinutesOverride
+        : this.calculatePaddingMinutes(fromTime, untilTime);
     const range = this.timeRangeService.calculateDisplayRange(
       fromTime,
       untilTime,

@@ -466,7 +466,9 @@ export class BaseCreateRowHeaderService {
     const index: number = this.gridData.rowGroupIndex[row];
     cell.firstRow = this.gridData.indexGroupRow[index];
     const client = this.gridData.getGroupIndex(index) as ClientWork;
-    const displayRows = client?.displayRows ?? 0;
+    const displayRows = this.settings.isTimelineMode
+      ? 1
+      : client?.displayRows ?? 0;
     cell.lastRow = cell.firstRow + displayRows - 1;
   }
 

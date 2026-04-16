@@ -1,10 +1,17 @@
 <as-split #splitEl direction="horizontal" [dir]="direction()" [gutterSize]="6" unit="pixel">
   <!-- Links: Row Header -->
   <as-split-area [size]="horizontalSize()" [minSize]="100">
-    <app-schedule-schedule-row-header
-      [valueChangeVScrollbar]="vScrollbar.value"
-    >
-    </app-schedule-schedule-row-header>
+    @if (viewMode() === 'table') {
+      <app-schedule-schedule-row-header
+        [valueChangeVScrollbar]="vScrollbar.value"
+      >
+      </app-schedule-schedule-row-header>
+    } @else {
+      <app-schedule-timeline-row-header
+        [valueChangeVScrollbar]="vScrollbar.value"
+      >
+      </app-schedule-timeline-row-header>
+    }
   </as-split-area>
 
   <!-- Rechts: Surface + Scrollbars -->
@@ -12,25 +19,47 @@
     <div class="container-box">
       <div class="surface">
         <div class="box">
-          <app-grid-surface-template
-            id="schedule-grid-surface"
-            #scheduleSurface
-            [nameId]="'surface'"
-            [valueChangeHScrollbar]="hScrollbar.value"
-            (valueHScrollbar)="hScrollbar.value = $event"
-            (maxValueHScrollbar)="hScrollbar.maxValue = $event"
-            (visibleValueHScrollbar)="onVisibleValueHScrollbarChange($event)"
-            [valueChangeVScrollbar]="vScrollbar.value"
-            (valueVScrollbar)="vScrollbar.value = $event"
-            (maxValueVScrollbar)="vScrollbar.maxValue = $event"
-            (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
-            (cellValueChange)="onCellValueChange($event)"
-            (rightClick)="onRightClick($event)"
-            (workChangeDoubleClick)="onWorkChangeDoubleClick($event)"
-            (workDoubleClick)="onWorkDoubleClick($event)"
-            (containerWorkDoubleClick)="onContainerWorkDoubleClick($event)"
-          >
-          </app-grid-surface-template>
+          @if (viewMode() === 'table') {
+            <app-grid-surface-template
+              id="schedule-grid-surface"
+              #scheduleSurface
+              [nameId]="'surface'"
+              [valueChangeHScrollbar]="hScrollbar.value"
+              (valueHScrollbar)="hScrollbar.value = $event"
+              (maxValueHScrollbar)="hScrollbar.maxValue = $event"
+              (visibleValueHScrollbar)="onVisibleValueHScrollbarChange($event)"
+              [valueChangeVScrollbar]="vScrollbar.value"
+              (valueVScrollbar)="vScrollbar.value = $event"
+              (maxValueVScrollbar)="vScrollbar.maxValue = $event"
+              (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
+              (cellValueChange)="onCellValueChange($event)"
+              (rightClick)="onRightClick($event)"
+              (workChangeDoubleClick)="onWorkChangeDoubleClick($event)"
+              (workDoubleClick)="onWorkDoubleClick($event)"
+              (containerWorkDoubleClick)="onContainerWorkDoubleClick($event)"
+            >
+            </app-grid-surface-template>
+          } @else {
+            <app-grid-surface-timeline-template
+              id="schedule-grid-timeline-surface"
+              #timelineSurface
+              [nameId]="'surface'"
+              [valueChangeHScrollbar]="hScrollbar.value"
+              (valueHScrollbar)="hScrollbar.value = $event"
+              (maxValueHScrollbar)="hScrollbar.maxValue = $event"
+              (visibleValueHScrollbar)="onVisibleValueHScrollbarChange($event)"
+              [valueChangeVScrollbar]="vScrollbar.value"
+              (valueVScrollbar)="vScrollbar.value = $event"
+              (maxValueVScrollbar)="vScrollbar.maxValue = $event"
+              (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
+              (cellValueChange)="onCellValueChange($event)"
+              (rightClick)="onRightClick($event)"
+              (workChangeDoubleClick)="onWorkChangeDoubleClick($event)"
+              (workDoubleClick)="onWorkDoubleClick($event)"
+              (containerWorkDoubleClick)="onContainerWorkDoubleClick($event)"
+            >
+            </app-grid-surface-timeline-template>
+          }
         </div>
         <app-v-scrollbar
           [class.hidden]="vScrollbarSize === 0"
@@ -53,6 +82,13 @@
     </div>
   </as-split-area>
 </as-split>
+
+<!-- Toggle View Mode Button -->
+<div class="view-toggle">
+  <button (click)="toggleViewMode()">
+    {{ viewMode() === 'table' ? 'Timeline View' : 'Table View' }}
+  </button>
+</div>
 
 <app-context-menu #contextMenu></app-context-menu>
 

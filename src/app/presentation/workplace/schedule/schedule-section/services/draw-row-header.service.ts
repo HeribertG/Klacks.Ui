@@ -354,7 +354,7 @@ export class BaseDrawRowHeaderService {
           tmpRow = 0;
         }
         const correctedRow = this.addCells(tmpRow, row);
-        if (!correctedRow) {
+        if (correctedRow === undefined) {
           break;
         }
 

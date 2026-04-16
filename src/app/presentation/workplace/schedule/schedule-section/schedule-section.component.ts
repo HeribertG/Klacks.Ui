@@ -24,9 +24,12 @@ import {
   Injector,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ScheduleTimelineRowHeaderComponent } from './timeline/schedule-timeline-row-header/schedule-timeline-row-header.component';
+import { GridSurfaceTimelineTemplateComponent } from './timeline/grid-surface-timeline-template/grid-surface-timeline-template.component';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -73,6 +76,7 @@ import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-ren
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
+import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -80,6 +84,8 @@ import { DirectionService } from 'src/app/application/services/direction.service
   imports: [
     AngularSplitModule,
     ScheduleScheduleRowHeaderComponent,
+    ScheduleTimelineRowHeaderComponent,
+    GridSurfaceTimelineTemplateComponent,
     HScrollbarComponent,
     VScrollbarComponent,
     GridSurfaceTemplateComponent,
@@ -91,7 +97,6 @@ import { DirectionService } from 'src/app/application/services/direction.service
     ContainerWorkEditDialogComponent,
   ],
   providers: [
-    BaseSettingsService,
     ScrollService,
     BaseCellManipulationService,
     BaseCellRenderService,
@@ -123,8 +128,10 @@ export class ScheduleSectionComponent
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
-  @ViewChild('scheduleSurface', { static: true })
+  @ViewChild('scheduleSurface', { static: false })
   scheduleSurface!: GridSurfaceTemplateComponent;
+  @ViewChild('timelineSurface', { static: false })
+  timelineSurface!: GridSurfaceTimelineTemplateComponent;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
   @ViewChild(CorrectionDialogComponent)
@@ -150,9 +157,12 @@ export class ScheduleSectionComponent
   public vScrollbarSize = 17;
   public hScrollbarSize = 17;
 
+  public viewMode = signal<'table' | 'timeline'>('table');
+
   direction = inject(DirectionService).direction;
 
   protected dataManagement = inject(DataManagementScheduleService);
+  public dataService = inject(BaseDataService);
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
@@ -176,13 +186,27 @@ export class ScheduleSectionComponent
     this.facade.tooltip.initLanguage();
     this.settings.editable = true;
     this.facade.absenceMenu.loadIfNeeded();
+
+    runInInjectionContext(this.injector, () => {
+      const viewModeEffect = effect(() => {
+        const mode = this.viewMode();
+        this.settings.setTimelineMode(mode === 'timeline');
+        this.dataManagement.isRead.update((v) => ({
+          count: v.count + 1,
+          resetScroll: false,
+        }));
+      }, { allowSignalWrites: true });
+      this.effects.push(viewModeEffect);
+    });
   }
 
   ngAfterViewInit() {
     this.readSignals();
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
-    this.scheduleSurface.drawSchedule.showFillHandle = true;
+    if (this.scheduleSurface) {
+      this.scheduleSurface.drawSchedule.showFillHandle = true;
+    }
     this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog);
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
@@ -210,6 +234,14 @@ export class ScheduleSectionComponent
         this.menuClicked(keys);
       });
   }
+
+  public toggleViewMode(): void {
+    const newMode = this.viewMode() === 'table' ? 'timeline' : 'table';
+    this.settings.setTimelineMode(newMode === 'timeline');
+    (this.dataService as ScheduleDataService).setMetrics();
+    this.viewMode.set(newMode);
+  }
+
 
   private applyGlobalGroupSelection(): void {
     const globalGroupId = this.facade.groupSelection.selectedGroupId;
@@ -258,11 +290,15 @@ export class ScheduleSectionComponent
     });
   }
 
+  private get currentSurface(): GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent {
+    return this.viewMode() === 'table' ? this.scheduleSurface : this.timelineSurface;
+  }
+
   private wireDataReadEffect(): void {
     this.effects.push(effect(() => {
       const readState = this.dataManagement.isRead();
-      if (readState.count > 0)
-        this.scheduleSurface.Refresh(readState.resetScroll);
+      if (readState.count > 0 && this.currentSurface)
+        (this.currentSurface as any).Refresh(readState.resetScroll);
     }));
   }
 
@@ -298,8 +334,8 @@ export class ScheduleSectionComponent
       const hoveredCell = this.cellManipulation.hoveredCell();
       this.facade.tooltip.handleHoveredCell(
         hoveredCell,
-        this.scheduleSurface.dataService,
-        this.scheduleSurface,
+        this.dataService as ScheduleDataService,
+        this.currentSurface as any,
         this.tooltipState,
         true,
       );
@@ -309,8 +345,8 @@ export class ScheduleSectionComponent
   private wireScheduleUpdateEffect(): void {
     this.effects.push(effect(() => {
       const updateId = this.facade.workNotification.scheduleUpdateSignal();
-      if (updateId)
-        this.scheduleSurface.Refresh(false);
+      if (updateId && this.currentSurface)
+        (this.currentSurface as any).Refresh(false);
     }));
   }
 
@@ -331,15 +367,15 @@ export class ScheduleSectionComponent
   private wirePeriodHoursEffect(): void {
     this.effects.push(effect(() => {
       void this.facade.workScheduleLoader.periodHoursUpdated();
-      if (this.scheduleSurface)
-        this.scheduleSurface.Refresh(false);
+      if (this.currentSurface)
+        (this.currentSurface as any).Refresh(false);
     }));
   }
 
   private wireColorResetEffect(): void {
     this.effects.push(effect(() => {
-      if (this.facade.gridColor.isReset())
-        this.scheduleSurface.Refresh(false);
+      if (this.facade.gridColor.isReset() && this.currentSurface)
+        (this.currentSurface as any).Refresh(false);
     }));
   }
 
@@ -357,8 +393,8 @@ export class ScheduleSectionComponent
     let initialized = false;
     this.effects.push(effect(() => {
       void this.refreshTrigger();
-      if (initialized)
-        this.scheduleSurface.Refresh();
+      if (initialized && this.currentSurface)
+        (this.currentSurface as any).Refresh();
       initialized = true;
     }));
   }
@@ -372,7 +408,7 @@ export class ScheduleSectionComponent
     mouseY: number,
     column: number
   ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     return this.facade.dragDrop.getDropTargetInfo(mouseY, column, dataService);
   }
 
@@ -381,7 +417,7 @@ export class ScheduleSectionComponent
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.dragDrop.handleCellValueChange(event, dataService);
   }
 
@@ -410,7 +446,7 @@ export class ScheduleSectionComponent
   private createContextMenu(row: number, column: number): void {
     this.contextMenuRow = row;
     this.contextMenuColumn = column;
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.contextMenu.menuData = this.facade.contextMenu.createContextMenu({
       row,
       column,
@@ -420,7 +456,7 @@ export class ScheduleSectionComponent
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     const handler = this.menuHandlers[keys[0]];
     if (!handler) return;
 
@@ -473,37 +509,37 @@ export class ScheduleSectionComponent
   }
 
   private showSelectedShiftInShiftSection(): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.navigation.showSelectedShiftInShiftSection(dataService);
   }
 
   private scrollToClient(clientId: string, date: string): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.navigation.scrollToClient(
       clientId,
       date,
       dataService,
-      this.scheduleSurface.drawSchedule.height,
+      this.currentSurface.drawSchedule.height,
       this.vScrollbar,
       this.hScrollbar,
-      () => this.scheduleSurface.drawSchedule.redraw()
+      () => this.currentSurface.drawSchedule.redraw()
     );
   }
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.navigation.scrollToScheduleEntry(
       shiftId,
       column,
       dataService,
-      this.scheduleSurface.drawSchedule.height,
+      this.currentSurface.drawSchedule.height,
       this.vScrollbar,
-      () => this.scheduleSurface.drawSchedule.redraw()
+      () => this.currentSurface.drawSchedule.redraw()
     );
   }
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.dialog.editWorkChange(event.row, event.column, dataService);
   }
 
@@ -537,12 +573,12 @@ export class ScheduleSectionComponent
   }
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService);
   }
 
   onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const dataService = this.dataService as ScheduleDataService;
     const clickedDate = dataService.getDateForColumn(event.column);
     const availableShifts = this.mapShiftsToAvailable(
       this.dataManagement.shiftSchedules,
