@@ -78,8 +78,11 @@ export class BaseSettingsService {
       : base;
   }
 
+  getDisplayRows(neededRows: number): number {
+    return this._isTimelineMode ? 1 : neededRows;
+  }
+
   getGroupLineHeight(neededRows: number): number {
-    const rows = this._isTimelineMode ? 1 : neededRows;
-    return this.cellHeight * rows + this.increaseBorder;
+    return this.cellHeight * this.getDisplayRows(neededRows) + this.increaseBorder;
   }
 }

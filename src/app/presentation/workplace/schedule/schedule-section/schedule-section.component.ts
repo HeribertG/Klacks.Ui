@@ -164,6 +164,10 @@ export class ScheduleSectionComponent
   protected dataManagement = inject(DataManagementScheduleService);
   public dataService = inject(BaseDataService);
   private scrollService = inject(ScrollService);
+
+  private get scheduleService(): ScheduleDataService {
+    return this.scheduleService;
+  }
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private hScrollService = inject(ScheduleHorizontalScrollService);
@@ -238,10 +242,9 @@ export class ScheduleSectionComponent
   public toggleViewMode(): void {
     const newMode = this.viewMode() === 'table' ? 'timeline' : 'table';
     this.settings.setTimelineMode(newMode === 'timeline');
-    (this.dataService as ScheduleDataService).setMetrics();
+    this.scheduleService.setMetrics();
     this.viewMode.set(newMode);
   }
-
 
   private applyGlobalGroupSelection(): void {
     const globalGroupId = this.facade.groupSelection.selectedGroupId;
@@ -334,7 +337,7 @@ export class ScheduleSectionComponent
       const hoveredCell = this.cellManipulation.hoveredCell();
       this.facade.tooltip.handleHoveredCell(
         hoveredCell,
-        this.dataService as ScheduleDataService,
+        this.scheduleService,
         this.currentSurface as any,
         this.tooltipState,
         true,
@@ -408,7 +411,7 @@ export class ScheduleSectionComponent
     mouseY: number,
     column: number
   ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     return this.facade.dragDrop.getDropTargetInfo(mouseY, column, dataService);
   }
 
@@ -417,7 +420,7 @@ export class ScheduleSectionComponent
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.dragDrop.handleCellValueChange(event, dataService);
   }
 
@@ -446,7 +449,7 @@ export class ScheduleSectionComponent
   private createContextMenu(row: number, column: number): void {
     this.contextMenuRow = row;
     this.contextMenuColumn = column;
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.contextMenu.menuData = this.facade.contextMenu.createContextMenu({
       row,
       column,
@@ -456,7 +459,7 @@ export class ScheduleSectionComponent
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     const handler = this.menuHandlers[keys[0]];
     if (!handler) return;
 
@@ -509,12 +512,12 @@ export class ScheduleSectionComponent
   }
 
   private showSelectedShiftInShiftSection(): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.navigation.showSelectedShiftInShiftSection(dataService);
   }
 
   private scrollToClient(clientId: string, date: string): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.navigation.scrollToClient(
       clientId,
       date,
@@ -527,7 +530,7 @@ export class ScheduleSectionComponent
   }
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.navigation.scrollToScheduleEntry(
       shiftId,
       column,
@@ -539,7 +542,7 @@ export class ScheduleSectionComponent
   }
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.dialog.editWorkChange(event.row, event.column, dataService);
   }
 
@@ -573,12 +576,12 @@ export class ScheduleSectionComponent
   }
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService);
   }
 
   onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
-    const dataService = this.dataService as ScheduleDataService;
+    const dataService = this.scheduleService;
     const clickedDate = dataService.getDateForColumn(event.column);
     const availableShifts = this.mapShiftsToAvailable(
       this.dataManagement.shiftSchedules,

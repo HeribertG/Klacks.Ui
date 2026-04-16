@@ -25,12 +25,13 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
+import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(BaseDataService) as ScheduleDataService;
-  private timeRange = inject(TimeRangeService);
   private timeRulerRender = inject(TimeRulerRenderService);
+  private timeRange = inject(TimeRangeService);
 
   private readonly dayStart = OwnTime.forTime('00', '00');
   private readonly dayEnd = OwnTime.forTime('24', '00');
@@ -38,6 +39,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private readonly blockBorderDepth = 2;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
+
+  private cachedRange = this.computeDisplayRange();
 
   override createCell(row: number, col: number): HTMLCanvasElement | undefined {
     const baseCanvas = super.createCell(row, col);
@@ -62,21 +65,13 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return baseCanvas;
     }
 
-    const width = this.settings.cellWidth;
-    const height = this.settings.cellHeight;
-    const paddingMinutes = this.timeRulerRender.calculatePaddingMinutes(
-      this.dayStart,
-      this.dayEnd,
-    );
-    const range = this.timeRange.calculateDisplayRange(
-      this.dayStart,
-      this.dayEnd,
-      paddingMinutes,
-    );
+    const range = this.cachedRange;
     if (range.totalMinutes <= 0) {
       return baseCanvas;
     }
 
+    const width = this.settings.cellWidth;
+    const height = this.settings.cellHeight;
     const pixelsPerMinute = height / range.totalMinutes;
     for (const entry of entries) {
       this.drawEntryBlock(ctx, entry, width, pixelsPerMinute, range.displayFromMinutes);
@@ -150,31 +145,30 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     }
   }
 
+  private computeDisplayRange() {
+    const paddingMinutes = this.timeRulerRender.calculatePaddingMinutes(
+      this.dayStart,
+      this.dayEnd,
+    );
+    return this.timeRange.calculateDisplayRange(
+      this.dayStart,
+      this.dayEnd,
+      paddingMinutes,
+    );
+  }
+
   private toMinutesRange(
     entry: IScheduleCell,
   ): { start: number; end: number } | undefined {
     if (!entry.startTime || !entry.endTime) {
       return undefined;
     }
-    const start = this.parseTime(entry.startTime);
-    const end = this.parseTime(entry.endTime);
-    if (start === undefined || end === undefined) {
+    const start = timeToMinutes(entry.startTime);
+    const end = timeToMinutes(entry.endTime);
+    if (!start && !entry.startTime.startsWith('00')) {
       return undefined;
     }
     return { start, end: end <= start ? end + 24 * 60 : end };
-  }
-
-  private parseTime(value: string): number | undefined {
-    const parts = value.split(':');
-    if (parts.length < 2) {
-      return undefined;
-    }
-    const hours = Number.parseInt(parts[0], 10);
-    const minutes = Number.parseInt(parts[1], 10);
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return undefined;
-    }
-    return hours * 60 + minutes;
   }
 
   private resolveBlockColor(entryType: WorkScheduleEntryType): string {

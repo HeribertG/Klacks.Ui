@@ -331,8 +331,6 @@ export class ScheduleDataService extends BaseDataService {
     let count = 0;
     let index = -1;
 
-    const timelineMode = this.settings.isTimelineMode;
-
     for (
       let client = 0;
       client < this.dataManagementSchedule.clients.length;
@@ -343,9 +341,9 @@ export class ScheduleDataService extends BaseDataService {
         this.indexGroupRow.push(count);
       }
 
-      const rowsForClient = timelineMode
-        ? 1
-        : this.dataManagementSchedule.clients[client].displayRows;
+      const rowsForClient = this.settings.getDisplayRows(
+        this.dataManagementSchedule.clients[client].displayRows,
+      );
 
       for (let row = 0; row < rowsForClient; row++) {
         this.rowGroupIndex.push(client);
