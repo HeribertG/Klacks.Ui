@@ -79,6 +79,9 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   showSttModal = signal(false);
   editingSttProvider = signal<CustomSttProvider | null>(null);
 
+  // Hide TTS provider picker until OpenAI/ElevenLabs backend providers are implemented.
+  readonly showTtsProvider = false;
+
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
   sttApiKeyConfigured = false;
@@ -139,7 +142,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       this.sttApiKey = speech.sttApiKey;
     }
     this.ttsVoice = speech.ttsVoice;
-    this.ttsProvider = speech.ttsProvider;
+    this.ttsProvider = this.showTtsProvider ? speech.ttsProvider : TtsProvider.Edge;
     this.transcriptionModel = speech.transcriptionModel;
     this.enhancementEnabled = speech.enhancementEnabled;
     this.outputMode = speech.outputMode;

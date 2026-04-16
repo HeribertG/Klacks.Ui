@@ -26,23 +26,25 @@
         </select>
       </div>
 
-      <div class="form-group secondColumn">
-        <label for="ttsProvider">{{
-          "setting.speech.tts-provider" | translate
-        }}</label>
-        <select
-          class="form-select"
-          [(ngModel)]="ttsProvider"
-          id="ttsProvider"
-          (ngModelChange)="onSettingChanged()"
-        >
-          @for (provider of ttsProviders; track provider.value) {
-            <option [value]="provider.value">
-              {{ provider.labelKey | translate }}
-            </option>
-          }
-        </select>
-      </div>
+      @if (showTtsProvider) {
+        <div class="form-group secondColumn">
+          <label for="ttsProvider">{{
+            "setting.speech.tts-provider" | translate
+          }}</label>
+          <select
+            class="form-select"
+            [(ngModel)]="ttsProvider"
+            id="ttsProvider"
+            (ngModelChange)="onSettingChanged()"
+          >
+            @for (provider of ttsProviders; track provider.value) {
+              <option [value]="provider.value">
+                {{ provider.labelKey | translate }}
+              </option>
+            }
+          </select>
+        </div>
+      }
     </div>
 
     @if (sttEngine !== "browser") {
