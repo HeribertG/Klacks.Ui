@@ -11,4 +11,5 @@ export interface BulkAddBreakItem {
   endTime: string;
   information?: string;
   description?: MultiLanguage;
+  analyseToken?: string;
 }

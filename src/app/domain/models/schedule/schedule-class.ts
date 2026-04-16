@@ -25,6 +25,7 @@ export interface IWork {
   periodStart?: string;
   periodEnd?: string;
   scheduleEntries?: IScheduleCell[];
+  analyseToken?: string;
 }
 
 export class Work implements IWork {
@@ -46,6 +47,7 @@ export class Work implements IWork {
   periodStart?: string;
   periodEnd?: string;
   scheduleEntries?: IScheduleCell[];
+  analyseToken?: string;
 }
 
 export interface IClientWork {

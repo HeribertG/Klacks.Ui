@@ -55,6 +55,7 @@ export interface IShiftScheduleFilter {
   showUngroupedShifts: boolean;
   startRow: number;
   rowCount: number;
+  analyseToken?: string;
 }
 
 export interface IShiftScheduleResponse {
@@ -77,4 +78,5 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   showUngroupedShifts = false;
   startRow = 0;
   rowCount = 100;
+  analyseToken?: string;
 }

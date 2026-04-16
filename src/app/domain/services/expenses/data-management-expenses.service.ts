@@ -7,17 +7,20 @@ import {
   ExpensesRequest,
   ExpensesResource,
 } from 'src/app/domain/models/expenses/expenses';
+import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementExpensesService {
   private dataExpensesService = inject(DataExpensesService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   public isCreating = signal(false);
   public lastCreated = signal<ExpensesResource | undefined>(undefined);
 
   create(request: ExpensesRequest): Observable<ExpensesResource> {
+    request.analyseToken = request.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
     this.isCreating.set(true);
     return new Observable(observer => {
       this.dataExpensesService.create(request).subscribe({
@@ -40,6 +43,7 @@ export class DataManagementExpensesService {
   }
 
   update(resource: ExpensesResource): Observable<ExpensesResource> {
+    resource.analyseToken = resource.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
     return new Observable(observer => {
       this.dataExpensesService.update(resource).subscribe({
         next: (result) => {

@@ -8,4 +8,5 @@ export interface BulkAddWorkItem {
   startTime: string;
   endTime: string;
   information?: string;
+  analyseToken?: string;
 }

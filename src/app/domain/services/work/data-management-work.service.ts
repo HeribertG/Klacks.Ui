@@ -13,6 +13,7 @@ import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-sc
 import { BulkAddWorksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-works-request.dto';
 import { BulkWorksResponse } from 'src/app/infrastructure/api/dtos/bulk-works-response.dto';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,7 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 export class DataManagementWorkService {
   private dataSchedule = inject(DataScheduleService);
   private destroyRef = inject(DestroyRef);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private destroy$ = new Subject<void>();
 
   private _isUpdate = signal<IWork | undefined>(undefined);
@@ -33,6 +35,7 @@ export class DataManagementWorkService {
       const client = clients[index];
       const tmp = value as Work;
       value.clientId = client.id!;
+      tmp.analyseToken = tmp.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
       delete tmp.id;
       this.dataSchedule.addWork(tmp).pipe(takeUntil(this.destroy$)).subscribe((x) => {
         client.works.push(x);
@@ -57,6 +60,7 @@ export class DataManagementWorkService {
   }
 
   updateWork(clients: IClientWork[], index: number, value: IWork): void {
+    value.analyseToken = value.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
     this.dataSchedule.updateWork(value as Work).pipe(takeUntil(this.destroy$)).subscribe(() => {
       const client = clients[index];
       client.works = this.sortWorks(client.works);
@@ -85,6 +89,7 @@ export class DataManagementWorkService {
       work.endTime = params.endTime;
       work.periodStart = params.periodStart;
       work.periodEnd = params.periodEnd;
+      work.analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
 
       this.dataSchedule.addWork(work)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -139,6 +144,7 @@ export class DataManagementWorkService {
     periodStart: string;
     periodEnd: string;
   }): Promise<BulkWorksResponse> {
+    const analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
     const request: BulkAddWorksRequest = {
       works: params.entries.map(e => ({
         clientId: e.clientId,
@@ -148,6 +154,7 @@ export class DataManagementWorkService {
         startTime: e.startTime,
         endTime: e.endTime,
         information: e.information,
+        analyseToken,
       })),
       periodStart: params.periodStart,
       periodEnd: params.periodEnd,

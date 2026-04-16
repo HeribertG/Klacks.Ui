@@ -5,6 +5,7 @@ export interface ExpensesRequest {
   amount: number;
   description: string;
   taxable: boolean;
+  analyseToken?: string;
 }
 
 export interface ExpensesResource {
@@ -13,4 +14,5 @@ export interface ExpensesResource {
   amount: number;
   description: string;
   taxable: boolean;
+  analyseToken?: string;
 }

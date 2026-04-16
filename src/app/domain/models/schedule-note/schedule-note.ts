@@ -4,6 +4,7 @@ export interface ScheduleNoteRequest {
   clientId: string;
   currentDate: string;
   content: string;
+  analyseToken?: string;
 }
 
 export interface ScheduleNoteResource {
@@ -11,4 +12,5 @@ export interface ScheduleNoteResource {
   clientId: string;
   currentDate: string;
   content: string;
+  analyseToken?: string;
 }

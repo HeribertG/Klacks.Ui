@@ -9,6 +9,7 @@ export interface ScheduleCommandRequest {
   clientId: string;
   currentDate: string;
   commandKeyword: string;
+  analyseToken?: string;
 }
 
 export interface ScheduleCommandResource {
@@ -16,4 +17,5 @@ export interface ScheduleCommandResource {
   clientId: string;
   currentDate: string;
   commandKeyword: string;
+  analyseToken?: string;
 }

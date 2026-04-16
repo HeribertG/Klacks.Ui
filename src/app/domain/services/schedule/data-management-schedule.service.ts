@@ -42,6 +42,7 @@ import {
   ScheduleCellParams,
   BreakCellParams,
 } from './schedule-entry-crud.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -56,6 +57,9 @@ export class DataManagementScheduleService implements ILoadable {
   private workCrud = inject(DataManagementWorkService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
+
+  private _lastAnalyseToken: string | null = this.analyseScenarioService.activeToken();
 
   constructor() {
     this.registry.register(RouteName.SCHEDULE, DataManagementScheduleService);
@@ -80,6 +84,13 @@ export class DataManagementScheduleService implements ILoadable {
 
         this.workScheduleLoader.applyBreakPlaceholderRows();
         this.bumpReadCounter(this.isRead);
+      });
+
+      effect(() => {
+        const token = this.analyseScenarioService.activeToken();
+        if (token === this._lastAnalyseToken) return;
+        this._lastAnalyseToken = token;
+        this.readDatas(false);
       });
     });
   }

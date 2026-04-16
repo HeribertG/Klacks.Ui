@@ -27,6 +27,7 @@ export interface IBreak {
   periodEnd: string | undefined;
   paymentInterval?: number;
   scheduleEntries: IScheduleCell[] | undefined;
+  analyseToken?: string;
 }
 
 export class Break implements IBreak {
@@ -49,6 +50,7 @@ export class Break implements IBreak {
   periodEnd: string | undefined = undefined;
   paymentInterval?: number = undefined;
   scheduleEntries: IScheduleCell[] | undefined = undefined;
+  analyseToken?: string;
 }
 
 export interface IBreakPlaceholder {

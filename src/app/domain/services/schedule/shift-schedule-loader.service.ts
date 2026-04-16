@@ -17,6 +17,7 @@ import {
 } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 
 interface ShiftLoadRequest {
   filter: IShiftScheduleFilter;
@@ -29,6 +30,7 @@ interface ShiftLoadRequest {
 export class ShiftScheduleLoaderService {
   private dataShiftSchedule = inject(DataShiftScheduleService);
   private destroyRef = inject(DestroyRef);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   private readonly INITIAL_CHUNK_SIZE = 200;
   private readonly LOAD_MORE_CHUNK_SIZE = 200;
@@ -121,6 +123,8 @@ export class ShiftScheduleLoaderService {
       workFilter.selectedGroup || undefined;
     this.shiftScheduleFilter.startRow = 0;
     this.shiftScheduleFilter.rowCount = this.INITIAL_CHUNK_SIZE;
+    this.shiftScheduleFilter.analyseToken =
+      this.analyseScenarioService.activeToken() ?? undefined;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._autoLoadEnabled = true;
 

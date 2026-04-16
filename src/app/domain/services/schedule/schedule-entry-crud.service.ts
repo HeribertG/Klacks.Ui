@@ -27,6 +27,7 @@ import { DataManagementScheduleCommandService } from '../schedule-command/data-m
 import { Break } from '../../models/break/break-class';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
 import { GroupSelectionService } from '../group/group-selection.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 export interface ScheduleCellParams {
   clientId: string;
   date: Date;
@@ -72,6 +73,7 @@ export class ScheduleEntryCrudService {
   private scheduleNoteService = inject(DataManagementScheduleNoteService);
   private scheduleCommandService = inject(DataManagementScheduleCommandService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private injector = inject(Injector);
 
   public scheduleRefreshed = signal<boolean>(false);
@@ -459,6 +461,7 @@ export class ScheduleEntryCrudService {
     const filter: IWorkScheduleFilter = {
       startDate: formatDateOnly(startDate),
       endDate: formatDateOnly(endDate),
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
     const response = await firstValueFrom(this.dataWorkSchedule.getWorkSchedule(filter));

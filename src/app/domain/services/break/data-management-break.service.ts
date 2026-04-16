@@ -7,17 +7,20 @@ import { BulkAddBreaksRequest } from 'src/app/infrastructure/api/dtos/bulk-add-b
 import { BulkDeleteBreaksRequest } from 'src/app/infrastructure/api/dtos/bulk-delete-breaks-request.dto';
 import { BulkBreaksResponse } from 'src/app/infrastructure/api/dtos/bulk-breaks-response.dto';
 import { Observable } from 'rxjs';
+import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementBreakService {
   private dataBreakService = inject(DataBreakService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   public isCreating = signal(false);
   public lastCreated = signal<IBreak | undefined>(undefined);
 
   addBreak(value: Break): Observable<IBreak> {
+    value.analyseToken = value.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
     this.isCreating.set(true);
     return new Observable(observer => {
       this.dataBreakService.addBreak(value).subscribe({
@@ -40,6 +43,7 @@ export class DataManagementBreakService {
   }
 
   updateBreak(value: Break): Observable<IBreak> {
+    value.analyseToken = value.analyseToken ?? this.analyseScenarioService.activeToken() ?? undefined;
     return this.dataBreakService.updateBreak(value);
   }
 
@@ -48,6 +52,8 @@ export class DataManagementBreakService {
   }
 
   bulkAddBreaks(request: BulkAddBreaksRequest): Observable<BulkBreaksResponse> {
+    const analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
+    request.breaks = request.breaks.map(b => ({ ...b, analyseToken: b.analyseToken ?? analyseToken }));
     this.isCreating.set(true);
     return new Observable(observer => {
       this.dataBreakService.bulkAddBreaks(request).subscribe({

@@ -34,6 +34,7 @@ import { CellValueChangeEvent } from 'src/app/presentation/shared/grid/body/grid
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDataService } from './schedule-data.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 export interface DropTargetInfo {
   row: number;
@@ -53,6 +54,7 @@ export class ScheduleDragDropService {
   private translateService = inject(TranslateService);
   private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   getDropTargetInfo(
     mouseY: number,
@@ -192,7 +194,13 @@ export class ScheduleDragDropService {
 
   private updateScheduleNote(id: string, clientId: string, date: Date, content: string): void {
     const dateStr = formatDateOnly(date);
-    const resource: ScheduleNoteResource = { id, clientId, currentDate: dateStr, content };
+    const resource: ScheduleNoteResource = {
+      id,
+      clientId,
+      currentDate: dateStr,
+      content,
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
+    };
     this.scheduleNoteService.update(resource).subscribe(() => {
       this.dataManagement.readDatas(false);
     });
@@ -205,6 +213,7 @@ export class ScheduleDragDropService {
       clientId,
       currentDate: dateStr,
       content,
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
     this.scheduleNoteService.create(resource).subscribe(() => {
       this.dataManagement.readDatas(false);
@@ -252,6 +261,7 @@ export class ScheduleDragDropService {
       clientId,
       currentDate: dateStr,
       commandKeyword: keyword,
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
     this.scheduleCommandService.create(resource).subscribe({
       next: () => this.dataManagement.readDatas(false),
@@ -265,6 +275,7 @@ export class ScheduleDragDropService {
       clientId,
       currentDate: dateStr,
       commandKeyword: keyword,
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
     this.scheduleCommandService.update(resource).subscribe({
       next: () => this.dataManagement.readDatas(false),
