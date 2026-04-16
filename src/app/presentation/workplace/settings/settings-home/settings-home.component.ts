@@ -47,6 +47,7 @@ import { LanguagePluginsComponent } from '../language-plugins/language-plugins.c
 import { MessagingProvidersComponent, OwnerMessengersComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
 import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
+import { AssistantPersonalitySettingsComponent } from '../assistant-personality-settings/assistant-personality-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
@@ -100,6 +101,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     OwnerMessengersComponent,
     FeaturePluginsComponent,
     AssistantSpeechSettingsComponent,
+    AssistantPersonalitySettingsComponent,
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,
     DataRetentionSettingComponent,

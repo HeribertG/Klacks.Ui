@@ -1,0 +1,39 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.personality.headline" | translate }}
+    @if (isSaving()) {
+      <span class="saving-indicator">{{ "setting.personality.saving" | translate }}</span>
+    }
+  </div>
+  <div class="container-line"></div>
+
+  <div class="settings-form">
+    @if (isLoading()) {
+      <div class="loading-hint">
+        {{ "setting.personality.loading" | translate }}
+      </div>
+    } @else {
+      <div class="intro-hint">
+        {{ "setting.personality.intro" | translate }}
+      </div>
+
+      @for (field of fields; track field.key) {
+        <div class="field-group">
+          <label [attr.for]="'personality-' + field.key">
+            {{ field.labelKey | translate }}
+          </label>
+          <textarea
+            [id]="'personality-' + field.key"
+            class="form-control personality-textarea"
+            [(ngModel)]="field.content"
+            (blur)="onFieldBlur(field)"
+            rows="5"
+          ></textarea>
+          <div class="field-hint">
+            {{ field.hintKey | translate }}
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
