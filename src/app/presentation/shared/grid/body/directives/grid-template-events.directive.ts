@@ -573,14 +573,12 @@ export class GridTemplateEventsDirective {
   }
 
   private respondToRightButtonMouseDown(event: MouseEvent): void {
-    console.log('[GRID-EVENTS] respondToRightButtonMouseDown called');
     this.gridSurface.setFocus();
 
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
-      console.log('[GRID-EVENTS] position invalid, returning');
       return;
     }
 
@@ -590,7 +588,6 @@ export class GridTemplateEventsDirective {
     this.gridSurface.drawSchedule.drawSelection();
     this.gridSurface.drawSchedule.drawGridSelectedCell();
 
-    console.log('[GRID-EVENTS] emitting rightClick', { row: pos.row, column: pos.column, subscribers: this.rightClick.observed });
     this.rightClick.emit({
       row: pos.row,
       column: pos.column,
