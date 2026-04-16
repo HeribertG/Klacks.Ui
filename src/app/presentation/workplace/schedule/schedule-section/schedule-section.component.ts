@@ -166,7 +166,7 @@ export class ScheduleSectionComponent
   private scrollService = inject(ScrollService);
 
   private get scheduleService(): ScheduleDataService {
-    return this.scheduleService;
+    return this.dataService as ScheduleDataService;
   }
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
