@@ -55,6 +55,7 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private readonly columnSeparatorLogicalWidth = 1;
   private readonly columnSeparatorDarken = 80;
   private readonly cellOutlineWidth = 0.5;
+  private readonly dayTotalMinutes = this.hoursPerDay * this.minutesPerHour;
 
   private cachedRange = this.computeDisplayRange();
   private stripedCellCache: (HTMLCanvasElement | undefined)[] = new Array(
@@ -71,11 +72,17 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return baseCanvas;
     }
 
-    const entries = this.scheduleData
+    const todayEntries = this.scheduleData
       .getWorkScheduleForCell(row, col)
       .filter((e) => this.isTimelineEntry(e));
+    const overflowEntries =
+      col > 0
+        ? this.scheduleData
+            .getWorkScheduleForCell(row, col - 1)
+            .filter((e) => this.isTimelineEntry(e) && this.spansMidnight(e))
+        : [];
 
-    if (entries.length === 0) {
+    if (todayEntries.length === 0 && overflowEntries.length === 0) {
       return baseCanvas;
     }
 
@@ -92,8 +99,39 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     const width = this.settings.cellWidth;
     const height = this.settings.cellHeight;
     const pixelsPerMinute = height / range.totalMinutes;
-    for (const entry of entries) {
-      this.drawEntryBlock(ctx, entry, width, pixelsPerMinute, range.displayFromMinutes);
+
+    for (const entry of todayEntries) {
+      const minutes = this.toMinutesRange(entry);
+      if (!minutes) {
+        continue;
+      }
+      const endToday = Math.min(minutes.end, this.dayTotalMinutes);
+      this.drawEntryBlock(
+        ctx,
+        entry,
+        minutes.start,
+        endToday,
+        width,
+        pixelsPerMinute,
+        range.displayFromMinutes,
+      );
+    }
+
+    for (const entry of overflowEntries) {
+      const minutes = this.toMinutesRange(entry);
+      if (!minutes) {
+        continue;
+      }
+      const overflowEnd = minutes.end - this.dayTotalMinutes;
+      this.drawEntryBlock(
+        ctx,
+        entry,
+        0,
+        overflowEnd,
+        width,
+        pixelsPerMinute,
+        range.displayFromMinutes,
+      );
     }
 
     return baseCanvas;
@@ -310,12 +348,13 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private drawEntryBlock(
     ctx: CanvasRenderingContext2D,
     entry: IScheduleCell,
+    startMinutes: number,
+    endMinutes: number,
     width: number,
     pixelsPerMinute: number,
     displayFromMinutes: number,
   ): void {
-    const minutes = this.toMinutesRange(entry);
-    if (!minutes) {
+    if (endMinutes <= startMinutes) {
       return;
     }
 
@@ -324,8 +363,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return;
     }
 
-    const yStart = (minutes.start - displayFromMinutes) * pixelsPerMinute;
-    const yEnd = (minutes.end - displayFromMinutes) * pixelsPerMinute;
+    const yStart = (startMinutes - displayFromMinutes) * pixelsPerMinute;
+    const yEnd = (endMinutes - displayFromMinutes) * pixelsPerMinute;
     const blockHeight = Math.max(this.minBlockHeight, yEnd - yStart);
     const rect = new Rectangle(0, yStart, width, yStart + blockHeight);
 
@@ -336,6 +375,11 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     if (blockHeight > this.textThreshold && label) {
       this.drawBlockLabel(ctx, rect, label, color);
     }
+  }
+
+  private spansMidnight(entry: IScheduleCell): boolean {
+    const minutes = this.toMinutesRange(entry);
+    return !!minutes && minutes.end > this.dayTotalMinutes;
   }
 
   private drawBlockLabel(
@@ -380,6 +424,6 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     if (!start && !entry.startTime.startsWith('00')) {
       return undefined;
     }
-    return { start, end: end <= start ? end + 24 * 60 : end };
+    return { start, end: end <= start ? end + this.dayTotalMinutes : end };
   }
 }
