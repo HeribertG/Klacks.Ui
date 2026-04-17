@@ -196,7 +196,7 @@ export class BaseCreateCellService {
       this.drawSealedOverlay(ctx, this.settings.cellWidth);
     }
 
-    if (gridCell.backgroundColor) {
+    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
       let bgColor = gridCell.backgroundColor;
       if (gridCell.sealed) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
@@ -239,7 +239,7 @@ export class BaseCreateCellService {
       ctx.fillRect(i * this.settings.cellWidth, 0, this.settings.cellWidth, cellHeight);
     }
 
-    if (gridCell.backgroundColor) {
+    if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
       let bgColor = gridCell.backgroundColor;
       if (gridCell.sealed) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
@@ -376,6 +376,10 @@ export class BaseCreateCellService {
 
   drawImage(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement): void {
     ctx.drawImage(img, 0, 0);
+  }
+
+  protected shouldDrawCellBackgroundColor(_gridCell: GridCell): boolean {
+    return true;
   }
 
   drawCellTexts(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {

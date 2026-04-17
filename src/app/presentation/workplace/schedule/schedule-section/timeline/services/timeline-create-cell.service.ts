@@ -2,16 +2,15 @@
 
 /**
  * Cell renderer for the timeline view.
- * Draws Work / WorkChange / Break entries as colored 3D blocks on a vertical
- * 00:00-24:00 axis. Expenses, ScheduleNote and ScheduleCommand entries are
- * skipped. WorkChange reuses the briefing color from the time-ruler palette so
- * the timeline stays visually consistent with shift-planning surfaces.
+ * Coordinates per-entry rendering by delegating Work, WorkChange and Break blocks
+ * to their dedicated ITimelineBlockRenderer implementations. Expenses, ScheduleNote
+ * and ScheduleCommand entries are skipped. Also suppresses the cell-level background
+ * fill of the base renderer so hour stripes remain visible behind the blocks.
  * @param scheduleData - Mapping from (row, col) to the actual work-schedule entries
  * @param timeRangeService - Shared time-axis math (used for both the ruler and the blocks)
  * @param timeRulerRender - Padding policy for the time ruler, kept in sync with the row-header
  */
 import { inject, Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -22,31 +21,29 @@ import {
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
-import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
-import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
-import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
+import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.interface';
+import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
+import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
+import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
 
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
   private timeRulerRender = inject(TimeRulerRenderService);
   private timeRange = inject(TimeRangeService);
-  private absenceLookup = inject(AbsenceLookupService);
-  private translateService = inject(TranslateService);
+  private workRenderer = inject(WorkBlockRendererService);
+  private workChangeRenderer = inject(WorkChangeBlockRendererService);
+  private breakRenderer = inject(BreakBlockRendererService);
 
   private readonly dayStart = OwnTime.forTime('00', '00');
   private readonly dayEnd = OwnTime.forTime('24', '00');
-  private readonly blockMarginX = 0;
-  private readonly workBorderDepth = 2;
-  private readonly nonWorkInsetX = 1;
-  private readonly nonWorkInsetY = 1;
+  private readonly minBlockHeight = 2;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
-  private readonly workChangeBlockColor = 'rgb(149, 185, 208)';
   private readonly evenHourDarken = 12;
   private readonly overlayCacheOffset = 10;
   private readonly stripedCacheSize = 20;
@@ -103,8 +100,12 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   }
 
   override drawCellTexts(_ctx: CanvasRenderingContext2D, _gridCell: GridCell): void {
-    // Timeline renders work entries as time-positioned 3D blocks; cell-level
+    // Timeline renders work entries as time-positioned blocks; cell-level
     // texts from the table view are intentionally suppressed.
+  }
+
+  protected override shouldDrawCellBackgroundColor(_gridCell: GridCell): boolean {
+    return false;
   }
 
   override drawImage(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement): void {
@@ -293,6 +294,19 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     );
   }
 
+  private getRendererFor(entry: IScheduleCell): ITimelineBlockRenderer | undefined {
+    switch (entry.entryType) {
+      case WorkScheduleEntryType.Work:
+        return this.workRenderer;
+      case WorkScheduleEntryType.WorkChange:
+        return this.workChangeRenderer;
+      case WorkScheduleEntryType.Break:
+        return this.breakRenderer;
+      default:
+        return undefined;
+    }
+  }
+
   private drawEntryBlock(
     ctx: CanvasRenderingContext2D,
     entry: IScheduleCell,
@@ -305,51 +319,42 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return;
     }
 
+    const renderer = this.getRendererFor(entry);
+    if (!renderer) {
+      return;
+    }
+
     const yStart = (minutes.start - displayFromMinutes) * pixelsPerMinute;
     const yEnd = (minutes.end - displayFromMinutes) * pixelsPerMinute;
-    const blockHeight = Math.max(2, yEnd - yStart);
+    const blockHeight = Math.max(this.minBlockHeight, yEnd - yStart);
+    const rect = new Rectangle(0, yStart, width, yStart + blockHeight);
 
-    const isWork = entry.entryType === WorkScheduleEntryType.Work;
-    const marginX = isWork ? this.blockMarginX : this.blockMarginX + this.nonWorkInsetX;
-    const insetY = isWork ? 0 : this.nonWorkInsetY;
-    const blockWidth = Math.max(1, width - marginX * 2);
-    const color = this.resolveBlockColor(entry);
-    const rect = new Rectangle(
-      marginX,
-      yStart + insetY,
-      marginX + blockWidth,
-      yStart + blockHeight - insetY,
-    );
+    const color = renderer.getColor(entry);
+    renderer.drawShape(ctx, rect, color);
 
-    DrawHelper.fillRectangle(ctx, color, rect);
-
-    if (isWork) {
-      DrawHelper.drawBorder(
-        ctx,
-        marginX,
-        yStart,
-        blockWidth,
-        yStart + blockHeight,
-        color,
-        this.workBorderDepth,
-        Gradient3DBorderStyleEnum.Raised,
-      );
-    }
-
-    const label = this.resolveBlockLabel(entry);
+    const label = renderer.getLabel(entry);
     if (blockHeight > this.textThreshold && label) {
-      ctx.save();
-      ctx.font = this.textFont;
-      ctx.fillStyle = DrawHelper.getContrastTextColor(color);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(
-        label,
-        Math.round(width / 2),
-        Math.round(yStart + blockHeight / 2),
-      );
-      ctx.restore();
+      this.drawBlockLabel(ctx, rect, label, color);
     }
+  }
+
+  private drawBlockLabel(
+    ctx: CanvasRenderingContext2D,
+    rect: Rectangle,
+    label: string,
+    color: string,
+  ): void {
+    ctx.save();
+    ctx.font = this.textFont;
+    ctx.fillStyle = DrawHelper.getContrastTextColor(color);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      label,
+      Math.round((rect.left + rect.right) / 2),
+      Math.round((rect.top + rect.bottom) / 2),
+    );
+    ctx.restore();
   }
 
   private computeDisplayRange() {
@@ -376,29 +381,5 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       return undefined;
     }
     return { start, end: end <= start ? end + 24 * 60 : end };
-  }
-
-  private resolveBlockColor(entry: IScheduleCell): string {
-    switch (entry.entryType) {
-      case WorkScheduleEntryType.Break: {
-        const absenceColor = this.absenceLookup.getColorForEntryId(entry.entryId);
-        return absenceColor ?? this.gridColors.backGroundColorHolyday;
-      }
-      case WorkScheduleEntryType.WorkChange:
-        return this.workChangeBlockColor;
-      default:
-        return this.gridColors.controlBackGroundColor;
-    }
-  }
-
-  private resolveBlockLabel(entry: IScheduleCell): string {
-    if (entry.entryType === WorkScheduleEntryType.Break) {
-      const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
-      const abbr = this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
-      if (abbr) {
-        return abbr;
-      }
-    }
-    return entry.abbreviation ?? '';
   }
 }

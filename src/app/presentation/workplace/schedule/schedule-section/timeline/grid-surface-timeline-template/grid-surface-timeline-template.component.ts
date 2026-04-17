@@ -42,6 +42,9 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { BaseGridRenderService } from 'src/app/presentation/shared/grid/services/body/grid-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { TimelineCreateCellService } from '../services/timeline-create-cell.service';
+import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
+import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
+import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
 import {
   TimelineGridEventsDirective,
   TimelineGridRightClickEvent,
@@ -95,6 +98,9 @@ export interface TimelineDoubleClickEvent {
     BaseCanvasManagerService,
     BaseGridRenderService,
     CellIconsService,
+    WorkBlockRendererService,
+    WorkChangeBlockRendererService,
+    BreakBlockRendererService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
