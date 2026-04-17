@@ -65,6 +65,7 @@ export class BaseCreateRowHeaderService {
     this.iconWidth = this.settings.rowHeaderIconWith;
     this.iconHeight = this.settings.rowHeaderIconHeight;
 
+    this.backgroundCollection.clear();
     this.rowIcons.reset(this.iconWidth, this.iconHeight);
   }
 

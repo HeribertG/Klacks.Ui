@@ -31,6 +31,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
@@ -100,7 +101,7 @@ export interface TimelineDoubleClickEvent {
 export class GridSurfaceTimelineTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Input() nameId: string = 'surface';
+  @Input() nameId = 'surface';
   @Input() valueChangeHScrollbar!: number;
   @Input() valueChangeVScrollbar!: number;
 
@@ -131,9 +132,11 @@ export class GridSurfaceTimelineTemplateComponent
   private effects: EffectRef[] = [];
   private resizeObserver?: ResizeObserver;
   private isDestroyed = false;
+  private pixelRatio = 1;
 
   ngOnInit(): void {
     this.registerSignalEffects();
+    this.pixelRatio = DrawHelper.pixelRatio();
   }
 
   ngAfterViewInit(): void {
@@ -219,9 +222,20 @@ export class GridSurfaceTimelineTemplateComponent
         this.drawSchedule.width = box.clientWidth;
         this.drawSchedule.height = box.clientHeight;
         this.drawSchedule.refresh();
+        this.checkPixelRatio();
         this.updateScrollbarValues();
       });
       this.resizeObserver.observe(parentElement);
+    }
+  }
+
+  private checkPixelRatio(): void {
+    const current = DrawHelper.pixelRatio();
+    if (this.pixelRatio !== current) {
+      this.pixelRatio = current;
+      this.drawSchedule.createCanvas();
+      this.drawSchedule.rebuild();
+      this.drawSchedule.redraw();
     }
   }
 

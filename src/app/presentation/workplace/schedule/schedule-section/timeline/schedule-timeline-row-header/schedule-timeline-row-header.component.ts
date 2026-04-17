@@ -29,6 +29,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -73,9 +74,11 @@ export class ScheduleTimelineRowHeaderComponent
 
   private effects: EffectRef[] = [];
   private isDestroyed = false;
+  private pixelRatio = 1;
 
   ngOnInit(): void {
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
+    this.pixelRatio = DrawHelper.pixelRatio();
   }
 
   ngAfterViewInit(): void {
@@ -101,6 +104,17 @@ export class ScheduleTimelineRowHeaderComponent
     if (entries && entries.length > 0) {
       this.updateDrawRowHeaderDimensions(entries[0].target as HTMLElement);
       this.drawRowHeader.refresh();
+      this.checkPixelRatio();
+    }
+  }
+
+  private checkPixelRatio(): void {
+    const current = DrawHelper.pixelRatio();
+    if (this.pixelRatio !== current && this.drawRowHeader.isCanvasAvailable()) {
+      this.pixelRatio = current;
+      this.drawRowHeader.createCanvas();
+      this.drawRowHeader.rebuild();
+      this.drawRowHeader.redraw();
     }
   }
 

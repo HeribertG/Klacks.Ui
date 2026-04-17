@@ -13,6 +13,7 @@
 import { inject, Injectable } from '@angular/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
+import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import {
   IScheduleCell,
   WorkScheduleEntryType,
@@ -39,8 +40,22 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
   private readonly workChangeBlockColor = 'rgb(149, 185, 208)';
+  private readonly evenHourDarken = 12;
+  private readonly overlayCacheOffset = 10;
+  private readonly stripedCacheSize = 20;
+  private readonly minutesPerHour = 60;
+  private readonly hoursPerDay = 24;
+  private readonly stripeIntervalHours = 2;
+  private readonly stripeDarkHours = 1;
+  private readonly overlayDarkenAmount = 30;
+  private readonly columnSeparatorLogicalWidth = 1;
+  private readonly columnSeparatorDarken = 80;
+  private readonly cellOutlineWidth = 0.5;
 
   private cachedRange = this.computeDisplayRange();
+  private stripedCellCache: (HTMLCanvasElement | undefined)[] = new Array(
+    this.stripedCacheSize,
+  );
 
   override createCell(row: number, col: number): HTMLCanvasElement | undefined {
     const baseCanvas = super.createCell(row, col);
@@ -83,6 +98,176 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   override drawCellTexts(_ctx: CanvasRenderingContext2D, _gridCell: GridCell): void {
     // Timeline renders work entries as time-positioned 3D blocks; cell-level
     // texts from the table view are intentionally suppressed.
+  }
+
+  override drawImage(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement): void {
+    // Base implementation omits the destination size, which on HiDPI displays
+    // scales the cached cell canvas by dpr and drifts the timeline stripes away
+    // from the row-header ruler. Pass the logical size so the cached canvas
+    // maps 1:1 into the cell and stays aligned with the ruler.
+    const dpr = DrawHelper.pixelRatio();
+    ctx.drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
+  }
+
+  override reset(): void {
+    super.reset();
+    this.cachedRange = this.computeDisplayRange();
+    this.stripedCellCache = new Array(this.stripedCacheSize);
+  }
+
+  override getCellCanvas(
+    weekDay: number,
+    lastRow: number,
+    isOverlay = false,
+  ): HTMLCanvasElement {
+    const index = weekDay + lastRow + (isOverlay ? this.overlayCacheOffset : 0);
+    let canvas = this.stripedCellCache[index];
+    if (!canvas) {
+      canvas = this.buildTimelineCellCanvas(
+        weekDay as WeekDaysEnum,
+        lastRow > 0,
+        isOverlay,
+      );
+      this.stripedCellCache[index] = canvas;
+    }
+    return canvas;
+  }
+
+  private buildTimelineCellCanvas(
+    weekDay: WeekDaysEnum,
+    isLast: boolean,
+    isOverlay: boolean,
+  ): HTMLCanvasElement {
+    const logicalWidth = this.settings.cellWidth + this.settings.increaseBorder;
+    const logicalHeight = this.settings.cellHeight + this.settings.increaseBorder;
+    const cellHeightLogical = this.settings.cellHeight;
+
+    const canvas = document.createElement('canvas');
+    const ctx = DrawHelper.createHiDPICanvas(canvas, logicalWidth, logicalHeight, true);
+    if (!ctx) {
+      return canvas;
+    }
+
+    const baseColor = this.getTimelineBaseColor(weekDay, isOverlay);
+
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+    this.drawHourStripes(ctx, baseColor, logicalWidth, cellHeightLogical);
+    this.drawCellOutline(ctx, logicalWidth, logicalHeight);
+
+    if (isLast) {
+      this.drawRowSeparator(ctx, logicalWidth, cellHeightLogical);
+    }
+
+    this.drawColumnSeparator(ctx, logicalWidth, cellHeightLogical);
+
+    return canvas;
+  }
+
+  private drawHourStripes(
+    ctx: CanvasRenderingContext2D,
+    baseColor: string,
+    logicalWidth: number,
+    cellHeightLogical: number,
+  ): void {
+    const range = this.cachedRange;
+    if (range.totalMinutes <= 0) {
+      return;
+    }
+
+    const pixelsPerMinute = cellHeightLogical / range.totalMinutes;
+    const stripeColor = DrawHelper.GetDarkColor(baseColor, this.evenHourDarken);
+
+    ctx.save();
+    ctx.fillStyle = stripeColor;
+    for (let hour = 0; hour < this.hoursPerDay; hour += this.stripeIntervalHours) {
+      const startMinutes = hour * this.minutesPerHour;
+      const endMinutes = startMinutes + this.stripeDarkHours * this.minutesPerHour;
+      const yStart = (startMinutes - range.displayFromMinutes) * pixelsPerMinute;
+      const yEnd = (endMinutes - range.displayFromMinutes) * pixelsPerMinute;
+      if (yEnd < 0 || yStart > cellHeightLogical) {
+        continue;
+      }
+      const drawY = Math.max(0, yStart);
+      const drawH = Math.min(cellHeightLogical, yEnd) - drawY;
+      if (drawH > 0) {
+        ctx.fillRect(0, drawY, logicalWidth, drawH);
+      }
+    }
+    ctx.restore();
+  }
+
+  private drawCellOutline(
+    ctx: CanvasRenderingContext2D,
+    logicalWidth: number,
+    logicalHeight: number,
+  ): void {
+    ctx.save();
+    ctx.strokeStyle = this.gridColors.borderColor;
+    ctx.lineWidth = this.cellOutlineWidth;
+    ctx.strokeRect(0, 0, logicalWidth, logicalHeight);
+    ctx.restore();
+  }
+
+  private drawRowSeparator(
+    ctx: CanvasRenderingContext2D,
+    logicalWidth: number,
+    cellHeightLogical: number,
+  ): void {
+    ctx.save();
+    ctx.strokeStyle = this.gridColors.boundaryBorderColor;
+    ctx.lineWidth = this.settings.boundaryBorderWidth;
+    ctx.beginPath();
+    ctx.moveTo(0, cellHeightLogical);
+    ctx.lineTo(logicalWidth, cellHeightLogical);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  private drawColumnSeparator(
+    ctx: CanvasRenderingContext2D,
+    logicalWidth: number,
+    cellHeightLogical: number,
+  ): void {
+    ctx.save();
+    ctx.fillStyle = DrawHelper.GetDarkColor(
+      this.gridColors.borderColor,
+      this.columnSeparatorDarken,
+    );
+    ctx.fillRect(
+      logicalWidth - this.columnSeparatorLogicalWidth,
+      0,
+      this.columnSeparatorLogicalWidth,
+      cellHeightLogical,
+    );
+    ctx.restore();
+  }
+
+  private getTimelineBaseColor(day: WeekDaysEnum, isOverlay: boolean): string {
+    let baseColor: string;
+    switch (day) {
+      case WeekDaysEnum.Workday:
+        baseColor = this.gridColors.backGroundColor;
+        break;
+      case WeekDaysEnum.Saturday:
+        baseColor = this.gridColors.backGroundColorSaturday;
+        break;
+      case WeekDaysEnum.Sunday:
+        baseColor = this.gridColors.backGroundColorSunday;
+        break;
+      case WeekDaysEnum.Holiday:
+        baseColor = this.gridColors.backGroundColorHolyday;
+        break;
+      case WeekDaysEnum.OfficiallyHoliday:
+        baseColor = this.gridColors.backGroundColorOfficiallyHoliday;
+        break;
+      default:
+        baseColor = this.gridColors.backGroundColor;
+    }
+    return isOverlay
+      ? DrawHelper.GetDarkColor(baseColor, this.overlayDarkenAmount)
+      : baseColor;
   }
 
   private isFirstGroupRow(row: number): boolean {
