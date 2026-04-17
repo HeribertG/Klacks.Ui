@@ -42,6 +42,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private readonly dayEnd = OwnTime.forTime('24', '00');
   private readonly blockMarginX = 0;
   private readonly workBorderDepth = 2;
+  private readonly nonWorkInsetX = 1;
+  private readonly nonWorkInsetY = 1;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
   private readonly workChangeBlockColor = 'rgb(149, 185, 208)';
@@ -307,21 +309,24 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     const yEnd = (minutes.end - displayFromMinutes) * pixelsPerMinute;
     const blockHeight = Math.max(2, yEnd - yStart);
 
-    const blockWidth = Math.max(1, width - this.blockMarginX * 2);
+    const isWork = entry.entryType === WorkScheduleEntryType.Work;
+    const marginX = isWork ? this.blockMarginX : this.blockMarginX + this.nonWorkInsetX;
+    const insetY = isWork ? 0 : this.nonWorkInsetY;
+    const blockWidth = Math.max(1, width - marginX * 2);
     const color = this.resolveBlockColor(entry);
     const rect = new Rectangle(
-      this.blockMarginX,
-      yStart,
-      this.blockMarginX + blockWidth,
-      yStart + blockHeight,
+      marginX,
+      yStart + insetY,
+      marginX + blockWidth,
+      yStart + blockHeight - insetY,
     );
 
     DrawHelper.fillRectangle(ctx, color, rect);
 
-    if (entry.entryType === WorkScheduleEntryType.Work) {
+    if (isWork) {
       DrawHelper.drawBorder(
         ctx,
-        this.blockMarginX,
+        marginX,
         yStart,
         blockWidth,
         yStart + blockHeight,
