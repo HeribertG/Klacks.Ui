@@ -174,9 +174,10 @@ Timeline-Components dürfen weder `GridTemplateEventsDirective`, `GridScheduleEv
 ## Symptome zum Erkennen
 
 - **Browser friert ein ohne Error**: Signal-Chain. Prüfe ob `timelineMode()` Signal (statt `_isTimelineMode` Bool) in einer Draw-Methode gelesen wird, oder ob `setMetrics()` innerhalb eines Effects aufgerufen wird.
-- **Nur 1 Client gezeichnet, Loop hängt bei row=1**: `!correctedRow` statt `=== undefined`.
-- **`NG0201` bei TimelineCreateCellService**: `inject(ScheduleDataService)` statt `inject(BaseDataService)`.
-- **`destroyToolTip` TypeError**: `currentSurface` undefined → Guard fehlt.
+- **Nur 1 Client gezeichnet, Loop hängt bei row=1**: `!correctedRow` statt `isDefined(correctedRow)` im Row-Loop — Row 0 ist falsy.
+- **`NG0201` bei TimelineCreateCellService**: Das `useExisting`-Alias in `ScheduleHomeComponent.providers` fehlt; `inject(ScheduleDataService)` fällt durch.
+- **`destroyToolTip` TypeError**: Surface kurz nach View-Switch `undefined` — `withSurface()` fehlt oder Effect setzt nicht korrekt auf das aktive Surface auf.
+- **Surface komplett dunkel / dunkelblau, Header sichtbar**: Host-Element der Surface-Component ohne `display: block; width/height: 100%`. Canvas rendert mit Grösse 0, `--gridContainerBackground` scheint durch. Fix im `schedule-section.component.scss`: beide Surfaces (`app-grid-surface-template, app-grid-surface-timeline-template`) auf Block mit voller Grösse setzen.
 - **`isTimelineMode = false` obwohl `setTimelineMode(true)` gerufen**: Zwei verschiedene `BaseSettingsService`-Instanzen (Section + Home). Section darf KEINEN eigenen Provider haben.
 - **Row-Header komplett leer**: Canvas-ID mismatch. Timeline-Row-Header MUSS `id="scheduleRowCanvas"` verwenden (gleiche ID wie Table), weil `BaseDrawRowHeaderService.createCanvas()` diese ID hart sucht.
 - **Ruler-Skala passt nicht zu Block-Positionen**: unterschiedliche Padding-Werte. Row-Header nutzt Standard-Padding (30min via `drawTimeRuler` default), Cell-Service muss identische Berechnung verwenden.
@@ -184,8 +185,11 @@ Timeline-Components dürfen weder `GridTemplateEventsDirective`, `GridScheduleEv
 ## Referenz-Dateien
 
 - `settings.service.ts` — `timelineMode`, `_isTimelineMode`, `setTimelineMode()`, `computeCellHeight()`, `getDisplayRows()`, `getGroupLineHeight()`
-- `schedule-section.component.ts` — `viewMode`, `toggleViewMode()`, `currentSurface`, `scheduleService` getter, `wireHoveredCellEffect` guard
+- `schedule-section.component.ts` — `viewMode`, `toggleViewMode()`, `currentSurface` (computed), `withSurface()` Helper, `wireHoveredCellEffect` auf Table-Mode beschränkt
+- `schedule-section.component.scss` — `app-grid-surface-template, app-grid-surface-timeline-template { display: block; width: 100%; height: 100%; }`
+- `schedule-home.component.ts` — `providers: [{ provide: BaseDataService, useClass: ScheduleDataService }, { provide: ScheduleDataService, useExisting: BaseDataService }]`
 - `schedule-data.service.ts` — `initializeGroupIndices()` mit `getDisplayRows()`
 - `create-row-header.service.ts` — `calculateRowProperties()` mit `getDisplayRows()`
-- `draw-row-header.service.ts` — `correctedRow === undefined` Fix
+- `draw-row-header.service.ts` — `!isDefined(correctedRow)` statt `!correctedRow`
+- `shared/helpers/type-guard.helper.ts` — `isDefined<T>()` Type-Guard
 - `time-ruler-render.service.ts` — `drawTimeRuler()` mit optionalem `paddingMinutesOverride`
