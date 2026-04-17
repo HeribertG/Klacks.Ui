@@ -294,7 +294,7 @@ export abstract class DrawHelper {
   }
 
   public static pixelRatio(): number {
-    return Math.ceil(window.devicePixelRatio || 1);
+    return Math.max(Math.ceil(window.devicePixelRatio || 1), 2);
   }
 
   public static createSVG(
