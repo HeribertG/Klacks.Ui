@@ -2,17 +2,17 @@
 
 /**
  * Cell renderer for the timeline view.
- * Draws Work / WorkChange / Break / Expenses entries as colored 3D blocks on a
- * vertical 00:00-24:00 axis. ScheduleNote and ScheduleCommand entries are skipped.
- * Only the first row of each client group carries the block visualisation; the
- * remaining rows of the group render empty backgrounds so the layout stays clean
- * even when the underlying data structure still carries multiple rows per client.
+ * Draws Work / WorkChange / Break entries as colored 3D blocks on a vertical
+ * 00:00-24:00 axis. Expenses, ScheduleNote and ScheduleCommand entries are
+ * skipped. WorkChange reuses the briefing color from the time-ruler palette so
+ * the timeline stays visually consistent with shift-planning surfaces.
  * @param scheduleData - Mapping from (row, col) to the actual work-schedule entries
  * @param timeRangeService - Shared time-axis math (used for both the ruler and the blocks)
  * @param timeRulerRender - Padding policy for the time ruler, kept in sync with the row-header
  */
 import { inject, Injectable } from '@angular/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
+import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   IScheduleCell,
   WorkScheduleEntryType,
@@ -34,10 +34,11 @@ export class TimelineCreateCellService extends BaseCreateCellService {
 
   private readonly dayStart = OwnTime.forTime('00', '00');
   private readonly dayEnd = OwnTime.forTime('24', '00');
-  private readonly blockMarginX = 4;
-  private readonly blockBorderDepth = 2;
+  private readonly blockMarginX = 0;
+  private readonly workBorderDepth = 2;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
+  private readonly workChangeBlockColor = 'rgb(149, 185, 208)';
 
   private cachedRange = this.computeDisplayRange();
 
@@ -79,6 +80,11 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     return baseCanvas;
   }
 
+  override drawCellTexts(_ctx: CanvasRenderingContext2D, _gridCell: GridCell): void {
+    // Timeline renders work entries as time-positioned 3D blocks; cell-level
+    // texts from the table view are intentionally suppressed.
+  }
+
   private isFirstGroupRow(row: number): boolean {
     const clientIndex = this.gridData.rowGroupIndex[row];
     if (clientIndex === undefined) {
@@ -91,8 +97,7 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     return (
       entry.entryType === WorkScheduleEntryType.Work ||
       entry.entryType === WorkScheduleEntryType.WorkChange ||
-      entry.entryType === WorkScheduleEntryType.Break ||
-      entry.entryType === WorkScheduleEntryType.Expenses
+      entry.entryType === WorkScheduleEntryType.Break
     );
   }
 
@@ -122,16 +127,19 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     );
 
     DrawHelper.fillRectangle(ctx, color, rect);
-    DrawHelper.drawBorder(
-      ctx,
-      this.blockMarginX,
-      yStart,
-      blockWidth,
-      blockHeight,
-      color,
-      this.blockBorderDepth,
-      Gradient3DBorderStyleEnum.Raised,
-    );
+
+    if (entry.entryType === WorkScheduleEntryType.Work) {
+      DrawHelper.drawBorder(
+        ctx,
+        this.blockMarginX,
+        yStart,
+        blockWidth,
+        yStart + blockHeight,
+        color,
+        this.workBorderDepth,
+        Gradient3DBorderStyleEnum.Raised,
+      );
+    }
 
     if (blockHeight > this.textThreshold && entry.abbreviation) {
       ctx.save();
@@ -174,9 +182,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     switch (entryType) {
       case WorkScheduleEntryType.Break:
         return this.gridColors.backGroundColorHolyday;
-      case WorkScheduleEntryType.Expenses:
       case WorkScheduleEntryType.WorkChange:
-        return this.gridColors.workChangeColor;
+        return this.workChangeBlockColor;
       default:
         return this.gridColors.controlBackGroundColor;
     }
