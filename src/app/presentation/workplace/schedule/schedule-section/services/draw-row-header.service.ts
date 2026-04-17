@@ -29,6 +29,7 @@ import { BaseCreateHeaderService } from '../../../../shared/grid/services/body/c
 import { BaseCellManipulationService } from '../../../../shared/grid/services/body/cell-manipulation.service';
 import { ProgressBarAnimationService } from '../../../../shared/grid/services/progress-bar-animation.service';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
+import { isDefined } from 'src/app/shared/helpers/type-guard.helper';
 
 @Injectable()
 export class BaseDrawRowHeaderService {
@@ -354,7 +355,7 @@ export class BaseDrawRowHeaderService {
           tmpRow = 0;
         }
         const correctedRow = this.addCells(tmpRow, row);
-        if (correctedRow === undefined) {
+        if (!isDefined(correctedRow)) {
           break;
         }
 

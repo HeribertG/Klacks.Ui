@@ -73,6 +73,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
   imports: [ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
+    { provide: ScheduleDataService, useExisting: BaseDataService },
     ScrollService,
     BaseCellRenderService,
     HolidayCollectionService,

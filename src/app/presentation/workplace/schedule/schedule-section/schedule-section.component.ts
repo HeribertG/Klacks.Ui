@@ -25,6 +25,8 @@ import {
   input,
   output,
   signal,
+  viewChild,
+  computed,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -78,6 +80,8 @@ import { ScheduleSectionFacadeService } from './services/schedule-section-facade
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 
+type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent;
+
 @Component({
   selector: 'app-schedule-section',
   standalone: true,
@@ -128,10 +132,8 @@ export class ScheduleSectionComponent
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
-  @ViewChild('scheduleSurface', { static: false })
-  scheduleSurface!: GridSurfaceTemplateComponent;
-  @ViewChild('timelineSurface', { static: false })
-  timelineSurface!: GridSurfaceTimelineTemplateComponent;
+  scheduleSurface = viewChild<GridSurfaceTemplateComponent>('scheduleSurface');
+  timelineSurface = viewChild<GridSurfaceTimelineTemplateComponent>('timelineSurface');
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
   @ViewChild(CorrectionDialogComponent)
@@ -208,8 +210,9 @@ export class ScheduleSectionComponent
     this.readSignals();
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
-    if (this.scheduleSurface) {
-      this.scheduleSurface.drawSchedule.showFillHandle = true;
+    const tableSurface = this.scheduleSurface();
+    if (tableSurface) {
+      tableSurface.drawSchedule.showFillHandle = true;
     }
     this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog);
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
@@ -293,15 +296,23 @@ export class ScheduleSectionComponent
     });
   }
 
-  private get currentSurface(): GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent {
-    return this.viewMode() === 'table' ? this.scheduleSurface : this.timelineSurface;
+  private currentSurface = computed<ActiveSurface | undefined>(() =>
+    this.viewMode() === 'table' ? this.scheduleSurface() : this.timelineSurface(),
+  );
+
+  private withSurface(action: (surface: ActiveSurface) => void): void {
+    const surface = this.currentSurface();
+    if (surface) {
+      action(surface);
+    }
   }
 
   private wireDataReadEffect(): void {
     this.effects.push(effect(() => {
       const readState = this.dataManagement.isRead();
-      if (readState.count > 0 && this.currentSurface)
-        (this.currentSurface as any).Refresh(readState.resetScroll);
+      if (readState.count > 0) {
+        this.withSurface((surface) => surface.Refresh(readState.resetScroll));
+      }
     }));
   }
 
@@ -335,11 +346,13 @@ export class ScheduleSectionComponent
   private wireHoveredCellEffect(): void {
     this.effects.push(effect(() => {
       const hoveredCell = this.cellManipulation.hoveredCell();
-      if (!this.currentSurface) return;
+      if (this.viewMode() !== 'table') return;
+      const surface = this.scheduleSurface();
+      if (!surface) return;
       this.facade.tooltip.handleHoveredCell(
         hoveredCell,
         this.scheduleService,
-        this.currentSurface as any,
+        surface,
         this.tooltipState,
         true,
       );
@@ -349,8 +362,9 @@ export class ScheduleSectionComponent
   private wireScheduleUpdateEffect(): void {
     this.effects.push(effect(() => {
       const updateId = this.facade.workNotification.scheduleUpdateSignal();
-      if (updateId && this.currentSurface)
-        (this.currentSurface as any).Refresh(false);
+      if (updateId) {
+        this.withSurface((surface) => surface.Refresh(false));
+      }
     }));
   }
 
@@ -371,15 +385,15 @@ export class ScheduleSectionComponent
   private wirePeriodHoursEffect(): void {
     this.effects.push(effect(() => {
       void this.facade.workScheduleLoader.periodHoursUpdated();
-      if (this.currentSurface)
-        (this.currentSurface as any).Refresh(false);
+      this.withSurface((surface) => surface.Refresh(false));
     }));
   }
 
   private wireColorResetEffect(): void {
     this.effects.push(effect(() => {
-      if (this.facade.gridColor.isReset() && this.currentSurface)
-        (this.currentSurface as any).Refresh(false);
+      if (this.facade.gridColor.isReset()) {
+        this.withSurface((surface) => surface.Refresh(false));
+      }
     }));
   }
 
@@ -397,8 +411,9 @@ export class ScheduleSectionComponent
     let initialized = false;
     this.effects.push(effect(() => {
       void this.refreshTrigger();
-      if (initialized && this.currentSurface)
-        (this.currentSurface as any).Refresh();
+      if (initialized) {
+        this.withSurface((surface) => surface.Refresh());
+      }
       initialized = true;
     }));
   }
@@ -518,27 +533,31 @@ export class ScheduleSectionComponent
   }
 
   private scrollToClient(clientId: string, date: string): void {
+    const surface = this.currentSurface();
+    if (!surface) return;
     const dataService = this.scheduleService;
     this.facade.navigation.scrollToClient(
       clientId,
       date,
       dataService,
-      this.currentSurface.drawSchedule.height,
+      surface.drawSchedule.height,
       this.vScrollbar,
       this.hScrollbar,
-      () => this.currentSurface.drawSchedule.redraw()
+      () => surface.drawSchedule.redraw()
     );
   }
 
   private scrollToScheduleEntry(shiftId: string, column: number): void {
+    const surface = this.currentSurface();
+    if (!surface) return;
     const dataService = this.scheduleService;
     this.facade.navigation.scrollToScheduleEntry(
       shiftId,
       column,
       dataService,
-      this.currentSurface.drawSchedule.height,
+      surface.drawSchedule.height,
       this.vScrollbar,
-      () => this.currentSurface.drawSchedule.redraw()
+      () => surface.drawSchedule.redraw()
     );
   }
 

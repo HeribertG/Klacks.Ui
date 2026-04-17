@@ -51,13 +51,18 @@ Nur die „Renderer" werden spezialisiert (Cell-Create, RowHeader-Create) — pe
 
 **WARNUNG**: Wenn `BaseSettingsService` zusätzlich in Section-Providers aufgenommen wird, entsteht eine Dual-Instance → `isTimelineMode` in `ScheduleDataService` sieht den falschen Wert → `initializeGroupIndices` berechnet falsches Grid-Layout → Infinite-Loop im drawGrid.
 
-### TimelineCreateCellService — BaseDataService Token
+### TimelineCreateCellService — Direct ScheduleDataService Inject
 
-`TimelineCreateCellService` injectet `BaseDataService` (NICHT `ScheduleDataService` direkt):
+`TimelineCreateCellService` injectet `ScheduleDataService` direkt:
 ```typescript
-private scheduleData = inject(BaseDataService) as ScheduleDataService;
+private scheduleData = inject(ScheduleDataService);
 ```
-`ScheduleDataService` ist nur unter dem `BaseDataService`-Token verfügbar (via `{ provide: BaseDataService, useClass: ScheduleDataService }` in ScheduleHomeComponent). Direktes `inject(ScheduleDataService)` → NG0201.
+`ScheduleHomeComponent.providers` registriert beide DI-Tokens auf derselben Instanz:
+```typescript
+{ provide: BaseDataService, useClass: ScheduleDataService },
+{ provide: ScheduleDataService, useExisting: BaseDataService },
+```
+Das zweite `useExisting`-Alias ist der Grund, dass `inject(ScheduleDataService)` ohne NG0201 funktioniert und keine `as`-Casts nötig sind. Wird der Alias entfernt, kehrt NG0201 zurück — der alte Code-Smell `inject(BaseDataService) as ScheduleDataService` war genau dieses Symptom.
 
 ## BaseSettingsService — Dual State (Signal + Plain Bool)
 
@@ -134,18 +139,33 @@ Konstanten: `TIMELINE_RULER_WIDTH = 55`, `TIMELINE_RULER_BORDER_WIDTH = 1`.
 
 In `BaseDrawRowHeaderService.drawGrid`:
 ```typescript
-if (correctedRow === undefined) {   // NICHT: if (!correctedRow)
+const correctedRow = this.addCells(tmpRow, row);
+if (!isDefined(correctedRow)) {
   break;
 }
 ```
-**Grund**: Im Timeline-Mode ist `lastRow = firstRow` (= 0 für Client 0). `!0 === true` → Loop bricht nach erstem Client ab. `=== undefined` prüft korrekt auf "kein Ergebnis".
+`isDefined<T>` liegt in `shared/helpers/type-guard.helper.ts` und schützt explizit vor der Falle `!correctedRow` (weil Row 0 falsy ist — der Loop bricht sonst nach dem ersten Client ab). Der Helper ist projektweit verfügbar und wird überall dort eingesetzt, wo nullable Numbers geprüft werden müssen.
 
-## currentSurface Guard
+## currentSurface — Signal + `withSurface` Helper
 
-Beim View-Mode-Wechsel ist die alte Surface destroyed und die neue noch nicht gemountet → `currentSurface` ist kurzzeitig `undefined`. Alle Effects die auf `currentSurface` zugreifen brauchen Guards:
+`currentSurface` ist ein `computed` Signal:
 ```typescript
-if (!this.currentSurface) return;
+private currentSurface = computed<ActiveSurface | undefined>(() =>
+  this.viewMode() === 'table' ? this.scheduleSurface() : this.timelineSurface(),
+);
 ```
+`scheduleSurface` und `timelineSurface` sind signalbasierte `viewChild()`-Queries (Angular 21). Beim View-Mode-Wechsel ist die alte Surface destroyed und die neue noch nicht gemountet → das Signal liefert `undefined`, bis Angular den View-Query auflöst.
+
+Statt manueller `if (!this.currentSurface) return`-Guards wird ein `withSurface`-Helper verwendet:
+```typescript
+private withSurface(action: (surface: ActiveSurface) => void): void {
+  const surface = this.currentSurface();
+  if (surface) {
+    action(surface);
+  }
+}
+```
+Alle Effects (Refresh, PeriodHours, ColorReset, etc.) rufen `this.withSurface(s => s.Refresh(...))` auf — der Guard ist an einer Stelle zentralisiert. Der Hovered-Cell-Effect ist explizit auf `scheduleSurface` (Table-Mode) beschränkt, weil der Tooltip-Service API-Methoden der Timeline-Surface nicht kennt.
 
 ## NG0919 — Zirkularitäts-Vermeidung
 

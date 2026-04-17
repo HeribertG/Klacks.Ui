@@ -21,7 +21,6 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
-import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
@@ -29,7 +28,7 @@ import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
-  private scheduleData = inject(BaseDataService) as ScheduleDataService;
+  private scheduleData = inject(ScheduleDataService);
   private timeRulerRender = inject(TimeRulerRenderService);
   private timeRange = inject(TimeRangeService);
 
