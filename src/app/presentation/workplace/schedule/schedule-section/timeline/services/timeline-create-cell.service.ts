@@ -11,6 +11,7 @@
  * @param timeRulerRender - Padding policy for the time ruler, kept in sync with the row-header
  */
 import { inject, Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -22,6 +23,8 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
+import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
@@ -32,6 +35,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
   private timeRulerRender = inject(TimeRulerRenderService);
   private timeRange = inject(TimeRangeService);
+  private absenceLookup = inject(AbsenceLookupService);
+  private translateService = inject(TranslateService);
 
   private readonly dayStart = OwnTime.forTime('00', '00');
   private readonly dayEnd = OwnTime.forTime('24', '00');
@@ -303,7 +308,7 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     const blockHeight = Math.max(2, yEnd - yStart);
 
     const blockWidth = Math.max(1, width - this.blockMarginX * 2);
-    const color = this.resolveBlockColor(entry.entryType);
+    const color = this.resolveBlockColor(entry);
     const rect = new Rectangle(
       this.blockMarginX,
       yStart,
@@ -326,13 +331,18 @@ export class TimelineCreateCellService extends BaseCreateCellService {
       );
     }
 
-    if (blockHeight > this.textThreshold && entry.abbreviation) {
+    const label = this.resolveBlockLabel(entry);
+    if (blockHeight > this.textThreshold && label) {
       ctx.save();
       ctx.font = this.textFont;
-      ctx.fillStyle = this.gridColors.mainFontColor;
+      ctx.fillStyle = DrawHelper.getContrastTextColor(color);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(entry.abbreviation, width / 2, yStart + blockHeight / 2);
+      ctx.fillText(
+        label,
+        Math.round(width / 2),
+        Math.round(yStart + blockHeight / 2),
+      );
       ctx.restore();
     }
   }
@@ -363,14 +373,27 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     return { start, end: end <= start ? end + 24 * 60 : end };
   }
 
-  private resolveBlockColor(entryType: WorkScheduleEntryType): string {
-    switch (entryType) {
-      case WorkScheduleEntryType.Break:
-        return this.gridColors.backGroundColorHolyday;
+  private resolveBlockColor(entry: IScheduleCell): string {
+    switch (entry.entryType) {
+      case WorkScheduleEntryType.Break: {
+        const absenceColor = this.absenceLookup.getColorForEntryId(entry.entryId);
+        return absenceColor ?? this.gridColors.backGroundColorHolyday;
+      }
       case WorkScheduleEntryType.WorkChange:
         return this.workChangeBlockColor;
       default:
         return this.gridColors.controlBackGroundColor;
     }
+  }
+
+  private resolveBlockLabel(entry: IScheduleCell): string {
+    if (entry.entryType === WorkScheduleEntryType.Break) {
+      const language = this.translateService.currentLang || DomainMessages.DEFAULT_LANG;
+      const abbr = this.absenceLookup.getAbbreviationForEntryId(entry.entryId, language);
+      if (abbr) {
+        return abbr;
+      }
+    }
+    return entry.abbreviation ?? '';
   }
 }
