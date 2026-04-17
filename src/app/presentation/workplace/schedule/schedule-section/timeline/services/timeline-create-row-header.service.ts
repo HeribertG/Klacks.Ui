@@ -56,7 +56,9 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
     const rulerX = isRtl ? 0 : innerWidth;
     const innerX = isRtl ? rulerWidth : 0;
 
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(baseCell.img, innerX, 0, innerWidth, height);
+    ctx.imageSmoothingEnabled = true;
 
     ctx.save();
     ctx.fillStyle = this.tColors.backGroundColor;

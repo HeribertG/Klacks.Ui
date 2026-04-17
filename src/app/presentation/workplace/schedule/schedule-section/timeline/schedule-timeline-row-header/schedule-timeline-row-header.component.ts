@@ -75,10 +75,13 @@ export class ScheduleTimelineRowHeaderComponent
   private effects: EffectRef[] = [];
   private isDestroyed = false;
   private pixelRatio = 1;
+  private pixelRatioMql?: MediaQueryList;
+  private pixelRatioListener?: () => void;
 
   ngOnInit(): void {
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
     this.pixelRatio = DrawHelper.pixelRatio();
+    this.registerPixelRatioListener();
   }
 
   ngAfterViewInit(): void {
@@ -88,6 +91,7 @@ export class ScheduleTimelineRowHeaderComponent
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
+    this.unregisterPixelRatioListener();
     this.drawRowHeader.deleteCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
@@ -116,6 +120,32 @@ export class ScheduleTimelineRowHeaderComponent
       this.drawRowHeader.rebuild();
       this.drawRowHeader.redraw();
     }
+  }
+
+  private registerPixelRatioListener(): void {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+    this.pixelRatioMql = window.matchMedia(
+      `(resolution: ${window.devicePixelRatio}dppx)`,
+    );
+    this.pixelRatioListener = () => {
+      if (this.isDestroyed) {
+        return;
+      }
+      this.checkPixelRatio();
+      this.unregisterPixelRatioListener();
+      this.registerPixelRatioListener();
+    };
+    this.pixelRatioMql.addEventListener('change', this.pixelRatioListener);
+  }
+
+  private unregisterPixelRatioListener(): void {
+    if (this.pixelRatioMql && this.pixelRatioListener) {
+      this.pixelRatioMql.removeEventListener('change', this.pixelRatioListener);
+    }
+    this.pixelRatioMql = undefined;
+    this.pixelRatioListener = undefined;
   }
 
   private initializeDrawRowHeader(): void {

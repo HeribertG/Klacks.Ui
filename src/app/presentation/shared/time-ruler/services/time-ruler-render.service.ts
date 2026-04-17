@@ -203,10 +203,19 @@ export class TimeRulerRenderService {
 
         if (showLabel) {
           const timeLabel = this.timeRangeService.formatTime(minute);
+          const labelY = Math.round(y);
           if (isRtl) {
-            ctx.fillText(timeLabel, rulerW - lineLength - this.LABEL_OFFSET, y);
+            ctx.fillText(
+              timeLabel,
+              Math.round(rulerW - lineLength - this.LABEL_OFFSET),
+              labelY,
+            );
           } else {
-            ctx.fillText(timeLabel, lineLength + this.LABEL_OFFSET, y);
+            ctx.fillText(
+              timeLabel,
+              Math.round(lineLength + this.LABEL_OFFSET),
+              labelY,
+            );
           }
         }
       }

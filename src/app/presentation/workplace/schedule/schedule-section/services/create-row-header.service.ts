@@ -192,8 +192,10 @@ export class BaseCreateRowHeaderService {
     const twoLinesHeight = fontHeight * 2 + lineSpacing;
     const middleZoneStart = sectionHeight;
     const middleZoneCenter = middleZoneStart + sectionHeight / 2;
-    const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
-    const secondLineY = firstLineY + fontHeight + lineSpacing;
+    const firstLineY = Math.round(
+      middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2,
+    );
+    const secondLineY = Math.round(firstLineY + fontHeight + lineSpacing);
 
     if (client && !client.hasContract) {
       const iconTopPadding = 2;
@@ -202,7 +204,7 @@ export class BaseCreateRowHeaderService {
       ctx.fillStyle = '#ef4444';
       ctx.textAlign = textAlign;
       ctx.textBaseline = 'top';
-      ctx.fillText('⊘', leftPadding, iconTopPadding);
+      ctx.fillText('⊘', Math.round(leftPadding), iconTopPadding);
       ctx.restore();
     }
 
@@ -225,7 +227,7 @@ export class BaseCreateRowHeaderService {
       ctx.fillStyle = this.gridColors.headerForeGroundColor;
       ctx.textAlign = textAlign;
       ctx.textBaseline = 'middle';
-      ctx.fillText(idNumberText, leftPadding, firstLineY);
+      ctx.fillText(idNumberText, Math.round(leftPadding), firstLineY);
       ctx.restore();
     }
 
@@ -250,7 +252,7 @@ export class BaseCreateRowHeaderService {
     ctx.fillStyle = this.gridColors.headerForeGroundColor;
     ctx.textAlign = textAlign;
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, leftPadding, secondLineY);
+    ctx.fillText(text, Math.round(leftPadding), secondLineY);
     ctx.restore();
 
   }
@@ -268,15 +270,21 @@ export class BaseCreateRowHeaderService {
     const twoLinesHeight = fontHeight * 2 + lineSpacing;
     const middleZoneStart = sectionHeight;
     const middleZoneCenter = middleZoneStart + sectionHeight / 2;
-    const firstLineY = middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2;
-    const secondLineY = firstLineY + fontHeight + lineSpacing;
+    const firstLineY = Math.round(
+      middleZoneCenter - twoLinesHeight / 2 + fontHeight / 2,
+    );
+    const secondLineY = Math.round(firstLineY + fontHeight + lineSpacing);
 
     ctx.save();
     ctx.font = this.gridFonts.headerFontStringZoom;
     ctx.fillStyle = this.gridColors.headerForeGroundColor;
     ctx.textAlign = isRtl ? 'left' : 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, isRtl ? this.settings.InfoSpotWidth + 2 : width, secondLineY);
+    ctx.fillText(
+      text,
+      Math.round(isRtl ? this.settings.InfoSpotWidth + 2 : width),
+      secondLineY,
+    );
     ctx.restore();
   }
 

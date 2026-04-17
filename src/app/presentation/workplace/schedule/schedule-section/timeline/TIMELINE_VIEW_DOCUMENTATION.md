@@ -2,7 +2,7 @@
 
 Datum: 2026-04-17 (aktualisiert)
 
-Zweite Visualisierung des Einsatzplans neben der Tabellenansicht. Zeigt je Client genau eine Zeile in 6-facher Zellenhöhe (300px bei Zoom=1), einen vertikalen 24h-Ruler im Row-Header und rendert Work/Break/Expenses pro Tag als 3D-Blöcke auf einem 00:00–24:00 Zeitstrahl. ScheduleNote und ScheduleCommand werden nicht dargestellt.
+Zweite Visualisierung des Einsatzplans neben der Tabellenansicht. Zeigt je Client genau eine Zeile in 6-facher Zellenhöhe (300px bei Zoom=1), einen vertikalen 24h-Ruler im Row-Header und rendert **Work / WorkChange / Break** pro Tag als Rechteck-Blöcke auf einem 00:00–24:00 Zeitstrahl. Nur **Work** bekommt einen 3D-Raised-Border (Depth 2); WorkChange (Briefing-Blau `rgb(149,185,208)`) und Break (Holiday-Gelb) sind flach gefüllt. Expenses, ScheduleNote und ScheduleCommand werden nicht dargestellt. Der Zellen-Hintergrund ist in einen Cache gelegt und hat 1h-Stripes (gerade Stunden leicht dunkler) plus einen dunklen Column-Separator rechts. Die Cell-Texte der Table-Variante werden explizit unterdrückt.
 
 ## Ergebnis in Kurzform
 
@@ -127,13 +127,31 @@ Konstanten: `TIMELINE_RULER_WIDTH = 55`, `TIMELINE_RULER_BORDER_WIDTH = 1`.
 
 ## Cell Rendering
 
-`TimelineCreateCellService.createCell(row, col)`:
+`TimelineCreateCellService` baut den Hintergrund-Canvas **komplett selbst** auf (ohne `super.getCellCanvas()`) und liefert ihn via `override getCellCanvas(weekDay, lastRow, isOverlay)` aus einem eigenen Cache (`stripedCellCache[20]`, 5 Wochentage × lastRow × overlay). `buildTimelineCellCanvas` erzeugt ein frisches HiDPI-Canvas via `DrawHelper.createHiDPICanvas` und zeichnet in logical Koordinaten:
 
-1. Ruft `super.createCell(row, col)` → Background-Canvas.
-2. Prüft `isFirstGroupRow(row)` → nur die erste Row der Client-Gruppe bekommt Blöcke.
-3. Holt Entries via `scheduleData.getWorkScheduleForCell(row, col)` und filtert auf Work/WorkChange/Break/Expenses.
-4. Nutzt `timeToMinutes()` aus `time-format.helper.ts` für Zeit-Parsing.
-5. Zeichnet Blöcke mit `DrawHelper.fillRectangle` + `Gradient3DBorderStyleEnum.Raised`.
+1. Full fill mit `getTimelineBaseColor(weekDay, isOverlay)` (Workday / Saturday / Sunday / Holiday / OfficiallyHoliday; Overlay → `GetDarkColor(..., 30)`).
+2. `drawHourStripes` — 1h-Streifen der geraden Stunden in `GetDarkColor(baseColor, 12)`. Y-Rechnung nutzt **dieselbe `cachedRange`** wie die Block-Rendering-Logik (30min padding top/bottom, 1500 Minuten Total), sodass Streifen-Grenzen exakt unter den Ruler-Markern sitzen.
+3. `drawCellOutline` — 0.5px Stroke-Rectangle in `borderColor` (dünne Zellenumrandung).
+4. `drawRowSeparator` (nur wenn `isLast`) — Linie in `boundaryBorderColor` bei `Y=cellHeight` logical. **NICHT** bei `Y=cellHeight / pixelRatio()` wie im `BaseCreateCellService.fillEmptyCell`; die Base-Variante setzt die Linie auf HiDPI (`dpr≥2`) in die Mitte der Zelle — in Timeline mit 1 Row/Client fällt das als horizontale Linie bei 12:00 Ruler-Höhe quer durch jede Zelle sofort auf.
+5. `drawColumnSeparator` — 1px Füllung rechts in `GetDarkColor(borderColor, 80)` für klar sichtbare Tages-Spalten.
+
+`createCell(row, col)` nutzt dann `super.createCell()` (das holt den gecachten Canvas und legt ihn via `drawImage` auf ein `tempCanvas`) und zeichnet nur noch die Work/WorkChange/Break-Blöcke darüber. Filter in `isTimelineEntry`: Work, WorkChange, Break — **nicht** Expenses. Block-Farben: Work → `controlBackGroundColor`, WorkChange → `rgb(149,185,208)` (Briefing aus TimeRuler), Break → `backGroundColorHolyday`. Nur Work zeichnet zusätzlich den 3D-Border (`Gradient3DBorderStyleEnum.Raised`, Depth 2); der `h`-Parameter von `DrawHelper.drawBorder` ist absolute Y (nicht Höhe) — immer `yStart + blockHeight` übergeben.
+
+`drawCellTexts` ist als No-Op overridden, sonst würde `super.createCell()` den Table-Style-Cell-Text („AB-MF / 8h / 14:00-22:00") oben in die Zelle rendern.
+
+## HiDPI — drawImage + dpr-Detection
+
+Der Base-Pfad `BaseCreateCellService.drawImage` ruft `ctx.drawImage(img, 0, 0)` **ohne** destination-size. Auf HiDPI-Displays (`dpr ≥ 2`) hat das Source-Canvas logical×dpr physical pixels; der Default-Dest-Modus interpretiert diese Zahl als logical Destination-Grösse und zeichnet den gecachten Canvas um Faktor dpr zu gross. Der Ruler wird dagegen im Row-Header mit expliziter `drawImage(..., logicalWidth, logicalHeight)` gerendert — daher driftet die Cell-Seite auf HiDPI vom Ruler weg (Streifen ~6-12px verschoben).
+
+Fix im `TimelineCreateCellService`:
+```typescript
+override drawImage(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement): void {
+  const dpr = DrawHelper.pixelRatio();
+  ctx.drawImage(img, 0, 0, img.width / dpr, img.height / dpr);
+}
+```
+
+**Pixel-Ratio-Detection** in Timeline-Surface und Timeline-Row-Header analog zum Tabular `GridSurfaceTemplateComponent.checkPixelRatio()`: ein `pixelRatio`-Feld wird in `ngOnInit` mit `DrawHelper.pixelRatio()` gesetzt; der ResizeObserver (Surface) bzw. `onResize` (Row-Header) vergleicht vor jedem Refresh mit dem aktuellen Wert. Bei Unterschied: `createCanvas() + rebuild() + redraw()`. `rebuild()` wiederum ruft `createCellService.reset()` / `createRowHeader.reset()`, die den Cell-Cache bzw. die `backgroundCollection` leeren. **Wichtig:** `BaseCreateRowHeaderService.reset()` wurde erweitert, damit `backgroundCollection.clear()` bei jedem Rebuild ausgeführt wird — sonst werden dpr-alte Canvases nach einem DPI-Wechsel weiterverwendet.
 
 ## drawGrid Loop — correctedRow Fix
 
@@ -181,9 +199,16 @@ Timeline-Components dürfen weder `GridTemplateEventsDirective`, `GridScheduleEv
 - **`isTimelineMode = false` obwohl `setTimelineMode(true)` gerufen**: Zwei verschiedene `BaseSettingsService`-Instanzen (Section + Home). Section darf KEINEN eigenen Provider haben.
 - **Row-Header komplett leer**: Canvas-ID mismatch. Timeline-Row-Header MUSS `id="scheduleRowCanvas"` verwenden (gleiche ID wie Table), weil `BaseDrawRowHeaderService.createCanvas()` diese ID hart sucht.
 - **Ruler-Skala passt nicht zu Block-Positionen**: unterschiedliche Padding-Werte. Row-Header nutzt Standard-Padding (30min via `drawTimeRuler` default), Cell-Service muss identische Berechnung verwenden.
+- **Streifen / Blöcke ~dpr×versetzt gegenüber Ruler auf HiDPI**: `BaseCreateCellService.drawImage` ruft `ctx.drawImage(img, 0, 0)` ohne dest-size — Cached Canvas wird um `dpr` zu gross gerendert. Fix: `override drawImage` mit expliziter Dest-Grösse `img.width / dpr, img.height / dpr`.
+- **Horizontale Linie quer durch jede Client-Row bei 12:00**: `BaseCreateCellService.fillEmptyCell` rechnet `h = height / DrawHelper.pixelRatio()` für den lastRow-Boundary — auf dpr=2 landet das in der Mitte. Fix: Timeline-Cell-Canvas komplett selbst aufbauen (eigener `buildTimelineCellCanvas`), Linie explizit bei `Y = cellHeight` logical zeichnen.
+- **Streifen / Row-Separator bleiben nach Monitor-/Zoom-Wechsel falsch**: PixelRatio-Wechsel nicht detektiert. Sowohl Timeline-Surface als auch Timeline-Row-Header brauchen `private pixelRatio`-Feld + `checkPixelRatio()` im Resize-Callback, das bei Änderung `createCanvas + rebuild + redraw` triggert. Zusätzlich muss `BaseCreateRowHeaderService.reset()` die `backgroundCollection` leeren, sonst hält der Row-Header alte dpr-Canvases.
 
 ## Referenz-Dateien
 
+- `timeline/services/timeline-create-cell.service.ts` — `buildTimelineCellCanvas`, `drawHourStripes`, `drawRowSeparator`, `drawColumnSeparator`, `override drawImage` (HiDPI-1:1), `override getCellCanvas` (eigener Cache), `override drawCellTexts` (No-Op), Block-Rendering
+- `timeline/grid-surface-timeline-template/grid-surface-timeline-template.component.ts` — `private pixelRatio`, `checkPixelRatio()` im ResizeObserver
+- `timeline/schedule-timeline-row-header/schedule-timeline-row-header.component.ts` — `private pixelRatio`, `checkPixelRatio()` im `onResize`
+- `schedule-section/services/create-row-header.service.ts` — `reset()` mit `backgroundCollection.clear()` für pixelRatio-Invalidierung
 - `settings.service.ts` — `timelineMode`, `_isTimelineMode`, `setTimelineMode()`, `computeCellHeight()`, `getDisplayRows()`, `getGroupLineHeight()`
 - `schedule-section.component.ts` — `viewMode`, `toggleViewMode()`, `currentSurface` (computed), `withSurface()` Helper, `wireHoveredCellEffect` auf Table-Mode beschränkt
 - `schedule-section.component.scss` — `app-grid-surface-template, app-grid-surface-timeline-template { display: block; width: 100%; height: 100%; }`
