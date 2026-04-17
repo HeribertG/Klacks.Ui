@@ -119,7 +119,8 @@ export class TimeRulerRenderService {
     height: number,
     fromTime: OwnTime,
     untilTime: OwnTime,
-    paddingMinutesOverride?: number
+    paddingMinutesOverride?: number,
+    skipEdgeLabels = false
   ): void {
     const paddingMinutes =
       paddingMinutesOverride !== undefined
@@ -202,20 +203,32 @@ export class TimeRulerRenderService {
         ctx.stroke();
 
         if (showLabel) {
-          const timeLabel = this.timeRangeService.formatTime(minute);
-          const labelY = Math.round(y);
-          if (isRtl) {
-            ctx.fillText(
-              timeLabel,
-              Math.round(rulerW - lineLength - this.LABEL_OFFSET),
-              labelY,
-            );
-          } else {
-            ctx.fillText(
-              timeLabel,
-              Math.round(lineLength + this.LABEL_OFFSET),
-              labelY,
-            );
+          const isEdgeLabel =
+            minute <= range.displayFromMinutes ||
+            minute >= range.displayUntilMinutes;
+          if (!(skipEdgeLabels && isEdgeLabel)) {
+            const timeLabel = this.timeRangeService.formatTime(minute);
+            const labelY = Math.round(y);
+            const previousBaseline = ctx.textBaseline;
+            if (minute <= range.displayFromMinutes) {
+              ctx.textBaseline = 'top';
+            } else if (minute >= range.displayUntilMinutes) {
+              ctx.textBaseline = 'bottom';
+            }
+            if (isRtl) {
+              ctx.fillText(
+                timeLabel,
+                Math.round(rulerW - lineLength - this.LABEL_OFFSET),
+                labelY,
+              );
+            } else {
+              ctx.fillText(
+                timeLabel,
+                Math.round(lineLength + this.LABEL_OFFSET),
+                labelY,
+              );
+            }
+            ctx.textBaseline = previousBaseline;
           }
         }
       }

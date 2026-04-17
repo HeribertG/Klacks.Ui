@@ -26,7 +26,7 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
   private tColors = inject(GridColorService);
 
   private readonly dayStart = OwnTime.forTime('00', '00');
-  private readonly dayEnd = OwnTime.forTime('24', '00');
+  private readonly dayEnd = OwnTime.forDuration('24', '00');
   private readonly TIMELINE_RULER_WIDTH = 55;
   private readonly TIMELINE_RULER_BORDER_WIDTH = 1;
 
@@ -45,7 +45,7 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
       return baseCell;
     }
 
-    const height = this.tSettings.getGroupLineHeight(client.displayRows);
+    const height = this.tSettings.cellHeight;
     const composedCanvas = document.createElement('canvas');
     const ctx = DrawHelper.createHiDPICanvas(composedCanvas, width, height, true);
     if (!ctx) {
@@ -64,7 +64,7 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
     ctx.fillStyle = this.tColors.backGroundColor;
     ctx.fillRect(rulerX, 0, rulerWidth, height);
     ctx.translate(rulerX, 0);
-    this.timeRulerRender.drawTimeRuler(ctx, height, this.dayStart, this.dayEnd);
+    this.timeRulerRender.drawTimeRuler(ctx, height, this.dayStart, this.dayEnd, 0, true);
     ctx.restore();
 
     this.drawRulerBorders(ctx, rulerX, rulerWidth, height, isRtl);

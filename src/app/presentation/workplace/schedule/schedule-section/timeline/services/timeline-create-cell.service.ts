@@ -8,7 +8,6 @@
  * fill of the base renderer so hour stripes remain visible behind the blocks.
  * @param scheduleData - Mapping from (row, col) to the actual work-schedule entries
  * @param timeRangeService - Shared time-axis math (used for both the ruler and the blocks)
- * @param timeRulerRender - Padding policy for the time ruler, kept in sync with the row-header
  */
 import { inject, Injectable } from '@angular/core';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
@@ -23,7 +22,6 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
-import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.interface';
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
@@ -33,14 +31,13 @@ import { BreakBlockRendererService } from '../renderers/break-block-renderer.ser
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
-  private timeRulerRender = inject(TimeRulerRenderService);
   private timeRange = inject(TimeRangeService);
   private workRenderer = inject(WorkBlockRendererService);
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
 
   private readonly dayStart = OwnTime.forTime('00', '00');
-  private readonly dayEnd = OwnTime.forTime('24', '00');
+  private readonly dayEnd = OwnTime.forDuration('24', '00');
   private readonly minBlockHeight = 2;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
@@ -402,14 +399,10 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   }
 
   private computeDisplayRange() {
-    const paddingMinutes = this.timeRulerRender.calculatePaddingMinutes(
-      this.dayStart,
-      this.dayEnd,
-    );
     return this.timeRange.calculateDisplayRange(
       this.dayStart,
       this.dayEnd,
-      paddingMinutes,
+      0,
     );
   }
 
