@@ -346,8 +346,7 @@ export class ScheduleSectionComponent
   private wireHoveredCellEffect(): void {
     this.effects.push(effect(() => {
       const hoveredCell = this.cellManipulation.hoveredCell();
-      if (this.viewMode() !== 'table') return;
-      const surface = this.scheduleSurface();
+      const surface = this.currentSurface();
       if (!surface) return;
       this.facade.tooltip.handleHoveredCell(
         hoveredCell,

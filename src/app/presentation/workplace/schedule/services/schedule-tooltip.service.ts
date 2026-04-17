@@ -22,7 +22,7 @@ import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { HoveredCellInfo } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
-import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import { IGridTooltipHost } from 'src/app/presentation/shared/grid/body/grid-tooltip-host.interface';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 export interface TooltipState {
@@ -45,7 +45,7 @@ export class ScheduleTooltipService {
   handleHoveredCell(
     hoveredCell: HoveredCellInfo | null,
     dataService: BaseDataService,
-    surface: GridSurfaceTemplateComponent,
+    surface: IGridTooltipHost,
     state: TooltipState,
     showHeaderTooltips: boolean
   ): number {
@@ -108,7 +108,7 @@ export class ScheduleTooltipService {
 
   private handleHeaderTooltip(
     hoveredCell: HoveredCellInfo,
-    surface: GridSurfaceTemplateComponent,
+    surface: IGridTooltipHost,
     state: TooltipState
   ): number {
     const columnChanged = state.lastHeaderColumn !== hoveredCell.column;

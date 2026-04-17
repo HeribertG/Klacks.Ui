@@ -45,6 +45,8 @@ import { TimelineCreateCellService } from '../services/timeline-create-cell.serv
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
+import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
+import { IGridTooltipHost } from 'src/app/presentation/shared/grid/body/grid-tooltip-host.interface';
 import {
   TimelineGridEventsDirective,
   TimelineGridRightClickEvent,
@@ -105,7 +107,7 @@ export interface TimelineDoubleClickEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GridSurfaceTimelineTemplateComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy, IGridTooltipHost
 {
   @Input() nameId = 'surface';
   @Input() valueChangeHScrollbar!: number;
@@ -131,6 +133,7 @@ export class GridSurfaceTimelineTemplateComponent
   public scroll = inject(ScrollService);
   public drawSchedule = inject(BaseDrawScheduleService);
   public settings = inject(BaseSettingsService);
+  private tooltipService = inject(TooltipService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
@@ -193,6 +196,22 @@ export class GridSurfaceTimelineTemplateComponent
     }
     this.drawSchedule.redraw();
     this.updateScrollbarValues();
+  }
+
+  showToolTip({ value, event }: { value: string; event: MouseEvent }): void {
+    this.tooltipService.show({
+      text: value,
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }
+
+  hideToolTip(): void {
+    this.tooltipService.hide();
+  }
+
+  destroyToolTip(): void {
+    this.tooltipService.hide();
   }
 
   onCanvasRightClick(event: TimelineGridRightClickEvent): void {
