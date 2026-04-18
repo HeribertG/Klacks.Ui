@@ -47,7 +47,8 @@ export class ScheduleTooltipService {
     dataService: BaseDataService,
     surface: IGridTooltipHost,
     state: TooltipState,
-    showHeaderTooltips: boolean
+    showHeaderTooltips: boolean,
+    isTimelineMode = false,
   ): number {
     if (!hoveredCell) {
       state.lastHeaderColumn = -1;
@@ -60,6 +61,21 @@ export class ScheduleTooltipService {
     }
 
     state.lastHeaderColumn = -1;
+
+    if (isTimelineMode) {
+      if (hoveredCell.blockTooltip) {
+        surface.showToolTip({
+          value: hoveredCell.blockTooltip,
+          event: {
+            clientX: hoveredCell.clientX,
+            clientY: hoveredCell.clientY,
+          } as MouseEvent,
+        });
+      } else {
+        surface.destroyToolTip();
+      }
+      return state.lastHeaderColumn;
+    }
 
     if (hoveredCell.isEmpty) {
       const holiday = dataService.holidayInfo(hoveredCell.column);

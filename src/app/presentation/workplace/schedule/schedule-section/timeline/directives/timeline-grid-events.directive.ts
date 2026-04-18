@@ -29,6 +29,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
+import { TimelineBlockTooltipService } from '../services/timeline-block-tooltip.service';
 import { TimelineSelectionService } from '../services/timeline-selection.service';
 
 export interface TimelineGridRightClickEvent {
@@ -50,6 +51,7 @@ export class TimelineGridEventsDirective {
   private gridData = inject(BaseDataService);
   private scrollGrid = inject(ScrollService);
   private hitTest = inject(TimelineBlockHitTestService);
+  private blockTooltip = inject(TimelineBlockTooltipService);
   private selection = inject(TimelineSelectionService);
   private destroyRef = inject(DestroyRef);
 
@@ -103,6 +105,9 @@ export class TimelineGridEventsDirective {
     }
 
     const isEmpty = !this.gridData.isCellActive(pos.row, pos.column);
+    const relativeY = this.computeRelativeYInCell(event, pos.row);
+    const hit = this.hitTest.hitTest(pos.row, pos.column, relativeY);
+    const tooltip = hit ? this.blockTooltip.buildBlockTooltip(hit.entry) : undefined;
     this.cellManipulation.hoveredCell.set({
       row: pos.row,
       column: pos.column,
@@ -110,6 +115,7 @@ export class TimelineGridEventsDirective {
       isHeader: false,
       clientX: event.clientX,
       clientY: event.clientY,
+      blockTooltip: tooltip,
     });
   }
 

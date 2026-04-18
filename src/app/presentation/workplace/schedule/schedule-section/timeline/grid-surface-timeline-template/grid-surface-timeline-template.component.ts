@@ -44,6 +44,7 @@ import { CellIconsService } from 'src/app/presentation/shared/grid/services/body
 import { TimelineCreateCellService } from '../services/timeline-create-cell.service';
 import { TimelineSelectionService } from '../services/timeline-selection.service';
 import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
+import { TimelineBlockTooltipService } from '../services/timeline-block-tooltip.service';
 import { TimelineSelectionOverlayService } from '../services/timeline-selection-overlay.service';
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
@@ -108,6 +109,7 @@ export interface TimelineDoubleClickEvent {
     BreakBlockRendererService,
     TimelineSelectionService,
     TimelineBlockHitTestService,
+    TimelineBlockTooltipService,
     TimelineSelectionOverlayService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

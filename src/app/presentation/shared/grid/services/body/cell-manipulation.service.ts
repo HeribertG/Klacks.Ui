@@ -17,6 +17,7 @@ export interface HoveredCellInfo {
   isHeader: boolean;
   clientX: number;
   clientY: number;
+  blockTooltip?: string;
 }
 
 @Injectable()

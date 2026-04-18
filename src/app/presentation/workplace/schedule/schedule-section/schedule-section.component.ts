@@ -337,6 +337,7 @@ export class ScheduleSectionComponent
         surface,
         this.tooltipState,
         true,
+        this.settings.isTimelineMode,
       );
     }));
   }
