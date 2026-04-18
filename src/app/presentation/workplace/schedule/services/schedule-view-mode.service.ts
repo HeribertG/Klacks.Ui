@@ -2,8 +2,9 @@
 
 /**
  * Service holding the Schedule view mode (table vs timeline) and the timeline
- * row-height factor as single source of truth. Persists both in sessionStorage
- * so a page reload restores the last choice.
+ * row-height factor as single source of truth. The view mode is persisted in
+ * localStorage (survives browser restart); the row-height factor is persisted
+ * in sessionStorage (tab-scoped).
  * @param viewMode - Signal exposing the currently active view mode
  * @param isTimelineMode - Computed signal, true when timeline view is active
  * @param timelineRowHeightFactor - Signal exposing the timeline row-height multiplier (1 = 100%)
@@ -12,6 +13,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
 
 export type ScheduleViewMode = 'table' | 'timeline';
@@ -29,6 +31,7 @@ export class ScheduleViewModeService {
   private settings = inject(BaseSettingsService);
   private dataService = inject(BaseDataService);
   private dataManagement = inject(DataManagementScheduleService);
+  private localStorageService = inject(LocalStorageService);
 
   public readonly viewMode = signal<ScheduleViewMode>(this.loadViewModeFromStorage());
   public readonly isTimelineMode = computed(() => this.viewMode() === TIMELINE_MODE);
@@ -68,21 +71,13 @@ export class ScheduleViewModeService {
   }
 
   private loadViewModeFromStorage(): ScheduleViewMode {
-    try {
-      return sessionStorage.getItem(VIEW_MODE_STORAGE_KEY) === TIMELINE_MODE
-        ? TIMELINE_MODE
-        : TABLE_MODE;
-    } catch {
-      return TABLE_MODE;
-    }
+    return this.localStorageService.get(VIEW_MODE_STORAGE_KEY) === TIMELINE_MODE
+      ? TIMELINE_MODE
+      : TABLE_MODE;
   }
 
   private persistViewMode(mode: ScheduleViewMode): void {
-    try {
-      sessionStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
-    } catch {
-      /* ignore quota/security errors */
-    }
+    this.localStorageService.set(VIEW_MODE_STORAGE_KEY, mode);
   }
 
   private loadRowHeightFactorFromStorage(): number {
