@@ -48,6 +48,7 @@ import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-re
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
+import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -61,6 +62,8 @@ import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
+
+const DEFAULT_ZOOM_VALUE = 100;
 
 @Component({
   selector: 'app-schedule-header',
@@ -108,6 +111,15 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     showSelectionBar: false,
   };
 
+  timelineValue = 100;
+  timelineOptions: Options = {
+    floor: 50,
+    ceil: 200,
+    step: 10,
+    showSelectionBarEnd: false,
+    showSelectionBar: false,
+  };
+
   zoomChange = output<number>();
   pdfExportRequested = output<void>();
 
@@ -122,6 +134,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private translateService = inject(TranslateService);
   private scheduleChangeService = inject(ScheduleChangeService);
   private dataWorkScheduleService = inject(DataWorkScheduleService);
+  private viewModeService = inject(ScheduleViewModeService);
+
+  public readonly isTimelineMode = this.viewModeService.isTimelineMode;
 
   isSending = signal(false);
   isRecalculating = signal(false);
@@ -211,8 +226,21 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     this.updateScheduleCommandsIcon();
   }
 
+  onViewModeToggleChanged(checked: boolean): void {
+    if (checked && this.value !== DEFAULT_ZOOM_VALUE) {
+      this.value = DEFAULT_ZOOM_VALUE;
+      this.emitZoomChange();
+    }
+    this.viewModeService.setViewMode(checked ? 'timeline' : 'table');
+  }
+
+  onTimelineRowHeightChange(): void {
+    this.viewModeService.setTimelineRowHeightFactor(this.timelineValue / 100);
+  }
+
   ngOnInit(): void {
     this.emitZoomChange();
+    this.timelineValue = Math.round(this.viewModeService.timelineRowHeightFactor() * 100);
   }
 
   ngAfterViewInit(): void {

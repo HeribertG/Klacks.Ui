@@ -83,13 +83,6 @@
   </as-split-area>
 </as-split>
 
-<!-- Toggle View Mode Button -->
-<div class="view-toggle">
-  <button (click)="toggleViewMode()">
-    {{ viewMode() === 'table' ? 'Timeline View' : 'Table View' }}
-  </button>
-</div>
-
 <app-context-menu #contextMenu></app-context-menu>
 
 <app-correction-dialog></app-correction-dialog>

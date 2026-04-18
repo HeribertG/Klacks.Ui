@@ -774,6 +774,7 @@
   "schedule.entryType.expenses": "Expenses",
   "schedule.entryType.scheduleCommand": "Command",
   "schedule.toolbar.toggle-commands": "Show Commands",
+  "schedule.toolbar.timeline-view": "Day Timeline",
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",
   "setting.absence.modal.add": "Apply Entry",

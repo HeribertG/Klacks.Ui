@@ -2,6 +2,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-slider.scss";
 @use "../../../../../assets/standard-styles/validation.scss";
+@use "../../../../../assets/standard-styles/toggle-switch.scss";
 
 .calendar-setting {
   border: none;
@@ -216,4 +217,9 @@
 app-scenario-selector {
   margin-inline-start: 30px;
   padding-top: 15px;
+}
+
+.view-mode-switch {
+  margin-inline-start: 30px;
+  margin-top: 4px;
 }

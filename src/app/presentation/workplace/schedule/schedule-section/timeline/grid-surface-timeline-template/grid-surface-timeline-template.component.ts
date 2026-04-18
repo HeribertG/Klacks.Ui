@@ -342,6 +342,19 @@ export class GridSurfaceTimelineTemplateComponent
           }, 0);
         }),
       );
+
+      this.effects.push(
+        effect(() => {
+          this.settings.timelineRowHeightSignal();
+          setTimeout(() => {
+            if (this.isDestroyed) return;
+            this.drawSchedule.createCanvas();
+            this.drawSchedule.rebuild();
+            this.drawSchedule.redraw();
+            this.updateScrollbarValues();
+          }, 0);
+        }),
+      );
     });
   }
 }

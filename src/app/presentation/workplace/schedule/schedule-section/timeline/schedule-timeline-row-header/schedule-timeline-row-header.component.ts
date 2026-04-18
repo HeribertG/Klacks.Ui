@@ -218,6 +218,20 @@ export class ScheduleTimelineRowHeaderComponent
 
       this.effects.push(
         effect(() => {
+          this.settings.timelineRowHeightSignal();
+          setTimeout(() => {
+            if (this.isDestroyed) return;
+            if (this.drawRowHeader.isCanvasAvailable()) {
+              this.drawRowHeader.createCanvas();
+              this.drawRowHeader.rebuild();
+              this.drawRowHeader.redraw();
+            }
+          }, 0);
+        }),
+      );
+
+      this.effects.push(
+        effect(() => {
           const _t = this.workScheduleLoader.periodHoursUpdated();
           if (this.drawRowHeader.isCanvasAvailable()) {
             this.drawRowHeader.redraw();

@@ -45,23 +45,3 @@ app-grid-surface-timeline-template {
   height: 100%;
 }
 
-.view-toggle {
-  position: absolute;
-  top: 4px;
-  right: 100px;
-  z-index: 1000;
-
-  button {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 2px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 11px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-
-    &:hover {
-      background: #e0e0e0;
-    }
-  }
-}

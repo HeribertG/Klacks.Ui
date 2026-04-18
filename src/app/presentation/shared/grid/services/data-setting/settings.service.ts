@@ -13,8 +13,10 @@ export class BaseSettingsService {
 
   public zoomSignal = signal<number>(1);
   public timelineMode = signal<boolean>(false);
+  public timelineRowHeightSignal = signal<number>(1);
 
   private _isTimelineMode = false;
+  private _timelineRowHeightFactor = 1;
 
   private readonly TABLE_CELL_HEIGHT = 50;
   private readonly TIMELINE_CELL_HEIGHT_MULTIPLIER = 6;
@@ -71,10 +73,16 @@ export class BaseSettingsService {
     this.cellHeight = this.computeCellHeight();
   }
 
+  setTimelineRowHeightFactor(factor: number): void {
+    this._timelineRowHeightFactor = factor;
+    this.timelineRowHeightSignal.set(factor);
+    this.cellHeight = this.computeCellHeight();
+  }
+
   private computeCellHeight(): number {
     const base = this.TABLE_CELL_HEIGHT * this._zoom;
     return this._isTimelineMode
-      ? base * this.TIMELINE_CELL_HEIGHT_MULTIPLIER
+      ? base * this.TIMELINE_CELL_HEIGHT_MULTIPLIER * this._timelineRowHeightFactor
       : base;
   }
 

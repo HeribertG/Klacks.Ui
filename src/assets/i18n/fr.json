@@ -773,6 +773,7 @@
   "schedule.entryType.expenses": "Dépenses",
   "schedule.entryType.scheduleCommand": "Commande",
   "schedule.toolbar.toggle-commands": "Afficher les commandes",
+  "schedule.toolbar.timeline-view": "Déroulé de la journée",
   "setting.absence.add": "+ Ajouter une absence",
   "setting.absence.headline": "Absences",
   "setting.absence.modal.add": "Appliquer l'entrée",

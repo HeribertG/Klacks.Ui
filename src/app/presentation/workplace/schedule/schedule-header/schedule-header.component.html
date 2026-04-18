@@ -109,18 +109,20 @@
     <app-icon-break-placeholder #breakPlaceholderIcon />
   </button>
 
-  <button
-    id="schedule-commands-toggle"
-    type="button"
-    class="icon-button break-placeholder-toggle"
-    [class.active]="showScheduleCommands"
-    (click)="toggleScheduleCommands()"
-    ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
-  >
-    <app-icon-thunder-circle #scheduleCommandsIcon />
-  </button>
+  @if (!isTimelineMode()) {
+    <button
+      id="schedule-commands-toggle"
+      type="button"
+      class="icon-button break-placeholder-toggle"
+      [class.active]="showScheduleCommands"
+      (click)="toggleScheduleCommands()"
+      ngbTooltip="{{ 'schedule.toolbar.toggle-commands' | translate }}"
+    >
+      <app-icon-thunder-circle #scheduleCommandsIcon />
+    </button>
+  }
 
-  @if (hasAvailabilityData()) {
+  @if (!isTimelineMode() && hasAvailabilityData()) {
     <button
       id="schedule-availability-check-btn"
       type="button"
@@ -150,13 +152,40 @@
 
   <app-scenario-selector />
 
+  <div class="main-switch-wrapper view-mode-switch">
+    <label class="main-switch" for="schedule-view-mode-toggle">
+      <input
+        type="checkbox"
+        id="schedule-view-mode-toggle"
+        name="scheduleViewModeToggle"
+        aria-labelledby="schedule-view-mode-toggle-label"
+        [checked]="isTimelineMode()"
+        (change)="onViewModeToggleChanged($any($event.target).checked)"
+      />
+      <div class="slider round"></div>
+    </label>
+    <em id="schedule-view-mode-toggle-label">
+      {{ 'schedule.toolbar.timeline-view' | translate }}
+    </em>
+  </div>
+
   <span class="filler"></span>
 
   <div class="custom-slider">
-    <ngx-slider
-      [(value)]="value"
-      (valueChange)="onChange()"
-      [options]="options"
-    ></ngx-slider>
+    @if (!isTimelineMode()) {
+      <ngx-slider
+        id="schedule-zoom-slider"
+        [(value)]="value"
+        (valueChange)="onChange()"
+        [options]="options"
+      ></ngx-slider>
+    } @else {
+      <ngx-slider
+        id="schedule-timeline-row-height-slider"
+        [(value)]="timelineValue"
+        (valueChange)="onTimelineRowHeightChange()"
+        [options]="timelineOptions"
+      ></ngx-slider>
+    }
   </div>
 </div>

@@ -24,7 +24,6 @@ import {
   Injector,
   input,
   output,
-  signal,
   viewChild,
   computed,
 } from '@angular/core';
@@ -79,6 +78,7 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { ScheduleSectionFacadeService } from './services/schedule-section-facade.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 
 type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent;
 
@@ -159,7 +159,8 @@ export class ScheduleSectionComponent
   public vScrollbarSize = 17;
   public hScrollbarSize = 17;
 
-  public viewMode = signal<'table' | 'timeline'>('table');
+  private viewModeService = inject(ScheduleViewModeService);
+  public viewMode = this.viewModeService.viewMode;
 
   direction = inject(DirectionService).direction;
 
@@ -192,18 +193,6 @@ export class ScheduleSectionComponent
     this.facade.tooltip.initLanguage();
     this.settings.editable = true;
     this.facade.absenceMenu.loadIfNeeded();
-
-    runInInjectionContext(this.injector, () => {
-      const viewModeEffect = effect(() => {
-        const mode = this.viewMode();
-        this.settings.setTimelineMode(mode === 'timeline');
-        this.dataManagement.isRead.update((v) => ({
-          count: v.count + 1,
-          resetScroll: false,
-        }));
-      }, { allowSignalWrites: true });
-      this.effects.push(viewModeEffect);
-    });
   }
 
   ngAfterViewInit() {
@@ -240,13 +229,6 @@ export class ScheduleSectionComponent
       .subscribe((keys) => {
         this.menuClicked(keys);
       });
-  }
-
-  public toggleViewMode(): void {
-    const newMode = this.viewMode() === 'table' ? 'timeline' : 'table';
-    this.settings.setTimelineMode(newMode === 'timeline');
-    this.scheduleService.setMetrics();
-    this.viewMode.set(newMode);
   }
 
   private applyGlobalGroupSelection(): void {
