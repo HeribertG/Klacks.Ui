@@ -497,7 +497,7 @@ export class BaseDrawRowHeaderService {
       return;
     }
 
-    let displayRows: number = groupIndex.displayRows;
+    let displayRows: number = this.settings.getDisplayRows(groupIndex.displayRows);
     if (redraw && firstRow === this.lastSelection) {
       return;
     }

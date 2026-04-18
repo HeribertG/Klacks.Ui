@@ -42,6 +42,9 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { BaseGridRenderService } from 'src/app/presentation/shared/grid/services/body/grid-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { TimelineCreateCellService } from '../services/timeline-create-cell.service';
+import { TimelineSelectionService } from '../services/timeline-selection.service';
+import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
+import { TimelineSelectionOverlayService } from '../services/timeline-selection-overlay.service';
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
@@ -103,6 +106,9 @@ export interface TimelineDoubleClickEvent {
     WorkBlockRendererService,
     WorkChangeBlockRendererService,
     BreakBlockRendererService,
+    TimelineSelectionService,
+    TimelineBlockHitTestService,
+    TimelineSelectionOverlayService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -133,6 +139,8 @@ export class GridSurfaceTimelineTemplateComponent
   public scroll = inject(ScrollService);
   public drawSchedule = inject(BaseDrawScheduleService);
   public settings = inject(BaseSettingsService);
+  private gridRender = inject(BaseGridRenderService);
+  private selectionOverlay = inject(TimelineSelectionOverlayService);
   private tooltipService = inject(TooltipService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
@@ -153,6 +161,7 @@ export class GridSurfaceTimelineTemplateComponent
 
   ngAfterViewInit(): void {
     this.drawSchedule.init('timeline-template-canvas' + this.canvasId);
+    this.gridRender.overlayRenderer = (ctx) => this.selectionOverlay.renderSelection(ctx);
     this.initializeDrawSchedule();
     this.observeParentResize();
   }

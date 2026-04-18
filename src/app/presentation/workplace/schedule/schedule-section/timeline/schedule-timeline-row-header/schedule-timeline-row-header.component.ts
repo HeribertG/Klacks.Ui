@@ -177,6 +177,15 @@ export class ScheduleTimelineRowHeaderComponent
 
       this.effects.push(
         effect(() => {
+          this.drawRowHeader.cellManipulation.positionSignal();
+          if (this.drawRowHeader.isCanvasAvailable()) {
+            this.drawRowHeader.drawRowHeaderSelection();
+          }
+        }),
+      );
+
+      this.effects.push(
+        effect(() => {
           this.dataService.refreshSignal();
           if (this.drawRowHeader.isCanvasAvailable()) {
             this.drawRowHeader.redraw();

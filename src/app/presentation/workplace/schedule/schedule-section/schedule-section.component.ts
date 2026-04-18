@@ -393,7 +393,7 @@ export class ScheduleSectionComponent
     this.effects.push(effect(() => {
       void this.refreshTrigger();
       if (initialized) {
-        this.withSurface((surface) => surface.Refresh());
+        this.withSurface((surface) => surface.Refresh(false));
       }
       initialized = true;
     }));

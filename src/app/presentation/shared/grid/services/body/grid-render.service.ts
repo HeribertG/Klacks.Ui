@@ -178,6 +178,7 @@ export class BaseGridRenderService {
     firstVisibleCol: number,
     showFillHandle = false,
   ): void {
+    if (this.settings.isTimelineMode) return;
     const ctx = this.canvasManager.ctx;
     const canvas = this.canvasManager.canvas;
     const renderCanvas = this.canvasManager.renderCanvas;

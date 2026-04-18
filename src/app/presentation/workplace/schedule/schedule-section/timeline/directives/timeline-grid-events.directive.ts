@@ -28,6 +28,8 @@ import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/se
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
+import { TimelineSelectionService } from '../services/timeline-selection.service';
 
 export interface TimelineGridRightClickEvent {
   row: number;
@@ -47,6 +49,8 @@ export class TimelineGridEventsDirective {
   private gridSettings = inject(BaseSettingsService);
   private gridData = inject(BaseDataService);
   private scrollGrid = inject(ScrollService);
+  private hitTest = inject(TimelineBlockHitTestService);
+  private selection = inject(TimelineSelectionService);
   private destroyRef = inject(DestroyRef);
 
   private readonly mouseMoveThrottleMs = 16;
@@ -61,7 +65,9 @@ export class TimelineGridEventsDirective {
   }
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
-    if (event.buttons === 2) {
+    if (event.buttons === 1) {
+      this.respondToLeftButtonMouseDown(event);
+    } else if (event.buttons === 2) {
       this.emitRightClick(event);
     }
   }
@@ -138,6 +144,38 @@ export class TimelineGridEventsDirective {
     });
 
     return true;
+  }
+
+  private respondToLeftButtonMouseDown(event: MouseEvent): void {
+    const pos = this.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    const relativeY = this.computeRelativeYInCell(event, pos.row);
+    const hit = this.hitTest.hitTest(pos.row, pos.column, relativeY);
+
+    if (hit) {
+      this.selection.selectBlock({
+        row: pos.row,
+        col: hit.mainCol,
+        entry: hit.entry,
+      });
+    } else {
+      this.selection.clearBlock();
+    }
+
+    this.cellManipulation.Position = pos;
+    this.drawSchedule.refresh();
+  }
+
+  private computeRelativeYInCell(event: MouseEvent, row: number): number {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const canvasY = event.clientY - rect.top;
+    const cellTop =
+      this.gridSettings.cellHeaderHeight +
+      (row - this.scrollGrid.verticalScrollPosition) * this.gridSettings.cellHeight;
+    return canvasY - cellTop;
   }
 
   private emitRightClick(event: MouseEvent): void {
