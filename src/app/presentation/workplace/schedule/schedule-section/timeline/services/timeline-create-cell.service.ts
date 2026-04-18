@@ -79,8 +79,13 @@ export class TimelineCreateCellService extends BaseCreateCellService {
             .getWorkScheduleForCell(row, col - 1)
             .filter((e) => this.isTimelineEntry(e) && this.spansMidnight(e))
         : [];
+    const availabilityRanges = this.scheduleData.getAvailabilityRangesForCell(row, col);
 
-    if (todayEntries.length === 0 && overflowEntries.length === 0) {
+    if (
+      todayEntries.length === 0 &&
+      overflowEntries.length === 0 &&
+      availabilityRanges.length === 0
+    ) {
       return baseCanvas;
     }
 
@@ -97,6 +102,16 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     const width = this.settings.cellWidth;
     const height = this.settings.cellHeight;
     const pixelsPerMinute = height / range.totalMinutes;
+
+    if (availabilityRanges.length > 0) {
+      this.drawAvailabilityOverlay(
+        ctx,
+        availabilityRanges,
+        width,
+        pixelsPerMinute,
+        range.displayFromMinutes,
+      );
+    }
 
     for (const entry of todayEntries) {
       const minutes = this.toMinutesRange(entry);
@@ -387,6 +402,25 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private spansMidnight(entry: IScheduleCell): boolean {
     const minutes = this.toMinutesRange(entry);
     return !!minutes && minutes.end > this.dayTotalMinutes;
+  }
+
+  private drawAvailabilityOverlay(
+    ctx: CanvasRenderingContext2D,
+    ranges: { startMinutes: number; endMinutes: number }[],
+    width: number,
+    pixelsPerMinute: number,
+    displayFromMinutes: number,
+  ): void {
+    ctx.save();
+    ctx.fillStyle = this.gridColors.availabilityHighlightColor;
+    for (const range of ranges) {
+      const y = (range.startMinutes - displayFromMinutes) * pixelsPerMinute;
+      const h = (range.endMinutes - range.startMinutes) * pixelsPerMinute;
+      if (h > 0) {
+        ctx.fillRect(0, y, width, h);
+      }
+    }
+    ctx.restore();
   }
 
   private drawCollisionOverlay(

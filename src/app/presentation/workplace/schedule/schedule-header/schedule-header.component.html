@@ -98,16 +98,18 @@
     <app-icon-pdf-icon></app-icon-pdf-icon>
   </button>
 
-  <button
-    id="schedule-break-placeholder-toggle"
-    type="button"
-    class="icon-button break-placeholder-toggle"
-    [class.active]="showBreakPlaceholders"
-    (click)="toggleBreakPlaceholders()"
-    ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
-  >
-    <app-icon-break-placeholder #breakPlaceholderIcon />
-  </button>
+  @if (!isTimelineMode()) {
+    <button
+      id="schedule-break-placeholder-toggle"
+      type="button"
+      class="icon-button break-placeholder-toggle"
+      [class.active]="showBreakPlaceholders"
+      (click)="toggleBreakPlaceholders()"
+      ngbTooltip="{{ 'schedule.breakPlaceholder.toggle' | translate }}"
+    >
+      <app-icon-break-placeholder #breakPlaceholderIcon />
+    </button>
+  }
 
   @if (!isTimelineMode()) {
     <button
@@ -122,7 +124,7 @@
     </button>
   }
 
-  @if (!isTimelineMode() && hasAvailabilityData()) {
+  @if (hasAvailabilityData()) {
     <button
       id="schedule-availability-check-btn"
       type="button"

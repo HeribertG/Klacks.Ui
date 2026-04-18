@@ -27,6 +27,7 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { ScheduleDataService } from '../../services/schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
 import { TimelineBlockTooltipService } from '../services/timeline-block-tooltip.service';
@@ -107,7 +108,9 @@ export class TimelineGridEventsDirective {
     const isEmpty = !this.gridData.isCellActive(pos.row, pos.column);
     const relativeY = this.computeRelativeYInCell(event, pos.row);
     const hit = this.hitTest.hitTest(pos.row, pos.column, relativeY);
-    const tooltip = hit ? this.blockTooltip.buildBlockTooltip(hit.entry) : undefined;
+    const tooltip = hit
+      ? this.blockTooltip.buildBlockTooltip(hit.entry)
+      : (this.gridData as ScheduleDataService).getAvailabilityTooltipForCell(pos.row, pos.column);
     this.cellManipulation.hoveredCell.set({
       row: pos.row,
       column: pos.column,

@@ -47,7 +47,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { BreakPlaceholderScheduleLoaderService } from 'src/app/domain/services/schedule/break-placeholder-schedule-loader.service';
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
-import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { formatTime, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
@@ -864,6 +864,61 @@ export class ScheduleDataService extends BaseDataService {
     if (!ctx) return text.length * 8;
     ctx.font = this.gridFonts.mainFontStringZoom;
     return ctx.measureText(text).width;
+  }
+
+  public getAvailabilityTooltipForCell(
+    row: number,
+    col: number,
+  ): string | undefined {
+    if (!this.dataManagementSchedule.showAvailability()) {
+      return undefined;
+    }
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return undefined;
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client?.id) return undefined;
+    const date = this.getDateForColumn(col);
+    if (!date) return undefined;
+    const availability = this.dataManagementSchedule.clientAvailabilities
+      .get(client.id)
+      ?.get(formatDateOnly(date));
+    if (!availability) return undefined;
+    return this.formatAvailabilityTooltip(availability);
+  }
+
+  public getAvailabilityRangesForCell(
+    row: number,
+    col: number,
+  ): { startMinutes: number; endMinutes: number }[] {
+    if (!this.dataManagementSchedule.showAvailability()) {
+      return [];
+    }
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return [];
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client?.id) return [];
+    const date = this.getDateForColumn(col);
+    if (!date) return [];
+    const availability = this.dataManagementSchedule.clientAvailabilities
+      .get(client.id)
+      ?.get(formatDateOnly(date));
+    if (!availability) return [];
+
+    const ranges: { startMinutes: number; endMinutes: number }[] = [];
+    const dayMinutes = 24 * 60;
+    for (const raw of availability.split(',')) {
+      const [startStr, endStr] = raw.trim().split('-');
+      if (!startStr || !endStr) continue;
+      const start = timeToMinutes(startStr);
+      let end = timeToMinutes(endStr);
+      if (end === start) {
+        end = dayMinutes;
+      }
+      if (end > start) {
+        ranges.push({ startMinutes: start, endMinutes: end });
+      }
+    }
+    return ranges;
   }
 
   private applyAvailabilityHighlighting(
