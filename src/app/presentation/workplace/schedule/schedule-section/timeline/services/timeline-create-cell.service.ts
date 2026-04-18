@@ -52,6 +52,7 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private readonly columnSeparatorLogicalWidth = 1;
   private readonly columnSeparatorDarken = 80;
   private readonly cellOutlineWidth = 0.5;
+  private readonly collisionOverlayAlpha = 0.15;
   private readonly dayTotalMinutes = this.hoursPerDay * this.minutesPerHour;
 
   private cachedRange = this.computeDisplayRange();
@@ -130,6 +131,15 @@ export class TimelineCreateCellService extends BaseCreateCellService {
         range.displayFromMinutes,
       );
     }
+
+    this.drawCollisionOverlay(
+      ctx,
+      todayEntries,
+      overflowEntries,
+      width,
+      pixelsPerMinute,
+      range.displayFromMinutes,
+    );
 
     return baseCanvas;
   }
@@ -377,6 +387,77 @@ export class TimelineCreateCellService extends BaseCreateCellService {
   private spansMidnight(entry: IScheduleCell): boolean {
     const minutes = this.toMinutesRange(entry);
     return !!minutes && minutes.end > this.dayTotalMinutes;
+  }
+
+  private drawCollisionOverlay(
+    ctx: CanvasRenderingContext2D,
+    todayEntries: IScheduleCell[],
+    overflowEntries: IScheduleCell[],
+    width: number,
+    pixelsPerMinute: number,
+    displayFromMinutes: number,
+  ): void {
+    const intervals = this.collectVisibleIntervals(todayEntries, overflowEntries);
+    if (intervals.length < 2) {
+      return;
+    }
+
+    const overlaps = this.computePairwiseOverlaps(intervals);
+    if (overlaps.length === 0) {
+      return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = this.collisionOverlayAlpha;
+    ctx.fillStyle = this.gridColors.warningColor;
+    for (const overlap of overlaps) {
+      const y = (overlap.start - displayFromMinutes) * pixelsPerMinute;
+      const h = (overlap.end - overlap.start) * pixelsPerMinute;
+      if (h > 0) {
+        ctx.fillRect(0, y, width, h);
+      }
+    }
+    ctx.restore();
+  }
+
+  private collectVisibleIntervals(
+    todayEntries: IScheduleCell[],
+    overflowEntries: IScheduleCell[],
+  ): { start: number; end: number }[] {
+    const intervals: { start: number; end: number }[] = [];
+    for (const entry of todayEntries) {
+      const minutes = this.toMinutesRange(entry);
+      if (!minutes) continue;
+      const end = Math.min(minutes.end, this.dayTotalMinutes);
+      if (end > minutes.start) {
+        intervals.push({ start: minutes.start, end });
+      }
+    }
+    for (const entry of overflowEntries) {
+      const minutes = this.toMinutesRange(entry);
+      if (!minutes) continue;
+      const end = minutes.end - this.dayTotalMinutes;
+      if (end > 0) {
+        intervals.push({ start: 0, end });
+      }
+    }
+    return intervals;
+  }
+
+  private computePairwiseOverlaps(
+    intervals: { start: number; end: number }[],
+  ): { start: number; end: number }[] {
+    const overlaps: { start: number; end: number }[] = [];
+    for (let i = 0; i < intervals.length; i++) {
+      for (let j = i + 1; j < intervals.length; j++) {
+        const start = Math.max(intervals[i].start, intervals[j].start);
+        const end = Math.min(intervals[i].end, intervals[j].end);
+        if (start < end) {
+          overlaps.push({ start, end });
+        }
+      }
+    }
+    return overlaps;
   }
 
   private drawBlockLabel(
