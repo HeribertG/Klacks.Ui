@@ -293,7 +293,8 @@ export class ScheduleSectionComponent
     this.effects.push(effect(() => {
       const readState = this.dataManagement.isRead();
       if (readState.count > 0) {
-        this.withSurface((surface) => surface.Refresh(readState.resetScroll));
+        const resetScroll = readState.resetScroll && !this.settings.isTimelineMode;
+        this.withSurface((surface) => surface.Refresh(resetScroll));
       }
     }));
   }

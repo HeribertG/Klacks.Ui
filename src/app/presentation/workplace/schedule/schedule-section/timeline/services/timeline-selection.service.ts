@@ -2,13 +2,13 @@
 
 /**
  * Holds the currently selected timeline block (Work / WorkChange / Break).
- * Cleared automatically when the user leaves the timeline view or the
- * underlying schedule data changes.
+ * Cleared automatically when the user leaves the timeline view. The selection
+ * survives data refreshes; callers must clear it explicitly when the underlying
+ * entry becomes stale (e.g. after a CRUD operation that removes the entry).
  * @param selectedBlock - Signal with the active selection or null when nothing is selected
  */
 import { Injectable, Injector, effect, inject, runInInjectionContext, signal } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
-import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleViewModeService } from '../../../services/schedule-view-mode.service';
 
 export interface SelectedTimelineBlock {
@@ -20,7 +20,6 @@ export interface SelectedTimelineBlock {
 @Injectable()
 export class TimelineSelectionService {
   private viewModeService = inject(ScheduleViewModeService);
-  private dataManagement = inject(DataManagementScheduleService);
   private injector = inject(Injector);
 
   public readonly selectedBlock = signal<SelectedTimelineBlock | null>(null);
@@ -31,10 +30,6 @@ export class TimelineSelectionService {
         if (!this.viewModeService.isTimelineMode()) {
           this.clearBlock();
         }
-      });
-      effect(() => {
-        this.dataManagement.isRead();
-        this.clearBlock();
       });
     });
   }

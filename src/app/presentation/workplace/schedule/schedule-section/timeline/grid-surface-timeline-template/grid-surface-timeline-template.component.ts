@@ -141,6 +141,7 @@ export class GridSurfaceTimelineTemplateComponent
   public settings = inject(BaseSettingsService);
   private gridRender = inject(BaseGridRenderService);
   private selectionOverlay = inject(TimelineSelectionOverlayService);
+  private selection = inject(TimelineSelectionService);
   private tooltipService = inject(TooltipService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
@@ -349,6 +350,14 @@ export class GridSurfaceTimelineTemplateComponent
             this.drawSchedule.redraw();
             this.updateScrollbarValues();
           }, 0);
+        }),
+      );
+
+      this.effects.push(
+        effect(() => {
+          this.selection.selectedBlock();
+          if (this.isDestroyed) return;
+          this.drawSchedule.refresh();
         }),
       );
 
