@@ -64,7 +64,15 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
     ctx.fillStyle = this.tColors.backGroundColor;
     ctx.fillRect(rulerX, 0, rulerWidth, height);
     ctx.translate(rulerX, 0);
-    this.timeRulerRender.drawTimeRuler(ctx, height, this.dayStart, this.dayEnd, 0, true);
+    this.timeRulerRender.drawTimeRuler(
+      ctx,
+      height,
+      this.dayStart,
+      this.dayEnd,
+      0,
+      true,
+      rulerWidth,
+    );
     ctx.restore();
 
     this.drawRulerBorders(ctx, rulerX, rulerWidth, height, isRtl);

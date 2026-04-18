@@ -120,7 +120,8 @@ export class TimeRulerRenderService {
     fromTime: OwnTime,
     untilTime: OwnTime,
     paddingMinutesOverride?: number,
-    skipEdgeLabels = false
+    skipEdgeLabels = false,
+    rulerWidthOverride?: number
   ): void {
     const paddingMinutes =
       paddingMinutesOverride !== undefined
@@ -191,7 +192,7 @@ export class TimeRulerRenderService {
 
       if (lineLength > 0) {
         const isRtl = document.documentElement.dir === 'rtl';
-        const rulerW = this.RULER_WIDTH;
+        const rulerW = rulerWidthOverride ?? this.RULER_WIDTH;
         ctx.beginPath();
         if (isRtl) {
           ctx.moveTo(rulerW, y);
