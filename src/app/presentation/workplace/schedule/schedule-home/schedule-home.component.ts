@@ -62,6 +62,10 @@ import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { SchedulePdfDrawingService } from '../schedule-section/services/schedule-pdf-drawing.service';
 import { ShiftPdfExportService } from '../shift-section/services/shift-pdf-export.service';
+import { TimelinePdfExportService } from '../schedule-section/services/timeline-pdf-export.service';
+import { WorkBlockRendererService } from '../schedule-section/timeline/renderers/work-block-renderer.service';
+import { WorkChangeBlockRendererService } from '../schedule-section/timeline/renderers/work-change-block-renderer.service';
+import { BreakBlockRendererService } from '../schedule-section/timeline/renderers/break-block-renderer.service';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 
 @Component({
@@ -93,6 +97,10 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
     SchedulePdfExportService,
     SchedulePdfDrawingService,
     ShiftPdfExportService,
+    TimelinePdfExportService,
+    WorkBlockRendererService,
+    WorkChangeBlockRendererService,
+    BreakBlockRendererService,
   ],
 })
 export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -109,6 +117,8 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private allScheduleStateService = inject(AllScheduleStateService);
   private signalRService = inject(SignalRService);
   private schedulePdfExportService = inject(SchedulePdfExportService);
+  private timelinePdfExportService = inject(TimelinePdfExportService);
+  private scheduleViewModeService = inject(ScheduleViewModeService);
   private cdr = inject(ChangeDetectorRef);
 
   public currentZoom = 1.0;
@@ -206,7 +216,11 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onPdfExport() {
-    this.schedulePdfExportService.exportSchedule();
+    if (this.scheduleViewModeService.isTimelineMode()) {
+      this.timelinePdfExportService.exportTimeline();
+    } else {
+      this.schedulePdfExportService.exportSchedule();
+    }
   }
 
   onZoomChange(zoomValue: number) {
