@@ -269,7 +269,7 @@ export class DataManagementScheduleService implements ILoadable {
     );
   }
 
-  readWorkSchedule(resetScroll = true) {
+  readWorkSchedule(resetScroll = true, onComplete?: () => void) {
     this.workScheduleLoader.load(this.workFilter, () => {
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this._showProgressSpinner.set(false);
@@ -279,6 +279,9 @@ export class DataManagementScheduleService implements ILoadable {
       }
       this.isRead.update(v => ({ count: v.count + 1, resetScroll }));
       this.isWorkScheduleRead.update(v => v + 1);
+      if (onComplete) {
+        setTimeout(onComplete, 0);
+      }
     });
   }
 

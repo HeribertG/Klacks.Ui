@@ -107,7 +107,6 @@ export interface TimelineDoubleClickEvent {
     WorkBlockRendererService,
     WorkChangeBlockRendererService,
     BreakBlockRendererService,
-    TimelineSelectionService,
     TimelineBlockHitTestService,
     TimelineBlockTooltipService,
     TimelineSelectionOverlayService,

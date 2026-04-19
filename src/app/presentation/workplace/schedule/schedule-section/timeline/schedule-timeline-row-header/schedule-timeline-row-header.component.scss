@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .box {
   width: 100%;
   height: 100%;
@@ -7,4 +13,23 @@
 
 canvas {
   display: block;
+}
+
+.schedule-filter-windows {
+  opacity: 1;
+  position: fixed;
+  inset-inline-start: 0px;
+  top: 0px;
+  height: auto;
+  display: inline-block;
+  background-color: var(--standartTextBackground);
+  color: var(--standartTextColor);
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgb(64 64 64 / 30%);
+  padding: 4px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  border-inline-end: 1px solid var(--cardBorderColor);
+  animation-duration: 0s;
+  z-index: 999;
+  visibility: hidden;
 }

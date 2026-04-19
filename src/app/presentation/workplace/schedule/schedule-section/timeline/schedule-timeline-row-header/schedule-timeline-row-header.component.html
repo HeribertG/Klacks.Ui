@@ -1,3 +1,21 @@
+<div
+  #filterEl
+  id="schedule-timeline-row-header-filter"
+  class="schedule-filter-windows"
+  [ngStyle]="filterStyle"
+  (mouseleave)="onFilterMouseLeave()"
+>
+  <app-client-filter
+    [filter]="dataManagementSchedule.workFilter"
+    (filterChange)="onFilterChange()"
+  ></app-client-filter>
+</div>
+
 <div #box id="box" class="box" appResize (resizeElement)="onResize($event)">
-  <canvas id="scheduleRowCanvas"></canvas>
+  <canvas
+    id="scheduleRowCanvas"
+    (mousemove)="onMouseMove($event)"
+    (mouseleave)="onCanvasMouseLeave()"
+    (click)="onCanvasClick($event)"
+  ></canvas>
 </div>

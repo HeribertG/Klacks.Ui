@@ -79,6 +79,7 @@ import { ScheduleSectionFacadeService } from './services/schedule-section-facade
 import { DirectionService } from 'src/app/application/services/direction.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
+import { TimelineSelectionService } from './timeline/services/timeline-selection.service';
 
 type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent;
 
@@ -121,6 +122,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ScheduleNavigationService,
     ScheduleBreakBarRenderService,
     ScheduleSectionFacadeService,
+    TimelineSelectionService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
