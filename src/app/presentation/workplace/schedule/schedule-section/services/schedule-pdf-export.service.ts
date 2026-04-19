@@ -207,7 +207,8 @@ export class SchedulePdfExportService {
     const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
       ?? workSettings.paymentInterval;
     const period = this.buildPeriodLabel(paymentInterval, filter);
-    return `Einsatzplan - ${period} ${filter.currentYear}${groupSuffix}`;
+    const titlePrefix = this.translateService.instant('pdf.title.schedule');
+    return `${titlePrefix} - ${period} ${filter.currentYear}${groupSuffix}`;
   }
 
   private buildPeriodLabel(paymentInterval: number, filter: { currentMonth: number; currentWeek?: number }): string {

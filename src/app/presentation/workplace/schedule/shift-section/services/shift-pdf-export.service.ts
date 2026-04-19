@@ -244,7 +244,8 @@ export class ShiftPdfExportService {
     const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
       ?? workSettings.paymentInterval;
     const period = this.buildPeriodLabel(paymentInterval, filter);
-    return `Schichtplan - ${period} ${filter.currentYear}${groupSuffix}`;
+    const titlePrefix = this.translateService.instant('pdf.title.shifts');
+    return `${titlePrefix} - ${period} ${filter.currentYear}${groupSuffix}`;
   }
 
   private buildPeriodLabel(paymentInterval: number, filter: { currentMonth: number; currentWeek?: number }): string {

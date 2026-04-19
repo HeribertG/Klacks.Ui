@@ -186,7 +186,8 @@ export class TimelinePdfExportService {
     const paymentInterval = this.groupSelectionService.selectedGroup?.paymentInterval
       ?? workSettings.paymentInterval;
     const period = this.buildPeriodLabel(paymentInterval, filter);
-    return `Timeline - ${period} ${filter.currentYear}${groupSuffix}`;
+    const titlePrefix = this.translateService.instant('pdf.title.timeline');
+    return `${titlePrefix} - ${period} ${filter.currentYear}${groupSuffix}`;
   }
 
   private buildPeriodLabel(
@@ -357,9 +358,12 @@ export class TimelinePdfExportService {
       pdf.setFont(config.fontFamily, 'normal');
       pdf.setFontSize(6);
       pdf.setTextColor('#404040');
-      if (slot1) pdf.text(`G: ${slot1}`, textX, y + 18);
-      if (slot2) pdf.text(`H: ${slot2}`, textX, y + 26);
-      if (slot3) pdf.text(`S: ${slot3}`, textX, y + 34);
+      const lGuar = this.translateService.instant('pdf.slot.guaranteed');
+      const lHrs = this.translateService.instant('pdf.slot.hours');
+      const lSur = this.translateService.instant('pdf.slot.surcharges');
+      if (slot1) pdf.text(`${lGuar}: ${slot1}`, textX, y + 18);
+      if (slot2) pdf.text(`${lHrs}: ${slot2}`, textX, y + 26);
+      if (slot3) pdf.text(`${lSur}: ${slot3}`, textX, y + 34);
     }
 
     pdf.setDrawColor(config.separatorColor);
