@@ -23,6 +23,7 @@ import { ScheduleDataService } from './schedule-data.service';
 import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
+import { ScheduleTimelineRangeService } from '../../services/schedule-timeline-range.service';
 
 interface TimelineClientBlock {
   name: string;
@@ -46,6 +47,7 @@ export class TimelinePdfExportService {
   private workRenderer = inject(WorkBlockRendererService);
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
+  private rangeService = inject(ScheduleTimelineRangeService);
 
   private readonly A4_LANDSCAPE = { width: 841.89, height: 595.28 };
   private readonly MARGINS = { top: 40, left: 20, right: 20, bottom: 20 };
@@ -130,23 +132,26 @@ export class TimelinePdfExportService {
         ? this.MARGINS.left
         : this.MARGINS.left + config.rowHeaderWidth;
 
+      const displayFromMinutes = this.rangeService.displayFromMinutes();
+      const totalMinutes = this.rangeService.totalMinutes();
+      const pixelsPerMinute = this.ROW_HEIGHT / totalMinutes;
+
       for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
         const block = pageBlocks[blockIdx];
-        const pixelsPerMinute = this.ROW_HEIGHT / this.DAY_TOTAL_MINUTES;
 
-        this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3);
+        this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3, displayFromMinutes, totalMinutes);
 
         for (let col = 0; col < coreDays; col++) {
           const dayIdx = this.isRtl ? coreDays - 1 - col : col;
           const cellX = scheduleX + col * colWidth;
-          this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[dayIdx].weekdayType);
+          this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[dayIdx].weekdayType, displayFromMinutes, totalMinutes);
 
           for (const entry of block.overflowEntries[dayIdx]) {
             const minutes = this.toMinutesRange(entry);
             if (!minutes) continue;
             const overflowEnd = minutes.end - this.DAY_TOTAL_MINUTES;
             if (overflowEnd > 0) {
-              this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, 0, overflowEnd);
+              this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, 0, overflowEnd, displayFromMinutes, totalMinutes);
             }
           }
 
@@ -154,12 +159,13 @@ export class TimelinePdfExportService {
             const minutes = this.toMinutesRange(entry);
             if (!minutes) continue;
             const endToday = Math.min(minutes.end, this.DAY_TOTAL_MINUTES);
-            this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, minutes.start, endToday);
+            this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, minutes.start, endToday, displayFromMinutes, totalMinutes);
           }
 
           this.drawCollisionOverlay(
             pdf, cellX, currentY, colWidth, pixelsPerMinute,
             block.todayEntries[dayIdx], block.overflowEntries[dayIdx],
+            displayFromMinutes, totalMinutes,
           );
         }
 
@@ -334,6 +340,8 @@ export class TimelinePdfExportService {
     slot1: string,
     slot2: string,
     slot3: string,
+    displayFromMinutes: number,
+    totalMinutes: number,
   ): void {
     const availableWidth = this.A4_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
     const headerX = this.isRtl ? x + availableWidth - config.rowHeaderWidth : x;
@@ -370,7 +378,7 @@ export class TimelinePdfExportService {
     pdf.setLineWidth(0.3);
     pdf.line(rulerX, y, rulerX, y + this.ROW_HEIGHT);
 
-    this.drawRulerMarks(pdf, rulerX, y, config);
+    this.drawRulerMarks(pdf, rulerX, y, config, displayFromMinutes, totalMinutes);
   }
 
   private drawRulerMarks(
@@ -378,8 +386,11 @@ export class TimelinePdfExportService {
     rulerX: number,
     rowY: number,
     config: ScheduleDrawingConfig,
+    displayFromMinutes: number,
+    totalMinutes: number,
   ): void {
-    const pixelsPerMinute = this.ROW_HEIGHT / this.DAY_TOTAL_MINUTES;
+    const pixelsPerMinute = this.ROW_HEIGHT / totalMinutes;
+    const visibleEndMinutes = displayFromMinutes + totalMinutes;
 
     pdf.setFont(config.fontFamily, 'normal');
     pdf.setFontSize(5);
@@ -388,17 +399,26 @@ export class TimelinePdfExportService {
     pdf.setLineWidth(0.3);
 
     for (let hour = 0; hour <= this.HOURS_PER_DAY; hour++) {
-      const markY = rowY + hour * 60 * pixelsPerMinute;
+      const hourMinutes = hour * 60;
+      if (hourMinutes < displayFromMinutes || hourMinutes > visibleEndMinutes) {
+        continue;
+      }
+
+      const markY = rowY + (hourMinutes - displayFromMinutes) * pixelsPerMinute;
       if (markY > rowY + this.ROW_HEIGHT + 0.5) break;
 
+      const isEndMark = hourMinutes === visibleEndMinutes;
+      const isEdgeMark = hourMinutes === displayFromMinutes || isEndMark;
       const isLabeledHour = hour % this.RULER_MARK_INTERVAL_HOURS === 0;
-      const tickLen = isLabeledHour ? this.RULER_TICK_WIDTH : this.RULER_TICK_WIDTH / 2;
+      const shouldLabel = isLabeledHour && !isEdgeMark;
+      const tickLen = shouldLabel ? this.RULER_TICK_WIDTH : this.RULER_TICK_WIDTH / 2;
+      const tickY = isEndMark ? markY - 1.5 : markY;
 
-      pdf.line(rulerX, markY, rulerX + tickLen, markY);
+      pdf.line(rulerX, tickY, rulerX + tickLen, tickY);
 
-      if (isLabeledHour) {
+      if (shouldLabel) {
         const label = `${String(hour).padStart(2, '0')}:00`;
-        pdf.text(label, rulerX + tickLen + 2, markY + 1.5);
+        pdf.text(label, rulerX + tickLen + 2, tickY + 1.5);
       }
     }
   }
@@ -409,18 +429,30 @@ export class TimelinePdfExportService {
     cellY: number,
     colWidth: number,
     weekdayType: number,
+    displayFromMinutes: number,
+    totalMinutes: number,
   ): void {
     const baseColor = this.getBaseColor(weekdayType);
     pdf.setFillColor(baseColor);
     pdf.rect(cellX, cellY, colWidth, this.ROW_HEIGHT, 'F');
 
     const stripeColor = this.drawingService.darkenColor(baseColor, this.STRIPE_DARK_AMOUNT);
-    const pixelsPerMinute = this.ROW_HEIGHT / this.DAY_TOTAL_MINUTES;
+    const pixelsPerMinute = this.ROW_HEIGHT / totalMinutes;
+    const visibleEndMinutes = displayFromMinutes + totalMinutes;
 
     pdf.setFillColor(stripeColor);
     for (let hour = 0; hour < this.HOURS_PER_DAY; hour += this.STRIPE_INTERVAL_HOURS) {
-      const yStart = cellY + hour * 60 * pixelsPerMinute;
-      const stripeHeight = 60 * pixelsPerMinute;
+      const stripeStartMinutes = hour * 60;
+      const stripeEndMinutes = stripeStartMinutes + 60;
+
+      if (stripeEndMinutes <= displayFromMinutes || stripeStartMinutes >= visibleEndMinutes) {
+        continue;
+      }
+
+      const clampedStart = Math.max(stripeStartMinutes, displayFromMinutes);
+      const clampedEnd = Math.min(stripeEndMinutes, visibleEndMinutes);
+      const yStart = cellY + (clampedStart - displayFromMinutes) * pixelsPerMinute;
+      const stripeHeight = (clampedEnd - clampedStart) * pixelsPerMinute;
       pdf.rect(cellX, yStart, colWidth, stripeHeight, 'F');
     }
   }
@@ -434,14 +466,21 @@ export class TimelinePdfExportService {
     entry: IScheduleCell,
     startMinutes: number,
     endMinutes: number,
+    displayFromMinutes: number,
+    totalMinutes: number,
   ): void {
     if (endMinutes <= startMinutes) return;
 
     const renderer = this.getRendererFor(entry);
     if (!renderer) return;
 
-    const yStart = cellY + startMinutes * pixelsPerMinute;
-    const blockHeight = Math.max(this.MIN_BLOCK_HEIGHT, (endMinutes - startMinutes) * pixelsPerMinute);
+    const visibleEnd = displayFromMinutes + totalMinutes;
+    const clampedStart = Math.max(startMinutes, displayFromMinutes);
+    const clampedEnd = Math.min(endMinutes, visibleEnd);
+    if (clampedStart >= clampedEnd) return;
+
+    const yStart = cellY + (clampedStart - displayFromMinutes) * pixelsPerMinute;
+    const blockHeight = Math.max(this.MIN_BLOCK_HEIGHT, (clampedEnd - clampedStart) * pixelsPerMinute);
     const color = renderer.getColor(entry);
 
     pdf.setFillColor(color);
@@ -528,6 +567,8 @@ export class TimelinePdfExportService {
     pixelsPerMinute: number,
     todayEntries: IScheduleCell[],
     overflowEntries: IScheduleCell[],
+    displayFromMinutes: number,
+    totalMinutes: number,
   ): void {
     const intervals = this.collectVisibleIntervals(todayEntries, overflowEntries);
     if (intervals.length < 2) return;
@@ -535,11 +576,16 @@ export class TimelinePdfExportService {
     const overlaps = this.computePairwiseOverlaps(intervals);
     if (overlaps.length === 0) return;
 
+    const visibleEnd = displayFromMinutes + totalMinutes;
+
     pdf.setGState(new GState({ opacity: this.COLLISION_OVERLAY_ALPHA }));
     pdf.setFillColor(this.COLLISION_COLOR);
     for (const overlap of overlaps) {
-      const yStart = cellY + overlap.start * pixelsPerMinute;
-      const height = (overlap.end - overlap.start) * pixelsPerMinute;
+      const clampedStart = Math.max(overlap.start, displayFromMinutes);
+      const clampedEnd = Math.min(overlap.end, visibleEnd);
+      if (clampedStart >= clampedEnd) continue;
+      const yStart = cellY + (clampedStart - displayFromMinutes) * pixelsPerMinute;
+      const height = (clampedEnd - clampedStart) * pixelsPerMinute;
       if (height > 0) {
         pdf.rect(cellX, yStart, colWidth, height, 'F');
       }

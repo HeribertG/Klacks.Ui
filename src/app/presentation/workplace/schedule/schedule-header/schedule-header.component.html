@@ -171,6 +171,27 @@
     </em>
   </div>
 
+  @if (isTimelineMode()) {
+    <div ngbDropdown class="timeline-range-dropdown">
+      <button
+        ngbDropdownToggle
+        class="btn btn-sm btn-outline-secondary"
+        id="timeline-range-dropdown"
+        type="button"
+      >
+        {{ 'schedule.toolbar.timeline-range.' + timelineViewRange() | translate }}
+      </button>
+      <div ngbDropdownMenu aria-labelledby="timeline-range-dropdown">
+        <button ngbDropdownItem (click)="onTimelineRangeChange('full')">
+          {{ 'schedule.toolbar.timeline-range.full' | translate }}
+        </button>
+        <button ngbDropdownItem (click)="onTimelineRangeChange('day')">
+          {{ 'schedule.toolbar.timeline-range.day' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
   <span class="filler"></span>
 
   <div class="custom-slider">

@@ -780,6 +780,8 @@
   "schedule.entryType.scheduleCommand": "Comando",
   "schedule.toolbar.toggle-commands": "Mostra comandi",
   "schedule.toolbar.timeline-view": "Andamento giornaliero",
+  "schedule.toolbar.timeline-range.full": "Vista 24h",
+  "schedule.toolbar.timeline-range.day": "Vista giornaliera",
   "setting.absence.add": "+ Aggiungi assenza",
   "setting.absence.headline": "Assenze",
   "setting.absence.modal.add": "Applica voce",

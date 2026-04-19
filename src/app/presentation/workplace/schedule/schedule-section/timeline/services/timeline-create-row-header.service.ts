@@ -11,12 +11,13 @@
 import { inject, Injectable } from '@angular/core';
 import { BaseCreateRowHeaderService } from '../../services/create-row-header.service';
 import { GridRowHeader } from '../../../classes/grid-row-header';
-import { ClientWork, OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { ClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { TimeRulerRenderService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-render.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
 
 @Injectable()
 export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
@@ -24,9 +25,8 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
   private tSettings = inject(BaseSettingsService);
   private tData = inject(BaseDataService);
   private tColors = inject(GridColorService);
+  private rangeService = inject(ScheduleTimelineRangeService);
 
-  private readonly dayStart = OwnTime.forTime('00', '00');
-  private readonly dayEnd = OwnTime.forDuration('24', '00');
   private readonly TIMELINE_RULER_WIDTH = 55;
   private readonly TIMELINE_RULER_BORDER_WIDTH = 1;
 
@@ -67,8 +67,8 @@ export class TimelineCreateRowHeaderService extends BaseCreateRowHeaderService {
     this.timeRulerRender.drawTimeRuler(
       ctx,
       height,
-      this.dayStart,
-      this.dayEnd,
+      this.rangeService.dayStart(),
+      this.rangeService.dayEnd(),
       0,
       true,
       rulerWidth,

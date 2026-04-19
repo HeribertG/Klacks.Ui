@@ -17,7 +17,6 @@ import {
   IScheduleCell,
   WorkScheduleEntryType,
 } from 'src/app/domain/models/schedule/work-schedule-class';
-import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
@@ -27,17 +26,17 @@ import { ITimelineBlockRenderer } from '../renderers/timeline-block-renderer.int
 import { WorkBlockRendererService } from '../renderers/work-block-renderer.service';
 import { WorkChangeBlockRendererService } from '../renderers/work-change-block-renderer.service';
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
+import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
 
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
   private timeRange = inject(TimeRangeService);
+  private rangeService = inject(ScheduleTimelineRangeService);
   private workRenderer = inject(WorkBlockRendererService);
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
 
-  private readonly dayStart = OwnTime.forTime('00', '00');
-  private readonly dayEnd = OwnTime.forDuration('24', '00');
   private readonly minBlockHeight = 2;
   private readonly textThreshold = 15;
   private readonly textFont = '10px Arial';
@@ -515,8 +514,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
 
   private computeDisplayRange() {
     return this.timeRange.calculateDisplayRange(
-      this.dayStart,
-      this.dayEnd,
+      this.rangeService.dayStart(),
+      this.rangeService.dayEnd(),
       0,
     );
   }

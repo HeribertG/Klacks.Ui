@@ -49,6 +49,7 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
+import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -135,8 +136,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private scheduleChangeService = inject(ScheduleChangeService);
   private dataWorkScheduleService = inject(DataWorkScheduleService);
   private viewModeService = inject(ScheduleViewModeService);
+  private timelineRangeService = inject(ScheduleTimelineRangeService);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
+  public readonly timelineViewRange = this.timelineRangeService.viewRange;
 
   isSending = signal(false);
   isRecalculating = signal(false);
@@ -224,6 +227,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   toggleScheduleCommands(): void {
     (this.dataService as ScheduleDataService).showScheduleCommands.update((v) => !v);
     this.updateScheduleCommandsIcon();
+  }
+
+  onTimelineRangeChange(range: TimelineViewRange): void {
+    this.timelineRangeService.setViewRange(range);
   }
 
   onViewModeToggleChanged(checked: boolean): void {

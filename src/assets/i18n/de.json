@@ -781,6 +781,8 @@
   "schedule.entryType.scheduleCommand": "Befehl",
   "schedule.toolbar.toggle-commands": "Befehle anzeigen",
   "schedule.toolbar.timeline-view": "Tagesverlauf",
+  "schedule.toolbar.timeline-range.full": "24 Std-Ansicht",
+  "schedule.toolbar.timeline-range.day": "Tagesansicht",
   "setting.absence.add": "+ Absenz hinzufügen",
   "setting.absence.headline": "Absenzen",
   "setting.absence.modal.add": "Eingabe übernehmen",

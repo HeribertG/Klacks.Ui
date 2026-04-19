@@ -58,6 +58,7 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
+import { ScheduleTimelineRangeService } from '../services/schedule-timeline-range.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { SchedulePdfExportService } from '../schedule-section/services/schedule-pdf-export.service';
 import { SchedulePdfDrawingService } from '../schedule-section/services/schedule-pdf-drawing.service';
@@ -87,6 +88,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
     AllScheduleStateService,
     ScheduleHorizontalScrollService,
     ScheduleViewModeService,
+    ScheduleTimelineRangeService,
     AbsenceLookupService,
     AbsenceMenuService,
     EmptyCellFormatterService,
