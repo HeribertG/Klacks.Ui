@@ -231,9 +231,13 @@ export class SchedulePdfDrawingService {
     startY: number,
     colWidth: number,
     numCols: number,
+    numRows: number,
     height: number,
     config: ScheduleDrawingConfig,
   ): void {
+    const subRowHeight = numRows > 0 ? height / numRows : height;
+    const totalWidth = numCols * colWidth;
+
     pdf.setDrawColor(config.separatorColor);
     pdf.setLineWidth(0.2);
 
@@ -241,6 +245,15 @@ export class SchedulePdfDrawingService {
       const lineX = startX + i * colWidth;
       pdf.line(lineX, startY, lineX, startY + height);
     }
+
+    for (let i = 1; i < numRows; i++) {
+      const lineY = startY + i * subRowHeight;
+      pdf.line(startX, lineY, startX + totalWidth, lineY);
+    }
+
+    pdf.setDrawColor(config.borderColor);
+    pdf.setLineWidth(config.lineWidth);
+    pdf.rect(startX, startY, totalWidth, height, 'S');
   }
 
   darkenColor(color: string, amount: number): string {

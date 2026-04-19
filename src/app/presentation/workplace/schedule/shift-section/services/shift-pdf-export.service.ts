@@ -214,6 +214,7 @@ export class ShiftPdfExportService {
           currentY,
           colWidth,
           coreDays,
+          1,
           blockHeight,
           config,
         );

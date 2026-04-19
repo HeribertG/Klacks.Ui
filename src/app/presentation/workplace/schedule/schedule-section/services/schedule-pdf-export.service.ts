@@ -177,6 +177,7 @@ export class SchedulePdfExportService {
           currentY,
           colWidth,
           coreDays,
+          block.subRows.length,
           blockHeight,
           config,
         );
