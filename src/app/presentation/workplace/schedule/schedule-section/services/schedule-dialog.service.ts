@@ -15,7 +15,7 @@
  * - Uses: ScheduleDataService for entry lookup
  */
 import { Injectable } from '@angular/core';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { CorrectionDialogComponent } from '../../dialogs/correction-dialog/correction-dialog.component';
 import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/replacement-dialog.component';
 import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edit-dialog.component';
@@ -47,10 +47,10 @@ export class ScheduleDialogService {
     this.containerWorkEditDialog = containerWorkEditDialog;
   }
 
-  openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService): void {
+  openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
     if (!this.correctionDialog) return;
 
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
@@ -58,10 +58,10 @@ export class ScheduleDialogService {
     }
   }
 
-  openReplacementDialog(row: number, column: number, dataService: ScheduleDataService): void {
+  openReplacementDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
     if (!this.replacementDialog) return;
 
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
@@ -69,10 +69,10 @@ export class ScheduleDialogService {
     }
   }
 
-  openExpensesDialog(row: number, column: number, dataService: ScheduleDataService): void {
+  openExpensesDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
     if (!this.expensesDialog) return;
 
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
@@ -80,8 +80,8 @@ export class ScheduleDialogService {
     }
   }
 
-  editWorkChange(row: number, column: number, dataService: ScheduleDataService): void {
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+  editWorkChange(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.WorkChange && date) {
@@ -96,10 +96,10 @@ export class ScheduleDialogService {
     }
   }
 
-  openWorkEditDialog(row: number, column: number, dataService: ScheduleDataService): void {
+  openWorkEditDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
     if (!this.workEditDialog) return;
 
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
@@ -115,10 +115,10 @@ export class ScheduleDialogService {
     }
   }
 
-  openContainerWorkEditDialog(row: number, column: number, dataService: ScheduleDataService, availableShifts: AvailableShift[]): void {
+  openContainerWorkEditDialog(row: number, column: number, dataService: ScheduleDataService, availableShifts: AvailableShift[], preResolvedEntry?: IScheduleCell): void {
     if (!this.containerWorkEditDialog) return;
 
-    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
     const date = dataService.getDateForColumn(column);
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {

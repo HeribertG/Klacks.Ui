@@ -29,7 +29,7 @@ import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail/absence-
 import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { WorkLockLevelService } from 'src/app/domain/services/schedule/work-lock-level.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -44,6 +44,7 @@ export interface ContextMenuContext {
   row: number;
   column: number;
   dataService: ScheduleDataService;
+  entry?: IScheduleCell | null;
 }
 
 @Injectable()
@@ -89,16 +90,18 @@ export class ScheduleContextMenuService {
 
   createContextMenu(context: ContextMenuContext): Menu {
     const menuData = new Menu();
-    const isCellFilled = context.dataService.isCellActive(
-      context.row,
-      context.column,
-    );
+    const hasPreResolvedEntry = context.entry !== undefined;
+    const isCellFilled = hasPreResolvedEntry
+      ? context.entry !== null
+      : context.dataService.isCellActive(context.row, context.column);
 
     if (isCellFilled) {
-      const entry = context.dataService.getWorkScheduleEntryForCell(
-        context.row,
-        context.column,
-      );
+      const entry = hasPreResolvedEntry
+        ? context.entry
+        : context.dataService.getWorkScheduleEntryForCell(
+            context.row,
+            context.column,
+          );
 
       const isLocked = entry ? (entry.lockLevel > 0 || entry.isGroupRestricted) : false;
 

@@ -27,6 +27,9 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { ShiftType } from 'src/app/domain/models/shift/shift-class';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { TimelineBlockHitTestService } from '../services/timeline-block-hit-test.service';
@@ -38,6 +41,13 @@ export interface TimelineGridRightClickEvent {
   column: number;
   clientX: number;
   clientY: number;
+  entry: IScheduleCell | null;
+}
+
+export interface TimelineGridBlockEvent {
+  row: number;
+  column: number;
+  entry: IScheduleCell;
 }
 
 @Directive({
@@ -54,12 +64,17 @@ export class TimelineGridEventsDirective {
   private hitTest = inject(TimelineBlockHitTestService);
   private blockTooltip = inject(TimelineBlockTooltipService);
   private selection = inject(TimelineSelectionService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
   private destroyRef = inject(DestroyRef);
 
   private readonly mouseMoveThrottleMs = 16;
 
   @Output() rightClick = new EventEmitter<TimelineGridRightClickEvent>();
   @Output() wheelScroll = new EventEmitter<{ deltaX: number; deltaY: number }>();
+  @Output() workDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
+  @Output() workChangeDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
+  @Output() containerWorkDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
+  @Output() deleteKey = new EventEmitter<TimelineGridBlockEvent>();
 
   constructor() {
     fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove')
@@ -78,6 +93,60 @@ export class TimelineGridEventsDirective {
   @HostListener('contextmenu', ['$event']) onContextMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+  }
+
+  @HostListener('dblclick', ['$event']) onDoubleClick(event: MouseEvent): void {
+    const pos = this.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+    const relativeY = this.computeRelativeYInCell(event, pos.row);
+    const hit = this.hitTest.hitTest(pos.row, pos.column, relativeY);
+    if (!hit) {
+      return;
+    }
+    this.dispatchBlockEdit(pos.row, hit.mainCol, hit.entry);
+  }
+
+  @HostListener('keydown', ['$event']) onKeyDown(event: KeyboardEvent): void {
+    const block = this.selection.selectedBlock();
+    if (!block) {
+      return;
+    }
+    if (event.key === 'Delete') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.deleteKey.emit({ row: block.row, column: block.col, entry: block.entry });
+      return;
+    }
+    if (event.key === 'F2' || event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.dispatchBlockEdit(block.row, block.col, block.entry);
+    }
+  }
+
+  private dispatchBlockEdit(row: number, column: number, entry: IScheduleCell): void {
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
+      return;
+    }
+    if (
+      entry.entryType === WorkScheduleEntryType.WorkChange ||
+      entry.entryType === WorkScheduleEntryType.Expenses
+    ) {
+      this.workChangeDoubleClick.emit({ row, column, entry });
+      return;
+    }
+    if (entry.entryType === WorkScheduleEntryType.Work) {
+      const shift = this.dataManagementSchedule.shiftSchedules.find(
+        (s) => s.shiftId === entry.entryId,
+      );
+      if (shift?.shiftType === ShiftType.IsContainer) {
+        this.containerWorkDoubleClick.emit({ row, column, entry });
+      } else {
+        this.workDoubleClick.emit({ row, column, entry });
+      }
+    }
   }
 
   @HostListener('mouseleave') onMouseLeave(): void {
@@ -192,11 +261,14 @@ export class TimelineGridEventsDirective {
     if (!this.drawSchedule.isPositionValid(pos)) {
       return;
     }
+    const relativeY = this.computeRelativeYInCell(event, pos.row);
+    const hit = this.hitTest.hitTest(pos.row, pos.column, relativeY);
     this.rightClick.emit({
       row: pos.row,
-      column: pos.column,
+      column: hit ? hit.mainCol : pos.column,
       clientX: event.clientX,
       clientY: event.clientY,
+      entry: hit?.entry ?? null,
     });
   }
 }

@@ -46,6 +46,7 @@ import { TestAccessibilityService } from '../../services/grid-test-accessibility
 import { GridTestAccessibilityService } from '../../services/grid-test-accessibility/grid-test-accessibility.service';
 import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -53,6 +54,7 @@ export interface GridSurfaceRightClickEvent {
   clientX: number;
   clientY: number;
   source: 'canvas' | 'input';
+  entry?: IScheduleCell | null;
 }
 
 export interface CellValueChangeEvent {

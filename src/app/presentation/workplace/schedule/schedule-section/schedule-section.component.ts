@@ -56,7 +56,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
 import { TooltipState } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
@@ -185,6 +185,7 @@ export class ScheduleSectionComponent
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private contextMenuRow = -1;
   private contextMenuColumn = -1;
+  private contextMenuEntry: IScheduleCell | null | undefined = undefined;
   private contextMenuBreakPlaceholder: IBreakPlaceholder | null = null;
 
   private destroy$ = new Subject<void>();
@@ -438,7 +439,7 @@ export class ScheduleSectionComponent
       this.contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp);
     } else {
       this.contextMenuBreakPlaceholder = null;
-      this.createContextMenu(event.row, event.column);
+      this.createContextMenu(event.row, event.column, event.entry);
     }
 
     this.contextMenu.openMenu({
@@ -447,14 +448,20 @@ export class ScheduleSectionComponent
     } as MouseEvent);
   }
 
-  private createContextMenu(row: number, column: number): void {
+  private createContextMenu(
+    row: number,
+    column: number,
+    entry?: IScheduleCell | null,
+  ): void {
     this.contextMenuRow = row;
     this.contextMenuColumn = column;
+    this.contextMenuEntry = entry;
     const dataService = this.scheduleService;
     this.contextMenu.menuData = this.facade.contextMenu.createContextMenu({
       row,
       column,
       dataService,
+      entry,
     });
   }
 
@@ -482,16 +489,16 @@ export class ScheduleSectionComponent
     absence: (dataService, keys) =>
       this.facade.entryActions.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService),
     correction: (dataService) =>
-      this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+      this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
     replacement: (dataService) =>
-      this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+      this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
     edit: (dataService) => this.handleEditMenu(dataService),
     editWork: (dataService) =>
-      this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+      this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
     openContainer: () =>
-      this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn }),
+      this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn, entry: this.contextMenuEntry ?? undefined }),
     expenses: (dataService) =>
-      this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService),
+      this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
     confirm: (dataService) =>
       this.facade.entryActions.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService),
     unconfirm: (dataService) =>
@@ -501,7 +508,9 @@ export class ScheduleSectionComponent
   };
 
   private handleEditMenu(dataService: ScheduleDataService): void {
-    const editEntry = dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
+    const editEntry = this.contextMenuEntry !== undefined
+      ? this.contextMenuEntry
+      : dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
     const isInlineEditable =
       editEntry?.entryType === WorkScheduleEntryType.ScheduleNote
       || editEntry?.entryType === WorkScheduleEntryType.ScheduleCommand;
@@ -509,7 +518,7 @@ export class ScheduleSectionComponent
     if (isInlineEditable)
       this.cellManipulation.startEditing();
     else
-      this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService);
+      this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService, editEntry ?? undefined);
   }
 
   private showSelectedShiftInShiftSection(): void {
@@ -548,7 +557,7 @@ export class ScheduleSectionComponent
 
   onWorkChangeDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleService;
-    this.facade.dialog.editWorkChange(event.row, event.column, dataService);
+    this.facade.dialog.editWorkChange(event.row, event.column, dataService, event.entry ?? undefined);
   }
 
   private deleteBreakPlaceholder(): void {
@@ -582,7 +591,7 @@ export class ScheduleSectionComponent
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {
     const dataService = this.scheduleService;
-    this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService);
+    this.facade.dialog.openWorkEditDialog(event.row, event.column, dataService, event.entry ?? undefined);
   }
 
   onContainerWorkDoubleClick(event: GridDoubleClickEvent): void {
@@ -592,7 +601,25 @@ export class ScheduleSectionComponent
       this.dataManagement.shiftSchedules,
       clickedDate,
     );
-    this.facade.dialog.openContainerWorkEditDialog(event.row, event.column, dataService, availableShifts);
+    this.facade.dialog.openContainerWorkEditDialog(event.row, event.column, dataService, availableShifts, event.entry ?? undefined);
+  }
+
+  onTimelineDeleteBlock(event: GridDoubleClickEvent): void {
+    if (!event.entry) return;
+    const entry = event.entry;
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) return;
+
+    const date = this.scheduleService.getDateForColumn(event.column);
+    if (!date) return;
+
+    this.dataManagement.deleteWorkScheduleEntry(
+      entry.id,
+      entry.sourceId,
+      entry.clientId,
+      date,
+      entry.entryId,
+      entry.entryType,
+    );
   }
 
   private mapShiftsToAvailable(shifts: IShiftSchedule[], targetDate: Date | undefined): AvailableShift[] {

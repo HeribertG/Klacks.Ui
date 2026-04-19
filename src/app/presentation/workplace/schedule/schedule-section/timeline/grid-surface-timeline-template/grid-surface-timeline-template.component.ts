@@ -30,6 +30,7 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -52,6 +53,7 @@ import { BreakBlockRendererService } from '../renderers/break-block-renderer.ser
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 import { IGridTooltipHost } from 'src/app/presentation/shared/grid/body/grid-tooltip-host.interface';
 import {
+  TimelineGridBlockEvent,
   TimelineGridEventsDirective,
   TimelineGridRightClickEvent,
 } from '../directives/timeline-grid-events.directive';
@@ -65,6 +67,7 @@ export interface TimelineCellValueChangeEvent {
 export interface TimelineDoubleClickEvent {
   row: number;
   column: number;
+  entry?: IScheduleCell | null;
 }
 
 @Component({
@@ -78,6 +81,10 @@ export interface TimelineDoubleClickEvent {
         [tabindex]="0"
         (rightClick)="onCanvasRightClick($event)"
         (wheelScroll)="onWheelScroll($event)"
+        (workDoubleClick)="onWorkDouble($event)"
+        (workChangeDoubleClick)="onWorkChangeDouble($event)"
+        (containerWorkDoubleClick)="onContainerWorkDouble($event)"
+        (deleteKey)="onDeleteKey($event)"
       ></canvas>
     </div>
   `,
@@ -131,6 +138,7 @@ export class GridSurfaceTimelineTemplateComponent
   @Output() workChangeDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
   @Output() workDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
   @Output() containerWorkDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
+  @Output() deleteBlock = new EventEmitter<TimelineDoubleClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
@@ -227,6 +235,22 @@ export class GridSurfaceTimelineTemplateComponent
 
   onCanvasRightClick(event: TimelineGridRightClickEvent): void {
     this.rightClick.emit({ ...event, source: 'canvas' });
+  }
+
+  onWorkDouble(event: TimelineGridBlockEvent): void {
+    this.workDoubleClick.emit({ row: event.row, column: event.column, entry: event.entry });
+  }
+
+  onWorkChangeDouble(event: TimelineGridBlockEvent): void {
+    this.workChangeDoubleClick.emit({ row: event.row, column: event.column, entry: event.entry });
+  }
+
+  onContainerWorkDouble(event: TimelineGridBlockEvent): void {
+    this.containerWorkDoubleClick.emit({ row: event.row, column: event.column, entry: event.entry });
+  }
+
+  onDeleteKey(event: TimelineGridBlockEvent): void {
+    this.deleteBlock.emit({ row: event.row, column: event.column, entry: event.entry });
   }
 
   onWheelScroll(event: { deltaX: number; deltaY: number }): void {
