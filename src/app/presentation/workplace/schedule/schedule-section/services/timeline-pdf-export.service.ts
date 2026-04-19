@@ -26,6 +26,9 @@ import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 
 interface TimelineClientBlock {
   name: string;
+  slot1: string;
+  slot2: string;
+  slot3: string;
   todayEntries: IScheduleCell[][];
   overflowEntries: IScheduleCell[][];
 }
@@ -51,7 +54,7 @@ export class TimelinePdfExportService {
   private readonly FONT_SIZE_TITLE = 14;
   private readonly FONT_SIZE_NORMAL = 9;
   private readonly ROW_HEIGHT = 150;
-  private readonly RULER_WIDTH = 55;
+  private readonly RULER_WIDTH = 28;
   private readonly DAY_TOTAL_MINUTES = 1440;
   private readonly HOURS_PER_DAY = 24;
   private readonly STRIPE_INTERVAL_HOURS = 2;
@@ -59,7 +62,7 @@ export class TimelinePdfExportService {
   private readonly MIN_BLOCK_HEIGHT = 2;
   private readonly TEXT_THRESHOLD = 5;
   private readonly RULER_MARK_INTERVAL_HOURS = 2;
-  private readonly RULER_TICK_WIDTH = 8;
+  private readonly RULER_TICK_WIDTH = 4;
   private readonly COLLISION_OVERLAY_ALPHA = 0.15;
   private readonly COLLISION_COLOR = '#ff0000';
 
@@ -124,7 +127,7 @@ export class TimelinePdfExportService {
         const scheduleX = this.MARGINS.left + config.rowHeaderWidth;
         const pixelsPerMinute = this.ROW_HEIGHT / this.DAY_TOTAL_MINUTES;
 
-        this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name);
+        this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3);
 
         for (let col = 0; col < coreDays; col++) {
           const cellX = scheduleX + col * colWidth;
@@ -263,7 +266,14 @@ export class TimelinePdfExportService {
         );
       }
 
-      blocks.push({ name: clientName, todayEntries, overflowEntries });
+      blocks.push({
+        name: clientName,
+        slot1: this.dataService.getRowHeaderSlot1Text(clientIdx),
+        slot2: this.dataService.getRowHeaderSlot2Text(clientIdx),
+        slot3: this.dataService.getRowHeaderSlot3Text(clientIdx),
+        todayEntries,
+        overflowEntries,
+      });
     }
 
     return blocks;
@@ -304,6 +314,9 @@ export class TimelinePdfExportService {
     y: number,
     config: ScheduleDrawingConfig,
     clientName: string,
+    slot1: string,
+    slot2: string,
+    slot3: string,
   ): void {
     const nameAreaWidth = config.rowHeaderWidth - this.RULER_WIDTH;
     const rulerX = x + nameAreaWidth;
@@ -314,11 +327,22 @@ export class TimelinePdfExportService {
     pdf.setLineWidth(config.lineWidth);
     pdf.rect(x, y, config.rowHeaderWidth, this.ROW_HEIGHT, 'S');
 
+    const textX = x + 4;
+    const maxNameWidth = nameAreaWidth - 8;
+
     pdf.setFont(config.fontFamily, 'bold');
     pdf.setFontSize(7);
     pdf.setTextColor('#000000');
-    const truncated = this.truncateText(pdf, clientName, nameAreaWidth - 8);
-    pdf.text(truncated, x + 4, y + 9);
+    pdf.text(this.truncateText(pdf, clientName, maxNameWidth), textX, y + 9);
+
+    if (slot1 || slot2 || slot3) {
+      pdf.setFont(config.fontFamily, 'normal');
+      pdf.setFontSize(6);
+      pdf.setTextColor('#404040');
+      if (slot1) pdf.text(`G: ${slot1}`, textX, y + 18);
+      if (slot2) pdf.text(`H: ${slot2}`, textX, y + 26);
+      if (slot3) pdf.text(`S: ${slot3}`, textX, y + 34);
+    }
 
     pdf.setDrawColor(config.separatorColor);
     pdf.setLineWidth(0.3);
