@@ -9,6 +9,7 @@
  * @param breakRenderer - Supplies the Break/absence abbreviation
  */
 import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import {
   IScheduleCell,
   WorkScheduleEntryType,
@@ -27,17 +28,36 @@ export class TimelineBlockTooltipService {
   private workRenderer = inject(WorkBlockRendererService);
   private workChangeRenderer = inject(WorkChangeBlockRendererService);
   private breakRenderer = inject(BreakBlockRendererService);
+  private translate = inject(TranslateService);
 
   public buildBlockTooltip(entry: IScheduleCell): string | undefined {
     if (!entry.startTime || !entry.endTime) {
       return undefined;
     }
-    const renderer = this.resolveRenderer(entry);
-    const label = renderer?.getLabel(entry)?.trim() ?? '';
+    const label = this.resolveLabel(entry);
     const timeLine = `${formatTime(entry.startTime)} - ${formatTime(entry.endTime)}`;
     const duration = this.formatDuration(entry.startTime, entry.endTime);
     const lines = [label, timeLine, duration].filter((l) => l.length > 0);
     return lines.join('\n');
+  }
+
+  private resolveLabel(entry: IScheduleCell): string {
+    switch (entry.entryType) {
+      case WorkScheduleEntryType.WorkChange:
+        return this.translate.instant(
+          entry.replaceClientId
+            ? 'workChange.tooltip.replacement'
+            : 'workChange.tooltip.correction',
+        );
+      case WorkScheduleEntryType.Expenses:
+        return this.translate.instant(
+          entry.taxable
+            ? 'workChange.tooltip.expenses'
+            : 'workChange.tooltip.reimbursement',
+        );
+      default:
+        return this.resolveRenderer(entry)?.getLabel(entry)?.trim() ?? '';
+    }
   }
 
   private resolveRenderer(entry: IScheduleCell): ITimelineBlockRenderer | undefined {

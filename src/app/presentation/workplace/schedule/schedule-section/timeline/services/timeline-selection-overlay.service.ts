@@ -25,7 +25,7 @@ import { TimelineBlockHitTestService } from './timeline-block-hit-test.service';
 import { TimelineSelectionService } from './timeline-selection.service';
 
 const BORDER_WIDTH = 2;
-const BORDER_DASH = [4, 3];
+const BORDER_DASH = [0, 4];
 const BORDER_OUTSET = 1;
 const FILL_ALPHA = 0.25;
 
@@ -142,6 +142,7 @@ export class TimelineSelectionOverlayService {
     ctx.save();
     ctx.strokeStyle = this.gridColors.focusBorderColor;
     ctx.lineWidth = BORDER_WIDTH;
+    ctx.lineCap = 'round';
     ctx.setLineDash(BORDER_DASH);
     ctx.strokeRect(
       itemX - BORDER_OUTSET,
