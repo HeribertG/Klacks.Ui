@@ -7,7 +7,7 @@
  * @param rowHeight - Fixed height per client row (150 pt ≈ 3 clients per A4-landscape page)
  */
 import { Injectable, inject } from '@angular/core';
-import { jsPDF } from 'jspdf';
+import { jsPDF, GState } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -60,6 +60,8 @@ export class TimelinePdfExportService {
   private readonly TEXT_THRESHOLD = 5;
   private readonly RULER_MARK_INTERVAL_HOURS = 2;
   private readonly RULER_TICK_WIDTH = 8;
+  private readonly COLLISION_OVERLAY_ALPHA = 0.15;
+  private readonly COLLISION_COLOR = '#ff0000';
 
   exportTimeline(): void {
     const clients = this.dataManagementSchedule.clients;
@@ -143,6 +145,11 @@ export class TimelinePdfExportService {
             const endToday = Math.min(minutes.end, this.DAY_TOTAL_MINUTES);
             this.drawBlock(pdf, cellX, currentY, colWidth, pixelsPerMinute, entry, minutes.start, endToday);
           }
+
+          this.drawCollisionOverlay(
+            pdf, cellX, currentY, colWidth, pixelsPerMinute,
+            block.todayEntries[col], block.overflowEntries[col],
+          );
         }
 
         this.drawingService.drawGridLines(
@@ -465,6 +472,67 @@ export class TimelinePdfExportService {
     const b = parseInt(hex.substring(4, 6), 16);
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  private drawCollisionOverlay(
+    pdf: jsPDF,
+    cellX: number,
+    cellY: number,
+    colWidth: number,
+    pixelsPerMinute: number,
+    todayEntries: IScheduleCell[],
+    overflowEntries: IScheduleCell[],
+  ): void {
+    const intervals = this.collectVisibleIntervals(todayEntries, overflowEntries);
+    if (intervals.length < 2) return;
+
+    const overlaps = this.computePairwiseOverlaps(intervals);
+    if (overlaps.length === 0) return;
+
+    pdf.setGState(new GState({ opacity: this.COLLISION_OVERLAY_ALPHA }));
+    pdf.setFillColor(this.COLLISION_COLOR);
+    for (const overlap of overlaps) {
+      const yStart = cellY + overlap.start * pixelsPerMinute;
+      const height = (overlap.end - overlap.start) * pixelsPerMinute;
+      if (height > 0) {
+        pdf.rect(cellX, yStart, colWidth, height, 'F');
+      }
+    }
+    pdf.setGState(new GState({ opacity: 1 }));
+  }
+
+  private collectVisibleIntervals(
+    todayEntries: IScheduleCell[],
+    overflowEntries: IScheduleCell[],
+  ): { start: number; end: number }[] {
+    const intervals: { start: number; end: number }[] = [];
+    for (const entry of todayEntries) {
+      const m = this.toMinutesRange(entry);
+      if (!m) continue;
+      const end = Math.min(m.end, this.DAY_TOTAL_MINUTES);
+      if (end > m.start) intervals.push({ start: m.start, end });
+    }
+    for (const entry of overflowEntries) {
+      const m = this.toMinutesRange(entry);
+      if (!m) continue;
+      const end = m.end - this.DAY_TOTAL_MINUTES;
+      if (end > 0) intervals.push({ start: 0, end });
+    }
+    return intervals;
+  }
+
+  private computePairwiseOverlaps(
+    intervals: { start: number; end: number }[],
+  ): { start: number; end: number }[] {
+    const overlaps: { start: number; end: number }[] = [];
+    for (let i = 0; i < intervals.length; i++) {
+      for (let j = i + 1; j < intervals.length; j++) {
+        const start = Math.max(intervals[i].start, intervals[j].start);
+        const end = Math.min(intervals[i].end, intervals[j].end);
+        if (start < end) overlaps.push({ start, end });
+      }
+    }
+    return overlaps;
   }
 
   private truncateText(pdf: jsPDF, text: string, maxWidth: number): string {
