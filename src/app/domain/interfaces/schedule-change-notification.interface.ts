@@ -4,4 +4,5 @@ export interface IScheduleChangeNotification {
   clientId: string;
   changeDate: string;
   sourceConnectionId: string;
+  analyseToken?: string | null;
 }

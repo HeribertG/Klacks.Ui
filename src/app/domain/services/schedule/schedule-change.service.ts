@@ -4,6 +4,7 @@ import { computed, inject, Injectable, signal, DestroyRef } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataScheduleChangeService } from 'src/app/infrastructure/api/schedule/data-schedule-change.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.int
 export class ScheduleChangeService {
   private dataScheduleChange = inject(DataScheduleChangeService);
   private signalRService = inject(SCHEDULE_SIGNALR);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private destroyRef = inject(DestroyRef);
 
   private dirtyClientIds = new Set<string>();
@@ -26,6 +28,9 @@ export class ScheduleChangeService {
     this.signalRService.scheduleChangeTracked$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => {
+        if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+          return;
+        }
         this.markDirty(notification.clientId);
       });
   }

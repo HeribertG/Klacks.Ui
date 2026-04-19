@@ -219,6 +219,21 @@ app-scenario-selector {
   padding-top: 15px;
 }
 
+.timeline-range-selector {
+  margin-inline-start: 30px;
+  padding-top: 15px;
+}
+
+.timeline-range-btn {
+  margin-inline-start: 8px;
+  border: 1px solid #dee2e6;
+  background-color: transparent;
+  color: #495057;
+  font-family: Roboto;
+  font-size: small;
+  font-weight: normal;
+}
+
 .view-mode-switch {
   margin-inline-start: 30px;
   margin-top: 4px;

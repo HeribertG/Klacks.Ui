@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { effect, inject, Injectable, Injector, runInInjectionContext, signal, DestroyRef } from '@angular/core';
 import { Subject, Subscription, switchMap, EMPTY, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -40,6 +40,7 @@ export class WorkScheduleLoaderService {
   private analyseScenarioService = inject(AnalyseScenarioService);
   private periodClosingService = inject(DataPeriodClosingService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
   private readonly LOAD_MORE_CHUNK_SIZE = 50;
@@ -71,9 +72,40 @@ export class WorkScheduleLoaderService {
   private _pendingDates?: { startDate: string; endDate: string };
   private _pendingWorkFilter?: IWorkFilter;
 
+  private _lastJoinedRange: { startDate: string; endDate: string } | null = null;
+  private _lastJoinedToken: string | null = this.analyseScenarioService.activeToken();
+
   constructor() {
     this.subscribeToSignalREvents();
     this.setupLoadPipeline();
+    this.setupScenarioTokenEffect();
+  }
+
+  private setupScenarioTokenEffect(): void {
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const token = this.analyseScenarioService.activeToken();
+        if (token === this._lastJoinedToken) return;
+
+        const previousToken = this._lastJoinedToken;
+        this._lastJoinedToken = token;
+
+        if (!this._lastJoinedRange) return;
+
+        const { startDate, endDate } = this._lastJoinedRange;
+        void this.switchScheduleGroupToken(startDate, endDate, previousToken, token);
+      });
+    });
+  }
+
+  private async switchScheduleGroupToken(
+    startDate: string,
+    endDate: string,
+    previousToken: string | null,
+    newToken: string | null,
+  ): Promise<void> {
+    await this.signalRService.leaveScheduleGroup(startDate, endDate, previousToken);
+    await this.signalRService.joinScheduleGroup(startDate, endDate, newToken);
   }
 
   private setupLoadPipeline(): void {
@@ -146,8 +178,11 @@ export class WorkScheduleLoaderService {
     this.signalRService.periodHoursUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => {
+        if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+          return;
+        }
         if (notification.sourceConnectionId === this.signalRService.connectionId) return;
-        
+
         const clientId = notification.clientId.toString();
 
         this.periodHours.set(clientId, {
@@ -161,7 +196,10 @@ export class WorkScheduleLoaderService {
 
     this.signalRService.periodHoursRecalculated$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+      .subscribe((notification) => {
+        if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+          return;
+        }
         this.refreshAllLoadedPeriodHours();
       });
   }
@@ -596,7 +634,22 @@ export class WorkScheduleLoaderService {
   }
 
   private joinSignalRGroup(startDate: string, endDate: string): void {
-    this.signalRService.joinScheduleGroup(startDate, endDate);
+    const token = this.analyseScenarioService.activeToken();
+
+    if (
+      this._lastJoinedRange &&
+      (this._lastJoinedRange.startDate !== startDate || this._lastJoinedRange.endDate !== endDate)
+    ) {
+      void this.signalRService.leaveScheduleGroup(
+        this._lastJoinedRange.startDate,
+        this._lastJoinedRange.endDate,
+        this._lastJoinedToken,
+      );
+    }
+
+    this._lastJoinedRange = { startDate, endDate };
+    this._lastJoinedToken = token;
+    this.signalRService.joinScheduleGroup(startDate, endDate, token);
   }
 
   private loadSealedDates(startDate: string, endDate: string): void {

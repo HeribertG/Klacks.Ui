@@ -27,6 +27,7 @@ import { IScheduleValidationNotification } from 'src/app/domain/interfaces/sched
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { ScheduleErrorEntry } from 'src/app/domain/interfaces/schedule-error-entry.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
@@ -35,6 +36,7 @@ import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 export class CollisionDetectionService implements OnDestroy {
   private signalRService = inject(SCHEDULE_SIGNALR);
   private dataManagement = inject(DataManagementScheduleService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private collisions = new Map<string, ICollisionNotification>();
   private validations = new Map<string, IScheduleValidationNotification>();
   private subscriptions: Subscription[] = [];
@@ -59,6 +61,10 @@ export class CollisionDetectionService implements OnDestroy {
   constructor() {
     this.subscriptions.push(
       this.signalRService.collisionsDetected$.subscribe((notification) => {
+        const notificationToken = notification.analyseToken ?? null;
+        const activeToken = this.analyseScenarioService.activeToken() ?? null;
+        if (notificationToken !== activeToken) return;
+
         this.processCollisionNotification(notification);
         this.entriesUpdated.set(this.entriesUpdated() + 1);
       }),

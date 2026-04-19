@@ -8,9 +8,11 @@ export interface IPeriodHoursNotification {
   surcharges: number;
   guaranteedHours: number;
   sourceConnectionId: string;
+  analyseToken?: string | null;
 }
 
 export interface IPeriodHoursRecalculatedNotification {
   startDate: string;
   endDate: string;
+  analyseToken?: string | null;
 }

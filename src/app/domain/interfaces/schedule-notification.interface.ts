@@ -7,4 +7,5 @@ export interface IScheduleNotification {
   periodEndDate: string;
   operationType: string;
   sourceConnectionId: string;
+  analyseToken?: string | null;
 }

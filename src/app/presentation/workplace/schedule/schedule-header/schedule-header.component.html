@@ -167,26 +167,28 @@
       <div class="slider round"></div>
     </label>
     <em id="schedule-view-mode-toggle-label">
-      {{ 'schedule.toolbar.timeline-view' | translate }}
+      {{ "schedule.toolbar.timeline-view" | translate }}
     </em>
   </div>
 
   @if (isTimelineMode()) {
-    <div ngbDropdown class="timeline-range-dropdown">
+    <div ngbDropdown container="body" class="timeline-range-selector">
       <button
-        ngbDropdownToggle
-        class="btn btn-sm btn-outline-secondary"
         id="timeline-range-dropdown"
+        class="btn btn-sm timeline-range-btn"
+        ngbDropdownToggle
         type="button"
       >
-        {{ 'schedule.toolbar.timeline-range.' + timelineViewRange() | translate }}
+        {{
+          "schedule.toolbar.timeline-range." + timelineViewRange() | translate
+        }}
       </button>
       <div ngbDropdownMenu aria-labelledby="timeline-range-dropdown">
         <button ngbDropdownItem (click)="onTimelineRangeChange('full')">
-          {{ 'schedule.toolbar.timeline-range.full' | translate }}
+          {{ "schedule.toolbar.timeline-range.full" | translate }}
         </button>
         <button ngbDropdownItem (click)="onTimelineRangeChange('day')">
-          {{ 'schedule.toolbar.timeline-range.day' | translate }}
+          {{ "schedule.toolbar.timeline-range.day" | translate }}
         </button>
       </div>
     </div>

@@ -15,4 +15,5 @@ export interface ICollisionListNotification {
   isFullRefresh: boolean;
   checkedClientId?: string;
   checkedDate?: string;
+  analyseToken?: string | null;
 }

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, Injector, signal, OnDestroy } from '@angular/core';
+import { inject, Injectable, signal, OnDestroy } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -18,15 +18,12 @@ import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
 import { IScheduleValidationListNotification } from 'src/app/domain/interfaces/schedule-validation-list-notification.interface';
 import { IScheduleSignalR } from 'src/app/domain/interfaces/schedule-signalr.interface';
-import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SignalRService implements OnDestroy, IScheduleSignalR {
   private localStorageService = inject(LocalStorageService);
-  private injector = inject(Injector);
-  private _analyseScenarioService: AnalyseScenarioService | null = null;
 
   private hubConnection: signalR.HubConnection | null = null;
   private readonly hubUrl: string;
@@ -46,7 +43,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
   public reconnected$ = new Subject<void>();
 
-  private currentGroup: { startDate: string; endDate: string } | null = null;
+  private currentGroup: { startDate: string; endDate: string; analyseToken: string | null } | null = null;
   private pendingGroupSwitch: Promise<void> | null = null;
   private reconnectAttemptWithExpiredToken = false;
   private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
@@ -168,16 +165,16 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     await this.startConnection();
 
     if (previousGroup && this.isConnected) {
-      await this.joinScheduleGroup(previousGroup.startDate, previousGroup.endDate);
+      await this.joinScheduleGroup(previousGroup.startDate, previousGroup.endDate, previousGroup.analyseToken);
     }
   }
 
-  async joinScheduleGroup(startDate: string, endDate: string): Promise<void> {
+  async joinScheduleGroup(startDate: string, endDate: string, analyseToken: string | null = null): Promise<void> {
     if (this.pendingGroupSwitch) {
       await this.pendingGroupSwitch;
     }
 
-    this.pendingGroupSwitch = this.performGroupSwitch(startDate, endDate);
+    this.pendingGroupSwitch = this.performGroupSwitch(startDate, endDate, analyseToken);
 
     try {
       await this.pendingGroupSwitch;
@@ -186,37 +183,55 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     }
   }
 
-  private async performGroupSwitch(startDate: string, endDate: string): Promise<void> {
+  private async performGroupSwitch(startDate: string, endDate: string, analyseToken: string | null): Promise<void> {
     if (!this.hubConnection || !this.isConnected) {
-      
-      this.currentGroup = { startDate, endDate };
+
+      this.currentGroup = { startDate, endDate, analyseToken };
       return;
     }
 
     if (this.currentGroup) {
-      await this.leaveScheduleGroup(this.currentGroup.startDate, this.currentGroup.endDate);
+      await this.leaveScheduleGroup(
+        this.currentGroup.startDate,
+        this.currentGroup.endDate,
+        this.currentGroup.analyseToken,
+      );
     }
 
     try {
-      await this.hubConnection.invoke(SignalRConstants.HubMethods.JoinScheduleGroup, startDate, endDate);
-      this.currentGroup = { startDate, endDate };
-      
+      await this.hubConnection.invoke(
+        SignalRConstants.HubMethods.JoinScheduleGroup,
+        startDate,
+        endDate,
+        analyseToken ?? '',
+      );
+      this.currentGroup = { startDate, endDate, analyseToken };
+
     } catch {
-      this.currentGroup = { startDate, endDate };
+      this.currentGroup = { startDate, endDate, analyseToken };
     }
   }
 
-  async leaveScheduleGroup(startDate: string, endDate: string): Promise<void> {
+  async leaveScheduleGroup(startDate: string, endDate: string, analyseToken: string | null = null): Promise<void> {
     if (!this.hubConnection || !this.isConnected) {
       return;
     }
 
     try {
-      await this.hubConnection.invoke(SignalRConstants.HubMethods.LeaveScheduleGroup, startDate, endDate);
-      if (this.currentGroup?.startDate === startDate && this.currentGroup?.endDate === endDate) {
+      await this.hubConnection.invoke(
+        SignalRConstants.HubMethods.LeaveScheduleGroup,
+        startDate,
+        endDate,
+        analyseToken ?? '',
+      );
+      if (
+        this.currentGroup?.startDate === startDate &&
+        this.currentGroup?.endDate === endDate &&
+        this.currentGroup?.analyseToken === analyseToken
+      ) {
         this.currentGroup = null;
       }
-      
+
     } catch {
       // ignored
     }
@@ -235,67 +250,42 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   async rejoinCurrentGroup(): Promise<void> {
 
     if (this.currentGroup && this.isConnected) {
-      const { startDate, endDate } = this.currentGroup;
+      const { startDate, endDate, analyseToken } = this.currentGroup;
       this.currentGroup = null;
 
-      await this.joinScheduleGroup(startDate, endDate);
+      await this.joinScheduleGroup(startDate, endDate, analyseToken);
     }
-  }
-
-  private get analyseScenarioService(): AnalyseScenarioService {
-    if (!this._analyseScenarioService) {
-      this._analyseScenarioService = this.injector.get(AnalyseScenarioService);
-    }
-    return this._analyseScenarioService;
-  }
-
-  private shouldProcessScheduleEvent(): boolean {
-    return !this.analyseScenarioService.isScenarioMode();
   }
 
   private registerEventHandlers(): void {
     if (!this.hubConnection) return;
 
     this.hubConnection.on(SignalRConstants.Events.WorkCreated, (notification: IWorkNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.workCreated$.next(notification);
-      }
+      this.workCreated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.WorkUpdated, (notification: IWorkNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.workUpdated$.next(notification);
-      }
+      this.workUpdated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.WorkDeleted, (notification: IWorkNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.workDeleted$.next(notification);
-      }
+      this.workDeleted$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.ScheduleUpdated, (notification: IScheduleNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.scheduleUpdated$.next(notification);
-      }
+      this.scheduleUpdated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.ShiftStatsUpdated, (notification: IShiftStatsNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.shiftStatsUpdated$.next(notification);
-      }
+      this.shiftStatsUpdated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursUpdated, (notification: IPeriodHoursNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.periodHoursUpdated$.next(notification);
-      }
+      this.periodHoursUpdated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.PeriodHoursRecalculated, (notification: IPeriodHoursRecalculatedNotification) => {
-      if (this.shouldProcessScheduleEvent()) {
-        this.periodHoursRecalculated$.next(notification);
-      }
+      this.periodHoursRecalculated$.next(notification);
     });
 
     this.hubConnection.on(SignalRConstants.Events.ScheduleChangeTracked, (notification: IScheduleChangeNotification) => {

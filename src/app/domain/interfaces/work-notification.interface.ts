@@ -7,4 +7,5 @@ export interface IWorkNotification {
   currentDate: Date;
   operationType: 'created' | 'updated' | 'deleted';
   sourceConnectionId: string;
+  analyseToken?: string | null;
 }

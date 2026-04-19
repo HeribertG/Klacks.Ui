@@ -9,6 +9,7 @@ import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notifi
 import { DataManagementScheduleService } from './data-management-schedule.service';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
+import { AnalyseScenarioService } from './analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class WorkNotificationService implements OnDestroy {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private shiftScheduleLoader = inject(ShiftScheduleLoaderService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
   private destroyRef = inject(DestroyRef);
 
   private readonly REFRESH_DEBOUNCE_MS = 500;
@@ -55,6 +57,10 @@ export class WorkNotificationService implements OnDestroy {
   }
 
   private handleWorkNotification(notification: IWorkNotification): void {
+    if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+      return;
+    }
+
     console.log('Received work notification:', notification);
 
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
@@ -110,6 +116,10 @@ export class WorkNotificationService implements OnDestroy {
   }
 
   private handleScheduleNotification(notification: IScheduleNotification): void {
+    if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+      return;
+    }
+
     console.log('Received schedule notification:', notification);
 
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
@@ -129,6 +139,10 @@ export class WorkNotificationService implements OnDestroy {
   }
 
   private handleShiftStatsNotification(notification: IShiftStatsNotification): void {
+    if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
+      return;
+    }
+
     console.log('Received shift stats notification:', notification);
 
     const updated = this.shiftScheduleLoader.updateShiftEngaged(

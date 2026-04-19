@@ -5,4 +5,5 @@ export interface IShiftStatsNotification {
   date: Date;
   engaged: number;
   sourceConnectionId: string;
+  analyseToken?: string | null;
 }
