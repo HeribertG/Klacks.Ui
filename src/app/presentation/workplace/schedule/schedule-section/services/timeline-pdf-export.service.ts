@@ -66,6 +66,10 @@ export class TimelinePdfExportService {
   private readonly COLLISION_OVERLAY_ALPHA = 0.15;
   private readonly COLLISION_COLOR = '#ff0000';
 
+  private get isRtl(): boolean {
+    return document.documentElement.dir === 'rtl';
+  }
+
   exportTimeline(): void {
     const clients = this.dataManagementSchedule.clients;
     if (!clients || clients.length === 0) {
@@ -122,18 +126,22 @@ export class TimelinePdfExportService {
 
       const pageBlocks = pages[pageIdx];
 
+      const scheduleX = this.isRtl
+        ? this.MARGINS.left
+        : this.MARGINS.left + config.rowHeaderWidth;
+
       for (let blockIdx = 0; blockIdx < pageBlocks.length; blockIdx++) {
         const block = pageBlocks[blockIdx];
-        const scheduleX = this.MARGINS.left + config.rowHeaderWidth;
         const pixelsPerMinute = this.ROW_HEIGHT / this.DAY_TOTAL_MINUTES;
 
         this.drawTimelineRowHeader(pdf, this.MARGINS.left, currentY, config, block.name, block.slot1, block.slot2, block.slot3);
 
         for (let col = 0; col < coreDays; col++) {
+          const dayIdx = this.isRtl ? coreDays - 1 - col : col;
           const cellX = scheduleX + col * colWidth;
-          this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[col].weekdayType);
+          this.drawTimelineCellBackground(pdf, cellX, currentY, colWidth, days[dayIdx].weekdayType);
 
-          for (const entry of block.overflowEntries[col]) {
+          for (const entry of block.overflowEntries[dayIdx]) {
             const minutes = this.toMinutesRange(entry);
             if (!minutes) continue;
             const overflowEnd = minutes.end - this.DAY_TOTAL_MINUTES;
@@ -142,7 +150,7 @@ export class TimelinePdfExportService {
             }
           }
 
-          for (const entry of block.todayEntries[col]) {
+          for (const entry of block.todayEntries[dayIdx]) {
             const minutes = this.toMinutesRange(entry);
             if (!minutes) continue;
             const endToday = Math.min(minutes.end, this.DAY_TOTAL_MINUTES);
@@ -151,7 +159,7 @@ export class TimelinePdfExportService {
 
           this.drawCollisionOverlay(
             pdf, cellX, currentY, colWidth, pixelsPerMinute,
-            block.todayEntries[col], block.overflowEntries[col],
+            block.todayEntries[dayIdx], block.overflowEntries[dayIdx],
           );
         }
 
@@ -185,12 +193,13 @@ export class TimelinePdfExportService {
     paymentInterval: number,
     filter: { currentMonth: number; currentWeek?: number },
   ): string {
+    const cwLabel = this.translateService.instant('client-availability.calendar-week');
     switch (paymentInterval) {
       case 0:
-        return `KW ${filter.currentWeek ?? 1}`;
+        return `${cwLabel} ${filter.currentWeek ?? 1}`;
       case 1: {
         const week = filter.currentWeek ?? 1;
-        return `KW ${week}-${week + 1}`;
+        return `${cwLabel} ${week}-${week + 1}`;
       }
       case 2:
       default:
@@ -201,7 +210,13 @@ export class TimelinePdfExportService {
   private addPageHeader(pdf: jsPDF, title: string, pageNumber: number, totalPages: number): void {
     pdf.setFontSize(this.FONT_SIZE_TITLE);
     pdf.setFont(this.FONT_FAMILY, 'bold');
-    pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+
+    if (this.isRtl) {
+      const titleWidth = pdf.getTextWidth(title);
+      pdf.text(title, this.A4_LANDSCAPE.width - this.MARGINS.right - titleWidth, this.MARGINS.top);
+    } else {
+      pdf.text(title, this.MARGINS.left, this.MARGINS.top);
+    }
 
     pdf.setFontSize(this.FONT_SIZE_NORMAL);
     pdf.setFont(this.FONT_FAMILY, 'normal');
@@ -210,16 +225,17 @@ export class TimelinePdfExportService {
     const pageText = this.translateService.instant('pdf.page');
     const ofText = this.translateService.instant('pdf.of');
 
-    pdf.text(
-      `${generatedText}: ${new Date().toLocaleDateString()}`,
-      this.MARGINS.left,
-      this.MARGINS.top + 15,
-    );
-    pdf.text(
-      `${pageText} ${pageNumber} ${ofText} ${totalPages}`,
-      this.A4_LANDSCAPE.width - this.MARGINS.right - 80,
-      this.MARGINS.top + 15,
-    );
+    const dateString = `${generatedText}: ${new Date().toLocaleDateString()}`;
+    const pageString = `${pageText} ${pageNumber} ${ofText} ${totalPages}`;
+
+    if (this.isRtl) {
+      const dateWidth = pdf.getTextWidth(dateString);
+      pdf.text(dateString, this.A4_LANDSCAPE.width - this.MARGINS.right - dateWidth, this.MARGINS.top + 15);
+      pdf.text(pageString, this.MARGINS.left, this.MARGINS.top + 15);
+    } else {
+      pdf.text(dateString, this.MARGINS.left, this.MARGINS.top + 15);
+      pdf.text(pageString, this.A4_LANDSCAPE.width - this.MARGINS.right - 80, this.MARGINS.top + 15);
+    }
   }
 
   private buildDayHeaders(
@@ -318,22 +334,24 @@ export class TimelinePdfExportService {
     slot2: string,
     slot3: string,
   ): void {
+    const availableWidth = this.A4_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
+    const headerX = this.isRtl ? x + availableWidth - config.rowHeaderWidth : x;
     const nameAreaWidth = config.rowHeaderWidth - this.RULER_WIDTH;
-    const rulerX = x + nameAreaWidth;
+
+    const rulerX = this.isRtl ? headerX : headerX + nameAreaWidth;
+    const nameX = this.isRtl ? headerX + this.RULER_WIDTH : headerX;
+    const textX = nameX + 4;
 
     pdf.setFillColor('#f5f5f5');
-    pdf.rect(x, y, config.rowHeaderWidth, this.ROW_HEIGHT, 'F');
+    pdf.rect(headerX, y, config.rowHeaderWidth, this.ROW_HEIGHT, 'F');
     pdf.setDrawColor(config.borderColor);
     pdf.setLineWidth(config.lineWidth);
-    pdf.rect(x, y, config.rowHeaderWidth, this.ROW_HEIGHT, 'S');
-
-    const textX = x + 4;
-    const maxNameWidth = nameAreaWidth - 8;
+    pdf.rect(headerX, y, config.rowHeaderWidth, this.ROW_HEIGHT, 'S');
 
     pdf.setFont(config.fontFamily, 'bold');
     pdf.setFontSize(7);
     pdf.setTextColor('#000000');
-    pdf.text(this.truncateText(pdf, clientName, maxNameWidth), textX, y + 9);
+    pdf.text(this.truncateText(pdf, clientName, nameAreaWidth - 8), textX, y + 9);
 
     if (slot1 || slot2 || slot3) {
       pdf.setFont(config.fontFamily, 'normal');
