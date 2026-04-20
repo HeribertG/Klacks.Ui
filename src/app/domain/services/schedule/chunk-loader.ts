@@ -37,8 +37,8 @@ import {
 } from 'rxjs';
 
 export interface ChunkLoaderFilter {
-  startRow?: number;
-  rowCount?: number;
+  startRow: number;
+  rowCount: number;
 }
 
 export interface ChunkLoaderConfig<TFilter extends ChunkLoaderFilter, TResponse> {
