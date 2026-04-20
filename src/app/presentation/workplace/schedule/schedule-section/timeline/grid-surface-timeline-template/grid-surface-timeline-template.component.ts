@@ -345,18 +345,9 @@ export class GridSurfaceTimelineTemplateComponent
 
   private registerSignalEffects(): void {
     runInInjectionContext(this.injector, () => {
-      this.effects.push(
-        effect(() => {
-          this.settings.zoomSignal();
-          setTimeout(() => {
-            if (this.isDestroyed) return;
-            this.drawSchedule.createCanvas();
-            this.drawSchedule.rebuild();
-            this.drawSchedule.redraw();
-            this.updateScrollbarValues();
-          }, 0);
-        }),
-      );
+      this.registerDeferredRebuildEffect(() => this.settings.zoomSignal());
+      this.registerDeferredRebuildEffect(() => this.settings.timelineMode());
+      this.registerDeferredRebuildEffect(() => this.settings.timelineRowHeightSignal());
 
       this.effects.push(
         effect(() => {
@@ -370,37 +361,33 @@ export class GridSurfaceTimelineTemplateComponent
 
       this.effects.push(
         effect(() => {
-          this.settings.timelineMode();
-          setTimeout(() => {
-            if (this.isDestroyed) return;
-            this.drawSchedule.createCanvas();
-            this.drawSchedule.rebuild();
-            this.drawSchedule.redraw();
-            this.updateScrollbarValues();
-          }, 0);
-        }),
-      );
-
-      this.effects.push(
-        effect(() => {
           this.selection.selectedBlock();
           if (this.isDestroyed) return;
           this.drawSchedule.refresh();
         }),
       );
-
-      this.effects.push(
-        effect(() => {
-          this.settings.timelineRowHeightSignal();
-          setTimeout(() => {
-            if (this.isDestroyed) return;
-            this.drawSchedule.createCanvas();
-            this.drawSchedule.rebuild();
-            this.drawSchedule.redraw();
-            this.updateScrollbarValues();
-          }, 0);
-        }),
-      );
     });
+  }
+
+  /**
+   * Registers an effect that reads the given signal and, on a deferred
+   * microtask, runs the full canvas rebuild sequence. Used for inputs
+   * that change the canvas pixel layout (zoom, timelineMode, row-height
+   * factor) where reading the new value synchronously inside the effect
+   * would fight Angular's change-detection cycle.
+   */
+  private registerDeferredRebuildEffect(trigger: () => void): void {
+    this.effects.push(
+      effect(() => {
+        trigger();
+        setTimeout(() => {
+          if (this.isDestroyed) return;
+          this.drawSchedule.createCanvas();
+          this.drawSchedule.rebuild();
+          this.drawSchedule.redraw();
+          this.updateScrollbarValues();
+        }, 0);
+      }),
+    );
   }
 }
