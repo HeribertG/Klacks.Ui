@@ -15,6 +15,7 @@ import {
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 import { ScheduleDataService } from '../../services/schedule-data.service';
+import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
 
 const DAY_TOTAL_MINUTES = 24 * 60;
 const HIT_TEST_EPSILON = 0.5;
@@ -35,6 +36,7 @@ interface EntryRect {
 export class TimelineBlockHitTestService {
   private scheduleData = inject(ScheduleDataService);
   private settings = inject(BaseSettingsService);
+  private rangeService = inject(ScheduleTimelineRangeService);
 
   public hitTest(
     row: number,
@@ -67,22 +69,40 @@ export class TimelineBlockHitTestService {
       return null;
     }
 
-    const pixelsPerMinute = this.settings.cellHeight / DAY_TOTAL_MINUTES;
+    const displayFromMinutes = this.rangeService.displayFromMinutes();
+    const totalMinutes = this.rangeService.totalMinutes();
+    if (totalMinutes <= 0) {
+      return null;
+    }
+    const pixelsPerMinute = this.settings.cellHeight / totalMinutes;
+    const visibleEnd = displayFromMinutes + totalMinutes;
+
+    let blockStart: number;
+    let blockEnd: number;
     if (isOverflowPart) {
       const overflowEnd = minutes.end - DAY_TOTAL_MINUTES;
       if (overflowEnd <= 0) {
         return null;
       }
-      return { yStart: 0, yEnd: overflowEnd * pixelsPerMinute };
+      blockStart = 0;
+      blockEnd = overflowEnd;
+    } else {
+      const endToday = Math.min(minutes.end, DAY_TOTAL_MINUTES);
+      if (endToday <= minutes.start) {
+        return null;
+      }
+      blockStart = minutes.start;
+      blockEnd = endToday;
     }
 
-    const endToday = Math.min(minutes.end, DAY_TOTAL_MINUTES);
-    if (endToday <= minutes.start) {
+    const clampedStart = Math.max(blockStart, displayFromMinutes);
+    const clampedEnd = Math.min(blockEnd, visibleEnd);
+    if (clampedEnd <= clampedStart) {
       return null;
     }
     return {
-      yStart: minutes.start * pixelsPerMinute,
-      yEnd: endToday * pixelsPerMinute,
+      yStart: (clampedStart - displayFromMinutes) * pixelsPerMinute,
+      yEnd: (clampedEnd - displayFromMinutes) * pixelsPerMinute,
     };
   }
 

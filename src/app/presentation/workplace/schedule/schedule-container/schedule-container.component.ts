@@ -33,6 +33,7 @@ import { CommonModule } from '@angular/common';
 import { ScheduleSectionComponent } from '../schedule-section/schedule-section.component';
 import { ShiftSectionComponent } from '../shift-section/shift-section.component';
 import { ShiftToScheduleDragDropService } from '../services/shift-to-schedule-drag-drop.service';
+import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 
 @Component({
@@ -60,6 +61,7 @@ export class ScheduleContainerComponent {
   direction = inject(DirectionService).direction;
 
   public shiftDragService = inject(ShiftToScheduleDragDropService);
+  private viewModeService = inject(ScheduleViewModeService);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -119,11 +121,12 @@ export class ScheduleContainerComponent {
         this.shiftDragService.dragData()?.sourceColumn ?? 0
       );
       if (dropInfo) {
+        const isValid = this.viewModeService.isTimelineMode() ? true : dropInfo.isEmpty;
         this.shiftDragService.setDropTarget(
           dropInfo.row,
           dropInfo.clientId,
           dropInfo.date,
-          dropInfo.isEmpty
+          isValid
         );
       }
     }
