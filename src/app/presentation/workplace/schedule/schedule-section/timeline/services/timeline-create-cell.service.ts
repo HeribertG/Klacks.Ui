@@ -28,6 +28,15 @@ import { WorkChangeBlockRendererService } from '../renderers/work-change-block-r
 import { BreakBlockRendererService } from '../renderers/break-block-renderer.service';
 import { ScheduleTimelineRangeService } from '../../../services/schedule-timeline-range.service';
 
+interface DrawBlockContext {
+  entry: IScheduleCell;
+  startMinutes: number;
+  endMinutes: number;
+  width: number;
+  pixelsPerMinute: number;
+  displayFromMinutes: number;
+}
+
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
@@ -118,15 +127,14 @@ export class TimelineCreateCellService extends BaseCreateCellService {
         continue;
       }
       const endToday = Math.min(minutes.end, this.dayTotalMinutes);
-      this.drawEntryBlock(
-        ctx,
+      this.drawEntryBlock(ctx, {
         entry,
-        minutes.start,
-        endToday,
+        startMinutes: minutes.start,
+        endMinutes: endToday,
         width,
         pixelsPerMinute,
-        range.displayFromMinutes,
-      );
+        displayFromMinutes: range.displayFromMinutes,
+      });
     }
 
     for (const entry of overflowEntries) {
@@ -135,15 +143,14 @@ export class TimelineCreateCellService extends BaseCreateCellService {
         continue;
       }
       const overflowEnd = minutes.end - this.dayTotalMinutes;
-      this.drawEntryBlock(
-        ctx,
+      this.drawEntryBlock(ctx, {
         entry,
-        0,
-        overflowEnd,
+        startMinutes: 0,
+        endMinutes: overflowEnd,
         width,
         pixelsPerMinute,
-        range.displayFromMinutes,
-      );
+        displayFromMinutes: range.displayFromMinutes,
+      });
     }
 
     this.drawCollisionOverlay(
@@ -366,33 +373,25 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     }
   }
 
-  private drawEntryBlock(
-    ctx: CanvasRenderingContext2D,
-    entry: IScheduleCell,
-    startMinutes: number,
-    endMinutes: number,
-    width: number,
-    pixelsPerMinute: number,
-    displayFromMinutes: number,
-  ): void {
-    if (endMinutes <= startMinutes) {
+  private drawEntryBlock(ctx: CanvasRenderingContext2D, block: DrawBlockContext): void {
+    if (block.endMinutes <= block.startMinutes) {
       return;
     }
 
-    const renderer = this.getRendererFor(entry);
+    const renderer = this.getRendererFor(block.entry);
     if (!renderer) {
       return;
     }
 
-    const yStart = (startMinutes - displayFromMinutes) * pixelsPerMinute;
-    const yEnd = (endMinutes - displayFromMinutes) * pixelsPerMinute;
+    const yStart = (block.startMinutes - block.displayFromMinutes) * block.pixelsPerMinute;
+    const yEnd = (block.endMinutes - block.displayFromMinutes) * block.pixelsPerMinute;
     const blockHeight = Math.max(this.minBlockHeight, yEnd - yStart);
-    const rect = new Rectangle(0, yStart, width, yStart + blockHeight);
+    const rect = new Rectangle(0, yStart, block.width, yStart + blockHeight);
 
-    const color = renderer.getColor(entry);
+    const color = renderer.getColor(block.entry);
     renderer.drawShape(ctx, rect, color);
 
-    const label = renderer.getLabel(entry);
+    const label = renderer.getLabel(block.entry);
     if (blockHeight > this.textThreshold && label) {
       this.drawBlockLabel(ctx, rect, label, color);
     }

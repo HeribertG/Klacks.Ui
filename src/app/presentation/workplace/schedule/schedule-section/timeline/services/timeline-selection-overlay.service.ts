@@ -29,6 +29,18 @@ const BORDER_DASH = [0, 4];
 const BORDER_OUTSET = 1;
 const FILL_ALPHA = 0.25;
 
+interface DrawPartContext {
+  row: number;
+  col: number;
+  yStartInCell: number;
+  yEndInCell: number;
+  firstVisibleRow: number;
+  firstVisibleCol: number;
+  cellWidth: number;
+  cellHeight: number;
+  cellHeaderHeight: number;
+}
+
 @Injectable()
 export class TimelineSelectionOverlayService {
   private selection = inject(TimelineSelectionService);
@@ -72,66 +84,53 @@ export class TimelineSelectionOverlayService {
     );
     ctx.clip();
 
-    this.drawPart(
-      ctx,
-      sel.row,
-      sel.col,
-      mainRange.yStart,
-      mainRange.yEnd,
+    this.drawPart(ctx, {
+      row: sel.row,
+      col: sel.col,
+      yStartInCell: mainRange.yStart,
+      yEndInCell: mainRange.yEnd,
       firstVisibleRow,
       firstVisibleCol,
       cellWidth,
       cellHeight,
       cellHeaderHeight,
-    );
+    });
 
     if (this.hitTest.spansMidnight(sel.entry)) {
       const overflowRange = this.hitTest.computeBlockRange(sel.entry, true);
       const overflowCol = sel.col + 1;
       if (overflowRange && overflowCol < this.gridData.columns) {
-        this.drawPart(
-          ctx,
-          sel.row,
-          overflowCol,
-          overflowRange.yStart,
-          overflowRange.yEnd,
+        this.drawPart(ctx, {
+          row: sel.row,
+          col: overflowCol,
+          yStartInCell: overflowRange.yStart,
+          yEndInCell: overflowRange.yEnd,
           firstVisibleRow,
           firstVisibleCol,
           cellWidth,
           cellHeight,
           cellHeaderHeight,
-        );
+        });
       }
     }
 
     ctx.restore();
   }
 
-  private drawPart(
-    ctx: CanvasRenderingContext2D,
-    row: number,
-    col: number,
-    yStartInCell: number,
-    yEndInCell: number,
-    firstVisibleRow: number,
-    firstVisibleCol: number,
-    cellWidth: number,
-    cellHeight: number,
-    cellHeaderHeight: number,
-  ): void {
-    const visibleCol = col - firstVisibleCol;
+  private drawPart(ctx: CanvasRenderingContext2D, part: DrawPartContext): void {
+    const visibleCol = part.col - part.firstVisibleCol;
     if (visibleCol < 0) {
       return;
     }
-    const visibleRow = row - firstVisibleRow;
+    const visibleRow = part.row - part.firstVisibleRow;
     if (visibleRow < 0) {
       return;
     }
 
     const itemX = this.coord.cellX(visibleCol);
-    const itemY = cellHeaderHeight + visibleRow * cellHeight + yStartInCell;
-    const itemW = cellWidth;
-    const itemH = Math.max(1, yEndInCell - yStartInCell);
+    const itemY = part.cellHeaderHeight + visibleRow * part.cellHeight + part.yStartInCell;
+    const itemW = part.cellWidth;
+    const itemH = Math.max(1, part.yEndInCell - part.yStartInCell);
 
     ctx.save();
     ctx.globalAlpha = FILL_ALPHA;
