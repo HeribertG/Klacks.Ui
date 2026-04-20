@@ -152,9 +152,12 @@
     }
   </button>
 
-  <app-scenario-selector />
+  <app-scenario-selector ngbTooltip="{{ 'scenario.select' | translate }}" />
 
-  <div class="main-switch-wrapper view-mode-switch">
+  <div
+    class="main-switch-wrapper view-mode-switch"
+    ngbTooltip="{{ 'schedule.toolbar.timeline-view' | translate }}"
+  >
     <label class="main-switch" for="schedule-view-mode-toggle">
       <input
         type="checkbox"
@@ -166,9 +169,9 @@
       />
       <div class="slider round"></div>
     </label>
-    <em id="schedule-view-mode-toggle-label">
+    <!-- <em id="schedule-view-mode-toggle-label">
       {{ "schedule.toolbar.timeline-view" | translate }}
-    </em>
+    </em> -->
   </div>
 
   @if (isTimelineMode()) {

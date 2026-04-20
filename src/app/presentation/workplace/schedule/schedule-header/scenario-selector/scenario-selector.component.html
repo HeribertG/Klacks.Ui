@@ -3,8 +3,6 @@
     id="scenario-selector-btn"
     class="btn btn-sm scenario-btn"
     ngbDropdownToggle
-    placement="right"
-    ngbTooltip="{{ 'scenario.select' | translate }}"
     [class.scenario-active]="analyseScenarioService.isScenarioMode()"
   >
     @if (analyseScenarioService.isScenarioMode()) {
