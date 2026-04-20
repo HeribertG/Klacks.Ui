@@ -20,7 +20,6 @@ import {
   runInInjectionContext,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
@@ -48,6 +47,7 @@ import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { GridCellInputController } from './grid-cell-input.controller';
+import { GridResizeController } from './grid-resize.controller';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -76,6 +76,7 @@ export interface CellValueChangeEvent {
     GridFillHandleDragService,
     GridScheduleEventsService,
     GridCellInputController,
+    GridResizeController,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -130,15 +131,9 @@ export class GridSurfaceTemplateComponent
   public canvasId = `-${Math.random().toString(36).substring(2, 10)}`;
 
   public cellInput = inject(GridCellInputController);
-  private _pixelRatio = 1;
+  private resize = inject(GridResizeController);
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
-
-  private resizeObserver?: ResizeObserver;
-  private lastWidth = 0;
-  private lastHeight = 0;
-  private readonly RESIZE_THRESHOLD = 2;
-  private pendingResize?: { width: number; height: number };
   private isDestroyed = false;
 
   private lastColumns = 0;
@@ -146,7 +141,6 @@ export class GridSurfaceTemplateComponent
 
   ngOnInit(): void {
     this.readSignals();
-    this._pixelRatio = DrawHelper.pixelRatio();
     this.gridTestAccessibility.initialize(
       this.dataService,
       this.scroll,
@@ -176,11 +170,7 @@ export class GridSurfaceTemplateComponent
     this.drawSchedule.deleteCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = undefined;
-    }
+    this.resize.disconnect();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -247,57 +237,12 @@ export class GridSurfaceTemplateComponent
   }
 
   private observeParentResize(): void {
-    const parentElement = this.el.nativeElement.parentElement;
-    if (
-      parentElement &&
-      typeof window !== 'undefined' &&
-      'ResizeObserver' in window
-    ) {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        this.handleParentResize(entries);
-      });
-
-      this.resizeObserver.observe(parentElement);
-    } else {
-      console.warn(
-        '[TEMPLATE] ResizeObserver not available or no parent element:',
-        this.nameId,
-      );
-    }
+    this.resize.observeParent(this.el.nativeElement.parentElement, {
+      onResized: () => this.updateScrollbarValues(true),
+      nameId: this.nameId,
+    });
   }
 
-  private handleParentResize(entries: ResizeObserverEntry[]): void {
-    if (entries?.length > 0) {
-      const entry = entries[0];
-      const newWidth = Math.round(entry.contentRect.width);
-      const newHeight = Math.round(entry.contentRect.height);
-
-      if (newWidth <= 0 || newHeight <= 0) {
-        return;
-      }
-
-      if (!this.drawSchedule.isCanvasAvailable()) {
-        this.pendingResize = { width: newWidth, height: newHeight };
-        return;
-      }
-
-      if (
-        Math.abs(newWidth - this.lastWidth) >= this.RESIZE_THRESHOLD ||
-        Math.abs(newHeight - this.lastHeight) >= this.RESIZE_THRESHOLD
-      ) {
-        this.lastWidth = newWidth;
-        this.lastHeight = newHeight;
-
-        this.updateDrawScheduleDimensions({
-          width: newWidth,
-          height: newHeight,
-        } as DOMRectReadOnly);
-
-        this.checkPixelRatio();
-        this.updateScrollbarValues(true);
-      }
-    }
-  }
   private initializeDrawSchedule(): void {
     const box = this.boxTemplate.nativeElement;
     this.drawSchedule.createCanvas();
@@ -305,47 +250,7 @@ export class GridSurfaceTemplateComponent
     this.drawSchedule.height = box.clientHeight;
     this.drawSchedule.refresh();
     this.updateScrollbarValues();
-    this.applyPendingResize();
-  }
-
-  private applyPendingResize(): void {
-    if (this.pendingResize && this.drawSchedule.isCanvasAvailable()) {
-      const { width, height } = this.pendingResize;
-      this.pendingResize = undefined;
-
-      if (
-        Math.abs(width - this.lastWidth) >= this.RESIZE_THRESHOLD ||
-        Math.abs(height - this.lastHeight) >= this.RESIZE_THRESHOLD
-      ) {
-        this.lastWidth = width;
-        this.lastHeight = height;
-
-        this.updateDrawScheduleDimensions({
-          width,
-          height,
-        } as DOMRectReadOnly);
-
-        this.checkPixelRatio();
-        this.updateScrollbarValues(true);
-      }
-    }
-  }
-
-  private updateDrawScheduleDimensions(rec: DOMRectReadOnly): void {
-    this.drawSchedule.width = rec.width;
-    this.drawSchedule.height = rec.height;
-    this.drawSchedule.refresh();
-  }
-
-  private checkPixelRatio(): void {
-    const pixelRatio = DrawHelper.pixelRatio();
-
-    if (this._pixelRatio !== pixelRatio) {
-      this._pixelRatio = pixelRatio;
-      this.drawSchedule.createCanvas();
-      this.drawSchedule.rebuild();
-      this.drawSchedule.redraw();
-    }
+    this.resize.applyPendingResize();
   }
 
   private updateScrollbarValues(forceUpdate = false): void {
