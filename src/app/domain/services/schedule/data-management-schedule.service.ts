@@ -8,7 +8,11 @@ import {
   Injector,
   runInInjectionContext,
   WritableSignal,
+  DestroyRef,
 } from '@angular/core';
+import { Subject, timer } from 'rxjs';
+import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IClientWork,
   IWork,
@@ -61,9 +65,40 @@ export class DataManagementScheduleService implements ILoadable {
 
   private _lastAnalyseToken: string | null = this.analyseScenarioService.activeToken();
 
+  private readonly READ_DATAS_DEBOUNCE_MS = 300;
+  private readonly SPINNER_SAFETY_TIMEOUT_MS = 30_000;
+
+  private readDatasTrigger$ = new Subject<boolean>();
+  private spinnerSafetyCancel$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+
   constructor() {
     this.registry.register(RouteName.SCHEDULE, DataManagementScheduleService);
     this.setupCrudEffects();
+    this.setupReadDatasPipeline();
+    this.setupSpinnerSafetyPipeline();
+  }
+
+  private setupReadDatasPipeline(): void {
+    this.readDatasTrigger$
+      .pipe(
+        debounceTime(this.READ_DATAS_DEBOUNCE_MS),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((resetScroll) => this.executeReadDatas(resetScroll));
+  }
+
+  private setupSpinnerSafetyPipeline(): void {
+    this.spinnerSafetyCancel$
+      .pipe(
+        switchMap(() => timer(this.SPINNER_SAFETY_TIMEOUT_MS).pipe(takeUntil(this.spinnerSafetyCancel$))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        if (this._showProgressSpinner()) {
+          this._showProgressSpinner.set(false);
+        }
+      });
   }
 
   private setupCrudEffects(): void {
@@ -128,8 +163,6 @@ export class DataManagementScheduleService implements ILoadable {
 
   private _cachedStartDate: Date | null = null;
   private _cachedEndDate: Date | null = null;
-  private _readDatasDebounce: ReturnType<typeof setTimeout> | null = null;
-  private _spinnerSafetyTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private _restoreSearchSignal = signal('');
   public restoreSearch = {
@@ -217,35 +250,21 @@ export class DataManagementScheduleService implements ILoadable {
 
   readDatas(resetScroll = true) {
     this._showProgressSpinner.set(true);
+    this.spinnerSafetyCancel$.next();
+    this.readDatasTrigger$.next(resetScroll);
+  }
 
-    if (this._readDatasDebounce) {
-      clearTimeout(this._readDatasDebounce);
-    }
-    if (this._spinnerSafetyTimeout) {
-      clearTimeout(this._spinnerSafetyTimeout);
-    }
-
-    this._spinnerSafetyTimeout = setTimeout(() => {
-      if (this._showProgressSpinner()) {
-        this._showProgressSpinner.set(false);
-      }
-    }, 30000);
-
-    this._readDatasDebounce = setTimeout(() => {
-      this._readDatasDebounce = null;
-      const dates = this.workScheduleLoader.calculateVisibleDates(
-        this.workFilter,
-      );
-      this._cachedStartDate = new Date(dates.startDate);
-      this._cachedEndDate = new Date(dates.endDate);
-      this.readWorkSchedule(resetScroll);
-      this.readShiftSchedule(resetScroll, dates.startDate, dates.endDate);
-      this.breakPlaceholderLoader.load(
-        dates.startDate,
-        dates.endDate,
-        this.workFilter,
-      );
-    }, 300);
+  private executeReadDatas(resetScroll: boolean): void {
+    const dates = this.workScheduleLoader.calculateVisibleDates(this.workFilter);
+    this._cachedStartDate = new Date(dates.startDate);
+    this._cachedEndDate = new Date(dates.endDate);
+    this.readWorkSchedule(resetScroll);
+    this.readShiftSchedule(resetScroll, dates.startDate, dates.endDate);
+    this.breakPlaceholderLoader.load(
+      dates.startDate,
+      dates.endDate,
+      this.workFilter,
+    );
   }
 
   readShiftSchedule(resetScroll = true, startDate?: string, endDate?: string) {
@@ -273,10 +292,7 @@ export class DataManagementScheduleService implements ILoadable {
     this.workScheduleLoader.load(this.workFilter, () => {
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this._showProgressSpinner.set(false);
-      if (this._spinnerSafetyTimeout) {
-        clearTimeout(this._spinnerSafetyTimeout);
-        this._spinnerSafetyTimeout = null;
-      }
+      this.spinnerSafetyCancel$.next();
       this.isRead.update(v => ({ count: v.count + 1, resetScroll }));
       this.isWorkScheduleRead.update(v => v + 1);
       if (onComplete) {
