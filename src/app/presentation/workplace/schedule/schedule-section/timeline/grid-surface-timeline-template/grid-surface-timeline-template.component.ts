@@ -186,8 +186,11 @@ export class GridSurfaceTimelineTemplateComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['valueChangeHScrollbar']) {
-      this.scroll.horizontalScrollPosition =
-        changes['valueChangeHScrollbar'].currentValue;
+      const currH = changes['valueChangeHScrollbar'].currentValue;
+      if (currH > this.scroll.maxCols) {
+        this.scroll.maxCols = currH + 10;
+      }
+      this.scroll.horizontalScrollPosition = currH;
       this.drawSchedule.moveGrid();
     }
     if (changes['valueChangeVScrollbar']) {
