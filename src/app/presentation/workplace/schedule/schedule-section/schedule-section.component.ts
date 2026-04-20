@@ -57,7 +57,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
 import { TooltipState } from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
-import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
@@ -72,6 +72,10 @@ import { ScheduleContextMenuService } from './services/schedule-context-menu.ser
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
 import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import {
+  ScheduleMenuDispatcherService,
+  ScheduleMenuHost,
+} from './services/schedule-menu-dispatcher.service';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
@@ -120,6 +124,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ScheduleEntryActionsService,
     ScheduleDialogService,
     ScheduleDragDropService,
+    ScheduleMenuDispatcherService,
     ScheduleNavigationService,
     ScheduleBreakBarRenderService,
     ScheduleSectionFacadeService,
@@ -130,7 +135,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleSectionComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy, ScheduleMenuHost
 {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
@@ -182,14 +187,15 @@ export class ScheduleSectionComponent
   private hScrollService = inject(ScheduleHorizontalScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
   private facade = inject(ScheduleSectionFacadeService);
+  private menuDispatcher = inject(ScheduleMenuDispatcherService);
   private cdr = inject(ChangeDetectorRef);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
-  private contextMenuRow = -1;
-  private contextMenuColumn = -1;
-  private contextMenuEntry: IScheduleCell | null | undefined = undefined;
+  public contextMenuRow = -1;
+  public contextMenuColumn = -1;
+  public contextMenuEntry: IScheduleCell | null | undefined = undefined;
   private contextMenuBreakPlaceholder: IBreakPlaceholder | null = null;
 
   private destroy$ = new Subject<void>();
@@ -485,61 +491,19 @@ export class ScheduleSectionComponent
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
-    const dataService = this.scheduleService;
-    const handler = this.menuHandlers[keys[0]];
-    if (!handler) return;
-
     this.contextMenu.closeMenu(true);
-    handler(dataService, keys);
+    this.menuDispatcher.dispatch(keys, this.scheduleService, this);
   }
 
-  private readonly menuHandlers: Record<string, (dataService: ScheduleDataService, keys: string[]) => void> = {
-    showInShift: () => this.showSelectedShiftInShiftSection(),
-    copy: () => this.cellManipulation.copy(),
-    cut: (dataService) => {
-      this.cellManipulation.copy();
-      this.facade.entryActions.deleteSelectedEntries(dataService);
-    },
-    paste: () => this.cellManipulation.paste(),
-    del: (dataService) => this.facade.entryActions.deleteSelectedEntries(dataService),
-    shift: (dataService, keys) =>
-      this.facade.entryActions.addWorkFromShiftMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService),
-    absence: (dataService, keys) =>
-      this.facade.entryActions.addBreakFromAbsenceMenu(keys[1], this.contextMenuRow, this.contextMenuColumn, dataService),
-    correction: (dataService) =>
-      this.facade.dialog.openCorrectionDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
-    replacement: (dataService) =>
-      this.facade.dialog.openReplacementDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
-    edit: (dataService) => this.handleEditMenu(dataService),
-    editWork: (dataService) =>
-      this.facade.dialog.openWorkEditDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
-    openContainer: () =>
-      this.onContainerWorkDoubleClick({ row: this.contextMenuRow, column: this.contextMenuColumn, entry: this.contextMenuEntry ?? undefined }),
-    expenses: (dataService) =>
-      this.facade.dialog.openExpensesDialog(this.contextMenuRow, this.contextMenuColumn, dataService, this.contextMenuEntry ?? undefined),
-    confirm: (dataService) =>
-      this.facade.entryActions.confirmWork(this.contextMenuRow, this.contextMenuColumn, dataService),
-    unconfirm: (dataService) =>
-      this.facade.entryActions.unconfirmWork(this.contextMenuRow, this.contextMenuColumn, dataService),
-    deleteBreakPlaceholder: () => this.deleteBreakPlaceholder(),
-    adoptAbsence: (_dataService, keys) => this.adoptBreakPlaceholder(keys[1]),
-  };
-
-  private handleEditMenu(dataService: ScheduleDataService): void {
-    const editEntry = this.contextMenuEntry !== undefined
-      ? this.contextMenuEntry
-      : dataService.getWorkScheduleEntryForCell(this.contextMenuRow, this.contextMenuColumn);
-    const isInlineEditable =
-      editEntry?.entryType === WorkScheduleEntryType.ScheduleNote
-      || editEntry?.entryType === WorkScheduleEntryType.ScheduleCommand;
-
-    if (isInlineEditable)
-      this.cellManipulation.startEditing();
-    else
-      this.facade.dialog.editWorkChange(this.contextMenuRow, this.contextMenuColumn, dataService, editEntry ?? undefined);
+  openContainerAt(
+    row: number,
+    column: number,
+    entry: IScheduleCell | null | undefined,
+  ): void {
+    this.onContainerWorkDoubleClick({ row, column, entry: entry ?? undefined });
   }
 
-  private showSelectedShiftInShiftSection(): void {
+  showSelectedShiftInShiftSection(): void {
     const dataService = this.scheduleService;
     this.facade.navigation.showSelectedShiftInShiftSection(dataService);
   }
@@ -578,7 +542,7 @@ export class ScheduleSectionComponent
     this.facade.dialog.editWorkChange(event.row, event.column, dataService, event.entry ?? undefined);
   }
 
-  private deleteBreakPlaceholder(): void {
+  deleteBreakPlaceholder(): void {
     if (!this.contextMenuBreakPlaceholder?.id) return;
 
     const id = this.contextMenuBreakPlaceholder.id;
@@ -592,7 +556,7 @@ export class ScheduleSectionComponent
     });
   }
 
-  private adoptBreakPlaceholder(absenceItemId?: string): void {
+  adoptBreakPlaceholder(absenceItemId?: string): void {
     if (!this.contextMenuBreakPlaceholder) return;
     const bp = this.contextMenuBreakPlaceholder;
 
