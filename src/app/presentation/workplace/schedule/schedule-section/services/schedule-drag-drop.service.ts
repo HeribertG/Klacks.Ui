@@ -26,7 +26,7 @@ import { ScheduleCommandResource } from 'src/app/domain/models/schedule-command/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
-import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDropResult } from '../../services/shift-to-schedule-drag-drop.service';
@@ -42,6 +42,18 @@ export interface DropTargetInfo {
   date: Date;
   isEmpty: boolean;
 }
+
+interface CellValueContext {
+  event: CellValueChangeEvent;
+  dataService: ScheduleDataService;
+  clientId: string;
+  date: Date;
+  trimmedValue: string;
+  abbreviation: string;
+  existingEntry: IScheduleCell | undefined;
+}
+
+type CellValueHandler = (ctx: CellValueContext) => boolean;
 
 @Injectable()
 export class ScheduleDragDropService {
@@ -114,78 +126,131 @@ export class ScheduleDragDropService {
   }
 
   handleCellValueChange(event: CellValueChangeEvent, dataService: ScheduleDataService): void {
+    const ctx = this.buildCellValueContext(event, dataService);
+    if (!ctx) {
+      return;
+    }
+
+    for (const handler of this.cellValueHandlers) {
+      if (handler(ctx)) {
+        return;
+      }
+    }
+  }
+
+  private buildCellValueContext(
+    event: CellValueChangeEvent,
+    dataService: ScheduleDataService,
+  ): CellValueContext | null {
     const clientIndex = dataService.rowGroupIndex[event.row];
     if (clientIndex === undefined) {
-      return;
+      return null;
     }
-
     const client = this.dataManagement.clients[clientIndex];
     if (!client?.id) {
-      return;
+      return null;
     }
-
     const date = dataService.getDateForColumn(event.column);
     if (!date) {
-      return;
+      return null;
     }
-
     const trimmedValue = event.value.trim();
     if (!trimmedValue) {
-      return;
+      return null;
     }
+    return {
+      event,
+      dataService,
+      clientId: client.id,
+      date,
+      trimmedValue,
+      abbreviation: trimmedValue.toUpperCase(),
+      existingEntry: dataService.getWorkScheduleEntryForCell(event.row, event.column),
+    };
+  }
 
-    const existingEntry = dataService.getWorkScheduleEntryForCell(event.row, event.column);
-    if (existingEntry && existingEntry.entryType === WorkScheduleEntryType.ScheduleNote) {
-      this.updateScheduleNote(existingEntry.id, client.id, date, trimmedValue);
-      return;
+  private readonly cellValueHandlers: CellValueHandler[] = [
+    (ctx) => this.tryUpdateExistingNote(ctx),
+    (ctx) => this.tryUpdateExistingCommand(ctx),
+    (ctx) => this.tryMatchShift(ctx),
+    (ctx) => this.tryMatchAbsence(ctx),
+    (ctx) => this.tryCreateCommand(ctx),
+    (ctx) => this.createNoteFallback(ctx),
+  ];
+
+  private tryUpdateExistingNote(ctx: CellValueContext): boolean {
+    const { existingEntry } = ctx;
+    if (!existingEntry || existingEntry.entryType !== WorkScheduleEntryType.ScheduleNote) {
+      return false;
     }
+    this.updateScheduleNote(existingEntry.id, ctx.clientId, ctx.date, ctx.trimmedValue);
+    return true;
+  }
 
-    if (existingEntry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
-      const commandKeywords = this.getCommandKeywords();
-      const matchedCommand = commandKeywords.find(
-        (kw) => kw.toUpperCase() === trimmedValue.toUpperCase(),
-      );
-      if (matchedCommand) {
-        this.updateScheduleCommand(existingEntry.sourceId, client.id, date, matchedCommand);
-      }
-      return;
+  private tryUpdateExistingCommand(ctx: CellValueContext): boolean {
+    const { existingEntry } = ctx;
+    if (!existingEntry || existingEntry.entryType !== WorkScheduleEntryType.ScheduleCommand) {
+      return false;
     }
+    const matchedCommand = this.findMatchingCommand(ctx.trimmedValue);
+    if (matchedCommand) {
+      this.updateScheduleCommand(existingEntry.sourceId, ctx.clientId, ctx.date, matchedCommand);
+    }
+    // An existing command cell consumes the edit even if the new value is not a known command.
+    return true;
+  }
 
-    const abbreviation = trimmedValue.toUpperCase();
+  private tryMatchShift(ctx: CellValueContext): boolean {
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
-        shift.abbreviation.toUpperCase() === abbreviation &&
-        this.isSameDay(shift.date, date)
+        shift.abbreviation.toUpperCase() === ctx.abbreviation &&
+        this.isSameDay(shift.date, ctx.date),
     );
-
-    if (matchingShift) {
-      this.dataManagement.addWorkScheduleEntry({
-        clientId: client.id,
-        date: date,
-        shiftId: matchingShift.shiftId,
-        workTime: matchingShift.workTime,
-        startTime: matchingShift.startShift,
-        endTime: matchingShift.endShift,
-      });
-      return;
+    if (!matchingShift) {
+      return false;
     }
+    this.dataManagement.addWorkScheduleEntry({
+      clientId: ctx.clientId,
+      date: ctx.date,
+      shiftId: matchingShift.shiftId,
+      workTime: matchingShift.workTime,
+      startTime: matchingShift.startShift,
+      endTime: matchingShift.endShift,
+    });
+    return true;
+  }
 
-    const matchingAbsence = this.findAbsenceWithoutDetails(abbreviation);
-    if (matchingAbsence) {
-      this.entryActions.addBreakFromAbsenceMenu(matchingAbsence.id!, event.row, event.column, dataService);
-      return;
+  private tryMatchAbsence(ctx: CellValueContext): boolean {
+    const matchingAbsence = this.findAbsenceWithoutDetails(ctx.abbreviation);
+    if (!matchingAbsence) {
+      return false;
     }
-
-    const commandKeywords = this.getCommandKeywords();
-    const matchedCommand = commandKeywords.find(
-      (kw) => kw.toUpperCase() === trimmedValue.toUpperCase(),
+    this.entryActions.addBreakFromAbsenceMenu(
+      matchingAbsence.id,
+      ctx.event.row,
+      ctx.event.column,
+      ctx.dataService,
     );
-    if (matchedCommand) {
-      this.createScheduleCommand(client.id, date, matchedCommand);
-      return;
-    }
+    return true;
+  }
 
-    this.createScheduleNote(client.id, date, trimmedValue);
+  private tryCreateCommand(ctx: CellValueContext): boolean {
+    const matchedCommand = this.findMatchingCommand(ctx.trimmedValue);
+    if (!matchedCommand) {
+      return false;
+    }
+    this.createScheduleCommand(ctx.clientId, ctx.date, matchedCommand);
+    return true;
+  }
+
+  private createNoteFallback(ctx: CellValueContext): boolean {
+    this.createScheduleNote(ctx.clientId, ctx.date, ctx.trimmedValue);
+    return true;
+  }
+
+  private findMatchingCommand(value: string): string | undefined {
+    const normalized = value.toUpperCase();
+    return this.getCommandKeywords().find((kw) => kw.toUpperCase() === normalized);
   }
 
   private updateScheduleNote(id: string, clientId: string, date: Date, content: string): void {
