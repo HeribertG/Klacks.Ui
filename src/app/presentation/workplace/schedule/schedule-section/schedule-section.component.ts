@@ -575,6 +575,7 @@ export class ScheduleSectionComponent
         this.facade.workScheduleLoader.applyBreakPlaceholderRows();
         this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
       },
+      error: (err) => console.error('Failed to delete break placeholder', { id, error: err }),
     });
   }
 
@@ -590,8 +591,9 @@ export class ScheduleSectionComponent
           this.facade.workScheduleLoader.applyBreakPlaceholderRows();
           this.dataManagement.isRead.update(v => ({ count: v.count + 1, resetScroll: false }));
         },
+        error: (err) => console.error('Failed to delete adopted break placeholder', { id: bp.id, absenceItemId, error: err }),
       });
-    });
+    }).catch((err) => console.error('Failed to adopt break placeholder', { id: bp.id, absenceItemId, error: err }));
   }
 
   onWorkDoubleClick(event: GridDoubleClickEvent): void {

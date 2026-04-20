@@ -653,15 +653,18 @@ export class WorkScheduleLoaderService {
   }
 
   private loadSealedDates(startDate: string, endDate: string): void {
-    this.periodClosingService.getSealedPeriods(startDate, endDate, null).subscribe({
-      next: (summaries) => {
-        this.sealedDates = new Set(
-          summaries.filter((s) => s.isFullySealed).map((s) => s.date),
-        );
-      },
-      error: () => {
-        this.sealedDates = new Set();
-      },
-    });
+    this.periodClosingService.getSealedPeriods(startDate, endDate, null)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (summaries) => {
+          this.sealedDates = new Set(
+            summaries.filter((s) => s.isFullySealed).map((s) => s.date),
+          );
+        },
+        error: (err) => {
+          console.error('Failed to load sealed periods', { startDate, endDate, error: err });
+          this.sealedDates = new Set();
+        },
+      });
   }
 }

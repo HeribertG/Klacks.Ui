@@ -201,8 +201,9 @@ export class ScheduleDragDropService {
       content,
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
-    this.scheduleNoteService.update(resource).subscribe(() => {
-      this.dataManagement.readDatas(false);
+    this.scheduleNoteService.update(resource).subscribe({
+      next: () => this.dataManagement.readDatas(false),
+      error: (err) => console.error('Failed to update schedule note', { id, clientId, error: err }),
     });
   }
 
@@ -215,8 +216,9 @@ export class ScheduleDragDropService {
       content,
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
-    this.scheduleNoteService.create(resource).subscribe(() => {
-      this.dataManagement.readDatas(false);
+    this.scheduleNoteService.create(resource).subscribe({
+      next: () => this.dataManagement.readDatas(false),
+      error: (err) => console.error('Failed to create schedule note', { clientId, error: err }),
     });
   }
 
@@ -265,6 +267,7 @@ export class ScheduleDragDropService {
     };
     this.scheduleCommandService.create(resource).subscribe({
       next: () => this.dataManagement.readDatas(false),
+      error: (err) => console.error('Failed to create schedule command', { clientId, keyword, error: err }),
     });
   }
 
@@ -279,6 +282,7 @@ export class ScheduleDragDropService {
     };
     this.scheduleCommandService.update(resource).subscribe({
       next: () => this.dataManagement.readDatas(false),
+      error: (err) => console.error('Failed to update schedule command', { id, clientId, keyword, error: err }),
     });
   }
 
