@@ -37,6 +37,19 @@ interface DrawBlockContext {
   displayFromMinutes: number;
 }
 
+interface TimelineCellEntries {
+  todayEntries: IScheduleCell[];
+  overflowEntries: IScheduleCell[];
+  availabilityRanges: { startMinutes: number; endMinutes: number }[];
+}
+
+interface TimelineCellGeometry {
+  width: number;
+  height: number;
+  pixelsPerMinute: number;
+  displayFromMinutes: number;
+}
+
 @Injectable()
 export class TimelineCreateCellService extends BaseCreateCellService {
   private scheduleData = inject(ScheduleDataService);
@@ -70,14 +83,41 @@ export class TimelineCreateCellService extends BaseCreateCellService {
 
   override createCell(row: number, col: number): HTMLCanvasElement | undefined {
     const baseCanvas = super.createCell(row, col);
-    if (!baseCanvas) {
+    if (!baseCanvas || !this.isFirstGroupRow(row)) {
       return baseCanvas;
     }
 
-    if (!this.isFirstGroupRow(row)) {
+    const entries = this.collectTimelineEntries(row, col);
+    if (this.hasNothingToRender(entries)) {
       return baseCanvas;
     }
 
+    const ctx = baseCanvas.getContext('2d');
+    if (!ctx) {
+      return baseCanvas;
+    }
+
+    const geometry = this.computeCellGeometry();
+    if (!geometry) {
+      return baseCanvas;
+    }
+
+    this.drawAvailability(ctx, entries.availabilityRanges, geometry);
+    this.drawTodayBlocks(ctx, entries.todayEntries, geometry);
+    this.drawOverflowBlocks(ctx, entries.overflowEntries, geometry);
+    this.drawCollisionOverlay(
+      ctx,
+      entries.todayEntries,
+      entries.overflowEntries,
+      geometry.width,
+      geometry.pixelsPerMinute,
+      geometry.displayFromMinutes,
+    );
+
+    return baseCanvas;
+  }
+
+  private collectTimelineEntries(row: number, col: number): TimelineCellEntries {
     const todayEntries = this.scheduleData
       .getWorkScheduleForCell(row, col)
       .filter((e) => this.isTimelineEntry(e));
@@ -88,39 +128,54 @@ export class TimelineCreateCellService extends BaseCreateCellService {
             .filter((e) => this.isTimelineEntry(e) && this.spansMidnight(e))
         : [];
     const availabilityRanges = this.scheduleData.getAvailabilityRangesForCell(row, col);
+    return { todayEntries, overflowEntries, availabilityRanges };
+  }
 
-    if (
-      todayEntries.length === 0 &&
-      overflowEntries.length === 0 &&
-      availabilityRanges.length === 0
-    ) {
-      return baseCanvas;
-    }
+  private hasNothingToRender(entries: TimelineCellEntries): boolean {
+    return (
+      entries.todayEntries.length === 0 &&
+      entries.overflowEntries.length === 0 &&
+      entries.availabilityRanges.length === 0
+    );
+  }
 
-    const ctx = baseCanvas.getContext('2d');
-    if (!ctx) {
-      return baseCanvas;
-    }
-
+  private computeCellGeometry(): TimelineCellGeometry | null {
     const range = this.cachedRange;
     if (range.totalMinutes <= 0) {
-      return baseCanvas;
+      return null;
     }
-
     const width = this.settings.cellWidth;
     const height = this.settings.cellHeight;
-    const pixelsPerMinute = height / range.totalMinutes;
+    return {
+      width,
+      height,
+      pixelsPerMinute: height / range.totalMinutes,
+      displayFromMinutes: range.displayFromMinutes,
+    };
+  }
 
-    if (availabilityRanges.length > 0) {
-      this.drawAvailabilityOverlay(
-        ctx,
-        availabilityRanges,
-        width,
-        pixelsPerMinute,
-        range.displayFromMinutes,
-      );
+  private drawAvailability(
+    ctx: CanvasRenderingContext2D,
+    availabilityRanges: { startMinutes: number; endMinutes: number }[],
+    geometry: TimelineCellGeometry,
+  ): void {
+    if (availabilityRanges.length === 0) {
+      return;
     }
+    this.drawAvailabilityOverlay(
+      ctx,
+      availabilityRanges,
+      geometry.width,
+      geometry.pixelsPerMinute,
+      geometry.displayFromMinutes,
+    );
+  }
 
+  private drawTodayBlocks(
+    ctx: CanvasRenderingContext2D,
+    todayEntries: IScheduleCell[],
+    geometry: TimelineCellGeometry,
+  ): void {
     for (const entry of todayEntries) {
       const minutes = this.toMinutesRange(entry);
       if (!minutes) {
@@ -131,12 +186,18 @@ export class TimelineCreateCellService extends BaseCreateCellService {
         entry,
         startMinutes: minutes.start,
         endMinutes: endToday,
-        width,
-        pixelsPerMinute,
-        displayFromMinutes: range.displayFromMinutes,
+        width: geometry.width,
+        pixelsPerMinute: geometry.pixelsPerMinute,
+        displayFromMinutes: geometry.displayFromMinutes,
       });
     }
+  }
 
+  private drawOverflowBlocks(
+    ctx: CanvasRenderingContext2D,
+    overflowEntries: IScheduleCell[],
+    geometry: TimelineCellGeometry,
+  ): void {
     for (const entry of overflowEntries) {
       const minutes = this.toMinutesRange(entry);
       if (!minutes) {
@@ -147,22 +208,11 @@ export class TimelineCreateCellService extends BaseCreateCellService {
         entry,
         startMinutes: 0,
         endMinutes: overflowEnd,
-        width,
-        pixelsPerMinute,
-        displayFromMinutes: range.displayFromMinutes,
+        width: geometry.width,
+        pixelsPerMinute: geometry.pixelsPerMinute,
+        displayFromMinutes: geometry.displayFromMinutes,
       });
     }
-
-    this.drawCollisionOverlay(
-      ctx,
-      todayEntries,
-      overflowEntries,
-      width,
-      pixelsPerMinute,
-      range.displayFromMinutes,
-    );
-
-    return baseCanvas;
   }
 
   override drawCellTexts(_ctx: CanvasRenderingContext2D, _gridCell: GridCell): void {
