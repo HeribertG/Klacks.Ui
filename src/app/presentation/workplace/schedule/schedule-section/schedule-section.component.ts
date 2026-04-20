@@ -76,6 +76,10 @@ import {
   ScheduleMenuDispatcherService,
   ScheduleMenuHost,
 } from './services/schedule-menu-dispatcher.service';
+import {
+  ScheduleEffectsHost,
+  ScheduleSimpleEffectsService,
+} from './services/schedule-simple-effects.service';
 import { ScheduleNavigationService } from './services/schedule-navigation.service';
 import { GridDoubleClickEvent } from 'src/app/presentation/shared/grid/body/directives/grid-template-events.directive';
 import { ScheduleBreakBarRenderService } from './services/schedule-break-bar-render.service';
@@ -128,6 +132,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ScheduleNavigationService,
     ScheduleBreakBarRenderService,
     ScheduleSectionFacadeService,
+    ScheduleSimpleEffectsService,
     TimelineSelectionService,
   ],
   templateUrl: './schedule-section.component.html',
@@ -135,7 +140,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleSectionComponent
-  implements OnInit, AfterViewInit, OnDestroy, ScheduleMenuHost
+  implements OnInit, AfterViewInit, OnDestroy, ScheduleMenuHost, ScheduleEffectsHost
 {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
@@ -188,10 +193,12 @@ export class ScheduleSectionComponent
   private cellManipulation = inject(BaseCellManipulationService);
   private facade = inject(ScheduleSectionFacadeService);
   private menuDispatcher = inject(ScheduleMenuDispatcherService);
+  private simpleEffects = inject(ScheduleSimpleEffectsService);
   private cdr = inject(ChangeDetectorRef);
+  private timelineSelection = inject(TimelineSelectionService);
 
-  private defaultVScrollbarSize = 17;
-  private defaultHScrollbarSize = 17;
+  public readonly defaultVScrollbarSize = 17;
+  public readonly defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   public contextMenuRow = -1;
   public contextMenuColumn = -1;
@@ -258,6 +265,7 @@ export class ScheduleSectionComponent
 
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
+    this.simpleEffects.destroy();
   }
 
   private updateScrollbarSizes() {
@@ -279,16 +287,34 @@ export class ScheduleSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       this.wireDataReadEffect();
-      this.wireScrollbarEffects();
       this.wireHScrollPositionEffect();
       this.wireHoveredCellEffect();
-      this.wireScheduleUpdateEffect();
-      this.wireShowInScheduleEffect();
-      this.wirePeriodHoursEffect();
-      this.wireColorResetEffect();
-      this.wireZoomEffect();
-      this.wireRefreshTriggerEffect();
+      this.simpleEffects.register(this);
     });
+  }
+
+  refreshSurface(resetScroll = false): void {
+    this.withSurface((surface) => surface.Refresh(resetScroll));
+  }
+
+  setVScrollbarSize(size: number): void {
+    this.vScrollbarSize = size;
+    this.updateScrollbarSizes();
+    this.cdr.markForCheck();
+  }
+
+  setHScrollbarSize(size: number): void {
+    this.hScrollbarSize = size;
+    this.updateScrollbarSizes();
+    this.cdr.markForCheck();
+  }
+
+  readZoom(): number {
+    return this.zoom();
+  }
+
+  readRefreshTrigger(): boolean {
+    return this.refreshTrigger();
   }
 
   private currentSurface = computed<ActiveSurface | undefined>(() =>
@@ -314,22 +340,6 @@ export class ScheduleSectionComponent
 
       const resetScroll = isNewRead && readState.resetScroll && !this.settings.isTimelineMode;
       this.withSurface((surface) => surface.Refresh(resetScroll));
-    }));
-  }
-
-  private wireScrollbarEffects(): void {
-    this.effects.push(effect(() => {
-      const isLocked = this.scrollService.lockedRows();
-      this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
-      this.updateScrollbarSizes();
-      this.cdr.markForCheck();
-    }));
-
-    this.effects.push(effect(() => {
-      const isLocked = this.scrollService.lockedCols();
-      this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
-      this.updateScrollbarSizes();
-      this.cdr.markForCheck();
     }));
   }
 
@@ -360,64 +370,6 @@ export class ScheduleSectionComponent
     }));
   }
 
-  private wireScheduleUpdateEffect(): void {
-    this.effects.push(effect(() => {
-      const updateId = this.facade.workNotification.scheduleUpdateSignal();
-      if (updateId) {
-        this.withSurface((surface) => surface.Refresh(false));
-      }
-    }));
-  }
-
-  private wireShowInScheduleEffect(): void {
-    this.effects.push(effect(() => {
-      const request = this.facade.showInSchedule.request();
-      if (!request) return;
-
-      if (request.clientId && request.date)
-        this.scrollToClient(request.clientId, request.date);
-      else if (request.shiftId !== undefined && request.column !== undefined)
-        this.scrollToScheduleEntry(request.shiftId, request.column);
-
-      this.facade.showInSchedule.clear();
-    }));
-  }
-
-  private wirePeriodHoursEffect(): void {
-    this.effects.push(effect(() => {
-      void this.facade.workScheduleLoader.periodHoursUpdated();
-      this.withSurface((surface) => surface.Refresh(false));
-    }));
-  }
-
-  private wireColorResetEffect(): void {
-    this.effects.push(effect(() => {
-      if (this.facade.gridColor.isReset()) {
-        this.withSurface((surface) => surface.Refresh(false));
-      }
-    }));
-  }
-
-  private wireZoomEffect(): void {
-    let initialized = false;
-    this.effects.push(effect(() => {
-      const zoomValue = this.zoom();
-      if (initialized)
-        this.settings.zoom = zoomValue;
-      initialized = true;
-    }));
-  }
-
-  private wireRefreshTriggerEffect(): void {
-    let initialized = false;
-    this.effects.push(effect(() => {
-      void this.refreshTrigger();
-      if (initialized) {
-        this.withSurface((surface) => surface.Refresh(false));
-      }
-      initialized = true;
-    }));
-  }
 
   onVisibleValueHScrollbarChange(value: number): void {
     this.hScrollbar.visibleValue = value;
@@ -508,7 +460,7 @@ export class ScheduleSectionComponent
     this.facade.navigation.showSelectedShiftInShiftSection(dataService);
   }
 
-  private scrollToClient(clientId: string, date: string): void {
+  scrollToClient(clientId: string, date: string): void {
     const surface = this.currentSurface();
     if (!surface) return;
     const dataService = this.scheduleService;
@@ -523,7 +475,7 @@ export class ScheduleSectionComponent
     );
   }
 
-  private scrollToScheduleEntry(shiftId: string, column: number): void {
+  scrollToScheduleEntry(shiftId: string, column: number): void {
     const surface = this.currentSurface();
     if (!surface) return;
     const dataService = this.scheduleService;
@@ -596,6 +548,8 @@ export class ScheduleSectionComponent
     const date = this.scheduleService.getDateForColumn(event.column);
     if (!date) return;
 
+    this.timelineSelection.clearBlock();
+    this.cellManipulation.clearPosition();
     this.dataManagement.deleteWorkScheduleEntry(
       entry.id,
       entry.sourceId,
