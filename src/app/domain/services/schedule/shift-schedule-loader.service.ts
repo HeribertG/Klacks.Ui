@@ -93,7 +93,9 @@ export class ShiftScheduleLoaderService {
 
         this._isRead.update(v => v + 1);
 
-        this._pendingOnLoaded?.();
+        const onLoaded = this._pendingOnLoaded;
+        this._pendingOnLoaded = undefined;
+        onLoaded?.();
 
         if (this._autoLoadEnabled && this.hasMoreShifts) {
           const loadId = this._currentLoadId;
@@ -175,8 +177,6 @@ export class ShiftScheduleLoaderService {
 
           this._isLoadingMore.set(false);
           this._isRead.update(v => v + 1);
-
-          this._pendingOnLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreShifts) {
             setTimeout(() => this.autoLoadNextChunk(loadId), 50);

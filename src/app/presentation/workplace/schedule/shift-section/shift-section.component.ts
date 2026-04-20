@@ -247,12 +247,18 @@ export class ShiftSectionComponent
     });
   }
 
+  private lastShiftReadCount = 0;
+
   private wireDataReadEffect(): void {
     this.effects.push(effect(() => {
       const readState = this.dataManagement.isShiftScheduleRead();
       if (readState.count === 0) return;
 
-      this.shiftSurface.Refresh(readState.resetScroll);
+      const isNewRead = readState.count > this.lastShiftReadCount;
+      this.lastShiftReadCount = readState.count;
+
+      const resetScroll = isNewRead && readState.resetScroll;
+      this.shiftSurface.Refresh(resetScroll);
       this.cdr.markForCheck();
     }));
   }
@@ -331,7 +337,7 @@ export class ShiftSectionComponent
     this.effects.push(effect(() => {
       void this.refreshTrigger();
       if (initialized)
-        this.shiftSurface.Refresh();
+        this.shiftSurface.Refresh(false);
       initialized = true;
     }));
   }

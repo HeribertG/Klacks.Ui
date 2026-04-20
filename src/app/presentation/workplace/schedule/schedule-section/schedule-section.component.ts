@@ -292,13 +292,18 @@ export class ScheduleSectionComponent
     }
   }
 
+  private lastReadCount = 0;
+
   private wireDataReadEffect(): void {
     this.effects.push(effect(() => {
       const readState = this.dataManagement.isRead();
-      if (readState.count > 0) {
-        const resetScroll = readState.resetScroll && !this.settings.isTimelineMode;
-        this.withSurface((surface) => surface.Refresh(resetScroll));
-      }
+      if (readState.count === 0) return;
+
+      const isNewRead = readState.count > this.lastReadCount;
+      this.lastReadCount = readState.count;
+
+      const resetScroll = isNewRead && readState.resetScroll && !this.settings.isTimelineMode;
+      this.withSurface((surface) => surface.Refresh(resetScroll));
     }));
   }
 
