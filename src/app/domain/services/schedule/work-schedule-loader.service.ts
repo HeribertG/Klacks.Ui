@@ -214,6 +214,7 @@ export class WorkScheduleLoaderService {
         clientIds,
         startDate: this._currentFilter.startDate,
         endDate: this._currentFilter.endDate,
+        analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

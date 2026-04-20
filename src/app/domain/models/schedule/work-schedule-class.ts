@@ -102,6 +102,7 @@ export interface IPeriodHoursRequest {
   clientIds: string[];
   startDate: string;
   endDate: string;
+  analyseToken?: string;
 }
 
 export enum WorkScheduleEntryType {
