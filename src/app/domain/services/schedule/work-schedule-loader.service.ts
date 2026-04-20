@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { effect, inject, Injectable, Injector, runInInjectionContext, signal, DestroyRef } from '@angular/core';
-import { Subject, Subscription, switchMap, EMPTY, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
@@ -10,6 +9,7 @@ import {
   IWorkScheduleClient,
   IScheduleCell,
   IWorkScheduleFilter,
+  IWorkScheduleResponse,
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/schedule/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
@@ -25,6 +25,7 @@ import { BreakPlaceholderScheduleLoaderService } from './break-placeholder-sched
 import { ScheduleChangeService } from './schedule-change.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { ChunkLoader } from './chunk-loader';
 
 @Injectable({
   providedIn: 'root',
@@ -44,18 +45,11 @@ export class WorkScheduleLoaderService {
 
   private readonly INITIAL_CHUNK_SIZE = 50;
   private readonly LOAD_MORE_CHUNK_SIZE = 50;
+  private readonly MAX_CHUNK_SIZE = 100;
 
   private _totalAvailableClients = 0;
-  private _currentChunkSize = 50;
-  private _autoLoadEnabled = true;
   private _currentFilter: IWorkScheduleFilter | null = null;
-
-  private _isLoadingMore = signal(false);
   private _isRead = signal(0);
-  private _currentLoadId = 0;
-  private _loadMoreSubscription: Subscription | null = null;
-
-  private loadTrigger$ = new Subject<IWorkScheduleFilter>();
 
   public workScheduleEntries: IScheduleCell[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
@@ -68,16 +62,33 @@ export class WorkScheduleLoaderService {
   public periodHoursUpdated = signal<number>(0);
   public sealedDates = new Set<string>();
 
-  private _pendingOnLoaded?: () => void;
   private _pendingDates?: { startDate: string; endDate: string };
   private _pendingWorkFilter?: IWorkFilter;
 
   private _lastJoinedRange: { startDate: string; endDate: string } | null = null;
   private _lastJoinedToken: string | null = this.analyseScenarioService.activeToken();
 
+  private readonly chunkLoader = new ChunkLoader<IWorkScheduleFilter, IWorkScheduleResponse>({
+    destroyRef: this.destroyRef,
+    initialChunkSize: this.LOAD_MORE_CHUNK_SIZE,
+    maxChunkSize: this.MAX_CHUNK_SIZE,
+    fetch: (filter) => this.dataWorkSchedule.getWorkSchedule(filter),
+    onInitialResponse: (response) => this.applyInitialResponse(response),
+    onChunkResponse: (response, chunkSize) => this.applyChunkResponse(response, chunkSize),
+    hasMore: () => this.clients.length < this._totalAvailableClients,
+    nextChunkFilter: (chunkSize) => {
+      if (!this._currentFilter) {
+        throw new Error('nextChunkFilter called without a current filter');
+      }
+      this._currentFilter.startRow = this.clients.length;
+      this._currentFilter.rowCount = chunkSize;
+      return this._currentFilter;
+    },
+    onInitialError: (err) => this.tryRecoverFromStaleGroup(err),
+  });
+
   constructor() {
     this.subscribeToSignalREvents();
-    this.setupLoadPipeline();
     this.setupScenarioTokenEffect();
   }
 
@@ -108,68 +119,69 @@ export class WorkScheduleLoaderService {
     await this.signalRService.joinScheduleGroup(startDate, endDate, newToken);
   }
 
-  private setupLoadPipeline(): void {
-    this.loadTrigger$
-      .pipe(
-        switchMap((filter) => {
-          return this.dataWorkSchedule.getWorkSchedule(filter).pipe(
-            catchError((err) => {
-              if (err instanceof HttpErrorResponse && err.status === 404 && this._pendingWorkFilter?.selectedGroup) {
-                console.warn('Schedule load returned 404 for group - clearing stale group filter and retrying');
-                this._pendingWorkFilter.selectedGroup = undefined;
-                if (this._currentFilter) {
-                  this._currentFilter.selectedGroup = undefined;
-                  setTimeout(() => this.loadTrigger$.next(this._currentFilter!), 0);
-                }
-                return EMPTY;
-              }
-              console.error('Error loading work schedule:', err);
-              this._pendingOnLoaded?.();
-              return EMPTY;
-            }),
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response) => {
-        this.workScheduleEntries = response.entries ?? [];
-        this.workScheduleByClientAndDate = this.groupByClientAndDate(
-          this.workScheduleEntries,
-        );
-        this.clients = this.convertToClientWork(response.clients ?? []);
-        this.periodHours = new Map(
-          Object.entries(response.periodHours ?? {}),
-        );
-        this.mergeClientAvailabilities(response.clientAvailabilities);
-        this._totalAvailableClients = response.totalClientCount;
-        this.startDate = new Date(response.startDate);
-        this.endDate = new Date(response.endDate);
-        this.updateClientNeededRows();
-        this.applyBreakPlaceholderRows();
+  private applyInitialResponse(response: IWorkScheduleResponse): void {
+    this.workScheduleEntries = response.entries ?? [];
+    this.workScheduleByClientAndDate = this.groupByClientAndDate(
+      this.workScheduleEntries,
+    );
+    this.clients = this.convertToClientWork(response.clients ?? []);
+    this.periodHours = new Map(
+      Object.entries(response.periodHours ?? {}),
+    );
+    this.mergeClientAvailabilities(response.clientAvailabilities);
+    this._totalAvailableClients = response.totalClientCount;
+    this.startDate = new Date(response.startDate);
+    this.endDate = new Date(response.endDate);
+    this.updateClientNeededRows();
+    this.applyBreakPlaceholderRows();
 
-        this.loadSealedDates(response.startDate, response.endDate);
-        this._isRead.update(v => v + 1);
+    this.loadSealedDates(response.startDate, response.endDate);
+    this._isRead.update((v) => v + 1);
 
-        const selectedGroup = this._pendingWorkFilter?.selectedGroup ?? '';
-        this.signalRService.setSelectedGroup(selectedGroup);
-        if (this._pendingDates) {
-          this.joinSignalRGroup(this._pendingDates.startDate, this._pendingDates.endDate);
-          this.scheduleChangeService.loadDirtyClients(this._pendingDates.startDate, this._pendingDates.endDate);
-        }
+    const selectedGroup = this._pendingWorkFilter?.selectedGroup ?? '';
+    this.signalRService.setSelectedGroup(selectedGroup);
+    if (this._pendingDates) {
+      this.joinSignalRGroup(this._pendingDates.startDate, this._pendingDates.endDate);
+      this.scheduleChangeService.loadDirtyClients(this._pendingDates.startDate, this._pendingDates.endDate);
+    }
+  }
 
-        this._pendingOnLoaded?.();
+  private applyChunkResponse(response: IWorkScheduleResponse, chunkSize: number): void {
+    const newEntries = response.entries ?? [];
+    const newClients = response.clients ?? [];
 
-        if (this._autoLoadEnabled && this.hasMoreClients) {
-          const loadId = this._currentLoadId;
-          setTimeout(() => this.autoLoadNextChunk(loadId), 100);
-        }
-      },
-        error: (err) => {
-          console.error('Critical error in work schedule pipeline:', err);
-          this._pendingOnLoaded?.();
-        },
-      });
+    this.workScheduleEntries.push(...newEntries);
+    this.mergeIntoGroupedData(newEntries);
+    this.clients.push(...this.convertToClientWork(newClients));
+
+    for (const [key, value] of Object.entries(response.periodHours ?? {})) {
+      this.periodHours.set(key, value);
+    }
+
+    this.mergeClientAvailabilities(response.clientAvailabilities);
+    this.updateClientNeededRows();
+    this.applyBreakPlaceholderRows();
+
+    if (newClients.length < chunkSize) {
+      this._totalAvailableClients = this.clients.length;
+    }
+
+    this._isRead.update((v) => v + 1);
+  }
+
+  private tryRecoverFromStaleGroup(err: unknown): boolean {
+    if (!(err instanceof HttpErrorResponse)) return false;
+    if (err.status !== 404) return false;
+    if (!this._pendingWorkFilter?.selectedGroup) return false;
+
+    console.warn('Schedule load returned 404 for group - clearing stale group filter and retrying');
+    this._pendingWorkFilter.selectedGroup = undefined;
+    if (this._currentFilter) {
+      this._currentFilter.selectedGroup = undefined;
+      const retryFilter = this._currentFilter;
+      setTimeout(() => this.chunkLoader.retryInitial(retryFilter), 0);
+    }
+    return true;
   }
 
   private subscribeToSignalREvents(): void {
@@ -232,7 +244,7 @@ export class WorkScheduleLoaderService {
   }
 
   get isLoadingMore(): boolean {
-    return this._isLoadingMore();
+    return this.chunkLoader.isLoadingMore();
   }
 
   get isRead() {
@@ -277,9 +289,6 @@ export class WorkScheduleLoaderService {
   }
 
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
-    this._loadMoreSubscription?.unsubscribe();
-    this._currentLoadId++;
-
     this.workScheduleEntries = [];
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
@@ -287,16 +296,11 @@ export class WorkScheduleLoaderService {
     this.clientAvailabilities = new Map();
     this.startDate = null;
     this.endDate = null;
-    this._autoLoadEnabled = true;
-    this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
-    this._isLoadingMore.set(false);
     this.scheduleChangeService.clear();
 
     this.validateSelectedGroup(workFilter);
 
     const dates = this.calculateVisibleDates(workFilter);
-
-    this._pendingOnLoaded = onLoaded;
     this._pendingDates = dates;
     this._pendingWorkFilter = workFilter;
 
@@ -316,7 +320,7 @@ export class WorkScheduleLoaderService {
       analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
     };
 
-    this.loadTrigger$.next(this._currentFilter);
+    this.chunkLoader.load(this._currentFilter, onLoaded);
   }
 
   private validateSelectedGroup(workFilter: IWorkFilter): void {
@@ -332,72 +336,6 @@ export class WorkScheduleLoaderService {
     if (!groupExists) {
       workFilter.selectedGroup = undefined;
     }
-  }
-
-  private autoLoadNextChunk(loadId: number): void {
-    if (loadId !== this._currentLoadId) return;
-    if (
-      !this._autoLoadEnabled ||
-      !this.hasMoreClients ||
-      this._isLoadingMore() ||
-      !this._currentFilter
-    ) {
-      return;
-    }
-
-    this._isLoadingMore.set(true);
-    this._currentFilter.startRow = this.clients.length;
-    this._currentFilter.rowCount = this._currentChunkSize;
-
-    this._loadMoreSubscription?.unsubscribe();
-    this._loadMoreSubscription = this.dataWorkSchedule
-      .getWorkSchedule(this._currentFilter)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (loadId !== this._currentLoadId) {
-            this._isLoadingMore.set(false);
-            return;
-          }
-
-          const newEntries = response.entries ?? [];
-          const newClients = response.clients ?? [];
-
-          this.workScheduleEntries.push(...newEntries);
-          this.mergeIntoGroupedData(newEntries);
-          this.clients.push(...this.convertToClientWork(newClients));
-
-          for (const [key, value] of Object.entries(
-            response.periodHours ?? {},
-          )) {
-            this.periodHours.set(key, value);
-          }
-
-          this.mergeClientAvailabilities(response.clientAvailabilities);
-
-          this.updateClientNeededRows();
-          this.applyBreakPlaceholderRows();
-
-          if (newClients.length < this._currentChunkSize) {
-            this._totalAvailableClients = this.clients.length;
-            this._autoLoadEnabled = false;
-          } else {
-            this._currentChunkSize = Math.min(this._currentChunkSize * 2, 100);
-          }
-
-          this._isLoadingMore.set(false);
-          this._isRead.update(v => v + 1);
-
-          if (this._autoLoadEnabled && this.hasMoreClients) {
-            setTimeout(() => this.autoLoadNextChunk(loadId), 50);
-          }
-        },
-        error: (err) => {
-          console.error('Error auto-loading work schedule:', err);
-          this._isLoadingMore.set(false);
-          this._autoLoadEnabled = false;
-        },
-      });
   }
 
   getWorkScheduleForClientAndDate(
@@ -602,19 +540,6 @@ export class WorkScheduleLoaderService {
     }
 
     this.updateClientNeededRows();
-  }
-
-  private calculatePeriodDates(workFilter: IWorkFilter): {
-    startDate: string;
-    endDate: string;
-  } {
-    const periodStartDate = this.calculatePeriodStartDate(workFilter);
-    const periodEndDate = this.calculatePeriodEndDate(workFilter);
-
-    return {
-      startDate: formatDateOnly(periodStartDate),
-      endDate: formatDateOnly(periodEndDate),
-    };
   }
 
   private mergeClientAvailabilities(
