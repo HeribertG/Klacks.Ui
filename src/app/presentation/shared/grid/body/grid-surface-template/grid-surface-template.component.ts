@@ -47,6 +47,7 @@ import { GridTestAccessibilityService } from '../../services/grid-test-accessibi
 import { GridFillHandleDragService } from '../../services/body/grid-fill-handle-drag.service';
 import { GridCoordinateService } from '../../services/grid-coordinate.service';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
+import { GridCellInputController } from './grid-cell-input.controller';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -74,6 +75,7 @@ export interface CellValueChangeEvent {
     GridTestAccessibilityService,
     GridFillHandleDragService,
     GridScheduleEventsService,
+    GridCellInputController,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -127,20 +129,7 @@ export class GridSurfaceTemplateComponent
   public isLeftMouseDown = false;
   public canvasId = `-${Math.random().toString(36).substring(2, 10)}`;
 
-  public cellInputVisible = false;
-  public cellInputX = 0;
-  public cellInputY = 0;
-  public cellInputWidth = 0;
-  public lastEditedRow = -1;
-  public lastEditedColumn = -1;
-
-  public get cellInputFontSize(): string {
-    return this.gridFonts.mainFontSizeZoom + 'pt';
-  }
-
-  public get cellInputFontFamily(): string {
-    return this.gridFonts.mainFontName;
-  }
+  public cellInput = inject(GridCellInputController);
   private _pixelRatio = 1;
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -175,6 +164,7 @@ export class GridSurfaceTemplateComponent
 
   ngAfterViewInit(): void {
     this.drawSchedule.init('template-canvas' + this.canvasId);
+    this.cellInput.setDirective(this.cellInputDirective);
     this.initializeDrawSchedule();
     this.observeParentResize();
   }
@@ -228,23 +218,8 @@ export class GridSurfaceTemplateComponent
 
     if (vDirection || hDirection) {
       this.drawSchedule.moveGrid();
-      this.updateCellInputOnScroll();
+      this.cellInput.refreshForScroll();
     }
-  }
-
-  private updateCellInputOnScroll(): void {
-    if (!this.cellInputVisible) return;
-    const pos = this.cellManipulation.positionSignal();
-    const isEditing = this.cellManipulation.isEditing();
-    this.updateCellInputPosition(pos.row, pos.column, isEditing);
-  }
-
-  private updateCellInputOnZoom(): void {
-    if (!this.cellInputVisible) return;
-    const pos = this.cellManipulation.positionSignal();
-    const isEditing = this.cellManipulation.isEditing();
-    this.updateCellInputPosition(pos.row, pos.column, isEditing);
-    this.cdr.detectChanges();
   }
 
   setFocus(): void {
@@ -435,7 +410,8 @@ export class GridSurfaceTemplateComponent
             this.drawSchedule.rebuild();
             this.drawSchedule.redraw();
             this.updateScrollbarValues(true);
-            this.updateCellInputOnZoom();
+            this.cellInput.refreshForZoom();
+            this.cdr.detectChanges();
           }
         }, 0);
       });
@@ -467,7 +443,7 @@ export class GridSurfaceTemplateComponent
       const cellInputEffect = effect(() => {
         const pos = this.cellManipulation.positionSignal();
         const isEditing = this.cellManipulation.isEditing();
-        this.updateCellInputPosition(pos.row, pos.column, isEditing);
+        this.cellInput.updatePosition(pos.row, pos.column, isEditing);
       });
       this.effects.push(cellInputEffect);
     });
@@ -478,11 +454,14 @@ export class GridSurfaceTemplateComponent
   }
 
   onSaveInput(): void {
-    this.saveCellInput();
+    const saved = this.cellInput.trySave();
+    if (saved) {
+      this.cellValueChange.emit(saved);
+    }
   }
 
   onCancelInput(): void {
-    this.cancelCellInput();
+    this.cellInput.cancel();
   }
 
   onCanvasRightClick(event: GridRightClickEvent): void {
@@ -509,8 +488,8 @@ export class GridSurfaceTemplateComponent
 
   onInputRightClick(event: CellInputRightClickEvent): void {
     this.rightClick.emit({
-      row: this.lastEditedRow,
-      column: this.lastEditedColumn,
+      row: this.cellInput.lastRow(),
+      column: this.cellInput.lastColumn(),
       clientX: event.clientX,
       clientY: event.clientY,
       source: 'input',
@@ -531,132 +510,6 @@ export class GridSurfaceTemplateComponent
       bubbles: true,
     });
     canvas.dispatchEvent(newEvent);
-  }
-
-  private updateCellInputPosition(
-    row: number,
-    column: number,
-    isEditing: boolean,
-  ): void {
-    if (!this.settings.editable || row < 0 || column < 0) {
-      this.hideCellInput();
-      return;
-    }
-
-    if (!isEditing) {
-      this.hideCellInput();
-      return;
-    }
-
-    if (!this.dataService.isCellEditable(row, column)) {
-      this.hideCellInput();
-      return;
-    }
-
-    const firstVisibleRow = this.scroll.verticalScrollPosition;
-    const firstVisibleCol = this.scroll.horizontalScrollPosition;
-    const visibleRows = this.calculateVisibleRows();
-    const visibleCols = this.calculateVisibleColumns();
-
-    const isVisible =
-      row >= firstVisibleRow &&
-      row < firstVisibleRow + visibleRows &&
-      column >= firstVisibleCol &&
-      column < firstVisibleCol + visibleCols;
-
-    if (!isVisible) {
-      this.hideCellInput();
-      return;
-    }
-
-    const visibleCol = column - firstVisibleCol;
-    const x = this.coord.cellX(visibleCol);
-    const y =
-      (row - firstVisibleRow) * this.settings.cellHeight +
-      this.settings.cellHeaderHeight;
-
-    this.showCellInput(x, y, row, column);
-  }
-
-  private showCellInput(
-    x: number,
-    y: number,
-    row: number,
-    column: number,
-  ): void {
-    const isNewCell =
-      row !== this.lastEditedRow || column !== this.lastEditedColumn;
-
-    const gridCell = this.dataService.getCell(row, column);
-    const editSpan = gridCell?.colSpan || 1;
-    const firstVisibleCol = this.scroll.horizontalScrollPosition;
-    const visibleCols = this.calculateVisibleColumns();
-    const maxSpan = Math.max(1, visibleCols - (column - firstVisibleCol));
-    const clampedSpan = Math.min(editSpan, maxSpan);
-    const visibleCol = column - firstVisibleCol;
-
-    this.cellInputX = this.coord.cellXWithSpan(visibleCol, clampedSpan);
-    this.cellInputY = y;
-    this.cellInputWidth = clampedSpan * this.settings.cellWidth;
-    this.cellInputVisible = true;
-    this.lastEditedRow = row;
-    this.lastEditedColumn = column;
-
-    if (isNewCell && this.cellInputDirective) {
-      const initialChar = this.cellManipulation.initialEditChar();
-      if (initialChar) {
-        this.cellInputDirective.value = initialChar;
-      } else {
-        const content = this.dataService.getItemMainText(row, column);
-        this.cellInputDirective.value = content;
-      }
-      setTimeout(() => {
-        this.cellInputDirective?.focus();
-        if (!initialChar) {
-          this.cellInputDirective?.select();
-        } else {
-          this.cellInputDirective?.moveCursorToEnd();
-        }
-      }, 0);
-    }
-  }
-
-  private hideCellInput(): void {
-    this.cellInputVisible = false;
-    this.lastEditedRow = -1;
-    this.lastEditedColumn = -1;
-  }
-
-  private saveCellInput(): void {
-    if (
-      !this.cellInputVisible ||
-      this.lastEditedRow < 0 ||
-      this.lastEditedColumn < 0
-    ) {
-      return;
-    }
-
-    const value = this.cellInputDirective?.value ?? '';
-    this.cellValueChange.emit({
-      row: this.lastEditedRow,
-      column: this.lastEditedColumn,
-      value,
-    });
-  }
-
-  private cancelCellInput(): void {
-    if (
-      this.lastEditedRow >= 0 &&
-      this.lastEditedColumn >= 0 &&
-      this.cellInputDirective
-    ) {
-      const content = this.dataService.getItemMainText(
-        this.lastEditedRow,
-        this.lastEditedColumn,
-      );
-      this.cellInputDirective.value = content;
-    }
-    this.cellInputDirective?.blur();
   }
 
   onGhostCellClick(event: { row: number; column: number }): void {
