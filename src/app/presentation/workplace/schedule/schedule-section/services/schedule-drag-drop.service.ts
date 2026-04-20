@@ -59,14 +59,10 @@ export class ScheduleDragDropService {
   getDropTargetInfo(
     mouseY: number,
     column: number,
-    dataService: ScheduleDataService
+    dataService: ScheduleDataService,
+    scheduleBox: HTMLElement,
   ): DropTargetInfo | null {
-    const scheduleElement = document.querySelector('app-schedule-section .box');
-    if (!scheduleElement) {
-      return null;
-    }
-
-    const rect = scheduleElement.getBoundingClientRect();
+    const rect = scheduleBox.getBoundingClientRect();
     const relativeY = mouseY - rect.top - this.settings.cellHeaderHeight;
 
     if (relativeY < 0) {

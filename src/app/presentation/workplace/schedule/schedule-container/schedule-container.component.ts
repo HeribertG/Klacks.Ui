@@ -103,13 +103,7 @@ export class ScheduleContainerComponent {
       return;
     }
 
-    const scheduleElement = document.querySelector('app-schedule-section');
-    if (!scheduleElement) {
-      this.shiftDragService.setOverScheduleSection(false);
-      return;
-    }
-
-    const rect = scheduleElement.getBoundingClientRect();
+    const rect = this.scheduleSection.getHostRect();
     const isOverSchedule =
       event.clientY >= rect.top && event.clientY <= rect.bottom;
 

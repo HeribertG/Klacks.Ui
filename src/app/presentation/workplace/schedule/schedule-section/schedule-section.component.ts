@@ -13,6 +13,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   ViewChild,
   inject,
   AfterViewInit,
@@ -134,6 +135,8 @@ export class ScheduleSectionComponent
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
+  @ViewChild('scheduleBox', { static: true })
+  scheduleBox!: ElementRef<HTMLElement>;
   scheduleSurface = viewChild<GridSurfaceTemplateComponent>('scheduleSurface');
   timelineSurface = viewChild<GridSurfaceTimelineTemplateComponent>('timelineSurface');
   @ViewChild('contextMenu', { static: false })
@@ -169,6 +172,7 @@ export class ScheduleSectionComponent
   protected dataManagement = inject(DataManagementScheduleService);
   public dataService = inject(BaseDataService);
   private scrollService = inject(ScrollService);
+  private hostElement = inject(ElementRef<HTMLElement>);
 
   private get scheduleService(): ScheduleDataService {
     return this.dataService as ScheduleDataService;
@@ -419,7 +423,16 @@ export class ScheduleSectionComponent
     column: number
   ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
     const dataService = this.scheduleService;
-    return this.facade.dragDrop.getDropTargetInfo(mouseY, column, dataService);
+    return this.facade.dragDrop.getDropTargetInfo(
+      mouseY,
+      column,
+      dataService,
+      this.scheduleBox.nativeElement,
+    );
+  }
+
+  getHostRect(): DOMRect {
+    return this.hostElement.nativeElement.getBoundingClientRect();
   }
 
   handleShiftDrop(result: ShiftDropResult): void {
