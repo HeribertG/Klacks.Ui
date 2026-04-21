@@ -73,6 +73,10 @@ export class CollisionDetectionService implements OnDestroy {
     this.subscriptions.push(
       this.signalRService.scheduleValidationsDetected$.subscribe(
         (notification) => {
+          const notificationToken = notification.analyseToken ?? null;
+          const activeToken = this.analyseScenarioService.activeToken() ?? null;
+          if (notificationToken !== activeToken) return;
+
           this.processValidationNotification(notification);
           this.entriesUpdated.set(this.entriesUpdated() + 1);
         },
@@ -82,7 +86,8 @@ export class CollisionDetectionService implements OnDestroy {
     effect(() => {
       if (this.dataManagement.isWorkScheduleRead()) {
         const group = this.dataManagement.workFilter.selectedGroup ?? '';
-        const currentKey = `${group}_${this.dataManagement.visibleStartDate?.toISOString()}_${this.dataManagement.visibleEndDate?.toISOString()}`;
+        const token = this.analyseScenarioService.activeToken() ?? 'null';
+        const currentKey = `${group}_${this.dataManagement.visibleStartDate?.toISOString()}_${this.dataManagement.visibleEndDate?.toISOString()}_${token}`;
         const changed = currentKey !== this.lastClearedKey;
 
         if (changed) {

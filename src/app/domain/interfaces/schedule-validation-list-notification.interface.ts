@@ -7,4 +7,5 @@ export interface IScheduleValidationListNotification {
   isFullRefresh: boolean;
   checkedClientId?: string;
   checkedDate?: string;
+  analyseToken?: string | null;
 }

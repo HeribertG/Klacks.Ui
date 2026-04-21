@@ -49,11 +49,29 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   private static readonly TOKEN_EXPIRY_BUFFER_MS = 30000;
   private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
   private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
+  private static readonly HEALTH_CHECK_INTERVAL_MS = 30000;
+  private static readonly SERVER_TIMEOUT_MS = 20000;
+  private static readonly KEEP_ALIVE_INTERVAL_MS = 10000;
   private tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private healthCheckTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.onVisibilityChange);
+    }
   }
+
+  private onVisibilityChange = async (): Promise<void> => {
+    if (
+      document.visibilityState === 'visible' &&
+      this._isConnected() &&
+      this.hubConnection?.state !== signalR.HubConnectionState.Connected
+    ) {
+      console.warn('[SignalR] tab visible, connection state drift detected - forcing reconnect');
+      await this.refreshConnection();
+    }
+  };
 
   get connectionId(): string {
     return this._connectionId();
@@ -68,13 +86,20 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       return;
     }
 
-    const token = this.localStorageService.get(StorageKeys.TOKEN);
+    let token = this.localStorageService.get(StorageKeys.TOKEN);
     if (!token) {
+      console.warn('[SignalR] no token available, aborting startConnection');
       return;
     }
 
     if (this.isTokenExpired(token)) {
-      return;
+      console.warn('[SignalR] token expired at startup, attempting refresh before connecting');
+      await this.attemptTokenRefresh();
+      token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (!token || this.isTokenExpired(token)) {
+        console.warn('[SignalR] token refresh did not yield a valid token, aborting startConnection');
+        return;
+      }
     }
 
     const isValid = await this.validateTokenWithBackend(token);
@@ -90,8 +115,11 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Warning)
+      .configureLogging(signalR.LogLevel.Information)
       .build();
+
+    this.hubConnection.serverTimeoutInMilliseconds = SignalRService.SERVER_TIMEOUT_MS;
+    this.hubConnection.keepAliveIntervalInMilliseconds = SignalRService.KEEP_ALIVE_INTERVAL_MS;
 
     this.registerEventHandlers();
     this.registerConnectionEvents();
@@ -129,10 +157,12 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         this._connectionId.set(connectionId);
         this._isConnected.set(true);
         this.startProactiveTokenRefresh();
+        this.startHealthCheck();
         await this.rejoinCurrentGroup();
         return;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('[SignalR] connect attempt', attempt, 'failed:', errorMessage);
 
         if (errorMessage.includes('401')) {
           this._isConnected.set(false);
@@ -151,6 +181,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   async stopConnection(): Promise<void> {
     this.stopProactiveTokenRefresh();
+    this.stopHealthCheck();
     if (this.hubConnection) {
       await this.hubConnection.stop();
       this._isConnected.set(false);
@@ -411,7 +442,11 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   ngOnDestroy(): void {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    }
     this.stopProactiveTokenRefresh();
+    this.stopHealthCheck();
     this.stopConnection();
     this.workCreated$.complete();
     this.workUpdated$.complete();
@@ -457,6 +492,36 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     if (this.tokenRefreshTimer) {
       clearInterval(this.tokenRefreshTimer);
       this.tokenRefreshTimer = null;
+    }
+  }
+
+  private startHealthCheck(): void {
+    this.stopHealthCheck();
+    this.healthCheckTimer = setInterval(async () => {
+      const serviceConnected = this._isConnected();
+      const hubState = this.hubConnection?.state;
+      const hubConnected = hubState === signalR.HubConnectionState.Connected;
+
+      if (serviceConnected && hubConnected) {
+        try {
+          await this.hubConnection!.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
+        } catch (error) {
+          console.warn('[SignalR] health check failed - forcing reconnect', error);
+          this._isConnected.set(false);
+          await this.refreshConnection();
+        }
+      } else if (serviceConnected && !hubConnected) {
+        console.warn('[SignalR] state drift detected (hub=' + hubState + ') - forcing reconnect');
+        this._isConnected.set(false);
+        await this.refreshConnection();
+      }
+    }, SignalRService.HEALTH_CHECK_INTERVAL_MS);
+  }
+
+  private stopHealthCheck(): void {
+    if (this.healthCheckTimer) {
+      clearInterval(this.healthCheckTimer);
+      this.healthCheckTimer = null;
     }
   }
 
