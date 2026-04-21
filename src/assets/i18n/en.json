@@ -2032,6 +2032,8 @@
   "floor-plan.name": "Name",
   "floor-plan.description": "Description",
   "scenario.title": "Original",
+  "signalr.status.connected": "Real-time connection active",
+  "signalr.status.disconnected": "Real-time connection lost",
   "scenario.create": "Create new scenario",
   "scenario.select": "Select scenario",
   "scenario.exit": "To Original",

@@ -50,16 +50,20 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
   private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
   private static readonly HEALTH_CHECK_INTERVAL_MS = 30000;
+  private static readonly WATCHDOG_INTERVAL_MS = 30000;
   private static readonly SERVER_TIMEOUT_MS = 20000;
   private static readonly KEEP_ALIVE_INTERVAL_MS = 10000;
   private tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private healthCheckTimer: ReturnType<typeof setInterval> | null = null;
+  private watchdogTimer: ReturnType<typeof setInterval> | null = null;
+  private isStarting = false;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', this.onVisibilityChange);
     }
+    this.startWatchdog();
   }
 
   private onVisibilityChange = async (): Promise<void> => {
@@ -82,10 +86,21 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   async startConnection(): Promise<void> {
+    if (this.isStarting) {
+      return;
+    }
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return;
     }
+    this.isStarting = true;
+    try {
+      await this.startConnectionInternal();
+    } finally {
+      this.isStarting = false;
+    }
+  }
 
+  private async startConnectionInternal(): Promise<void> {
     let token = this.localStorageService.get(StorageKeys.TOKEN);
     if (!token) {
       console.warn('[SignalR] no token available, aborting startConnection');
@@ -149,6 +164,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private async connectWithRetry(maxRetries = 5): Promise<void> {
     const retryDelays = [0, 1000, 2000, 5000, 10000];
+    let tokenRefreshAttempted = false;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
@@ -165,6 +181,13 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         console.error('[SignalR] connect attempt', attempt, 'failed:', errorMessage);
 
         if (errorMessage.includes('401')) {
+          if (!tokenRefreshAttempted) {
+            tokenRefreshAttempted = true;
+            console.warn('[SignalR] 401 on connect - refreshing token and retrying once');
+            await this.attemptTokenRefresh();
+            continue;
+          }
+          console.warn('[SignalR] 401 persisted after token refresh - giving up until next watchdog tick');
           this._isConnected.set(false);
           return;
         }
@@ -447,6 +470,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     }
     this.stopProactiveTokenRefresh();
     this.stopHealthCheck();
+    this.stopWatchdog();
     this.stopConnection();
     this.workCreated$.complete();
     this.workUpdated$.complete();
@@ -522,6 +546,25 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     if (this.healthCheckTimer) {
       clearInterval(this.healthCheckTimer);
       this.healthCheckTimer = null;
+    }
+  }
+
+  private startWatchdog(): void {
+    this.stopWatchdog();
+    this.watchdogTimer = setInterval(() => {
+      const hasToken = !!this.localStorageService.get(StorageKeys.TOKEN);
+      if (!hasToken) return;
+      if (this._isConnected() || this.isStarting) return;
+
+      console.warn('[SignalR] watchdog: disconnected with valid token present - attempting startConnection');
+      void this.startConnection();
+    }, SignalRService.WATCHDOG_INTERVAL_MS);
+  }
+
+  private stopWatchdog(): void {
+    if (this.watchdogTimer) {
+      clearInterval(this.watchdogTimer);
+      this.watchdogTimer = null;
     }
   }
 

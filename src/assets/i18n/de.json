@@ -2032,6 +2032,8 @@
   "floor-plan.name": "Name",
   "floor-plan.description": "Beschreibung",
   "scenario.title": "Original",
+  "signalr.status.connected": "Echtzeit-Verbindung aktiv",
+  "signalr.status.disconnected": "Echtzeit-Verbindung getrennt",
   "scenario.create": "Neues Szenario erstellen",
   "scenario.select": "Szenario auswählen",
   "scenario.exit": "Zum Original",

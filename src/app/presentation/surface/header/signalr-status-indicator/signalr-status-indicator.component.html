@@ -1,0 +1,8 @@
+<span
+  class="signalr-status-dot"
+  [class.connected]="connected()"
+  [class.disconnected]="!connected()"
+  [ngbTooltip]="tooltipKey() | translate"
+  container="body"
+  aria-hidden="true"
+></span>

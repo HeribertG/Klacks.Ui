@@ -30,6 +30,7 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../icons/icon-logo.component';
+import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/signalr-status-indicator.component';
 
 @Component({
   selector: 'app-header',
@@ -44,6 +45,7 @@ import { IconLogoComponent } from '../../icons/icon-logo.component';
     FontAwesomeModule,
     IconMMLComponent,
     IconLogoComponent,
+    SignalRStatusIndicatorComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
