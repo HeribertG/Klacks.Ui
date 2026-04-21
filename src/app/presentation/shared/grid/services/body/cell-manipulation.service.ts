@@ -45,6 +45,10 @@ export class BaseCellManipulationService {
     this.positionSignal.set(value);
   }
 
+  public clearPosition(): void {
+    this.Position = new MyPosition(-1, -1);
+  }
+
   public startEditing(initialChar = ''): void {
     this.initialEditChar.set(initialChar);
     this.isEditing.set(true);

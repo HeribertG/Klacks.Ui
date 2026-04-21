@@ -4,8 +4,8 @@
  * Stand-alone row header for the timeline view.
  * Shares the shared draw engine with the tabular view but swaps in the
  * timeline-specific create-row-header service so the cell gets a 24h ruler
- * appended on the right. Intentionally lean: no filter / context menu / tooltip
- * logic - that belongs to the tabular row header, not the timeline one.
+ * appended on the right. Supports the same context-menu actions as the
+ * tabular row header (address navigation, reports, shift preferences).
  * @param drawRowHeader - Reused draw engine (BaseDrawRowHeaderService)
  * @param settings - Grid settings (cell height, zoom, timeline flag)
  * @param valueChangeVScrollbar - Vertical scroll position pushed in by the parent
@@ -30,6 +30,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
@@ -50,17 +51,23 @@ import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-clas
 import { ScheduleDataService } from '../../services/schedule-data.service';
 import { TimelineCreateRowHeaderService } from '../services/timeline-create-row-header.service';
 import { TimelineSelectionService } from '../services/timeline-selection.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { RowHeaderReportService } from '../../schedule-schedule-row-header/row-header-report.service';
+import { ShiftPreferencesDialogComponent } from '../../../dialogs/shift-preferences-dialog/shift-preferences-dialog.component';
 
 @Component({
   selector: 'app-schedule-timeline-row-header',
   templateUrl: './schedule-timeline-row-header.component.html',
   styleUrls: ['./schedule-timeline-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ClientFilterComponent],
+  imports: [NgStyle, ResizeDirective, ClientFilterComponent, ContextMenuComponent, ShiftPreferencesDialogComponent],
   providers: [
     { provide: BaseCreateRowHeaderService, useClass: TimelineCreateRowHeaderService },
     BaseDrawRowHeaderService,
     ProgressBarAnimationService,
+    ContextMenuService,
+    RowHeaderReportService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -68,6 +75,9 @@ export class ScheduleTimelineRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('contextMenu', { static: false }) contextMenu!: ContextMenuComponent;
+  @ViewChild(ShiftPreferencesDialogComponent) shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
+
   @Input() valueChangeVScrollbar!: number;
 
   public dataService = inject(BaseDataService);
@@ -81,13 +91,16 @@ export class ScheduleTimelineRowHeaderComponent
   private rowHeaderIcons = inject(RowHeaderIconsService);
   private cellManipulation = inject(BaseCellManipulationService);
   private timelineSelection = inject(TimelineSelectionService);
+  private reportHelper = inject(RowHeaderReportService);
   private cdr = inject(ChangeDetectorRef);
 
+  private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
   private isDestroyed = false;
   private pixelRatio = 1;
   private pixelRatioMql?: MediaQueryList;
   private pixelRatioListener?: () => void;
+  private contextMenuRow = -1;
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   private filterEl = viewChild<ElementRef>('filterEl');
@@ -101,15 +114,24 @@ export class ScheduleTimelineRowHeaderComponent
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
     this.pixelRatio = DrawHelper.pixelRatio();
     this.registerPixelRatioListener();
+    this.reportHelper.loadDefaults();
   }
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.registerSignalEffects();
+
+    this.contextMenu?.hasClicked
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((keys) => {
+        this.menuClicked(keys);
+      });
   }
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
     this.unregisterPixelRatioListener();
     this.drawRowHeader.deleteCanvas();
     this.effects.forEach((e) => e?.destroy());
@@ -156,6 +178,77 @@ export class ScheduleTimelineRowHeaderComponent
       if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
         this.showFilter();
       }
+    }
+  }
+
+  onRightClick(event: MouseEvent): void {
+    event.preventDefault();
+    if (!this.contextMenu) return;
+
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    const row =
+      Math.floor(
+        (pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight,
+      ) + this.scroll.verticalScrollPosition;
+
+    if (row < 0 || row >= this.dataService.rows) {
+      return;
+    }
+
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    if (groupIndex === undefined) {
+      return;
+    }
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (!client?.id) {
+      return;
+    }
+
+    this.contextMenuRow = row;
+    this.contextMenu.menuData = this.reportHelper.createContextMenu();
+
+    this.contextMenu.openMenu({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    } as MouseEvent);
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    switch (keys[0]) {
+      case 'goToAddress':
+        this.contextMenu.closeMenu(true);
+        this.reportHelper.navigateToAddress(this.contextMenuRow);
+        break;
+      case 'staffSchedule':
+        this.contextMenu.closeMenu(true);
+        this.reportHelper.generateStaffSchedule(this.contextMenuRow);
+        break;
+      case 'sendStaffSchedule':
+        this.contextMenu.closeMenu(true);
+        this.reportHelper.sendStaffSchedule(this.contextMenuRow);
+        break;
+      case 'shiftPreferences':
+        this.contextMenu.closeMenu(true);
+        this.openShiftPreferencesDialog(this.contextMenuRow);
+        break;
+    }
+  }
+
+  private openShiftPreferencesDialog(row: number): void {
+    if (row < 0 || row >= this.dataService.rows) return;
+
+    const groupIndex = this.dataService.rowGroupIndex[row];
+    if (groupIndex === undefined) return;
+
+    const client = this.dataService.getGroupIndex(groupIndex);
+    if (client?.id && this.shiftPreferencesDialog) {
+      const name = [client.firstName, client.name].filter(Boolean).join(' ');
+      this.shiftPreferencesDialog.open(client.id, name);
     }
   }
 

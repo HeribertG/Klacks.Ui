@@ -17,5 +17,9 @@
     (mousemove)="onMouseMove($event)"
     (mouseleave)="onCanvasMouseLeave()"
     (click)="onCanvasClick($event)"
+    (contextmenu)="onRightClick($event)"
   ></canvas>
 </div>
+
+<app-context-menu #contextMenu></app-context-menu>
+<app-shift-preferences-dialog></app-shift-preferences-dialog>
