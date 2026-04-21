@@ -402,26 +402,39 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private async attemptTokenRefresh(): Promise<void> {
     try {
-      const refreshUrl = environment.baseUrl + 'Accounts/RefreshToken';
-      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      const refreshToken = this.localStorageService.get(StorageKeys.TOKEN_REFRESHTOKEN);
+      if (!refreshToken) {
+        console.warn('[SignalR] no refresh token in storage - cannot refresh');
+        return;
+      }
 
+      const refreshUrl = environment.baseUrl + 'Accounts/RefreshToken';
       const response = await fetch(refreshUrl, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.token) {
-          this.localStorageService.set(StorageKeys.TOKEN, data.token);
-          
-        }
+      if (!response.ok) {
+        console.warn('[SignalR] refresh endpoint returned', response.status);
+        return;
       }
-    } catch {
-      // ignored
+
+      const data = await response.json();
+      if (!data?.token) {
+        console.warn('[SignalR] refresh response missing token field');
+        return;
+      }
+
+      this.localStorageService.set(StorageKeys.TOKEN, data.token);
+      if (data.refreshToken) {
+        this.localStorageService.set(StorageKeys.TOKEN_REFRESHTOKEN, data.refreshToken);
+      }
+      if (data.expTime !== undefined && data.expTime !== null) {
+        this.localStorageService.set(StorageKeys.TOKEN_EXP, data.expTime.toString());
+      }
+    } catch (error) {
+      console.warn('[SignalR] refresh request failed', error);
     }
   }
 
