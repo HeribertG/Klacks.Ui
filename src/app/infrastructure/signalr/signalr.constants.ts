@@ -52,6 +52,26 @@ export const EmailSignalRConstants = {
   },
 } as const;
 
+export const WizardSignalRConstants = {
+  HubPath: '/hubs/wizard',
+
+  Events: {
+    OnProgress: 'OnProgress',
+    OnCompleted: 'OnCompleted',
+    OnCancelled: 'OnCancelled',
+    OnFailed: 'OnFailed',
+  },
+
+  HubMethods: {
+    JoinJob: 'JoinJob',
+    LeaveJob: 'LeaveJob',
+  },
+
+  QueryParams: {
+    AccessToken: 'access_token',
+  },
+} as const;
+
 export const AssistantSignalRConstants = {
   HubPath: '/hubs/assistant-notifications',
 
