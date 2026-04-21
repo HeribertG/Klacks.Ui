@@ -1,10 +1,16 @@
+:host {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
 .signalr-status-dot {
   display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin: 0 0.5rem;
-  vertical-align: middle;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15) inset;
   transition: background-color 150ms ease-in-out;
 }
