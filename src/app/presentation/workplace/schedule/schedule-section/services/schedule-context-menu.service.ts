@@ -135,20 +135,19 @@ export class ScheduleContextMenuService {
           if (isContainer) {
             menuData.list.push(...MenuDataTemplate.divider());
             menuData.list.push(...MenuDataTemplate.openContainer());
-          }
-          menuData.list.push(...MenuDataTemplate.divider());
-          menuData.list.push(...MenuDataTemplate.correction());
-          menuData.list.push(...MenuDataTemplate.travel());
-          menuData.list.push(...MenuDataTemplate.briefingDebriefing());
-          if (isContainer) {
+            menuData.list.push(...MenuDataTemplate.divider());
             menuData.list.push(...MenuDataTemplate.splitContainer());
+            menuData.list.push(...MenuDataTemplate.expenses());
           } else {
+            menuData.list.push(...MenuDataTemplate.divider());
+            menuData.list.push(...MenuDataTemplate.correction());
+            menuData.list.push(...MenuDataTemplate.travel());
+            menuData.list.push(...MenuDataTemplate.briefingDebriefing());
             menuData.list.push(...MenuDataTemplate.replacement());
-          }
-          menuData.list.push(...MenuDataTemplate.expenses());
-
-          if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
-            menuData.list.push(...MenuDataTemplate.editWork());
+            menuData.list.push(...MenuDataTemplate.expenses());
+            if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {
+              menuData.list.push(...MenuDataTemplate.editWork());
+            }
           }
         }
 
