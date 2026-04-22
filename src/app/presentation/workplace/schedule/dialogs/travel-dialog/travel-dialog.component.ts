@@ -2,8 +2,8 @@
 
 /**
  * Dialog component for creating and editing work time travel entries.
- * Allows travel time adjustments at start, end, or within a work entry.
- * Validates time ranges and calculates duration changes using travel-specific rules.
+ * AtStart and AtEnd use duration-only input; Within uses Von/Bis time range.
+ * Validates input and calculates duration changes using travel-specific rules.
  *
  * @param workId - ID of the work entry this travel belongs to
  * @param clientId - ID of the client associated with the work entry
@@ -59,6 +59,7 @@ export class TravelDialogComponent {
   travelMode: TravelMode = TravelMode.AtEnd;
   startTime: OwnTime = OwnTime.forTime('00', '00');
   endTime: OwnTime = OwnTime.forTime('00', '00');
+  durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
   description = '';
   toInvoice = true;
@@ -101,20 +102,14 @@ export class TravelDialogComponent {
         this.clientId = data.work?.clientId || '';
         this.description = data.description || '';
         this.toInvoice = data.toInvoice;
-        this.startTime = this.logicService.parseTimeString(data.startTime);
-        this.endTime = this.logicService.parseTimeString(data.endTime);
 
-        switch (data.type) {
-          case WorkChangeType.TravelStart:
-            this.travelMode = TravelMode.AtStart;
-            break;
-          case WorkChangeType.TravelWithin:
-            this.travelMode = TravelMode.Within;
-            break;
-          case WorkChangeType.TravelEnd:
-          default:
-            this.travelMode = TravelMode.AtEnd;
-            break;
+        if (data.type === WorkChangeType.TravelWithin) {
+          this.travelMode = TravelMode.Within;
+          this.startTime = this.logicService.parseTimeString(data.startTime);
+          this.endTime = this.logicService.parseTimeString(data.endTime);
+        } else {
+          this.travelMode = data.type === WorkChangeType.TravelStart ? TravelMode.AtStart : TravelMode.AtEnd;
+          this.durationMinutes = Math.round(data.changeTime * 60);
         }
 
         const workStartTime = data.work?.startTime || data.startTime;
@@ -137,22 +132,36 @@ export class TravelDialogComponent {
 
   private reset(): void {
     this.travelMode = TravelMode.AtEnd;
+    this.durationMinutes = this.logicService.getDefaultDurationMinutes();
     this.description = '';
     this.toInvoice = true;
     this.onModeChange();
   }
 
   onModeChange(): void {
-    if (this.workContext) {
+    if (this.isWithinMode && this.workContext) {
       const defaults = this.logicService.getDefaultTimesForMode(this.travelMode as unknown as CorrectionMode, this.workContext);
       this.startTime = defaults.startTime;
       this.endTime = defaults.endTime;
+    } else {
+      this.durationMinutes = this.logicService.getDefaultDurationMinutes();
     }
     this.recalculate();
   }
 
   onTimeChange(): void {
     this.recalculate();
+  }
+
+  onDurationChange(): void {
+    if (!this.isWithinMode) {
+      this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+    }
+  }
+
+  onDurationTimeChange(): void {
+    this.durationMinutes = this.duration.toMinutes();
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   private recalculate(): void {
@@ -162,18 +171,13 @@ export class TravelDialogComponent {
       return;
     }
 
-    this.duration = this.logicService.calculateDurationDisplay(
-      this.startTime,
-      this.endTime,
-      this.workContext
-    );
-
-    this.validation = this.logicService.validateTravelMode(
-      this.startTime,
-      this.endTime,
-      this.workContext,
-      this.travelMode
-    );
+    if (this.isWithinMode) {
+      this.duration = this.logicService.calculateDurationDisplay(this.startTime, this.endTime, this.workContext);
+      this.validation = this.logicService.validateTravelMode(this.startTime, this.endTime, this.workContext, this.travelMode);
+    } else {
+      this.duration = this.logicService.minutesToOwnTime(this.durationMinutes, true);
+      this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+    }
   }
 
   isValid(): boolean {
@@ -205,8 +209,8 @@ export class TravelDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
+      endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,
@@ -244,8 +248,8 @@ export class TravelDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
+      endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,

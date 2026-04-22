@@ -349,4 +349,15 @@ export class WorkChangeLogicService {
     const durationMinutes = this.calculateDurationMinutes(wcStartTime, wcEndTime, workContext);
     return this.minutesToOwnTime(Math.abs(durationMinutes), true);
   }
+
+  validateDurationOnly(durationMinutes: number): WorkChangeValidation {
+    if (durationMinutes <= 0) {
+      return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.zeroTime' };
+    }
+    return { isValid: true, changeTime: durationMinutes / 60 };
+  }
+
+  getDefaultDurationMinutes(): number {
+    return 15;
+  }
 }

@@ -2,8 +2,8 @@
 
 /**
  * Dialog component for creating and editing briefing and debriefing work time entries.
- * Supports two positions (AtStart for briefing, AtEnd for debriefing) and is always non-billable.
- * Validates time ranges and calculates duration using correction mode logic.
+ * Supports two positions (AtStart for briefing, AtEnd for debriefing) with duration-only input.
+ * Validates duration and builds the API request with startTime/endTime as "00:00".
  *
  * @param workId - ID of the work entry this briefing belongs to
  * @param clientId - ID of the client associated with the work entry
@@ -56,8 +56,7 @@ export class BriefingDialogComponent {
   clientId = '';
   currentDate: Date | null = null;
   correctionMode: CorrectionMode = CorrectionMode.AtStart;
-  startTime: OwnTime = OwnTime.forTime('00', '00');
-  endTime: OwnTime = OwnTime.forTime('00', '00');
+  durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
   description = '';
   toInvoice = false;
@@ -96,12 +95,10 @@ export class BriefingDialogComponent {
         this.clientId = data.work?.clientId || '';
         this.description = data.description || '';
         this.toInvoice = false;
-        this.startTime = this.logicService.parseTimeString(data.startTime);
-        this.endTime = this.logicService.parseTimeString(data.endTime);
-
         this.correctionMode = data.type === WorkChangeType.Debriefing
           ? CorrectionMode.AtEnd
           : CorrectionMode.AtStart;
+        this.durationMinutes = Math.round(data.changeTime * 60);
 
         const workStartTime = data.work?.startTime || data.startTime;
         const workEndTime = data.work?.endTime || data.endTime;
@@ -123,22 +120,27 @@ export class BriefingDialogComponent {
 
   private reset(): void {
     this.correctionMode = CorrectionMode.AtStart;
+    this.durationMinutes = this.logicService.getDefaultDurationMinutes();
     this.description = '';
     this.toInvoice = false;
-    this.onModeChange();
+    this.recalculate();
   }
 
   onModeChange(): void {
-    if (this.workContext) {
-      const defaults = this.logicService.getDefaultTimesForMode(this.correctionMode, this.workContext);
-      this.startTime = defaults.startTime;
-      this.endTime = defaults.endTime;
-    }
     this.recalculate();
   }
 
   onTimeChange(): void {
     this.recalculate();
+  }
+
+  onDurationChange(): void {
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+  }
+
+  onDurationTimeChange(): void {
+    this.durationMinutes = this.duration.toMinutes();
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   private recalculate(): void {
@@ -148,18 +150,8 @@ export class BriefingDialogComponent {
       return;
     }
 
-    this.duration = this.logicService.calculateDurationDisplay(
-      this.startTime,
-      this.endTime,
-      this.workContext
-    );
-
-    this.validation = this.logicService.validateCorrectionMode(
-      this.startTime,
-      this.endTime,
-      this.workContext,
-      this.correctionMode
-    );
+    this.duration = this.logicService.minutesToOwnTime(this.durationMinutes, true);
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   isValid(): boolean {
@@ -190,8 +182,8 @@ export class BriefingDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: '00:00',
+      endTime: '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,
@@ -229,8 +221,8 @@ export class BriefingDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: '00:00',
+      endTime: '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,

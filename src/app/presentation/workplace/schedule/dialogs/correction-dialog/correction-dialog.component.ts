@@ -6,8 +6,8 @@
  *
  * @description
  * Dialog component for creating and editing work time corrections.
- * Allows adjustments at start, end, or within a work entry.
- * Validates time ranges and calculates duration changes.
+ * Allows duration-only adjustments at start or end of a work entry.
+ * Validates duration and builds the API request with startTime/endTime as "00:00".
  *
  * @relations
  * - Opened by: ScheduleDialogService
@@ -62,8 +62,7 @@ export class CorrectionDialogComponent {
   clientId = '';
   currentDate: Date | null = null;
   correctionMode: CorrectionMode = CorrectionMode.AtEnd;
-  startTime: OwnTime = OwnTime.forTime('00', '00');
-  endTime: OwnTime = OwnTime.forTime('00', '00');
+  durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
   description = '';
   toInvoice = false;
@@ -76,10 +75,6 @@ export class CorrectionDialogComponent {
   private editId = '';
 
   CorrectionMode = CorrectionMode;
-
-  get isWithinMode(): boolean {
-    return this.correctionMode === CorrectionMode.Within;
-  }
 
   open(workId: string, clientId: string, currentDate: Date, workStartTime: string, workEndTime: string): void {
     this.editMode = false;
@@ -106,11 +101,10 @@ export class CorrectionDialogComponent {
         this.clientId = data.work?.clientId || '';
         this.description = data.description || '';
         this.toInvoice = data.toInvoice;
-        this.startTime = this.logicService.parseTimeString(data.startTime);
-        this.endTime = this.logicService.parseTimeString(data.endTime);
         this.correctionMode = data.type === WorkChangeType.CorrectionStart
           ? CorrectionMode.AtStart
           : CorrectionMode.AtEnd;
+        this.durationMinutes = Math.round(data.changeTime * 60);
 
         const workStartTime = data.work?.startTime || data.startTime;
         const workEndTime = data.work?.endTime || data.endTime;
@@ -132,22 +126,27 @@ export class CorrectionDialogComponent {
 
   private reset(): void {
     this.correctionMode = CorrectionMode.AtEnd;
+    this.durationMinutes = this.logicService.getDefaultDurationMinutes();
     this.description = '';
     this.toInvoice = true;
-    this.onModeChange();
+    this.recalculate();
   }
 
   onModeChange(): void {
-    if (this.workContext) {
-      const defaults = this.logicService.getDefaultTimesForMode(this.correctionMode, this.workContext);
-      this.startTime = defaults.startTime;
-      this.endTime = defaults.endTime;
-    }
     this.recalculate();
   }
 
   onTimeChange(): void {
     this.recalculate();
+  }
+
+  onDurationChange(): void {
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+  }
+
+  onDurationTimeChange(): void {
+    this.durationMinutes = this.duration.toMinutes();
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   private recalculate(): void {
@@ -157,18 +156,8 @@ export class CorrectionDialogComponent {
       return;
     }
 
-    this.duration = this.logicService.calculateDurationDisplay(
-      this.startTime,
-      this.endTime,
-      this.workContext
-    );
-
-    this.validation = this.logicService.validateCorrectionMode(
-      this.startTime,
-      this.endTime,
-      this.workContext,
-      this.correctionMode
-    );
+    this.duration = this.logicService.minutesToOwnTime(this.durationMinutes, true);
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   isValid(): boolean {
@@ -180,8 +169,6 @@ export class CorrectionDialogComponent {
       case CorrectionMode.AtStart:
         return WorkChangeType.CorrectionStart;
       case CorrectionMode.AtEnd:
-      case CorrectionMode.Within:
-        return WorkChangeType.CorrectionEnd;
       default:
         return WorkChangeType.CorrectionEnd;
     }
@@ -203,8 +190,8 @@ export class CorrectionDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: '00:00',
+      endTime: '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,
@@ -242,8 +229,8 @@ export class CorrectionDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: '00:00',
+      endTime: '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: null,

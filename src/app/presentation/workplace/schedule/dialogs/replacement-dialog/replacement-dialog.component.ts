@@ -6,8 +6,8 @@
  *
  * @description
  * Dialog component for creating and editing work replacements.
- * Allows assigning a replacement worker for part of a shift.
- * Includes client search and time range validation.
+ * AtStart and AtEnd use duration-only input; Within (ReplacementWithin) uses Von/Bis time range.
+ * Includes client search and time range or duration validation.
  *
  * @relations
  * - Opened by: ScheduleDialogService
@@ -71,6 +71,7 @@ export class ReplacementDialogComponent {
   searchResults: IClientForReplacement[] = [];
   startTime: OwnTime = OwnTime.forTime('00', '00');
   endTime: OwnTime = OwnTime.forTime('00', '00');
+  durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
   description = '';
   toInvoice = false;
@@ -136,11 +137,15 @@ export class ReplacementDialogComponent {
           this.description = data.description || '';
           this.toInvoice = data.toInvoice;
           this.replaceClientId = data.replaceClientId;
-          this.startTime = this.logicService.parseTimeString(data.startTime);
-          this.endTime = this.logicService.parseTimeString(data.endTime);
-          this.replacementMode = data.type === WorkChangeType.ReplacementStart
-            ? CorrectionMode.AtStart
-            : CorrectionMode.AtEnd;
+
+          if (data.type === WorkChangeType.ReplacementWithin) {
+            this.replacementMode = CorrectionMode.Within;
+            this.startTime = this.logicService.parseTimeString(data.startTime);
+            this.endTime = this.logicService.parseTimeString(data.endTime);
+          } else {
+            this.replacementMode = data.type === WorkChangeType.ReplacementStart ? CorrectionMode.AtStart : CorrectionMode.AtEnd;
+            this.durationMinutes = Math.round(data.changeTime * 60);
+          }
 
           const workStartTime = data.work?.startTime || data.startTime;
           const workEndTime = data.work?.endTime || data.endTime;
@@ -198,6 +203,7 @@ export class ReplacementDialogComponent {
     this.replaceClientId = null;
     this.searchText = '';
     this.searchResults = [];
+    this.durationMinutes = this.logicService.getDefaultDurationMinutes();
     this.description = '';
     this.toInvoice = false;
     this.isOpenedFromReplaceClient = false;
@@ -207,29 +213,34 @@ export class ReplacementDialogComponent {
 
   onModeChange(): void {
     if (this.workContext) {
-      const defaults = this.logicService.getDefaultTimesForReplacementMode(this.replacementMode, this.workContext);
-      this.startTime = defaults.startTime;
-      this.endTime = defaults.endTime;
+      if (this.isWithinMode) {
+        const defaults = this.logicService.getDefaultTimesForReplacementMode(this.replacementMode, this.workContext);
+        this.startTime = defaults.startTime;
+        this.endTime = defaults.endTime;
+      } else {
+        this.durationMinutes = this.logicService.getDefaultDurationMinutes();
+      }
     }
     this.recalculate();
   }
 
   onStartTimeChange(): void {
-    if (this.workContext && this.replacementMode === CorrectionMode.AtStart) {
-      this.startTime = this.logicService.minutesToOwnTime(
-        this.logicService.parseTimeToMinutes(this.workContext.workStartTime)
-      );
-    }
     this.recalculate();
   }
 
   onEndTimeChange(): void {
-    if (this.workContext && this.replacementMode === CorrectionMode.AtEnd) {
-      this.endTime = this.logicService.minutesToOwnTime(
-        this.logicService.parseTimeToMinutes(this.workContext.workEndTime)
-      );
-    }
     this.recalculate();
+  }
+
+  onDurationChange(): void {
+    if (!this.isWithinMode) {
+      this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+    }
+  }
+
+  onDurationTimeChange(): void {
+    this.durationMinutes = this.duration.toMinutes();
+    this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
   }
 
   private recalculate(): void {
@@ -239,17 +250,13 @@ export class ReplacementDialogComponent {
       return;
     }
 
-    this.duration = this.logicService.calculateDurationDisplay(
-      this.startTime,
-      this.endTime,
-      this.workContext
-    );
-
-    this.validation = this.logicService.validateReplacement(
-      this.startTime,
-      this.endTime,
-      this.workContext
-    );
+    if (this.isWithinMode) {
+      this.duration = this.logicService.calculateDurationDisplay(this.startTime, this.endTime, this.workContext);
+      this.validation = this.logicService.validateReplacement(this.startTime, this.endTime, this.workContext);
+    } else {
+      this.duration = this.logicService.minutesToOwnTime(this.durationMinutes, true);
+      this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
+    }
   }
 
   onSearchKeyup(): void {
@@ -294,13 +301,10 @@ export class ReplacementDialogComponent {
 
   private mapModeToWorkChangeType(): WorkChangeType {
     switch (this.replacementMode) {
-      case CorrectionMode.AtStart:
-        return WorkChangeType.ReplacementStart;
-      case CorrectionMode.AtEnd:
-      case CorrectionMode.Within:
-        return WorkChangeType.ReplacementEnd;
-      default:
-        return WorkChangeType.ReplacementStart;
+      case CorrectionMode.AtStart: return WorkChangeType.ReplacementStart;
+      case CorrectionMode.AtEnd: return WorkChangeType.ReplacementEnd;
+      case CorrectionMode.Within: return WorkChangeType.ReplacementWithin;
+      default: return WorkChangeType.ReplacementStart;
     }
   }
 
@@ -320,8 +324,8 @@ export class ReplacementDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
+      endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: this.replaceClientId,
@@ -344,8 +348,8 @@ export class ReplacementDialogComponent {
       type: this.mapModeToWorkChangeType(),
       changeTime: this.validation.changeTime,
       surcharges: 0,
-      startTime: this.logicService.ownTimeToString(this.startTime),
-      endTime: this.logicService.ownTimeToString(this.endTime),
+      startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
+      endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
       description: this.description,
       toInvoice: this.toInvoice,
       replaceClientId: this.replaceClientId,
