@@ -87,7 +87,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of sortedTokenRows(); track row.date + row.agentName) {
+                  @for (row of sortedTokenRows(); track row.date + row.agentName + row.shiftName) {
                     <tr>
                       <td>{{ row.date }}</td>
                       <td>{{ row.shiftName }}</td>

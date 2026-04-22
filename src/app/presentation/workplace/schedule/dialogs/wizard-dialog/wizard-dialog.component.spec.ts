@@ -164,4 +164,24 @@ describe('WizardDialogComponent', () => {
 
     expect(rows[0].agentName).toBe('unknown-guid');
   });
+
+  it('phase reverts to error and _localError is set when onApply rejects', async () => {
+    wizardServiceMock.status.set('completed');
+    wizardServiceMock.currentJobId.set('job-1');
+    wizardServiceMock.apply.mockRejectedValue(new Error('Apply failed'));
+
+    await component.onApply();
+
+    expect(component.phase()).toBe('error');
+    expect(component.errorMessage()).toBe('Apply failed');
+  });
+
+  it('onApply is a no-op when currentJobId is null', async () => {
+    wizardServiceMock.currentJobId.set(null);
+
+    await component.onApply();
+
+    expect(wizardServiceMock.apply).not.toHaveBeenCalled();
+    expect(component.appliedCount()).toBe(0);
+  });
 });
