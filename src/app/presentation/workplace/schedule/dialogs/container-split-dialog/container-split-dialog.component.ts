@@ -36,8 +36,11 @@ import {
   SubWorkConflict,
 } from './services/container-split-logic.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
-import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { OwnTime, Work } from 'src/app/domain/models/schedule/schedule-class';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
+import { ContainerLockService } from 'src/app/domain/services/container/container-lock.service';
+import { ContainerLockResourceType } from 'src/app/domain/models/container/container-lock';
 
 export interface IOpenContainerSplitOptions {
   workId: string;
@@ -51,8 +54,9 @@ export interface IOpenContainerSplitOptions {
 @Component({
   selector: 'app-container-split-dialog',
   standalone: true,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormsModule, TimeInputComponent],
   templateUrl: './container-split-dialog.component.html',
+  styleUrl: './container-split-dialog.component.scss',
   providers: [ContainerSplitLogicService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -65,6 +69,7 @@ export class ContainerSplitDialogComponent {
   private logicService = inject(ContainerSplitLogicService);
   private dataSchedule = inject(DataScheduleService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private lockService = inject(ContainerLockService);
 
   private modalRef: NgbModalRef | null = null;
   private allClients: IClientForReplacement[] = [];
@@ -77,7 +82,13 @@ export class ContainerSplitDialogComponent {
   readonly currentClientId = signal<string>('');
   readonly currentDate = signal<Date>(new Date());
 
-  readonly splitTime = signal<string>('');
+  readonly splitTimeOwn = signal<OwnTime>(OwnTime.forTime('00', '00'));
+  private readonly splitTimeTouched = signal<boolean>(false);
+  readonly splitTime = computed(() => {
+    if (!this.splitTimeTouched()) return '';
+    const t = this.splitTimeOwn();
+    return `${t.hours}:${t.minutes}`;
+  });
   readonly replaceClientId = signal<string | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly isSaving = signal<boolean>(false);
@@ -114,7 +125,11 @@ export class ContainerSplitDialogComponent {
   });
 
   readonly canSave = computed(
-    () => this.isSplitTimeValid() && this.allConflictsResolved() && !this.isSaving(),
+    () =>
+      this.isSplitTimeValid() &&
+      this.allConflictsResolved() &&
+      !!this.replaceClientId() &&
+      !this.isSaving(),
   );
 
   open(options: IOpenContainerSplitOptions): void {
@@ -124,7 +139,8 @@ export class ContainerSplitDialogComponent {
     this.containerEnd.set(options.containerEnd);
     this.currentClientId.set(options.clientId);
     this.currentDate.set(options.currentDate);
-    this.splitTime.set('');
+    this.splitTimeOwn.set(OwnTime.forTime('00', '00'));
+    this.splitTimeTouched.set(false);
     this.replaceClientId.set(null);
     this.conflictResolutions.set({});
     this.clientSearchResults.set([]);
@@ -134,24 +150,39 @@ export class ContainerSplitDialogComponent {
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
-      size: 'lg',
     });
 
-    forkJoin({
-      children: this.childrenService.loadChildren(this.workId),
-      clients: this.clientService.getClientsForReplacement(),
-    }).subscribe({
-      next: ({ children, clients }) => {
-        this.children.set(children);
-        this.allClients = clients.filter((c) => c.id !== options.clientId);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    this.lockService
+      .acquire(ContainerLockResourceType.containerWork, this.workId)
+      .subscribe({
+        next: (lock) => {
+          if (!lock.acquired) {
+            this.isLoading.set(false);
+            this.modalRef?.dismiss();
+            return;
+          }
+          forkJoin({
+            children: this.childrenService.loadChildren(this.workId),
+            clients: this.clientService.getClientsForReplacement(),
+          }).subscribe({
+            next: ({ children, clients }) => {
+              this.children.set(children);
+              this.allClients = clients.filter((c) => c.id !== options.clientId);
+              this.isLoading.set(false);
+            },
+            error: () => this.isLoading.set(false),
+          });
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.modalRef?.dismiss();
+        },
+      });
   }
 
-  onSplitTimeChange(value: string): void {
-    this.splitTime.set(value);
+  onSplitTimeOwnChanged(value: OwnTime): void {
+    this.splitTimeTouched.set(true);
+    this.splitTimeOwn.set(OwnTime.forTime(value.hours, value.minutes));
     this.conflictResolutions.set({});
   }
 
@@ -214,6 +245,7 @@ export class ContainerSplitDialogComponent {
   }
 
   close(): void {
+    this.lockService.release();
     this.modalRef?.dismiss();
   }
 
@@ -236,8 +268,8 @@ export class ContainerSplitDialogComponent {
       ...cat.conflicts.filter((c) => c.resolution === 'after').map((c) => c.subWork),
     ];
     return {
-      subWorks: afterWorks,
-      subBreaks: cat.afterBreaks,
+      subWorks: afterWorks.map((w) => ({ ...w, id: crypto.randomUUID() })),
+      subBreaks: cat.afterBreaks.map((b) => ({ ...b, id: crypto.randomUUID() })),
       subWorkChanges: [],
       parentStartTime: this.splitTime(),
     };
@@ -264,12 +296,33 @@ export class ContainerSplitDialogComponent {
           this.restoreOriginal(originalEndTime);
           return;
         }
-        this.saveAfterChildren(newWork.id, afterChildren, originalEndTime);
+        this.acquireLockAndSaveAfterChildren(newWork.id, afterChildren, originalEndTime);
       },
       error: () => {
         this.restoreOriginal(originalEndTime);
       },
     });
+  }
+
+  private acquireLockAndSaveAfterChildren(
+    newWorkId: string,
+    afterChildren: ContainerWorkChildren,
+    originalEndTime: string,
+  ): void {
+    this.lockService
+      .acquire(ContainerLockResourceType.containerWork, newWorkId)
+      .subscribe({
+        next: (lock) => {
+          if (!lock.acquired) {
+            this.restoreOriginal(originalEndTime);
+            return;
+          }
+          this.saveAfterChildren(newWorkId, afterChildren, originalEndTime);
+        },
+        error: () => {
+          this.restoreOriginal(originalEndTime);
+        },
+      });
   }
 
   private saveAfterChildren(
@@ -279,6 +332,7 @@ export class ContainerSplitDialogComponent {
   ): void {
     this.childrenService.saveChildren(newWorkId, afterChildren).subscribe({
       next: () => {
+        this.lockService.release();
         this.isSaving.set(false);
         this.modalRef?.close();
       },
@@ -293,8 +347,21 @@ export class ContainerSplitDialogComponent {
       ...(this.children() ?? { subWorks: [], subBreaks: [], subWorkChanges: [] }),
       parentEndTime: originalEndTime,
     };
-    this.childrenService.saveChildren(this.workId, restoreChildren).subscribe();
-    this.isSaving.set(false);
+    this.lockService
+      .acquire(ContainerLockResourceType.containerWork, this.workId)
+      .subscribe({
+        next: (lock) => {
+          if (lock.acquired) {
+            this.childrenService
+              .saveChildren(this.workId, restoreChildren)
+              .subscribe({
+                complete: () => this.lockService.release(),
+              });
+          }
+          this.isSaving.set(false);
+        },
+        error: () => this.isSaving.set(false),
+      });
   }
 
   private minutesBetween(startTime: string, endTime: string): number {

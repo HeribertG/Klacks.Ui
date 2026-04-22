@@ -837,7 +837,25 @@ export class ScheduleDataService extends BaseDataService {
       return this.translateService.instant('workChange.abbr.replacement');
     }
 
-    return this.translateService.instant('workChange.abbr.correction');
+    const key = this.getWorkChangeAbbreviationKey(entry.workChangeType);
+    return this.translateService.instant(key);
+  }
+
+  private getWorkChangeAbbreviationKey(workChangeType: number | null | undefined): string {
+    switch (workChangeType) {
+      case 4:
+        return 'workChange.abbr.travelStart';
+      case 5:
+        return 'workChange.abbr.travelEnd';
+      case 6:
+        return 'workChange.abbr.travelWithin';
+      case 7:
+        return 'workChange.abbr.briefing';
+      case 8:
+        return 'workChange.abbr.debriefing';
+      default:
+        return 'workChange.abbr.correction';
+    }
   }
 
   private formatAmount(amount: number | null): string {
