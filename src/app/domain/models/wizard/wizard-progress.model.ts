@@ -10,11 +10,21 @@ export interface WizardProgress {
   earlyStopping: boolean;
 }
 
+export interface WizardTokenResult {
+  agentId: string;
+  shiftId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  hours: number;
+}
+
 export interface WizardResult {
   jobId: string;
   finalHardViolations: number;
   finalStage1Completion: number;
   tokenCount: number;
+  tokens: WizardTokenResult[];
 }
 
 export type WizardStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';
