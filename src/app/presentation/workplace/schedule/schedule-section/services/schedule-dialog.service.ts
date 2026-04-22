@@ -5,13 +5,13 @@
  * @license Proprietary
  *
  * @description
- * Service managing work change dialogs (correction, replacement, expenses).
+ * Service managing schedule dialogs (correction, replacement, expenses, container split).
  * Provides methods to open dialogs for creating new or editing existing
- * work changes. Holds references to dialog components set during init.
+ * work changes and container splits. Holds references to dialog components set during init.
  *
  * @relations
  * - Used by: ScheduleSectionComponent
- * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent
+ * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent, ContainerWorkEditDialogComponent, ContainerSplitDialogComponent
  * - Uses: ScheduleDataService for entry lookup
  */
 import { Injectable } from '@angular/core';
