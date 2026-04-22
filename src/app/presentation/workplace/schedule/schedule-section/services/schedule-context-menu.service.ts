@@ -131,7 +131,8 @@ export class ScheduleContextMenuService {
         menuData.list.push(...MenuDataTemplate.delete());
 
         if (entry?.entryType === WorkScheduleEntryType.Work) {
-          if (this.isContainerWork(entry.entryId)) {
+          const isContainer = this.isContainerWork(entry.entryId);
+          if (isContainer) {
             menuData.list.push(...MenuDataTemplate.divider());
             menuData.list.push(...MenuDataTemplate.openContainer());
           }
@@ -139,7 +140,11 @@ export class ScheduleContextMenuService {
           menuData.list.push(...MenuDataTemplate.correction());
           menuData.list.push(...MenuDataTemplate.travel());
           menuData.list.push(...MenuDataTemplate.briefingDebriefing());
-          menuData.list.push(...MenuDataTemplate.replacement());
+          if (isContainer) {
+            menuData.list.push(...MenuDataTemplate.splitContainer());
+          } else {
+            menuData.list.push(...MenuDataTemplate.replacement());
+          }
           menuData.list.push(...MenuDataTemplate.expenses());
 
           if (!this.hasWorkChanges(entry.sourceId, context.row, context.column, context.dataService)) {

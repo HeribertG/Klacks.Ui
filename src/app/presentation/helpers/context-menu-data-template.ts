@@ -202,6 +202,18 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static splitContainer(): MenuItem[] {
+    return [
+      new MenuItem(
+        'splitContainer',
+        DomainMessages.SPLIT_CONTAINER,
+        false,
+        '',
+        'fa-solid fa-scissors',
+      ),
+    ];
+  }
+
   public static openContainer(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(

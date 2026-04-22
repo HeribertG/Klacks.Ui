@@ -48,6 +48,7 @@
   "contextMenu.travel": "Travel...",
   "contextMenu.briefingDebriefing": "Briefing/Debriefing...",
   "contextMenu.replacement": "Replacement...",
+  "contextMenu.splitContainer": "Split",
   "contextMenu.editWork": "Edit...",
   "contextMenu.openContainer": "Open...",
   "contextMenu.expenses": "Expenses...",

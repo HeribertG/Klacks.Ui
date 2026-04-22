@@ -119,6 +119,7 @@ export class DomainMessages {
   public static TRAVEL = 'contextMenu.travel';
   public static BRIEFING_DEBRIEFING = 'contextMenu.briefingDebriefing';
   public static REPLACEMENT = 'contextMenu.replacement';
+  public static SPLIT_CONTAINER = 'contextMenu.splitContainer';
   public static EDIT_WORK = 'contextMenu.editWork';
   public static OPEN_CONTAINER = 'contextMenu.openContainer';
   public static EXPENSES = 'contextMenu.expenses';

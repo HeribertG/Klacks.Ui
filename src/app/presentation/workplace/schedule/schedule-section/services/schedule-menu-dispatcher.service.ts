@@ -104,6 +104,14 @@ export class ScheduleMenuDispatcherService {
         dataService,
         host.contextMenuEntry ?? undefined,
       ),
+    // @ts-expect-error openContainerSplitDialog is added in Task 6
+    splitContainer: (dataService, _k, host) =>
+      this.facade.dialog.openContainerSplitDialog(
+        host.contextMenuRow,
+        host.contextMenuColumn,
+        dataService,
+        host.contextMenuEntry ?? undefined,
+      ),
     edit: (dataService, _k, host) => this.handleEdit(dataService, host),
     editWork: (dataService, _k, host) =>
       this.facade.dialog.openWorkEditDialog(

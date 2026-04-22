@@ -48,6 +48,7 @@
   "contextMenu.travel": "Anreise/Abreise...",
   "contextMenu.briefingDebriefing": "Briefing/Debriefing...",
   "contextMenu.replacement": "Ablösung...",
+  "contextMenu.splitContainer": "Aufteilen",
   "contextMenu.editWork": "Bearbeiten...",
   "contextMenu.openContainer": "Öffnen...",
   "contextMenu.expenses": "Spesen...",
