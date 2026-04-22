@@ -13,29 +13,37 @@
     @switch (phase()) {
       @case ('running') {
         <div class="progress-section">
-          @if (progress(); as p) {
+          @if (wizardService.progress(); as p) {
             <div class="progress-info">
-              <span>{{ "wizard.dialog.generation" | translate }}: {{ p.currentGeneration }} / {{ p.maxGenerations }}</span>
-              <span>{{ "wizard.dialog.fitness" | translate }}: {{ (p.bestFitness * 100).toFixed(1) }}%</span>
-              <span>{{ "wizard.dialog.coverage" | translate }}: {{ (p.coverage * 100).toFixed(1) }}%</span>
+              <span>{{ "wizard.dialog.generation" | translate }}: {{ p.generation }} / {{ p.maxGenerations }}</span>
+              <span
+                [class.text-success]="p.bestHardViolations === 0"
+                [class.text-warning]="p.bestHardViolations > 0"
+              >
+                {{ "wizard.dialog.violations" | translate }}: {{ p.bestHardViolations }}
+              </span>
+              <span>{{ "wizard.dialog.stage1" | translate }}: {{ (p.bestStage1Completion * 100).toFixed(1) }}%</span>
+              @if (p.earlyStopping) {
+                <span class="text-info">{{ "wizard.dialog.earlyStopping" | translate }}</span>
+              }
             </div>
-            <div class="progress">
+            <div class="progress-track">
               <div
                 class="progress-bar progress-bar-striped progress-bar-animated"
                 role="progressbar"
-                [style.width.%]="progressPercent"
-                [attr.aria-valuenow]="progressPercent"
+                [style.width.%]="progressPercent()"
+                [attr.aria-valuenow]="progressPercent()"
                 aria-valuemin="0"
                 aria-valuemax="100"
               >
-                {{ progressPercent }}%
+                {{ progressPercent() }}%
               </div>
             </div>
           } @else {
             <div class="progress-info">
               <span>{{ "wizard.dialog.initializing" | translate }}</span>
             </div>
-            <div class="progress">
+            <div class="progress-track">
               <div
                 class="progress-bar progress-bar-striped progress-bar-animated"
                 role="progressbar"
@@ -46,25 +54,28 @@
         </div>
       }
       @case ('done') {
-        @if (result(); as r) {
+        @if (wizardService.result(); as r) {
           <div class="summary-badges">
-            <span class="badge" [class.bg-success]="r.coverage >= 0.9" [class.bg-warning]="r.coverage < 0.9 && r.coverage >= 0.5" [class.bg-danger]="r.coverage < 0.5">
-              {{ "wizard.dialog.coverage" | translate }}: {{ (r.coverage * 100).toFixed(1) }}%
+            <span
+              class="badge"
+              [class.badge-success]="r.finalHardViolations === 0"
+              [class.badge-danger]="r.finalHardViolations > 0"
+            >
+              @if (r.finalHardViolations === 0) {
+                {{ "wizard.dialog.feasible" | translate }}
+              } @else {
+                {{ "wizard.dialog.violations" | translate }}: {{ r.finalHardViolations }}
+              }
             </span>
-            <span class="badge bg-info">
-              {{ "wizard.dialog.avgMotivation" | translate }}: {{ (r.avgMotivation * 100).toFixed(0) }}%
+            <span class="badge badge-info">
+              {{ "wizard.dialog.stage1" | translate }}: {{ (r.finalStage1Completion * 100).toFixed(1) }}%
             </span>
-            <span class="badge bg-secondary">
-              {{ "wizard.dialog.generations" | translate }}: {{ r.generations }}
+            <span class="badge badge-secondary">
+              {{ "wizard.dialog.tokens" | translate }}: {{ r.tokenCount }}
             </span>
-            @if (r.unassignedShifts.length > 0) {
-              <span class="badge bg-warning">
-                {{ "wizard.dialog.unassigned" | translate }}: {{ r.unassignedShifts.length }}
-              </span>
-            }
           </div>
 
-          @if (sortedAssignments().length > 0) {
+          @if (sortedTokenRows().length > 0) {
             <div class="result-table-wrapper">
               <table class="table table-sm table-striped">
                 <thead>
@@ -72,18 +83,16 @@
                     <th>{{ "wizard.dialog.col.date" | translate }}</th>
                     <th>{{ "wizard.dialog.col.shift" | translate }}</th>
                     <th>{{ "wizard.dialog.col.agent" | translate }}</th>
-                    <th class="text-end">{{ "wizard.dialog.col.motivation" | translate }}</th>
                     <th class="text-end">{{ "wizard.dialog.col.hours" | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (a of sortedAssignments(); track a.shiftId + a.agentId) {
+                  @for (row of sortedTokenRows(); track row.date + row.agentName) {
                     <tr>
-                      <td>{{ formatDate(a.date) }}</td>
-                      <td>{{ a.shiftName }}</td>
-                      <td>{{ a.agentName }}</td>
-                      <td class="text-end">{{ formatMotivation(a.motivation) }}%</td>
-                      <td class="text-end">{{ formatHours(a.hours) }}</td>
+                      <td>{{ row.date }}</td>
+                      <td>{{ row.shiftName }}</td>
+                      <td>{{ row.agentName }}</td>
+                      <td class="text-end">{{ formatHours(row.hours) }}</td>
                     </tr>
                   }
                 </tbody>
@@ -97,7 +106,7 @@
           <div class="progress-info">
             <span>{{ "wizard.dialog.applying" | translate }}</span>
           </div>
-          <div class="progress">
+          <div class="progress-track">
             <div
               class="progress-bar progress-bar-striped progress-bar-animated"
               role="progressbar"
@@ -112,7 +121,7 @@
         </div>
       }
       @case ('error') {
-        <div class="alert alert-danger">
+        <div class="error-message">
           {{ errorMessage() }}
         </div>
       }
@@ -127,25 +136,25 @@
   <div class="modal-footer">
     @switch (phase()) {
       @case ('running') {
-        <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+        <button type="button" class="cancel-btn" (click)="onCancel()">
           {{ "cancel" | translate }}
         </button>
       }
       @case ('done') {
-        <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+        <button type="button" class="normal-btn" (click)="onClose()">
           {{ "close" | translate }}
         </button>
-        <button type="button" class="btn btn-primary" (click)="onApply()">
+        <button type="button" class="save-btn" (click)="onApply()">
           {{ "wizard.dialog.apply" | translate }}
         </button>
       }
       @case ('applying') {
-        <button type="button" class="btn btn-primary" disabled>
+        <button type="button" class="save-btn" disabled>
           {{ "wizard.dialog.applying" | translate }}
         </button>
       }
       @default {
-        <button type="button" class="btn btn-outline-secondary" (click)="onClose()">
+        <button type="button" class="normal-btn" (click)="onClose()">
           {{ "close" | translate }}
         </button>
       }
