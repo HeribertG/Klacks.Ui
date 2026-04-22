@@ -804,14 +804,26 @@ export class ScheduleDataService extends BaseDataService {
       cell.firstSubText = this.formatWorkChangeTime(entry.changeTime);
       cell.secondSubText = formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
       cell.backgroundColor = this.gridColorService.workChangeColor;
-      cell.tooltip = entry.replaceClientId
-        ? this.translateService.instant('workChange.tooltip.replacement')
-        : this.translateService.instant('workChange.tooltip.correction');
+      cell.tooltip = this.resolveWorkChangeTooltip(entry);
     }
 
     cell.sealed = entry.lockLevel > 0 || entry.isGroupRestricted;
 
     return cell;
+  }
+
+  private resolveWorkChangeTooltip(entry: IScheduleCell): string {
+    if (entry.replaceClientId) {
+      return this.translateService.instant('workChange.tooltip.replacement');
+    }
+    const type = entry.workChangeType;
+    if (type === 4 || type === 5 || type === 6) {
+      return this.translateService.instant('workChange.tooltip.travel');
+    }
+    if (type === 7 || type === 8) {
+      return this.translateService.instant('workChange.tooltip.briefing');
+    }
+    return this.translateService.instant('workChange.tooltip.correction');
   }
 
   private getWorkChangeAbbreviation(entry: IScheduleCell): string {

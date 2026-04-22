@@ -10,6 +10,12 @@ export enum CorrectionMode {
   Within = 2,
 }
 
+export enum TravelMode {
+  AtStart = 0,
+  AtEnd = 1,
+  Within = 2,
+}
+
 @Injectable()
 export class WorkChangeLogicService {
   private readonly MINUTES_PER_DAY = 24 * 60;
@@ -165,6 +171,55 @@ export class WorkChangeLogicService {
         }
         return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.withinInvalid' };
 
+      default:
+        return { isValid: false, changeTime: 0 };
+    }
+  }
+
+  validateTravelMode(
+    wcStartTime: OwnTime,
+    wcEndTime: OwnTime,
+    workContext: WorkTimeContext,
+    mode: TravelMode
+  ): WorkChangeValidation {
+    const { start: workStart, end: workEnd } = this.getWorkBoundaries(workContext);
+    const wcStartMinutes = this.ownTimeToMinutes(wcStartTime);
+    const wcEndMinutes = this.ownTimeToMinutes(wcEndTime);
+    const rawWorkStartMinutes = this.parseTimeToMinutes(workContext.workStartTime);
+
+    if (mode === TravelMode.AtStart) {
+      let durationMinutes = wcEndMinutes - wcStartMinutes;
+      if (durationMinutes < 0) durationMinutes += this.MINUTES_PER_DAY;
+      if (durationMinutes <= 0) {
+        return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.zeroTime' };
+      }
+      const changeTimeHours = durationMinutes / 60;
+      if (wcEndMinutes === rawWorkStartMinutes && wcStartMinutes < rawWorkStartMinutes) {
+        return { isValid: true, changeTime: changeTimeHours };
+      }
+      return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.atStartInvalid' };
+    }
+
+    const normalizedWcStart = this.normalizeToWorkDay(wcStartMinutes, workContext);
+    let normalizedWcEnd = this.normalizeToWorkDay(wcEndMinutes, workContext);
+    if (normalizedWcEnd < normalizedWcStart) normalizedWcEnd += this.MINUTES_PER_DAY;
+    const durationMinutes = normalizedWcEnd - normalizedWcStart;
+    if (durationMinutes <= 0) {
+      return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.zeroTime' };
+    }
+    const changeTimeHours = durationMinutes / 60;
+
+    switch (mode) {
+      case TravelMode.AtEnd:
+        if (normalizedWcStart === workEnd && normalizedWcEnd > workEnd) {
+          return { isValid: true, changeTime: changeTimeHours };
+        }
+        return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.atEndInvalid' };
+      case TravelMode.Within:
+        if (normalizedWcStart >= workStart && normalizedWcEnd <= workEnd) {
+          return { isValid: true, changeTime: changeTimeHours };
+        }
+        return { isValid: false, changeTime: 0, errorKey: 'dialog.correction.error.withinInvalid' };
       default:
         return { isValid: false, changeTime: 0 };
     }

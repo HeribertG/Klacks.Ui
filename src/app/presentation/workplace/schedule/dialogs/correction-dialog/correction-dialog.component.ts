@@ -133,7 +133,7 @@ export class CorrectionDialogComponent {
   private reset(): void {
     this.correctionMode = CorrectionMode.AtEnd;
     this.description = '';
-    this.toInvoice = false;
+    this.toInvoice = true;
     this.onModeChange();
   }
 

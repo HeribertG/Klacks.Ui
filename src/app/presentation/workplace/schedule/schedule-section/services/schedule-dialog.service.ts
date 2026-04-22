@@ -11,7 +11,7 @@
  *
  * @relations
  * - Used by: ScheduleSectionComponent
- * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent
+ * - Opens: CorrectionDialogComponent, ReplacementDialogComponent, ExpensesDialogComponent, TravelDialogComponent, BriefingDialogComponent
  * - Uses: ScheduleDataService for entry lookup
  */
 import { Injectable } from '@angular/core';
@@ -21,6 +21,8 @@ import { ReplacementDialogComponent } from '../../dialogs/replacement-dialog/rep
 import { WorkEditDialogComponent } from '../../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../../dialogs/expenses-dialog/expenses-dialog.component';
 import { ContainerWorkEditDialogComponent } from '../../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { TravelDialogComponent } from '../../dialogs/travel-dialog/travel-dialog.component';
+import { BriefingDialogComponent } from '../../dialogs/briefing-dialog/briefing-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { ScheduleDataService } from './schedule-data.service';
@@ -32,6 +34,8 @@ export class ScheduleDialogService {
   private workEditDialog: WorkEditDialogComponent | null = null;
   private expensesDialog: ExpensesDialogComponent | null = null;
   private containerWorkEditDialog: ContainerWorkEditDialogComponent | null = null;
+  private travelDialog: TravelDialogComponent | null = null;
+  private briefingDialog: BriefingDialogComponent | null = null;
 
   setDialogs(
     correctionDialog: CorrectionDialogComponent,
@@ -39,12 +43,16 @@ export class ScheduleDialogService {
     workEditDialog: WorkEditDialogComponent,
     expensesDialog: ExpensesDialogComponent,
     containerWorkEditDialog: ContainerWorkEditDialogComponent,
+    travelDialog: TravelDialogComponent,
+    briefingDialog: BriefingDialogComponent,
   ): void {
     this.correctionDialog = correctionDialog;
     this.replacementDialog = replacementDialog;
     this.workEditDialog = workEditDialog;
     this.expensesDialog = expensesDialog;
     this.containerWorkEditDialog = containerWorkEditDialog;
+    this.travelDialog = travelDialog;
+    this.briefingDialog = briefingDialog;
   }
 
   openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
@@ -55,6 +63,28 @@ export class ScheduleDialogService {
 
     if (entry?.entryType === WorkScheduleEntryType.Work && date) {
       this.correctionDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
+    }
+  }
+
+  openTravelDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
+    if (!this.travelDialog) return;
+
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.travelDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
+    }
+  }
+
+  openBriefingDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
+    if (!this.briefingDialog) return;
+
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.briefingDialog.open(entry.sourceId, entry.clientId, date, entry.startTime, entry.endTime);
     }
   }
 
@@ -86,8 +116,15 @@ export class ScheduleDialogService {
 
     if (entry?.entryType === WorkScheduleEntryType.WorkChange && date) {
       const isCorrection = entry.workChangeType === 0 || entry.workChangeType === 1;
+      const isTravel = entry.workChangeType === 4 || entry.workChangeType === 5 || entry.workChangeType === 6;
+      const isBriefing = entry.workChangeType === 7 || entry.workChangeType === 8;
+
       if (isCorrection && this.correctionDialog) {
         this.correctionDialog.openEdit(entry.id, date);
+      } else if (isTravel && this.travelDialog) {
+        this.travelDialog.openEdit(entry.id, date);
+      } else if (isBriefing && this.briefingDialog) {
+        this.briefingDialog.openEdit(entry.id, date);
       } else if (this.replacementDialog) {
         this.replacementDialog.openEdit(entry.id, entry.clientId, date);
       }

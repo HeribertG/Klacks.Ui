@@ -1,0 +1,100 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #briefingModal let-modal>
+  <div class="modal-header">
+    <div class="modal-title">{{ "dialog.briefing.title" | translate }}</div>
+    <span class="filler"></span>
+    <div class="close" (click)="onCancel()">&times;</div>
+  </div>
+
+  <div class="modal-body">
+    <div class="form-group">
+      <label>{{ "dialog.briefing.position" | translate }}</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="briefingMode"
+            [value]="CorrectionMode.AtStart"
+            [(ngModel)]="correctionMode"
+            (ngModelChange)="onModeChange()"
+          />
+          {{ "dialog.briefing.atStart" | translate }}
+        </label>
+        <label class="radio-label">
+          <input
+            type="radio"
+            name="briefingMode"
+            [value]="CorrectionMode.AtEnd"
+            [(ngModel)]="correctionMode"
+            (ngModelChange)="onModeChange()"
+          />
+          {{ "dialog.briefing.atEnd" | translate }}
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group time-row">
+      <app-time-input
+        [label]="'dialog.briefing.startTime' | translate"
+        [value]="startTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="wcStartHours"
+        minutesId="wcStartMinutes"
+      ></app-time-input>
+
+      <app-time-input
+        [label]="'dialog.briefing.endTime' | translate"
+        [value]="endTime"
+        (valueChange)="onTimeChange()"
+        [forDuration]="false"
+        hoursId="wcEndHours"
+        minutesId="wcEndMinutes"
+      ></app-time-input>
+
+      <div class="duration-wrapper">
+        <span class="sign">+</span>
+        <app-time-input
+          [label]="'dialog.briefing.duration' | translate"
+          [value]="duration"
+          [disabled]="true"
+          [forDuration]="true"
+          hoursId="wcDurationHours"
+          minutesId="wcDurationMinutes"
+        ></app-time-input>
+      </div>
+    </div>
+
+    @if (validation.errorKey) {
+      <div class="error-message">{{ validation.errorKey | translate }}</div>
+    }
+
+    <div class="form-group">
+      <label for="description">{{
+        "dialog.briefing.description" | translate
+      }}</label>
+      <textarea
+        id="description"
+        [(ngModel)]="description"
+        class="form-control"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ "cancel" | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+      [disabled]="!isValid()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

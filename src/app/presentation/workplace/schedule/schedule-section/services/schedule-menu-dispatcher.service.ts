@@ -83,6 +83,20 @@ export class ScheduleMenuDispatcherService {
         dataService,
         host.contextMenuEntry ?? undefined,
       ),
+    travel: (dataService, _k, host) =>
+      this.facade.dialog.openTravelDialog(
+        host.contextMenuRow,
+        host.contextMenuColumn,
+        dataService,
+        host.contextMenuEntry ?? undefined,
+      ),
+    briefingDebriefing: (dataService, _k, host) =>
+      this.facade.dialog.openBriefingDialog(
+        host.contextMenuRow,
+        host.contextMenuColumn,
+        dataService,
+        host.contextMenuEntry ?? undefined,
+      ),
     replacement: (dataService, _k, host) =>
       this.facade.dialog.openReplacementDialog(
         host.contextMenuRow,

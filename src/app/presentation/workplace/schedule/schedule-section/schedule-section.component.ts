@@ -66,6 +66,8 @@ import { ReplacementDialogComponent } from '../dialogs/replacement-dialog/replac
 import { WorkEditDialogComponent } from '../dialogs/work-edit-dialog/work-edit-dialog.component';
 import { ExpensesDialogComponent } from '../dialogs/expenses-dialog/expenses-dialog.component';
 import { ContainerWorkEditDialogComponent } from '../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
+import { TravelDialogComponent } from '../dialogs/travel-dialog/travel-dialog.component';
+import { BriefingDialogComponent } from '../dialogs/briefing-dialog/briefing-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
@@ -109,6 +111,8 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     WorkEditDialogComponent,
     ExpensesDialogComponent,
     ContainerWorkEditDialogComponent,
+    TravelDialogComponent,
+    BriefingDialogComponent,
   ],
   providers: [
     ScrollService,
@@ -161,6 +165,10 @@ export class ScheduleSectionComponent
   expensesDialog!: ExpensesDialogComponent;
   @ViewChild(ContainerWorkEditDialogComponent)
   containerWorkEditDialog!: ContainerWorkEditDialogComponent;
+  @ViewChild(TravelDialogComponent)
+  travelDialog!: TravelDialogComponent;
+  @ViewChild(BriefingDialogComponent)
+  briefingDialog!: BriefingDialogComponent;
 
   horizontalSize = input(200);
   zoom = input(1.0);
@@ -223,7 +231,7 @@ export class ScheduleSectionComponent
     if (tableSurface) {
       tableSurface.drawSchedule.showFillHandle = true;
     }
-    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog);
+    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog, this.travelDialog, this.briefingDialog);
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {

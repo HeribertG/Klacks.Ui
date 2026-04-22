@@ -161,6 +161,30 @@ export class MenuDataTemplate {
     return value;
   }
 
+  public static travel(): MenuItem[] {
+    return [
+      new MenuItem(
+        'travel',
+        DomainMessages.TRAVEL,
+        false,
+        '',
+        'fa-solid fa-car'
+      ),
+    ];
+  }
+
+  public static briefingDebriefing(): MenuItem[] {
+    return [
+      new MenuItem(
+        'briefingDebriefing',
+        DomainMessages.BRIEFING_DEBRIEFING,
+        false,
+        '',
+        'fa-solid fa-clipboard-list'
+      ),
+    ];
+  }
+
   public static replacement(): MenuItem[] {
     const value: MenuItem[] = [];
     value.push(

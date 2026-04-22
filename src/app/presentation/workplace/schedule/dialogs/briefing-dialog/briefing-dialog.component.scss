@@ -1,0 +1,27 @@
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+.form-group {
+  &.time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    .duration-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+
+      .sign {
+        font-size: 20px;
+        font-weight: 600;
+        padding-bottom: 6px;
+        color: colors.$standartGreenColor;
+      }
+
+      &.negative .sign {
+        color: colors.$standartRedColor;
+      }
+    }
+  }
+}

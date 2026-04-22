@@ -137,6 +137,8 @@ export class ScheduleContextMenuService {
           }
           menuData.list.push(...MenuDataTemplate.divider());
           menuData.list.push(...MenuDataTemplate.correction());
+          menuData.list.push(...MenuDataTemplate.travel());
+          menuData.list.push(...MenuDataTemplate.briefingDebriefing());
           menuData.list.push(...MenuDataTemplate.replacement());
           menuData.list.push(...MenuDataTemplate.expenses());
 

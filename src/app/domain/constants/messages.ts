@@ -116,6 +116,8 @@ export class DomainMessages {
   public static SHOW_IN_SCHEDULE = 'contextMenu.showInSchedule';
   public static GO_TO_ADDRESS = 'contextMenu.goToAddress';
   public static CORRECTION = 'contextMenu.correction';
+  public static TRAVEL = 'contextMenu.travel';
+  public static BRIEFING_DEBRIEFING = 'contextMenu.briefingDebriefing';
   public static REPLACEMENT = 'contextMenu.replacement';
   public static EDIT_WORK = 'contextMenu.editWork';
   public static OPEN_CONTAINER = 'contextMenu.openContainer';
