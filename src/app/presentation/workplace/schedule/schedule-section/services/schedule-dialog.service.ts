@@ -23,6 +23,7 @@ import { ExpensesDialogComponent } from '../../dialogs/expenses-dialog/expenses-
 import { ContainerWorkEditDialogComponent } from '../../dialogs/container-work-edit-dialog/container-work-edit-dialog.component';
 import { TravelDialogComponent } from '../../dialogs/travel-dialog/travel-dialog.component';
 import { BriefingDialogComponent } from '../../dialogs/briefing-dialog/briefing-dialog.component';
+import { ContainerSplitDialogComponent } from '../../dialogs/container-split-dialog/container-split-dialog.component';
 import { AvailableShift } from 'src/app/domain/models/schedule/available-shift';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { ScheduleDataService } from './schedule-data.service';
@@ -36,6 +37,7 @@ export class ScheduleDialogService {
   private containerWorkEditDialog: ContainerWorkEditDialogComponent | null = null;
   private travelDialog: TravelDialogComponent | null = null;
   private briefingDialog: BriefingDialogComponent | null = null;
+  private containerSplitDialog: ContainerSplitDialogComponent | null = null;
 
   setDialogs(
     correctionDialog: CorrectionDialogComponent,
@@ -45,6 +47,7 @@ export class ScheduleDialogService {
     containerWorkEditDialog: ContainerWorkEditDialogComponent,
     travelDialog: TravelDialogComponent,
     briefingDialog: BriefingDialogComponent,
+    containerSplitDialog: ContainerSplitDialogComponent,
   ): void {
     this.correctionDialog = correctionDialog;
     this.replacementDialog = replacementDialog;
@@ -53,6 +56,7 @@ export class ScheduleDialogService {
     this.containerWorkEditDialog = containerWorkEditDialog;
     this.travelDialog = travelDialog;
     this.briefingDialog = briefingDialog;
+    this.containerSplitDialog = containerSplitDialog;
   }
 
   openCorrectionDialog(row: number, column: number, dataService: ScheduleDataService, preResolvedEntry?: IScheduleCell): void {
@@ -149,6 +153,27 @@ export class ScheduleDialogService {
         entry.endTime,
         entry.information,
       );
+    }
+  }
+
+  openContainerSplitDialog(
+    row: number,
+    column: number,
+    dataService: ScheduleDataService,
+    preResolvedEntry?: IScheduleCell,
+  ): void {
+    if (!this.containerSplitDialog) return;
+    const entry = preResolvedEntry ?? dataService.getWorkScheduleEntryForCell(row, column);
+    const date = dataService.getDateForColumn(column);
+    if (entry?.entryType === WorkScheduleEntryType.Work && date) {
+      this.containerSplitDialog.open({
+        workId: entry.sourceId,
+        shiftId: entry.entryId,
+        clientId: entry.clientId,
+        containerStart: entry.startTime,
+        containerEnd: entry.endTime,
+        currentDate: date,
+      });
     }
   }
 
