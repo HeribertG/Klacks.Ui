@@ -1,23 +1,27 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog component for the shift scheduling wizard with evolutionary algorithm.
- * @param phase - Current phase of the wizard (running, done, applying, applied, error, cancelled)
- * @param progress - Progress data of the evolutionary algorithm
- * @param result - Result of the calculation with assignments
+ * Dialog component for the shift scheduling wizard powered by the C# backend GA engine.
+ * @param phase - Derived phase (running/done/applying/applied/error/cancelled)
+ * @param progressPercent - Integer 0–100 derived from SignalR progress events
+ * @param sortedTokenRows - Resolved assignment rows sorted by date
  */
-import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ConductorService } from 'src/app/domain/services/automation/conductor/conductor.service';
-import { ScheduleConductorContextService } from 'src/app/application/services/schedule-conductor-context.service';
+import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
-import { DataManagementWorkService } from 'src/app/domain/services/work/data-management-work.service';
-import { IEvolutionProgress } from 'src/app/domain/models/automation/conductor/evolution-progress.model';
-import { IConductorResult } from 'src/app/domain/models/automation/conductor/conductor-result.model';
-import { IAssignmentResult } from 'src/app/domain/models/automation/conductor/assignment-result.model';
-import { IShift } from 'src/app/domain/models/automation/conductor/shift.model';
+import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
@@ -33,43 +37,72 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
 export class WizardDialogComponent {
   @ViewChild('wizardModal') modalTemplate!: TemplateRef<unknown>;
 
-  private ngbModal = inject(NgbModal);
-  private conductor = inject(ConductorService);
-  private contextService = inject(ScheduleConductorContextService);
-  private dataManagementSchedule = inject(DataManagementScheduleService);
-  private workService = inject(DataManagementWorkService);
+  private readonly ngbModal = inject(NgbModal);
+  readonly wizardService = inject(DataWizardService);
+  private readonly dataManagementSchedule = inject(DataManagementScheduleService);
 
-  phase = signal<WizardPhase>('running');
-  progress = signal<IEvolutionProgress | null>(null);
-  result = signal<IConductorResult | null>(null);
-  errorMessage = signal('');
-  sortedAssignments = signal<IAssignmentResult[]>([]);
-  appliedCount = signal(0);
+  private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
+  private readonly _localError = signal<string | null>(null);
+
+  readonly appliedCount = signal(0);
+
+  readonly phase = computed<WizardPhase>(() => {
+    const ap = this._applyPhase();
+    if (ap !== null) return ap;
+    if (this._localError() !== null) return 'error';
+    switch (this.wizardService.status()) {
+      case 'running':   return 'running';
+      case 'completed': return 'done';
+      case 'cancelled': return 'cancelled';
+      case 'failed':    return 'error';
+      default:          return 'running';
+    }
+  });
+
+  readonly errorMessage = computed(() =>
+    this._localError() ?? this.wizardService.failureReason() ?? '');
+
+  readonly progressPercent = computed(() => {
+    const p = this.wizardService.progress();
+    if (!p || p.maxGenerations === 0) return 0;
+    return Math.round((p.generation / p.maxGenerations) * 100);
+  });
+
+  readonly sortedTokenRows = computed(() => {
+    const result = this.wizardService.result();
+    if (!result?.tokens?.length) return [];
+
+    const clients   = this.dataManagementSchedule.clients;
+    const schedules = this.dataManagementSchedule.shiftSchedules;
+
+    return result.tokens
+      .map(t => ({
+        date:      t.date,
+        shiftName: schedules.find(s => s.shiftId === t.shiftId)?.shiftName ?? t.shiftId,
+        agentName: this.resolveAgentName(clients, t.agentId),
+        hours:     t.hours,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  });
 
   private modalRef: NgbModalRef | null = null;
-  private cancellationToken = { isCancelled: false };
-  private shiftMap = new Map<string, IShift>();
-
-  get progressPercent(): number {
-    const p = this.progress();
-    if (!p || p.maxGenerations === 0) return 0;
-    return Math.round((p.currentGeneration / p.maxGenerations) * 100);
-  }
 
   open(): void {
-    this.reset();
+    this._applyPhase.set(null);
+    this._localError.set(null);
+    this.appliedCount.set(0);
+
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
-      centered: true,
-      backdrop: 'static',
-      keyboard: false,
-      size: 'lg',
+      centered: true, backdrop: 'static', keyboard: false, size: 'lg',
     });
+    this.modalRef.dismissed.subscribe(() => this.cancelIfRunning());
 
-    this.modalRef.dismissed.subscribe(() => {
-      this.cancelIfRunning();
-    });
-
-    this.runScheduling();
+    const request = this.buildRequest();
+    if (!request) {
+      this._localError.set('No shifts or clients available for scheduling');
+      return;
+    }
+    void this.wizardService.start(request);
   }
 
   onCancel(): void {
@@ -78,136 +111,58 @@ export class WizardDialogComponent {
   }
 
   onClose(): void {
+    void this.wizardService.stopConnection();
     this.modalRef?.close();
   }
 
   async onApply(): Promise<void> {
-    const conductorResult = this.result();
-    if (!conductorResult || conductorResult.assignments.length === 0) return;
-
-    this.phase.set('applying');
-
+    const jobId = this.wizardService.currentJobId();
+    if (!jobId) return;
+    this._applyPhase.set('applying');
     try {
-      const entries = this.buildBulkEntries(conductorResult.assignments);
-      const startDate = this.dataManagementSchedule.visibleStartDate;
-      const endDate = this.dataManagementSchedule.visibleEndDate;
-
-      await this.workService.bulkCreateWorks({
-        entries,
-        periodStart: startDate ? formatDateOnly(startDate) : formatDateOnly(new Date()),
-        periodEnd: endDate ? formatDateOnly(endDate) : formatDateOnly(new Date()),
-      });
-
-      this.appliedCount.set(entries.length);
-      this.phase.set('applied');
+      const ids = await this.wizardService.apply(jobId);
+      this.appliedCount.set(ids.length);
+      this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();
     } catch (err) {
-      this.phase.set('error');
-      this.errorMessage.set(err instanceof Error ? err.message : 'Failed to apply schedule');
+      this._applyPhase.set(null);
+      this._localError.set(err instanceof Error ? err.message : 'Failed to apply schedule');
     }
-  }
-
-  private buildBulkEntries(assignments: IAssignmentResult[]): {
-    clientId: string; shiftId: string; date: Date; workTime: number; startTime: string; endTime: string;
-  }[] {
-    return assignments
-      .map(a => {
-        const shift = this.shiftMap.get(a.shiftId);
-        if (!shift) return null;
-
-        return {
-          clientId: a.agentId,
-          date: a.date instanceof Date ? a.date : new Date(a.date),
-          shiftId: this.extractShiftId(a.shiftId),
-          workTime: a.hours,
-          startTime: shift.startTime,
-          endTime: shift.endTime,
-        };
-      })
-      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
-  }
-
-  private extractShiftId(compositeId: string): string {
-    const lastUnderscore = compositeId.lastIndexOf('_');
-    if (lastUnderscore === -1) return compositeId;
-    return compositeId.substring(0, lastUnderscore);
-  }
-
-  private reset(): void {
-    this.phase.set('running');
-    this.progress.set(null);
-    this.result.set(null);
-    this.errorMessage.set('');
-    this.sortedAssignments.set([]);
-    this.appliedCount.set(0);
-    this.shiftMap.clear();
-    this.cancellationToken = { isCancelled: false };
-  }
-
-  private cancelIfRunning(): void {
-    if (this.phase() === 'running') {
-      this.cancellationToken.isCancelled = true;
-      this.conductor.cancelWorker();
-    }
-  }
-
-  private async runScheduling(): Promise<void> {
-    const context = this.contextService.buildContext();
-
-    if (!context) {
-      this.phase.set('error');
-      this.errorMessage.set('No shifts or clients available for scheduling');
-      return;
-    }
-
-    this.shiftMap.clear();
-    for (const shift of context.shifts) {
-      this.shiftMap.set(shift.id, shift);
-    }
-
-    try {
-      const conductorResult = await this.conductor.schedule(context, {
-        useWorker: true,
-        cancellationToken: this.cancellationToken,
-        onProgress: (p: IEvolutionProgress) => {
-          this.progress.set({ ...p });
-        },
-      });
-
-      if (this.cancellationToken.isCancelled) {
-        this.phase.set('cancelled');
-        return;
-      }
-
-      this.result.set(conductorResult);
-      this.sortedAssignments.set(
-        [...conductorResult.assignments].sort((a, b) => {
-          const dateA = a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime();
-          const dateB = b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime();
-          return dateA - dateB;
-        }),
-      );
-      this.phase.set('done');
-    } catch (err) {
-      if (this.cancellationToken.isCancelled) {
-        this.phase.set('cancelled');
-        return;
-      }
-      this.phase.set('error');
-      this.errorMessage.set(err instanceof Error ? err.message : 'Unknown error occurred');
-    }
-  }
-
-  formatDate(date: Date): string {
-    const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleDateString('de-CH', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  formatMotivation(value: number): string {
-    return (value * 100).toFixed(0);
   }
 
   formatHours(value: number): string {
     return value.toFixed(1);
+  }
+
+  private cancelIfRunning(): void {
+    const jobId = this.wizardService.currentJobId();
+    if (jobId && this.wizardService.status() === 'running') {
+      void this.wizardService.cancel(jobId);
+    }
+    void this.wizardService.stopConnection();
+  }
+
+  private resolveAgentName(clients: IClientWork[], agentId: string): string {
+    const c = clients.find(cl => cl.id === agentId);
+    if (!c) return agentId;
+    const parts = [c.name, c.firstName].filter(Boolean);
+    return parts.length ? parts.join(', ') : agentId;
+  }
+
+  private buildRequest(): WizardRequest | null {
+    const start   = this.dataManagementSchedule.visibleStartDate;
+    const end     = this.dataManagementSchedule.visibleEndDate;
+    const clients = this.dataManagementSchedule.clients;
+    const shifts  = this.dataManagementSchedule.shiftSchedules;
+
+    if (!start || !end || !clients.length || !shifts.length) return null;
+
+    return {
+      periodFrom:   formatDateOnly(start),
+      periodUntil:  formatDateOnly(end),
+      agentIds:     clients.map(c => c.id),
+      shiftIds:     [...new Set(shifts.map(s => s.shiftId))],
+      analyseToken: null,
+    };
   }
 }
