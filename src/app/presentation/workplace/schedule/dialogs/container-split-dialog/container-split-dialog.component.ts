@@ -10,6 +10,7 @@
  * @param currentDate - Date of the container work
  */
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   inject,
@@ -19,6 +20,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { forkJoin } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   ContainerWorkChildren,
@@ -49,6 +51,7 @@ export interface IOpenContainerSplitOptions {
   imports: [TranslateModule, FormsModule],
   templateUrl: './container-split-dialog.component.html',
   providers: [ContainerSplitLogicService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContainerSplitDialogComponent {
   @ViewChild('modalTemplate') private modalTemplate!: TemplateRef<unknown>;
@@ -123,27 +126,22 @@ export class ContainerSplitDialogComponent {
     this.selectedClientName.set('');
     this.isLoading.set(true);
 
-    this.clientService.getClientsForReplacement().subscribe({
-      next: (clients) => {
-        this.allClients = clients.filter((c) => c.id !== options.clientId);
-      },
-      error: () => {
-        this.allClients = [];
-      },
-    });
-
-    this.childrenService.loadChildren(this.workId).subscribe({
-      next: (c) => {
-        this.children.set(c);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
-
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true,
       backdrop: 'static',
       size: 'lg',
+    });
+
+    forkJoin({
+      children: this.childrenService.loadChildren(this.workId),
+      clients: this.clientService.getClientsForReplacement(),
+    }).subscribe({
+      next: ({ children, clients }) => {
+        this.children.set(children);
+        this.allClients = clients.filter((c) => c.id !== options.clientId);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false),
     });
   }
 

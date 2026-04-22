@@ -1,7 +1,7 @@
 <ng-template #modalTemplate>
   <div class="modal-header">
     <h5 class="modal-title">{{ 'dialog.containerSplit.title' | translate }}</h5>
-    <button type="button" class="btn-close" (click)="close()"></button>
+    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
   </div>
 
   <div class="modal-body">
@@ -11,9 +11,10 @@
       </div>
     } @else {
       <div class="mb-3">
-        <label class="form-label">{{ 'dialog.containerSplit.splitTime' | translate }}</label>
+        <label class="form-label" for="splitTime">{{ 'dialog.containerSplit.splitTime' | translate }}</label>
         <input
           type="time"
+          id="splitTime"
           class="form-control"
           [ngModel]="splitTime()"
           (ngModelChange)="onSplitTimeChange($event)"
@@ -26,7 +27,7 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">{{ 'dialog.containerSplit.client' | translate }}</label>
+        <label class="form-label" for="clientSearch">{{ 'dialog.containerSplit.client' | translate }}</label>
         @if (replaceClientId()) {
           <div class="d-flex align-items-center gap-2">
             <span class="flex-grow-1">{{ selectedClientName() }}</span>
@@ -37,6 +38,7 @@
         } @else {
           <input
             type="text"
+            id="clientSearch"
             class="form-control"
             [placeholder]="'dialog.containerSplit.clientPlaceholder' | translate"
             (input)="onClientSearch($any($event.target).value)"
@@ -46,8 +48,11 @@
               @for (client of clientSearchResults(); track client.id) {
                 <li
                   class="list-group-item list-group-item-action"
+                  role="button"
+                  [attr.tabindex]="0"
                   style="cursor: pointer"
                   (click)="selectClient(client.id, client.displayName)"
+                  (keydown.enter)="selectClient(client.id, client.displayName)"
                 >
                   {{ client.displayName }}
                 </li>
