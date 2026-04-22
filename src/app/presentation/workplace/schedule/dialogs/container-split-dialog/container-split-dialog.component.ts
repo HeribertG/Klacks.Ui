@@ -35,6 +35,9 @@ import {
   ContainerSplitLogicService,
   SubWorkConflict,
 } from './services/container-split-logic.service';
+import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
+import { Work } from 'src/app/domain/models/schedule/schedule-class';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 export interface IOpenContainerSplitOptions {
   workId: string;
@@ -60,6 +63,8 @@ export class ContainerSplitDialogComponent {
   private childrenService = inject(DataContainerWorkChildrenService);
   private clientService = inject(DataClientService);
   private logicService = inject(ContainerSplitLogicService);
+  private dataSchedule = inject(DataScheduleService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   private modalRef: NgbModalRef | null = null;
   private allClients: IClientForReplacement[] = [];
@@ -192,11 +197,110 @@ export class ContainerSplitDialogComponent {
   }
 
   onSave(): void {
-    // Implemented in Task 5
+    const cat = this.categorization();
+    if (!cat || !this.canSave()) return;
+
+    const originalEndTime = this.containerEnd();
+    const beforeChildren = this.buildBeforeChildren(cat);
+    const afterChildren = this.buildAfterChildren(cat);
+    const clientId = this.replaceClientId() ?? this.currentClientId();
+
+    this.isSaving.set(true);
+
+    this.childrenService.saveChildren(this.workId, beforeChildren).subscribe({
+      next: () => this.createCopyWork(clientId, afterChildren, originalEndTime),
+      error: () => this.isSaving.set(false),
+    });
   }
 
   close(): void {
     this.modalRef?.dismiss();
+  }
+
+  private buildBeforeChildren(cat: CategorizationResult): ContainerWorkChildren {
+    const beforeWorks = [
+      ...cat.beforeWorks,
+      ...cat.conflicts.filter((c) => c.resolution === 'before').map((c) => c.subWork),
+    ];
+    return {
+      subWorks: beforeWorks,
+      subBreaks: cat.beforeBreaks,
+      subWorkChanges: this.children()?.subWorkChanges ?? [],
+      parentEndTime: this.splitTime(),
+    };
+  }
+
+  private buildAfterChildren(cat: CategorizationResult): ContainerWorkChildren {
+    const afterWorks = [
+      ...cat.afterWorks,
+      ...cat.conflicts.filter((c) => c.resolution === 'after').map((c) => c.subWork),
+    ];
+    return {
+      subWorks: afterWorks,
+      subBreaks: cat.afterBreaks,
+      subWorkChanges: [],
+      parentStartTime: this.splitTime(),
+    };
+  }
+
+  private createCopyWork(
+    clientId: string,
+    afterChildren: ContainerWorkChildren,
+    originalEndTime: string,
+  ): void {
+    const splitTime = this.splitTime();
+    const work = new Work();
+    work.clientId = clientId;
+    work.shiftId = this.shiftId;
+    work.currentDate = new Date(this.currentDate());
+    work.startTime = splitTime;
+    work.endTime = originalEndTime;
+    work.workTime = this.minutesBetween(splitTime, originalEndTime);
+    work.analyseToken = this.analyseScenarioService.activeToken() ?? undefined;
+
+    this.dataSchedule.addWork(work).subscribe({
+      next: (newWork) => {
+        if (!newWork.id) {
+          this.restoreOriginal(originalEndTime);
+          return;
+        }
+        this.saveAfterChildren(newWork.id, afterChildren, originalEndTime);
+      },
+      error: () => {
+        this.restoreOriginal(originalEndTime);
+      },
+    });
+  }
+
+  private saveAfterChildren(
+    newWorkId: string,
+    afterChildren: ContainerWorkChildren,
+    originalEndTime: string,
+  ): void {
+    this.childrenService.saveChildren(newWorkId, afterChildren).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.modalRef?.close();
+      },
+      error: () => {
+        this.restoreOriginal(originalEndTime);
+      },
+    });
+  }
+
+  private restoreOriginal(originalEndTime: string): void {
+    const restoreChildren: ContainerWorkChildren = {
+      ...(this.children() ?? { subWorks: [], subBreaks: [], subWorkChanges: [] }),
+      parentEndTime: originalEndTime,
+    };
+    this.childrenService.saveChildren(this.workId, restoreChildren).subscribe();
+    this.isSaving.set(false);
+  }
+
+  private minutesBetween(startTime: string, endTime: string): number {
+    const [sh, sm] = startTime.split(':').map(Number);
+    const [eh, em] = endTime.split(':').map(Number);
+    return (eh * 60 + em) - (sh * 60 + sm);
   }
 
   private buildDisplayName(client: IClientForReplacement): string {
