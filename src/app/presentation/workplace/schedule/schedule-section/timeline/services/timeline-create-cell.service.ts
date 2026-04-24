@@ -61,7 +61,8 @@ export class TimelineCreateCellService extends BaseCreateCellService {
 
   private readonly minBlockHeight = 2;
   private readonly textThreshold = 15;
-  private readonly textFont = '10px Arial';
+  private readonly blockLabelFontSize = 10;
+  private readonly blockLabelFontFamily = 'Arial';
   private readonly evenHourDarken = 12;
   private readonly overlayCacheOffset = 10;
   private readonly stripedCacheSize = 20;
@@ -549,7 +550,7 @@ export class TimelineCreateCellService extends BaseCreateCellService {
     color: string,
   ): void {
     ctx.save();
-    ctx.font = this.textFont;
+    ctx.font = `${this.blockLabelFontSize}px ${this.blockLabelFontFamily}`;
     ctx.fillStyle = DrawHelper.getContrastTextColor(color);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
