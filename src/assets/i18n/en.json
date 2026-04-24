@@ -784,7 +784,7 @@
   "schedule.error-list.column.client": "Employee",
   "schedule.error-list.column.comment": "Comment",
   "schedule.error-list.empty": "No entries available",
-  "schedule.error-list.collision": "Time collision: {{timeRange1}} and {{timeRange2}} overlap",
+  "schedule.error-list.collision": "Time collision: {{type1}} {{timeRange1}} and {{type2}} {{timeRange2}} overlap",
   "schedule.error-list.rest-violation": "Rest period only {{actualHours}}h instead of {{requiredHours}}h ({{endTime}} to {{startTime}})",
   "schedule.error-list.overtime": "Daily work time {{actualHours}}h exceeds maximum of {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} consecutive working days (max. {{maxDays}})",

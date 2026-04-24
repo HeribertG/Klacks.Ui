@@ -8,6 +8,8 @@ export interface ICollisionNotification {
   date: string;
   timeRange1: string;
   timeRange2: string;
+  blockType1: string;
+  blockType2: string;
 }
 
 export interface ICollisionListNotification {

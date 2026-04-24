@@ -784,7 +784,7 @@
   "schedule.error-list.column.client": "Mitarbeiter",
   "schedule.error-list.column.comment": "Kommentar",
   "schedule.error-list.empty": "Keine Einträge vorhanden",
-  "schedule.error-list.collision": "Zeitkollision: {{timeRange1}} und {{timeRange2}} überschneiden sich",
+  "schedule.error-list.collision": "Zeitkollision: {{type1}} {{timeRange1}} und {{type2}} {{timeRange2}} überschneiden sich",
   "schedule.error-list.rest-violation": "Ruhezeit nur {{actualHours}}h statt {{requiredHours}}h ({{endTime}} bis {{startTime}})",
   "schedule.error-list.overtime": "Tagesarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} aufeinanderfolgende Arbeitstage (max. {{maxDays}})",

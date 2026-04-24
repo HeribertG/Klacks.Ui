@@ -18,6 +18,7 @@ import {
   effect,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import {
   ICollisionListNotification,
@@ -37,6 +38,7 @@ export class CollisionDetectionService implements OnDestroy {
   private signalRService = inject(SCHEDULE_SIGNALR);
   private dataManagement = inject(DataManagementScheduleService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private translate = inject(TranslateService);
   private collisions = new Map<string, ICollisionNotification>();
   private validations = new Map<string, IScheduleValidationNotification>();
   private subscriptions: Subscription[] = [];
@@ -147,7 +149,9 @@ export class CollisionDetectionService implements OnDestroy {
         clientName: collision.clientName,
         comment: 'schedule.error-list.collision',
         commentParams: {
+          type1: this.getBlockTypeLabel(collision.blockType1),
           timeRange1: collision.timeRange1,
+          type2: this.getBlockTypeLabel(collision.blockType2),
           timeRange2: collision.timeRange2,
         },
       });
@@ -301,5 +305,16 @@ export class CollisionDetectionService implements OnDestroy {
 
   private buildValidationKey(entry: IScheduleValidationNotification): string {
     return `${entry.type}_${entry.clientId}_${entry.date}_${entry.comment}`;
+  }
+
+  private getBlockTypeLabel(blockType: string): string {
+    const keyMap: Record<string, string> = {
+      Work: 'schedule.entryType.work',
+      Correction: 'schedule.entryType.workChange',
+      Replacement: 'schedule.entryType.workChange',
+      Break: 'schedule.entryType.break',
+    };
+    const i18nKey = keyMap[blockType];
+    return i18nKey ? this.translate.instant(i18nKey) : (blockType ?? '');
   }
 }
