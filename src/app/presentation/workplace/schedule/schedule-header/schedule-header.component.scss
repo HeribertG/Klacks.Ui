@@ -3,6 +3,7 @@
 @use "../../../../../assets/standard-styles/standard-slider.scss";
 @use "../../../../../assets/standard-styles/validation.scss";
 @use "../../../../../assets/standard-styles/toggle-switch.scss";
+@use "../../../../../assets/standard-styles/menu.scss";
 
 .calendar-setting {
   border: none;
@@ -228,7 +229,7 @@ app-scenario-selector {
   margin-inline-start: 8px;
   border: 1px solid #dee2e6;
   background-color: transparent;
-  color: #495057;
+  color: var(--iconStandartColor);
   font-family: Roboto;
   font-size: small;
   font-weight: normal;
