@@ -5,7 +5,17 @@
     <div class="modal-title">{{ "wizard.dialog.title" | translate }}</div>
     <span class="filler"></span>
     @if (phase() !== 'running' && phase() !== 'applying') {
-      <div class="close" (click)="onClose()">&times;</div>
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="onClose()"
+      >
+        <span
+          aria-hidden="true"
+          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+      </div>
     }
   </div>
 

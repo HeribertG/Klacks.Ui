@@ -5,7 +5,17 @@
   <div class="modal-header">
     <div class="modal-title">{{ "dialog.replacement.title" | translate }}</div>
     <span class="filler"></span>
-    <div class="close" (click)="onCancel()">&times;</div>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="onCancel()"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+      >&times;</span>
+    </div>
   </div>
 
   <div class="modal-body">

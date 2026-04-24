@@ -1,98 +1,117 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #modalTemplate>
   <div class="modal-header">
-    <h5 class="modal-title">{{ 'dialog.containerSplit.title' | translate }}</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+    <div class="modal-title">
+      {{ "dialog.containerSplit.title" | translate }}
+    </div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="close()"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+      >&times;</span>
+    </div>
   </div>
 
   <div class="modal-body">
     @if (isLoading()) {
-      <div class="text-center py-3">
+      <div class="loading-indicator">
         <span class="spinner-border spinner-border-sm"></span>
       </div>
     } @else {
-      <div class="mb-3">
-        <label class="form-label" for="splitTime">{{ 'dialog.containerSplit.splitTime' | translate }}</label>
-        <input
-          type="time"
-          id="splitTime"
-          class="form-control"
-          [ngModel]="splitTime()"
-          (ngModelChange)="onSplitTimeChange($event)"
+      <div class="form-group">
+        <label>{{ "dialog.containerSplit.splitTime" | translate }}</label>
+        <app-time-input
+          [value]="splitTimeOwn()"
+          [forDuration]="false"
+          [showLabel]="false"
+          (timeChange)="onSplitTimeOwnChanged($event)"
         />
         @if (splitTime() && !isSplitTimeValid()) {
-          <div class="text-danger small mt-1">
-            {{ 'dialog.containerSplit.error.invalidTime' | translate }}
+          <div class="error-message">
+            {{ "dialog.containerSplit.error.invalidTime" | translate }}
           </div>
         }
       </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="clientSearch">{{ 'dialog.containerSplit.client' | translate }}</label>
+      <div class="form-group search-group">
+        <label for="clientSearch">{{
+          "dialog.containerSplit.replacement" | translate
+        }}</label>
         @if (replaceClientId()) {
-          <div class="d-flex align-items-center gap-2">
-            <span class="flex-grow-1">{{ selectedClientName() }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearClient()">
-              &#x2715;
-            </button>
-          </div>
+          <div class="readonly-client-name">{{ selectedClientName() }}</div>
+          <span class="link-button blue-font" (click)="clearClient()">
+            {{ "dialog.containerSplit.clearClient" | translate }}
+          </span>
         } @else {
-          <input
-            type="text"
-            id="clientSearch"
-            class="form-control"
-            [placeholder]="'dialog.containerSplit.clientPlaceholder' | translate"
-            (input)="onClientSearch($any($event.target).value)"
-          />
-          @if (clientSearchResults().length) {
-            <ul class="list-group mt-1">
-              @for (client of clientSearchResults(); track client.id) {
-                <li
-                  class="list-group-item list-group-item-action"
-                  role="button"
-                  [attr.tabindex]="0"
-                  style="cursor: pointer"
-                  (click)="selectClient(client.id, client.displayName)"
-                  (keydown.enter)="selectClient(client.id, client.displayName)"
-                >
-                  {{ client.displayName }}
-                </li>
-              }
-            </ul>
-          }
+          <div class="search-container">
+            <input
+              type="search"
+              id="clientSearch"
+              class="form-select"
+              #clientSearchInput
+              (keyup)="onClientSearch(clientSearchInput.value)"
+              autocomplete="off"
+              placeholder="{{ 'placeholder.search' | translate }}"
+            />
+            @if (clientSearchResults().length > 0) {
+              <div class="search-results">
+                @for (client of clientSearchResults(); track client.id) {
+                  <div
+                    class="search-result-item"
+                    (click)="selectClient(client.id, client.displayName)"
+                  >
+                    {{ client.displayName }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
         }
       </div>
 
       @if (categorization()?.conflicts?.length) {
-        <div class="mb-3">
-          <h6>{{ 'dialog.containerSplit.conflicts.title' | translate }}</h6>
-          @for (conflict of categorization()!.conflicts; track conflict.subWork.id) {
-            <div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded">
-              <span class="flex-grow-1 small">
-                {{ conflict.subWork.startTime }} &ndash; {{ conflict.subWork.endTime }}
+        <div class="form-group">
+          <label>{{
+            "dialog.containerSplit.conflicts.title" | translate
+          }}</label>
+          @for (
+            conflict of categorization()!.conflicts;
+            track conflict.subWork.id
+          ) {
+            <div class="conflict-row">
+              <span class="conflict-time">
+                {{ conflict.subWork.startTime }} &ndash;
+                {{ conflict.subWork.endTime }}
               </span>
               <button
                 type="button"
-                class="btn btn-sm"
-                [class.btn-primary]="conflict.resolution === 'before'"
-                [class.btn-outline-secondary]="conflict.resolution !== 'before'"
+                class="normal-btn conflict-btn"
+                [class.active]="conflict.resolution === 'before'"
                 (click)="resolveConflict(conflict, 'before')"
               >
-                {{ 'dialog.containerSplit.conflicts.before' | translate }}
+                {{ "dialog.containerSplit.conflicts.before" | translate }}
               </button>
               <button
                 type="button"
-                class="btn btn-sm"
-                [class.btn-primary]="conflict.resolution === 'after'"
-                [class.btn-outline-secondary]="conflict.resolution !== 'after'"
+                class="normal-btn conflict-btn"
+                [class.active]="conflict.resolution === 'after'"
                 (click)="resolveConflict(conflict, 'after')"
               >
-                {{ 'dialog.containerSplit.conflicts.after' | translate }}
+                {{ "dialog.containerSplit.conflicts.after" | translate }}
               </button>
             </div>
           }
           @if (!allConflictsResolved()) {
-            <div class="text-warning small">
-              {{ 'dialog.containerSplit.conflicts.unresolvedHint' | translate }}
+            <div class="darkgrey-font">
+              {{ "dialog.containerSplit.conflicts.unresolvedHint" | translate }}
             </div>
           }
         </div>
@@ -101,19 +120,19 @@
   </div>
 
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="close()">
-      {{ 'cancel' | translate }}
-    </button>
+    <span class="link-button red-font" (click)="close()">
+      {{ "cancel" | translate }}
+    </span>
     <button
       type="button"
-      class="btn btn-primary"
+      class="btn save-btn"
       [disabled]="!canSave() || isSaving()"
       (click)="onSave()"
     >
       @if (isSaving()) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
+        <span class="spinner-border spinner-border-sm"></span>
       }
-      {{ 'save' | translate }}
+      {{ "save" | translate }}
     </button>
   </div>
 </ng-template>
