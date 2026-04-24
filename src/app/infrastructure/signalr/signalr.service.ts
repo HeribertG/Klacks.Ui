@@ -84,38 +84,46 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     await this._connectionHelper.startConnection(
       hub => this.registerEventHandlers(hub),
       {
-        onConnected: async () => {
-          this.startProactiveTokenRefresh();
-          this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
-          await this._groupHelper.rejoinCurrentGroup(
-            this._connectionHelper.hubConnection!,
-            this._connectionHelper.isConnected(),
-          );
-        },
-        onReconnecting: async () => {
-          const token = this._localStorage.get(StorageKeys.TOKEN);
-          if (token && this._tokenHelper.isTokenExpired(token)) {
-            this.reconnectAttemptWithExpiredToken = true;
-            await this._tokenHelper.attemptTokenRefresh();
-          }
-        },
-        onReconnected: async (hub: signalR.HubConnection) => {
-          if (this.reconnectAttemptWithExpiredToken) {
-            const token = this._localStorage.get(StorageKeys.TOKEN);
-            if (token && this._tokenHelper.isTokenExpired(token)) {
-              this.scheduleConnectionRefresh();
-            }
-            this.reconnectAttemptWithExpiredToken = false;
-          }
-          await this._groupHelper.rejoinCurrentGroup(hub, this._connectionHelper.isConnected());
-          this.reconnected$.next();
-        },
-        onClosed: () => {
-          this.reconnectAttemptWithExpiredToken = false;
-          this.scheduleFullReconnect();
-        },
+        onConnected: async () => await this.onConnectionConnected(),
+        onReconnecting: async () => await this.onConnectionReconnecting(),
+        onReconnected: async (hub) => await this.onConnectionReconnected(hub),
+        onClosed: () => this.onConnectionClosed(),
       },
     );
+  }
+
+  private async onConnectionConnected(): Promise<void> {
+    this.startProactiveTokenRefresh();
+    this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
+    await this._groupHelper.rejoinCurrentGroup(
+      this._connectionHelper.hubConnection!,
+      this._connectionHelper.isConnected(),
+    );
+  }
+
+  private async onConnectionReconnecting(): Promise<void> {
+    const token = this._localStorage.get(StorageKeys.TOKEN);
+    if (token && this._tokenHelper.isTokenExpired(token)) {
+      this.reconnectAttemptWithExpiredToken = true;
+      await this._tokenHelper.attemptTokenRefresh();
+    }
+  }
+
+  private async onConnectionReconnected(hub: signalR.HubConnection): Promise<void> {
+    if (this.reconnectAttemptWithExpiredToken) {
+      const token = this._localStorage.get(StorageKeys.TOKEN);
+      if (token && this._tokenHelper.isTokenExpired(token)) {
+        this.scheduleConnectionRefresh();
+      }
+      this.reconnectAttemptWithExpiredToken = false;
+    }
+    await this._groupHelper.rejoinCurrentGroup(hub, this._connectionHelper.isConnected());
+    this.reconnected$.next();
+  }
+
+  private onConnectionClosed(): void {
+    this.reconnectAttemptWithExpiredToken = false;
+    this.scheduleFullReconnect();
   }
 
   async stopConnection(): Promise<void> {
