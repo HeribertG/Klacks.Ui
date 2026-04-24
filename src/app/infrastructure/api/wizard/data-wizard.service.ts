@@ -52,12 +52,13 @@ export class DataWizardService implements OnDestroy {
     this.resetState();
     this.status.set('running');
 
+    await this.ensureConnected();
+
     const response = await firstValueFrom(
       this.http.post<StartWizardResponse>(`${this.apiBase}/Start`, request),
     );
 
     this.currentJobId.set(response.jobId);
-    await this.ensureConnected();
     await this.hubConnection?.send(WizardSignalRConstants.HubMethods.JoinJob, response.jobId);
     return response.jobId;
   }
