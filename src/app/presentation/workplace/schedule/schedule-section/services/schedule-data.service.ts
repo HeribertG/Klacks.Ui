@@ -315,12 +315,20 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   override getHeaderFontColor(column: number): string | null {
+    if (column < 0) {
+      return null;
+    }
+
     const availableShifts = this.dataManagementSchedule.availableShiftsByDay;
-    if (column >= 0 && column < availableShifts.length) {
-      const shiftsForDay = availableShifts[column];
-      if (shiftsForDay && shiftsForDay.length > 0) {
-        return this.gridColorService.availableShiftsHeaderColor;
-      }
+    const overbookedShifts = this.dataManagementSchedule.overbookedShiftsByDay;
+
+    const hasAvailable =
+      column < availableShifts.length && (availableShifts[column]?.length ?? 0) > 0;
+    const hasOverbooked =
+      column < overbookedShifts.length && (overbookedShifts[column]?.length ?? 0) > 0;
+
+    if (hasAvailable || hasOverbooked) {
+      return this.gridColorService.availableShiftsHeaderColor;
     }
     return null;
   }

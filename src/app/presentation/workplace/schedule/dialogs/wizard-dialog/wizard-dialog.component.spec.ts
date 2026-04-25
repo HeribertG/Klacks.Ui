@@ -8,6 +8,8 @@ import { WizardDialogComponent } from './wizard-dialog.component';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { WizardProgress, WizardResult, WizardStatus } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
 
 function createWizardServiceMock() {
   return {
@@ -25,8 +27,8 @@ function createWizardServiceMock() {
 
 function createScheduleMock() {
   return {
-    clients: [] as any[],
-    shiftSchedules: [] as any[],
+    clients: [] as IClientWork[],
+    shiftSchedules: [] as IShiftSchedule[],
     visibleStartDate: new Date('2026-04-01'),
     visibleEndDate: new Date('2026-04-30'),
     readDatas: vi.fn(),

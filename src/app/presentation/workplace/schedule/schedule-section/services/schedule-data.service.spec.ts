@@ -38,7 +38,8 @@ describe('ScheduleDataService', () => {
                         shiftSchedules: [],
                         visibleStartDate: null,
                         visibleEndDate: null,
-                        availableShiftsByDay: []
+                        availableShiftsByDay: [],
+                        overbookedShiftsByDay: []
                     } },
                 { provide: AppSettingsManagementService, useValue: {
                         workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
