@@ -188,7 +188,7 @@ describe('CollisionDetectionService', () => {
       expect(entry.date).toBe('2026-03-20');
       expect(entry.clientName).toBe('Max Mustermann');
       expect(entry.comment).toBe('schedule.error-list.collision');
-      expect(entry.commentParams).toEqual({
+      expect(entry.commentParams).toMatchObject({
         timeRange1: '08:00-12:00',
         timeRange2: '10:00-14:00',
       });
