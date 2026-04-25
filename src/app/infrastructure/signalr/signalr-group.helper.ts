@@ -122,13 +122,16 @@ export class SignalRGroupHelper {
   async flush(): Promise<void> {
     if (!this.canInvoke()) return;
 
-    if (this._currentGroup) {
+    const hasQueuedJoin = this._queue.some(q => q.kind === 'join');
+    const hasQueuedSelect = this._queue.some(q => q.kind === 'select');
+
+    if (this._currentGroup && !hasQueuedJoin) {
       const cached = this._currentGroup;
       this._currentGroup = null;
       await this.performGroupSwitch(cached);
     }
 
-    if (this._selectedGroupId) {
+    if (this._selectedGroupId && !hasQueuedSelect) {
       const hub = this.resolveHub();
       if (hub) {
         try {
