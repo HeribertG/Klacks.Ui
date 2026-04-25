@@ -367,6 +367,7 @@ export function getDateKeysBetween(startDate: Date, endDate: Date): string[] {
 export function getDayIndex(startDate: Date, targetDate: Date): number {
   const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
   const target = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-  const diffTime = target.getTime() - start.getTime();
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const diffMs = target.getTime() - start.getTime();
+  return Math.round(diffMs / MS_PER_DAY);
 }
