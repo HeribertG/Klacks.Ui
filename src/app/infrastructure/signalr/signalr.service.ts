@@ -39,6 +39,8 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private reconnectAttemptWithExpiredToken = false;
   private tokenRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private fullReconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private fullReconnectInFlight = false;
 
   private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
   private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
@@ -250,29 +252,43 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   private scheduleFullReconnect(attempt = 0): void {
+    if (this.fullReconnectTimer || this.fullReconnectInFlight) {
+      return;
+    }
+
     const delays = [2000, 5000, 10000, 30000, 60000];
     const delay = delays[Math.min(attempt, delays.length - 1)];
 
-    setTimeout(async () => {
-      let token = this._localStorage.get(StorageKeys.TOKEN);
-      if (!token) return;
-
-      if (this._tokenHelper.isTokenExpired(token)) {
-        await this._tokenHelper.attemptTokenRefresh();
-        token = this._localStorage.get(StorageKeys.TOKEN);
-        if (!token || this._tokenHelper.isTokenExpired(token)) {
-          this.scheduleFullReconnect(attempt + 1);
-          return;
-        }
-      }
+    this.fullReconnectTimer = setTimeout(async () => {
+      this.fullReconnectTimer = null;
+      this.fullReconnectInFlight = true;
 
       try {
-        await this.refreshConnection();
-        if (!this._connectionHelper.isConnected()) {
+        let token = this._localStorage.get(StorageKeys.TOKEN);
+        if (!token) return;
+
+        if (this._tokenHelper.isTokenExpired(token)) {
+          await this._tokenHelper.attemptTokenRefresh();
+          token = this._localStorage.get(StorageKeys.TOKEN);
+          if (!token || this._tokenHelper.isTokenExpired(token)) {
+            this.fullReconnectInFlight = false;
+            this.scheduleFullReconnect(attempt + 1);
+            return;
+          }
+        }
+
+        try {
+          await this.refreshConnection();
+          if (!this._connectionHelper.isConnected()) {
+            this.fullReconnectInFlight = false;
+            this.scheduleFullReconnect(attempt + 1);
+          }
+        } catch {
+          this.fullReconnectInFlight = false;
           this.scheduleFullReconnect(attempt + 1);
         }
-      } catch {
-        this.scheduleFullReconnect(attempt + 1);
+      } finally {
+        this.fullReconnectInFlight = false;
       }
     }, delay);
   }

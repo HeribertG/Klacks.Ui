@@ -33,6 +33,7 @@ export class SignalRConnectionHelper {
   private readonly _connectionId = signal('');
   private _hubConnection: signalR.HubConnection | null = null;
   private _isStarting = false;
+  private _pendingStart: Promise<void> | null = null;
 
   readonly isConnected: Signal<boolean> = this._isConnected.asReadonly();
   readonly connectionId: Signal<string> = this._connectionId.asReadonly();
@@ -69,15 +70,23 @@ export class SignalRConnectionHelper {
     registerHandlers: (hub: signalR.HubConnection) => void,
     callbacks: SignalRConnectionCallbacks,
   ): Promise<void> {
-    if (this._isStarting || this._hubConnection?.state === signalR.HubConnectionState.Connected) {
+    if (this._hubConnection?.state === signalR.HubConnectionState.Connected) {
+      return;
+    }
+    if (this._pendingStart) {
+      await this._pendingStart;
       return;
     }
     this._isStarting = true;
-    try {
-      await this.startConnectionInternal(registerHandlers, callbacks);
-    } finally {
-      this._isStarting = false;
-    }
+    this._pendingStart = (async () => {
+      try {
+        await this.startConnectionInternal(registerHandlers, callbacks);
+      } finally {
+        this._isStarting = false;
+        this._pendingStart = null;
+      }
+    })();
+    await this._pendingStart;
   }
 
   async stopConnection(): Promise<void> {
@@ -181,7 +190,7 @@ export class SignalRConnectionHelper {
       return;
     }
 
-    this._hubConnection = new signalR.HubConnectionBuilder()
+    const hub = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
         skipNegotiation: true,
@@ -191,14 +200,16 @@ export class SignalRConnectionHelper {
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    this._hubConnection.serverTimeoutInMilliseconds = SignalRConnectionHelper.SERVER_TIMEOUT_MS;
-    this._hubConnection.keepAliveIntervalInMilliseconds = SignalRConnectionHelper.KEEP_ALIVE_INTERVAL_MS;
+    hub.serverTimeoutInMilliseconds = SignalRConnectionHelper.SERVER_TIMEOUT_MS;
+    hub.keepAliveIntervalInMilliseconds = SignalRConnectionHelper.KEEP_ALIVE_INTERVAL_MS;
 
-    registerHandlers(this._hubConnection);
-    this.registerConnectionEvents(this._hubConnection, callbacks);
+    this._hubConnection = hub;
+
+    registerHandlers(hub);
+    this.registerConnectionEvents(hub, callbacks);
 
     await this.waitForBackend();
-    await this.connectWithRetry(callbacks.onConnected);
+    await this.connectWithRetry(hub, callbacks.onConnected);
   }
 
   private async waitForBackend(maxAttempts = 10, intervalMs = 1000): Promise<void> {
@@ -216,14 +227,25 @@ export class SignalRConnectionHelper {
     }
   }
 
-  private async connectWithRetry(onConnected: () => Promise<void>): Promise<void> {
+  private async connectWithRetry(
+    hub: signalR.HubConnection,
+    onConnected: () => Promise<void>,
+  ): Promise<void> {
     const retryDelays = [0, 1000, 2000, 5000, 10000];
     let tokenRefreshAttempted = false;
 
     for (let attempt = 0; attempt < retryDelays.length; attempt++) {
+      if (this._hubConnection !== hub) {
+        console.warn('[SignalR] hub instance replaced during retry - aborting connect loop');
+        return;
+      }
       try {
-        await this._hubConnection!.start();
-        const connectionId = await this._hubConnection!.invoke<string>(
+        await hub.start();
+        if (this._hubConnection !== hub) {
+          console.warn('[SignalR] hub instance replaced after start - aborting connect loop');
+          return;
+        }
+        const connectionId = await hub.invoke<string>(
           SignalRConstants.HubMethods.GetConnectionId,
         );
         this._connectionId.set(connectionId);
