@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable, OnDestroy, signal, DestroyRef } from '@angular/core';
+import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
@@ -14,7 +14,7 @@ import { AnalyseScenarioService } from './analyse-scenario.service';
 @Injectable({
   providedIn: 'root',
 })
-export class WorkNotificationService implements OnDestroy {
+export class WorkNotificationService {
   private signalRService = inject(SCHEDULE_SIGNALR);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private shiftScheduleLoader = inject(ShiftScheduleLoaderService);
@@ -188,7 +188,4 @@ export class WorkNotificationService implements OnDestroy {
     return this.affectedShifts().get(shiftId) ?? false;
   }
 
-  ngOnDestroy(): void {
-    this.affectedShifts.set(new Map());
-  }
 }

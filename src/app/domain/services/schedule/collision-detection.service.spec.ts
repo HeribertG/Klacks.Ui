@@ -23,6 +23,8 @@ function createCollision(overrides: Partial<ICollisionNotification> = {}): IColl
     date: '2026-03-15',
     timeRange1: '08:00-12:00',
     timeRange2: '10:00-14:00',
+    blockType1: 'Work',
+    blockType2: 'Work',
     ...overrides,
   };
 }

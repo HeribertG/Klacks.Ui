@@ -1,0 +1,96 @@
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.form-group {
+  &.search-group {
+    .readonly-client-name {
+      padding: 8px 12px;
+      border: 1px solid var(--cardBorderColor);
+      border-radius: 4px;
+      background-color: var(--standartTextBackgroundReadOnly);
+      color: var(--standartTextColor);
+    }
+
+    .search-container {
+      position: relative;
+
+      input[type="search"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--cardBorderColor);
+        border-radius: 4px;
+        background-color: var(--standartTextBackground);
+        color: var(--standartTextColor);
+        caret-color: var(--standartTextCaretColor);
+
+        &:focus {
+          outline: none;
+          border-color: colors.$standartBlueColor;
+          background-color: var(--standartTextBackground);
+        }
+
+        &::-webkit-search-cancel-button {
+          -webkit-appearance: none;
+        }
+      }
+
+      .search-results {
+        position: absolute;
+        top: 100%;
+        inset-inline: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: var(--backgroundColorCard);
+        border: 1px solid var(--cardBorderColor);
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        .search-result-item {
+          padding: 8px 12px;
+          cursor: pointer;
+          color: var(--standartTextColor);
+
+          &:hover {
+            background-color: rgba(colors.$standartBlueColor, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+.error-message {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--colorRed);
+}
+
+.conflict-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  .conflict-time {
+    flex: 1;
+    font-size: 13px;
+    color: var(--standartTextColor);
+  }
+
+  .conflict-btn {
+    &.active {
+      background-color: colors.$standartBlueColor;
+      color: #fff;
+      border-color: colors.$standartBlueColor;
+    }
+  }
+}
