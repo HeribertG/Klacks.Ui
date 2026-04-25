@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { signal as angularSignal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { CollisionDetectionService } from './collision-detection.service';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
@@ -85,6 +86,7 @@ describe('CollisionDetectionService', () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         CollisionDetectionService,
         {
