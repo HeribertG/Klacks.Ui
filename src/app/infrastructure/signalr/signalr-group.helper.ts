@@ -115,33 +115,28 @@ export class SignalRGroupHelper {
   }
 
   /**
-   * Replays any queued group ops after the connection has reached Connected state.
-   * Re-applies the cached schedule group and selected group ID even if no ops were
-   * queued, so a transparent reconnect restores subscription state.
+   * Reconciles wire-side subscriptions with the caller's intent.
+   *
+   * `_currentGroup` and `_selectedGroupId` always reflect the latest desired
+   * state (set both online and offline). The queue tracks ops that still need
+   * to hit the wire. Both can target the same backend method, so flush picks
+   * one source: a non-empty queue means "offline ops pending, drain them";
+   * an empty queue with cached state means "transparent reconnect, re-assert
+   * subscriptions". The two paths are mutually exclusive, which is why the
+   * cached state is not also replayed during a queue drain.
    */
   async flush(): Promise<void> {
     if (!this.canInvoke()) return;
 
-    const hasQueuedJoin = this._queue.some(q => q.kind === 'join');
-    const hasQueuedSelect = this._queue.some(q => q.kind === 'select');
-
-    if (this._currentGroup && !hasQueuedJoin) {
-      const cached = this._currentGroup;
-      this._currentGroup = null;
-      await this.performGroupSwitch(cached);
+    if (this._queue.length > 0) {
+      await this.drainQueue();
+      return;
     }
 
-    if (this._selectedGroupId && !hasQueuedSelect) {
-      const hub = this.resolveHub();
-      if (hub) {
-        try {
-          await hub.invoke(SignalRConstants.HubMethods.SetSelectedGroup, this._selectedGroupId);
-        } catch {
-          // ignored: queued for next flush
-        }
-      }
-    }
+    await this.replayCachedState();
+  }
 
+  private async drainQueue(): Promise<void> {
     while (this._queue.length > 0 && this.canInvoke()) {
       const op = this._queue.shift();
       if (!op) break;
@@ -167,6 +162,25 @@ export class SignalRGroupHelper {
         }
       } catch {
         // ignored: operation failed on the wire, watchdog reconnect will trigger another flush
+      }
+    }
+  }
+
+  private async replayCachedState(): Promise<void> {
+    if (this._currentGroup) {
+      const cached = this._currentGroup;
+      this._currentGroup = null;
+      await this.performGroupSwitch(cached);
+    }
+
+    if (this._selectedGroupId) {
+      const hub = this.resolveHub();
+      if (hub) {
+        try {
+          await hub.invoke(SignalRConstants.HubMethods.SetSelectedGroup, this._selectedGroupId);
+        } catch {
+          // ignored: next reconnect cycle will retry
+        }
       }
     }
   }
