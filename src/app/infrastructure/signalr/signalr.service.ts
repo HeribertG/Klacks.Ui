@@ -3,9 +3,9 @@
 /**
  * Facade service for SignalR: owns all event Subject streams and implements IScheduleSignalR.
  * Delegates connection lifecycle to SignalRConnectionHelper, group membership to SignalRGroupHelper
- * and token management to SignalRTokenHelper.
+ * and token management to SignalRTokenHelper. Exposes telemetry and FSM state for diagnostics.
  */
-import { inject, Injectable, OnDestroy } from '@angular/core';
+import { inject, Injectable, OnDestroy, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../storage/local-storage.service';
@@ -26,6 +26,11 @@ import * as signalR from '@microsoft/signalr';
 import { SignalRTokenHelper } from './signalr-token.helper';
 import { SignalRGroupHelper } from './signalr-group.helper';
 import { SignalRConnectionHelper } from './signalr-connection.helper';
+import {
+  jitter,
+  SignalRConnectionState,
+  SignalRTelemetry,
+} from './signalr-connection-state';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +49,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private static readonly TOKEN_REFRESH_CHECK_INTERVAL_MS = 60000;
   private static readonly CONNECTION_REFRESH_DELAY_MS = 1000;
+  private static readonly RECONNECT_DELAYS_MS: readonly number[] = [
+    2000, 5000, 10000, 30000, 60000,
+  ];
 
   public workCreated$ = new Subject<IWorkNotification>();
   public workUpdated$ = new Subject<IWorkNotification>();
@@ -59,7 +67,6 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   constructor() {
     this._tokenHelper = new SignalRTokenHelper(this._localStorage);
-    this._groupHelper = new SignalRGroupHelper();
 
     const hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
 
@@ -72,6 +79,11 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
         onWatchdogNeedsReconnect: async () => await this.startConnection(),
       },
     );
+
+    this._groupHelper = new SignalRGroupHelper(
+      () => this._connectionHelper.hubConnection,
+      () => this._connectionHelper.isConnected(),
+    );
   }
 
   get connectionId(): string {
@@ -82,9 +94,17 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     return this._connectionHelper.isConnected();
   }
 
+  get state(): Signal<SignalRConnectionState> {
+    return this._connectionHelper.state;
+  }
+
+  get telemetry(): SignalRTelemetry {
+    return this._connectionHelper.telemetry;
+  }
+
   async startConnection(): Promise<void> {
     await this._connectionHelper.startConnection(
-      hub => this.registerEventHandlers(hub),
+      (hub) => this.registerEventHandlers(hub),
       {
         onConnected: async () => await this.onConnectionConnected(),
         onReconnecting: async () => await this.onConnectionReconnecting(),
@@ -97,10 +117,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   private async onConnectionConnected(): Promise<void> {
     this.startProactiveTokenRefresh();
     this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
-    await this._groupHelper.rejoinCurrentGroup(
-      this._connectionHelper.hubConnection!,
-      this._connectionHelper.isConnected(),
-    );
+    await this._groupHelper.flush();
   }
 
   private async onConnectionReconnecting(): Promise<void> {
@@ -111,7 +128,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     }
   }
 
-  private async onConnectionReconnected(hub: signalR.HubConnection): Promise<void> {
+  private async onConnectionReconnected(_hub: signalR.HubConnection): Promise<void> {
     if (this.reconnectAttemptWithExpiredToken) {
       const token = this._localStorage.get(StorageKeys.TOKEN);
       if (token && this._tokenHelper.isTokenExpired(token)) {
@@ -119,7 +136,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       }
       this.reconnectAttemptWithExpiredToken = false;
     }
-    await this._groupHelper.rejoinCurrentGroup(hub, this._connectionHelper.isConnected());
+    await this._groupHelper.flush();
     this.reconnected$.next();
   }
 
@@ -134,18 +151,8 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   async refreshConnection(): Promise<void> {
-    const previousGroup = this._groupHelper.currentGroup;
     await this.stopConnection();
     await this.startConnection();
-    if (previousGroup && this._connectionHelper.isConnected()) {
-      await this._groupHelper.joinScheduleGroup(
-        this._connectionHelper.hubConnection!,
-        this._connectionHelper.isConnected(),
-        previousGroup.startDate,
-        previousGroup.endDate,
-        previousGroup.analyseToken,
-      );
-    }
   }
 
   async joinScheduleGroup(
@@ -153,11 +160,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     endDate: string,
     analyseToken: string | null = null,
   ): Promise<void> {
-    await this._groupHelper.joinScheduleGroup(
-      this._connectionHelper.hubConnection!,
-      this._connectionHelper.isConnected(),
-      startDate, endDate, analyseToken,
-    );
+    await this._groupHelper.joinScheduleGroup(startDate, endDate, analyseToken);
   }
 
   async leaveScheduleGroup(
@@ -165,30 +168,23 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     endDate: string,
     analyseToken: string | null = null,
   ): Promise<void> {
-    await this._groupHelper.leaveScheduleGroup(
-      this._connectionHelper.hubConnection!,
-      this._connectionHelper.isConnected(),
-      startDate, endDate, analyseToken,
-    );
+    await this._groupHelper.leaveScheduleGroup(startDate, endDate, analyseToken);
   }
 
   async setSelectedGroup(selectedGroupId: string): Promise<void> {
-    await this._groupHelper.setSelectedGroup(
-      this._connectionHelper.hubConnection!,
-      this._connectionHelper.isConnected(),
-      selectedGroupId,
-    );
+    await this._groupHelper.setSelectedGroup(selectedGroupId);
   }
 
   async rejoinCurrentGroup(): Promise<void> {
-    await this._groupHelper.rejoinCurrentGroup(
-      this._connectionHelper.hubConnection!,
-      this._connectionHelper.isConnected(),
-    );
+    await this._groupHelper.rejoinCurrentGroup();
   }
 
   ngOnDestroy(): void {
     this.stopProactiveTokenRefresh();
+    if (this.fullReconnectTimer) {
+      clearTimeout(this.fullReconnectTimer);
+      this.fullReconnectTimer = null;
+    }
     this._connectionHelper.dispose();
     void this._connectionHelper.stopConnection();
     this.workCreated$.complete();
@@ -205,16 +201,21 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   }
 
   private registerEventHandlers(hub: signalR.HubConnection): void {
-    hub.on(SignalRConstants.Events.WorkCreated, (n: IWorkNotification) => this.workCreated$.next(n));
-    hub.on(SignalRConstants.Events.WorkUpdated, (n: IWorkNotification) => this.workUpdated$.next(n));
-    hub.on(SignalRConstants.Events.WorkDeleted, (n: IWorkNotification) => this.workDeleted$.next(n));
-    hub.on(SignalRConstants.Events.ScheduleUpdated, (n: IScheduleNotification) => this.scheduleUpdated$.next(n));
-    hub.on(SignalRConstants.Events.ShiftStatsUpdated, (n: IShiftStatsNotification) => this.shiftStatsUpdated$.next(n));
-    hub.on(SignalRConstants.Events.PeriodHoursUpdated, (n: IPeriodHoursNotification) => this.periodHoursUpdated$.next(n));
-    hub.on(SignalRConstants.Events.PeriodHoursRecalculated, (n: IPeriodHoursRecalculatedNotification) => this.periodHoursRecalculated$.next(n));
-    hub.on(SignalRConstants.Events.ScheduleChangeTracked, (n: IScheduleChangeNotification) => this.scheduleChangeTracked$.next(n));
-    hub.on(SignalRConstants.Events.CollisionsDetected, (n: ICollisionListNotification) => this.collisionsDetected$.next(n));
-    hub.on(SignalRConstants.Events.ScheduleValidationsDetected, (n: IScheduleValidationListNotification) => this.scheduleValidationsDetected$.next(n));
+    const onPush = <T>(subject: Subject<T>) => (notification: T) => {
+      this._connectionHelper.notePush();
+      subject.next(notification);
+    };
+
+    hub.on(SignalRConstants.Events.WorkCreated, onPush(this.workCreated$));
+    hub.on(SignalRConstants.Events.WorkUpdated, onPush(this.workUpdated$));
+    hub.on(SignalRConstants.Events.WorkDeleted, onPush(this.workDeleted$));
+    hub.on(SignalRConstants.Events.ScheduleUpdated, onPush(this.scheduleUpdated$));
+    hub.on(SignalRConstants.Events.ShiftStatsUpdated, onPush(this.shiftStatsUpdated$));
+    hub.on(SignalRConstants.Events.PeriodHoursUpdated, onPush(this.periodHoursUpdated$));
+    hub.on(SignalRConstants.Events.PeriodHoursRecalculated, onPush(this.periodHoursRecalculated$));
+    hub.on(SignalRConstants.Events.ScheduleChangeTracked, onPush(this.scheduleChangeTracked$));
+    hub.on(SignalRConstants.Events.CollisionsDetected, onPush(this.collisionsDetected$));
+    hub.on(SignalRConstants.Events.ScheduleValidationsDetected, onPush(this.scheduleValidationsDetected$));
   }
 
   private startProactiveTokenRefresh(): void {
@@ -256,8 +257,11 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
       return;
     }
 
-    const delays = [2000, 5000, 10000, 30000, 60000];
-    const delay = delays[Math.min(attempt, delays.length - 1)];
+    const baseDelay =
+      SignalRService.RECONNECT_DELAYS_MS[
+        Math.min(attempt, SignalRService.RECONNECT_DELAYS_MS.length - 1)
+      ];
+    const delay = jitter(baseDelay);
 
     this.fullReconnectTimer = setTimeout(async () => {
       this.fullReconnectTimer = null;

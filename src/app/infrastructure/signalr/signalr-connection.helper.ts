@@ -2,19 +2,26 @@
 
 /**
  * Hub connection lifecycle helper: creates, starts, retries and monitors the SignalR hub connection.
- * Health check and watchdog notify the facade via callbacks so reconnect orchestration stays in the facade.
+ * Owns the connection FSM (Idle/Connecting/Connected/Reconnecting/Failed) and exposes telemetry counters
+ * for diagnostics. Health check and watchdog notify the facade via callbacks so reconnect orchestration
+ * stays in the facade.
  * @param tokenHelper - Token refresh and expiry logic
  * @param localStorage - Reads JWT token for the access token factory
  * @param hubUrl - WebSocket hub endpoint URL
  * @param options - Callbacks fired on visibility drift and watchdog-triggered reconnect need
  */
 import * as signalR from '@microsoft/signalr';
-import { signal, Signal } from '@angular/core';
+import { computed, signal, Signal } from '@angular/core';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { SignalRConstants } from './signalr.constants';
 import { environment } from 'src/environments/environment';
 import { SignalRTokenHelper } from './signalr-token.helper';
+import {
+  jitter,
+  SignalRConnectionState,
+  SignalRTelemetry,
+} from './signalr-connection-state';
 
 export interface SignalRConnectionOptions {
   onVisibilityDrift: () => Promise<void>;
@@ -28,14 +35,27 @@ export interface SignalRConnectionCallbacks {
   onClosed: () => void;
 }
 
-export class SignalRConnectionHelper {
-  private readonly _isConnected = signal(false);
-  private readonly _connectionId = signal('');
-  private _hubConnection: signalR.HubConnection | null = null;
-  private _isStarting = false;
-  private _pendingStart: Promise<void> | null = null;
+const RETRY_DELAYS_MS: readonly number[] = [0, 1000, 2000, 5000, 10000];
+const BACKEND_PROBE_TIMEOUT_MS = 2000;
 
-  readonly isConnected: Signal<boolean> = this._isConnected.asReadonly();
+export class SignalRConnectionHelper {
+  private readonly _state = signal<SignalRConnectionState>('Idle');
+  private readonly _connectionId = signal('');
+  private readonly _reconnectCount = signal(0);
+  private readonly _authErrorCount = signal(0);
+  private readonly _lastDisconnectAt = signal<number | null>(null);
+  private readonly _lastReconnectAt = signal<number | null>(null);
+  private readonly _lastSuccessfulPushAt = signal<number | null>(null);
+  private readonly _avgDisconnectDurationMs = signal(0);
+  private readonly _lastErrorMessage = signal<string | null>(null);
+  private readonly _isConnectedDerived = computed(() => this._state() === 'Connected');
+
+  private _hubConnection: signalR.HubConnection | null = null;
+  private _pendingStart: Promise<void> | null = null;
+  private _disconnectSamples = 0;
+
+  readonly state: Signal<SignalRConnectionState> = this._state.asReadonly();
+  readonly isConnected: Signal<boolean> = this._isConnectedDerived;
   readonly connectionId: Signal<string> = this._connectionId.asReadonly();
 
   private healthCheckTimer: ReturnType<typeof setInterval> | null = null;
@@ -50,8 +70,21 @@ export class SignalRConnectionHelper {
     return this._hubConnection;
   }
 
-  get isStarting(): boolean {
-    return this._isStarting;
+  get telemetry(): SignalRTelemetry {
+    return {
+      state: this._state(),
+      reconnectCount: this._reconnectCount(),
+      authErrorCount: this._authErrorCount(),
+      lastDisconnectAt: this._lastDisconnectAt(),
+      lastReconnectAt: this._lastReconnectAt(),
+      lastSuccessfulPushAt: this._lastSuccessfulPushAt(),
+      avgDisconnectDurationMs: this._avgDisconnectDurationMs(),
+      lastErrorMessage: this._lastErrorMessage(),
+    };
+  }
+
+  notePush(): void {
+    this._lastSuccessfulPushAt.set(Date.now());
   }
 
   constructor(
@@ -70,19 +103,18 @@ export class SignalRConnectionHelper {
     registerHandlers: (hub: signalR.HubConnection) => void,
     callbacks: SignalRConnectionCallbacks,
   ): Promise<void> {
-    if (this._hubConnection?.state === signalR.HubConnectionState.Connected) {
+    if (this._state() === 'Connected') {
       return;
     }
     if (this._pendingStart) {
       await this._pendingStart;
       return;
     }
-    this._isStarting = true;
+    this.transitionTo('Connecting');
     this._pendingStart = (async () => {
       try {
         await this.startConnectionInternal(registerHandlers, callbacks);
       } finally {
-        this._isStarting = false;
         this._pendingStart = null;
       }
     })();
@@ -92,30 +124,37 @@ export class SignalRConnectionHelper {
   async stopConnection(): Promise<void> {
     this.stopHealthCheck();
     if (this._hubConnection) {
-      await this._hubConnection.stop();
-      this._isConnected.set(false);
+      try {
+        await this._hubConnection.stop();
+      } catch {
+        // hub.stop() rarely throws but never blocks teardown
+      }
       this._connectionId.set('');
       this._hubConnection = null;
     }
+    this.transitionTo('Idle');
   }
 
   startHealthCheck(onDrift: () => Promise<void>): void {
     this.stopHealthCheck();
     this.healthCheckTimer = setInterval(async () => {
-      const hubState = this._hubConnection?.state;
+      const hub = this._hubConnection;
+      const hubState = hub?.state;
       const hubConnected = hubState === signalR.HubConnectionState.Connected;
+      const stateConnected = this._state() === 'Connected';
 
-      if (this._isConnected() && hubConnected) {
+      if (stateConnected && hubConnected && hub) {
         try {
-          await this._hubConnection!.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
+          await hub.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         } catch (error) {
           console.warn('[SignalR] health check failed - forcing reconnect', error);
-          this._isConnected.set(false);
+          this.markErrorMessage(error);
+          this.transitionTo('Reconnecting');
           await onDrift();
         }
-      } else if (this._isConnected() && !hubConnected) {
+      } else if (stateConnected && !hubConnected) {
         console.warn('[SignalR] state drift detected (hub=' + hubState + ') - forcing reconnect');
-        this._isConnected.set(false);
+        this.transitionTo('Reconnecting');
         await onDrift();
       }
     }, SignalRConnectionHelper.HEALTH_CHECK_INTERVAL_MS);
@@ -147,8 +186,10 @@ export class SignalRConnectionHelper {
     this.stopWatchdog();
     this.watchdogTimer = setInterval(() => {
       const hasToken = !!this.localStorage.get(StorageKeys.TOKEN);
-      if (!hasToken || this._isConnected() || this._isStarting) return;
-      console.warn('[SignalR] watchdog: disconnected with valid token present - attempting reconnect');
+      if (!hasToken) return;
+      const state = this._state();
+      if (state === 'Connected' || state === 'Connecting') return;
+      console.warn('[SignalR] watchdog: state=' + state + ' with valid token - attempting reconnect');
       void this.options.onWatchdogNeedsReconnect();
     }, SignalRConnectionHelper.WATCHDOG_INTERVAL_MS);
   }
@@ -156,10 +197,11 @@ export class SignalRConnectionHelper {
   private handleVisibilityChange = async (): Promise<void> => {
     if (
       document.visibilityState === 'visible' &&
-      this._isConnected() &&
+      this._state() === 'Connected' &&
       this._hubConnection?.state !== signalR.HubConnectionState.Connected
     ) {
       console.warn('[SignalR] tab visible, connection state drift detected - forcing reconnect');
+      this.transitionTo('Reconnecting');
       await this.options.onVisibilityDrift();
     }
   };
@@ -171,6 +213,7 @@ export class SignalRConnectionHelper {
     let token = this.localStorage.get(StorageKeys.TOKEN);
     if (!token) {
       console.warn('[SignalR] no token available, aborting startConnection');
+      this.transitionTo('Idle');
       return;
     }
 
@@ -180,6 +223,7 @@ export class SignalRConnectionHelper {
       token = this.localStorage.get(StorageKeys.TOKEN);
       if (!token || this.tokenHelper.isTokenExpired(token)) {
         console.warn('[SignalR] token refresh did not yield a valid token, aborting startConnection');
+        this.transitionTo('Failed');
         return;
       }
     }
@@ -187,6 +231,14 @@ export class SignalRConnectionHelper {
     const isValid = await this.tokenHelper.validateTokenWithBackend(token);
     if (!isValid) {
       console.warn('[SignalR] token validation failed, aborting');
+      this.transitionTo('Failed');
+      return;
+    }
+
+    const backendReady = await this.probeBackend();
+    if (!backendReady) {
+      console.warn('[SignalR] backend not reachable within probe budget - watchdog will retry');
+      this.transitionTo('Failed');
       return;
     }
 
@@ -208,22 +260,20 @@ export class SignalRConnectionHelper {
     registerHandlers(hub);
     this.registerConnectionEvents(hub, callbacks);
 
-    await this.waitForBackend();
     await this.connectWithRetry(hub, callbacks.onConnected);
   }
 
-  private async waitForBackend(maxAttempts = 10, intervalMs = 1000): Promise<void> {
+  private async probeBackend(): Promise<boolean> {
     const healthUrl = environment.baseUrl.replace('/api/backend/', '/health');
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const response = await fetch(healthUrl, { method: 'GET' });
-        if (response.ok) return;
-      } catch {
-        // Backend not ready yet
-      }
-      if (attempt < maxAttempts - 1) {
-        await new Promise(resolve => setTimeout(resolve, intervalMs));
-      }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), BACKEND_PROBE_TIMEOUT_MS);
+    try {
+      const response = await fetch(healthUrl, { method: 'GET', signal: controller.signal });
+      return response.ok;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
     }
   }
 
@@ -231,10 +281,9 @@ export class SignalRConnectionHelper {
     hub: signalR.HubConnection,
     onConnected: () => Promise<void>,
   ): Promise<void> {
-    const retryDelays = [0, 1000, 2000, 5000, 10000];
     let tokenRefreshAttempted = false;
 
-    for (let attempt = 0; attempt < retryDelays.length; attempt++) {
+    for (let attempt = 0; attempt < RETRY_DELAYS_MS.length; attempt++) {
       if (this._hubConnection !== hub) {
         console.warn('[SignalR] hub instance replaced during retry - aborting connect loop');
         return;
@@ -249,14 +298,17 @@ export class SignalRConnectionHelper {
           SignalRConstants.HubMethods.GetConnectionId,
         );
         this._connectionId.set(connectionId);
-        this._isConnected.set(true);
+        this.recordReconnectIfNeeded();
+        this.transitionTo('Connected');
         await onConnected();
         return;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error('[SignalR] connect attempt', attempt, 'failed:', errorMessage);
+        this._lastErrorMessage.set(errorMessage);
 
         if (errorMessage.includes('401')) {
+          this._authErrorCount.update((v) => v + 1);
           if (!tokenRefreshAttempted) {
             tokenRefreshAttempted = true;
             console.warn('[SignalR] 401 on connect - refreshing token and retrying once');
@@ -264,15 +316,15 @@ export class SignalRConnectionHelper {
             continue;
           }
           console.warn('[SignalR] 401 persisted after token refresh - giving up until next watchdog tick');
-          this._isConnected.set(false);
+          this.transitionTo('Failed');
           return;
         }
 
-        const delay = retryDelays[attempt] ?? 10000;
-        if (attempt < retryDelays.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+        if (attempt < RETRY_DELAYS_MS.length - 1) {
+          const delay = jitter(RETRY_DELAYS_MS[attempt] ?? 10000);
+          await new Promise((resolve) => setTimeout(resolve, delay));
         } else {
-          this._isConnected.set(false);
+          this.transitionTo('Failed');
         }
       }
     }
@@ -283,7 +335,7 @@ export class SignalRConnectionHelper {
     callbacks: SignalRConnectionCallbacks,
   ): void {
     hub.onreconnecting(async () => {
-      this._isConnected.set(false);
+      this.transitionTo('Reconnecting');
       await callbacks.onReconnecting();
     });
 
@@ -294,13 +346,48 @@ export class SignalRConnectionHelper {
         const id = await hub.invoke<string>(SignalRConstants.HubMethods.GetConnectionId);
         this._connectionId.set(id || '');
       }
-      this._isConnected.set(true);
+      this.recordReconnectIfNeeded();
+      this.transitionTo('Connected');
       await callbacks.onReconnected(hub);
     });
 
     hub.onclose(() => {
-      this._isConnected.set(false);
+      const previous = this._state();
+      if (previous === 'Connected' || previous === 'Reconnecting') {
+        this.transitionTo('Idle');
+      }
       callbacks.onClosed();
     });
+  }
+
+  private transitionTo(next: SignalRConnectionState): void {
+    const previous = this._state();
+    if (previous === next) return;
+
+    if (next === 'Idle' || next === 'Reconnecting' || next === 'Failed') {
+      if (previous === 'Connected') {
+        this._lastDisconnectAt.set(Date.now());
+      }
+    }
+
+    this._state.set(next);
+  }
+
+  private recordReconnectIfNeeded(): void {
+    const lastDisconnect = this._lastDisconnectAt();
+    if (lastDisconnect !== null) {
+      const downtime = Date.now() - lastDisconnect;
+      const samples = this._disconnectSamples;
+      const prevAvg = this._avgDisconnectDurationMs();
+      const newAvg = Math.round((prevAvg * samples + downtime) / (samples + 1));
+      this._avgDisconnectDurationMs.set(newAvg);
+      this._disconnectSamples = samples + 1;
+      this._reconnectCount.update((v) => v + 1);
+      this._lastReconnectAt.set(Date.now());
+    }
+  }
+
+  private markErrorMessage(error: unknown): void {
+    this._lastErrorMessage.set(error instanceof Error ? error.message : String(error));
   }
 }

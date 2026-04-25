@@ -2,7 +2,11 @@
 
 /**
  * Group membership helper for SignalR: join, leave and rejoin schedule groups.
- * Hub connection and isConnected state are passed as parameters to avoid owning connection state.
+ * Queues operations while the connection is not Connected, then drains the queue
+ * once the facade signals a successful (re)connect via `flush()`.
+ *
+ * @param resolveHub - Function that returns the current hub or null
+ * @param isConnected - Function that returns true when the hub is in Connected state
  */
 import * as signalR from '@microsoft/signalr';
 import { SignalRConstants } from './signalr.constants';
@@ -13,25 +17,43 @@ interface ScheduleGroup {
   analyseToken: string | null;
 }
 
+type QueuedOp =
+  | { kind: 'join'; group: ScheduleGroup }
+  | { kind: 'leave'; group: ScheduleGroup }
+  | { kind: 'select'; selectedGroupId: string };
+
 export class SignalRGroupHelper {
   private _currentGroup: ScheduleGroup | null = null;
+  private _selectedGroupId: string | null = null;
   private _pendingGroupSwitch: Promise<void> | null = null;
+  private readonly _queue: QueuedOp[] = [];
+
+  constructor(
+    private readonly resolveHub: () => signalR.HubConnection | null,
+    private readonly isConnected: () => boolean,
+  ) {}
 
   get currentGroup(): ScheduleGroup | null {
     return this._currentGroup;
   }
 
   async joinScheduleGroup(
-    hub: signalR.HubConnection,
-    isConnected: boolean,
     startDate: string,
     endDate: string,
     analyseToken: string | null,
   ): Promise<void> {
+    const group: ScheduleGroup = { startDate, endDate, analyseToken };
+
+    if (!this.canInvoke()) {
+      this.cacheCurrentGroup(group);
+      this.enqueueOnce({ kind: 'join', group });
+      return;
+    }
+
     if (this._pendingGroupSwitch) {
       await this._pendingGroupSwitch;
     }
-    this._pendingGroupSwitch = this.performGroupSwitch(hub, isConnected, startDate, endDate, analyseToken);
+    this._pendingGroupSwitch = this.performGroupSwitch(group);
     try {
       await this._pendingGroupSwitch;
     } finally {
@@ -40,13 +62,19 @@ export class SignalRGroupHelper {
   }
 
   async leaveScheduleGroup(
-    hub: signalR.HubConnection,
-    isConnected: boolean,
     startDate: string,
     endDate: string,
     analyseToken: string | null,
   ): Promise<void> {
-    if (!hub || !isConnected) return;
+    const group: ScheduleGroup = { startDate, endDate, analyseToken };
+
+    if (!this.canInvoke()) {
+      this.dropCachedGroupIfMatches(group);
+      return;
+    }
+
+    const hub = this.resolveHub();
+    if (!hub) return;
 
     try {
       await hub.invoke(
@@ -55,67 +83,160 @@ export class SignalRGroupHelper {
         endDate,
         analyseToken ?? '',
       );
-      if (
-        this._currentGroup?.startDate === startDate &&
-        this._currentGroup?.endDate === endDate &&
-        this._currentGroup?.analyseToken === analyseToken
-      ) {
-        this._currentGroup = null;
-      }
     } catch {
-      // ignored
+      // ignored: leaving a non-joined group is a no-op for the backend
     }
+    this.dropCachedGroupIfMatches(group);
   }
 
-  async setSelectedGroup(
-    hub: signalR.HubConnection,
-    isConnected: boolean,
-    selectedGroupId: string,
-  ): Promise<void> {
-    if (!hub || !isConnected) return;
+  async setSelectedGroup(selectedGroupId: string): Promise<void> {
+    this._selectedGroupId = selectedGroupId;
+
+    if (!this.canInvoke()) {
+      this.enqueueSelect(selectedGroupId);
+      return;
+    }
+
+    const hub = this.resolveHub();
+    if (!hub) return;
     try {
       await hub.invoke(SignalRConstants.HubMethods.SetSelectedGroup, selectedGroupId);
     } catch {
-      // ignored
+      // ignored: backend missed the selection update; will be re-sent on reconnect via flush()
+      this.enqueueSelect(selectedGroupId);
     }
   }
 
-  async rejoinCurrentGroup(hub: signalR.HubConnection, isConnected: boolean): Promise<void> {
-    if (!this._currentGroup || !isConnected) return;
+  async rejoinCurrentGroup(): Promise<void> {
+    if (!this._currentGroup || !this.canInvoke()) return;
     const { startDate, endDate, analyseToken } = this._currentGroup;
     this._currentGroup = null;
-    await this.joinScheduleGroup(hub, isConnected, startDate, endDate, analyseToken);
+    await this.joinScheduleGroup(startDate, endDate, analyseToken);
   }
 
-  private async performGroupSwitch(
-    hub: signalR.HubConnection,
-    isConnected: boolean,
-    startDate: string,
-    endDate: string,
-    analyseToken: string | null,
-  ): Promise<void> {
-    if (!hub || !isConnected) {
-      this._currentGroup = { startDate, endDate, analyseToken };
+  /**
+   * Replays any queued group ops after the connection has reached Connected state.
+   * Re-applies the cached schedule group and selected group ID even if no ops were
+   * queued, so a transparent reconnect restores subscription state.
+   */
+  async flush(): Promise<void> {
+    if (!this.canInvoke()) return;
+
+    if (this._currentGroup) {
+      const cached = this._currentGroup;
+      this._currentGroup = null;
+      await this.performGroupSwitch(cached);
+    }
+
+    if (this._selectedGroupId) {
+      const hub = this.resolveHub();
+      if (hub) {
+        try {
+          await hub.invoke(SignalRConstants.HubMethods.SetSelectedGroup, this._selectedGroupId);
+        } catch {
+          // ignored: queued for next flush
+        }
+      }
+    }
+
+    while (this._queue.length > 0 && this.canInvoke()) {
+      const op = this._queue.shift();
+      if (!op) break;
+      try {
+        if (op.kind === 'join') {
+          await this.performGroupSwitch(op.group);
+        } else if (op.kind === 'leave') {
+          const hub = this.resolveHub();
+          if (hub) {
+            await hub.invoke(
+              SignalRConstants.HubMethods.LeaveScheduleGroup,
+              op.group.startDate,
+              op.group.endDate,
+              op.group.analyseToken ?? '',
+            );
+          }
+          this.dropCachedGroupIfMatches(op.group);
+        } else if (op.kind === 'select') {
+          const hub = this.resolveHub();
+          if (hub) {
+            await hub.invoke(SignalRConstants.HubMethods.SetSelectedGroup, op.selectedGroupId);
+          }
+        }
+      } catch {
+        // ignored: operation failed on the wire, watchdog reconnect will trigger another flush
+      }
+    }
+  }
+
+  private async performGroupSwitch(group: ScheduleGroup): Promise<void> {
+    const hub = this.resolveHub();
+    if (!hub || !this.isConnected()) {
+      this.cacheCurrentGroup(group);
       return;
     }
 
     if (this._currentGroup) {
-      await this.leaveScheduleGroup(
-        hub, isConnected,
-        this._currentGroup.startDate,
-        this._currentGroup.endDate,
-        this._currentGroup.analyseToken,
-      );
+      const previous = this._currentGroup;
+      try {
+        await hub.invoke(
+          SignalRConstants.HubMethods.LeaveScheduleGroup,
+          previous.startDate,
+          previous.endDate,
+          previous.analyseToken ?? '',
+        );
+      } catch {
+        // ignored
+      }
     }
 
     try {
       await hub.invoke(
         SignalRConstants.HubMethods.JoinScheduleGroup,
-        startDate, endDate, analyseToken ?? '',
+        group.startDate,
+        group.endDate,
+        group.analyseToken ?? '',
       );
-      this._currentGroup = { startDate, endDate, analyseToken };
     } catch {
-      this._currentGroup = { startDate, endDate, analyseToken };
+      // ignored: leave the group cached so the next flush re-tries
+    }
+    this._currentGroup = group;
+  }
+
+  private canInvoke(): boolean {
+    return this.isConnected() && this.resolveHub() !== null;
+  }
+
+  private cacheCurrentGroup(group: ScheduleGroup): void {
+    this._currentGroup = group;
+  }
+
+  private dropCachedGroupIfMatches(group: ScheduleGroup): void {
+    if (
+      this._currentGroup?.startDate === group.startDate &&
+      this._currentGroup?.endDate === group.endDate &&
+      this._currentGroup?.analyseToken === group.analyseToken
+    ) {
+      this._currentGroup = null;
+    }
+  }
+
+  private enqueueOnce(op: QueuedOp): void {
+    if (op.kind === 'join') {
+      const idx = this._queue.findIndex((q) => q.kind === 'join');
+      if (idx >= 0) {
+        this._queue[idx] = op;
+        return;
+      }
+    }
+    this._queue.push(op);
+  }
+
+  private enqueueSelect(selectedGroupId: string): void {
+    const idx = this._queue.findIndex((q) => q.kind === 'select');
+    if (idx >= 0) {
+      this._queue[idx] = { kind: 'select', selectedGroupId };
+    } else {
+      this._queue.push({ kind: 'select', selectedGroupId });
     }
   }
 }
