@@ -179,14 +179,18 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     await this._groupHelper.rejoinCurrentGroup();
   }
 
-  ngOnDestroy(): void {
+  async ngOnDestroy(): Promise<void> {
     this.stopProactiveTokenRefresh();
     if (this.fullReconnectTimer) {
       clearTimeout(this.fullReconnectTimer);
       this.fullReconnectTimer = null;
     }
     this._connectionHelper.dispose();
-    void this._connectionHelper.stopConnection();
+    try {
+      await this._connectionHelper.stopConnection();
+    } catch {
+      // ignored: stop is best-effort during teardown
+    }
     this.workCreated$.complete();
     this.workUpdated$.complete();
     this.workDeleted$.complete();

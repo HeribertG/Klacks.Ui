@@ -14,6 +14,7 @@ export const environment = {
   _baseUrl: 'https://localhost:44371/api/backend/',
   baseUrl: 'https://localhost:5001/api/backend/',
   baseAssistantUrl: 'https://localhost:5001/api/backend/assistant/',
+  healthUrl: 'https://localhost:5001/health',
   
   // Default settings
   enableDebugMode: false,

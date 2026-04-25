@@ -245,8 +245,9 @@ export class SignalRConnectionHelper {
     const hub = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
+        transport:
+          signalR.HttpTransportType.WebSockets |
+          signalR.HttpTransportType.LongPolling,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Information)
@@ -264,11 +265,10 @@ export class SignalRConnectionHelper {
   }
 
   private async probeBackend(): Promise<boolean> {
-    const healthUrl = environment.baseUrl.replace('/api/backend/', '/health');
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), BACKEND_PROBE_TIMEOUT_MS);
     try {
-      const response = await fetch(healthUrl, { method: 'GET', signal: controller.signal });
+      const response = await fetch(environment.healthUrl, { method: 'GET', signal: controller.signal });
       return response.ok;
     } catch {
       return false;
@@ -371,6 +371,24 @@ export class SignalRConnectionHelper {
     }
 
     this._state.set(next);
+    this.logTransition(previous, next);
+  }
+
+  private logTransition(previous: SignalRConnectionState, next: SignalRConnectionState): void {
+    if (typeof window === 'undefined') return;
+    const verbose = window.location?.search?.includes('debug=signalr');
+    if (verbose) {
+      console.info(
+        '[SignalR] transition',
+        previous,
+        '->',
+        next,
+        'telemetry=',
+        this.telemetry,
+      );
+    } else if (next === 'Failed' || next === 'Reconnecting') {
+      console.info('[SignalR] transition', previous, '->', next);
+    }
   }
 
   private recordReconnectIfNeeded(): void {
