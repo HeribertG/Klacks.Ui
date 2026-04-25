@@ -148,6 +148,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isClicked = true;
 
     if (await this.auth.logIn(this.username, this.password)) {
+      this.signalRService.resetAuthFailure();
       this.signalRService.startConnection();
       this.assistantSignalRService.startConnection();
       this.navigationService.navigateToWorkplace();

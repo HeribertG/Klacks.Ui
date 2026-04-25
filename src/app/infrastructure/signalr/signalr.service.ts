@@ -114,6 +114,10 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     );
   }
 
+  resetAuthFailure(): void {
+    this._connectionHelper.resetAuthFailure();
+  }
+
   private async onConnectionConnected(): Promise<void> {
     this.startProactiveTokenRefresh();
     this._connectionHelper.startHealthCheck(async () => await this.refreshConnection());
@@ -258,6 +262,9 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
 
   private scheduleFullReconnect(attempt = 0): void {
     if (this.fullReconnectTimer || this.fullReconnectInFlight) {
+      return;
+    }
+    if (this._connectionHelper.state() === 'AuthFailed') {
       return;
     }
 

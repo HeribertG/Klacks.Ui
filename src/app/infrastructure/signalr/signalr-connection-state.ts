@@ -8,13 +8,16 @@
  * Connected    — hub.start() succeeded, GetConnectionId returned, group rejoin done.
  * Reconnecting — built-in withAutomaticReconnect or scheduleFullReconnect cycling.
  * Failed       — give-up state; only watchdog or external trigger leaves this state.
+ * AuthFailed   — terminal state after a 401 that survived a token refresh; no
+ *                further reconnect attempts until the user re-authenticates.
  */
 export type SignalRConnectionState =
   | 'Idle'
   | 'Connecting'
   | 'Connected'
   | 'Reconnecting'
-  | 'Failed';
+  | 'Failed'
+  | 'AuthFailed';
 
 /**
  * Returns delay with +/- factor random jitter applied.

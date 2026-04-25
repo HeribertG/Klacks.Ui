@@ -117,6 +117,7 @@ export class OAuth2CallbackComponent implements OnInit {
         this.storeToken(token, state);
         this.localStorageService.remove('oauth2_state');
         this.localStorageService.remove('oauth2_redirect_uri');
+        this.signalRService.resetAuthFailure();
         this.signalRService.startConnection();
         this.assistantSignalRService.startConnection();
         this.navigationService.navigateToWorkplace();

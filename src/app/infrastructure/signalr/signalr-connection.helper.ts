@@ -87,6 +87,12 @@ export class SignalRConnectionHelper {
     this._lastSuccessfulPushAt.set(Date.now());
   }
 
+  resetAuthFailure(): void {
+    if (this._state() !== 'AuthFailed') return;
+    this.transitionTo('Idle');
+    this.startWatchdog();
+  }
+
   constructor(
     private readonly tokenHelper: SignalRTokenHelper,
     private readonly localStorage: LocalStorageService,
@@ -103,7 +109,7 @@ export class SignalRConnectionHelper {
     registerHandlers: (hub: signalR.HubConnection) => void,
     callbacks: SignalRConnectionCallbacks,
   ): Promise<void> {
-    if (this._state() === 'Connected') {
+    if (this._state() === 'Connected' || this._state() === 'AuthFailed') {
       return;
     }
     if (this._pendingStart) {
@@ -185,11 +191,14 @@ export class SignalRConnectionHelper {
   private startWatchdog(): void {
     this.stopWatchdog();
     this.watchdogTimer = setInterval(() => {
-      const hasToken = !!this.localStorage.get(StorageKeys.TOKEN);
-      if (!hasToken) return;
       const state = this._state();
-      if (state === 'Connected' || state === 'Connecting') return;
-      console.warn('[SignalR] watchdog: state=' + state + ' with valid token - attempting reconnect');
+      if (state === 'Connected' || state === 'Connecting' || state === 'AuthFailed') return;
+
+      const token = this.localStorage.get(StorageKeys.TOKEN);
+      if (!token) return;
+      if (this.tokenHelper.isTokenExpired(token)) return;
+
+      console.warn('[SignalR] watchdog: state=' + state + ' with usable token - attempting reconnect');
       void this.options.onWatchdogNeedsReconnect();
     }, SignalRConnectionHelper.WATCHDOG_INTERVAL_MS);
   }
@@ -228,9 +237,15 @@ export class SignalRConnectionHelper {
       }
     }
 
-    const isValid = await this.tokenHelper.validateTokenWithBackend(token);
-    if (!isValid) {
-      console.warn('[SignalR] token validation failed, aborting');
+    const validation = await this.tokenHelper.validateTokenWithBackend(token);
+    if (validation === 'rejected') {
+      console.warn('[SignalR] token rejected by backend - stale credentials, giving up until re-login');
+      this.stopWatchdog();
+      this.transitionTo('AuthFailed');
+      return;
+    }
+    if (validation === 'unreachable') {
+      console.warn('[SignalR] token validation endpoint unreachable - watchdog will retry');
       this.transitionTo('Failed');
       return;
     }
@@ -315,8 +330,10 @@ export class SignalRConnectionHelper {
             await this.tokenHelper.attemptTokenRefresh();
             continue;
           }
-          console.warn('[SignalR] 401 persisted after token refresh - giving up until next watchdog tick');
-          this.transitionTo('Failed');
+          console.warn('[SignalR] 401 persisted after token refresh - stale credentials, giving up until re-login');
+          this.stopWatchdog();
+          await this.disposeHub(hub);
+          this.transitionTo('AuthFailed');
           return;
         }
 
@@ -364,7 +381,7 @@ export class SignalRConnectionHelper {
     const previous = this._state();
     if (previous === next) return;
 
-    if (next === 'Idle' || next === 'Reconnecting' || next === 'Failed') {
+    if (next === 'Idle' || next === 'Reconnecting' || next === 'Failed' || next === 'AuthFailed') {
       if (previous === 'Connected') {
         this._lastDisconnectAt.set(Date.now());
       }
@@ -386,7 +403,7 @@ export class SignalRConnectionHelper {
         'telemetry=',
         this.telemetry,
       );
-    } else if (next === 'Failed' || next === 'Reconnecting') {
+    } else if (next === 'Failed' || next === 'Reconnecting' || next === 'AuthFailed') {
       console.info('[SignalR] transition', previous, '->', next);
     }
   }
@@ -407,5 +424,16 @@ export class SignalRConnectionHelper {
 
   private markErrorMessage(error: unknown): void {
     this._lastErrorMessage.set(error instanceof Error ? error.message : String(error));
+  }
+
+  private async disposeHub(hub: signalR.HubConnection): Promise<void> {
+    if (this._hubConnection === hub) {
+      this._hubConnection = null;
+    }
+    try {
+      await hub.stop();
+    } catch {
+      // hub.stop() rarely throws and never blocks teardown
+    }
   }
 }

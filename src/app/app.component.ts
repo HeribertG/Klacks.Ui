@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 // Version: 1.0.1-deploy-test
-import { Component, OnInit, computed, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
@@ -14,6 +14,8 @@ import { VoiceShellComponent } from './presentation/voice-shell/voice-shell.comp
 import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AuthService } from 'src/app/presentation/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +37,9 @@ export class AppComponent implements OnInit {
   private directionService = inject(DirectionService);
   private readonly asideService = inject(AsideService);
   private readonly appSettings = inject(AppSettingsManagementService);
+  private readonly signalRService = inject(SignalRService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   public title = 'klacks';
 
   readonly showVoiceShell = computed<boolean>(() =>
@@ -42,8 +47,29 @@ export class AppComponent implements OnInit {
     this.appSettings.speechSettings().outputMode === OutputMode.Audio,
   );
 
+  constructor() {
+    effect(() => {
+      if (this.signalRService.state() === 'AuthFailed') {
+        this.handleSignalRAuthFailure();
+      }
+    });
+  }
+
   ngOnInit(): void {
     // Initialize only basic settings that don't require authentication
     this.applicationInitService.initializeBasics();
+  }
+
+  private handleSignalRAuthFailure(): void {
+    const url = this.router.url ?? '';
+    if (url.startsWith('/login') || url.startsWith('/oauth2/callback')) {
+      return;
+    }
+    if (!this.authService.authenticated()) {
+      return;
+    }
+    console.warn('[App] SignalR auth failed - clearing stale session and redirecting to login');
+    this.authService.logOut();
+    void this.router.navigateByUrl('/login');
   }
 }

@@ -63,16 +63,20 @@ export class SignalRTokenHelper {
     }
   }
 
-  async validateTokenWithBackend(token: string): Promise<boolean> {
+  async validateTokenWithBackend(token: string): Promise<TokenValidationResult> {
     try {
       const validateUrl = environment.baseUrl + 'Accounts/ValidateToken';
       const response = await fetch(validateUrl, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.ok;
+      if (response.ok) return 'valid';
+      if (response.status === 401 || response.status === 403) return 'rejected';
+      return 'unreachable';
     } catch {
-      return false;
+      return 'unreachable';
     }
   }
 }
+
+export type TokenValidationResult = 'valid' | 'rejected' | 'unreachable';
