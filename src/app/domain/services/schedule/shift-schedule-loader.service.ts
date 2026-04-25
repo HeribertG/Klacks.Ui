@@ -19,6 +19,7 @@ import {
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
+import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { ChunkLoader } from './chunk-loader';
 
 interface ShiftScheduleResponse {
@@ -33,6 +34,7 @@ export class ShiftScheduleLoaderService {
   private dataShiftSchedule = inject(DataShiftScheduleService);
   private destroyRef = inject(DestroyRef);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
 
   private readonly INITIAL_CHUNK_SIZE = 200;
   private readonly LOAD_MORE_CHUNK_SIZE = 200;
@@ -40,6 +42,7 @@ export class ShiftScheduleLoaderService {
 
   private _totalAvailableShifts = 0;
   private _isRead = signal(0);
+  private _activeWorkFilter: IWorkFilter | undefined;
 
   private readonly chunkLoader = new ChunkLoader<IShiftScheduleFilter, ShiftScheduleResponse>({
     destroyRef: this.destroyRef,
@@ -56,6 +59,12 @@ export class ShiftScheduleLoaderService {
       const newUniqueCount = new Set(response.shifts.map((s) => s.shiftId)).size;
       if (newUniqueCount < chunkSize) {
         this._totalAvailableShifts = this.uniqueShiftCount();
+      }
+      if (this._activeWorkFilter) {
+        this.availableShiftsCalc.calculate(
+          this.shiftSchedules,
+          this._activeWorkFilter,
+        );
       }
       this._isRead.update((v) => v + 1);
     },
@@ -108,6 +117,8 @@ export class ShiftScheduleLoaderService {
     this.shiftScheduleFilter.rowCount = this.INITIAL_CHUNK_SIZE;
     this.shiftScheduleFilter.analyseToken =
       this.analyseScenarioService.activeToken() ?? undefined;
+
+    this._activeWorkFilter = workFilter;
 
     this.chunkLoader.load({ ...this.shiftScheduleFilter }, onLoaded);
   }
