@@ -125,10 +125,10 @@ describe('WizardDialogComponent', () => {
 
   it('sortedTokenRows resolves names and sorts by date', () => {
     scheduleMock.clients = [
-      { id: 'agent-1', name: 'Müller', firstName: 'Hans' },
+      { id: 'agent-1', name: 'Müller', firstName: 'Hans' } as unknown as IClientWork,
     ];
     scheduleMock.shiftSchedules = [
-      { shiftId: 'shift-1', shiftName: 'Frühdienst' },
+      { shiftId: 'shift-1', shiftName: 'Frühdienst' } as unknown as IShiftSchedule,
     ];
     wizardServiceMock.result.set({
       jobId: 'job-1',
