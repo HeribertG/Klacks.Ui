@@ -40,6 +40,7 @@ import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.c
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 interface VirtualGroup {
   id: string | null;
@@ -109,6 +110,7 @@ export class GroupSelectComponent
   private dataManagementSwitchboard = inject(WorkplaceStateService);
   private dataManagementShiftService = inject(DataManagementShiftService);
   private injector = inject(Injector);
+  private localStorageService = inject(LocalStorageService);
 
   // Public properties (used in templates)
   public displayTree: TreeNode[] = [];
@@ -127,6 +129,7 @@ export class GroupSelectComponent
 
   // Constants
   readonly ALL_GROUPS_ID = 'all-groups-virtual';
+  private readonly SELECTED_GROUP_STORAGE_KEY = 'klacks.group-select.selected-group-id';
 
   get idSuffix(): string {
     return this.index !== undefined ? `-${this.index}` : '';
@@ -219,11 +222,22 @@ export class GroupSelectComponent
 
         this.buildDisplayTree();
 
+        if (this.useGlobalSelection && !this.groupSelectionService.selectedGroup) {
+          const storedId = this.localStorageService.get(this.SELECTED_GROUP_STORAGE_KEY);
+          if (storedId && storedId !== this.ALL_GROUPS_ID) {
+            this.selectedGroupId = storedId;
+          }
+        }
+
         if (
           this.selectedGroupId &&
           this.selectedGroupId !== this.ALL_GROUPS_ID
         ) {
           this.findAndSelectGroup(this.selectedGroupId, this.hierarchicalTree);
+          if (!this.selectedGroup) {
+            this.localStorageService.remove(this.SELECTED_GROUP_STORAGE_KEY);
+            this.selectAllGroups();
+          }
         } else if (this.showAllGroupsOption) {
           this.selectAllGroups();
         } else if (this.hierarchicalTree.length > 0) {
@@ -259,6 +273,7 @@ export class GroupSelectComponent
     if (this.useGlobalSelection) {
       this.groupSelectionService.clearSelection();
       this.dataManagementGroupService.selectNode(null as any);
+      this.localStorageService.remove(this.SELECTED_GROUP_STORAGE_KEY);
     }
 
     this.closeDropdown();
@@ -276,6 +291,7 @@ export class GroupSelectComponent
       if (this.useGlobalSelection) {
         this.groupSelectionService.selectGroup(group);
         this.dataManagementGroupService.selectNode(group);
+        this.localStorageService.set(this.SELECTED_GROUP_STORAGE_KEY, this.selectedGroupId);
       }
     }
   }
@@ -346,6 +362,7 @@ export class GroupSelectComponent
         if (this.useGlobalSelection) {
           this.groupSelectionService.selectGroup(this.selectedGroup);
           this.dataManagementGroupService.selectNode(this.selectedGroup);
+          this.localStorageService.set(this.SELECTED_GROUP_STORAGE_KEY, this.selectedGroupId);
         }
       }
     }
