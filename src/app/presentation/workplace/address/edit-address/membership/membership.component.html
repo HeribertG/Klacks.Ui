@@ -60,7 +60,9 @@
                 #validFrom="ngbDatepicker"
                 #validFromField="ngModel"
                 [ngClass]="{
-                  'is-invalid': isValidFromValid === false && validFromField.touched,
+                  'is-invalid':
+                    isValidFromValid === false &&
+                    (!!dataManagementClientService.editClient()?.id || validFromField.touched),
                   'is-valid': isValidFromValid === true
                 }"
               />

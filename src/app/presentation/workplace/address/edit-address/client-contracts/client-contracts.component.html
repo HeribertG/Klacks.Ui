@@ -91,7 +91,9 @@
                   #fromDateField="ngModel"
                   [minDate]="getMinDate()"
                   [ngClass]="{
-                    'is-invalid': isContractFromDateValid($index) === false && fromDateField.touched,
+                    'is-invalid':
+                      isContractFromDateValid($index) === false &&
+                      (!!dataManagementClientService.editClient()?.id || fromDateField.touched),
                     'is-valid': isContractFromDateValid($index) === true
                   }"
                 />
@@ -119,7 +121,9 @@
                   #untilDate="ngbDatepicker"
                   #untilDateField="ngModel"
                   [ngClass]="{
-                    'is-invalid': isContractDateValid($index) === false && untilDateField.touched,
+                    'is-invalid':
+                      isContractDateValid($index) === false &&
+                      (!!dataManagementClientService.editClient()?.id || untilDateField.touched),
                     'is-valid': isContractDateValid($index) === true
                   }"
                 />

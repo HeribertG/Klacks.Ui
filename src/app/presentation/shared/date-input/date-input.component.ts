@@ -30,6 +30,7 @@ export class DateInputComponent {
   @Input() value: NgbDateStruct | null | undefined = null;
   @Input() isValid: boolean | undefined = undefined;
   @Input() touched = false;
+  @Input() showInvalidImmediately = false;
   @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
   @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();
 

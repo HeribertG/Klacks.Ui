@@ -310,7 +310,8 @@
                   #companyField="ngModel"
                   [ngClass]="{
                     'is-invalid':
-                      isCompanyValid === false && companyField.touched,
+                      isCompanyValid === false &&
+                      (!!dataManagementClientService.editClient()?.id || companyField.touched),
                     'is-valid': isCompanyValid === true
                   }"
                 />
@@ -339,7 +340,8 @@
                   #genderField="ngModel"
                   [ngClass]="{
                     'is-invalid':
-                      isGenderValid === false && genderField.touched,
+                      isGenderValid === false &&
+                      (!!dataManagementClientService.editClient()?.id || genderField.touched),
                     'is-valid': isGenderValid === true
                   }"
                 >
@@ -431,7 +433,8 @@
                   #firstNameField="ngModel"
                   [ngClass]="{
                     'is-invalid':
-                      isFirstNameValid === false && firstNameField.touched,
+                      isFirstNameValid === false &&
+                      (!!dataManagementClientService.editClient()?.id || firstNameField.touched),
                     'is-valid': isFirstNameValid === true
                   }"
                 />
@@ -502,7 +505,9 @@
                   maxlength="50"
                   #nameField="ngModel"
                   [ngClass]="{
-                    'is-invalid': isNameValid === false && nameField.touched,
+                    'is-invalid':
+                      isNameValid === false &&
+                      (!!dataManagementClientService.editClient()?.id || nameField.touched),
                     'is-valid': isNameValid === true
                   }"
                 />
@@ -724,7 +729,9 @@
                 name="zip"
                 #zipField="ngModel"
                 [ngClass]="{
-                  'is-invalid': isZipValid === false && zipField.touched,
+                  'is-invalid':
+                    isZipValid === false &&
+                    (!!dataManagementClientService.editClient()?.id || zipField.touched),
                   'is-valid': isZipValid === true
                 }"
               />
@@ -751,7 +758,9 @@
                 list="dynamicPlace"
                 #cityField="ngModel"
                 [ngClass]="{
-                  'is-invalid': isCityValid === false && cityField.touched,
+                  'is-invalid':
+                    isCityValid === false &&
+                    (!!dataManagementClientService.editClient()?.id || cityField.touched),
                   'is-valid': isCityValid === true
                 }"
               />
@@ -832,7 +841,8 @@
                 #countryField="ngModel"
                 [ngClass]="{
                   'is-invalid':
-                    isCountryValid === false && countryField.touched,
+                    isCountryValid === false &&
+                    (!!dataManagementClientService.editClient()?.id || countryField.touched),
                   'is-valid': isCountryValid === true
                 }"
               >

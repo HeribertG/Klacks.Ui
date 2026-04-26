@@ -100,7 +100,9 @@
           type="text"
           class="form-control"
           [ngClass]="{
-            'is-invalid': isNameValid === false && shiftName.touched,
+            'is-invalid':
+              isNameValid === false &&
+              (!!dataManagementShiftService.editShift?.id || shiftName.touched),
             'is-valid': isNameValid === true
           }"
           autocomplete="off"

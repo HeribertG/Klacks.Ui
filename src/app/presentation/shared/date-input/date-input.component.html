@@ -27,7 +27,7 @@
       ngbDatepicker
       #datePicker="ngbDatepicker"
       [ngClass]="{
-        'is-invalid': isValid === false && touched,
+        'is-invalid': isValid === false && (showInvalidImmediately || touched),
         'is-valid': isValid === true
       }"
     />

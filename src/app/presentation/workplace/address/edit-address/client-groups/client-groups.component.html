@@ -79,7 +79,9 @@
                   #validFromField="ngModel"
                   [minDate]="getMinDate()"
                   [ngClass]="{
-                    'is-invalid': isGroupFromDateValid($index) === false && validFromField.touched,
+                    'is-invalid':
+                      isGroupFromDateValid($index) === false &&
+                      (!!dataManagementClientService.editClient()?.id || validFromField.touched),
                     'is-valid': isGroupFromDateValid($index) === true
                   }"
                 />
@@ -107,7 +109,9 @@
                   #validUntil="ngbDatepicker"
                   #validUntilField="ngModel"
                   [ngClass]="{
-                    'is-invalid': isGroupDateValid($index) === false && validUntilField.touched,
+                    'is-invalid':
+                      isGroupDateValid($index) === false &&
+                      (!!dataManagementClientService.editClient()?.id || validUntilField.touched),
                     'is-valid': isGroupDateValid($index) === true
                   }"
                 />
