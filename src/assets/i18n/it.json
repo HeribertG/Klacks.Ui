@@ -1536,6 +1536,8 @@
   "aside.llm.error.enable_model": "Errore nell'attivazione del modello",
   "aside.llm.error.disable_model": "Errore nella disattivazione del modello",
   "aside.llm.error.set_default_model": "Errore nell'impostazione del modello predefinito",
+  "llm.sync.newModels": "{{provider}}: {{count}} nuovo/i modello/i disponibile/i ({{names}})",
+  "llm.sync.deactivatedModels": "{{provider}}: {{count}} modello/i disattivato/i ({{names}})",
   "settings.llm-models.usage-stats": "Statistiche di utilizzo (ultimi 30 giorni)",
   "settings.llm-models.total-cost-30d": "Costo totale",
   "settings.llm-models.available-models": "Modelli disponibili",

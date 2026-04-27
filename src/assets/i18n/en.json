@@ -1618,6 +1618,8 @@
   "aside.llm.error.enable_model": "Error enabling model",
   "aside.llm.error.disable_model": "Error disabling model",
   "aside.llm.error.set_default_model": "Error setting default model",
+  "llm.sync.newModels": "{{provider}}: {{count}} new model(s) available ({{names}})",
+  "llm.sync.deactivatedModels": "{{provider}}: {{count}} model(s) deactivated ({{names}})",
   "settings.llm-models.api-model-id": "API Model ID",
   "settings.llm-models.usage-stats": "Usage Statistics (Last 30 Days)",
   "settings.llm-models.total-cost-30d": "Total Cost",
