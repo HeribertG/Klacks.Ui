@@ -32,6 +32,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
+import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
 
 @Component({
   selector: 'app-login',
@@ -64,6 +65,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
   private cdr = inject(ChangeDetectorRef);
+  private readonly syncNotificationService = inject(DataSyncNotificationService);
 
   private destroy$ = new Subject<void>();
 
@@ -152,6 +154,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.signalRService.startConnection();
       this.assistantSignalRService.startConnection();
       this.navigationService.navigateToWorkplace();
+      void this.syncNotificationService.checkAndShow();
       this.isClicked = false;
     } else {
       this.isClicked = false;

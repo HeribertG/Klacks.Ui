@@ -12,6 +12,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyToken } from 'src/app/domain/models/authentification-class';
@@ -72,6 +73,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private toastService = inject(ToastShowService);
+  private readonly syncNotificationService = inject(DataSyncNotificationService);
 
   isLoading = true;
   error: string | null = null;
@@ -121,6 +123,7 @@ export class OAuth2CallbackComponent implements OnInit {
         this.signalRService.startConnection();
         this.assistantSignalRService.startConnection();
         this.navigationService.navigateToWorkplace();
+        void this.syncNotificationService.checkAndShow();
       } else {
         this.error = 'Login failed';
         this.isLoading = false;
