@@ -154,12 +154,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       this.signalRService.startConnection();
       this.assistantSignalRService.startConnection();
       this.navigationService.navigateToWorkplace();
-      void this.syncNotificationService.checkAndShow();
       this.isClicked = false;
     } else {
       this.isClicked = false;
     }
     this.authorizationService.refresh();
+    if (this.auth.isAdminUser()) {
+      void this.syncNotificationService.checkAndShow();
+    }
   }
 
   onForgotPassword(): void {
