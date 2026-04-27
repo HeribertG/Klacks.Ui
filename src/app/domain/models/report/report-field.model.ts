@@ -17,6 +17,7 @@ export interface ReportField {
   hideLabel?: boolean;
   additionalBindings?: string[];
   bindingSeparator?: string;
+  sortDirection?: 'asc' | 'desc';
 }
 
 export interface HeaderRow {

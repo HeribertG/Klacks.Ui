@@ -335,6 +335,29 @@ export class ReportPdfService {
     const compiledFormulas = this.compileTableFormulas(fields);
     const resolvedRows = this.resolveTableRows(fields, rows, ctx.provider, compiledFormulas);
 
+    const sortFields = fields
+      .filter(f => f.sortDirection === 'asc' || f.sortDirection === 'desc')
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    if (sortFields.length > 0) {
+      resolvedRows.sort(({ row: a }, { row: b }) => {
+        for (const f of sortFields) {
+          const valA = a[f.dataBinding] ?? '';
+          const valB = b[f.dataBinding] ?? '';
+          let cmp = 0;
+          if (f.type === ReportFieldType.Date) {
+            cmp = this.parseDMY(valA) - this.parseDMY(valB);
+          } else if (f.type === ReportFieldType.Number || f.type === ReportFieldType.Currency) {
+            cmp = (parseFloat(valA) || 0) - (parseFloat(valB) || 0);
+          } else {
+            cmp = valA.localeCompare(valB, undefined, { sensitivity: 'base' });
+          }
+          if (cmp !== 0) return f.sortDirection === 'asc' ? cmp : -cmp;
+        }
+        return 0;
+      });
+    }
+
     const bodyData: any[] = [];
     this.buildFreeTextRows(section, fields, 'before', bodyData);
 
@@ -719,6 +742,12 @@ export class ReportPdfService {
     if (bold) return 'bold';
     if (italic) return 'italic';
     return 'normal';
+  }
+
+  private parseDMY(dmy: string): number {
+    const parts = dmy.split('.');
+    if (parts.length !== 3) return 0;
+    return new Date(+parts[2], +parts[1] - 1, +parts[0]).getTime();
   }
 
   private fillFullPeriod(rows: any[], startDate: string, endDate: string): any[] {

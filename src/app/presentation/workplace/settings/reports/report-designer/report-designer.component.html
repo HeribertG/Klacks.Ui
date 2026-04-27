@@ -898,6 +898,17 @@
                         title="Width %"
                       />
                       <span class="width-label">%</span>
+                      <select
+                        class="sort-select"
+                        [ngModel]="field.sortDirection ?? 'none'"
+                        (ngModelChange)="field.sortDirection = $event === 'none' ? undefined : $event; emitChange()"
+                        (click)="$event.stopPropagation()"
+                        title="Sort"
+                      >
+                        <option value="none">─</option>
+                        <option value="asc">↑ asc</option>
+                        <option value="desc">↓ desc</option>
+                      </select>
                     </div>
                   </div>
                 }
