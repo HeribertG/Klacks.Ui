@@ -32,6 +32,7 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
 import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
+import { LlmSyncLogComponent } from '../llm-sync-log/llm-sync-log.component';
 import { OpenrouteComponent } from '../openroute/openroute.component';
 import { DeeplComponent } from '../deepl/deepl.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
@@ -85,6 +86,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     ContractsComponent,
     LLMModelsComponent,
     LLMProvidersComponent,
+    LlmSyncLogComponent,
     OpenrouteComponent,
     DeeplComponent,
     WorkSettingComponent,
