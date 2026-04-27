@@ -1,0 +1,19 @@
+<app-settings-list-card
+  [headline]="'settings.llm-sync-log.title' | translate"
+  [showAddButton]="false"
+  [showHeader]="true"
+  idPrefix="llm-sync-log"
+>
+  <app-llm-sync-log-header header></app-llm-sync-log-header>
+  <div rows>
+    @if (isLoading()) {
+      <app-spinner></app-spinner>
+    } @else if (entries().length === 0) {
+      <div class="container-line">{{ 'settings.llm-sync-log.empty' | translate }}</div>
+    } @else {
+      @for (entry of entries(); track entry.id) {
+        <app-llm-sync-log-row [data]="entry" />
+      }
+    }
+  </div>
+</app-settings-list-card>
