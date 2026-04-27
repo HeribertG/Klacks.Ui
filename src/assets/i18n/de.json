@@ -2012,6 +2012,8 @@
   "wizard.dialog.apply": "Übernehmen",
   "wizard.dialog.applying": "Wird übernommen...",
   "wizard.dialog.applied": "Zuweisungen erfolgreich übernommen.",
+  "wizard.dialog.error.noData": "Keine Schichten oder Mitarbeiter für die Planung verfügbar.",
+  "wizard.dialog.error.tooLarge": "Die aktuelle Ansicht enthält {{agents}} Mitarbeiter und {{shifts}} Schichten. Der Auto-Fill-Assistent kann pro Lauf maximal {{maxAgents}} Mitarbeiter und {{maxShifts}} Schichten verarbeiten. Bitte schränken Sie den Schichtplan auf einen kleineren Umfang ein (Gruppe, Team oder kürzeren Zeitraum) und versuchen Sie es erneut.",
   "shared.row-header.headline": "Name",
   "floor-plan.title": "Grundrisse",
   "floor-plan.new": "Neuer Grundriss",

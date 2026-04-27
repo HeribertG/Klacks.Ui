@@ -49,17 +49,24 @@ export class DataWizardService implements OnDestroy {
   }
 
   async start(request: WizardRequest): Promise<string> {
+    console.log('[Wizard] start() begin', { agents: request.agentIds.length, shifts: request.shiftIds?.length, period: [request.periodFrom, request.periodUntil] });
     this.resetState();
     this.status.set('running');
 
+    console.log('[Wizard] start() -> ensureConnected()');
     await this.ensureConnected();
+    console.log('[Wizard] start() -> ensureConnected() done, posting /Wizard/Start');
 
+    const t0 = Date.now();
     const response = await firstValueFrom(
       this.http.post<StartWizardResponse>(`${this.apiBase}/Start`, request),
     );
+    console.log(`[Wizard] start() -> /Start returned in ${Date.now() - t0}ms, jobId=${response.jobId}`);
 
     this.currentJobId.set(response.jobId);
+    console.log('[Wizard] start() -> sending JoinJob');
     await this.hubConnection?.send(WizardSignalRConstants.HubMethods.JoinJob, response.jobId);
+    console.log('[Wizard] start() -> JoinJob sent, returning');
     return response.jobId;
   }
 
@@ -107,7 +114,9 @@ export class DataWizardService implements OnDestroy {
   }
 
   private async ensureConnected(): Promise<void> {
+    console.log('[Wizard] ensureConnected: existing state=', this.hubConnection?.state);
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      console.log('[Wizard] ensureConnected: already connected, returning');
       return;
     }
 
@@ -116,15 +125,30 @@ export class DataWizardService implements OnDestroy {
       throw new Error('Missing auth token; cannot connect to wizard hub.');
     }
 
+    console.log('[Wizard] ensureConnected: building hub for url=', this.hubUrl);
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorage.get(StorageKeys.TOKEN) ?? '',
       })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Debug)
       .build();
+    this.hubConnection.onclose((err) => console.log('[Wizard] hub.onclose:', err));
+    this.hubConnection.onreconnecting((err) => console.log('[Wizard] hub.onreconnecting:', err));
+    this.hubConnection.onreconnected((id) => console.log('[Wizard] hub.onreconnected:', id));
 
     this.registerHandlers(this.hubConnection);
-    await this.hubConnection.start();
+
+    console.log('[Wizard] ensureConnected: calling hub.start() with 20s timeout');
+    const startTimeoutMs = 20000;
+    const t0 = Date.now();
+    await Promise.race([
+      this.hubConnection.start().then(() => console.log(`[Wizard] hub.start() resolved in ${Date.now() - t0}ms, state=${this.hubConnection?.state}`)),
+      new Promise<void>((_, reject) =>
+        setTimeout(() => reject(new Error(`hub.start() did not resolve within ${startTimeoutMs}ms (state=${this.hubConnection?.state})`)), startTimeoutMs)
+      ),
+    ]);
+    console.log('[Wizard] ensureConnected: done');
   }
 
   private registerHandlers(connection: signalR.HubConnection): void {

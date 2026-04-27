@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
@@ -40,6 +40,7 @@ export class WizardDialogComponent {
   private readonly ngbModal = inject(NgbModal);
   readonly wizardService = inject(DataWizardService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
+  private readonly translate = inject(TranslateService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
@@ -99,10 +100,19 @@ export class WizardDialogComponent {
 
     const request = this.buildRequest();
     if (!request) {
-      this._localError.set('No shifts or clients available for scheduling');
+      // buildRequest may have already set a specific error message
+      // (e.g. selection too large). Only set the generic fallback when
+      // it didn't, so the more informative message survives.
+      if (this._localError() === null) {
+        this._localError.set(this.translate.instant('wizard.dialog.error.noData'));
+      }
       return;
     }
-    void this.wizardService.start(request);
+    this.wizardService.start(request).catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('[Wizard] start() failed:', err);
+      this._localError.set(message);
+    });
   }
 
   onCancel(): void {
@@ -149,6 +159,9 @@ export class WizardDialogComponent {
     return parts.length ? parts.join(', ') : agentId;
   }
 
+  private static readonly MAX_AGENTS_PER_WIZARD_RUN = 100;
+  private static readonly MAX_SHIFTS_PER_WIZARD_RUN = 50;
+
   private buildRequest(): WizardRequest | null {
     const start   = this.dataManagementSchedule.visibleStartDate;
     const end     = this.dataManagementSchedule.visibleEndDate;
@@ -157,11 +170,25 @@ export class WizardDialogComponent {
 
     if (!start || !end || !clients.length || !shifts.length) return null;
 
+    const allAgentIds = clients.map(c => c.id);
+    const allShiftIds = [...new Set(shifts.map(s => s.shiftId))];
+
+    if (allAgentIds.length > WizardDialogComponent.MAX_AGENTS_PER_WIZARD_RUN
+        || allShiftIds.length > WizardDialogComponent.MAX_SHIFTS_PER_WIZARD_RUN) {
+      this._localError.set(this.translate.instant('wizard.dialog.error.tooLarge', {
+        agents: allAgentIds.length,
+        shifts: allShiftIds.length,
+        maxAgents: WizardDialogComponent.MAX_AGENTS_PER_WIZARD_RUN,
+        maxShifts: WizardDialogComponent.MAX_SHIFTS_PER_WIZARD_RUN,
+      }));
+      return null;
+    }
+
     return {
       periodFrom:   formatDateOnly(start),
       periodUntil:  formatDateOnly(end),
-      agentIds:     clients.map(c => c.id),
-      shiftIds:     [...new Set(shifts.map(s => s.shiftId))],
+      agentIds:     allAgentIds,
+      shiftIds:     allShiftIds,
       analyseToken: null,
     };
   }

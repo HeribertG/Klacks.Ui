@@ -2010,6 +2010,8 @@
   "wizard.dialog.apply": "Applicare",
   "wizard.dialog.applying": "Applicazione in corso...",
   "wizard.dialog.applied": "assegnazioni applicate con successo.",
+  "wizard.dialog.error.noData": "Nessun turno o collaboratore disponibile per la pianificazione.",
+  "wizard.dialog.error.tooLarge": "La vista corrente contiene {{agents}} collaboratori e {{shifts}} turni. L'assistente di riempimento automatico può elaborare al massimo {{maxAgents}} collaboratori e {{maxShifts}} turni per esecuzione. Restringere la pianificazione a un ambito più piccolo (gruppo, team o periodo più breve) e riprovare.",
   "shared.row-header.headline": "Nome",
   "floor-plan.title": "Planimetrie",
   "floor-plan.new": "Nuova planimetria",

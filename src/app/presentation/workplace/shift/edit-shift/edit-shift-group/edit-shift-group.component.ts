@@ -131,6 +131,7 @@ export class EditShiftGroupComponent
         );
       this.isChangingEvent.emit(true);
       this.validateGroups();
+      this.cdr.markForCheck();
     }
   }
 
