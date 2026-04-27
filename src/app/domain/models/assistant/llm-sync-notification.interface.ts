@@ -5,6 +5,7 @@
  * @param providerId - Internal provider identifier (e.g. "openai")
  * @param providerName - Human-readable provider name
  * @param newModelsCount - Number of models added during this sync
+ * @param failedModelsCount - Number of newly added models that failed the test and were inserted as disabled
  * @param deactivatedModelsCount - Number of models disabled during this sync
  * @param newModelNames - Display names of newly added models
  * @param deactivatedModelNames - Display names of deactivated models
@@ -15,6 +16,7 @@ export interface ILLMSyncNotification {
   providerId: string;
   providerName: string;
   newModelsCount: number;
+  failedModelsCount: number;
   deactivatedModelsCount: number;
   newModelNames: string[];
   deactivatedModelNames: string[];
