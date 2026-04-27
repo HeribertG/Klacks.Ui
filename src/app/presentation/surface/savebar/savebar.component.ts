@@ -91,10 +91,7 @@ export class SavebarComponent {
   }
 
   onClickSaveAndClose(): void {
-    this.workplaceStateService.onClickSaveAndClose();
-    setTimeout(() => {
-      this.onClickGoBack();
-    }, 500);
+    this.workplaceStateService.onClickSaveAndClose(() => this.onClickGoBack());
   }
 
   onClickReset(): void {

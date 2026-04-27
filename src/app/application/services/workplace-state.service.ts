@@ -235,11 +235,11 @@ export class WorkplaceStateService implements IEntityStateProvider {
     this.saveInternal(false);
   }
 
-  onClickSaveAndClose(): void {
-    this.saveInternal(true);
+  onClickSaveAndClose(onNavigateBack?: () => void): void {
+    this.saveInternal(true, onNavigateBack);
   }
 
-  private saveInternal(isSaveAndClose: boolean): void {
+  private saveInternal(isSaveAndClose: boolean, onNavigateBack?: () => void): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
       if (isSaveable(manager)) {
@@ -254,6 +254,9 @@ export class WorkplaceStateService implements IEntityStateProvider {
           this._isSavedOrReset.set(true);
           if (existingCallback) {
             existingCallback();
+          }
+          if (isSaveAndClose && onNavigateBack) {
+            onNavigateBack();
           }
         };
         this._isDisabled.set(true);

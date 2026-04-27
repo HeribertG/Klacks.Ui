@@ -234,7 +234,7 @@ export class GroupSelectComponent
           this.selectedGroupId !== this.ALL_GROUPS_ID
         ) {
           this.findAndSelectGroup(this.selectedGroupId, this.hierarchicalTree);
-          if (!this.selectedGroup) {
+          if (!this.selectedGroup && this.useGlobalSelection) {
             this.localStorageService.remove(this.SELECTED_GROUP_STORAGE_KEY);
             this.selectAllGroups();
           }
