@@ -55,7 +55,7 @@ export class DataManagementReportService {
     try {
       const created = await this.apiService.createTemplate(template);
       this.reportTemplateList.update(list => [
-        ...list.filter(t => !((t as any).isLocal && !t.id)),
+        ...list.filter(t => !(t.isLocal && !t.id)),
         created,
       ]);
       return created;

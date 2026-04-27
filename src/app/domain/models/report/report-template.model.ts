@@ -16,6 +16,7 @@ export interface ReportTemplate {
   isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  isLocal?: boolean;
 }
 
 export enum ReportType {
