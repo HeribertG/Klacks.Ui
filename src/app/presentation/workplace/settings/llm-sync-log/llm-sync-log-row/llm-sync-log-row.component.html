@@ -1,0 +1,32 @@
+<div class="container-line sync-log-row">
+  <button class="expand-btn" (click)="toggleExpand()" type="button">
+    {{ isExpanded() ? '▼' : '▶' }}
+  </button>
+  <span class="col-date">{{ formatDate(data.syncedAt) }}</span>
+  <span class="col-provider">{{ data.providerName }}</span>
+  <span class="col-count">{{ data.newModelsCount }}</span>
+  <span class="col-count" [class.has-failed]="data.failedModelsCount > 0">
+    {{ data.failedModelsCount }}
+  </span>
+  <span class="col-count">{{ data.deactivatedModelsCount }}</span>
+</div>
+
+@if (isExpanded() && data.modelTestResults.length > 0) {
+  <div class="test-results">
+    @for (result of data.modelTestResults; track result.apiModelId) {
+      <div class="test-result-row" [class.failed]="!result.passed">
+        <span class="result-icon">{{ result.passed ? '✓' : '✗' }}</span>
+        <span class="result-name">{{ result.modelName }}</span>
+        @if (result.passed) {
+          <span class="result-ok">
+            {{ 'settings.llm-sync-log.status.passed' | translate }} ({{ result.durationMs }}ms)
+          </span>
+        } @else {
+          <span class="result-error">
+            {{ result.errorMessage }}
+          </span>
+        }
+      </div>
+    }
+  </div>
+}
