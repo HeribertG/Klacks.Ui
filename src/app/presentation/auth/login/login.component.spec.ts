@@ -13,6 +13,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from '../auth.service';
+import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
@@ -34,7 +35,11 @@ describe('LoginComponent', () => {
     beforeEach(async () => {
         const authServiceSpy = {
             logIn: vi.fn(),
-            checkIfTokenIsValid: vi.fn()
+            checkIfTokenIsValid: vi.fn(),
+            isAdminUser: vi.fn().mockReturnValue(false),
+        };
+        const syncNotificationServiceSpy = {
+            checkAndShow: vi.fn().mockResolvedValue(undefined),
         };
         const authorizationServiceSpy = {
             refresh: vi.fn()
@@ -83,6 +88,7 @@ describe('LoginComponent', () => {
                     useValue: userAdministrationServiceSpy,
                 },
                 { provide: ToastShowService, useValue: toastServiceSpy },
+                { provide: DataSyncNotificationService, useValue: syncNotificationServiceSpy },
             ],
         }).compileComponents();
 
