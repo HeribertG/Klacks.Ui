@@ -146,7 +146,10 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private subscribeToAddressValidation(): void {
     this.eventBus.on<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => this.handleAddressValidationFailed(event));
+      .subscribe((event) => {
+        this.workplaceStateService.isDisabled = false;
+        this.handleAddressValidationFailed(event);
+      });
   }
 
   private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
