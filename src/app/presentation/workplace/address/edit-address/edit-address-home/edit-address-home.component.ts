@@ -41,7 +41,6 @@ import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -88,7 +87,6 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private asideService = inject(AsideService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
-  private assistantProviderService = inject(DataManagementAssistantProviderService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -153,10 +151,6 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   }
 
   private handleAddressValidationFailed(event: AddressValidationFailedEvent): void {
-    if (this.isChatbotAvailable()) {
-      return;
-    }
-
     const addressStr = [event.street, event.zip, event.city].filter(Boolean).join(', ');
     const saveAnywayLabel = this.translateService.instant('address.validation.save-anyway');
 
@@ -187,11 +181,6 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
         this.applySelectedAddress(selected.displayName, selected.latitude, selected.longitude);
       },
     );
-  }
-
-  private isChatbotAvailable(): boolean {
-    const providers = this.assistantProviderService.getCurrentProviders();
-    return providers?.some(p => p.hasApiKey && p.isEnabled) ?? false;
   }
 
   private applySelectedAddress(displayName: string, latitude: number, longitude: number): void {
