@@ -35,7 +35,9 @@ export class DataManagementReportService {
   }
 
   private async ensureDefaultTemplates(templates: ReportTemplate[]): Promise<void> {
-    const hasAbsence = templates.some(t => t.type === ReportType.Absence);
+    const hasAbsence = templates.some(
+      t => t.type === ReportType.Absence || t.sourceId === 'absence-gantt'
+    );
     if (!hasAbsence) {
       try {
         await this.addTemplate(this.createDefaultAbsenceTemplate());
@@ -49,10 +51,14 @@ export class DataManagementReportService {
     return this.reportTemplateList().filter(t => t.type === type);
   }
 
-  async addTemplate(template: ReportTemplate): Promise<void> {
+  async addTemplate(template: ReportTemplate): Promise<ReportTemplate> {
     try {
       const created = await this.apiService.createTemplate(template);
-      this.reportTemplateList.update(list => [...list, created]);
+      this.reportTemplateList.update(list => [
+        ...list.filter(t => !((t as any).isLocal && !t.id)),
+        created,
+      ]);
+      return created;
     } catch (err) {
       console.error('Error creating template:', err);
       throw err;

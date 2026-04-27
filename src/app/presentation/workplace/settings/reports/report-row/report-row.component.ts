@@ -89,6 +89,7 @@ export class ReportRowComponent implements OnDestroy {
   }
 
   get isNew(): boolean {
+    if (this.editTemplate?.id) return false;
     return (this.data as any).isDirty === CreateEntriesEnum.new || (this.data as any).isLocal;
   }
 
@@ -226,7 +227,6 @@ export class ReportRowComponent implements OnDestroy {
         ...this.editTemplate,
         name: this.editName.trim(),
         description: this.editDescription.trim(),
-        type: ReportType.Schedule,
         sourceId: this.editSourceId,
         dataSetIds: [...this.editDataSetIds],
         mergeRows: this.editTemplate.mergeRows,
@@ -239,7 +239,8 @@ export class ReportRowComponent implements OnDestroy {
       };
 
       if (this.isNew) {
-        await this.dataManagementReportService.addTemplate(updated);
+        const created = await this.dataManagementReportService.addTemplate(updated);
+        this.editTemplate = { ...this.editTemplate, id: created.id };
       } else {
         await this.dataManagementReportService.updateTemplate(updated);
       }
@@ -266,8 +267,15 @@ export class ReportRowComponent implements OnDestroy {
     if (!this.canGeneratePreview) return;
 
     this.isGenerating = true;
-    const fromDate = transformNgbDateStructToDate(this.previewFromDate ?? undefined)?.toISOString().split('T')[0];
-    const toDate = transformNgbDateStructToDate(this.previewToDate ?? undefined)?.toISOString().split('T')[0];
+    const toLocalDateString = (d: Date | undefined): string | undefined => {
+      if (!d) return undefined;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    const fromDate = toLocalDateString(transformNgbDateStructToDate(this.previewFromDate ?? undefined));
+    const toDate = toLocalDateString(transformNgbDateStructToDate(this.previewToDate ?? undefined));
 
     try {
       const provider = this.dataProviderService.getProvider(this.editSourceId, this.editDataSetIds);

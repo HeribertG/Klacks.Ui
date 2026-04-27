@@ -180,12 +180,17 @@ export class ReportDataProviderService {
   private absenceProvider(): ReportDataProvider {
     return {
       fetchData: async (params) => {
+        await this.absenceLookup.loadIfNeeded();
+        const allAbsenceFilters = [
+          ...this.absenceLookup.absences().filter(a => !!a.id).map(a => ({ id: a.id!, name: '', checked: true })),
+          ...this.absenceLookup.absenceDetails().filter(d => !!d.id).map(d => ({ id: d.id!, name: '', checked: true })),
+        ];
         const year = params.year
           ?? (params.startDate ? new Date(params.startDate).getFullYear() : new Date().getFullYear());
         const response = await firstValueFrom(
           this.breakPlaceholderService.getClientList({
             currentYear: year,
-            absences: [],
+            absences: allAbsenceFilters,
             selectedGroup: params.groupId,
             showEmployees: true,
             showExtern: true,
@@ -211,17 +216,19 @@ export class ReportDataProviderService {
             clientFirstName: client.firstName,
           }))
         );
-        return { rows, metadata: { totalClients: response.totalCount } };
+        return { rows, clients, metadata: { totalClients: response.totalCount } };
       },
       resolveFieldValue: (field, row) => {
+        const lang = this.translate.currentLang || 'de';
         switch (field.dataBinding) {
           case 'absence.clientName': return row.clientName ?? '';
           case 'absence.clientFirstName': return row.clientFirstName ?? '';
-          case 'absence.absenceName': return row.absence?.name?.[this.translate.currentLang] ?? row.absence?.name?.de ?? '';
+          case 'absence.absenceName': return this.absenceLookup.getNameForEntryId(row.absenceId, lang);
           case 'absence.from': return this.formatDate(row.from);
           case 'absence.until': return this.formatDate(row.until);
           case 'absence.value': {
-            const defaultValue = row.absence?.defaultValue;
+            const absenceName = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
+            const defaultValue = absenceName?.defaultValue;
             if (defaultValue && defaultValue > 0 && row.from && row.until) {
               const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
               return (diff * defaultValue).toString();
@@ -242,8 +249,8 @@ export class ReportDataProviderService {
       buildFormulaVariables: (row: any) => ({
         fromDate: row.from ?? '',
         untilDate: row.until ?? '',
-        absenceName: row.absence?.name?.de ?? '',
-        defaultValue: row.absence?.defaultValue ?? 0,
+        absenceName: this.absenceLookup.getNameForEntryId(row.absenceId, this.translate.currentLang || 'de'),
+        defaultValue: this.absenceLookup.findAbsenceForEntryId(row.absenceId)?.defaultValue ?? 0,
         clientName: row.clientName ?? '',
         clientFirstName: row.clientFirstName ?? '',
       }),
