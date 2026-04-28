@@ -1,0 +1,33 @@
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+
+.first {
+  padding-inline-start: 30px;
+}
+
+.custom-control-inline {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+label {
+  color: var(--colorWorkplaceHeadline);
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.col-date {
+  width: 162px;
+}
+
+.col-provider {
+  width: 110px;
+}
+
+.col-count {
+  width: 70px;
+  text-align: center;
+}

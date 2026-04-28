@@ -1,0 +1,80 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+
+.sync-log-row {
+  gap: 8px;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 4px;
+  color: var(--colorWorkplaceHeadline);
+  min-width: 18px;
+}
+
+.col-date {
+  width: 140px;
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.col-provider {
+  width: 110px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.col-count {
+  width: 70px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--colorLabel);
+
+  &.has-failed {
+    color: var(--standartRedColor);
+    font-weight: 600;
+  }
+}
+
+.test-results {
+  margin-inline-start: 30px;
+  margin-bottom: 6px;
+}
+
+.test-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 12px;
+
+  &.failed .result-icon {
+    color: var(--standartRedColor);
+  }
+}
+
+.result-icon {
+  width: 16px;
+  color: var(--standartGreenColor);
+  font-weight: 700;
+}
+
+.result-name {
+  width: 200px;
+  color: var(--colorWorkplaceHeadline);
+}
+
+.result-ok {
+  color: var(--colorLabel);
+}
+
+.result-error {
+  color: var(--standartRedColor);
+  font-style: italic;
+}
