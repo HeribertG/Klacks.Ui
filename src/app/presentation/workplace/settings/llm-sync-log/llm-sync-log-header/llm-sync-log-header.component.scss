@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   padding-block: 8px;
-  padding-inline: 30px;
+  margin-inline: 30px;
   gap: 0;
 }
 
@@ -12,6 +12,7 @@ label {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0;
+  color: inherit;
 }
 
 .col-expand {
