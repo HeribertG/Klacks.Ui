@@ -499,10 +499,11 @@
         data-klacksy-route="/workplace/settings"
       >
       </app-llm-providers>
-
+    </div>
+    <div id="settings-home-llm-row2" class="container-profilline">
       <app-llm-sync-log
         id="settings-llm-sync-log"
-        class="container-setting-small border-bottom-card"
+        class="container-setting-small first border-bottom-card"
         (click)="isfocused('app-llm-sync-log')"
         data-klacksy-target="llm-sync-log"
         data-klacksy-label-key="settings.llmSyncLog"
@@ -544,7 +545,10 @@
       >
       </app-assistant-speech-settings>
     </div>
-    <div id="settings-home-assistant-personality-row" class="container-profilline">
+    <div
+      id="settings-home-assistant-personality-row"
+      class="container-profilline"
+    >
       <app-assistant-personality-settings
         id="settings-assistant-personality"
         class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
@@ -617,10 +621,7 @@
         >
         </lib-messaging-providers>
       </div>
-      <div
-        id="settings-home-owner-messengers-row"
-        class="container-profilline"
-      >
+      <div id="settings-home-owner-messengers-row" class="container-profilline">
         <lib-owner-messengers
           id="settings-owner-messengers"
           class="container-profile first border-right-card border-bottom-card"
