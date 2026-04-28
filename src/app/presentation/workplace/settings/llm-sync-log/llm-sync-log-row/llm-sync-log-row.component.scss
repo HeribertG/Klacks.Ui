@@ -4,7 +4,7 @@
 .sync-log-row {
   display: flex;
   align-items: center;
-  padding: 6px 30px;
+  padding-block: 6px;
   cursor: pointer;
 
   &:hover {
@@ -41,7 +41,7 @@
 }
 
 .test-results {
-  padding: 4px 30px 8px 58px;
+  padding: 4px 0 8px 28px;
 }
 
 .test-result-row {

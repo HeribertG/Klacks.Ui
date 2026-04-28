@@ -5,7 +5,7 @@
   idPrefix="llm-sync-log"
 >
   <app-llm-sync-log-header header></app-llm-sync-log-header>
-  <div rows>
+  <div rows class="sync-log-body">
     @if (isLoading()) {
       <app-spinner></app-spinner>
     } @else if (entries().length === 0) {
