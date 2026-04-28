@@ -1,15 +1,17 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div class="first custom-control-inline sync-log-row">
-  <button class="expand-btn" (click)="toggleExpand()" type="button">
-    {{ isExpanded() ? '▼' : '▶' }}
-  </button>
+<div class="sync-log-row table-cell" (click)="toggleExpand()">
+  <span class="col-expand">
+    @if (isExpanded()) {
+      <app-icon-angle-down />
+    } @else {
+      <app-icon-angle-right />
+    }
+  </span>
   <span class="col-date">{{ formatDate(data.syncedAt) }}</span>
   <span class="col-provider">{{ data.providerName }}</span>
   <span class="col-count">{{ data.newModelsCount }}</span>
-  <span class="col-count" [class.has-failed]="data.failedModelsCount > 0">
-    {{ data.failedModelsCount }}
-  </span>
+  <span class="col-count" [class.has-failed]="data.failedModelsCount > 0">{{ data.failedModelsCount }}</span>
   <span class="col-count">{{ data.deactivatedModelsCount }}</span>
 </div>
 
@@ -17,7 +19,7 @@
   <div class="test-results">
     @for (result of data.modelTestResults; track result.apiModelId) {
       <div class="test-result-row" [class.failed]="!result.passed">
-        <span class="result-icon">{{ result.passed ? '✓' : '✗' }}</span>
+        <span class="result-icon" [class.failed-icon]="!result.passed">{{ result.passed ? '✓' : '✗' }}</span>
         <span class="result-name">{{ result.modelName }}</span>
         @if (result.passed) {
           <span class="result-ok">

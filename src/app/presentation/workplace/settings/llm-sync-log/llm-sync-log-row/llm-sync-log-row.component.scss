@@ -1,80 +1,87 @@
-@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/colors.scss" as colors;
 
 .sync-log-row {
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  padding: 6px 30px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--gridBackgroundColorRowHover);
+  }
 }
 
-.expand-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 11px;
-  padding: 0 4px;
-  color: var(--colorWorkplaceHeadline);
-  min-width: 18px;
+.col-expand {
+  width: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .col-date {
   width: 180px;
-  font-size: 12px;
-  color: var(--colorLabel);
+  flex-shrink: 0;
 }
 
 .col-provider {
-  width: 160px;
-  font-weight: 500;
-  font-size: 13px;
-  color: var(--colorWorkplaceHeadline);
+  flex: 1;
+  font-weight: 600;
 }
 
 .col-count {
-  width: 90px;
+  width: 110px;
   text-align: center;
-  font-size: 13px;
-  color: var(--colorLabel);
+  flex-shrink: 0;
 
   &.has-failed {
     color: var(--standartRedColor);
-    font-weight: 600;
+    font-weight: 700;
   }
 }
 
 .test-results {
-  margin-inline-start: 30px;
-  margin-bottom: 6px;
+  padding: 4px 30px 8px 58px;
 }
 
 .test-result-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 0;
-  font-size: 12px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--colorLine);
 
-  &.failed .result-icon {
-    color: var(--standartRedColor);
+  &:last-child {
+    border-bottom: none;
   }
 }
 
 .result-icon {
   width: 16px;
+  flex-shrink: 0;
   color: var(--standartGreenColor);
   font-weight: 700;
+
+  &.failed-icon {
+    color: var(--standartRedColor);
+  }
 }
 
 .result-name {
   width: 280px;
-  color: var(--colorWorkplaceHeadline);
+  flex-shrink: 0;
+  color: var(--gridColorText);
+  font-size: 13px;
 }
 
 .result-ok {
-  color: var(--colorLabel);
+  color: var(--gridColorText);
+  font-size: 12px;
 }
 
 .result-error {
   color: var(--standartRedColor);
+  font-size: 12px;
   font-style: italic;
+  flex: 1;
 }

@@ -7,11 +7,13 @@
 import { Component, ChangeDetectionStrategy, Input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ILLMSyncLogEntry } from 'src/app/domain/models/assistant/llm-sync-log.interface';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 
 @Component({
   selector: 'app-llm-sync-log-row',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, IconAngleDownComponent, IconAngleRightComponent],
   templateUrl: './llm-sync-log-row.component.html',
   styleUrls: ['./llm-sync-log-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
