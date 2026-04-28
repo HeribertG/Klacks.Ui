@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [TranslateModule],
   templateUrl: './llm-sync-log-header.component.html',
+  styleUrls: ['./llm-sync-log-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LlmSyncLogHeaderComponent {}

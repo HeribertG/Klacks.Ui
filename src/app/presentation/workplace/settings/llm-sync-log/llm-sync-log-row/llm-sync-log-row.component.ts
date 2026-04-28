@@ -13,6 +13,7 @@ import { ILLMSyncLogEntry } from 'src/app/domain/models/assistant/llm-sync-log.i
   standalone: true,
   imports: [TranslateModule],
   templateUrl: './llm-sync-log-row.component.html',
+  styleUrls: ['./llm-sync-log-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LlmSyncLogRowComponent {

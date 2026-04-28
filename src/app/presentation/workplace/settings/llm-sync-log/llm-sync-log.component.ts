@@ -32,6 +32,7 @@ import { firstValueFrom } from 'rxjs';
     LlmSyncLogRowComponent,
   ],
   templateUrl: './llm-sync-log.component.html',
+  styleUrls: ['./llm-sync-log.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LlmSyncLogComponent implements OnInit {
