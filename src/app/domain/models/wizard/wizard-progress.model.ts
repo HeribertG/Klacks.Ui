@@ -19,6 +19,22 @@ export interface WizardTokenResult {
   hours: number;
 }
 
+export interface WizardAuctionAward {
+  agentId: string;
+  date: string;
+  shiftId: string;
+  round: number;
+  winningScore: number;
+  firedRules: string[];
+}
+
+export interface WizardEscalation {
+  agentId: string;
+  date: string;
+  ruleName: string;
+  hint: string;
+}
+
 export interface WizardResult {
   jobId: string;
   finalHardViolations: number;
@@ -26,6 +42,8 @@ export interface WizardResult {
   tokenCount: number;
   availableShiftSlots: number;
   tokens: WizardTokenResult[];
+  awards?: WizardAuctionAward[];
+  escalations?: WizardEscalation[];
 }
 
 export type WizardStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

@@ -2027,6 +2027,8 @@
   "wizard.dialog.col.shift": "Quart",
   "wizard.dialog.col.agent": "Employé",
   "wizard.dialog.col.hours": "Heures",
+  "wizard.dialog.col.reason": "Motif",
+  "wizard.dialog.escalation.summary": "{{count}} assouplissement(s) de niveau 1 enregistré(s).",
   "wizard.dialog.apply": "Appliquer",
   "wizard.dialog.applying": "Application en cours...",
   "wizard.dialog.applied": "affectations appliquées avec succès.",

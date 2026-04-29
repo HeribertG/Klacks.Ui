@@ -2029,6 +2029,8 @@
   "wizard.dialog.col.shift": "Schicht",
   "wizard.dialog.col.agent": "Mitarbeiter",
   "wizard.dialog.col.hours": "Stunden",
+  "wizard.dialog.col.reason": "Begründung",
+  "wizard.dialog.escalation.summary": "{{count}} Stage-1-Aufweichung(en) protokolliert.",
   "wizard.dialog.apply": "Übernehmen",
   "wizard.dialog.applying": "Wird übernommen...",
   "wizard.dialog.applied": "Zuweisungen erfolgreich übernommen.",

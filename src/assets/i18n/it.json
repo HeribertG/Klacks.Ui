@@ -2027,6 +2027,8 @@
   "wizard.dialog.col.shift": "Turno",
   "wizard.dialog.col.agent": "Dipendente",
   "wizard.dialog.col.hours": "Ore",
+  "wizard.dialog.col.reason": "Motivo",
+  "wizard.dialog.escalation.summary": "{{count}} attenuazione/i di livello 1 registrate.",
   "wizard.dialog.apply": "Applicare",
   "wizard.dialog.applying": "Applicazione in corso...",
   "wizard.dialog.applied": "assegnazioni applicate con successo.",

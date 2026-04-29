@@ -2029,6 +2029,8 @@
   "wizard.dialog.col.shift": "Shift",
   "wizard.dialog.col.agent": "Employee",
   "wizard.dialog.col.hours": "Hours",
+  "wizard.dialog.col.reason": "Reason",
+  "wizard.dialog.escalation.summary": "{{count}} stage-1 relaxation(s) recorded.",
   "wizard.dialog.apply": "Apply",
   "wizard.dialog.applying": "Applying...",
   "wizard.dialog.applied": "assignments applied successfully.",

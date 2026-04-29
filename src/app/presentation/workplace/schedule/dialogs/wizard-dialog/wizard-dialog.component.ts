@@ -76,16 +76,47 @@ export class WizardDialogComponent {
 
     const clients   = this.dataManagementSchedule.clients;
     const schedules = this.dataManagementSchedule.shiftSchedules;
+    const awardKey = (date: string, agentId: string) => `${date}|${agentId}`;
+    const awardMap = new Map<string, string[]>();
+    const escalationMap = new Map<string, string>();
+
+    if (result.awards) {
+      for (const a of result.awards) {
+        awardMap.set(awardKey(a.date, a.agentId), a.firedRules.slice(0, 3));
+      }
+    }
+    if (result.escalations) {
+      for (const e of result.escalations) {
+        escalationMap.set(awardKey(e.date, e.agentId), `${e.ruleName}: ${e.hint}`);
+      }
+    }
 
     return result.tokens
-      .map(t => ({
-        date:      t.date,
-        shiftName: schedules.find(s => s.shiftId === t.shiftId)?.shiftName ?? t.shiftId,
-        agentName: this.resolveAgentName(clients, t.agentId),
-        hours:     t.hours,
-      }))
+      .map(t => {
+        const key = awardKey(t.date, t.agentId);
+        const escalation = escalationMap.get(key);
+        const firedRules = awardMap.get(key) ?? [];
+        return {
+          date:      t.date,
+          shiftName: schedules.find(s => s.shiftId === t.shiftId)?.shiftName ?? t.shiftId,
+          agentName: this.resolveAgentName(clients, t.agentId),
+          hours:     t.hours,
+          firedRules,
+          escalation: escalation ? this.shortenEscalation(escalation) : '',
+          reasonDetails: escalation ?? firedRules.join('\n'),
+        };
+      })
       .sort((a, b) => a.date.localeCompare(b.date));
   });
+
+  escalationCount(result: WizardResult): number {
+    return result.escalations?.length ?? 0;
+  }
+
+  private shortenEscalation(full: string): string {
+    const colon = full.indexOf(':');
+    return colon > 0 ? full.substring(0, colon) : full;
+  }
 
   private modalRef: NgbModalRef | null = null;
 
