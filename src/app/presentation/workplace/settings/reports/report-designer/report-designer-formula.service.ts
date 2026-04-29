@@ -1,13 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service for formula editor state management, formula testing, and variable definitions.
+ * Service for formula editor state management, formula testing, variable definitions, and manual loading.
  * @param formulaService - FormulaEvaluationService for validation and evaluation
  * @param sourceId - The active report source ID used for variable resolution
  * @param dataSetIds - The active data set IDs used for variable resolution
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ReportField } from 'src/app/domain/models/report/report-field.model';
 import { ReportSection } from 'src/app/domain/models/report/report-section.model';
@@ -15,16 +16,25 @@ import { FormulaEvaluationService } from 'src/app/domain/services/report/formula
 import { getFormulaVariables, getFooterFormulaVariables, FormulaVariableDefinition } from 'src/app/domain/models/report/formula-variables.model';
 import { createFormulaTestData, createFooterFormulaTestData } from 'src/app/domain/models/report/formula-test-data';
 import { PropertyMetadata } from 'src/app/domain/models/shift/shift-data-class';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+
+export type FormulaEditorTab = 'formula' | 'variables' | 'explanations';
 
 @Injectable()
 export class ReportDesignerFormulaService {
   private formulaService = inject(FormulaEvaluationService);
+  private manualLoader = inject(ManualLoaderService);
+  private translate = inject(TranslateService);
 
   showFormulaEditor = false;
   formulaEditorField: ReportField | null = null;
   formulaTestResult = '';
   formulaTestData: Record<string, unknown> = {};
   formulaTestMetadata?: PropertyMetadata;
+
+  formulaTabId = signal<FormulaEditorTab>('formula');
+  manualContent = signal<string>('');
+  private manualLoaded = false;
 
   getFormulaStatus(field: ReportField): 'empty' | 'valid' | 'error' {
     if (!field.formula) return 'empty';
@@ -58,6 +68,7 @@ export class ReportDesignerFormulaService {
     this.formulaEditorField = field;
     this.showFormulaEditor = true;
     this.formulaTestResult = '';
+    this.formulaTabId.set('formula');
     const isFooter = bodySections.some(s => s.tableFooterFields?.includes(field));
     const testObj = isFooter
       ? createFooterFormulaTestData(sourceId)
@@ -70,6 +81,21 @@ export class ReportDesignerFormulaService {
     this.showFormulaEditor = false;
     this.formulaEditorField = null;
     this.formulaTestResult = '';
+  }
+
+  setTab(tab: FormulaEditorTab): void {
+    this.formulaTabId.set(tab);
+    if (tab === 'explanations' && !this.manualLoaded) {
+      this.loadManual();
+    }
+  }
+
+  private loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    this.manualLoader.loadManual('formula-manual', lang).subscribe(content => {
+      this.manualContent.set(content);
+      this.manualLoaded = true;
+    });
   }
 
   runFormulaTest(): void {

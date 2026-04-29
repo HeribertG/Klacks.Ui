@@ -81,6 +81,7 @@ export const FOOTER_FORMULA_VARIABLES: Record<string, Record<string, FormulaVari
   'absence-gantt': {
     'absences': [
       { name: 'totalRows', i18nKey: 'setting.report.formula.var.totalRows', type: 'number' },
+      { name: 'totalValue', i18nKey: 'setting.report.formula.var.totalValue', type: 'number' },
     ],
   },
   'all-address': {

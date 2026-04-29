@@ -1,0 +1,95 @@
+<h2>Manuale Campo Formula</h2>
+
+<h3>Sintassi di base</h3>
+<p>Ogni campo formula visualizza il risultato con il comando <code>output</code>:</p>
+<pre>output 1, &lt;espressione&gt;</pre>
+<p>Il primo parametro <code>1</code> &#232; il tipo di messaggio e deve essere sempre <strong>1</strong>. Il secondo parametro &#232; il valore da visualizzare.</p>
+
+<p><strong>Esempi semplici:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " voci"
+</pre>
+
+<hr>
+
+<h3>Variabili disponibili</h3>
+<p>Le variabili disponibili sono elencate nella scheda <em>Variabili</em>. Le variabili dipendono dal tipo di report:</p>
+
+<table>
+  <tr><th>Tipo di report</th><th>Pi&#232; di tabella</th></tr>
+  <tr><td>Orario di lavoro</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Assenze</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Indirizzi</td><td>totalRows</td></tr>
+  <tr><td>Gruppi</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operatori</h3>
+<table>
+  <tr><th>Operatore</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>+</td><td>Addizione</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Sottrazione</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Moltiplicazione</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Divisione</td><td>totalHours / 8</td></tr>
+  <tr><td>&amp;</td><td>Concatenazione testo</td><td>"Totale: " &amp; totalRows</td></tr>
+  <tr><td>MOD</td><td>Modulo (resto)</td><td>10 MOD 3 &rarr; 1</td></tr>
+</table>
+
+<hr>
+
+<h3>Funzioni integrate</h3>
+
+<h4>Conversione tipo</h4>
+<table>
+  <tr><th>Funzione</th><th>Descrizione</th></tr>
+  <tr><td>CStr(x)</td><td>Converti in stringa</td></tr>
+  <tr><td>CInt(x)</td><td>Converti in intero</td></tr>
+  <tr><td>CDbl(x)</td><td>Converti in decimale</td></tr>
+</table>
+
+<h4>Matematica</h4>
+<table>
+  <tr><th>Funzione</th><th>Descrizione</th></tr>
+  <tr><td>Abs(x)</td><td>Valore assoluto</td></tr>
+  <tr><td>Round(x, n)</td><td>Arrotondare a n decimali</td></tr>
+  <tr><td>Int(x)</td><td>Arrotondare verso il basso</td></tr>
+  <tr><td>Sqr(x)</td><td>Radice quadrata</td></tr>
+</table>
+
+<hr>
+
+<h3>Logica condizionale</h3>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(totalRows) &amp; " voci"
+ELSE
+    output 1, "Nessuna voce"
+ENDIF
+</pre>
+
+<h4>IIF (forma breve)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Vuoto")
+</pre>
+
+<hr>
+
+<h3>Esempi pratici</h3>
+
+<h4>Valore arrotondato</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Ore in h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<hr>
+
+<em>Nota: L'interprete degli script viene eseguito in una sandbox sicura senza accesso al file system o alla rete.</em>

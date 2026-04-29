@@ -1,0 +1,95 @@
+<h2>Manuel Champ Formule</h2>
+
+<h3>Syntaxe de base</h3>
+<p>Chaque champ formule affiche son r&#233;sultat avec la commande <code>output</code>:</p>
+<pre>output 1, &lt;expression&gt;</pre>
+<p>Le premier param&#232;tre <code>1</code> est le type de message et doit toujours &#234;tre <strong>1</strong>. Le second param&#232;tre est la valeur &#224; afficher.</p>
+
+<p><strong>Exemples simples:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " entr&#233;es"
+</pre>
+
+<hr>
+
+<h3>Variables disponibles</h3>
+<p>Les variables disponibles sont list&#233;es dans l'onglet <em>Variables</em>. Les variables d&#233;pendent du type de rapport:</p>
+
+<table>
+  <tr><th>Type de rapport</th><th>Pied de tableau</th></tr>
+  <tr><td>Planning</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Absences</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Adresses</td><td>totalRows</td></tr>
+  <tr><td>Groupes</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Op&#233;rateurs</h3>
+<table>
+  <tr><th>Op&#233;rateur</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>+</td><td>Addition</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Soustraction</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Multiplication</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Division</td><td>totalHours / 8</td></tr>
+  <tr><td>&amp;</td><td>Concat&#233;nation de texte</td><td>"Total: " &amp; totalRows</td></tr>
+  <tr><td>MOD</td><td>Modulo (reste)</td><td>10 MOD 3 &rarr; 1</td></tr>
+</table>
+
+<hr>
+
+<h3>Fonctions int&#233;gr&#233;es</h3>
+
+<h4>Conversion de type</h4>
+<table>
+  <tr><th>Fonction</th><th>Description</th></tr>
+  <tr><td>CStr(x)</td><td>Convertir en cha&#238;ne</td></tr>
+  <tr><td>CInt(x)</td><td>Convertir en entier</td></tr>
+  <tr><td>CDbl(x)</td><td>Convertir en d&#233;cimal</td></tr>
+</table>
+
+<h4>Math&#233;matiques</h4>
+<table>
+  <tr><th>Fonction</th><th>Description</th></tr>
+  <tr><td>Abs(x)</td><td>Valeur absolue</td></tr>
+  <tr><td>Round(x, n)</td><td>Arrondir &#224; n d&#233;cimales</td></tr>
+  <tr><td>Int(x)</td><td>Arrondir vers le bas</td></tr>
+  <tr><td>Sqr(x)</td><td>Racine carr&#233;e</td></tr>
+</table>
+
+<hr>
+
+<h3>Logique conditionnelle</h3>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(totalRows) &amp; " entr&#233;es"
+ELSE
+    output 1, "Aucune entr&#233;e"
+ENDIF
+</pre>
+
+<h4>IIF (forme courte)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Vide")
+</pre>
+
+<hr>
+
+<h3>Exemples pratiques</h3>
+
+<h4>Valeur arrondie</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Heures en h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<hr>
+
+<em>Remarque: L'interpr&#233;teur s'ex&#233;cute dans un environnement sandbox s&#233;curis&#233;.</em>

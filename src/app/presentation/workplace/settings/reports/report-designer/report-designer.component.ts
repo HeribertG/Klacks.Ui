@@ -414,6 +414,19 @@ export class ReportDesignerComponent implements OnChanges {
     return this.bodySections.some(s => s.fields.includes(field));
   }
 
+  getFormulaFooterColumnOptions(field: ReportField): { index: number; label: string }[] {
+    const section = this.bodySections.find(s => s.tableFooterFields?.includes(field));
+    if (!section) return [];
+    return [...section.fields]
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((f, i) => ({ index: i, label: f.name || f.dataBinding }));
+  }
+
+  setFormulaFooterColumn(field: ReportField, colIndex: number): void {
+    field.sortOrder = colIndex;
+    this.emitChange();
+  }
+
   private mergeFieldLabelCache = new Map<string, string>();
 
   getAvailableMergeFields(field: ReportField): { key: string; label: string }[] {

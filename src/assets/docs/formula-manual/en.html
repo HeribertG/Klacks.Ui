@@ -1,0 +1,153 @@
+<h2>Formula Field Manual</h2>
+
+<h3>Basic Syntax</h3>
+<p>Every formula field outputs its result using the <code>output</code> command:</p>
+<pre>output 1, &lt;expression&gt;</pre>
+<p>The first parameter <code>1</code> is the message type and must always be <strong>1</strong>. The second parameter is the value to output.</p>
+
+<p><strong>Simple examples:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " entries"
+</pre>
+
+<hr>
+
+<h3>Available Variables</h3>
+<p>Available variables are listed in the <em>Variables</em> tab where you can set test values. Variables depend on the report type:</p>
+
+<table>
+  <tr><th>Report Type</th><th>Table Footer</th></tr>
+  <tr><td>Schedule</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Absences</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Addresses</td><td>totalRows</td></tr>
+  <tr><td>Groups</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operators</h3>
+<table>
+  <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+  <tr><td>+</td><td>Addition</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Subtraction</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Multiplication</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Division</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Power</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Integer division</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (remainder)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>String concatenation</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Built-in Functions</h3>
+
+<h4>Type Conversion</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td>CStr(x)</td><td>Convert number to string</td></tr>
+  <tr><td>CInt(x)</td><td>Convert to integer</td></tr>
+  <tr><td>CDbl(x)</td><td>Convert to decimal number</td></tr>
+</table>
+
+<h4>Math</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td>Abs(x)</td><td>Absolute value</td></tr>
+  <tr><td>Round(x, n)</td><td>Round to n decimal places</td></tr>
+  <tr><td>Int(x)</td><td>Floor to integer</td></tr>
+  <tr><td>Sqr(x)</td><td>Square root</td></tr>
+  <tr><td>Sgn(x)</td><td>Sign (-1, 0, 1)</td></tr>
+</table>
+
+<h4>String</h4>
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td>Len(s)</td><td>Length of string</td></tr>
+  <tr><td>Left(s, n)</td><td>n characters from left</td></tr>
+  <tr><td>Right(s, n)</td><td>n characters from right</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n characters from position pos</td></tr>
+  <tr><td>UCase(s)</td><td>Convert to uppercase</td></tr>
+  <tr><td>LCase(s)</td><td>Convert to lowercase</td></tr>
+  <tr><td>Trim(s)</td><td>Remove leading/trailing spaces</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>Replace text</td></tr>
+</table>
+
+<hr>
+
+<h3>Conditional Logic</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "many entries"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "few entries"
+ELSE
+    output 1, "no entries"
+ENDIF
+</pre>
+
+<h4>Single-line IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (short form)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Empty")
+</pre>
+
+<hr>
+
+<h3>Variables and Loops</h3>
+<pre>
+DIM i, total
+total = 0
+FOR i = 1 TO totalRows
+    total = total + 1
+NEXT
+output 1, CStr(total)
+</pre>
+
+<hr>
+
+<h3>Practical Examples</h3>
+
+<h4>Row count with label</h4>
+<pre>output 1, CStr(totalRows) &amp; " entries"</pre>
+
+<h4>Rounded value (1 decimal)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Hours as h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Conditional output</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "No absences"
+ELSE
+    output 1, CStr(totalRows) &amp; " absences (Total: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Calculate average</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/day"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Note: The script interpreter runs in a secure sandbox without access to the file system or network.</em>

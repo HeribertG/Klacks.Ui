@@ -244,6 +244,18 @@ export class ReportDataProviderService {
       },
       resolveFooterValue: (field, rows) => {
         if (field.dataBinding === 'absence.totalCount') return rows.length.toString();
+        if (field.dataBinding === 'absence.totalValue') {
+          const total = rows.reduce((sum: number, row: any) => {
+            const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
+            const defaultValue = absence?.defaultValue ?? 0;
+            if (defaultValue > 0 && row.from && row.until) {
+              const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+              return sum + diff * defaultValue;
+            }
+            return sum;
+          }, 0);
+          return total.toString();
+        }
         return '';
       },
       buildFormulaVariables: (row: any) => ({
@@ -256,6 +268,15 @@ export class ReportDataProviderService {
       }),
       buildFooterFormulaVariables: (rows: any[]) => ({
         totalRows: rows.length,
+        totalValue: rows.reduce((sum: number, row: any) => {
+          const absence = this.absenceLookup.findAbsenceForEntryId(row.absenceId);
+          const defaultValue = absence?.defaultValue ?? 0;
+          if (defaultValue > 0 && row.from && row.until) {
+            const diff = Math.floor(daysBetweenDates(new Date(row.from), new Date(row.until))) + 1;
+            return sum + diff * defaultValue;
+          }
+          return sum;
+        }, 0),
       }),
     };
   }

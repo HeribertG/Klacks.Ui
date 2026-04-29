@@ -36,12 +36,6 @@ export class FormulaEvaluationService {
       const result = this.scriptService.execute(compiled, variables);
       if (!result.success) return '#ERR';
 
-      const outputValue = compiled.getExternalValue('output');
-      if (outputValue) {
-        const str = outputValue.asString();
-        if (str) return str;
-      }
-
       if (result.messages.length > 0) {
         return result.messages[0].message;
       }
@@ -66,6 +60,6 @@ export class FormulaEvaluationService {
   }
 
   private buildSource(formula: string): string {
-    return `External output\n${formula}`;
+    return formula;
   }
 }

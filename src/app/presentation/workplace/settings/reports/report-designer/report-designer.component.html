@@ -263,6 +263,17 @@
               (input)="formulaSvc.onFormulaNameChange(activeField, $any($event.target).value); emitChange()"
               [placeholder]="'setting.report.designer.formulaName' | translate"
             />
+            @if (isTableFooterField(activeField)) {
+              <select
+                class="tb-select"
+                (change)="setFormulaFooterColumn(activeField, +$any($event.target).value)"
+                [title]="'setting.report.designer.formulaColumn' | translate"
+              >
+                @for (opt of getFormulaFooterColumnOptions(activeField); track opt.index) {
+                  <option [value]="opt.index" [selected]="opt.index === activeField.sortOrder">{{ opt.label }}</option>
+                }
+              </select>
+            }
             <button
               class="tb-btn formula-edit-btn"
               (click)="openFormulaEditor(activeField)"
@@ -1111,52 +1122,70 @@
             />
           </div>
 
-          <div class="formula-editor-tabs">
-            <div class="formula-tab">
-              <label>{{ 'setting.report.designer.formula' | translate }}</label>
-              <textarea
-                class="formula-textarea"
-                [value]="formulaSvc.formulaEditorField.formula ?? ''"
-                (input)="formulaSvc.onFormulaChange(formulaSvc.formulaEditorField, $any($event.target).value); emitChange()"
-                rows="8"
-                spellcheck="false"
-              ></textarea>
-            </div>
+          <div class="formula-editor-tab-nav">
+            <button
+              class="formula-tab-btn"
+              [class.active]="formulaSvc.formulaTabId() === 'formula'"
+              (click)="formulaSvc.setTab('formula')"
+            >{{ 'setting.report.designer.formulaTabFormula' | translate }}</button>
+            <button
+              class="formula-tab-btn"
+              [class.active]="formulaSvc.formulaTabId() === 'variables'"
+              (click)="formulaSvc.setTab('variables')"
+            >{{ 'setting.report.designer.formulaTabVariables' | translate }}</button>
+            <button
+              class="formula-tab-btn"
+              [class.active]="formulaSvc.formulaTabId() === 'explanations'"
+              (click)="formulaSvc.setTab('explanations')"
+            >{{ 'setting.report.designer.formulaTabExplanations' | translate }}</button>
+          </div>
 
-            <div class="formula-tab">
-              <label>{{ 'setting.report.designer.formulaVariables' | translate }}</label>
-              <app-property-grid
-                [object]="formulaSvc.formulaTestData"
-                [metadata]="formulaSvc.formulaTestMetadata"
-              ></app-property-grid>
+          <div [hidden]="formulaSvc.formulaTabId() !== 'formula'">
+            <small class="formula-output-hint">{{ 'setting.report.designer.formulaOutputHint' | translate }}</small>
+            <textarea
+              class="formula-textarea"
+              [value]="formulaSvc.formulaEditorField.formula ?? ''"
+              (input)="formulaSvc.onFormulaChange(formulaSvc.formulaEditorField, $any($event.target).value); emitChange()"
+              rows="8"
+              spellcheck="false"
+            ></textarea>
+            <div class="formula-editor-test">
+              <button class="btn-add-row" (click)="formulaSvc.runFormulaTest()">
+                {{ 'setting.report.designer.formulaTest' | translate }}
+              </button>
+              <span
+                class="formula-status"
+                [class.status-valid]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'valid'"
+                [class.status-error]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'error'"
+                [class.status-empty]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'empty'"
+              >
+                @switch (formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField)) {
+                  @case ('empty') {
+                    {{ 'setting.report.designer.noFormula' | translate }}
+                  }
+                  @case ('valid') {
+                    {{ 'setting.report.designer.formulaValid' | translate }}
+                  }
+                  @case ('error') {
+                    {{ 'setting.report.designer.formulaError' | translate }}
+                  }
+                }
+              </span>
+              @if (formulaSvc.formulaTestResult) {
+                <span class="formula-test-result">= {{ formulaSvc.formulaTestResult }}</span>
+              }
             </div>
           </div>
 
-          <div class="formula-editor-test">
-            <button class="btn-add-row" (click)="formulaSvc.runFormulaTest()">
-              {{ 'setting.report.designer.formulaTest' | translate }}
-            </button>
-            <span
-              class="formula-status"
-              [class.status-valid]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'valid'"
-              [class.status-error]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'error'"
-              [class.status-empty]="formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField) === 'empty'"
-            >
-              @switch (formulaSvc.getFormulaStatus(formulaSvc.formulaEditorField)) {
-                @case ('empty') {
-                  {{ 'setting.report.designer.noFormula' | translate }}
-                }
-                @case ('valid') {
-                  {{ 'setting.report.designer.formulaValid' | translate }}
-                }
-                @case ('error') {
-                  {{ 'setting.report.designer.formulaError' | translate }}
-                }
-              }
-            </span>
-            @if (formulaSvc.formulaTestResult) {
-              <span class="formula-test-result">= {{ formulaSvc.formulaTestResult }}</span>
-            }
+          <div [hidden]="formulaSvc.formulaTabId() !== 'variables'">
+            <app-property-grid
+              [object]="formulaSvc.formulaTestData"
+              [metadata]="formulaSvc.formulaTestMetadata"
+            ></app-property-grid>
+          </div>
+
+          <div [hidden]="formulaSvc.formulaTabId() !== 'explanations'">
+            <div class="manual-content" [innerHTML]="formulaSvc.manualContent()"></div>
           </div>
         </div>
       </div>

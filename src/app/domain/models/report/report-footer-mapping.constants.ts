@@ -6,6 +6,7 @@ export const FOOTER_TO_COLUMN_MAP: Record<string, string> = {
   'sum.workDays': 'entry.date',
   'sum.expenses': 'expense.amount',
   'absence.totalCount': 'absence.absenceName',
+  'absence.totalValue': 'absence.value',
   'client.totalCount': 'client.list.name',
   'group.totalCount': 'group.name',
   'shift.totalCount': 'shift.name',

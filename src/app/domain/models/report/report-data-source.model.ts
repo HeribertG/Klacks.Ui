@@ -52,6 +52,7 @@ const ABSENCE_TABLE_FIELDS: DataBindingDefinition[] = [
 
 const ABSENCE_FOOTER_FIELDS: DataBindingDefinition[] = [
   { key: 'absence.totalCount', label: 'Anzahl Abwesenheiten', i18nKey: 'setting.report.field.absenceTotalCount', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 25 },
+  { key: 'absence.totalValue', label: 'Gesamtwert', i18nKey: 'setting.report.field.absenceTotalValue', type: ReportFieldType.Number, category: FieldCategory.Footer, defaultWidth: 10 },
 ];
 
 const CLIENT_LIST_TABLE_FIELDS: DataBindingDefinition[] = [
