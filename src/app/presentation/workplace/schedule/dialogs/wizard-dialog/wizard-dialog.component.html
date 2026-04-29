@@ -80,6 +80,11 @@
             <span class="badge badge-info">
               {{ "wizard.dialog.stage1" | translate }}: {{ (r.finalStage1Completion * 100).toFixed(1) }}%
             </span>
+            <span class="badge badge-info">
+              {{ "wizard.dialog.shiftCoverage" | translate }}:
+              {{ r.tokenCount }} / {{ r.availableShiftSlots }}
+              ({{ shiftCoveragePercent(r) }}%)
+            </span>
             <span class="badge badge-secondary">
               {{ "wizard.dialog.tokens" | translate }}: {{ r.tokenCount }}
             </span>

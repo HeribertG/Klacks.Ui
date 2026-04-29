@@ -22,6 +22,7 @@ import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
+import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
@@ -142,6 +143,11 @@ export class WizardDialogComponent {
 
   formatHours(value: number): string {
     return value.toFixed(1);
+  }
+
+  shiftCoveragePercent(result: WizardResult): string {
+    if (!result.availableShiftSlots) return '0.0';
+    return ((result.tokenCount / result.availableShiftSlots) * 100).toFixed(1);
   }
 
   private cancelIfRunning(): void {

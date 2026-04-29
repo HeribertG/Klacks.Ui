@@ -24,6 +24,7 @@ export interface WizardResult {
   finalHardViolations: number;
   finalStage1Completion: number;
   tokenCount: number;
+  availableShiftSlots: number;
   tokens: WizardTokenResult[];
 }
 
