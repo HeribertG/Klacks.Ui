@@ -1,3 +1,4 @@
+@use 'src/assets/standard-styles/colors.scss' as colors;
 @use 'src/assets/standard-styles/standard-modal.scss';
 @use 'src/assets/standard-styles/modal-buttons.scss';
 
@@ -25,7 +26,7 @@
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
-    color: #fff;
+    color: colors.$standartWhiteColor;
     transition: width 0.4s ease;
   }
 }
@@ -43,23 +44,23 @@
     font-weight: 600;
 
     &.badge-success {
-      background-color: var(--standartGreenColor, #28a745);
-      color: #fff;
+      background-color: var(--standartGreenColor);
+      color: colors.$standartWhiteColor;
     }
 
     &.badge-danger {
-      background-color: var(--standartRedColor, #dc3545);
-      color: #fff;
+      background-color: var(--standartRedColor);
+      color: colors.$standartWhiteColor;
     }
 
     &.badge-info {
-      background-color: #17a2b8;
-      color: #fff;
+      background-color: colors.$standartBlueColor;
+      color: colors.$standartWhiteColor;
     }
 
     &.badge-secondary {
-      background-color: var(--cardBorderColor, #6c757d);
-      color: var(--standartTextColor, #333);
+      background-color: var(--cardBorderColor);
+      color: var(--standartTextColor);
     }
   }
 }
@@ -99,8 +100,8 @@
     max-width: 240px;
 
     .badge-warning {
-      background-color: #ffc107;
-      color: #212529;
+      background-color: var(--badgeCustomerColor);
+      color: var(--colorHeadline);
       font-weight: 600;
       padding: 0.15rem 0.4rem;
       border-radius: 3px;
@@ -117,9 +118,9 @@
 .escalation-summary {
   margin-bottom: 0.75rem;
   font-size: 0.85rem;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
+  background-color: var(--badgeCustomerBackground);
+  border: 1px solid var(--badgeCustomerColor);
+  color: var(--badgeCustomerColor);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
 }
