@@ -2032,6 +2032,8 @@
   "wizard.dialog.apply": "Appliquer",
   "wizard.dialog.applying": "Application en cours...",
   "wizard.dialog.applied": "affectations appliquées avec succès.",
+  "wizard.dialog.retry": "Réessayer",
+  "wizard.dialog.auctionRatio": "Part d'enchère dans la population initiale",
   "wizard.dialog.error.noData": "Aucun service ou collaborateur disponible pour la planification.",
   "wizard.dialog.error.tooLarge": "La vue actuelle contient {{agents}} collaborateurs et {{shifts}} services. L'assistant de remplissage automatique peut traiter au maximum {{maxAgents}} collaborateurs et {{maxShifts}} services par exécution. Veuillez restreindre le planning à un périmètre plus réduit (groupe, équipe ou période plus courte) et réessayer.",
   "shared.row-header.headline": "Nom",

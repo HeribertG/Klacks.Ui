@@ -48,6 +48,11 @@ export class WizardDialogComponent {
 
   readonly appliedCount = signal(0);
 
+  private static readonly AUCTION_RATIO_STORAGE_KEY = 'wizard.auctionRatio';
+  private static readonly AUCTION_RATIO_DEFAULT = 0.5;
+  readonly auctionRatio = signal<number>(this.loadAuctionRatio());
+  readonly auctionRatioPercent = computed(() => Math.round(this.auctionRatio() * 100));
+
   readonly phase = computed<WizardPhase>(() => {
     const ap = this._applyPhase();
     if (ap !== null) return ap;
@@ -157,6 +162,46 @@ export class WizardDialogComponent {
     this.modalRef?.close();
   }
 
+  onAuctionRatioChange(percent: number): void {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    const ratio = clamped / 100;
+    this.auctionRatio.set(ratio);
+    try {
+      localStorage.setItem(WizardDialogComponent.AUCTION_RATIO_STORAGE_KEY, ratio.toString());
+    } catch {
+      // localStorage may be disabled — ignore.
+    }
+  }
+
+  onRetryRun(): void {
+    this._applyPhase.set(null);
+    this._localError.set(null);
+    this.appliedCount.set(0);
+    void this.wizardService.stopConnection();
+    const request = this.buildRequest();
+    if (!request) {
+      if (this._localError() === null) {
+        this._localError.set(this.translate.instant('wizard.dialog.error.noData'));
+      }
+      return;
+    }
+    this.wizardService.start(request).catch((err: unknown) => {
+      this._localError.set(err instanceof Error ? err.message : String(err));
+    });
+  }
+
+  private loadAuctionRatio(): number {
+    try {
+      const raw = localStorage.getItem(WizardDialogComponent.AUCTION_RATIO_STORAGE_KEY);
+      if (raw === null) return WizardDialogComponent.AUCTION_RATIO_DEFAULT;
+      const parsed = parseFloat(raw);
+      if (!Number.isFinite(parsed)) return WizardDialogComponent.AUCTION_RATIO_DEFAULT;
+      return Math.max(0, Math.min(1, parsed));
+    } catch {
+      return WizardDialogComponent.AUCTION_RATIO_DEFAULT;
+    }
+  }
+
   async onApply(): Promise<void> {
     const jobId = this.wizardService.currentJobId();
     if (!jobId) return;
@@ -227,6 +272,7 @@ export class WizardDialogComponent {
       agentIds:     allAgentIds,
       shiftIds:     allShiftIds,
       analyseToken: null,
+      trainingOverrides: { initAuctionRatio: this.auctionRatio() },
     };
   }
 }

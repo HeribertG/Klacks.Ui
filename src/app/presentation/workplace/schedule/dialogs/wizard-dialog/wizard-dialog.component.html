@@ -96,6 +96,21 @@
             </div>
           }
 
+          <div class="auction-ratio-bar">
+            <label for="wizard-auction-ratio">
+              {{ "wizard.dialog.auctionRatio" | translate }}: {{ auctionRatioPercent() }}%
+            </label>
+            <input
+              id="wizard-auction-ratio"
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [value]="auctionRatioPercent()"
+              (input)="onAuctionRatioChange(+($any($event.target).value))"
+            />
+          </div>
+
           @if (sortedTokenRows().length > 0) {
             <div class="result-table-wrapper">
               <table class="table table-sm table-striped">
@@ -173,6 +188,9 @@
       @case ('done') {
         <button type="button" class="normal-btn" (click)="onClose()">
           {{ "close" | translate }}
+        </button>
+        <button type="button" class="normal-btn" (click)="onRetryRun()">
+          {{ "wizard.dialog.retry" | translate }}
         </button>
         <button type="button" class="save-btn" (click)="onApply()">
           {{ "wizard.dialog.apply" | translate }}

@@ -1,11 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+export interface WizardTrainingOverrides {
+  initAuctionRatio?: number;
+}
+
 export interface WizardRequest {
   periodFrom: string;
   periodUntil: string;
   agentIds: string[];
   shiftIds?: string[] | null;
   analyseToken?: string | null;
+  trainingOverrides?: WizardTrainingOverrides | null;
 }
 
 export interface StartWizardResponse {

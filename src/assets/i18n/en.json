@@ -2034,6 +2034,8 @@
   "wizard.dialog.apply": "Apply",
   "wizard.dialog.applying": "Applying...",
   "wizard.dialog.applied": "assignments applied successfully.",
+  "wizard.dialog.retry": "Retry",
+  "wizard.dialog.auctionRatio": "Auction share of the initial population",
   "wizard.dialog.error.noData": "No shifts or clients available for scheduling.",
   "wizard.dialog.error.tooLarge": "The current view contains {{agents}} agents and {{shifts}} shifts. The auto-fill wizard can only handle up to {{maxAgents}} agents and {{maxShifts}} shifts per run. Please narrow the schedule to a smaller scope (group, team, or shorter period) and try again.",
   "shared.row-header.headline": "Name",
