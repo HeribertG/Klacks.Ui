@@ -50,7 +50,7 @@ export class WizardDialogComponent {
 
   private static readonly AUCTION_RATIO_STORAGE_KEY = 'wizard.auctionRatio';
   private static readonly AUCTION_RATIO_DEFAULT = 0.5;
-  readonly auctionRatio = signal<number>(this.loadAuctionRatio());
+  readonly auctionRatio = signal<number>(WizardDialogComponent.loadAuctionRatio());
   readonly auctionRatioPercent = computed(() => Math.round(this.auctionRatio() * 100));
 
   readonly phase = computed<WizardPhase>(() => {
@@ -190,7 +190,7 @@ export class WizardDialogComponent {
     });
   }
 
-  private loadAuctionRatio(): number {
+  private static loadAuctionRatio(): number {
     try {
       const raw = localStorage.getItem(WizardDialogComponent.AUCTION_RATIO_STORAGE_KEY);
       if (raw === null) return WizardDialogComponent.AUCTION_RATIO_DEFAULT;
