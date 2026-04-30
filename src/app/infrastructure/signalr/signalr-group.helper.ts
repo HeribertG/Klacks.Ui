@@ -167,12 +167,6 @@ export class SignalRGroupHelper {
   }
 
   private async replayCachedState(): Promise<void> {
-    if (this._currentGroup) {
-      const cached = this._currentGroup;
-      this._currentGroup = null;
-      await this.performGroupSwitch(cached);
-    }
-
     if (this._selectedGroupId) {
       const hub = this.resolveHub();
       if (hub) {
@@ -182,6 +176,12 @@ export class SignalRGroupHelper {
           // ignored: next reconnect cycle will retry
         }
       }
+    }
+
+    if (this._currentGroup) {
+      const cached = this._currentGroup;
+      this._currentGroup = null;
+      await this.performGroupSwitch(cached);
     }
   }
 
