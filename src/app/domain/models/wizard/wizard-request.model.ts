@@ -24,3 +24,10 @@ export interface CancelWizardResponse {
 export interface ApplyWizardResponse {
   createdWorkIds: string[];
 }
+
+export interface WizardApplyAsScenarioResponse {
+  scenarioId: string;
+  scenarioToken: string;
+  scenarioName: string;
+  createdWorkIds: string[];
+}

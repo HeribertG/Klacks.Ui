@@ -20,6 +20,7 @@ import {
   ApplyWizardResponse,
   CancelWizardResponse,
   StartWizardResponse,
+  WizardApplyAsScenarioResponse,
   WizardRequest,
 } from 'src/app/domain/models/wizard/wizard-request.model';
 import {
@@ -82,6 +83,13 @@ export class DataWizardService implements OnDestroy {
       this.http.post<ApplyWizardResponse>(`${this.apiBase}/Apply`, { jobId }),
     );
     return response.createdWorkIds;
+  }
+
+  async applyAsScenario(jobId: string, groupId: string | null): Promise<WizardApplyAsScenarioResponse> {
+    const response = await firstValueFrom(
+      this.http.post<WizardApplyAsScenarioResponse>(`${this.apiBase}/ApplyAsScenario`, { jobId, groupId }),
+    );
+    return response;
   }
 
   async stopConnection(): Promise<void> {

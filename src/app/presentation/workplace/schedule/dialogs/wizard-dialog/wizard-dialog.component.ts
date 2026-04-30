@@ -20,6 +20,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
@@ -41,6 +43,7 @@ export class WizardDialogComponent {
   private readonly ngbModal = inject(NgbModal);
   readonly wizardService = inject(DataWizardService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
+  private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly translate = inject(TranslateService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
@@ -207,8 +210,25 @@ export class WizardDialogComponent {
     if (!jobId) return;
     this._applyPhase.set('applying');
     try {
-      const ids = await this.wizardService.apply(jobId);
-      this.appliedCount.set(ids.length);
+      if (this.analyseScenarioService.isScenarioMode()) {
+        const ids = await this.wizardService.apply(jobId);
+        this.appliedCount.set(ids.length);
+      } else {
+        const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
+        const result = await this.wizardService.applyAsScenario(jobId, groupId);
+        const newScenario = {
+          id: result.scenarioId,
+          name: result.scenarioName,
+          token: result.scenarioToken,
+          fromDate: '',
+          untilDate: '',
+          createdByUser: '',
+          status: AnalyseScenarioStatus.Active,
+        };
+        this.analyseScenarioService.scenarios.update(list => [...list, newScenario]);
+        this.analyseScenarioService.selectScenario(newScenario);
+        this.appliedCount.set(result.createdWorkIds.length);
+      }
       this._applyPhase.set('applied');
       this.dataManagementSchedule.readDatas();
     } catch (err) {
@@ -271,7 +291,7 @@ export class WizardDialogComponent {
       periodUntil:  formatDateOnly(end),
       agentIds:     allAgentIds,
       shiftIds:     allShiftIds,
-      analyseToken: null,
+      analyseToken: this.analyseScenarioService.activeToken(),
       trainingOverrides: { initAuctionRatio: this.auctionRatio() },
     };
   }
