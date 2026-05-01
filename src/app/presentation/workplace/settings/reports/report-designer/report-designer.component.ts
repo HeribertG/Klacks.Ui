@@ -387,6 +387,21 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
+  setSectionTitle(section: ReportSection, value: string): void {
+    section.title = value;
+    this.emitChange();
+  }
+
+  setSectionWidthPercent(section: ReportSection, raw: string): void {
+    const parsed = parseInt(raw, 10);
+    if (Number.isNaN(parsed)) {
+      section.widthPercent = undefined;
+    } else {
+      section.widthPercent = Math.min(100, Math.max(10, parsed));
+    }
+    this.emitChange();
+  }
+
   getAvailableFooterFields(): DataBindingDefinition[] {
     const dataSets = this.activeDataSets;
     return dataSets.flatMap(ds => ds.footerFields);

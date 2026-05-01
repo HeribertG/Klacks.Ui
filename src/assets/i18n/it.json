@@ -1307,6 +1307,8 @@
   "setting.report.designer.addExpensesTable": "Tabella spese",
   "setting.report.designer.removeTable": "Rimuovi tabella",
   "setting.report.designer.sectionTable": "Tabella",
+  "setting.report.designer.tableTitle": "Titolo tabella",
+  "setting.report.designer.tableWidth": "Larghezza",
   "setting.report.designer.tableFooter": "Piè di tabella",
   "setting.report.designer.enableTableFooter": "Attiva piè di tabella",
   "setting.report.designer.addFooterField": "Aggiungi campo piè",

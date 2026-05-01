@@ -1314,6 +1314,8 @@
   "setting.report.designer.addExpensesTable": "Spesentabelle",
   "setting.report.designer.removeTable": "Tabelle entfernen",
   "setting.report.designer.sectionTable": "Tabelle",
+  "setting.report.designer.tableTitle": "Tabellen-Titel",
+  "setting.report.designer.tableWidth": "Breite",
   "setting.report.designer.tableFooter": "Tabellen-Fusszeile",
   "setting.report.designer.enableTableFooter": "Tabellen-Fusszeile aktivieren",
   "setting.report.designer.addFooterField": "Footer-Feld hinzufügen",

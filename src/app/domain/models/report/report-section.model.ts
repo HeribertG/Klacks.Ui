@@ -12,6 +12,8 @@ export interface ReportSection {
   tableFooterFields?: ReportField[];
   freeTextRows?: FreeTextRow[];
   showFullPeriod?: boolean;
+  widthPercent?: number;
+  title?: string;
 }
 
 export enum ReportSectionType {

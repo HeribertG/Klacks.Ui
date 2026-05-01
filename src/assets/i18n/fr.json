@@ -1307,6 +1307,8 @@
   "setting.report.designer.addExpensesTable": "Tableau des dépenses",
   "setting.report.designer.removeTable": "Supprimer le tableau",
   "setting.report.designer.sectionTable": "Tableau",
+  "setting.report.designer.tableTitle": "Titre du tableau",
+  "setting.report.designer.tableWidth": "Largeur",
   "setting.report.designer.tableFooter": "Pied de tableau",
   "setting.report.designer.enableTableFooter": "Activer le pied de tableau",
   "setting.report.designer.addFooterField": "Ajouter champ pied",

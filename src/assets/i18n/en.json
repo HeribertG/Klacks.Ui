@@ -1307,6 +1307,8 @@
   "setting.report.designer.addExpensesTable": "Expenses Table",
   "setting.report.designer.removeTable": "Remove Table",
   "setting.report.designer.sectionTable": "Table",
+  "setting.report.designer.tableTitle": "Table Title",
+  "setting.report.designer.tableWidth": "Width",
   "setting.report.designer.tableFooter": "Table Footer",
   "setting.report.designer.enableTableFooter": "Enable Table Footer",
   "setting.report.designer.addFooterField": "Add Footer Field",

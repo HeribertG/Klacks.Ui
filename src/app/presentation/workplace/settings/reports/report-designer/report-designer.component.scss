@@ -787,6 +787,38 @@
   border-inline-start: 2px solid var(--standartTextColor);
 }
 
+.section-title-input {
+  flex: 1 1 auto;
+  min-width: 120px;
+  max-width: 240px;
+  margin-inline-start: 12px;
+  padding: 2px 6px;
+  font-size: 11px;
+  border: 1px solid var(--standartBorderColor, #ccc);
+  border-radius: 3px;
+  background: var(--standartBackgroundColor, transparent);
+  color: var(--standartTextColor);
+}
+
+.section-width-percent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--standartTextColor);
+  margin-inline-start: 12px;
+
+  input[type="number"] {
+    width: 50px;
+    padding: 2px 4px;
+    font-size: 11px;
+    border: 1px solid var(--standartBorderColor, #ccc);
+    border-radius: 3px;
+    background: var(--standartBackgroundColor, transparent);
+    color: var(--standartTextColor);
+  }
+}
+
 .section-show-full-period {
   display: flex;
   align-items: center;

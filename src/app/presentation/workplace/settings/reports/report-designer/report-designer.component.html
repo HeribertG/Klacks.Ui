@@ -821,6 +821,25 @@
                 {{ "setting.report.designer.sectionTable" | translate }}
                 {{ idx + 1 }}
               </span>
+              <input
+                type="text"
+                class="section-title-input"
+                [value]="section.title ?? ''"
+                (input)="setSectionTitle(section, $any($event.target).value)"
+                [placeholder]="'setting.report.designer.tableTitle' | translate"
+              />
+              <label class="section-width-percent">
+                {{ "setting.report.designer.tableWidth" | translate }}
+                <input
+                  type="number"
+                  min="10"
+                  max="100"
+                  step="5"
+                  [value]="section.widthPercent ?? 100"
+                  (input)="setSectionWidthPercent(section, $any($event.target).value)"
+                />
+                %
+              </label>
               @if (sourceId === 'schedule') {
                 <label class="section-show-full-period">
                   <input

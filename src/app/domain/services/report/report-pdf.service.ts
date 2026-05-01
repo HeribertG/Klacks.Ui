@@ -141,6 +141,25 @@ export class ReportPdfService {
     return this.fillFullPeriod(filtered, headerContext.startDate!, headerContext.endDate!);
   }
 
+  private clampWidthPercent(value: number | undefined): number {
+    if (value === undefined || value === null) return 100;
+    if (value < 10) return 10;
+    if (value > 100) return 100;
+    return value;
+  }
+
+  private renderSectionTitle(ctx: PdfRenderContext, title: string, tableWidth: number, yPos: number): number {
+    const fontSize = 11;
+    ctx.doc.setFont('helvetica', 'bold');
+    ctx.doc.setFontSize(fontSize);
+    this.applyTextColor(ctx.doc, '#000000');
+
+    const textY = yPos + fontSize * 0.35;
+    const textX = this.isRtl ? ctx.marginLeft + tableWidth - ctx.doc.getTextWidth(title) : ctx.marginLeft;
+    ctx.doc.text(title, textX, textY);
+    return yPos + fontSize * 0.5 + 2;
+  }
+
   private filterRowsBySectionType(section: ReportSection, rows: any[]): any[] {
     const hasExpenseFields = section.fields.some(f => f.dataBinding?.startsWith('expense.'));
     if (hasExpenseFields) {
@@ -351,9 +370,16 @@ export class ReportPdfService {
   }
 
   private renderTable(ctx: PdfRenderContext, section: ReportSection, rows: any[], yPos: number): number {
+    const widthPercent = this.clampWidthPercent(section.widthPercent);
+    const tableWidth = ctx.contentWidth * (widthPercent / 100);
+
+    if (section.title && section.title.trim().length > 0) {
+      yPos = this.renderSectionTitle(ctx, section.title.trim(), tableWidth, yPos);
+    }
+
     const fields = section.fields.sort((a, b) => a.sortOrder - b.sortOrder);
     const columns = this.resolveTableColumns(fields, ctx.template);
-    const columnStyles = this.buildColumnStyles(fields, ctx.contentWidth);
+    const columnStyles = this.buildColumnStyles(fields, tableWidth);
 
     const compiledFormulas = this.compileTableFormulas(fields);
     const resolvedRows = this.resolveTableRows(fields, rows, ctx.provider, compiledFormulas);
@@ -401,7 +427,7 @@ export class ReportPdfService {
     autoTable(ctx.doc, {
       startY: yPos,
       margin: { left: ctx.marginLeft },
-      tableWidth: ctx.contentWidth,
+      tableWidth,
       columns,
       body: bodyData,
       foot,
