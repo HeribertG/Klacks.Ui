@@ -21,7 +21,7 @@ import { getAllFieldsForDataSets, getFieldPrefixMap } from '../../models/report/
 import { ReportDataProvider, ReportHeaderContext, ReportData } from './report-data-provider.service';
 import { PdfRenderContext } from './pdf-render-context.interface';
 import { BorderLineStyle, BORDER_LINE_WIDTHS } from '../../models/report/cell-border-style.model';
-import { IScheduleCell } from '../../models/schedule/work-schedule-class';
+import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
 import { FOOTER_TO_COLUMN_MAP } from '../../models/report/report-footer-mapping.constants';
 import { FormulaEvaluationService } from './formula-evaluation.service';
 import { CompiledScript } from 'src/app/infrastructure/scripting/compiled-script';
@@ -134,10 +134,21 @@ export class ReportPdfService {
     headerContext: ReportHeaderContext
   ): any[] {
     if (template.sourceId !== 'schedule') return rows;
+    const filtered = this.filterRowsBySectionType(section, rows);
     const sectionFlag = section.showFullPeriod;
     const effectiveFlag = sectionFlag ?? template.showFullPeriod;
-    if (!effectiveFlag) return rows;
-    return this.fillFullPeriod(rows, headerContext.startDate!, headerContext.endDate!);
+    if (!effectiveFlag) return filtered;
+    return this.fillFullPeriod(filtered, headerContext.startDate!, headerContext.endDate!);
+  }
+
+  private filterRowsBySectionType(section: ReportSection, rows: any[]): any[] {
+    if (section.type === ReportSectionType.ExpensesTable) {
+      return rows.filter(r => r.entryType === WorkScheduleEntryType.Expenses);
+    }
+    if (section.type === ReportSectionType.WorkTable) {
+      return rows.filter(r => r.entryType !== WorkScheduleEntryType.Expenses);
+    }
+    return rows;
   }
 
   private async preloadImages(template: ReportTemplate, existingCache?: Map<string, string>): Promise<Map<string, string>> {
