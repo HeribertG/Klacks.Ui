@@ -378,6 +378,15 @@ export class ReportDesignerComponent implements OnChanges {
     this.emitChange();
   }
 
+  isSectionShowFullPeriod(section: ReportSection): boolean {
+    return section.showFullPeriod ?? this.template.showFullPeriod ?? false;
+  }
+
+  toggleSectionShowFullPeriod(section: ReportSection, value: boolean): void {
+    section.showFullPeriod = value;
+    this.emitChange();
+  }
+
   getAvailableFooterFields(): DataBindingDefinition[] {
     const dataSets = this.activeDataSets;
     return dataSets.flatMap(ds => ds.footerFields);

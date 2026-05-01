@@ -106,27 +106,38 @@ export class ReportPdfService {
       yPos += 5;
     }
 
-    let effectiveRows = rows;
-    if (template.sourceId === 'schedule' && template.showFullPeriod) {
-      effectiveRows = this.fillFullPeriod(effectiveRows, headerContext.startDate!, headerContext.endDate!);
-    }
-
     const bodySections = template.sections
       .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
       .sort((a, b) => a.sortOrder - b.sortOrder);
 
+    let lastEffectiveRows = rows;
     for (const section of bodySections) {
       if (!section.visible || section.fields.length === 0) continue;
-      if (effectiveRows.length > 0) {
-        yPos = this.renderTable(ctx, section, effectiveRows, yPos);
+      const sectionRows = this.resolveSectionRows(template, section, rows, headerContext);
+      lastEffectiveRows = sectionRows;
+      if (sectionRows.length > 0) {
+        yPos = this.renderTable(ctx, section, sectionRows, yPos);
         yPos += 5;
       }
     }
 
     const footerSection = template.sections.find(s => s.type === ReportSectionType.Footer);
     if (footerSection?.visible && footerSection.fields.length > 0) {
-      this.renderFooter(ctx, footerSection, effectiveRows, yPos);
+      this.renderFooter(ctx, footerSection, lastEffectiveRows, yPos);
     }
+  }
+
+  private resolveSectionRows(
+    template: ReportTemplate,
+    section: ReportSection,
+    rows: any[],
+    headerContext: ReportHeaderContext
+  ): any[] {
+    if (template.sourceId !== 'schedule') return rows;
+    const sectionFlag = section.showFullPeriod;
+    const effectiveFlag = sectionFlag ?? template.showFullPeriod;
+    if (!effectiveFlag) return rows;
+    return this.fillFullPeriod(rows, headerContext.startDate!, headerContext.endDate!);
   }
 
   private async preloadImages(template: ReportTemplate, existingCache?: Map<string, string>): Promise<Map<string, string>> {
@@ -361,7 +372,8 @@ export class ReportPdfService {
     const bodyData: any[] = [];
     this.buildFreeTextRows(section, fields, 'before', bodyData);
 
-    const shouldMerge = (ctx.template.mergeRows || ctx.template.showFullPeriod) && ctx.template.sourceId === 'schedule';
+    const sectionShowFullPeriod = section.showFullPeriod ?? ctx.template.showFullPeriod;
+    const shouldMerge = (ctx.template.mergeRows || sectionShowFullPeriod) && ctx.template.sourceId === 'schedule';
     if (shouldMerge) {
       this.buildMergedRows(resolvedRows, fields, bodyData);
     } else {

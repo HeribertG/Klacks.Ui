@@ -787,6 +787,20 @@
   border-inline-start: 2px solid var(--standartTextColor);
 }
 
+.section-show-full-period {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--standartTextColor);
+  margin-inline-start: 12px;
+
+  input[type="checkbox"] {
+    margin: 0;
+  }
+}
+
 // --- Table Footer ---
 
 .table-footer-section {

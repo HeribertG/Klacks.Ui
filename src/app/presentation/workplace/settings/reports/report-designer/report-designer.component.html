@@ -821,6 +821,16 @@
                 {{ "setting.report.designer.sectionTable" | translate }}
                 {{ idx + 1 }}
               </span>
+              @if (sourceId === 'schedule') {
+                <label class="section-show-full-period">
+                  <input
+                    type="checkbox"
+                    [checked]="isSectionShowFullPeriod(section)"
+                    (change)="toggleSectionShowFullPeriod(section, $any($event.target).checked)"
+                  />
+                  {{ "setting.report.field.showFullPeriod" | translate }}
+                </label>
+              }
               <span class="table-section-spacer"></span>
               <button
                 class="chip-btn remove table-remove"

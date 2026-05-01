@@ -11,6 +11,7 @@ export interface ReportSection {
   sortOrder: number;
   tableFooterFields?: ReportField[];
   freeTextRows?: FreeTextRow[];
+  showFullPeriod?: boolean;
 }
 
 export enum ReportSectionType {
