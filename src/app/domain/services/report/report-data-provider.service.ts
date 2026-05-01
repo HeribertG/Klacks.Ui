@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { ReportField } from '../../models/report/report-field.model';
 import { ExternalVariables } from 'src/app/infrastructure/scripting/script.service';
 import { IScheduleCell, WorkScheduleEntryType } from '../../models/schedule/work-schedule-class';
+import { WorkChangeType } from '../../models/workchange/work-change';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
@@ -618,15 +619,33 @@ export class ReportDataProviderService {
         : this.translate.instant('workChange.abbr.reimbursement');
     }
     if (entry.entryType === WorkScheduleEntryType.WorkChange) {
-      if (entry.replaceClientId) {
-        return this.translate.instant('workChange.abbr.replacement');
-      }
-      return this.translate.instant('workChange.abbr.correction');
+      return this.translate.instant(this.resolveWorkChangeAbbrKey(entry));
     }
     if (entry.entryType === WorkScheduleEntryType.Break) {
       const lang = this.translate.currentLang || 'de';
       return this.absenceLookup.getAbbreviationForEntryId(entry.entryId, lang);
     }
     return entry.abbreviation ?? '';
+  }
+
+  private resolveWorkChangeAbbrKey(entry: IScheduleCell): string {
+    switch (entry.workChangeType) {
+      case WorkChangeType.Briefing: return 'workChange.abbr.briefing';
+      case WorkChangeType.Debriefing: return 'workChange.abbr.debriefing';
+      case WorkChangeType.TravelStart: return 'workChange.abbr.travelStart';
+      case WorkChangeType.TravelEnd: return 'workChange.abbr.travelEnd';
+      case WorkChangeType.TravelWithin: return 'workChange.abbr.travelWithin';
+      case WorkChangeType.ReplacementStart:
+      case WorkChangeType.ReplacementEnd:
+      case WorkChangeType.ReplacementWithin:
+        return 'workChange.abbr.replacement';
+      case WorkChangeType.CorrectionStart:
+      case WorkChangeType.CorrectionEnd:
+        return 'workChange.abbr.correction';
+      default:
+        return entry.replaceClientId
+          ? 'workChange.abbr.replacement'
+          : 'workChange.abbr.correction';
+    }
   }
 }
