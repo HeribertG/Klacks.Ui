@@ -142,13 +142,14 @@ export class ReportPdfService {
   }
 
   private filterRowsBySectionType(section: ReportSection, rows: any[]): any[] {
+    const hasExpenseFields = section.fields.some(f => f.dataBinding?.startsWith('expense.'));
+    if (hasExpenseFields) {
+      return rows.filter(r => r.entryType === WorkScheduleEntryType.Expenses);
+    }
     if (section.type === ReportSectionType.ExpensesTable) {
       return rows.filter(r => r.entryType === WorkScheduleEntryType.Expenses);
     }
-    if (section.type === ReportSectionType.WorkTable) {
-      return rows.filter(r => r.entryType !== WorkScheduleEntryType.Expenses);
-    }
-    return rows;
+    return rows.filter(r => r.entryType !== WorkScheduleEntryType.Expenses);
   }
 
   private async preloadImages(template: ReportTemplate, existingCache?: Map<string, string>): Promise<Map<string, string>> {
