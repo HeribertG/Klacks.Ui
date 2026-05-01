@@ -381,6 +381,7 @@ export class ReportPdfService {
       columns,
       body: bodyData,
       foot,
+      showFoot: 'lastPage',
       columnStyles: columnStyles as never,
       headStyles: {
         fillColor: [66, 66, 66],
