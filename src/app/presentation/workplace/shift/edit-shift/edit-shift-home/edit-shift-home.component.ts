@@ -95,7 +95,6 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
-    this.savebarService.setSavebarVisibility(true);
 
     this.dataManagementShiftService.onBeforeSave = () => {
       this.shiftFormService.applyFormToShift();
@@ -107,6 +106,8 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
     ]).pipe(takeUntil(this.destroy$)).subscribe(([params, queryParams]) => {
       this.isReadOnly = queryParams['readonly'] === 'true';
       this.returnUrl = queryParams['returnUrl'] || null;
+
+      this.savebarService.setSavebarVisibility(!this.isReadOnly);
 
       if (this.returnUrl) {
         this.dataManagementShiftService.returnUrl = this.returnUrl;
