@@ -10,6 +10,7 @@
  * @param router - Navigation to address details
  * @param dataService - Grid data (rows, groups, clients)
  * @param dataManagementSchedule - Visible time period for report
+ * @param scheduleChangeService - Tracks and clears per-client dirty state after schedule send
  */
 import { inject, Injectable, computed } from '@angular/core';
 import { Router } from '@angular/router';
@@ -21,6 +22,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
@@ -35,6 +37,7 @@ export class RowHeaderReportService {
   private router = inject(Router);
   private dataService = inject(BaseDataService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private scheduleChangeService = inject(ScheduleChangeService);
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -128,6 +131,7 @@ export class RowHeaderReportService {
       if (!response) return;
 
       if (response.success) {
+        this.scheduleChangeService.clearDirty(client.id);
         const msg = this.translateService.instant('schedule.send.success', {
           email: response.clientEmail,
         });

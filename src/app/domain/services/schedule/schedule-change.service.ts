@@ -62,6 +62,11 @@ export class ScheduleChangeService {
     return this.dirtyClientIds.has(clientId);
   }
 
+  clearDirty(clientId: string): void {
+    this.dirtyClientIds.delete(clientId);
+    this.dirtyStateUpdated.set(Date.now());
+  }
+
   clear(): void {
     this.dirtyClientIds.clear();
     this.dirtyStateUpdated.set(Date.now());
