@@ -188,11 +188,15 @@ export class EditShiftWeekdayComponent
     const allWeekdaysSelected = shift.isMonday && shift.isTuesday && shift.isWednesday && 
                                shift.isThursday && shift.isFriday && shift.isSaturday && shift.isSunday;
 
-    // If all weekdays are selected, automatically set isWeekdayAndHoliday and disable isHoliday
     if (allWeekdaysSelected) {
       shift.isWeekdayAndHoliday = true;
       shift.isHoliday = false;
       this.isHolidayDisabled = true;
+      const dummy = this.dataManagementShiftService.editShiftDummy;
+      if (dummy) {
+        dummy.isWeekdayAndHoliday = true;
+        dummy.isHoliday = false;
+      }
     } else {
       this.isHolidayDisabled = false;
     }

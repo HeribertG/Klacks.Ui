@@ -166,6 +166,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
     this.manualEntityName.set('');
     this.spinnerService.interceptorSuppressed =
       WorkplaceStateService.INTERCEPTOR_SUPPRESSED_ROUTES.has(routeId);
+    this.resetAllSignals();
   }
 
   public setNameOfVisibleEntity(entityName: EntityName): void {
