@@ -308,14 +308,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   onHarmonizerClick(): void {
-    if (!this.hasSavedSchedule()) return;
     this.harmonizerDialog.open();
-  }
-
-  hasSavedSchedule(): boolean {
-    const clients = this.dataManagementSchedule.clients;
-    if (!clients?.length) return false;
-    return clients.some(c => c.works?.length > 0);
   }
 
   async onSendAllSchedules(): Promise<void> {
