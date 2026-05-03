@@ -89,6 +89,19 @@
   <app-wizard-dialog #wizardDialog />
 
   <button
+    id="schedule-harmonizer-btn"
+    type="button"
+    class="icon-button harmonizer-button"
+    (click)="onHarmonizerClick()"
+    [disabled]="!hasSavedSchedule()"
+    ngbTooltip="{{ 'harmonizer.dialog.title' | translate }}"
+  >
+    <app-icon-harmonizer />
+  </button>
+
+  <app-harmonizer-dialog #harmonizerDialog />
+
+  <button
     id="schedule-pdf-export-btn"
     type="button"
     class="icon-button pdf-export-button"

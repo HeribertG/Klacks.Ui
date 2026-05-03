@@ -1,0 +1,99 @@
+@if (true) {
+  <ng-template #harmonizerModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ 'harmonizer.dialog.title' | translate }}</h5>
+    </div>
+    <div class="modal-body">
+
+      @if (phase() === 'running') {
+        <div class="phase running">
+          <p class="hint">{{ 'harmonizer.dialog.hint.running' | translate }}</p>
+          <div class="progress-bar-outer">
+            <div class="progress-bar-inner" [style.width.%]="progressPercent()"></div>
+          </div>
+          <div class="progress-meta">
+            <span>{{ 'harmonizer.dialog.label.generation' | translate }}: {{ harmonizerService.progress()?.generation ?? 0 }} / {{ harmonizerService.progress()?.maxGenerations ?? 0 }}</span>
+            <span>{{ 'harmonizer.dialog.label.bestFitness' | translate }}: {{ bestFitnessPercent() }}%</span>
+          </div>
+        </div>
+      }
+
+      @if (phase() === 'done' || phase() === 'applying' || phase() === 'applied') {
+        <div class="phase done">
+          @if (harmonizerService.result(); as r) {
+            <div class="summary">
+              <div><strong>{{ 'harmonizer.dialog.label.fitnessBefore' | translate }}:</strong> {{ formatScore(r.globalFitnessBefore) }}%</div>
+              <div><strong>{{ 'harmonizer.dialog.label.fitnessAfter' | translate }}:</strong> {{ formatScore(r.globalFitnessAfter) }}%</div>
+              <div><strong>{{ 'harmonizer.dialog.label.delta' | translate }}:</strong> +{{ fitnessDeltaPercent() }}%</div>
+              <div><strong>{{ 'harmonizer.dialog.label.generations' | translate }}:</strong> {{ r.generationsRun }}</div>
+            </div>
+            <table class="row-results">
+              <thead>
+                <tr>
+                  <th>{{ 'harmonizer.dialog.col.agent' | translate }}</th>
+                  <th>{{ 'harmonizer.dialog.col.before' | translate }}</th>
+                  <th>{{ 'harmonizer.dialog.col.after' | translate }}</th>
+                  <th>{{ 'harmonizer.dialog.col.emergency' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of r.rowResults; track row.agentId) {
+                  <tr>
+                    <td>{{ resolveAgentName(row.agentId) }}</td>
+                    <td>{{ formatScore(row.scoreBefore) }}%</td>
+                    <td>{{ formatScore(row.scoreAfter) }}%</td>
+                    <td>{{ row.emergencyUnlockTriggered ? '⚠' : '' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          @if (phase() === 'applying') {
+            <p class="apply-hint">{{ 'harmonizer.dialog.hint.applying' | translate }}</p>
+          }
+          @if (phase() === 'applied') {
+            <p class="apply-success">{{ 'harmonizer.dialog.hint.applied' | translate: { name: appliedScenarioName() } }}</p>
+          }
+        </div>
+      }
+
+      @if (phase() === 'error') {
+        <div class="phase error">
+          <p class="error-message">{{ errorMessage() }}</p>
+        </div>
+      }
+
+      @if (phase() === 'cancelled') {
+        <div class="phase cancelled">
+          <p>{{ 'harmonizer.dialog.hint.cancelled' | translate }}</p>
+        </div>
+      }
+
+    </div>
+    <div class="modal-footer">
+      @if (phase() === 'running') {
+        <button class="btn btn-secondary" type="button" (click)="onCancel()">
+          {{ 'harmonizer.dialog.button.cancel' | translate }}
+        </button>
+      }
+      @if (phase() === 'done') {
+        <button class="btn btn-secondary" type="button" (click)="onClose()">
+          {{ 'harmonizer.dialog.button.close' | translate }}
+        </button>
+        <button class="btn btn-primary" type="button" (click)="onApply()">
+          {{ 'harmonizer.dialog.button.apply' | translate }}
+        </button>
+      }
+      @if (phase() === 'applying') {
+        <button class="btn btn-secondary" type="button" disabled>
+          {{ 'harmonizer.dialog.button.applying' | translate }}
+        </button>
+      }
+      @if (phase() === 'applied' || phase() === 'error' || phase() === 'cancelled') {
+        <button class="btn btn-primary" type="button" (click)="onClose()">
+          {{ 'harmonizer.dialog.button.close' | translate }}
+        </button>
+      }
+    </div>
+  </ng-template>
+}

@@ -47,6 +47,8 @@ import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component'
 import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
+import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
+import { IconHarmonizerComponent } from 'src/app/presentation/icons/icon-harmonizer.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
@@ -90,6 +92,8 @@ const DEFAULT_ZOOM_VALUE = 100;
     IconAvailabilityCheckComponent,
     IconWizardComponent,
     WizardDialogComponent,
+    IconHarmonizerComponent,
+    HarmonizerDialogComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -100,6 +104,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('scheduleCommandsIcon') scheduleCommandsIcon!: IconThunderCircleComponent;
   @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
+  @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -300,6 +305,17 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onWizardClick(): void {
     this.wizardDialog.open();
+  }
+
+  onHarmonizerClick(): void {
+    if (!this.hasSavedSchedule()) return;
+    this.harmonizerDialog.open();
+  }
+
+  hasSavedSchedule(): boolean {
+    const clients = this.dataManagementSchedule.clients;
+    if (!clients?.length) return false;
+    return clients.some(c => c.works?.length > 0);
   }
 
   async onSendAllSchedules(): Promise<void> {
