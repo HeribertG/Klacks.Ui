@@ -19,6 +19,9 @@
     (click)="onCanvasClick($event)"
     (contextmenu)="onRightClick($event)"
   ></canvas>
+  <div style="position:absolute;top:0;left:0;z-index:9999;background:yellow;color:red;font-size:11px;pointer-events:none;padding:2px">
+    DBG:{{ sortedClients.length }}
+  </div>
   <div class="drag-overlay"
        cdkDropList
        [cdkDropListData]="sortedClients"
