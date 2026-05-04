@@ -33,7 +33,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
@@ -75,6 +75,7 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
     CdkDrag,
     CdkDropList,
     CdkDragPlaceholder,
+    CdkDragHandle,
   ],
   providers: [
     BaseCreateRowHeaderService,
@@ -210,6 +211,8 @@ export class ScheduleScheduleRowHeaderComponent
             this.drawRowHeader.rebuild();
             this.drawRowHeader.redraw();
           }
+          this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
+          this.cdr.markForCheck();
         }, 0);
       });
       this.effects.push(zoomEffect);
@@ -406,6 +409,7 @@ export class ScheduleScheduleRowHeaderComponent
 
     void this.clientSortPreference.save(groupId, this.sortedClients).catch(() => {
       this.sortedClients = previousOrder;
+      this.cdr.markForCheck();
       this.toastShow.showError('Failed to save client order. Please try again.');
     });
   }

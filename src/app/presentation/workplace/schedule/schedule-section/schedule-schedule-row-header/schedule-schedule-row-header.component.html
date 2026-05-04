@@ -23,15 +23,16 @@
        cdkDropList
        [cdkDropListData]="sortedClients"
        (cdkDropListDropped)="onClientDrop($event)"
+       [style.top.px]="settings.cellHeaderHeight"
        [style.transform]="'translateY(-' + scrollOffsetPx + 'px)'">
     @for (client of sortedClients; track client.id) {
       <div class="drag-row"
            cdkDrag
-           [style.height.px]="settings.getGroupLineHeight(client.neededRows)">
-        <i class="fa fa-grip-vertical drag-handle"></i>
+           [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
+        <i class="fa fa-grip-vertical drag-handle" cdkDragHandle></i>
         <div *cdkDragPlaceholder
              class="drag-placeholder"
-             [style.height.px]="settings.getGroupLineHeight(client.neededRows)">
+             [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
         </div>
       </div>
     }

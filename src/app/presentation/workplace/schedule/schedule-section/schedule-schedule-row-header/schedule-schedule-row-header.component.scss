@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   background: transparent;
-  pointer-events: all;
+  pointer-events: none;
   cursor: grab;
   box-sizing: border-box;
 
@@ -35,7 +35,7 @@
     padding-left: 6px;
     font-size: 14px;
     transition: opacity 0.15s ease;
-    pointer-events: none;
+    pointer-events: all;
   }
 
   &:hover .drag-handle {
