@@ -130,6 +130,11 @@ export class ScheduleScheduleRowHeaderComponent
     document.body.style.cursor = cursor;
   }
 
+  private syncSortedClients(): void {
+    this.sortedClients = [...this.dataManagementSchedule.clients];
+    this.cdr.markForCheck();
+  }
+
   ngOnInit(): void {
     this.destroyFilter();
     this.drawRowHeader.filterImage = this.rowHeaderIcons.sortingPicto;
@@ -139,6 +144,7 @@ export class ScheduleScheduleRowHeaderComponent
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.readSignals();
+    this.syncSortedClients();
 
     this.contextMenu?.hasClicked
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -220,8 +226,7 @@ export class ScheduleScheduleRowHeaderComponent
       const refreshEffect = effect(() => {
         this.dataService.refreshSignal();
         this.drawRowHeader.redraw();
-        this.sortedClients = [...this.dataManagementSchedule.clients];
-        this.cdr.markForCheck();
+        this.syncSortedClients();
       });
       this.effects.push(refreshEffect);
 
@@ -229,8 +234,7 @@ export class ScheduleScheduleRowHeaderComponent
         const readState = this.dataManagementSchedule.isRead();
         if (readState.count > 0) {
           this.drawRowHeader.redraw();
-          this.sortedClients = [...this.dataManagementSchedule.clients];
-          this.cdr.markForCheck();
+          this.syncSortedClients();
         }
       });
       this.effects.push(dataReadEffect);
@@ -256,6 +260,7 @@ export class ScheduleScheduleRowHeaderComponent
 
         if (this.drawRowHeader.isCanvasAvailable()) {
           this.drawRowHeader.redraw();
+          this.syncSortedClients();
         }
       });
       this.effects.push(periodHoursEffect);
