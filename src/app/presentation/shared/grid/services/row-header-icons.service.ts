@@ -200,8 +200,8 @@ export class RowHeaderIconsService {
       if (grip) {
         const color = this.gridColors.headerForeGroundColor;
         const pixelRatio = DrawHelper.pixelRatio();
-        const displayW = Math.max(1, Math.round(this._width / 2));
-        const displayH = this._height;
+        const displayW = Math.max(1, Math.round(this._width * 0.4));
+        const displayH = Math.round(this._height * 0.65);
         const canvas = DrawHelper.createSVG(
           grip.data,
           color,

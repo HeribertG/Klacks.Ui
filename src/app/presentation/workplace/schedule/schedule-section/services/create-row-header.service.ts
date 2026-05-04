@@ -70,7 +70,7 @@ export class BaseCreateRowHeaderService {
   }
 
   private get gripAreaWidth(): number {
-    return this.margin + Math.round(this.iconWidth / 2);
+    return this.margin + Math.round(this.iconWidth * 0.4);
   }
 
   createCell(row: number, width: number): GridRowHeader | undefined {
@@ -371,7 +371,7 @@ export class BaseCreateRowHeaderService {
     const y = Math.round((height - iconH) / 2);
 
     ctx.save();
-    ctx.globalAlpha = 0.6;
+    ctx.globalAlpha = 0.5;
     ctx.drawImage(icon, x, y, iconW, iconH);
     ctx.restore();
   }
