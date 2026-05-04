@@ -371,7 +371,7 @@ export class BaseCreateRowHeaderService {
     const y = Math.round((height - iconH) / 2);
 
     ctx.save();
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.6;
     ctx.drawImage(icon, x, y, iconW, iconH);
     ctx.restore();
   }

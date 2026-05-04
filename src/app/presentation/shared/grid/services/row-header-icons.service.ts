@@ -199,19 +199,23 @@ export class RowHeaderIconsService {
       const grip = this.dataArray.find((x) => x.key === 'gripPicto');
       if (grip) {
         const color = this.gridColors.headerForeGroundColor;
-        const gripWidth = Math.max(1, Math.round(this._width / 2));
-        const gripHeight = this._height;
-        this._gripPicto = DrawHelper.createSVG(
+        const pixelRatio = DrawHelper.pixelRatio();
+        const displayW = Math.max(1, Math.round(this._width / 2));
+        const displayH = this._height;
+        const canvas = DrawHelper.createSVG(
           grip.data,
           color,
           color,
           this._defaultBackGroundColor,
-          gripWidth,
-          gripHeight,
+          displayW * pixelRatio,
+          displayH * pixelRatio,
           grip.strokeWidth,
           grip.viewSizeWidth,
           grip.viewSizeHeight
         );
+        canvas.style.width = `${displayW}px`;
+        canvas.style.height = `${displayH}px`;
+        this._gripPicto = canvas;
       }
     }
     return this._gripPicto;

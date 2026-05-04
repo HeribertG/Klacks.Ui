@@ -28,6 +28,7 @@
     @for (client of sortedClients; track client.id) {
       <div class="drag-row"
            cdkDrag
+           cdkDragLockAxis="y"
            [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
         <div class="drag-handle" cdkDragHandle
              (mousedown)="preparePreview(client)"></div>
