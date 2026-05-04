@@ -2,6 +2,8 @@
 
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { AnalyseScenarioStatus, IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { DataAnalyseScenarioService } from 'src/app/infrastructure/api/schedule/data-analyse-scenario.service';
@@ -98,6 +100,25 @@ describe('AnalyseScenarioService', () => {
 
       // Assert
       expect(service.activeToken()).toBe('my-special-token');
+    });
+  });
+
+  describe('renameScenario', () => {
+    it('should update name in scenarios list and active scenario', () => {
+      // Arrange
+      const scenario = createScenario({ id: 'sc-1', name: 'Old Name' });
+      const updated = { ...scenario, name: 'New Name' };
+      const dataService = TestBed.inject(DataAnalyseScenarioService) as unknown as { rename: ReturnType<typeof vi.fn> };
+      dataService.rename = vi.fn().mockReturnValue(of(updated));
+
+      service.scenarios.set([scenario]);
+      service.activeScenario.set(scenario);
+
+      // Act & Assert
+      service.renameScenario('sc-1', 'New Name').subscribe(() => {
+        expect(service.scenarios()[0].name).toBe('New Name');
+        expect(service.activeScenario()?.name).toBe('New Name');
+      });
     });
   });
 });

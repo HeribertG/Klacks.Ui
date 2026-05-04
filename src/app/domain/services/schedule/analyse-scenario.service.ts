@@ -9,7 +9,7 @@
  */
 
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import {
   AnalyseScenarioStatus,
   IAnalyseScenario,
@@ -77,6 +77,20 @@ export class AnalyseScenarioService {
           this.activeScenario.set(null);
         }
       })
+    );
+  }
+
+  renameScenario(id: string, name: string): Observable<void> {
+    return this.dataService.rename(id, name).pipe(
+      tap(updated => {
+        this.scenarios.update(list =>
+          list.map(s => (s.id === id ? { ...s, name: updated.name } : s))
+        );
+        if (this.activeScenario()?.id === id) {
+          this.activeScenario.update(s => (s ? { ...s, name: updated.name } : s));
+        }
+      }),
+      map(() => undefined as void),
     );
   }
 }

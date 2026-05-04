@@ -59,4 +59,10 @@ export class DataAnalyseScenarioService {
       .delete<void>(`${this.baseUrl}/${id}`)
       .pipe(retry(3));
   }
+
+  rename(id: string, name: string): Observable<IAnalyseScenario> {
+    return this.httpClient
+      .patch<IAnalyseScenario>(`${this.baseUrl}/${id}/Rename`, { name })
+      .pipe(retry(3));
+  }
 }
