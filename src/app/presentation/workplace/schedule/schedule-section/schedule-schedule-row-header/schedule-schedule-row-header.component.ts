@@ -33,6 +33,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { Subject, takeUntil } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
@@ -68,6 +72,9 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
     ClientFilterComponent,
     ContextMenuComponent,
     ShiftPreferencesDialogComponent,
+    CdkDrag,
+    CdkDropList,
+    CdkDragPlaceholder,
   ],
   providers: [
     BaseCreateRowHeaderService,
@@ -96,7 +103,7 @@ export class ScheduleScheduleRowHeaderComponent
   public dataManagementSchedule = inject(DataManagementScheduleService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private injector = inject(Injector);
-  private settings = inject(BaseSettingsService);
+  protected settings = inject(BaseSettingsService);
   private scrollEventService = inject(ScrollEventService);
   private scheduleChangeService = inject(ScheduleChangeService);
   private gridColorService = inject(GridColorService);
@@ -104,12 +111,16 @@ export class ScheduleScheduleRowHeaderComponent
   private tooltipHelper = inject(RowHeaderTooltipService);
   private reportHelper = inject(RowHeaderReportService);
   private cdr = inject(ChangeDetectorRef);
+  private readonly clientSortPreference = inject(ClientSortPreferenceService);
+  private readonly toastShow = inject(ToastShowService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
   private isDestroyed = false;
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
+  protected sortedClients: IClientWork[] = [];
+  protected scrollOffsetPx = 0;
   private filterEl = viewChild<ElementRef>('filterEl');
   private iconSize = 16;
   private contextMenuRow = -1;
@@ -164,6 +175,7 @@ export class ScheduleScheduleRowHeaderComponent
       const currV = changes['valueChangeVScrollbar'].currentValue;
       if (currV !== prevV) {
         this.scroll.verticalScrollPosition = currV;
+        this.scrollOffsetPx = currV * this.settings.cellHeight;
       }
     }
   }
@@ -212,6 +224,8 @@ export class ScheduleScheduleRowHeaderComponent
         const readState = this.dataManagementSchedule.isRead();
         if (readState.count > 0) {
           this.drawRowHeader.redraw();
+          this.sortedClients = [...this.dataManagementSchedule.clients];
+          this.cdr.markForCheck();
         }
       });
       this.effects.push(dataReadEffect);
@@ -379,6 +393,21 @@ export class ScheduleScheduleRowHeaderComponent
       const name = [client.firstName, client.name].filter(Boolean).join(' ');
       this.shiftPreferencesDialog.open(client.id, name);
     }
+  }
+
+  protected onClientDrop(event: CdkDragDrop<IClientWork[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+
+    const previousOrder = [...this.sortedClients];
+    moveItemInArray(this.sortedClients, event.previousIndex, event.currentIndex);
+
+    const groupId = this.dataManagementSchedule.workFilter.selectedGroup;
+    if (!groupId) return;
+
+    void this.clientSortPreference.save(groupId, this.sortedClients).catch(() => {
+      this.sortedClients = previousOrder;
+      this.toastShow.showError('Failed to save client order. Please try again.');
+    });
   }
 
   onFilterMouseLeave(): void {

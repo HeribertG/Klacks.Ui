@@ -19,6 +19,23 @@
     (click)="onCanvasClick($event)"
     (contextmenu)="onRightClick($event)"
   ></canvas>
+  <div class="drag-overlay"
+       cdkDropList
+       [cdkDropListData]="sortedClients"
+       (cdkDropListDropped)="onClientDrop($event)"
+       [style.transform]="'translateY(-' + scrollOffsetPx + 'px)'">
+    @for (client of sortedClients; track client.id) {
+      <div class="drag-row"
+           cdkDrag
+           [style.height.px]="settings.getGroupLineHeight(client.neededRows)">
+        <i class="fa fa-grip-vertical drag-handle"></i>
+        <div *cdkDragPlaceholder
+             class="drag-placeholder"
+             [style.height.px]="settings.getGroupLineHeight(client.neededRows)">
+        </div>
+      </div>
+    }
+  </div>
 </div>
 
 <app-context-menu #contextMenu></app-context-menu>

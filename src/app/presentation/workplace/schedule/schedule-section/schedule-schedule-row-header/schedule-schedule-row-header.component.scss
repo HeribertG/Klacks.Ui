@@ -9,6 +9,50 @@
   height: 100%;
   width: 100%;
   overflow: hidden;
+  position: relative;
+}
+
+.drag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.drag-row {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  pointer-events: all;
+  cursor: grab;
+  box-sizing: border-box;
+
+  .drag-handle {
+    opacity: 0;
+    color: rgba(0, 0, 0, 0.45);
+    padding-left: 6px;
+    font-size: 14px;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+  }
+
+  &:hover .drag-handle {
+    opacity: 1;
+  }
+
+  &.cdk-drag-dragging {
+    cursor: grabbing;
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.drag-placeholder {
+  background: rgba(100, 149, 237, 0.15);
+  border: 1px dashed rgba(100, 149, 237, 0.5);
+  box-sizing: border-box;
 }
 
 canvas {
