@@ -220,6 +220,8 @@ export class ScheduleScheduleRowHeaderComponent
       const refreshEffect = effect(() => {
         this.dataService.refreshSignal();
         this.drawRowHeader.redraw();
+        this.sortedClients = [...this.dataManagementSchedule.clients];
+        this.cdr.markForCheck();
       });
       this.effects.push(refreshEffect);
 
