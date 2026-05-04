@@ -1,0 +1,50 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #renameScenarioModal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ 'scenario.rename' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div type="button" class="close" aria-label="Close" (click)="onCancel()">
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+    </div>
+  </div>
+
+  <div class="modal-body">
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
+    <div class="form-group">
+      <label for="rename-scenario-name-input">{{ 'scenario.name' | translate }}</label>
+      <input
+        id="rename-scenario-name-input"
+        type="text"
+        class="form-control"
+        [ngModel]="scenarioName()"
+        (ngModelChange)="scenarioName.set($event)"
+      />
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <span class="link-button red-font" (click)="onCancel()">
+      {{ 'common.cancel' | translate }}
+    </span>
+    <button
+      type="button"
+      class="btn save-btn"
+      [disabled]="!isValid() || isSaving()"
+      (click)="onConfirm()"
+    >
+      @if (isSaving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'scenario.rename' | translate }}
+    </button>
+  </div>
+</ng-template>

@@ -18,18 +18,22 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { CreateScenarioDialogComponent } from '../../dialogs/create-scenario-dialog/create-scenario-dialog.component';
+import { RenameScenarioDialogComponent } from '../../dialogs/rename-scenario-dialog/rename-scenario-dialog.component';
 
 @Component({
   selector: 'app-scenario-selector',
   templateUrl: './scenario-selector.component.html',
   styleUrls: ['./scenario-selector.component.scss'],
   standalone: true,
-  imports: [NgbDropdownModule, TranslateModule, CreateScenarioDialogComponent],
+  imports: [NgbDropdownModule, TranslateModule, CreateScenarioDialogComponent, RenameScenarioDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioSelectorComponent implements OnInit {
   @ViewChild('createScenarioDialog')
   createScenarioDialog!: CreateScenarioDialogComponent;
+
+  @ViewChild('renameScenarioDialog')
+  renameScenarioDialog!: RenameScenarioDialogComponent;
 
   public analyseScenarioService = inject(AnalyseScenarioService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
@@ -62,5 +66,11 @@ export class ScenarioSelectorComponent implements OnInit {
     const scenario = this.analyseScenarioService.activeScenario();
     if (!scenario) return;
     this.analyseScenarioService.rejectScenario(scenario.id).subscribe();
+  }
+
+  onRename(): void {
+    const scenario = this.analyseScenarioService.activeScenario();
+    if (!scenario) return;
+    this.renameScenarioDialog.open(scenario);
   }
 }

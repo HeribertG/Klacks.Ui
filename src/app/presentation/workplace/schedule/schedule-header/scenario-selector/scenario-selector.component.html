@@ -24,6 +24,9 @@
       <button ngbDropdownItem class="text-danger" (click)="onReject()">
         {{ "scenario.reject" | translate }}
       </button>
+      <button ngbDropdownItem (click)="onRename()">
+        {{ "scenario.rename" | translate }}
+      </button>
       <div class="dropdown-divider"></div>
     }
     @for (scenario of analyseScenarioService.scenarios(); track scenario.id) {
@@ -44,3 +47,4 @@
   </div>
 </div>
 <app-create-scenario-dialog #createScenarioDialog />
+<app-rename-scenario-dialog #renameScenarioDialog />
