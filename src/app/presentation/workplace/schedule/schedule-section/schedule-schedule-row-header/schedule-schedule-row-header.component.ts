@@ -33,7 +33,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray, CdkDragPreview } from '@angular/cdk/drag-drop';
+import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
@@ -76,6 +78,7 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
     CdkDropList,
     CdkDragPlaceholder,
     CdkDragHandle,
+    CdkDragPreview,
   ],
   providers: [
     BaseCreateRowHeaderService,
@@ -114,6 +117,7 @@ export class ScheduleScheduleRowHeaderComponent
   private cdr = inject(ChangeDetectorRef);
   private readonly clientSortPreference = inject(ClientSortPreferenceService);
   private readonly toastShow = inject(ToastShowService);
+  private readonly canvasManager = inject(BaseCanvasManagerService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -122,6 +126,7 @@ export class ScheduleScheduleRowHeaderComponent
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   protected sortedClients: IClientWork[] = [];
   protected scrollOffsetPx = 0;
+  protected dragPreviewDataUrl = '';
   private filterEl = viewChild<ElementRef>('filterEl');
   private iconSize = 16;
   private contextMenuRow = -1;
@@ -423,6 +428,61 @@ export class ScheduleScheduleRowHeaderComponent
     });
 
     this.drawRowHeader.redraw();
+  }
+
+  protected preparePreview(client: IClientWork): void {
+    this.dragPreviewDataUrl = this.generatePreviewUrl(client);
+  }
+
+  private generatePreviewUrl(client: IClientWork): string {
+    const rowHeaderCanvas = this.drawRowHeader.renderCanvas;
+    const scheduleCanvas = this.canvasManager.renderCanvas;
+    if (!rowHeaderCanvas || !scheduleCanvas) return '';
+
+    let groupIndex = -1;
+    for (let i = 0; i < this.dataService.indexes; i++) {
+      if (this.dataService.getGroupIndex(i)?.id === client.id) {
+        groupIndex = i;
+        break;
+      }
+    }
+    if (groupIndex < 0) return '';
+
+    const firstRow = this.dataService.indexGroupRow[groupIndex];
+    const yInCanvas = (firstRow - this.scroll.verticalScrollPosition) * this.settings.cellHeight;
+    if (yInCanvas < 0) return '';
+
+    const rowHeight = this.settings.getGroupLineHeight(client.displayRows);
+    const pixelRatio = DrawHelper.pixelRatio();
+    const srcY = Math.round(yInCanvas * pixelRatio);
+    const srcH = Math.round(rowHeight * pixelRatio);
+
+    const rhWidth = this.drawRowHeader.width;
+    const scWidth = this.canvasManager.width;
+    const maxPreviewWidth = 900;
+    const previewScale = Math.min(0.5, maxPreviewWidth / (rhWidth + scWidth));
+    const previewW = Math.round((rhWidth + scWidth) * previewScale);
+    const previewH = Math.round(rowHeight * previewScale);
+    if (previewW <= 0 || previewH <= 0) return '';
+
+    const preview = document.createElement('canvas');
+    preview.width = previewW;
+    preview.height = previewH;
+    const ctx = preview.getContext('2d');
+    if (!ctx) return '';
+
+    ctx.drawImage(
+      rowHeaderCanvas,
+      0, srcY, rowHeaderCanvas.width, srcH,
+      0, 0, rhWidth * previewScale, previewH
+    );
+    ctx.drawImage(
+      scheduleCanvas,
+      0, srcY, scheduleCanvas.width, srcH,
+      rhWidth * previewScale, 0, scWidth * previewScale, previewH
+    );
+
+    return preview.toDataURL();
   }
 
   onFilterMouseLeave(): void {

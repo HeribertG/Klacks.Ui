@@ -69,6 +69,10 @@ export class BaseCreateRowHeaderService {
     this.rowIcons.reset(this.iconWidth, this.iconHeight);
   }
 
+  private get gripAreaWidth(): number {
+    return this.margin + Math.round(this.iconWidth / 2);
+  }
+
   createCell(row: number, width: number): GridRowHeader | undefined {
     if (this.shouldClearBackground(width)) {
       this.backgroundCollection.clear();
@@ -185,7 +189,8 @@ export class BaseCreateRowHeaderService {
     const sectionHeight = height / 3;
     const symbolSize = 16 * this.settings.zoom;
     const infoOffset = isRtl ? this.settings.InfoSpotWidth : 0;
-    const leftPadding = isRtl ? width + infoOffset - 4 : 4 + infoOffset;
+    const gripOffset = isRtl ? 0 : this.gripAreaWidth;
+    const leftPadding = isRtl ? width + infoOffset - 4 : 4 + infoOffset + gripOffset;
     const textAlign: CanvasTextAlign = isRtl ? 'right' : 'left';
     const fontHeight = this.gridFonts.headerFontHeightZoom;
     const lineSpacing = 2;
@@ -243,7 +248,7 @@ export class BaseCreateRowHeaderService {
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
     const bgX = isRtl
       ? width + infoOffset - this.settings.headerBorderWidth - backgroundWidth
-      : this.settings.headerBorderWidth + infoOffset;
+      : this.settings.headerBorderWidth + infoOffset + gripOffset;
     ctx.fillRect(bgX, backgroundY, backgroundWidth, backgroundHeight);
     ctx.restore();
 
@@ -352,6 +357,23 @@ export class BaseCreateRowHeaderService {
       deep,
       Gradient3DBorderStyleEnum.Raised
     );
+  }
+
+  private drawGripIcon(ctx: CanvasRenderingContext2D, height: number): void {
+    const icon = this.rowIcons.gripPicto;
+    if (!icon) return;
+
+    const iconW = parseInt(icon.style.width, 10);
+    const iconH = parseInt(icon.style.height, 10);
+    if (!iconW || !iconH) return;
+
+    const x = this.margin;
+    const y = Math.round((height - iconH) / 2);
+
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.drawImage(icon, x, y, iconW, iconH);
+    ctx.restore();
   }
 
   private drawInfoSpots(
@@ -529,6 +551,7 @@ export class BaseCreateRowHeaderService {
           clientIndex
         );
 
+        this.drawGripIcon(ctx, height);
         cell.img = tempCanvas;
       }
     }

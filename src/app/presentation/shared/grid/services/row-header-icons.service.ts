@@ -14,6 +14,7 @@ export class RowHeaderIconsService {
   private _width = 20;
   private _height = 20;
 
+  private _gripPicto: HTMLCanvasElement | undefined;
   private _sortingPicto: HTMLCanvasElement | undefined;
   private _filterPicto: HTMLCanvasElement | undefined;
   private _palmtreePicto: HTMLCanvasElement | undefined;
@@ -33,6 +34,14 @@ export class RowHeaderIconsService {
   private _iconColor = '';
 
   private dataArray = [
+    {
+      key: 'gripPicto',
+      data: 'M40 352l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zm192 0l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM40 320c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0zM232 192l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM40 160c-22.1 0-40-17.9-40-40L0 72C0 49.9 17.9 32 40 32l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0zM232 32l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40z',
+      strokeWidth: 0,
+      viewSizeWidth: 320,
+      viewSizeHeight: 512,
+    },
+
     {
       key: 'sortingPicto',
       data: 'M6 9 L12 3 L18 9 M6 15 L12 21 L18 15',
@@ -167,6 +176,7 @@ export class RowHeaderIconsService {
   }
 
   private clearIcons(): void {
+    this._gripPicto = undefined;
     this._sortingPicto = undefined;
     this._filterPicto = undefined;
     this._palmtreePicto = undefined;
@@ -181,6 +191,30 @@ export class RowHeaderIconsService {
     this._batonPicto = undefined;
     this._gunPicto = undefined;
     this._govermentPicto = undefined;
+  }
+
+  get gripPicto(): HTMLCanvasElement | undefined {
+    this.ensureColor();
+    if (this._gripPicto === undefined) {
+      const grip = this.dataArray.find((x) => x.key === 'gripPicto');
+      if (grip) {
+        const color = this.gridColors.headerForeGroundColor;
+        const gripWidth = Math.max(1, Math.round(this._width / 2));
+        const gripHeight = this._height;
+        this._gripPicto = DrawHelper.createSVG(
+          grip.data,
+          color,
+          color,
+          this._defaultBackGroundColor,
+          gripWidth,
+          gripHeight,
+          grip.strokeWidth,
+          grip.viewSizeWidth,
+          grip.viewSizeHeight
+        );
+      }
+    }
+    return this._gripPicto;
   }
 
   get sortingPicto(): HTMLCanvasElement | undefined {

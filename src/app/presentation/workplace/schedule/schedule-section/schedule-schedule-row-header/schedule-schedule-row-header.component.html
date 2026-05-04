@@ -19,9 +19,6 @@
     (click)="onCanvasClick($event)"
     (contextmenu)="onRightClick($event)"
   ></canvas>
-  <div style="position:absolute;top:0;left:0;z-index:9999;background:yellow;color:red;font-size:11px;pointer-events:none;padding:2px">
-    DBG:{{ sortedClients.length }}
-  </div>
   <div class="drag-overlay"
        cdkDropList
        [cdkDropListData]="sortedClients"
@@ -32,7 +29,13 @@
       <div class="drag-row"
            cdkDrag
            [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
-        <i class="fa fa-grip-vertical drag-handle" cdkDragHandle></i>
+        <div class="drag-handle" cdkDragHandle
+             (mousedown)="preparePreview(client)"></div>
+        <ng-template cdkDragPreview>
+          <img class="drag-row-preview"
+               [src]="dragPreviewDataUrl"
+               alt="">
+        </ng-template>
         <div *cdkDragPlaceholder
              class="drag-placeholder"
              [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
