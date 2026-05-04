@@ -135,6 +135,7 @@ describe('WizardDialogComponent', () => {
       finalHardViolations: 0,
       finalStage1Completion: 1.0,
       tokenCount: 2,
+      availableShiftSlots: 0,
       tokens: [
         { agentId: 'agent-1', shiftId: 'shift-1', date: '2026-04-22', startTime: '06:00', endTime: '14:00', hours: 8 },
         { agentId: 'agent-1', shiftId: 'shift-1', date: '2026-04-21', startTime: '06:00', endTime: '14:00', hours: 8 },
@@ -157,6 +158,7 @@ describe('WizardDialogComponent', () => {
       finalHardViolations: 0,
       finalStage1Completion: 1.0,
       tokenCount: 1,
+      availableShiftSlots: 0,
       tokens: [
         { agentId: 'unknown-guid', shiftId: 'shift-1', date: '2026-04-22', startTime: '06:00', endTime: '14:00', hours: 8 },
       ],
