@@ -403,6 +403,7 @@ export class ScheduleScheduleRowHeaderComponent
 
     const previousOrder = [...this.sortedClients];
     moveItemInArray(this.sortedClients, event.previousIndex, event.currentIndex);
+    this.cdr.markForCheck();
 
     const groupId = this.dataManagementSchedule.workFilter.selectedGroup;
     if (!groupId) return;
@@ -410,8 +411,11 @@ export class ScheduleScheduleRowHeaderComponent
     void this.clientSortPreference.save(groupId, this.sortedClients).catch(() => {
       this.sortedClients = previousOrder;
       this.cdr.markForCheck();
+      this.drawRowHeader.redraw();
       this.toastShow.showError('Failed to save client order. Please try again.');
     });
+
+    this.drawRowHeader.redraw();
   }
 
   onFilterMouseLeave(): void {
