@@ -47,6 +47,7 @@ import {
   BreakCellParams,
 } from './schedule-entry-crud.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
+import { ClientSortPreferenceService } from './client-sort-preference.service';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +63,7 @@ export class DataManagementScheduleService implements ILoadable {
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private analyseScenarioService = inject(AnalyseScenarioService);
+  private readonly clientSortPreference = inject(ClientSortPreferenceService);
 
   private _lastAnalyseToken: string | null = this.analyseScenarioService.activeToken();
 
@@ -185,7 +187,7 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   get clients(): IClientWork[] {
-    return this.workScheduleLoader.clients;
+    return this.clientSortPreference.applyTo(this.workScheduleLoader.clients);
   }
 
   get workScheduleEntries(): IScheduleCell[] {
@@ -249,6 +251,10 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   readDatas(resetScroll = true) {
+    const groupId = this.workFilter.selectedGroup;
+    if (groupId) {
+      void this.clientSortPreference.loadForGroup(groupId);
+    }
     this._showProgressSpinner.set(true);
     this.spinnerSafetyCancel$.next();
     this.readDatasTrigger$.next(resetScroll);
