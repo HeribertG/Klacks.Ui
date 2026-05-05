@@ -14,6 +14,7 @@ export interface IClientAvailabilityClientFilter {
   sortOrder: string;
   showEmployees: boolean;
   showExtern: boolean;
+  individualSort: boolean;
   startRow: number;
   rowCount: number;
 }

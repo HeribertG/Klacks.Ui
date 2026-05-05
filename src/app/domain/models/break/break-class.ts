@@ -97,7 +97,7 @@ export interface IBreakFilter extends IBaseFilter {
   rowCount?: number;
   showEmployees: boolean;
   showExtern: boolean;
-  hoursSortOrder: string | undefined;
+  individualSort: boolean;
   startDate?: string;
   endDate?: string;
 }
@@ -119,7 +119,7 @@ export class BreakFilter implements IBreakFilter {
   rowCount?: number;
   showEmployees = true;
   showExtern = true;
-  hoursSortOrder: string | undefined = undefined;
+  individualSort = false;
   startDate?: string;
   endDate?: string;
 }
