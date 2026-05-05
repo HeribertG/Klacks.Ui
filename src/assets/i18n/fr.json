@@ -771,6 +771,7 @@
   "schedule.filter.employees": "Employés",
   "schedule.filter.extern": "Ext",
   "schedule.filter.hours": "Heures contractuelles garanties",
+  "schedule.filter.individual": "Tri individuel",
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.schedule-header.schedule-header.week": "Semaine : ",
   "schedule.schedule-header.schedule-header.biweekly": "2 semaines : ",
