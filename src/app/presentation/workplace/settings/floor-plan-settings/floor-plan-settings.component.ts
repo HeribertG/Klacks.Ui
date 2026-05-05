@@ -20,6 +20,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { FloorPlanSettingsRowComponent } from './floor-plan-settings-row/floor-plan-settings-row.component';
 import { DataManagementFloorPlanService } from 'src/app/domain/services/floor-plan/data-management-floor-plan.service';
 import { FloorPlan, IFloorPlan } from 'src/app/domain/models/floor-plan/floor-plan-class';
+import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
 import {
   ModalService,
   ModalType,
@@ -110,11 +111,17 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     this.openEditorModal();
   }
 
-  onClickEdit(plan: IFloorPlan): void {
+  async onClickEdit(plan: IFloorPlan): Promise<void> {
     if (plan.id) {
-      this.dataManagement.loadById(plan.id);
+      const loaded = await this.dataManagement.loadByIdAsync(plan.id);
+      if (loaded) {
+        this.editingPlan = { ...loaded };
+      } else {
+        this.editingPlan = { ...plan };
+      }
+    } else {
+      this.editingPlan = { ...plan };
     }
-    this.editingPlan = { ...plan };
     this.openEditorModal();
   }
 
@@ -139,7 +146,12 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     saveTarget.description = this.editingPlan.description;
     saveTarget.canvasJson = this.canvasService.toJSON();
     saveTarget.thumbnailData = this.canvasService.toDataURL();
-    saveTarget.workMarkers = this.editingPlan.workMarkers as any;
+
+    const canvasMarkers = this.canvasService.extractWorkMarkers(saveTarget.id || '');
+    saveTarget.workMarkers = this.mergeMarkersWithCanvasPositions(
+      this.editingPlan.workMarkers ?? [],
+      canvasMarkers
+    );
 
     try {
       await this.dataManagement.save(saveTarget);
@@ -150,6 +162,37 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     } finally {
       this.cdr.markForCheck();
     }
+  }
+
+  private mergeMarkersWithCanvasPositions(
+    existingMarkers: IFloorPlanWorkMarker[],
+    canvasMarkers: IFloorPlanWorkMarker[]
+  ): IFloorPlanWorkMarker[] {
+    const result: IFloorPlanWorkMarker[] = [];
+    const existingById = new Map(existingMarkers.map((m) => [m.id, { ...m }]));
+
+    for (const canvasMarker of canvasMarkers) {
+      const existing = canvasMarker.id ? existingById.get(canvasMarker.id) : undefined;
+      if (existing) {
+        existing.x = canvasMarker.x;
+        existing.y = canvasMarker.y;
+        existing.width = canvasMarker.width;
+        existing.height = canvasMarker.height;
+        existing.color = canvasMarker.color;
+        result.push(existing);
+        existingById.delete(canvasMarker.id);
+      } else {
+        // New marker dropped from work panel (has no id yet)
+        result.push(canvasMarker);
+      }
+    }
+
+    // Keep any existing markers that were not on canvas (e.g. deleted from canvas)
+    for (const remaining of existingById.values()) {
+      result.push(remaining);
+    }
+
+    return result;
   }
 
   private async deleteFloorPlan(id: string): Promise<void> {
@@ -168,6 +211,16 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
         keyboard: false,
         windowClass: 'floor-plan-fullscreen-modal',
       });
+
+      // Initialize canvas after modal DOM is ready
+      setTimeout(async () => {
+        if (this.editingPlan?.canvasJson) {
+          await this.canvasService.loadFromJSON(this.editingPlan.canvasJson);
+        }
+        if (this.editingPlan?.workMarkers) {
+          this.canvasService.renderWorkMarkers(this.editingPlan.workMarkers);
+        }
+      }, 100);
     }, 0);
   }
 }

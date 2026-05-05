@@ -78,6 +78,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private applyTool(tool: FloorPlanTool): void {
+    this.canvasService.cancelPolygonDrawing();
+
     switch (tool) {
       case FloorPlanTool.FreeDrawing:
         this.canvasService.enableFreeDrawing();
@@ -97,6 +99,16 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         this.canvasService.addLine();
         this.toolService.setTool(FloorPlanTool.Select);
         break;
+      case FloorPlanTool.Arrow:
+        this.canvasService.disableFreeDrawing();
+        this.canvasService.addArrow();
+        this.toolService.setTool(FloorPlanTool.Select);
+        break;
+      case FloorPlanTool.Polygon:
+        this.canvasService.disableFreeDrawing();
+        this.canvasService.startPolygonDrawing();
+        this.setupPolygonEvents();
+        break;
       case FloorPlanTool.Text:
         this.canvasService.disableFreeDrawing();
         this.canvasService.addText('Text');
@@ -107,6 +119,45 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         break;
     }
   }
+
+  private setupPolygonEvents(): void {
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+
+    canvas.on('mouse:down', this.onPolygonMouseDown);
+    canvas.on('mouse:move', this.onPolygonMouseMove);
+    canvas.on('mouse:dblclick', this.onPolygonDoubleClick);
+  }
+
+  private onPolygonMouseDown = (opt: any) => {
+    if (!this.canvasService.isInPolygonDrawingMode()) return;
+    const e = opt.e as MouseEvent;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+    const pointer = canvas.getViewportPoint(e);
+    this.canvasService.addPolygonPoint(pointer.x, pointer.y);
+  };
+
+  private onPolygonMouseMove = (opt: any) => {
+    if (!this.canvasService.isInPolygonDrawingMode()) return;
+    const e = opt.e as MouseEvent;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+    const pointer = canvas.getViewportPoint(e);
+    this.canvasService.updatePolygonPreview(pointer.x, pointer.y);
+  };
+
+  private onPolygonDoubleClick = () => {
+    if (!this.canvasService.isInPolygonDrawingMode()) return;
+    this.canvasService.finishPolygonDrawing();
+    this.toolService.setTool(FloorPlanTool.Select);
+    const canvas = this.canvasService.getCanvas();
+    if (canvas) {
+      canvas.off('mouse:down', this.onPolygonMouseDown);
+      canvas.off('mouse:move', this.onPolygonMouseMove);
+      canvas.off('mouse:dblclick', this.onPolygonDoubleClick);
+    }
+  };
 
   @HostListener('dragover', ['$event'])
   onDragOver(event: DragEvent): void {
@@ -140,6 +191,10 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const obj = canvas.getObjects().at(-1);
     if (obj) {
       obj.set({ left: canvasX, top: canvasY });
+      (obj as any).data = {
+        markerId: marker.id || '',
+        markerType: marker.shiftId ? 0 : 2, // Work = 0, Custom = 2
+      };
       canvas.renderAll();
     }
   }
@@ -168,6 +223,19 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (!isInputFocused) {
         this.canvasService.deleteSelected();
+      }
+    }
+
+    if (event.key === 'Escape') {
+      if (this.canvasService.isInPolygonDrawingMode()) {
+        this.canvasService.cancelPolygonDrawing();
+        this.toolService.setTool(FloorPlanTool.Select);
+        const canvas = this.canvasService.getCanvas();
+        if (canvas) {
+          canvas.off('mouse:down', this.onPolygonMouseDown);
+          canvas.off('mouse:move', this.onPolygonMouseMove);
+          canvas.off('mouse:dblclick', this.onPolygonDoubleClick);
+        }
       }
     }
   }

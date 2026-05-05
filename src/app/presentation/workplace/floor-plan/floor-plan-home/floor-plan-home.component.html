@@ -58,6 +58,27 @@
         @if (dataManagement.selectedFloorPlan()) {
           <span class="viewer-plan-name">{{ dataManagement.selectedFloorPlan()!.name }}</span>
         }
+
+        <div class="viewer-controls">
+          <input
+            type="date"
+            class="form-control form-control-sm"
+            [ngModel]="selectedDate()"
+            (ngModelChange)="onDateChange($event)"
+          />
+
+          @if (isLoadingWorks()) {
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          }
+
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" (click)="zoomOut()" title="Zoom out">−</button>
+            <button class="btn btn-outline-secondary" (click)="zoomReset()" title="Reset zoom">⟲</button>
+            <button class="btn btn-outline-secondary" (click)="zoomIn()" title="Zoom in">+</button>
+          </div>
+        </div>
       </div>
       <div class="viewer-canvas-area">
         <app-floor-plan-canvas />

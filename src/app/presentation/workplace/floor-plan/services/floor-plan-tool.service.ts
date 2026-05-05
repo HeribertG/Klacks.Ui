@@ -5,6 +5,7 @@ import { Injectable, signal, Signal } from '@angular/core';
 export enum FloorPlanTool {
   Select = 'select',
   Line = 'line',
+  Arrow = 'arrow',
   Rectangle = 'rectangle',
   Circle = 'circle',
   Polygon = 'polygon',

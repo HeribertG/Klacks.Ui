@@ -15,8 +15,13 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FabricObject } from 'fabric';
+import { FabricObject, Rect, Polygon, Polyline } from 'fabric';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
+
+interface PointLike {
+  x: number;
+  y: number;
+}
 
 interface ObjectProperties {
   x: number;
@@ -28,6 +33,12 @@ interface ObjectProperties {
   stroke: string;
   fill: string;
   strokeWidth: number;
+  rx: number;
+  ry: number;
+  locked: boolean;
+  isRect: boolean;
+  isPolygon: boolean;
+  points: PointLike[];
 }
 
 const DEFAULT_PROPERTIES: ObjectProperties = {
@@ -40,6 +51,12 @@ const DEFAULT_PROPERTIES: ObjectProperties = {
   stroke: '#000000',
   fill: '#ffffff',
   strokeWidth: 1,
+  rx: 0,
+  ry: 0,
+  locked: false,
+  isRect: false,
+  isPolygon: false,
+  points: [],
 };
 
 @Component({
@@ -56,6 +73,7 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
 
   readonly properties = signal<ObjectProperties>({ ...DEFAULT_PROPERTIES });
   readonly hasSelection = computed(() => this.canvasService.selectedObject() !== null);
+  readonly selectedType = computed(() => this.canvasService.selectedObject()?.type);
 
   private effects: EffectRef[] = [];
 
@@ -81,6 +99,12 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
     }
 
     const bounds = obj.getBoundingRect();
+    const isRect = obj.type === 'rect';
+    const isPolygon = obj.type === 'polygon' || obj.type === 'polyline';
+    const points = isPolygon
+      ? [...(obj as Polygon | Polyline).points.map((p) => ({ x: Math.round(p.x), y: Math.round(p.y) }))]
+      : [];
+
     this.properties.set({
       x: Math.round(obj.left ?? 0),
       y: Math.round(obj.top ?? 0),
@@ -91,6 +115,12 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
       stroke: (obj.stroke as string) ?? '#000000',
       fill: this.normalizeFill(obj.fill),
       strokeWidth: obj.strokeWidth ?? 1,
+      rx: isRect ? Math.round((obj as Rect).rx ?? 0) : 0,
+      ry: isRect ? Math.round((obj as Rect).ry ?? 0) : 0,
+      locked: !obj.hasControls,
+      isRect,
+      isPolygon,
+      points,
     });
   }
 
@@ -157,6 +187,107 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
 
   onDelete(): void {
     this.canvasService.deleteSelected();
+  }
+
+  onLockToggle(): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj) return;
+    const newLocked = !this.properties().locked;
+    obj.set({
+      hasControls: !newLocked,
+      hasBorders: !newLocked,
+      lockMovementX: newLocked,
+      lockMovementY: newLocked,
+      lockRotation: newLocked,
+      lockScalingX: newLocked,
+      lockScalingY: newLocked,
+    });
+    this.properties.update((p) => ({ ...p, locked: newLocked }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onRxChange(value: number): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || obj.type !== 'rect') return;
+    (obj as Rect).set('rx', Math.max(0, value));
+    this.properties.update((p) => ({ ...p, rx: value }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onRyChange(value: number): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || obj.type !== 'rect') return;
+    (obj as Rect).set('ry', Math.max(0, value));
+    this.properties.update((p) => ({ ...p, ry: value }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onDeletePoint(index: number): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || (obj.type !== 'polygon' && obj.type !== 'polyline')) return;
+
+    const poly = obj as Polygon | Polyline;
+    const currentPoints = poly.points;
+    if (currentPoints.length <= 3) return;
+
+    const newPoints = currentPoints.filter((_, i) => i !== index);
+    poly.set('points', newPoints);
+    this.properties.update((p) => ({
+      ...p,
+      points: newPoints.map((pt) => ({ x: Math.round(pt.x), y: Math.round(pt.y) })),
+    }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onAddPoint(): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || (obj.type !== 'polygon' && obj.type !== 'polyline')) return;
+
+    const poly = obj as Polygon | Polyline;
+    const currentPoints = poly.points;
+    const last = currentPoints[currentPoints.length - 1];
+    const beforeLast = currentPoints[currentPoints.length - 2];
+    const dx = last.x - (beforeLast?.x ?? 0);
+    const dy = last.y - (beforeLast?.y ?? 0);
+
+    const newPoints = [
+      ...currentPoints,
+      { x: last.x + dx, y: last.y + dy },
+    ];
+    poly.set('points', newPoints);
+    this.properties.update((p) => ({
+      ...p,
+      points: newPoints.map((pt) => ({ x: Math.round(pt.x), y: Math.round(pt.y) })),
+    }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onPointXChange(index: number, value: number): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || (obj.type !== 'polygon' && obj.type !== 'polyline')) return;
+
+    const poly = obj as Polygon | Polyline;
+    const newPoints = poly.points.map((p, i) => (i === index ? { x: value, y: p.y } : p));
+    poly.set('points', newPoints);
+    this.properties.update((p) => ({
+      ...p,
+      points: newPoints.map((pt) => ({ x: Math.round(pt.x), y: Math.round(pt.y) })),
+    }));
+    this.getCanvas()?.renderAll();
+  }
+
+  onPointYChange(index: number, value: number): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj || (obj.type !== 'polygon' && obj.type !== 'polyline')) return;
+
+    const poly = obj as Polygon | Polyline;
+    const newPoints = poly.points.map((p, i) => (i === index ? { x: p.x, y: value } : p));
+    poly.set('points', newPoints);
+    this.properties.update((p) => ({
+      ...p,
+      points: newPoints.map((pt) => ({ x: Math.round(pt.x), y: Math.round(pt.y) })),
+    }));
+    this.getCanvas()?.renderAll();
   }
 
   private getCanvas() {

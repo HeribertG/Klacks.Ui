@@ -12,7 +12,12 @@ import {
   FabricObject,
   Point,
   Polygon,
+  Polyline,
+  Group,
+  Triangle,
 } from 'fabric';
+import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
+import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 
 const ZOOM_MIN = 0.1;
 const ZOOM_MAX = 10;
@@ -40,6 +45,10 @@ export class FloorPlanCanvasService {
 
   private isPanningActive = false;
   private lastPanPoint: Point | null = null;
+
+  private polygonPoints: { x: number; y: number }[] = [];
+  private tempPolyline: Polyline | null = null;
+  private isPolygonDrawing = false;
 
   initCanvas(canvasElement: HTMLCanvasElement, width: number, height: number): void {
     if (this.canvas) {
@@ -225,6 +234,38 @@ export class FloorPlanCanvasService {
     });
     this.canvas.add(line);
     this.canvas.setActiveObject(line);
+    this.canvas.renderAll();
+  }
+
+  addArrow(): void {
+    if (!this.canvas) return;
+
+    const strokeColor = this._selectedObject()?.get('stroke') as string || '#000000';
+    const strokeWidth = this._selectedObject()?.get('strokeWidth') as number || 2;
+
+    const line = new Line([50, 50, 200, 50], {
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
+    });
+
+    const arrowHead = new Triangle({
+      left: 200,
+      top: 50,
+      width: 12,
+      height: 12,
+      fill: strokeColor,
+      angle: 90,
+      originX: 'center',
+      originY: 'center',
+    });
+
+    const group = new Group([line, arrowHead], {
+      left: 100,
+      top: 100,
+    });
+
+    this.canvas.add(group);
+    this.canvas.setActiveObject(group);
     this.canvas.renderAll();
   }
 
@@ -422,5 +463,206 @@ export class FloorPlanCanvasService {
       obj.set('opacity', opacity);
       this.canvas.renderAll();
     }
+  }
+
+  renderWorkMarkers(markers: IFloorPlanWorkMarker[]): void {
+    if (!this.canvas) return;
+    this.removeWorkMarkersFromCanvas();
+
+    for (const marker of markers) {
+      this.addWorkMarker(marker);
+    }
+  }
+
+  addWorkMarker(marker: IFloorPlanWorkMarker): void {
+    if (!this.canvas) return;
+
+    const lines: string[] = [];
+    if (marker.clientName) lines.push(marker.clientName);
+    if (marker.shiftName) lines.push(marker.shiftName);
+    if (marker.startTime || marker.endTime) {
+      lines.push(`${marker.startTime ?? ''} - ${marker.endTime ?? ''}`);
+    }
+    if (lines.length === 0 && marker.label) lines.push(marker.label);
+    if (lines.length === 0) lines.push('Marker');
+
+    const text = lines.join('\n');
+    const fillColor = marker.color || '#000000';
+    const bgColor = marker.color ? this.hexToRgba(marker.color, 0.15) : '#ffffff80';
+
+    const textbox = new Textbox(text, {
+      left: marker.x,
+      top: marker.y,
+      width: marker.width || 120,
+      fontSize: 12,
+      fill: fillColor,
+      backgroundColor: bgColor,
+      stroke: fillColor,
+      strokeWidth: 1,
+    });
+
+    textbox.set('data', { markerId: marker.id, markerType: marker.markerType });
+    this.canvas.add(textbox);
+    this.canvas.renderAll();
+  }
+
+  extractWorkMarkers(floorPlanId: string): IFloorPlanWorkMarker[] {
+    if (!this.canvas) return [];
+
+    return this.canvas.getObjects()
+      .filter((obj) => {
+        const data = (obj as any).data;
+        return data !== undefined && 'markerId' in data;
+      })
+      .map((obj) => {
+        const data = (obj as any).data;
+        return {
+          id: data.markerId || undefined,
+          floorPlanId,
+          x: obj.left ?? 0,
+          y: obj.top ?? 0,
+          width: obj.width ?? 120,
+          height: obj.height ?? 50,
+          color: (obj.fill as string) || '#000000',
+          label: (obj as Textbox).text || '',
+          markerType: data.markerType ?? FloorPlanMarkerType.Work,
+        } as IFloorPlanWorkMarker;
+      });
+  }
+
+  removeWorkMarkersFromCanvas(): void {
+    if (!this.canvas) return;
+    const markerObjects = this.canvas.getObjects().filter((obj) => {
+      const data = (obj as any).data;
+      return data !== undefined && 'markerId' in data;
+    });
+    markerObjects.forEach((obj) => this.canvas!.remove(obj));
+    this.canvas.renderAll();
+  }
+
+  renderLiveMarkers(entries: { clientName: string; shiftName: string; startTime: string; endTime: string; color?: string }[]): void {
+    if (!this.canvas) return;
+    this.clearLiveMarkers();
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const lines: string[] = [];
+      if (entry.clientName) lines.push(entry.clientName);
+      if (entry.shiftName) lines.push(entry.shiftName);
+      if (entry.startTime || entry.endTime) {
+        lines.push(`${entry.startTime} - ${entry.endTime}`);
+      }
+
+      const text = lines.join('\n');
+      const fillColor = entry.color || '#2563eb';
+      const bgColor = this.hexToRgba(fillColor, 0.15);
+
+      const left = 50 + (i % 5) * 160;
+      const top = 50 + Math.floor(i / 5) * 80;
+
+      const textbox = new Textbox(text, {
+        left,
+        top,
+        width: 140,
+        fontSize: 11,
+        fill: fillColor,
+        backgroundColor: bgColor,
+        stroke: fillColor,
+        strokeWidth: 1,
+      });
+
+      textbox.set('data', { liveMarker: true, index: i });
+      this.canvas.add(textbox);
+    }
+
+    this.canvas.renderAll();
+  }
+
+  clearLiveMarkers(): void {
+    if (!this.canvas) return;
+    const liveObjects = this.canvas.getObjects().filter((obj) => {
+      const data = (obj as any).data;
+      return data !== undefined && data.liveMarker === true;
+    });
+    liveObjects.forEach((obj) => this.canvas!.remove(obj));
+    this.canvas.renderAll();
+  }
+
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  startPolygonDrawing(): void {
+    this.isPolygonDrawing = true;
+    this.polygonPoints = [];
+    this.tempPolyline = null;
+  }
+
+  isInPolygonDrawingMode(): boolean {
+    return this.isPolygonDrawing;
+  }
+
+  addPolygonPoint(x: number, y: number): void {
+    if (!this.canvas || !this.isPolygonDrawing) return;
+    this.polygonPoints.push({ x, y });
+    this.refreshPolygonPreview();
+  }
+
+  updatePolygonPreview(x: number, y: number): void {
+    if (!this.canvas || !this.isPolygonDrawing || this.polygonPoints.length === 0) return;
+    this.refreshPolygonPreview(x, y);
+  }
+
+  private refreshPolygonPreview(mouseX?: number, mouseY?: number): void {
+    if (!this.canvas) return;
+
+    if (this.tempPolyline) {
+      this.canvas.remove(this.tempPolyline);
+    }
+
+    const points = [...this.polygonPoints];
+    if (mouseX !== undefined && mouseY !== undefined) {
+      points.push({ x: mouseX, y: mouseY });
+    }
+
+    if (points.length >= 2) {
+      this.tempPolyline = new Polyline(points, {
+        fill: 'transparent',
+        stroke: '#000000',
+        strokeWidth: 2,
+        selectable: false,
+        evented: false,
+      });
+      this.canvas.add(this.tempPolyline);
+    }
+
+    this.canvas.renderAll();
+  }
+
+  finishPolygonDrawing(): void {
+    if (!this.canvas || !this.isPolygonDrawing || this.polygonPoints.length < 3) {
+      this.cancelPolygonDrawing();
+      return;
+    }
+
+    if (this.tempPolyline) {
+      this.canvas.remove(this.tempPolyline);
+    }
+
+    this.addPolygon(this.polygonPoints);
+    this.cancelPolygonDrawing();
+  }
+
+  cancelPolygonDrawing(): void {
+    this.isPolygonDrawing = false;
+    if (this.tempPolyline && this.canvas) {
+      this.canvas.remove(this.tempPolyline);
+    }
+    this.tempPolyline = null;
+    this.polygonPoints = [];
+    this.canvas?.renderAll();
   }
 }

@@ -22,8 +22,20 @@
 }
 
 .work-panel-search {
+  display: flex;
+  gap: 6px;
   padding: 6px 8px;
   border-bottom: 1px solid var(--gridColorLine);
+
+  input {
+    flex: 1;
+  }
+}
+
+.work-add-form {
+  padding: 8px;
+  border-bottom: 1px solid var(--gridColorLine);
+  background-color: var(--backgroundColorPage);
 }
 
 .work-list {

@@ -8,7 +8,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { DataManagementFloorPlanService } from 'src/app/domain/services/floor-plan/data-management-floor-plan.service';
-import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
+import { IFloorPlanWorkMarker, FloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
+import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 
 @Component({
   selector: 'app-floor-plan-work-panel',
@@ -24,6 +25,11 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   readonly searchText = signal<string>('');
+  readonly showAddForm = signal(false);
+  readonly newLabel = signal('');
+  readonly newMarkerType = signal<FloorPlanMarkerType>(FloorPlanMarkerType.Location);
+  readonly newColor = signal('#0d6efd');
+  readonly FloorPlanMarkerType = FloorPlanMarkerType;
 
   readonly workMarkers = computed(() => {
     const plan = this.dataManagement.selectedFloorPlan();
@@ -53,6 +59,31 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
 
   onSearchChange(value: string): void {
     this.searchText.set(value);
+  }
+
+  toggleAddForm(): void {
+    this.showAddForm.update((v) => !v);
+    this.newLabel.set('');
+    this.newMarkerType.set(FloorPlanMarkerType.Location);
+    this.newColor.set('#0d6efd');
+  }
+
+  async onAddMarker(): Promise<void> {
+    const plan = this.dataManagement.selectedFloorPlan();
+    if (!plan?.id || !this.newLabel().trim()) return;
+
+    const marker = new FloorPlanWorkMarker();
+    marker.floorPlanId = plan.id;
+    marker.label = this.newLabel().trim();
+    marker.markerType = this.newMarkerType();
+    marker.color = this.newColor();
+    marker.x = 0;
+    marker.y = 0;
+    marker.width = 120;
+    marker.height = 50;
+
+    await this.dataManagement.addMarker(marker);
+    this.toggleAddForm();
   }
 
   onDragStart(marker: IFloorPlanWorkMarker, event: DragEvent): void {

@@ -42,6 +42,19 @@ export class DataManagementFloorPlanService {
     });
   }
 
+  async loadByIdAsync(id: string): Promise<IFloorPlan | null> {
+    this.isLoading.set(true);
+    try {
+      const item = await firstValueFrom(this.dataFloorPlanService.get(id));
+      this.selectedFloorPlan.set(item);
+      return item;
+    } catch {
+      return null;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
   async save(floorPlan: FloorPlan): Promise<void> {
     this.isLoading.set(true);
     try {

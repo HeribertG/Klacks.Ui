@@ -150,6 +150,17 @@
   color: var(--standartTextColor);
 }
 
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+
+  input[type="date"] {
+    width: 150px;
+  }
+}
+
 .viewer-canvas-area {
   flex: 1;
   overflow: hidden;

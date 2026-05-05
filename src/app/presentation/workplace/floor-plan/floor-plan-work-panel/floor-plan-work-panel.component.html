@@ -11,7 +11,39 @@
       [ngModel]="searchText()"
       (ngModelChange)="onSearchChange($event)"
     />
+    <button class="btn btn-sm btn-primary" (click)="toggleAddForm()">
+      {{ (showAddForm() ? 'common.cancel' : 'floor-plan.works.add') | translate }}
+    </button>
   </div>
+
+  @if (showAddForm()) {
+    <div class="work-add-form">
+      <input
+        type="text"
+        class="form-control form-control-sm mb-2"
+        [placeholder]="'floor-plan.works.label' | translate"
+        [ngModel]="newLabel()"
+        (ngModelChange)="newLabel.set($event)"
+      />
+      <select class="form-select form-select-sm mb-2" [ngModel]="newMarkerType()" (ngModelChange)="newMarkerType.set($event)">
+        <option [value]="FloorPlanMarkerType.Location">Location</option>
+        <option [value]="FloorPlanMarkerType.Work">Work</option>
+        <option [value]="FloorPlanMarkerType.Custom">Custom</option>
+      </select>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <input
+          type="color"
+          class="form-control form-control-sm"
+          style="width: 40px; height: 32px; padding: 2px;"
+          [ngModel]="newColor()"
+          (ngModelChange)="newColor.set($event)"
+        />
+        <button class="btn btn-sm btn-success flex-fill" (click)="onAddMarker()">
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </div>
+  }
 
   <div class="work-list">
     @if (dataManagement.isLoading()) {

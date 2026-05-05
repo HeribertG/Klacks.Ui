@@ -124,6 +124,83 @@
         </div>
       </div>
 
+      @if (properties().isRect) {
+        <div class="property-section">
+          <div class="property-section-title">{{ 'floor-plan.properties.corner-radius' | translate }}</div>
+          <div class="property-row">
+            <label class="property-label" for="prop-rx">RX</label>
+            <input
+              id="prop-rx"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().rx"
+              (ngModelChange)="onRxChange($event)"
+              min="0"
+            />
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-ry">RY</label>
+            <input
+              id="prop-ry"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().ry"
+              (ngModelChange)="onRyChange($event)"
+              min="0"
+            />
+          </div>
+        </div>
+      }
+
+      @if (properties().isPolygon) {
+        <div class="property-section">
+          <div class="property-section-title">{{ 'floor-plan.properties.points' | translate }}</div>
+          @for (point of properties().points; track $index) {
+            <div class="property-row point-row">
+              <span class="property-label">#{{ $index + 1 }}</span>
+              <input
+                type="number"
+                class="property-input"
+                [ngModel]="point.x"
+                (ngModelChange)="onPointXChange($index, $event)"
+              />
+              <input
+                type="number"
+                class="property-input"
+                [ngModel]="point.y"
+                (ngModelChange)="onPointYChange($index, $event)"
+              />
+              <button
+                class="property-btn small danger"
+                (click)="onDeletePoint($index)"
+                [disabled]="properties().points.length <= 3"
+              >
+                ×
+              </button>
+            </div>
+          }
+          <div class="property-actions">
+            <button class="property-btn" (click)="onAddPoint()">
+              {{ 'floor-plan.properties.add-point' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.behavior' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label">{{ 'floor-plan.properties.locked' | translate }}</label>
+          <button
+            class="property-btn"
+            [class.active]="properties().locked"
+            (click)="onLockToggle()"
+          >
+            {{ (properties().locked ? 'floor-plan.properties.unlock' : 'floor-plan.properties.lock') | translate }}
+          </button>
+        </div>
+      </div>
+
       <div class="property-section">
         <div class="property-section-title">{{ 'floor-plan.properties.order' | translate }}</div>
         <div class="property-actions">
