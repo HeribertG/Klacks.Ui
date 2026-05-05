@@ -1,84 +1,85 @@
 <div id="client-filter-container" class="container">
+
   <button
     id="client-filter-firstname-button"
     class="input-group button-as-div"
-    (click)="onClickHeader('firstName')"
-  >
+    [disabled]="individualSort"
+    [class.sort-disabled]="individualSort"
+    (click)="onClickHeader('firstName')">
     <div class="row-line">
       <p class="arrow">
-        @if (sortingService.getArrow('firstName') === '↓') {
-        <app-icon-asc></app-icon-asc>
-        } @if (sortingService.getArrow('firstName') === '↑') {
-        <app-icon-desc></app-icon-desc>
-        }
+        @if (sortingService.getArrow('firstName') === '↓') { <app-icon-asc /> }
+        @if (sortingService.getArrow('firstName') === '↑') { <app-icon-desc /> }
       </p>
-      <p>
-        {{ "address.edit-address.address-persona.firstname" | translate }}
-      </p>
+      <p>{{ "address.edit-address.address-persona.firstname" | translate }}</p>
     </div>
   </button>
 
-  <button id="client-filter-name-button" class="input-group button-as-div" (click)="onClickHeader('name')">
+  <button
+    id="client-filter-name-button"
+    class="input-group button-as-div"
+    [disabled]="individualSort"
+    [class.sort-disabled]="individualSort"
+    (click)="onClickHeader('name')">
     <div class="row-line">
       <p class="arrow">
-        @if (sortingService.getArrow('name') === '↓') {
-        <app-icon-asc></app-icon-asc>
-        } @if (sortingService.getArrow('name') === '↑') {
-        <app-icon-desc></app-icon-desc>
-        }
+        @if (sortingService.getArrow('name') === '↓') { <app-icon-asc /> }
+        @if (sortingService.getArrow('name') === '↑') { <app-icon-desc /> }
       </p>
-      <p>
-        {{ "address.edit-address.address-persona.name" | translate }}
-      </p>
+      <p>{{ "address.edit-address.address-persona.name" | translate }}</p>
     </div>
   </button>
 
-  <button id="client-filter-company-button" class="input-group button-as-div" (click)="onClickHeader('company')">
+  <button
+    id="client-filter-company-button"
+    class="input-group button-as-div"
+    [disabled]="individualSort"
+    [class.sort-disabled]="individualSort"
+    (click)="onClickHeader('company')">
     <div class="row-line">
       <p class="arrow">
-        @if (sortingService.getArrow('company') === '↓') {
-        <app-icon-asc></app-icon-asc>
-        } @if (sortingService.getArrow('company') === '↑') {
-        <app-icon-desc></app-icon-desc>
-        }
+        @if (sortingService.getArrow('company') === '↓') { <app-icon-asc /> }
+        @if (sortingService.getArrow('company') === '↑') { <app-icon-desc /> }
       </p>
-      <p>
-        {{ "address.all-address.all-address-list.table.company" | translate }}
+      <p>{{ "address.all-address.all-address-list.table.company" | translate }}</p>
+    </div>
+  </button>
+
+  <button
+    id="client-filter-hours-button"
+    class="input-group button-as-div"
+    [disabled]="individualSort"
+    [class.sort-disabled]="individualSort"
+    (click)="onClickHeader('guaranteedHours')">
+    <div class="row-line">
+      <p class="arrow">
+        @if (sortingService.getArrow('guaranteedHours') === '↓') { <app-icon-asc /> }
+        @if (sortingService.getArrow('guaranteedHours') === '↑') { <app-icon-desc /> }
       </p>
+      <p>{{ "schedule.filter.hours" | translate }}</p>
+    </div>
+  </button>
+
+  <button
+    id="client-filter-individual-button"
+    class="input-group button-as-div"
+    [class.individual-active]="individualSort"
+    (click)="onToggleIndividualSort()">
+    <div class="row-line">
+      <p class="arrow"></p>
+      <p>{{ "schedule.filter.individual" | translate }}</p>
     </div>
   </button>
 
   <div class="checkbox-group">
     <label class="checkbox-label">
-      <input
-        type="checkbox"
-        [checked]="showEmployees"
-        (change)="onShowEmployeesChange($event)"
-      />
+      <input type="checkbox" [checked]="showEmployees" (change)="onShowEmployeesChange($event)" />
       {{ "schedule.filter.employees" | translate }}
     </label>
     <label class="checkbox-label">
-      <input
-        type="checkbox"
-        [checked]="showExtern"
-        (change)="onShowExternChange($event)"
-      />
+      <input type="checkbox" [checked]="showExtern" (change)="onShowExternChange($event)" />
       {{ "schedule.filter.extern" | translate }}
     </label>
   </div>
 
-  <button id="client-filter-hours-button" class="input-group button-as-div" (click)="onClickHours()">
-    <div class="row-line">
-      <p class="arrow">
-        @if (getHoursArrow() === '↓') {
-        <app-icon-asc></app-icon-asc>
-        } @if (getHoursArrow() === '↑') {
-        <app-icon-desc></app-icon-desc>
-        }
-      </p>
-      <p>
-        {{ "schedule.filter.hours" | translate }}
-      </p>
-    </div>
-  </button>
 </div>

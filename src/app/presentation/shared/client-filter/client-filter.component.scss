@@ -59,3 +59,18 @@
 p {
   padding-inline-end: 10px;
 }
+
+.sort-disabled {
+  opacity: 0.4;
+  cursor: default;
+
+  &:hover {
+    background: none;
+  }
+}
+
+.individual-active {
+  background: var(--gridBackgroundColorRowHover);
+  font-weight: 600;
+  border-left: 3px solid var(--primaryColor, #4f9cf9);
+}
