@@ -370,10 +370,7 @@ export class BaseCreateRowHeaderService {
     const x = this.margin;
     const y = Math.round((height - iconH) / 2);
 
-    ctx.save();
-    ctx.globalAlpha = 0.5;
     ctx.drawImage(icon, x, y, iconW, iconH);
-    ctx.restore();
   }
 
   private drawInfoSpots(

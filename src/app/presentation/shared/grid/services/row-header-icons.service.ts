@@ -198,7 +198,7 @@ export class RowHeaderIconsService {
     if (this._gripPicto === undefined) {
       const grip = this.dataArray.find((x) => x.key === 'gripPicto');
       if (grip) {
-        const color = this.gridColors.headerForeGroundColor;
+        const color = DrawHelper.withAlpha(this.gridColors.headerForeGroundColor, 0.2);
         const pixelRatio = DrawHelper.pixelRatio();
         const displayW = Math.max(1, Math.round(this._width * 0.4));
         const displayH = Math.round(this._height * 0.65);

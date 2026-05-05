@@ -297,6 +297,15 @@ export abstract class DrawHelper {
     return Math.max(Math.ceil(window.devicePixelRatio || 1), 2);
   }
 
+  public static withAlpha(color: string, alpha: number): string {
+    const hex = color.trim().replace('#', '');
+    const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+    const r = parseInt(full.substring(0, 2), 16);
+    const g = parseInt(full.substring(2, 4), 16);
+    const b = parseInt(full.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
   public static createSVG(
     data: string,
     fillColor: string,
