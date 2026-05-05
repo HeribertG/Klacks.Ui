@@ -204,12 +204,13 @@ export class BaseCreateRowHeaderService {
 
     if (client && !client.hasContract) {
       const iconTopPadding = 2;
+      const contractIconX = isRtl ? leftPadding : 4 + infoOffset;
       ctx.save();
       ctx.font = `${symbolSize}px Arial`;
       ctx.fillStyle = '#ef4444';
       ctx.textAlign = textAlign;
       ctx.textBaseline = 'top';
-      ctx.fillText('⊘', Math.round(leftPadding), iconTopPadding);
+      ctx.fillText('⊘', Math.round(contractIconX), iconTopPadding);
       ctx.restore();
     }
 
