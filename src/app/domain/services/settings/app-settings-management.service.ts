@@ -20,6 +20,7 @@ import {
   DataRetentionSettings
 } from 'src/app/domain/models/settings/app-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+import { IWizard3Settings, Wizard3Settings } from 'src/app/domain/models/settings/wizard3-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 interface SettingsModels {
@@ -32,6 +33,7 @@ interface SettingsModels {
   openRouteServiceApiKey: string;
   deeplApiKey: string;
   speech: ISpeechSettings;
+  wizard3: IWizard3Settings;
 }
 
 @Injectable({
@@ -143,6 +145,8 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, (v, m) => (m.speech.enhancementEnabled = v === 'true')],
     [AppSetting.ASSISTANT_OUTPUT_MODE, (v, m) => (m.speech.outputMode = v)],
     [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = parseInt(v, 10) || 1500)],
+
+    [AppSetting.WIZARD3_LLM_MODEL, (v, m) => (m.wizard3.llmModelId = v)],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -154,6 +158,7 @@ export class AppSettingsManagementService {
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
+  public wizard3Settings = signal<IWizard3Settings>(new Wizard3Settings());
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -164,6 +169,7 @@ export class AppSettingsManagementService {
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
+  private wizard3SettingsOriginal = signal<IWizard3Settings>(new Wizard3Settings());
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -183,6 +189,7 @@ export class AppSettingsManagementService {
       this.openRouteServiceApiKey();
       this.deeplApiKey();
       this.speechSettings();
+      this.wizard3Settings();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -245,6 +252,7 @@ export class AppSettingsManagementService {
       openRouteServiceApiKey: '',
       deeplApiKey: '',
       speech: new SpeechSettings(),
+      wizard3: new Wizard3Settings(),
     };
 
     for (const setting of settings) {
@@ -263,6 +271,7 @@ export class AppSettingsManagementService {
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
     this.speechSettings.set(models.speech);
+    this.wizard3Settings.set(models.wizard3);
 
     this.contactSettingsOriginal.set(cloneObject(models.contact));
     this.emailSettingsOriginal.set(cloneObject(models.email));
@@ -273,6 +282,7 @@ export class AppSettingsManagementService {
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
+    this.wizard3SettingsOriginal.set(cloneObject(models.wizard3));
   }
 
   private readonly saveDefinitions: readonly { key: string; getCurrent: () => string; getOriginal: () => string }[] = [
@@ -368,6 +378,8 @@ export class AppSettingsManagementService {
     { key: AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, getCurrent: () => String(this.speechSettings().enhancementEnabled), getOriginal: () => String(this.speechSettingsOriginal().enhancementEnabled) },
     { key: AppSetting.ASSISTANT_OUTPUT_MODE, getCurrent: () => this.speechSettings().outputMode, getOriginal: () => this.speechSettingsOriginal().outputMode },
     { key: AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, getCurrent: () => String(this.speechSettings().silenceThresholdMs), getOriginal: () => String(this.speechSettingsOriginal().silenceThresholdMs) },
+
+    { key: AppSetting.WIZARD3_LLM_MODEL, getCurrent: () => this.wizard3Settings().llmModelId, getOriginal: () => this.wizard3SettingsOriginal().llmModelId },
   ];
 
   save(): void {
@@ -424,6 +436,7 @@ export class AppSettingsManagementService {
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
+      this.wizard3SettingsOriginal.set(cloneObject(this.wizard3Settings()));
     }
   }
 
@@ -450,7 +463,8 @@ export class AppSettingsManagementService {
       !compareComplexObjects(retention, retentionOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal() ||
-      !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal())
+      !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
+      !compareComplexObjects(this.wizard3Settings(), this.wizard3SettingsOriginal())
     );
   }
 

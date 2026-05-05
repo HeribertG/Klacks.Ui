@@ -1,0 +1,25 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ 'setting.wizard3.headline' | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="settings-form">
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="wizard3LlmModel">{{ 'setting.wizard3.llmModel' | translate }}</label>
+        <select
+          class="form-select"
+          id="wizard3LlmModel"
+          [(ngModel)]="llmModelId"
+          (ngModelChange)="onSettingChanged()"
+        >
+          <option [value]="''">{{ 'setting.wizard3.llmModelNone' | translate }}</option>
+          @for (model of llmModels(); track model.value) {
+            <option [value]="model.value">{{ model.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
