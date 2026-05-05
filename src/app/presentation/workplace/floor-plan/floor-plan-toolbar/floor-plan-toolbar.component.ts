@@ -5,14 +5,12 @@ import {
   inject,
   ViewChild,
   ElementRef,
-  Output,
-  EventEmitter,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
+import { FloorPlanToolService, FloorPlanTool, ArrowType, ConnectorType } from '../services/floor-plan-tool.service';
 import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
@@ -27,7 +25,6 @@ import { IconFpUndoComponent } from 'src/app/presentation/icons/icon-fp-undo.com
 import { IconFpRedoComponent } from 'src/app/presentation/icons/icon-fp-redo.component';
 import { IconFpZoomPlusComponent } from 'src/app/presentation/icons/icon-fp-zoom-plus.component';
 import { IconFpZoomMinusComponent } from 'src/app/presentation/icons/icon-fp-zoom-minus.component';
-import { IconFpSaveComponent } from 'src/app/presentation/icons/icon-fp-save.component';
 import { IconFpImportComponent } from 'src/app/presentation/icons/icon-fp-import.component';
 import { IconFpExportComponent } from 'src/app/presentation/icons/icon-fp-export.component';
 
@@ -51,7 +48,6 @@ const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
     IconFpRedoComponent,
     IconFpZoomPlusComponent,
     IconFpZoomMinusComponent,
-    IconFpSaveComponent,
     IconFpImportComponent,
     IconFpExportComponent,
   ],
@@ -62,19 +58,28 @@ const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
 export class FloorPlanToolbarComponent {
   @ViewChild('importFileRef') importFileRef!: ElementRef<HTMLInputElement>;
 
-  @Output() savePlan = new EventEmitter<void>();
-
   canvasService = inject(FloorPlanCanvasService);
   toolService = inject(FloorPlanToolService);
   private exportService = inject(FloorPlanExportService);
   private importService = inject(FloorPlanImportService);
 
   readonly FloorPlanTool = FloorPlanTool;
+  readonly ArrowType = ArrowType;
+  readonly ConnectorType = ConnectorType;
   readonly strokeWidths = STROKE_WIDTHS;
-
-  onSave(): void {
-    this.savePlan.emit();
-  }
+  readonly snapSizes = [5, 10, 20, 50, 100];
+  readonly arrowTypes = [
+    { value: ArrowType.Simple, label: 'Simple' },
+    { value: ArrowType.Double, label: 'Double' },
+    { value: ArrowType.Open, label: 'Open' },
+    { value: ArrowType.Diamond, label: 'Diamond' },
+    { value: ArrowType.Curved, label: 'Curved' },
+  ];
+  readonly connectorTypes = [
+    { value: ConnectorType.Straight, label: 'Straight' },
+    { value: ConnectorType.Orthogonal, label: 'Orthogonal' },
+    { value: ConnectorType.Curved, label: 'Curved' },
+  ];
 
   onSelectTool(tool: FloorPlanTool): void {
     this.toolService.setTool(tool);
@@ -114,6 +119,14 @@ export class FloorPlanToolbarComponent {
 
   onDeleteSelected(): void {
     this.canvasService.deleteSelected();
+  }
+
+  onGroupSelected(): void {
+    this.canvasService.groupSelected();
+  }
+
+  onUngroupSelected(): void {
+    this.canvasService.ungroupSelected();
   }
 
   onExportSVG(): void {
@@ -166,7 +179,23 @@ export class FloorPlanToolbarComponent {
     this.canvasService.applyStrokeWidth(width);
   }
 
+  onArrowTypeChange(type: ArrowType): void {
+    this.toolService.setArrowType(type);
+  }
+
+  onConnectorTypeChange(type: ConnectorType): void {
+    this.toolService.setConnectorType(type);
+  }
+
   isToolActive(tool: FloorPlanTool): boolean {
     return this.toolService.activeTool() === tool;
+  }
+
+  onToggleSnap(): void {
+    this.toolService.setSnapEnabled(!this.toolService.snapEnabled());
+  }
+
+  onSnapSizeChange(size: number): void {
+    this.toolService.setSnapSize(size);
   }
 }
