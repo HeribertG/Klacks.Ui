@@ -11,6 +11,7 @@ import {
 import { EntrySource } from 'src/app/domain/enums/entry-source.enum';
 import { IClientBreak } from 'src/app/domain/models/client/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/break/data-break-placeholder.service';
+import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
@@ -25,6 +26,7 @@ import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 })
 export class DataManagementBreakPlaceholderService implements ILoadable {
   private dataBreakPlaceholderService = inject(DataBreakPlaceholderService);
+  private readonly clientSortPreference = inject(ClientSortPreferenceService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
@@ -101,7 +103,10 @@ export class DataManagementBreakPlaceholderService implements ILoadable {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            this.clients = this.processClientBreaks(response.clients);
+            const raw = this.processClientBreaks(response.clients);
+            this.clients = this.breakFilter.individualSort
+              ? this.clientSortPreference.applyTo(raw as (IClientBreak & { id: string })[])
+              : raw;
             this._totalAvailableRows = response.totalCount;
 
             this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);

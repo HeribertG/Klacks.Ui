@@ -48,6 +48,7 @@ import { formatClientDisplayName } from 'src/app/shared/helpers/client-name.help
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
+import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -105,6 +106,7 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private appSettingsService = inject(AppSettingsManagementService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private selectionService = inject(AvailabilitySelectionService);
+  private readonly clientSortPreference = inject(ClientSortPreferenceService);
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -191,7 +193,11 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       this.dataClientAvailability.getClients(filter)
     );
 
-    const clients = response.clients.map((c) => ({
+    const sortedRaw = filter.individualSort
+      ? this.clientSortPreference.applyTo(response.clients)
+      : response.clients;
+
+    const clients = sortedRaw.map((c) => ({
       id: c.id,
       displayName: formatClientDisplayName(c),
     }));
