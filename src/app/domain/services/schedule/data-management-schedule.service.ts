@@ -187,7 +187,10 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   get clients(): IClientWork[] {
-    return this.clientSortPreference.applyTo(this.workScheduleLoader.clients);
+    if (this.workScheduleLoader.individualSortActive) {
+      return this.clientSortPreference.applyTo(this.workScheduleLoader.clients);
+    }
+    return this.workScheduleLoader.clients;
   }
 
   get workScheduleEntries(): IScheduleCell[] {

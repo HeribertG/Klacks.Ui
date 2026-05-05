@@ -25,11 +25,18 @@ export class ClientSortPreferenceService {
     }
   }
 
-  applyTo(clients: IClientWork[]): IClientWork[] {
+  applyTo<T extends { id: string; name?: string; firstName?: string }>(clients: T[]): T[] {
     const map = this._sortMap();
 
+    const alphabetical = (a: T, b: T): number => {
+      const nameA = (a.name ?? '').toLowerCase();
+      const nameB = (b.name ?? '').toLowerCase();
+      if (nameA !== nameB) return nameA.localeCompare(nameB);
+      return (a.firstName ?? '').toLowerCase().localeCompare((b.firstName ?? '').toLowerCase());
+    };
+
     if (map.size === 0) {
-      return [...clients].sort(ClientSortPreferenceService.alphabetical);
+      return [...clients].sort(alphabetical);
     }
 
     const sorted = clients
@@ -38,7 +45,7 @@ export class ClientSortPreferenceService {
 
     const unsorted = clients
       .filter(c => !map.has(c.id))
-      .sort(ClientSortPreferenceService.alphabetical);
+      .sort(alphabetical);
 
     return [...sorted, ...unsorted];
   }
@@ -59,11 +66,4 @@ export class ClientSortPreferenceService {
     }
   }
 
-  private static alphabetical(a: IClientWork, b: IClientWork): number {
-    const nameA = (a.name ?? '').toLowerCase();
-    const nameB = (b.name ?? '').toLowerCase();
-    if (nameA !== nameB) return nameA.localeCompare(nameB);
-    return (a.firstName ?? '').toLowerCase()
-      .localeCompare((b.firstName ?? '').toLowerCase());
-  }
 }
