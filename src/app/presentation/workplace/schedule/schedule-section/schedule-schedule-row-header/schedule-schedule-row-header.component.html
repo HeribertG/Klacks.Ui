@@ -17,12 +17,11 @@
      (click)="onCanvasClick($event)"
      (contextmenu)="onRightClick($event)">
   <canvas id="scheduleRowCanvas"></canvas>
-  <div class="drag-clip" [style.top.px]="settings.cellHeaderHeight">
+  <div #dragClip class="drag-clip" cdkScrollable [style.top.px]="settings.cellHeaderHeight">
   <div class="drag-overlay"
        cdkDropList
        [cdkDropListData]="sortedClients"
-       (cdkDropListDropped)="onClientDrop($event)"
-       [style.transform]="'translateY(-' + scrollOffsetPx + 'px)'">
+       (cdkDropListDropped)="onClientDrop($event)">
     @for (client of sortedClients; track client.id) {
       <div class="drag-row"
            cdkDrag

@@ -4,6 +4,7 @@
     @if (viewMode() === 'table') {
       <app-schedule-schedule-row-header
         [valueChangeVScrollbar]="vScrollbar.value"
+        (vScrollChange)="vScrollbar.value = $event"
       >
       </app-schedule-schedule-row-header>
     } @else {

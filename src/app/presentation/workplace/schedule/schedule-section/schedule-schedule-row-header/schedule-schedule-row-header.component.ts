@@ -31,9 +31,11 @@ import {
   Injector,
   runInInjectionContext,
   viewChild,
+  output,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray, CdkDragPreview, CdkDragMove } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
@@ -79,6 +81,7 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
     CdkDragPlaceholder,
     CdkDragHandle,
     CdkDragPreview,
+    CdkScrollable,
   ],
   providers: [
     BaseCreateRowHeaderService,
@@ -94,12 +97,15 @@ export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('dragClip') private dragClipEl!: ElementRef<HTMLDivElement>;
+  @ViewChild(CdkDropList) private cdkDropListRef!: CdkDropList;
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
   @ViewChild(ShiftPreferencesDialogComponent)
   shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
 
   @Input() valueChangeVScrollbar!: number;
+  readonly vScrollChange = output<number>();
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
@@ -195,7 +201,7 @@ export class ScheduleScheduleRowHeaderComponent
       const currV = changes['valueChangeVScrollbar'].currentValue;
       if (currV !== prevV) {
         this.scroll.verticalScrollPosition = currV;
-        this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
+        this.applyScrollOffset(this.scroll.verticalScrollPosition * this.settings.cellHeight);
       }
     }
   }
@@ -230,7 +236,7 @@ export class ScheduleScheduleRowHeaderComponent
             this.drawRowHeader.rebuild();
             this.drawRowHeader.redraw();
           }
-          this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
+          this.applyScrollOffset(this.scroll.verticalScrollPosition * this.settings.cellHeight);
           this.cdr.markForCheck();
         }, 0);
       });
@@ -419,10 +425,11 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   protected onClientDrop(event: CdkDragDrop<IClientWork[]>): void {
-    if (event.previousIndex === event.currentIndex) return;
+    const currentIndex = this.resolvePlaceholderIndex(event.currentIndex);
+    if (event.previousIndex === currentIndex) return;
 
     const previousOrder = [...this.sortedClients];
-    moveItemInArray(this.sortedClients, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.sortedClients, event.previousIndex, currentIndex);
     this.cdr.markForCheck();
 
     const groupId = this.dataManagementSchedule.workFilter.selectedGroup;
@@ -436,6 +443,14 @@ export class ScheduleScheduleRowHeaderComponent
     });
 
     this.drawRowHeader.redraw();
+  }
+
+  private resolvePlaceholderIndex(cdkCurrentIndex: number): number {
+    const overlay = this.boxElement.nativeElement.querySelector('.drag-overlay');
+    if (!overlay) return cdkCurrentIndex;
+    const children = Array.from(overlay.children);
+    const idx = children.findIndex(c => c.classList.contains('cdk-drag-placeholder'));
+    return idx >= 0 ? idx : cdkCurrentIndex;
   }
 
   protected preparePreview(client: IClientWork): void {
@@ -588,6 +603,22 @@ export class ScheduleScheduleRowHeaderComponent
     this.autoScrollDirection = null;
   }
 
+  private applyScrollOffset(offset: number): void {
+    this.scrollOffsetPx = offset;
+    if (this.dragClipEl?.nativeElement) {
+      this.dragClipEl.nativeElement.scrollTop = offset;
+    }
+  }
+
+  private refreshCdkPositions(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ref = (this.cdkDropListRef as any)?._dropListRef;
+    if (ref) {
+      ref._cacheOwnPosition?.();
+      ref._cacheItemPositions?.();
+    }
+  }
+
   private doAutoScrollStep(): void {
     if (!this.autoScrollDirection) return;
     const prev = this.scroll.verticalScrollPosition;
@@ -597,7 +628,8 @@ export class ScheduleScheduleRowHeaderComponent
       this.scroll.verticalScrollPosition += 1;
     }
     if (this.scroll.verticalScrollPosition !== prev) {
-      this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
+      this.applyScrollOffset(this.scroll.verticalScrollPosition * this.settings.cellHeight);
+      this.vScrollChange.emit(this.scroll.verticalScrollPosition);
       this.cdr.markForCheck();
     }
     const elapsed = Date.now() - this.autoScrollStartTime;
