@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Service for managing group selection and triggering entity-specific data reloads.
+ * @param selectedGroup - The currently selected group (undefined = no group)
+ * @param selectedGroupChanged - Signal that pulses true when the selection changes
+ */
+
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
@@ -9,6 +15,7 @@ import { DataManagementScheduleService } from '../schedule/data-management-sched
 import { DataManagementShiftService } from '../shift/data-management-shift.service';
 import { DataManagementClientService } from '../client/data-management-client.service';
 import { AppSettingsManagementService } from '../settings/app-settings-management.service';
+import { AnalyseScenarioService } from '../schedule/analyse-scenario.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +27,7 @@ export class GroupSelectionService {
   private dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementClientService = inject(DataManagementClientService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
   private clientAvailabilityGroupCallback: ((groupId: string | undefined) => void) | null = null;
@@ -73,6 +81,8 @@ export class GroupSelectionService {
           schedFilter.currentWeek = Math.floor(Math.round((d.getTime() - jan1.getTime()) / 86400000) / 7) + 1;
           schedFilter.currentYear = now.getFullYear();
         }
+        this.analyseScenarioService.exitScenario();
+        this.analyseScenarioService.loadScenarios(this.selectedGroupId);
         this.dataManagementScheduleService.readDatas();
         break;
       }
