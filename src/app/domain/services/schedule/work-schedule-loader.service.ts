@@ -255,6 +255,10 @@ export class WorkScheduleLoaderService {
     return this._totalAvailableClients;
   }
 
+  get individualSortActive(): boolean {
+    return this._currentFilter?.individualSort ?? false;
+  }
+
   calculateVisibleDates(workFilter: IWorkFilter): {
     startDate: string;
     endDate: string;
@@ -310,7 +314,7 @@ export class WorkScheduleLoaderService {
       sortOrder: workFilter.sortOrder || 'asc',
       showEmployees: workFilter.showEmployees ?? true,
       showExtern: workFilter.showExtern ?? true,
-      hoursSortOrder: workFilter.hoursSortOrder || undefined,
+      individualSort: workFilter.individualSort ?? false,
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,
       paymentInterval: workFilter.paymentInterval,

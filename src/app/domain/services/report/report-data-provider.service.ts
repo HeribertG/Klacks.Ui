@@ -204,7 +204,7 @@ export class ReportDataProviderService {
             firstItemOnLastPage: undefined,
             isPreviousPage: undefined,
             isNextPage: undefined,
-            hoursSortOrder: undefined,
+            individualSort: false,
           })
         );
         const clients = params.clientId

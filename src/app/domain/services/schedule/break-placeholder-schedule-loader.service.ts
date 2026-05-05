@@ -68,7 +68,7 @@ export class BreakPlaceholderScheduleLoaderService {
       isNextPage: undefined,
       showEmployees: workFilter.showEmployees ?? true,
       showExtern: workFilter.showExtern ?? true,
-      hoursSortOrder: workFilter.hoursSortOrder || undefined,
+      individualSort: workFilter.individualSort ?? false,
     };
 
     this.loadTrigger$.next(filter);

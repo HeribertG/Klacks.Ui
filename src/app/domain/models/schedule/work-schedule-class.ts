@@ -59,7 +59,7 @@ export interface IWorkScheduleFilter {
   sortOrder?: string;
   showEmployees?: boolean;
   showExtern?: boolean;
-  hoursSortOrder?: string;
+  individualSort?: boolean;
   startRow?: number;
   rowCount?: number;
   paymentInterval?: number;

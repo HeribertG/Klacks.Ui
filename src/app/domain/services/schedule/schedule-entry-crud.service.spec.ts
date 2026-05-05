@@ -37,7 +37,7 @@ function createMockWorkFilter(): IWorkFilter {
     isNextPage: undefined,
     showEmployees: true,
     showExtern: true,
-    hoursSortOrder: undefined,
+    individualSort: false,
   };
 }
 
