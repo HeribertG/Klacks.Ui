@@ -12,6 +12,16 @@
   position: relative;
 }
 
+.drag-clip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .drag-overlay {
   position: absolute;
   top: 0;
@@ -60,6 +70,7 @@
 
 canvas {
   background-color: var(--gridContainerBackground);
+  pointer-events: none;
 }
 
 .schedule-filter-windows {

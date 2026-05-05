@@ -11,24 +11,24 @@
   ></app-client-filter>
 </div>
 
-<div #box id="box" class="box" appResize (resizeElement)="onResize($event)">
-  <canvas
-    id="scheduleRowCanvas"
-    (mousemove)="onMouseMove($event)"
-    (mouseleave)="onCanvasMouseLeave()"
-    (click)="onCanvasClick($event)"
-    (contextmenu)="onRightClick($event)"
-  ></canvas>
+<div #box id="box" class="box" appResize (resizeElement)="onResize($event)"
+     (mousemove)="onMouseMove($event)"
+     (mouseleave)="onCanvasMouseLeave()"
+     (click)="onCanvasClick($event)"
+     (contextmenu)="onRightClick($event)">
+  <canvas id="scheduleRowCanvas"></canvas>
+  <div class="drag-clip" [style.top.px]="settings.cellHeaderHeight">
   <div class="drag-overlay"
        cdkDropList
        [cdkDropListData]="sortedClients"
        (cdkDropListDropped)="onClientDrop($event)"
-       [style.top.px]="settings.cellHeaderHeight"
        [style.transform]="'translateY(-' + scrollOffsetPx + 'px)'">
     @for (client of sortedClients; track client.id) {
       <div class="drag-row"
            cdkDrag
            cdkDragLockAxis="y"
+           (cdkDragMoved)="onDragMoved($event)"
+           (cdkDragEnded)="onDragEnded()"
            [style.height.px]="settings.getGroupLineHeight(client.displayRows)">
         <div class="drag-handle" cdkDragHandle
              (mousedown)="preparePreview(client)"></div>
@@ -43,6 +43,7 @@
         </div>
       </div>
     }
+  </div>
   </div>
 </div>
 

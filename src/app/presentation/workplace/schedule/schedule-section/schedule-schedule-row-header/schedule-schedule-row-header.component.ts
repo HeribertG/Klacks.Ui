@@ -33,7 +33,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray, CdkDragPreview } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray, CdkDragPreview, CdkDragMove } from '@angular/cdk/drag-drop';
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
@@ -131,6 +131,14 @@ export class ScheduleScheduleRowHeaderComponent
   private iconSize = 16;
   private contextMenuRow = -1;
 
+  private static readonly SCROLL_EDGE_THRESHOLD = 60;
+  private static readonly SCROLL_INITIAL_DELAY = 300;
+  private static readonly SCROLL_MIN_DELAY = 50;
+
+  private autoScrollTimer: ReturnType<typeof setTimeout> | null = null;
+  private autoScrollDirection: 'up' | 'down' | null = null;
+  private autoScrollStartTime = 0;
+
   private set currentCursor(cursor: CursorEnum) {
     document.body.style.cursor = cursor;
   }
@@ -150,7 +158,6 @@ export class ScheduleScheduleRowHeaderComponent
     this.initializeDrawRowHeader();
     this.readSignals();
     this.syncSortedClients();
-
     this.contextMenu?.hasClicked
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((keys) => {
@@ -160,6 +167,7 @@ export class ScheduleScheduleRowHeaderComponent
 
   ngOnDestroy(): void {
     this.isDestroyed = true;
+    this.stopAutoScroll();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.drawRowHeader.deleteCanvas();
@@ -187,7 +195,7 @@ export class ScheduleScheduleRowHeaderComponent
       const currV = changes['valueChangeVScrollbar'].currentValue;
       if (currV !== prevV) {
         this.scroll.verticalScrollPosition = currV;
-        this.scrollOffsetPx = currV * this.settings.cellHeight;
+        this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
       }
     }
   }
@@ -544,5 +552,58 @@ export class ScheduleScheduleRowHeaderComponent
     this.filterStyle = {
       visibility: 'hidden',
     };
+  }
+
+  protected onDragMoved(event: CdkDragMove): void {
+    const rect = this.boxElement.nativeElement.getBoundingClientRect();
+    const nativeEvent = event.event as MouseEvent;
+    const y = nativeEvent.clientY;
+    const threshold = ScheduleScheduleRowHeaderComponent.SCROLL_EDGE_THRESHOLD;
+    if (y < rect.top + threshold) {
+      this.startAutoScroll('up');
+    } else if (y > rect.bottom - threshold) {
+      this.startAutoScroll('down');
+    } else {
+      this.stopAutoScroll();
+    }
+  }
+
+  protected onDragEnded(): void {
+    this.stopAutoScroll();
+  }
+
+  private startAutoScroll(direction: 'up' | 'down'): void {
+    if (this.autoScrollDirection === direction) return;
+    this.stopAutoScroll();
+    this.autoScrollDirection = direction;
+    this.autoScrollStartTime = Date.now();
+    this.doAutoScrollStep();
+  }
+
+  private stopAutoScroll(): void {
+    if (this.autoScrollTimer !== null) {
+      clearTimeout(this.autoScrollTimer);
+      this.autoScrollTimer = null;
+    }
+    this.autoScrollDirection = null;
+  }
+
+  private doAutoScrollStep(): void {
+    if (!this.autoScrollDirection) return;
+    const prev = this.scroll.verticalScrollPosition;
+    if (this.autoScrollDirection === 'up') {
+      this.scroll.verticalScrollPosition -= 1;
+    } else {
+      this.scroll.verticalScrollPosition += 1;
+    }
+    if (this.scroll.verticalScrollPosition !== prev) {
+      this.scrollOffsetPx = this.scroll.verticalScrollPosition * this.settings.cellHeight;
+      this.cdr.markForCheck();
+    }
+    const elapsed = Date.now() - this.autoScrollStartTime;
+    const initial = ScheduleScheduleRowHeaderComponent.SCROLL_INITIAL_DELAY;
+    const min = ScheduleScheduleRowHeaderComponent.SCROLL_MIN_DELAY;
+    const delay = Math.max(min, initial - (elapsed / 1500) * (initial - min));
+    this.autoScrollTimer = setTimeout(() => this.doAutoScrollStep(), delay);
   }
 }
