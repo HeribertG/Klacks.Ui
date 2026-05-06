@@ -163,6 +163,7 @@ export class FloorPlanCanvasService {
     this.canvas.on('path:created', (opt) => {
       const path = opt.path;
       if (path) {
+        path.set('data', { shapeId: crypto.randomUUID() });
         this.assignToActiveLayer(path);
       }
     });
@@ -804,6 +805,7 @@ export class FloorPlanCanvasService {
     if (!this.canvas) return;
     const img = await FabricImage.fromURL(url);
     img.set({ left: this.snap(100), top: this.snap(100) });
+    img.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(img);
     this.canvas.add(img);
     this.canvas.setActiveObject(img);
@@ -847,6 +849,7 @@ export class FloorPlanCanvasService {
   private restoreState(json: string): void {
     if (!this.canvas) return;
     this.canvas.loadFromJSON(JSON.parse(json)).then(() => {
+      this.assignMissingShapeIds();
       this.canvas!.renderAll();
     });
   }
@@ -864,6 +867,7 @@ export class FloorPlanCanvasService {
     activeObjects.forEach((obj) => this.canvas!.remove(obj));
 
     const group = new Group(activeObjects);
+    group.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(group);
     this.canvas.add(group);
     this.canvas.setActiveObject(group);
@@ -1083,7 +1087,8 @@ export class FloorPlanCanvasService {
     if (!this.canvas) return;
     for (const obj of this.canvas.getObjects()) {
       const data = (obj as any).data ?? {};
-      if (!data.isConnector && !data.shapeId) {
+      const isShape = !data.isConnector && !data.markerId && !data.liveMarker;
+      if (isShape && !data.shapeId) {
         obj.set('data', { ...data, shapeId: crypto.randomUUID() });
       }
     }
