@@ -119,6 +119,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private applyTool(tool: FloorPlanTool): void {
+    this.teardownConnectorEvents();
     this.canvasService.cancelPolygonDrawing();
 
     switch (tool) {
@@ -225,6 +226,13 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
           target.top ?? 0
         );
       } else if (data.shapeId && !data.isConnector) {
+        this.connectorService.onShapeMoved(data.shapeId);
+      }
+    });
+
+    canvas.on('object:modified', (opt: any) => {
+      const data = (opt.target as any)?.data;
+      if (data?.shapeId && !data.isConnector) {
         this.connectorService.onShapeMoved(data.shapeId);
       }
     });

@@ -74,6 +74,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
 
   dataManagement = inject(DataManagementFloorPlanService);
   canvasService = inject(FloorPlanCanvasService);
+  connectorService = inject(FloorPlanConnectorService);
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   private toastService = inject(ToastShowService);
@@ -218,6 +219,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
       setTimeout(async () => {
         if (this.editingPlan?.canvasJson) {
           await this.canvasService.loadFromJSON(this.editingPlan.canvasJson);
+          this.connectorService.rebuildAfterLoad();
         }
         if (this.editingPlan?.workMarkers) {
           this.canvasService.renderWorkMarkers(this.editingPlan.workMarkers);

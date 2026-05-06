@@ -78,7 +78,7 @@ export class FloorPlanConnectorService {
 
     for (const obj of this.canvas.getObjects()) {
       const data = (obj as any).data;
-      if (!data?.shapeId || data.isConnector) continue;
+      if (!data?.shapeId || data.isConnector || data.isPortIndicator) continue;
 
       for (const side of sides) {
         const port = this.getPortCoords(obj, side);
@@ -214,7 +214,8 @@ export class FloorPlanConnectorService {
       strokeWidth: 2,
       originX: 'center',
       originY: 'center',
-      selectable: true,
+      selectable: false,
+      evented: false,
       hasBorders: false,
       hasControls: false,
     });
@@ -237,7 +238,7 @@ export class FloorPlanConnectorService {
     const cp = data.controlPoint ?? this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
 
     const path = this.buildPath(data.start, data.end, data.routing, cp, stroke, strokeWidth);
-    path.set('data', { connectorId: id, isConnector: true, isConnectorPath: true });
+    path.set('data', { connectorId: id, isConnector: true, isConnectorPath: true, connectorData: { ...data } });
     this.canvas.add(path);
 
     const endAngle = data.routing === ConnectorRoutingType.Curved
@@ -377,5 +378,36 @@ export class FloorPlanConnectorService {
     const cpY = (4 * handleY - data.start.y - data.end.y) / 2;
     data.controlPoint = { x: cpX, y: cpY };
     this.redrawConnector(connectorId);
+  }
+
+  rebuildAfterLoad(): void {
+    this.rebuildConnectorMaps();
+  }
+
+  private rebuildConnectorMaps(): void {
+    if (!this.canvas) return;
+    this.connectorMap.clear();
+    this.shapeConnectors.clear();
+
+    for (const obj of this.canvas.getObjects()) {
+      const data = (obj as any).data;
+      if (!data?.isConnectorPath || !data.connectorData) continue;
+
+      const cd = data.connectorData as ConnectorData;
+      this.connectorMap.set(cd.id, { ...cd });
+
+      if (cd.start.shapeId) {
+        const list = this.shapeConnectors.get(cd.start.shapeId) ?? [];
+        if (!list.includes(cd.id)) {
+          this.shapeConnectors.set(cd.start.shapeId, [...list, cd.id]);
+        }
+      }
+      if (cd.end.shapeId) {
+        const list = this.shapeConnectors.get(cd.end.shapeId) ?? [];
+        if (!list.includes(cd.id)) {
+          this.shapeConnectors.set(cd.end.shapeId, [...list, cd.id]);
+        }
+      }
+    }
   }
 }
