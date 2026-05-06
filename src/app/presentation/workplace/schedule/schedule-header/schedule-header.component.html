@@ -101,6 +101,18 @@
   <app-harmonizer-dialog #harmonizerDialog />
 
   <button
+    id="schedule-wizard3-btn"
+    type="button"
+    class="icon-button wizard3-button"
+    (click)="onWizard3Click()"
+    ngbTooltip="{{ 'wizard3.dialog.title' | translate }}"
+  >
+    <app-icon-wizard3 />
+  </button>
+
+  <app-wizard3-dialog #wizard3Dialog />
+
+  <button
     id="schedule-pdf-export-btn"
     type="button"
     class="icon-button pdf-export-button"

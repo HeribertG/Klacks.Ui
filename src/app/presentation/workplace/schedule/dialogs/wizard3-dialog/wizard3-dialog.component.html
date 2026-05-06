@@ -1,0 +1,34 @@
+<ng-template #wizard3Modal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ 'wizard3.dialog.title' | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <p class="wizard3-status-line">
+      <strong>{{ 'wizard3.dialog.status-label' | translate }}:</strong>
+      {{ 'wizard3.dialog.status-planned' | translate }}
+    </p>
+
+    <p>{{ 'wizard3.dialog.description' | translate }}</p>
+
+    <ul class="wizard3-layers">
+      <li>{{ 'wizard3.dialog.layer-llm' | translate }}</li>
+      <li>{{ 'wizard3.dialog.layer-agents' | translate }}</li>
+      <li>{{ 'wizard3.dialog.layer-controller' | translate }}</li>
+    </ul>
+
+    <p class="wizard3-llm-model">
+      <strong>{{ 'wizard3.dialog.selected-model' | translate }}:</strong>
+      @if (selectedLlmModelId()) {
+        <span>{{ selectedLlmModelId() }}</span>
+      } @else {
+        <span class="wizard3-llm-model-none">{{ 'wizard3.dialog.no-model' | translate }}</span>
+      }
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close()">
+      {{ 'wizard3.dialog.close' | translate }}
+    </button>
+  </div>
+</ng-template>

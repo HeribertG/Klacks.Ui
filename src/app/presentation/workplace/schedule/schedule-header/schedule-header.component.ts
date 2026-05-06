@@ -49,6 +49,8 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { IconHarmonizerComponent } from 'src/app/presentation/icons/icon-harmonizer.component';
+import { Wizard3DialogComponent } from '../dialogs/wizard3-dialog/wizard3-dialog.component';
+import { IconWizard3Component } from 'src/app/presentation/icons/icon-wizard3.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
@@ -94,6 +96,8 @@ const DEFAULT_ZOOM_VALUE = 100;
     WizardDialogComponent,
     IconHarmonizerComponent,
     HarmonizerDialogComponent,
+    IconWizard3Component,
+    Wizard3DialogComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -105,6 +109,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
+  @ViewChild('wizard3Dialog') wizard3Dialog!: Wizard3DialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -309,6 +314,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onHarmonizerClick(): void {
     this.harmonizerDialog.open();
+  }
+
+  onWizard3Click(): void {
+    this.wizard3Dialog.open();
   }
 
   async onSendAllSchedules(): Promise<void> {

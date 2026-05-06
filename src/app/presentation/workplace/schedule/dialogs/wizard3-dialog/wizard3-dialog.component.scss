@@ -1,0 +1,17 @@
+.wizard3-status-line {
+  margin-bottom: 1rem;
+}
+
+.wizard3-layers {
+  margin: 0.5rem 0 1rem 1.25rem;
+  padding: 0;
+}
+
+.wizard3-llm-model {
+  margin-top: 1rem;
+}
+
+.wizard3-llm-model-none {
+  color: var(--colorInactive, #888);
+  font-style: italic;
+}
