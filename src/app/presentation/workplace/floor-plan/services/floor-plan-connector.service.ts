@@ -55,6 +55,83 @@ export class FloorPlanConnectorService {
     this.shapeConnectors.clear();
   }
 
+  private getPortCoords(obj: FabricObject, side: PortSide): { x: number; y: number } {
+    const scaleX = (obj as any).scaleX ?? 1;
+    const scaleY = (obj as any).scaleY ?? 1;
+    const w = ((obj as any).width ?? 0) * scaleX;
+    const h = ((obj as any).height ?? 0) * scaleY;
+    const l = (obj as any).left ?? 0;
+    const t = (obj as any).top ?? 0;
+    switch (side) {
+      case 'right':  return { x: l + w,       y: t + h / 2 };
+      case 'left':   return { x: l,            y: t + h / 2 };
+      case 'top':    return { x: l + w / 2,    y: t };
+      case 'bottom': return { x: l + w / 2,    y: t + h };
+    }
+  }
+
+  getPortNear(x: number, y: number): PortHit | null {
+    if (!this.canvas) return null;
+    const sides: PortSide[] = ['left', 'right', 'top', 'bottom'];
+    let best: PortHit | null = null;
+    let bestDist = PORT_HIT_RADIUS;
+
+    for (const obj of this.canvas.getObjects()) {
+      const data = (obj as any).data;
+      if (!data?.shapeId || data.isConnector) continue;
+
+      for (const side of sides) {
+        const port = this.getPortCoords(obj, side);
+        const dist = Math.sqrt((port.x - x) ** 2 + (port.y - y) ** 2);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = { shapeId: data.shapeId, portSide: side, x: port.x, y: port.y };
+        }
+      }
+    }
+    return best;
+  }
+
+  showPortIndicators(shapeId: string): void {
+    if (!this.canvas) return;
+    this.hidePortIndicators();
+
+    const target = this.canvas.getObjects().find(
+      (obj) => (obj as any).data?.shapeId === shapeId && !(obj as any).data?.isConnector
+    );
+    if (!target) return;
+
+    const sides: PortSide[] = ['left', 'right', 'top', 'bottom'];
+    for (const side of sides) {
+      const port = this.getPortCoords(target, side);
+      const circle = new Circle({
+        left: port.x,
+        top: port.y,
+        radius: PORT_INDICATOR_RADIUS,
+        fill: PORT_INDICATOR_COLOR,
+        stroke: '#ffffff',
+        strokeWidth: 1.5,
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        evented: false,
+        opacity: 0.85,
+      });
+      circle.set('data', { isPortIndicator: true, shapeId, portSide: side });
+      this.canvas.add(circle);
+    }
+    this.canvas.renderAll();
+  }
+
+  hidePortIndicators(): void {
+    if (!this.canvas) return;
+    const indicators = this.canvas.getObjects().filter(
+      (obj) => (obj as any).data?.isPortIndicator
+    );
+    indicators.forEach((obj) => this.canvas!.remove(obj));
+    this.canvas.renderAll();
+  }
+
   private getDefaultControlPoint(x1: number, y1: number, x2: number, y2: number): { x: number; y: number } {
     return {
       x: (x1 + x2) / 2,
