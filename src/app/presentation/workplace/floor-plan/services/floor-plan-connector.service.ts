@@ -368,4 +368,14 @@ export class FloorPlanConnectorService {
       this.deleteConnector(id);
     }
   }
+
+  onMidpointHandleMoved(connectorId: string, handleX: number, handleY: number): void {
+    const data = this.connectorMap.get(connectorId);
+    if (!data || data.routing !== ConnectorRoutingType.Curved) return;
+
+    const cpX = (4 * handleX - data.start.x - data.end.x) / 2;
+    const cpY = (4 * handleY - data.start.y - data.end.y) / 2;
+    data.controlPoint = { x: cpX, y: cpY };
+    this.redrawConnector(connectorId);
+  }
 }
