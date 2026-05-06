@@ -30,6 +30,16 @@ export enum ConnectorType {
   Curved = 'curved',
 }
 
+export enum ConnectorRoutingType {
+  Straight = 'straight',
+  Curved = 'curved',
+}
+
+export enum ConnectorArrowheadType {
+  Single = 'single',
+  Double = 'double',
+}
+
 const DEFAULT_STROKE_COLOR = '#000000';
 const DEFAULT_FILL_COLOR = 'transparent';
 const DEFAULT_STROKE_WIDTH = 2;
@@ -49,6 +59,8 @@ export class FloorPlanToolService {
   private readonly _snapSize = signal<number>(DEFAULT_SNAP_SIZE);
   private readonly _arrowType = signal<ArrowType>(DEFAULT_ARROW_TYPE);
   private readonly _connectorType = signal<ConnectorType>(DEFAULT_CONNECTOR_TYPE);
+  private readonly _connectorRouting = signal<ConnectorRoutingType>(ConnectorRoutingType.Straight);
+  private readonly _connectorArrowhead = signal<ConnectorArrowheadType>(ConnectorArrowheadType.Single);
 
   readonly activeTool: Signal<FloorPlanTool> = this._activeTool.asReadonly();
   readonly strokeColor: Signal<string> = this._strokeColor.asReadonly();
@@ -59,6 +71,8 @@ export class FloorPlanToolService {
   readonly snapSize: Signal<number> = this._snapSize.asReadonly();
   readonly arrowType: Signal<ArrowType> = this._arrowType.asReadonly();
   readonly connectorType: Signal<ConnectorType> = this._connectorType.asReadonly();
+  readonly connectorRouting: Signal<ConnectorRoutingType> = this._connectorRouting.asReadonly();
+  readonly connectorArrowhead: Signal<ConnectorArrowheadType> = this._connectorArrowhead.asReadonly();
 
   setTool(tool: FloorPlanTool): void {
     this._activeTool.set(tool);
@@ -94,5 +108,13 @@ export class FloorPlanToolService {
 
   setConnectorType(type: ConnectorType): void {
     this._connectorType.set(type);
+  }
+
+  setConnectorRouting(routing: ConnectorRoutingType): void {
+    this._connectorRouting.set(routing);
+  }
+
+  setConnectorArrowhead(arrowhead: ConnectorArrowheadType): void {
+    this._connectorArrowhead.set(arrowhead);
   }
 }
