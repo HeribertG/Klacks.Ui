@@ -185,12 +185,10 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
         result.push(existing);
         existingById.delete(canvasMarker.id);
       } else {
-        // New marker dropped from work panel (has no id yet)
         result.push(canvasMarker);
       }
     }
 
-    // Keep any existing markers that were not on canvas (e.g. deleted from canvas)
     for (const remaining of existingById.values()) {
       result.push(remaining);
     }
@@ -215,7 +213,6 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
         windowClass: 'floor-plan-fullscreen-modal',
       });
 
-      // Initialize canvas after modal DOM is ready
       setTimeout(async () => {
         if (this.editingPlan?.canvasJson) {
           await this.canvasService.loadFromJSON(this.editingPlan.canvasJson);

@@ -42,6 +42,9 @@ const PORT_INDICATOR_RADIUS = 5;
 const MIDPOINT_HANDLE_COLOR = '#f59e0b';
 const ENDPOINT_HANDLE_COLOR = '#2563eb';
 const PORT_INDICATOR_COLOR = '#2563eb';
+const CONNECTOR_STROKE_COLOR = '#374151';
+const CONNECTOR_STROKE_WIDTH = 2;
+const CONTROL_POINT_Y_OFFSET = 60;
 
 @Injectable()
 export class FloorPlanConnectorService {
@@ -135,7 +138,7 @@ export class FloorPlanConnectorService {
   private getDefaultControlPoint(x1: number, y1: number, x2: number, y2: number): { x: number; y: number } {
     return {
       x: (x1 + x2) / 2,
-      y: Math.min(y1, y2) - 60,
+      y: Math.min(y1, y2) - CONTROL_POINT_Y_OFFSET,
     };
   }
 
@@ -233,8 +236,8 @@ export class FloorPlanConnectorService {
     );
     toRemove.forEach((obj) => this.canvas!.remove(obj));
 
-    const stroke = '#374151';
-    const strokeWidth = 2;
+    const stroke = CONNECTOR_STROKE_COLOR;
+    const strokeWidth = CONNECTOR_STROKE_WIDTH;
     const cp = data.controlPoint ?? this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
 
     const path = this.buildPath(data.start, data.end, data.routing, cp, stroke, strokeWidth);
@@ -279,7 +282,7 @@ export class FloorPlanConnectorService {
     routing: ConnectorRoutingType,
     arrowhead: ConnectorArrowheadType
   ): string {
-    const id = `conn-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const id = `conn-${crypto.randomUUID()}`;
     const data: ConnectorData = {
       id,
       start: { ...start },

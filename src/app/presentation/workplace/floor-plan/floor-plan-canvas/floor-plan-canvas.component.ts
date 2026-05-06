@@ -93,7 +93,6 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       this.effects.push(layerStateEffect);
 
       const activeLayerEffect = effect(() => {
-        // Track active layer for visual feedback if needed
         this.layerService.activeLayerId();
       });
       this.effects.push(activeLayerEffect);
