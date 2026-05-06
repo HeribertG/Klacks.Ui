@@ -150,11 +150,13 @@ export class FloorPlanCanvasService {
       this.saveHistory();
     });
 
-    this.canvas.on('object:added', () => {
+    this.canvas.on('object:added', (e) => {
+      if ((e.target as any)?.data?.isPortIndicator) return;
       this.saveHistory();
     });
 
-    this.canvas.on('object:removed', () => {
+    this.canvas.on('object:removed', (e) => {
+      if ((e.target as any)?.data?.isPortIndicator) return;
       this.saveHistory();
     });
 
@@ -299,6 +301,7 @@ export class FloorPlanCanvasService {
       stroke: '#000000',
       strokeWidth: 2,
     });
+    rect.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(rect);
     this.canvas.add(rect);
     this.canvas.setActiveObject(rect);
@@ -315,6 +318,7 @@ export class FloorPlanCanvasService {
       stroke: '#000000',
       strokeWidth: 2,
     });
+    circle.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(circle);
     this.canvas.add(circle);
     this.canvas.setActiveObject(circle);
@@ -328,6 +332,7 @@ export class FloorPlanCanvasService {
       stroke: '#000000',
       strokeWidth: 2,
     });
+    line.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(line);
     this.canvas.add(line);
     this.canvas.setActiveObject(line);
@@ -710,6 +715,7 @@ export class FloorPlanCanvasService {
       fill: '#000000',
       width: this.snap(200),
     });
+    textbox.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(textbox);
     this.canvas.add(textbox);
     this.canvas.setActiveObject(textbox);
@@ -725,6 +731,7 @@ export class FloorPlanCanvasService {
       stroke: '#000000',
       strokeWidth: 2,
     });
+    polygon.set('data', { shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(polygon);
     this.canvas.add(polygon);
     this.canvas.setActiveObject(polygon);
@@ -760,6 +767,7 @@ export class FloorPlanCanvasService {
   async loadFromJSON(json: string): Promise<void> {
     if (!this.canvas) return;
     await this.canvas.loadFromJSON(JSON.parse(json));
+    this.assignMissingShapeIds();
     this.syncLayerState();
     this.canvas.renderAll();
   }
@@ -1069,6 +1077,16 @@ export class FloorPlanCanvasService {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  private assignMissingShapeIds(): void {
+    if (!this.canvas) return;
+    for (const obj of this.canvas.getObjects()) {
+      const data = (obj as any).data ?? {};
+      if (!data.isConnector && !data.shapeId) {
+        obj.set('data', { ...data, shapeId: crypto.randomUUID() });
+      }
+    }
   }
 
   startPolygonDrawing(): void {
