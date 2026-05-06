@@ -4,7 +4,7 @@
  * Unit tests for pure-math methods in FloorPlanConnectorService.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
 
 function mockShape(left: number, top: number, width: number, height: number): any {
@@ -58,6 +58,73 @@ describe('FloorPlanConnectorService', () => {
     it('places control point at horizontal midpoint, 60px above minimum y', () => {
       const result = (service as any).getDefaultControlPoint(0, 100, 200, 100);
       expect(result).toEqual({ x: 100, y: 40 });
+    });
+  });
+
+  function makeCanvasWithObjects(objects: any[]): any {
+    return {
+      getObjects: () => objects,
+      add: vi.fn(),
+      remove: vi.fn(),
+      renderAll: vi.fn(),
+    };
+  }
+
+  describe('getPortNear', () => {
+    it('returns null when canvas is not initialized', () => {
+      expect(service.getPortNear(50, 50)).toBeNull();
+    });
+
+    it('returns null when no shape is within PORT_HIT_RADIUS', () => {
+      const shape = { data: { shapeId: 'abc' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 };
+      (service as any).canvas = makeCanvasWithObjects([shape]);
+      expect(service.getPortNear(200, 200)).toBeNull();
+    });
+
+    it('returns nearest PortHit when within 20px of a port', () => {
+      const shape = { data: { shapeId: 'abc' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 };
+      (service as any).canvas = makeCanvasWithObjects([shape]);
+      const hit = service.getPortNear(110, 25);
+      expect(hit).not.toBeNull();
+      expect(hit!.shapeId).toBe('abc');
+      expect(hit!.portSide).toBe('right');
+      expect(hit!.x).toBe(100);
+      expect(hit!.y).toBe(25);
+    });
+
+    it('returns null when point is exactly at PORT_HIT_RADIUS boundary (21px away)', () => {
+      const shape = { data: { shapeId: 'abc' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 };
+      (service as any).canvas = makeCanvasWithObjects([shape]);
+      expect(service.getPortNear(121, 25)).toBeNull();
+    });
+
+    it('skips objects with data.isConnector', () => {
+      const connector = { data: { shapeId: 'abc', isConnector: true }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 };
+      (service as any).canvas = makeCanvasWithObjects([connector]);
+      expect(service.getPortNear(100, 25)).toBeNull();
+    });
+
+    it('skips objects without data.shapeId', () => {
+      const noId = { data: {}, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 };
+      (service as any).canvas = makeCanvasWithObjects([noId]);
+      expect(service.getPortNear(100, 25)).toBeNull();
+    });
+  });
+
+  describe('hidePortIndicators', () => {
+    it('removes only objects with data.isPortIndicator', () => {
+      const indicator = { data: { isPortIndicator: true } };
+      const shape = { data: { shapeId: 'abc' } };
+      const mockCanvas = makeCanvasWithObjects([indicator, shape]);
+      (service as any).canvas = mockCanvas;
+      service.hidePortIndicators();
+      expect(mockCanvas.remove).toHaveBeenCalledWith(indicator);
+      expect(mockCanvas.remove).not.toHaveBeenCalledWith(shape);
+      expect(mockCanvas.renderAll).toHaveBeenCalled();
+    });
+
+    it('does nothing when canvas is null', () => {
+      expect(() => service.hidePortIndicators()).not.toThrow();
     });
   });
 });
