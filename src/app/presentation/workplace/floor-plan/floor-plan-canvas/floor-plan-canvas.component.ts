@@ -15,10 +15,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-import { Line, ActiveSelection } from 'fabric';
-import { FloorPlanToolService, FloorPlanTool, ConnectorType } from '../services/floor-plan-tool.service';
+import { Line } from 'fabric';
+import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
+import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
 
 const CANVAS_DEFAULT_WIDTH = 1200;
 const CANVAS_DEFAULT_HEIGHT = 800;
@@ -38,12 +39,14 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private toolService = inject(FloorPlanToolService);
   private workDropService = inject(FloorPlanWorkDropService);
   private layerService = inject(FloorPlanLayerService);
+  private connectorService = inject(FloorPlanConnectorService);
   private injector = inject(Injector);
 
   private effects: EffectRef[] = [];
-  private connectorStart: { x: number; y: number } | null = null;
+  private connectorStart: { shapeId?: string; portSide: 'left' | 'right' | 'top' | 'bottom' | 'free'; x: number; y: number } | null = null;
   private tempConnectorLine: any = null;
   private isDeletingConnector = false;
+  private hoveredPortShapeId: string | null = null;
 
   ngAfterViewInit(): void {
     this.canvasService.initCanvas(
@@ -53,6 +56,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     );
     this.layerService.initDefaultLayers();
     this.canvasService.syncLayerState();
+    this.connectorService.init(this.canvasService.getCanvas()!);
     this.setupEffects();
     this.setupConnectorInteraction();
   }
@@ -136,11 +140,6 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         this.canvasService.addLine();
         this.toolService.setTool(FloorPlanTool.Select);
         break;
-      case FloorPlanTool.Arrow:
-        this.canvasService.disableFreeDrawing();
-        this.canvasService.addArrow();
-        this.toolService.setTool(FloorPlanTool.Select);
-        break;
       case FloorPlanTool.Polygon:
         this.canvasService.disableFreeDrawing();
         this.canvasService.startPolygonDrawing();
@@ -206,6 +205,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.connectorStart = null;
     canvas.on('mouse:down', this.onConnectorMouseDown);
     canvas.on('mouse:move', this.onConnectorMouseMove);
+    canvas.on('mouse:up', this.onConnectorMouseUp);
   }
 
   private setupConnectorInteraction(): void {
@@ -216,47 +216,31 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       const target = opt.target;
       if (!target) return;
       const data = (target as any).data;
-      if (data?.isConnectorHandle) {
-        this.canvasService.updateConnectorPath(data.connectorId);
+      if (!data) return;
+
+      if (data.isMidpointHandle && data.connectorId) {
+        this.connectorService.onMidpointHandleMoved(
+          data.connectorId,
+          target.left ?? 0,
+          target.top ?? 0
+        );
+      } else if (data.shapeId && !data.isConnector) {
+        this.connectorService.onShapeMoved(data.shapeId);
       }
-    });
-
-    canvas.on('selection:created', (opt: any) => {
-      this.expandConnectorSelection(opt.selected);
-    });
-
-    canvas.on('selection:updated', (opt: any) => {
-      this.expandConnectorSelection(opt.selected);
     });
 
     canvas.on('object:removed', (opt: any) => {
       if (this.isDeletingConnector) return;
-      const target = opt.target;
-      if (!target) return;
-      const data = (target as any).data;
-      if (data?.isConnector) {
+      const data = (opt.target as any)?.data;
+      if (!data) return;
+      if (data.isConnector && data.connectorId) {
         this.isDeletingConnector = true;
-        this.canvasService.deleteConnector(data.connectorId);
+        this.connectorService.deleteConnector(data.connectorId);
         this.isDeletingConnector = false;
+      } else if (data.shapeId && !data.isConnector) {
+        this.connectorService.onShapeRemoved(data.shapeId);
       }
     });
-  }
-
-  private expandConnectorSelection(selected: any[]): void {
-    if (!selected || selected.length !== 1) return;
-    const data = (selected[0] as any).data;
-    if (!data?.isConnector) return;
-
-    const canvas = this.canvasService.getCanvas();
-    if (!canvas) return;
-
-    const connectorId = data.connectorId;
-    const related = canvas.getObjects().filter((obj: any) => obj.data?.connectorId === connectorId);
-    if (related.length > 1) {
-      const activeSelection = new ActiveSelection(related, { canvas });
-      canvas.setActiveObject(activeSelection);
-      canvas.renderAll();
-    }
   }
 
   private teardownConnectorEvents(): void {
@@ -264,50 +248,100 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (!canvas) return;
     canvas.off('mouse:down', this.onConnectorMouseDown);
     canvas.off('mouse:move', this.onConnectorMouseMove);
+    canvas.off('mouse:up', this.onConnectorMouseUp);
     if (this.tempConnectorLine) {
       canvas.remove(this.tempConnectorLine);
       this.tempConnectorLine = null;
     }
+    this.connectorService.hidePortIndicators();
     this.connectorStart = null;
+    this.hoveredPortShapeId = null;
   }
 
   private onConnectorMouseDown = (opt: any) => {
     if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
-    const e = opt.e as MouseEvent;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
-
-    // Don't start connector on top of existing objects (unless it's a handle)
-    if (opt.target && !(opt.target as any).data?.isConnectorHandle) return;
-
+    const e = opt.e as MouseEvent;
     const pointer = canvas.getViewportPoint(e);
+    const portHit = this.connectorService.getPortNear(pointer.x, pointer.y);
 
-    if (!this.connectorStart) {
-      this.connectorStart = { x: pointer.x, y: pointer.y };
-    } else {
-      const type = this.toolService.connectorType();
-      this.canvasService.createConnector(this.connectorStart.x, this.connectorStart.y, pointer.x, pointer.y, type);
-      this.teardownConnectorEvents();
-      this.toolService.setTool(FloorPlanTool.Select);
-    }
+    this.connectorStart = portHit
+      ? { shapeId: portHit.shapeId, portSide: portHit.portSide, x: portHit.x, y: portHit.y }
+      : { portSide: 'free', x: pointer.x, y: pointer.y };
+
+    this.connectorService.hidePortIndicators();
   };
 
   private onConnectorMouseMove = (opt: any) => {
-    if (this.toolService.activeTool() !== FloorPlanTool.Connector || !this.connectorStart) return;
-    const e = opt.e as MouseEvent;
+    if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
+    const e = opt.e as MouseEvent;
     const pointer = canvas.getViewportPoint(e);
 
     if (this.tempConnectorLine) {
       canvas.remove(this.tempConnectorLine);
+      this.tempConnectorLine = null;
     }
+
+    const portHit = this.connectorService.getPortNear(pointer.x, pointer.y);
+    if (portHit) {
+      if (this.hoveredPortShapeId !== portHit.shapeId) {
+        this.hoveredPortShapeId = portHit.shapeId;
+        this.connectorService.showPortIndicators(portHit.shapeId);
+      }
+    } else if (this.hoveredPortShapeId) {
+      this.hoveredPortShapeId = null;
+      this.connectorService.hidePortIndicators();
+    }
+
+    if (!this.connectorStart) return;
+
     this.tempConnectorLine = new Line(
       [this.connectorStart.x, this.connectorStart.y, pointer.x, pointer.y],
-      { stroke: '#2563eb', strokeWidth: 2, strokeDashArray: [5, 5] }
+      { stroke: '#2563eb', strokeWidth: 2, strokeDashArray: [5, 5], selectable: false, evented: false }
     );
     canvas.add(this.tempConnectorLine);
     canvas.renderAll();
+  };
+
+  private onConnectorMouseUp = (opt: any) => {
+    if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
+    if (!this.connectorStart) return;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+
+    if (this.tempConnectorLine) {
+      canvas.remove(this.tempConnectorLine);
+      this.tempConnectorLine = null;
+    }
+    this.connectorService.hidePortIndicators();
+    this.hoveredPortShapeId = null;
+
+    const e = opt.e as MouseEvent;
+    const pointer = canvas.getViewportPoint(e);
+    const portHit = this.connectorService.getPortNear(pointer.x, pointer.y);
+
+    if (portHit && portHit.shapeId === this.connectorStart.shapeId) {
+      this.connectorStart = null;
+      return;
+    }
+
+    const end = portHit
+      ? { shapeId: portHit.shapeId, portSide: portHit.portSide, x: portHit.x, y: portHit.y }
+      : { portSide: 'free' as const, x: pointer.x, y: pointer.y };
+
+    this.connectorService.createConnector(
+      this.connectorStart,
+      end,
+      this.toolService.connectorRouting(),
+      this.toolService.connectorArrowhead()
+    );
+
+    this.connectorStart = null;
+    this.teardownConnectorEvents();
+    this.toolService.setTool(FloorPlanTool.Select);
   };
 
   @HostListener('dragover', ['$event'])
