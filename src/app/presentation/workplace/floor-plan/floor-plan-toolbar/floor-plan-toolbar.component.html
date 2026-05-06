@@ -51,27 +51,6 @@
     </button>
     <button
       class="toolbar-btn"
-      [class.active]="isToolActive(FloorPlanTool.Arrow)"
-      (click)="onSelectTool(FloorPlanTool.Arrow)"
-      [title]="'floor-plan.toolbar.arrow' | translate"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--iconStandartColor)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-      </svg>
-    </button>
-    <select
-      class="toolbar-select"
-      [ngModel]="toolService.arrowType()"
-      (ngModelChange)="onArrowTypeChange($event)"
-      [title]="'floor-plan.toolbar.arrow-type' | translate"
-    >
-      @for (t of arrowTypes; track t.value) {
-        <option [value]="t.value">{{ t.label }}</option>
-      }
-    </select>
-    <button
-      class="toolbar-btn"
       [class.active]="isToolActive(FloorPlanTool.Connector)"
       (click)="onSelectTool(FloorPlanTool.Connector)"
       [title]="'floor-plan.toolbar.connector' | translate"
@@ -83,16 +62,35 @@
         <path d="M9 18h1a2 2 0 0 0 2-2v-2a2 2 0 0 1 2-2h2"/>
       </svg>
     </button>
-    <select
-      class="toolbar-select"
-      [ngModel]="toolService.connectorType()"
-      (ngModelChange)="onConnectorTypeChange($event)"
-      [title]="'floor-plan.toolbar.connector-type' | translate"
-    >
-      @for (t of connectorTypes; track t.value) {
-        <option [value]="t.value">{{ t.label }}</option>
-      }
-    </select>
+    @if (isToolActive(FloorPlanTool.Connector)) {
+      <div class="toolbar-connector-options">
+        <button
+          class="toolbar-btn"
+          [class.active]="toolService.connectorRouting() === ConnectorRoutingType.Straight"
+          (click)="onRoutingChange(ConnectorRoutingType.Straight)"
+          title="Straight"
+        >⟶</button>
+        <button
+          class="toolbar-btn"
+          [class.active]="toolService.connectorRouting() === ConnectorRoutingType.Curved"
+          (click)="onRoutingChange(ConnectorRoutingType.Curved)"
+          title="Curved"
+        >⌒</button>
+        <div class="toolbar-separator-sm"></div>
+        <button
+          class="toolbar-btn"
+          [class.active]="toolService.connectorArrowhead() === ConnectorArrowheadType.Single"
+          (click)="onArrowheadChange(ConnectorArrowheadType.Single)"
+          title="Single arrowhead"
+        >→</button>
+        <button
+          class="toolbar-btn"
+          [class.active]="toolService.connectorArrowhead() === ConnectorArrowheadType.Double"
+          (click)="onArrowheadChange(ConnectorArrowheadType.Double)"
+          title="Double arrowhead"
+        >←→</button>
+      </div>
+    }
     <button
       class="toolbar-btn"
       [class.active]="isToolActive(FloorPlanTool.Rectangle)"

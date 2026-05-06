@@ -38,6 +38,7 @@ import { FloorPlanToolService } from 'src/app/presentation/workplace/floor-plan/
 import { FloorPlanImportService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-import.service';
 import { FloorPlanExportService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-export.service';
 import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-work-drop.service';
+import { FloorPlanConnectorService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-connector.service';
 
 @Component({
   selector: 'app-floor-plan-settings',
@@ -63,6 +64,7 @@ import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-p
     FloorPlanImportService,
     FloorPlanExportService,
     FloorPlanWorkDropService,
+    FloorPlanConnectorService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

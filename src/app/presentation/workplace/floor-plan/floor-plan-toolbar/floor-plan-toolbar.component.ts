@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Toolbar for the floor plan editor providing tool selection, connector options, colors, zoom and undo/redo.
+ */
+
 import {
   Component,
   inject,
@@ -10,7 +14,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-import { FloorPlanToolService, FloorPlanTool, ArrowType, ConnectorType } from '../services/floor-plan-tool.service';
+import {
+  FloorPlanToolService,
+  FloorPlanTool,
+  ConnectorRoutingType,
+  ConnectorArrowheadType,
+} from '../services/floor-plan-tool.service';
 import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
@@ -64,82 +73,41 @@ export class FloorPlanToolbarComponent {
   private importService = inject(FloorPlanImportService);
 
   readonly FloorPlanTool = FloorPlanTool;
-  readonly ArrowType = ArrowType;
-  readonly ConnectorType = ConnectorType;
+  readonly ConnectorRoutingType = ConnectorRoutingType;
+  readonly ConnectorArrowheadType = ConnectorArrowheadType;
   readonly strokeWidths = STROKE_WIDTHS;
   readonly snapSizes = [5, 10, 20, 50, 100];
-  readonly arrowTypes = [
-    { value: ArrowType.Simple, label: 'Simple' },
-    { value: ArrowType.Double, label: 'Double' },
-    { value: ArrowType.Open, label: 'Open' },
-    { value: ArrowType.Diamond, label: 'Diamond' },
-    { value: ArrowType.Curved, label: 'Curved' },
-  ];
-  readonly connectorTypes = [
-    { value: ConnectorType.Straight, label: 'Straight' },
-    { value: ConnectorType.Orthogonal, label: 'Orthogonal' },
-    { value: ConnectorType.Curved, label: 'Curved' },
-  ];
+
+  isToolActive(tool: FloorPlanTool): boolean {
+    return this.toolService.activeTool() === tool;
+  }
 
   onSelectTool(tool: FloorPlanTool): void {
     this.toolService.setTool(tool);
   }
 
-  onZoomIn(): void {
-    this.canvasService.zoomIn();
+  onRoutingChange(routing: ConnectorRoutingType): void {
+    this.toolService.setConnectorRouting(routing);
   }
 
-  onZoomOut(): void {
-    this.canvasService.zoomOut();
+  onArrowheadChange(arrowhead: ConnectorArrowheadType): void {
+    this.toolService.setConnectorArrowhead(arrowhead);
   }
 
-  onZoomFit(): void {
-    this.canvasService.zoomToFit();
-  }
-
-  onZoomReset(): void {
-    this.canvasService.resetZoom();
-  }
-
-  onUndo(): void {
-    this.canvasService.undo();
-  }
-
-  onRedo(): void {
-    this.canvasService.redo();
-  }
-
-  onBringToFront(): void {
-    this.canvasService.bringToFront();
-  }
-
-  onSendToBack(): void {
-    this.canvasService.sendToBack();
-  }
-
-  onDeleteSelected(): void {
-    this.canvasService.deleteSelected();
-  }
-
-  onGroupSelected(): void {
-    this.canvasService.groupSelected();
-  }
-
-  onUngroupSelected(): void {
-    this.canvasService.ungroupSelected();
-  }
-
-  onExportSVG(): void {
-    this.exportService.exportSVG();
-  }
-
-  onExportPNG(): void {
-    this.exportService.exportPNG();
-  }
-
-  onExportJSON(): void {
-    this.exportService.exportJSON();
-  }
+  onZoomIn(): void { this.canvasService.zoomIn(); }
+  onZoomOut(): void { this.canvasService.zoomOut(); }
+  onZoomFit(): void { this.canvasService.zoomToFit(); }
+  onZoomReset(): void { this.canvasService.resetZoom(); }
+  onUndo(): void { this.canvasService.undo(); }
+  onRedo(): void { this.canvasService.redo(); }
+  onBringToFront(): void { this.canvasService.bringToFront(); }
+  onSendToBack(): void { this.canvasService.sendToBack(); }
+  onDeleteSelected(): void { this.canvasService.deleteSelected(); }
+  onGroupSelected(): void { this.canvasService.groupSelected(); }
+  onUngroupSelected(): void { this.canvasService.ungroupSelected(); }
+  onExportSVG(): void { this.exportService.exportSVG(); }
+  onExportPNG(): void { this.exportService.exportPNG(); }
+  onExportJSON(): void { this.exportService.exportJSON(); }
 
   onImportClick(): void {
     this.importFileRef.nativeElement.click();
@@ -149,7 +117,6 @@ export class FloorPlanToolbarComponent {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-
     try {
       const result = await this.importService.importFile(file);
       if (result.type === 'svg' || result.type === 'dxf') {
@@ -177,18 +144,6 @@ export class FloorPlanToolbarComponent {
   onStrokeWidthChange(width: number): void {
     this.toolService.setStrokeWidth(width);
     this.canvasService.applyStrokeWidth(width);
-  }
-
-  onArrowTypeChange(type: ArrowType): void {
-    this.toolService.setArrowType(type);
-  }
-
-  onConnectorTypeChange(type: ConnectorType): void {
-    this.toolService.setConnectorType(type);
-  }
-
-  isToolActive(tool: FloorPlanTool): boolean {
-    return this.toolService.activeTool() === tool;
   }
 
   onToggleSnap(): void {
