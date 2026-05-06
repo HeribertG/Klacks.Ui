@@ -271,4 +271,101 @@ export class FloorPlanConnectorService {
 
     this.canvas.renderAll();
   }
+
+  createConnector(
+    start: { shapeId?: string; portSide: PortSide | 'free'; x: number; y: number },
+    end: { shapeId?: string; portSide: PortSide | 'free'; x: number; y: number },
+    routing: ConnectorRoutingType,
+    arrowhead: ConnectorArrowheadType
+  ): string {
+    const id = `conn-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const data: ConnectorData = {
+      id,
+      start: { ...start },
+      end: { ...end },
+      routing,
+      arrowhead,
+      controlPoint: routing === ConnectorRoutingType.Curved
+        ? this.getDefaultControlPoint(start.x, start.y, end.x, end.y)
+        : undefined,
+    };
+    this.connectorMap.set(id, data);
+
+    if (start.shapeId) {
+      const list = this.shapeConnectors.get(start.shapeId) ?? [];
+      this.shapeConnectors.set(start.shapeId, [...list, id]);
+    }
+    if (end.shapeId) {
+      const list = this.shapeConnectors.get(end.shapeId) ?? [];
+      this.shapeConnectors.set(end.shapeId, [...list, id]);
+    }
+
+    this.redrawConnector(id);
+    return id;
+  }
+
+  deleteConnector(connectorId: string): void {
+    if (!this.canvas) return;
+    const data = this.connectorMap.get(connectorId);
+    if (data) {
+      this.removeFromShapeConnectors(connectorId, data.start.shapeId);
+      this.removeFromShapeConnectors(connectorId, data.end.shapeId);
+      this.connectorMap.delete(connectorId);
+    }
+    const toRemove = this.canvas.getObjects().filter(
+      (obj) => (obj as any).data?.connectorId === connectorId
+    );
+    toRemove.forEach((obj) => this.canvas!.remove(obj));
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+  }
+
+  private removeFromShapeConnectors(connectorId: string, shapeId?: string): void {
+    if (!shapeId) return;
+    const list = this.shapeConnectors.get(shapeId) ?? [];
+    const updated = list.filter((id) => id !== connectorId);
+    if (updated.length === 0) {
+      this.shapeConnectors.delete(shapeId);
+    } else {
+      this.shapeConnectors.set(shapeId, updated);
+    }
+  }
+
+  onShapeMoved(shapeId: string): void {
+    if (!this.canvas) return;
+    const connectorIds = this.shapeConnectors.get(shapeId) ?? [];
+    if (connectorIds.length === 0) return;
+
+    const shape = this.canvas.getObjects().find(
+      (obj) => (obj as any).data?.shapeId === shapeId
+    );
+    if (!shape) return;
+
+    for (const connectorId of connectorIds) {
+      const data = this.connectorMap.get(connectorId);
+      if (!data) continue;
+
+      if (data.start.shapeId === shapeId) {
+        const port = this.getPortCoords(shape, data.start.portSide as PortSide);
+        data.start.x = port.x;
+        data.start.y = port.y;
+      }
+      if (data.end.shapeId === shapeId) {
+        const port = this.getPortCoords(shape, data.end.portSide as PortSide);
+        data.end.x = port.x;
+        data.end.y = port.y;
+      }
+      if (data.routing === ConnectorRoutingType.Curved) {
+        data.controlPoint = this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+      }
+      this.redrawConnector(connectorId);
+    }
+  }
+
+  onShapeRemoved(shapeId: string): void {
+    const connectorIds = [...(this.shapeConnectors.get(shapeId) ?? [])];
+    for (const id of connectorIds) {
+      this.deleteConnector(id);
+    }
+  }
 }
