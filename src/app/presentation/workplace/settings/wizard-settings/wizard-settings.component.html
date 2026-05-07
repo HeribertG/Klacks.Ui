@@ -1,6 +1,6 @@
 <div class="wizard-card-host">
   <div id="wizard-settings-header" class="container-header">
-    {{ 'setting.wizard3.headline' | translate }}
+    {{ 'setting.holisticHarmonizer.headline' | translate }}
   </div>
   <div class="container-line"></div>
 
@@ -8,7 +8,7 @@
     <div class="wizard-settings-fixed">
       <div class="default-row d-flex align-items-center gap-2 mb-2">
         <label class="setting-label text-nowrap" for="wizard-settings-llm-model">
-          {{ 'setting.wizard3.llmModel' | translate }}:
+          {{ 'setting.holisticHarmonizer.llmModel' | translate }}:
         </label>
         <select
           id="wizard-settings-llm-model"
@@ -16,7 +16,7 @@
           [(ngModel)]="llmModelId"
           (ngModelChange)="onSettingChanged()"
         >
-          <option [value]="''">{{ 'setting.wizard3.llmModelNone' | translate }}</option>
+          <option [value]="''">{{ 'setting.holisticHarmonizer.llmModelNone' | translate }}</option>
           @for (model of llmModels(); track model.value) {
             <option [value]="model.value">{{ model.label }}</option>
           }
@@ -32,12 +32,12 @@
         >
           @if (isChecking()) {
             <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-            {{ 'setting.wizard3.check.running' | translate }}
+            {{ 'setting.holisticHarmonizer.check.running' | translate }}
           } @else {
-            {{ 'setting.wizard3.check.run' | translate }}
+            {{ 'setting.holisticHarmonizer.check.run' | translate }}
           }
         </button>
-        <span class="check-hint">{{ 'setting.wizard3.check.hint' | translate }}</span>
+        <span class="check-hint">{{ 'setting.holisticHarmonizer.check.hint' | translate }}</span>
       </div>
 
       @if (checkError(); as err) {
@@ -50,11 +50,11 @@
         <table class="table table-sm wizard-check-table">
           <thead>
             <tr>
-              <th>{{ 'setting.wizard3.check.col-model' | translate }}</th>
-              <th>{{ 'setting.wizard3.check.col-provider' | translate }}</th>
-              <th>{{ 'setting.wizard3.check.col-status' | translate }}</th>
-              <th class="text-end">{{ 'setting.wizard3.check.col-latency' | translate }}</th>
-              <th class="text-end">{{ 'setting.wizard3.check.col-action' | translate }}</th>
+              <th>{{ 'setting.holisticHarmonizer.check.col-model' | translate }}</th>
+              <th>{{ 'setting.holisticHarmonizer.check.col-provider' | translate }}</th>
+              <th>{{ 'setting.holisticHarmonizer.check.col-status' | translate }}</th>
+              <th class="text-end">{{ 'setting.holisticHarmonizer.check.col-latency' | translate }}</th>
+              <th class="text-end">{{ 'setting.holisticHarmonizer.check.col-action' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -67,9 +67,9 @@
                 <td>{{ r.providerId }}</td>
                 <td>
                   @if (r.isHealthy) {
-                    <span class="badge bg-success">{{ 'setting.wizard3.check.status-ok' | translate }}</span>
+                    <span class="badge bg-success">{{ 'setting.holisticHarmonizer.check.status-ok' | translate }}</span>
                   } @else {
-                    <span class="badge bg-secondary">{{ 'setting.wizard3.check.status-fail' | translate }}</span>
+                    <span class="badge bg-secondary">{{ 'setting.holisticHarmonizer.check.status-fail' | translate }}</span>
                     @if (r.error) {
                       <div class="wizard-check-error-detail">{{ r.error }}</div>
                     }
@@ -90,9 +90,9 @@
                     (click)="selectModel(r.modelId)"
                   >
                     @if (llmModelId === r.modelId) {
-                      {{ 'setting.wizard3.check.selected' | translate }}
+                      {{ 'setting.holisticHarmonizer.check.selected' | translate }}
                     } @else {
-                      {{ 'setting.wizard3.check.select' | translate }}
+                      {{ 'setting.holisticHarmonizer.check.select' | translate }}
                     }
                   </button>
                 </td>

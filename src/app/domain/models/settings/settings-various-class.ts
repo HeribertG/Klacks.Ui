@@ -109,7 +109,7 @@ export class AppSetting {
   public static ASSISTANT_OUTPUT_MODE = 'ASSISTANT_OUTPUT_MODE';
   public static ASSISTANT_SILENCE_THRESHOLD_MS = 'ASSISTANT_SILENCE_THRESHOLD_MS';
 
-  public static WIZARD3_LLM_MODEL = 'WIZARD3_LLM_MODEL';
+  public static HOLISTIC_HARMONIZER_LLM_MODEL = 'WIZARD3_LLM_MODEL';
 }
 
 export interface IMacroType {

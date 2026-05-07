@@ -49,8 +49,8 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { IconHarmonizerComponent } from 'src/app/presentation/icons/icon-harmonizer.component';
-import { Wizard3DialogComponent } from '../dialogs/wizard3-dialog/wizard3-dialog.component';
-import { IconWizard3Component } from 'src/app/presentation/icons/icon-wizard3.component';
+import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
+import { IconHolisticHarmonizerComponent } from 'src/app/presentation/icons/icon-holistic-harmonizer.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
@@ -96,8 +96,8 @@ const DEFAULT_ZOOM_VALUE = 100;
     WizardDialogComponent,
     IconHarmonizerComponent,
     HarmonizerDialogComponent,
-    IconWizard3Component,
-    Wizard3DialogComponent,
+    IconHolisticHarmonizerComponent,
+    HolisticHarmonizerDialogComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -109,7 +109,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
-  @ViewChild('wizard3Dialog') wizard3Dialog!: Wizard3DialogComponent;
+  @ViewChild('holisticHarmonizerDialog') holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -316,8 +316,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     this.harmonizerDialog.open();
   }
 
-  onWizard3Click(): void {
-    this.wizard3Dialog.open();
+  onHolisticHarmonizerClick(): void {
+    this.holisticHarmonizerDialog.open();
   }
 
   async onSendAllSchedules(): Promise<void> {

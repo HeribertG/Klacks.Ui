@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-icon-wizard3',
+  selector: 'app-icon-holistic-harmonizer',
   styleUrls: ['./icon.scss'],
   template: `
     <svg
@@ -27,4 +27,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconWizard3Component {}
+export class IconHolisticHarmonizerComponent {}

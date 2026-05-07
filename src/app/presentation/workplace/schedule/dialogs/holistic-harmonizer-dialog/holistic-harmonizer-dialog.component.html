@@ -1,0 +1,147 @@
+<ng-template #holisticHarmonizerModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ 'holisticHarmonizer.dialog.title' | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    @switch (phase()) {
+      @case ('running') {
+        <div class="holisticHarmonizer-running">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="holisticHarmonizer-running-text">{{ 'holisticHarmonizer.dialog.running' | translate }}</p>
+          @if (selectedLlmModelId()) {
+            <p class="holisticHarmonizer-llm-model">
+              <strong>{{ 'holisticHarmonizer.dialog.selected-model' | translate }}:</strong>
+              <span>{{ selectedLlmModelId() }}</span>
+            </p>
+          }
+        </div>
+      }
+
+      @case ('error') {
+        <div class="holisticHarmonizer-error alert alert-danger">
+          <strong>{{ 'holisticHarmonizer.dialog.error.title' | translate }}:</strong>
+          <p class="holisticHarmonizer-error-message">{{ errorMessage() }}</p>
+        </div>
+      }
+
+      @case ('done') {
+        <div class="holisticHarmonizer-done">
+          <div class="holisticHarmonizer-summary">
+            <div class="holisticHarmonizer-summary-row">
+              <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.fitness-before' | translate }}:</span>
+              <span class="holisticHarmonizer-summary-value">{{ fitnessBeforePercent() }}%</span>
+            </div>
+            <div class="holisticHarmonizer-summary-row">
+              <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.fitness-after' | translate }}:</span>
+              <span class="holisticHarmonizer-summary-value">{{ fitnessAfterPercent() }}%</span>
+            </div>
+            <div class="holisticHarmonizer-summary-row holisticHarmonizer-summary-delta">
+              <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.fitness-delta' | translate }}:</span>
+              <span class="holisticHarmonizer-summary-value">{{ fitnessDeltaPercent() }}%</span>
+            </div>
+            <div class="holisticHarmonizer-summary-row">
+              <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.accepted-count' | translate }}:</span>
+              <span class="holisticHarmonizer-summary-value">{{ acceptedCount() }}</span>
+            </div>
+            <div class="holisticHarmonizer-summary-row">
+              <span class="holisticHarmonizer-summary-label">{{ 'holisticHarmonizer.dialog.rejected-count' | translate }}:</span>
+              <span class="holisticHarmonizer-summary-value">{{ rejectedCount() }}</span>
+            </div>
+          </div>
+
+          @if (holisticHarmonizerService.result(); as r) {
+            @if (r.llmParsingError || r.llmRawResponsePreview) {
+              <div class="alert alert-warning holisticHarmonizer-llm-diagnostic">
+                @if (r.llmParsingError) {
+                  <strong>{{ 'holisticHarmonizer.dialog.llm-parsing-error' | translate }}:</strong>
+                  <p class="mb-1">{{ r.llmParsingError }}</p>
+                }
+                @if (r.llmRawResponsePreview) {
+                  <details>
+                    <summary>{{ 'holisticHarmonizer.dialog.llm-raw-preview' | translate }}</summary>
+                    <pre class="holisticHarmonizer-raw">{{ r.llmRawResponsePreview }}</pre>
+                  </details>
+                }
+              </div>
+            }
+
+            @if (r.acceptedSwaps.length > 0) {
+              <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.accepted-swaps' | translate }}</h5>
+              <ul class="holisticHarmonizer-swap-list">
+                @for (swap of r.acceptedSwaps; track $index) {
+                  <li class="holisticHarmonizer-swap-item">
+                    <span class="holisticHarmonizer-swap-coords">
+                      {{ resolveAgentName(swap.rowA) }}
+                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayA }})
+                      ↔
+                      {{ resolveAgentName(swap.rowB) }}
+                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayB }})
+                    </span>
+                    @if (swap.reason) {
+                      <span class="holisticHarmonizer-swap-reason">— {{ swap.reason }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+
+            @if (r.rejectedSwaps.length > 0) {
+              <h5 class="holisticHarmonizer-section-title holisticHarmonizer-section-rejected">
+                {{ 'holisticHarmonizer.dialog.rejected-swaps' | translate }}
+              </h5>
+              <ul class="holisticHarmonizer-swap-list holisticHarmonizer-rejected-list">
+                @for (rej of r.rejectedSwaps; track $index) {
+                  <li class="holisticHarmonizer-swap-item">
+                    <span class="holisticHarmonizer-swap-coords">
+                      {{ resolveAgentName(rej.swap.rowA) }}
+                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayA }})
+                      ↔
+                      {{ resolveAgentName(rej.swap.rowB) }}
+                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayB }})
+                    </span>
+                    <span class="holisticHarmonizer-swap-reason">— [{{ rej.reason }}] {{ rej.detail }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </div>
+      }
+
+      @case ('applying') {
+        <div class="holisticHarmonizer-running">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p>{{ 'holisticHarmonizer.dialog.applying' | translate }}</p>
+        </div>
+      }
+
+      @case ('applied') {
+        <div class="alert alert-success">
+          <strong>{{ 'holisticHarmonizer.dialog.applied' | translate }}</strong>
+          @if (appliedScenarioName(); as name) {
+            <p class="mb-0">{{ name }}</p>
+          }
+        </div>
+      }
+    }
+  </div>
+  <div class="modal-footer">
+    @if (phase() === 'done') {
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        {{ 'holisticHarmonizer.dialog.discard' | translate }}
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onApply()" [disabled]="acceptedCount() === 0">
+        {{ 'holisticHarmonizer.dialog.apply' | translate }}
+      </button>
+    } @else if (phase() === 'applied' || phase() === 'error') {
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        {{ 'holisticHarmonizer.dialog.close' | translate }}
+      </button>
+    } @else if (phase() === 'running' || phase() === 'applying') {
+      <button type="button" class="btn btn-secondary" disabled>
+        {{ 'holisticHarmonizer.dialog.close' | translate }}
+      </button>
+    }
+  </div>
+</ng-template>

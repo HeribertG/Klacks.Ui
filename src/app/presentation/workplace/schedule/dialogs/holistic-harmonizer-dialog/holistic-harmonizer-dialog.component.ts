@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog for Wizard 3 (LLM-driven schedule harmonizer) MVP. Runs a single LLM round-trip
+ * Dialog for Holistic Harmonizer (LLM-driven schedule harmonizer) MVP. Runs a single LLM round-trip
  * on open, shows fitness before/after plus the accepted and rejected swaps with reasons,
  * and applies the result as a new AnalyseScenario via the shared harmonizer apply pipeline.
  * @param phase - Derived UI phase (running/done/applying/applied/error)
@@ -20,29 +20,29 @@ import {
 import { CommonModule } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataWizard3Service } from 'src/app/infrastructure/api/wizard3/data-wizard3.service';
+import { DataHolisticHarmonizerService } from 'src/app/infrastructure/api/holistic-harmonizer/data-holistic-harmonizer.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { Wizard3RunRequest } from 'src/app/domain/models/wizard3/wizard3-run.model';
+import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
-type Wizard3Phase = 'running' | 'done' | 'applying' | 'applied' | 'error';
+type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error';
 
 @Component({
-  selector: 'app-wizard3-dialog',
-  templateUrl: './wizard3-dialog.component.html',
-  styleUrls: ['./wizard3-dialog.component.scss'],
+  selector: 'app-holistic-harmonizer-dialog',
+  templateUrl: './holistic-harmonizer-dialog.component.html',
+  styleUrls: ['./holistic-harmonizer-dialog.component.scss'],
   standalone: true,
   imports: [CommonModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Wizard3DialogComponent {
-  @ViewChild('wizard3Modal') modalTemplate!: TemplateRef<unknown>;
+export class HolisticHarmonizerDialogComponent {
+  @ViewChild('holisticHarmonizerModal') modalTemplate!: TemplateRef<unknown>;
 
   private readonly ngbModal = inject(NgbModal);
-  readonly wizard3Service = inject(DataWizard3Service);
+  readonly holisticHarmonizerService = inject(DataHolisticHarmonizerService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly appSettings = inject(AppSettingsManagementService);
@@ -53,13 +53,13 @@ export class Wizard3DialogComponent {
 
   readonly appliedScenarioName = signal<string | null>(null);
 
-  readonly selectedLlmModelId = computed(() => this.appSettings.wizard3Settings().llmModelId);
+  readonly selectedLlmModelId = computed(() => this.appSettings.holisticHarmonizerSettings().llmModelId);
 
-  readonly phase = computed<Wizard3Phase>(() => {
+  readonly phase = computed<HolisticHarmonizerPhase>(() => {
     const ap = this._applyPhase();
     if (ap !== null) return ap;
     if (this._localError() !== null) return 'error';
-    switch (this.wizard3Service.status()) {
+    switch (this.holisticHarmonizerService.status()) {
       case 'running':
         return 'running';
       case 'completed':
@@ -72,28 +72,28 @@ export class Wizard3DialogComponent {
   });
 
   readonly errorMessage = computed(
-    () => this._localError() ?? this.wizard3Service.failureReason() ?? '',
+    () => this._localError() ?? this.holisticHarmonizerService.failureReason() ?? '',
   );
 
   readonly fitnessBeforePercent = computed(() => {
-    const r = this.wizard3Service.result();
+    const r = this.holisticHarmonizerService.result();
     return r ? (r.fitnessBefore * 100).toFixed(1) : '0.0';
   });
 
   readonly fitnessAfterPercent = computed(() => {
-    const r = this.wizard3Service.result();
+    const r = this.holisticHarmonizerService.result();
     return r ? (r.fitnessAfter * 100).toFixed(1) : '0.0';
   });
 
   readonly fitnessDeltaPercent = computed(() => {
-    const r = this.wizard3Service.result();
+    const r = this.holisticHarmonizerService.result();
     if (!r) return '0.0';
     return ((r.fitnessAfter - r.fitnessBefore) * 100).toFixed(1);
   });
 
-  readonly acceptedCount = computed(() => this.wizard3Service.result()?.acceptedSwaps.length ?? 0);
+  readonly acceptedCount = computed(() => this.holisticHarmonizerService.result()?.acceptedSwaps.length ?? 0);
 
-  readonly rejectedCount = computed(() => this.wizard3Service.result()?.rejectedSwaps.length ?? 0);
+  readonly rejectedCount = computed(() => this.holisticHarmonizerService.result()?.rejectedSwaps.length ?? 0);
 
   resolveAgentName(rowIndex: number): string {
     const clients = this.dataManagementSchedule.clients;
@@ -120,19 +120,19 @@ export class Wizard3DialogComponent {
     });
 
     if (!this.selectedLlmModelId()) {
-      this._localError.set(this.translate.instant('wizard3.dialog.error.noModel'));
+      this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noModel'));
       return;
     }
 
     const request = this.buildRequest();
     if (!request) {
-      this._localError.set(this.translate.instant('wizard3.dialog.error.noData'));
+      this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noData'));
       return;
     }
 
-    this.wizard3Service.run(request).catch((err: unknown) => {
+    this.holisticHarmonizerService.run(request).catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      console.error('[Wizard3] run() failed:', err);
+      console.error('[HolisticHarmonizer] run() failed:', err);
       this._localError.set(message);
     });
   }
@@ -142,12 +142,12 @@ export class Wizard3DialogComponent {
   }
 
   async onApply(): Promise<void> {
-    const jobId = this.wizard3Service.currentJobId();
+    const jobId = this.holisticHarmonizerService.currentJobId();
     if (!jobId) return;
     this._applyPhase.set('applying');
     try {
       const groupId = this.dataManagementSchedule.workFilter.selectedGroup ?? null;
-      const response = await this.wizard3Service.applyAsScenario(jobId, groupId);
+      const response = await this.holisticHarmonizerService.applyAsScenario(jobId, groupId);
       const newScenario = {
         id: response.scenarioId,
         name: response.scenarioName,
@@ -170,7 +170,7 @@ export class Wizard3DialogComponent {
     }
   }
 
-  private buildRequest(): Wizard3RunRequest | null {
+  private buildRequest(): HolisticHarmonizerRunRequest | null {
     const start = this.dataManagementSchedule.visibleStartDate;
     const end = this.dataManagementSchedule.visibleEndDate;
     const clients = this.dataManagementSchedule.clients;

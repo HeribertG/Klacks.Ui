@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Infrastructure service for Wizard 3 (LLM-driven schedule harmonizer) MVP.
+ * Infrastructure service for Holistic Harmonizer (LLM-driven schedule harmonizer) MVP.
  * Pure REST: Run is synchronous (single LLM round-trip); ApplyAsScenario materialises
  * the cached result via the shared harmonizer apply pipeline.
  * @param status - Signal with the current run status
@@ -15,30 +15,30 @@ import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
-  Wizard3ApplyRequest,
-  Wizard3ApplyResponse,
-  Wizard3ModelCheckResponse,
-  Wizard3RunRequest,
-  Wizard3RunResponse,
-  Wizard3Status,
-} from 'src/app/domain/models/wizard3/wizard3-run.model';
+  HolisticHarmonizerApplyRequest,
+  HolisticHarmonizerApplyResponse,
+  HolisticHarmonizerModelCheckResponse,
+  HolisticHarmonizerRunRequest,
+  HolisticHarmonizerRunResponse,
+  HolisticHarmonizerStatus,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 
 @Injectable({ providedIn: 'root' })
-export class DataWizard3Service {
+export class DataHolisticHarmonizerService {
   private readonly http = inject(HttpClient);
-  private readonly apiBase = `${environment.baseUrl}Wizard3`;
+  private readonly apiBase = `${environment.baseUrl}HolisticHarmonizer`;
 
-  readonly status = signal<Wizard3Status>('idle');
-  readonly result = signal<Wizard3RunResponse | null>(null);
+  readonly status = signal<HolisticHarmonizerStatus>('idle');
+  readonly result = signal<HolisticHarmonizerRunResponse | null>(null);
   readonly failureReason = signal<string | null>(null);
   readonly currentJobId = signal<string | null>(null);
 
-  async run(request: Wizard3RunRequest): Promise<Wizard3RunResponse> {
+  async run(request: HolisticHarmonizerRunRequest): Promise<HolisticHarmonizerRunResponse> {
     this.reset();
     this.status.set('running');
     try {
       const response = await firstValueFrom(
-        this.http.post<Wizard3RunResponse>(`${this.apiBase}/Run`, request),
+        this.http.post<HolisticHarmonizerRunResponse>(`${this.apiBase}/Run`, request),
       );
       this.result.set(response);
       this.currentJobId.set(response.jobId);
@@ -52,16 +52,16 @@ export class DataWizard3Service {
     }
   }
 
-  async applyAsScenario(jobId: string, groupId: string | null): Promise<Wizard3ApplyResponse> {
-    const payload: Wizard3ApplyRequest = { jobId, groupId };
+  async applyAsScenario(jobId: string, groupId: string | null): Promise<HolisticHarmonizerApplyResponse> {
+    const payload: HolisticHarmonizerApplyRequest = { jobId, groupId };
     return firstValueFrom(
-      this.http.post<Wizard3ApplyResponse>(`${this.apiBase}/ApplyAsScenario`, payload),
+      this.http.post<HolisticHarmonizerApplyResponse>(`${this.apiBase}/ApplyAsScenario`, payload),
     );
   }
 
-  async checkAllModels(): Promise<Wizard3ModelCheckResponse> {
+  async checkAllModels(): Promise<HolisticHarmonizerModelCheckResponse> {
     return firstValueFrom(
-      this.http.post<Wizard3ModelCheckResponse>(`${this.apiBase}/CheckAllModels`, {}),
+      this.http.post<HolisticHarmonizerModelCheckResponse>(`${this.apiBase}/CheckAllModels`, {}),
     );
   }
 
