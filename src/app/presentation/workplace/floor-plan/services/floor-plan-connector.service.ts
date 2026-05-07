@@ -51,6 +51,11 @@ export class FloorPlanConnectorService {
   private canvas: Canvas | null = null;
   private connectorMap = new Map<string, ConnectorData>();
   private shapeConnectors = new Map<string, string[]>();
+  private isRedrawing = false;
+
+  get redrawing(): boolean {
+    return this.isRedrawing;
+  }
 
   init(canvas: Canvas): void {
     this.canvas = canvas;
@@ -202,6 +207,9 @@ export class FloorPlanConnectorService {
       selectable: true,
       hasBorders: false,
       hasControls: false,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
     });
     handle.set('data', { connectorId, isConnector: true, isMidpointHandle: true });
     return handle;
@@ -217,10 +225,13 @@ export class FloorPlanConnectorService {
       strokeWidth: 2,
       originX: 'center',
       originY: 'center',
-      selectable: false,
-      evented: false,
+      selectable: true,
+      evented: true,
       hasBorders: false,
       hasControls: false,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
     });
     handle.set('data', { connectorId, isConnector: true, isEndpointHandle: true, isStart });
     return handle;
@@ -231,47 +242,95 @@ export class FloorPlanConnectorService {
     const data = this.connectorMap.get(id);
     if (!data) return;
 
-    const toRemove = this.canvas.getObjects().filter(
-      (obj) => (obj as any).data?.connectorId === id
-    );
-    toRemove.forEach((obj) => this.canvas!.remove(obj));
+    try {
+      this.isRedrawing = true;
+      const toRemove = this.canvas.getObjects().filter(
+        (obj) => (obj as any).data?.connectorId === id
+      );
+      toRemove.forEach((obj) => this.canvas!.remove(obj));
 
-    const stroke = CONNECTOR_STROKE_COLOR;
-    const strokeWidth = CONNECTOR_STROKE_WIDTH;
-    const cp = data.controlPoint ?? this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+      const stroke = CONNECTOR_STROKE_COLOR;
+      const strokeWidth = CONNECTOR_STROKE_WIDTH;
+      const cp = data.controlPoint ?? this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
 
-    const path = this.buildPath(data.start, data.end, data.routing, cp, stroke, strokeWidth);
-    path.set('data', { connectorId: id, isConnector: true, isConnectorPath: true, connectorData: { ...data } });
-    this.canvas.add(path);
+      const path = this.buildPath(data.start, data.end, data.routing, cp, stroke, strokeWidth);
+      path.set('data', { connectorId: id, isConnector: true, isConnectorPath: true, connectorData: { ...data } });
+      this.canvas.add(path);
 
-    const endAngle = data.routing === ConnectorRoutingType.Curved
-      ? this.getEndAngleCurved(data.end, cp)
-      : this.getEndAngleStraight(data.start, data.end);
+      const endAngle = data.routing === ConnectorRoutingType.Curved
+        ? this.getEndAngleCurved(data.end, cp)
+        : this.getEndAngleStraight(data.start, data.end);
 
-    const endHead = this.buildArrowhead(data.end.x, data.end.y, endAngle, stroke);
-    endHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: false });
-    this.canvas.add(endHead);
+      const endHead = this.buildArrowhead(data.end.x, data.end.y, endAngle, stroke);
+      endHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: false });
+      this.canvas.add(endHead);
 
-    if (data.arrowhead === ConnectorArrowheadType.Double) {
-      const startAngle = data.routing === ConnectorRoutingType.Curved
-        ? Math.atan2(data.start.y - cp.y, data.start.x - cp.x) * (180 / Math.PI) + 90
-        : this.getEndAngleStraight(data.end, data.start);
-      const startHead = this.buildArrowhead(data.start.x, data.start.y, startAngle, stroke);
-      startHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: true });
-      this.canvas.add(startHead);
+      if (data.arrowhead === ConnectorArrowheadType.Double) {
+        const startAngle = data.routing === ConnectorRoutingType.Curved
+          ? Math.atan2(data.start.y - cp.y, data.start.x - cp.x) * (180 / Math.PI) + 90
+          : this.getEndAngleStraight(data.end, data.start);
+        const startHead = this.buildArrowhead(data.start.x, data.start.y, startAngle, stroke);
+        startHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: true });
+        this.canvas.add(startHead);
+      }
+
+      if (data.routing === ConnectorRoutingType.Curved) {
+        const midX = (data.start.x + 2 * cp.x + data.end.x) / 4;
+        const midY = (data.start.y + 2 * cp.y + data.end.y) / 4;
+        const midHandle = this.buildMidpointHandle(midX, midY, id);
+        this.canvas.add(midHandle);
+      }
+
+      const startHandle = this.buildEndpointHandle(data.start.x, data.start.y, id, true);
+      this.canvas.add(startHandle);
+      const endHandle = this.buildEndpointHandle(data.end.x, data.end.y, id, false);
+      this.canvas.add(endHandle);
+    } finally {
+      this.isRedrawing = false;
     }
 
-    if (data.routing === ConnectorRoutingType.Curved) {
-      const midX = (data.start.x + 2 * cp.x + data.end.x) / 4;
-      const midY = (data.start.y + 2 * cp.y + data.end.y) / 4;
-      const midHandle = this.buildMidpointHandle(midX, midY, id);
-      this.canvas.add(midHandle);
-    }
+    this.canvas.renderAll();
+  }
 
-    const startHandle = this.buildEndpointHandle(data.start.x, data.start.y, id, true);
-    this.canvas.add(startHandle);
-    const endHandle = this.buildEndpointHandle(data.end.x, data.end.y, id, false);
-    this.canvas.add(endHandle);
+  private redrawConnectorPathOnly(id: string): void {
+    if (!this.canvas) return;
+    const data = this.connectorMap.get(id);
+    if (!data) return;
+
+    try {
+      this.isRedrawing = true;
+      const toRemove = this.canvas.getObjects().filter((obj) => {
+        const d = (obj as any).data;
+        return d?.connectorId === id && (d.isConnectorPath || d.isArrowhead);
+      });
+      toRemove.forEach((obj) => this.canvas!.remove(obj));
+
+      const stroke = CONNECTOR_STROKE_COLOR;
+      const strokeWidth = CONNECTOR_STROKE_WIDTH;
+      const cp = data.controlPoint ?? this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+
+      const path = this.buildPath(data.start, data.end, data.routing, cp, stroke, strokeWidth);
+      path.set('data', { connectorId: id, isConnector: true, isConnectorPath: true, connectorData: { ...data } });
+      this.canvas.add(path);
+
+      const endAngle = data.routing === ConnectorRoutingType.Curved
+        ? this.getEndAngleCurved(data.end, cp)
+        : this.getEndAngleStraight(data.start, data.end);
+      const endHead = this.buildArrowhead(data.end.x, data.end.y, endAngle, stroke);
+      endHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: false });
+      this.canvas.add(endHead);
+
+      if (data.arrowhead === ConnectorArrowheadType.Double) {
+        const startAngle = data.routing === ConnectorRoutingType.Curved
+          ? Math.atan2(data.start.y - cp.y, data.start.x - cp.x) * (180 / Math.PI) + 90
+          : this.getEndAngleStraight(data.end, data.start);
+        const startHead = this.buildArrowhead(data.start.x, data.start.y, startAngle, stroke);
+        startHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: true });
+        this.canvas.add(startHead);
+      }
+    } finally {
+      this.isRedrawing = false;
+    }
 
     this.canvas.renderAll();
   }
@@ -380,6 +439,62 @@ export class FloorPlanConnectorService {
     const cpX = (4 * handleX - data.start.x - data.end.x) / 2;
     const cpY = (4 * handleY - data.start.y - data.end.y) / 2;
     data.controlPoint = { x: cpX, y: cpY };
+    this.redrawConnectorPathOnly(connectorId);
+  }
+
+  onEndpointHandleMoved(connectorId: string, isStart: boolean, x: number, y: number): void {
+    const data = this.connectorMap.get(connectorId);
+    if (!data) return;
+
+    const endpoint = isStart ? data.start : data.end;
+    if (endpoint.shapeId) {
+      this.removeFromShapeConnectors(connectorId, endpoint.shapeId);
+    }
+
+    if (isStart) {
+      data.start = { portSide: 'free', x, y };
+    } else {
+      data.end = { portSide: 'free', x, y };
+    }
+
+    if (data.routing === ConnectorRoutingType.Curved) {
+      data.controlPoint = this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+    }
+
+    this.redrawConnectorPathOnly(connectorId);
+  }
+
+  onEndpointHandleReleased(connectorId: string, isStart: boolean, x: number, y: number, portHit: PortHit | null): void {
+    const data = this.connectorMap.get(connectorId);
+    if (!data) return;
+
+    if (portHit) {
+      const newEndpoint = { shapeId: portHit.shapeId, portSide: portHit.portSide, x: portHit.x, y: portHit.y };
+      if (isStart) {
+        data.start = newEndpoint;
+      } else {
+        data.end = newEndpoint;
+      }
+      const list = this.shapeConnectors.get(portHit.shapeId) ?? [];
+      if (!list.includes(connectorId)) {
+        this.shapeConnectors.set(portHit.shapeId, [...list, connectorId]);
+      }
+    } else {
+      if (isStart) {
+        data.start = { portSide: 'free', x, y };
+      } else {
+        data.end = { portSide: 'free', x, y };
+      }
+    }
+
+    if (data.routing === ConnectorRoutingType.Curved) {
+      data.controlPoint = this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+    }
+
+    this.redrawConnector(connectorId);
+  }
+
+  refreshConnector(connectorId: string): void {
     this.redrawConnector(connectorId);
   }
 
