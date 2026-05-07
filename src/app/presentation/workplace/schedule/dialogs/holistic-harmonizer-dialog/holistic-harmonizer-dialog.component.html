@@ -66,44 +66,104 @@
               </div>
             }
 
-            @if (r.acceptedSwaps.length > 0) {
-              <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.accepted-swaps' | translate }}</h5>
-              <ul class="holisticHarmonizer-swap-list">
-                @for (swap of r.acceptedSwaps; track $index) {
-                  <li class="holisticHarmonizer-swap-item">
-                    <span class="holisticHarmonizer-swap-coords">
-                      {{ resolveAgentName(swap.rowA) }}
-                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayA }})
-                      ↔
-                      {{ resolveAgentName(swap.rowB) }}
-                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayB }})
-                    </span>
-                    @if (swap.reason) {
-                      <span class="holisticHarmonizer-swap-reason">— {{ swap.reason }}</span>
-                    }
-                  </li>
-                }
-              </ul>
-            }
+            @if (r.batches.length > 0) {
+              <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.batches-section-title' | translate }}</h5>
+              <div class="holisticHarmonizer-batch-list">
+                @for (batch of r.batches; track batch.batchId) {
+                  <article
+                    class="holisticHarmonizer-batch-card"
+                    [class.holisticHarmonizer-batch-card--accepted]="batch.result === 'Accepted'"
+                    [class.holisticHarmonizer-batch-card--partial]="batch.result === 'PartiallyAccepted'"
+                    [class.holisticHarmonizer-batch-card--degrade]="batch.result === 'WouldDegrade'"
+                    [class.holisticHarmonizer-batch-card--rejected]="batch.result === 'Rejected'"
+                  >
+                    <header class="holisticHarmonizer-batch-card-header">
+                      <span class="holisticHarmonizer-batch-intent">{{ batch.intent }}</span>
+                      <span
+                        class="holisticHarmonizer-batch-result-badge"
+                        [class.holisticHarmonizer-batch-result-badge--positive]="batchScoreDeltaSign(batch) === 'positive'"
+                        [class.holisticHarmonizer-batch-result-badge--negative]="batchScoreDeltaSign(batch) === 'negative'"
+                      >
+                        {{ batchResultLabelKey(batch) | translate }}
+                      </span>
+                    </header>
+                    <div class="holisticHarmonizer-batch-meta">
+                      <span class="holisticHarmonizer-batch-meta-label">
+                        {{ 'holisticHarmonizer.dialog.batch-score-delta' | translate }}:
+                      </span>
+                      <span
+                        class="holisticHarmonizer-batch-meta-value"
+                        [class.holisticHarmonizer-batch-meta-value--positive]="batchScoreDeltaSign(batch) === 'positive'"
+                        [class.holisticHarmonizer-batch-meta-value--negative]="batchScoreDeltaSign(batch) === 'negative'"
+                      >
+                        {{ batchScoreDeltaPercent(batch) }}%
+                      </span>
+                      <span class="holisticHarmonizer-batch-meta-divider">·</span>
+                      <span class="holisticHarmonizer-batch-meta-label">
+                        {{ 'holisticHarmonizer.dialog.batch-applied-step-count' | translate }}:
+                      </span>
+                      <span class="holisticHarmonizer-batch-meta-value">{{ batch.appliedStepCount }}</span>
+                      <span class="holisticHarmonizer-batch-meta-divider">·</span>
+                      <span class="holisticHarmonizer-batch-meta-label">
+                        {{ 'holisticHarmonizer.dialog.batch-rejection-count' | translate }}:
+                      </span>
+                      <span class="holisticHarmonizer-batch-meta-value">{{ batch.rejectionCount }}</span>
+                    </div>
 
-            @if (r.rejectedSwaps.length > 0) {
-              <h5 class="holisticHarmonizer-section-title holisticHarmonizer-section-rejected">
-                {{ 'holisticHarmonizer.dialog.rejected-swaps' | translate }}
-              </h5>
-              <ul class="holisticHarmonizer-swap-list holisticHarmonizer-rejected-list">
-                @for (rej of r.rejectedSwaps; track $index) {
-                  <li class="holisticHarmonizer-swap-item">
-                    <span class="holisticHarmonizer-swap-coords">
-                      {{ resolveAgentName(rej.swap.rowA) }}
-                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayA }})
-                      ↔
-                      {{ resolveAgentName(rej.swap.rowB) }}
-                      ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayB }})
-                    </span>
-                    <span class="holisticHarmonizer-swap-reason">— [{{ rej.reason }}] {{ rej.detail }}</span>
-                  </li>
+                    @if (batch.appliedSwaps.length > 0) {
+                      <div class="holisticHarmonizer-batch-steps">
+                        <h6 class="holisticHarmonizer-batch-steps-title">
+                          {{ 'holisticHarmonizer.dialog.batch-applied-steps' | translate }}
+                        </h6>
+                        <ul class="holisticHarmonizer-swap-list">
+                          @for (swap of batch.appliedSwaps; track $index) {
+                            <li class="holisticHarmonizer-swap-item">
+                              <span class="holisticHarmonizer-swap-coords">
+                                {{ resolveAgentName(swap.rowA) }}
+                                ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayA }})
+                                ↔
+                                {{ resolveAgentName(swap.rowB) }}
+                                ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ swap.dayB }})
+                              </span>
+                              @if (swap.reason) {
+                                <span class="holisticHarmonizer-swap-reason">— {{ swap.reason }}</span>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+
+                    @if (batch.rejections.length > 0) {
+                      <div class="holisticHarmonizer-batch-steps">
+                        <h6 class="holisticHarmonizer-batch-steps-title holisticHarmonizer-batch-steps-title--rejected">
+                          {{ 'holisticHarmonizer.dialog.batch-rejected-steps' | translate }}
+                        </h6>
+                        <ul class="holisticHarmonizer-swap-list holisticHarmonizer-rejected-list">
+                          @for (rej of batch.rejections; track $index) {
+                            <li class="holisticHarmonizer-swap-item">
+                              <span class="holisticHarmonizer-swap-coords">
+                                {{ resolveAgentName(rej.swap.rowA) }}
+                                ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayA }})
+                                ↔
+                                {{ resolveAgentName(rej.swap.rowB) }}
+                                ({{ 'holisticHarmonizer.dialog.day' | translate }} {{ rej.swap.dayB }})
+                              </span>
+                              <span class="holisticHarmonizer-swap-reason">— [{{ rej.reason }}] {{ rej.detail }}</span>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+
+                    @if (batch.appliedSwaps.length === 0 && batch.rejections.length === 0) {
+                      <p class="holisticHarmonizer-batch-empty">
+                        {{ 'holisticHarmonizer.dialog.batch-no-steps' | translate }}
+                      </p>
+                    }
+                  </article>
                 }
-              </ul>
+              </div>
             }
           }
         </div>

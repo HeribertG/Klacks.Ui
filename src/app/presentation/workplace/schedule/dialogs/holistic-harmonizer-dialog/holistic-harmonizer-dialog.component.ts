@@ -25,7 +25,10 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
-import { HolisticHarmonizerRunRequest } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
+import {
+  HolisticHarmonizerBatchDto,
+  HolisticHarmonizerRunRequest,
+} from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error';
@@ -103,6 +106,44 @@ export class HolisticHarmonizerDialogComponent {
     const c = clients[rowIndex];
     const parts = [c.name, c.firstName].filter(Boolean);
     return parts.length ? parts.join(', ') : c.id;
+  }
+
+  batchScoreDeltaPercent(batch: HolisticHarmonizerBatchDto): string {
+    return ((batch.scoreAfter - batch.scoreBefore) * 100).toFixed(2);
+  }
+
+  batchScoreDeltaSign(batch: HolisticHarmonizerBatchDto): 'positive' | 'negative' | 'neutral' {
+    if (batch.scoreAfter > batch.scoreBefore) return 'positive';
+    if (batch.scoreAfter < batch.scoreBefore) return 'negative';
+    return 'neutral';
+  }
+
+  batchResultLabelKey(batch: HolisticHarmonizerBatchDto): string {
+    switch (batch.result) {
+      case 'Accepted':
+        return 'holisticHarmonizer.dialog.batch-result-accepted';
+      case 'PartiallyAccepted':
+        return 'holisticHarmonizer.dialog.batch-result-partially-accepted';
+      case 'WouldDegrade':
+        return 'holisticHarmonizer.dialog.batch-result-would-degrade';
+      case 'Rejected':
+      default:
+        return 'holisticHarmonizer.dialog.batch-result-rejected';
+    }
+  }
+
+  batchResultCssClass(batch: HolisticHarmonizerBatchDto): string {
+    switch (batch.result) {
+      case 'Accepted':
+        return 'holisticHarmonizer-batch-card--accepted';
+      case 'PartiallyAccepted':
+        return 'holisticHarmonizer-batch-card--partial';
+      case 'WouldDegrade':
+        return 'holisticHarmonizer-batch-card--degrade';
+      case 'Rejected':
+      default:
+        return 'holisticHarmonizer-batch-card--rejected';
+    }
   }
 
   private modalRef: NgbModalRef | null = null;

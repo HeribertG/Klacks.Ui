@@ -27,6 +27,19 @@ export interface HolisticHarmonizerRejectionDto {
   detail: string;
 }
 
+export interface HolisticHarmonizerBatchDto {
+  batchId: string;
+  intent: string;
+  result: string;
+  appliedStepCount: number;
+  rejectionCount: number;
+  stoppedAtStep: number | null;
+  scoreBefore: number;
+  scoreAfter: number;
+  appliedSwaps: HolisticHarmonizerSwapDto[];
+  rejections: HolisticHarmonizerRejectionDto[];
+}
+
 export interface HolisticHarmonizerRunResponse {
   jobId: string;
   llmModelId: string;
@@ -34,6 +47,7 @@ export interface HolisticHarmonizerRunResponse {
   fitnessAfter: number;
   acceptedSwaps: HolisticHarmonizerSwapDto[];
   rejectedSwaps: HolisticHarmonizerRejectionDto[];
+  batches: HolisticHarmonizerBatchDto[];
   llmParsingError: string | null;
   llmRawResponsePreview: string | null;
 }
