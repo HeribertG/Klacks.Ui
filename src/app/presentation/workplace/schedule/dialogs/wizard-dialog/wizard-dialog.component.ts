@@ -220,6 +220,7 @@ export class WizardDialogComponent {
           id: result.scenarioId,
           name: result.scenarioName,
           token: result.scenarioToken,
+          runGroupId: result.runGroupId,
           fromDate: '',
           untilDate: '',
           createdByUser: '',

@@ -1,0 +1,106 @@
+<div class="wizard-card-host">
+  <div id="wizard-settings-header" class="container-header">
+    {{ 'setting.wizard3.headline' | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="wizard-card-body">
+    <div class="wizard-settings-fixed">
+      <div class="default-row d-flex align-items-center gap-2 mb-2">
+        <label class="setting-label text-nowrap" for="wizard-settings-llm-model">
+          {{ 'setting.wizard3.llmModel' | translate }}:
+        </label>
+        <select
+          id="wizard-settings-llm-model"
+          class="form-select form-select-sm"
+          [(ngModel)]="llmModelId"
+          (ngModelChange)="onSettingChanged()"
+        >
+          <option [value]="''">{{ 'setting.wizard3.llmModelNone' | translate }}</option>
+          @for (model of llmModels(); track model.value) {
+            <option [value]="model.value">{{ model.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="check-row d-flex align-items-center gap-2 mt-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="isChecking()"
+          (click)="onCheckAllModels()"
+        >
+          @if (isChecking()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            {{ 'setting.wizard3.check.running' | translate }}
+          } @else {
+            {{ 'setting.wizard3.check.run' | translate }}
+          }
+        </button>
+        <span class="check-hint">{{ 'setting.wizard3.check.hint' | translate }}</span>
+      </div>
+
+      @if (checkError(); as err) {
+        <div class="alert alert-danger mt-2 wizard-check-error">{{ err }}</div>
+      }
+    </div>
+
+    <div class="wizard-check-table-wrapper">
+      @if (checkResults().length > 0) {
+        <table class="table table-sm wizard-check-table">
+          <thead>
+            <tr>
+              <th>{{ 'setting.wizard3.check.col-model' | translate }}</th>
+              <th>{{ 'setting.wizard3.check.col-provider' | translate }}</th>
+              <th>{{ 'setting.wizard3.check.col-status' | translate }}</th>
+              <th class="text-end">{{ 'setting.wizard3.check.col-latency' | translate }}</th>
+              <th class="text-end">{{ 'setting.wizard3.check.col-action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of checkResults(); track r.modelId) {
+              <tr [class.table-success]="r.isHealthy" [class.table-warning]="!r.isHealthy">
+                <td>
+                  <strong>{{ r.displayName }}</strong>
+                  <div class="wizard-check-id">{{ r.modelId }}</div>
+                </td>
+                <td>{{ r.providerId }}</td>
+                <td>
+                  @if (r.isHealthy) {
+                    <span class="badge bg-success">{{ 'setting.wizard3.check.status-ok' | translate }}</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{ 'setting.wizard3.check.status-fail' | translate }}</span>
+                    @if (r.error) {
+                      <div class="wizard-check-error-detail">{{ r.error }}</div>
+                    }
+                  }
+                </td>
+                <td class="text-end wizard-check-latency">
+                  @if (r.latencyMs > 0) {
+                    {{ r.latencyMs }} ms
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    [disabled]="!r.isHealthy || llmModelId === r.modelId"
+                    (click)="selectModel(r.modelId)"
+                  >
+                    @if (llmModelId === r.modelId) {
+                      {{ 'setting.wizard3.check.selected' | translate }}
+                    } @else {
+                      {{ 'setting.wizard3.check.select' | translate }}
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+</div>

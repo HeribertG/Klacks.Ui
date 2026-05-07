@@ -19,5 +19,6 @@ export interface HarmonizerApplyAsScenarioResponse {
   scenarioId: string;
   scenarioToken: string;
   scenarioName: string;
+  runGroupId: string | null;
   createdWorkIds: string[];
 }

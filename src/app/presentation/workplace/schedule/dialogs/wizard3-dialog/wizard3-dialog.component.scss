@@ -1,17 +1,85 @@
-.wizard3-status-line {
-  margin-bottom: 1rem;
+.wizard3-running {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
 }
 
-.wizard3-layers {
-  margin: 0.5rem 0 1rem 1.25rem;
-  padding: 0;
+.wizard3-running-text {
+  margin: 0;
 }
 
 .wizard3-llm-model {
-  margin-top: 1rem;
+  margin: 0;
 }
 
-.wizard3-llm-model-none {
+.wizard3-error-message {
+  margin: 0.5rem 0 0 0;
+  white-space: pre-wrap;
+}
+
+.wizard3-summary {
+  display: grid;
+  grid-template-columns: max-content auto;
+  column-gap: 1rem;
+  row-gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.wizard3-summary-row {
+  display: contents;
+}
+
+.wizard3-summary-label {
+  font-weight: 600;
+}
+
+.wizard3-summary-delta .wizard3-summary-value {
+  color: var(--colorAccent, #2a8e2a);
+}
+
+.wizard3-section-title {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.wizard3-section-rejected {
   color: var(--colorInactive, #888);
+}
+
+.wizard3-swap-list {
+  margin: 0.25rem 0 0 1.25rem;
+  padding: 0;
+  font-size: 0.92rem;
+}
+
+.wizard3-swap-item {
+  margin-bottom: 0.25rem;
+}
+
+.wizard3-swap-coords {
+  font-weight: 500;
+}
+
+.wizard3-swap-reason {
+  color: var(--colorInactive, #666);
   font-style: italic;
+}
+
+.wizard3-rejected-list .wizard3-swap-item {
+  color: var(--colorInactive, #888);
+}
+
+.wizard3-llm-diagnostic {
+  margin-bottom: 1rem;
+}
+
+.wizard3-raw {
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  max-height: 200px;
+  overflow: auto;
+  margin: 0.25rem 0 0 0;
 }

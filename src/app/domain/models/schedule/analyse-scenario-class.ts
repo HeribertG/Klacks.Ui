@@ -15,6 +15,7 @@ export interface IAnalyseScenario {
   fromDate: string;
   untilDate: string;
   token: string;
+  runGroupId?: string | null;
   createdByUser: string;
   status: AnalyseScenarioStatus;
 }

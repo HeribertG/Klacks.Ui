@@ -1,0 +1,79 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.wizard-card-host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wizard-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 10px 40px 10px 30px;
+}
+
+.wizard-settings-fixed {
+  flex: 0 0 auto;
+}
+
+.setting-label {
+  min-width: 140px;
+}
+
+select {
+  max-width: 280px;
+}
+
+.check-hint {
+  font-size: 0.85rem;
+  color: var(--colorInactive, #777);
+}
+
+.wizard-check-error {
+  font-size: 0.9rem;
+}
+
+.wizard-check-table-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 0.75rem;
+}
+
+.wizard-check-table {
+  font-size: 0.88rem;
+  margin-bottom: 0;
+}
+
+.wizard-check-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--backgroundColorCard, #fff);
+  box-shadow: inset 0 -1px 0 var(--colorLine, #ddd);
+}
+
+.wizard-check-id {
+  font-size: 0.78rem;
+  color: var(--colorInactive, #777);
+  font-family: monospace;
+}
+
+.wizard-check-error-detail {
+  font-size: 0.78rem;
+  color: var(--colorInactive, #777);
+  margin-top: 0.15rem;
+  white-space: pre-wrap;
+}
+
+.wizard-check-latency {
+  font-variant-numeric: tabular-nums;
+}

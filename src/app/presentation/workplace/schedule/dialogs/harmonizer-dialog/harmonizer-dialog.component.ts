@@ -142,6 +142,7 @@ export class HarmonizerDialogComponent {
         id: response.scenarioId,
         name: response.scenarioName,
         token: response.scenarioToken,
+        runGroupId: response.runGroupId,
         fromDate: '',
         untilDate: '',
         createdByUser: '',
