@@ -25,6 +25,8 @@ import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-sc
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
@@ -45,16 +47,20 @@ export class WizardDialogComponent {
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
   private readonly translate = inject(TranslateService);
+  private readonly localStorageService = inject(LocalStorageService);
 
   private readonly _applyPhase = signal<'applying' | 'applied' | null>(null);
   private readonly _localError = signal<string | null>(null);
 
   readonly appliedCount = signal(0);
 
-  private static readonly AUCTION_RATIO_STORAGE_KEY = 'wizard.auctionRatio';
   private static readonly AUCTION_RATIO_DEFAULT = 0.5;
-  readonly auctionRatio = signal<number>(WizardDialogComponent.loadAuctionRatio());
+  readonly auctionRatio = signal<number>(WizardDialogComponent.AUCTION_RATIO_DEFAULT);
   readonly auctionRatioPercent = computed(() => Math.round(this.auctionRatio() * 100));
+
+  constructor() {
+    this.auctionRatio.set(this.loadAuctionRatio());
+  }
 
   readonly phase = computed<WizardPhase>(() => {
     const ap = this._applyPhase();
@@ -140,9 +146,6 @@ export class WizardDialogComponent {
 
     const request = this.buildRequest();
     if (!request) {
-      // buildRequest may have already set a specific error message
-      // (e.g. selection too large). Only set the generic fallback when
-      // it didn't, so the more informative message survives.
       if (this._localError() === null) {
         this._localError.set(this.translate.instant('wizard.dialog.error.noData'));
       }
@@ -150,7 +153,6 @@ export class WizardDialogComponent {
     }
     this.wizardService.start(request).catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      console.error('[Wizard] start() failed:', err);
       this._localError.set(message);
     });
   }
@@ -170,7 +172,7 @@ export class WizardDialogComponent {
     const ratio = clamped / 100;
     this.auctionRatio.set(ratio);
     try {
-      localStorage.setItem(WizardDialogComponent.AUCTION_RATIO_STORAGE_KEY, ratio.toString());
+      this.localStorageService.set(StorageKeys.WIZARD_AUCTION_RATIO, ratio.toString());
     } catch {
       // localStorage may be disabled — ignore.
     }
@@ -193,9 +195,9 @@ export class WizardDialogComponent {
     });
   }
 
-  private static loadAuctionRatio(): number {
+  private loadAuctionRatio(): number {
     try {
-      const raw = localStorage.getItem(WizardDialogComponent.AUCTION_RATIO_STORAGE_KEY);
+      const raw = this.localStorageService.get(StorageKeys.WIZARD_AUCTION_RATIO);
       if (raw === null) return WizardDialogComponent.AUCTION_RATIO_DEFAULT;
       const parsed = parseFloat(raw);
       if (!Number.isFinite(parsed)) return WizardDialogComponent.AUCTION_RATIO_DEFAULT;

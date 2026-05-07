@@ -13,8 +13,8 @@
         <select
           id="wizard-settings-llm-model"
           class="form-select form-select-sm"
-          [(ngModel)]="llmModelId"
-          (ngModelChange)="onSettingChanged()"
+          [ngModel]="llmModelId()"
+          (ngModelChange)="onLlmModelChange($event)"
         >
           <option [value]="''">{{ 'setting.holisticHarmonizer.llmModelNone' | translate }}</option>
           @for (model of llmModels(); track model.value) {
@@ -86,10 +86,10 @@
                   <button
                     type="button"
                     class="btn btn-sm btn-outline-primary"
-                    [disabled]="!r.isHealthy || llmModelId === r.modelId"
+                    [disabled]="!r.isHealthy || llmModelId() === r.modelId"
                     (click)="selectModel(r.modelId)"
                   >
-                    @if (llmModelId === r.modelId) {
+                    @if (llmModelId() === r.modelId) {
                       {{ 'setting.holisticHarmonizer.check.selected' | translate }}
                     } @else {
                       {{ 'setting.holisticHarmonizer.check.select' | translate }}

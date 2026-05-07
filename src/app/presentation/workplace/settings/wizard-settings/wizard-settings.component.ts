@@ -28,16 +28,17 @@ export class WizardSettingsComponent implements OnInit {
   private readonly dataAssistantService = inject(DataAssistantService);
   private readonly dataHolisticHarmonizerService = inject(DataHolisticHarmonizerService);
 
-  llmModelId = '';
+  readonly llmModelId = signal<string>('');
   readonly llmModels = signal<{ value: string; label: string }[]>([]);
   readonly checkResults = signal<HolisticHarmonizerModelCheckDto[]>([]);
   readonly isChecking = signal<boolean>(false);
   readonly checkError = signal<string | null>(null);
+  readonly loadModelsError = signal<string | null>(null);
   private isInitialized = false;
 
   async ngOnInit(): Promise<void> {
     await this.appSettingsService.loadSettingsAsync();
-    this.llmModelId = this.appSettingsService.holisticHarmonizerSettings().llmModelId;
+    this.llmModelId.set(this.appSettingsService.holisticHarmonizerSettings().llmModelId);
     this.isInitialized = true;
 
     try {
@@ -47,9 +48,16 @@ export class WizardSettingsComponent implements OnInit {
           .filter((m) => m.isEnabled)
           .map((m) => ({ value: m.modelId, label: m.displayName ?? m.modelId })),
       );
-    } catch {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.loadModelsError.set(message);
       this.llmModels.set([]);
     }
+  }
+
+  onLlmModelChange(modelId: string): void {
+    this.llmModelId.set(modelId);
+    this.onSettingChanged();
   }
 
   onSettingChanged(): void {
@@ -58,7 +66,7 @@ export class WizardSettingsComponent implements OnInit {
     }
     this.appSettingsService.holisticHarmonizerSettings.set({
       ...this.appSettingsService.holisticHarmonizerSettings(),
-      llmModelId: this.llmModelId,
+      llmModelId: this.llmModelId(),
     });
   }
 
@@ -81,7 +89,7 @@ export class WizardSettingsComponent implements OnInit {
   }
 
   selectModel(modelId: string): void {
-    this.llmModelId = modelId;
+    this.llmModelId.set(modelId);
     this.onSettingChanged();
   }
 }
