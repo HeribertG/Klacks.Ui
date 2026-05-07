@@ -18,6 +18,8 @@ export enum FloorPlanTool {
 export enum ConnectorRoutingType {
   Straight = 'straight',
   Curved = 'curved',
+  SCurve = 'scurve',
+  Orthogonal = 'orthogonal',
 }
 
 export enum ConnectorArrowheadType {
