@@ -147,6 +147,46 @@ export class FloorPlanConnectorService {
     };
   }
 
+  private isHorizontalRoute(start: ConnectorEndpoint, end: ConnectorEndpoint): boolean {
+    const startHoriz = start.portSide === 'left' || start.portSide === 'right';
+    const endHoriz   = end.portSide   === 'left' || end.portSide   === 'right';
+    const startVert  = start.portSide === 'top'  || start.portSide === 'bottom';
+    const endVert    = end.portSide   === 'top'  || end.portSide   === 'bottom';
+    if (startHoriz && endHoriz) return true;
+    if (startVert  && endVert)  return false;
+    return Math.abs(end.x - start.x) >= Math.abs(end.y - start.y);
+  }
+
+  private getPathData(
+    start: ConnectorEndpoint,
+    end: ConnectorEndpoint,
+    routing: ConnectorRoutingType,
+    controlPoint: { x: number; y: number }
+  ): string {
+    if (routing === ConnectorRoutingType.Curved) {
+      return `M ${start.x} ${start.y} Q ${controlPoint.x} ${controlPoint.y} ${end.x} ${end.y}`;
+    }
+    if (routing === ConnectorRoutingType.SCurve) {
+      if (this.isHorizontalRoute(start, end)) {
+        const dx = (end.x - start.x) / 2;
+        return `M ${start.x} ${start.y} C ${start.x + dx} ${start.y} ${end.x - dx} ${end.y} ${end.x} ${end.y}`;
+      } else {
+        const dy = (end.y - start.y) / 2;
+        return `M ${start.x} ${start.y} C ${start.x} ${start.y + dy} ${end.x} ${end.y - dy} ${end.x} ${end.y}`;
+      }
+    }
+    if (routing === ConnectorRoutingType.Orthogonal) {
+      if (this.isHorizontalRoute(start, end)) {
+        const xmid = (start.x + end.x) / 2;
+        return `M ${start.x} ${start.y} L ${xmid} ${start.y} L ${xmid} ${end.y} L ${end.x} ${end.y}`;
+      } else {
+        const ymid = (start.y + end.y) / 2;
+        return `M ${start.x} ${start.y} L ${start.x} ${ymid} L ${end.x} ${ymid} L ${end.x} ${end.y}`;
+      }
+    }
+    return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  }
+
   private buildPath(
     start: ConnectorEndpoint,
     end: ConnectorEndpoint,
@@ -155,12 +195,7 @@ export class FloorPlanConnectorService {
     stroke: string,
     strokeWidth: number
   ): Path {
-    let pathData: string;
-    if (routing === ConnectorRoutingType.Curved) {
-      pathData = `M ${start.x} ${start.y} Q ${controlPoint.x} ${controlPoint.y} ${end.x} ${end.y}`;
-    } else {
-      pathData = `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
-    }
+    const pathData = this.getPathData(start, end, routing, controlPoint);
     return new Path(pathData, {
       fill: '',
       stroke,
