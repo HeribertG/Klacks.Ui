@@ -214,6 +214,13 @@ export class FloorPlanConnectorService {
     return Math.atan2(end.y - cp.y, end.x - cp.x) * (180 / Math.PI) + 90;
   }
 
+  private getEndAngleAutoRoute(start: ConnectorEndpoint, end: ConnectorEndpoint): number {
+    if (this.isHorizontalRoute(start, end)) {
+      return Math.atan2(0, end.x - start.x) * (180 / Math.PI) + 90;
+    }
+    return Math.atan2(end.y - start.y, 0) * (180 / Math.PI) + 90;
+  }
+
   private buildArrowhead(x: number, y: number, angleDeg: number, stroke: string): Triangle {
     return new Triangle({
       left: x,
@@ -294,7 +301,9 @@ export class FloorPlanConnectorService {
 
       const endAngle = data.routing === ConnectorRoutingType.Curved
         ? this.getEndAngleCurved(data.end, cp)
-        : this.getEndAngleStraight(data.start, data.end);
+        : (data.routing === ConnectorRoutingType.SCurve || data.routing === ConnectorRoutingType.Orthogonal)
+          ? this.getEndAngleAutoRoute(data.start, data.end)
+          : this.getEndAngleStraight(data.start, data.end);
 
       const endHead = this.buildArrowhead(data.end.x, data.end.y, endAngle, stroke);
       endHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: false });
@@ -303,7 +312,9 @@ export class FloorPlanConnectorService {
       if (data.arrowhead === ConnectorArrowheadType.Double) {
         const startAngle = data.routing === ConnectorRoutingType.Curved
           ? Math.atan2(data.start.y - cp.y, data.start.x - cp.x) * (180 / Math.PI) + 90
-          : this.getEndAngleStraight(data.end, data.start);
+          : (data.routing === ConnectorRoutingType.SCurve || data.routing === ConnectorRoutingType.Orthogonal)
+            ? this.getEndAngleAutoRoute(data.end, data.start)
+            : this.getEndAngleStraight(data.end, data.start);
         const startHead = this.buildArrowhead(data.start.x, data.start.y, startAngle, stroke);
         startHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: true });
         this.canvas.add(startHead);
@@ -350,7 +361,9 @@ export class FloorPlanConnectorService {
 
       const endAngle = data.routing === ConnectorRoutingType.Curved
         ? this.getEndAngleCurved(data.end, cp)
-        : this.getEndAngleStraight(data.start, data.end);
+        : (data.routing === ConnectorRoutingType.SCurve || data.routing === ConnectorRoutingType.Orthogonal)
+          ? this.getEndAngleAutoRoute(data.start, data.end)
+          : this.getEndAngleStraight(data.start, data.end);
       const endHead = this.buildArrowhead(data.end.x, data.end.y, endAngle, stroke);
       endHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: false });
       this.canvas.add(endHead);
@@ -358,7 +371,9 @@ export class FloorPlanConnectorService {
       if (data.arrowhead === ConnectorArrowheadType.Double) {
         const startAngle = data.routing === ConnectorRoutingType.Curved
           ? Math.atan2(data.start.y - cp.y, data.start.x - cp.x) * (180 / Math.PI) + 90
-          : this.getEndAngleStraight(data.end, data.start);
+          : (data.routing === ConnectorRoutingType.SCurve || data.routing === ConnectorRoutingType.Orthogonal)
+            ? this.getEndAngleAutoRoute(data.end, data.start)
+            : this.getEndAngleStraight(data.end, data.start);
         const startHead = this.buildArrowhead(data.start.x, data.start.y, startAngle, stroke);
         startHead.set('data', { connectorId: id, isConnector: true, isArrowhead: true, isStart: true });
         this.canvas.add(startHead);

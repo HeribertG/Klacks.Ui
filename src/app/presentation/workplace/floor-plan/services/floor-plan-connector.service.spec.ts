@@ -208,4 +208,35 @@ describe('FloorPlanConnectorService', () => {
       });
     });
   });
+
+  describe('getEndAngleAutoRoute', () => {
+    const start  = { portSide: 'right'  as const, x: 10,  y: 60 };
+    const end    = { portSide: 'left'   as const, x: 210, y: 20 };
+    const startV = { portSide: 'bottom' as const, x: 40,  y: 10 };
+    const endV   = { portSide: 'top'    as const, x: 150, y: 70 };
+
+    it('horizontal right→ end: returns 90 (pointing right)', () => {
+      const angle = (service as any).getEndAngleAutoRoute(start, end);
+      expect(angle).toBeCloseTo(90);
+    });
+
+    it('horizontal ←left end: returns 270 (pointing left)', () => {
+      const s = { portSide: 'left'  as const, x: 210, y: 20 };
+      const e = { portSide: 'right' as const, x: 10,  y: 60 };
+      const angle = (service as any).getEndAngleAutoRoute(s, e);
+      expect(angle).toBeCloseTo(270);
+    });
+
+    it('vertical down↓ end: returns 180 (pointing down)', () => {
+      const angle = (service as any).getEndAngleAutoRoute(startV, endV);
+      expect(angle).toBeCloseTo(180);
+    });
+
+    it('vertical up↑ end: returns 0 (pointing up)', () => {
+      const s = { portSide: 'top'    as const, x: 150, y: 70 };
+      const e = { portSide: 'bottom' as const, x: 40,  y: 10 };
+      const angle = (service as any).getEndAngleAutoRoute(s, e);
+      expect(angle).toBeCloseTo(0);
+    });
+  });
 });
