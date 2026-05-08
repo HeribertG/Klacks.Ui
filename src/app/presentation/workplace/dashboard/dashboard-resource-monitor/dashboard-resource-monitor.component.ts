@@ -35,7 +35,11 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   private dailyData = signal<IResourceMonitorDay[]>([]);
 
-  readonly MONTH_LABELS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+  get monthLabels(): string[] {
+    return Array.from({ length: 12 }, (_, i) =>
+      new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(new Date(2000, i, 1))
+    );
+  }
 
   chartSeries = computed<ILineChartSeries[]>(() => {
     const data = this.dailyData();
