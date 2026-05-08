@@ -1,0 +1,47 @@
+<div class="container-dashboard-card rm-card">
+  <div class="rm-header">
+    <h3 class="rm-title">{{ 'dashboard.resource-monitor.title' | translate }}</h3>
+    <div class="rm-controls">
+      <div class="rm-year-picker">
+        <button class="rm-year-btn" (click)="prevYear()">&#9664;</button>
+        <span class="rm-year-value">{{ selectedYear() }}</span>
+        <button class="rm-year-btn" (click)="nextYear()">&#9654;</button>
+      </div>
+      <select class="rm-group-select" (change)="onGroupChange($event)" [value]="selectedGroupId() ?? ''">
+        <option value="">{{ 'dashboard.resource-monitor.all-groups' | translate }}</option>
+        @for (g of groupOptions(); track g.id) {
+          <option [value]="g.id ?? ''">{{ g.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="rm-loading">
+      <p>{{ 'dashboard.coverage.loading' | translate }}</p>
+    </div>
+  } @else if (error()) {
+    <div class="container-dashboard-error">
+      <p class="container-dashboard-error-message">{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="rm-legend">
+      <span class="rm-legend-item">
+        <span class="rm-line rm-line--solid" style="background:#4A90D9"></span>
+        {{ 'dashboard.resource-monitor.should-hours' | translate }}
+      </span>
+      <span class="rm-legend-item">
+        <span class="rm-line rm-line--dashed" style="border-color:#27AE60"></span>
+        {{ 'dashboard.resource-monitor.actual-hours' | translate }}
+      </span>
+    </div>
+    <div class="rm-chart">
+      <app-line-chart
+        [series]="chartSeries()"
+        [xMonthLabels]="MONTH_LABELS"
+        [todayIndex]="todayIndex()"
+        [todayLabel]="'dashboard.resource-monitor.today' | translate"
+      ></app-line-chart>
+    </div>
+  }
+</div>

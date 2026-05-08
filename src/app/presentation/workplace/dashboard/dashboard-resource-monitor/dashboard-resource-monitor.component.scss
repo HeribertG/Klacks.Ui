@@ -1,0 +1,100 @@
+.rm-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.rm-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.rm-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rm-year-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 3px 10px;
+  background: #fff;
+}
+
+.rm-year-value {
+  font-weight: 500;
+  font-size: 14px;
+  min-width: 38px;
+  text-align: center;
+}
+
+.rm-year-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #666;
+  padding: 0;
+
+  &:hover { color: #333; }
+}
+
+.rm-group-select {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 10px;
+  background: #fff;
+  font-size: 13px;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.rm-legend {
+  display: flex;
+  gap: 20px;
+  padding: 10px 20px 4px;
+  font-size: 12px;
+  color: #555;
+}
+
+.rm-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rm-line {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+
+  &--dashed {
+    background: none !important;
+    border-top: 2px dashed;
+    height: 0;
+  }
+}
+
+.rm-chart {
+  padding: 8px 16px 16px;
+}
+
+.rm-loading {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}
