@@ -14,6 +14,36 @@
   margin: 0;
 }
 
+.holisticHarmonizer-progress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.holisticHarmonizer-progress-bar-outer {
+  width: 100%;
+  height: 0.6rem;
+  background: var(--colorBackgroundMuted, #ececec);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.holisticHarmonizer-progress-bar-inner {
+  height: 100%;
+  background: var(--colorPrimary, #1f4a8c);
+  transition: width 0.2s ease-out;
+}
+
+.holisticHarmonizer-progress-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--colorTextMuted, #555);
+  font-variant-numeric: tabular-nums;
+}
+
 .holisticHarmonizer-error-message {
   margin: 0.5rem 0 0 0;
   white-space: pre-wrap;

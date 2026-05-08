@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Domain models for Holistic Harmonizer (LLM-driven schedule harmonizer) MVP.
- * Mirror the DTOs returned by /api/backend/HolisticHarmonizer/Run and /ApplyAsScenario.
+ * Domain models for Holistic Harmonizer (LLM-driven schedule harmonizer).
+ * Mirror the DTOs returned by /api/backend/HolisticHarmonizer/Start (REST kick-off),
+ * the SignalR completion payload (/hubs/holistic-harmonizer OnCompleted), and /ApplyAsScenario.
  */
 
 export interface HolisticHarmonizerRunRequest {
@@ -65,7 +66,29 @@ export interface HolisticHarmonizerApplyResponse {
   createdWorkIds: string[];
 }
 
-export type HolisticHarmonizerStatus = 'idle' | 'running' | 'completed' | 'failed';
+export type HolisticHarmonizerStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';
+
+export interface HolisticHarmonizerProgress {
+  jobId: string;
+  iterationIndex: number;
+  maxIterations: number;
+  bestFitness: number;
+  acceptedBatchCount: number;
+  rejectedBatchCount: number;
+  elapsedMs: number;
+}
+
+export interface StartHolisticHarmonizerResponse {
+  jobId: string;
+}
+
+export interface CancelHolisticHarmonizerRequest {
+  jobId: string;
+}
+
+export interface CancelHolisticHarmonizerResponse {
+  cancelled: boolean;
+}
 
 export interface HolisticHarmonizerModelCheckDto {
   modelId: string;

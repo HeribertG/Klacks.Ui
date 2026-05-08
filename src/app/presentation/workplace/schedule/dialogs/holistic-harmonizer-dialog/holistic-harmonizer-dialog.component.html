@@ -7,7 +7,6 @@
     @switch (phase()) {
       @case ('running') {
         <div class="holisticHarmonizer-running">
-          <div class="spinner-border text-primary" role="status"></div>
           <p class="holisticHarmonizer-running-text">{{ 'holisticHarmonizer.dialog.running' | translate }}</p>
           @if (selectedLlmModelId()) {
             <p class="holisticHarmonizer-llm-model">
@@ -15,6 +14,40 @@
               <span>{{ selectedLlmModelId() }}</span>
             </p>
           }
+          <div class="holisticHarmonizer-progress">
+            <div class="holisticHarmonizer-progress-bar-outer">
+              <div class="holisticHarmonizer-progress-bar-inner" [style.width.%]="progressPercent()"></div>
+            </div>
+            <div class="holisticHarmonizer-progress-meta">
+              <span>
+                {{ 'holisticHarmonizer.dialog.progress-iteration' | translate }}:
+                {{ holisticHarmonizerService.progress()?.iterationIndex ?? 0 }} /
+                {{ holisticHarmonizerService.progress()?.maxIterations ?? 0 }}
+              </span>
+              <span>
+                {{ 'holisticHarmonizer.dialog.progress-best-fitness' | translate }}:
+                {{ progressBestFitnessPercent() }}%
+              </span>
+              <span>
+                {{ 'holisticHarmonizer.dialog.progress-accepted' | translate }}:
+                {{ holisticHarmonizerService.progress()?.acceptedBatchCount ?? 0 }}
+              </span>
+              <span>
+                {{ 'holisticHarmonizer.dialog.progress-rejected' | translate }}:
+                {{ holisticHarmonizerService.progress()?.rejectedBatchCount ?? 0 }}
+              </span>
+              <span>
+                {{ 'holisticHarmonizer.dialog.progress-elapsed' | translate }}:
+                {{ progressElapsedSeconds() }}s
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @case ('cancelled') {
+        <div class="holisticHarmonizer-cancelled alert alert-warning">
+          <p class="mb-0">{{ 'holisticHarmonizer.dialog.cancelled' | translate }}</p>
         </div>
       }
 
@@ -187,18 +220,22 @@
     }
   </div>
   <div class="modal-footer">
-    @if (phase() === 'done') {
+    @if (phase() === 'running') {
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        {{ 'holisticHarmonizer.dialog.cancel' | translate }}
+      </button>
+    } @else if (phase() === 'done') {
       <button type="button" class="btn btn-secondary" (click)="onClose()">
         {{ 'holisticHarmonizer.dialog.discard' | translate }}
       </button>
       <button type="button" class="btn btn-primary" (click)="onApply()" [disabled]="acceptedCount() === 0">
         {{ 'holisticHarmonizer.dialog.apply' | translate }}
       </button>
-    } @else if (phase() === 'applied' || phase() === 'error') {
+    } @else if (phase() === 'applied' || phase() === 'error' || phase() === 'cancelled') {
       <button type="button" class="btn btn-secondary" (click)="onClose()">
         {{ 'holisticHarmonizer.dialog.close' | translate }}
       </button>
-    } @else if (phase() === 'running' || phase() === 'applying') {
+    } @else if (phase() === 'applying') {
       <button type="button" class="btn btn-secondary" disabled>
         {{ 'holisticHarmonizer.dialog.close' | translate }}
       </button>

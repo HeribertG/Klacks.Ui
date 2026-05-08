@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Dialog for Holistic Harmonizer (LLM-driven schedule harmonizer) MVP. Runs a single LLM round-trip
- * on open, shows fitness before/after plus the accepted and rejected swaps with reasons,
- * and applies the result as a new AnalyseScenario via the shared harmonizer apply pipeline.
- * @param phase - Derived UI phase (running/done/applying/applied/error)
+ * Dialog for Holistic Harmonizer (LLM-driven schedule harmonizer). Starts an async run that
+ * streams iteration progress over SignalR until completion, cancellation, or failure. The
+ * accepted result can be applied as a new AnalyseScenario via the shared harmonizer apply pipeline.
+ * @param phase - Derived UI phase (running/done/cancelled/applying/applied/error)
+ * @param progressPercent - Iteration progress as a percentage of MaxIterations
  * @param fitnessDeltaPercent - Fitness improvement after - before, in percent
  */
 
@@ -31,7 +32,7 @@ import {
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
-type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error';
+type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
 @Component({
   selector: 'app-holistic-harmonizer-dialog',
@@ -67,6 +68,8 @@ export class HolisticHarmonizerDialogComponent {
         return 'running';
       case 'completed':
         return 'done';
+      case 'cancelled':
+        return 'cancelled';
       case 'failed':
         return 'error';
       default:
@@ -77,6 +80,22 @@ export class HolisticHarmonizerDialogComponent {
   readonly errorMessage = computed(
     () => this._localError() ?? this.holisticHarmonizerService.failureReason() ?? '',
   );
+
+  readonly progressPercent = computed(() => {
+    const p = this.holisticHarmonizerService.progress();
+    if (!p || p.maxIterations === 0) return 0;
+    return Math.round((p.iterationIndex / p.maxIterations) * 100);
+  });
+
+  readonly progressBestFitnessPercent = computed(() => {
+    const p = this.holisticHarmonizerService.progress();
+    return p ? (p.bestFitness * 100).toFixed(1) : '0.0';
+  });
+
+  readonly progressElapsedSeconds = computed(() => {
+    const p = this.holisticHarmonizerService.progress();
+    return p ? (p.elapsedMs / 1000).toFixed(1) : '0.0';
+  });
 
   readonly fitnessBeforePercent = computed(() => {
     const r = this.holisticHarmonizerService.result();
@@ -159,6 +178,7 @@ export class HolisticHarmonizerDialogComponent {
       keyboard: false,
       size: 'lg',
     });
+    this.modalRef.dismissed.subscribe(() => this.cancelIfRunning());
 
     if (!this.selectedLlmModelId()) {
       this._localError.set(this.translate.instant('holisticHarmonizer.dialog.error.noModel'));
@@ -171,14 +191,19 @@ export class HolisticHarmonizerDialogComponent {
       return;
     }
 
-    this.holisticHarmonizerService.run(request).catch((err: unknown) => {
+    this.holisticHarmonizerService.start(request).catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      console.error('[HolisticHarmonizer] run() failed:', err);
+      console.error('[HolisticHarmonizer] start() failed:', err);
       this._localError.set(message);
     });
   }
 
+  onCancel(): void {
+    this.cancelIfRunning();
+  }
+
   onClose(): void {
+    void this.holisticHarmonizerService.stopConnection();
     this.modalRef?.close();
   }
 
@@ -209,6 +234,14 @@ export class HolisticHarmonizerDialogComponent {
       this._localError.set(message);
       this._applyPhase.set(null);
     }
+  }
+
+  private cancelIfRunning(): void {
+    const jobId = this.holisticHarmonizerService.currentJobId();
+    if (jobId && this.holisticHarmonizerService.status() === 'running') {
+      void this.holisticHarmonizerService.cancel(jobId);
+    }
+    void this.holisticHarmonizerService.stopConnection();
   }
 
   private buildRequest(): HolisticHarmonizerRunRequest | null {
