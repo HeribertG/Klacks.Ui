@@ -22,3 +22,13 @@ export interface IShiftCoverageStatistics {
   totalWorkEntries: number;
   sealedWorkEntries: number;
 }
+
+export interface IResourceMonitorDay {
+  date: string;
+  shouldHours: number;
+  actualHours: number;
+}
+
+export interface IResourceMonitorData {
+  dailyData: IResourceMonitorDay[];
+}
