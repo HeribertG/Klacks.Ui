@@ -122,7 +122,7 @@ export class LineChartComponent implements OnChanges {
     this.todayX.set(this.todayIndex != null ? this.toX(this.todayIndex, len) : null);
   }
 
-  onMouseMove(event: MouseEvent, svgEl: SVGSVGElement): void {
+  onMouseMove(event: MouseEvent, svgEl: Element): void {
     this.wrapRect = this.wrapEl.nativeElement.getBoundingClientRect();
     const rect = svgEl.getBoundingClientRect();
     const relX = ((event.clientX - rect.left) / rect.width) * this.VW;
