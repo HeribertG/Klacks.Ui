@@ -55,6 +55,21 @@
     }
 
     <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="dashboard-section-resources" class="section-header" tabindex="0" role="button" (click)="toggleSection('resources')" (keydown.enter)="toggleSection('resources')">
+      <span>{{ "dashboard.section.resources" | translate }}</span>
+      <button class="section-toggle-button">
+        @if (sections['resources']) {
+          <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+          <app-icon-angle-right></app-icon-angle-right>
+        }
+      </button>
+    </div>
+    @if (sections['resources']) {
+      <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
     <div id="dashboard-section-locations" class="section-header" tabindex="0" role="button" (click)="toggleSection('locations')" (keydown.enter)="toggleSection('locations')">
       <span>{{ "dashboard.section.locations" | translate }}</span>
       <button class="section-toggle-button">

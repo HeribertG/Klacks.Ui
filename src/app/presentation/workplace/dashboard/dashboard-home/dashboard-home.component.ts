@@ -16,6 +16,7 @@ import { DashboardClientsOverviewComponent } from '../dashboard-clients-overview
 import { DashboardClientsLocationsComponent } from '../dashboard-clients-locations/dashboard-clients-locations.component';
 import { DashboardShiftsOverviewComponent } from '../dashboard-shifts-overview/dashboard-shifts-overview.component';
 import { DashboardShiftCoverageComponent } from '../dashboard-shift-coverage/dashboard-shift-coverage.component';
+import { DashboardResourceMonitorComponent } from '../dashboard-resource-monitor/dashboard-resource-monitor.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -32,6 +33,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     DashboardClientsLocationsComponent,
     DashboardShiftsOverviewComponent,
     DashboardShiftCoverageComponent,
+    DashboardResourceMonitorComponent,
     IconAngleDownComponent,
     IconAngleRightComponent,
     IconCollapseAllGreyComponent,
@@ -49,6 +51,7 @@ export class DashboardHomeComponent implements OnInit {
   sections: Record<string, boolean> = {
     overview: true,
     coverage: true,
+    resources: true,
     locations: true,
   };
 
