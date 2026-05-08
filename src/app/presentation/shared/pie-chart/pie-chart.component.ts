@@ -67,7 +67,8 @@ export class PieChartComponent implements OnChanges {
 
     this.slices = this.data.map((item) => {
       const percentage = ((item.value / this.total) * 100).toFixed(1);
-      const angle = (item.value / this.total) * 360;
+      const rawAngle = (item.value / this.total) * 360;
+      const angle = rawAngle >= 360 ? 359.9999 : rawAngle;
 
       const startAngle = currentAngle;
       const endAngle = currentAngle + angle;
