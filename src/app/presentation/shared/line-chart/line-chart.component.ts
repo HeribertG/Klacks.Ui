@@ -5,6 +5,7 @@
  * @param series - Data series array; each series has label, color, dashed flag, and numeric data points
  * @param xMonthLabels - 12 month abbreviations for the X-axis (e.g. ['Jan','Feb',...])
  * @param todayIndex - Zero-based index of the current day (0–364) for the red vertical marker
+ * @param todayLabel - Label shown next to the today marker (defaults to 'Heute')
  */
 import {
   Component,
@@ -13,6 +14,8 @@ import {
   SimpleChanges,
   ChangeDetectionStrategy,
   signal,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 
@@ -43,6 +46,9 @@ export class LineChartComponent implements OnChanges {
   @Input() series: ILineChartSeries[] = [];
   @Input() xMonthLabels: string[] = [];
   @Input() todayIndex?: number;
+  @Input() todayLabel = 'Heute';
+
+  @ViewChild('wrapEl') wrapEl!: ElementRef<HTMLDivElement>;
 
   private readonly VW = 900;
   private readonly VH = 220;
@@ -53,6 +59,17 @@ export class LineChartComponent implements OnChanges {
 
   get cw(): number { return this.VW - this.PL - this.PR; }
   get ch(): number { return this.VH - this.PT - this.PB; }
+
+  get axisY(): number { return this.PT + this.ch; }
+  get chartLeft(): number { return this.PL; }
+  get chartRight(): number { return this.VW - this.PR; }
+  get yLabelX(): number { return this.PL - 4; }
+  get tickEndY(): number { return this.axisY + 6; }
+  get xLabelY(): number { return this.axisY + 18; }
+  get todayStartY(): number { return this.PT; }
+
+  private maxV = 1;
+  private wrapRect: DOMRect | null = null;
 
   polylines = signal<{ points: string; color: string; dashed: boolean }[]>([]);
   gridLines = signal<{ y: number; label: string }[]>([]);
@@ -81,17 +98,17 @@ export class LineChartComponent implements OnChanges {
     }
 
     const len = this.series[0].data.length;
-    const maxV = Math.max(...this.series.flatMap(s => s.data), 1);
+    this.maxV = Math.max(...this.series.flatMap(s => s.data), 1);
 
     this.polylines.set(this.series.map(s => ({
-      points: s.data.map((v, i) => `${this.toX(i, len)},${this.toY(v, maxV)}`).join(' '),
+      points: s.data.map((v, i) => `${this.toX(i, len)},${this.toY(v, this.maxV)}`).join(' '),
       color: s.color,
       dashed: s.dashed,
     })));
 
-    const step = maxV / 4;
+    const step = this.maxV / 4;
     this.gridLines.set([1, 2, 3, 4].map(n => ({
-      y: this.toY(n * step, maxV),
+      y: this.toY(n * step, this.maxV),
       label: `${Math.round(n * step)}h`,
     })));
 
@@ -106,17 +123,17 @@ export class LineChartComponent implements OnChanges {
   }
 
   onMouseMove(event: MouseEvent, svgEl: SVGSVGElement): void {
+    this.wrapRect = this.wrapEl.nativeElement.getBoundingClientRect();
     const rect = svgEl.getBoundingClientRect();
     const relX = ((event.clientX - rect.left) / rect.width) * this.VW;
     const chartX = relX - this.PL;
     const len = this.series[0]?.data.length ?? 365;
     const idx = Math.max(0, Math.min(len - 1, Math.round((chartX / this.cw) * (len - 1))));
-    const maxV = Math.max(...this.series.flatMap(s => s.data), 1);
 
     this.tooltip.set({
       visible: true,
       svgX: this.toX(idx, len),
-      svgY: this.toY(Math.max(...this.series.map(s => s.data[idx] ?? 0)), maxV),
+      svgY: this.toY(Math.max(...this.series.map(s => s.data[idx] ?? 0)), this.maxV),
       dayIndex: idx,
       values: this.series.map(s => ({ label: s.label, color: s.color, value: s.data[idx] ?? 0 })),
     });
@@ -126,7 +143,9 @@ export class LineChartComponent implements OnChanges {
     this.tooltip.update(t => ({ ...t, visible: false }));
   }
 
-  tooltipStyle(rect: DOMRect): Record<string, string> {
+  tooltipStyle(): Record<string, string> {
+    const rect = this.wrapRect;
+    if (!rect) return { display: 'none' };
     const t = this.tooltip();
     const pxX = (t.svgX / this.VW) * rect.width + 10;
     const pxY = (t.svgY / this.VH) * rect.height;

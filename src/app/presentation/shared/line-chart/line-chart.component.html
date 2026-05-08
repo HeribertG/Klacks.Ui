@@ -7,24 +7,24 @@
     (mousemove)="onMouseMove($event, svgEl)"
     (mouseleave)="onMouseLeave()"
   >
-    @for (g of gridLines(); track g.label) {
-      <line [attr.x1]="50" [attr.y1]="g.y" [attr.x2]="890" [attr.y2]="g.y" class="lc-grid" />
-      <text [attr.x]="46" [attr.y]="g.y + 4" class="lc-label lc-label--y">{{ g.label }}</text>
+    @for (g of gridLines(); track $index) {
+      <line [attr.x1]="chartLeft" [attr.y1]="g.y" [attr.x2]="chartRight" [attr.y2]="g.y" class="lc-grid" />
+      <text [attr.x]="yLabelX" [attr.y]="g.y + 4" class="lc-label lc-label--y">{{ g.label }}</text>
     }
 
-    <line x1="50" y1="182" x2="890" y2="182" class="lc-axis" />
+    <line [attr.x1]="chartLeft" [attr.y1]="axisY" [attr.x2]="chartRight" [attr.y2]="axisY" class="lc-axis" />
 
-    @for (t of monthTicks(); track t.label) {
-      <line [attr.x1]="t.x" y1="182" [attr.x2]="t.x" y2="188" class="lc-tick" />
-      <text [attr.x]="t.x" y="200" class="lc-label lc-label--x">{{ t.label }}</text>
+    @for (t of monthTicks(); track $index) {
+      <line [attr.x1]="t.x" [attr.y1]="axisY" [attr.x2]="t.x" [attr.y2]="tickEndY" class="lc-tick" />
+      <text [attr.x]="t.x" [attr.y]="xLabelY" class="lc-label lc-label--x">{{ t.label }}</text>
     }
 
     @if (todayX() !== null) {
-      <line [attr.x1]="todayX()" y1="16" [attr.x2]="todayX()" y2="182" class="lc-today" />
-      <text [attr.x]="(todayX() ?? 0) + 3" y="25" class="lc-today-label">Heute</text>
+      <line [attr.x1]="todayX()" [attr.y1]="todayStartY" [attr.x2]="todayX()" [attr.y2]="axisY" class="lc-today" />
+      <text [attr.x]="(todayX() ?? 0) + 3" [attr.y]="todayStartY + 9" class="lc-today-label">{{ todayLabel }}</text>
     }
 
-    @for (p of polylines(); track p.color) {
+    @for (p of polylines(); track $index) {
       <polyline
         [attr.points]="p.points"
         [attr.stroke]="p.color"
@@ -38,15 +38,15 @@
 
     @if (tooltip().visible) {
       <line
-        [attr.x1]="tooltip().svgX" y1="16"
-        [attr.x2]="tooltip().svgX" y2="182"
+        [attr.x1]="tooltip().svgX" [attr.y1]="todayStartY"
+        [attr.x2]="tooltip().svgX" [attr.y2]="axisY"
         class="lc-crosshair"
       />
     }
   </svg>
 
   @if (tooltip().visible) {
-    <div class="lc-tooltip" [ngStyle]="tooltipStyle(wrapEl.getBoundingClientRect())">
+    <div class="lc-tooltip" [ngStyle]="tooltipStyle()">
       @for (v of tooltip().values; track v.label) {
         <div class="lc-tooltip-row">
           <span class="lc-dot" [ngStyle]="{ background: v.color }"></span>
