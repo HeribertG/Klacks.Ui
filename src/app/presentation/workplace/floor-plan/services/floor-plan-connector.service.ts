@@ -528,6 +528,35 @@ export class FloorPlanConnectorService {
     }
   }
 
+  reattachConnectors(oldShapeIds: string[], newShapeId: string): void {
+    const transferredConnectorIds = new Set<string>();
+
+    for (const oldId of oldShapeIds) {
+      const connectorIds = this.shapeConnectors.get(oldId) ?? [];
+      for (const connId of connectorIds) {
+        const data = this.connectorMap.get(connId);
+        if (!data) continue;
+        if (data.start.shapeId === oldId) {
+          data.start = { ...data.start, shapeId: newShapeId };
+        }
+        if (data.end.shapeId === oldId) {
+          data.end = { ...data.end, shapeId: newShapeId };
+        }
+        transferredConnectorIds.add(connId);
+      }
+      this.shapeConnectors.delete(oldId);
+    }
+
+    if (transferredConnectorIds.size > 0) {
+      const existing = this.shapeConnectors.get(newShapeId) ?? [];
+      const merged = [...new Set([...existing, ...transferredConnectorIds])];
+      this.shapeConnectors.set(newShapeId, merged);
+      for (const connId of transferredConnectorIds) {
+        this.refreshConnector(connId);
+      }
+    }
+  }
+
   onMidpointHandleMoved(connectorId: string, handleX: number, handleY: number): void {
     const data = this.connectorMap.get(connectorId);
     if (!data || data.routing !== ConnectorRoutingType.Curved) return;
