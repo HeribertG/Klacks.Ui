@@ -14,6 +14,7 @@ import { FloorPlanCanvasComponent } from '../floor-plan-canvas/floor-plan-canvas
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
+import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { DataManagementFloorPlanService } from 'src/app/domain/services/floor-plan/data-management-floor-plan.service';
 import { IFloorPlan } from 'src/app/domain/models/floor-plan/floor-plan-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -36,6 +37,7 @@ import { firstValueFrom } from 'rxjs';
     FloorPlanCanvasService,
     FloorPlanLayerService,
     FloorPlanImportService,
+    FloorPlanMergeService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
