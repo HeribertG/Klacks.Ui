@@ -20,6 +20,8 @@ import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
+import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
+import { FloorPlanContextMenuComponent } from '../floor-plan-context-menu/floor-plan-context-menu.component';
 
 const CANVAS_DEFAULT_WIDTH = 1200;
 const CANVAS_DEFAULT_HEIGHT = 800;
@@ -27,15 +29,15 @@ const CANVAS_DEFAULT_HEIGHT = 800;
 @Component({
   selector: 'app-floor-plan-canvas',
   standalone: true,
-  imports: [],
-  template: `<canvas #canvasRef></canvas>`,
+  imports: [FloorPlanContextMenuComponent],
+  templateUrl: './floor-plan-canvas.component.html',
   styleUrls: ['./floor-plan-canvas.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  private canvasService = inject(FloorPlanCanvasService);
+  canvasService = inject(FloorPlanCanvasService);
   private toolService = inject(FloorPlanToolService);
   private workDropService = inject(FloorPlanWorkDropService);
   private layerService = inject(FloorPlanLayerService);
@@ -48,6 +50,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private isDeletingConnector = false;
   private hoveredPortShapeId: string | null = null;
 
+  @ViewChild('contextMenu') private contextMenu!: FloorPlanContextMenuComponent;
+  private mergeService = inject(FloorPlanMergeService);
+
   ngAfterViewInit(): void {
     this.canvasService.initCanvas(
       this.canvasRef.nativeElement,
@@ -58,6 +63,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.canvasService.syncLayerState();
     this.connectorService.init(this.canvasService.getCanvas()!);
     this.canvasService.registerAfterLoadCallback(() => this.connectorService.rebuildAfterLoad());
+    this.mergeService.init(this.canvasService.getCanvas()!);
     this.setupEffects();
     this.setupConnectorInteraction();
   }
@@ -66,6 +72,13 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.canvasService.disposeCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
+  }
+
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    if (this.mergeService.canMerge()) {
+      this.contextMenu.open(event.offsetX, event.offsetY);
+    }
   }
 
   private setupEffects(): void {

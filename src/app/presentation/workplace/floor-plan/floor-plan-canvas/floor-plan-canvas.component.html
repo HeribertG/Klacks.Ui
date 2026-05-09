@@ -1,0 +1,4 @@
+<div class="canvas-wrapper" [class.panning]="canvasService.isPanning()" (contextmenu)="onContextMenu($event)">
+  <canvas #canvasRef></canvas>
+  <app-floor-plan-context-menu #contextMenu />
+</div>
