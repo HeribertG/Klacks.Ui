@@ -209,6 +209,94 @@ describe('FloorPlanConnectorService', () => {
     });
   });
 
+  describe('reattachConnectors', () => {
+    it('transfers connectors from one old shape to a new shape', () => {
+      const canvas = makeCanvasWithObjects([
+        { data: { shapeId: 'new', layerId: 'l' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 },
+      ]);
+      service.init(canvas);
+      (service as any).shapeConnectors.set('old-a', ['conn-1']);
+      (service as any).connectorMap.set('conn-1', {
+        id: 'conn-1',
+        start: { shapeId: 'old-a', portSide: 'right', x: 100, y: 25 },
+        end: { portSide: 'free', x: 200, y: 25 },
+        routing: 'straight',
+        arrowhead: 'single',
+      });
+
+      const result = service.reattachConnectors(['old-a'], 'new');
+
+      expect(result.has('conn-1')).toBe(true);
+      const data = (service as any).connectorMap.get('conn-1');
+      expect(data.start.shapeId).toBe('new');
+      expect((service as any).shapeConnectors.has('old-a')).toBe(false);
+      expect((service as any).shapeConnectors.get('new')).toContain('conn-1');
+    });
+
+    it('returns empty set and leaves state unchanged for empty oldShapeIds', () => {
+      const canvas = makeCanvasWithObjects([]);
+      service.init(canvas);
+
+      const result = service.reattachConnectors([], 'new');
+
+      expect(result.size).toBe(0);
+      expect((service as any).shapeConnectors.size).toBe(0);
+    });
+
+    it('merges with existing connectors on newShapeId without duplicates', () => {
+      const canvas = makeCanvasWithObjects([
+        { data: { shapeId: 'new', layerId: 'l' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 },
+      ]);
+      service.init(canvas);
+      (service as any).shapeConnectors.set('old-a', ['conn-1']);
+      (service as any).shapeConnectors.set('new', ['conn-existing']);
+      (service as any).connectorMap.set('conn-1', {
+        id: 'conn-1',
+        start: { shapeId: 'old-a', portSide: 'right', x: 0, y: 0 },
+        end: { portSide: 'free', x: 100, y: 0 },
+        routing: 'straight',
+        arrowhead: 'single',
+      });
+      (service as any).connectorMap.set('conn-existing', {
+        id: 'conn-existing',
+        start: { shapeId: 'new', portSide: 'left', x: 0, y: 0 },
+        end: { portSide: 'free', x: -100, y: 0 },
+        routing: 'straight',
+        arrowhead: 'single',
+      });
+
+      service.reattachConnectors(['old-a'], 'new');
+
+      const newConnectors = (service as any).shapeConnectors.get('new');
+      expect(newConnectors).toContain('conn-1');
+      expect(newConnectors).toContain('conn-existing');
+      expect(newConnectors.length).toBe(2);
+    });
+
+    it('detects self-loop when connector spans two merged shapes', () => {
+      const canvas = makeCanvasWithObjects([
+        { data: { shapeId: 'new', layerId: 'l' }, left: 0, top: 0, width: 100, height: 50, scaleX: 1, scaleY: 1 },
+      ]);
+      service.init(canvas);
+      (service as any).shapeConnectors.set('old-a', ['conn-ab']);
+      (service as any).shapeConnectors.set('old-b', ['conn-ab']);
+      (service as any).connectorMap.set('conn-ab', {
+        id: 'conn-ab',
+        start: { shapeId: 'old-a', portSide: 'right', x: 0, y: 0 },
+        end: { shapeId: 'old-b', portSide: 'left', x: 100, y: 0 },
+        routing: 'straight',
+        arrowhead: 'single',
+      });
+
+      const result = service.reattachConnectors(['old-a', 'old-b'], 'new');
+
+      const data = (service as any).connectorMap.get('conn-ab');
+      expect(data.start.shapeId).toBe('new');
+      expect(data.end.shapeId).toBe('new');
+      expect(result.has('conn-ab')).toBe(true);
+    });
+  });
+
   describe('getEndAngleAutoRoute', () => {
     const start  = { portSide: 'right'  as const, x: 10,  y: 60 };
     const end    = { portSide: 'left'   as const, x: 210, y: 20 };

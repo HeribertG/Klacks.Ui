@@ -528,7 +528,7 @@ export class FloorPlanConnectorService {
     }
   }
 
-  reattachConnectors(oldShapeIds: string[], newShapeId: string): void {
+  reattachConnectors(oldShapeIds: string[], newShapeId: string): Set<string> {
     const transferredConnectorIds = new Set<string>();
 
     for (const oldId of oldShapeIds) {
@@ -551,10 +551,10 @@ export class FloorPlanConnectorService {
       const existing = this.shapeConnectors.get(newShapeId) ?? [];
       const merged = [...new Set([...existing, ...transferredConnectorIds])];
       this.shapeConnectors.set(newShapeId, merged);
-      for (const connId of transferredConnectorIds) {
-        this.refreshConnector(connId);
-      }
+      this.onShapeMoved(newShapeId);
     }
+
+    return transferredConnectorIds;
   }
 
   onMidpointHandleMoved(connectorId: string, handleX: number, handleY: number): void {
