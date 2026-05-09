@@ -22,6 +22,7 @@ import {
 } from '../services/floor-plan-tool.service';
 import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
+import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
 import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
 import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';
@@ -71,6 +72,7 @@ export class FloorPlanToolbarComponent {
   toolService = inject(FloorPlanToolService);
   private exportService = inject(FloorPlanExportService);
   private importService = inject(FloorPlanImportService);
+  readonly mergeService = inject(FloorPlanMergeService);
 
   readonly FloorPlanTool = FloorPlanTool;
   readonly ConnectorRoutingType = ConnectorRoutingType;
@@ -105,6 +107,7 @@ export class FloorPlanToolbarComponent {
   onDeleteSelected(): void { this.canvasService.deleteSelected(); }
   onGroupSelected(): void { this.canvasService.groupSelected(); }
   onUngroupSelected(): void { this.canvasService.ungroupSelected(); }
+  onMerge(): void { this.mergeService.mergeSelected(); }
   onExportSVG(): void { this.exportService.exportSVG(); }
   onExportPNG(): void { this.exportService.exportPNG(); }
   onExportJSON(): void { this.exportService.exportJSON(); }
