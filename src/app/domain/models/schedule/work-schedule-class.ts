@@ -53,6 +53,10 @@ export class ScheduleCell implements IScheduleCell {
 export interface IWorkScheduleFilter {
   startDate: string;
   endDate: string;
+  /** Core payment-period start (without DayVisibleBefore padding). Used for period-hours calculation. */
+  periodStartDate?: string;
+  /** Core payment-period end (without DayVisibleAfter padding). Used for period-hours calculation. */
+  periodEndDate?: string;
   selectedGroup?: string;
   searchString?: string;
   orderBy?: string;

@@ -212,8 +212,8 @@ export class WorkScheduleLoaderService {
     this.dataWorkSchedule
       .getPeriodHours({
         clientIds,
-        startDate: this._currentFilter.startDate,
-        endDate: this._currentFilter.endDate,
+        startDate: this._currentFilter.periodStartDate ?? this._currentFilter.startDate,
+        endDate: this._currentFilter.periodEndDate ?? this._currentFilter.endDate,
         analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -305,9 +305,14 @@ export class WorkScheduleLoaderService {
     this._pendingDates = dates;
     this._pendingWorkFilter = workFilter;
 
+    const periodStart = this.calculatePeriodStartDate(workFilter);
+    const periodEnd = this.calculatePeriodEndDate(workFilter);
+
     this._currentFilter = {
       startDate: dates.startDate,
       endDate: dates.endDate,
+      periodStartDate: formatDateOnly(periodStart),
+      periodEndDate: formatDateOnly(periodEnd),
       selectedGroup: workFilter.selectedGroup || undefined,
       searchString: workFilter.searchString || '',
       orderBy: workFilter.orderBy || 'name',
