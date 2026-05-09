@@ -44,7 +44,12 @@
     <button class="new-btn" ngbDropdownItem (click)="onCreateNew()">
       + {{ "scenario.create" | translate }}
     </button>
+    <div class="dropdown-divider"></div>
+    <button ngbDropdownItem class="text-danger" (click)="onDeleteAll()">
+      {{ "scenario.deleteAll" | translate }}
+    </button>
   </div>
 </div>
 <app-create-scenario-dialog #createScenarioDialog />
 <app-rename-scenario-dialog #renameScenarioDialog />
+<app-delete-all-scenarios-dialog #deleteAllScenariosDialog />
