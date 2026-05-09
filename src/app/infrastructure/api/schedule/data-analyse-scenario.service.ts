@@ -60,6 +60,11 @@ export class DataAnalyseScenarioService {
       .pipe(retry(3));
   }
 
+  deleteAll(groupId?: string): Observable<void> {
+    const url = groupId ? `${this.baseUrl}?groupId=${groupId}` : this.baseUrl;
+    return this.httpClient.delete<void>(url).pipe(retry(3));
+  }
+
   rename(id: string, name: string): Observable<IAnalyseScenario> {
     return this.httpClient
       .patch<IAnalyseScenario>(`${this.baseUrl}/${id}/Rename`, { name })
