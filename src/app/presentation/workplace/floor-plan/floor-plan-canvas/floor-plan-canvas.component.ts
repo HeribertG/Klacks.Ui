@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Canvas host component for the floor plan editor.
+ * Initialises Fabric.js canvas, wires tool, layer, connector and merge services,
+ * and handles keyboard shortcuts, drag-drop, and right-click context menu.
+ */
+
 import {
   Component,
   ElementRef,

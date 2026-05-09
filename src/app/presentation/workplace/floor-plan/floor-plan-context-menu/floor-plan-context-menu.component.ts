@@ -32,10 +32,13 @@ export class FloorPlanContextMenuComponent {
   readonly x = signal(0);
   readonly y = signal(0);
 
+  private skipNextDocumentClick = false;
+
   open(x: number, y: number): void {
     this.x.set(x);
     this.y.set(y);
     this.isOpen.set(true);
+    this.skipNextDocumentClick = true;
   }
 
   close(): void {
@@ -49,6 +52,10 @@ export class FloorPlanContextMenuComponent {
 
   @HostListener('document:click')
   onDocumentClick(): void {
+    if (this.skipNextDocumentClick) {
+      this.skipNextDocumentClick = false;
+      return;
+    }
     this.close();
   }
 
