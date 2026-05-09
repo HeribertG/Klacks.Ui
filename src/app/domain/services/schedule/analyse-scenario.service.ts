@@ -80,6 +80,15 @@ export class AnalyseScenarioService {
     );
   }
 
+  deleteAllScenarios(groupId?: string): Observable<void> {
+    return this.dataService.deleteAll(groupId).pipe(
+      tap(() => {
+        this.scenarios.set([]);
+        this.activeScenario.set(null);
+      })
+    );
+  }
+
   renameScenario(id: string, name: string): Observable<void> {
     return this.dataService.rename(id, name).pipe(
       tap(updated => {
