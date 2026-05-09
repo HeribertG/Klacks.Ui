@@ -76,39 +76,48 @@
     </button>
   }
 
-  <button
-    id="schedule-wizard-btn"
-    type="button"
-    class="icon-button wizard-button"
-    (click)="onWizardClick()"
-    ngbTooltip="{{ 'wizard.dialog.title' | translate }}"
-  >
-    <app-icon-wizard />
-  </button>
+  @if (isWizardDropdownMode()) {
+    <div ngbDropdown class="wizard-dropdown">
+      <button
+        id="schedule-wizard-btn"
+        type="button"
+        class="icon-button wizard-button"
+        ngbDropdownToggle
+      >
+        <app-icon-wizard />
+      </button>
+      <div ngbDropdownMenu aria-labelledby="schedule-wizard-btn">
+        <button ngbDropdownItem (click)="onWizardClick()">
+          {{ "autoWizard.menu.plan" | translate }}
+        </button>
+        <button ngbDropdownItem (click)="onHarmonizerClick()">
+          {{ "autoWizard.menu.fuzzyHarmonizer" | translate }}
+        </button>
+        <button ngbDropdownItem (click)="onHolisticHarmonizerClick()">
+          {{ "autoWizard.menu.holisticHarmonizer" | translate }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <button
+      id="schedule-wizard-btn"
+      type="button"
+      class="icon-button wizard-button"
+      [class.disabled]="isAutoWizardRunning()"
+      (click)="onAutoWizardClick()"
+      ngbTooltip="{{ 'autoWizard.tooltip' | translate }}"
+    >
+      @if (isAutoWizardRunning()) {
+        <span class="spinner-border spinner-border-sm"></span>
+      } @else {
+        <app-icon-wizard />
+      }
+    </button>
+  }
 
   <app-wizard-dialog #wizardDialog />
 
-  <button
-    id="schedule-harmonizer-btn"
-    type="button"
-    class="icon-button harmonizer-button"
-    (click)="onHarmonizerClick()"
-    ngbTooltip="{{ 'harmonizer.dialog.title' | translate }}"
-  >
-    <app-icon-harmonizer />
-  </button>
-
   <app-harmonizer-dialog #harmonizerDialog />
-
-  <button
-    id="schedule-holisticHarmonizer-btn"
-    type="button"
-    class="icon-button holisticHarmonizer-button"
-    (click)="onHolisticHarmonizerClick()"
-    ngbTooltip="{{ 'holisticHarmonizer.dialog.title' | translate }}"
-  >
-    <app-icon-holistic-harmonizer />
-  </button>
 
   <app-holistic-harmonizer-dialog #holisticHarmonizerDialog />
 

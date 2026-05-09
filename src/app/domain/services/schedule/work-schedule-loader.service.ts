@@ -449,6 +449,14 @@ export class WorkScheduleLoaderService {
     }
   }
 
+  public getPeriodStartDate(filter: IWorkFilter): Date {
+    return this.calculatePeriodStartDate(filter);
+  }
+
+  public getPeriodEndDate(filter: IWorkFilter): Date {
+    return this.calculatePeriodEndDate(filter);
+  }
+
   private calculatePeriodEndDate(filter: IWorkFilter): Date {
     const paymentInterval = filter.paymentInterval;
     const year = filter.currentYear;

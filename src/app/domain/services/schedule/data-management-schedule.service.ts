@@ -217,6 +217,16 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.endDate ?? this._cachedEndDate;
   }
 
+  get periodStartDate(): Date | null {
+    if (!this.workFilter) return null;
+    return this.workScheduleLoader.getPeriodStartDate(this.workFilter);
+  }
+
+  get periodEndDate(): Date | null {
+    if (!this.workFilter) return null;
+    return this.workScheduleLoader.getPeriodEndDate(this.workFilter);
+  }
+
   get sealedDates(): Set<string> {
     return this.workScheduleLoader.sealedDates;
   }

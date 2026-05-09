@@ -268,8 +268,8 @@ export class WizardDialogComponent {
   private static readonly MAX_SHIFTS_PER_WIZARD_RUN = 50;
 
   private buildRequest(): WizardRequest | null {
-    const start   = this.dataManagementSchedule.visibleStartDate;
-    const end     = this.dataManagementSchedule.visibleEndDate;
+    const start   = this.dataManagementSchedule.periodStartDate;
+    const end     = this.dataManagementSchedule.periodEndDate;
     const clients = this.dataManagementSchedule.clients;
     const shifts  = this.dataManagementSchedule.shiftSchedules;
 

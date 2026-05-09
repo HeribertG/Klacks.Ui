@@ -169,8 +169,8 @@ export class HarmonizerDialogComponent {
   }
 
   private buildRequest(): HarmonizerRequest | null {
-    const start   = this.dataManagementSchedule.visibleStartDate;
-    const end     = this.dataManagementSchedule.visibleEndDate;
+    const start   = this.dataManagementSchedule.periodStartDate;
+    const end     = this.dataManagementSchedule.periodEndDate;
     const clients = this.dataManagementSchedule.clients;
 
     if (!start || !end || !clients?.length) return null;

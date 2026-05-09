@@ -20,6 +20,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  HostListener,
   inject,
   OnInit,
   output,
@@ -48,9 +50,7 @@ import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-re
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
-import { IconHarmonizerComponent } from 'src/app/presentation/icons/icon-harmonizer.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
-import { IconHolisticHarmonizerComponent } from 'src/app/presentation/icons/icon-holistic-harmonizer.component';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
@@ -67,6 +67,10 @@ import { TOAST_ICONS } from 'src/app/presentation/toast/toast-icons.constants';
 import { TranslateService } from '@ngx-translate/core';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
 
 const DEFAULT_ZOOM_VALUE = 100;
 
@@ -94,9 +98,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     IconAvailabilityCheckComponent,
     IconWizardComponent,
     WizardDialogComponent,
-    IconHarmonizerComponent,
     HarmonizerDialogComponent,
-    IconHolisticHarmonizerComponent,
     HolisticHarmonizerDialogComponent,
     ScenarioSelectorComponent,
   ],
@@ -147,12 +149,54 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private dataWorkScheduleService = inject(DataWorkScheduleService);
   private viewModeService = inject(ScheduleViewModeService);
   private timelineRangeService = inject(ScheduleTimelineRangeService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
+  private authorizationService = inject(AuthorizationService);
+  private dataAutoWizardService = inject(DataAutoWizardService);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
 
   isSending = signal(false);
   isRecalculating = signal(false);
+
+  private readonly wizardDropdownMode = signal(false);
+  readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
+  readonly isAutoWizardRunning = computed(() => this.dataAutoWizardService.status() === 'running');
+
+  constructor() {
+    effect(() => {
+      const status = this.dataAutoWizardService.status();
+      if (status === 'completed') {
+        const result = this.dataAutoWizardService.result();
+        if (result?.finalScenarioId && result.finalScenarioToken && result.finalScenarioName) {
+          const newScenario = {
+            id: result.finalScenarioId,
+            name: result.finalScenarioName,
+            token: result.finalScenarioToken,
+            fromDate: '',
+            untilDate: '',
+            createdByUser: '',
+            status: AnalyseScenarioStatus.Active,
+          };
+          this.analyseScenarioService.scenarios.update(list => {
+            return list.some(s => s.id === newScenario.id) ? list : [...list, newScenario];
+          });
+          this.analyseScenarioService.selectScenario(newScenario);
+          this.dataManagementSchedule.readDatas();
+        }
+        const message = this.translateService.instant('autoWizard.toast.completed', {
+          scenario: result?.finalScenarioName ?? '',
+        });
+        this.toastShowService.showInfo(message, 'auto-wizard', '', TOAST_ICONS.INFO);
+        this.dataAutoWizardService.status.set('idle');
+      } else if (status === 'failed') {
+        const reason = this.dataAutoWizardService.failureReason() ?? '';
+        const message = this.translateService.instant('autoWizard.toast.failed', { reason });
+        this.toastShowService.showError(message, 'auto-wizard');
+        this.dataAutoWizardService.status.set('idle');
+      }
+    });
+  }
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
@@ -320,6 +364,76 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     this.holisticHarmonizerDialog.open();
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (!event.ctrlKey || event.key.toLowerCase() !== 'h') {
+      return;
+    }
+    if (!this.authorizationService.isAdmin) {
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+      return;
+    }
+    event.preventDefault();
+    this.wizardDropdownMode.update(v => !v);
+  }
+
+  async onAutoWizardClick(): Promise<void> {
+    if (this.isAutoWizardRunning()) return;
+
+    const startDate = this.dataManagementSchedule.periodStartDate;
+    const endDate = this.dataManagementSchedule.periodEndDate;
+    if (!startDate || !endDate) {
+      this.toastShowService.showError(
+        this.translateService.instant('autoWizard.toast.noPeriod'),
+        'auto-wizard',
+      );
+      return;
+    }
+
+    const agentIds = this.dataManagementSchedule.clients
+      .map(c => c.id)
+      .filter((id): id is string => !!id);
+    if (agentIds.length === 0) {
+      this.toastShowService.showError(
+        this.translateService.instant('autoWizard.toast.noAgents'),
+        'auto-wizard',
+      );
+      return;
+    }
+
+    const shiftIds = [...new Set(this.dataManagementSchedule.shiftSchedules.map(s => s.shiftId))];
+    if (shiftIds.length === 0) {
+      this.toastShowService.showError(
+        this.translateService.instant('autoWizard.toast.noShifts'),
+        'auto-wizard',
+      );
+      return;
+    }
+
+    try {
+      await this.dataAutoWizardService.start({
+        periodFrom: formatDateOnly(startDate),
+        periodUntil: formatDateOnly(endDate),
+        agentIds,
+        shiftIds,
+        groupId: this.dataManagementSchedule.workFilter.selectedGroup ?? null,
+        analyseToken: this.analyseScenarioService.activeToken(),
+        language: this.translateService.currentLang ?? null,
+      });
+      this.toastShowService.showInfo(
+        this.translateService.instant('autoWizard.toast.started'),
+        'auto-wizard',
+        '',
+        TOAST_ICONS.INFO,
+      );
+    } catch {
+      // Failure handled via the status effect.
+    }
+  }
+
   async onSendAllSchedules(): Promise<void> {
     if (this.isSendDisabled()) return;
 
@@ -365,8 +479,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   async onRecalculatePeriodHours(): Promise<void> {
     if (this.isRecalculating()) return;
 
-    const startDate = this.dataManagementSchedule.visibleStartDate;
-    const endDate = this.dataManagementSchedule.visibleEndDate;
+    const startDate = this.dataManagementSchedule.periodStartDate;
+    const endDate = this.dataManagementSchedule.periodEndDate;
     if (!startDate || !endDate) return;
 
     this.isRecalculating.set(true);

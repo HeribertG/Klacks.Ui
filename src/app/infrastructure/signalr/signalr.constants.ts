@@ -112,6 +112,24 @@ export const HolisticHarmonizerSignalRConstants = {
   },
 } as const;
 
+export const AutoWizardSignalRConstants = {
+  HubPath: '/hubs/auto-wizard',
+
+  Events: {
+    OnCompleted: 'OnCompleted',
+    OnFailed: 'OnFailed',
+  },
+
+  HubMethods: {
+    JoinJob: 'JoinJob',
+    LeaveJob: 'LeaveJob',
+  },
+
+  QueryParams: {
+    AccessToken: 'access_token',
+  },
+} as const;
+
 export const AssistantSignalRConstants = {
   HubPath: '/hubs/assistant-notifications',
 
