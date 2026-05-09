@@ -14,7 +14,6 @@ import { FloorPlanConnectorService } from './floor-plan-connector.service';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 
 const MERGE_CIRCLE_POINTS = 64;
-const MERGEABLE_TYPES = new Set(['rect', 'circle', 'polygon']);
 
 @Injectable()
 export class FloorPlanMergeService {
@@ -39,7 +38,7 @@ export class FloorPlanMergeService {
   }
 
   private filterPrimitives(objects: FabricObject[]): FabricObject[] {
-    return objects.filter((obj) => MERGEABLE_TYPES.has((obj as any).type ?? ''));
+    return objects.filter((obj) => obj instanceof Rect || obj instanceof Circle || obj instanceof Polygon);
   }
 
   private applyMatrix(m: number[], x: number, y: number): [number, number] {
@@ -60,13 +59,16 @@ export class FloorPlanMergeService {
       const r = obj.radius;
       const pts: [number, number][] = [];
       for (let i = 0; i < MERGE_CIRCLE_POINTS; i++) {
-        const θ = (2 * Math.PI * i) / MERGE_CIRCLE_POINTS;
-        pts.push(apply(r * Math.cos(θ), r * Math.sin(θ)));
+        const angle = (2 * Math.PI * i) / MERGE_CIRCLE_POINTS;
+        pts.push(apply(r * Math.cos(angle), r * Math.sin(angle)));
       }
       return pts;
     }
     if (obj instanceof Polygon) {
-      return (obj.points ?? []).map((pt) => apply(pt.x, pt.y));
+      const offset = (obj as any).pathOffset as { x: number; y: number };
+      return (obj.points ?? []).map((pt) =>
+        apply(pt.x - offset.x, pt.y - offset.y)
+      );
     }
     return [];
   }
@@ -152,11 +154,9 @@ export class FloorPlanMergeService {
     }
 
     const transferred = this.connectorService.reattachConnectors(oldShapeIds, newShapeId);
-    const selfLoopIds = [...transferred].filter((connId) => {
-      const connMap = (this.connectorService as any).connectorMap as Map<string, { start: { shapeId?: string }; end: { shapeId?: string } }> | undefined;
-      const data = connMap?.get(connId);
-      return data?.start.shapeId === newShapeId && data?.end.shapeId === newShapeId;
-    });
+    const selfLoopIds = [...transferred].filter((connId) =>
+      this.connectorService.isSelfLoop(connId, newShapeId)
+    );
     for (const connId of selfLoopIds) {
       this.connectorService.deleteConnector(connId);
     }

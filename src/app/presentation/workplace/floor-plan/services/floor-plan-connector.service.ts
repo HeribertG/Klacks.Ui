@@ -557,6 +557,11 @@ export class FloorPlanConnectorService {
     return transferredConnectorIds;
   }
 
+  isSelfLoop(connectorId: string, shapeId: string): boolean {
+    const data = this.connectorMap.get(connectorId);
+    return data?.start.shapeId === shapeId && data?.end.shapeId === shapeId;
+  }
+
   onMidpointHandleMoved(connectorId: string, handleX: number, handleY: number): void {
     const data = this.connectorMap.get(connectorId);
     if (!data || data.routing !== ConnectorRoutingType.Curved) return;
