@@ -40,7 +40,7 @@ export class ScenarioSelectorComponent implements OnInit {
   deleteAllScenariosDialog!: DeleteAllScenariosDialogComponent;
 
   public analyseScenarioService = inject(AnalyseScenarioService);
-  private dataManagementSchedule = inject(DataManagementScheduleService);
+  protected dataManagementSchedule = inject(DataManagementScheduleService);
 
   ngOnInit(): void {
     this.analyseScenarioService.loadScenarios(
