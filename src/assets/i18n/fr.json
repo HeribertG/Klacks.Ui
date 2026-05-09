@@ -396,6 +396,7 @@
   "cancel": "Annuler",
   "close": "Fermer",
   "common.cancel": "Annuler",
+  "common.delete": "Supprimer",
   "common.save": "Enregistrer",
   "common.error-title": "Erreur",
   "common.form-validation-errors": "Le formulaire contient des erreurs de validation. Veuillez vérifier vos saisies.",

@@ -397,6 +397,7 @@
   "cancel": "Cancel",
   "close": "Close",
   "common.cancel": "Cancel",
+  "common.delete": "Delete",
   "common.save": "Save",
   "common.error-title": "Error",
   "common.form-validation-errors": "Form has validation errors. Please check your input.",

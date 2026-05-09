@@ -397,6 +397,7 @@
   "cancel": "Abbrechen",
   "close": "Schliessen",
   "common.cancel": "Abbrechen",
+  "common.delete": "Löschen",
   "common.save": "Speichern",
   "common.error-title": "Fehler",
   "common.form-validation-errors": "Das Formular hat Validierungsfehler. Bitte überprüfen Sie Ihre Eingaben.",
