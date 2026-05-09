@@ -51,6 +51,7 @@ export class FloorPlanCanvasService {
   private isPanningActive = false;
   private lastPanPoint: Point | null = null;
   private afterLoadCallback: (() => void) | null = null;
+  private _suppressHistory = false;
 
   private polygonPoints: { x: number; y: number }[] = [];
   private tempPolyline: Polyline | null = null;
@@ -79,6 +80,18 @@ export class FloorPlanCanvasService {
     }
     this._canvasReady.set(false);
     this._selectedObject.set(null);
+  }
+
+  beginSuppressHistory(): void {
+    this._suppressHistory = true;
+  }
+
+  endSuppressHistory(): void {
+    this._suppressHistory = false;
+  }
+
+  captureHistory(): void {
+    this.saveHistory();
   }
 
   private assignToActiveLayer(obj: FabricObject): void {
@@ -474,7 +487,7 @@ export class FloorPlanCanvasService {
   }
 
   private saveHistory(): void {
-    if (!this.canvas) return;
+    if (!this.canvas || this._suppressHistory) return;
     const state = JSON.stringify(this.canvas.toObject());
     this._undoStack.update((stack) => {
       const updated = [...stack, state];
