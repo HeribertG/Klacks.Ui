@@ -57,6 +57,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.layerService.initDefaultLayers();
     this.canvasService.syncLayerState();
     this.connectorService.init(this.canvasService.getCanvas()!);
+    this.canvasService.registerAfterLoadCallback(() => this.connectorService.rebuildAfterLoad());
     this.setupEffects();
     this.setupConnectorInteraction();
   }
@@ -212,6 +213,29 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
 
+    canvas.on('mouse:down', (opt: any) => {
+      if (this.toolService.activeTool() === FloorPlanTool.Connector) return;
+      const target = opt.target;
+      if (!target) {
+        this.connectorService.deselectAll();
+        return;
+      }
+      const data = (target as any).data;
+      if (data?.isConnectorPath && data.connectorId) {
+        if (this.connectorService.selectedConnectorId === data.connectorId) {
+          this.connectorService.deselectAll();
+        } else {
+          this.connectorService.selectConnector(data.connectorId);
+        }
+        canvas.discardActiveObject();
+        canvas.renderAll();
+      } else if (data?.isEndpointHandle || data?.isMidpointHandle) {
+        // Handle already belongs to selected connector — let Fabric handle the drag
+      } else {
+        this.connectorService.deselectAll();
+      }
+    });
+
     canvas.on('object:moving', (opt: any) => {
       const target = opt.target;
       if (!target) return;
@@ -224,22 +248,43 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
           target.left ?? 0,
           target.top ?? 0
         );
+      } else if (data.isEndpointHandle && data.connectorId) {
+        this.connectorService.onEndpointHandleMoved(
+          data.connectorId,
+          data.isStart,
+          target.left ?? 0,
+          target.top ?? 0
+        );
       } else if (data.shapeId && !data.isConnector) {
         this.connectorService.onShapeMoved(data.shapeId);
       }
     });
 
     canvas.on('object:modified', (opt: any) => {
-      const data = (opt.target as any)?.data;
-      if (data?.shapeId && !data.isConnector) {
+      const target = opt.target;
+      const data = (target as any)?.data;
+      if (!data) return;
+
+      if (data.isEndpointHandle && data.connectorId) {
+        const portHit = this.connectorService.getPortNear(target.left ?? 0, target.top ?? 0);
+        const connectorId = data.connectorId;
+        const isStart = data.isStart;
+        const x = target.left ?? 0;
+        const y = target.top ?? 0;
+        setTimeout(() => {
+          canvas.discardActiveObject();
+          this.connectorService.onEndpointHandleReleased(connectorId, isStart, x, y, portHit);
+        }, 0);
+      } else if (data.shapeId && !data.isConnector) {
         this.connectorService.onShapeMoved(data.shapeId);
       }
     });
 
     canvas.on('object:removed', (opt: any) => {
-      if (this.isDeletingConnector) return;
+      if (this.isDeletingConnector || this.connectorService.redrawing) return;
       const data = (opt.target as any)?.data;
       if (!data) return;
+      if (data.isPortIndicator) return;
       if (data.isConnector && data.connectorId) {
         this.isDeletingConnector = true;
         this.connectorService.deleteConnector(data.connectorId);

@@ -49,6 +49,7 @@ export interface HolisticHarmonizerRunResponse {
   acceptedSwaps: HolisticHarmonizerSwapDto[];
   rejectedSwaps: HolisticHarmonizerRejectionDto[];
   batches: HolisticHarmonizerBatchDto[];
+  agentDisplayNames: string[];
   llmParsingError: string | null;
   llmRawResponsePreview: string | null;
 }

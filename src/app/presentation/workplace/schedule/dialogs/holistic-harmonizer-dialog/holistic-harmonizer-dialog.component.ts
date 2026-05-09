@@ -118,13 +118,11 @@ export class HolisticHarmonizerDialogComponent {
   readonly rejectedCount = computed(() => this.holisticHarmonizerService.result()?.rejectedSwaps.length ?? 0);
 
   resolveAgentName(rowIndex: number): string {
-    const clients = this.dataManagementSchedule.clients;
-    if (!clients || rowIndex < 0 || rowIndex >= clients.length) {
-      return `r${rowIndex.toString().padStart(2, '0')}`;
+    const names = this.holisticHarmonizerService.result()?.agentDisplayNames;
+    if (names && rowIndex >= 0 && rowIndex < names.length) {
+      return names[rowIndex];
     }
-    const c = clients[rowIndex];
-    const parts = [c.name, c.firstName].filter(Boolean);
-    return parts.length ? parts.join(', ') : c.id;
+    return `r${rowIndex.toString().padStart(2, '0')}`;
   }
 
   batchScoreDeltaPercent(batch: HolisticHarmonizerBatchDto): string {

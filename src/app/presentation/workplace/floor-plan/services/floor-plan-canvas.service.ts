@@ -20,6 +20,8 @@ import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
 
+FabricObject.customProperties.push('data');
+
 const ZOOM_MIN = 0.1;
 const ZOOM_MAX = 10;
 const ZOOM_STEP = 0.1;
@@ -48,6 +50,7 @@ export class FloorPlanCanvasService {
 
   private isPanningActive = false;
   private lastPanPoint: Point | null = null;
+  private afterLoadCallback: (() => void) | null = null;
 
   private polygonPoints: { x: number; y: number }[] = [];
   private tempPolyline: Polyline | null = null;
@@ -144,17 +147,20 @@ export class FloorPlanCanvasService {
       this._selectedObject.set(null);
     });
 
-    this.canvas.on('object:modified', () => {
+    this.canvas.on('object:modified', (e) => {
+      if ((e.target as any)?.data?.isConnector) return;
       this.saveHistory();
     });
 
     this.canvas.on('object:added', (e) => {
       if ((e.target as any)?.data?.isPortIndicator) return;
+      if ((e.target as any)?.data?.isConnector) return;
       this.saveHistory();
     });
 
     this.canvas.on('object:removed', (e) => {
       if ((e.target as any)?.data?.isPortIndicator) return;
+      if ((e.target as any)?.data?.isConnector) return;
       this.saveHistory();
     });
 
@@ -393,7 +399,7 @@ export class FloorPlanCanvasService {
 
   toJSON(): string {
     if (!this.canvas) return '{}';
-    return JSON.stringify(this.canvas.toJSON());
+    return JSON.stringify(this.canvas.toObject());
   }
 
   async loadFromJSON(json: string): Promise<void> {
@@ -469,7 +475,7 @@ export class FloorPlanCanvasService {
 
   private saveHistory(): void {
     if (!this.canvas) return;
-    const state = JSON.stringify(this.canvas.toJSON());
+    const state = JSON.stringify(this.canvas.toObject());
     this._undoStack.update((stack) => {
       const updated = [...stack, state];
       return updated.length > HISTORY_MAX ? updated.slice(updated.length - HISTORY_MAX) : updated;
@@ -482,11 +488,16 @@ export class FloorPlanCanvasService {
     this.canvas.loadFromJSON(JSON.parse(json)).then(() => {
       this.assignMissingShapeIds();
       this.canvas!.renderAll();
+      this.afterLoadCallback?.();
     });
   }
 
   getCanvas(): Canvas | null {
     return this.canvas;
+  }
+
+  registerAfterLoadCallback(callback: () => void): void {
+    this.afterLoadCallback = callback;
   }
 
   groupSelected(): void {

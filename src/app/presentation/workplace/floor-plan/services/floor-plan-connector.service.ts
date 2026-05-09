@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Service managing connector creation, sticky shape attachment, and path rendering on the floor plan canvas.
+ * Service managing connector creation, selection, sticky shape attachment, and path rendering on the floor plan canvas.
  * @param canvas - Fabric.js Canvas instance provided via init(canvas)
  */
 
@@ -52,15 +52,51 @@ export class FloorPlanConnectorService {
   private connectorMap = new Map<string, ConnectorData>();
   private shapeConnectors = new Map<string, string[]>();
   private isRedrawing = false;
+  private _selectedConnectorId: string | null = null;
 
   get redrawing(): boolean {
     return this.isRedrawing;
+  }
+
+  get selectedConnectorId(): string | null {
+    return this._selectedConnectorId;
   }
 
   init(canvas: Canvas): void {
     this.canvas = canvas;
     this.connectorMap.clear();
     this.shapeConnectors.clear();
+    this._selectedConnectorId = null;
+  }
+
+  selectConnector(id: string): void {
+    if (!this.canvas) return;
+    if (this._selectedConnectorId && this._selectedConnectorId !== id) {
+      this.setHandlesVisible(this._selectedConnectorId, false);
+    }
+    this._selectedConnectorId = id;
+    this.setHandlesVisible(id, true);
+    this.canvas.renderAll();
+  }
+
+  deselectAll(): void {
+    if (!this.canvas) return;
+    if (this._selectedConnectorId) {
+      this.setHandlesVisible(this._selectedConnectorId, false);
+      this._selectedConnectorId = null;
+      this.canvas.renderAll();
+    }
+  }
+
+  private setHandlesVisible(id: string, visible: boolean): void {
+    if (!this.canvas) return;
+    const handles = this.canvas.getObjects().filter((obj) => {
+      const d = (obj as any).data;
+      return d?.connectorId === id && (d.isEndpointHandle || d.isMidpointHandle);
+    });
+    for (const h of handles) {
+      h.set({ opacity: visible ? 1 : 0, selectable: visible, evented: visible });
+    }
   }
 
   private getPortCoords(obj: FabricObject, side: PortSide): { x: number; y: number } {
@@ -201,7 +237,7 @@ export class FloorPlanConnectorService {
       stroke,
       strokeWidth,
       selectable: false,
-      evented: false,
+      evented: true,
       objectCaching: false,
     });
   }
@@ -246,7 +282,9 @@ export class FloorPlanConnectorService {
       strokeWidth: 2,
       originX: 'center',
       originY: 'center',
-      selectable: true,
+      opacity: 0,
+      selectable: false,
+      evented: false,
       hasBorders: false,
       hasControls: false,
       lockScalingX: true,
@@ -267,8 +305,9 @@ export class FloorPlanConnectorService {
       strokeWidth: 2,
       originX: 'center',
       originY: 'center',
-      selectable: true,
-      evented: true,
+      opacity: 0,
+      selectable: false,
+      evented: false,
       hasBorders: false,
       hasControls: false,
       lockScalingX: true,
@@ -333,6 +372,10 @@ export class FloorPlanConnectorService {
       this.canvas.add(endHandle);
     } finally {
       this.isRedrawing = false;
+    }
+
+    if (this._selectedConnectorId === id) {
+      this.setHandlesVisible(id, true);
     }
 
     this.canvas.renderAll();
@@ -419,6 +462,9 @@ export class FloorPlanConnectorService {
 
   deleteConnector(connectorId: string): void {
     if (!this.canvas) return;
+    if (this._selectedConnectorId === connectorId) {
+      this._selectedConnectorId = null;
+    }
     const data = this.connectorMap.get(connectorId);
     if (data) {
       this.removeFromShapeConnectors(connectorId, data.start.shapeId);
