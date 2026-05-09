@@ -91,6 +91,7 @@ export class FloorPlanCanvasService {
   }
 
   captureHistory(): void {
+    this._suppressHistory = false;
     this.saveHistory();
   }
 
