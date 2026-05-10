@@ -528,6 +528,27 @@ export class FloorPlanConnectorService {
     }
   }
 
+  releaseShape(shapeId: string): void {
+    if (!this.canvas) return;
+    const connectorIds = [...(this.shapeConnectors.get(shapeId) ?? [])];
+    if (connectorIds.length === 0) return;
+    for (const connId of connectorIds) {
+      const data = this.connectorMap.get(connId);
+      if (!data) continue;
+      if (data.start.shapeId === shapeId) {
+        data.start = { portSide: 'free', x: data.start.x, y: data.start.y };
+      }
+      if (data.end.shapeId === shapeId) {
+        data.end = { portSide: 'free', x: data.end.x, y: data.end.y };
+      }
+      if (data.routing === ConnectorRoutingType.Curved) {
+        data.controlPoint = this.getDefaultControlPoint(data.start.x, data.start.y, data.end.x, data.end.y);
+      }
+      this.redrawConnector(connId);
+    }
+    this.shapeConnectors.delete(shapeId);
+  }
+
   reattachConnectors(oldShapeIds: string[], newShapeId: string): Set<string> {
     const transferredConnectorIds = new Set<string>();
 

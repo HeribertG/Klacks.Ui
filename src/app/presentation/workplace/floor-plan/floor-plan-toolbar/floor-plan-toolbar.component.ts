@@ -26,6 +26,7 @@ import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
+import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
 import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
 import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';
@@ -77,6 +78,7 @@ export class FloorPlanToolbarComponent {
   private importService = inject(FloorPlanImportService);
   readonly mergeService = inject(FloorPlanMergeService);
   readonly joinService = inject(FloorPlanJoinService);
+  private readonly connectorService = inject(FloorPlanConnectorService);
 
   readonly FloorPlanTool = FloorPlanTool;
   readonly ConnectorRoutingType = ConnectorRoutingType;
@@ -118,6 +120,14 @@ export class FloorPlanToolbarComponent {
   onMerge(): void { this.mergeService.mergeSelected(); }
   onJoin(): void {
     this.joinService.joinSelected();
+  }
+
+  onEntbinden(): void {
+    const obj = this.canvasService.selectedObject();
+    const shapeId = (obj as any)?.data?.shapeId as string | undefined;
+    if (shapeId) {
+      this.connectorService.releaseShape(shapeId);
+    }
   }
   onExportSVG(): void { this.exportService.exportSVG(); }
   onExportPNG(): void { this.exportService.exportPNG(); }
