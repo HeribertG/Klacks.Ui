@@ -27,6 +27,7 @@ import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.servi
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
+import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanContextMenuComponent } from '../floor-plan-context-menu/floor-plan-context-menu.component';
 
 const CANVAS_DEFAULT_WIDTH = 1200;
@@ -55,9 +56,11 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private tempConnectorLine: any = null;
   private isDeletingConnector = false;
   private hoveredPortShapeId: string | null = null;
+  private isRegularPolygonMode = false;
 
   @ViewChild('contextMenu') private contextMenu!: FloorPlanContextMenuComponent;
   private mergeService = inject(FloorPlanMergeService);
+  private readonly joinService = inject(FloorPlanJoinService);
 
   ngAfterViewInit(): void {
     this.canvasService.initCanvas(
@@ -70,6 +73,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.connectorService.init(this.canvasService.getCanvas()!);
     this.canvasService.registerAfterLoadCallback(() => this.connectorService.rebuildAfterLoad());
     this.mergeService.init(this.canvasService.getCanvas()!);
+    this.joinService.init(this.canvasService.getCanvas()!);
     this.setupEffects();
     this.setupConnectorInteraction();
   }
@@ -82,7 +86,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
-    if (this.mergeService.canMerge()) {
+    if (this.mergeService.canMerge() || this.joinService.canJoin()) {
       this.contextMenu.open(event.offsetX, event.offsetY);
     }
   }
@@ -139,6 +143,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
   private applyTool(tool: FloorPlanTool): void {
     this.teardownConnectorEvents();
+    this.teardownRegularPolygonEvents();
     this.canvasService.cancelPolygonDrawing();
 
     switch (tool) {
@@ -164,6 +169,10 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         this.canvasService.disableFreeDrawing();
         this.canvasService.startPolygonDrawing();
         this.setupPolygonEvents();
+        break;
+      case FloorPlanTool.RegularPolygon:
+        this.canvasService.disableFreeDrawing();
+        this.setupRegularPolygonEvents();
         break;
       case FloorPlanTool.Text:
         this.canvasService.disableFreeDrawing();
@@ -217,6 +226,32 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       canvas.off('mouse:move', this.onPolygonMouseMove);
       canvas.off('mouse:dblclick', this.onPolygonDoubleClick);
     }
+  };
+
+  private setupRegularPolygonEvents(): void {
+    this.isRegularPolygonMode = true;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+    canvas.on('mouse:down', this.onRegularPolygonMouseDown);
+  }
+
+  private teardownRegularPolygonEvents(): void {
+    this.isRegularPolygonMode = false;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+    canvas.off('mouse:down', this.onRegularPolygonMouseDown);
+  }
+
+  private onRegularPolygonMouseDown = (opt: any) => {
+    if (!this.isRegularPolygonMode) return;
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+    const e = opt.e as MouseEvent;
+    const pointer = canvas.getViewportPoint(e);
+    const sides = this.toolService.regularPolygonSides();
+    this.canvasService.addRegularPolygonAt(sides, pointer.x, pointer.y);
+    this.teardownRegularPolygonEvents();
+    this.toolService.setTool(FloorPlanTool.Select);
   };
 
   private setupConnectorEvents(): void {

@@ -19,10 +19,13 @@ import {
   FloorPlanTool,
   ConnectorRoutingType,
   ConnectorArrowheadType,
+  MIN_REGULAR_POLYGON_SIDES,
+  MAX_REGULAR_POLYGON_SIDES,
 } from '../services/floor-plan-tool.service';
 import { FloorPlanExportService } from '../services/floor-plan-export.service';
 import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
+import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
 import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
 import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';
@@ -73,12 +76,17 @@ export class FloorPlanToolbarComponent {
   private exportService = inject(FloorPlanExportService);
   private importService = inject(FloorPlanImportService);
   readonly mergeService = inject(FloorPlanMergeService);
+  readonly joinService = inject(FloorPlanJoinService);
 
   readonly FloorPlanTool = FloorPlanTool;
   readonly ConnectorRoutingType = ConnectorRoutingType;
   readonly ConnectorArrowheadType = ConnectorArrowheadType;
   readonly strokeWidths = STROKE_WIDTHS;
   readonly snapSizes = [5, 10, 20, 50, 100];
+  readonly regularPolygonSideOptions = Array.from(
+    { length: MAX_REGULAR_POLYGON_SIDES - MIN_REGULAR_POLYGON_SIDES + 1 },
+    (_, i) => i + MIN_REGULAR_POLYGON_SIDES
+  );
 
   isToolActive(tool: FloorPlanTool): boolean {
     return this.toolService.activeTool() === tool;
@@ -108,6 +116,9 @@ export class FloorPlanToolbarComponent {
   onGroupSelected(): void { this.canvasService.groupSelected(); }
   onUngroupSelected(): void { this.canvasService.ungroupSelected(); }
   onMerge(): void { this.mergeService.mergeSelected(); }
+  onJoin(): void {
+    this.joinService.joinSelected();
+  }
   onExportSVG(): void { this.exportService.exportSVG(); }
   onExportPNG(): void { this.exportService.exportPNG(); }
   onExportJSON(): void { this.exportService.exportJSON(); }
@@ -155,5 +166,9 @@ export class FloorPlanToolbarComponent {
 
   onSnapSizeChange(size: number): void {
     this.toolService.setSnapSize(size);
+  }
+
+  onRegularPolygonSidesChange(sides: number): void {
+    this.toolService.setRegularPolygonSides(sides);
   }
 }

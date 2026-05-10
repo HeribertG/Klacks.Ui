@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
+import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 
 @Component({
   selector: 'app-floor-plan-context-menu',
@@ -27,6 +28,7 @@ import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 })
 export class FloorPlanContextMenuComponent {
   readonly mergeService = inject(FloorPlanMergeService);
+  readonly joinService = inject(FloorPlanJoinService);
 
   readonly isOpen = signal(false);
   readonly x = signal(0);
@@ -47,6 +49,11 @@ export class FloorPlanContextMenuComponent {
 
   onMerge(): void {
     this.mergeService.mergeSelected();
+    this.close();
+  }
+
+  onJoin(): void {
+    this.joinService.joinSelected();
     this.close();
   }
 
