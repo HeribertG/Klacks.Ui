@@ -2178,6 +2178,7 @@
   "floor-plan.contextmenu.merge": "Fusionner les formes",
   "floor-plan.toolbar.join": "Joindre",
   "floor-plan.contextmenu.join": "Joindre les chemins",
+  "floor-plan.contextmenu.edit-points": "Modifier les points",
   "floor-plan.toolbar.regular-polygon": "Polygone régulier",
   "floor-plan.toolbar.sides": "Côtés",
   "floor-plan.layers.title": "Calques",

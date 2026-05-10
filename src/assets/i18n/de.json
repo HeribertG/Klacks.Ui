@@ -2180,6 +2180,7 @@
   "floor-plan.contextmenu.merge": "Formen vereinigen",
   "floor-plan.toolbar.join": "Verbinden",
   "floor-plan.contextmenu.join": "Pfade verbinden",
+  "floor-plan.contextmenu.edit-points": "Punkte bearbeiten",
   "floor-plan.toolbar.regular-polygon": "Reguläres n-Eck",
   "floor-plan.toolbar.sides": "Ecken",
   "floor-plan.layers.title": "Ebenen",

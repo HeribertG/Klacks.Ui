@@ -12,11 +12,14 @@ import {
   HostListener,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
+import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
+import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 
 @Component({
   selector: 'app-floor-plan-context-menu',
@@ -29,6 +32,16 @@ import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 export class FloorPlanContextMenuComponent {
   readonly mergeService = inject(FloorPlanMergeService);
   readonly joinService = inject(FloorPlanJoinService);
+  readonly pointEditorService = inject(FloorPlanPointEditorService);
+  private readonly canvasService = inject(FloorPlanCanvasService);
+
+  readonly canEditPoints = computed(() => {
+    const obj = this.canvasService.selectedObject();
+    if (!obj) return false;
+    const data = (obj as any).data;
+    if (!data) return false;
+    return !data.isConnector && !data.isPortIndicator && !data.isPointHandle && !data.isArrowhead && !data.isMidpointHandle;
+  });
 
   readonly isOpen = signal(false);
   readonly x = signal(0);
@@ -55,6 +68,13 @@ export class FloorPlanContextMenuComponent {
   onJoin(): void {
     this.joinService.joinSelected();
     this.close();
+  }
+
+  onEditPoints(): void {
+    const obj = this.canvasService.selectedObject();
+    if (!obj) return;
+    this.close();
+    this.pointEditorService.enterEditMode(obj);
   }
 
   @HostListener('document:click')
