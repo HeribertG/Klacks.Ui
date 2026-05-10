@@ -21,7 +21,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-import { Line } from 'fabric';
+import { Line, Rect, Circle, Polygon, Path } from 'fabric';
 import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
@@ -100,7 +100,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (!obj) return false;
     const d = (obj as any).data;
     if (!d) return false;
-    return !d.isConnector && !d.isPortIndicator && !d.isPointHandle && !d.isArrowhead && !d.isMidpointHandle;
+    if (d.isConnector || d.isPortIndicator || d.isPointHandle || d.isArrowhead || d.isMidpointHandle) return false;
+    return obj instanceof Rect || obj instanceof Circle ||
+           obj instanceof Polygon || obj instanceof Path || obj instanceof Line;
   }
 
   private setupEffects(): void {

@@ -16,6 +16,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { Rect, Circle, Polygon, Path, Line } from 'fabric';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
@@ -40,7 +41,10 @@ export class FloorPlanContextMenuComponent {
     if (!obj) return false;
     const data = (obj as any).data;
     if (!data) return false;
-    return !data.isConnector && !data.isPortIndicator && !data.isPointHandle && !data.isArrowhead && !data.isMidpointHandle;
+    if (data.isConnector || data.isPortIndicator || data.isPointHandle ||
+        data.isArrowhead || data.isMidpointHandle) return false;
+    return obj instanceof Rect || obj instanceof Circle ||
+           obj instanceof Polygon || obj instanceof Path || obj instanceof Line;
   });
 
   readonly isOpen = signal(false);

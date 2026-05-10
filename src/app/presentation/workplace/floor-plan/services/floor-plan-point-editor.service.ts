@@ -198,14 +198,16 @@ export class FloorPlanPointEditorService {
     const strokeWidth = (obj as any).strokeWidth ?? 2;
     this.originalShapeId = (obj as any).data?.shapeId ?? null;
 
+    this.canvasService.beginSuppressHistory();
     this._isConverting = true;
     this.canvas.remove(obj);
     this._isConverting = false;
 
     const svgString = nodesToSvgString(nodes, isClosed);
-    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false });
+    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false, selectable: false, evented: false });
     newPath.set('data', { shapeId: this.originalShapeId ?? crypto.randomUUID() });
     this.canvas.add(newPath);
+    this.canvasService.endSuppressHistory();
 
     this.nodes = nodes;
     this.isClosed = isClosed;
@@ -405,14 +407,16 @@ export class FloorPlanPointEditorService {
     const strokeWidth = (this.editingPath as any).strokeWidth ?? 2;
     const shapeId = (this.editingPath as any).data?.shapeId ?? crypto.randomUUID();
 
+    this.canvasService.beginSuppressHistory();
     this._isConverting = true;
     this.canvas.remove(this.editingPath);
     this._isConverting = false;
 
-    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false });
+    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false, selectable: false, evented: false });
     newPath.set('data', { shapeId });
     this.canvas.add(newPath);
     this.editingPath = newPath;
+    this.canvasService.endSuppressHistory();
   }
 
   private updateStems(): void {

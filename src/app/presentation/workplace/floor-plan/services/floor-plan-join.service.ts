@@ -4,10 +4,12 @@
  * Service for joining 2+ selected Path/Polygon objects into a single closed Path
  * using a greedy nearest-endpoint chaining algorithm.
  * @param canvas - Fabric.js Canvas instance provided via init(canvas)
+ * @param canvasService - FloorPlanCanvasService for history suppression
  */
 
-import { Injectable, signal, computed, Signal } from '@angular/core';
+import { Injectable, signal, computed, Signal, inject } from '@angular/core';
 import { Canvas, FabricObject, Path, Polygon } from 'fabric';
+import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 
 interface JoinNode {
   command: 'M' | 'L' | 'C' | 'Q';
@@ -119,6 +121,7 @@ export function buildJoinedSvg(chain: JoinItem[]): string {
 @Injectable()
 export class FloorPlanJoinService {
   private canvas: Canvas | null = null;
+  private readonly canvasService = inject(FloorPlanCanvasService);
   private readonly _joinableSelection = signal<FabricObject[]>([]);
 
   readonly canJoin: Signal<boolean> = computed(() => this._joinableSelection().length >= 2);
@@ -152,6 +155,7 @@ export class FloorPlanJoinService {
     });
     newPath.set('data', { shapeId: crypto.randomUUID() });
 
+    this.canvasService.beginSuppressHistory();
     this.canvas.discardActiveObject();
     for (const obj of selection) {
       this.canvas.remove(obj);
@@ -160,6 +164,7 @@ export class FloorPlanJoinService {
     this.canvas.setActiveObject(newPath);
     this.canvas.renderAll();
     this._joinableSelection.set([]);
+    this.canvasService.captureHistory();
   }
 
   private toJoinItem(obj: FabricObject): JoinItem {

@@ -164,6 +164,8 @@ export class FloorPlanCanvasService {
 
     this.canvas.on('object:modified', (e) => {
       if ((e.target as any)?.data?.isConnector) return;
+      if ((e.target as any)?.data?.isPointHandle) return;
+      if ((e.target as any)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
