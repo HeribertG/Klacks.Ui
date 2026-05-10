@@ -187,5 +187,3 @@ export class FloorPlanPointEditorService {
   onHandleMoved(_handle: FabricObject): void { /* implemented in Task 4 */ }
   onHandleModified(_handle: FabricObject): void { /* implemented in Task 4 */ }
 }
-
-export { ANCHOR_RADIUS, CONTROL_RADIUS, ANCHOR_COLOR, ANCHOR_SELECTED_COLOR, CONTROL_COLOR };
