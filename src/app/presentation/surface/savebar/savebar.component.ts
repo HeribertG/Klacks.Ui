@@ -4,8 +4,10 @@ import { Component, inject, computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 
@@ -53,7 +55,8 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
         class="btn save-btn"
         tabindex="0"
         (click)="onClickSave()"
-        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled"
+        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled || isShiftScenarioBlocked()"
+        [title]="scenarioBlockTitle()"
         aria-label="Save changes"
       >
         {{ 'store' | translate }}
@@ -65,7 +68,8 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
         class="btn save-btn"
         tabindex="0"
         (click)="onClickSaveAndClose()"
-        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled"
+        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled || isShiftScenarioBlocked()"
+        [title]="scenarioBlockTitle()"
         aria-label="Save changes and close"
       >
         {{ 'saveAndClose' | translate }}
@@ -80,11 +84,27 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 export class SavebarComponent {
   public workplaceStateService = inject(WorkplaceStateService);
   public savebarService = inject(SavebarService);
+  private analyseScenarioService = inject(AnalyseScenarioService);
+  private translateService = inject(TranslateService);
   private navigationService = inject(NavigationService);
 
   public showGoBackButton = computed(() => {
     return this.workplaceStateService.goBack() !== '';
   });
+
+  public isShiftScenarioBlocked = computed(() => {
+    if (!this.analyseScenarioService.isScenarioMode()) {
+      return false;
+    }
+    const entity = this.workplaceStateService.nameOfVisibleEntity();
+    return entity === EntityName.SHIFT_EDIT || entity === EntityName.SHIFT_CUT;
+  });
+
+  public scenarioBlockTitle = computed(() =>
+    this.isShiftScenarioBlocked()
+      ? this.translateService.instant('scenario.shiftEditBlocked')
+      : ''
+  );
 
   onClickSave(): void {
     this.workplaceStateService.onClickSave();

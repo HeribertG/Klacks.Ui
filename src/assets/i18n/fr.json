@@ -2210,6 +2210,7 @@
   "scenario.deleteAll": "Supprimer tous les scénarios",
   "scenario.deleteAll.confirm": "Voulez-vous vraiment supprimer tous les scénarios ? Cette action est irréversible.",
   "scenario.deleteAll.error": "Impossible de supprimer les scénarios (erreur {{status}}) : {{message}}",
+  "scenario.shiftEditBlocked": "L'édition de service n'est pas disponible quand un scénario est actif. Acceptez ou rejetez le scénario pour enregistrer les modifications.",
   "scenario.name": "Nom",
   "scenario.description": "Description",
   "scenario.fromDate": "De",

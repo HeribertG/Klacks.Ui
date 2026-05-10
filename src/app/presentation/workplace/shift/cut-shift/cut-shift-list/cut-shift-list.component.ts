@@ -42,6 +42,7 @@ import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift/shift-cl
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
 import { CutByTimeService } from './services/cut-by-time.service';
 import { CutByDateService } from './services/cut-by-date.service';
@@ -69,6 +70,7 @@ export class CutShiftListComponent implements OnInit {
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private dataShiftCutsService = inject(DataShiftCutsService);
   private shiftCutOperationService = inject(ShiftCutOperationService);
+  protected analyseScenarioService = inject(AnalyseScenarioService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
   private destroyRef = inject(DestroyRef);

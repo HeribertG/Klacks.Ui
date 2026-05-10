@@ -382,7 +382,8 @@
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutDate()"
-      [disabled]="!isCutDateEnabled"
+      [disabled]="!isCutDateEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       {{ "shift.cut-shift.buttons.cut-date" | translate }}
     </button>
@@ -391,7 +392,8 @@
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutTime()"
-      [disabled]="!isCutTimeEnabled"
+      [disabled]="!isCutTimeEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       {{ "shift.cut-shift.buttons.cut-time" | translate }}
     </button>
@@ -400,7 +402,8 @@
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutWeekdays()"
-      [disabled]="!isCutWeekdaysEnabled"
+      [disabled]="!isCutWeekdaysEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
     </button>
@@ -409,7 +412,8 @@
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
-      [disabled]="!isCutStaffEnabled"
+      [disabled]="!isCutStaffEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </button>
@@ -418,7 +422,8 @@
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutTask()"
-      [disabled]="!isCutTaskEnabled"
+      [disabled]="!isCutTaskEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </button>
@@ -427,7 +432,8 @@
       type="button"
       class="btn btn-sm btn-warning"
       (click)="onResetCuts()"
-      [disabled]="!isResetCutsEnabled"
+      [disabled]="!isResetCutsEnabled || analyseScenarioService.isScenarioMode()"
+      [title]="analyseScenarioService.isScenarioMode() ? ('scenario.shiftEditBlocked' | translate) : ''"
       >
       <fa-icon [icon]="faRotateLeft"></fa-icon>
       {{ "shift.cut-shift.buttons.reset-cuts" | translate }}

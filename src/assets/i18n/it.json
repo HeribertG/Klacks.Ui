@@ -2210,6 +2210,7 @@
   "scenario.deleteAll": "Elimina tutti gli scenari",
   "scenario.deleteAll.confirm": "Eliminare tutti gli scenari? Questa azione non può essere annullata.",
   "scenario.deleteAll.error": "Impossibile eliminare gli scenari (errore {{status}}): {{message}}",
+  "scenario.shiftEditBlocked": "Modifica del turno non disponibile quando uno scenario è attivo. Accetta o rifiuta lo scenario per salvare le modifiche.",
   "scenario.name": "Nome",
   "scenario.description": "Descrizione",
   "scenario.fromDate": "Da",
