@@ -9,6 +9,7 @@ export enum FloorPlanTool {
   Rectangle = 'rectangle',
   Circle = 'circle',
   Polygon = 'polygon',
+  RegularPolygon = 'regularPolygon',
   FreeDrawing = 'freeDrawing',
   Text = 'text',
   Pan = 'pan',
@@ -32,6 +33,9 @@ const DEFAULT_FILL_COLOR = 'transparent';
 const DEFAULT_STROKE_WIDTH = 2;
 const DEFAULT_FONT_SIZE = 16;
 const DEFAULT_SNAP_SIZE = 20;
+const DEFAULT_REGULAR_POLYGON_SIDES = 6;
+export const MIN_REGULAR_POLYGON_SIDES = 3;
+export const MAX_REGULAR_POLYGON_SIDES = 12;
 
 @Injectable()
 export class FloorPlanToolService {
@@ -44,6 +48,7 @@ export class FloorPlanToolService {
   private readonly _snapSize = signal<number>(DEFAULT_SNAP_SIZE);
   private readonly _connectorRouting = signal<ConnectorRoutingType>(ConnectorRoutingType.Straight);
   private readonly _connectorArrowhead = signal<ConnectorArrowheadType>(ConnectorArrowheadType.Single);
+  private readonly _regularPolygonSides = signal<number>(DEFAULT_REGULAR_POLYGON_SIDES);
 
   readonly activeTool: Signal<FloorPlanTool> = this._activeTool.asReadonly();
   readonly strokeColor: Signal<string> = this._strokeColor.asReadonly();
@@ -54,6 +59,7 @@ export class FloorPlanToolService {
   readonly snapSize: Signal<number> = this._snapSize.asReadonly();
   readonly connectorRouting: Signal<ConnectorRoutingType> = this._connectorRouting.asReadonly();
   readonly connectorArrowhead: Signal<ConnectorArrowheadType> = this._connectorArrowhead.asReadonly();
+  readonly regularPolygonSides: Signal<number> = this._regularPolygonSides.asReadonly();
 
   setTool(tool: FloorPlanTool): void {
     this._activeTool.set(tool);
@@ -89,5 +95,10 @@ export class FloorPlanToolService {
 
   setConnectorArrowhead(arrowhead: ConnectorArrowheadType): void {
     this._connectorArrowhead.set(arrowhead);
+  }
+
+  setRegularPolygonSides(sides: number): void {
+    const clamped = Math.max(MIN_REGULAR_POLYGON_SIDES, Math.min(MAX_REGULAR_POLYGON_SIDES, sides));
+    this._regularPolygonSides.set(clamped);
   }
 }
