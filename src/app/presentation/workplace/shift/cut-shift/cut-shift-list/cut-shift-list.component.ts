@@ -21,11 +21,12 @@ import {
   Output,
   HostListener,
   DestroyRef,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
   NgbCalendar,
@@ -71,10 +72,17 @@ export class CutShiftListComponent implements OnInit {
   private dataShiftCutsService = inject(DataShiftCutsService);
   private shiftCutOperationService = inject(ShiftCutOperationService);
   protected analyseScenarioService = inject(AnalyseScenarioService);
+  private translateService = inject(TranslateService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+
+  protected scenarioBlockedTitle = computed(() =>
+    this.analyseScenarioService.isScenarioMode()
+      ? this.translateService.instant('scenario.shiftEditBlocked')
+      : ''
+  );
 
   private cutByTimeService = inject(CutByTimeService);
   private cutByDateService = inject(CutByDateService);
