@@ -41,6 +41,7 @@ import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-p
 import { FloorPlanConnectorService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-connector.service';
 import { FloorPlanMergeService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-merge.service';
 import { FloorPlanJoinService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-join.service';
+import { FloorPlanPointEditorService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-point-editor.service';
 
 @Component({
   selector: 'app-floor-plan-settings',
@@ -69,6 +70,7 @@ import { FloorPlanJoinService } from 'src/app/presentation/workplace/floor-plan/
     FloorPlanConnectorService,
     FloorPlanMergeService,
     FloorPlanJoinService,
+    FloorPlanPointEditorService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

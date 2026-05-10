@@ -28,6 +28,7 @@ import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
+import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
 import { FloorPlanContextMenuComponent } from '../floor-plan-context-menu/floor-plan-context-menu.component';
 
 const CANVAS_DEFAULT_WIDTH = 1200;
@@ -61,6 +62,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('contextMenu') private contextMenu!: FloorPlanContextMenuComponent;
   private mergeService = inject(FloorPlanMergeService);
   private readonly joinService = inject(FloorPlanJoinService);
+  private readonly pointEditorService = inject(FloorPlanPointEditorService);
 
   ngAfterViewInit(): void {
     this.canvasService.initCanvas(
@@ -74,6 +76,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.canvasService.registerAfterLoadCallback(() => this.connectorService.rebuildAfterLoad());
     this.mergeService.init(this.canvasService.getCanvas()!);
     this.joinService.init(this.canvasService.getCanvas()!);
+    this.pointEditorService.init(this.canvasService.getCanvas()!);
+    this.setupPointEditorEvents();
     this.setupEffects();
     this.setupConnectorInteraction();
   }
@@ -268,6 +272,15 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (!canvas) return;
 
     canvas.on('mouse:down', (opt: any) => {
+      if (this.pointEditorService.isInEditMode()) {
+        const target = opt.target as any;
+        const data = target?.data;
+        if (!data?.isPointHandle && !data?.isPointStem) {
+          this.pointEditorService.exitEditMode();
+          return;
+        }
+      }
+
       if (this.toolService.activeTool() === FloorPlanTool.Connector) return;
       const target = opt.target;
       if (!target) {
@@ -309,6 +322,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
           target.left ?? 0,
           target.top ?? 0
         );
+      } else if (data.isPointHandle) {
+        this.pointEditorService.onHandleMoved(target);
       } else if (data.shapeId && !data.isConnector) {
         this.connectorService.onShapeMoved(data.shapeId);
       }
@@ -329,6 +344,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
           canvas.discardActiveObject();
           this.connectorService.onEndpointHandleReleased(connectorId, isStart, x, y, portHit);
         }, 0);
+      } else if (data.isPointHandle) {
+        this.pointEditorService.onHandleModified(target);
       } else if (data.shapeId && !data.isConnector) {
         this.connectorService.onShapeMoved(data.shapeId);
       }
@@ -336,6 +353,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
     canvas.on('object:removed', (opt: any) => {
       if (this.isDeletingConnector || this.connectorService.redrawing) return;
+      if (this.pointEditorService.isConverting) return;
       const data = (opt.target as any)?.data;
       if (!data) return;
       if (data.isPortIndicator) return;
@@ -346,6 +364,21 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       } else if (data.shapeId && !data.isConnector) {
         this.connectorService.onShapeRemoved(data.shapeId);
       }
+    });
+  }
+
+  private setupPointEditorEvents(): void {
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+
+    canvas.on('mouse:dblclick', (opt: any) => {
+      if (this.toolService.activeTool() === FloorPlanTool.Connector) return;
+      if (this.pointEditorService.isInEditMode()) return;
+      const target = opt.target as any;
+      if (!target) return;
+      const data = target.data;
+      if (!data || data.isConnector || data.isPortIndicator || data.isPointHandle || data.isArrowhead) return;
+      this.pointEditorService.enterEditMode(target);
     });
   }
 
@@ -515,7 +548,11 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (!isInputFocused) {
-        this.canvasService.deleteSelected();
+        if (this.pointEditorService.isInEditMode()) {
+          this.pointEditorService.deleteSelectedNode();
+        } else {
+          this.canvasService.deleteSelected();
+        }
       }
     }
 
@@ -529,6 +566,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     }
 
     if (event.key === 'Escape') {
+      if (this.pointEditorService.isInEditMode()) {
+        this.pointEditorService.exitEditMode();
+      }
       if (this.canvasService.isInPolygonDrawingMode()) {
         this.canvasService.cancelPolygonDrawing();
         this.toolService.setTool(FloorPlanTool.Select);
