@@ -181,9 +181,247 @@ export class FloorPlanPointEditorService {
     this.canvas = canvas;
   }
 
-  enterEditMode(_obj: FabricObject): void { /* implemented in Task 4 */ }
-  exitEditMode(): void { /* implemented in Task 4 */ }
-  deleteSelectedNode(): void { /* implemented in Task 4 */ }
-  onHandleMoved(_handle: FabricObject): void { /* implemented in Task 4 */ }
-  onHandleModified(_handle: FabricObject): void { /* implemented in Task 4 */ }
+  enterEditMode(obj: FabricObject): void {
+    if (!this.canvas) return;
+    if (this._isInEditMode()) this.exitEditMode();
+
+    const isConvertible =
+      obj instanceof Rect || obj instanceof Circle || obj instanceof Polygon ||
+      obj instanceof Path || obj instanceof Line;
+    if (!isConvertible) return;
+
+    const { nodes, isClosed } = shapeToNodes(obj);
+    if (nodes.length < 2) return;
+
+    const fill = (obj as any).fill ?? 'transparent';
+    const stroke = (obj as any).stroke ?? '#000000';
+    const strokeWidth = (obj as any).strokeWidth ?? 2;
+    this.originalShapeId = (obj as any).data?.shapeId ?? null;
+
+    this._isConverting = true;
+    this.canvas.remove(obj);
+    this._isConverting = false;
+
+    const svgString = nodesToSvgString(nodes, isClosed);
+    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false });
+    newPath.set('data', { shapeId: this.originalShapeId ?? crypto.randomUUID() });
+    this.canvas.add(newPath);
+
+    this.nodes = nodes;
+    this.isClosed = isClosed;
+    this.editingPath = newPath;
+    this._isInEditMode.set(true);
+    this._selectedNodeIndex.set(null);
+
+    this.spawnHandles();
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+  }
+
+  exitEditMode(): void {
+    if (!this.canvas || !this._isInEditMode()) return;
+
+    this.clearHandles();
+    this.canvas.discardActiveObject();
+
+    if (this.editingPath && this.nodes.length >= 2) {
+      const svgString = nodesToSvgString(this.nodes, this.isClosed);
+      const fill = (this.editingPath as any).fill ?? 'transparent';
+      const stroke = (this.editingPath as any).stroke ?? '#000000';
+      const strokeWidth = (this.editingPath as any).strokeWidth ?? 2;
+      const shapeId = (this.editingPath as any).data?.shapeId ?? crypto.randomUUID();
+
+      this._isConverting = true;
+      this.canvas.remove(this.editingPath);
+      this._isConverting = false;
+
+      const finalPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false });
+      finalPath.set('data', { shapeId });
+      this.canvas.add(finalPath);
+      this.canvas.setActiveObject(finalPath);
+
+      if (this.originalShapeId) {
+        this.connectorService.onShapeMoved(this.originalShapeId);
+      }
+    }
+
+    this.canvasService.captureHistory();
+    this.nodes = [];
+    this.isClosed = false;
+    this.editingPath = null;
+    this.originalShapeId = null;
+    this._isInEditMode.set(false);
+    this._selectedNodeIndex.set(null);
+    this.canvas.renderAll();
+  }
+
+  deleteSelectedNode(): void {
+    if (!this.canvas || !this._isInEditMode()) return;
+    const activeObj = this.canvas.getActiveObject();
+    const data = (activeObj as any)?.data;
+    if (!data?.isPointHandle || !data.isAnchor) return;
+
+    const nodeIndex: number = data.nodeIndex;
+    const updated = deleteNode(this.nodes, nodeIndex);
+    if (updated === this.nodes) return;
+
+    this.nodes = updated;
+    this._selectedNodeIndex.set(null);
+    this.canvas.discardActiveObject();
+    this.rebuildPath();
+    this.spawnHandles();
+    this.canvas.renderAll();
+  }
+
+  onHandleMoved(handle: FabricObject): void {
+    if (!this.canvas) return;
+    const data = (handle as any).data;
+    if (!data?.isPointHandle) return;
+
+    const newX = handle.left ?? 0;
+    const newY = handle.top ?? 0;
+    const nodeIndex: number = data.nodeIndex;
+
+    if (data.isAnchor) {
+      const dx = newX - this.nodes[nodeIndex].x;
+      const dy = newY - this.nodes[nodeIndex].y;
+      const node = this.nodes[nodeIndex];
+      this.nodes[nodeIndex] = {
+        ...node,
+        x: newX,
+        y: newY,
+        cp1: node.cp1 ? { x: node.cp1.x + dx, y: node.cp1.y + dy } : undefined,
+        cp2: node.cp2 ? { x: node.cp2.x + dx, y: node.cp2.y + dy } : undefined,
+      };
+    } else {
+      const cpIndex: 0 | 1 = data.cpIndex;
+      const node = this.nodes[nodeIndex];
+      if (cpIndex === 0) {
+        this.nodes[nodeIndex] = { ...node, cp1: { x: newX, y: newY } };
+      } else {
+        this.nodes[nodeIndex] = { ...node, cp2: { x: newX, y: newY } };
+      }
+    }
+
+    this.updateStems();
+  }
+
+  onHandleModified(_handle: FabricObject): void {
+    this.rebuildPath();
+    this.canvas?.renderAll();
+  }
+
+  private spawnHandles(): void {
+    if (!this.canvas) return;
+    this.clearHandles();
+
+    for (let i = 0; i < this.nodes.length; i++) {
+      const node = this.nodes[i];
+
+      const anchor = new Circle({
+        left: node.x,
+        top: node.y,
+        radius: ANCHOR_RADIUS,
+        fill: ANCHOR_COLOR,
+        stroke: '#ffffff',
+        strokeWidth: 1.5,
+        originX: 'center',
+        originY: 'center',
+        selectable: true,
+        evented: true,
+        hasBorders: false,
+        hasControls: false,
+        lockScalingX: true,
+        lockScalingY: true,
+        lockRotation: true,
+      });
+      anchor.set('data', { isPointHandle: true, isAnchor: true, nodeIndex: i });
+      this.canvas.add(anchor);
+      this.handleObjects.push(anchor);
+
+      if (node.command === 'C' || node.command === 'Q') {
+        this.spawnControlHandle(i, node.cp1!, 0);
+        this.spawnStem(node.x, node.y, node.cp1!.x, node.cp1!.y);
+      }
+      if (node.command === 'C') {
+        this.spawnControlHandle(i, node.cp2!, 1);
+        this.spawnStem(node.x, node.y, node.cp2!.x, node.cp2!.y);
+      }
+    }
+  }
+
+  private spawnControlHandle(nodeIndex: number, pt: { x: number; y: number }, cpIndex: 0 | 1): void {
+    if (!this.canvas) return;
+    const handle = new Circle({
+      left: pt.x,
+      top: pt.y,
+      radius: CONTROL_RADIUS,
+      fill: CONTROL_COLOR,
+      stroke: '#ffffff',
+      strokeWidth: 1,
+      originX: 'center',
+      originY: 'center',
+      selectable: true,
+      evented: true,
+      hasBorders: false,
+      hasControls: false,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
+    });
+    handle.set('data', { isPointHandle: true, isAnchor: false, nodeIndex, cpIndex });
+    this.canvas.add(handle);
+    this.handleObjects.push(handle);
+  }
+
+  private spawnStem(ax: number, ay: number, cx: number, cy: number): void {
+    if (!this.canvas) return;
+    const stem = new Line([ax, ay, cx, cy], {
+      stroke: '#9ca3af',
+      strokeWidth: 1,
+      strokeDashArray: [4, 3],
+      selectable: false,
+      evented: false,
+      objectCaching: false,
+    });
+    stem.set('data', { isPointStem: true });
+    this.canvas.add(stem);
+    this.stemObjects.push(stem);
+  }
+
+  private clearHandles(): void {
+    if (!this.canvas) return;
+    for (const h of this.handleObjects) this.canvas.remove(h);
+    for (const s of this.stemObjects) this.canvas.remove(s);
+    this.handleObjects = [];
+    this.stemObjects = [];
+  }
+
+  private rebuildPath(): void {
+    if (!this.canvas || !this.editingPath) return;
+    const svgString = nodesToSvgString(this.nodes, this.isClosed);
+    const fill = (this.editingPath as any).fill ?? 'transparent';
+    const stroke = (this.editingPath as any).stroke ?? '#000000';
+    const strokeWidth = (this.editingPath as any).strokeWidth ?? 2;
+    const shapeId = (this.editingPath as any).data?.shapeId ?? crypto.randomUUID();
+
+    this._isConverting = true;
+    this.canvas.remove(this.editingPath);
+    this._isConverting = false;
+
+    const newPath = new Path(svgString, { fill, stroke, strokeWidth, objectCaching: false });
+    newPath.set('data', { shapeId });
+    this.canvas.add(newPath);
+    this.editingPath = newPath;
+  }
+
+  private updateStems(): void {
+    if (!this.canvas) return;
+    for (const s of this.stemObjects) this.canvas.remove(s);
+    this.stemObjects = [];
+    for (const node of this.nodes) {
+      if (node.cp1) this.spawnStem(node.x, node.y, node.cp1.x, node.cp1.y);
+      if (node.cp2) this.spawnStem(node.x, node.y, node.cp2.x, node.cp2.y);
+    }
+  }
 }

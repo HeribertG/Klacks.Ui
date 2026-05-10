@@ -27,6 +27,7 @@ const ZOOM_MAX = 10;
 const ZOOM_STEP = 0.1;
 const ZOOM_WHEEL_FACTOR = 0.999;
 const HISTORY_MAX = 50;
+const DEFAULT_REGULAR_POLYGON_RADIUS = 60;
 
 @Injectable()
 export class FloorPlanCanvasService {
@@ -169,12 +170,16 @@ export class FloorPlanCanvasService {
     this.canvas.on('object:added', (e) => {
       if ((e.target as any)?.data?.isPortIndicator) return;
       if ((e.target as any)?.data?.isConnector) return;
+      if ((e.target as any)?.data?.isPointHandle) return;
+      if ((e.target as any)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
     this.canvas.on('object:removed', (e) => {
       if ((e.target as any)?.data?.isPortIndicator) return;
       if ((e.target as any)?.data?.isConnector) return;
+      if ((e.target as any)?.data?.isPointHandle) return;
+      if ((e.target as any)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
@@ -230,6 +235,7 @@ export class FloorPlanCanvasService {
       if (!this.toolService.snapEnabled()) return;
       const obj = opt.target;
       if (!obj) return;
+      if ((obj as any).data?.isPointHandle) return;
       const size = this.toolService.snapSize();
       if (size <= 0) return;
       obj.set({
@@ -238,23 +244,6 @@ export class FloorPlanCanvasService {
       });
     });
 
-    this.canvas.on('object:scaling', (opt) => {
-      if (!this.toolService.snapEnabled()) return;
-      const obj = opt.target;
-      if (!obj) return;
-      const size = this.toolService.snapSize();
-      if (size <= 0) return;
-      const scaledWidth = (obj.width ?? 0) * (obj.scaleX ?? 1);
-      const scaledHeight = (obj.height ?? 0) * (obj.scaleY ?? 1);
-      const snappedWidth = Math.round(scaledWidth / size) * size;
-      const snappedHeight = Math.round(scaledHeight / size) * size;
-      if (scaledWidth !== 0) {
-        obj.set('scaleX', snappedWidth / (obj.width ?? 1));
-      }
-      if (scaledHeight !== 0) {
-        obj.set('scaleY', snappedHeight / (obj.height ?? 1));
-      }
-    });
   }
 
   zoomIn(): void {
@@ -371,6 +360,30 @@ export class FloorPlanCanvasService {
     this.assignToActiveLayer(textbox);
     this.canvas.add(textbox);
     this.canvas.setActiveObject(textbox);
+    this.canvas.renderAll();
+  }
+
+  addRegularPolygonAt(sides: number, cx: number, cy: number): void {
+    if (!this.canvas) return;
+    const snappedCx = this.snap(cx);
+    const snappedCy = this.snap(cy);
+    const points: { x: number; y: number }[] = [];
+    for (let i = 0; i < sides; i++) {
+      const angle = (2 * Math.PI * i / sides) - Math.PI / 2;
+      points.push({
+        x: snappedCx + DEFAULT_REGULAR_POLYGON_RADIUS * Math.cos(angle),
+        y: snappedCy + DEFAULT_REGULAR_POLYGON_RADIUS * Math.sin(angle),
+      });
+    }
+    const polygon = new Polygon(points, {
+      fill: 'transparent',
+      stroke: '#000000',
+      strokeWidth: 2,
+    });
+    polygon.set('data', { shapeId: crypto.randomUUID() });
+    this.assignToActiveLayer(polygon);
+    this.canvas.add(polygon);
+    this.canvas.setActiveObject(polygon);
     this.canvas.renderAll();
   }
 
