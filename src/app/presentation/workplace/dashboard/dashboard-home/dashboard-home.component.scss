@@ -1,4 +1,5 @@
 @use "src/assets/standard-styles/standard-dashboard.scss";
+@use "src/assets/standard-styles/toggle-switch.scss";
 
 .container-headline {
   display: flex;
@@ -65,4 +66,51 @@
   padding: 0;
   display: flex;
   align-items: center;
+}
+
+.menu-anchor {
+  position: relative;
+}
+
+.headline-action-button.active {
+  background-color: var(--backgroundColorSubCards);
+}
+
+.section-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline-end: 0;
+  background-color: var(--backgroundColorCards);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  min-width: 190px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.section-menu-title {
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colorWorkplaceHeadline);
+  opacity: 0.5;
+  border-bottom: 1px solid var(--cardBorderColor);
+}
+
+.section-menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--standartTextColor);
+  gap: 12px;
+
+  &:hover {
+    background-color: var(--backgroundColorSubCards);
+  }
 }
