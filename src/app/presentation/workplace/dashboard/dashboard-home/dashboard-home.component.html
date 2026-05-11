@@ -25,22 +25,34 @@
           [attr.aria-label]="'dashboard.section-menu.button-label' | translate"
           (click)="toggleMenuOpen()"
         >
-          <i class="fa-solid fa-eye"></i>
+          <app-icon-settings-three></app-icon-settings-three>
         </button>
         @if (menuOpen()) {
           <div class="section-menu-dropdown">
             <div class="section-menu-title">{{ 'dashboard.section-menu.title' | translate }}</div>
             @for (key of sectionKeys; track key) {
-              <div class="section-menu-row" (click)="toggleSectionVisibility(key)">
+              <div
+                class="section-menu-row"
+                role="button"
+                tabindex="0"
+                (click)="toggleSectionVisibility(key)"
+                (keydown.enter)="toggleSectionVisibility(key)"
+                (keydown.space)="toggleSectionVisibility(key)"
+              >
                 <span>{{ 'dashboard.section.' + key | translate }}</span>
-                <label class="main-switch" (click)="$event.stopPropagation()">
+                <span
+                  class="main-switch"
+                  role="presentation"
+                  (click)="$event.stopPropagation()"
+                  (keydown)="$event.stopPropagation()"
+                >
                   <input
                     type="checkbox"
                     [checked]="sectionVisibility[key]"
                     (change)="toggleSectionVisibility(key)"
                   />
                   <div class="slider round"></div>
-                </label>
+                </span>
               </div>
             }
           </div>

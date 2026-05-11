@@ -25,6 +25,7 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
 import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
+import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-settings-three.component';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -43,6 +44,7 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
     IconCollapseAllGreyComponent,
     IconExpandAllGreyComponent,
     ClickOutsideDirective,
+    IconSettingsThreeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
