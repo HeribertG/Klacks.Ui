@@ -10,6 +10,12 @@ import {
   IAssistantChatRequest,
   IAssistantChatResponse,
   IAssistantUsage,
+  ISubmitCorrectionRequest,
+  ISubmitCorrectionResponse,
+  IProposedSkillChange,
+  IGenerateProposalsResponse,
+  IApproveProposalResponse,
+  IRejectProposalResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -346,6 +352,26 @@ export class DataManagementAssistantService {
 
   warmupCache(): void {
     this.dataAssistantService.warmup();
+  }
+
+  submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {
+    return this.dataAssistantService.submitCorrection(request);
+  }
+
+  generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {
+    return this.dataAssistantService.generateSkillProposals(trajectories);
+  }
+
+  getPendingSkillProposals(limit?: number): Observable<IProposedSkillChange[]> {
+    return this.dataAssistantService.getPendingSkillProposals(limit);
+  }
+
+  approveSkillProposal(id: string): Observable<IApproveProposalResponse> {
+    return this.dataAssistantService.approveSkillProposal(id);
+  }
+
+  rejectSkillProposal(id: string): Observable<IRejectProposalResponse> {
+    return this.dataAssistantService.rejectSkillProposal(id);
   }
 
   private getOrCreateConversation(conversationId: string): IConversation {

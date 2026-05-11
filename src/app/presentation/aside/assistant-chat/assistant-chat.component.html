@@ -160,6 +160,40 @@
             }
           </div>
           }
+
+          <!-- Correction (thumbs-down) for assistant messages with a referenced user message -->
+          @if (message.sender === 'assistant' && message.respondedToUserMessage && !message.isStreaming) {
+          <div class="correction-controls">
+            @if (message.correctionSubmitted) {
+            <span class="correction-thanks" [attr.aria-label]="'assistant-chat.correction.thanks' | translate">
+              <fa-icon [icon]="faCheck"></fa-icon>
+              {{ "assistant-chat.correction.thanks" | translate }}
+            </span>
+            } @else {
+            <button
+              type="button"
+              class="correction-btn"
+              (click)="toggleCorrectionMenu(message.id)"
+              [attr.aria-label]="'assistant-chat.correction.flag' | translate"
+            >
+              <fa-icon [icon]="faThumbsDown"></fa-icon>
+            </button>
+            @if (correctionMenuMessageId() === message.id) {
+            <div class="correction-menu" role="menu">
+              <button type="button" role="menuitem" (click)="submitCorrection(message, 'wrong_skill')">
+                {{ "assistant-chat.correction.wrong-skill" | translate }}
+              </button>
+              <button type="button" role="menuitem" (click)="submitCorrection(message, 'wrong_param')">
+                {{ "assistant-chat.correction.wrong-param" | translate }}
+              </button>
+              <button type="button" role="menuitem" (click)="submitCorrection(message, 'none_needed')">
+                {{ "assistant-chat.correction.none-needed" | translate }}
+              </button>
+            </div>
+            }
+            }
+          </div>
+          }
         </div>
       </div>
       }

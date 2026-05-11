@@ -144,4 +144,81 @@ export class DataAssistantService {
   warmup(): void {
     this.httpClient.get(`${this.baseUrl}chat/warmup`).subscribe();
   }
+
+  submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {
+    return this.httpClient.post<ISubmitCorrectionResponse>(
+      `${this.baseUrl}eval/correction`,
+      request,
+    );
+  }
+
+  generateSkillProposals(trajectories?: number): Observable<IGenerateProposalsResponse> {
+    const url = trajectories
+      ? `${this.baseUrl}skill-proposals/generate?trajectories=${trajectories}`
+      : `${this.baseUrl}skill-proposals/generate`;
+    return this.httpClient.post<IGenerateProposalsResponse>(url, {});
+  }
+
+  getPendingSkillProposals(limit = 50): Observable<IProposedSkillChange[]> {
+    return this.httpClient.get<IProposedSkillChange[]>(
+      `${this.baseUrl}skill-proposals/pending`,
+      { params: { limit: limit.toString() } },
+    );
+  }
+
+  approveSkillProposal(id: string): Observable<IApproveProposalResponse> {
+    return this.httpClient.post<IApproveProposalResponse>(
+      `${this.baseUrl}skill-proposals/${id}/approve`,
+      {},
+    );
+  }
+
+  rejectSkillProposal(id: string): Observable<IRejectProposalResponse> {
+    return this.httpClient.post<IRejectProposalResponse>(
+      `${this.baseUrl}skill-proposals/${id}/reject`,
+      {},
+    );
+  }
+}
+
+export interface ISubmitCorrectionRequest {
+  userMessage: string;
+  correctionType: 'wrong_skill' | 'wrong_param' | 'repeated_request' | 'none_needed';
+  expectedSkill?: string;
+}
+
+export interface ISubmitCorrectionResponse {
+  found: boolean;
+  trajectoryId: string | null;
+}
+
+export interface IProposedSkillChange {
+  id: string;
+  agentId: string;
+  skillId: string;
+  skillName: string;
+  field: string;
+  valueBefore: string;
+  valueAfter: string;
+  justification: string;
+  status: 'pending' | 'approved' | 'rejected';
+  evidenceJson: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  createTime?: string;
+}
+
+export interface IGenerateProposalsResponse {
+  generated: number;
+}
+
+export interface IApproveProposalResponse {
+  applied: boolean;
+  error: string | null;
+  newSkillVersion: number | null;
+}
+
+export interface IRejectProposalResponse {
+  rejected: boolean;
+  error: string | null;
 }

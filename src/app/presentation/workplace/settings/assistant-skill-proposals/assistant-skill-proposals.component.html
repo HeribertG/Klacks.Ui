@@ -1,0 +1,101 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.skillProposals.headline" | translate }}
+    @if (isGenerating()) {
+      <span class="saving-indicator">{{ "setting.skillProposals.generating" | translate }}</span>
+    }
+  </div>
+  <div class="container-line"></div>
+
+  <div class="proposals-form">
+    <div class="intro-hint">
+      {{ "setting.skillProposals.intro" | translate }}
+    </div>
+
+    <div class="actions-bar">
+      <button
+        type="button"
+        class="action-primary"
+        [disabled]="isGenerating()"
+        (click)="onGenerateClick()"
+      >
+        {{ "setting.skillProposals.generate" | translate }}
+      </button>
+      <button
+        type="button"
+        class="action-secondary"
+        [disabled]="isLoading()"
+        (click)="loadProposals()"
+      >
+        {{ "setting.skillProposals.reload" | translate }}
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-hint">
+        {{ "setting.skillProposals.loading" | translate }}
+      </div>
+    } @else if (proposals().length === 0) {
+      <div class="empty-hint">
+        {{ "setting.skillProposals.empty" | translate }}
+      </div>
+    } @else {
+      @for (proposal of proposals(); track proposal.id) {
+        <div class="proposal-card">
+          <div class="proposal-header">
+            <span class="skill-name">{{ proposal.skillName }}</span>
+            <span class="field-label">{{ proposal.field }}</span>
+          </div>
+
+          <div class="diff-block">
+            <div class="diff-row diff-before">
+              <span class="diff-label">{{ "setting.skillProposals.before" | translate }}</span>
+              <div class="diff-text">{{ proposal.valueBefore }}</div>
+            </div>
+            <div class="diff-row diff-after">
+              <span class="diff-label">{{ "setting.skillProposals.after" | translate }}</span>
+              <div class="diff-text">{{ proposal.valueAfter }}</div>
+            </div>
+          </div>
+
+          @if (proposal.justification) {
+            <div class="justification">
+              <strong>{{ "setting.skillProposals.justification" | translate }}:</strong>
+              {{ proposal.justification }}
+            </div>
+          }
+
+          @if (parseEvidence(proposal).length > 0) {
+            <details class="evidence">
+              <summary>{{ "setting.skillProposals.evidence" | translate }}</summary>
+              <ul>
+                @for (example of parseEvidence(proposal); track $index) {
+                  <li>{{ example }}</li>
+                }
+              </ul>
+            </details>
+          }
+
+          <div class="proposal-actions">
+            <button
+              type="button"
+              class="approve-btn"
+              [disabled]="processingProposalId() !== null"
+              (click)="onApprove(proposal)"
+            >
+              {{ "setting.skillProposals.approve" | translate }}
+            </button>
+            <button
+              type="button"
+              class="reject-btn"
+              [disabled]="processingProposalId() !== null"
+              (click)="onReject(proposal)"
+            >
+              {{ "setting.skillProposals.reject" | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

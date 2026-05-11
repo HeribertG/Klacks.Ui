@@ -29,6 +29,8 @@ import {
   faVolumeHigh,
   faStop,
   faSpinner,
+  faThumbsDown,
+  faCheck,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
@@ -54,6 +56,9 @@ import { ChatFunctionExecutionService } from './services/chat-function-execution
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+
+type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
 @Component({
   selector: 'app-assistant-chat',
@@ -129,8 +134,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   faVolumeHigh = faVolumeHigh;
   faStop = faStop;
   faSpinner = faSpinner;
+  faThumbsDown = faThumbsDown;
+  faCheck = faCheck;
 
   activeSuggestedReplies = signal<ISuggestedRepliesConfig | null>(null);
+  correctionMenuMessageId = signal<string | null>(null);
 
   inputText = '';
   isProcessing = false;
@@ -288,6 +296,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       content: '',
       timestamp: new Date(),
       isStreaming: true,
+      respondedToUserMessage: messageText.trim(),
     };
     this.orchestrator.addMessage(assistantMessage);
     this.cdr.detectChanges();
@@ -434,6 +443,39 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     if (navigateTo.startsWith('/workplace/')) {
       this.router.navigate([navigateTo]);
     }
+  }
+
+  toggleCorrectionMenu(messageId: string): void {
+    const current = this.correctionMenuMessageId();
+    this.correctionMenuMessageId.set(current === messageId ? null : messageId);
+  }
+
+  submitCorrection(message: ChatMessage, correctionType: CorrectionType): void {
+    if (!message.respondedToUserMessage || message.correctionSubmitted) return;
+
+    const request: ISubmitCorrectionRequest = {
+      userMessage: message.respondedToUserMessage,
+      correctionType,
+    };
+
+    this.assistantService
+      .submitCorrection(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.ngZone.run(() => {
+            this.orchestrator.updateMessage(message.id, { correctionSubmitted: true });
+            this.correctionMenuMessageId.set(null);
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            this.correctionMenuMessageId.set(null);
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   toggleModelDropdown(): void {

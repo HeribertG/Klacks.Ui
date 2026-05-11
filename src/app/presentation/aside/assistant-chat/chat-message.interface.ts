@@ -12,4 +12,8 @@ export interface ChatMessage {
   navigateTo?: string;
   actionPerformed?: boolean;
   isStreaming?: boolean;
+  /** User message that this assistant response answered. Set on assistant messages only. */
+  respondedToUserMessage?: string;
+  /** Set after the user submitted a correction for this assistant message. */
+  correctionSubmitted?: boolean;
 }
