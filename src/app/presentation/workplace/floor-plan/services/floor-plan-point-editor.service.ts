@@ -30,11 +30,14 @@ export interface PathNode {
 
 const ANCHOR_RADIUS = 7;
 const CONTROL_RADIUS = 5;
+const SEGMENT_HANDLE_RADIUS = 5;
 const ANCHOR_COLOR = '#2563eb';
 const ANCHOR_SELECTED_COLOR = '#ef4444';
 const CONTROL_COLOR = '#f59e0b';
+const SEGMENT_HANDLE_COLOR = '#dc2626';
 const KAPPA = 0.5522847498;
 const MIN_NODES_FOR_DELETE = 2;
+const CLOSING_SEGMENT_INDEX = -1;
 
 export function nodesToSvgString(nodes: PathNode[], isClosed: boolean): string {
   const fmt = (v: number) => parseFloat(v.toFixed(3)).toString();
@@ -261,8 +264,14 @@ export class FloorPlanPointEditorService {
     if (!this.canvas || !this._isInEditMode()) return;
     const activeObj = this.canvas.getActiveObject();
     const data = (activeObj as any)?.data;
-    if (!data?.isPointHandle || !data.isAnchor) return;
+    if (!data?.isPointHandle) return;
 
+    if (data.isSegmentHandle) {
+      this.deleteSegment(data.segmentEndNodeIndex as number);
+      return;
+    }
+
+    if (!data.isAnchor) return;
     const nodeIndex: number = data.nodeIndex;
     const updated = deleteNode(this.nodes, nodeIndex);
     if (updated === this.nodes) return;
@@ -275,10 +284,30 @@ export class FloorPlanPointEditorService {
     this.canvas.renderAll();
   }
 
+  private deleteSegment(endNodeIndex: number): void {
+    if (!this.canvas) return;
+    if (endNodeIndex === CLOSING_SEGMENT_INDEX) {
+      if (!this.isClosed) return;
+      this.isClosed = false;
+    } else {
+      if (endNodeIndex <= 0 || endNodeIndex >= this.nodes.length) return;
+      if (this.nodes[endNodeIndex].command === 'M') return;
+      const node = this.nodes[endNodeIndex];
+      this.nodes[endNodeIndex] = { command: 'M', x: node.x, y: node.y };
+      this.isClosed = false;
+    }
+    this._selectedNodeIndex.set(null);
+    this.canvas.discardActiveObject();
+    this.rebuildPath();
+    this.spawnHandles();
+    this.canvas.renderAll();
+  }
+
   onHandleMoved(handle: FabricObject): void {
     if (!this.canvas) return;
     const data = (handle as any).data;
     if (!data?.isPointHandle) return;
+    if (data.isSegmentHandle) return;
 
     const newX = handle.left ?? 0;
     const newY = handle.top ?? 0;
@@ -308,7 +337,8 @@ export class FloorPlanPointEditorService {
     this.updateStems();
   }
 
-  onHandleModified(_handle: FabricObject): void {
+  onHandleModified(handle: FabricObject): void {
+    if ((handle as any).data?.isSegmentHandle) return;
     this.rebuildPath();
     this.canvas?.renderAll();
   }
@@ -350,6 +380,18 @@ export class FloorPlanPointEditorService {
         this.spawnStem(node.x, node.y, node.cp2!.x, node.cp2!.y);
       }
     }
+
+    for (let i = 1; i < this.nodes.length; i++) {
+      if (this.nodes[i].command === 'M') continue;
+      const prev = this.nodes[i - 1];
+      const curr = this.nodes[i];
+      this.spawnSegmentHandle((prev.x + curr.x) / 2, (prev.y + curr.y) / 2, i);
+    }
+    if (this.isClosed && this.nodes.length >= 2) {
+      const first = this.nodes[0];
+      const last = this.nodes[this.nodes.length - 1];
+      this.spawnSegmentHandle((first.x + last.x) / 2, (first.y + last.y) / 2, CLOSING_SEGMENT_INDEX);
+    }
   }
 
   private spawnControlHandle(nodeIndex: number, pt: { x: number; y: number }, cpIndex: 0 | 1): void {
@@ -372,6 +414,33 @@ export class FloorPlanPointEditorService {
       lockRotation: true,
     });
     handle.set('data', { isPointHandle: true, isAnchor: false, nodeIndex, cpIndex });
+    this.canvas.add(handle);
+    this.handleObjects.push(handle);
+  }
+
+  private spawnSegmentHandle(x: number, y: number, segmentEndNodeIndex: number): void {
+    if (!this.canvas) return;
+    const handle = new Circle({
+      left: x,
+      top: y,
+      radius: SEGMENT_HANDLE_RADIUS,
+      fill: 'transparent',
+      stroke: SEGMENT_HANDLE_COLOR,
+      strokeWidth: 2,
+      originX: 'center',
+      originY: 'center',
+      selectable: true,
+      evented: true,
+      hasBorders: false,
+      hasControls: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
+      opacity: 0.8,
+    });
+    handle.set('data', { isPointHandle: true, isSegmentHandle: true, segmentEndNodeIndex });
     this.canvas.add(handle);
     this.handleObjects.push(handle);
   }
