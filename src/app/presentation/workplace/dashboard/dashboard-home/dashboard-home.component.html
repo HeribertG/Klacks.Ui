@@ -40,11 +40,9 @@
                 (keydown.space)="toggleSectionVisibility(key)"
               >
                 <span>{{ 'dashboard.section.' + key | translate }}</span>
-                <span
+                <label
                   class="main-switch"
-                  role="presentation"
                   (click)="$event.stopPropagation()"
-                  (keydown)="$event.stopPropagation()"
                 >
                   <input
                     type="checkbox"
@@ -52,7 +50,7 @@
                     (change)="toggleSectionVisibility(key)"
                   />
                   <div class="slider round"></div>
-                </span>
+                </label>
               </div>
             }
           </div>
