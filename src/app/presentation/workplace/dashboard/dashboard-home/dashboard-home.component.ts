@@ -111,15 +111,19 @@ export class DashboardHomeComponent implements OnInit {
   }
 
   private loadSectionVisibility(): void {
-    const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY) as Record<string, boolean> | null;
-    if (!stored) {
-      return;
-    }
-    this.sectionKeys.forEach((key) => {
-      if (key in stored) {
-        this.sectionVisibility[key] = stored[key];
+    try {
+      const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY) as Record<string, boolean> | null;
+      if (!stored) {
+        return;
       }
-    });
+      this.sectionKeys.forEach((key) => {
+        if (key in stored && typeof stored[key] === 'boolean') {
+          this.sectionVisibility[key] = stored[key];
+        }
+      });
+    } catch {
+      // Silently fall back to defaults on corrupt storage
+    }
   }
 
   private saveSectionVisibility(): void {
