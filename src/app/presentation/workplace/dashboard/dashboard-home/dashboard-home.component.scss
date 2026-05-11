@@ -1,6 +1,10 @@
 @use "src/assets/standard-styles/standard-dashboard.scss";
 @use "src/assets/standard-styles/toggle-switch.scss";
 
+.container-dashboard {
+  width: 100%;
+}
+
 .container-headline {
   display: flex;
   flex-direction: row;

@@ -2,14 +2,17 @@
 
 /**
  * Floating right-click context menu for the floor plan canvas.
- * Displays shape-operation actions based on current selection state.
- * @param x - Left offset in pixels from the canvas wrapper left edge
- * @param y - Top offset in pixels from the canvas wrapper top edge
+ * Renders at document body level to escape modal overflow and transform constraints.
+ * @param x - Viewport x coordinate (clientX) for menu placement
+ * @param y - Viewport y coordinate (clientY) for menu placement
  */
 
 import {
   Component,
+  ElementRef,
   HostListener,
+  OnDestroy,
+  OnInit,
   inject,
   signal,
   computed,
@@ -30,11 +33,12 @@ import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
   styleUrls: ['./floor-plan-context-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FloorPlanContextMenuComponent {
+export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
   readonly mergeService = inject(FloorPlanMergeService);
   readonly joinService = inject(FloorPlanJoinService);
   readonly pointEditorService = inject(FloorPlanPointEditorService);
   private readonly canvasService = inject(FloorPlanCanvasService);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   readonly canClosePath = computed(() => {
     const obj = this.canvasService.selectedObject();
@@ -58,13 +62,24 @@ export class FloorPlanContextMenuComponent {
   readonly x = signal(0);
   readonly y = signal(0);
 
-  private skipNextDocumentClick = false;
+  private skipNextClose = false;
+
+  ngOnInit(): void {
+    document.body.appendChild(this.elementRef.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    const el = this.elementRef.nativeElement;
+    if (document.body.contains(el)) {
+      document.body.removeChild(el);
+    }
+  }
 
   open(x: number, y: number): void {
     this.x.set(x);
     this.y.set(y);
     this.isOpen.set(true);
-    this.skipNextDocumentClick = true;
+    this.skipNextClose = true;
   }
 
   close(): void {
@@ -93,12 +108,14 @@ export class FloorPlanContextMenuComponent {
     this.close();
   }
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    if (this.skipNextDocumentClick) {
-      this.skipNextDocumentClick = false;
+  @HostListener('document:mousedown', ['$event'])
+  onDocumentMousedown(event: MouseEvent): void {
+    if (event.button !== 0) return;
+    if (this.skipNextClose) {
+      this.skipNextClose = false;
       return;
     }
+    if (!this.isOpen()) return;
     this.close();
   }
 

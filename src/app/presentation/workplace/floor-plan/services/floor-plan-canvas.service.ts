@@ -20,6 +20,7 @@ import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-pla
 import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
+import { shapeToNodes, nodesToSvgString } from './floor-plan-point-editor.service';
 
 FabricObject.customProperties.push('data');
 
@@ -572,6 +573,45 @@ export class FloorPlanCanvasService {
     if (cmds.some((cmd: any[]) => cmd[0] === 'Z')) return;
     cmds.push(['Z']);
     obj.setCoords();
+    this.saveHistory();
+    this.canvas.renderAll();
+  }
+
+  openSelectedPath(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!(obj instanceof Path)) return;
+    const cmds = (obj as any).path as any[][];
+    if (!cmds.some((cmd: any[]) => cmd[0] === 'Z')) return;
+    (obj as any).path = cmds.filter((cmd: any[]) => cmd[0] !== 'Z');
+    obj.set({ fill: 'transparent', dirty: true });
+    obj.setCoords();
+    this.saveHistory();
+    this.canvas.renderAll();
+  }
+
+  convertSelectedToPath(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || obj instanceof Path) return;
+    const isConvertible = obj instanceof Rect || obj instanceof Circle ||
+                          obj instanceof Polygon || obj instanceof Line;
+    if (!isConvertible) return;
+
+    const { nodes, isClosed } = shapeToNodes(obj);
+    if (nodes.length < 2) return;
+
+    const fill = (obj as any).fill ?? 'transparent';
+    const stroke = (obj as any).stroke ?? '#000000';
+    const strokeWidth = (obj as any).strokeWidth ?? 2;
+    const data = (obj as any).data ?? {};
+
+    this.canvas.remove(obj);
+
+    const newPath = new Path(nodesToSvgString(nodes, isClosed), { fill, stroke, strokeWidth, objectCaching: false });
+    newPath.set('data', { ...data, shapeId: data.shapeId ?? crypto.randomUUID() });
+    this.canvas.add(newPath);
+    this.canvas.setActiveObject(newPath);
     this.saveHistory();
     this.canvas.renderAll();
   }
