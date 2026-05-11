@@ -18,14 +18,18 @@
         <button
           id="dashboard-section-menu-btn"
           class="headline-action-button"
+          type="button"
           [class.active]="menuOpen()"
+          [attr.aria-expanded]="menuOpen()"
+          aria-haspopup="true"
+          [attr.aria-label]="'dashboard.section-menu.button-label' | translate"
           (click)="toggleMenuOpen()"
         >
           <i class="fa-solid fa-eye"></i>
         </button>
         @if (menuOpen()) {
           <div class="section-menu-dropdown">
-            <div class="section-menu-title">Sections</div>
+            <div class="section-menu-title">{{ 'dashboard.section-menu.title' | translate }}</div>
             @for (key of sectionKeys; track key) {
               <div class="section-menu-row" (click)="toggleSectionVisibility(key)">
                 <span>{{ 'dashboard.section.' + key | translate }}</span>

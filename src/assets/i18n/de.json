@@ -434,6 +434,8 @@
   "dashboard.section.coverage": "Abdeckung & Bestätigung",
   "dashboard.section.locations": "Standorte",
   "dashboard.section.resources": "Ressourcen",
+  "dashboard.section-menu.title": "Abschnitte",
+  "dashboard.section-menu.button-label": "Abschnitte ein-/ausblenden",
   "dashboard.resource-monitor.title": "Ressourcen-Monitor",
   "dashboard.resource-monitor.should-hours": "Soll-Stunden",
   "dashboard.resource-monitor.actual-hours": "Ist-Stunden",

@@ -433,6 +433,8 @@
   "dashboard.section.coverage": "Couverture & Confirmation",
   "dashboard.section.locations": "Emplacements",
   "dashboard.section.resources": "Ressources",
+  "dashboard.section-menu.title": "Sections",
+  "dashboard.section-menu.button-label": "Afficher/masquer les sections",
   "dashboard.resource-monitor.title": "Moniteur de ressources",
   "dashboard.resource-monitor.should-hours": "Heures cibles",
   "dashboard.resource-monitor.actual-hours": "Heures réelles",
