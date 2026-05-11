@@ -92,6 +92,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { TimelineSelectionService } from './timeline/services/timeline-selection.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateComponent;
 
@@ -208,6 +209,7 @@ export class ScheduleSectionComponent
   private simpleEffects = inject(ScheduleSimpleEffectsService);
   private cdr = inject(ChangeDetectorRef);
   private timelineSelection = inject(TimelineSelectionService);
+  private appSettings = inject(AppSettingsManagementService);
 
   public readonly defaultVScrollbarSize = 17;
   public readonly defaultHScrollbarSize = 17;
@@ -220,6 +222,7 @@ export class ScheduleSectionComponent
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
   private initialSyncDone = true;
+  private didInitialDayBeforeScroll = false;
 
   ngOnInit(): void {
     this.facade.tooltip.initLanguage();
@@ -352,7 +355,29 @@ export class ScheduleSectionComponent
 
       const resetScroll = isNewRead && readState.resetScroll && !this.settings.isTimelineMode;
       this.withSurface((surface) => surface.Refresh(resetScroll));
+
+      if (!this.didInitialDayBeforeScroll && isNewRead) {
+        this.didInitialDayBeforeScroll = true;
+        setTimeout(() => this.scrollHorizontalToPeriodStart(), 0);
+      }
     }));
+  }
+
+  private scrollHorizontalToPeriodStart(): void {
+    const dayBefore = this.appSettings.workSettings().dayVisibleBefore ?? 0;
+    if (dayBefore <= 0) return;
+
+    this.hScrollbar.value = dayBefore;
+    this.scrollService.horizontalScrollPosition = dayBefore;
+    this.hScrollService.forceSetPosition(dayBefore);
+    this.hScrollPositionChange.emit(dayBefore);
+
+    const innerScrollbar = this.scheduleHScrollbar?.scrollbar;
+    if (innerScrollbar) {
+      innerScrollbar.value = dayBefore;
+      innerScrollbar.refresh();
+    }
+    this.cdr.markForCheck();
   }
 
   private wireHScrollPositionEffect(): void {
