@@ -13,4 +13,5 @@ export class StorageKeys {
   public static readonly CURRENT_LANG = 'CURRENT_LANG';
   public static readonly WIZARD_AUCTION_RATIO = 'wizard.auctionRatio';
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
+  public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';
 }

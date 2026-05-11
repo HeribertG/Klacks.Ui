@@ -100,6 +100,51 @@
   border-bottom: 1px solid var(--cardBorderColor);
 }
 
+.section-drag-item {
+  &.cdk-drag-preview {
+    opacity: 0.85;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background-color: var(--backgroundColorCard);
+    border-radius: 4px;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 200ms ease;
+  }
+}
+
+.section-drag-placeholder {
+  height: 40px;
+  border: 2px dashed var(--cardBorderColor);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  background-color: var(--backgroundColorSubCards);
+  opacity: 0.5;
+}
+
+.section-drag-handle {
+  display: flex;
+  align-items: center;
+  padding-inline-end: 8px;
+  cursor: grab;
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
 .section-menu-row {
   display: flex;
   align-items: center;

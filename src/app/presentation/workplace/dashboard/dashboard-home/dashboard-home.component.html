@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div
   class="container-dashboard"
   data-klacksy-target="dashboard"
@@ -6,7 +8,6 @@
   data-klacksy-route="/workplace/dashboard"
 >
   <div class="container-headline">
-    <!-- <h1 class="container-dashboard-header">{{ 'dashboard.clients.headline' | translate }}</h1> -->
     <div class="headline-actions">
       <button
         id="dashboard-expand-all-btn"
@@ -65,108 +66,62 @@
       </div>
     </div>
   </div>
-  <!-- <div class="container-dashboard-line"></div> -->
 
-  <div class="container-dashboard-content">
-    @if (isAuthorised) {
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      @if (sectionVisibility["overview"]) {
+  <div
+    class="container-dashboard-content"
+    cdkDropList
+    (cdkDropListDropped)="onSectionDrop($event)"
+  >
+    @for (key of visibleSectionOrder; track key; let first = $first) {
+      <div cdkDrag class="section-drag-item">
         <div
-          id="dashboard-section-overview"
-          class="section-header first"
-          tabindex="0"
-          role="button"
-          (click)="toggleSection('overview')"
-          (keydown.enter)="toggleSection('overview')"
-        >
-          <span>{{ "dashboard.section.overview" | translate }}</span>
-          <button class="section-toggle-button">
-            @if (sections["overview"]) {
-              <app-icon-angle-down></app-icon-angle-down>
-            } @else {
-              <app-icon-angle-right></app-icon-angle-right>
-            }
-          </button>
-        </div>
-        @if (sections["overview"]) {
-          <div class="container-dashboard-charts-row">
-            <app-dashboard-clients-overview></app-dashboard-clients-overview>
-            <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
-          </div>
-        }
-      }
-
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      @if (sectionVisibility["coverage"]) {
-        <div
-          id="dashboard-section-coverage"
           class="section-header"
+          [class.first]="first"
           tabindex="0"
           role="button"
-          (click)="toggleSection('coverage')"
-          (keydown.enter)="toggleSection('coverage')"
+          (click)="toggleSection(key)"
+          (keydown.enter)="toggleSection(key)"
         >
-          <span>{{ "dashboard.section.coverage" | translate }}</span>
+          <span
+            class="section-drag-handle"
+            [class.hidden]="sections[key]"
+            cdkDragHandle
+            (click)="$event.stopPropagation()"
+          >
+            <app-icon-grip-vertical></app-icon-grip-vertical>
+          </span>
+          <span>{{ "dashboard.section." + key | translate }}</span>
           <button class="section-toggle-button">
-            @if (sections["coverage"]) {
+            @if (sections[key]) {
               <app-icon-angle-down></app-icon-angle-down>
             } @else {
               <app-icon-angle-right></app-icon-angle-right>
             }
           </button>
         </div>
-        @if (sections["coverage"]) {
-          <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
-        }
-      }
 
-      <!-- ═══════════════════════════════════════════════════════════ -->
-      @if (sectionVisibility["resources"]) {
-        <div
-          id="dashboard-section-resources"
-          class="section-header"
-          tabindex="0"
-          role="button"
-          (click)="toggleSection('resources')"
-          (keydown.enter)="toggleSection('resources')"
-        >
-          <span>{{ "dashboard.section.resources" | translate }}</span>
-          <button class="section-toggle-button">
-            @if (sections["resources"]) {
-              <app-icon-angle-down></app-icon-angle-down>
-            } @else {
-              <app-icon-angle-right></app-icon-angle-right>
+        @if (sections[key]) {
+          @switch (key) {
+            @case ("overview") {
+              <div class="container-dashboard-charts-row">
+                <app-dashboard-clients-overview></app-dashboard-clients-overview>
+                <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+              </div>
             }
-          </button>
-        </div>
-        @if (sections["resources"]) {
-          <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
-        }
-      }
-    }
-
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    @if (sectionVisibility["locations"]) {
-      <div
-        id="dashboard-section-locations"
-        class="section-header"
-        tabindex="0"
-        role="button"
-        (click)="toggleSection('locations')"
-        (keydown.enter)="toggleSection('locations')"
-      >
-        <span>{{ "dashboard.section.locations" | translate }}</span>
-        <button class="section-toggle-button">
-          @if (sections["locations"]) {
-            <app-icon-angle-down></app-icon-angle-down>
-          } @else {
-            <app-icon-angle-right></app-icon-angle-right>
+            @case ("coverage") {
+              <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
+            }
+            @case ("resources") {
+              <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
+            }
+            @case ("locations") {
+              <app-dashboard-clients-locations></app-dashboard-clients-locations>
+            }
           }
-        </button>
+        }
+
+        <div *cdkDragPlaceholder class="section-drag-placeholder"></div>
       </div>
-      @if (sections["locations"]) {
-        <app-dashboard-clients-locations></app-dashboard-clients-locations>
-      }
     }
   </div>
 </div>

@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Main dashboard component with collapsible and individually hideable sections.
+ * Main dashboard component with collapsible, hideable and reorderable sections.
  * @param sections - Record of section expand/collapse states (open/closed)
  * @param sectionVisibility - Record of section visibility states (shown/hidden), persisted in localStorage
+ * @param sectionOrder - Display order of sections, persisted in localStorage
  */
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
@@ -26,6 +28,9 @@ import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-co
 import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expand-all-grey.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-settings-three.component';
+import { IconGripVerticalComponent } from 'src/app/presentation/icons/icon-grip-vertical.component';
+
+const DEFAULT_SECTION_ORDER = ['overview', 'coverage', 'resources', 'locations'];
 
 @Component({
   selector: 'app-dashboard-home',
@@ -34,6 +39,10 @@ import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-sett
   standalone: true,
   imports: [
     TranslateModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPlaceholder,
     DashboardClientsOverviewComponent,
     DashboardClientsLocationsComponent,
     DashboardShiftsOverviewComponent,
@@ -45,6 +54,7 @@ import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-sett
     IconExpandAllGreyComponent,
     ClickOutsideDirective,
     IconSettingsThreeComponent,
+    IconGripVerticalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -74,8 +84,16 @@ export class DashboardHomeComponent implements OnInit {
     locations: true,
   };
 
+  sectionOrder: string[] = [...DEFAULT_SECTION_ORDER];
+
   get isAuthorised(): boolean {
     return this.authorizationService.isAuthorised;
+  }
+
+  get visibleSectionOrder(): string[] {
+    return this.sectionOrder.filter(
+      (k) => this.sectionVisibility[k] && (this.isAuthorised || k === 'locations')
+    );
   }
 
   ngOnInit(): void {
@@ -85,6 +103,7 @@ export class DashboardHomeComponent implements OnInit {
     this.workplaceStateService.isFocusChanged.set(true);
     this.layoutService.setContainerToNormalSize();
     this.loadSectionVisibility();
+    this.loadSectionOrder();
   }
 
   toggleSection(section: string): void {
@@ -112,6 +131,16 @@ export class DashboardHomeComponent implements OnInit {
     this.saveSectionVisibility();
   }
 
+  onSectionDrop(event: CdkDragDrop<string[]>): void {
+    const visibleKeys = this.sectionOrder.filter((k) => this.sectionVisibility[k]);
+    moveItemInArray(visibleKeys, event.previousIndex, event.currentIndex);
+    let visibleIdx = 0;
+    this.sectionOrder = this.sectionOrder.map((k) =>
+      this.sectionVisibility[k] ? visibleKeys[visibleIdx++] : k
+    );
+    this.saveSectionOrder();
+  }
+
   private loadSectionVisibility(): void {
     try {
       const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY) as Record<string, boolean> | null;
@@ -130,5 +159,23 @@ export class DashboardHomeComponent implements OnInit {
 
   private saveSectionVisibility(): void {
     this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY, this.sectionVisibility);
+  }
+
+  private loadSectionOrder(): void {
+    try {
+      const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_ORDER) as string[] | null;
+      if (!Array.isArray(stored)) {
+        return;
+      }
+      const valid = stored.filter((k) => DEFAULT_SECTION_ORDER.includes(k));
+      const missing = DEFAULT_SECTION_ORDER.filter((k) => !valid.includes(k));
+      this.sectionOrder = [...valid, ...missing];
+    } catch {
+      // Silently fall back to default order on corrupt storage
+    }
+  }
+
+  private saveSectionOrder(): void {
+    this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_ORDER, this.sectionOrder);
   }
 }
