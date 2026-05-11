@@ -451,6 +451,16 @@ export class ScheduleEntryCrudService {
     return clientRanges;
   }
 
+  private buildRefreshFilter(startDate: Date, endDate: Date): IWorkScheduleFilter {
+    const groupSelection = this.injector.get(GroupSelectionService);
+    return {
+      startDate: formatDateOnly(startDate),
+      endDate: formatDateOnly(endDate),
+      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
+      selectedGroup: groupSelection.selectedGroupId ?? undefined,
+    };
+  }
+
   public refreshClientScheduleForDays(clientId: string, centerDate: Date): Promise<void> {
     const startDate = addDays(centerDate, -1);
     const endDate = addDays(centerDate, 1);
@@ -458,14 +468,11 @@ export class ScheduleEntryCrudService {
   }
 
   public async refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): Promise<void> {
-    const filter: IWorkScheduleFilter = {
-      startDate: formatDateOnly(startDate),
-      endDate: formatDateOnly(endDate),
-      analyseToken: this.analyseScenarioService.activeToken() ?? undefined,
-    };
+    const filter = this.buildRefreshFilter(startDate, endDate);
 
     const response = await firstValueFrom(this.dataWorkSchedule.getWorkSchedule(filter));
     const clientEntries = response.entries.filter(e => e.clientId === clientId);
+
     this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
 
     this.triggerScheduleRefresh();
