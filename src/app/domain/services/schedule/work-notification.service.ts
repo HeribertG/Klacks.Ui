@@ -61,8 +61,6 @@ export class WorkNotificationService {
       return;
     }
 
-    console.log('Received work notification:', notification);
-
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
 
     if (clientDisplayed) {
@@ -97,8 +95,6 @@ export class WorkNotificationService {
   private executeQueuedRefreshes(): void {
     if (this._pendingRefreshes.size === 0) return;
 
-    console.log(`SignalR: Executing queued refreshes for ${this._pendingRefreshes.size} clients`);
-
     for (const [clientId, range] of this._pendingRefreshes) {
       const startDate = new Date(range.minDate);
       const endDate = new Date(range.maxDate);
@@ -107,7 +103,7 @@ export class WorkNotificationService {
       bufferedStart.setDate(bufferedStart.getDate() - 1);
       const bufferedEnd = new Date(endDate);
       bufferedEnd.setDate(bufferedEnd.getDate() + 1);
-      
+
       this.dataManagementSchedule.refreshClientScheduleForDateRange(clientId, bufferedStart, bufferedEnd);
     }
 
