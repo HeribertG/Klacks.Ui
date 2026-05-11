@@ -80,27 +80,13 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.setupPointEditorEvents();
     this.setupEffects();
     this.setupConnectorInteraction();
+    this.setupContextMenuInteraction();
   }
 
   ngOnDestroy(): void {
     this.canvasService.disposeCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
-  }
-
-  onContextMenu(event: MouseEvent): void {
-    event.preventDefault();
-    const canvas = this.canvasService.getCanvas();
-    if (canvas && !canvas.getActiveObject()) {
-      const found = (canvas as any).findTarget(event);
-      const target = found?.target ?? found;
-      if (target && typeof target.set === 'function') {
-        canvas.setActiveObject(target);
-      }
-    }
-    if (this.mergeService.canMerge() || this.joinService.canJoin() || this.canEditPointsFromContext() || this.canClosePathFromContext()) {
-      this.contextMenu.open(event.offsetX, event.offsetY);
-    }
   }
 
   private canEditPointsFromContext(): boolean {
@@ -290,6 +276,25 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     canvas.on('mouse:down', this.onConnectorMouseDown);
     canvas.on('mouse:move', this.onConnectorMouseMove);
     canvas.on('mouse:up', this.onConnectorMouseUp);
+  }
+
+  private setupContextMenuInteraction(): void {
+    const canvas = this.canvasService.getCanvas();
+    if (!canvas) return;
+
+    canvas.on('contextmenu', (opt: any) => {
+      const e = opt.e as MouseEvent;
+      e.preventDefault();
+
+      if (opt.target && !canvas.getActiveObject()) {
+        canvas.setActiveObject(opt.target);
+      }
+
+      if (this.mergeService.canMerge() || this.joinService.canJoin() ||
+          this.canEditPointsFromContext() || this.canClosePathFromContext()) {
+        this.contextMenu.open(e.clientX, e.clientY);
+      }
+    });
   }
 
   private setupConnectorInteraction(): void {
