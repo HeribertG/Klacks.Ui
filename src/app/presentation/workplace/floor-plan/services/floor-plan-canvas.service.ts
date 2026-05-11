@@ -6,6 +6,7 @@ import {
   Rect,
   Circle,
   Line,
+  Path,
   Textbox,
   FabricImage,
   PencilBrush,
@@ -560,6 +561,18 @@ export class FloorPlanCanvasService {
       this.canvas!.add(item);
     });
 
+    this.canvas.renderAll();
+  }
+
+  closeSelectedPath(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!(obj instanceof Path)) return;
+    const cmds = (obj as any).path as any[][];
+    if (cmds.some((cmd: any[]) => cmd[0] === 'Z')) return;
+    cmds.push(['Z']);
+    obj.setCoords();
+    this.saveHistory();
     this.canvas.renderAll();
   }
 

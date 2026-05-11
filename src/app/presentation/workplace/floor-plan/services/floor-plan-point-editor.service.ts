@@ -286,21 +286,61 @@ export class FloorPlanPointEditorService {
 
   private deleteSegment(endNodeIndex: number): void {
     if (!this.canvas) return;
+
     if (endNodeIndex === CLOSING_SEGMENT_INDEX) {
       if (!this.isClosed) return;
       this.isClosed = false;
     } else {
       if (endNodeIndex <= 0 || endNodeIndex >= this.nodes.length) return;
       if (this.nodes[endNodeIndex].command === 'M') return;
-      const node = this.nodes[endNodeIndex];
-      this.nodes[endNodeIndex] = { command: 'M', x: node.x, y: node.y };
-      this.isClosed = false;
+
+      if (this.isClosed) {
+        this.rotateAndOpenPath(endNodeIndex);
+      } else if (endNodeIndex === 1) {
+        const newStart = this.nodes[1];
+        this.nodes.splice(1, 1);
+        this.nodes[0] = { command: 'M', x: newStart.x, y: newStart.y };
+      } else if (endNodeIndex === this.nodes.length - 1) {
+        this.nodes.splice(endNodeIndex, 1);
+      } else {
+        const node = this.nodes[endNodeIndex];
+        this.nodes[endNodeIndex] = { command: 'M', x: node.x, y: node.y };
+      }
     }
+
     this._selectedNodeIndex.set(null);
     this.canvas.discardActiveObject();
     this.rebuildPath();
     this.spawnHandles();
     this.canvas.renderAll();
+  }
+
+  private rotateAndOpenPath(splitIndex: number): void {
+    const n = this.nodes.length;
+    const newNodes: PathNode[] = [];
+
+    newNodes.push({ command: 'M', x: this.nodes[splitIndex].x, y: this.nodes[splitIndex].y });
+
+    for (let i = splitIndex + 1; i < n; i++) {
+      newNodes.push({ ...this.nodes[i] });
+    }
+
+    const lastNode = newNodes[newNodes.length - 1];
+    const firstOriginal = this.nodes[0];
+    const needsWrapAround =
+      Math.abs(lastNode.x - firstOriginal.x) > 0.01 ||
+      Math.abs(lastNode.y - firstOriginal.y) > 0.01;
+
+    if (needsWrapAround) {
+      newNodes.push({ command: 'L', x: firstOriginal.x, y: firstOriginal.y });
+    }
+
+    for (let i = 1; i < splitIndex; i++) {
+      newNodes.push({ ...this.nodes[i] });
+    }
+
+    this.nodes = newNodes;
+    this.isClosed = false;
   }
 
   onHandleMoved(handle: FabricObject): void {

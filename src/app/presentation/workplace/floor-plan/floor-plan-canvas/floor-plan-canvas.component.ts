@@ -90,7 +90,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
-    if (this.mergeService.canMerge() || this.joinService.canJoin() || this.canEditPointsFromContext()) {
+    if (this.mergeService.canMerge() || this.joinService.canJoin() || this.canEditPointsFromContext() || this.canClosePathFromContext()) {
       this.contextMenu.open(event.offsetX, event.offsetY);
     }
   }
@@ -103,6 +103,13 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (d.isConnector || d.isPortIndicator || d.isPointHandle || d.isArrowhead || d.isMidpointHandle) return false;
     return obj instanceof Rect || obj instanceof Circle ||
            obj instanceof Polygon || obj instanceof Path || obj instanceof Line;
+  }
+
+  private canClosePathFromContext(): boolean {
+    const obj = this.canvasService.selectedObject();
+    if (!(obj instanceof Path)) return false;
+    const cmds = (obj as any).path as any[][];
+    return !cmds.some((cmd: any[]) => cmd[0] === 'Z');
   }
 
   private setupEffects(): void {

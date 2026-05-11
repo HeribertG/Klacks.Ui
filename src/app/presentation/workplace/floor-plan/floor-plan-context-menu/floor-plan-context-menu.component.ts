@@ -36,6 +36,13 @@ export class FloorPlanContextMenuComponent {
   readonly pointEditorService = inject(FloorPlanPointEditorService);
   private readonly canvasService = inject(FloorPlanCanvasService);
 
+  readonly canClosePath = computed(() => {
+    const obj = this.canvasService.selectedObject();
+    if (!(obj instanceof Path)) return false;
+    const cmds = (obj as any).path as any[][];
+    return !cmds.some((cmd: any[]) => cmd[0] === 'Z');
+  });
+
   readonly canEditPoints = computed(() => {
     const obj = this.canvasService.selectedObject();
     if (!obj) return false;
@@ -79,6 +86,11 @@ export class FloorPlanContextMenuComponent {
     if (!obj) return;
     this.close();
     this.pointEditorService.enterEditMode(obj);
+  }
+
+  onClosePath(): void {
+    this.canvasService.closeSelectedPath();
+    this.close();
   }
 
   @HostListener('document:click')
