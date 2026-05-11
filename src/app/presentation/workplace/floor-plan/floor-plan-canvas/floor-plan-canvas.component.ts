@@ -90,6 +90,13 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
   onContextMenu(event: MouseEvent): void {
     event.preventDefault();
+    const canvas = this.canvasService.getCanvas();
+    if (canvas && !canvas.getActiveObject()) {
+      const target = canvas.findTarget(event);
+      if (target) {
+        canvas.setActiveObject(target);
+      }
+    }
     if (this.mergeService.canMerge() || this.joinService.canJoin() || this.canEditPointsFromContext() || this.canClosePathFromContext()) {
       this.contextMenu.open(event.offsetX, event.offsetY);
     }
