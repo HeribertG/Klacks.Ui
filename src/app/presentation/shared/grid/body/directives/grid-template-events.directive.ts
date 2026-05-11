@@ -70,10 +70,17 @@ export class GridTemplateEventsDirective {
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;
 
+  private readonly DRAG_SCROLL_INITIAL_INTERVAL_MS = 220;
+  private readonly DRAG_SCROLL_MIN_INTERVAL_MS = 25;
+  private readonly DRAG_SCROLL_DECAY_TAU_MS = 700;
+
   private keyDown = false;
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
+
+  private edgeEnterTime: number | null = null;
+  private lastScrollEmitTime = 0;
 
   private lastGoRightTime = 0;
   private lastGoLeftTime = 0;
@@ -528,35 +535,50 @@ export class GridTemplateEventsDirective {
   }
 
   scrollOnPoint(pos: MyPosition) {
-    if (pos.column < this.scrollGrid.horizontalScrollPosition) {
-      this.gridSurface.valueHScrollbar.emit(
-        this.scrollGrid.horizontalScrollPosition - 1
-      );
+    const hScrollPos = this.scrollGrid.horizontalScrollPosition;
+    const vScrollPos = this.scrollGrid.verticalScrollPosition;
+    const lastVisibleColumn = hScrollPos + this.scrollGrid.visibleCols - 1;
+    const lastVisibleRow = vScrollPos + this.scrollGrid.visibleRows - 2;
+
+    const atLeftEdge = hScrollPos > 0 && pos.column <= hScrollPos;
+    const atRightEdge = pos.column >= lastVisibleColumn;
+    const atTopEdge = vScrollPos > 0 && pos.row <= vScrollPos;
+    const atBottomEdge = pos.row >= lastVisibleRow;
+
+    if (!atLeftEdge && !atRightEdge && !atTopEdge && !atBottomEdge) {
+      this.edgeEnterTime = null;
       return;
     }
 
-    const lastVisibleColum =
-      this.scrollGrid.visibleCols + this.scrollGrid.horizontalScrollPosition;
+    const now = Date.now();
+    if (this.edgeEnterTime === null) {
+      this.edgeEnterTime = now;
+      this.lastScrollEmitTime = 0;
+    }
 
-    if (pos.column > lastVisibleColum) {
-      this.gridSurface.valueHScrollbar.emit(
-        this.scrollGrid.horizontalScrollPosition + 1
-      );
+    const elapsed = now - this.edgeEnterTime;
+    const interval =
+      this.DRAG_SCROLL_MIN_INTERVAL_MS +
+      (this.DRAG_SCROLL_INITIAL_INTERVAL_MS -
+        this.DRAG_SCROLL_MIN_INTERVAL_MS) *
+        Math.exp(-elapsed / this.DRAG_SCROLL_DECAY_TAU_MS);
+
+    if (now - this.lastScrollEmitTime < interval) {
       return;
     }
 
-    if (pos.row < this.scrollGrid.verticalScrollPosition) {
-      this.gridSurface.valueHScrollbar.emit(
-        this.scrollGrid.verticalScrollPosition - 1
-      );
-      return;
+    this.lastScrollEmitTime = now;
+
+    if (atLeftEdge) {
+      this.gridSurface.valueHScrollbar.emit(hScrollPos - 1);
+    } else if (atRightEdge) {
+      this.gridSurface.valueHScrollbar.emit(hScrollPos + 1);
     }
 
-    const lastVisibleRow =
-      this.scrollGrid.visibleRows + this.scrollGrid.verticalScrollPosition;
-
-    if (pos.row >= lastVisibleRow) {
-      return;
+    if (atTopEdge) {
+      this.gridSurface.valueVScrollbar.emit(vScrollPos - 1);
+    } else if (atBottomEdge) {
+      this.gridSurface.valueVScrollbar.emit(vScrollPos + 1);
     }
   }
 
