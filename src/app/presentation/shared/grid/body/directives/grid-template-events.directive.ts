@@ -185,6 +185,7 @@ export class GridTemplateEventsDirective {
       }
       this.respondToLeftButtonMouseDown(event);
       this.scheduleEvents.tryPrepareShiftDrag(event);
+      this.scheduleEvents.tryPrepareScheduleCellDrag(event);
     } else if (event.buttons === 2) {
       this.respondToRightButtonMouseDown(event);
     }
@@ -192,8 +193,13 @@ export class GridTemplateEventsDirective {
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
     this.scheduleEvents.cancelPendingDrag();
+    this.scheduleEvents.cancelPendingScheduleCellDrag();
 
     if (this.scheduleEvents.isShiftDragging()) {
+      return;
+    }
+
+    if (this.scheduleEvents.isScheduleCellDragging()) {
       return;
     }
 
@@ -226,6 +232,18 @@ export class GridTemplateEventsDirective {
   onMouseMove(event: MouseEvent): void {
     if (this.scheduleEvents.isShiftDragging()) {
       this.scheduleEvents.updateShiftDragPosition(event.clientY);
+      return;
+    }
+
+    if (this.scheduleEvents.isScheduleCellDragging()) {
+      this.scheduleEvents.updateScheduleCellDragPosition(event.clientY);
+      return;
+    }
+
+    if (this.scheduleEvents.tryStartPendingScheduleCellDrag(event)) {
+      this.isDrawing = false;
+      this.hasCollection = false;
+      this.gridSurface.drawSchedule.destroySelection();
       return;
     }
 
@@ -320,6 +338,12 @@ export class GridTemplateEventsDirective {
   @HostListener('window:keydown', ['$event']) onKeyDown(
     event: KeyboardEvent
   ): void {
+    if (event.key === 'Escape' && this.scheduleEvents.isScheduleCellDragging()) {
+      this.scheduleEvents.cancelScheduleCellDrag();
+      this.stopEvent(event);
+      return;
+    }
+
     this.keyDown = true;
 
     if (!this.isOwnElement(event)) {

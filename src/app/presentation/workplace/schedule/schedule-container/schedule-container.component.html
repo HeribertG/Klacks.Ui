@@ -40,3 +40,26 @@
     {{ shiftDragService.dragData()?.abbreviation }}
   </div>
 }
+
+@if (cellDragService.isDragging()) {
+  @let source = cellDragService.source();
+  <div
+    class="cell-drag-overlay"
+    [class.delete-drop]="cellDragService.showDeleteIndicator()"
+    [class.valid-move]="cellDragService.showMoveIndicator()"
+    [class.snap-back]="cellDragService.showSnapBackIndicator()"
+    [style.left.px]="source?.startX"
+    [style.top.px]="cellDragService.currentY()"
+    [style.width.px]="source?.cellWidth"
+    [style.height.px]="source?.cellHeight"
+  >
+    @if (source?.snapshotDataUrl) {
+      <img class="snapshot" [src]="source?.snapshotDataUrl" alt="" draggable="false" />
+    } @else {
+      <span class="label">{{ source?.abbreviation }}</span>
+    }
+    @if (cellDragService.showDeleteIndicator()) {
+      <span class="icon" aria-hidden="true">&#x1F5D1;</span>
+    }
+  </div>
+}

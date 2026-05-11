@@ -33,6 +33,7 @@ import { CommonModule } from '@angular/common';
 import { ScheduleSectionComponent } from '../schedule-section/schedule-section.component';
 import { ShiftSectionComponent } from '../shift-section/shift-section.component';
 import { ShiftToScheduleDragDropService } from '../services/shift-to-schedule-drag-drop.service';
+import { ScheduleCellDragDropService } from '../schedule-section/services/schedule-cell-drag-drop.service';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
 
@@ -61,6 +62,7 @@ export class ScheduleContainerComponent {
   direction = inject(DirectionService).direction;
 
   public shiftDragService = inject(ShiftToScheduleDragDropService);
+  public cellDragService = inject(ScheduleCellDragDropService);
   private viewModeService = inject(ScheduleViewModeService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -71,6 +73,14 @@ export class ScheduleContainerComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(event => {
       this.onDocumentMouseMove(event);
+    });
+
+    fromEvent<MouseEvent>(document, 'mousemove').pipe(
+      throttleTime(16),
+      filter(() => this.cellDragService.isDragging()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(event => {
+      this.onCellDragMouseMove(event);
     });
   }
 
@@ -89,12 +99,59 @@ export class ScheduleContainerComponent {
 
   @HostListener('document:mouseup', ['$event'])
   onDocumentMouseUp(event: MouseEvent): void {
-    if (!this.shiftDragService.isDragging()) return;
-
-    const result = this.shiftDragService.endDrag();
-    if (result && this.scheduleSection) {
-      this.scheduleSection.handleShiftDrop(result);
+    if (this.shiftDragService.isDragging()) {
+      const result = this.shiftDragService.endDrag();
+      if (result && this.scheduleSection) {
+        this.scheduleSection.handleShiftDrop(result);
+      }
+      return;
     }
+
+    if (this.cellDragService.isDragging()) {
+      const result = this.cellDragService.endDrag();
+      if (result && this.scheduleSection) {
+        this.scheduleSection.handleScheduleCellDrop(result);
+      }
+    }
+  }
+
+  onCellDragMouseMove(event: MouseEvent): void {
+    this.cellDragService.updateDragPosition(event.clientY);
+    this.updateCellDragMoveTarget(event);
+  }
+
+  private updateCellDragMoveTarget(event: MouseEvent): void {
+    if (!this.scheduleSection) {
+      this.cellDragService.setOverTable(false);
+      return;
+    }
+
+    const rect = this.scheduleSection.getHostRect();
+    const isOver =
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom &&
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right;
+
+    this.cellDragService.setOverTable(isOver);
+
+    if (!isOver) return;
+
+    const source = this.cellDragService.source();
+    if (!source) return;
+
+    const dropInfo = this.scheduleSection.getDropTargetInfo(
+      event.clientY,
+      source.column,
+    );
+    if (!dropInfo) {
+      this.cellDragService.clearMoveTarget();
+      return;
+    }
+
+    const isDifferentClient = dropInfo.clientId !== source.clientId;
+    const isValidMove = isDifferentClient && dropInfo.isEmpty;
+    this.cellDragService.setMoveTarget(dropInfo.row, dropInfo.clientId, isValidMove);
   }
 
   private updateDropTarget(event: MouseEvent): void {

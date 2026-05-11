@@ -75,6 +75,8 @@ import { ScheduleContextMenuService } from './services/schedule-context-menu.ser
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
 import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import { ScheduleCellDropHandlerService } from './services/schedule-cell-drop-handler.service';
+import { ScheduleCellDropResult } from './services/schedule-cell-drag-drop.service';
 import {
   ScheduleMenuDispatcherService,
   ScheduleMenuHost,
@@ -135,6 +137,7 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
     ScheduleEntryActionsService,
     ScheduleDialogService,
     ScheduleDragDropService,
+    ScheduleCellDropHandlerService,
     ScheduleMenuDispatcherService,
     ScheduleNavigationService,
     ScheduleBreakBarRenderService,
@@ -432,6 +435,10 @@ export class ScheduleSectionComponent
 
   handleShiftDrop(result: ShiftDropResult): void {
     this.facade.dragDrop.handleShiftDrop(result);
+  }
+
+  handleScheduleCellDrop(result: ScheduleCellDropResult): void {
+    this.facade.cellDropHandler.handleDrop(result);
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {

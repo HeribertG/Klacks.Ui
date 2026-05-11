@@ -24,6 +24,7 @@ import { ScheduleContextMenuService } from './schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './schedule-entry-actions.service';
 import { ScheduleDialogService } from './schedule-dialog.service';
 import { ScheduleDragDropService } from './schedule-drag-drop.service';
+import { ScheduleCellDropHandlerService } from './schedule-cell-drop-handler.service';
 import { ScheduleNavigationService } from './schedule-navigation.service';
 import { ScheduleBreakBarRenderService } from './schedule-break-bar-render.service';
 import { BaseGridRenderService } from 'src/app/presentation/shared/grid/services/body/grid-render.service';
@@ -43,6 +44,7 @@ export class ScheduleSectionFacadeService {
   readonly entryActions = inject(ScheduleEntryActionsService);
   readonly dialog = inject(ScheduleDialogService);
   readonly dragDrop = inject(ScheduleDragDropService);
+  readonly cellDropHandler = inject(ScheduleCellDropHandlerService);
   readonly navigation = inject(ScheduleNavigationService);
   readonly breakBarRender = inject(ScheduleBreakBarRenderService);
   readonly gridRender = inject(BaseGridRenderService);

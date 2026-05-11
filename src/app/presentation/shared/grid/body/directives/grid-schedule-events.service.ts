@@ -8,8 +8,11 @@
  */
 import { EventEmitter, inject, Injectable } from '@angular/core';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
+import { ScheduleCellDragDropService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-cell-drag-drop.service';
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
@@ -22,9 +25,12 @@ import { GridDoubleClickEvent } from './grid-template-events.directive';
 @Injectable()
 export class GridScheduleEventsService {
   private readonly gridData = inject(BaseDataService);
+  private readonly gridSettings = inject(BaseSettingsService);
   private readonly gridSurface = inject(GridSurfaceTemplateComponent);
   private readonly cellManipulation = inject(BaseCellManipulationService);
+  private readonly scrollService = inject(ScrollService);
   private readonly shiftDragService = inject(ShiftToScheduleDragDropService);
+  private readonly cellDragService = inject(ScheduleCellDragDropService);
   private readonly dataManagementSchedule = inject(DataManagementScheduleService);
 
   private readonly DRAG_DELAY_MS = 150;
@@ -145,6 +151,117 @@ export class GridScheduleEventsService {
 
   updateShiftDragPosition(clientY: number): void {
     this.shiftDragService.updateDragPosition(clientY);
+  }
+
+  tryPrepareScheduleCellDrag(event: MouseEvent): void {
+    if (this.gridSurface.nameId !== 'surface') {
+      return;
+    }
+
+    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    const scheduleDataService = this.gridData as ScheduleDataService;
+    if (scheduleDataService.isColumnSealed(pos.column)) {
+      return;
+    }
+
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    if (!entry) {
+      return;
+    }
+    if (entry.entryType !== WorkScheduleEntryType.Work && entry.entryType !== WorkScheduleEntryType.Break) {
+      return;
+    }
+    if (entry.lockLevel > 0 || entry.isGroupRestricted) {
+      return;
+    }
+
+    const date = scheduleDataService.getDateForColumn(pos.column);
+    if (!date) {
+      return;
+    }
+
+    const cellWidth = this.gridSettings.cellWidth;
+    const cellHeight = this.gridSettings.cellHeight;
+    const snapshotDataUrl = this.captureCellSnapshot(pos.row, pos.column, cellWidth, cellHeight);
+
+    this.cellDragService.tryPrepareDrag({
+      row: pos.row,
+      column: pos.column,
+      clientId: entry.clientId,
+      date,
+      id: entry.id,
+      sourceId: entry.sourceId,
+      entryId: entry.entryId,
+      entryType: entry.entryType,
+      abbreviation: entry.abbreviation ?? '',
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      startX: event.clientX,
+      startY: event.clientY,
+      cellWidth,
+      cellHeight,
+      snapshotDataUrl,
+    });
+  }
+
+  private captureCellSnapshot(
+    row: number,
+    column: number,
+    cellWidth: number,
+    cellHeight: number,
+  ): string | null {
+    const sourceCanvas = this.gridSurface.canvasRef?.nativeElement;
+    if (!sourceCanvas) return null;
+
+    const dpr = window.devicePixelRatio || 1;
+    const headerHeight = this.gridSettings.hasHeader ? this.gridSettings.cellHeaderHeight : 0;
+    const cssX = (column - this.scrollService.horizontalScrollPosition) * cellWidth;
+    const cssY = headerHeight + (row - this.scrollService.verticalScrollPosition) * cellHeight;
+
+    const sx = cssX * dpr;
+    const sy = cssY * dpr;
+    const sw = cellWidth * dpr;
+    const sh = cellHeight * dpr;
+
+    if (sx < 0 || sy < 0 || sx + sw > sourceCanvas.width || sy + sh > sourceCanvas.height) {
+      return null;
+    }
+
+    try {
+      const target = document.createElement('canvas');
+      target.width = sw;
+      target.height = sh;
+      const ctx = target.getContext('2d');
+      if (!ctx) return null;
+      ctx.drawImage(sourceCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+      return target.toDataURL('image/png');
+    } catch {
+      return null;
+    }
+  }
+
+  tryStartPendingScheduleCellDrag(event: MouseEvent): boolean {
+    return this.cellDragService.tryStartFromMove(event.clientX, event.clientY);
+  }
+
+  cancelPendingScheduleCellDrag(): void {
+    this.cellDragService.cancelPending();
+  }
+
+  isScheduleCellDragging(): boolean {
+    return this.cellDragService.isDragging();
+  }
+
+  updateScheduleCellDragPosition(clientY: number): void {
+    this.cellDragService.updateDragPosition(clientY);
+  }
+
+  cancelScheduleCellDrag(): void {
+    this.cellDragService.cancelDrag();
   }
 
   handleDeleteKey(): void {
