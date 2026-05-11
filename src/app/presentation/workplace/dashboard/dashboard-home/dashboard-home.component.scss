@@ -80,11 +80,11 @@
   position: absolute;
   top: calc(100% + 4px);
   inset-inline-end: 0;
-  background-color: var(--backgroundColorCards);
+  background-color: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);
   border-radius: 8px;
   min-width: 190px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   z-index: 100;
   overflow: hidden;
 }
