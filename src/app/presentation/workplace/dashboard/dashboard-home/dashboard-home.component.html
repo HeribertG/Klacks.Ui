@@ -14,6 +14,34 @@
       <button id="dashboard-collapse-all-btn" class="headline-action-button" (click)="collapseAll()">
         <app-collapse-all-grey></app-collapse-all-grey>
       </button>
+      <div class="menu-anchor" appClickOutside (clickOutside)="closeMenu()">
+        <button
+          id="dashboard-section-menu-btn"
+          class="headline-action-button"
+          [class.active]="menuOpen()"
+          (click)="toggleMenuOpen()"
+        >
+          <i class="fa-solid fa-eye"></i>
+        </button>
+        @if (menuOpen()) {
+          <div class="section-menu-dropdown">
+            <div class="section-menu-title">Sections</div>
+            @for (key of sectionKeys; track key) {
+              <div class="section-menu-row" (click)="toggleSectionVisibility(key)">
+                <span>{{ 'dashboard.section.' + key | translate }}</span>
+                <label class="main-switch" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="sectionVisibility[key]"
+                    (change)="toggleSectionVisibility(key)"
+                  />
+                  <div class="slider round"></div>
+                </label>
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
   </div>
   <div class="container-dashboard-line"></div>
@@ -21,67 +49,75 @@
   <div class="container-dashboard-content">
     @if (isAuthorised) {
       <!-- ═══════════════════════════════════════════════════════════ -->
-      <div id="dashboard-section-overview" class="section-header first" tabindex="0" role="button" (click)="toggleSection('overview')" (keydown.enter)="toggleSection('overview')">
-        <span>{{ "dashboard.section.overview" | translate }}</span>
-        <button class="section-toggle-button">
-          @if (sections['overview']) {
-            <app-icon-angle-down></app-icon-angle-down>
-          } @else {
-            <app-icon-angle-right></app-icon-angle-right>
-          }
-        </button>
-      </div>
-      @if (sections['overview']) {
-        <div class="container-dashboard-charts-row">
-          <app-dashboard-clients-overview></app-dashboard-clients-overview>
-          <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+      @if (sectionVisibility['overview']) {
+        <div id="dashboard-section-overview" class="section-header first" tabindex="0" role="button" (click)="toggleSection('overview')" (keydown.enter)="toggleSection('overview')">
+          <span>{{ "dashboard.section.overview" | translate }}</span>
+          <button class="section-toggle-button">
+            @if (sections['overview']) {
+              <app-icon-angle-down></app-icon-angle-down>
+            } @else {
+              <app-icon-angle-right></app-icon-angle-right>
+            }
+          </button>
         </div>
+        @if (sections['overview']) {
+          <div class="container-dashboard-charts-row">
+            <app-dashboard-clients-overview></app-dashboard-clients-overview>
+            <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+          </div>
+        }
       }
 
       <!-- ═══════════════════════════════════════════════════════════ -->
-      <div id="dashboard-section-coverage" class="section-header" tabindex="0" role="button" (click)="toggleSection('coverage')" (keydown.enter)="toggleSection('coverage')">
-        <span>{{ "dashboard.section.coverage" | translate }}</span>
-        <button class="section-toggle-button">
-          @if (sections['coverage']) {
-            <app-icon-angle-down></app-icon-angle-down>
-          } @else {
-            <app-icon-angle-right></app-icon-angle-right>
-          }
-        </button>
-      </div>
-      @if (sections['coverage']) {
-        <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
+      @if (sectionVisibility['coverage']) {
+        <div id="dashboard-section-coverage" class="section-header" tabindex="0" role="button" (click)="toggleSection('coverage')" (keydown.enter)="toggleSection('coverage')">
+          <span>{{ "dashboard.section.coverage" | translate }}</span>
+          <button class="section-toggle-button">
+            @if (sections['coverage']) {
+              <app-icon-angle-down></app-icon-angle-down>
+            } @else {
+              <app-icon-angle-right></app-icon-angle-right>
+            }
+          </button>
+        </div>
+        @if (sections['coverage']) {
+          <app-dashboard-shift-coverage></app-dashboard-shift-coverage>
+        }
       }
 
       <!-- ═══════════════════════════════════════════════════════════ -->
-      <div id="dashboard-section-resources" class="section-header" tabindex="0" role="button" (click)="toggleSection('resources')" (keydown.enter)="toggleSection('resources')">
-        <span>{{ "dashboard.section.resources" | translate }}</span>
-        <button class="section-toggle-button">
-          @if (sections['resources']) {
-            <app-icon-angle-down></app-icon-angle-down>
-          } @else {
-            <app-icon-angle-right></app-icon-angle-right>
-          }
-        </button>
-      </div>
-      @if (sections['resources']) {
-        <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
+      @if (sectionVisibility['resources']) {
+        <div id="dashboard-section-resources" class="section-header" tabindex="0" role="button" (click)="toggleSection('resources')" (keydown.enter)="toggleSection('resources')">
+          <span>{{ "dashboard.section.resources" | translate }}</span>
+          <button class="section-toggle-button">
+            @if (sections['resources']) {
+              <app-icon-angle-down></app-icon-angle-down>
+            } @else {
+              <app-icon-angle-right></app-icon-angle-right>
+            }
+          </button>
+        </div>
+        @if (sections['resources']) {
+          <app-dashboard-resource-monitor></app-dashboard-resource-monitor>
+        }
       }
     }
 
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <div id="dashboard-section-locations" class="section-header" tabindex="0" role="button" (click)="toggleSection('locations')" (keydown.enter)="toggleSection('locations')">
-      <span>{{ "dashboard.section.locations" | translate }}</span>
-      <button class="section-toggle-button">
-        @if (sections['locations']) {
-          <app-icon-angle-down></app-icon-angle-down>
-        } @else {
-          <app-icon-angle-right></app-icon-angle-right>
-        }
-      </button>
-    </div>
-    @if (sections['locations']) {
-      <app-dashboard-clients-locations></app-dashboard-clients-locations>
+    @if (sectionVisibility['locations']) {
+      <div id="dashboard-section-locations" class="section-header" tabindex="0" role="button" (click)="toggleSection('locations')" (keydown.enter)="toggleSection('locations')">
+        <span>{{ "dashboard.section.locations" | translate }}</span>
+        <button class="section-toggle-button">
+          @if (sections['locations']) {
+            <app-icon-angle-down></app-icon-angle-down>
+          } @else {
+            <app-icon-angle-right></app-icon-angle-right>
+          }
+        </button>
+      </div>
+      @if (sections['locations']) {
+        <app-dashboard-clients-locations></app-dashboard-clients-locations>
+      }
     }
   </div>
 </div>
