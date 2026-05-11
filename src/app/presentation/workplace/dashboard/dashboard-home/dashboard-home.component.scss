@@ -113,4 +113,8 @@
   &:hover {
     background-color: var(--backgroundColorSubCards);
   }
+
+  .main-switch {
+    flex-shrink: 0;
+  }
 }
