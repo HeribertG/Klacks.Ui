@@ -92,8 +92,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     event.preventDefault();
     const canvas = this.canvasService.getCanvas();
     if (canvas && !canvas.getActiveObject()) {
-      const target = canvas.findTarget(event);
-      if (target) {
+      const found = (canvas as any).findTarget(event);
+      const target = found?.target ?? found;
+      if (target && typeof target.set === 'function') {
         canvas.setActiveObject(target);
       }
     }
