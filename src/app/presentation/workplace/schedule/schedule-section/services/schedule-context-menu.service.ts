@@ -119,12 +119,14 @@ export class ScheduleContextMenuService {
         }
       } else if (isLocked) {
         if (entry?.entryType === WorkScheduleEntryType.Work || entry?.entryType === WorkScheduleEntryType.Break) {
-          if (this.lockLevelService.canUnconfirm(entry, this.authService.isAdmin)) {
+          if (!entry.isGroupRestricted && this.lockLevelService.canUnconfirm(entry, this.authService.isAdmin)) {
             menuData.list.push(...MenuDataTemplate.unconfirm());
             menuData.list.push(...MenuDataTemplate.divider());
           }
         }
-        menuData.list.push(...MenuDataTemplate.showInShift());
+        if (!entry?.isGroupRestricted) {
+          menuData.list.push(...MenuDataTemplate.showInShift());
+        }
       } else {
         menuData.list.push(...MenuDataTemplate.copyCutPaste());
         menuData.list.push(...MenuDataTemplate.divider());
