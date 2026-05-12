@@ -104,8 +104,8 @@ export class ExpensesDialogComponent {
     };
 
     this.expensesService.create(request).subscribe({
-      next: () => {
-        this.refreshScheduleAndClose();
+      next: (response) => {
+        this.applyResponseAndClose(response);
       },
       error: (err) => {
         console.error('Error creating expenses:', err);
@@ -123,8 +123,8 @@ export class ExpensesDialogComponent {
     };
 
     this.expensesService.update(resource).subscribe({
-      next: () => {
-        this.refreshScheduleAndClose();
+      next: (response) => {
+        this.applyResponseAndClose(response);
       },
       error: (err) => {
         console.error('Error updating expenses:', err);
@@ -132,14 +132,15 @@ export class ExpensesDialogComponent {
     });
   }
 
-  private refreshScheduleAndClose(): void {
-    if (this.currentDate && this.clientId) {
-      this.scheduleEntryCrud.refreshClientScheduleForDays(this.clientId, this.currentDate).then(() => {
-        this.modalRef?.close();
-      });
-    } else {
-      this.modalRef?.close();
+  private applyResponseAndClose(response: ExpensesResource): void {
+    if (this.currentDate && this.clientId && response?.scheduleEntries?.length) {
+      this.scheduleEntryCrud.applyExpensesSingleClientResponse(
+        response,
+        this.clientId,
+        this.currentDate,
+      );
     }
+    this.modalRef?.close();
   }
 
   onCancel(): void {

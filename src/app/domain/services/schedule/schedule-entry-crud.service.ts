@@ -278,7 +278,12 @@ export class ScheduleEntryCrudService {
         break;
       }
 
-      case WorkScheduleEntryType.Expenses:
+      case WorkScheduleEntryType.Expenses: {
+        const response = await firstValueFrom(this.expensesService.delete(params.id));
+        this.applySingleClientDeleteResponse(response, params.clientId, params.date);
+        break;
+      }
+
       case WorkScheduleEntryType.ScheduleNote:
       case WorkScheduleEntryType.ScheduleCommand: {
         await firstValueFrom(this.getGenericDeleter(params.entryType)(params.id));
@@ -303,6 +308,14 @@ export class ScheduleEntryCrudService {
       periodStart: formatDateOnly(this.workScheduleLoader.startDate ?? fallback),
       periodEnd: formatDateOnly(this.workScheduleLoader.endDate ?? fallback),
     };
+  }
+
+  public applyExpensesSingleClientResponse(
+    response: { periodHours?: IPeriodHours | null; scheduleEntries?: IScheduleCell[] | null },
+    clientId: string,
+    centerDate: Date,
+  ): void {
+    this.applySingleClientDeleteResponse(response, clientId, centerDate);
   }
 
   private applySingleClientDeleteResponse(
@@ -469,6 +482,7 @@ export class ScheduleEntryCrudService {
 
   public async refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): Promise<void> {
     const filter = this.buildRefreshFilter(startDate, endDate);
+    filter.clientId = clientId;
 
     const response = await firstValueFrom(this.dataWorkSchedule.getWorkSchedule(filter));
     const clientEntries = response.entries.filter(e => e.clientId === clientId);

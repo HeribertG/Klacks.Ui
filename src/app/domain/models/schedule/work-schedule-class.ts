@@ -68,6 +68,8 @@ export interface IWorkScheduleFilter {
   rowCount?: number;
   paymentInterval?: number;
   analyseToken?: string;
+  /** Optional single-client scope; backend skips pagination when set so the targeted client always surfaces. */
+  clientId?: string;
 }
 
 export interface IWorkScheduleClient {
