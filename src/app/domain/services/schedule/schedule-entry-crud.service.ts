@@ -128,15 +128,27 @@ export class ScheduleEntryCrudService {
     }
 
     const clientRanges = this.calculateBulkAddBreakClientDateRanges(entries);
-
-    const refreshPromises: Promise<void>[] = [];
-    for (const [clientId, range] of clientRanges) {
-      refreshPromises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
+    const bundle = this.bundleSimpleClientRanges(clientRanges);
+    if (bundle) {
+      await this.refreshClientsBulkForDateRange(bundle.clientIds, bundle.start, bundle.end);
     }
 
-    await Promise.all(refreshPromises);
-
     this.workScheduleLoader.updateClientNeededRows();
+  }
+
+  private bundleSimpleClientRanges(
+    clientRanges: Map<string, { start: Date; end: Date }>,
+  ): { clientIds: string[]; start: Date; end: Date } | undefined {
+    const clientIds: string[] = [];
+    let minStart: Date | undefined;
+    let maxEnd: Date | undefined;
+    for (const [clientId, range] of clientRanges) {
+      clientIds.push(clientId);
+      if (!minStart || range.start < minStart) minStart = range.start;
+      if (!maxEnd || range.end > maxEnd) maxEnd = range.end;
+    }
+    if (clientIds.length === 0 || !minStart || !maxEnd) return undefined;
+    return { clientIds, start: minStart, end: maxEnd };
   }
 
   private calculateBulkAddBreakClientDateRanges(entries: BreakCellParams[]): Map<string, { start: Date; end: Date }> {
@@ -224,13 +236,10 @@ export class ScheduleEntryCrudService {
     }
 
     const clientRanges = this.calculateBulkAddClientDateRanges(entries);
-
-    const refreshPromises: Promise<void>[] = [];
-    for (const [clientId, range] of clientRanges) {
-      refreshPromises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
+    const bundle = this.bundleSimpleClientRanges(clientRanges);
+    if (bundle) {
+      await this.refreshClientsBulkForDateRange(bundle.clientIds, bundle.start, bundle.end);
     }
-
-    await Promise.all(refreshPromises);
 
     this.workScheduleLoader.updateClientNeededRows();
   }
@@ -433,13 +442,53 @@ export class ScheduleEntryCrudService {
 
   private buildBulkRefreshPromises(entries: DeleteWorkScheduleEntryParams[]): Promise<void>[] {
     const clientRanges = this.collectClientDateRanges(entries);
-    const promises: Promise<void>[] = [];
+    const bundle = this.bundleClientsAndRange(clientRanges);
+    if (!bundle) return [];
+    return [this.refreshClientsBulkForDateRange(bundle.clientIds, bundle.start, bundle.end)];
+  }
+
+  private bundleClientsAndRange(
+    clientRanges: Map<string, { start: Date; end: Date }[]>,
+  ): { clientIds: string[]; start: Date; end: Date } | undefined {
+    const clientIds: string[] = [];
+    let minStart: Date | undefined;
+    let maxEnd: Date | undefined;
     for (const [clientId, ranges] of clientRanges) {
-      const mergedRanges = this.mergeClientDateRanges(ranges);
-      for (const range of mergedRanges)
-        promises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
+      const merged = this.mergeClientDateRanges(ranges);
+      if (merged.length === 0) continue;
+      clientIds.push(clientId);
+      for (const range of merged) {
+        if (!minStart || range.start < minStart) minStart = range.start;
+        if (!maxEnd || range.end > maxEnd) maxEnd = range.end;
+      }
     }
-    return promises;
+    if (clientIds.length === 0 || !minStart || !maxEnd) return undefined;
+    return { clientIds, start: minStart, end: maxEnd };
+  }
+
+  public async refreshClientsBulkForDateRange(
+    clientIds: string[],
+    startDate: Date,
+    endDate: Date,
+  ): Promise<void> {
+    if (clientIds.length === 0) return;
+    const filter = this.buildRefreshFilter(startDate, endDate);
+    filter.clientIds = clientIds;
+
+    const response = await firstValueFrom(this.dataWorkSchedule.getWorkSchedule(filter));
+    const entriesByClient = new Map<string, IScheduleCell[]>();
+    for (const entry of response.entries) {
+      const bucket = entriesByClient.get(entry.clientId) ?? [];
+      bucket.push(entry);
+      entriesByClient.set(entry.clientId, bucket);
+    }
+
+    for (const clientId of clientIds) {
+      const clientEntries = entriesByClient.get(clientId) ?? [];
+      this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
+    }
+
+    this.triggerScheduleRefresh();
   }
 
   private collectClientDateRanges(entries: DeleteWorkScheduleEntryParams[]): Map<string, { start: Date; end: Date }[]> {

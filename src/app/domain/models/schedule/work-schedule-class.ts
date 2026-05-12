@@ -70,6 +70,8 @@ export interface IWorkScheduleFilter {
   analyseToken?: string;
   /** Optional single-client scope; backend skips pagination when set so the targeted client always surfaces. */
   clientId?: string;
+  /** Optional multi-client scope for bulk refresh; backend skips pagination and returns only the listed clients. */
+  clientIds?: string[];
 }
 
 export interface IWorkScheduleClient {
