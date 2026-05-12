@@ -295,6 +295,128 @@ const STRATEGY_WEIGHTS: Record<GreedyStrategy, { deficit: number; motivation: nu
   consistency: { deficit: EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT, motivation: EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT * 0.5, consistency: EVOLUTION_CONSTANTS.GREEDY_BLOCK_CONSISTENCY_WEIGHT * 4, restPenalty: -500 },
 };
 
+type StrategyWeights = { deficit: number; motivation: number; consistency: number; restPenalty: number };
+
+function scoreAgentForShift(
+  agent: CoreAgent,
+  shift: CoreShift,
+  dateKey: string,
+  sw: StrategyWeights,
+  agentScheduledHours: Map<string, number>,
+  agentLastEnd: Map<string, number>,
+  agentWorkedDates: Map<string, Set<string>>,
+  agentDailyShiftNames: Map<string, Map<string, string>>,
+): number {
+  let restPenalty = 0;
+  const lastEnd = agentLastEnd.get(agent.id);
+  if (lastEnd !== undefined) {
+    const currStartMs = new Date(`${dateKey}T${shift.startTime}`).getTime();
+    const restHours =
+      (currStartMs - lastEnd) / EVOLUTION_CONSTANTS.MS_PER_HOUR;
+    if (restHours > 0 && restHours < agent.minRestHours) restPenalty = sw.restPenalty;
+  }
+
+  let consecutivePenalty = 0;
+  const workedDates = agentWorkedDates.get(agent.id);
+  if (workedDates) {
+    const consecutive = countConsecutiveDaysEnding(workedDates, dateKey);
+    if (
+      consecutive >= agent.maxConsecutiveDays &&
+      !workedDates.has(dateKey)
+    )
+      consecutivePenalty = -50;
+    else if (
+      consecutive >= agent.maxConsecutiveDays - 1 &&
+      !workedDates.has(dateKey)
+    )
+      consecutivePenalty = -20;
+  }
+
+  const totalHours = agentScheduledHours.get(agent.id) || 0;
+  const hourDeficit =
+    agent.guaranteedHours - (agent.currentHours + totalHours);
+  const prevDayKey = getPreviousDayKey(dateKey);
+  const prevShiftName = agentDailyShiftNames.get(agent.id)?.get(prevDayKey);
+  const blockBonus = prevShiftName === shift.name ? sw.consistency : 0;
+
+  return (
+    hourDeficit * sw.deficit +
+    agent.motivation * sw.motivation -
+    totalHours +
+    blockBonus +
+    consecutivePenalty +
+    restPenalty
+  );
+}
+
+function checkSlotConstraints(
+  agent: CoreAgent,
+  shift: CoreShift,
+  agentDailySlots: Map<string, { start: string; end: string }[]>,
+  dateKey: string,
+): boolean {
+  const dailyKey = `${agent.id}_${dateKey}`;
+  const existingSlots = agentDailySlots.get(dailyKey);
+  if (!existingSlots) return false;
+  for (const slot of existingSlots) {
+    if (shift.startTime < slot.end && slot.start < shift.endTime) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function updateAgentTracking(
+  agent: CoreAgent,
+  shift: CoreShift,
+  dateKey: string,
+  weekKey: string,
+  agentScheduledHours: Map<string, number>,
+  agentDailyHours: Map<string, number>,
+  agentWeeklyHours: Map<string, number>,
+  agentDailySlots: Map<string, { start: string; end: string }[]>,
+  agentDailyShiftNames: Map<string, Map<string, string>>,
+  agentLastEnd: Map<string, number>,
+  agentWorkedDates: Map<string, Set<string>>,
+): void {
+  agentScheduledHours.set(
+    agent.id,
+    (agentScheduledHours.get(agent.id) || 0) + shift.hours,
+  );
+
+  const dailyKey = `${agent.id}_${dateKey}`;
+  agentDailyHours.set(
+    dailyKey,
+    (agentDailyHours.get(dailyKey) || 0) + shift.hours,
+  );
+
+  const wkKey = `${agent.id}_${weekKey}`;
+  agentWeeklyHours.set(
+    wkKey,
+    (agentWeeklyHours.get(wkKey) || 0) + shift.hours,
+  );
+
+  if (!agentDailySlots.has(dailyKey)) agentDailySlots.set(dailyKey, []);
+  agentDailySlots
+    .get(dailyKey)!
+    .push({ start: shift.startTime, end: shift.endTime });
+
+  if (!agentDailyShiftNames.has(agent.id))
+    agentDailyShiftNames.set(agent.id, new Map());
+  agentDailyShiftNames.get(agent.id)!.set(dateKey, shift.name);
+
+  let shiftEndMs = new Date(`${dateKey}T${shift.endTime}`).getTime();
+  if (shift.endTime <= shift.startTime)
+    shiftEndMs += EVOLUTION_CONSTANTS.MS_PER_DAY;
+  const prevEnd = agentLastEnd.get(agent.id);
+  if (prevEnd === undefined || shiftEndMs > prevEnd)
+    agentLastEnd.set(agent.id, shiftEndMs);
+
+  if (!agentWorkedDates.has(agent.id))
+    agentWorkedDates.set(agent.id, new Set());
+  agentWorkedDates.get(agent.id)!.add(dateKey);
+}
+
 export function createGreedyScenario(
   shifts: CoreShift[],
   agents: CoreAgent[],
@@ -346,57 +468,12 @@ export function createGreedyScenario(
       const weeklyHrs = agentWeeklyHours.get(wkKey) || 0;
       if (weeklyHrs + shift.hours > agent.maxWeeklyHours) continue;
 
-      const existingSlots = agentDailySlots.get(dailyKey);
-      if (existingSlots) {
-        let overlaps = false;
-        for (const slot of existingSlots) {
-          if (shift.startTime < slot.end && slot.start < shift.endTime) {
-            overlaps = true;
-            break;
-          }
-        }
-        if (overlaps) continue;
-      }
+      if (checkSlotConstraints(agent, shift, agentDailySlots, dateKey)) continue;
 
-      let restPenalty = 0;
-      const lastEnd = agentLastEnd.get(agent.id);
-      if (lastEnd !== undefined) {
-        const currStartMs = new Date(`${dateKey}T${shift.startTime}`).getTime();
-        const restHours =
-          (currStartMs - lastEnd) / EVOLUTION_CONSTANTS.MS_PER_HOUR;
-        if (restHours > 0 && restHours < agent.minRestHours) restPenalty = sw.restPenalty;
-      }
-
-      let consecutivePenalty = 0;
-      const workedDates = agentWorkedDates.get(agent.id);
-      if (workedDates) {
-        const consecutive = countConsecutiveDaysEnding(workedDates, dateKey);
-        if (
-          consecutive >= agent.maxConsecutiveDays &&
-          !workedDates.has(dateKey)
-        )
-          consecutivePenalty = -50;
-        else if (
-          consecutive >= agent.maxConsecutiveDays - 1 &&
-          !workedDates.has(dateKey)
-        )
-          consecutivePenalty = -20;
-      }
-
-      const totalHours = agentScheduledHours.get(agent.id) || 0;
-      const hourDeficit =
-        agent.guaranteedHours - (agent.currentHours + totalHours);
-      const prevDayKey = getPreviousDayKey(dateKey);
-      const prevShiftName = agentDailyShiftNames.get(agent.id)?.get(prevDayKey);
-      const blockBonus = prevShiftName === shift.name ? sw.consistency : 0;
-
-      const score =
-        hourDeficit * sw.deficit +
-        agent.motivation * sw.motivation -
-        totalHours +
-        blockBonus +
-        consecutivePenalty +
-        restPenalty;
+      const score = scoreAgentForShift(
+        agent, shift, dateKey, sw,
+        agentScheduledHours, agentLastEnd, agentWorkedDates, agentDailyShiftNames,
+      );
       if (score > bestScore) {
         bestScore = score;
         bestAgent = agent;
@@ -409,42 +486,11 @@ export function createGreedyScenario(
         agentId: bestAgent.id,
         motivationScore: bestAgent.motivation,
       });
-      agentScheduledHours.set(
-        bestAgent.id,
-        (agentScheduledHours.get(bestAgent.id) || 0) + shift.hours,
+      updateAgentTracking(
+        bestAgent, shift, dateKey, weekKey,
+        agentScheduledHours, agentDailyHours, agentWeeklyHours,
+        agentDailySlots, agentDailyShiftNames, agentLastEnd, agentWorkedDates,
       );
-
-      const dailyKey = `${bestAgent.id}_${dateKey}`;
-      agentDailyHours.set(
-        dailyKey,
-        (agentDailyHours.get(dailyKey) || 0) + shift.hours,
-      );
-
-      const wkKey = `${bestAgent.id}_${weekKey}`;
-      agentWeeklyHours.set(
-        wkKey,
-        (agentWeeklyHours.get(wkKey) || 0) + shift.hours,
-      );
-
-      if (!agentDailySlots.has(dailyKey)) agentDailySlots.set(dailyKey, []);
-      agentDailySlots
-        .get(dailyKey)!
-        .push({ start: shift.startTime, end: shift.endTime });
-
-      if (!agentDailyShiftNames.has(bestAgent.id))
-        agentDailyShiftNames.set(bestAgent.id, new Map());
-      agentDailyShiftNames.get(bestAgent.id)!.set(dateKey, shift.name);
-
-      let shiftEndMs = new Date(`${dateKey}T${shift.endTime}`).getTime();
-      if (shift.endTime <= shift.startTime)
-        shiftEndMs += EVOLUTION_CONSTANTS.MS_PER_DAY;
-      const prevEnd = agentLastEnd.get(bestAgent.id);
-      if (prevEnd === undefined || shiftEndMs > prevEnd)
-        agentLastEnd.set(bestAgent.id, shiftEndMs);
-
-      if (!agentWorkedDates.has(bestAgent.id))
-        agentWorkedDates.set(bestAgent.id, new Set());
-      agentWorkedDates.get(bestAgent.id)!.add(dateKey);
     }
   }
 

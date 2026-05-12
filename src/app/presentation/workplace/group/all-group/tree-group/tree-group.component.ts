@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   EffectRef,
@@ -69,7 +68,7 @@ import { takeUntil } from 'rxjs/operators';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TreeGroupComponent implements OnInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   private navigationService = inject(NavigationService);
@@ -96,14 +95,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
     this.readSignals();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (this.hierarchicalTree) {
-        this.debugTreeStructure(this.hierarchicalTree);
-      }
-    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -139,25 +130,8 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
       this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
-      this.debugTreeStructure(this.hierarchicalTree);
       this.cdr.markForCheck();
     }
-  }
-
-  private debugTreeStructure(nodes: any[], level = 0): void {
-    if (!nodes || !Array.isArray(nodes)) {
-      return;
-    }
-
-    nodes.forEach((node) => {
-      if (
-        node.children &&
-        Array.isArray(node.children) &&
-        node.children.length > 0
-      ) {
-        this.debugTreeStructure(node.children, level + 1);
-      }
-    });
   }
 
   hasChildren(node: any): boolean {

@@ -16,6 +16,7 @@ import { Break } from 'src/app/domain/models/break/break-class';
 import { WorkScheduleEntryType } from 'src/app/domain/models/schedule/work-schedule-class';
 import { IMultiLanguage, MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
   ScheduleCellDragSource,
   ScheduleCellDropResult,
@@ -26,6 +27,7 @@ export class ScheduleCellDropHandlerService {
   private dataManagement = inject(DataManagementScheduleService);
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private translateService = inject(TranslateService);
+  private toastShowService = inject(ToastShowService);
 
   handleDrop(result: ScheduleCellDropResult): void {
     switch (result.action) {
@@ -69,10 +71,7 @@ export class ScheduleCellDropHandlerService {
       (s) => s.shiftId === src.entryId && this.isSameDay(new Date(s.date), src.date),
     );
     if (!shift) {
-      console.error('Move Work: source shift not found in shiftSchedules', {
-        shiftId: src.entryId,
-        date: src.date,
-      });
+      this.toastShowService.showError(this.translateService.instant('schedule.moveWork.shiftNotFound'));
       return;
     }
 
@@ -86,7 +85,7 @@ export class ScheduleCellDropHandlerService {
         endTime: shift.endShift,
       })
       .then(() => this.deleteEntry(src))
-      .catch((err) => console.error('Move Work failed during add step', err));
+      .catch(() => this.toastShowService.showError(this.translateService.instant('schedule.moveWork.moveFailed')));
   }
 
   private moveBreak(src: ScheduleCellDragSource, targetClientId: string): void {
@@ -111,7 +110,7 @@ export class ScheduleCellDropHandlerService {
     this.scheduleEntryCrud
       .addBreakScheduleEntry(breakEntry)
       .then(() => this.deleteEntry(src))
-      .catch((err) => console.error('Move Break failed during add step', err));
+      .catch(() => this.toastShowService.showError(this.translateService.instant('schedule.moveBreak.moveFailed')));
   }
 
   private buildBreakDescription(abbreviation: string): MultiLanguage | undefined {

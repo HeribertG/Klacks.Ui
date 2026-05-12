@@ -47,7 +47,7 @@ export class SearchInputComponent implements OnDestroy {
   @Input() disabled = false;
   @Input() buttonDisabled = false;
   @Input() isLoading = false;
-  @Input() debounceMs = 0;
+  @Input() debounceMs = 300;
   @Input() inputId = '';
 
   @Output() valueChange = new EventEmitter<string>();
