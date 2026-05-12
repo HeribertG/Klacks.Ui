@@ -17,8 +17,15 @@ import { ITimelineBlockRenderer } from './timeline-block-renderer.interface';
 export class WorkChangeBlockRendererService implements ITimelineBlockRenderer {
   private gridColors = inject(GridColorService);
 
-  getColor(_entry: IScheduleCell): string {
-    return this.gridColors.workChangeColor;
+  private readonly sealedDarken = 30;
+
+  getColor(entry: IScheduleCell): string {
+    const base = this.gridColors.workChangeColor;
+    return this.isSealed(entry) ? DrawHelper.GetDarkColor(base, this.sealedDarken) : base;
+  }
+
+  private isSealed(entry: IScheduleCell): boolean {
+    return entry.lockLevel > 0 || entry.isGroupRestricted;
   }
 
   getLabel(entry: IScheduleCell): string {

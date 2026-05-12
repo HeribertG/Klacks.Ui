@@ -24,10 +24,16 @@ export class BreakBlockRendererService implements ITimelineBlockRenderer {
 
   private readonly borderWidth = 1;
   private readonly borderDarken = 40;
+  private readonly sealedDarken = 30;
 
   getColor(entry: IScheduleCell): string {
     const absenceColor = this.absenceLookup.getColorForEntryId(entry.entryId);
-    return absenceColor ?? this.gridColors.backGroundColorHolyday;
+    const base = absenceColor ?? this.gridColors.backGroundColorHolyday;
+    return this.isSealed(entry) ? DrawHelper.GetDarkColor(base, this.sealedDarken) : base;
+  }
+
+  private isSealed(entry: IScheduleCell): boolean {
+    return entry.lockLevel > 0 || entry.isGroupRestricted;
   }
 
   getLabel(entry: IScheduleCell): string {

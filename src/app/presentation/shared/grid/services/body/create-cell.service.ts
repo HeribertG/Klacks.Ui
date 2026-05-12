@@ -186,22 +186,23 @@ export class BaseCreateCellService {
     const isOverlay = this.gridData.isOverlayDay(col);
     const isHighlighted = this.gridData.isCellHighlighted(row, col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const needsBaseDarkening = isOverlay || isHighlighted || gridCell.sealed;
+    const sealedAffectsBackground = gridCell.sealed && !this.settings.isTimelineMode;
+    const needsBaseDarkening = isOverlay || isHighlighted || sealedAffectsBackground;
     const canvas = this.getCellCanvas(weekDay, lastRowFlag, needsBaseDarkening);
 
     this.drawImage(ctx, canvas);
 
-    const needsDoubleDarkening = isOverlay && gridCell.sealed;
+    const needsDoubleDarkening = isOverlay && sealedAffectsBackground;
     if (needsDoubleDarkening && !gridCell.backgroundColor) {
       this.drawSealedOverlay(ctx, this.settings.cellWidth);
     }
 
     if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
       let bgColor = gridCell.backgroundColor;
-      if (gridCell.sealed) {
+      if (sealedAffectsBackground) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
       }
-      if (isOverlay && gridCell.sealed) {
+      if (isOverlay && sealedAffectsBackground) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
       }
       this.drawBackgroundColor(ctx, bgColor, this.settings.cellWidth);
@@ -227,6 +228,8 @@ export class BaseCreateCellService {
     const ctx = tempCanvas.getContext('2d');
     if (!ctx) return tempCanvas;
 
+    const sealedAffectsBackground = gridCell.sealed && !this.settings.isTimelineMode;
+
     for (let i = 0; i < span; i++) {
       const spanCol = col + i;
       if (spanCol >= this.gridData.columns) break;
@@ -234,14 +237,14 @@ export class BaseCreateCellService {
       const weekDay = this.gridData.getWeekday(spanCol);
       const isOverlay = this.gridData.isOverlayDay(spanCol);
       const isHighlighted = this.gridData.isCellHighlighted(row, spanCol);
-      const bgColor = this.getBackgroundColorForDay(weekDay, isOverlay || isHighlighted || gridCell.sealed);
+      const bgColor = this.getBackgroundColorForDay(weekDay, isOverlay || isHighlighted || sealedAffectsBackground);
       ctx.fillStyle = bgColor;
       ctx.fillRect(i * this.settings.cellWidth, 0, this.settings.cellWidth, cellHeight);
     }
 
     if (gridCell.backgroundColor && this.shouldDrawCellBackgroundColor(gridCell)) {
       let bgColor = gridCell.backgroundColor;
-      if (gridCell.sealed) {
+      if (sealedAffectsBackground) {
         bgColor = DrawHelper.GetDarkColor(bgColor, 30);
       }
       this.drawBackgroundColor(ctx, bgColor, totalWidth);
