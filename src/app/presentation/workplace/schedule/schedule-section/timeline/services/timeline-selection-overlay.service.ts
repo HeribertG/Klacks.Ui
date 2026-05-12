@@ -39,6 +39,7 @@ interface DrawPartContext {
   cellWidth: number;
   cellHeight: number;
   cellHeaderHeight: number;
+  sealed: boolean;
 }
 
 @Injectable()
@@ -73,6 +74,7 @@ export class TimelineSelectionOverlayService {
     const cellHeaderHeight = this.settings.hasHeader ? this.settings.cellHeaderHeight : 0;
     const canvasWidth = this.canvasManager.canvas?.width ?? 0;
     const canvasHeight = this.canvasManager.canvas?.height ?? 0;
+    const sealed = sel.entry.lockLevel > 0 || sel.entry.isGroupRestricted;
 
     ctx.save();
     ctx.beginPath();
@@ -94,6 +96,7 @@ export class TimelineSelectionOverlayService {
       cellWidth,
       cellHeight,
       cellHeaderHeight,
+      sealed,
     });
 
     if (this.hitTest.spansMidnight(sel.entry)) {
@@ -110,6 +113,7 @@ export class TimelineSelectionOverlayService {
           cellWidth,
           cellHeight,
           cellHeaderHeight,
+          sealed,
         });
       }
     }
@@ -141,8 +145,8 @@ export class TimelineSelectionOverlayService {
     ctx.save();
     ctx.strokeStyle = this.gridColors.focusBorderColor;
     ctx.lineWidth = BORDER_WIDTH;
-    ctx.lineCap = 'round';
-    ctx.setLineDash(BORDER_DASH);
+    ctx.lineCap = part.sealed ? 'butt' : 'round';
+    ctx.setLineDash(part.sealed ? [] : BORDER_DASH);
     ctx.strokeRect(
       itemX - BORDER_OUTSET,
       itemY - BORDER_OUTSET,
