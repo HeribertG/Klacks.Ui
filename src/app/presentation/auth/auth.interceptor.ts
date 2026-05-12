@@ -11,6 +11,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { environment } from 'src/environments/environment';
 
@@ -18,6 +19,7 @@ import { environment } from 'src/environments/environment';
 export class AuthInterceptor implements HttpInterceptor {
   private localStorageService = inject(LocalStorageService);
   private signalRService = inject(SignalRService);
+  private groupSelection = inject(GroupSelectionService);
 
   intercept(
     req: HttpRequest<any>,
@@ -30,6 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     const connectionId = this.signalRService.connectionId;
     const instanceId = this.getOrCreateInstanceId();
+    const selectedGroupId = this.groupSelection.selectedGroupId;
 
     let headers = req.headers.set('X-Instance-Id', instanceId);
 
@@ -38,6 +41,10 @@ export class AuthInterceptor implements HttpInterceptor {
 
       if (connectionId) {
         headers = headers.set('X-SignalR-ConnectionId', connectionId);
+      }
+
+      if (selectedGroupId) {
+        headers = headers.set('X-Selected-Group', selectedGroupId);
       }
     }
 
