@@ -1,7 +1,11 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 @if (isVisible) {
-<div class="group-select-container">
+<div
+  class="group-select-container"
+  appClickOutside
+  (clickOutside)="closeDropdown()"
+>
   @if (label) {
   <label [for]="'group-select-' + label" class="group-select-label">
     {{ label }}
@@ -48,11 +52,7 @@
   </div>
 
   @if (isDropdownOpen) {
-  <div
-    class="group-select-dropdown"
-    appClickOutside
-    (clickOutside)="closeDropdown()"
-  >
+  <div class="group-select-dropdown">
     <div class="group-tree-container">
       @if (displayTree && displayTree.length > 0) {
       <ul class="group-tree-root">
