@@ -562,7 +562,7 @@ export class GridTemplateEventsDirective {
     const hScrollPos = this.scrollGrid.horizontalScrollPosition;
     const vScrollPos = this.scrollGrid.verticalScrollPosition;
     const lastVisibleColumn = hScrollPos + this.scrollGrid.visibleCols - 1;
-    const lastVisibleRow = vScrollPos + this.scrollGrid.visibleRows - 2;
+    const lastVisibleRow = vScrollPos + this.fullyVisibleBodyRows() - 1;
 
     const atLeftEdge = hScrollPos > 0 && pos.column <= hScrollPos;
     const atRightEdge = pos.column >= lastVisibleColumn;
@@ -758,27 +758,29 @@ export class GridTemplateEventsDirective {
       );
 
       const currentVerticalRow = this.gridSurface.drawSchedule.position.row;
-
-      const nextRow =
-        currentVerticalRow <= this.scrollGrid.maxRows
-          ? currentVerticalRow
-          : this.scrollGrid.maxRows;
-
       const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
-      const visibleRows = this.scrollGrid.visibleRows;
-      const lastVisibleRow = firstVisibleRow + visibleRows - 2;
+      const lastFullyVisibleRow =
+        firstVisibleRow + this.fullyVisibleBodyRows() - 1;
 
-      if (lastVisibleRow <= nextRow) {
-        this.gridSurface.valueVScrollbar.emit(
-          this.scrollGrid.verticalScrollPosition + 1
-        );
+      if (lastFullyVisibleRow <= currentVerticalRow) {
+        this.gridSurface.valueVScrollbar.emit(firstVisibleRow + 1);
       }
     }
   }
 
+  private fullyVisibleBodyRows(): number {
+    const cellHeight = this.gridSettings.cellHeight;
+    if (cellHeight <= 0) return 1;
+    const headerHeight = this.gridSettings.hasHeader
+      ? this.gridSettings.cellHeaderHeight
+      : 0;
+    const bodyHeight = this.gridSurface.drawSchedule.height - headerHeight;
+    return Math.max(1, Math.floor(bodyHeight / cellHeight));
+  }
+
   private goPageDown() {
     let nextVisibleRow: number =
-      this.scrollGrid.verticalScrollPosition + this.scrollGrid.visibleRows - 2;
+      this.scrollGrid.verticalScrollPosition + this.fullyVisibleBodyRows() - 1;
 
     if (nextVisibleRow > this.gridData.rows) {
       nextVisibleRow = this.gridData.rows - 2;

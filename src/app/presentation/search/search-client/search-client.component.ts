@@ -50,6 +50,7 @@ export class SearchClientComponent implements OnDestroy {
   selectedClient: IClient | undefined = undefined;
 
   private destroy$ = new Subject<void>();
+  private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   @HostListener('search')
   onsearch(): void {
@@ -74,7 +75,11 @@ export class SearchClientComponent implements OnDestroy {
       return;
     }
 
-    setTimeout(() => {
+    if (this._debounceTimer !== null) {
+      clearTimeout(this._debounceTimer);
+    }
+    this._debounceTimer = setTimeout(() => {
+      this._debounceTimer = null;
       this.searchClients();
       this.cdr.markForCheck();
     }, DEBOUNCE_DELAY_MS);
@@ -85,6 +90,9 @@ export class SearchClientComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this._debounceTimer !== null) {
+      clearTimeout(this._debounceTimer);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }

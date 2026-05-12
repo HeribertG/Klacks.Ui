@@ -109,6 +109,8 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.stopAutoScroll();
+    this.clearExpandTimer();
 
     if (this.effectRef) {
       this.effectRef.destroy();
