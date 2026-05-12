@@ -1,8 +1,9 @@
 <div
   id="context-menu"
   class="context-menu"
+  appClickOutside
   [ngStyle]="rightPanelStyle"
-  (appClickOutside)="closeMenu()"
+  (clickOutside)="closeMenu()"
 >
   <app-menu [menu]="menuData" #main></app-menu>
 </div>

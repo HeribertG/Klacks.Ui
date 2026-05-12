@@ -34,6 +34,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/domain/models/group/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
@@ -60,6 +61,7 @@ type TreeNode = Group | VirtualGroup;
   imports: [
     CommonModule,
     TranslateModule,
+    ClickOutsideDirective,
     IconAngleDownComponent,
     IconAngleRightComponent,
     IconAngleUpComponent,
