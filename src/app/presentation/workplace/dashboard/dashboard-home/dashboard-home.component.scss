@@ -1,6 +1,11 @@
 @use "src/assets/standard-styles/standard-dashboard.scss";
 @use "src/assets/standard-styles/toggle-switch.scss";
 
+:host {
+  display: block;
+  width: 100%;
+}
+
 .container-dashboard {
   width: 100%;
 }
@@ -89,7 +94,7 @@
   border-radius: 8px;
   min-width: 190px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  z-index: 1000;
   overflow: hidden;
 }
 
