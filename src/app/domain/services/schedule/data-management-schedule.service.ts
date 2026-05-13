@@ -66,6 +66,7 @@ export class DataManagementScheduleService implements ILoadable {
   private readonly clientSortPreference = inject(ClientSortPreferenceService);
 
   private _lastAnalyseToken: string | null = this.analyseScenarioService.activeToken();
+  private _lastSeenShiftLoaderRead = -1;
 
   private readonly READ_DATAS_DEBOUNCE_MS = 300;
   private readonly SPINNER_SAFETY_TIMEOUT_MS = 30_000;
@@ -113,6 +114,14 @@ export class DataManagementScheduleService implements ILoadable {
       effect(() => {
         if (this.scheduleEntryCrud.shiftScheduleRefreshed())
           this.bumpReadCounter(this.isShiftScheduleRead);
+      });
+
+      effect(() => {
+        const count = this.shiftLoader.isRead();
+        const isFirstObservation = this._lastSeenShiftLoaderRead < 0;
+        this._lastSeenShiftLoaderRead = count;
+        if (isFirstObservation) return;
+        this.bumpReadCounter(this.isShiftScheduleRead);
       });
 
       effect(() => {

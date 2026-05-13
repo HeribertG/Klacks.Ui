@@ -15,14 +15,15 @@
  * - Uses: ScrollService for scroll position control
  */
 import { inject, Injectable } from '@angular/core';
-import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftDataService } from './shift-data.service';
 import { ScrollbarState } from '../../services/scrollbar-state.interface';
 
 @Injectable()
 export class ShiftNavigationService {
-  private scrollService = inject(ScrollService);
+  private cellManipulation = inject(BaseCellManipulationService);
   private settings = inject(BaseSettingsService);
 
   scrollToShift(
@@ -42,8 +43,13 @@ export class ShiftNavigationService {
       );
       const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
 
+      vScrollbar.maxValue = dataService.rows;
       vScrollbar.value = targetScroll;
-      this.scrollService.verticalScrollPosition = targetScroll;
+      dataService.setScrollPosition(targetScroll);
+
+      this.cellManipulation.PositionCollection.clear();
+      this.cellManipulation.Position = new MyPosition(rowIndex, column);
+
       moveGridCallback();
     }
   }

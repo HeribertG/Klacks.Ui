@@ -337,6 +337,10 @@ export class ShiftDataService extends BaseDataService {
     return this.rowsNumber;
   }
 
+  setScrollPosition(position: number): void {
+    this.gridScroll.verticalScrollPosition = position;
+  }
+
   private set columns(value: number) {
     this.columnsNumber = value;
     this.gridScroll.maxCols = value;

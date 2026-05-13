@@ -166,7 +166,6 @@ export class ShiftSectionComponent
   }
 
   public hScrollPositionValue = 0;
-  public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarShift = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
   public selectedRow = -1;
@@ -357,9 +356,9 @@ export class ShiftSectionComponent
       column,
       shiftDataService,
       this.shiftSurface.drawSchedule.height,
-      this.vScrollbar,
+      this.vScrollbarShift,
       () => {
-        this.shiftSurface.drawSchedule.moveGrid();
+        this.shiftSurface.drawSchedule.redraw();
         this.cdr.detectChanges();
       }
     );
