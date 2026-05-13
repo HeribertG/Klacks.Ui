@@ -40,6 +40,7 @@ import { FloorPlanExportService } from 'src/app/presentation/workplace/floor-pla
 import { FloorPlanWorkDropService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-work-drop.service';
 import { FloorPlanConnectorService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-connector.service';
 import { FloorPlanMergeService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-merge.service';
+import { FloorPlanAnchorSnapService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-anchor-snap.service';
 import { FloorPlanJoinService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from 'src/app/presentation/workplace/floor-plan/services/floor-plan-point-editor.service';
 
@@ -71,6 +72,7 @@ import { FloorPlanPointEditorService } from 'src/app/presentation/workplace/floo
     FloorPlanMergeService,
     FloorPlanJoinService,
     FloorPlanPointEditorService,
+    FloorPlanAnchorSnapService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
