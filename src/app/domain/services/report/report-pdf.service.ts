@@ -549,6 +549,8 @@ export class ReportPdfService {
     return resolvedRows;
   }
 
+  private readonly DAY_HEADER_BINDINGS = new Set(['entry.date', 'entry.weekday', 'expense.date']);
+
   private buildMergedRows(
     resolvedRows: { row: Record<string, string>; sourceEntry: any }[],
     fields: ReportField[],
@@ -572,11 +574,11 @@ export class ReportPdfService {
         const merged: Record<string, string> = {};
         for (const f of fields) {
           const values = groupRows.map(r => r[f.dataBinding]);
-          const unique = [...new Set(values.filter(v => v))];
-          if (unique.length <= 1) {
+          if (this.DAY_HEADER_BINDINGS.has(f.dataBinding)) {
+            const unique = [...new Set(values.filter(v => v))];
             merged[f.dataBinding] = unique[0] ?? '';
           } else {
-            merged[f.dataBinding] = values.filter(v => v).join('\n');
+            merged[f.dataBinding] = values.join('\n');
           }
         }
         bodyData.push(merged);
