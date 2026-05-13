@@ -129,6 +129,12 @@ export class FloorPlanToolbarComponent {
       this.connectorService.releaseShape(shapeId);
     }
   }
+
+  onCopy(): void { this.canvasService.copySelected(); }
+  async onPaste(): Promise<void> { await this.canvasService.paste(); }
+  onFlipH(): void { this.canvasService.flipHorizontal(); }
+  onFlipV(): void { this.canvasService.flipVertical(); }
+
   onExportSVG(): void { this.exportService.exportSVG(); }
   onExportPNG(): void { this.exportService.exportPNG(); }
   onExportJSON(): void { this.exportService.exportJSON(); }

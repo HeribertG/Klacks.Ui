@@ -39,6 +39,8 @@ export class FloorPlanCanvasService {
 
   private readonly _zoom = signal(1);
   private readonly _selectedObject = signal<FabricObject | null>(null);
+  private readonly _clipboard = signal<object | null>(null);
+  readonly hasClipboard = computed(() => this._clipboard() !== null);
   private readonly _isPanning = signal(false);
   private readonly _canvasReady = signal(false);
   private readonly _undoStack = signal<string[]>([]);
@@ -426,6 +428,50 @@ export class FloorPlanCanvasService {
     this.canvas.discardActiveObject();
     activeObjects.forEach((obj) => this.canvas!.remove(obj));
     this.canvas.renderAll();
+  }
+
+  copySelected(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    this._clipboard.set(obj.toObject(['data']));
+  }
+
+  async paste(): Promise<void> {
+    const data = this._clipboard();
+    if (!data || !this.canvas) return;
+    const { util } = await import('fabric');
+    const objects = await util.enlivenObjects<FabricObject>([data]);
+    if (!objects.length) return;
+    const obj = objects[0];
+    obj.set({
+      left: (obj.left ?? 0) + 20,
+      top: (obj.top ?? 0) + 20,
+    });
+    obj.set('data', { ...(obj as any).data, shapeId: crypto.randomUUID() });
+    this.assignToActiveLayer(obj);
+    this.canvas.add(obj);
+    this.canvas.setActiveObject(obj);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  flipHorizontal(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    obj.set({ flipX: !obj.flipX });
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  flipVertical(): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    obj.set({ flipY: !obj.flipY });
+    this.canvas.renderAll();
+    this.saveHistory();
   }
 
   toJSON(): string {

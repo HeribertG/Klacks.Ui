@@ -576,6 +576,16 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       this.canvasService.redo();
     }
 
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c') {
+      event.preventDefault();
+      this.canvasService.copySelected();
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'v') {
+      event.preventDefault();
+      void this.canvasService.paste();
+    }
+
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (!isInputFocused) {
         if (this.pointEditorService.isInEditMode()) {

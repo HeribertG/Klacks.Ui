@@ -58,6 +58,8 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
            obj instanceof Polygon || obj instanceof Path || obj instanceof Line;
   });
 
+  readonly canPaste = computed(() => this.canvasService.hasClipboard());
+
   readonly isOpen = signal(false);
   readonly x = signal(0);
   readonly y = signal(0);
@@ -105,6 +107,26 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
 
   onClosePath(): void {
     this.canvasService.closeSelectedPath();
+    this.close();
+  }
+
+  onCopy(): void {
+    this.canvasService.copySelected();
+    this.close();
+  }
+
+  async onPaste(): Promise<void> {
+    await this.canvasService.paste();
+    this.close();
+  }
+
+  onFlipH(): void {
+    this.canvasService.flipHorizontal();
+    this.close();
+  }
+
+  onFlipV(): void {
+    this.canvasService.flipVertical();
     this.close();
   }
 
