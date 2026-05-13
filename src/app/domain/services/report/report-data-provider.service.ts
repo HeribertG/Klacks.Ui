@@ -112,6 +112,7 @@ export class ReportDataProviderService {
             selectedGroup: params.groupId,
             showEmployees: true,
             showExtern: true,
+            clientId: params.clientId,
           })
         );
         let filtered = response.entries.filter(e => entryTypes.includes(e.entryType));

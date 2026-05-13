@@ -24,6 +24,8 @@ export class ClickOutsideDirective {
 
   @HostListener('document:contextmenu', ['$event'])
   public onContextMenu(event: MouseEvent): void {
+    if (event.defaultPrevented) return;
+
     const targetElement = event.target as HTMLElement;
     const clickedInside = this.elementRef.nativeElement.contains(targetElement);
 

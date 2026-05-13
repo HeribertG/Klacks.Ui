@@ -58,7 +58,7 @@ export class ReportPdfService {
 
     const imageCache = await this.preloadImages(template, context.imageCache);
 
-    const clients = data.clients ?? [null];
+    const clients = data.clients?.length ? data.clients : [null];
     const allRows = data.rows;
 
     for (let index = 0; index < clients.length; index++) {
