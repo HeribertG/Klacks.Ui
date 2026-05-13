@@ -20,6 +20,7 @@ import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-pla
 import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
+import { FloorPlanAnchorSnapService } from './floor-plan-anchor-snap.service';
 import { shapeToNodes, nodesToSvgString } from './floor-plan-point-editor.service';
 
 FabricObject.customProperties.push('data');
@@ -36,6 +37,7 @@ export class FloorPlanCanvasService {
   private canvas: Canvas | null = null;
   private layerService = inject(FloorPlanLayerService);
   private toolService = inject(FloorPlanToolService);
+  private anchorSnapService = inject(FloorPlanAnchorSnapService);
 
   private readonly _zoom = signal(1);
   private readonly _selectedObject = signal<FabricObject | null>(null);
@@ -167,6 +169,7 @@ export class FloorPlanCanvasService {
     });
 
     this.canvas.on('object:modified', (e) => {
+      this.anchorSnapService.hideHighlight(this.canvas!);
       if ((e.target as any)?.data?.isConnector) return;
       if ((e.target as any)?.data?.isPointHandle) return;
       if ((e.target as any)?.data?.isPointStem) return;
@@ -238,16 +241,30 @@ export class FloorPlanCanvasService {
     });
 
     this.canvas.on('object:moving', (opt) => {
-      if (!this.toolService.snapEnabled()) return;
       const obj = opt.target;
       if (!obj) return;
       if ((obj as any).data?.isPointHandle) return;
-      const size = this.toolService.snapSize();
-      if (size <= 0) return;
-      obj.set({
-        left: Math.round((obj.left ?? 0) / size) * size,
-        top: Math.round((obj.top ?? 0) / size) * size,
-      });
+
+      const snap = this.anchorSnapService.findSnap(obj, this.canvas!);
+      if (snap) {
+        obj.set({
+          left: (obj.left ?? 0) + snap.offsetX,
+          top: (obj.top ?? 0) + snap.offsetY,
+        });
+        this.anchorSnapService.showHighlight(this.canvas!, snap.targetPoint);
+        return;
+      }
+
+      this.anchorSnapService.hideHighlight(this.canvas!);
+
+      if (this.toolService.snapEnabled()) {
+        const size = this.toolService.snapSize();
+        if (size <= 0) return;
+        obj.set({
+          left: Math.round((obj.left ?? 0) / size) * size,
+          top: Math.round((obj.top ?? 0) / size) * size,
+        });
+      }
     });
 
   }
