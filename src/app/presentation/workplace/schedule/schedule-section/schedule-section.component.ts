@@ -225,7 +225,6 @@ export class ScheduleSectionComponent
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
   private initialSyncDone = true;
-  private didInitialDayBeforeScroll = false;
 
   ngOnInit(): void {
     this.facade.tooltip.initLanguage();
@@ -359,8 +358,7 @@ export class ScheduleSectionComponent
       const resetScroll = isNewRead && readState.resetScroll && !this.settings.isTimelineMode;
       this.withSurface((surface) => surface.Refresh(resetScroll));
 
-      if (!this.didInitialDayBeforeScroll && isNewRead) {
-        this.didInitialDayBeforeScroll = true;
+      if (isNewRead && readState.resetScroll) {
         setTimeout(() => this.scrollHorizontalToPeriodStart(), 0);
       }
     }));
