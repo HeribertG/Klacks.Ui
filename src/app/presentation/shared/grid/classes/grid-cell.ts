@@ -12,6 +12,7 @@ export class GridCell {
   frozen = false;
   confirmed = false;
   sealed = false;
+  dimmed = false;
   icons?: CellIcon[];
   badges?: CellBadge[];
   cellType: CellTypeEnum = CellTypeEnum.Standard;

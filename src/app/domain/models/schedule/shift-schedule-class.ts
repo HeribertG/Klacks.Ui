@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
+import { SporadicStatus } from '../../enums/sporadic-status.enum';
 
 export interface IShiftSchedule {
   shiftId: string;
@@ -19,6 +20,7 @@ export interface IShiftSchedule {
   quantity: number;
   sporadicScope: ShiftSporadic;
   engaged: number;
+  sporadicStatus: SporadicStatus;
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -38,6 +40,7 @@ export class ShiftSchedule implements IShiftSchedule {
   quantity = 0;
   sporadicScope = ShiftSporadic.Week;
   engaged = 0;
+  sporadicStatus = SporadicStatus.None;
 }
 
 export interface IShiftScheduleFilter {

@@ -2,6 +2,7 @@
 
 import { inject, Injectable, signal } from '@angular/core';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
 import { IWorkFilter } from 'src/app/domain/models/schedule/schedule-class';
 import {
   getDayIndex,
@@ -32,11 +33,14 @@ export class AvailableShiftsCalculatorService {
     const startDate = this.calculateStartDate(workFilter);
     const totalDays = this.getTotalDays(workFilter);
 
+    const isBlocked = (shift: IShiftSchedule) =>
+      (shift.sporadicStatus ?? SporadicStatus.None) === SporadicStatus.Blocked;
+
     const hasCapacity = (shift: IShiftSchedule) =>
-      shift.engaged < shift.sumEmployees * shift.quantity;
+      !isBlocked(shift) && shift.engaged < shift.sumEmployees * shift.quantity;
 
     const isOverbooked = (shift: IShiftSchedule) =>
-      shift.engaged > shift.sumEmployees * shift.quantity;
+      !isBlocked(shift) && shift.engaged > shift.sumEmployees * shift.quantity;
 
     const toDayEntry = (shift: IShiftSchedule) => ({
       dayIdx: getDayIndex(startDate, new Date(shift.date)),

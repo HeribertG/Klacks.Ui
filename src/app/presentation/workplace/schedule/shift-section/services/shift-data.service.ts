@@ -21,6 +21,7 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
+import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
@@ -58,6 +59,7 @@ interface DayInfo {
   quantity: number;
   sporadicScope: ShiftSporadic;
   engaged: number;
+  sporadicStatus: SporadicStatus;
 }
 
 interface ShiftRow {
@@ -121,6 +123,12 @@ export class ShiftDataService extends BaseDataService {
           shiftRow.endShift
         )}`;
         c.cellType = CellTypeEnum.Standard;
+        if (dayInfo.sporadicStatus === SporadicStatus.Booked) {
+          c.sealed = true;
+        } else if (dayInfo.sporadicStatus === SporadicStatus.Blocked) {
+          c.sealed = true;
+          c.dimmed = true;
+        }
         if (dayInfo.isInTemplateContainer) {
           c.icons = [new CellIcon(IN_CONTAINER_ICON, IconCornerEnum.BottomLeft)];
         }
@@ -288,6 +296,7 @@ export class ShiftDataService extends BaseDataService {
         quantity: schedule.quantity,
         sporadicScope: schedule.sporadicScope,
         engaged: schedule.engaged,
+        sporadicStatus: schedule.sporadicStatus ?? SporadicStatus.None,
       });
     }
 
@@ -482,6 +491,14 @@ export class ShiftDataService extends BaseDataService {
     return false;
   }
 
+  getShiftSporadicScope(row: number): ShiftSporadic | undefined {
+    if (row < this.shiftRows.length && this.shiftRows[row].isSporadic) {
+      const firstDay = this.shiftRows[row].activeDays.values().next().value;
+      return firstDay?.sporadicScope;
+    }
+    return undefined;
+  }
+
   getShiftIsTimeRange(row: number): boolean {
     if (row < this.shiftRows.length) {
       return this.shiftRows[row].isTimeRange;
@@ -529,8 +546,13 @@ export class ShiftDataService extends BaseDataService {
 
     const shiftRow = this.shiftRows[row];
     const dateKey = this.getDateKeyForColumn(column);
+    const dayInfo = shiftRow.activeDays.get(dateKey);
 
-    if (!shiftRow.activeDays.has(dateKey)) {
+    if (!dayInfo) {
+      return null;
+    }
+
+    if (dayInfo.sporadicStatus !== SporadicStatus.None) {
       return null;
     }
 
@@ -582,6 +604,9 @@ export class ShiftDataService extends BaseDataService {
     const dateKey = this.getDateKeyForColumn(col);
     const dayInfo = shiftRow.activeDays.get(dateKey);
     if (!dayInfo) {
+      return false;
+    }
+    if (dayInfo.sporadicStatus !== SporadicStatus.None) {
       return false;
     }
     const maxCapacity = dayInfo.sumEmployees * dayInfo.quantity;

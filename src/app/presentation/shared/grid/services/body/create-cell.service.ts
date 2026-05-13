@@ -208,7 +208,14 @@ export class BaseCreateCellService {
       this.drawBackgroundColor(ctx, bgColor, this.settings.cellWidth);
     }
 
-    this.drawCellTexts(ctx, gridCell);
+    if (gridCell.dimmed) {
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      this.drawCellTexts(ctx, gridCell);
+      ctx.restore();
+    } else {
+      this.drawCellTexts(ctx, gridCell);
+    }
 
     return tempCanvas;
   }
