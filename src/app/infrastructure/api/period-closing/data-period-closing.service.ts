@@ -12,6 +12,7 @@ import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ExportLog } from './models/export-log';
 import { PeriodAuditLog } from './models/period-audit-log';
+import { PeriodIssue } from './models/period-issue';
 import { SealedPeriodSummary } from './models/sealed-period-summary';
 import { SealRequest } from './models/seal-request';
 import { UnsealRequest } from './models/unseal-request';
@@ -40,6 +41,14 @@ export class DataPeriodClosingService {
 
   getUsedPeriods(): Observable<UsedPeriod[]> {
     return this.httpClient.get<UsedPeriod[]>(`${this.base}/UsedPeriods`).pipe(retry(3));
+  }
+
+  getPeriodIssues(from: string, to: string, groupId: string | null): Observable<PeriodIssue[]> {
+    let params = new HttpParams().set('from', from).set('to', to);
+    if (groupId) {
+      params = params.set('groupId', groupId);
+    }
+    return this.httpClient.get<PeriodIssue[]>(`${this.base}/Issues`, { params }).pipe(retry(3));
   }
 
   getAuditLog(from: string, to: string): Observable<PeriodAuditLog[]> {

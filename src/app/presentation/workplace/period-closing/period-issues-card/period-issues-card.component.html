@@ -1,0 +1,37 @@
+<app-expandable-card
+  [headerTitle]="'periodClosing.issues.header' | translate"
+  [initiallyExpanded]="false">
+
+  <div class="issues-summary">
+    @if (errorCount() > 0) {
+      <span class="badge bg-danger">{{ errorCount() }} {{ 'periodClosing.issues.severity.error' | translate }}</span>
+    }
+    @if (warningCount() > 0) {
+      <span class="badge bg-warning text-dark">{{ warningCount() }} {{ 'periodClosing.issues.severity.warning' | translate }}</span>
+    }
+    @if (infoCount() > 0) {
+      <span class="badge bg-info text-dark">{{ infoCount() }} {{ 'periodClosing.issues.severity.info' | translate }}</span>
+    }
+    @if (!hasIssues()) {
+      <span class="text-muted">{{ 'periodClosing.issues.empty' | translate }}</span>
+    }
+  </div>
+
+  @if (hasIssues()) {
+    <div class="issues-body">
+      @for (group of byDate(); track group.date) {
+        <div class="issues-date-group">
+          <div class="issues-date">{{ group.date | date:'mediumDate' }}</div>
+          <ul class="issues-list">
+            @for (item of group.items; track $index) {
+              <li class="issues-item issues-item-{{item.severity}}">
+                <span class="issues-client">{{ item.clientName }}</span>
+                <span class="issues-message">{{ item.messageKey | translate:item.messageParams }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+</app-expandable-card>

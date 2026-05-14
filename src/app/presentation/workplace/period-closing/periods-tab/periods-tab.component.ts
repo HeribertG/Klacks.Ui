@@ -12,11 +12,14 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { forkJoin } from 'rxjs';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
 
 interface PeriodGroup {
   intervalKey: string;
@@ -28,7 +31,7 @@ interface PeriodGroup {
   templateUrl: './periods-tab.component.html',
   styleUrls: ['./periods-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent, PeriodIssuesCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsTabComponent implements OnInit {
@@ -39,6 +42,7 @@ export class PeriodsTabComponent implements OnInit {
   public usedPeriods = signal<UsedPeriod[]>([]);
   public selectedPeriodKey = signal<string | null>(null);
   public summary = signal<SealedPeriodSummary[]>([]);
+  public issues = signal<PeriodIssue[]>([]);
   public loading = signal<boolean>(false);
   public loadingPeriods = signal<boolean>(false);
   public sealingDay = signal<string | null>(null);
@@ -125,12 +129,17 @@ export class PeriodsTabComponent implements OnInit {
     const period = this.selectedPeriod();
     if (!period) {
       this.summary.set([]);
+      this.issues.set([]);
       return;
     }
     this.loading.set(true);
-    this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId).subscribe({
-      next: (s) => {
-        this.summary.set(s);
+    forkJoin({
+      summary: this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId),
+      issues: this.api.getPeriodIssues(period.startDate, period.endDate, period.groupId),
+    }).subscribe({
+      next: ({ summary, issues }) => {
+        this.summary.set(summary);
+        this.issues.set(issues);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),

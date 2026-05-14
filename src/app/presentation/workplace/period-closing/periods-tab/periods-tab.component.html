@@ -122,6 +122,11 @@
       </section>
     }
 
+    <!-- Period issues card -->
+    @if (!loading() && selectedPeriod()) {
+      <app-period-issues-card [issues]="issues()"></app-period-issues-card>
+    }
+
     <!-- Unseal reason dialog (inline) -->
     @if (unsealReasonDay()) {
       <section class="reason-dialog">
