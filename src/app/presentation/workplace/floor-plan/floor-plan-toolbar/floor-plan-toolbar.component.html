@@ -414,18 +414,18 @@
 
   <div class="toolbar-separator"></div>
 
-  <div class="toolbar-group">
-    <div class="dropdown">
-      <button class="toolbar-btn" data-bs-toggle="dropdown" [title]="'floor-plan.toolbar.export' | translate">
-        <app-icon-fp-export />
-        <span class="ms-1">{{ 'floor-plan.toolbar.export' | translate }}</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><button class="dropdown-item" (click)="onExportSVG()">SVG</button></li>
-        <li><button class="dropdown-item" (click)="onExportPNG()">PNG</button></li>
-        <li><button class="dropdown-item" (click)="onExportJSON()">JSON</button></li>
-      </ul>
-    </div>
+  <div class="toolbar-group export-wrapper">
+    <button class="toolbar-btn" (click)="toggleExportMenu($event)" [title]="'floor-plan.toolbar.export' | translate">
+      <app-icon-fp-export />
+      <span class="ms-1">{{ 'floor-plan.toolbar.export' | translate }}</span>
+    </button>
+    @if (showExportMenu()) {
+      <div class="export-dropdown-menu">
+        <button class="export-dropdown-item" (click)="onExportSVG()">SVG</button>
+        <button class="export-dropdown-item" (click)="onExportPNG()">PNG</button>
+        <button class="export-dropdown-item" (click)="onExportJSON()">JSON</button>
+      </div>
+    }
   </div>
 
 </div>

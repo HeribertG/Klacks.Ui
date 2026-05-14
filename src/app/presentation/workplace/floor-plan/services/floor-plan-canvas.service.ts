@@ -491,6 +491,34 @@ export class FloorPlanCanvasService {
     this.saveHistory();
   }
 
+  moveSelectedByDelta(dx: number, dy: number): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    obj.set({
+      left: (obj.left ?? 0) + dx,
+      top: (obj.top ?? 0) + dy,
+    });
+    obj.setCoords();
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  resizeSelectedByDelta(dw: number, dh: number): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    const newWidth = Math.max(1, (obj.width ?? 0) * (obj.scaleX ?? 1) + dw);
+    const newHeight = Math.max(1, (obj.height ?? 0) * (obj.scaleY ?? 1) + dh);
+    obj.set({
+      scaleX: newWidth / (obj.width ?? 1),
+      scaleY: newHeight / (obj.height ?? 1),
+    });
+    obj.setCoords();
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
   toJSON(): string {
     if (!this.canvas) return '{}';
     return JSON.stringify(this.canvas.toObject());

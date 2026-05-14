@@ -93,6 +93,35 @@
   cursor: pointer;
 }
 
-.dropdown-menu {
+.export-wrapper {
+  position: relative;
+}
+
+.export-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1050;
   min-width: 100px;
+  background-color: var(--backgroundColorCard);
+  border: 1px solid var(--gridColorLine);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+}
+
+.export-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--standartTextColor);
+
+  &:hover {
+    background-color: var(--backgroundColorHover);
+  }
 }

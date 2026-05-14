@@ -10,6 +10,8 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectionStrategy,
+  HostListener,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -71,6 +73,18 @@ const STROKE_WIDTHS = [1, 2, 3, 4, 6, 8, 12, 16];
 })
 export class FloorPlanToolbarComponent {
   @ViewChild('importFileRef') importFileRef!: ElementRef<HTMLInputElement>;
+
+  readonly showExportMenu = signal(false);
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showExportMenu.set(false);
+  }
+
+  toggleExportMenu(event: Event): void {
+    event.stopPropagation();
+    this.showExportMenu.update(v => !v);
+  }
 
   canvasService = inject(FloorPlanCanvasService);
   toolService = inject(FloorPlanToolService);
