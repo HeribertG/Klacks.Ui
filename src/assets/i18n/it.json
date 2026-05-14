@@ -1214,7 +1214,7 @@
   "setting.holisticHarmonizer.llmModelNone": "(nessuno)",
   "setting.holisticHarmonizer.check.run": "Verifica tutti i modelli",
   "setting.holisticHarmonizer.check.running": "Verifica in corso...",
-  "setting.holisticHarmonizer.check.hint": "Esegue il ping di ogni modello attivo con un prompt JSON di test (timeout 30 s per modello).",
+  "setting.holisticHarmonizer.check.hint": "Invia un piccolo bitmap di prova a ogni modello attivo e verifica che sappia leggerlo. La procedura guidata 3 richiede modelli capaci di elaborare immagini (timeout 90 s per modello).",
   "setting.holisticHarmonizer.check.col-model": "Modello",
   "setting.holisticHarmonizer.check.col-provider": "Provider",
   "setting.holisticHarmonizer.check.col-status": "Stato",

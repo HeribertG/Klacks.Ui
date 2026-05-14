@@ -10,7 +10,7 @@
  * @param currentJobId - Signal with the currently tracked job id (or null)
  */
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { firstValueFrom } from 'rxjs';
@@ -18,6 +18,7 @@ import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { HolisticHarmonizerSignalRConstants } from '../../signalr/signalr.constants';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 import {
   CancelHolisticHarmonizerResponse,
   HolisticHarmonizerApplyRequest,
@@ -88,7 +89,9 @@ export class DataHolisticHarmonizerService implements OnDestroy {
 
   async checkAllModels(): Promise<HolisticHarmonizerModelCheckResponse> {
     return firstValueFrom(
-      this.http.post<HolisticHarmonizerModelCheckResponse>(`${this.apiBase}/CheckAllModels`, {}),
+      this.http.post<HolisticHarmonizerModelCheckResponse>(`${this.apiBase}/CheckAllModels`, {}, {
+        context: new HttpContext().set(SKIP_LOADING, true),
+      }),
     );
   }
 

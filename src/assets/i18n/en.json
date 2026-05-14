@@ -1214,7 +1214,7 @@
   "setting.holisticHarmonizer.llmModelNone": "(none)",
   "setting.holisticHarmonizer.check.run": "Check all models",
   "setting.holisticHarmonizer.check.running": "Checking...",
-  "setting.holisticHarmonizer.check.hint": "Pings every enabled model with a JSON test prompt (30 s timeout per model).",
+  "setting.holisticHarmonizer.check.hint": "Sends a tiny test bitmap to each enabled model and verifies it can read the image back. Wizard 3 requires vision-capable models (90 s timeout per model).",
   "setting.holisticHarmonizer.check.col-model": "Model",
   "setting.holisticHarmonizer.check.col-provider": "Provider",
   "setting.holisticHarmonizer.check.col-status": "Status",

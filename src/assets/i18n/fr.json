@@ -1214,7 +1214,7 @@
   "setting.holisticHarmonizer.llmModelNone": "(aucun)",
   "setting.holisticHarmonizer.check.run": "Vérifier tous les modèles",
   "setting.holisticHarmonizer.check.running": "Vérification...",
-  "setting.holisticHarmonizer.check.hint": "Pingue chaque modèle activé avec un prompt JSON de test (délai 30 s par modèle).",
+  "setting.holisticHarmonizer.check.hint": "Envoie un petit bitmap de test à chaque modèle activé et vérifie qu'il peut le lire. L'assistant 3 nécessite des modèles capables de traiter des images (délai 90 s par modèle).",
   "setting.holisticHarmonizer.check.col-model": "Modèle",
   "setting.holisticHarmonizer.check.col-provider": "Fournisseur",
   "setting.holisticHarmonizer.check.col-status": "Statut",
