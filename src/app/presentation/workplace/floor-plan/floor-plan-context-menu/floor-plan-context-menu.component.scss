@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-// Overrides for Bootstrap .dropdown-menu — ensures fixed positioning over the canvas
+@use "src/assets/standard-styles/menu";
+
+// Override Bootstrap defaults — fixed positioning over canvas
 .dropdown-menu {
   position: fixed;
   z-index: 9000;
@@ -18,10 +20,5 @@
 
   svg {
     flex-shrink: 0;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    pointer-events: none;
   }
 }
