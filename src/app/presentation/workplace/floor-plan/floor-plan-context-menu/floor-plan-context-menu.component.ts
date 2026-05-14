@@ -17,6 +17,7 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Rect, Circle, Polygon, Path, Line } from 'fabric';
@@ -32,6 +33,7 @@ import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
   templateUrl: './floor-plan-context-menu.component.html',
   styleUrls: ['./floor-plan-context-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
   readonly mergeService = inject(FloorPlanMergeService);
