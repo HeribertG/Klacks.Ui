@@ -56,6 +56,18 @@
   color: var(--bs-secondary, #6c757d);
 }
 
+:host ::ng-deep .table-header-cell {
+  height: auto;
+  min-height: 20px;
+  align-items: center;
+
+  p {
+    margin: 0;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}
+
 .header-sealed-check {
   width: 100px;
   min-width: 100px;

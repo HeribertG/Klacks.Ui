@@ -2399,6 +2399,7 @@
   "periodClosing.format.bmd": "BMD NTCS",
   "periodClosing.audit.action.seal": "Scellée",
   "periodClosing.audit.action.unseal": "Rouverte",
+  "periodClosing.periods.tableHeader": "Jours de la période",
   "periodClosing.periods.columnDate": "DATE",
   "periodClosing.periods.columnSealed": "SCELLÉES / TOTAL",
   "periodClosing.periods.columnStatus": "Status",

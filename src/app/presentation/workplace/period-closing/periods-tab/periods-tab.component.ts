@@ -15,6 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 interface PeriodGroup {
@@ -27,7 +28,7 @@ interface PeriodGroup {
   templateUrl: './periods-tab.component.html',
   styleUrls: ['./periods-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsTabComponent implements OnInit {

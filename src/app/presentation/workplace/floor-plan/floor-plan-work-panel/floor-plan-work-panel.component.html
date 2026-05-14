@@ -11,68 +11,36 @@
       [ngModel]="searchText()"
       (ngModelChange)="onSearchChange($event)"
     />
-    <button class="btn btn-sm btn-primary" (click)="toggleAddForm()">
-      {{ (showAddForm() ? 'common.cancel' : 'floor-plan.works.add') | translate }}
-    </button>
   </div>
 
-  @if (showAddForm()) {
-    <div class="work-add-form">
-      <input
-        type="text"
-        class="form-control form-control-sm mb-2"
-        [placeholder]="'floor-plan.works.label' | translate"
-        [ngModel]="newLabel()"
-        (ngModelChange)="newLabel.set($event)"
-      />
-      <select class="form-select form-select-sm mb-2" [ngModel]="newMarkerType()" (ngModelChange)="newMarkerType.set($event)">
-        <option [value]="FloorPlanMarkerType.Location">Location</option>
-        <option [value]="FloorPlanMarkerType.Work">Work</option>
-        <option [value]="FloorPlanMarkerType.Custom">Custom</option>
-      </select>
-      <div class="d-flex align-items-center gap-2 mb-2">
-        <input
-          type="color"
-          class="form-control form-control-sm"
-          style="width: 40px; height: 32px; padding: 2px;"
-          [ngModel]="newColor()"
-          (ngModelChange)="newColor.set($event)"
-        />
-        <button class="btn btn-sm btn-success flex-fill" (click)="onAddMarker()">
-          {{ 'common.save' | translate }}
-        </button>
-      </div>
-    </div>
-  }
-
   <div class="work-list">
-    @if (dataManagement.isLoading()) {
+    @if (isLoadingShifts()) {
       <div class="work-loading">
         <div class="spinner-border spinner-border-sm" role="status">
-          <span class="visually-hidden">Loading...</span>
+          <span class="visually-hidden">{{ 'floor-plan.works.loading' | translate }}</span>
         </div>
       </div>
-    } @else if (filteredMarkers().length === 0) {
+    } @else if (filteredShifts().length === 0) {
       <div class="work-empty">
         <span>{{ 'floor-plan.works.empty' | translate }}</span>
       </div>
     } @else {
-      @for (marker of filteredMarkers(); track marker.id ?? $index) {
+      @for (shift of filteredShifts(); track shift.id ?? $index) {
         <div
           class="work-item"
           draggable="true"
-          (dragstart)="onDragStart(marker, $event)"
+          (dragstart)="onDragStartShift(shift, $event)"
           (dragend)="onDragEnd()"
-          [title]="formatTime(marker.startTime, marker.endTime)"
+          [title]="formatTime(shift.startShift, shift.endShift)"
         >
-          <div class="work-color-bar" [style.background-color]="marker.color ?? 'var(--colorAccent, #0d6efd)'"></div>
+          <div class="work-color-bar" style="background-color: var(--colorAccent, #2563eb)"></div>
           <div class="work-info">
-            <span class="work-client">{{ marker.clientName ?? marker.label }}</span>
-            @if (marker.shiftName) {
-              <span class="work-shift">{{ marker.shiftName }}</span>
+            <span class="work-client">{{ shift.name }}</span>
+            @if (shift.abbreviation) {
+              <span class="work-shift">{{ shift.abbreviation }}</span>
             }
-            @if (marker.startTime || marker.endTime) {
-              <span class="work-time">{{ formatTime(marker.startTime, marker.endTime) }}</span>
+            @if (shift.startShift || shift.endShift) {
+              <span class="work-time">{{ formatTime(shift.startShift, shift.endShift) }}</span>
             }
           </div>
           <div class="work-drag-handle">

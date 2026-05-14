@@ -11,6 +11,7 @@ export interface FloorPlanDragData {
   shiftName?: string;
   startTime?: string;
   endTime?: string;
+  markerType?: number;
 }
 
 @Injectable()

@@ -67,54 +67,58 @@
           }
         </div>
 
-        <div class="container-table">
-          <table class="table table-borderless">
-            <thead>
-              <tr>
-                <th class="table-header header-sealed-check">
-                  <div class="table-header-cell">
-                    <p class="gap noselect">{{ 'periodClosing.periods.columnSealed' | translate }}</p>
-                  </div>
-                </th>
-                <th class="table-header header-date">
-                  <div class="table-header-cell">
-                    <p class="gap noselect">{{ 'periodClosing.periods.columnDate' | translate }}</p>
-                  </div>
-                </th>
-                <th class="table-header header-status">
-                  <div class="table-header-cell">
-                    <p class="gap noselect">{{ 'periodClosing.periods.columnStatus' | translate }}</p>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of displayDays(); track row.date; let i = $index) {
-                <tr
-                  class="table-row"
-                  [class.active]="row.isFullySealed"
-                  [class.empty-row]="!hasEntries(row)">
-                  <td class="table-cell cell-checkbox">
-                    @if (sealingDay() === row.date) {
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    } @else {
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        [checked]="row.isFullySealed"
-                        [disabled]="bulkLoading()"
-                        (change)="onDaySealToggle(row)" />
-                    }
-                  </td>
-                  <td class="table-cell">{{ row.date | date:'mediumDate' }}</td>
-                  <td class="table-cell cell-right">
-                    {{ row.sealedWorkCount }}/{{ row.totalWorkCount }} Work, {{ row.sealedBreakCount }}/{{ row.totalBreakCount }} Break
-                  </td>
+        <app-expandable-card
+          [headerTitle]="'periodClosing.periods.tableHeader' | translate"
+          [initiallyExpanded]="true">
+          <div class="container-table">
+            <table class="table table-borderless">
+              <thead>
+                <tr>
+                  <th class="table-header header-sealed-check">
+                    <div class="table-header-cell">
+                      <p class="gap noselect">{{ 'periodClosing.periods.columnSealed' | translate }}</p>
+                    </div>
+                  </th>
+                  <th class="table-header header-date">
+                    <div class="table-header-cell">
+                      <p class="gap noselect">{{ 'periodClosing.periods.columnDate' | translate }}</p>
+                    </div>
+                  </th>
+                  <th class="table-header header-status">
+                    <div class="table-header-cell">
+                      <p class="gap noselect">{{ 'periodClosing.periods.columnStatus' | translate }}</p>
+                    </div>
+                  </th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                @for (row of displayDays(); track row.date; let i = $index) {
+                  <tr
+                    class="table-row"
+                    [class.active]="row.isFullySealed"
+                    [class.empty-row]="!hasEntries(row)">
+                    <td class="table-cell cell-checkbox">
+                      @if (sealingDay() === row.date) {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      } @else {
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          [checked]="row.isFullySealed"
+                          [disabled]="bulkLoading()"
+                          (change)="onDaySealToggle(row)" />
+                      }
+                    </td>
+                    <td class="table-cell">{{ row.date | date:'mediumDate' }}</td>
+                    <td class="table-cell cell-right">
+                      {{ row.sealedWorkCount }}/{{ row.totalWorkCount }} Work, {{ row.sealedBreakCount }}/{{ row.totalBreakCount }} Break
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </app-expandable-card>
       </section>
     }
 

@@ -2399,6 +2399,7 @@
   "periodClosing.format.bmd": "BMD NTCS",
   "periodClosing.audit.action.seal": "Sigillato",
   "periodClosing.audit.action.unseal": "Riaperto",
+  "periodClosing.periods.tableHeader": "Giorni del periodo",
   "periodClosing.periods.columnDate": "DATA",
   "periodClosing.periods.columnSealed": "SIGILLATE / TOTALE",
   "periodClosing.periods.columnStatus": "Status",

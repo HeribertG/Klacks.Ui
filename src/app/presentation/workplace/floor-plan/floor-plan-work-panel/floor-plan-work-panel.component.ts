@@ -1,15 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, signal, computed, OnInit, OnDestroy,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+/**
+ * Side panel that loads shift definitions and displays them as draggable items
+ * that can be dropped onto the floor plan canvas to create work assignments.
+ */
+import { Component, inject, signal, computed, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
-import { DataManagementFloorPlanService } from 'src/app/domain/services/floor-plan/data-management-floor-plan.service';
-import { IFloorPlanWorkMarker, FloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
 import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
+import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
+import { IShift } from 'src/app/domain/models/shift/shift-class';
+import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+
+const SHIFT_LOAD_COUNT = 500;
 
 @Component({
   selector: 'app-floor-plan-work-panel',
@@ -21,35 +26,26 @@ import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type
 })
 export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   private workDropService = inject(FloorPlanWorkDropService);
-  dataManagement = inject(DataManagementFloorPlanService);
+  private dataShiftService = inject(DataShiftService);
   private destroy$ = new Subject<void>();
 
   readonly searchText = signal<string>('');
-  readonly showAddForm = signal(false);
-  readonly newLabel = signal('');
-  readonly newMarkerType = signal<FloorPlanMarkerType>(FloorPlanMarkerType.Location);
-  readonly newColor = signal('#0d6efd');
-  readonly FloorPlanMarkerType = FloorPlanMarkerType;
+  readonly availableShifts = signal<IShift[]>([]);
+  readonly isLoadingShifts = signal(false);
 
-  readonly workMarkers = computed(() => {
-    const plan = this.dataManagement.selectedFloorPlan();
-    return plan?.workMarkers ?? [];
-  });
-
-  readonly filteredMarkers = computed(() => {
+  readonly filteredShifts = computed(() => {
     const search = this.searchText().toLowerCase().trim();
-    const markers = this.workMarkers();
-    if (!search) return markers;
-    return markers.filter(
-      (m) =>
-        m.clientName?.toLowerCase().includes(search) ||
-        m.shiftName?.toLowerCase().includes(search) ||
-        m.label?.toLowerCase().includes(search)
+    const shifts = this.availableShifts();
+    if (!search) return shifts;
+    return shifts.filter(
+      (s) =>
+        s.name?.toLowerCase().includes(search) ||
+        s.abbreviation?.toLowerCase().includes(search)
     );
   });
 
   ngOnInit(): void {
-    this.dataManagement.loadAll();
+    this.loadShifts();
   }
 
   ngOnDestroy(): void {
@@ -57,49 +53,42 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private loadShifts(): void {
+    const filter = new ShiftFilter();
+    filter.numberOfItemsPerPage = SHIFT_LOAD_COUNT;
+    filter.activeDateRange = true;
+
+    this.isLoadingShifts.set(true);
+    this.dataShiftService.readShiftList(filter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.availableShifts.set(result.shifts ?? []);
+          this.isLoadingShifts.set(false);
+        },
+        error: () => {
+          this.isLoadingShifts.set(false);
+        },
+      });
+  }
+
   onSearchChange(value: string): void {
     this.searchText.set(value);
   }
 
-  toggleAddForm(): void {
-    this.showAddForm.update((v) => !v);
-    this.newLabel.set('');
-    this.newMarkerType.set(FloorPlanMarkerType.Location);
-    this.newColor.set('#0d6efd');
-  }
-
-  async onAddMarker(): Promise<void> {
-    const plan = this.dataManagement.selectedFloorPlan();
-    if (!plan?.id || !this.newLabel().trim()) return;
-
-    const marker = new FloorPlanWorkMarker();
-    marker.floorPlanId = plan.id;
-    marker.label = this.newLabel().trim();
-    marker.markerType = this.newMarkerType();
-    marker.color = this.newColor();
-    marker.x = 0;
-    marker.y = 0;
-    marker.width = 120;
-    marker.height = 50;
-
-    await this.dataManagement.addMarker(marker);
-    this.toggleAddForm();
-  }
-
-  onDragStart(marker: IFloorPlanWorkMarker, event: DragEvent): void {
+  onDragStartShift(shift: IShift, event: DragEvent): void {
     this.workDropService.startDrag({
-      id: marker.id,
-      clientId: marker.clientId,
-      clientName: marker.clientName,
-      label: marker.label,
-      shiftName: marker.shiftName,
-      startTime: marker.startTime,
-      endTime: marker.endTime,
+      shiftId: shift.id,
+      shiftName: shift.name,
+      label: shift.abbreviation || shift.name,
+      startTime: shift.startShift?.slice(0, 5),
+      endTime: shift.endShift?.slice(0, 5),
+      markerType: FloorPlanMarkerType.Work,
     });
 
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'copy';
-      event.dataTransfer.setData('text/plain', marker.id ?? '');
+      event.dataTransfer.setData('text/plain', shift.id ?? '');
     }
   }
 
@@ -111,7 +100,7 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
 
   formatTime(start?: string, end?: string): string {
     if (!start && !end) return '';
-    if (start && end) return `${start} - ${end}`;
+    if (start && end) return `${start} – ${end}`;
     return start ?? end ?? '';
   }
 }
