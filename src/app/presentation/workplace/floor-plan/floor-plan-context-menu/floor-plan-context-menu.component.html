@@ -1,7 +1,7 @@
 @if (isOpen()) {
-  <div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
+  <div class="dropdown-menu" [style.left.px]="x()" [style.top.px]="y()">
     @if (mergeService.canMerge()) {
-      <button class="context-menu-item" (click)="onMerge()">
+      <button class="dropdown-item" (click)="onMerge()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="8" cy="8" r="5"/>
           <circle cx="16" cy="16" r="5"/>
@@ -10,7 +10,7 @@
       </button>
     }
     @if (joinService.canJoin()) {
-      <button class="context-menu-item" (click)="onJoin()">
+      <button class="dropdown-item" (click)="onJoin()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M12.4644661,14.5355339 L9.46446609,14.5355339 C8.91218134,14.5355339 8.46446609,14.9832492 8.46446609,15.5355339 C8.46446609,16.0878187 8.91218134,16.5355339 9.46446609,16.5355339 L12.4644661,16.5355339 L12.4644661,17.5355339 C12.4644661,18.6401034 11.5690356,19.5355339 10.4644661,19.5355339 L6.46446609,19.5355339 C5.35989659,19.5355339 4.46446609,18.6401034 4.46446609,17.5355339 L4.46446609,13.5355339 C4.46446609,12.4309644 5.35989659,11.5355339 6.46446609,11.5355339 L10.4644661,11.5355339 C11.5690356,11.5355339 12.4644661,12.4309644 12.4644661,13.5355339 L12.4644661,14.5355339 Z" fill="currentColor" opacity="0.3" transform="translate(8.464466,15.535534) rotate(-45) translate(-8.464466,-15.535534)"/>
           <path d="M11.5355339,9.46446609 L14.5355339,9.46446609 C15.0878187,9.46446609 15.5355339,9.01675084 15.5355339,8.46446609 C15.5355339,7.91218134 15.0878187,7.46446609 14.5355339,7.46446609 L11.5355339,7.46446609 L11.5355339,6.46446609 C11.5355339,5.35989659 12.4309644,4.46446609 13.5355339,4.46446609 L17.5355339,4.46446609 C18.6401034,4.46446609 19.5355339,5.35989659 19.5355339,6.46446609 L19.5355339,10.4644661 C19.5355339,11.5690356 18.6401034,12.4644661 17.5355339,12.4644661 L13.5355339,12.4644661 C12.4309644,12.4644661 11.5355339,11.5690356 11.5355339,10.4644661 L11.5355339,9.46446609 Z" fill="currentColor" transform="translate(15.535534,8.464466) rotate(-45) translate(-15.535534,-8.464466)"/>
@@ -19,7 +19,7 @@
       </button>
     }
     @if (canClosePath()) {
-      <button class="context-menu-item" (click)="onClosePath()">
+      <button class="dropdown-item" (click)="onClosePath()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M21,12 C21,16.9705627 16.9705627,21 12,21 C7.02943725,21 3,16.9705627 3,12 C3,7.02943725 7.02943725,3 12,3 C16.9705627,3 21,7.02943725 21,12 Z" fill="currentColor" opacity="0.3"/>
           <path d="M12,3 L12,21 M12,3 C16.9705627,3 21,7.02943725 21,12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -28,7 +28,7 @@
       </button>
     }
     @if (canEditPoints()) {
-      <button class="context-menu-item" (click)="onEditPoints()">
+      <button class="dropdown-item" (click)="onEditPoints()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M4.95312427,14.3025791 L3.04687573,13.6974209 C4.65100965,8.64439903 7.67317997,6 12,6 C16.32682,6 19.3489903,8.64439903 20.9531243,13.6974209 L19.0468757,14.3025791 C17.6880467,10.0222676 15.3768837,8 12,8 C8.62311633,8 6.31195331,10.0222676 4.95312427,14.3025791 Z M12,8 C12.5522847,8 13,7.55228475 13,7 C13,6.44771525 12.5522847,6 12,6 C11.4477153,6 11,6.44771525 11,7 C11,7.55228475 11.4477153,8 12,8 Z" fill="currentColor" opacity="0.3"/>
           <path d="M5.73243561,6 L9.17070571,6 C9.58254212,4.83480763 10.6937812,4 12,4 C13.3062188,4 14.4174579,4.83480763 14.8292943,6 L18.2675644,6 C18.6133738,5.40219863 19.2597176,5 20,5 C21.1045695,5 22,5.8954305 22,7 C22,8.1045695 21.1045695,9 20,9 C19.2597176,9 18.6133738,8.59780137 18.2675644,8 L14.8292943,8 C14.4174579,9.16519237 13.3062188,10 12,10 C10.6937812,10 9.58254212,9.16519237 9.17070571,8 L5.73243561,8 C5.38662619,8.59780137 4.74028236,9 4,9 C2.8954305,9 2,8.1045695 2,7 C2,5.8954305 2.8954305,5 4,5 C4.74028236,5 5.38662619,5.40219863 5.73243561,6 Z M12,8 C12.5522847,8 13,7.55228475 13,7 C13,6.44771525 12.5522847,6 12,6 C11.4477153,6 11,6.44771525 11,7 C11,7.55228475 11.4477153,8 12,8 Z M4,19 C2.34314575,19 1,17.6568542 1,16 C1,14.3431458 2.34314575,13 4,13 C5.65685425,13 7,14.3431458 7,16 C7,17.6568542 5.65685425,19 4,19 Z M4,17 C4.55228475,17 5,16.5522847 5,16 C5,15.4477153 4.55228475,15 4,15 C3.44771525,15 3,15.4477153 3,16 C3,16.5522847 3.44771525,17 4,17 Z M20,19 C18.3431458,19 17,17.6568542 17,16 C17,14.3431458 18.3431458,13 20,13 C21.6568542,13 23,14.3431458 23,16 C23,17.6568542 21.6568542,19 20,19 Z M20,17 C20.5522847,17 21,16.5522847 21,16 C21,15.4477153 20.5522847,15 20,15 C19.4477153,15 19,15.4477153 19,16 C19,16.5522847 19.4477153,17 20,17 Z" fill="currentColor"/>
@@ -36,8 +36,8 @@
         {{ 'floor-plan.contextmenu.edit-points' | translate }}
       </button>
     }
-    <div class="context-menu-separator"></div>
-    <button class="context-menu-item" (click)="onCopy()">
+    <hr class="dropdown-divider">
+    <button class="dropdown-item" (click)="onCopy()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
         <rect x="3" y="3" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="2"/>
         <rect x="9" y="9" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="2"/>
@@ -45,7 +45,7 @@
       {{ 'floor-plan.contextmenu.copy' | translate }}
     </button>
     @if (canPaste()) {
-      <button class="context-menu-item" (click)="onPaste()">
+      <button class="dropdown-item" (click)="onPaste()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
           <rect x="4" y="7" width="16" height="14" rx="1.5" stroke="currentColor" stroke-width="2"/>
           <path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -53,8 +53,8 @@
         {{ 'floor-plan.contextmenu.paste' | translate }}
       </button>
     }
-    <div class="context-menu-separator"></div>
-    <button class="context-menu-item" (click)="onFlipH()">
+    <hr class="dropdown-divider">
+    <button class="dropdown-item" (click)="onFlipH()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
         <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="2" stroke-dasharray="2.5 2"/>
         <path d="M3 8 L8 12 L3 16 L3 8Z" fill="currentColor"/>
@@ -62,7 +62,7 @@
       </svg>
       {{ 'floor-plan.contextmenu.flip-h' | translate }}
     </button>
-    <button class="context-menu-item" (click)="onFlipV()">
+    <button class="dropdown-item" (click)="onFlipV()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
         <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="2.5 2"/>
         <path d="M8 3 L12 8 L16 3 L8 3Z" fill="currentColor"/>
