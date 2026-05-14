@@ -27,6 +27,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { ShiftDataService } from '../../services/shift-data.service';
+import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftRowHeaderCanvasService } from './shift-row-header-canvas.service';
 import { ShiftRowHeaderIconsService } from './shift-row-header-icons.service';
 
@@ -47,6 +48,17 @@ export class ShiftCreateRowHeaderService {
   private readonly borderWidth = 2;
   private readonly baseIconWidth = 24;
   private readonly baseIconHeight = 24;
+  private readonly baseBubbleRadius = 10;
+  private readonly bubbleColor = '#f9c74f';
+  private readonly bubbleTextColor = '#000000';
+  private readonly sporadicCharMap: Record<ShiftSporadic, string> = {
+    [ShiftSporadic.Week]: 'W',
+    [ShiftSporadic.Month]: 'M',
+    [ShiftSporadic.Quarter]: 'Q',
+    [ShiftSporadic.Semester]: 'S',
+    [ShiftSporadic.Year]: 'Y',
+    [ShiftSporadic.ContractualTerm]: 'C',
+  };
 
   private get margin(): number {
     return this.baseMargin * this.settings.zoom;
@@ -58,6 +70,10 @@ export class ShiftCreateRowHeaderService {
 
   private get iconHeight(): number {
     return this.baseIconHeight * this.settings.zoom;
+  }
+
+  private get bubbleRadius(): number {
+    return this.baseBubbleRadius * this.settings.zoom;
   }
 
   reset(): void {
@@ -78,6 +94,7 @@ export class ShiftCreateRowHeaderService {
       this.drawBorder(ctx, rec);
       this.drawIcon(ctx, row, rec);
       this.drawShiftName(ctx, row, rec);
+      this.drawSporadicBubble(ctx, row, rec);
     } else {
       this.fillEmptyBackground(ctx, rec);
     }
@@ -138,8 +155,11 @@ export class ShiftCreateRowHeaderService {
     const workTime = this.shiftData.getShiftWorkTime(row);
     const formattedWorkTime = this.shiftData.formatWorkTime(workTime);
     const displayText = `${shiftName} (${formattedWorkTime})`;
+    const bubbleSpace = this.shiftData.getShiftIsSporadic(row)
+      ? this.bubbleRadius * 2 + this.margin
+      : 0;
     const textStartX = isRtl
-      ? rec.left
+      ? rec.left + bubbleSpace
       : rec.left + this.margin + this.iconWidth + this.margin;
 
     DrawHelper.drawText(
@@ -148,8 +168,8 @@ export class ShiftCreateRowHeaderService {
       textStartX,
       rec.top,
       isRtl
-        ? rec.width - this.margin - this.iconWidth - this.margin * 2
-        : rec.width - textStartX - this.margin,
+        ? rec.width - this.margin - this.iconWidth - this.margin * 2 - bubbleSpace
+        : rec.width - textStartX - this.margin - bubbleSpace,
       rec.height,
       this.gridFonts.mainFontStringZoom,
       +this.gridFonts.mainFontSizeZoom,
@@ -157,6 +177,35 @@ export class ShiftCreateRowHeaderService {
       TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center
     );
+  }
+
+  private drawSporadicBubble(ctx: CanvasRenderingContext2D, row: number, rec: Rectangle): void {
+    const scope = this.shiftData.getShiftSporadicScope(row);
+    if (scope === undefined) return;
+
+    const char = this.sporadicCharMap[scope] ?? '?';
+    const r = this.bubbleRadius;
+    const isRtl = document.documentElement.dir === 'rtl';
+    const cx = isRtl
+      ? rec.left + this.margin + r
+      : rec.right - this.margin - r;
+    const cy = rec.top + rec.height / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = this.bubbleColor;
+    ctx.fill();
+    ctx.restore();
+
+    const fontSize = Math.round(r * 1.2);
+    ctx.save();
+    ctx.fillStyle = this.bubbleTextColor;
+    ctx.font = `bold ${fontSize}px ${this.gridFonts.mainFontStringZoom.split(' ').slice(1).join(' ')}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(char, cx, cy);
+    ctx.restore();
   }
 }
 

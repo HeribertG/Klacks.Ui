@@ -1,353 +1,449 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <div id="scheduling-defaults-setting-container" class="container-dashboard">
-  <div id="scheduling-defaults-setting-header" class="container-header">{{ 'settings.schedulingDefaults.headline' | translate }}</div>
+  <div id="scheduling-defaults-setting-header" class="container-header">
+    {{ "settings.schedulingDefaults.headline" | translate }}
+  </div>
 
   <div id="scheduling-defaults-setting-line" class="container-line"></div>
 
   @if (isDataLoaded) {
-  <form id="scheduling-defaults-setting-form">
-    <div id="scheduling-defaults-hours-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdDefaultWorkingHours">{{ 'settings.work.default-working-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [formField]="schedulingForm.defaultWorkingHours"
-          aria-label="sdDefaultWorkingHours"
-          id="sdDefaultWorkingHours"
-        />
+    <form id="scheduling-defaults-setting-form">
+      <div id="scheduling-defaults-hours-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdDefaultWorkingHours">{{
+            "settings.work.default-working-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="schedulingForm.defaultWorkingHours"
+            aria-label="sdDefaultWorkingHours"
+            id="sdDefaultWorkingHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdOvertimeThreshold">{{
+            "settings.work.overtime-threshold" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.overtimeThreshold"
+            aria-label="sdOvertimeThreshold"
+            id="sdOvertimeThreshold"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdOvertimeThreshold">{{ 'settings.work.overtime-threshold' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.overtimeThreshold"
-          aria-label="sdOvertimeThreshold"
-          id="sdOvertimeThreshold"
-        />
+      <div id="scheduling-defaults-guaranteed-maximum-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdGuaranteedHours">{{
+            "settings.work.guaranteed-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.guaranteedHours"
+            aria-label="sdGuaranteedHours"
+            id="sdGuaranteedHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdMaximumHours">{{
+            "settings.work.maximum-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.maximumHours"
+            aria-label="sdMaximumHours"
+            id="sdMaximumHours"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-guaranteed-maximum-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdGuaranteedHours">{{ 'settings.work.guaranteed-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.guaranteedHours"
-          aria-label="sdGuaranteedHours"
-          id="sdGuaranteedHours"
-        />
+      <div id="scheduling-defaults-minimum-fulltime-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdMinimumHours">{{
+            "settings.work.minimum-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.minimumHours"
+            aria-label="sdMinimumHours"
+            id="sdMinimumHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdFullTime">{{
+            "settings.work.full-time" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.fullTime"
+            aria-label="sdFullTime"
+            id="sdFullTime"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdMaximumHours">{{ 'settings.work.maximum-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.maximumHours"
-          aria-label="sdMaximumHours"
-          id="sdMaximumHours"
-        />
+      <div
+        id="scheduling-defaults-workdays-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label for="sdSchedulingMaxWorkDays">{{
+            "settings.work.scheduling-max-work-days" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxWorkDays"
+            aria-label="sdSchedulingMaxWorkDays"
+            id="sdSchedulingMaxWorkDays"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdSchedulingMinRestDays">{{
+            "settings.work.scheduling-min-rest-days" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMinRestDays"
+            aria-label="sdSchedulingMinRestDays"
+            id="sdSchedulingMinRestDays"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-minimum-fulltime-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdMinimumHours">{{ 'settings.work.minimum-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.minimumHours"
-          aria-label="sdMinimumHours"
-          id="sdMinimumHours"
-        />
+      <div id="scheduling-defaults-pause-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdSchedulingMinPauseHours">{{
+            "settings.work.scheduling-min-pause-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMinPauseHours"
+            aria-label="sdSchedulingMinPauseHours"
+            id="sdSchedulingMinPauseHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdSchedulingMaxOptimalGap">{{
+            "settings.work.scheduling-max-optimal-gap" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxOptimalGap"
+            aria-label="sdSchedulingMaxOptimalGap"
+            id="sdSchedulingMaxOptimalGap"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdFullTime">{{ 'settings.work.full-time' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.fullTime"
-          aria-label="sdFullTime"
-          id="sdFullTime"
-        />
+      <div id="scheduling-defaults-daily-weekly-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdSchedulingMaxDailyHours">{{
+            "settings.work.scheduling-max-daily-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="0.5"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxDailyHours"
+            aria-label="sdSchedulingMaxDailyHours"
+            id="sdSchedulingMaxDailyHours"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdSchedulingMaxWeeklyHours">{{
+            "settings.work.scheduling-max-weekly-hours" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxWeeklyHours"
+            aria-label="sdSchedulingMaxWeeklyHours"
+            id="sdSchedulingMaxWeeklyHours"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-workdays-row" class="row-line" style="margin-top: 16px;">
-      <div class="form-group firstColumn">
-        <label for="sdSchedulingMaxWorkDays">{{ 'settings.work.scheduling-max-work-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMaxWorkDays"
-          aria-label="sdSchedulingMaxWorkDays"
-          id="sdSchedulingMaxWorkDays"
-        />
+      <div id="scheduling-defaults-consecutive-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdSchedulingMaxConsecutiveDays">{{
+            "settings.work.scheduling-max-consecutive-days" | translate
+          }}</label>
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.schedulingMaxConsecutiveDays"
+            aria-label="sdSchedulingMaxConsecutiveDays"
+            id="sdSchedulingMaxConsecutiveDays"
+          />
+        </div>
+        <div class="form-group secondColumn"></div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdSchedulingMinRestDays">{{ 'settings.work.scheduling-min-rest-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMinRestDays"
-          aria-label="sdSchedulingMinRestDays"
-          id="sdSchedulingMinRestDays"
-        />
+      <div
+        id="scheduling-defaults-rates-row-1"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label for="sdNightRate"
+            >{{ "settings.work.night-rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.nightRate"
+            aria-label="sdNightRate"
+            id="sdNightRate"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdHolidayRate"
+            >{{ "settings.work.holiday-rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.holidayRate"
+            aria-label="sdHolidayRate"
+            id="sdHolidayRate"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-pause-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdSchedulingMinPauseHours">{{ 'settings.work.scheduling-min-pause-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMinPauseHours"
-          aria-label="sdSchedulingMinPauseHours"
-          id="sdSchedulingMinPauseHours"
-        />
+      <div id="scheduling-defaults-rates-row-2" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdSaRate"
+            >{{ "settings.work.sa-rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.saRate"
+            aria-label="sdSaRate"
+            id="sdSaRate"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdSoRate"
+            >{{ "settings.work.so-rate" | translate }} (%)</label
+          >
+          <input
+            type="number"
+            step="1"
+            class="form-control"
+            [formField]="schedulingForm.soRate"
+            aria-label="sdSoRate"
+            id="sdSoRate"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdSchedulingMaxOptimalGap">{{ 'settings.work.scheduling-max-optimal-gap' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMaxOptimalGap"
-          aria-label="sdSchedulingMaxOptimalGap"
-          id="sdSchedulingMaxOptimalGap"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-daily-weekly-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdSchedulingMaxDailyHours">{{ 'settings.work.scheduling-max-daily-hours' | translate }}</label>
-        <input
-          type="number"
-          step="0.5"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMaxDailyHours"
-          aria-label="sdSchedulingMaxDailyHours"
-          id="sdSchedulingMaxDailyHours"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="sdSchedulingMaxWeeklyHours">{{ 'settings.work.scheduling-max-weekly-hours' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMaxWeeklyHours"
-          aria-label="sdSchedulingMaxWeeklyHours"
-          id="sdSchedulingMaxWeeklyHours"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-consecutive-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdSchedulingMaxConsecutiveDays">{{ 'settings.work.scheduling-max-consecutive-days' | translate }}</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.schedulingMaxConsecutiveDays"
-          aria-label="sdSchedulingMaxConsecutiveDays"
-          id="sdSchedulingMaxConsecutiveDays"
-        />
-      </div>
-      <div class="form-group secondColumn">
-      </div>
-    </div>
-    <div id="scheduling-defaults-rates-row-1" class="row-line" style="margin-top: 16px;">
-      <div class="form-group firstColumn">
-        <label for="sdNightRate">{{ 'settings.work.night-rate' | translate }} (%)</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.nightRate"
-          aria-label="sdNightRate"
-          id="sdNightRate"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="sdHolidayRate">{{ 'settings.work.holiday-rate' | translate }} (%)</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.holidayRate"
-          aria-label="sdHolidayRate"
-          id="sdHolidayRate"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-rates-row-2" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdSaRate">{{ 'settings.work.sa-rate' | translate }} (%)</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.saRate"
-          aria-label="sdSaRate"
-          id="sdSaRate"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="sdSoRate">{{ 'settings.work.so-rate' | translate }} (%)</label>
-        <input
-          type="number"
-          step="1"
-          class="form-control"
-          [formField]="schedulingForm.soRate"
-          aria-label="sdSoRate"
-          id="sdSoRate"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-workdays-row" class="row-line" style="margin-top: 16px;">
-      <div class="form-group firstColumn">
-        <label for="scheduling-defaults-workdays">{{ 'settings.work.default-work-days' | translate }}</label>
-        <div class="workdays-inline">
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnMonday" />
-            {{ 'settings.work.monday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnTuesday" />
-            {{ 'settings.work.tuesday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnWednesday" />
-            {{ 'settings.work.wednesday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnThursday" />
-            {{ 'settings.work.thursday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnFriday" />
-            {{ 'settings.work.friday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnSaturday" />
-            {{ 'settings.work.saturday' | translate }}
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" [formField]="schedulingForm.workOnSunday" />
-            {{ 'settings.work.sunday' | translate }}
+      <div
+        id="scheduling-defaults-workdays-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label for="scheduling-defaults-workdays">{{
+            "settings.work.default-work-days" | translate
+          }}</label>
+          <div class="workdays-inline">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnMonday"
+              />
+              {{ "settings.work.monday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnTuesday"
+              />
+              {{ "settings.work.tuesday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnWednesday"
+              />
+              {{ "settings.work.wednesday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnThursday"
+              />
+              {{ "settings.work.thursday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnFriday"
+              />
+              {{ "settings.work.friday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnSaturday"
+              />
+              {{ "settings.work.saturday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.workOnSunday"
+              />
+              {{ "settings.work.sunday" | translate }}
+            </label>
+          </div>
+        </div>
+        <div class="form-group secondColumn">
+          <label for="scheduling-defaults-shift-work">&#8203;</label>
+          <label class="checkbox-label shift-work-label">
+            <input
+              type="checkbox"
+              [formField]="schedulingForm.performsShiftWork"
+            />
+            {{ "settings.work.performs-shift-work" | translate }}
           </label>
         </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="scheduling-defaults-shift-work">&#8203;</label>
-        <label class="checkbox-label shift-work-label">
-          <input type="checkbox" [formField]="schedulingForm.performsShiftWork" />
-          {{ 'settings.work.performs-shift-work' | translate }}
-        </label>
+      <div
+        id="scheduling-defaults-command-keywords-header"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label>{{
+            "settings.scheduling.command-keywords" | translate
+          }}</label>
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-command-keywords-header" class="row-line" style="margin-top: 16px;">
-      <div class="form-group firstColumn">
-        <div class="section-subheading"><strong>{{ 'settings.scheduling.command-keywords' | translate }}</strong></div>
+      <div id="scheduling-defaults-command-free-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdCommandKeywordFree">{{
+            "settings.scheduling.command-free" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordFree"
+            aria-label="sdCommandKeywordFree"
+            id="sdCommandKeywordFree"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdCommandKeywordNegFree">{{
+            "settings.scheduling.command-neg-free" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordNegFree"
+            aria-label="sdCommandKeywordNegFree"
+            id="sdCommandKeywordNegFree"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-command-free-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdCommandKeywordFree">{{ 'settings.scheduling.command-free' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordFree"
-          aria-label="sdCommandKeywordFree"
-          id="sdCommandKeywordFree"
-        />
+      <div id="scheduling-defaults-command-early-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdCommandKeywordEarly">{{
+            "settings.scheduling.command-early" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordEarly"
+            aria-label="sdCommandKeywordEarly"
+            id="sdCommandKeywordEarly"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdCommandKeywordNegEarly">{{
+            "settings.scheduling.command-neg-early" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordNegEarly"
+            aria-label="sdCommandKeywordNegEarly"
+            id="sdCommandKeywordNegEarly"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdCommandKeywordNegFree">{{ 'settings.scheduling.command-neg-free' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordNegFree"
-          aria-label="sdCommandKeywordNegFree"
-          id="sdCommandKeywordNegFree"
-        />
+      <div id="scheduling-defaults-command-late-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdCommandKeywordLate">{{
+            "settings.scheduling.command-late" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordLate"
+            aria-label="sdCommandKeywordLate"
+            id="sdCommandKeywordLate"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdCommandKeywordNegLate">{{
+            "settings.scheduling.command-neg-late" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordNegLate"
+            aria-label="sdCommandKeywordNegLate"
+            id="sdCommandKeywordNegLate"
+          />
+        </div>
       </div>
-    </div>
-    <div id="scheduling-defaults-command-early-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdCommandKeywordEarly">{{ 'settings.scheduling.command-early' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordEarly"
-          aria-label="sdCommandKeywordEarly"
-          id="sdCommandKeywordEarly"
-        />
+      <div id="scheduling-defaults-command-night-row" class="row-line">
+        <div class="form-group firstColumn">
+          <label for="sdCommandKeywordNight">{{
+            "settings.scheduling.command-night" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordNight"
+            aria-label="sdCommandKeywordNight"
+            id="sdCommandKeywordNight"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdCommandKeywordNegNight">{{
+            "settings.scheduling.command-neg-night" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [formField]="schedulingForm.commandKeywordNegNight"
+            aria-label="sdCommandKeywordNegNight"
+            id="sdCommandKeywordNegNight"
+          />
+        </div>
       </div>
-      <div class="form-group secondColumn">
-        <label for="sdCommandKeywordNegEarly">{{ 'settings.scheduling.command-neg-early' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordNegEarly"
-          aria-label="sdCommandKeywordNegEarly"
-          id="sdCommandKeywordNegEarly"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-command-late-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdCommandKeywordLate">{{ 'settings.scheduling.command-late' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordLate"
-          aria-label="sdCommandKeywordLate"
-          id="sdCommandKeywordLate"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="sdCommandKeywordNegLate">{{ 'settings.scheduling.command-neg-late' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordNegLate"
-          aria-label="sdCommandKeywordNegLate"
-          id="sdCommandKeywordNegLate"
-        />
-      </div>
-    </div>
-    <div id="scheduling-defaults-command-night-row" class="row-line">
-      <div class="form-group firstColumn">
-        <label for="sdCommandKeywordNight">{{ 'settings.scheduling.command-night' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordNight"
-          aria-label="sdCommandKeywordNight"
-          id="sdCommandKeywordNight"
-        />
-      </div>
-      <div class="form-group secondColumn">
-        <label for="sdCommandKeywordNegNight">{{ 'settings.scheduling.command-neg-night' | translate }}</label>
-        <input
-          type="text"
-          class="form-control"
-          [formField]="schedulingForm.commandKeywordNegNight"
-          aria-label="sdCommandKeywordNegNight"
-          id="sdCommandKeywordNegNight"
-        />
-      </div>
-    </div>
-    <div class="bottom-border-space"></div>
-  </form>
+      <div class="bottom-border-space"></div>
+    </form>
   }
 </div>

@@ -58,7 +58,7 @@ select {
   font-size: 14px;
   margin-inline-start: 30px;
   margin-bottom: 10px;
-  color: var(--text-primary);
+  color: var(--standartTextColor);
 }
 
 .prompt-group {
@@ -74,7 +74,7 @@ select {
 
 .prompt-hint {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
   margin-top: 4px;
   margin-bottom: 8px;
 }

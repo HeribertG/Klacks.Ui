@@ -1,5 +1,6 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .first {
   padding-top: 10px;
@@ -28,7 +29,7 @@ input {
   margin-inline-start: 30px;
   margin-top: 10px;
   margin-bottom: 5px;
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
   font-size: 12px;
 }
 
@@ -39,6 +40,6 @@ input {
 }
 
 .hint-text {
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
   font-size: 11px;
 }

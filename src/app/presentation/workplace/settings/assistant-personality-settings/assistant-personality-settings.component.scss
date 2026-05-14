@@ -1,6 +1,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 :host {
   display: block;
@@ -11,7 +12,7 @@
   font-size: 12px;
   font-weight: normal;
   margin-inline-start: 12px;
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
 }
 
 .loading-hint,
@@ -19,7 +20,7 @@
   padding-inline-start: 30px;
   padding-inline-end: 30px;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
   margin-bottom: 12px;
 }
 
@@ -31,7 +32,7 @@
   label {
     font-weight: 600;
     font-size: 14px;
-    color: var(--text-primary);
+    color: var(--standartTextColor);
     display: block;
     margin-bottom: 4px;
   }
@@ -46,6 +47,6 @@
 
 .field-hint {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--standartTextColor);
   margin-top: 4px;
 }
