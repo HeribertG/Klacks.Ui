@@ -110,8 +110,100 @@
             <option [value]="model.value">{{ model.label }}</option>
           }
         </select>
+        <div class="model-check-row">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            [disabled]="isCheckingModels()"
+            (click)="onCheckBestModels()"
+          >
+            @if (isCheckingModels()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              {{ 'setting.speech.model-check.running' | translate }}
+            } @else {
+              {{ 'setting.speech.model-check.run' | translate }}
+            }
+          </button>
+          <span class="model-check-hint">{{ 'setting.speech.model-check.hint' | translate }}</span>
+        </div>
+        @if (modelCheckError(); as err) {
+          <div class="alert alert-danger model-check-error">{{ err }}</div>
+        }
       </div>
     </div>
+
+    @if (modelCheckResults().length > 0) {
+      <div class="model-check-table-wrapper">
+        <table class="table table-sm model-check-table">
+          <thead>
+            <tr>
+              <th>{{ 'setting.speech.model-check.col-model' | translate }}</th>
+              <th>{{ 'setting.speech.model-check.col-provider' | translate }}</th>
+              <th>{{ 'setting.speech.model-check.col-status' | translate }}</th>
+              <th class="text-end">{{ 'setting.speech.model-check.col-context' | translate }}</th>
+              <th class="text-end">{{ 'setting.speech.model-check.col-cost' | translate }}</th>
+              <th class="text-end">{{ 'setting.speech.model-check.col-latency' | translate }}</th>
+              <th class="text-end">{{ 'setting.speech.model-check.col-action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of modelCheckResults(); track r.modelId) {
+              <tr [class.table-success]="isModelRecommended(r.modelId)" [class.table-warning]="!r.isHealthy">
+                <td>
+                  <strong>{{ r.displayName }}</strong>
+                  @if (isModelRecommended(r.modelId)) {
+                    <span class="badge bg-success ms-1">
+                      {{ 'setting.speech.model-check.recommended' | translate }}
+                    </span>
+                  }
+                  <div class="model-check-id">{{ r.modelId }}</div>
+                </td>
+                <td>{{ r.providerId }}</td>
+                <td>
+                  @if (r.isHealthy) {
+                    <span class="badge bg-success">{{ 'setting.speech.model-check.status-ok' | translate }}</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{ 'setting.speech.model-check.status-fail' | translate }}</span>
+                    @if (r.error) {
+                      <div class="model-check-error-detail">{{ r.error }}</div>
+                    }
+                  }
+                </td>
+                <td class="text-end model-check-num">{{ r.contextWindow | number }}</td>
+                <td class="text-end model-check-num">
+                  @if (isModelFree(r)) {
+                    <span class="badge bg-info">{{ 'setting.speech.model-check.free' | translate }}</span>
+                  } @else {
+                    {{ r.costPerInputToken }}/{{ r.costPerOutputToken }}
+                  }
+                </td>
+                <td class="text-end model-check-num">
+                  @if (r.latencyMs > 0) {
+                    {{ r.latencyMs }} ms
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    [disabled]="!r.isHealthy || transcriptionModel === r.modelId"
+                    (click)="selectTranscriptionModel(r.modelId)"
+                  >
+                    @if (transcriptionModel === r.modelId) {
+                      {{ 'setting.speech.model-check.selected' | translate }}
+                    } @else {
+                      {{ 'setting.speech.model-check.select' | translate }}
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
 
     <div class="row-line">
       <div class="form-group firstColumn">

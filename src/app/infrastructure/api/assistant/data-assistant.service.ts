@@ -2,12 +2,29 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
+
+export interface ISpeechModelCheckDto {
+  modelId: string;
+  displayName: string;
+  providerId: string;
+  isHealthy: boolean;
+  latencyMs: number;
+  contextWindow: number;
+  costPerInputToken: number;
+  costPerOutputToken: number;
+  error: string | null;
+}
+
+export interface ISpeechModelCheckResponse {
+  models: ISpeechModelCheckDto[];
+}
 
 export interface IAssistantChatRequest {
   message: string;
@@ -109,6 +126,14 @@ export class DataAssistantService {
     return this.httpClient
       .post(`${this.baseUrl}models/${modelId}/set-default`, {})
       .pipe(retry(3));
+  }
+
+  checkSpeechModels(): Observable<ISpeechModelCheckResponse> {
+    return this.httpClient.post<ISpeechModelCheckResponse>(
+      `${this.baseUrl}models/check-speech`,
+      {},
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
   }
 
   getUsage(days = 30): Observable<IAssistantUsage> {

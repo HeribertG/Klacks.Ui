@@ -18,6 +18,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
@@ -26,7 +27,10 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
-import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import {
+  DataAssistantService,
+  ISpeechModelCheckDto,
+} from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import {
   DataTranscriptionDictionaryService,
   DictionaryEntry,
@@ -51,7 +55,7 @@ import {
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent, PencilIconGreyComponent, TrashIconRedComponent],
+  imports: [CommonModule, TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent, PencilIconGreyComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
@@ -78,6 +82,14 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   customSttProviders = signal<CustomSttProvider[]>([]);
   showSttModal = signal(false);
   editingSttProvider = signal<CustomSttProvider | null>(null);
+
+  private static readonly MinContextWindowForSpeech = 16000;
+  private static readonly RecommendedCount = 3;
+
+  readonly modelCheckResults = signal<ISpeechModelCheckDto[]>([]);
+  readonly isCheckingModels = signal(false);
+  readonly modelCheckError = signal<string | null>(null);
+  readonly recommendedModelIds = signal<Set<string>>(new Set<string>());
 
   // Hide TTS provider picker until OpenAI/ElevenLabs backend providers are implemented.
   readonly showTtsProvider = false;
@@ -297,5 +309,84 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   async toggleSttProvider(provider: CustomSttProvider): Promise<void> {
     provider.isEnabled = !provider.isEnabled;
     await this.dataCustomSttService.update(provider);
+  }
+
+  async onCheckBestModels(): Promise<void> {
+    if (this.isCheckingModels()) {
+      return;
+    }
+    this.isCheckingModels.set(true);
+    this.modelCheckError.set(null);
+    this.modelCheckResults.set([]);
+    this.recommendedModelIds.set(new Set<string>());
+    try {
+      const response = await firstValueFrom(
+        this.dataAssistantService.checkSpeechModels(),
+      );
+      const sorted = this.sortModelsByScore(response.models);
+      this.modelCheckResults.set(sorted);
+      this.recommendedModelIds.set(this.computeRecommendedIds(sorted));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.modelCheckError.set(message);
+    } finally {
+      this.isCheckingModels.set(false);
+    }
+  }
+
+  selectTranscriptionModel(modelId: string): void {
+    this.transcriptionModel = modelId;
+    this.onSettingChanged();
+  }
+
+  isModelRecommended(modelId: string): boolean {
+    return this.recommendedModelIds().has(modelId);
+  }
+
+  isModelFree(model: ISpeechModelCheckDto): boolean {
+    return model.costPerInputToken === 0 && model.costPerOutputToken === 0;
+  }
+
+  qualifiesForSpeech(model: ISpeechModelCheckDto): boolean {
+    return (
+      model.isHealthy &&
+      model.contextWindow >= AssistantSpeechSettingsComponent.MinContextWindowForSpeech
+    );
+  }
+
+  private sortModelsByScore(
+    models: readonly ISpeechModelCheckDto[],
+  ): ISpeechModelCheckDto[] {
+    return [...models].sort((a, b) => {
+      const aQualified = this.qualifiesForSpeech(a);
+      const bQualified = this.qualifiesForSpeech(b);
+      if (aQualified !== bQualified) {
+        return aQualified ? -1 : 1;
+      }
+      const aCost = a.costPerInputToken + a.costPerOutputToken;
+      const bCost = b.costPerInputToken + b.costPerOutputToken;
+      if (aCost !== bCost) {
+        return aCost - bCost;
+      }
+      if (a.latencyMs !== b.latencyMs) {
+        return a.latencyMs - b.latencyMs;
+      }
+      return b.contextWindow - a.contextWindow;
+    });
+  }
+
+  private computeRecommendedIds(
+    sorted: readonly ISpeechModelCheckDto[],
+  ): Set<string> {
+    const ids = new Set<string>();
+    for (const model of sorted) {
+      if (ids.size >= AssistantSpeechSettingsComponent.RecommendedCount) {
+        break;
+      }
+      if (this.qualifiesForSpeech(model)) {
+        ids.add(model.modelId);
+      }
+    }
+    return ids;
   }
 }
