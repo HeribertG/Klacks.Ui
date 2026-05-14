@@ -100,16 +100,18 @@
             (change)="onStrokeChange($event)"
           />
         </div>
-        <div class="property-row">
-          <label class="property-label" for="prop-fill">{{ 'floor-plan.properties.fill' | translate }}</label>
-          <input
-            id="prop-fill"
-            type="color"
-            class="property-color"
-            [value]="properties().fill"
-            (change)="onFillChange($event)"
-          />
-        </div>
+        @if (!properties().isText && !properties().gradientEnabled) {
+          <div class="property-row">
+            <label class="property-label" for="prop-fill">{{ 'floor-plan.properties.fill' | translate }}</label>
+            <input
+              id="prop-fill"
+              type="color"
+              class="property-color"
+              [value]="properties().fill"
+              (change)="onFillChange($event)"
+            />
+          </div>
+        }
         <div class="property-row">
           <label class="property-label" for="prop-stroke-width">{{ 'floor-plan.properties.stroke-width' | translate }}</label>
           <input
@@ -122,6 +124,196 @@
             max="50"
           />
         </div>
+      </div>
+
+      @if (properties().isText) {
+        <div class="property-section">
+          <div class="property-section-title">{{ 'floor-plan.properties.text' | translate }}</div>
+          <div class="property-row">
+            <label class="property-label" for="prop-text-color">{{ 'floor-plan.properties.text-color' | translate }}</label>
+            <input
+              id="prop-text-color"
+              type="color"
+              class="property-color"
+              [value]="properties().fill"
+              (change)="onTextColorChange($event)"
+            />
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-font-family">{{ 'floor-plan.properties.font-family' | translate }}</label>
+            <select
+              id="prop-font-family"
+              class="property-select"
+              [ngModel]="properties().fontFamily"
+              (ngModelChange)="onFontFamilyChange($event)"
+            >
+              @for (font of fontFamilies; track font) {
+                <option [value]="font" [style.font-family]="font">{{ font }}</option>
+              }
+            </select>
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-font-size">{{ 'floor-plan.properties.font-size' | translate }}</label>
+            <input
+              id="prop-font-size"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().fontSize"
+              (ngModelChange)="onFontSizeChange($event)"
+              min="1"
+            />
+          </div>
+          <div class="property-row text-format-row">
+            <button
+              class="property-btn small"
+              [class.active]="properties().fontBold"
+              (click)="onBoldToggle()"
+              title="{{ 'floor-plan.properties.bold' | translate }}"
+            ><b>B</b></button>
+            <button
+              class="property-btn small"
+              [class.active]="properties().fontItalic"
+              (click)="onItalicToggle()"
+              title="{{ 'floor-plan.properties.italic' | translate }}"
+            ><i>I</i></button>
+            <button
+              class="property-btn small"
+              [class.active]="properties().fontUnderline"
+              (click)="onUnderlineToggle()"
+              title="{{ 'floor-plan.properties.underline' | translate }}"
+            ><u>U</u></button>
+            <button
+              class="property-btn small"
+              [class.active]="properties().fontLinethrough"
+              (click)="onLinethroughToggle()"
+              title="{{ 'floor-plan.properties.linethrough' | translate }}"
+            ><s>S</s></button>
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-text-align">{{ 'floor-plan.properties.text-align' | translate }}</label>
+            <select
+              id="prop-text-align"
+              class="property-select"
+              [ngModel]="properties().textAlign"
+              (ngModelChange)="onTextAlignChange($event)"
+            >
+              <option value="left">{{ 'floor-plan.properties.text-align-left' | translate }}</option>
+              <option value="center">{{ 'floor-plan.properties.text-align-center' | translate }}</option>
+              <option value="right">{{ 'floor-plan.properties.text-align-right' | translate }}</option>
+              <option value="justify">{{ 'floor-plan.properties.text-align-justify' | translate }}</option>
+            </select>
+          </div>
+        </div>
+      }
+
+      @if (!properties().isText) {
+        <div class="property-section">
+          <div class="property-section-title">{{ 'floor-plan.properties.gradient' | translate }}</div>
+          <div class="property-row">
+            <label class="property-label" for="prop-gradient-enabled">{{ 'floor-plan.properties.gradient-enabled' | translate }}</label>
+            <input
+              id="prop-gradient-enabled"
+              type="checkbox"
+              class="property-checkbox"
+              [ngModel]="properties().gradientEnabled"
+              (ngModelChange)="onGradientEnabledChange($event)"
+            />
+          </div>
+          @if (properties().gradientEnabled) {
+            <div class="property-row">
+              <label class="property-label" for="prop-gradient-color1">{{ 'floor-plan.properties.gradient-color1' | translate }}</label>
+              <input
+                id="prop-gradient-color1"
+                type="color"
+                class="property-color"
+                [value]="properties().gradientColor1"
+                (change)="onGradientColor1Change($event)"
+              />
+            </div>
+            <div class="property-row">
+              <label class="property-label" for="prop-gradient-color2">{{ 'floor-plan.properties.gradient-color2' | translate }}</label>
+              <input
+                id="prop-gradient-color2"
+                type="color"
+                class="property-color"
+                [value]="properties().gradientColor2"
+                (change)="onGradientColor2Change($event)"
+              />
+            </div>
+            <div class="property-row">
+              <label class="property-label" for="prop-gradient-dir">{{ 'floor-plan.properties.gradient-direction' | translate }}</label>
+              <select
+                id="prop-gradient-dir"
+                class="property-select"
+                [ngModel]="properties().gradientDirection"
+                (ngModelChange)="onGradientDirectionChange($event)"
+              >
+                <option value="horizontal">{{ 'floor-plan.properties.gradient-horizontal' | translate }}</option>
+                <option value="vertical">{{ 'floor-plan.properties.gradient-vertical' | translate }}</option>
+                <option value="diagonal-down">{{ 'floor-plan.properties.gradient-diagonal-down' | translate }}</option>
+                <option value="diagonal-up">{{ 'floor-plan.properties.gradient-diagonal-up' | translate }}</option>
+                <option value="radial">{{ 'floor-plan.properties.gradient-radial' | translate }}</option>
+              </select>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="property-section">
+        <div class="property-section-title">{{ 'floor-plan.properties.shadow' | translate }}</div>
+        <div class="property-row">
+          <label class="property-label" for="prop-shadow-enabled">{{ 'floor-plan.properties.shadow-enabled' | translate }}</label>
+          <input
+            id="prop-shadow-enabled"
+            type="checkbox"
+            class="property-checkbox"
+            [ngModel]="properties().shadowEnabled"
+            (ngModelChange)="onShadowEnabledChange($event)"
+          />
+        </div>
+        @if (properties().shadowEnabled) {
+          <div class="property-row">
+            <label class="property-label" for="prop-shadow-color">{{ 'floor-plan.properties.shadow-color' | translate }}</label>
+            <input
+              id="prop-shadow-color"
+              type="color"
+              class="property-color"
+              [value]="properties().shadowColor"
+              (change)="onShadowColorChange($event)"
+            />
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-shadow-blur">{{ 'floor-plan.properties.shadow-blur' | translate }}</label>
+            <input
+              id="prop-shadow-blur"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().shadowBlur"
+              (ngModelChange)="onShadowBlurChange($event)"
+              min="0"
+            />
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-shadow-ox">{{ 'floor-plan.properties.shadow-offset-x' | translate }}</label>
+            <input
+              id="prop-shadow-ox"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().shadowOffsetX"
+              (ngModelChange)="onShadowOffsetXChange($event)"
+            />
+          </div>
+          <div class="property-row">
+            <label class="property-label" for="prop-shadow-oy">{{ 'floor-plan.properties.shadow-offset-y' | translate }}</label>
+            <input
+              id="prop-shadow-oy"
+              type="number"
+              class="property-input"
+              [ngModel]="properties().shadowOffsetY"
+              (ngModelChange)="onShadowOffsetYChange($event)"
+            />
+          </div>
+        }
       </div>
 
       @if (properties().isRect) {

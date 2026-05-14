@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FabricObject, Rect, Polygon, Polyline } from 'fabric';
+import { FabricObject, Rect, Polygon, Polyline, Textbox } from 'fabric';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
 
 interface PointLike {
@@ -38,8 +38,41 @@ interface ObjectProperties {
   locked: boolean;
   isRect: boolean;
   isPolygon: boolean;
+  isText: boolean;
   points: PointLike[];
+  fontFamily: string;
+  fontSize: number;
+  fontBold: boolean;
+  fontItalic: boolean;
+  fontUnderline: boolean;
+  fontLinethrough: boolean;
+  textAlign: string;
+  shadowEnabled: boolean;
+  shadowColor: string;
+  shadowBlur: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+  gradientEnabled: boolean;
+  gradientColor1: string;
+  gradientColor2: string;
+  gradientDirection: string;
 }
+
+const FONT_FAMILIES = [
+  'Arial',
+  'Arial Black',
+  'Comic Sans MS',
+  'Courier New',
+  'Georgia',
+  'Impact',
+  'Lucida Console',
+  'Lucida Sans Unicode',
+  'Palatino Linotype',
+  'Tahoma',
+  'Times New Roman',
+  'Trebuchet MS',
+  'Verdana',
+];
 
 const DEFAULT_PROPERTIES: ObjectProperties = {
   x: 0,
@@ -56,7 +89,24 @@ const DEFAULT_PROPERTIES: ObjectProperties = {
   locked: false,
   isRect: false,
   isPolygon: false,
+  isText: false,
   points: [],
+  fontFamily: 'Arial',
+  fontSize: 20,
+  fontBold: false,
+  fontItalic: false,
+  fontUnderline: false,
+  fontLinethrough: false,
+  textAlign: 'left',
+  shadowEnabled: false,
+  shadowColor: '#000000',
+  shadowBlur: 10,
+  shadowOffsetX: 5,
+  shadowOffsetY: 5,
+  gradientEnabled: false,
+  gradientColor1: '#ffffff',
+  gradientColor2: '#000000',
+  gradientDirection: 'horizontal',
 };
 
 @Component({
@@ -68,6 +118,8 @@ const DEFAULT_PROPERTIES: ObjectProperties = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
+  readonly fontFamilies = FONT_FAMILIES;
+
   canvasService = inject(FloorPlanCanvasService);
   private injector = inject(Injector);
 
@@ -101,9 +153,57 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
     const bounds = obj.getBoundingRect();
     const isRect = obj.type === 'rect';
     const isPolygon = obj.type === 'polygon' || obj.type === 'polyline';
+    const isText = obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text';
     const points = isPolygon
       ? [...(obj as Polygon | Polyline).points.map((p) => ({ x: Math.round(p.x), y: Math.round(p.y) }))]
       : [];
+
+    let fontFamily = 'Arial';
+    let fontSize = 20;
+    let fontBold = false;
+    let fontItalic = false;
+    let fontUnderline = false;
+    let fontLinethrough = false;
+    let textAlign = 'left';
+    if (isText) {
+      const t = obj as Textbox;
+      fontFamily = t.fontFamily ?? 'Arial';
+      fontSize = t.fontSize ?? 20;
+      fontBold = t.fontWeight === 'bold';
+      fontItalic = t.fontStyle === 'italic';
+      fontUnderline = !!(t as unknown as Record<string, unknown>)['underline'];
+      fontLinethrough = !!(t as unknown as Record<string, unknown>)['linethrough'];
+      textAlign = t.textAlign ?? 'left';
+    }
+
+    const shadow = obj.shadow as Record<string, unknown> | null | undefined;
+    const shadowEnabled = shadow !== null && shadow !== undefined;
+    const shadowColor = (shadow?.['color'] as string) ?? '#000000';
+    const shadowBlur = (shadow?.['blur'] as number) ?? 10;
+    const shadowOffsetX = (shadow?.['offsetX'] as number) ?? 5;
+    const shadowOffsetY = (shadow?.['offsetY'] as number) ?? 5;
+
+    const rawFill = obj.fill;
+    const gradientEnabled = typeof rawFill === 'object' && rawFill !== null;
+    let gradientColor1 = '#ffffff';
+    let gradientColor2 = '#000000';
+    let gradientDirection = 'horizontal';
+    if (gradientEnabled) {
+      const g = rawFill as unknown as Record<string, unknown>;
+      const stops = (g['colorStops'] as Array<{ color: string }>) ?? [];
+      gradientColor1 = stops[0]?.color ?? '#ffffff';
+      gradientColor2 = stops[stops.length - 1]?.color ?? '#000000';
+      const coords = (g['coords'] as Record<string, number>) ?? {};
+      if (g['type'] === 'radial') {
+        gradientDirection = 'radial';
+      } else if (Math.abs(coords['x1'] ?? 0) < 0.01 && Math.abs(coords['x2'] ?? 0) < 0.01) {
+        gradientDirection = 'vertical';
+      } else if (Math.abs(coords['x1'] ?? 0) > 0.01 && Math.abs(coords['y1'] ?? 0) > 0.01) {
+        gradientDirection = (coords['y1'] ?? 0) < 0 ? 'diagonal-down' : 'diagonal-up';
+      } else {
+        gradientDirection = 'horizontal';
+      }
+    }
 
     this.properties.set({
       x: Math.round(obj.left ?? 0),
@@ -120,7 +220,24 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
       locked: !obj.hasControls,
       isRect,
       isPolygon,
+      isText,
       points,
+      fontFamily,
+      fontSize,
+      fontBold,
+      fontItalic,
+      fontUnderline,
+      fontLinethrough,
+      textAlign,
+      shadowEnabled,
+      shadowColor,
+      shadowBlur,
+      shadowOffsetX,
+      shadowOffsetY,
+      gradientEnabled,
+      gradientColor1,
+      gradientColor2,
+      gradientDirection,
     });
   }
 
@@ -288,6 +405,114 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
       points: newPoints.map((pt) => ({ x: Math.round(pt.x), y: Math.round(pt.y) })),
     }));
     this.getCanvas()?.renderAll();
+  }
+
+  onFontFamilyChange(value: string): void {
+    this.canvasService.applyFontFamily(value);
+    this.properties.update((p) => ({ ...p, fontFamily: value }));
+  }
+
+  onFontSizeChange(value: number): void {
+    const size = Math.max(1, value);
+    this.canvasService.applyFontSize(size);
+    this.properties.update((p) => ({ ...p, fontSize: size }));
+  }
+
+  onBoldToggle(): void {
+    const newVal = !this.properties().fontBold;
+    this.canvasService.applyBold(newVal);
+    this.properties.update((p) => ({ ...p, fontBold: newVal }));
+  }
+
+  onItalicToggle(): void {
+    const newVal = !this.properties().fontItalic;
+    this.canvasService.applyItalic(newVal);
+    this.properties.update((p) => ({ ...p, fontItalic: newVal }));
+  }
+
+  onUnderlineToggle(): void {
+    const newVal = !this.properties().fontUnderline;
+    this.canvasService.applyUnderline(newVal);
+    this.properties.update((p) => ({ ...p, fontUnderline: newVal }));
+  }
+
+  onLinethroughToggle(): void {
+    const newVal = !this.properties().fontLinethrough;
+    this.canvasService.applyLinethrough(newVal);
+    this.properties.update((p) => ({ ...p, fontLinethrough: newVal }));
+  }
+
+  onTextAlignChange(align: string): void {
+    this.canvasService.applyTextAlign(align);
+    this.properties.update((p) => ({ ...p, textAlign: align }));
+  }
+
+  onTextColorChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.canvasService.applyTextColor(input.value);
+    this.properties.update((p) => ({ ...p, fill: input.value }));
+  }
+
+  onShadowEnabledChange(enabled: boolean): void {
+    const p = this.properties();
+    this.canvasService.applyObjectShadow(enabled, p.shadowColor, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
+    this.properties.update((prev) => ({ ...prev, shadowEnabled: enabled }));
+  }
+
+  onShadowColorChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const p = this.properties();
+    if (!p.shadowEnabled) return;
+    this.canvasService.applyObjectShadow(true, input.value, p.shadowBlur, p.shadowOffsetX, p.shadowOffsetY);
+    this.properties.update((prev) => ({ ...prev, shadowColor: input.value }));
+  }
+
+  onShadowBlurChange(value: number): void {
+    const p = this.properties();
+    if (!p.shadowEnabled) return;
+    const blur = Math.max(0, value);
+    this.canvasService.applyObjectShadow(true, p.shadowColor, blur, p.shadowOffsetX, p.shadowOffsetY);
+    this.properties.update((prev) => ({ ...prev, shadowBlur: blur }));
+  }
+
+  onShadowOffsetXChange(value: number): void {
+    const p = this.properties();
+    if (!p.shadowEnabled) return;
+    this.canvasService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, value, p.shadowOffsetY);
+    this.properties.update((prev) => ({ ...prev, shadowOffsetX: value }));
+  }
+
+  onShadowOffsetYChange(value: number): void {
+    const p = this.properties();
+    if (!p.shadowEnabled) return;
+    this.canvasService.applyObjectShadow(true, p.shadowColor, p.shadowBlur, p.shadowOffsetX, value);
+    this.properties.update((prev) => ({ ...prev, shadowOffsetY: value }));
+  }
+
+  onGradientEnabledChange(enabled: boolean): void {
+    const p = this.properties();
+    this.canvasService.applyGradientFill(enabled, p.gradientColor1, p.gradientColor2, p.gradientDirection);
+    this.properties.update((prev) => ({ ...prev, gradientEnabled: enabled }));
+  }
+
+  onGradientColor1Change(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const p = this.properties();
+    this.canvasService.applyGradientFill(p.gradientEnabled, input.value, p.gradientColor2, p.gradientDirection);
+    this.properties.update((prev) => ({ ...prev, gradientColor1: input.value }));
+  }
+
+  onGradientColor2Change(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const p = this.properties();
+    this.canvasService.applyGradientFill(p.gradientEnabled, p.gradientColor1, input.value, p.gradientDirection);
+    this.properties.update((prev) => ({ ...prev, gradientColor2: input.value }));
+  }
+
+  onGradientDirectionChange(direction: string): void {
+    const p = this.properties();
+    this.canvasService.applyGradientFill(p.gradientEnabled, p.gradientColor1, p.gradientColor2, direction);
+    this.properties.update((prev) => ({ ...prev, gradientDirection: direction }));
   }
 
   private getCanvas() {

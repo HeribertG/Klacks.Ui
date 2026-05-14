@@ -15,6 +15,8 @@ import {
   Polygon,
   Polyline,
   Group,
+  Shadow,
+  Gradient,
 } from 'fabric';
 import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
 import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
@@ -502,6 +504,124 @@ export class FloorPlanCanvasService {
     obj.setCoords();
     this.canvas.renderAll();
     this.saveHistory();
+  }
+
+  applyFontFamily(family: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('fontFamily', family);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyFontSize(size: number): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('fontSize', Math.max(1, size));
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyBold(bold: boolean): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('fontWeight', bold ? 'bold' : 'normal');
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyItalic(italic: boolean): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('fontStyle', italic ? 'italic' : 'normal');
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyUnderline(underline: boolean): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('underline', underline);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyLinethrough(linethrough: boolean): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('linethrough', linethrough);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyTextAlign(align: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    (obj as Textbox).set('textAlign', align);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyTextColor(color: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj || !this.isTextObject(obj)) return;
+    obj.set('fill', color);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyObjectShadow(enabled: boolean, color: string, blur: number, offsetX: number, offsetY: number): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    obj.set('shadow', enabled ? new Shadow({ color, blur, offsetX, offsetY }) : null);
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  applyGradientFill(enabled: boolean, color1: string, color2: string, direction: string): void {
+    if (!this.canvas) return;
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+    if (!enabled) {
+      obj.set('fill', color1);
+      this.canvas.renderAll();
+      this.saveHistory();
+      return;
+    }
+    const w = (obj.width ?? 100) * (obj.scaleX ?? 1);
+    const h = (obj.height ?? 100) * (obj.scaleY ?? 1);
+    const hw = w / 2;
+    const hh = h / 2;
+    const colorStops = [{ offset: 0, color: color1 }, { offset: 1, color: color2 }];
+    if (direction === 'radial') {
+      obj.set('fill', new Gradient({
+        type: 'radial',
+        coords: { r1: 0, r2: Math.max(hw, hh), x1: 0, y1: 0, x2: 0, y2: 0 },
+        colorStops,
+      }));
+    } else {
+      const coords =
+        direction === 'vertical'    ? { x1: 0, y1: -hh, x2: 0, y2: hh } :
+        direction === 'diagonal-down' ? { x1: -hw, y1: -hh, x2: hw, y2: hh } :
+        direction === 'diagonal-up'   ? { x1: -hw, y1: hh, x2: hw, y2: -hh } :
+                                        { x1: -hw, y1: 0, x2: hw, y2: 0 };
+      obj.set('fill', new Gradient({ type: 'linear', coords, colorStops }));
+    }
+    this.canvas.renderAll();
+    this.saveHistory();
+  }
+
+  private isTextObject(obj: FabricObject): boolean {
+    return obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text';
   }
 
   resizeSelectedByDelta(dw: number, dh: number): void {

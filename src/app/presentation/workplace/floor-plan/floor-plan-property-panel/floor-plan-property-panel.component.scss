@@ -179,3 +179,33 @@
     width: 50px;
   }
 }
+
+.text-format-row {
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.property-select {
+  flex: 1;
+  height: 26px;
+  padding: 2px 4px;
+  font-size: 12px;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 3px;
+  background-color: var(--backgroundColorCard);
+  color: var(--standartTextColor);
+  min-width: 0;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: var(--colorAccent, #0d6efd);
+  }
+}
+
+.property-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--colorAccent, #0d6efd);
+}
