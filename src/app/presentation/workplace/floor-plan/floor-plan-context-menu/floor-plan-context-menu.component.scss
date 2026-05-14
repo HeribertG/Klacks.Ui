@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-@use "src/assets/standard-styles/colors";
-@use "src/assets/standard-styles/menu";
+@use "../../../../../assets/standard-styles/colors";
+@use "../../../../../assets/standard-styles/menu";
 
 // Fixed positioning over the canvas — overrides Bootstrap defaults
 .dropdown-menu {
