@@ -148,7 +148,7 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  async onSaveInModal(modal: any): Promise<void> {
+  async onSaveInModal(modal: any, closeAfterSave = false): Promise<void> {
     if (!this.editingPlan || !this.editingPlan.name) return;
 
     const saveTarget = new FloorPlan();
@@ -167,7 +167,9 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     try {
       await this.dataManagement.save(saveTarget);
       this.toastService.showSuccess('floor-plan.save.success', 'floor-plan.save.header');
-      modal.close();
+      if (closeAfterSave) {
+        modal.close();
+      }
     } catch {
       this.toastService.showError('floor-plan.save.error');
     } finally {
