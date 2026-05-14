@@ -7,4 +7,5 @@ export interface SealedPeriodSummary {
   totalBreakCount: number;
   sealedBreakCount: number;
   isFullySealed: boolean;
+  isDaySealed: boolean;
 }

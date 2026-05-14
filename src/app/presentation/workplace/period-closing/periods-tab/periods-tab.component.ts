@@ -86,7 +86,7 @@ export class PeriodsTabComponent implements OnInit {
     const endDate = new Date(`${end}T00:00:00`);
     while (current <= endDate) {
       const iso = this.toLocalIso(current);
-      days.push(dataMap.get(iso) ?? { date: iso, totalWorkCount: 0, sealedWorkCount: 0, totalBreakCount: 0, sealedBreakCount: 0, isFullySealed: false });
+      days.push(dataMap.get(iso) ?? { date: iso, totalWorkCount: 0, sealedWorkCount: 0, totalBreakCount: 0, sealedBreakCount: 0, isFullySealed: false, isDaySealed: false });
       current.setDate(current.getDate() + 1);
     }
     return days;
@@ -94,12 +94,14 @@ export class PeriodsTabComponent implements OnInit {
 
   public totalWork = computed(() => this.displayDays().reduce((a, s) => a + s.totalWorkCount, 0));
   public sealedWork = computed(() => this.displayDays().reduce((a, s) => a + s.sealedWorkCount, 0));
-  public allSealed = computed(() => this.totalWork() > 0 && this.totalWork() === this.sealedWork());
+  public allSealed = computed(() => {
+    const days = this.displayDays();
+    return days.length > 0 && days.every((s) => s.isDaySealed);
+  });
   public hasPeriods = computed(() => this.usedPeriods().length > 0);
-  public hasAnyEntries = computed(() => this.displayDays().some((s) => s.totalWorkCount > 0 || s.totalBreakCount > 0));
-  public sealedDayCount = computed(() => this.displayDays().filter((s) => s.isFullySealed).length);
-  public partialDayCount = computed(() => this.displayDays().filter((s) => this.hasEntries(s) && !s.isFullySealed).length);
-  public emptyDayCount = computed(() => this.displayDays().filter((s) => !this.hasEntries(s)).length);
+  public sealedDayCount = computed(() => this.displayDays().filter((s) => s.isDaySealed).length);
+  public partialDayCount = computed(() => this.displayDays().filter((s) => !s.isDaySealed && this.hasEntries(s) && !s.isFullySealed).length);
+  public emptyDayCount = computed(() => this.displayDays().filter((s) => !s.isDaySealed && !this.hasEntries(s)).length);
 
   ngOnInit(): void {
     this.loadUsedPeriods();
@@ -147,7 +149,7 @@ export class PeriodsTabComponent implements OnInit {
   }
 
   onDaySealToggle(row: SealedPeriodSummary): void {
-    if (row.isFullySealed) {
+    if (row.isDaySealed) {
       this.unsealReasonDay.set(row.date);
       this.unsealReasonText.set('');
     } else {

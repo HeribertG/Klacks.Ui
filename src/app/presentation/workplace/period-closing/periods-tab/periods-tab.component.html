@@ -95,8 +95,7 @@
                 @for (row of displayDays(); track row.date; let i = $index) {
                   <tr
                     class="table-row"
-                    [class.active]="row.isFullySealed"
-                    [class.empty-row]="!hasEntries(row)">
+                    [class.active]="row.isDaySealed">
                     <td class="table-cell cell-checkbox">
                       @if (sealingDay() === row.date) {
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -104,7 +103,7 @@
                         <input
                           type="checkbox"
                           class="form-check-input"
-                          [checked]="row.isFullySealed"
+                          [checked]="row.isDaySealed"
                           [disabled]="bulkLoading()"
                           (change)="onDaySealToggle(row)" />
                       }
@@ -165,7 +164,7 @@
             type="button"
             class="btn btn-primary btn-sm"
             (click)="onBulkSeal()"
-            [disabled]="bulkLoading() || allSealed() || !hasAnyEntries()">
+            [disabled]="bulkLoading() || allSealed()">
             @if (bulkLoading()) {
               <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
             }
@@ -175,7 +174,7 @@
             type="button"
             class="btn btn-danger btn-sm"
             (click)="onBulkUnseal()"
-            [disabled]="bulkLoading() || !hasAnyEntries()">
+            [disabled]="bulkLoading() || sealedDayCount() === 0">
             {{ 'periodClosing.action.unsealAll' | translate }}
           </button>
         </div>
