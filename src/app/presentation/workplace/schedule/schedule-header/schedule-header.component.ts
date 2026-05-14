@@ -51,6 +51,7 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
 import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
@@ -71,6 +72,9 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef } from '@angular/core';
 
 const DEFAULT_ZOOM_VALUE = 100;
 
@@ -152,6 +156,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   private analyseScenarioService = inject(AnalyseScenarioService);
   private authorizationService = inject(AuthorizationService);
   private dataAutoWizardService = inject(DataAutoWizardService);
+  private scheduleSignalR = inject(SCHEDULE_SIGNALR);
+  private destroyRef = inject(DestroyRef);
+  private modalService = inject(ModalService);
 
   public readonly isTimelineMode = this.viewModeService.isTimelineMode;
   public readonly timelineViewRange = this.timelineRangeService.viewRange;
@@ -196,6 +203,22 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
         this.dataAutoWizardService.status.set('idle');
       }
     });
+
+    this.scheduleSignalR.thoroughRecalculationCompleted$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => {
+        const activeToken = this.analyseScenarioService.activeToken() ?? null;
+        if ((notification.analyseToken ?? null) !== activeToken) return;
+
+        this.isRecalculating.set(false);
+        this.toastShowService.showInfo(
+          this.translateService.instant('schedule.recalculate.thorough.completed'),
+          'recalculate-thorough',
+          '',
+          TOAST_ICONS.INFO,
+        );
+        this.dataManagementSchedule.readDatas();
+      });
   }
 
   isEmailConfigured = computed(() => {
@@ -473,6 +496,55 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
       );
     } finally {
       this.isSending.set(false);
+    }
+  }
+
+  onThoroughRecalculateClick(): void {
+    if (this.isRecalculating()) return;
+
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translateService.instant('schedule.recalculate.thorough.title'),
+      message: this.translateService.instant('schedule.recalculate.thorough.warning'),
+      confirmText: this.translateService.instant('schedule.recalculate.thorough.start'),
+      cancelText: this.translateService.instant('cancel'),
+      onConfirm: () => this.onThoroughRecalculateConfirmed(),
+    });
+  }
+
+  async onThoroughRecalculateConfirmed(): Promise<void> {
+    if (this.isRecalculating()) return;
+
+    const startDate = this.dataManagementSchedule.periodStartDate;
+    const endDate = this.dataManagementSchedule.periodEndDate;
+    if (!startDate || !endDate) return;
+
+    this.isRecalculating.set(true);
+
+    try {
+      await new Promise<{ queued: boolean }>((resolve, reject) => {
+        this.dataWorkScheduleService
+          .recalculatePeriodHoursThorough(
+            formatDateOnly(startDate),
+            formatDateOnly(endDate),
+            this.dataManagementSchedule.workFilter.selectedGroup,
+            this.analyseScenarioService.activeToken(),
+          )
+          .subscribe({ next: resolve, error: reject });
+      });
+
+      this.toastShowService.showInfo(
+        this.translateService.instant('schedule.recalculate.thorough.started'),
+        'recalculate-thorough',
+        '',
+        TOAST_ICONS.INFO,
+      );
+    } catch {
+      this.isRecalculating.set(false);
+      this.toastShowService.showError(
+        this.translateService.instant('schedule.recalculate.thorough.error'),
+        'recalculate-thorough',
+      );
     }
   }
 

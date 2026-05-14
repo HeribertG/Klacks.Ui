@@ -11,6 +11,7 @@ export const SignalRConstants = {
     ShiftStatsUpdated: 'ShiftStatsUpdated',
     PeriodHoursUpdated: 'PeriodHoursUpdated',
     PeriodHoursRecalculated: 'PeriodHoursRecalculated',
+    ThoroughRecalculationCompleted: 'ThoroughRecalculationCompleted',
     ScheduleChangeTracked: 'ScheduleChangeTracked',
     CollisionsDetected: 'CollisionsDetected',
     ScheduleValidationsDetected: 'ScheduleValidationsDetected',

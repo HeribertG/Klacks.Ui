@@ -17,6 +17,7 @@ import { IScheduleNotification } from 'src/app/domain/interfaces/schedule-notifi
 import {
   IPeriodHoursNotification,
   IPeriodHoursRecalculatedNotification,
+  IThoroughRecalculationCompletedNotification,
 } from 'src/app/domain/interfaces/period-hours-notification.interface';
 import { IScheduleChangeNotification } from 'src/app/domain/interfaces/schedule-change-notification.interface';
 import { ICollisionListNotification } from 'src/app/domain/interfaces/collision-notification.interface';
@@ -60,6 +61,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
   public periodHoursUpdated$ = new Subject<IPeriodHoursNotification>();
   public periodHoursRecalculated$ = new Subject<IPeriodHoursRecalculatedNotification>();
+  public thoroughRecalculationCompleted$ = new Subject<IThoroughRecalculationCompletedNotification>();
   public scheduleChangeTracked$ = new Subject<IScheduleChangeNotification>();
   public collisionsDetected$ = new Subject<ICollisionListNotification>();
   public scheduleValidationsDetected$ = new Subject<IScheduleValidationListNotification>();
@@ -202,6 +204,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     this.shiftStatsUpdated$.complete();
     this.periodHoursUpdated$.complete();
     this.periodHoursRecalculated$.complete();
+    this.thoroughRecalculationCompleted$.complete();
     this.scheduleChangeTracked$.complete();
     this.collisionsDetected$.complete();
     this.scheduleValidationsDetected$.complete();
@@ -221,6 +224,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
     hub.on(SignalRConstants.Events.ShiftStatsUpdated, onPush(this.shiftStatsUpdated$));
     hub.on(SignalRConstants.Events.PeriodHoursUpdated, onPush(this.periodHoursUpdated$));
     hub.on(SignalRConstants.Events.PeriodHoursRecalculated, onPush(this.periodHoursRecalculated$));
+    hub.on(SignalRConstants.Events.ThoroughRecalculationCompleted, onPush(this.thoroughRecalculationCompleted$));
     hub.on(SignalRConstants.Events.ScheduleChangeTracked, onPush(this.scheduleChangeTracked$));
     hub.on(SignalRConstants.Events.CollisionsDetected, onPush(this.collisionsDetected$));
     hub.on(SignalRConstants.Events.ScheduleValidationsDetected, onPush(this.scheduleValidationsDetected$));

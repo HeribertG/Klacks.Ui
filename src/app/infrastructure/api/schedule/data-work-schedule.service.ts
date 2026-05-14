@@ -37,4 +37,19 @@ export class DataWorkScheduleService {
         selectedGroup: selectedGroup || null,
       });
   }
+
+  recalculatePeriodHoursThorough(
+    startDate: string,
+    endDate: string,
+    selectedGroup?: string,
+    analyseToken?: string | null,
+  ) {
+    return this.httpClient
+      .post<{ queued: boolean }>(`${environment.baseUrl}Works/RecalculatePeriodHoursThorough`, {
+        startDate,
+        endDate,
+        selectedGroup: selectedGroup || null,
+        analyseToken: analyseToken ?? null,
+      });
+  }
 }

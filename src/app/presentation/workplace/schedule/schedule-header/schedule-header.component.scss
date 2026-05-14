@@ -244,3 +244,14 @@ app-scenario-selector {
   padding-top: 18px;
   color: var(--iconStandartColor);
 }
+
+.recalculate-dropdown {
+  padding-top: 18px;
+
+  .recalculate-button {
+    margin-inline-start: 30px;
+  }
+}
+.recalculate-button {
+  color: var(--iconStandartColor);
+}

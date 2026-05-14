@@ -8,6 +8,7 @@ import { IShiftStatsNotification } from './shift-stats-notification.interface';
 import {
   IPeriodHoursNotification,
   IPeriodHoursRecalculatedNotification,
+  IThoroughRecalculationCompletedNotification,
 } from './period-hours-notification.interface';
 import { IScheduleChangeNotification } from './schedule-change-notification.interface';
 import { ICollisionListNotification } from './collision-notification.interface';
@@ -21,6 +22,7 @@ export interface IScheduleSignalR {
   shiftStatsUpdated$: Observable<IShiftStatsNotification>;
   periodHoursUpdated$: Observable<IPeriodHoursNotification>;
   periodHoursRecalculated$: Observable<IPeriodHoursRecalculatedNotification>;
+  thoroughRecalculationCompleted$: Observable<IThoroughRecalculationCompletedNotification>;
   scheduleChangeTracked$: Observable<IScheduleChangeNotification>;
   collisionsDetected$: Observable<ICollisionListNotification>;
   scheduleValidationsDetected$: Observable<IScheduleValidationListNotification>;
