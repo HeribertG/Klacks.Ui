@@ -1,9 +1,9 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
 
 .periods-tab-body {
   padding-top: 20px;
-  padding-bottom: 30px;
 }
 
 .filter-row {
@@ -22,6 +22,11 @@
 
 .filter-action {
   padding-bottom: 0.1rem;
+}
+
+:host ::ng-deep .card-table {
+  margin-top: 12px;
+  margin-bottom: 0;
 }
 
 :host ::ng-deep .table-header-cell {

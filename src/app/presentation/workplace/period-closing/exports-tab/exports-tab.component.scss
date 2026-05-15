@@ -1,4 +1,8 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/date-input-sm.scss" as dateInputSm;
+
+@include dateInputSm.date-input-sm;
 
 .exports-tab-body {
   display: flex;
@@ -25,6 +29,17 @@
   max-width: 6rem;
 }
 
+.filter-field-wide {
+  flex: 1 1 320px;
+  min-width: 320px;
+}
+
+.loading-hint {
+  height: calc(1.5em + 0.5rem + 2px);
+  display: flex;
+  align-items: center;
+}
+
 .filter-action {
-  padding-bottom: 0.1rem;
+  padding-bottom: 0;
 }

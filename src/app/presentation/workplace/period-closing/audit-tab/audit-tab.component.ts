@@ -18,29 +18,36 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
 import {
   PeriodAuditAction,
   PeriodAuditLog,
 } from 'src/app/infrastructure/api/period-closing/models/period-audit-log';
+import {
+  firstOfMonth,
+  lastOfMonth,
+  ngbDateStructToIsoDate,
+} from 'src/app/shared/helpers/ngb-date.helper';
+import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-audit-tab',
   templateUrl: './audit-tab.component.html',
   styleUrls: ['./audit-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent, DateInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
   private modalService = inject(NgbModal);
 
-  public startDate = signal<string>(this.firstOfCurrentMonth());
-  public endDate = signal<string>(this.lastOfCurrentMonth());
+  public startDate = signal<NgbDateStruct | null>(firstOfMonth(0));
+  public endDate = signal<NgbDateStruct | null>(lastOfMonth(0));
   public auditEntries = signal<PeriodAuditLog[]>([]);
   public exportEntries = signal<ExportLog[]>([]);
   public selectedAudit = signal<PeriodAuditLog | null>(null);
@@ -56,10 +63,13 @@ export class AuditTabComponent implements OnInit {
   }
 
   refresh(): void {
-    this.api.getAuditLog(this.startDate(), this.endDate()).subscribe({
+    const startIso = ngbDateStructToIsoDate(this.startDate());
+    const endIso = ngbDateStructToIsoDate(this.endDate());
+    if (!startIso || !endIso) return;
+    this.api.getAuditLog(startIso, endIso).subscribe({
       next: (entries) => this.auditEntries.set(entries),
     });
-    this.api.getExportLog(this.startDate(), this.endDate()).subscribe({
+    this.api.getExportLog(startIso, endIso).subscribe({
       next: (entries) => this.exportEntries.set(entries),
     });
   }
@@ -84,7 +94,9 @@ export class AuditTabComponent implements OnInit {
 
   formatRange(start: string, end: string): string {
     if (!start || !end) return '';
-    return start === end ? this.formatIsoDate(start) : `${this.formatIsoDate(start)} – ${this.formatIsoDate(end)}`;
+    const startTxt = DateToStringShort(start);
+    const endTxt = DateToStringShort(end);
+    return start === end ? startTxt : `${startTxt} – ${endTxt}`;
   }
 
   formatBytes(bytes: number): string {
@@ -94,21 +106,5 @@ export class AuditTabComponent implements OnInit {
     const mb = kb / 1024;
     if (mb < 1024) return `${mb.toFixed(1)} MB`;
     return `${(mb / 1024).toFixed(1)} GB`;
-  }
-
-  private formatIsoDate(iso: string): string {
-    const parts = iso.split('-');
-    if (parts.length !== 3) return iso;
-    return `${parts[2]}.${parts[1]}.${parts[0]}`;
-  }
-
-  private firstOfCurrentMonth(): string {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10);
-  }
-
-  private lastOfCurrentMonth(): string {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
   }
 }

@@ -126,21 +126,21 @@
     <section class="filter-row">
       <div class="filter-field">
         <label class="form-label" for="auditStartDate">{{ 'periodClosing.form.startDate' | translate }}</label>
-        <input
-          id="auditStartDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="startDate()"
-          (ngModelChange)="startDate.set($event)">
+        <app-date-input
+          inputId="auditStartDate"
+          [showLabel]="false"
+          [value]="startDate()"
+          (valueChange)="startDate.set($event ?? null)">
+        </app-date-input>
       </div>
       <div class="filter-field">
         <label class="form-label" for="auditEndDate">{{ 'periodClosing.form.endDate' | translate }}</label>
-        <input
-          id="auditEndDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="endDate()"
-          (ngModelChange)="endDate.set($event)">
+        <app-date-input
+          inputId="auditEndDate"
+          [showLabel]="false"
+          [value]="endDate()"
+          (valueChange)="endDate.set($event ?? null)">
+        </app-date-input>
       </div>
       <div class="filter-field filter-action">
         <button type="button" class="btn normal-btn" (click)="refresh()">
@@ -153,8 +153,7 @@
       [headerTitle]="'periodClosing.section.actions' | translate"
       [initiallyExpanded]="true">
       @if (auditEntries().length > 0) {
-        <div id="audit-log-section" class="container-table">
-          <table id="audit-log-table" class="table table-borderless">
+        <table id="audit-log-table" class="table table-borderless card-table">
             <thead id="audit-log-head">
               <tr>
                 <th id="audit-log-header-date" class="table-header header-date">
@@ -208,8 +207,7 @@
                 </tr>
               }
             </tbody>
-          </table>
-        </div>
+        </table>
       } @else {
         <p class="empty-state">{{ 'periodClosing.audit.empty' | translate }}</p>
       }
@@ -219,8 +217,7 @@
       [headerTitle]="'periodClosing.section.exports' | translate"
       [initiallyExpanded]="true">
       @if (exportEntries().length > 0) {
-        <div id="export-log-section" class="container-table">
-          <table id="export-log-table" class="table table-borderless">
+        <table id="export-log-table" class="table table-borderless card-table">
             <thead id="export-log-head">
               <tr>
                 <th id="export-log-header-date" class="table-header header-date">
@@ -278,8 +275,7 @@
                 </tr>
               }
             </tbody>
-          </table>
-        </div>
+        </table>
       } @else {
         <p class="empty-state">{{ 'periodClosing.export.empty' | translate }}</p>
       }

@@ -8,22 +8,55 @@
   <div class="first exports-tab-body">
     <section class="filter-row">
       <div class="filter-field">
-        <label class="form-label" for="exportsStartDate">{{ 'periodClosing.form.startDate' | translate }}</label>
-        <input
-          id="exportsStartDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="startDate()"
-          (ngModelChange)="startDate.set($event)">
+        <label class="form-label" for="exportsFilterFrom">{{ 'periodClosing.form.filterFrom' | translate }}</label>
+        <app-date-input
+          inputId="exportsFilterFrom"
+          [showLabel]="false"
+          [value]="filterFrom()"
+          (valueChange)="filterFrom.set($event ?? null)">
+        </app-date-input>
       </div>
       <div class="filter-field">
-        <label class="form-label" for="exportsEndDate">{{ 'periodClosing.form.endDate' | translate }}</label>
-        <input
-          id="exportsEndDate"
-          type="date"
-          class="form-control form-control-sm"
-          [ngModel]="endDate()"
-          (ngModelChange)="endDate.set($event)">
+        <label class="form-label" for="exportsFilterUntil">{{ 'periodClosing.form.filterUntil' | translate }}</label>
+        <app-date-input
+          inputId="exportsFilterUntil"
+          [showLabel]="false"
+          [value]="filterUntil()"
+          (valueChange)="filterUntil.set($event ?? null)">
+        </app-date-input>
+      </div>
+      <div class="filter-field filter-action">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="reloadOrders()"
+          [disabled]="loadingOrders()">
+          {{ 'periodClosing.action.refresh' | translate }}
+        </button>
+      </div>
+    </section>
+
+    <section class="filter-row">
+      <div class="filter-field filter-field-wide">
+        <label class="form-label" for="exportsOrder">{{ 'periodClosing.form.order' | translate }}</label>
+        @if (loadingOrders()) {
+          <div class="loading-hint text-muted">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </div>
+        } @else if (orders().length === 0) {
+          <div class="text-muted">{{ 'periodClosing.form.orderEmpty' | translate }}</div>
+        } @else {
+          <select
+            id="exportsOrder"
+            class="form-select form-select-sm"
+            [ngModel]="selectedOrderId()"
+            (ngModelChange)="selectedOrderId.set($event)">
+            <option [ngValue]="null">{{ 'periodClosing.form.orderPlaceholder' | translate }}</option>
+            @for (order of orders(); track order.id) {
+              <option [ngValue]="order.id">{{ formatOrderLabel(order) }}</option>
+            }
+          </select>
+        }
       </div>
       <div class="filter-field">
         <label class="form-label" for="exportFormat">{{ 'periodClosing.form.format' | translate }}</label>
@@ -61,7 +94,7 @@
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          [disabled]="busy()"
+          [disabled]="busy() || !selectedOrderId()"
           (click)="onExport()">
           @if (busy()) {
             <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>

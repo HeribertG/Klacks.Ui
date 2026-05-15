@@ -67,8 +67,7 @@
       <app-expandable-card
           [headerTitle]="'periodClosing.periods.tableHeader' | translate"
           [initiallyExpanded]="true">
-          <div class="container-table">
-            <table class="table table-borderless">
+          <table class="table table-borderless card-table">
               <thead>
                 <tr>
                   <th class="table-header header-sealed-check">
@@ -107,13 +106,13 @@
                     </td>
                     <td class="table-cell">{{ row.date | date:'mediumDate' }}</td>
                     <td class="table-cell cell-right">
-                      {{ row.sealedWorkCount }}/{{ row.totalWorkCount }} Work, {{ row.sealedBreakCount }}/{{ row.totalBreakCount }} Break
+                      {{ row.sealedWorkCount }}/{{ row.totalWorkCount }} {{ 'periodClosing.periods.workShort' | translate }},
+                      {{ row.sealedBreakCount }}/{{ row.totalBreakCount }} {{ 'periodClosing.periods.breakShort' | translate }}
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
-          </div>
         </app-expandable-card>
     }
 

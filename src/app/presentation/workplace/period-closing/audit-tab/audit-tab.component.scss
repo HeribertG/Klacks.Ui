@@ -2,10 +2,20 @@
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/modal-buttons.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/date-input-sm.scss" as dateInputSm;
+
+@include dateInputSm.date-input-sm;
 
 .audit-tab-body {
   padding-top: 20px;
   padding-bottom: 30px;
+}
+
+:host ::ng-deep .card-table {
+  margin-top: 12px;
+  margin-bottom: 0;
 }
 
 :host ::ng-deep .table-header-cell {
@@ -35,7 +45,7 @@
 }
 
 .filter-action {
-  padding-bottom: 0.1rem;
+  padding-bottom: 0;
 }
 
 .container-subline {

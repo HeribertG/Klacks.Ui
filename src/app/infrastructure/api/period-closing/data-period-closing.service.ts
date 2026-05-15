@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
 import { ExportLog } from './models/export-log';
 import { PeriodAuditLog } from './models/period-audit-log';
 import { PeriodIssue } from './models/period-issue';
+import { SealedOrderListItem } from './models/sealed-order-list-item';
 import { SealedPeriodSummary } from './models/sealed-period-summary';
 import { SealRequest } from './models/seal-request';
 import { UnsealRequest } from './models/unseal-request';
@@ -62,8 +63,9 @@ export class DataPeriodClosingService {
   }
 
   downloadOrderExport(request: {
-    startDate: string;
-    endDate: string;
+    orderIds: string[];
+    fromDate: string | null;
+    untilDate: string | null;
     format: string;
     language: string;
     currencyCode: string;
@@ -74,5 +76,19 @@ export class DataPeriodClosingService {
       request,
       { responseType: 'blob', observe: 'response' }
     );
+  }
+
+  listSealedOrders(
+    from: string | null,
+    until: string | null,
+    customerId: string | null
+  ): Observable<SealedOrderListItem[]> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (until) params = params.set('until', until);
+    if (customerId) params = params.set('customerId', customerId);
+    return this.httpClient
+      .get<SealedOrderListItem[]>(`${environment.baseUrl}OrderExport/orders`, { params })
+      .pipe(retry(3));
   }
 }

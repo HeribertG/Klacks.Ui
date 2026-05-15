@@ -86,6 +86,52 @@ export function isNgbDateStructValid(date: NgbDateStruct): boolean {
   return false;
 }
 
+/**
+ * Returns an ISO 8601 date string (yyyy-MM-dd) for the given NgbDateStruct,
+ * or null if the struct is empty/invalid. Uses the local-time components so
+ * round-tripping with the date picker stays stable across time zones.
+ *
+ * @param value - NgbDateStruct to convert
+ */
+export function ngbDateStructToIsoDate(
+  value: NgbDateStruct | null | undefined,
+): string | null {
+  const date = transformNgbDateStructToDate(value ?? undefined);
+  if (!date) return null;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * NgbDateStruct for the first day of the month relative to today.
+ *
+ * @param monthOffset - 0 = current month, -1 = previous, +1 = next
+ */
+export function firstOfMonth(monthOffset = 0): NgbDateStruct | null {
+  const d = new Date();
+  return (
+    transformDateToNgbDateStruct(
+      new Date(d.getFullYear(), d.getMonth() + monthOffset, 1),
+    ) ?? null
+  );
+}
+
+/**
+ * NgbDateStruct for the last day of the month relative to today.
+ *
+ * @param monthOffset - 0 = current month, -1 = previous, +1 = next
+ */
+export function lastOfMonth(monthOffset = 0): NgbDateStruct | null {
+  const d = new Date();
+  return (
+    transformDateToNgbDateStruct(
+      new Date(d.getFullYear(), d.getMonth() + monthOffset + 1, 0),
+    ) ?? null
+  );
+}
+
 function isYearOk(value: number): boolean {
   if (value.toString().length < 2 || value.toString().length > 4) {
     return false;
