@@ -202,3 +202,11 @@ span[type="button"] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.text-muted {
+  margin: 12px 0 8px;
+  font-weight: 500;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--colorLabel) !important;
+}
