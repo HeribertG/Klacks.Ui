@@ -52,22 +52,19 @@
 
     <!-- Day table -->
     @if (!loading() && displayDays().length > 0) {
-      <section class="summary-section">
-        <div class="summary-card">
-          <span class="summary-label">{{ 'periodClosing.tabs.periods' | translate }}</span>
-          <span class="summary-value">{{ sealedWork() }} / {{ totalWork() }}</span>
-          @if (sealedDayCount() > 0) {
-            <span class="badge bg-success ms-2">{{ sealedDayCount() }} &#10003;</span>
-          }
-          @if (partialDayCount() > 0) {
-            <span class="badge bg-warning text-dark ms-2">{{ partialDayCount() }}</span>
-          }
-          @if (emptyDayCount() > 0) {
-            <span class="badge bg-secondary ms-2">{{ emptyDayCount() }}</span>
-          }
-        </div>
+      <div class="summary-row">
+        @if (sealedDayCount() > 0) {
+          <span class="badge badge-sealed">{{ sealedDayCount() }} &#10003;</span>
+        }
+        @if (partialDayCount() > 0) {
+          <span class="badge badge-partial">{{ partialDayCount() }}</span>
+        }
+        @if (emptyDayCount() > 0) {
+          <span class="badge badge-empty">{{ emptyDayCount() }}</span>
+        }
+      </div>
 
-        <app-expandable-card
+      <app-expandable-card
           [headerTitle]="'periodClosing.periods.tableHeader' | translate"
           [initiallyExpanded]="true">
           <div class="container-table">
@@ -118,7 +115,6 @@
             </table>
           </div>
         </app-expandable-card>
-      </section>
     }
 
     <!-- Period issues card -->
@@ -128,57 +124,53 @@
 
     <!-- Unseal reason dialog (inline) -->
     @if (unsealReasonDay()) {
-      <section class="reason-dialog">
-        <div class="reason-dialog-content">
-          <label class="form-label" for="unsealReason">{{ 'periodClosing.form.reason' | translate }}</label>
-          <textarea
-            id="unsealReason"
-            rows="2"
-            class="form-control form-control-sm"
-            [placeholder]="'periodClosing.form.reasonPlaceholder' | translate"
-            [ngModel]="unsealReasonText()"
-            (ngModelChange)="unsealReasonText.set($event)"></textarea>
-          <div class="reason-dialog-buttons mt-2">
-            @if (unsealReasonDay() === '__bulk__') {
-              <button type="button" class="btn btn-danger btn-sm" (click)="confirmBulkUnseal()">
-                {{ 'periodClosing.action.unseal' | translate }}
-              </button>
-            } @else {
-              <button type="button" class="btn btn-danger btn-sm" (click)="confirmUnsealDay()">
-                {{ 'periodClosing.action.unseal' | translate }}
-              </button>
-            }
-            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelUnsealDay()">
-              {{ 'periodClosing.action.cancel' | translate }}
+      <div class="reason-dialog">
+        <label class="form-label" for="unsealReason">{{ 'periodClosing.form.reason' | translate }}</label>
+        <textarea
+          id="unsealReason"
+          rows="2"
+          class="form-control form-control-sm"
+          [placeholder]="'periodClosing.form.reasonPlaceholder' | translate"
+          [ngModel]="unsealReasonText()"
+          (ngModelChange)="unsealReasonText.set($event)"></textarea>
+        <div class="reason-dialog-buttons">
+          @if (unsealReasonDay() === '__bulk__') {
+            <button type="button" class="btn btn-danger btn-sm" (click)="confirmBulkUnseal()">
+              {{ 'periodClosing.action.unseal' | translate }}
             </button>
-          </div>
+          } @else {
+            <button type="button" class="btn btn-danger btn-sm" (click)="confirmUnsealDay()">
+              {{ 'periodClosing.action.unseal' | translate }}
+            </button>
+          }
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelUnsealDay()">
+            {{ 'periodClosing.action.cancel' | translate }}
+          </button>
         </div>
-      </section>
+      </div>
     }
 
     <!-- Bulk action buttons -->
     @if (hasPeriods() && !loading()) {
-      <section class="actions-section">
-        <div class="button-row">
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            (click)="onBulkSeal()"
-            [disabled]="bulkLoading() || allSealed()">
-            @if (bulkLoading()) {
-              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-            }
-            {{ 'periodClosing.action.sealAll' | translate }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            (click)="onBulkUnseal()"
-            [disabled]="bulkLoading() || sealedDayCount() === 0">
-            {{ 'periodClosing.action.unsealAll' | translate }}
-          </button>
-        </div>
-      </section>
+      <div class="actions-section button-row">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="onBulkSeal()"
+          [disabled]="bulkLoading() || allSealed()">
+          @if (bulkLoading()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          }
+          {{ 'periodClosing.action.sealAll' | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          (click)="onBulkUnseal()"
+          [disabled]="bulkLoading() || sealedDayCount() === 0">
+          {{ 'periodClosing.action.unsealAll' | translate }}
+        </button>
+      </div>
     }
   </div>
 

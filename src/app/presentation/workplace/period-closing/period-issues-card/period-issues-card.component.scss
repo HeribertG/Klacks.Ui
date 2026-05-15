@@ -1,3 +1,5 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
 .issues-summary {
   display: flex;
   flex-wrap: wrap;
@@ -20,7 +22,8 @@
 
 .issues-date {
   font-weight: 600;
-  color: var(--bs-secondary, #6c757d);
+  color: var(--colorSubHeadline, #6c757d);
+  font-size: 13px;
 }
 
 .issues-list {
@@ -41,22 +44,56 @@
 }
 
 .issues-item-error {
-  border-left-color: var(--bs-danger, #dc3545);
+  border-left-color: var(--standartRedColor, #e74c3c);
 }
 
 .issues-item-warning {
-  border-left-color: var(--bs-warning, #ffc107);
+  border-left-color: var(--standartOrangeColor, #e89b2e);
 }
 
 .issues-item-info {
-  border-left-color: var(--bs-info, #0dcaf0);
+  border-left-color: var(--standartGreenColor, #1bc5bd);
 }
 
 .issues-client {
   font-weight: 500;
   min-width: 140px;
+  color: var(--colorLabel);
+  font-size: 13px;
 }
 
 .issues-message {
-  color: var(--bs-body-color);
+  color: var(--standartTextColor);
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-error {
+  background-color: var(--standartRedColor, #e74c3c);
+  color: #fff;
+}
+
+.badge-warning {
+  background-color: var(--standartOrangeColor, #e89b2e);
+  color: #fff;
+}
+
+.badge-info {
+  background-color: var(--standartGreenColor, #1bc5bd);
+  color: #fff;
+}
+
+.empty-state {
+  font-style: italic;
+  color: var(--colorLabel);
+  font-size: 13px;
 }

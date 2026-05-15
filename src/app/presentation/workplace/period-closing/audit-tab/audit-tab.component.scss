@@ -1,10 +1,23 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/modal-buttons.scss";
 
 .audit-tab-body {
   padding-top: 20px;
   padding-bottom: 30px;
+}
+
+:host ::ng-deep .table-header-cell {
+  height: auto;
+  min-height: 20px;
+  align-items: center;
+
+  p {
+    margin: 0;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 
 .filter-row {
@@ -128,7 +141,10 @@
 
 .empty-state {
   margin: 12px 0 8px;
+  font-weight: 500;
+  font-size: 13px;
   font-style: italic;
+  color: var(--colorLabel) !important;
 }
 
 .detail-list {

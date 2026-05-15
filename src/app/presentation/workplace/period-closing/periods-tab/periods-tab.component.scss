@@ -2,9 +2,6 @@
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 
 .periods-tab-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   padding-top: 20px;
   padding-bottom: 30px;
 }
@@ -12,8 +9,9 @@
 .filter-row {
   display: flex;
   gap: 1rem;
+  align-items: end;
   flex-wrap: wrap;
-  align-items: flex-end;
+  margin-bottom: 20px;
 }
 
 .filter-field {
@@ -24,36 +22,6 @@
 
 .filter-action {
   padding-bottom: 0.1rem;
-}
-
-.loading-hint {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.summary-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.summary-card {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  background: var(--bs-gray-100, #f8f9fa);
-  border-radius: 4px;
-  font-size: 0.95rem;
-}
-
-.summary-label {
-  font-weight: 600;
-}
-
-.summary-value {
-  color: var(--bs-secondary, #6c757d);
 }
 
 :host ::ng-deep .table-header-cell {
@@ -71,7 +39,6 @@
 .header-sealed-check {
   width: 100px;
   min-width: 100px;
-  height: auto;
 }
 
 .header-date {
@@ -82,7 +49,14 @@
 .header-status {
   width: 240px;
   min-width: 240px;
-  text-align: end;
+
+  .table-header-cell {
+    justify-content: flex-end;
+  }
+
+  .gap {
+    text-align: end;
+  }
 }
 
 .cell-checkbox {
@@ -91,36 +65,58 @@
   vertical-align: middle;
 }
 
-.reason-dialog {
-  padding: 0.75rem;
-  background: var(--bs-gray-100, #f8f9fa);
-  border-radius: 6px;
-  border: 1px solid var(--bs-border-color, #dee2e6);
+.summary-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
-.reason-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
 
-  textarea {
-    resize: vertical;
-  }
+.badge-sealed {
+  background-color: var(--standartGreenColor, #1bc5bd);
+  color: #fff;
+}
+
+.badge-partial {
+  background-color: var(--standartOrangeColor, #e89b2e);
+  color: #fff;
+}
+
+.badge-empty {
+  background-color: var(--colorLabel, #6c757d);
+  color: #fff;
+}
+
+.reason-dialog {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--colorLine, #e5eaee);
+  border-radius: 5px;
 }
 
 .reason-dialog-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .actions-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  margin-top: 20px;
 }
 
 .button-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
   flex-wrap: wrap;
 }

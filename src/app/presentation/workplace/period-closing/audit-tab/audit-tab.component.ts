@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
 import {
@@ -31,7 +32,7 @@ import {
   templateUrl: './audit-tab.component.html',
   styleUrls: ['./audit-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditTabComponent implements OnInit {

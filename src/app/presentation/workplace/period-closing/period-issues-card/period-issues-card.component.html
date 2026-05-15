@@ -4,16 +4,16 @@
 
   <div class="issues-summary">
     @if (errorCount() > 0) {
-      <span class="badge bg-danger">{{ errorCount() }} {{ 'periodClosing.issues.severity.error' | translate }}</span>
+      <span class="badge badge-error">{{ errorCount() }} {{ 'periodClosing.issues.severity.error' | translate }}</span>
     }
     @if (warningCount() > 0) {
-      <span class="badge bg-warning text-dark">{{ warningCount() }} {{ 'periodClosing.issues.severity.warning' | translate }}</span>
+      <span class="badge badge-warning">{{ warningCount() }} {{ 'periodClosing.issues.severity.warning' | translate }}</span>
     }
     @if (infoCount() > 0) {
-      <span class="badge bg-info text-dark">{{ infoCount() }} {{ 'periodClosing.issues.severity.info' | translate }}</span>
+      <span class="badge badge-info">{{ infoCount() }} {{ 'periodClosing.issues.severity.info' | translate }}</span>
     }
     @if (!hasIssues()) {
-      <span class="text-muted">{{ 'periodClosing.issues.empty' | translate }}</span>
+      <span class="empty-state">{{ 'periodClosing.issues.empty' | translate }}</span>
     }
   </div>
 
