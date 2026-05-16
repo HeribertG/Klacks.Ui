@@ -61,7 +61,7 @@ export class UiActionEngineService {
       case 'conditional':
         return this.executeConditional(step, context);
       case 'apiCall':
-        return this.executeApiCall();
+        return this.executeApiCall(step, context);
       case 'search':
         return this.executeSearch(step, context);
       default:
@@ -272,8 +272,90 @@ export class UiActionEngineService {
     }
   }
 
-  private async executeApiCall(): Promise<void> {
-    throw new Error('apiCall action is not yet implemented');
+  private async executeApiCall(step: IUiActionStep, context: IUiActionContext): Promise<void> {
+    const resolvedUrl = this.resolveTemplateString(step.apiUrl, context);
+    if (!resolvedUrl) {
+      throw new Error('apiCall action requires apiUrl');
+    }
+    if (!this.isSameOriginUrl(resolvedUrl)) {
+      throw new Error('apiCall action only accepts same-origin or relative URLs');
+    }
+
+    const method = (step.apiMethod || 'GET').toUpperCase();
+    const body = this.resolveApiBody(step.apiBody, context);
+
+    let response$;
+    switch (method) {
+      case 'GET':
+        response$ = this.http.get(resolvedUrl);
+        break;
+      case 'POST':
+        response$ = this.http.post(resolvedUrl, body ?? null);
+        break;
+      case 'PUT':
+        response$ = this.http.put(resolvedUrl, body ?? null);
+        break;
+      case 'DELETE':
+        response$ = this.http.delete(resolvedUrl);
+        break;
+      case 'PATCH':
+        response$ = this.http.patch(resolvedUrl, body ?? null);
+        break;
+      default:
+        throw new Error(`apiCall action does not support HTTP method '${method}'`);
+    }
+
+    const result = await new Promise<unknown>((resolve, reject) => {
+      response$.subscribe({ next: resolve, error: reject });
+    });
+
+    if (step.resultKey) {
+      context.results[step.resultKey] = result as Record<string, unknown> | unknown;
+    }
+  }
+
+  private resolveTemplateString(value: string | undefined, context: IUiActionContext): string | undefined {
+    if (!value) return value;
+    return value.replace(/\{(\w+(?:\.\w+)*)\}/g, (_, path: string) => {
+      const parts = path.split('.');
+      let source: Record<string, unknown> = context.params as Record<string, unknown>;
+      if (parts[0] === 'results') {
+        source = context.results as Record<string, unknown>;
+        parts.shift();
+      }
+      let resolved: unknown = source;
+      for (const part of parts) {
+        if (resolved && typeof resolved === 'object') {
+          resolved = (resolved as Record<string, unknown>)[part];
+        } else {
+          return '';
+        }
+      }
+      return resolved === undefined || resolved === null ? '' : String(resolved);
+    });
+  }
+
+  private resolveApiBody(body: Record<string, unknown> | undefined, context: IUiActionContext): Record<string, unknown> | undefined {
+    if (!body) return undefined;
+    const resolved: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if (typeof value === 'string') {
+        resolved[key] = this.resolveTemplateString(value, context) ?? value;
+      } else {
+        resolved[key] = value;
+      }
+    }
+    return resolved;
+  }
+
+  private isSameOriginUrl(url: string): boolean {
+    if (url.startsWith('/')) return true;
+    try {
+      const parsed = new URL(url, window.location.origin);
+      return parsed.origin === window.location.origin;
+    } catch {
+      return false;
+    }
   }
 
   private async executeSearch(step: IUiActionStep, context: IUiActionContext): Promise<void> {

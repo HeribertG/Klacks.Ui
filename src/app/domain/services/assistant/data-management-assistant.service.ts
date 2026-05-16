@@ -25,6 +25,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { DataAssistantStreamService, StreamCallbacks, StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -47,6 +48,7 @@ export interface IConversation {
 export class DataManagementAssistantService {
   private dataAssistantService = inject(DataAssistantService);
   private dataAssistantStreamService = inject(DataAssistantStreamService);
+  private pageContextService = inject(AssistantPageContextService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
@@ -136,6 +138,7 @@ export class DataManagementAssistantService {
         language: this.currentLanguage(),
         userContext: this.getUserContext(),
       },
+      pageContext: this.pageContextService.getPageContext(),
     };
 
     this.isLoading.set(true);
@@ -202,6 +205,7 @@ export class DataManagementAssistantService {
         language: this.currentLanguage(),
         userContext: this.getUserContext(),
       },
+      pageContext: this.pageContextService.getPageContext(),
     };
 
     this.isLoading.set(true);

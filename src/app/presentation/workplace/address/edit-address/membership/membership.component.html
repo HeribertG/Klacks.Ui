@@ -1,6 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<form id="membership-form" #membershipForm="ngForm">
+<form id="membership-form" #membershipForm="ngForm" data-klacksy-target="employee-membership">
   <app-expandable-card
     [headerTitle]="'address.edit-address.membership.header' | translate">
 
@@ -17,6 +17,7 @@
               class="form-select"
               name="type"
               id="client-type"
+              data-klacksy-target="employee-membership.type"
               [disabled]="isDisabled()"
               [ngModel]="dataManagementClientService.editClient()?.type"
               (ngModelChange)="onClientTypeChange($event)"

@@ -33,6 +33,7 @@ export interface IAssistantChatRequest {
   language?: string;
   context?: any;
   agentId?: string;
+  pageContext?: import('src/app/domain/models/assistant/assistant-page-context.interface').IAssistantPageContext;
 }
 
 export interface IAssistantChatResponse {

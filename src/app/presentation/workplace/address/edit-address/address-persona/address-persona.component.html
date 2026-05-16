@@ -332,6 +332,7 @@
                   class="form-select"
                   [ngModel]="dataManagementClientService.editClient()?.gender"
                   id="gender"
+                  data-klacksy-target="client-detail.gender"
                   [disabled]="isDisabled()"
                   (ngModelChange)="
                     dataManagementClientService.editClient()!.gender = +$event
@@ -428,6 +429,7 @@
                   "
                   (ngModelChange)="calcValidation()"
                   id="firstname"
+                  data-klacksy-target="client-detail.firstname"
                   name="FirstName"
                   maxlength="50"
                   #firstNameField="ngModel"
@@ -501,6 +503,7 @@
                   (ngModelChange)="calcValidation()"
                   name="Name"
                   id="profile-name"
+                  data-klacksy-target="client-detail.lastname"
                   required
                   maxlength="50"
                   #nameField="ngModel"
@@ -1032,6 +1035,7 @@
                   class="form-control"
                   name="birthday"
                   id="profile-birthday"
+                  data-klacksy-target="client-detail.birthday"
                   [disabled]="isDisabled()"
                   [ngModel]="birthdateValue"
                   (ngModelChange)="onBirthdateChange($event)"

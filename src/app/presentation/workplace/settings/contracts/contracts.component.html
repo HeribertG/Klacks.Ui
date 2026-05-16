@@ -4,7 +4,7 @@
 
 <!-- Contract Modal -->
 <ng-template #contractModal id="contract-modal-template" let-modal>
-  <div id="contract-modal-header" class="modal-header">
+  <div id="contract-modal-header" class="modal-header" data-klacksy-target="contract-form">
     <div class="container-header-modal modal-title" id="modal-title">
       {{ "setting.contract.headline-modal" | translate }}
     </div>
@@ -40,6 +40,7 @@
             [formField]="contractForm.name"
             class="form-control"
             id="contractName"
+            data-klacksy-target="contract-form.name"
             aria-label="contractName"
           />
         </div>

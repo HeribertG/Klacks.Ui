@@ -12,6 +12,7 @@ import { DataAssistantService, IAssistantChatResponse, IAssistantUsage, } from '
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { AssistantFunctionExecutionService } from './assistant-function-execution.service';
+import { AssistantPageContextService } from './assistant-page-context.service';
 
 describe('DataManagementAssistantService', () => {
     let service: DataManagementAssistantService;
@@ -85,6 +86,14 @@ describe('DataManagementAssistantService', () => {
 
         translateServiceSpy.get.mockReturnValue(of('Translated text'));
 
+        const pageContextServiceSpy = {
+            getPageContext: vi.fn().mockReturnValue({}),
+            setSelectedGroupId: vi.fn(),
+            setSelectedPeriod: vi.fn(),
+            setSelectedClientId: vi.fn(),
+            reset: vi.fn(),
+        };
+
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [
@@ -93,6 +102,7 @@ describe('DataManagementAssistantService', () => {
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
                 { provide: AssistantFunctionExecutionService, useValue: functionExecutionServiceSpy },
+                { provide: AssistantPageContextService, useValue: pageContextServiceSpy },
             ],
         });
 

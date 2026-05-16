@@ -48,6 +48,8 @@ import {
 } from './schedule-entry-crud.service';
 import { AnalyseScenarioService } from './analyse-scenario.service';
 import { ClientSortPreferenceService } from './client-sort-preference.service';
+import { AssistantPageContextService } from '../assistant/assistant-page-context.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -64,6 +66,7 @@ export class DataManagementScheduleService implements ILoadable {
   private scheduleEntryCrud = inject(ScheduleEntryCrudService);
   private analyseScenarioService = inject(AnalyseScenarioService);
   private readonly clientSortPreference = inject(ClientSortPreferenceService);
+  private readonly pageContext = inject(AssistantPageContextService);
 
   private _lastAnalyseToken: string | null = this.analyseScenarioService.activeToken();
   private _lastSeenShiftLoaderRead = -1;
@@ -286,12 +289,23 @@ export class DataManagementScheduleService implements ILoadable {
     const dates = this.workScheduleLoader.calculateVisibleDates(this.workFilter);
     this._cachedStartDate = new Date(dates.startDate);
     this._cachedEndDate = new Date(dates.endDate);
+    this.publishPageContext();
     this.readWorkSchedule(resetScroll);
     this.readShiftSchedule(resetScroll, dates.startDate, dates.endDate);
     this.breakPlaceholderLoader.load(
       dates.startDate,
       dates.endDate,
       this.workFilter,
+    );
+  }
+
+  private publishPageContext(): void {
+    this.pageContext.setSelectedGroupId(this.workFilter?.selectedGroup);
+    const periodStart = this.periodStartDate;
+    const periodEnd = this.periodEndDate;
+    this.pageContext.setSelectedPeriod(
+      periodStart ? formatDateOnly(periodStart) : undefined,
+      periodEnd ? formatDateOnly(periodEnd) : undefined,
     );
   }
 

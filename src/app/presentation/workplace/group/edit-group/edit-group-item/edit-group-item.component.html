@@ -16,6 +16,7 @@
             autocomplete="off"
             [(ngModel)]="dataManagementGroupService.editGroup.name"
             id="edit-group-item-name"
+            data-klacksy-target="group-detail.name"
             name="name"
             required
             [disabled]="!authorizationService.isAuthorised"
