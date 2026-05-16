@@ -11,6 +11,7 @@ import { LocaleService } from 'src/app/application/services/locale.service';
 import { LanguageConfigService } from 'src/app/application/services/language-config.service';
 
 const RTL_LANGUAGES = ['ar', 'yi', 'he', 'fa', 'ur'];
+const DEV_RTL_KEY = 'klacks.dev.forceRtl';
 
 @Injectable({ providedIn: 'root' })
 export class DirectionService {
@@ -19,6 +20,7 @@ export class DirectionService {
   private document = inject(DOCUMENT);
 
   readonly direction: Signal<'ltr' | 'rtl'> = computed(() => {
+    if (localStorage.getItem(DEV_RTL_KEY) === 'true') return 'rtl';
     const lang = this.localeService.locale().split('-')[0];
     const meta = this.languageConfigService.getLanguageMetadata(lang);
     if (meta?.direction) {
