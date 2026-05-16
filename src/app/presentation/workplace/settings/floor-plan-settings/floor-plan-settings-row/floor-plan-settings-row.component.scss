@@ -5,8 +5,8 @@
 .first {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--gridColorLine);
+  padding: 6px 10px 6px 10px;
+  padding-right: 30px;
 
   &:hover {
     background-color: var(--gridBackgroundColorRowHover);
@@ -35,6 +35,11 @@
 .row-name {
   font-size: 13px;
   color: var(--standartTextColor);
+}
+
+.clone-button {
+  cursor: pointer;
+  margin-inline-start: 10px;
 }
 
 .delete-button {

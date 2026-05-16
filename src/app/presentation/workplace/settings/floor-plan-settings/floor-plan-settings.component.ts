@@ -136,6 +136,22 @@ export class FloorPlanSettingsComponent implements OnInit, AfterViewInit, OnDest
     this.openEditorModal();
   }
 
+  async onClickClone(plan: IFloorPlan): Promise<void> {
+    if (plan.id) {
+      const loaded = await this.dataManagement.loadByIdAsync(plan.id);
+      if (loaded) {
+        this.editingPlan = { ...loaded };
+      } else {
+        this.editingPlan = { ...plan };
+      }
+    } else {
+      this.editingPlan = { ...plan };
+    }
+    this.editingPlan.id = undefined;
+    this.editingPlan.name = '';
+    this.openEditorModal();
+  }
+
   openDeleteFloorPlan(plan: IFloorPlan): void {
     if (plan.id) {
       this.modalService.Filing = '';

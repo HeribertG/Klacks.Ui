@@ -9,6 +9,9 @@
       <span class="row-name">{{ data.name }}</span>
     </div>
   </div>
+  <span class="clone-button" type="button" (click)="onClickClone()">
+    <app-icon-copy-grey />
+  </span>
   <span class="delete-button" type="button" (click)="onClickDelete()">
     <app-icon-trash-red />
   </span>

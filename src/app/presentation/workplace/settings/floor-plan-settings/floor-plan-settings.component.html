@@ -90,6 +90,7 @@
         [id]="'floor-plan-row-' + i"
         [data]="plan"
         (editEvent)="onClickEdit($event)"
+        (cloneEvent)="onClickClone($event)"
         (deleteEvent)="openDeleteFloorPlan($event)"
       />
     }
