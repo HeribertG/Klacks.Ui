@@ -3,17 +3,33 @@
   [initiallyExpanded]="false">
 
   <div class="issues-summary">
-    @if (errorCount() > 0) {
-      <span class="badge badge-error">{{ errorCount() }} {{ 'periodClosing.issues.severity.error' | translate }}</span>
-    }
-    @if (warningCount() > 0) {
-      <span class="badge badge-warning">{{ warningCount() }} {{ 'periodClosing.issues.severity.warning' | translate }}</span>
-    }
-    @if (infoCount() > 0) {
-      <span class="badge badge-info">{{ infoCount() }} {{ 'periodClosing.issues.severity.info' | translate }}</span>
-    }
-    @if (!hasIssues()) {
-      <span class="empty-state">{{ 'periodClosing.issues.empty' | translate }}</span>
+    <div class="issues-summary-badges">
+      @if (errorCount() > 0) {
+        <span class="badge badge-error">{{ errorCount() }} {{ 'periodClosing.issues.severity.error' | translate }}</span>
+      }
+      @if (warningCount() > 0) {
+        <span class="badge badge-warning">{{ warningCount() }} {{ 'periodClosing.issues.severity.warning' | translate }}</span>
+      }
+      @if (infoCount() > 0) {
+        <span class="badge badge-info">{{ infoCount() }} {{ 'periodClosing.issues.severity.info' | translate }}</span>
+      }
+      @if (hasUnstaffed()) {
+        <span class="badge badge-info">
+          {{ 'periodClosing.issues.unstaffedShifts' | translate:{ count: unstaffedShiftCount(), suffix: unstaffedShiftTruncated() ? '+' : '' } }}
+        </span>
+      }
+      @if (!hasIssues()) {
+        <span class="empty-state">{{ 'periodClosing.issues.empty' | translate }}</span>
+      }
+    </div>
+    @if (canExport()) {
+      <button
+        type="button"
+        class="btn-pdf-export"
+        (click)="onPdfExport()"
+        [title]="'periodClosing.issues.pdf.tooltip' | translate">
+        <app-icon-pdf-icon></app-icon-pdf-icon>
+      </button>
     }
   </div>
 

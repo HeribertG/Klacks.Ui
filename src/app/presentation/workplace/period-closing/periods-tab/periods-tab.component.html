@@ -54,13 +54,13 @@
     @if (!loading() && displayDays().length > 0) {
       <div class="summary-row">
         @if (sealedDayCount() > 0) {
-          <span class="badge badge-sealed">{{ sealedDayCount() }} &#10003;</span>
+          <span class="badge badge-sealed">{{ sealedDayCount() }}/{{ displayDays().length }} &#10003;</span>
         }
         @if (partialDayCount() > 0) {
-          <span class="badge badge-partial">{{ partialDayCount() }}</span>
+          <span class="badge badge-partial">{{ partialDayCount() }}/{{ displayDays().length }}</span>
         }
         @if (emptyDayCount() > 0) {
-          <span class="badge badge-empty">{{ emptyDayCount() }}</span>
+          <span class="badge badge-empty">{{ emptyDayCount() }}/{{ displayDays().length }}</span>
         }
       </div>
 
@@ -117,8 +117,13 @@
     }
 
     <!-- Period issues card -->
-    @if (!loading() && selectedPeriod()) {
-      <app-period-issues-card [issues]="issues()"></app-period-issues-card>
+    @if (!loading() && selectedPeriod(); as period) {
+      <app-period-issues-card
+        [issues]="issues()"
+        [periodLabel]="formatPeriodLabel(period)"
+        [unstaffedShiftCount]="unstaffedShiftCount()"
+        [unstaffedShiftTruncated]="unstaffedShiftTruncated()">
+      </app-period-issues-card>
     }
 
     <!-- Unseal reason dialog (inline) -->

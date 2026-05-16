@@ -17,9 +17,13 @@ import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-clos
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
+import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
+import { IShiftScheduleFilter, ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
+
+const SHIFT_LOAD_LIMIT = 10000;
 
 interface PeriodGroup {
   intervalKey: string;
@@ -36,6 +40,7 @@ interface PeriodGroup {
 })
 export class PeriodsTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
+  private shiftScheduleApi = inject(DataShiftScheduleService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -43,6 +48,8 @@ export class PeriodsTabComponent implements OnInit {
   public selectedPeriodKey = signal<string | null>(null);
   public summary = signal<SealedPeriodSummary[]>([]);
   public issues = signal<PeriodIssue[]>([]);
+  public unstaffedShiftCount = signal<number>(0);
+  public unstaffedShiftTruncated = signal<boolean>(false);
   public loading = signal<boolean>(false);
   public loadingPeriods = signal<boolean>(false);
   public sealingDay = signal<string | null>(null);
@@ -132,19 +139,40 @@ export class PeriodsTabComponent implements OnInit {
     if (!period) {
       this.summary.set([]);
       this.issues.set([]);
+      this.unstaffedShiftCount.set(0);
+      this.unstaffedShiftTruncated.set(false);
       return;
     }
     this.loading.set(true);
+    const bounds = this.getPeriodBounds(period);
+    const shiftFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
+    shiftFilter.startDate = bounds.start;
+    shiftFilter.endDate = bounds.end;
+    shiftFilter.selectedGroup = period.groupId ?? undefined;
+    shiftFilter.rowCount = SHIFT_LOAD_LIMIT;
     forkJoin({
       summary: this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId),
       issues: this.api.getPeriodIssues(period.startDate, period.endDate, period.groupId),
+      shifts: this.shiftScheduleApi.getShiftSchedule(shiftFilter),
     }).subscribe({
-      next: ({ summary, issues }) => {
+      next: ({ summary, issues, shifts }) => {
         this.summary.set(summary);
         this.issues.set(issues);
+        let total = 0;
+        for (const shift of shifts.shifts) {
+          const need = shift.sumEmployees * shift.quantity;
+          const gap = need - shift.engaged;
+          if (gap > 0) total += gap;
+        }
+        this.unstaffedShiftCount.set(total);
+        this.unstaffedShiftTruncated.set(shifts.totalCount > shifts.shifts.length);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.unstaffedShiftCount.set(0);
+        this.unstaffedShiftTruncated.set(false);
+        this.loading.set(false);
+      },
     });
   }
 
