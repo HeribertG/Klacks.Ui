@@ -1,0 +1,48 @@
+@if (plan(); as p) {
+  <div class="plan-panel" data-klacksy-target="plan-execution-panel">
+    <div class="plan-panel-header">
+      <div class="plan-goal">{{ p.goal }}</div>
+      <div class="plan-status plan-status-{{ p.status }}">{{ p.status }}</div>
+    </div>
+
+    @if (p.lastErrorMessage) {
+      <div class="plan-error">{{ p.lastErrorMessage }}</div>
+    }
+
+    <ul class="plan-step-list">
+      @for (row of rows(); track row.index) {
+        <li class="plan-step plan-step-{{ row.status }}">
+          <span class="plan-step-icon" aria-hidden="true">
+            @switch (row.status) {
+              @case ('done') { ✓ }
+              @case ('running') { ▶ }
+              @case ('paused') { ⏸ }
+              @case ('failed') { ✗ }
+              @default { ○ }
+            }
+          </span>
+          <span class="plan-step-skill">{{ row.step.skill }}</span>
+          @if (row.step.verifySkill) {
+            <span class="plan-step-verify">→ {{ row.step.verifySkill }}</span>
+          }
+          @if (!row.step.reversible) {
+            <span class="plan-step-irreversible" title="non-reversible — needs approval">!</span>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (isPaused()) {
+      <div class="plan-approve-bar">
+        <span class="plan-approve-hint">Klacksy wartet auf Freigabe für den nächsten Schritt.</span>
+        <button
+          type="button"
+          class="btn save-btn plan-approve-btn"
+          data-klacksy-target="plan-execution-panel.approve"
+          (click)="onApproveClick()">
+          Approve & continue
+        </button>
+      </div>
+    }
+  </div>
+}

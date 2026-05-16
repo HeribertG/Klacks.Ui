@@ -13,6 +13,7 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { AssistantSignalRConstants } from './signalr.constants';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
+import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan.interface';
 import { IncomingMessage } from 'klacks-plugin-messaging';
 
 @Injectable({
@@ -27,6 +28,7 @@ export class AssistantSignalRService implements OnDestroy {
   public proactiveMessage$ = new Subject<IProactiveMessage>();
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
   public incomingMessage$ = new Subject<IncomingMessage>();
+  public planUpdated$ = new Subject<IAgentPlanUpdate>();
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', AssistantSignalRConstants.HubPath);
@@ -100,6 +102,13 @@ export class AssistantSignalRService implements OnDestroy {
         }
       }
     );
+
+    this.hubConnection.on(
+      AssistantSignalRConstants.Events.PlanUpdated,
+      (update: IAgentPlanUpdate) => {
+        this.planUpdated$.next(update);
+      }
+    );
   }
 
   private registerConnectionEvents(): void {
@@ -135,5 +144,6 @@ export class AssistantSignalRService implements OnDestroy {
     this.proactiveMessage$.complete();
     this.onboardingPrompt$.complete();
     this.incomingMessage$.complete();
+    this.planUpdated$.complete();
   }
 }

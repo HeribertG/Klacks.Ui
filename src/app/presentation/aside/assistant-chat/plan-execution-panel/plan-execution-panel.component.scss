@@ -1,0 +1,119 @@
+.plan-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-top: 1px solid var(--standartBorderColor, #ddd);
+  background-color: var(--standartBackgroundColor, #fafafa);
+  font-size: 13px;
+}
+
+.plan-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.plan-goal {
+  font-weight: 600;
+  margin-inline-end: 8px;
+}
+
+.plan-status {
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--standartBackgroundColor, #eee);
+}
+
+.plan-status-executing {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.plan-status-paused_for_approval {
+  background-color: #ffe5b4;
+  color: #a05a00;
+}
+
+.plan-status-completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.plan-status-failed {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.plan-error {
+  padding: 6px 8px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.plan-step-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.plan-step {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  gap: 6px;
+}
+
+.plan-step-icon {
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.plan-step-done .plan-step-icon { color: #28a745; }
+.plan-step-running .plan-step-icon { color: #ffc107; }
+.plan-step-paused .plan-step-icon { color: #fd7e14; }
+.plan-step-failed .plan-step-icon { color: #dc3545; }
+.plan-step-pending .plan-step-icon { color: #6c757d; }
+
+.plan-step-skill {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.plan-step-verify {
+  color: #6c757d;
+  font-size: 11px;
+  font-family: monospace;
+  margin-inline-start: 4px;
+}
+
+.plan-step-irreversible {
+  color: #dc3545;
+  font-weight: bold;
+  margin-inline-start: 4px;
+}
+
+.plan-approve-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--standartBorderColor, #ddd);
+}
+
+.plan-approve-hint {
+  font-size: 12px;
+  color: #856404;
+}
+
+.plan-approve-btn {
+  font-size: 12px;
+}
