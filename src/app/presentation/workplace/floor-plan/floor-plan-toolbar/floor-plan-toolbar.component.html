@@ -157,7 +157,7 @@
             (ngModelChange)="onRegularPolygonSidesChange($event)"
           >
             @for (n of regularPolygonSideOptions; track n) {
-              <option [value]="n">{{ n }}</option>
+              <option [ngValue]="n">{{ n }}</option>
             }
           </select>
         </label>
@@ -377,7 +377,7 @@
       [title]="'floor-plan.toolbar.stroke-width' | translate"
     >
       @for (w of strokeWidths; track w) {
-        <option [value]="w">{{ w }}px</option>
+        <option [ngValue]="w">{{ w }}px</option>
       }
     </select>
   </div>
@@ -407,7 +407,7 @@
       [title]="'floor-plan.toolbar.snap-size' | translate"
     >
       @for (s of snapSizes; track s) {
-        <option [value]="s">{{ s }}px</option>
+        <option [ngValue]="s">{{ s }}px</option>
       }
     </select>
   </div>

@@ -49,6 +49,7 @@ export class FloorPlanCanvasService {
   private readonly _canvasReady = signal(false);
   private readonly _undoStack = signal<string[]>([]);
   private readonly _redoStack = signal<string[]>([]);
+  private readonly _positionTick = signal(0);
 
   readonly zoom: Signal<number> = this._zoom.asReadonly();
   readonly selectedObject: Signal<FabricObject | null> = this._selectedObject.asReadonly();
@@ -56,6 +57,7 @@ export class FloorPlanCanvasService {
   readonly canvasReady: Signal<boolean> = this._canvasReady.asReadonly();
   readonly canUndo: Signal<boolean> = computed(() => this._undoStack().length > 0);
   readonly canRedo: Signal<boolean> = computed(() => this._redoStack().length > 0);
+  readonly positionTick: Signal<number> = this._positionTick.asReadonly();
 
   private isPanningActive = false;
   private lastPanPoint: Point | null = null;
@@ -254,19 +256,20 @@ export class FloorPlanCanvasService {
           top: (obj.top ?? 0) + snap.offsetY,
         });
         this.anchorSnapService.showHighlight(this.canvas!, snap.targetPoint);
-        return;
+      } else {
+        this.anchorSnapService.hideHighlight(this.canvas!);
+        if (this.toolService.snapEnabled()) {
+          const size = Number(this.toolService.snapSize());
+          if (size > 0) {
+            obj.set({
+              left: Math.round((obj.left ?? 0) / size) * size,
+              top: Math.round((obj.top ?? 0) / size) * size,
+            });
+          }
+        }
       }
 
-      this.anchorSnapService.hideHighlight(this.canvas!);
-
-      if (this.toolService.snapEnabled()) {
-        const size = this.toolService.snapSize();
-        if (size <= 0) return;
-        obj.set({
-          left: Math.round((obj.left ?? 0) / size) * size,
-          top: Math.round((obj.top ?? 0) / size) * size,
-        });
-      }
+      this._positionTick.update((v) => v + 1);
     });
 
   }
@@ -498,10 +501,11 @@ export class FloorPlanCanvasService {
     const obj = this.canvas.getActiveObject();
     if (!obj) return;
     obj.set({
-      left: (obj.left ?? 0) + dx,
-      top: (obj.top ?? 0) + dy,
+      left: this.snap((obj.left ?? 0) + dx),
+      top: this.snap((obj.top ?? 0) + dy),
     });
     obj.setCoords();
+    this._positionTick.update((v) => v + 1);
     this.canvas.renderAll();
     this.saveHistory();
   }
@@ -628,8 +632,10 @@ export class FloorPlanCanvasService {
     if (!this.canvas) return;
     const obj = this.canvas.getActiveObject();
     if (!obj) return;
-    const newWidth = Math.max(1, (obj.width ?? 0) * (obj.scaleX ?? 1) + dw);
-    const newHeight = Math.max(1, (obj.height ?? 0) * (obj.scaleY ?? 1) + dh);
+    const rawWidth = (obj.width ?? 0) * (obj.scaleX ?? 1) + dw;
+    const rawHeight = (obj.height ?? 0) * (obj.scaleY ?? 1) + dh;
+    const newWidth = Math.max(1, this.snap(rawWidth));
+    const newHeight = Math.max(1, this.snap(rawHeight));
     obj.set({
       scaleX: newWidth / (obj.width ?? 1),
       scaleY: newHeight / (obj.height ?? 1),
@@ -1099,4 +1105,5 @@ export class FloorPlanCanvasService {
     this.polygonPoints = [];
     this.canvas?.renderAll();
   }
+
 }

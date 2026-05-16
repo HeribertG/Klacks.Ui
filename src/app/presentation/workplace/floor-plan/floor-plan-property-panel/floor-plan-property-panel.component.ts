@@ -136,6 +136,18 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
         this.readObjectProperties(obj);
       });
       this.effects.push(selectionEffect);
+
+      const positionEffect = effect(() => {
+        this.canvasService.positionTick();
+        const obj = this.canvasService.selectedObject();
+        if (!obj) return;
+        this.properties.update((p) => ({
+          ...p,
+          x: Math.round(obj.left ?? 0),
+          y: Math.round(obj.top ?? 0),
+        }));
+      });
+      this.effects.push(positionEffect);
     });
   }
 

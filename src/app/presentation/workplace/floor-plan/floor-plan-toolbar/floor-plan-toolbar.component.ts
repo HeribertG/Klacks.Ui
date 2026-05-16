@@ -186,8 +186,9 @@ export class FloorPlanToolbarComponent {
   }
 
   onStrokeWidthChange(width: number): void {
-    this.toolService.setStrokeWidth(width);
-    this.canvasService.applyStrokeWidth(width);
+    const w = Number(width);
+    this.toolService.setStrokeWidth(w);
+    this.canvasService.applyStrokeWidth(w);
   }
 
   onToggleSnap(): void {
@@ -195,10 +196,10 @@ export class FloorPlanToolbarComponent {
   }
 
   onSnapSizeChange(size: number): void {
-    this.toolService.setSnapSize(size);
+    this.toolService.setSnapSize(Number(size));
   }
 
   onRegularPolygonSidesChange(sides: number): void {
-    this.toolService.setRegularPolygonSides(sides);
+    this.toolService.setRegularPolygonSides(Number(sides));
   }
 }

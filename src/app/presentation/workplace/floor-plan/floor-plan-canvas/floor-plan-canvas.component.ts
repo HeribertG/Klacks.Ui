@@ -608,7 +608,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
       if (this.canvasService.selectedObject()) {
         event.preventDefault();
-        const step = this.toolService.snapEnabled() ? this.toolService.snapSize() : 1;
+        const step = this.toolService.snapEnabled() ? Number(this.toolService.snapSize()) : 1;
         const dx = event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0;
         const dy = event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0;
         if (event.shiftKey) {
@@ -639,4 +639,5 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       }
     }
   }
+
 }
