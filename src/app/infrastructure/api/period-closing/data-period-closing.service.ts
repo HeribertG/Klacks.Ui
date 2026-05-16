@@ -68,7 +68,6 @@ export class DataPeriodClosingService {
     untilDate: string | null;
     format: string;
     language: string;
-    currencyCode: string;
     groupId: string | null;
   }): Observable<HttpResponse<Blob>> {
     return this.httpClient.post(
@@ -81,12 +80,14 @@ export class DataPeriodClosingService {
   listSealedOrders(
     from: string | null,
     until: string | null,
-    customerId: string | null
+    customerId: string | null,
+    search: string | null
   ): Observable<SealedOrderListItem[]> {
     let params = new HttpParams();
     if (from) params = params.set('from', from);
     if (until) params = params.set('until', until);
     if (customerId) params = params.set('customerId', customerId);
+    if (search) params = params.set('search', search);
     return this.httpClient
       .get<SealedOrderListItem[]>(`${environment.baseUrl}OrderExport/orders`, { params })
       .pipe(retry(3));

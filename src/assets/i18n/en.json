@@ -2382,6 +2382,8 @@
   "periodClosing.form.filterFrom": "From",
   "periodClosing.form.filterUntil": "Until",
   "periodClosing.form.noCustomer": "(no customer)",
+  "periodClosing.form.search": "Search",
+  "periodClosing.form.searchPlaceholder": "Abbreviation, name, customer, customer number…",
   "periodClosing.form.reason": "Reason",
   "periodClosing.form.reasonPlaceholder": "Why is this period being reopened?",
   "periodClosing.action.seal": "Seal period",

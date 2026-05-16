@@ -8,13 +8,14 @@
  * into the exported document.
  */
 
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
 import {
@@ -31,24 +32,23 @@ type ExportFormat = 'csv' | 'json' | 'xml' | 'datev' | 'bmd';
   templateUrl: './exports-tab.component.html',
   styleUrls: ['./exports-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, DateInputComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, DateInputComponent, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExportsTabComponent implements OnInit {
+export class ExportsTabComponent {
   private api = inject(DataPeriodClosingService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
   public filterFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
   public filterUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
+  public searchTerm = signal<string>('');
 
   public orders = signal<SealedOrderListItem[]>([]);
   public selectedOrderId = signal<string | null>(null);
   public loadingOrders = signal<boolean>(false);
 
   public format = signal<ExportFormat>('csv');
-  public language = signal<string>('de');
-  public currency = signal<string>('EUR');
   public busy = signal<boolean>(false);
 
   public readonly formats: { key: ExportFormat; labelKey: string }[] = [
@@ -65,15 +65,19 @@ export class ExportsTabComponent implements OnInit {
     return this.orders().find(o => o.id === id) ?? null;
   });
 
-  ngOnInit(): void {
-    this.reloadOrders();
-  }
+  public showOrderResults = computed<boolean>(() => {
+    const term = this.searchTerm().trim();
+    if (term.length === 0) return false;
+    const selectedLabel = this.selectedOrder() ? this.formatOrderLabel(this.selectedOrder()!) : '';
+    return term !== selectedLabel;
+  });
 
   reloadOrders(): void {
     this.loadingOrders.set(true);
     const from = ngbDateStructToIsoDate(this.filterFrom());
     const until = ngbDateStructToIsoDate(this.filterUntil());
-    this.api.listSealedOrders(from, until, null).subscribe({
+    const search = this.searchTerm().trim() || null;
+    this.api.listSealedOrders(from, until, null, search).subscribe({
       next: (orders) => {
         this.orders.set(orders);
         if (this.selectedOrderId() && !orders.some(o => o.id === this.selectedOrderId())) {
@@ -86,6 +90,20 @@ export class ExportsTabComponent implements OnInit {
         this.loadingOrders.set(false);
       },
     });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value);
+    if (value.trim().length === 0) {
+      this.orders.set([]);
+      return;
+    }
+    this.reloadOrders();
+  }
+
+  onOrderSelected(order: SealedOrderListItem): void {
+    this.selectedOrderId.set(order.id);
+    this.searchTerm.set(this.formatOrderLabel(order));
   }
 
   onExport(): void {
@@ -110,8 +128,7 @@ export class ExportsTabComponent implements OnInit {
       fromDate: ngbDateStructToIsoDate(this.filterFrom()),
       untilDate: ngbDateStructToIsoDate(this.filterUntil()),
       format: this.format(),
-      language: this.language(),
-      currencyCode: this.currency(),
+      language: this.translate.currentLang || this.translate.defaultLang || 'de',
       groupId: null,
     }).subscribe({
       next: (res) => {

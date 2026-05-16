@@ -37,25 +37,39 @@
     </section>
 
     <section class="filter-row">
-      <div class="filter-field filter-field-wide">
-        <label class="form-label" for="exportsOrder">{{ 'periodClosing.form.order' | translate }}</label>
-        @if (loadingOrders()) {
-          <div class="loading-hint text-muted">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          </div>
-        } @else if (orders().length === 0) {
-          <div class="text-muted">{{ 'periodClosing.form.orderEmpty' | translate }}</div>
-        } @else {
-          <select
-            id="exportsOrder"
-            class="form-select form-select-sm"
-            [ngModel]="selectedOrderId()"
-            (ngModelChange)="selectedOrderId.set($event)">
-            <option [ngValue]="null">{{ 'periodClosing.form.orderPlaceholder' | translate }}</option>
-            @for (order of orders(); track order.id) {
-              <option [ngValue]="order.id">{{ formatOrderLabel(order) }}</option>
+      <div class="filter-field filter-field-wide order-search">
+        <label class="form-label" for="exportsSearch">{{ 'periodClosing.form.order' | translate }}</label>
+        <app-search-input
+          inputId="exportsSearch"
+          [placeholderKey]="'periodClosing.form.searchPlaceholder'"
+          [value]="searchTerm()"
+          [showButton]="true"
+          [isLoading]="loadingOrders()"
+          [debounceMs]="300"
+          (valueChange)="onSearchChange($event)"
+          (searchSubmit)="onSearchChange($event)">
+        </app-search-input>
+
+        @if (showOrderResults()) {
+          <ul class="dropdown-menu order-results" role="listbox">
+            @if (orders().length === 0 && !loadingOrders()) {
+              <li class="dropdown-item order-result-empty" aria-disabled="true">{{ 'periodClosing.form.orderEmpty' | translate }}</li>
+            } @else {
+              @for (order of orders(); track order.id) {
+                <li
+                  class="dropdown-item order-result"
+                  role="option"
+                  [class.selected]="selectedOrderId() === order.id"
+                  [attr.aria-selected]="selectedOrderId() === order.id"
+                  tabindex="0"
+                  (click)="onOrderSelected(order)"
+                  (keydown.enter)="onOrderSelected(order)"
+                  (keydown.space)="onOrderSelected(order); $event.preventDefault()">
+                  {{ formatOrderLabel(order) }}
+                </li>
+              }
             }
-          </select>
+          </ul>
         }
       </div>
       <div class="filter-field">
@@ -69,26 +83,6 @@
             <option [value]="f.key">{{ f.labelKey | translate }}</option>
           }
         </select>
-      </div>
-      <div class="filter-field filter-field-narrow">
-        <label class="form-label" for="exportLanguage">{{ 'periodClosing.form.language' | translate }}</label>
-        <input
-          id="exportLanguage"
-          type="text"
-          class="form-control form-control-sm"
-          maxlength="5"
-          [ngModel]="language()"
-          (ngModelChange)="language.set($event)">
-      </div>
-      <div class="filter-field filter-field-narrow">
-        <label class="form-label" for="exportCurrency">{{ 'periodClosing.form.currency' | translate }}</label>
-        <input
-          id="exportCurrency"
-          type="text"
-          class="form-control form-control-sm"
-          maxlength="3"
-          [ngModel]="currency()"
-          (ngModelChange)="currency.set($event)">
       </div>
       <div class="filter-field filter-action">
         <button

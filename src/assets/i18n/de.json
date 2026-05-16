@@ -2382,6 +2382,8 @@
   "periodClosing.form.filterFrom": "Von",
   "periodClosing.form.filterUntil": "Bis",
   "periodClosing.form.noCustomer": "(kein Kunde)",
+  "periodClosing.form.search": "Suche",
+  "periodClosing.form.searchPlaceholder": "Kürzel, Name, Kunde, Kundennummer…",
   "periodClosing.form.reason": "Begründung",
   "periodClosing.form.reasonPlaceholder": "Warum wird diese Periode wieder geöffnet?",
   "periodClosing.action.seal": "Periode versiegeln",

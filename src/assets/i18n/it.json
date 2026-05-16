@@ -2379,6 +2379,8 @@
   "periodClosing.form.filterFrom": "Dal",
   "periodClosing.form.filterUntil": "Al",
   "periodClosing.form.noCustomer": "(senza cliente)",
+  "periodClosing.form.search": "Cerca",
+  "periodClosing.form.searchPlaceholder": "Sigla, nome, cliente, n° cliente…",
   "periodClosing.form.reason": "Motivo",
   "periodClosing.form.reasonPlaceholder": "Perché viene riaperto questo periodo?",
   "periodClosing.action.seal": "Sigilla periodo",

@@ -30,8 +30,76 @@
 }
 
 .filter-field-wide {
-  flex: 1 1 320px;
+  flex: 1 1 0;
   min-width: 320px;
+}
+
+.order-search {
+  position: relative;
+}
+
+:host ::ng-deep app-search-input {
+  .container-search,
+  .input-group {
+    width: 100%;
+  }
+
+  .input-group {
+    flex-wrap: nowrap;
+  }
+
+  .form-control {
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .container-search-button.input-group-text {
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    flex: 0 0 auto;
+  }
+}
+
+.order-results {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.order-result {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--colorFocus, #4a90e2);
+    outline-offset: -2px;
+  }
+
+  &.selected {
+    background-color: var(--gridBackgroundColorRowHover);
+    color: var(--gridColorText);
+  }
+}
+
+.order-result-empty {
+  font-style: italic;
+  cursor: default;
+  color: var(--colorLabel);
 }
 
 .loading-hint {
