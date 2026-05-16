@@ -7,12 +7,13 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/shift/data-shift.service';
 import { IShift } from 'src/app/domain/models/shift/shift-class';
 import { ShiftFilter } from 'src/app/domain/models/shift/shift-data-class';
+import { ShiftFilterType } from 'src/app/domain/enums/shift-filter-type.enum';
 
 const SHIFT_LOAD_COUNT = 500;
 
@@ -54,16 +55,26 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   }
 
   private loadShifts(): void {
-    const filter = new ShiftFilter();
-    filter.numberOfItemsPerPage = SHIFT_LOAD_COUNT;
-    filter.activeDateRange = true;
+    const makeFilter = (type: ShiftFilterType): ShiftFilter => {
+      const f = new ShiftFilter();
+      f.numberOfItemsPerPage = SHIFT_LOAD_COUNT;
+      f.filterType = type;
+      f.activeDateRange = true;
+      f.futureDateRange = true;
+      return f;
+    };
 
     this.isLoadingShifts.set(true);
-    this.dataShiftService.readShiftList(filter)
+    forkJoin([
+      this.dataShiftService.readShiftList(makeFilter(ShiftFilterType.Shift)),
+      this.dataShiftService.readShiftList(makeFilter(ShiftFilterType.Container)),
+    ])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (result) => {
-          this.availableShifts.set(result.shifts ?? []);
+        next: ([shifts, containers]) => {
+          const all = [...(shifts.shifts ?? []), ...(containers.shifts ?? [])];
+          all.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+          this.availableShifts.set(all);
           this.isLoadingShifts.set(false);
         },
         error: () => {

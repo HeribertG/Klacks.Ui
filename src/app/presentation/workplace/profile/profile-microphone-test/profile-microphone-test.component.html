@@ -23,10 +23,17 @@
           [ngModel]="selectedDeviceId() ?? ''"
           (ngModelChange)="onDeviceChange($event)"
         >
-          <option value="">{{ "setting.microphone-test.device-picker-default-option" | translate }}</option>
+          <option value="">
+            {{
+              "setting.microphone-test.device-picker-default-option" | translate
+            }}
+          </option>
           @for (device of availableDevices(); track device.deviceId) {
             <option [value]="device.deviceId">
-              {{ device.label || ("setting.microphone-test.device-picker-hint" | translate) }}
+              {{
+                device.label ||
+                  ("setting.microphone-test.device-picker-hint" | translate)
+              }}
             </option>
           }
         </select>
@@ -34,13 +41,17 @@
           type="button"
           class="btn btn-secondary refresh-button"
           (click)="refreshDevices()"
-          [attr.aria-label]="'setting.microphone-test.refresh-devices' | translate"
+          [attr.aria-label]="
+            'setting.microphone-test.refresh-devices' | translate
+          "
         >
           <fa-icon [icon]="faRotate"></fa-icon>
         </button>
       </div>
       @if (!hasDeviceLabels() && !hasNoDevices()) {
-        <small class="picker-hint">{{ "setting.microphone-test.device-picker-hint" | translate }}</small>
+        <small class="picker-hint">{{
+          "setting.microphone-test.device-picker-hint" | translate
+        }}</small>
       }
     </div>
 
@@ -57,7 +68,6 @@
         }
         {{ "setting.microphone-test.run-diagnostics" | translate }}
       </button>
-
     </div>
 
     @if (testResults().length > 0) {
@@ -67,16 +77,21 @@
           @for (result of testResults(); track result.name) {
             <li class="result-item" [class]="result.status">
               @switch (result.status) {
-                @case ('pending') {
+                @case ("pending") {
                   <span class="status-icon pending">-</span>
                 }
-                @case ('running') {
-                  <span class="spinner-border spinner-border-sm status-icon running"></span>
+                @case ("running") {
+                  <span
+                    class="spinner-border spinner-border-sm status-icon running"
+                  ></span>
                 }
-                @case ('success') {
-                  <fa-icon [icon]="faCheck" class="status-icon success"></fa-icon>
+                @case ("success") {
+                  <fa-icon
+                    [icon]="faCheck"
+                    class="status-icon success"
+                  ></fa-icon>
                 }
-                @case ('error') {
+                @case ("error") {
                   <fa-icon [icon]="faXmark" class="status-icon error"></fa-icon>
                 }
               }
@@ -98,7 +113,7 @@
     }
 
     <div class="record-playback-section">
-      <h4>{{ "setting.microphone-test.record-playback" | translate }}</h4>
+      <h5>{{ "setting.microphone-test.record-playback" | translate }}</h5>
 
       <div class="button-group">
         <button
@@ -118,18 +133,27 @@
       </div>
 
       @if (isPlaybackRecording()) {
-        <div class="level-meter" [attr.aria-label]="'setting.microphone-test.level-meter-label' | translate">
+        <div
+          class="level-meter"
+          [attr.aria-label]="
+            'setting.microphone-test.level-meter-label' | translate
+          "
+        >
           @for (bar of levelBars(); track $index) {
             <span class="level-bar" [class.active]="bar === 1"></span>
           }
         </div>
-        <p class="info-text">{{ "setting.microphone-test.recording-in-progress" | translate }}</p>
+        <p class="info-text">
+          {{ "setting.microphone-test.recording-in-progress" | translate }}
+        </p>
       }
 
       @if (playbackUrl()) {
         <audio class="playback-audio" controls [src]="playbackUrl()!"></audio>
       } @else if (!isPlaybackRecording()) {
-        <p class="info-text">{{ "setting.microphone-test.no-recording-yet" | translate }}</p>
+        <p class="info-text">
+          {{ "setting.microphone-test.no-recording-yet" | translate }}
+        </p>
       }
 
       @if (isWhisperLoading()) {
@@ -149,7 +173,9 @@
 
       @if (transcribedText()) {
         <div class="transcription-result">
-          <h5>{{ "setting.microphone-test.transcription-result" | translate }}</h5>
+          <h5>
+            {{ "setting.microphone-test.transcription-result" | translate }}
+          </h5>
           <div class="transcription-text">{{ transcribedText() }}</div>
         </div>
       }

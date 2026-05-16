@@ -102,3 +102,15 @@ as-split {
   padding: 0 !important;
   border: 1px solid var(--cardBorderColor) !important;
 }
+
+h5,
+h4,
+h3,
+h2,
+h1 {
+  color: var(--standartTextColor);
+}
+
+p {
+  color: var(--colorLabel);
+}
