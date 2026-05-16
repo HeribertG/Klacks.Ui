@@ -56,8 +56,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Initialize only basic settings that don't require authentication
     this.applicationInitService.initializeBasics();
+    if (this.authService.authenticated()) {
+      void this.signalRService.startConnection();
+    }
   }
 
   private handleSignalRAuthFailure(): void {

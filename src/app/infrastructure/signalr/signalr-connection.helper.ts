@@ -237,22 +237,19 @@ export class SignalRConnectionHelper {
       }
     }
 
-    const validation = await this.tokenHelper.validateTokenWithBackend(token);
+    const [validation, backendReady] = await Promise.all([
+      this.tokenHelper.validateTokenWithBackend(token),
+      this.probeBackend(),
+    ]);
+
     if (validation === 'rejected') {
       console.warn('[SignalR] token rejected by backend - stale credentials, giving up until re-login');
       this.stopWatchdog();
       this.transitionTo('AuthFailed');
       return;
     }
-    if (validation === 'unreachable') {
-      console.warn('[SignalR] token validation endpoint unreachable - watchdog will retry');
-      this.transitionTo('Failed');
-      return;
-    }
-
-    const backendReady = await this.probeBackend();
-    if (!backendReady) {
-      console.warn('[SignalR] backend not reachable within probe budget - watchdog will retry');
+    if (validation === 'unreachable' || !backendReady) {
+      console.warn('[SignalR] backend not reachable - watchdog will retry');
       this.transitionTo('Failed');
       return;
     }
