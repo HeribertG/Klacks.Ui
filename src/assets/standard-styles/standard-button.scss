@@ -1,0 +1,196 @@
+@use "colors.scss" as colors;
+
+/// Klacks Button Standard
+///
+/// Single source of truth for all button visuals across the app.
+/// Overrides Bootstrap's .btn-* utility classes so every button gets
+/// the same height, padding, radius and color palette regardless of
+/// which combination is used.
+///
+/// Variants:
+///   .btn-primary    blue   — save / confirm
+///   .btn-success    green  — add new / positive action
+///   .btn-danger     red    — delete / destructive
+///   .btn-secondary  neutral — default / cancel
+///   .btn-outline-*  bordered, transparent background
+///
+/// Sizes:
+///   default         40px — modal and primary actions
+///   .btn-sm         32px — inline / table actions
+///   .btn-lg         48px — emphasis / hero
+///
+/// Modal-action shortcuts (.save-btn, .delete-btn, …) live in
+/// modal-buttons.scss and reuse the same colour palette but with a
+/// fixed 180px width that is unsuitable for inline use.
+
+%btn-klacks-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+              color 0.2s ease, transform 0.1s ease, box-shadow 0.15s ease;
+
+  &:disabled,
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled):not(.disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+  }
+}
+
+/* Base — .btn alone has no variant; inherits the neutral palette */
+.btn {
+  @extend %btn-klacks-base;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorHeadline);
+  border-color: var(--cardBorderColor);
+
+  &:hover:not(:disabled):not(.disabled) {
+    background-color: var(--backgroundColorHover);
+    color: var(--colorHeadline);
+  }
+}
+
+/* Primary — blue, save/confirm */
+.btn-primary,
+.btn.btn-primary {
+  @extend %btn-klacks-base;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  border-color: colors.$standartBlueColor;
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: colors.$splitButtonBlueColor;
+    border-color: colors.$splitButtonBlueColor;
+    color: colors.$standartWhiteColor;
+  }
+}
+
+/* Success — green, add new */
+.btn-success,
+.btn.btn-success {
+  @extend %btn-klacks-base;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  border-color: colors.$standartGreenColor;
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: colors.$splitButtonGreenColor;
+    border-color: colors.$splitButtonGreenColor;
+    color: colors.$standartWhiteColor;
+  }
+}
+
+/* Danger — red, destructive */
+.btn-danger,
+.btn.btn-danger {
+  @extend %btn-klacks-base;
+  background-color: var(--standartRedColor);
+  color: colors.$standartWhiteColor;
+  border-color: var(--standartRedColor);
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: colors.$standartRedLiteColor;
+    border-color: colors.$standartRedLiteColor;
+    color: colors.$standartWhiteColor;
+  }
+}
+
+/* Secondary / outline-secondary / .normal-btn — neutral */
+.btn-secondary,
+.btn-outline-secondary,
+.btn.btn-secondary,
+.btn.btn-outline-secondary,
+.normal-btn {
+  @extend %btn-klacks-base;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorHeadline);
+  border: 1px solid var(--cardBorderColor);
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: var(--backgroundColorHover);
+    color: var(--colorHeadline);
+  }
+}
+
+/* Outline variants */
+.btn-outline-primary,
+.btn.btn-outline-primary {
+  @extend %btn-klacks-base;
+  background-color: transparent;
+  color: colors.$standartBlueColor;
+  border-color: colors.$standartBlueColor;
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: colors.$standartBlueColor;
+    color: colors.$standartWhiteColor;
+  }
+}
+
+.btn-outline-success,
+.btn.btn-outline-success {
+  @extend %btn-klacks-base;
+  background-color: transparent;
+  color: colors.$standartGreenColor;
+  border-color: colors.$standartGreenColor;
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: colors.$standartGreenColor;
+    color: colors.$standartWhiteColor;
+  }
+}
+
+.btn-outline-danger,
+.btn.btn-outline-danger {
+  @extend %btn-klacks-base;
+  background-color: transparent;
+  color: var(--standartRedColor);
+  border-color: var(--standartRedColor);
+
+  &:hover:not(:disabled):not(.disabled),
+  &:focus:not(:disabled):not(.disabled) {
+    background-color: var(--standartRedColor);
+    color: colors.$standartWhiteColor;
+  }
+}
+
+/* Size modifiers — keep at the end so they win against variant heights */
+.btn-sm,
+.btn.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.btn-lg,
+.btn.btn-lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 14px;
+}
