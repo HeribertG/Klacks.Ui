@@ -23,8 +23,8 @@ import {
   faXmark,
   faPlay,
   faStop,
-  faRotate,
 } from '@fortawesome/free-solid-svg-icons';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
 import { MicrophoneTestDefaults } from 'src/app/domain/constants/microphone-test-constants';
@@ -38,7 +38,7 @@ interface TestResult {
 @Component({
   selector: 'app-profile-microphone-test',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, TranslateModule, FontAwesomeModule, RefreshButtonComponent],
   templateUrl: './profile-microphone-test.component.html',
   styleUrls: ['./profile-microphone-test.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,8 +52,8 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   public faXmark = faXmark;
   public faPlay = faPlay;
   public faStop = faStop;
-  public faRotate = faRotate;
 
+  public isRefreshingDevices = signal(false);
   public isTestRunning = signal(false);
   public errorMessage = signal('');
   public testResults = signal<TestResult[]>([]);
@@ -101,7 +101,12 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   }
 
   async refreshDevices(): Promise<void> {
-    await this.micSelection.refreshDevices();
+    this.isRefreshingDevices.set(true);
+    try {
+      await this.micSelection.refreshDevices();
+    } finally {
+      this.isRefreshingDevices.set(false);
+    }
   }
 
   async runDiagnostics(): Promise<void> {

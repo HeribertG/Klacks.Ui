@@ -26,13 +26,11 @@
         </app-date-input>
       </div>
       <div class="filter-field filter-action">
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          (click)="reloadOrders()"
-          [disabled]="loadingOrders()">
-          {{ 'periodClosing.action.refresh' | translate }}
-        </button>
+        <app-refresh-button
+          [isLoading]="loadingOrders()"
+          [ariaLabel]="'periodClosing.action.refresh' | translate"
+          (clicked)="reloadOrders()"
+        />
       </div>
     </section>
 

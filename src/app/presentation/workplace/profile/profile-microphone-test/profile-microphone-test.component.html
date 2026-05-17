@@ -37,16 +37,11 @@
             </option>
           }
         </select>
-        <button
-          type="button"
-          class="btn btn-secondary refresh-button"
-          (click)="refreshDevices()"
-          [attr.aria-label]="
-            'setting.microphone-test.refresh-devices' | translate
-          "
-        >
-          <fa-icon [icon]="faRotate"></fa-icon>
-        </button>
+        <app-refresh-button
+          [isLoading]="isRefreshingDevices()"
+          [ariaLabel]="'setting.microphone-test.refresh-devices' | translate"
+          (clicked)="refreshDevices()"
+        />
       </div>
       @if (!hasDeviceLabels() && !hasNoDevices()) {
         <small class="picker-hint">{{

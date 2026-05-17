@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
@@ -32,7 +33,7 @@ type ExportFormat = 'csv' | 'json' | 'xml' | 'datev' | 'bmd';
   templateUrl: './exports-tab.component.html',
   styleUrls: ['./exports-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, DateInputComponent, SearchInputComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, DateInputComponent, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportsTabComponent {

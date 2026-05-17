@@ -143,9 +143,11 @@
         </app-date-input>
       </div>
       <div class="filter-field filter-action">
-        <button type="button" class="btn normal-btn" (click)="refresh()">
-          {{ 'periodClosing.action.refresh' | translate }}
-        </button>
+        <app-refresh-button
+          [isLoading]="isLoading()"
+          [ariaLabel]="'periodClosing.action.refresh' | translate"
+          (clicked)="refresh()"
+        />
       </div>
     </section>
 

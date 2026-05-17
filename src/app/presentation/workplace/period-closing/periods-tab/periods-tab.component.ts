@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { forkJoin } from 'rxjs';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
@@ -35,7 +36,7 @@ interface PeriodGroup {
   templateUrl: './periods-tab.component.html',
   styleUrls: ['./periods-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent, PeriodIssuesCardComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, ExpandableCardComponent, PeriodIssuesCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsTabComponent implements OnInit {

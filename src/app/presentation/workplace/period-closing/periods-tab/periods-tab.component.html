@@ -10,13 +10,9 @@
     <section class="filter-row">
       <div class="filter-field">
         <label class="form-label" for="periodsSelect">{{ 'periodClosing.form.period' | translate }}</label>
-        @if (loadingPeriods()) {
-          <div class="loading-hint text-muted">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-          </div>
-        } @else if (!hasPeriods()) {
+        @if (!hasPeriods() && !loadingPeriods()) {
           <div class="text-muted">{{ 'periodClosing.form.periodEmpty' | translate }}</div>
-        } @else {
+        } @else if (hasPeriods()) {
           <select
             id="periodsSelect"
             class="form-select form-select-sm"
@@ -33,22 +29,14 @@
         }
       </div>
       <div class="filter-field filter-action">
-        <button
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          (click)="loadSummary()"
-          [disabled]="loading() || !hasPeriods()">
-          {{ 'periodClosing.action.refresh' | translate }}
-        </button>
+        <app-refresh-button
+          [isLoading]="loading() || loadingPeriods()"
+          [disabled]="!hasPeriods()"
+          [ariaLabel]="'periodClosing.action.refresh' | translate"
+          (clicked)="loadSummary()"
+        />
       </div>
     </section>
-
-    <!-- Loading -->
-    @if (loading()) {
-      <div class="loading-hint text-muted">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-      </div>
-    }
 
     <!-- Day table -->
     @if (!loading() && displayDays().length > 0) {

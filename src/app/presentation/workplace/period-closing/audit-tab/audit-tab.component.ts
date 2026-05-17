@@ -18,6 +18,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { forkJoin, finalize } from 'rxjs';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
@@ -39,13 +41,14 @@ import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
   templateUrl: './audit-tab.component.html',
   styleUrls: ['./audit-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent, DateInputComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, ExpandableCardComponent, DateInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
   private modalService = inject(NgbModal);
 
+  public isLoading = signal(false);
   public startDate = signal<NgbDateStruct | null>(firstOfMonth(0));
   public endDate = signal<NgbDateStruct | null>(lastOfMonth(0));
   public auditEntries = signal<PeriodAuditLog[]>([]);
@@ -66,11 +69,17 @@ export class AuditTabComponent implements OnInit {
     const startIso = ngbDateStructToIsoDate(this.startDate());
     const endIso = ngbDateStructToIsoDate(this.endDate());
     if (!startIso || !endIso) return;
-    this.api.getAuditLog(startIso, endIso).subscribe({
-      next: (entries) => this.auditEntries.set(entries),
-    });
-    this.api.getExportLog(startIso, endIso).subscribe({
-      next: (entries) => this.exportEntries.set(entries),
+    this.isLoading.set(true);
+    forkJoin([
+      this.api.getAuditLog(startIso, endIso),
+      this.api.getExportLog(startIso, endIso),
+    ]).pipe(
+      finalize(() => this.isLoading.set(false)),
+    ).subscribe({
+      next: ([audit, exports]) => {
+        this.auditEntries.set(audit);
+        this.exportEntries.set(exports);
+      },
     });
   }
 

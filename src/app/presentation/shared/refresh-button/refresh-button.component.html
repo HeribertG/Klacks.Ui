@@ -1,0 +1,15 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<button
+  type="button"
+  class="btn btn-secondary refresh-button"
+  [disabled]="isLoading() || disabled()"
+  [attr.aria-label]="ariaLabel()"
+  (click)="clicked.emit()"
+>
+  @if (isLoading()) {
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+  } @else {
+    <fa-icon [icon]="faRotate"></fa-icon>
+  }
+</button>

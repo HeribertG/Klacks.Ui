@@ -114,3 +114,14 @@ h1 {
 p {
   color: var(--colorLabel);
 }
+
+.refresh-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--colorLabel);
+}
