@@ -30,11 +30,11 @@ import {
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgbDropdownModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
-  NgbDropdownModule,
-  NgbTooltip,
-} from '@ng-bootstrap/ng-bootstrap';
-import { PeriodCalendarMonthlyComponent, PeriodResetData } from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
+  PeriodCalendarMonthlyComponent,
+  PeriodResetData,
+} from 'src/app/presentation/shared/period-calendar-monthly/period-calendar-monthly.component';
 import { PeriodCalendarWeeklyComponent } from 'src/app/presentation/shared/period-calendar-weekly/period-calendar-weekly.component';
 import { PeriodCalendarBiweeklyComponent } from 'src/app/presentation/shared/period-calendar-biweekly/period-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
@@ -46,15 +46,20 @@ import { IconBreakPlaceholderComponent } from 'src/app/presentation/icons/icon-b
 import { IconThunderCircleComponent } from 'src/app/presentation/icons/icon-thunder-circle.component';
 import { IconAvailabilityCheckComponent } from 'src/app/presentation/icons/icon-availability-check.component';
 import { IconFlyComponent } from 'src/app/presentation/icons/icon-fly.component';
-import { IconRefreshScheduleComponent } from 'src/app/presentation/icons/icon-refresh-schedule.component';
 import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.component';
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { ScenarioSelectorComponent } from './scenario-selector/scenario-selector.component';
 import { ScheduleViewModeService } from '../services/schedule-view-mode.service';
-import { ScheduleTimelineRangeService, TimelineViewRange } from '../services/schedule-timeline-range.service';
+import {
+  ScheduleTimelineRangeService,
+  TimelineViewRange,
+} from '../services/schedule-timeline-range.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/schedule/data-work-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -72,9 +77,11 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DataAutoWizardService } from 'src/app/infrastructure/api/auto-wizard/data-auto-wizard.service';
+import { AUTO_WIZARD_LIMITS } from 'src/app/infrastructure/api/auto-wizard/auto-wizard-limits.constants';
 import { SCHEDULE_SIGNALR } from 'src/app/domain/interfaces/schedule-signalr.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
+import { IconCalcComponent } from 'src/app/presentation/icons/icon-calc.component';
 
 const DEFAULT_ZOOM_VALUE = 100;
 
@@ -98,7 +105,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     IconBreakPlaceholderComponent,
     IconThunderCircleComponent,
     IconFlyComponent,
-    IconRefreshScheduleComponent,
+    IconCalcComponent,
     IconAvailabilityCheckComponent,
     IconWizardComponent,
     WizardDialogComponent,
@@ -110,12 +117,16 @@ const DEFAULT_ZOOM_VALUE = 100;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
-  @ViewChild('breakPlaceholderIcon') breakPlaceholderIcon!: IconBreakPlaceholderComponent;
-  @ViewChild('scheduleCommandsIcon') scheduleCommandsIcon!: IconThunderCircleComponent;
-  @ViewChild('availabilityCheckIcon') availabilityCheckIcon!: IconAvailabilityCheckComponent;
+  @ViewChild('breakPlaceholderIcon')
+  breakPlaceholderIcon!: IconBreakPlaceholderComponent;
+  @ViewChild('scheduleCommandsIcon')
+  scheduleCommandsIcon!: IconThunderCircleComponent;
+  @ViewChild('availabilityCheckIcon')
+  availabilityCheckIcon!: IconAvailabilityCheckComponent;
   @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
   @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
-  @ViewChild('holisticHarmonizerDialog') holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
+  @ViewChild('holisticHarmonizerDialog')
+  holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -168,14 +179,20 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   private readonly wizardDropdownMode = signal(false);
   readonly isWizardDropdownMode = this.wizardDropdownMode.asReadonly();
-  readonly isAutoWizardRunning = computed(() => this.dataAutoWizardService.status() === 'running');
+  readonly isAutoWizardRunning = computed(
+    () => this.dataAutoWizardService.status() === 'running',
+  );
 
   constructor() {
     effect(() => {
       const status = this.dataAutoWizardService.status();
       if (status === 'completed') {
         const result = this.dataAutoWizardService.result();
-        if (result?.finalScenarioId && result.finalScenarioToken && result.finalScenarioName) {
+        if (
+          result?.finalScenarioId &&
+          result.finalScenarioToken &&
+          result.finalScenarioName
+        ) {
           const newScenario = {
             id: result.finalScenarioId,
             name: result.finalScenarioName,
@@ -185,20 +202,37 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
             createdByUser: '',
             status: AnalyseScenarioStatus.Active,
           };
-          this.analyseScenarioService.scenarios.update(list => {
-            return list.some(s => s.id === newScenario.id) ? list : [...list, newScenario];
+          this.analyseScenarioService.scenarios.update((list) => {
+            return list.some((s) => s.id === newScenario.id)
+              ? list
+              : [...list, newScenario];
           });
           this.analyseScenarioService.selectScenario(newScenario);
           this.dataManagementSchedule.readDatas();
         }
-        const message = this.translateService.instant('autoWizard.toast.completed', {
-          scenario: result?.finalScenarioName ?? '',
-        });
-        this.toastShowService.showInfo(message, 'auto-wizard', '', TOAST_ICONS.INFO);
+        const message = this.translateService.instant(
+          'autoWizard.toast.completed',
+          {
+            scenario: result?.finalScenarioName ?? '',
+          },
+        );
+        this.toastShowService.showInfo(
+          message,
+          'auto-wizard',
+          '',
+          TOAST_ICONS.INFO,
+        );
         this.dataAutoWizardService.status.set('idle');
       } else if (status === 'failed') {
-        const reason = this.dataAutoWizardService.failureReason() ?? '';
-        const message = this.translateService.instant('autoWizard.toast.failed', { reason });
+        const rawReason = (this.dataAutoWizardService.failureReason() ?? '').trim();
+        const reason =
+          rawReason.length > 0
+            ? rawReason
+            : this.translateService.instant('autoWizard.toast.failedUnknown');
+        const message = this.translateService.instant(
+          'autoWizard.toast.failed',
+          { reason },
+        );
         this.toastShowService.showError(message, 'auto-wizard');
         this.dataAutoWizardService.status.set('idle');
       }
@@ -212,7 +246,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
         this.isRecalculating.set(false);
         this.toastShowService.showInfo(
-          this.translateService.instant('schedule.recalculate.thorough.completed'),
+          this.translateService.instant(
+            'schedule.recalculate.thorough.completed',
+          ),
           'recalculate-thorough',
           '',
           TOAST_ICONS.INFO,
@@ -223,7 +259,12 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   isEmailConfigured = computed(() => {
     const e = this.appSettings.emailSettings();
-    return !!e.outgoingServer && !!e.outgoingServerPort && !!e.username && !!e.password;
+    return (
+      !!e.outgoingServer &&
+      !!e.outgoingServerPort &&
+      !!e.username &&
+      !!e.password
+    );
   });
 
   isSendDisabled = computed(() => {
@@ -302,7 +343,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   toggleScheduleCommands(): void {
-    (this.dataService as ScheduleDataService).showScheduleCommands.update((v) => !v);
+    (this.dataService as ScheduleDataService).showScheduleCommands.update(
+      (v) => !v,
+    );
     this.updateScheduleCommandsIcon();
   }
 
@@ -324,7 +367,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.emitZoomChange();
-    this.timelineValue = Math.round(this.viewModeService.timelineRowHeightFactor() * 100);
+    this.timelineValue = Math.round(
+      this.viewModeService.timelineRowHeightFactor() * 100,
+    );
   }
 
   ngAfterViewInit(): void {
@@ -396,11 +441,16 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
       return;
     }
     const target = event.target as HTMLElement | null;
-    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+    if (
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable)
+    ) {
       return;
     }
     event.preventDefault();
-    this.wizardDropdownMode.update(v => !v);
+    this.wizardDropdownMode.update((v) => !v);
   }
 
   async onAutoWizardClick(): Promise<void> {
@@ -417,7 +467,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
     }
 
     const agentIds = this.dataManagementSchedule.clients
-      .map(c => c.id)
+      .map((c) => c.id)
       .filter((id): id is string => !!id);
     if (agentIds.length === 0) {
       this.toastShowService.showError(
@@ -427,10 +477,40 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const shiftIds = [...new Set(this.dataManagementSchedule.shiftSchedules.map(s => s.shiftId))];
+    const shiftIds = [
+      ...new Set(
+        this.dataManagementSchedule.shiftSchedules.map((s) => s.shiftId),
+      ),
+    ];
     if (shiftIds.length === 0) {
       this.toastShowService.showError(
         this.translateService.instant('autoWizard.toast.noShifts'),
+        'auto-wizard',
+      );
+      return;
+    }
+
+    const periodDays = Math.max(
+      1,
+      Math.floor(
+        (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
+      ) + 1,
+    );
+    const slotProduct = agentIds.length * Math.max(1, shiftIds.length) * periodDays;
+    if (
+      agentIds.length > AUTO_WIZARD_LIMITS.maxAgents ||
+      shiftIds.length > AUTO_WIZARD_LIMITS.maxShifts ||
+      slotProduct > AUTO_WIZARD_LIMITS.maxSlotProduct
+    ) {
+      this.toastShowService.showError(
+        this.translateService.instant('autoWizard.toast.tooLarge', {
+          agents: agentIds.length,
+          shifts: shiftIds.length,
+          days: periodDays,
+          maxAgents: AUTO_WIZARD_LIMITS.maxAgents,
+          maxShifts: AUTO_WIZARD_LIMITS.maxShifts,
+          maxSlotProduct: AUTO_WIZARD_LIMITS.maxSlotProduct,
+        }),
         'auto-wizard',
       );
       return;
@@ -471,8 +551,8 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
     try {
       const clientList = clients
-        .filter(c => !!c.id)
-        .map(c => ({
+        .filter((c) => !!c.id)
+        .map((c) => ({
           id: c.id,
           name: `${c.firstName ?? ''} ${c.name ?? ''}`.trim(),
         }));
@@ -491,7 +571,9 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
       this.toastShowService.showInfo(msg, 'bulk-send', '', TOAST_ICONS.INFO);
     } catch {
       this.toastShowService.showError(
-        this.translateService.instant('schedule.send.error.failed', { clientName: 'Bulk' }),
+        this.translateService.instant('schedule.send.error.failed', {
+          clientName: 'Bulk',
+        }),
         'bulk-send',
       );
     } finally {
@@ -504,9 +586,15 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
     this.modalService.openModal({
       type: ModalType.Confirmation,
-      title: this.translateService.instant('schedule.recalculate.thorough.title'),
-      message: this.translateService.instant('schedule.recalculate.thorough.warning'),
-      confirmText: this.translateService.instant('schedule.recalculate.thorough.start'),
+      title: this.translateService.instant(
+        'schedule.recalculate.thorough.title',
+      ),
+      message: this.translateService.instant(
+        'schedule.recalculate.thorough.warning',
+      ),
+      confirmText: this.translateService.instant(
+        'schedule.recalculate.thorough.start',
+      ),
       cancelText: this.translateService.instant('cancel'),
       onConfirm: () => this.onThoroughRecalculateConfirmed(),
     });

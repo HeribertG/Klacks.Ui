@@ -21,6 +21,14 @@
         font-size: 1.2em;
         flex-shrink: 0;
       }
+
+      .toast-text {
+        white-space: pre-line;
+
+        &::first-line {
+          font-weight: 600;
+        }
+      }
     }
 
     textarea.form-control {

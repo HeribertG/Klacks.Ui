@@ -12,12 +12,14 @@
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as signalR from '@microsoft/signalr';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../storage/local-storage.service';
 import { StorageKeys } from '../../constants/storage-keys';
 import { AutoWizardSignalRConstants } from '../../signalr/signalr.constants';
+import { AUTO_WIZARD_LIMITS } from './auto-wizard-limits.constants';
 
 export type AutoWizardStatus = 'idle' | 'running' | 'completed' | 'failed';
 
@@ -51,6 +53,7 @@ export interface AutoWizardCancelResponse {
 export class DataAutoWizardService implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly localStorage = inject(LocalStorageService);
+  private readonly translateService = inject(TranslateService);
 
   readonly status = signal<AutoWizardStatus>('idle');
   readonly result = signal<AutoWizardResult | null>(null);
@@ -82,7 +85,7 @@ export class DataAutoWizardService implements OnDestroy {
       return response.jobId;
     } catch (error) {
       const message = this.extractMessage(error);
-      this.failureReason.set(message);
+      this.failureReason.set(this.normaliseReason(message));
       this.status.set('failed');
       throw error;
     }
@@ -170,7 +173,7 @@ export class DataAutoWizardService implements OnDestroy {
     });
 
     connection.on(AutoWizardSignalRConstants.Events.OnFailed, (reason: string) => {
-      this.failureReason.set(reason);
+      this.failureReason.set(this.normaliseReason(reason));
       this.status.set('failed');
     });
   }
@@ -178,14 +181,47 @@ export class DataAutoWizardService implements OnDestroy {
   private extractMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
       const body = error.error;
-      if (body && typeof body === 'object' && 'message' in body && typeof (body as { message: unknown }).message === 'string') {
-        return (body as { message: string }).message;
+      if (body && typeof body === 'object') {
+        const code = (body as { code?: unknown }).code;
+        if (code === AUTO_WIZARD_LIMITS.tooLargeErrorCode) {
+          const b = body as {
+            agents?: number;
+            shifts?: number;
+            periodDays?: number;
+            maxAgents?: number;
+            maxShifts?: number;
+            maxSlotProduct?: number;
+          };
+          return this.translate('autoWizard.toast.tooLarge', {
+            agents: b.agents ?? 0,
+            shifts: b.shifts ?? 0,
+            days: b.periodDays ?? 0,
+            maxAgents: b.maxAgents ?? AUTO_WIZARD_LIMITS.maxAgents,
+            maxShifts: b.maxShifts ?? AUTO_WIZARD_LIMITS.maxShifts,
+            maxSlotProduct: b.maxSlotProduct ?? AUTO_WIZARD_LIMITS.maxSlotProduct,
+          });
+        }
+        if (typeof (body as { message?: unknown }).message === 'string') {
+          return (body as { message: string }).message;
+        }
       }
       return error.message;
     }
     if (error instanceof Error) {
       return error.message;
     }
-    return 'Unknown error';
+    return '';
+  }
+
+  private normaliseReason(reason: string | null | undefined): string {
+    const trimmed = (reason ?? '').trim();
+    return trimmed.length > 0
+      ? trimmed
+      : this.translate('autoWizard.toast.failedUnknown', {});
+  }
+
+  private translate(key: string, params: Record<string, unknown>): string {
+    const translated = this.translateService.instant(key, params);
+    return typeof translated === 'string' && translated !== key ? translated : key;
   }
 }

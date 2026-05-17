@@ -33,7 +33,7 @@ import { IToast } from './toast.interface';
         @if (toast.icon) {
         <span class="toast-icon me-2">{{ toast.icon }}</span>
         }
-        <span>{{ toast.textOrTpl }}</span>
+        <span class="toast-text">{{ toast.textOrTpl }}</span>
       </div>
 
       @if (toast.showTextField) {
