@@ -183,7 +183,7 @@ export class ScheduleDataService extends BaseDataService {
     if (!client) return '';
     const periodHours = this.dataManagementSchedule.periodHours.get(client.id);
     if (!periodHours) return '';
-    return hoursToHHMM(periodHours.hours);
+    return hoursToHHMM(periodHours.hours + periodHours.surcharges);
   }
 
   public getRowHeaderSlot3Text(index: number): string {
