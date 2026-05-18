@@ -52,6 +52,7 @@ export class StackedBarChartComponent {
   @Input() topBars: number[] = [];
   @Input() referenceLine: number[] = [];
   @Input() monthMarkers: IMonthMarker[] = [];
+  @Input() unit = 'h';
 
   readonly vbW = VIEWBOX_W;
   readonly vbH = VIEWBOX_H;
@@ -93,7 +94,8 @@ export class StackedBarChartComponent {
     return Array.from({ length: Y_TICKS + 1 }, (_, i) => {
       const value = (max / Y_TICKS) * i;
       const y = PAD_T + PLOT_H - (value / max) * PLOT_H;
-      return { y, label: `${Math.round(value)}h` };
+      const formatted = value >= 10 ? Math.round(value).toString() : value.toFixed(1).replace(/\.0$/, '');
+      return { y, label: `${formatted}${this.unit}` };
     });
   }
 

@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Full-width dashboard card showing daily workforce utilization as a Resource Histogram.
- * 365 daily stacked bars (green = services, gray = absences) with month-boundary labels
- * and a red dashed constructed capacity line.
+ * Full-width dashboard card showing daily workforce headcount as a Resource Histogram.
+ * 365 daily stacked bars (green = services count, gray = absent employees) with
+ * month-boundary labels and a red dashed line for active contracts (max capacity).
  * @param dataDashboardService - Provides resource monitor data
  */
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
@@ -30,13 +30,13 @@ export class DashboardResourceMonitorComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  private dailyData = signal([] as { date: string; dienstHours: number; absenzHours: number; maxKapazitaetHours: number }[]);
+  private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; maxKapazitaetCount: number }[]);
 
   maxYear = computed(() => this.selectedYear() + 30);
 
-  dienstByDay = computed(() => this.dailyData().map(d => d.dienstHours));
-  absenzByDay = computed(() => this.dailyData().map(d => d.absenzHours));
-  maxKapazitaetByDay = computed(() => this.dailyData().map(d => d.maxKapazitaetHours));
+  dienstByDay = computed(() => this.dailyData().map(d => d.dienstCount));
+  absenzByDay = computed(() => this.dailyData().map(d => d.absenzCount));
+  maxKapazitaetByDay = computed(() => this.dailyData().map(d => d.maxKapazitaetCount));
 
   monthMarkers = computed<IMonthMarker[]>(() => {
     const data = this.dailyData();
