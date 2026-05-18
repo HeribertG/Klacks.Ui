@@ -12,6 +12,10 @@
   font-family: Roboto;
   font-size: small;
   font-weight: normal;
+  padding: 10px 16px !important;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .dropdown-item:hover {

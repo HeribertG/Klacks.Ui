@@ -174,14 +174,14 @@
     <button
       id="schedule-recalculate-btn"
       type="button"
-      class="icon-button recalculate-button"
+      class="recalculate-button"
       [class.disabled]="isRecalculating()"
       ngbDropdownToggle
     >
       @if (isRecalculating()) {
         <span class="spinner-border spinner-border-sm"></span>
       } @else {
-        <app-icon-refresh-schedule />
+        <app-icon-calc />
       }
     </button>
     <div ngbDropdownMenu aria-labelledby="schedule-recalculate-btn">
