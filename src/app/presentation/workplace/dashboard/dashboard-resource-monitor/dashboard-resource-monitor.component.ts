@@ -1,27 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Full-width dashboard card with year picker and group filter showing daily Soll/Ist hours as line chart.
- * @param dataDashboardService - Provides resource monitor data and group tree for the dropdown
+ * Full-width dashboard card showing daily workforce utilization as a Resource Histogram.
+ * 365 daily stacked bars (green = services, gray = absences) with month-boundary labels
+ * and a red dashed constructed capacity line.
+ * @param dataDashboardService - Provides resource monitor data
  */
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
-import { LineChartComponent, ILineChartSeries } from 'src/app/presentation/shared/line-chart/line-chart.component';
-import { IResourceMonitorDay } from 'src/app/domain/models/dashboard-class';
-import { IGroup } from 'src/app/domain/models/group/group-class';
-
-interface IGroupOption {
-  id: string | null;
-  name: string;
-}
+import { Group } from 'src/app/domain/models/group/group-class';
+import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
+import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
+import { IMonthMarker, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
 
 @Component({
   selector: 'app-dashboard-resource-monitor',
   templateUrl: './dashboard-resource-monitor.component.html',
   styleUrls: ['./dashboard-resource-monitor.component.scss'],
   standalone: true,
-  imports: [TranslateModule, LineChartComponent],
+  imports: [TranslateModule, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardResourceMonitorComponent implements OnInit {
@@ -29,57 +27,36 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
-  groupOptions = signal<IGroupOption[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  private dailyData = signal<IResourceMonitorDay[]>([]);
+  private dailyData = signal([] as { date: string; dienstHours: number; absenzHours: number; maxKapazitaetHours: number }[]);
 
-  get monthLabels(): string[] {
-    return Array.from({ length: 12 }, (_, i) =>
-      new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(new Date(2000, i, 1))
-    );
-  }
+  maxYear = computed(() => this.selectedYear() + 30);
 
-  chartSeries = computed<ILineChartSeries[]>(() => {
+  dienstByDay = computed(() => this.dailyData().map(d => d.dienstHours));
+  absenzByDay = computed(() => this.dailyData().map(d => d.absenzHours));
+  maxKapazitaetByDay = computed(() => this.dailyData().map(d => d.maxKapazitaetHours));
+
+  monthMarkers = computed<IMonthMarker[]>(() => {
     const data = this.dailyData();
-    if (!data.length) return [];
-    return [
-      { label: 'Soll-Std.', color: '#4A90D9', dashed: false, data: data.map(d => d.shouldHours) },
-      { label: 'Ist-Std.',  color: '#27AE60', dashed: true,  data: data.map(d => d.actualHours) },
-    ];
-  });
-
-  todayIndex = computed<number | undefined>(() => {
-    const data = this.dailyData();
-    if (!data.length) return undefined;
-    const d = new Date();
-    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const idx = data.findIndex(day => day.date === todayStr);
-    return idx >= 0 ? idx : undefined;
+    const markers: IMonthMarker[] = [];
+    let lastMonth = -1;
+    data.forEach((d, i) => {
+      const month = new Date(d.date).getMonth();
+      if (month !== lastMonth) {
+        markers.push({
+          index: i,
+          label: new Intl.DateTimeFormat(navigator.language, { month: 'short' }).format(new Date(d.date)),
+        });
+        lastMonth = month;
+      }
+    });
+    return markers;
   });
 
   ngOnInit(): void {
-    this.loadGroups();
     this.loadData();
-  }
-
-  private loadGroups(): void {
-    this.dataDashboardService.getClientsOverviewData().subscribe({
-      next: (tree) => {
-        const options: IGroupOption[] = [];
-        this.flattenGroups(tree.nodes, options);
-        this.groupOptions.set(options);
-      },
-      error: () => this.groupOptions.set([]),
-    });
-  }
-
-  private flattenGroups(groups: IGroup[], result: IGroupOption[], depth = 0): void {
-    for (const g of groups) {
-      if (g.id) result.push({ id: g.id, name: '  '.repeat(depth) + g.name });
-      if (g.children?.length) this.flattenGroups(g.children, result, depth + 1);
-    }
   }
 
   private loadData(): void {
@@ -92,12 +69,13 @@ export class DashboardResourceMonitorComponent implements OnInit {
     });
   }
 
-  prevYear(): void { this.selectedYear.update(y => y - 1); this.loadData(); }
-  nextYear(): void { this.selectedYear.update(y => y + 1); this.loadData(); }
+  onYearChanged(year: number): void {
+    this.selectedYear.set(year);
+    this.loadData();
+  }
 
-  onGroupChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.selectedGroupId.set(value || null);
+  onGroupSelected(group: Group | null): void {
+    this.selectedGroupId.set(group?.id ?? null);
     this.loadData();
   }
 }

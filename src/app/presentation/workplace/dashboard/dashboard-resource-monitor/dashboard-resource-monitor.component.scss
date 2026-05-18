@@ -1,3 +1,5 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
 :host {
   display: block;
 }
@@ -26,44 +28,32 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
 
-.rm-year-picker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 3px 10px;
-  background: #fff;
-}
+  ::ng-deep {
+    app-counter .ownPaginationContainer {
+      width: auto;
+      height: 38px;
+      align-items: center;
+    }
 
-.rm-year-value {
-  font-weight: 500;
-  font-size: 14px;
-  min-width: 38px;
-  text-align: center;
-}
+    app-counter .ownPaginationBlock {
+      height: 38px;
+      line-height: 38px;
+    }
 
-.rm-year-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: #666;
-  padding: 0;
+    app-group-select .group-select-container {
+      margin-bottom: 0;
+      min-width: 220px;
+    }
 
-  &:hover { color: #333; }
-}
+    app-group-select .group-select-dropdown {
+      min-width: max-content;
+    }
 
-.rm-group-select {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 4px 10px;
-  background: #fff;
-  font-size: 13px;
-  min-width: 160px;
-  cursor: pointer;
+    app-group-select .group-tree-node-name {
+      white-space: nowrap;
+    }
+  }
 }
 
 .rm-legend {
@@ -80,16 +70,23 @@
   gap: 6px;
 }
 
+.rm-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+
+  &--green { background: #4CAF50; opacity: 0.85; }
+  &--gray  { background: #9E9E9E; opacity: 0.75; }
+}
+
 .rm-line {
   display: inline-block;
   width: 24px;
-  height: 3px;
-  border-radius: 2px;
+  height: 0;
 
   &--dashed {
-    background: none !important;
-    border-top: 2px dashed;
-    height: 0;
+    border-top: 2px dashed #e74c3c;
   }
 }
 

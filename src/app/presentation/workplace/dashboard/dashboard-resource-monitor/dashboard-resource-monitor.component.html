@@ -2,17 +2,17 @@
   <div class="rm-header">
     <h3 class="rm-title">{{ 'dashboard.resource-monitor.title' | translate }}</h3>
     <div class="rm-controls">
-      <div class="rm-year-picker">
-        <button class="rm-year-btn" (click)="prevYear()">&#9664;</button>
-        <span class="rm-year-value">{{ selectedYear() }}</span>
-        <button class="rm-year-btn" (click)="nextYear()">&#9654;</button>
-      </div>
-      <select class="rm-group-select" (change)="onGroupChange($event)" [value]="selectedGroupId() ?? ''">
-        <option value="">{{ 'dashboard.resource-monitor.all-groups' | translate }}</option>
-        @for (g of groupOptions(); track g.id) {
-          <option [value]="g.id ?? ''">{{ g.name }}</option>
-        }
-      </select>
+      <app-counter
+        [maxNumber]="maxYear()"
+        [currentNumber]="selectedYear()"
+        (isChanged)="onYearChanged($event)"
+      ></app-counter>
+      <app-group-select
+        [useGlobalSelection]="false"
+        [showAllGroupsOption]="true"
+        [hasOptionButton]="false"
+        (groupSelected)="onGroupSelected($event)"
+      ></app-group-select>
     </div>
   </div>
 
@@ -27,21 +27,25 @@
   } @else {
     <div class="rm-legend">
       <span class="rm-legend-item">
-        <span class="rm-line rm-line--solid" style="background:#4A90D9"></span>
-        {{ 'dashboard.resource-monitor.should-hours' | translate }}
+        <span class="rm-swatch rm-swatch--green"></span>
+        {{ 'dashboard.resource-monitor.services' | translate }}
       </span>
       <span class="rm-legend-item">
-        <span class="rm-line rm-line--dashed" style="border-color:#27AE60"></span>
-        {{ 'dashboard.resource-monitor.actual-hours' | translate }}
+        <span class="rm-swatch rm-swatch--gray"></span>
+        {{ 'dashboard.resource-monitor.absences' | translate }}
+      </span>
+      <span class="rm-legend-item">
+        <span class="rm-line rm-line--dashed"></span>
+        {{ 'dashboard.resource-monitor.max-capacity' | translate }}
       </span>
     </div>
     <div class="rm-chart">
-      <app-line-chart
-        [series]="chartSeries()"
-        [xMonthLabels]="monthLabels"
-        [todayIndex]="todayIndex()"
-        [todayLabel]="'dashboard.resource-monitor.today' | translate"
-      ></app-line-chart>
+      <app-stacked-bar-chart
+        [bottomBars]="dienstByDay()"
+        [topBars]="absenzByDay()"
+        [referenceLine]="maxKapazitaetByDay()"
+        [monthMarkers]="monthMarkers()"
+      ></app-stacked-bar-chart>
     </div>
   }
 </div>
