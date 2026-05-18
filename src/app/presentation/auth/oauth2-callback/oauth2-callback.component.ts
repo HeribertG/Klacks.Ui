@@ -16,6 +16,7 @@ import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistan
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyToken } from 'src/app/domain/models/authentification-class';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 interface OAuth2Token extends MyToken {
   userName?: string;
@@ -74,6 +75,7 @@ export class OAuth2CallbackComponent implements OnInit {
   private assistantSignalRService = inject(AssistantSignalRService);
   private toastService = inject(ToastShowService);
   private readonly syncNotificationService = inject(DataSyncNotificationService);
+  private readonly authorizationService = inject(AuthorizationService);
 
   isLoading = true;
   error: string | null = null;
@@ -154,5 +156,7 @@ export class OAuth2CallbackComponent implements OnInit {
     if (providerId) {
       this.localStorageService.set('oauth2_provider_id', providerId);
     }
+
+    this.authorizationService.refresh();
   }
 }

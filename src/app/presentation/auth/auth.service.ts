@@ -15,6 +15,7 @@ import { DataLoadFileService } from '../../infrastructure/api/data-load-file.ser
 import { DataAuthService } from '../../infrastructure/api/data-auth.service';
 import { DataOAuth2Service } from '../../infrastructure/api/data-oauth2.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,7 @@ export class AuthService {
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
+  private authorizationService = inject(AuthorizationService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     return await firstValueFrom(
@@ -120,7 +122,7 @@ export class AuthService {
   isAuthorised(url: string): boolean {
     switch (url) {
       case '/workplace/settings':
-        return this.isAdmin();
+        return this.authorizationService.isAdmin;
 
       default:
         return true;
@@ -186,6 +188,8 @@ export class AuthService {
         token.refreshToken
       );
     }
+
+    this.authorizationService.refresh();
   }
 
   private removeToken(isRefresh?: boolean) {
@@ -208,44 +212,16 @@ export class AuthService {
     }
   }
 
-  private isAdmin(): boolean {
-    let admin = false;
-
-    if (this.localStorageService.get(StorageKeys.TOKEN_ADMIN)) {
-      let tmp: string | null = this.localStorageService.get(
-        StorageKeys.TOKEN_ADMIN
-      );
-      if (!tmp) {
-        tmp = 'false';
-      }
-      admin = JSON.parse(tmp);
-    }
-
-    return admin;
-  }
-
   public isAdminUser(): boolean {
-    return this.isAdmin();
+    return this.authorizationService.isAdmin;
   }
 
   public isAuthorisedUser(): boolean {
-    let authorised = false;
-
-    if (this.localStorageService.get(StorageKeys.TOKEN_AUTHORISED)) {
-      let tmp: string | null = this.localStorageService.get(
-        StorageKeys.TOKEN_AUTHORISED
-      );
-      if (!tmp) {
-        tmp = 'false';
-      }
-      authorised = JSON.parse(tmp);
-    }
-
-    return authorised;
+    return this.authorizationService.isAuthorised;
   }
 
   public isAuthorisedOrAdmin(): boolean {
-    return this.isAuthorisedUser() || this.isAdminUser();
+    return this.authorizationService.isAuthorised;
   }
 
   errorMessage(error: string, message?: string) {
