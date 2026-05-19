@@ -434,7 +434,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
-    if (!event.ctrlKey || event.key.toLowerCase() !== 'h') {
+    if (!event.ctrlKey || !event.shiftKey || event.key.toLowerCase() !== 'h') {
       return;
     }
     if (!this.authorizationService.isAdmin) {
