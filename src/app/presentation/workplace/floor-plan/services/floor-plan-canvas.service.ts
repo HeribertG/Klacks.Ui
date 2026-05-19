@@ -24,6 +24,7 @@ import { FloorPlanLayerService } from './floor-plan-layer.service';
 import { FloorPlanToolService } from './floor-plan-tool.service';
 import { FloorPlanAnchorSnapService } from './floor-plan-anchor-snap.service';
 import { shapeToNodes, nodesToSvgString } from './floor-plan-point-editor.service';
+import { FabricWithData } from './floor-plan-object-data.interface';
 
 FabricObject.customProperties.push('data');
 
@@ -109,7 +110,7 @@ export class FloorPlanCanvasService {
   private assignToActiveLayer(obj: FabricObject): void {
     const activeLayerId = this.layerService.activeLayerId();
     if (!activeLayerId) return;
-    const existingData = (obj as any).data ?? {};
+    const existingData = (obj as FabricWithData).data ?? {};
     obj.set('data', { ...existingData, layerId: activeLayerId });
   }
 
@@ -126,7 +127,7 @@ export class FloorPlanCanvasService {
     const layerMap = new Map(layers.map((l) => [l.id, l]));
 
     for (const obj of this.canvas.getObjects()) {
-      const data = (obj as any).data;
+      const data = (obj as FabricWithData).data;
       const layerId = data?.layerId;
       if (!layerId) continue;
 
@@ -152,7 +153,7 @@ export class FloorPlanCanvasService {
   }
 
   setObjectLayer(obj: FabricObject, layerId: string): void {
-    const existingData = (obj as any).data ?? {};
+    const existingData = (obj as FabricWithData).data ?? {};
     obj.set('data', { ...existingData, layerId });
     this.syncLayerState();
   }
@@ -174,25 +175,25 @@ export class FloorPlanCanvasService {
 
     this.canvas.on('object:modified', (e) => {
       this.anchorSnapService.hideHighlight(this.canvas!);
-      if ((e.target as any)?.data?.isConnector) return;
-      if ((e.target as any)?.data?.isPointHandle) return;
-      if ((e.target as any)?.data?.isPointStem) return;
+      if ((e.target as FabricWithData)?.data?.isConnector) return;
+      if ((e.target as FabricWithData)?.data?.isPointHandle) return;
+      if ((e.target as FabricWithData)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
     this.canvas.on('object:added', (e) => {
-      if ((e.target as any)?.data?.isPortIndicator) return;
-      if ((e.target as any)?.data?.isConnector) return;
-      if ((e.target as any)?.data?.isPointHandle) return;
-      if ((e.target as any)?.data?.isPointStem) return;
+      if ((e.target as FabricWithData)?.data?.isPortIndicator) return;
+      if ((e.target as FabricWithData)?.data?.isConnector) return;
+      if ((e.target as FabricWithData)?.data?.isPointHandle) return;
+      if ((e.target as FabricWithData)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
     this.canvas.on('object:removed', (e) => {
-      if ((e.target as any)?.data?.isPortIndicator) return;
-      if ((e.target as any)?.data?.isConnector) return;
-      if ((e.target as any)?.data?.isPointHandle) return;
-      if ((e.target as any)?.data?.isPointStem) return;
+      if ((e.target as FabricWithData)?.data?.isPortIndicator) return;
+      if ((e.target as FabricWithData)?.data?.isConnector) return;
+      if ((e.target as FabricWithData)?.data?.isPointHandle) return;
+      if ((e.target as FabricWithData)?.data?.isPointStem) return;
       this.saveHistory();
     });
 
@@ -247,7 +248,7 @@ export class FloorPlanCanvasService {
     this.canvas.on('object:moving', (opt) => {
       const obj = opt.target;
       if (!obj) return;
-      if ((obj as any).data?.isPointHandle) return;
+      if ((obj as FabricWithData).data?.isPointHandle) return;
 
       const snap = this.anchorSnapService.findSnap(obj, this.canvas!);
       if (snap) {
@@ -470,7 +471,7 @@ export class FloorPlanCanvasService {
       left: (obj.left ?? 0) + 20,
       top: (obj.top ?? 0) + 20,
     });
-    obj.set('data', { ...(obj as any).data, shapeId: crypto.randomUUID() });
+    obj.set('data', { ...(obj as FabricWithData).data, shapeId: crypto.randomUUID() });
     this.assignToActiveLayer(obj);
     this.canvas.add(obj);
     this.canvas.setActiveObject(obj);
@@ -786,9 +787,9 @@ export class FloorPlanCanvasService {
     if (!this.canvas) return;
     const obj = this.canvas.getActiveObject();
     if (!(obj instanceof Path)) return;
-    const cmds = (obj as any).path as any[][];
-    if (cmds.some((cmd: any[]) => cmd[0] === 'Z')) return;
-    cmds.push(['Z']);
+    const cmds = (obj as Path & { path: (string | number)[][] }).path;
+    if (cmds.some((cmd: (string | number)[]) => cmd[0] as string === 'Z')) return;
+    cmds.push(['Z'] as (string | number)[]);
     obj.setCoords();
     this.saveHistory();
     this.canvas.renderAll();
@@ -798,9 +799,10 @@ export class FloorPlanCanvasService {
     if (!this.canvas) return;
     const obj = this.canvas.getActiveObject();
     if (!(obj instanceof Path)) return;
-    const cmds = (obj as any).path as any[][];
-    if (!cmds.some((cmd: any[]) => cmd[0] === 'Z')) return;
-    (obj as any).path = cmds.filter((cmd: any[]) => cmd[0] !== 'Z');
+    const typedObj = obj as Path & { path: (string | number)[][] };
+    const cmds = typedObj.path;
+    if (!cmds.some((cmd: (string | number)[]) => cmd[0] as string === 'Z')) return;
+    typedObj.path = cmds.filter((cmd: (string | number)[]) => cmd[0] as string !== 'Z');
     obj.set({ fill: 'transparent', dirty: true });
     obj.setCoords();
     this.saveHistory();
@@ -818,10 +820,10 @@ export class FloorPlanCanvasService {
     const { nodes, isClosed } = shapeToNodes(obj);
     if (nodes.length < 2) return;
 
-    const fill = (obj as any).fill ?? 'transparent';
-    const stroke = (obj as any).stroke ?? '#000000';
-    const strokeWidth = (obj as any).strokeWidth ?? 2;
-    const data = (obj as any).data ?? {};
+    const fill = obj.fill ?? 'transparent';
+    const stroke = obj.stroke ?? '#000000';
+    const strokeWidth = obj.strokeWidth ?? 2;
+    const data = (obj as FabricWithData).data ?? {};
 
     this.canvas.remove(obj);
 
@@ -940,11 +942,11 @@ export class FloorPlanCanvasService {
 
     return this.canvas.getObjects()
       .filter((obj) => {
-        const data = (obj as any).data;
+        const data = (obj as FabricWithData).data;
         return data !== undefined && 'markerId' in data;
       })
       .map((obj) => {
-        const data = (obj as any).data;
+        const data = (obj as FabricWithData).data;
         return {
           id: data.markerId || undefined,
           floorPlanId,
@@ -962,7 +964,7 @@ export class FloorPlanCanvasService {
   removeWorkMarkersFromCanvas(): void {
     if (!this.canvas) return;
     const markerObjects = this.canvas.getObjects().filter((obj) => {
-      const data = (obj as any).data;
+      const data = (obj as FabricWithData).data;
       return data !== undefined && 'markerId' in data;
     });
     markerObjects.forEach((obj) => this.canvas!.remove(obj));
@@ -1010,7 +1012,7 @@ export class FloorPlanCanvasService {
   clearLiveMarkers(): void {
     if (!this.canvas) return;
     const liveObjects = this.canvas.getObjects().filter((obj) => {
-      const data = (obj as any).data;
+      const data = (obj as FabricWithData).data;
       return data !== undefined && data.liveMarker === true;
     });
     liveObjects.forEach((obj) => this.canvas!.remove(obj));
@@ -1027,7 +1029,7 @@ export class FloorPlanCanvasService {
   private assignMissingShapeIds(): void {
     if (!this.canvas) return;
     for (const obj of this.canvas.getObjects()) {
-      const data = (obj as any).data ?? {};
+      const data = (obj as FabricWithData).data ?? {};
       const isShape = !data.isConnector && !data.markerId && !data.liveMarker;
       if (isShape && !data.shapeId) {
         obj.set('data', { ...data, shapeId: crypto.randomUUID() });

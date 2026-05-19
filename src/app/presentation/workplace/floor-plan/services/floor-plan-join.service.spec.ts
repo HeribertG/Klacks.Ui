@@ -12,8 +12,8 @@ import {
   buildJoinedSvg,
 } from './floor-plan-join.service';
 
-type JNode = { x: number; y: number; command: 'M' | 'L' | 'C' | 'Q'; cp1?: {x:number;y:number}; cp2?: {x:number;y:number} };
-type JItem = { obj: any; nodes: JNode[]; isClosed: boolean };
+interface JNode { x: number; y: number; command: 'M' | 'L' | 'C' | 'Q'; cp1?: {x:number;y:number}; cp2?: {x:number;y:number} }
+interface JItem { obj: unknown; nodes: JNode[]; isClosed: boolean }
 
 describe('dist', () => {
   it('returns euclidean distance', () => {
@@ -64,7 +64,7 @@ describe('reverseNodes', () => {
 });
 
 describe('buildGreedyChain', () => {
-  const makeItem = (nodes: JNode[]): JItem => ({ obj: {} as any, nodes, isClosed: false });
+  const makeItem = (nodes: JNode[]): JItem => ({ obj: {}, nodes, isClosed: false });
 
   it('keeps two items in order when end of first matches start of second', () => {
     const a = makeItem([{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }]);
@@ -94,12 +94,11 @@ describe('buildGreedyChain', () => {
 
 describe('buildJoinedSvg', () => {
   it('produces M...L...Z for two L-only items', () => {
-    type JItem2 = { nodes: JNode[]; isClosed: boolean };
-    const items: JItem2[] = [
-      { nodes: [{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }], isClosed: false },
-      { nodes: [{ command: 'M', x: 100, y: 0 }, { command: 'L', x: 100, y: 50 }], isClosed: false },
+    const items: JItem[] = [
+      { obj: {}, nodes: [{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }], isClosed: false },
+      { obj: {}, nodes: [{ command: 'M', x: 100, y: 0 }, { command: 'L', x: 100, y: 50 }], isClosed: false },
     ];
-    const svg = buildJoinedSvg(items as any);
+    const svg = buildJoinedSvg(items as unknown as Parameters<typeof buildJoinedSvg>[0]);
     expect(svg).toContain('M 0 0');
     expect(svg).toContain('L 100 0');
     expect(svg).toContain('L 100 50');

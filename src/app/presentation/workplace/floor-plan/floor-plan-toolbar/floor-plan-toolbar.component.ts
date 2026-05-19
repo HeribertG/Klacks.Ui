@@ -29,6 +29,7 @@ import { FloorPlanImportService } from '../services/floor-plan-import.service';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
+import { FabricWithData } from '../services/floor-plan-object-data.interface';
 import { IconFpSelectComponent } from 'src/app/presentation/icons/icon-fp-select.component';
 import { IconFpLineComponent } from 'src/app/presentation/icons/icon-fp-line.component';
 import { IconFpRectangleComponent } from 'src/app/presentation/icons/icon-fp-rectangle.component';
@@ -138,7 +139,7 @@ export class FloorPlanToolbarComponent {
 
   onEntbinden(): void {
     const obj = this.canvasService.selectedObject();
-    const shapeId = (obj as any)?.data?.shapeId as string | undefined;
+    const shapeId = (obj as FabricWithData)?.data?.shapeId as string | undefined;
     if (shapeId) {
       this.connectorService.releaseShape(shapeId);
     }

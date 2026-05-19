@@ -295,7 +295,7 @@ const STRATEGY_WEIGHTS: Record<GreedyStrategy, { deficit: number; motivation: nu
   consistency: { deficit: EVOLUTION_CONSTANTS.GREEDY_HOUR_DEFICIT_WEIGHT, motivation: EVOLUTION_CONSTANTS.GREEDY_MOTIVATION_WEIGHT * 0.5, consistency: EVOLUTION_CONSTANTS.GREEDY_BLOCK_CONSISTENCY_WEIGHT * 4, restPenalty: -500 },
 };
 
-type StrategyWeights = { deficit: number; motivation: number; consistency: number; restPenalty: number };
+interface StrategyWeights { deficit: number; motivation: number; consistency: number; restPenalty: number }
 
 function scoreAgentForShift(
   agent: CoreAgent,

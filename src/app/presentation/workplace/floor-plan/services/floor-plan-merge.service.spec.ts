@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { Rect, Circle, Polygon } from 'fabric';
+import { FabricObject, Rect, Circle, Polygon } from 'fabric';
 import { FloorPlanMergeService } from './floor-plan-merge.service';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
@@ -41,8 +41,8 @@ describe('FloorPlanMergeService', () => {
       const rect = new Rect({ width: 10, height: 10 });
       const circle = new Circle({ radius: 5 });
       const polygon = new Polygon([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 5, y: 10 }]);
-      const objects = [rect, circle, polygon, {} as any, { type: 'textbox' } as any];
-      const result = (service as any).filterPrimitives(objects);
+      const objects = [rect, circle, polygon, {} as FabricObject, { type: 'textbox' } as unknown as FabricObject];
+      const result = (service as unknown as { filterPrimitives: (o: FabricObject[]) => FabricObject[] }).filterPrimitives(objects);
       expect(result).toHaveLength(3);
       expect(result[0]).toBe(rect);
       expect(result[1]).toBe(circle);
@@ -50,7 +50,7 @@ describe('FloorPlanMergeService', () => {
     });
 
     it('returns empty array for non-primitive-only input', () => {
-      const result = (service as any).filterPrimitives([{ type: 'group' } as any]);
+      const result = (service as unknown as { filterPrimitives: (o: FabricObject[]) => FabricObject[] }).filterPrimitives([{ type: 'group' } as unknown as FabricObject]);
       expect(result).toHaveLength(0);
     });
   });
@@ -58,13 +58,13 @@ describe('FloorPlanMergeService', () => {
   describe('applyMatrix', () => {
     it('applies identity matrix with translation', () => {
       const m = [1, 0, 0, 1, 50, 30];
-      const result = (service as any).applyMatrix(m, 10, 20);
+      const result = (service as unknown as { applyMatrix: (m: number[], x: number, y: number) => [number, number] }).applyMatrix(m, 10, 20);
       expect(result).toEqual([60, 50]);
     });
 
     it('applies scale matrix', () => {
       const m = [2, 0, 0, 3, 0, 0];
-      const result = (service as any).applyMatrix(m, 5, 4);
+      const result = (service as unknown as { applyMatrix: (m: number[], x: number, y: number) => [number, number] }).applyMatrix(m, 5, 4);
       expect(result).toEqual([10, 12]);
     });
   });
@@ -73,7 +73,7 @@ describe('FloorPlanMergeService', () => {
     it('generates M...L...Z path string for a single ring', () => {
       const ring: [number, number][] = [[0, 0], [100, 0], [100, 50], [0, 50], [0, 0]];
       const multiPolygon: [number, number][][][] = [[ring]];
-      const result = (service as any).ringsToSvgPath(multiPolygon);
+      const result = (service as unknown as { ringsToSvgPath: (mp: [number, number][][][]) => string }).ringsToSvgPath(multiPolygon);
       expect(result).toBe('M 0 0 L 100 0 L 100 50 L 0 50 Z');
     });
 
@@ -81,7 +81,7 @@ describe('FloorPlanMergeService', () => {
       const ring1: [number, number][] = [[0, 0], [10, 0], [10, 10], [0, 0]];
       const ring2: [number, number][] = [[20, 20], [30, 20], [30, 30], [20, 20]];
       const multiPolygon: [number, number][][][] = [[ring1], [ring2]];
-      const result = (service as any).ringsToSvgPath(multiPolygon);
+      const result = (service as unknown as { ringsToSvgPath: (mp: [number, number][][][]) => string }).ringsToSvgPath(multiPolygon);
       expect(result).toContain('M 0 0');
       expect(result).toContain('M 20 20');
     });
@@ -96,13 +96,13 @@ describe('FloorPlanMergeService', () => {
   describe('pointsToClosedRing', () => {
     it('closes a ring by appending the first point', () => {
       const pts: [number, number][] = [[0, 0], [10, 0], [10, 10]];
-      const result = (service as any).pointsToClosedRing(pts);
+      const result = (service as unknown as { pointsToClosedRing: (pts: [number, number][]) => [number, number][] }).pointsToClosedRing(pts);
       expect(result).toHaveLength(4);
       expect(result[3]).toEqual([0, 0]);
     });
 
     it('returns empty array for empty input', () => {
-      const result = (service as any).pointsToClosedRing([]);
+      const result = (service as unknown as { pointsToClosedRing: (pts: [number, number][]) => [number, number][] }).pointsToClosedRing([]);
       expect(result).toHaveLength(0);
     });
   });
@@ -158,7 +158,7 @@ describe('FloorPlanMergeService', () => {
       });
       const svc = TestBed.inject(FloorPlanMergeService);
 
-      (svc as any)._selectedPrimitives.set([{ type: 'rect' } as any, { type: 'rect' } as any]);
+      (svc as unknown as { _selectedPrimitives: { set: (v: FabricObject[]) => void } })._selectedPrimitives.set([{ type: 'rect' } as unknown as FabricObject, { type: 'rect' } as unknown as FabricObject]);
 
       svc.mergeSelected();
 

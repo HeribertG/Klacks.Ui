@@ -19,6 +19,7 @@ import {
 } from 'fabric';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
+import { FabricWithData } from './floor-plan-object-data.interface';
 
 export interface PathNode {
   command: 'M' | 'L' | 'C' | 'Q';
@@ -32,7 +33,6 @@ const ANCHOR_RADIUS = 7;
 const CONTROL_RADIUS = 5;
 const SEGMENT_HANDLE_RADIUS = 5;
 const ANCHOR_COLOR = '#2563eb';
-const ANCHOR_SELECTED_COLOR = '#ef4444';
 const CONTROL_COLOR = '#f59e0b';
 const SEGMENT_HANDLE_COLOR = '#dc2626';
 const KAPPA = 0.5522847498;
@@ -108,7 +108,7 @@ export function shapeToNodes(obj: FabricObject): { nodes: PathNode[]; isClosed: 
   }
 
   if (obj instanceof Polygon) {
-    const po: { x: number; y: number } = (obj as any).pathOffset ?? { x: 0, y: 0 };
+    const po: { x: number; y: number } = (obj as Polygon & { pathOffset: { x: number; y: number } }).pathOffset ?? { x: 0, y: 0 };
     const pts = obj.points ?? [];
     if (pts.length === 0) return { nodes: [], isClosed: false };
     return {
@@ -121,16 +121,16 @@ export function shapeToNodes(obj: FabricObject): { nodes: PathNode[]; isClosed: 
   }
 
   if (obj instanceof Path) {
-    const po: { x: number; y: number } = (obj as any).pathOffset ?? { x: 0, y: 0 };
-    const cmds = (obj as any).path as any[][];
+    const po: { x: number; y: number } = (obj as Path & { pathOffset: { x: number; y: number } }).pathOffset ?? { x: 0, y: 0 };
+    const cmds = (obj as Path & { path: (string | number)[][] }).path;
     const nodes: PathNode[] = [];
     let isClosed = false;
     for (const cmd of cmds) {
-      switch (cmd[0]) {
-        case 'M': nodes.push({ command: 'M', ...applyWithOffset(cmd[1], cmd[2], po) }); break;
-        case 'L': nodes.push({ command: 'L', ...applyWithOffset(cmd[1], cmd[2], po) }); break;
-        case 'C': nodes.push({ command: 'C', cp1: applyWithOffset(cmd[1], cmd[2], po), cp2: applyWithOffset(cmd[3], cmd[4], po), ...applyWithOffset(cmd[5], cmd[6], po) }); break;
-        case 'Q': nodes.push({ command: 'Q', cp1: applyWithOffset(cmd[1], cmd[2], po), ...applyWithOffset(cmd[3], cmd[4], po) }); break;
+      switch (cmd[0] as string) {
+        case 'M': nodes.push({ command: 'M', ...applyWithOffset(cmd[1] as number, cmd[2] as number, po) }); break;
+        case 'L': nodes.push({ command: 'L', ...applyWithOffset(cmd[1] as number, cmd[2] as number, po) }); break;
+        case 'C': nodes.push({ command: 'C', cp1: applyWithOffset(cmd[1] as number, cmd[2] as number, po), cp2: applyWithOffset(cmd[3] as number, cmd[4] as number, po), ...applyWithOffset(cmd[5] as number, cmd[6] as number, po) }); break;
+        case 'Q': nodes.push({ command: 'Q', cp1: applyWithOffset(cmd[1] as number, cmd[2] as number, po), ...applyWithOffset(cmd[3] as number, cmd[4] as number, po) }); break;
         case 'Z': isClosed = true; break;
       }
     }
@@ -138,10 +138,10 @@ export function shapeToNodes(obj: FabricObject): { nodes: PathNode[]; isClosed: 
   }
 
   if (obj instanceof Line) {
-    const x1 = (obj as any).x1 ?? 0;
-    const y1 = (obj as any).y1 ?? 0;
-    const x2 = (obj as any).x2 ?? 0;
-    const y2 = (obj as any).y2 ?? 0;
+    const x1 = (obj as Line & { x1: number; y1: number; x2: number; y2: number }).x1 ?? 0;
+    const y1 = (obj as Line & { x1: number; y1: number; x2: number; y2: number }).y1 ?? 0;
+    const x2 = (obj as Line & { x1: number; y1: number; x2: number; y2: number }).x2 ?? 0;
+    const y2 = (obj as Line & { x1: number; y1: number; x2: number; y2: number }).y2 ?? 0;
     const po = { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
     return {
       nodes: [
@@ -196,10 +196,10 @@ export class FloorPlanPointEditorService {
     const { nodes, isClosed } = shapeToNodes(obj);
     if (nodes.length < 2) return;
 
-    const fill = (obj as any).fill ?? 'transparent';
-    const stroke = (obj as any).stroke ?? '#000000';
-    const strokeWidth = (obj as any).strokeWidth ?? 2;
-    this.originalShapeId = (obj as any).data?.shapeId ?? null;
+    const fill = obj.fill ?? 'transparent';
+    const stroke = obj.stroke ?? '#000000';
+    const strokeWidth = obj.strokeWidth ?? 2;
+    this.originalShapeId = (obj as FabricWithData).data?.shapeId ?? null;
 
     this.canvasService.beginSuppressHistory();
     this._isConverting = true;
@@ -231,10 +231,10 @@ export class FloorPlanPointEditorService {
 
     if (this.editingPath && this.nodes.length >= 2) {
       const svgString = nodesToSvgString(this.nodes, this.isClosed);
-      const fill = (this.editingPath as any).fill ?? 'transparent';
-      const stroke = (this.editingPath as any).stroke ?? '#000000';
-      const strokeWidth = (this.editingPath as any).strokeWidth ?? 2;
-      const shapeId = (this.editingPath as any).data?.shapeId ?? crypto.randomUUID();
+      const fill = this.editingPath.fill ?? 'transparent';
+      const stroke = this.editingPath.stroke ?? '#000000';
+      const strokeWidth = this.editingPath.strokeWidth ?? 2;
+      const shapeId = (this.editingPath as FabricWithData).data?.shapeId ?? crypto.randomUUID();
 
       this._isConverting = true;
       this.canvas.remove(this.editingPath);
@@ -263,7 +263,7 @@ export class FloorPlanPointEditorService {
   deleteSelectedNode(): void {
     if (!this.canvas || !this._isInEditMode()) return;
     const activeObj = this.canvas.getActiveObject();
-    const data = (activeObj as any)?.data;
+    const data = (activeObj as FabricWithData)?.data;
     if (!data?.isPointHandle) return;
 
     if (data.isSegmentHandle) {
@@ -345,7 +345,7 @@ export class FloorPlanPointEditorService {
 
   onHandleMoved(handle: FabricObject): void {
     if (!this.canvas) return;
-    const data = (handle as any).data;
+    const data = (handle as FabricWithData).data;
     if (!data?.isPointHandle) return;
     if (data.isSegmentHandle) return;
 
@@ -378,7 +378,7 @@ export class FloorPlanPointEditorService {
   }
 
   onHandleModified(handle: FabricObject): void {
-    if ((handle as any).data?.isSegmentHandle) return;
+    if ((handle as FabricWithData).data?.isSegmentHandle) return;
     this.rebuildPath();
     this.canvas?.renderAll();
   }
@@ -511,10 +511,10 @@ export class FloorPlanPointEditorService {
   private rebuildPath(): void {
     if (!this.canvas || !this.editingPath) return;
     const svgString = nodesToSvgString(this.nodes, this.isClosed);
-    const fill = (this.editingPath as any).fill ?? 'transparent';
-    const stroke = (this.editingPath as any).stroke ?? '#000000';
-    const strokeWidth = (this.editingPath as any).strokeWidth ?? 2;
-    const shapeId = (this.editingPath as any).data?.shapeId ?? crypto.randomUUID();
+    const fill = this.editingPath.fill ?? 'transparent';
+    const stroke = this.editingPath.stroke ?? '#000000';
+    const strokeWidth = this.editingPath.strokeWidth ?? 2;
+    const shapeId = (this.editingPath as FabricWithData).data?.shapeId ?? crypto.randomUUID();
 
     this.canvasService.beginSuppressHistory();
     this._isConverting = true;

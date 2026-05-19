@@ -11,10 +11,11 @@
   ></app-client-filter>
 </div>
 
-<div #box id="box" class="box" appResize (resizeElement)="onResize($event)"
+<div #box id="box" class="box" tabindex="-1" role="application" appResize (resizeElement)="onResize($event)"
      (mousemove)="onMouseMove($event)"
      (mouseleave)="onCanvasMouseLeave()"
      (click)="onCanvasClick($event)"
+     (keydown.enter)="onCanvasClick($any($event))"
      (contextmenu)="onRightClick($event)">
   <canvas id="scheduleRowCanvas"></canvas>
   <div #dragClip class="drag-clip" cdkScrollable [style.top.px]="settings.cellHeaderHeight">

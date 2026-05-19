@@ -9,6 +9,7 @@
 
 import { Injectable } from '@angular/core';
 import { Canvas, Circle, FabricObject } from 'fabric';
+import { FabricWithData } from './floor-plan-object-data.interface';
 
 const SNAP_THRESHOLD = 15;
 const HIGHLIGHT_RADIUS = 6;
@@ -102,7 +103,7 @@ export class FloorPlanAnchorSnapService {
   }
 
   private isInternalObject(obj: FabricObject): boolean {
-    const data = (obj as any).data;
+    const data = (obj as FabricWithData).data;
     if (!data) return false;
     return !!(
       data.isConnector ||

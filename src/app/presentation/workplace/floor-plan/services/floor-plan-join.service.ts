@@ -146,7 +146,7 @@ export class FloorPlanJoinService {
     const chain = buildGreedyChain(items);
     const svgString = buildJoinedSvg(chain);
 
-    const styleSource = selection[0] as any;
+    const styleSource = selection[0];
     const newPath = new Path(svgString, {
       fill: styleSource.fill ?? 'transparent',
       stroke: styleSource.stroke ?? CONNECTOR_STROKE_COLOR,
@@ -175,7 +175,7 @@ export class FloorPlanJoinService {
 
   private polygonToJoinItem(poly: Polygon): JoinItem {
     const m = poly.calcTransformMatrix() as number[];
-    const po: { x: number; y: number } = (poly as any).pathOffset ?? { x: 0, y: 0 };
+    const po: { x: number; y: number } = (poly as Polygon & { pathOffset: { x: number; y: number } }).pathOffset ?? { x: 0, y: 0 };
     const toC = (lx: number, ly: number) => ({
       x: m[0] * (lx - po.x) + m[2] * (ly - po.y) + m[4],
       y: m[1] * (lx - po.x) + m[3] * (ly - po.y) + m[5],
@@ -190,20 +190,20 @@ export class FloorPlanJoinService {
 
   private pathToJoinItem(path: Path): JoinItem {
     const m = path.calcTransformMatrix() as number[];
-    const po: { x: number; y: number } = (path as any).pathOffset ?? { x: 0, y: 0 };
+    const po: { x: number; y: number } = (path as Path & { pathOffset: { x: number; y: number } }).pathOffset ?? { x: 0, y: 0 };
     const toC = (lx: number, ly: number) => ({
       x: m[0] * (lx - po.x) + m[2] * (ly - po.y) + m[4],
       y: m[1] * (lx - po.x) + m[3] * (ly - po.y) + m[5],
     });
-    const cmds = (path as any).path as any[][];
+    const cmds = (path as Path & { path: (string | number)[][] }).path;
     const nodes: JoinNode[] = [];
     let isClosed = false;
     for (const cmd of cmds) {
-      switch (cmd[0]) {
-        case 'M': nodes.push({ command: 'M', ...toC(cmd[1], cmd[2]) }); break;
-        case 'L': nodes.push({ command: 'L', ...toC(cmd[1], cmd[2]) }); break;
-        case 'C': nodes.push({ command: 'C', cp1: toC(cmd[1], cmd[2]), cp2: toC(cmd[3], cmd[4]), ...toC(cmd[5], cmd[6]) }); break;
-        case 'Q': nodes.push({ command: 'Q', cp1: toC(cmd[1], cmd[2]), ...toC(cmd[3], cmd[4]) }); break;
+      switch (cmd[0] as string) {
+        case 'M': nodes.push({ command: 'M', ...toC(cmd[1] as number, cmd[2] as number) }); break;
+        case 'L': nodes.push({ command: 'L', ...toC(cmd[1] as number, cmd[2] as number) }); break;
+        case 'C': nodes.push({ command: 'C', cp1: toC(cmd[1] as number, cmd[2] as number), cp2: toC(cmd[3] as number, cmd[4] as number), ...toC(cmd[5] as number, cmd[6] as number) }); break;
+        case 'Q': nodes.push({ command: 'Q', cp1: toC(cmd[1] as number, cmd[2] as number), ...toC(cmd[3] as number, cmd[4] as number) }); break;
         case 'Z': isClosed = true; break;
       }
     }

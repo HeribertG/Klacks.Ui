@@ -21,6 +21,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Rect, Circle, Polygon, Path, Line } from 'fabric';
+import { FabricWithData } from '../services/floor-plan-object-data.interface';
 import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
@@ -45,14 +46,14 @@ export class FloorPlanContextMenuComponent implements OnInit, OnDestroy {
   readonly canClosePath = computed(() => {
     const obj = this.canvasService.selectedObject();
     if (!(obj instanceof Path)) return false;
-    const cmds = (obj as any).path as any[][];
-    return !cmds.some((cmd: any[]) => cmd[0] === 'Z');
+    const cmds = (obj as Path & { path: (string | number)[][] }).path;
+    return !cmds.some((cmd: (string | number)[]) => cmd[0] === 'Z');
   });
 
   readonly canEditPoints = computed(() => {
     const obj = this.canvasService.selectedObject();
     if (!obj) return false;
-    const data = (obj as any).data;
+    const data = (obj as FabricWithData).data;
     if (!data) return false;
     if (data.isConnector || data.isPortIndicator || data.isPointHandle ||
         data.isArrowhead || data.isMidpointHandle) return false;

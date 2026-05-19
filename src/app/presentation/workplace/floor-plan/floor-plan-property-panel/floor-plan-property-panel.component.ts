@@ -202,7 +202,7 @@ export class FloorPlanPropertyPanelComponent implements OnInit, OnDestroy {
     let gradientDirection = 'horizontal';
     if (gradientEnabled) {
       const g = rawFill as unknown as Record<string, unknown>;
-      const stops = (g['colorStops'] as Array<{ color: string }>) ?? [];
+      const stops = (g['colorStops'] as { color: string }[]) ?? [];
       gradientColor1 = stops[0]?.color ?? '#ffffff';
       gradientColor2 = stops[stops.length - 1]?.color ?? '#000000';
       const coords = (g['coords'] as Record<string, number>) ?? {};

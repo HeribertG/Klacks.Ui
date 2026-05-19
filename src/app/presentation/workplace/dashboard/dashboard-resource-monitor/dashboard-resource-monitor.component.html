@@ -9,12 +9,20 @@
         <a class="nav-link"
            [ngClass]="{ active: activeTab() === 'chart' }"
            (click)="setTab('chart')"
+           (keydown.enter)="setTab('chart')"
+           (keydown.space)="setTab('chart')"
+           tabindex="0"
+           role="tab"
         >{{ 'dashboard.resource-monitor.tab-chart' | translate }}</a>
       </li>
       <li class="nav-item">
         <a class="nav-link"
            [ngClass]="{ active: activeTab() === 'manual' }"
            (click)="setTab('manual')"
+           (keydown.enter)="setTab('manual')"
+           (keydown.space)="setTab('manual')"
+           tabindex="0"
+           role="tab"
         >{{ 'dashboard.resource-monitor.tab-manual' | translate }}</a>
       </li>
     </ul>

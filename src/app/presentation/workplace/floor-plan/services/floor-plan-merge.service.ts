@@ -12,6 +12,7 @@ import polygonClipping, { MultiPolygon } from 'polygon-clipping';
 import { FloorPlanCanvasService } from './floor-plan-canvas.service';
 import { FloorPlanConnectorService } from './floor-plan-connector.service';
 import { FloorPlanLayerService } from './floor-plan-layer.service';
+import { FabricWithData } from './floor-plan-object-data.interface';
 
 const MERGE_CIRCLE_POINTS = 64;
 
@@ -65,7 +66,7 @@ export class FloorPlanMergeService {
       return pts;
     }
     if (obj instanceof Polygon) {
-      const offset = (obj as any).pathOffset as { x: number; y: number };
+      const offset = (obj as Polygon & { pathOffset: { x: number; y: number } }).pathOffset;
       return (obj.points ?? []).map((pt) =>
         apply(pt.x - offset.x, pt.y - offset.y)
       );
@@ -106,9 +107,9 @@ export class FloorPlanMergeService {
     );
     const styleSource = sorted[0];
 
-    const fill = (styleSource as any).fill ?? 'transparent';
-    const stroke = (styleSource as any).stroke ?? '#000000';
-    const strokeWidth = (styleSource as any).strokeWidth ?? 2;
+    const fill = styleSource.fill ?? 'transparent';
+    const stroke = styleSource.stroke ?? '#000000';
+    const strokeWidth = styleSource.strokeWidth ?? 2;
 
     const polys: MultiPolygon[] = primitives.map((obj) => {
       const pts = this.getWorldPoints(obj);
@@ -138,7 +139,7 @@ export class FloorPlanMergeService {
     path.set('data', { shapeId: newShapeId, layerId: activeLayerId });
 
     const oldShapeIds = primitives
-      .map((obj) => (obj as any).data?.shapeId as string | undefined)
+      .map((obj) => (obj as FabricWithData).data?.shapeId)
       .filter((id): id is string => Boolean(id));
 
     this.canvasService.beginSuppressHistory();

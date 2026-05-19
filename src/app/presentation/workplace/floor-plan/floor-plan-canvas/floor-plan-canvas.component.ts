@@ -21,8 +21,9 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { FloorPlanCanvasService } from '../services/floor-plan-canvas.service';
-import { Line, Rect, Circle, Polygon, Path } from 'fabric';
+import { FabricObject, Line, Rect, Circle, Polygon, Path } from 'fabric';
 import { FloorPlanToolService, FloorPlanTool } from '../services/floor-plan-tool.service';
+import { FabricWithData } from '../services/floor-plan-object-data.interface';
 import { FloorPlanWorkDropService } from '../services/floor-plan-work-drop.service';
 import { FloorPlanLayerService } from '../services/floor-plan-layer.service';
 import { FloorPlanConnectorService } from '../services/floor-plan-connector.service';
@@ -54,7 +55,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
 
   private effects: EffectRef[] = [];
   private connectorStart: { shapeId?: string; portSide: 'left' | 'right' | 'top' | 'bottom' | 'free'; x: number; y: number } | null = null;
-  private tempConnectorLine: any = null;
+  private tempConnectorLine: FabricObject | null = null;
   private isDeletingConnector = false;
   private hoveredPortShapeId: string | null = null;
   private isRegularPolygonMode = false;
@@ -92,7 +93,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private canEditPointsFromContext(): boolean {
     const obj = this.canvasService.selectedObject();
     if (!obj) return false;
-    const d = (obj as any).data;
+    const d = (obj as FabricWithData).data;
     if (!d) return false;
     if (d.isConnector || d.isPortIndicator || d.isPointHandle || d.isArrowhead || d.isMidpointHandle) return false;
     return obj instanceof Rect || obj instanceof Circle ||
@@ -102,8 +103,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
   private canClosePathFromContext(): boolean {
     const obj = this.canvasService.selectedObject();
     if (!(obj instanceof Path)) return false;
-    const cmds = (obj as any).path as any[][];
-    return !cmds.some((cmd: any[]) => cmd[0] === 'Z');
+    const cmds = (obj as Path & { path: (string | number)[][] }).path;
+    return !cmds.some((cmd: (string | number)[]) => cmd[0] === 'Z');
   }
 
   private setupEffects(): void {
@@ -143,7 +144,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         if (!canvas) return;
 
         for (const obj of canvas.getObjects()) {
-          const layerId = (obj as any).data?.layerId;
+          const layerId = (obj as FabricWithData).data?.layerId;
           if (layerId && !layerIds.has(layerId)) {
             const fallbackId = this.layerService.activeLayerId() || layers[0]?.id;
             if (fallbackId) {
@@ -213,7 +214,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     canvas.on('mouse:dblclick', this.onPolygonDoubleClick);
   }
 
-  private onPolygonMouseDown = (opt: any) => {
+  private onPolygonMouseDown = (opt: { e: Event }) => {
     if (!this.canvasService.isInPolygonDrawingMode()) return;
     const e = opt.e as MouseEvent;
     const canvas = this.canvasService.getCanvas();
@@ -222,7 +223,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.canvasService.addPolygonPoint(pointer.x, pointer.y);
   };
 
-  private onPolygonMouseMove = (opt: any) => {
+  private onPolygonMouseMove = (opt: { e: Event }) => {
     if (!this.canvasService.isInPolygonDrawingMode()) return;
     const e = opt.e as MouseEvent;
     const canvas = this.canvasService.getCanvas();
@@ -257,7 +258,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     canvas.off('mouse:down', this.onRegularPolygonMouseDown);
   }
 
-  private onRegularPolygonMouseDown = (opt: any) => {
+  private onRegularPolygonMouseDown = (opt: { e: Event }) => {
     if (!this.isRegularPolygonMode) return;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
@@ -282,7 +283,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
 
-    canvas.on('contextmenu', (opt: any) => {
+    canvas.on('contextmenu', (opt: { e: Event; target?: FabricWithData | null }) => {
       const e = opt.e as MouseEvent;
       e.preventDefault();
 
@@ -301,9 +302,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
 
-    canvas.on('mouse:down', (opt: any) => {
+    canvas.on('mouse:down', (opt: { e: Event; target?: FabricWithData | null }) => {
       if (this.pointEditorService.isInEditMode()) {
-        const target = opt.target as any;
+        const target = opt.target as FabricWithData;
         const data = target?.data;
         if (!data?.isPointHandle && !data?.isPointStem) {
           this.pointEditorService.exitEditMode();
@@ -317,7 +318,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
         this.connectorService.deselectAll();
         return;
       }
-      const data = (target as any).data;
+      const data = (target as FabricWithData).data;
       if (data?.isConnectorPath && data.connectorId) {
         if (this.connectorService.selectedConnectorId === data.connectorId) {
           this.connectorService.deselectAll();
@@ -333,10 +334,10 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    canvas.on('object:moving', (opt: any) => {
+    canvas.on('object:moving', (opt: { target: FabricWithData }) => {
       const target = opt.target;
       if (!target) return;
-      const data = (target as any).data;
+      const data = (target as FabricWithData).data;
       if (!data) return;
 
       if (data.isMidpointHandle && data.connectorId) {
@@ -359,9 +360,9 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    canvas.on('object:modified', (opt: any) => {
+    canvas.on('object:modified', (opt: { target: FabricWithData }) => {
       const target = opt.target;
-      const data = (target as any)?.data;
+      const data = (target as FabricWithData)?.data;
       if (!data) return;
 
       if (data.isEndpointHandle && data.connectorId) {
@@ -381,10 +382,10 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    canvas.on('object:removed', (opt: any) => {
+    canvas.on('object:removed', (opt: { target: FabricWithData }) => {
       if (this.isDeletingConnector || this.connectorService.redrawing) return;
       if (this.pointEditorService.isConverting) return;
-      const data = (opt.target as any)?.data;
+      const data = (opt.target as FabricWithData)?.data;
       if (!data) return;
       if (data.isPortIndicator) return;
       if (data.isConnector && data.connectorId) {
@@ -401,10 +402,10 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
 
-    canvas.on('mouse:dblclick', (opt: any) => {
+    canvas.on('mouse:dblclick', (opt: { target?: FabricWithData | null }) => {
       if (this.toolService.activeTool() === FloorPlanTool.Connector) return;
       if (this.pointEditorService.isInEditMode()) return;
-      const target = opt.target as any;
+      const target = opt.target as FabricWithData;
       if (!target) return;
       const data = target.data;
       if (!data || data.isConnector || data.isPortIndicator || data.isPointHandle || data.isArrowhead) return;
@@ -427,7 +428,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.hoveredPortShapeId = null;
   }
 
-  private onConnectorMouseDown = (opt: any) => {
+  private onConnectorMouseDown = (opt: { e: Event }) => {
     if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
@@ -442,7 +443,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     this.connectorService.hidePortIndicators();
   };
 
-  private onConnectorMouseMove = (opt: any) => {
+  private onConnectorMouseMove = (opt: { e: Event }) => {
     if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
     const canvas = this.canvasService.getCanvas();
     if (!canvas) return;
@@ -475,7 +476,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     canvas.renderAll();
   };
 
-  private onConnectorMouseUp = (opt: any) => {
+  private onConnectorMouseUp = (opt: { e: Event }) => {
     if (this.toolService.activeTool() !== FloorPlanTool.Connector) return;
     if (!this.connectorStart) return;
     const canvas = this.canvasService.getCanvas();
@@ -545,8 +546,8 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const obj = canvas.getObjects().at(-1);
     if (obj) {
       obj.set({ left: canvasX, top: canvasY });
-      const existingData = (obj as any).data ?? {};
-      (obj as any).data = {
+      const existingData = (obj as FabricWithData).data ?? {};
+      (obj as FabricWithData).data = {
         ...existingData,
         markerId: marker.id || '',
         markerType: marker.shiftId ? 0 : 2, // Work = 0, Custom = 2

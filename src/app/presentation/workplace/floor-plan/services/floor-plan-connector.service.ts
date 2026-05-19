@@ -8,6 +8,7 @@
 import { Injectable } from '@angular/core';
 import { Canvas, Path, Triangle, Circle, FabricObject } from 'fabric';
 import { ConnectorRoutingType, ConnectorArrowheadType } from './floor-plan-tool.service';
+import { FabricWithData } from './floor-plan-object-data.interface';
 
 export type PortSide = 'left' | 'right' | 'top' | 'bottom';
 
@@ -91,7 +92,7 @@ export class FloorPlanConnectorService {
   private setHandlesVisible(id: string, visible: boolean): void {
     if (!this.canvas) return;
     const handles = this.canvas.getObjects().filter((obj) => {
-      const d = (obj as any).data;
+      const d = (obj as FabricWithData).data;
       return d?.connectorId === id && (d.isEndpointHandle || d.isMidpointHandle);
     });
     for (const h of handles) {
@@ -100,12 +101,12 @@ export class FloorPlanConnectorService {
   }
 
   private getPortCoords(obj: FabricObject, side: PortSide): { x: number; y: number } {
-    const scaleX = (obj as any).scaleX ?? 1;
-    const scaleY = (obj as any).scaleY ?? 1;
-    const w = ((obj as any).width ?? 0) * scaleX;
-    const h = ((obj as any).height ?? 0) * scaleY;
-    const l = (obj as any).left ?? 0;
-    const t = (obj as any).top ?? 0;
+    const scaleX = obj.scaleX ?? 1;
+    const scaleY = obj.scaleY ?? 1;
+    const w = (obj.width ?? 0) * scaleX;
+    const h = (obj.height ?? 0) * scaleY;
+    const l = obj.left ?? 0;
+    const t = obj.top ?? 0;
     switch (side) {
       case 'right':  return { x: l + w,       y: t + h / 2 };
       case 'left':   return { x: l,            y: t + h / 2 };
@@ -121,7 +122,7 @@ export class FloorPlanConnectorService {
     let bestDist = PORT_HIT_RADIUS;
 
     for (const obj of this.canvas.getObjects()) {
-      const data = (obj as any).data;
+      const data = (obj as FabricWithData).data;
       if (!data?.shapeId || data.isConnector || data.isPortIndicator) continue;
 
       for (const side of sides) {
@@ -141,7 +142,7 @@ export class FloorPlanConnectorService {
     this.hidePortIndicators();
 
     const target = this.canvas.getObjects().find(
-      (obj) => (obj as any).data?.shapeId === shapeId && !(obj as any).data?.isConnector
+      (obj) => (obj as FabricWithData).data?.shapeId === shapeId && !(obj as FabricWithData).data?.isConnector
     );
     if (!target) return;
 
@@ -170,7 +171,7 @@ export class FloorPlanConnectorService {
   hidePortIndicators(): void {
     if (!this.canvas) return;
     const indicators = this.canvas.getObjects().filter(
-      (obj) => (obj as any).data?.isPortIndicator
+      (obj) => (obj as FabricWithData).data?.isPortIndicator
     );
     indicators.forEach((obj) => this.canvas!.remove(obj));
     this.canvas.renderAll();
@@ -326,7 +327,7 @@ export class FloorPlanConnectorService {
     try {
       this.isRedrawing = true;
       const toRemove = this.canvas.getObjects().filter(
-        (obj) => (obj as any).data?.connectorId === id
+        (obj) => (obj as FabricWithData).data?.connectorId === id
       );
       toRemove.forEach((obj) => this.canvas!.remove(obj));
 
@@ -389,7 +390,7 @@ export class FloorPlanConnectorService {
     try {
       this.isRedrawing = true;
       const toRemove = this.canvas.getObjects().filter((obj) => {
-        const d = (obj as any).data;
+        const d = (obj as FabricWithData).data;
         return d?.connectorId === id && (d.isConnectorPath || d.isArrowhead);
       });
       toRemove.forEach((obj) => this.canvas!.remove(obj));
@@ -472,7 +473,7 @@ export class FloorPlanConnectorService {
       this.connectorMap.delete(connectorId);
     }
     const toRemove = this.canvas.getObjects().filter(
-      (obj) => (obj as any).data?.connectorId === connectorId
+      (obj) => (obj as FabricWithData).data?.connectorId === connectorId
     );
     toRemove.forEach((obj) => this.canvas!.remove(obj));
     this.canvas.discardActiveObject();
@@ -496,7 +497,7 @@ export class FloorPlanConnectorService {
     if (connectorIds.length === 0) return;
 
     const shape = this.canvas.getObjects().find(
-      (obj) => (obj as any).data?.shapeId === shapeId
+      (obj) => (obj as FabricWithData).data?.shapeId === shapeId
     );
     if (!shape) return;
 
@@ -659,10 +660,10 @@ export class FloorPlanConnectorService {
     this.shapeConnectors.clear();
 
     for (const obj of this.canvas.getObjects()) {
-      const data = (obj as any).data;
+      const data = (obj as FabricWithData).data;
       if (!data?.isConnectorPath || !data.connectorData) continue;
 
-      const cd = data.connectorData as ConnectorData;
+      const cd = data.connectorData as unknown as ConnectorData;
       this.connectorMap.set(cd.id, { ...cd });
 
       if (cd.start.shapeId) {
