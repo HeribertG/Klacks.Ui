@@ -946,7 +946,7 @@ export class FloorPlanCanvasService {
         return data !== undefined && 'markerId' in data;
       })
       .map((obj) => {
-        const data = (obj as FabricWithData).data;
+        const data = (obj as FabricWithData).data!;
         return {
           id: data.markerId || undefined,
           floorPlanId,

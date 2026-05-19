@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import type { FabricObject } from 'fabric';
 import {
   dist,
   reverseNodes,
@@ -13,7 +14,9 @@ import {
 } from './floor-plan-join.service';
 
 interface JNode { x: number; y: number; command: 'M' | 'L' | 'C' | 'Q'; cp1?: {x:number;y:number}; cp2?: {x:number;y:number} }
-interface JItem { obj: unknown; nodes: JNode[]; isClosed: boolean }
+interface JItem { obj: FabricObject; nodes: JNode[]; isClosed: boolean }
+
+const fakeFabricObject = {} as FabricObject;
 
 describe('dist', () => {
   it('returns euclidean distance', () => {
@@ -64,7 +67,7 @@ describe('reverseNodes', () => {
 });
 
 describe('buildGreedyChain', () => {
-  const makeItem = (nodes: JNode[]): JItem => ({ obj: {}, nodes, isClosed: false });
+  const makeItem = (nodes: JNode[]): JItem => ({ obj: fakeFabricObject, nodes, isClosed: false });
 
   it('keeps two items in order when end of first matches start of second', () => {
     const a = makeItem([{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }]);
@@ -95,8 +98,8 @@ describe('buildGreedyChain', () => {
 describe('buildJoinedSvg', () => {
   it('produces M...L...Z for two L-only items', () => {
     const items: JItem[] = [
-      { obj: {}, nodes: [{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }], isClosed: false },
-      { obj: {}, nodes: [{ command: 'M', x: 100, y: 0 }, { command: 'L', x: 100, y: 50 }], isClosed: false },
+      { obj: fakeFabricObject, nodes: [{ command: 'M', x: 0, y: 0 }, { command: 'L', x: 100, y: 0 }], isClosed: false },
+      { obj: fakeFabricObject, nodes: [{ command: 'M', x: 100, y: 0 }, { command: 'L', x: 100, y: 50 }], isClosed: false },
     ];
     const svg = buildJoinedSvg(items as unknown as Parameters<typeof buildJoinedSvg>[0]);
     expect(svg).toContain('M 0 0');

@@ -349,7 +349,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       } else if (data.isEndpointHandle && data.connectorId) {
         this.connectorService.onEndpointHandleMoved(
           data.connectorId,
-          data.isStart,
+          data.isStart ?? false,
           target.left ?? 0,
           target.top ?? 0
         );
@@ -368,7 +368,7 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
       if (data.isEndpointHandle && data.connectorId) {
         const portHit = this.connectorService.getPortNear(target.left ?? 0, target.top ?? 0);
         const connectorId = data.connectorId;
-        const isStart = data.isStart;
+        const isStart = data.isStart ?? false;
         const x = target.left ?? 0;
         const y = target.top ?? 0;
         setTimeout(() => {

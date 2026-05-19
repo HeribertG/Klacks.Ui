@@ -272,7 +272,7 @@ export class FloorPlanPointEditorService {
     }
 
     if (!data.isAnchor) return;
-    const nodeIndex: number = data.nodeIndex;
+    const nodeIndex = data.nodeIndex as number;
     const updated = deleteNode(this.nodes, nodeIndex);
     if (updated === this.nodes) return;
 
@@ -351,7 +351,7 @@ export class FloorPlanPointEditorService {
 
     const newX = handle.left ?? 0;
     const newY = handle.top ?? 0;
-    const nodeIndex: number = data.nodeIndex;
+    const nodeIndex = data.nodeIndex as number;
 
     if (data.isAnchor) {
       const dx = newX - this.nodes[nodeIndex].x;
@@ -365,7 +365,7 @@ export class FloorPlanPointEditorService {
         cp2: node.cp2 ? { x: node.cp2.x + dx, y: node.cp2.y + dy } : undefined,
       };
     } else {
-      const cpIndex: 0 | 1 = data.cpIndex;
+      const cpIndex = data.cpIndex as 0 | 1;
       const node = this.nodes[nodeIndex];
       if (cpIndex === 0) {
         this.nodes[nodeIndex] = { ...node, cp1: { x: newX, y: newY } };
