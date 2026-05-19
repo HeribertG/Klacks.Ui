@@ -32,6 +32,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
 import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 @Component({
   selector: 'app-login',
@@ -64,6 +65,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataOAuth2Service = inject(DataOAuth2Service);
   private cdr = inject(ChangeDetectorRef);
   private readonly syncNotificationService = inject(DataSyncNotificationService);
+  private readonly authorizationService = inject(AuthorizationService);
 
   private destroy$ = new Subject<void>();
 
@@ -156,6 +158,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.isClicked = false;
     }
+    this.authorizationService.refresh();
     if (this.auth.isAdminUser()) {
       void this.syncNotificationService.checkAndShow();
     }

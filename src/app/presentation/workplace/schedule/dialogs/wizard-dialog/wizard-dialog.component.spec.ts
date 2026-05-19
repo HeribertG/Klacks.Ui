@@ -10,6 +10,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { WizardProgress, WizardResult, WizardStatus } from 'src/app/domain/models/wizard/wizard-progress.model';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-class';
+import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse-scenario.service';
 
 function createWizardServiceMock() {
   return {
@@ -49,6 +50,7 @@ describe('WizardDialogComponent', () => {
       providers: [
         { provide: DataWizardService, useValue: wizardServiceMock },
         { provide: DataManagementScheduleService, useValue: scheduleMock },
+        { provide: AnalyseScenarioService, useValue: { isScenarioMode: () => true, activeToken: () => null, scenarios: { update: () => {} }, selectScenario: () => {} } },
         {
           provide: NgbModal,
           useValue: {

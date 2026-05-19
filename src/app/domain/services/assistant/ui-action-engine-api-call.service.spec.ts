@@ -49,7 +49,7 @@ describe('UiActionEngineService apiCall', () => {
     req.flush({ id: '123', name: 'Anna' });
 
     await promise;
-    expect(context.results.client).toEqual({ id: '123', name: 'Anna' });
+    expect(context.results['client']).toEqual({ id: '123', name: 'Anna' });
   });
 
   it('substitutes {param} placeholders in apiUrl', async () => {

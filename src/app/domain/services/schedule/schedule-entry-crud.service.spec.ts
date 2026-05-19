@@ -15,9 +15,11 @@ import { DataManagementWorkService } from '../work/data-management-work.service'
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IShiftSchedule } from '../../models/schedule/shift-schedule-class';
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
+import { SporadicStatus } from '../../enums/sporadic-status.enum';
 import { IWorkFilter } from '../../models/schedule/schedule-class';
 import { DataManagementBreakService } from '../break/data-management-break.service';
 import { DataWorkChangeService } from 'src/app/infrastructure/api/workchange/data-work-change.service';
+import { GroupSelectionService } from '../group/group-selection.service';
 
 function createMockWorkFilter(): IWorkFilter {
   return {
@@ -58,6 +60,7 @@ function createMockShiftSchedule(overrides: Partial<IShiftSchedule> = {}): IShif
     sumEmployees: 10,
     quantity: 5,
     sporadicScope: ShiftSporadic.Week,
+    sporadicStatus: SporadicStatus.None,
     engaged: 2,
     ...overrides,
   };
@@ -159,6 +162,7 @@ describe('ScheduleEntryCrudService', () => {
         { provide: DataManagementWorkService, useValue: workCrudMock },
         { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
         { provide: DataManagementBreakService, useValue: breakServiceMock },
+        { provide: GroupSelectionService, useValue: { selectedGroupId: undefined, selectedGroup: undefined } },
       ],
     });
 
@@ -451,7 +455,7 @@ describe('ScheduleEntryCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledTimes(2);
+      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledTimes(1);
     });
 
     it('should update neededRows after bulk delete', async () => {
@@ -631,7 +635,7 @@ describe('ScheduleEntryCrudService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledTimes(2);
+      expect(dataWorkScheduleMock.getWorkSchedule).toHaveBeenCalledTimes(1);
     });
 
     it('should handle different shifts for same client separately', async () => {

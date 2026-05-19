@@ -8,10 +8,11 @@ import {
   IAgentPlan,
   IAgentPlanStep,
   PlanStatus,
+  PlanStatusValue,
 } from 'src/app/domain/models/assistant/agent-plan.interface';
 
 describe('PlanExecutionPanelComponent', () => {
-  function makePlan(status = PlanStatus.Executing, currentStepIndex = 1): IAgentPlan {
+  function makePlan(status: PlanStatusValue = PlanStatus.Executing, currentStepIndex = 1): IAgentPlan {
     const steps: IAgentPlanStep[] = [
       { order: 1, skill: 'create_employee', params: {}, reversible: true },
       { order: 2, skill: 'assign_contract_to_client', params: {}, reversible: true },
