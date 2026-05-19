@@ -107,6 +107,14 @@ jobs:
           echo "🔄 Restarting Klacks.Ui..."
           $COMPOSE_CMD up -d --no-deps --force-recreate klacks-ui
 
+          # Free disk space: remove dangling images (previous build's <none>-tagged
+          # layers) and unused BuildKit cache. Each --no-cache build above leaves
+          # ~1-2GB behind; without pruning, the Hetzner disk fills within ~20 deploys.
+          echo "🧹 Pruning old Docker layers..."
+          docker image prune -f 2>&1 | tail -1
+          docker builder prune -f 2>&1 | tail -1
+          df -h / | tail -1
+
           echo "✅ Klacks.Ui deployment completed!"
 
           # Status check
