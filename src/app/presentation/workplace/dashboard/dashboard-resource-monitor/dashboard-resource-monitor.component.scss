@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+@use "../../../../../assets/standard-styles/standard-slider.scss";
+
 :host {
   display: block;
 }
@@ -105,9 +107,12 @@
   min-width: 100%;
 }
 
-.rm-zoom-slider {
-  width: 140px;
-  margin: 0 8px;
+.custom-slider {
+  width: 180px;
+  height: 40px !important;
+  padding-inline-end: 12px;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
 }
 

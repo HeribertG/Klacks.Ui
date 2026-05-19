@@ -19,12 +19,13 @@
       </li>
     </ul>
     <div class="rm-controls">
-      <ngx-slider
-        class="rm-zoom-slider"
-        [value]="zoom()"
-        (valueChange)="zoom.set($event)"
-        [options]="zoomOptions"
-      ></ngx-slider>
+      <div class="custom-slider" placement="bottom" ngbTooltip="Zoom" autoClose="true">
+        <ngx-slider
+          [value]="zoom()"
+          (valueChange)="zoom.set($event)"
+          [options]="zoomOptions"
+        ></ngx-slider>
+      </div>
       <app-counter
         [maxNumber]="maxYear()"
         [currentNumber]="selectedYear()"
@@ -78,6 +79,7 @@
             [topBars]="absenzByDay()"
             [referenceLines]="referenceLines()"
             [monthMarkers]="monthMarkers()"
+            [zoomPercent]="zoom()"
             unit=" MA"
           ></app-stacked-bar-chart>
         </div>

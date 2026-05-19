@@ -9,6 +9,7 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
@@ -32,7 +33,7 @@ const LINE_STROKE_WIDTH = 1.5;
   templateUrl: './dashboard-resource-monitor.component.html',
   styleUrls: ['./dashboard-resource-monitor.component.scss'],
   standalone: true,
-  imports: [TranslateModule, NgClass, NgxSliderModule, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
+  imports: [TranslateModule, NgClass, NgxSliderModule, NgbTooltipModule, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardResourceMonitorComponent implements OnInit {

@@ -1,7 +1,7 @@
 <svg
   [attr.viewBox]="'0 0 ' + vbW + ' ' + vbH"
-  preserveAspectRatio="none"
-  style="width:100%;height:220px;display:block;"
+  preserveAspectRatio="xMidYMid meet"
+  style="width:100%;display:block;"
 >
   @for (tick of yTicks; track tick.label) {
     <line
@@ -17,9 +17,11 @@
 
   @for (x of monthDividers; track x) {
     <line
-      [attr.x1]="x" [attr.y1]="axisY"
+      [attr.x1]="x" [attr.y1]="plotTop"
       [attr.x2]="x" [attr.y2]="axisY + 4"
-      stroke="#ccc" stroke-width="1"
+      stroke="#555" stroke-width="0.5"
+      stroke-dasharray="2,2"
+      opacity="0.6"
     />
   }
 
