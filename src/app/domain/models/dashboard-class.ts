@@ -27,6 +27,7 @@ export interface IResourceMonitorDay {
   date: string;
   wunschCount: number;
   maxCount: number;
+  totalCount: number;
   dienstCount: number;
   absenzCount: number;
 }

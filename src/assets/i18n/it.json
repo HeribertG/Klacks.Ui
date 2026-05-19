@@ -440,6 +440,7 @@
   "dashboard.resource-monitor.absences": "Assenze",
   "dashboard.resource-monitor.wunsch-readiness": "Disponibilità desiderata",
   "dashboard.resource-monitor.max-readiness": "Disponibilità max.",
+  "dashboard.resource-monitor.total-employees": "Totale dipendenti",
   "dashboard.resource-monitor.loading": "Caricamento...",
   "dashboard.coverage.headline": "Copertura & Conferma",
   "dashboard.coverage.loading": "Caricamento statistiche...",

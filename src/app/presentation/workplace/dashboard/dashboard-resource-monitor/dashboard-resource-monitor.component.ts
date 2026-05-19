@@ -18,6 +18,8 @@ const WUNSCH_COLOR = '#e91e63';
 const WUNSCH_DASH = '1,3';
 const MAX_COLOR = '#e74c3c';
 const MAX_DASH = '6,3';
+const TOTAL_COLOR = '#1976d2';
+const TOTAL_DASH = '0';
 const LINE_STROKE_WIDTH = 1.5;
 
 @Component({
@@ -36,7 +38,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; wunschCount: number; maxCount: number }[]);
+  private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; wunschCount: number; maxCount: number; totalCount: number }[]);
 
   maxYear = computed(() => this.selectedYear() + 30);
 
@@ -56,6 +58,12 @@ export class DashboardResourceMonitorComponent implements OnInit {
         values: data.map(d => d.maxCount),
         color: MAX_COLOR,
         dashArray: MAX_DASH,
+        strokeWidth: LINE_STROKE_WIDTH,
+      },
+      {
+        values: data.map(d => d.totalCount),
+        color: TOTAL_COLOR,
+        dashArray: TOTAL_DASH,
         strokeWidth: LINE_STROKE_WIDTH,
       },
     ];

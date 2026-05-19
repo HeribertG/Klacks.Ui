@@ -441,6 +441,7 @@
   "dashboard.resource-monitor.absences": "Absences",
   "dashboard.resource-monitor.wunsch-readiness": "Desired Readiness",
   "dashboard.resource-monitor.max-readiness": "Max. Readiness",
+  "dashboard.resource-monitor.total-employees": "Total Employees",
   "dashboard.resource-monitor.loading": "Loading...",
   "dashboard.coverage.headline": "Coverage & Confirmation",
   "dashboard.coverage.loading": "Loading statistics...",
