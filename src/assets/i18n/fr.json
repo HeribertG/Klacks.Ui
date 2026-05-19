@@ -441,6 +441,8 @@
   "dashboard.resource-monitor.wunsch-readiness": "Disponibilité souhaitée",
   "dashboard.resource-monitor.max-readiness": "Disponibilité max.",
   "dashboard.resource-monitor.total-employees": "Total des employés",
+  "dashboard.resource-monitor.tab-chart": "Graphique",
+  "dashboard.resource-monitor.tab-manual": "Manuel",
   "dashboard.resource-monitor.loading": "Chargement...",
   "dashboard.coverage.headline": "Couverture & Confirmation",
   "dashboard.coverage.loading": "Chargement des statistiques...",

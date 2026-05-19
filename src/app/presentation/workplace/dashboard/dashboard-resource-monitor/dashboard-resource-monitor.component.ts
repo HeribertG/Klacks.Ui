@@ -7,12 +7,16 @@
  * @param dataDashboardService - Provides resource monitor data
  */
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IMonthMarker, IReferenceLine, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { NgClass } from '@angular/common';
+
+type TabId = 'chart' | 'manual';
 
 const WUNSCH_COLOR = '#e91e63';
 const WUNSCH_DASH = '1,3';
@@ -27,16 +31,20 @@ const LINE_STROKE_WIDTH = 1.5;
   templateUrl: './dashboard-resource-monitor.component.html',
   styleUrls: ['./dashboard-resource-monitor.component.scss'],
   standalone: true,
-  imports: [TranslateModule, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
+  imports: [TranslateModule, NgClass, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardResourceMonitorComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);
+  private manualLoader = inject(ManualLoaderService);
+  private translate = inject(TranslateService);
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
+  activeTab = signal<TabId>('chart');
+  manualContent = signal<string>('');
 
   private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; wunschCount: number; maxCount: number; totalCount: number }[]);
 
@@ -88,6 +96,18 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.loadManual();
+    this.translate.onLangChange.subscribe(() => this.loadManual());
+  }
+
+  private loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    this.manualLoader.loadManual('resource-monitor-manual', lang)
+      .subscribe(content => this.manualContent.set(content));
+  }
+
+  setTab(tab: TabId): void {
+    this.activeTab.set(tab);
   }
 
   private loadData(): void {

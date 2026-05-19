@@ -1,0 +1,92 @@
+<h2>Ressourcen-Monitor — Anleitung</h2>
+
+<h3>Was zeigt das Diagramm?</h3>
+<p>
+Der Ressourcen-Monitor visualisiert auf einen Blick, wie es um die Personalauslastung
+der gewählten Gruppe (oder aller Gruppen) im gewählten Jahr steht. Pro Tag wird ein
+schmaler Balken gezeichnet — über 365 Tage hinweg ergibt sich der ganze Jahresverlauf.
+</p>
+
+<h3>Die Elemente im Detail</h3>
+
+<h4>Grüne Balken — Dienste</h4>
+<p>
+Anzahl geplanter Dienste an diesem Tag. Jeder Shift zählt als <strong>1 Mitarbeiter-Position</strong>.
+Berücksichtigt nur reguläre Shifts: zeitlich fixe, nicht-sporadische Schichten innerhalb
+ihres Gültigkeitszeitraums. Container-Shifts zählen als 1 (die Unter-Tasks innerhalb
+des Containers werden nicht doppelt gezählt).
+</p>
+
+<h4>Graue Balken — Absenzen</h4>
+<p>
+Anzahl abwesender Mitarbeiter, gestapelt auf den grünen Balken. Eine volle Ferien-
+oder Krankheitseintragung zählt als <strong>1 MA</strong>, eine ½ Ferien-Eintragung als
+<strong>0.5 MA</strong>. Ferien und Krankheit gelten <strong>auch am Wochenende</strong> — die Werte
+werden so übernommen wie in der Absenzplanung eingetragen.
+</p>
+
+<h4>Rosa gepunktete Linie — Gewünschte Einsatzbereitschaft</h4>
+<p>
+Wie viele Mitarbeiter im Schnitt täglich verfügbar wären, wenn die <strong>gewünschten
+Arbeitstage pro Woche</strong> eingehalten werden (Standard: 5 Tage Arbeit, 2 Tage Ruhe).
+Diese Linie zeigt das <em>Planungsziel</em>.
+</p>
+<p>
+Bei einem 24/7-Vertrag (alle 7 Wochentage als Arbeitstage möglich) wird der Wert über
+die ganze Woche geglättet: Pro MA <code>5 / 7 ≈ 0.71</code> Beitrag pro Kalendertag.
+Bei einem Mo–Fr-Vertrag steht die Linie an Werktagen auf 1.0, am Wochenende auf 0.
+</p>
+
+<h4>Rot gestrichelte Linie — Maximale Einsatzbereitschaft</h4>
+<p>
+Das <strong>physische/legale Maximum</strong>: Wie viele Mitarbeiter wären verfügbar, wenn jeder
+die maximal zulässige Anzahl aufeinanderfolgender Arbeitstage leistet (Standard: 6 Tage,
+mindestens 1 Ruhetag). Die Linie liegt immer auf oder oberhalb der rosa Linie.
+</p>
+
+<h4>Blaue Linie — Anzahl Mitarbeiter</h4>
+<p>
+Gesamte Belegschaft mit aktivem Vertrag an diesem Tag (Headcount). Unabhängig von
+Wochentag-Flags und Arbeitstag-Caps. Steigt/sinkt nur bei Vertragsanfängen oder
+Vertragsenden.
+</p>
+
+<h3>Wie ist es zu lesen?</h3>
+
+<h4>Belegschafts-Optimum</h4>
+<p>
+Wenn die Oberkante der grünen Balken (Dienste) sich der rosa gepunkteten Linie
+(gewünschte Einsatzbereitschaft) annähert, ist die Belegschaft optimal eingesetzt —
+genau so viele Dienste wie der Plan vorsieht.
+</p>
+
+<h4>Reserve und Warnsignal</h4>
+<p>
+Die Differenz zwischen <strong>Gesamtbelegschaft (blau)</strong> und der Oberkante der gestapelten
+Bars (Dienste + Absenzen) zeigt die <em>Reserve</em>.
+</p>
+<p>
+Erfahrungswert: Die Oberkante der grauen Absenz-Bars sollte <strong>nicht mehr als ein Drittel</strong>
+der Lücke zwischen Diensten und Gesamtbelegschaft betragen. Wird dieser Anteil grösser,
+ist die operative Reserve gefährdet — Krankheits-/Ferienspitzen erschweren das Auffüllen
+unbesetzter Schichten.
+</p>
+
+<h3>Gruppen- und Jahres-Filter</h3>
+<p>
+Die Pfeil-Buttons oben rechts wechseln das Jahr. Mit der Gruppen-Auswahl wird auf
+einen Standort/Team eingegrenzt — alle Werte beziehen sich dann nur auf die zur
+Gruppe gehörigen Shifts und deren Mitarbeiter. „Alle Gruppen" zeigt die Gesamtsicht.
+</p>
+
+<h3>Quellen-Logik im Backend</h3>
+<p>
+Die Werte sind Schätzungen und Annäherungen, keine starre Matematik — sie geben einen
+Eindruck der Verfügbarkeit:
+</p>
+<ul>
+  <li><strong>Dienste</strong>: aus der Shift-Tabelle (Planung), nicht aus Work (Realisierung). Damit auch zukünftige Dienste sichtbar werden.</li>
+  <li><strong>Absenzen</strong>: aus der BreakPlaceholder-Tabelle (geplante Abwesenheits-Zeitspannen) mit <code>Absence.DefaultValue</code> als Gewicht.</li>
+  <li><strong>Verfügbarkeit (rosa/rot)</strong>: aus ClientContract + Contract.SchedulingRule. Die Caps (Max. Arbeitstage / Max. aufeinanderfolgende Arbeitstage) werden zuerst aus der Planungsregel des Vertrags genommen, sonst aus den globalen Einstellungen.</li>
+  <li><strong>Gesamtbelegschaft (blau)</strong>: Anzahl Mitarbeiter mit aktivem Vertrag an diesem Tag.</li>
+</ul>

@@ -1,0 +1,88 @@
+<h2>Resource Monitor — Manual</h2>
+
+<h3>What does the chart show?</h3>
+<p>
+The Resource Monitor visualizes at a glance how workforce utilization stands for
+the selected group (or all groups) in the chosen year. One thin bar per day —
+across 365 days a full annual trajectory.
+</p>
+
+<h3>The elements in detail</h3>
+
+<h4>Green bars — Services (Dienste)</h4>
+<p>
+Number of scheduled services on this day. Each shift counts as <strong>1 employee slot</strong>.
+Only regular shifts are counted: time-fixed, non-sporadic shifts within their validity range.
+Container shifts count as 1 (sub-tasks inside the container are not double-counted).
+</p>
+
+<h4>Gray bars — Absences (Absenzen)</h4>
+<p>
+Number of absent employees, stacked above the green bars. A full vacation or sickness
+entry counts as <strong>1 employee</strong>, a half-day entry as <strong>0.5</strong>. Vacation and sickness
+also count <strong>on weekends</strong> — values are taken as entered in the absence planner.
+</p>
+
+<h4>Pink dotted line — Desired Readiness</h4>
+<p>
+How many employees would on average be daily available if the <strong>desired number of
+work days per week</strong> is respected (standard: 5 work days, 2 rest days). This is the
+<em>planning target</em>.
+</p>
+<p>
+For a 24/7 contract (all 7 weekdays flagged as possible work days) the value is smoothed
+across the entire week: per employee <code>5 / 7 ≈ 0.71</code> contribution per calendar day.
+A Mo–Fr contract shows 1.0 on weekdays and 0 on weekends.
+</p>
+
+<h4>Red dashed line — Max. Readiness</h4>
+<p>
+The <strong>physical/legal maximum</strong>: how many employees would be available if each works
+the maximum number of consecutive days allowed (standard: 6 days, at least 1 rest day).
+Always at or above the pink line.
+</p>
+
+<h4>Blue line — Total Employees</h4>
+<p>
+Total headcount with active contract on this day. Independent of weekday flags and
+work-day caps. Only changes at contract starts or ends.
+</p>
+
+<h3>How to read it</h3>
+
+<h4>Workforce optimum</h4>
+<p>
+When the top edge of the green bars (services) approaches the pink dotted line
+(desired readiness), the workforce is optimally deployed — exactly as many services
+as the plan calls for.
+</p>
+
+<h4>Reserve and warning signal</h4>
+<p>
+The gap between the <strong>total headcount (blue)</strong> and the top of the stacked bars
+(services + absences) shows the <em>reserve</em>.
+</p>
+<p>
+Rule of thumb: the top of the gray absence bars should not exceed <strong>one third</strong>
+of the gap between services and total headcount. Beyond that, operational reserve is
+endangered — sickness/vacation peaks make filling open shifts difficult.
+</p>
+
+<h3>Group and year filter</h3>
+<p>
+The arrow buttons at top right switch the year. The group selector restricts to one
+location/team — all values then refer only to shifts and employees of that group.
+"All Groups" shows the overall view.
+</p>
+
+<h3>Source logic in the backend</h3>
+<p>
+Values are estimates and approximations, not rigid math — they give an impression of
+availability:
+</p>
+<ul>
+  <li><strong>Services</strong>: from the Shift table (planning), not Work (realization). This makes future services visible too.</li>
+  <li><strong>Absences</strong>: from the BreakPlaceholder table (planned absence ranges) weighted by <code>Absence.DefaultValue</code>.</li>
+  <li><strong>Availability (pink/red)</strong>: from ClientContract + Contract.SchedulingRule. The caps (Max. Work Days / Max. Consecutive Days) are first taken from the contract's scheduling rule, otherwise from the global settings.</li>
+  <li><strong>Total headcount (blue)</strong>: number of employees with an active contract on this day.</li>
+</ul>

@@ -16,45 +16,64 @@
     </div>
   </div>
 
-  @if (isLoading()) {
-    <div class="rm-loading">
-      <p>{{ 'dashboard.resource-monitor.loading' | translate }}</p>
-    </div>
-  } @else if (error()) {
-    <div class="container-dashboard-error">
-      <p class="container-dashboard-error-message">{{ error() }}</p>
-    </div>
+  <ul class="nav nav-tabs rm-tabs">
+    <li class="nav-item">
+      <a class="nav-link"
+         [ngClass]="{ active: activeTab() === 'chart' }"
+         (click)="setTab('chart')"
+      >{{ 'dashboard.resource-monitor.tab-chart' | translate }}</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         [ngClass]="{ active: activeTab() === 'manual' }"
+         (click)="setTab('manual')"
+      >{{ 'dashboard.resource-monitor.tab-manual' | translate }}</a>
+    </li>
+  </ul>
+
+  @if (activeTab() === 'chart') {
+    @if (isLoading()) {
+      <div class="rm-loading">
+        <p>{{ 'dashboard.resource-monitor.loading' | translate }}</p>
+      </div>
+    } @else if (error()) {
+      <div class="container-dashboard-error">
+        <p class="container-dashboard-error-message">{{ error() }}</p>
+      </div>
+    } @else {
+      <div class="rm-legend">
+        <span class="rm-legend-item">
+          <span class="rm-swatch rm-swatch--green"></span>
+          {{ 'dashboard.resource-monitor.services' | translate }}
+        </span>
+        <span class="rm-legend-item">
+          <span class="rm-swatch rm-swatch--gray"></span>
+          {{ 'dashboard.resource-monitor.absences' | translate }}
+        </span>
+        <span class="rm-legend-item">
+          <span class="rm-line rm-line--wunsch"></span>
+          {{ 'dashboard.resource-monitor.wunsch-readiness' | translate }}
+        </span>
+        <span class="rm-legend-item">
+          <span class="rm-line rm-line--max"></span>
+          {{ 'dashboard.resource-monitor.max-readiness' | translate }}
+        </span>
+        <span class="rm-legend-item">
+          <span class="rm-line rm-line--total"></span>
+          {{ 'dashboard.resource-monitor.total-employees' | translate }}
+        </span>
+      </div>
+      <div class="rm-chart">
+        <app-stacked-bar-chart
+          [bottomBars]="dienstByDay()"
+          [topBars]="absenzByDay()"
+          [referenceLines]="referenceLines()"
+          [monthMarkers]="monthMarkers()"
+          unit=" MA"
+        ></app-stacked-bar-chart>
+      </div>
+    }
   } @else {
-    <div class="rm-legend">
-      <span class="rm-legend-item">
-        <span class="rm-swatch rm-swatch--green"></span>
-        {{ 'dashboard.resource-monitor.services' | translate }}
-      </span>
-      <span class="rm-legend-item">
-        <span class="rm-swatch rm-swatch--gray"></span>
-        {{ 'dashboard.resource-monitor.absences' | translate }}
-      </span>
-      <span class="rm-legend-item">
-        <span class="rm-line rm-line--wunsch"></span>
-        {{ 'dashboard.resource-monitor.wunsch-readiness' | translate }}
-      </span>
-      <span class="rm-legend-item">
-        <span class="rm-line rm-line--max"></span>
-        {{ 'dashboard.resource-monitor.max-readiness' | translate }}
-      </span>
-      <span class="rm-legend-item">
-        <span class="rm-line rm-line--total"></span>
-        {{ 'dashboard.resource-monitor.total-employees' | translate }}
-      </span>
-    </div>
-    <div class="rm-chart">
-      <app-stacked-bar-chart
-        [bottomBars]="dienstByDay()"
-        [topBars]="absenzByDay()"
-        [referenceLines]="referenceLines()"
-        [monthMarkers]="monthMarkers()"
-        unit=" MA"
-      ></app-stacked-bar-chart>
-    </div>
+    <div class="rm-manual" [innerHTML]="manualContent()"></div>
   }
 </div>

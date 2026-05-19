@@ -1,0 +1,49 @@
+<h2>Moniteur de ressources — Manuel</h2>
+
+<h3>Que montre le graphique?</h3>
+<p>
+Le moniteur de ressources visualise d'un coup d'œil l'état de l'utilisation du
+personnel pour le groupe sélectionné (ou tous les groupes) dans l'année choisie.
+Une barre fine par jour — sur 365 jours, l'ensemble de l'évolution annuelle.
+</p>
+
+<h3>Les éléments en détail</h3>
+
+<h4>Barres vertes — Services</h4>
+<p>
+Nombre de services planifiés ce jour. Chaque shift compte comme <strong>1 poste employé</strong>.
+Seuls les shifts réguliers sont comptés (non-time-range, non-sporadiques). Les shifts
+container comptent comme 1 (les sous-tâches ne sont pas comptées deux fois).
+</p>
+
+<h4>Barres grises — Absences</h4>
+<p>
+Nombre d'employés absents, empilé au-dessus des barres vertes. Vacances complètes ou
+maladie = <strong>1 employé</strong>, demi-journée = <strong>0.5</strong>. Vacances et maladie comptent
+<strong>aussi les week-ends</strong>.
+</p>
+
+<h4>Ligne rose pointillée — Disponibilité souhaitée</h4>
+<p>
+Nombre moyen d'employés disponibles quotidiennement si les <strong>jours de travail
+souhaités par semaine</strong> sont respectés (standard: 5 jours travail, 2 jours repos).
+</p>
+
+<h4>Ligne rouge tiretée — Disponibilité max.</h4>
+<p>
+Maximum physique/légal: si chacun travaille le nombre maximum de jours consécutifs
+autorisés (standard: 6 jours, au moins 1 jour de repos).
+</p>
+
+<h4>Ligne bleue — Total des employés</h4>
+<p>
+Total des employés avec contrat actif ce jour. Indépendant des drapeaux de jour de
+semaine.
+</p>
+
+<h3>Lecture</h3>
+<p>
+L'optimum: le sommet des barres vertes atteint la ligne rose pointillée. La règle du
+tiers: les barres grises (absences) ne devraient pas dépasser un tiers de l'écart entre
+services et total employés.
+</p>

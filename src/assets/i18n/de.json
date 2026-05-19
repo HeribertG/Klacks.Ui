@@ -442,6 +442,8 @@
   "dashboard.resource-monitor.wunsch-readiness": "Wunsch-Einsatzbereitschaft",
   "dashboard.resource-monitor.max-readiness": "Max. Einsatzbereitschaft",
   "dashboard.resource-monitor.total-employees": "Anzahl Mitarbeiter",
+  "dashboard.resource-monitor.tab-chart": "Diagramm",
+  "dashboard.resource-monitor.tab-manual": "Erklärung",
   "dashboard.resource-monitor.loading": "Wird geladen...",
   "dashboard.coverage.headline": "Abdeckung & Bestätigung",
   "dashboard.coverage.loading": "Lade Statistiken...",
