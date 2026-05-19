@@ -1,6 +1,23 @@
 <div class="container-dashboard-card rm-card">
   <div class="rm-header">
     <h3 class="rm-title">{{ 'dashboard.resource-monitor.title' | translate }}</h3>
+  </div>
+
+  <div class="rm-tab-bar">
+    <ul class="nav nav-tabs rm-tabs">
+      <li class="nav-item">
+        <a class="nav-link"
+           [ngClass]="{ active: activeTab() === 'chart' }"
+           (click)="setTab('chart')"
+        >{{ 'dashboard.resource-monitor.tab-chart' | translate }}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           [ngClass]="{ active: activeTab() === 'manual' }"
+           (click)="setTab('manual')"
+        >{{ 'dashboard.resource-monitor.tab-manual' | translate }}</a>
+      </li>
+    </ul>
     <div class="rm-controls">
       <app-counter
         [maxNumber]="maxYear()"
@@ -15,21 +32,6 @@
       ></app-group-select>
     </div>
   </div>
-
-  <ul class="nav nav-tabs rm-tabs">
-    <li class="nav-item">
-      <a class="nav-link"
-         [ngClass]="{ active: activeTab() === 'chart' }"
-         (click)="setTab('chart')"
-      >{{ 'dashboard.resource-monitor.tab-chart' | translate }}</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         [ngClass]="{ active: activeTab() === 'manual' }"
-         (click)="setTab('manual')"
-      >{{ 'dashboard.resource-monitor.tab-manual' | translate }}</a>
-    </li>
-  </ul>
 
   @if (activeTab() === 'chart') {
     @if (isLoading()) {

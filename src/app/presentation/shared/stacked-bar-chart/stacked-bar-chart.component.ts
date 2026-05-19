@@ -21,8 +21,10 @@ const PAD_B = 25;
 const PLOT_W = VIEWBOX_W - PAD_L - PAD_R;
 const PLOT_H = VIEWBOX_H - PAD_T - PAD_B;
 const BAR_RATIO = 0.7;
-const Y_TICKS = 4;
-const HEADROOM = 1.12;
+const HEADROOM = 1.35;
+const NICE_CANDIDATES = [1, 1.2, 1.5, 1.8, 2, 2.5, 3, 4, 5, 6, 7, 8, 10];
+const TICK_CANDIDATES = [4, 5, 3, 6, 2];
+const DEFAULT_TICK_COUNT = 4;
 
 interface IBarRect {
   x: number;
@@ -102,15 +104,24 @@ export class StackedBarChartComponent {
 
   private niceMax(raw: number): number {
     const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-    const n = raw / mag;
-    const nice = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
-    return nice * mag;
+    const normalized = raw / mag;
+    const pick = NICE_CANDIDATES.find(c => c >= normalized) ?? 10;
+    return pick * mag;
+  }
+
+  private pickTickCount(max: number): number {
+    if (!Number.isFinite(max) || max <= 0) return DEFAULT_TICK_COUNT;
+    const scale = max >= 1 ? 1 : Math.pow(10, Math.ceil(-Math.log10(max)));
+    const scaled = max * scale;
+    const found = TICK_CANDIDATES.find(n => Math.abs((scaled / n) - Math.round(scaled / n)) < 1e-9);
+    return found ?? DEFAULT_TICK_COUNT;
   }
 
   get yTicks(): IYTick[] {
     const max = this.maxY;
-    return Array.from({ length: Y_TICKS + 1 }, (_, i) => {
-      const value = (max / Y_TICKS) * i;
+    const tickCount = this.pickTickCount(max);
+    return Array.from({ length: tickCount + 1 }, (_, i) => {
+      const value = (max / tickCount) * i;
       const y = PAD_T + PLOT_H - (value / max) * PLOT_H;
       const formatted = value >= 10 ? Math.round(value).toString() : value.toFixed(1).replace(/\.0$/, '');
       return { y, label: `${formatted}${this.unit}` };
