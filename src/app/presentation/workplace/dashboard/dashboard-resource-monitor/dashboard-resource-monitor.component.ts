@@ -3,7 +3,7 @@
 /**
  * Full-width dashboard card showing daily workforce headcount as a Resource Histogram.
  * 365 daily stacked bars (green = services count, gray = absent employees) with
- * month-boundary labels and a red dashed line for active contracts (max capacity).
+ * two reference lines: pink dotted (Wunsch-Einsatzbereitschaft) + red dashed (Max-Einsatzbereitschaft).
  * @param dataDashboardService - Provides resource monitor data
  */
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
@@ -12,7 +12,13 @@ import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.
 import { Group } from 'src/app/domain/models/group/group-class';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
-import { IMonthMarker, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
+import { IMonthMarker, IReferenceLine, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
+
+const WUNSCH_COLOR = '#e91e63';
+const WUNSCH_DASH = '1,3';
+const MAX_COLOR = '#e74c3c';
+const MAX_DASH = '6,3';
+const LINE_STROKE_WIDTH = 1.5;
 
 @Component({
   selector: 'app-dashboard-resource-monitor',
@@ -30,13 +36,30 @@ export class DashboardResourceMonitorComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; maxKapazitaetCount: number }[]);
+  private dailyData = signal([] as { date: string; dienstCount: number; absenzCount: number; wunschCount: number; maxCount: number }[]);
 
   maxYear = computed(() => this.selectedYear() + 30);
 
   dienstByDay = computed(() => this.dailyData().map(d => d.dienstCount));
   absenzByDay = computed(() => this.dailyData().map(d => d.absenzCount));
-  maxKapazitaetByDay = computed(() => this.dailyData().map(d => d.maxKapazitaetCount));
+
+  referenceLines = computed<IReferenceLine[]>(() => {
+    const data = this.dailyData();
+    return [
+      {
+        values: data.map(d => d.wunschCount),
+        color: WUNSCH_COLOR,
+        dashArray: WUNSCH_DASH,
+        strokeWidth: LINE_STROKE_WIDTH,
+      },
+      {
+        values: data.map(d => d.maxCount),
+        color: MAX_COLOR,
+        dashArray: MAX_DASH,
+        strokeWidth: LINE_STROKE_WIDTH,
+      },
+    ];
+  });
 
   monthMarkers = computed<IMonthMarker[]>(() => {
     const data = this.dailyData();

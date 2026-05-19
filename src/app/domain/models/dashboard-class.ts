@@ -25,7 +25,8 @@ export interface IShiftCoverageStatistics {
 
 export interface IResourceMonitorDay {
   date: string;
-  maxKapazitaetCount: number;
+  wunschCount: number;
+  maxCount: number;
   dienstCount: number;
   absenzCount: number;
 }

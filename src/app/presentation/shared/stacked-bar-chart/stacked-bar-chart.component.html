@@ -40,12 +40,17 @@
     }
   }
 
-  @if (referencePoints) {
-    <polyline
-      [attr.points]="referencePoints"
-      fill="none" stroke="#e74c3c" stroke-width="1.5"
-      stroke-dasharray="4,2" stroke-linejoin="round" stroke-linecap="round"
-    />
+  @for (line of renderedReferenceLines; track $index) {
+    @if (line.points) {
+      <polyline
+        [attr.points]="line.points"
+        fill="none"
+        [attr.stroke]="line.color"
+        [attr.stroke-width]="line.strokeWidth"
+        [attr.stroke-dasharray]="line.dashArray"
+        stroke-linejoin="round" stroke-linecap="round"
+      />
+    }
   }
 
   <line

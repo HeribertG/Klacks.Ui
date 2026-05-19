@@ -2,11 +2,13 @@
 
 /**
  * SVG-based stacked bar chart for daily workforce capacity visualization (Resource Histogram).
- * Renders one bar per day (up to 365) with month-boundary labels on the x-axis.
- * @param bottomBars - Daily values for the bottom (green) bars, e.g. service hours
- * @param topBars - Daily values for the top (gray) bars, e.g. absence hours stacked on green
- * @param referenceLine - Daily values drawn as a red dashed polyline (constructed capacity ceiling)
+ * Renders one bar per day (up to 365) with month-boundary labels on the x-axis,
+ * supports multiple reference lines with individual styling.
+ * @param bottomBars - Daily values for the bottom (green) bars
+ * @param topBars - Daily values for the top (gray) bars, stacked above bottomBars
+ * @param referenceLines - Array of reference lines drawn as polylines (color, dash, width per line)
  * @param monthMarkers - Month label positions: index into the data arrays and display label
+ * @param unit - Suffix appended to Y-axis labels (e.g. ' MA')
  */
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
@@ -40,6 +42,20 @@ export interface IMonthMarker {
   label: string;
 }
 
+export interface IReferenceLine {
+  values: number[];
+  color: string;
+  dashArray: string;
+  strokeWidth: number;
+}
+
+interface IRenderedReferenceLine {
+  points: string;
+  color: string;
+  dashArray: string;
+  strokeWidth: number;
+}
+
 @Component({
   selector: 'app-stacked-bar-chart',
   templateUrl: './stacked-bar-chart.component.html',
@@ -50,7 +66,7 @@ export interface IMonthMarker {
 export class StackedBarChartComponent {
   @Input() bottomBars: number[] = [];
   @Input() topBars: number[] = [];
-  @Input() referenceLine: number[] = [];
+  @Input() referenceLines: IReferenceLine[] = [];
   @Input() monthMarkers: IMonthMarker[] = [];
   @Input() unit = 'h';
 
@@ -77,7 +93,9 @@ export class StackedBarChartComponent {
       0,
       ...this.bottomBars.map((b, i) => b + (this.topBars[i] ?? 0))
     );
-    const maxRef = Math.max(0, ...this.referenceLine);
+    const maxRef = this.referenceLines.length === 0
+      ? 0
+      : Math.max(0, ...this.referenceLines.flatMap(line => line.values));
     const raw = Math.max(maxStack, maxRef) * HEADROOM;
     return raw === 0 ? 1 : this.niceMax(raw);
   }
@@ -113,16 +131,21 @@ export class StackedBarChartComponent {
     });
   }
 
-  get referencePoints(): string {
+  get renderedReferenceLines(): IRenderedReferenceLine[] {
     const max = this.maxY;
     const colW = this.colW;
-    return this.referenceLine
-      .map((val, i) => {
-        const x = PAD_L + (i + 0.5) * colW;
-        const y = PAD_T + PLOT_H - (val / max) * PLOT_H;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ');
+    return this.referenceLines.map(line => ({
+      points: line.values
+        .map((val, i) => {
+          const x = PAD_L + (i + 0.5) * colW;
+          const y = PAD_T + PLOT_H - (val / max) * PLOT_H;
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        })
+        .join(' '),
+      color: line.color,
+      dashArray: line.dashArray,
+      strokeWidth: line.strokeWidth,
+    }));
   }
 
   get monthLabelPositions(): { x: number; label: string }[] {

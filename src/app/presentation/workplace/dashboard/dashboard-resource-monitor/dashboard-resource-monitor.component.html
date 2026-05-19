@@ -35,15 +35,19 @@
         {{ 'dashboard.resource-monitor.absences' | translate }}
       </span>
       <span class="rm-legend-item">
-        <span class="rm-line rm-line--dashed"></span>
-        {{ 'dashboard.resource-monitor.max-capacity' | translate }}
+        <span class="rm-line rm-line--wunsch"></span>
+        {{ 'dashboard.resource-monitor.wunsch-readiness' | translate }}
+      </span>
+      <span class="rm-legend-item">
+        <span class="rm-line rm-line--max"></span>
+        {{ 'dashboard.resource-monitor.max-readiness' | translate }}
       </span>
     </div>
     <div class="rm-chart">
       <app-stacked-bar-chart
         [bottomBars]="dienstByDay()"
         [topBars]="absenzByDay()"
-        [referenceLine]="maxKapazitaetByDay()"
+        [referenceLines]="referenceLines()"
         [monthMarkers]="monthMarkers()"
         unit=" MA"
       ></app-stacked-bar-chart>
