@@ -19,6 +19,12 @@
       </li>
     </ul>
     <div class="rm-controls">
+      <ngx-slider
+        class="rm-zoom-slider"
+        [value]="zoom()"
+        (valueChange)="zoom.set($event)"
+        [options]="zoomOptions"
+      ></ngx-slider>
       <app-counter
         [maxNumber]="maxYear()"
         [currentNumber]="selectedYear()"
@@ -65,14 +71,16 @@
           {{ 'dashboard.resource-monitor.total-employees' | translate }}
         </span>
       </div>
-      <div class="rm-chart">
-        <app-stacked-bar-chart
-          [bottomBars]="dienstByDay()"
-          [topBars]="absenzByDay()"
-          [referenceLines]="referenceLines()"
-          [monthMarkers]="monthMarkers()"
-          unit=" MA"
-        ></app-stacked-bar-chart>
+      <div class="rm-chart-scroll">
+        <div class="rm-chart-inner" [style.width.%]="zoom()">
+          <app-stacked-bar-chart
+            [bottomBars]="dienstByDay()"
+            [topBars]="absenzByDay()"
+            [referenceLines]="referenceLines()"
+            [monthMarkers]="monthMarkers()"
+            unit=" MA"
+          ></app-stacked-bar-chart>
+        </div>
       </div>
     }
   } @else {
