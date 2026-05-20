@@ -2,6 +2,14 @@
 @use "../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../assets/standard-styles/colors.scss" as colors;
 
+.container-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline-end: 12px;
+}
+
 .settings-list-card {
   display: flex;
   flex-direction: column;

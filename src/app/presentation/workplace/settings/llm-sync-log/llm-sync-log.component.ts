@@ -2,12 +2,13 @@
 
 /**
  * Read-only settings card showing the full LLM model sync history with per-model test results.
- * Loads all sync notifications on init and displays them in reverse chronological order.
+ * Loads all sync notifications on init, supports manual refresh, and auto-refreshes every 24 hours.
  */
 import {
   Component,
   ChangeDetectionStrategy,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   ChangeDetectorRef,
@@ -19,6 +20,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { LlmSyncLogHeaderComponent } from './llm-sync-log-header/llm-sync-log-header.component';
 import { LlmSyncLogRowComponent } from './llm-sync-log-row/llm-sync-log-row.component';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -30,19 +32,44 @@ import { firstValueFrom } from 'rxjs';
     SettingsListCardComponent,
     LlmSyncLogHeaderComponent,
     LlmSyncLogRowComponent,
+    RefreshButtonComponent,
   ],
   templateUrl: './llm-sync-log.component.html',
   styleUrls: ['./llm-sync-log.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LlmSyncLogComponent implements OnInit {
+export class LlmSyncLogComponent implements OnInit, OnDestroy {
   private readonly syncLogService = inject(DataSyncLogService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   protected entries = signal<ILLMSyncLogEntry[]>([]);
   protected isLoading = signal(true);
+  protected isSyncing = signal(false);
+
+  private autoRefreshTimer: ReturnType<typeof setInterval> | undefined;
 
   async ngOnInit(): Promise<void> {
+    await this.loadHistory();
+    this.autoRefreshTimer = setInterval(() => this.triggerUpdate(), 24 * 60 * 60 * 1000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.autoRefreshTimer);
+  }
+
+  protected async triggerUpdate(): Promise<void> {
+    this.isSyncing.set(true);
+    try {
+      await firstValueFrom(this.syncLogService.triggerSync());
+      await this.loadHistory();
+    } finally {
+      this.isSyncing.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private async loadHistory(): Promise<void> {
+    this.isLoading.set(true);
     try {
       const data = await firstValueFrom(this.syncLogService.getHistory());
       this.entries.set(data);

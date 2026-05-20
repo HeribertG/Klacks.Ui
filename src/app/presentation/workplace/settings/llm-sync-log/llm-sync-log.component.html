@@ -4,6 +4,13 @@
   [showHeader]="true"
   idPrefix="llm-sync-log"
 >
+  <app-refresh-button
+    headerAction
+    class="sync-refresh-btn"
+    [isLoading]="isSyncing()"
+    ariaLabel="Check for LLM updates"
+    (clicked)="triggerUpdate()"
+  />
   <app-llm-sync-log-header header></app-llm-sync-log-header>
   <div rows class="sync-log-body">
     @if (isLoading()) {

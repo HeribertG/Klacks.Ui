@@ -1,7 +1,16 @@
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 
+.sync-refresh-btn {
+  padding-right: 30px;
+  padding-top: 20px;
+}
+
 .sync-log-body {
   padding-inline: 30px;
+}
+
+:host ::ng-deep .container-box {
+  margin-bottom: 30px;
 }
 
 .container-line {
