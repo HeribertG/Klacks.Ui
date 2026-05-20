@@ -420,21 +420,7 @@ describe('ClientEditService', () => {
       client.groupItems = [];
 
       service.editClient.set(client);
-
-      const dummy = new Client();
-      dummy.id = client.id;
-      dummy.firstName = client.firstName;
-      dummy.name = client.name;
-      dummy.gender = client.gender;
-      dummy.legalEntity = client.legalEntity;
-      const dummyAddress = new Address();
-      dummyAddress.zip = '12345';
-      dummyAddress.city = 'TestCity';
-      dummyAddress.country = 'TestCountry';
-      dummy.addresses = [dummyAddress];
-      dummy.clientContracts = [];
-      dummy.groupItems = [];
-      service.editClientDummy = dummy;
+      service.editClientDummy = cloneObject(client);
 
       expect(service.canSave()).toBe(false);
     });
