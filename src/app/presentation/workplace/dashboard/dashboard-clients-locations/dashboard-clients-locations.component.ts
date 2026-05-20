@@ -334,6 +334,12 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       this.map = null;
     }
 
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+      iconUrl: 'assets/leaflet/marker-icon.png',
+      shadowUrl: 'assets/leaflet/marker-shadow.png',
+    });
+
     this.map = L.map(mapContainer).setView([46.8182, 8.2275], 7);
 
     const provider = this.tileProviders.find(p => p.id === this.selectedTileProviderId()) || this.tileProviders[0];
