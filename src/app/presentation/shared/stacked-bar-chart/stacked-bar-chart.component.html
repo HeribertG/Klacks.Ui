@@ -3,6 +3,14 @@
   preserveAspectRatio="xMidYMid meet"
   style="width:100%;display:block;"
 >
+  @for (sd of specialDayRects; track $index) {
+    <rect
+      [attr.x]="sd.x" [attr.y]="plotTop"
+      [attr.width]="sd.w" [attr.height]="axisY - plotTop"
+      [class]="sd.cssClass"
+    />
+  }
+
   @for (tick of yTicks; track tick.label) {
     <line
       [attr.x1]="axisX" [attr.y1]="tick.y"

@@ -41,6 +41,13 @@ interface IYTick {
   label: string;
 }
 
+export type SpecialDayType = 'saturday' | 'sunday' | 'holiday';
+
+export interface ISpecialDay {
+  index: number;
+  type: SpecialDayType;
+}
+
 export interface IMonthMarker {
   index: number;
   label: string;
@@ -72,6 +79,7 @@ export class StackedBarChartComponent {
   @Input() topBars: number[] = [];
   @Input() referenceLines: IReferenceLine[] = [];
   @Input() monthMarkers: IMonthMarker[] = [];
+  @Input() specialDays: ISpecialDay[] = [];
   @Input() unit = 'h';
   @Input() zoomPercent = MIN_ZOOM;
 
@@ -190,5 +198,16 @@ export class StackedBarChartComponent {
     return this.monthMarkers
       .filter(m => m.index > 0)
       .map(m => PAD_L + m.index * colW);
+  }
+
+  get specialDayRects(): { x: number; w: number; cssClass: string }[] {
+    const colW = this.colW;
+    const h = PLOT_H;
+    return this.specialDays.map(sd => ({
+      x: PAD_L + sd.index * colW,
+      w: colW,
+      h,
+      cssClass: `chart-day--${sd.type}`,
+    }));
   }
 }
