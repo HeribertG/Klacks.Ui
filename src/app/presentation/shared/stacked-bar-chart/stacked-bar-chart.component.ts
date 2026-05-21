@@ -12,7 +12,8 @@
  * @param zoomPercent - Horizontal zoom 100-400. ViewBox width scales proportionally so bars get
  *   wider while text stays pixel-stable (no stretching).
  */
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 
 const BASE_VBW = 900;
 const VBH = 220;
@@ -47,6 +48,7 @@ export interface ISpecialDay {
   index: number;
   type: SpecialDayType;
   color: string;
+  tooltip?: string;
 }
 
 export interface IMonthMarker {
@@ -76,6 +78,7 @@ interface IRenderedReferenceLine {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StackedBarChartComponent {
+  private tooltipService = inject(TooltipService);
   @Input() bottomBars: number[] = [];
   @Input() topBars: number[] = [];
   @Input() referenceLines: IReferenceLine[] = [];
@@ -202,12 +205,22 @@ export class StackedBarChartComponent {
       .map(m => PAD_L + m.index * colW);
   }
 
-  get specialDayRects(): { x: number; w: number; color: string }[] {
+  get specialDayRects(): { x: number; w: number; color: string; tooltip: string | undefined }[] {
     const colW = this.colW;
     return this.specialDays.map(sd => ({
       x: PAD_L + sd.index * colW,
       w: colW,
       color: sd.color,
+      tooltip: sd.tooltip,
     }));
+  }
+
+  onSpecialDayMouseMove(event: MouseEvent, tooltip: string | undefined): void {
+    if (!tooltip) return;
+    this.tooltipService.show({ text: tooltip, x: event.clientX, y: event.clientY });
+  }
+
+  onSpecialDayMouseLeave(): void {
+    this.tooltipService.hide();
   }
 }

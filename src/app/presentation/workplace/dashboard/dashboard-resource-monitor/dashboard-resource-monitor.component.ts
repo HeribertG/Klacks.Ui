@@ -15,6 +15,7 @@ import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { HolidayStatus, StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
@@ -54,6 +55,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
+  private currentLang = signal(this.translate.currentLang ?? 'de');
   isLoading = signal(true);
   error = signal<string | null>(null);
   activeTab = signal<TabId>('chart');
@@ -93,6 +95,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   specialDays = computed<ISpecialDay[]>(() => {
     this.holidayCollection.isReset();
     this.gridColorService.isReset();
+    const lang = this.currentLang();
     const satColor = this.gridColorService.backGroundColorSaturday;
     const sunColor = this.gridColorService.backGroundColorSunday;
     const holColor = this.gridColorService.backGroundColorOfficiallyHoliday;
@@ -103,8 +106,14 @@ export class DashboardResourceMonitorComponent implements OnInit {
       const result: ISpecialDay[] = [];
       if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
       else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
-      if (this.holidayCollection.holidays.isHoliday(date) !== HolidayStatus.NotAHoliday) {
-        result.push({ index: i, type: 'holiday' as SpecialDayType, color: holColor });
+      const holidayInfo = this.holidayCollection.holidays.holidayInfo(date);
+      if (holidayInfo) {
+        result.push({
+          index: i,
+          type: 'holiday' as SpecialDayType,
+          color: holColor,
+          tooltip: getLocalizedValue(holidayInfo.currentName, lang) ?? undefined,
+        });
       }
       return result;
     });
@@ -131,7 +140,10 @@ export class DashboardResourceMonitorComponent implements OnInit {
     this.loadData();
     this.loadManual();
     void this.loadHolidays();
-    this.translate.onLangChange.subscribe(() => this.loadManual());
+    this.translate.onLangChange.subscribe(e => {
+      this.loadManual();
+      this.currentLang.set(e.lang);
+    });
   }
 
   private loadManual(): void {
