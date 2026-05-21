@@ -46,6 +46,8 @@ export type SpecialDayType = 'saturday' | 'sunday' | 'holiday';
 export interface ISpecialDay {
   index: number;
   type: SpecialDayType;
+  color: string;
+  opacity: number;
 }
 
 export interface IMonthMarker {
@@ -200,14 +202,13 @@ export class StackedBarChartComponent {
       .map(m => PAD_L + m.index * colW);
   }
 
-  get specialDayRects(): { x: number; w: number; cssClass: string }[] {
+  get specialDayRects(): { x: number; w: number; color: string; opacity: number }[] {
     const colW = this.colW;
-    const h = PLOT_H;
     return this.specialDays.map(sd => ({
       x: PAD_L + sd.index * colW,
       w: colW,
-      h,
-      cssClass: `chart-day--${sd.type}`,
+      color: sd.color,
+      opacity: sd.opacity,
     }));
   }
 }

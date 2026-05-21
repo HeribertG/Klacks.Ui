@@ -7,7 +7,8 @@
     <rect
       [attr.x]="sd.x" [attr.y]="plotTop"
       [attr.width]="sd.w" [attr.height]="axisY - plotTop"
-      [class]="sd.cssClass"
+      [attr.fill]="sd.color"
+      [attr.fill-opacity]="sd.opacity"
     />
   }
 

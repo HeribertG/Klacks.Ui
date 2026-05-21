@@ -15,6 +15,7 @@ import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/dat
 import { Group } from 'src/app/domain/models/group/group-class';
 import { HolidaysListHelper, HolidayStatus } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IMonthMarker, IReferenceLine, ISpecialDay, SpecialDayType, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
@@ -43,12 +44,15 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);
   private dataCalendarRuleService = inject(DataCalendarRuleService);
   private appSettings = inject(AppSettingsManagementService);
+  private gridColorService = inject(GridColorService);
   private manualLoader = inject(ManualLoaderService);
   private translate = inject(TranslateService);
 
   private readonly holidaysHelper = new HolidaysListHelper();
   private readonly holidaysVersion = signal(0);
   private calendarRulesLoaded = false;
+
+  private static readonly SPECIAL_DAY_OPACITY = 0.35;
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
@@ -100,15 +104,20 @@ export class DashboardResourceMonitorComponent implements OnInit {
 
   specialDays = computed<ISpecialDay[]>(() => {
     this.holidaysVersion();
+    this.gridColorService.isReset();
+    const satColor = this.gridColorService.backGroundColorSaturday;
+    const sunColor = this.gridColorService.backGroundColorSunday;
+    const holColor = this.gridColorService.backGroundColorOfficiallyHoliday;
+    const opacity = DashboardResourceMonitorComponent.SPECIAL_DAY_OPACITY;
     return this.dailyData().flatMap((d, i) => {
       const [y, m, day] = d.date.split('-').map(Number);
       const date = new Date(y, m - 1, day);
       const dow = date.getDay();
       const result: ISpecialDay[] = [];
-      if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType });
-      else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType });
+      if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor, opacity });
+      else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor, opacity });
       if (this.holidaysHelper.isHoliday(date) !== HolidayStatus.NotAHoliday) {
-        result.push({ index: i, type: 'holiday' as SpecialDayType });
+        result.push({ index: i, type: 'holiday' as SpecialDayType, color: holColor, opacity });
       }
       return result;
     });
