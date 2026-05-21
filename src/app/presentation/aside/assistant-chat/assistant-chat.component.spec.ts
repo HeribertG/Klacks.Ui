@@ -500,6 +500,161 @@ describe('AssistantChatComponent', () => {
             expect(result).toBe('Hello<br><strong>bold</strong> and <em>italic</em> and <code>code</code>');
         });
 
+        describe('formatMessage - Markdown rendering', () => {
+            it('should render H3 markdown heading as <h4> tag', () => {
+                const result = component.formatMessage('### Mitarbeiter & Adressen');
+                expect(result).toBe('<h4>Mitarbeiter &amp; Adressen</h4>');
+            });
+
+            it('should render H1/H2/H3/H4 with mapped tag levels', () => {
+                expect(component.formatMessage('# Top')).toBe('<h2>Top</h2>');
+                expect(component.formatMessage('## Section')).toBe('<h3>Section</h3>');
+                expect(component.formatMessage('### Sub')).toBe('<h4>Sub</h4>');
+                expect(component.formatMessage('#### Detail')).toBe('<h5>Detail</h5>');
+            });
+
+            it('should group consecutive list items into a single <ul>', () => {
+                const content = '- Eins\n- Zwei\n- Drei';
+                const result = component.formatMessage(content);
+                expect(result).toBe('<ul><li>Eins</li><li>Zwei</li><li>Drei</li></ul>');
+            });
+
+            it('should support * as list bullet alternative to -', () => {
+                const result = component.formatMessage('* Item');
+                expect(result).toBe('<ul><li>Item</li></ul>');
+            });
+
+            it('should render --- as horizontal rule', () => {
+                const result = component.formatMessage('Vor\n\n---\n\nNach');
+                expect(result).toContain('<hr>');
+                expect(result).toContain('Vor');
+                expect(result).toContain('Nach');
+            });
+
+            it('should combine heading + list + paragraph', () => {
+                const content = '### Mitarbeiter\n- Anlegen\n- Suchen\n\nNormaler Text';
+                const result = component.formatMessage(content);
+                expect(result).toBe(
+                    '<h4>Mitarbeiter</h4><ul><li>Anlegen</li><li>Suchen</li></ul><br>Normaler Text',
+                );
+            });
+
+            it('should apply inline bold inside heading', () => {
+                const result = component.formatMessage('### **Wichtig**');
+                expect(result).toBe('<h4><strong>Wichtig</strong></h4>');
+            });
+
+            it('should apply inline code inside list item', () => {
+                const result = component.formatMessage('- Verwende `npm test`');
+                expect(result).toBe('<ul><li>Verwende <code>npm test</code></li></ul>');
+            });
+
+            it('should escape HTML special characters', () => {
+                const result = component.formatMessage('<script>alert("xss")</script>');
+                expect(result).not.toContain('<script>');
+                expect(result).toContain('&lt;script&gt;');
+            });
+
+            it('should escape ampersand', () => {
+                const result = component.formatMessage('A & B');
+                expect(result).toBe('A &amp; B');
+            });
+
+            it('should return empty string for empty input', () => {
+                expect(component.formatMessage('')).toBe('');
+            });
+
+            it('should join multiple plain lines with <br>', () => {
+                const result = component.formatMessage('Zeile eins\nZeile zwei');
+                expect(result).toBe('Zeile eins<br>Zeile zwei');
+            });
+
+            it('should not append trailing <br> to last line', () => {
+                const result = component.formatMessage('Single line');
+                expect(result).toBe('Single line');
+            });
+        });
+
+        describe('formatMessage - Suggestions/Replies marker stripping', () => {
+            it('should strip closed [SUGGESTIONS: ...] marker', () => {
+                const content = 'Hallo!\n[SUGGESTIONS: "A" | "B" | "C"]';
+                const result = component.formatMessage(content);
+                expect(result).not.toContain('SUGGESTIONS');
+                expect(result).toContain('Hallo!');
+            });
+
+            it('should strip closed [REPLIES: ...] marker', () => {
+                const content = 'Frage?\n[REPLIES:single "Ja" "Nein"]';
+                const result = component.formatMessage(content);
+                expect(result).not.toContain('REPLIES');
+                expect(result).toContain('Frage?');
+            });
+
+            it('should strip trailing open [SUGGESTIONS: marker without closing bracket', () => {
+                const content = 'Antwort.\n[SUGGESTIONS: "incomplete';
+                const result = component.formatMessage(content);
+                expect(result).not.toContain('SUGGESTIONS');
+                expect(result).toContain('Antwort.');
+            });
+
+            it('should preserve bracketed non-marker text', () => {
+                const result = component.formatMessage('Siehe [Doku] dort');
+                expect(result).toContain('[Doku]');
+            });
+        });
+
+        describe('stripForTts - emoji and markdown sanitation', () => {
+            const callStripForTts = (text: string): string =>
+                (component as unknown as { stripForTts: (t: string) => string }).stripForTts(text);
+
+            it('should remove emoji characters', () => {
+                expect(callStripForTts('👋 Hallo')).toBe('Hallo');
+            });
+
+            it('should remove multiple emoji including pictographic ranges', () => {
+                expect(callStripForTts('📋 Mitarbeiter 📅 Planung')).toBe('Mitarbeiter Planung');
+            });
+
+            it('should remove bullet character', () => {
+                expect(callStripForTts('• Erster Punkt')).toBe('Erster Punkt');
+            });
+
+            it('should remove markdown heading prefix', () => {
+                expect(callStripForTts('### Mitarbeiter & Adressen')).toBe('Mitarbeiter & Adressen');
+            });
+
+            it('should remove bold/italic/code markers but keep words', () => {
+                expect(callStripForTts('**fett** und *kursiv* und `code`')).toBe('fett und kursiv und code');
+            });
+
+            it('should remove horizontal rule line', () => {
+                const result = callStripForTts('Vor\n---\nNach');
+                expect(result).toBe('Vor\nNach');
+            });
+
+            it('should collapse consecutive empty lines and trim', () => {
+                const result = callStripForTts('  Hallo\n\n\nWelt  ');
+                expect(result).toBe('Hallo\nWelt');
+            });
+
+            it('should clean welcome message: emoji + bullets + colons', () => {
+                const welcome = '👋 Hallo! Ich kann helfen:\n\n• Mitarbeiter anlegen\n• Adressen prüfen\n\nVersuch: "Erstelle Max"';
+                const result = callStripForTts(welcome);
+                expect(result).not.toMatch(/\p{Extended_Pictographic}/u);
+                expect(result).not.toContain('•');
+                expect(result).toContain('Mitarbeiter anlegen');
+                expect(result).toContain('Adressen prüfen');
+            });
+
+            it('should return empty string for empty input', () => {
+                expect(callStripForTts('')).toBe('');
+            });
+
+            it('should return empty string for emoji-only input', () => {
+                expect(callStripForTts('👋')).toBe('');
+            });
+        });
+
         it('should handle Enter key press', () => {
             // Arrange
             vi.spyOn(component, 'sendMessage');

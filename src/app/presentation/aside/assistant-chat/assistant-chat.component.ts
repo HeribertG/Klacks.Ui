@@ -144,6 +144,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   isProcessing = false;
   conversationId = '';
   private currentStreamController: AbortController | null = null;
+  private currentRawStream = '';
+
+  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
+  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
+
+  private stripMetadataMarkers(text: string): string {
+    if (!text) return text;
+    return text
+      .replace(AssistantChatComponent.METADATA_MARKER_REGEX, '')
+      .replace(AssistantChatComponent.TRAILING_MARKER_REGEX, '')
+      .trimEnd();
+  }
 
   get voiceModeEnabled(): boolean {
     return this.orchestrator.voiceModeEnabled();
@@ -220,7 +232,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
-            content: msg.content,
+            content: this.stripMetadataMarkers(msg.content),
             timestamp: new Date(msg.timestamp),
           });
           this.shouldScrollToBottom = true;
@@ -235,7 +247,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
-            content: msg.content,
+            content: this.stripMetadataMarkers(msg.content),
             timestamp: new Date(msg.timestamp),
           });
           this.shouldScrollToBottom = true;
@@ -299,6 +311,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       respondedToUserMessage: messageText.trim(),
     };
     this.orchestrator.addMessage(assistantMessage);
+    this.currentRawStream = '';
     this.cdr.detectChanges();
 
     this.currentStreamController = this.assistantService.sendMessageStream(
@@ -313,20 +326,31 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         onContent: (text: string) => {
           this.ngZone.run(() => {
             const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
-            const nextContent = (current?.content ?? '') + text;
+            const previousClean = current?.content ?? '';
+            this.currentRawStream += text;
+            const nextContent = this.stripMetadataMarkers(this.currentRawStream);
             this.orchestrator.updateMessage(assistantMessageId, {
               content: nextContent,
               isStreaming: true,
             });
             this.shouldScrollToBottom = true;
             this.cdr.detectChanges();
-            this.orchestrator.onStreamContent(text);
+            const ttsDelta = nextContent.startsWith(previousClean)
+              ? nextContent.substring(previousClean.length)
+              : nextContent;
+            const ttsClean = this.stripForTts(ttsDelta);
+            if (ttsClean) {
+              this.orchestrator.onStreamContent(ttsClean);
+            }
           });
         },
         onMetadata: (data: StreamMetadata) => {
           this.ngZone.run(() => {
+            const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
+            const cleanedFinal = this.stripMetadataMarkers(current?.content ?? '');
             this.orchestrator.updateMessage(assistantMessageId, {
               isStreaming: false,
+              content: cleanedFinal,
               suggestions: data.suggestedReplies ? undefined : data.suggestions,
               suggestedReplies: data.suggestedReplies,
               navigateTo: data.navigateTo,
@@ -398,7 +422,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   speakMessage(message: ChatMessage): void {
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
     const locale = this.languageMappingService.getSpeechLocale(currentLang);
-    this.ttsService.speak(message.content, message.id, locale);
+    const cleaned = this.stripForTts(this.stripMetadataMarkers(message.content));
+    this.ttsService.speak(cleaned, message.id, locale);
   }
 
   onSuggestionClick(suggestion: string): void {
@@ -547,12 +572,97 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   formatMessage(content: string): string {
-    const escaped = this.escapeForHtml(content);
-    return escaped
-      .replace(/\n/g, '<br>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code>$1</code>');
+    const cleaned = this.stripMetadataMarkers(content);
+    const escaped = this.escapeForHtml(cleaned);
+
+    const blocks: string[] = [];
+    let textBuffer: string[] = [];
+    let inList = false;
+
+    const flushText = (): void => {
+      if (textBuffer.length > 0) {
+        blocks.push(textBuffer.join('<br>'));
+        textBuffer = [];
+      }
+    };
+    const closeList = (): void => {
+      if (inList) {
+        blocks.push('</ul>');
+        inList = false;
+      }
+    };
+
+    for (const line of escaped.split('\n')) {
+      const trimmed = line.trim();
+
+      if (/^-{3,}$/.test(trimmed)) {
+        flushText();
+        closeList();
+        blocks.push('<hr>');
+        continue;
+      }
+
+      const heading = /^(#{1,6})\s+(.+)$/.exec(trimmed);
+      if (heading) {
+        flushText();
+        closeList();
+        const level = Math.min(heading[1].length + 1, 6);
+        blocks.push(`<h${level}>${heading[2]}</h${level}>`);
+        continue;
+      }
+
+      const listItem = /^[-*]\s+(.+)$/.exec(trimmed);
+      if (listItem) {
+        flushText();
+        if (!inList) {
+          blocks.push('<ul>');
+          inList = true;
+        }
+        blocks.push(`<li>${listItem[1]}</li>`);
+        continue;
+      }
+
+      closeList();
+
+      if (trimmed === '') {
+        flushText();
+        if (blocks.length > 0 && blocks[blocks.length - 1] !== '<br>') {
+          blocks.push('<br>');
+        }
+        continue;
+      }
+
+      textBuffer.push(line);
+    }
+
+    flushText();
+    closeList();
+
+    return blocks.join('')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+  }
+
+  private static readonly EMOJI_REGEX = /\p{Extended_Pictographic}/gu;
+  private static readonly TTS_MARKDOWN_REGEX = /^[#>\-*]+\s*|[*_`]+/gm;
+  private static readonly TTS_BULLET_REGEX = /[•‒–—―‣◦▪▫▶◀●○■□]/g;
+
+  private stripForTts(text: string): string {
+    if (!text) return text;
+    const stripped = text
+      .replace(AssistantChatComponent.EMOJI_REGEX, '')
+      .replace(/^-{3,}\s*$/gm, '')
+      .replace(AssistantChatComponent.TTS_MARKDOWN_REGEX, '')
+      .replace(AssistantChatComponent.TTS_BULLET_REGEX, '')
+      .replace(/[ \t]+/g, ' ');
+
+    return stripped
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .join('\n')
+      .trim();
   }
 
   private escapeForHtml(text: string): string {
@@ -629,7 +739,7 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
       const assistantMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
-        content: response?.message || '',
+        content: this.stripMetadataMarkers(response?.message || ''),
         timestamp: new Date(),
         suggestions: suppressSuggestions ? undefined : (response?.suggestedReplies ? undefined : response?.suggestions),
         suggestedReplies: suppressSuggestions ? undefined : response?.suggestedReplies,
