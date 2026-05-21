@@ -14,7 +14,7 @@ import { lastValueFrom } from 'rxjs';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { Group } from 'src/app/domain/models/group/group-class';
-import { HolidayStatus, StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
