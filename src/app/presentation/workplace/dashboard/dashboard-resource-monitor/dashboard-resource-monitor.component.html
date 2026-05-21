@@ -1,9 +1,9 @@
-<div class="container-dashboard-card rm-card">
-  <div class="rm-header">
-    <h3 class="rm-title">{{ 'dashboard.resource-monitor.title' | translate }}</h3>
+<div class="container-dashboard-card">
+  <div class="container-dashboard-card-header">
+    <h3>{{ 'dashboard.resource-monitor.title' | translate }}</h3>
   </div>
 
-  <div class="standard-tabs-header">
+  <div class="standard-tabs-header rm-tab-bar">
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link"
@@ -52,7 +52,7 @@
 
   @if (activeTab() === 'chart') {
     @if (isLoading()) {
-      <div class="rm-loading">
+      <div class="container-dashboard-loading">
         <p>{{ 'dashboard.resource-monitor.loading' | translate }}</p>
       </div>
     } @else if (error()) {
@@ -60,38 +60,40 @@
         <p class="container-dashboard-error-message">{{ error() }}</p>
       </div>
     } @else {
-      <div class="rm-legend">
-        <span class="rm-legend-item">
-          <span class="rm-swatch rm-swatch--green"></span>
-          {{ 'dashboard.resource-monitor.services' | translate }}
-        </span>
-        <span class="rm-legend-item">
-          <span class="rm-swatch rm-swatch--gray"></span>
-          {{ 'dashboard.resource-monitor.absences' | translate }}
-        </span>
-        <span class="rm-legend-item">
-          <span class="rm-line rm-line--wunsch"></span>
-          {{ 'dashboard.resource-monitor.wunsch-readiness' | translate }}
-        </span>
-        <span class="rm-legend-item">
-          <span class="rm-line rm-line--max"></span>
-          {{ 'dashboard.resource-monitor.max-readiness' | translate }}
-        </span>
-        <span class="rm-legend-item">
-          <span class="rm-line rm-line--total"></span>
-          {{ 'dashboard.resource-monitor.total-employees' | translate }}
-        </span>
-      </div>
-      <div class="rm-chart-scroll">
-        <div class="rm-chart-inner" [style.width.%]="zoom()">
-          <app-stacked-bar-chart
-            [bottomBars]="dienstByDay()"
-            [topBars]="absenzByDay()"
-            [referenceLines]="referenceLines()"
-            [monthMarkers]="monthMarkers()"
-            [zoomPercent]="zoom()"
-            unit=" MA"
-          ></app-stacked-bar-chart>
+      <div class="container-dashboard-card-content rm-content">
+        <div class="rm-legend">
+          <span class="rm-legend-item">
+            <span class="rm-swatch rm-swatch--green"></span>
+            {{ 'dashboard.resource-monitor.services' | translate }}
+          </span>
+          <span class="rm-legend-item">
+            <span class="rm-swatch rm-swatch--gray"></span>
+            {{ 'dashboard.resource-monitor.absences' | translate }}
+          </span>
+          <span class="rm-legend-item">
+            <span class="rm-line rm-line--wunsch"></span>
+            {{ 'dashboard.resource-monitor.wunsch-readiness' | translate }}
+          </span>
+          <span class="rm-legend-item">
+            <span class="rm-line rm-line--max"></span>
+            {{ 'dashboard.resource-monitor.max-readiness' | translate }}
+          </span>
+          <span class="rm-legend-item">
+            <span class="rm-line rm-line--total"></span>
+            {{ 'dashboard.resource-monitor.total-employees' | translate }}
+          </span>
+        </div>
+        <div class="rm-chart-scroll">
+          <div class="rm-chart-inner" [style.width.%]="zoom()">
+            <app-stacked-bar-chart
+              [bottomBars]="dienstByDay()"
+              [topBars]="absenzByDay()"
+              [referenceLines]="referenceLines()"
+              [monthMarkers]="monthMarkers()"
+              [zoomPercent]="zoom()"
+              unit=" MA"
+            ></app-stacked-bar-chart>
+          </div>
         </div>
       </div>
     }

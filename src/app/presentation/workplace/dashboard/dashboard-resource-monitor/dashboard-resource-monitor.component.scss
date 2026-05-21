@@ -3,27 +3,23 @@
 @use "../../../../../assets/standard-styles/standard-slider.scss";
 @use "../../../../../assets/standard-styles/standard-manual.scss";
 @use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/standard-dashboard.scss";
 
 :host {
   display: block;
 }
 
-.rm-card {
-  width: 100%;
-  box-sizing: border-box;
+.rm-tab-bar {
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-.rm-header {
+.rm-controls-wrapper {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 14px 20px 8px;
-}
-
-.rm-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--colorHeadline);
+  padding-bottom: 0.5rem;
 }
 
 .rm-controls {
@@ -60,12 +56,18 @@
   }
 }
 
+.rm-content {
+  align-items: flex-start;
+  padding-top: 12px;
+}
+
 .rm-legend {
   display: flex;
   gap: 20px;
-  padding: 10px 20px 4px;
+  padding: 4px 0 8px;
   font-size: 12px;
   color: var(--colorLabel);
+  flex-wrap: wrap;
 }
 
 .rm-legend-item {
@@ -89,18 +91,13 @@
   width: 24px;
   height: 0;
 
-  &--dashed { border-top: 2px dashed #e74c3c; }
   &--wunsch { border-top: 2px dotted #e91e63; }
   &--max    { border-top: 2px dashed #e74c3c; }
   &--total  { border-top: 2px solid  #1976d2; }
 }
 
-.rm-chart {
-  padding: 8px 16px 16px;
-}
-
 .rm-chart-scroll {
-  padding: 8px 16px 16px;
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -117,17 +114,3 @@
   align-items: center;
   flex-shrink: 0;
 }
-
-.rm-loading {
-  padding: 40px;
-  text-align: center;
-  color: var(--colorSubHeadline);
-}
-
-.rm-controls-wrapper {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding-bottom: 0.5rem;
-}
-
