@@ -16,7 +16,6 @@
       [attr.x]="sd.x" [attr.y]="plotTop"
       [attr.width]="sd.w" [attr.height]="axisY - plotTop"
       [attr.fill]="sd.color"
-      [style.cursor]="sd.tooltip ? 'help' : 'default'"
       (mousemove)="onSpecialDayMouseMove($event, sd.tooltip)"
       (mouseleave)="onSpecialDayMouseLeave()"
     />
