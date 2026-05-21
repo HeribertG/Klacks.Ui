@@ -7,11 +7,11 @@
     <line
       [attr.x1]="axisX" [attr.y1]="tick.y"
       [attr.x2]="axisRight" [attr.y2]="tick.y"
-      stroke="#f0f0f0" stroke-width="1"
+      class="chart-grid-line" stroke-width="1"
     />
     <text
       [attr.x]="axisX - 4" [attr.y]="tick.y + 4"
-      text-anchor="end" font-size="10" fill="#aaa"
+      text-anchor="end" font-size="10" class="chart-axis-label"
     >{{ tick.label }}</text>
   }
 
@@ -19,7 +19,7 @@
     <line
       [attr.x1]="x" [attr.y1]="plotTop"
       [attr.x2]="x" [attr.y2]="axisY + 4"
-      stroke="#555" stroke-width="0.5"
+      class="chart-month-divider" stroke-width="0.5"
       stroke-dasharray="2,2"
       opacity="0.6"
     />
@@ -30,14 +30,14 @@
       <rect
         [attr.x]="bar.x" [attr.y]="bar.greenY"
         [attr.width]="barW" [attr.height]="bar.greenH"
-        fill="#4CAF50" opacity="0.85"
+        class="chart-bar-green" opacity="0.85"
       />
     }
     @if (bar.grayH > 0.5) {
       <rect
         [attr.x]="bar.x" [attr.y]="bar.grayY"
         [attr.width]="barW" [attr.height]="bar.grayH"
-        fill="#9E9E9E" opacity="0.75"
+        class="chart-bar-gray" opacity="0.75"
       />
     }
   }
@@ -58,13 +58,13 @@
   <line
     [attr.x1]="axisX" [attr.y1]="axisY"
     [attr.x2]="axisRight" [attr.y2]="axisY"
-    stroke="#ddd" stroke-width="1"
+    class="chart-axis-line" stroke-width="1"
   />
 
   @for (m of monthLabelPositions; track m.label) {
     <text
       [attr.x]="m.x + 2" [attr.y]="axisY + 16"
-      text-anchor="start" font-size="10" fill="#888"
+      text-anchor="start" font-size="10" class="chart-axis-label"
     >{{ m.label }}</text>
   }
 </svg>

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 @use "../../../../../assets/standard-styles/standard-slider.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
 
 :host {
   display: block;
@@ -21,7 +23,7 @@
   font-size: 15px;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: var(--colorHeadline);
 }
 
 .rm-controls {
@@ -63,7 +65,7 @@
   gap: 20px;
   padding: 10px 20px 4px;
   font-size: 12px;
-  color: #555;
+  color: var(--colorLabel);
 }
 
 .rm-legend-item {
@@ -119,54 +121,13 @@
 .rm-loading {
   padding: 40px;
   text-align: center;
-  color: #999;
+  color: var(--colorSubHeadline);
 }
 
-.rm-tab-bar {
+.rm-controls-wrapper {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid #e8e8e8;
-  gap: 16px;
+  padding-bottom: 0.5rem;
 }
 
-.rm-tabs {
-  margin: 0;
-  border-bottom: none;
-  flex: 0 0 auto;
-
-  .nav-link {
-    cursor: pointer;
-    color: #666;
-    font-size: 13px;
-    padding: 8px 16px;
-
-    &.active {
-      color: #333;
-      font-weight: 600;
-    }
-  }
-}
-
-.rm-manual {
-  padding: 16px 24px 24px;
-  font-size: 13px;
-  line-height: 1.55;
-  color: #444;
-  max-height: 480px;
-  overflow-y: auto;
-
-  h2 { font-size: 16px; margin: 0 0 12px; }
-  h3 { font-size: 14px; margin: 18px 0 8px; }
-  h4 { font-size: 13px; margin: 12px 0 6px; color: #222; }
-  p  { margin: 0 0 8px; }
-  ul { margin: 0 0 8px; padding-inline-start: 20px; }
-  li { margin-bottom: 4px; }
-  code {
-    background: #f3f3f3;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 12px;
-  }
-}

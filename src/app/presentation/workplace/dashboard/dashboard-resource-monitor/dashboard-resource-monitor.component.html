@@ -3,8 +3,8 @@
     <h3 class="rm-title">{{ 'dashboard.resource-monitor.title' | translate }}</h3>
   </div>
 
-  <div class="rm-tab-bar">
-    <ul class="nav nav-tabs rm-tabs">
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link"
            [ngClass]="{ active: activeTab() === 'chart' }"
@@ -26,25 +26,27 @@
         >{{ 'dashboard.resource-monitor.tab-manual' | translate }}</a>
       </li>
     </ul>
-    <div class="rm-controls">
-      <div class="custom-slider" placement="bottom" ngbTooltip="Zoom" autoClose="true">
-        <ngx-slider
-          [value]="zoom()"
-          (valueChange)="zoom.set($event)"
-          [options]="zoomOptions"
-        ></ngx-slider>
+    <div class="rm-controls-wrapper">
+      <div class="rm-controls">
+        <div class="custom-slider" placement="bottom" ngbTooltip="Zoom" autoClose="true">
+          <ngx-slider
+            [value]="zoom()"
+            (valueChange)="zoom.set($event)"
+            [options]="zoomOptions"
+          ></ngx-slider>
+        </div>
+        <app-counter
+          [maxNumber]="maxYear()"
+          [currentNumber]="selectedYear()"
+          (isChanged)="onYearChanged($event)"
+        ></app-counter>
+        <app-group-select
+          [useGlobalSelection]="false"
+          [showAllGroupsOption]="true"
+          [hasOptionButton]="false"
+          (groupSelected)="onGroupSelected($event)"
+        ></app-group-select>
       </div>
-      <app-counter
-        [maxNumber]="maxYear()"
-        [currentNumber]="selectedYear()"
-        (isChanged)="onYearChanged($event)"
-      ></app-counter>
-      <app-group-select
-        [useGlobalSelection]="false"
-        [showAllGroupsOption]="true"
-        [hasOptionButton]="false"
-        (groupSelected)="onGroupSelected($event)"
-      ></app-group-select>
     </div>
   </div>
 
@@ -94,6 +96,6 @@
       </div>
     }
   } @else {
-    <div class="rm-manual" [innerHTML]="manualContent()"></div>
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
   }
 </div>

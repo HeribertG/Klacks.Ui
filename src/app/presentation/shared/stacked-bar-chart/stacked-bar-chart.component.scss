@@ -3,3 +3,27 @@
 :host {
   display: block;
 }
+
+.chart-axis-label {
+  fill: var(--colorLabel);
+}
+
+.chart-grid-line {
+  stroke: var(--gridColorLine);
+}
+
+.chart-axis-line {
+  stroke: var(--cardBorderColor);
+}
+
+.chart-month-divider {
+  stroke: var(--colorLabel);
+}
+
+.chart-bar-green {
+  fill: #4CAF50;
+}
+
+.chart-bar-gray {
+  fill: #9E9E9E;
+}
