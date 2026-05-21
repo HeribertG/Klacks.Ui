@@ -10,12 +10,14 @@ import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { lastValueFrom } from 'rxjs';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
-import { DataCalendarRuleService } from 'src/app/infrastructure/api/calendar/data-calendar-rule.service';
+import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calendar/data-calendar-selection.service';
 import { Group } from 'src/app/domain/models/group/group-class';
-import { HolidaysListHelper, HolidayStatus } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { HolidayStatus, StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IMonthMarker, IReferenceLine, ISpecialDay, SpecialDayType, StackedBarChartComponent } from 'src/app/presentation/shared/stacked-bar-chart/stacked-bar-chart.component';
@@ -38,19 +40,17 @@ const LINE_STROKE_WIDTH = 1.5;
   styleUrls: ['./dashboard-resource-monitor.component.scss'],
   standalone: true,
   imports: [TranslateModule, NgClass, NgxSliderModule, NgbTooltipModule, CounterComponent, GroupSelectComponent, StackedBarChartComponent],
+  providers: [HolidayCollectionService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardResourceMonitorComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);
-  private dataCalendarRuleService = inject(DataCalendarRuleService);
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private appSettings = inject(AppSettingsManagementService);
   private gridColorService = inject(GridColorService);
+  private holidayCollection = inject(HolidayCollectionService);
   private manualLoader = inject(ManualLoaderService);
   private translate = inject(TranslateService);
-
-  private readonly holidaysHelper = new HolidaysListHelper();
-  private readonly holidaysVersion = signal(0);
-  private calendarRulesLoaded = false;
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
@@ -79,24 +79,9 @@ export class DashboardResourceMonitorComponent implements OnInit {
   referenceLines = computed<IReferenceLine[]>(() => {
     const data = this.dailyData();
     return [
-      {
-        values: data.map(d => d.wunschCount),
-        color: WUNSCH_COLOR,
-        dashArray: WUNSCH_DASH,
-        strokeWidth: LINE_STROKE_WIDTH,
-      },
-      {
-        values: data.map(d => d.maxCount),
-        color: MAX_COLOR,
-        dashArray: MAX_DASH,
-        strokeWidth: LINE_STROKE_WIDTH,
-      },
-      {
-        values: data.map(d => d.totalCount),
-        color: TOTAL_COLOR,
-        dashArray: TOTAL_DASH,
-        strokeWidth: LINE_STROKE_WIDTH,
-      },
+      { values: data.map(d => d.wunschCount), color: WUNSCH_COLOR, dashArray: WUNSCH_DASH, strokeWidth: LINE_STROKE_WIDTH },
+      { values: data.map(d => d.maxCount), color: MAX_COLOR, dashArray: MAX_DASH, strokeWidth: LINE_STROKE_WIDTH },
+      { values: data.map(d => d.totalCount), color: TOTAL_COLOR, dashArray: TOTAL_DASH, strokeWidth: LINE_STROKE_WIDTH },
     ];
   });
 
@@ -106,7 +91,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   });
 
   specialDays = computed<ISpecialDay[]>(() => {
-    this.holidaysVersion();
+    this.holidayCollection.isReset();
     this.gridColorService.isReset();
     const satColor = this.gridColorService.backGroundColorSaturday;
     const sunColor = this.gridColorService.backGroundColorSunday;
@@ -118,7 +103,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
       const result: ISpecialDay[] = [];
       if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
       else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
-      if (this.holidaysHelper.isHoliday(date) !== HolidayStatus.NotAHoliday) {
+      if (this.holidayCollection.holidays.isHoliday(date) !== HolidayStatus.NotAHoliday) {
         result.push({ index: i, type: 'holiday' as SpecialDayType, color: holColor });
       }
       return result;
@@ -145,7 +130,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   ngOnInit(): void {
     this.loadData();
     this.loadManual();
-    this.loadHolidays();
+    void this.loadHolidays();
     this.translate.onLangChange.subscribe(() => this.loadManual());
   }
 
@@ -169,35 +154,35 @@ export class DashboardResourceMonitorComponent implements OnInit {
     });
   }
 
+  private async loadHolidays(): Promise<void> {
+    await this.holidayCollection.readDataAsync();
+    this.holidayCollection.currentYear = this.selectedYear();
+
+    const selectionId = this.appSettings.contactSettings().globalCalendarSelectionId;
+    if (!selectionId) return;
+
+    try {
+      const selection = await lastValueFrom(
+        this.dataCalendarSelectionService.getCalendarSelection(selectionId)
+      );
+      if (!selection?.selectedCalendars?.length) return;
+
+      const tokens = selection.selectedCalendars.map(sc => {
+        const token = new StateCountryToken();
+        token.country = sc.country;
+        token.state = sc.state;
+        return token;
+      });
+      this.holidayCollection.setSelection(tokens);
+    } catch {
+      // holiday loading is non-critical
+    }
+  }
+
   onYearChanged(year: number): void {
     this.selectedYear.set(year);
     this.loadData();
-    this.recomputeHolidays();
-  }
-
-  private loadHolidays(): void {
-    if (this.calendarRulesLoaded) {
-      this.recomputeHolidays();
-      return;
-    }
-    const contact = this.appSettings.contactSettings();
-    const country = contact.globalCalendarCountry || contact.country;
-    const state = contact.globalCalendarState || contact.state;
-    this.dataCalendarRuleService.readCalendarRuleList().subscribe(rules => {
-      this.calendarRulesLoaded = true;
-      this.holidaysHelper.clear();
-      const filtered = rules.filter(r =>
-        r.country === country && (!r.state || r.state === state)
-      );
-      this.holidaysHelper.addRange(filtered);
-      this.recomputeHolidays();
-    });
-  }
-
-  private recomputeHolidays(): void {
-    this.holidaysHelper.currentYear = this.selectedYear();
-    this.holidaysHelper.computeHolidays();
-    this.holidaysVersion.update(v => v + 1);
+    this.holidayCollection.currentYear = year;
   }
 
   onGroupSelected(group: Group | null): void {
