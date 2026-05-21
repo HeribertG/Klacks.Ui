@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 // Version: 1.0.1-deploy-test
-import { Component, OnInit, computed, effect, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit, computed, effect, inject, DestroyRef } from '@angular/core';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { DirectionService } from 'src/app/application/services/direction.service';
@@ -40,7 +42,10 @@ export class AppComponent implements OnInit {
   private readonly signalRService = inject(SignalRService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
+
+  private readonly publicRoutes = ['/login', '/error'];
 
   readonly showVoiceShell = computed<boolean>(() =>
     this.asideService.isVisible() &&
@@ -60,6 +65,15 @@ export class AppComponent implements OnInit {
     if (this.authService.authenticated()) {
       void this.signalRService.startConnection();
     }
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((e) => {
+      const url = (e as NavigationEnd).urlAfterRedirects;
+      if (this.publicRoutes.some(r => url.startsWith(r))) {
+        this.asideService.hide();
+      }
+    });
   }
 
   private handleSignalRAuthFailure(): void {
