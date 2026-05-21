@@ -52,8 +52,6 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private readonly holidaysVersion = signal(0);
   private calendarRulesLoaded = false;
 
-  private static readonly SPECIAL_DAY_OPACITY = 0.35;
-
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
   isLoading = signal(true);
@@ -102,22 +100,26 @@ export class DashboardResourceMonitorComponent implements OnInit {
     ];
   });
 
+  plotBackground = computed<string>(() => {
+    this.gridColorService.isReset();
+    return this.gridColorService.backGroundColor;
+  });
+
   specialDays = computed<ISpecialDay[]>(() => {
     this.holidaysVersion();
     this.gridColorService.isReset();
     const satColor = this.gridColorService.backGroundColorSaturday;
     const sunColor = this.gridColorService.backGroundColorSunday;
     const holColor = this.gridColorService.backGroundColorOfficiallyHoliday;
-    const opacity = DashboardResourceMonitorComponent.SPECIAL_DAY_OPACITY;
     return this.dailyData().flatMap((d, i) => {
       const [y, m, day] = d.date.split('-').map(Number);
       const date = new Date(y, m - 1, day);
       const dow = date.getDay();
       const result: ISpecialDay[] = [];
-      if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor, opacity });
-      else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor, opacity });
+      if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
+      else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
       if (this.holidaysHelper.isHoliday(date) !== HolidayStatus.NotAHoliday) {
-        result.push({ index: i, type: 'holiday' as SpecialDayType, color: holColor, opacity });
+        result.push({ index: i, type: 'holiday' as SpecialDayType, color: holColor });
       }
       return result;
     });

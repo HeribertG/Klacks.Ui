@@ -3,12 +3,19 @@
   preserveAspectRatio="xMidYMid meet"
   style="width:100%;display:block;"
 >
+  @if (plotBackground) {
+    <rect
+      [attr.x]="axisX" [attr.y]="plotTop"
+      [attr.width]="axisRight - axisX" [attr.height]="axisY - plotTop"
+      [attr.fill]="plotBackground"
+    />
+  }
+
   @for (sd of specialDayRects; track $index) {
     <rect
       [attr.x]="sd.x" [attr.y]="plotTop"
       [attr.width]="sd.w" [attr.height]="axisY - plotTop"
       [attr.fill]="sd.color"
-      [attr.fill-opacity]="sd.opacity"
     />
   }
 

@@ -47,7 +47,6 @@ export interface ISpecialDay {
   index: number;
   type: SpecialDayType;
   color: string;
-  opacity: number;
 }
 
 export interface IMonthMarker {
@@ -82,6 +81,7 @@ export class StackedBarChartComponent {
   @Input() referenceLines: IReferenceLine[] = [];
   @Input() monthMarkers: IMonthMarker[] = [];
   @Input() specialDays: ISpecialDay[] = [];
+  @Input() plotBackground = '';
   @Input() unit = 'h';
   @Input() zoomPercent = MIN_ZOOM;
 
@@ -202,13 +202,12 @@ export class StackedBarChartComponent {
       .map(m => PAD_L + m.index * colW);
   }
 
-  get specialDayRects(): { x: number; w: number; color: string; opacity: number }[] {
+  get specialDayRects(): { x: number; w: number; color: string }[] {
     const colW = this.colW;
     return this.specialDays.map(sd => ({
       x: PAD_L + sd.index * colW,
       w: colW,
       color: sd.color,
-      opacity: sd.opacity,
     }));
   }
 }
