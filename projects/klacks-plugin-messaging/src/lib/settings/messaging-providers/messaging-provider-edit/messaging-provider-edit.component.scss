@@ -46,6 +46,25 @@
   margin-bottom: 12px;
 }
 
+.token-hint {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.token-loading {
+  color: var(--colorLabel);
+}
+
+.token-valid {
+  color: #2e7d32;
+}
+
+.token-invalid {
+  color: #c62828;
+}
+
 .readonly-field {
   background-color: var(--inputReadonlyBg, #f8f9fa);
   cursor: default;

@@ -7,7 +7,7 @@
  * @param saved - Emitted with the form data when the user clicks Save
  * @param cancelled - Emitted when the user clicks Cancel
  */
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
@@ -16,6 +16,8 @@ import { CreateMessagingProvider } from '../../../models/create-messaging-provid
 const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
 
 type ProviderConfigFields = Record<string, string>;
+
+type TokenValidationState = { state: 'idle' | 'loading' | 'invalid' } | { state: 'valid'; botName: string };
 
 const TELEGRAM_WEBHOOK_PATH = '/api/messaging/webhook/telegram';
 
@@ -75,6 +77,8 @@ const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string;
   ],
 };
 
+const TELEGRAM_API = 'https://api.telegram.org';
+
 @Component({
   selector: 'lib-messaging-provider-edit',
   standalone: true,
@@ -98,6 +102,7 @@ export class MessagingProviderEditComponent implements OnInit {
   configFields: ProviderConfigFields = {};
 
   readonly providerTypes = PROVIDER_TYPES;
+  readonly telegramValidation = signal<TokenValidationState>({ state: 'idle' });
 
   ngOnInit(): void {
     if (this.provider) {
@@ -108,6 +113,10 @@ export class MessagingProviderEditComponent implements OnInit {
     }
     this.initConfigFields();
     this.providerTypeChanged.emit(this.providerType);
+
+    if (this.providerType === 'Telegram' && this.configFields['BotToken']) {
+      void this.validateTelegramToken(this.configFields['BotToken']);
+    }
   }
 
   getFieldDefinitions(): typeof PROVIDER_FIELD_DEFINITIONS[string] {
@@ -116,12 +125,31 @@ export class MessagingProviderEditComponent implements OnInit {
 
   onProviderTypeChange(): void {
     this.configFields = {};
+    this.telegramValidation.set({ state: 'idle' });
     this.initConfigFields();
     this.providerTypeChanged.emit(this.providerType);
   }
 
+  onFieldBlur(fieldKey: string): void {
+    if (this.providerType !== 'Telegram' || fieldKey !== 'BotToken') return;
+    const token = this.configFields['BotToken']?.trim();
+    if (!token) {
+      this.telegramValidation.set({ state: 'idle' });
+      return;
+    }
+    void this.validateTelegramToken(token);
+  }
+
+  onTokenInput(fieldKey: string): void {
+    if (this.providerType !== 'Telegram' || fieldKey !== 'BotToken') return;
+    const current = this.telegramValidation().state;
+    if (current === 'valid' || current === 'invalid') {
+      this.telegramValidation.set({ state: 'idle' });
+    }
+  }
+
   isFormValid(): boolean {
-    return !!(this.name && this.providerType);
+    return !!(this.name && this.providerType) && this.telegramValidation().state !== 'invalid';
   }
 
   onSave(): void {
@@ -139,6 +167,21 @@ export class MessagingProviderEditComponent implements OnInit {
 
   onCancel(): void {
     this.cancelled.emit();
+  }
+
+  private async validateTelegramToken(token: string): Promise<void> {
+    this.telegramValidation.set({ state: 'loading' });
+    try {
+      const response = await fetch(`${TELEGRAM_API}/bot${token}/getMe`);
+      const data = await response.json();
+      if (data.ok === true && data.result?.username) {
+        this.telegramValidation.set({ state: 'valid', botName: data.result.username });
+      } else {
+        this.telegramValidation.set({ state: 'invalid' });
+      }
+    } catch {
+      this.telegramValidation.set({ state: 'invalid' });
+    }
   }
 
   private initConfigFields(): void {

@@ -62,7 +62,22 @@
             [placeholder]="field.placeholder"
             [readonly]="field.readonly"
             autocomplete="off"
+            (blur)="onFieldBlur(field.key)"
+            (ngModelChange)="onTokenInput(field.key)"
           />
+          @if (providerType === 'Telegram' && field.key === 'BotToken') {
+            @switch (telegramValidation().state) {
+              @case ('loading') {
+                <span class="token-hint token-loading">Prüfe Token…</span>
+              }
+              @case ('valid') {
+                <span class="token-hint token-valid">&#10003; Bot: @{{ $any(telegramValidation()).botName }}</span>
+              }
+              @case ('invalid') {
+                <span class="token-hint token-invalid">&#10007; Ungültiger Token — vollständigen Token von BotFather kopieren</span>
+              }
+            }
+          }
         </div>
       </div>
     }
