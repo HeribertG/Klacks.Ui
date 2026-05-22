@@ -46,6 +46,12 @@
   margin-bottom: 12px;
 }
 
+.readonly-field {
+  background-color: var(--inputReadonlyBg, #f8f9fa);
+  cursor: default;
+  color: var(--colorLabel);
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;

@@ -58,7 +58,9 @@
             [(ngModel)]="configFields[field.key]"
             [name]="'config_' + field.key"
             class="form-control"
+            [class.readonly-field]="field.readonly"
             [placeholder]="field.placeholder"
+            [readonly]="field.readonly"
             autocomplete="off"
           />
         </div>

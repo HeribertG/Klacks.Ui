@@ -17,10 +17,12 @@ const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Vib
 
 type ProviderConfigFields = Record<string, string>;
 
-const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string }[]> = {
+const TELEGRAM_WEBHOOK_PATH = '/api/messaging/webhook/telegram';
+
+const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string }[]> = {
   Telegram: [
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11' },
-    { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: 'https://your-domain.com/api/messaging/webhook/telegram' },
+    { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: TELEGRAM_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${TELEGRAM_WEBHOOK_PATH}` },
   ],
   WhatsApp: [
     { key: 'AccessToken', labelDe: 'Access-Token', labelEn: 'Access Token', type: 'password', placeholder: 'EAABs...' },
@@ -142,8 +144,8 @@ export class MessagingProviderEditComponent implements OnInit {
   private initConfigFields(): void {
     const definitions = this.getFieldDefinitions();
     for (const def of definitions) {
-      if (!(def.key in this.configFields)) {
-        this.configFields[def.key] = '';
+      if (!(def.key in this.configFields) || this.configFields[def.key] === '') {
+        this.configFields[def.key] = def.autoFill ? def.autoFill() : '';
       }
     }
   }
