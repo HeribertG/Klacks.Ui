@@ -14,6 +14,7 @@
     @if (showButton) {
       <button
         type="button"
+        [id]="buttonId"
         class="btn btn-outline-secondary container-search-button input-group-text"
         [class.container-search-button-disabled]="disabled || buttonDisabled || isLoading"
         [disabled]="disabled || buttonDisabled || isLoading"

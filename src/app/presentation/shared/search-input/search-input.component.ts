@@ -71,6 +71,10 @@ export class SearchInputComponent implements OnDestroy {
     );
   }
 
+  get buttonId(): string | null {
+    return this.inputId ? `${this.inputId}-button` : null;
+  }
+
   onModelChange(next: string): void {
     this.value = next;
     if (this.debounceMs > 0) {
