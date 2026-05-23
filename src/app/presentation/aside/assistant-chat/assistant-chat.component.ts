@@ -147,6 +147,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   conversationId = '';
   private currentStreamController: AbortController | null = null;
   private currentRawStream = '';
+  private streamBuffer = '';
+  private streamRafHandle: number | null = null;
+  private streamPreviousClean = '';
 
   private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
   private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
@@ -268,9 +271,50 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   ngOnDestroy(): void {
+    if (this.streamRafHandle !== null) {
+      cancelAnimationFrame(this.streamRafHandle);
+      this.streamRafHandle = null;
+    }
     this.ttsService.stop();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private flushStreamBuffer(assistantMessageId: string): void {
+    this.streamRafHandle = null;
+    if (!this.streamBuffer) return;
+
+    const delta = this.streamBuffer;
+    this.streamBuffer = '';
+    this.currentRawStream += delta;
+    const nextContent = this.stripMetadataMarkers(this.currentRawStream);
+    const previousClean = this.streamPreviousClean;
+
+    this.orchestrator.updateMessage(assistantMessageId, {
+      content: nextContent,
+      isStreaming: true,
+    });
+    this.shouldScrollToBottom = true;
+
+    const ttsDelta = nextContent.length > previousClean.length && nextContent.startsWith(previousClean)
+      ? nextContent.substring(previousClean.length)
+      : nextContent;
+    this.streamPreviousClean = nextContent;
+
+    const ttsClean = this.stripForTts(ttsDelta);
+    if (ttsClean) {
+      this.orchestrator.onStreamContent(ttsClean);
+    }
+  }
+
+  private drainStreamBuffer(assistantMessageId: string): void {
+    if (this.streamRafHandle !== null) {
+      cancelAnimationFrame(this.streamRafHandle);
+      this.streamRafHandle = null;
+    }
+    if (this.streamBuffer) {
+      this.flushStreamBuffer(assistantMessageId);
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -315,6 +359,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     };
     this.orchestrator.addMessage(assistantMessage);
     this.currentRawStream = '';
+    this.streamBuffer = '';
+    this.streamPreviousClean = '';
+    if (this.streamRafHandle !== null) {
+      cancelAnimationFrame(this.streamRafHandle);
+      this.streamRafHandle = null;
+    }
     this.cdr.detectChanges();
 
     this.currentStreamController = this.assistantService.sendMessageStream(
@@ -327,28 +377,15 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
           }
         },
         onContent: (text: string) => {
-          this.ngZone.run(() => {
-            const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
-            const previousClean = current?.content ?? '';
-            this.currentRawStream += text;
-            const nextContent = this.stripMetadataMarkers(this.currentRawStream);
-            this.orchestrator.updateMessage(assistantMessageId, {
-              content: nextContent,
-              isStreaming: true,
-            });
-            this.shouldScrollToBottom = true;
-            this.cdr.detectChanges();
-            const ttsDelta = nextContent.startsWith(previousClean)
-              ? nextContent.substring(previousClean.length)
-              : nextContent;
-            const ttsClean = this.stripForTts(ttsDelta);
-            if (ttsClean) {
-              this.orchestrator.onStreamContent(ttsClean);
-            }
+          this.streamBuffer += text;
+          if (this.streamRafHandle !== null) return;
+          this.streamRafHandle = requestAnimationFrame(() => {
+            this.ngZone.run(() => this.flushStreamBuffer(assistantMessageId));
           });
         },
         onMetadata: (data: StreamMetadata) => {
           this.ngZone.run(() => {
+            this.drainStreamBuffer(assistantMessageId);
             const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
             const cleanedFinal = this.stripMetadataMarkers(current?.content ?? '');
             this.orchestrator.updateMessage(assistantMessageId, {
@@ -384,6 +421,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onDone: () => {
           this.ngZone.run(() => {
+            this.drainStreamBuffer(assistantMessageId);
             this.orchestrator.updateMessage(assistantMessageId, { isStreaming: false });
             this.isProcessing = false;
             this.currentStreamController = null;
@@ -393,6 +431,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onError: (message: string) => {
           this.ngZone.run(() => {
+            this.drainStreamBuffer(assistantMessageId);
             const current = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
             const existing = current?.content ?? '';
             const merged = existing ? `${existing}\n\n${message}` : message;
