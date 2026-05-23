@@ -18,7 +18,11 @@ export interface NavigationResult {
 export class KlacksyNavigationService {
   private readonly router = inject(Router);
   private readonly telemetry = inject(KlacksyTelemetryService);
-  private static readonly WAIT_MS = 3000;
+  // Worst-case wait until we conclude the target marker is missing. The
+  // MutationObserver resolves immediately the moment the element appears, so
+  // this timeout only fires when the target is genuinely absent. 1500 ms keeps
+  // the "target-not-found" feedback snappy without breaking slow lazy routes.
+  private static readonly WAIT_MS = 1500;
   private static readonly HIGHLIGHT_MS = 5000;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
