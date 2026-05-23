@@ -57,7 +57,7 @@ function readPageKeys(): KlacksyPageKeyEntry[] {
     throw new Error(`Page-keys source not found: ${PAGE_KEYS_FILE}`);
   }
   const source = readFileSync(PAGE_KEYS_FILE, 'utf8');
-  const arrayMatch = source.match(/KLACKSY_PAGE_KEYS\s*:\s*ReadonlyArray<[^>]+>\s*=\s*\[([\s\S]*?)\];/);
+  const arrayMatch = source.match(/KLACKSY_PAGE_KEYS\s*:\s*(?:ReadonlyArray<[^>]+>|readonly\s+\w+\[\])\s*=\s*\[([\s\S]*?)\];/);
   if (!arrayMatch) {
     throw new Error('Could not locate KLACKSY_PAGE_KEYS array literal in klacksy-page-keys.ts');
   }

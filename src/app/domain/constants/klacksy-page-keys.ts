@@ -35,7 +35,7 @@ export interface KlacksyPageKeyEntry {
   llmHint?: string;
 }
 
-export const KLACKSY_PAGE_KEYS: ReadonlyArray<KlacksyPageKeyEntry> = [
+export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'dashboard', route: '/workplace/dashboard', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'client-list', route: '/workplace/client', requiredPermission: 'CanViewClients', hasEntityParam: false, llmHint: 'employee overview' },
   { pageKey: 'new-employee', route: '/workplace/edit-address', requiredPermission: 'CanCreateClients', hasEntityParam: false, llmHint: 'create employee form' },
