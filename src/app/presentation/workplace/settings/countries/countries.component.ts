@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
 import { Country } from 'src/app/domain/models/client/client-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -14,6 +14,7 @@ import { CountriesHeaderComponent } from './countries-header/countries-header.co
 import { CountriesRowComponent } from './countries-row/countries-row.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-countries',
@@ -25,7 +26,8 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
     NgbModule,
     SpinnerModule,
     CountriesHeaderComponent,
-    CountriesRowComponent
+    CountriesRowComponent,
+    SearchInputComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -37,6 +39,18 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   message = DomainMessages.DELETE_ENTRY;
+
+  searchTerm = signal('');
+
+  filteredCountries = computed(() => {
+    const list = this.dataManagementSettingsService.countryStateService.countriesList();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return list;
+    return list.filter(c =>
+      (c.name?.de ?? '').toLowerCase().includes(term) ||
+      (c.name?.en ?? '').toLowerCase().includes(term)
+    );
+  });
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent

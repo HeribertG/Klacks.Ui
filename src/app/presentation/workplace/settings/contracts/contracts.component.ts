@@ -11,6 +11,7 @@ import {
   ViewChild,
   TemplateRef,
   signal,
+  computed,
   effect,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -139,6 +140,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     [PaymentInterval.Monthly]: 'settings.work.payment-monthly',
     [PaymentInterval.Individual]: 'settings.work.payment-individual',
   };
+
+  searchTerm = signal('');
+
+  filteredContracts = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.dataManagementContractService.contracts;
+    return this.dataManagementContractService.contracts.filter(c =>
+      (c.name ?? '').toLowerCase().includes(term)
+    );
+  });
 
   message = DomainMessages.DELETE_ENTRY;
 

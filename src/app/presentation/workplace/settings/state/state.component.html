@@ -1,19 +1,21 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div id="state-form">
-  <div id="state-header" class="container-header">
-    {{ 'setting.country.headline' | translate }}
+  <div id="state-header" class="search-header">
+    <app-search-input
+      class="search-header-input"
+      [placeholderKey]="'placeholder.search-name'"
+      (valueChange)="searchTerm.set($event)"
+    ></app-search-input>
   </div>
 
   <div id="state-line" class="container-line"></div>
 
-  @if (dataManagementSettingsService.countryStateService.statesList() &&
-  dataManagementSettingsService.countryStateService.statesList().length > 0) {
+  @if (filteredStates().length > 0) {
   <app-state-header id="state-table-header"> </app-state-header>
   }
   <div id="state-box" class="container-box" #containerBox>
-    @for (c of dataManagementSettingsService.countryStateService.statesList(); track c.id || $index;
-    let i = $index) { @if (c.isDirty !== 3) {
+    @for (c of filteredStates(); track c.id || $index; let i = $index) { @if (c.isDirty !== 3) {
     <app-state-row
       [id]="'state-row-' + i"
       [data]="c"

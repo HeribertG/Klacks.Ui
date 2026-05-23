@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,7 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 
 @Component({
   selector: 'app-state',
@@ -27,7 +28,8 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
     NgbModule,
     SpinnerModule,
     StateHeaderComponent,
-    StateRowComponent
+    StateRowComponent,
+    SearchInputComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,6 +41,18 @@ export class StateComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   message = DomainMessages.DELETE_ENTRY;
+
+  searchTerm = signal('');
+
+  filteredStates = computed(() => {
+    const list = this.dataManagementSettingsService.countryStateService.statesList();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return list;
+    return list.filter(s =>
+      (s.name?.de ?? '').toLowerCase().includes(term) ||
+      (s.name?.en ?? '').toLowerCase().includes(term)
+    );
+  });
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent
