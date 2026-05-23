@@ -11,6 +11,7 @@ import {
 } from '../../interfaces/assistant-function-definitions.interface';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';
 
 @Injectable()
 export class AssistantFunctionExecutionService {
@@ -33,41 +34,21 @@ export class AssistantFunctionExecutionService {
 
   private static readonly ALLOWED_ROUTE_PREFIX = '/workplace/';
 
-  private static readonly PAGE_ROUTES: Record<string, string> = {
-    'dashboard': '/workplace/dashboard',
-    'client-list': '/workplace/client',
-    'new-employee': '/workplace/edit-address',
-    'edit-employee': '/workplace/edit-address',
-    'schedule': '/workplace/schedule',
-    'absences': '/workplace/absence',
-    'client-availability': '/workplace/client-availability',
-    'settings': '/workplace/settings',
-    'group-list': '/workplace/group',
-    'new-group': '/workplace/edit-group',
-    'edit-group': '/workplace/edit-group',
-    'group-structure': '/workplace/group-structure',
-    'shift-list': '/workplace/shift',
-    'new-shift': '/workplace/new-shift',
-    'edit-shift': '/workplace/edit-shift',
-    'inbox': '/workplace/inbox',
-    'messaging': '/workplace/messaging',
-    'profile': '/workplace/profile',
-  };
-
   private executeNavigate(
     call: IAssistantFunctionCall
   ): Observable<IAssistantFunctionResult> {
     try {
       const page = ((call.arguments['page'] as string) || 'dashboard').toLowerCase();
       const entityId = call.arguments['entityId'] as string;
+      const pageEntry = KLACKSY_PAGE_KEYS_BY_KEY.get(page);
 
       let route =
         call.arguments['route'] as string ||
         call.arguments['Route'] as string ||
-        AssistantFunctionExecutionService.PAGE_ROUTES[page] ||
+        pageEntry?.route ||
         `/workplace/${page}`;
 
-      if (entityId) {
+      if (entityId && (pageEntry?.hasEntityParam ?? true)) {
         route += `/${entityId}`;
       }
 

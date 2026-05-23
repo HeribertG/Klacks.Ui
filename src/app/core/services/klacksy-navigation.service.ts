@@ -19,7 +19,7 @@ export class KlacksyNavigationService {
   private readonly router = inject(Router);
   private readonly telemetry = inject(KlacksyTelemetryService);
   private static readonly WAIT_MS = 3000;
-  private static readonly HIGHLIGHT_MS = 2000;
+  private static readonly HIGHLIGHT_MS = 5000;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
     await this.router.navigateByUrl(route);

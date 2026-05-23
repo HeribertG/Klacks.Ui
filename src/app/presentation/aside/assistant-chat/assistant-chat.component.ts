@@ -39,6 +39,7 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
+import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
@@ -94,6 +95,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private router = inject(Router);
+  private klacksyNavigation = inject(KlacksyNavigationService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
@@ -148,6 +150,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
   private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
+  private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
 
   private stripMetadataMarkers(text: string): string {
     if (!text) return text;
@@ -365,9 +368,15 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             if (data.functionCalls && data.functionCalls.length > 0) {
               this.chatFunctionExecution.executeFunctionCalls(data.functionCalls);
             } else if (data.navigateTo && data.actionPerformed && data.navigateTo.startsWith('/workplace/')) {
+              const navigateTo = data.navigateTo;
+              const target = data.target;
               setTimeout(() => {
-                this.router.navigate([data.navigateTo!]);
-              }, 2000);
+                if (target) {
+                  this.klacksyNavigation.navigateAndScroll(navigateTo, target);
+                } else {
+                  this.router.navigate([navigateTo]);
+                }
+              }, AssistantChatComponent.FAST_PATH_NAVIGATE_DELAY_MS);
             }
 
             this.cdr.detectChanges();

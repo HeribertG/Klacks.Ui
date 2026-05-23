@@ -26,6 +26,7 @@ export interface StreamMetadata {
   suggestions?: string[];
   suggestedReplies?: ISuggestedRepliesConfig;
   navigateTo?: string;
+  target?: string;
   actionPerformed?: boolean;
   functionCalls?: Record<string, unknown>[];
 }

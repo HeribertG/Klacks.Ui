@@ -94,7 +94,11 @@
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">
       @for (message of messages; track message.id) {
-      <div class="message-wrapper" [class]="message.sender">
+      <div
+        class="message-wrapper"
+        [class.user]="message.sender === 'user'"
+        [class.assistant]="message.sender === 'assistant'"
+      >
         <div class="message-avatar">
           @if (message.sender === 'user') {
           <app-icon-user></app-icon-user>
@@ -103,7 +107,11 @@
           }
         </div>
         <div class="message-content">
-          <div class="message-bubble" [class]="message.sender">
+          <div
+            class="message-bubble"
+            [class.user]="message.sender === 'user'"
+            [class.assistant]="message.sender === 'assistant'"
+          >
             <div
               class="message-text"
               [innerHTML]="formatMessage(message.content)"
