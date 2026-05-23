@@ -49,8 +49,7 @@ export class StateComponent implements AfterViewInit, OnDestroy {
     const term = this.searchTerm().toLowerCase();
     if (!term) return list;
     return list.filter(s =>
-      (s.name?.de ?? '').toLowerCase().includes(term) ||
-      (s.name?.en ?? '').toLowerCase().includes(term)
+      Object.values(s.name ?? {}).some(v => v?.toLowerCase().includes(term))
     );
   });
 

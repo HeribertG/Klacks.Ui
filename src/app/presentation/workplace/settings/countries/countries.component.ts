@@ -47,8 +47,7 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
     const term = this.searchTerm().toLowerCase();
     if (!term) return list;
     return list.filter(c =>
-      (c.name?.de ?? '').toLowerCase().includes(term) ||
-      (c.name?.en ?? '').toLowerCase().includes(term)
+      Object.values(c.name ?? {}).some(v => v?.toLowerCase().includes(term))
     );
   });
 
