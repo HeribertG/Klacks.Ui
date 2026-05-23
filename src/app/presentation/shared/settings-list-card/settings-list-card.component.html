@@ -1,8 +1,16 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div [id]="idPrefix + '-card'" class="settings-list-card">
-  <div class="container-header-row">
-    <div [id]="idPrefix + '-header'" class="container-header">{{ headline }}</div>
+<div [id]="idPrefix + '-card'" class="settings-list-card" [class.has-search-card]="showSearchInHeader">
+  <div class="container-header-row" [class.has-search]="showSearchInHeader">
+    @if (showSearchInHeader) {
+      <app-search-input
+          class="header-search-input"
+          [placeholderKey]="searchPlaceholderKey"
+          (valueChange)="headerSearchChange.emit($event)"
+      ></app-search-input>
+    } @else {
+      <div [id]="idPrefix + '-header'" class="container-header">{{ headline }}</div>
+    }
     <ng-content select="[headerAction]"></ng-content>
   </div>
   <div class="container-line"></div>

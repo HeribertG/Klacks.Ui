@@ -470,6 +470,7 @@
   "pagination.line": "Number of Lines: ",
   "pagination.sum": "Number of entries: ",
   "placeholder.search": "Enter name or ID number",
+  "placeholder.search-name": "Enter name",
   "label.search": "Search",
   "reset": "Reset",
   "save": "save",

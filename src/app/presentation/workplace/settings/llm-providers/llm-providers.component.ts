@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  computed,
   ChangeDetectorRef,
 } from '@angular/core';
 
@@ -69,7 +70,16 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  providers: IAssistantProvider[] = [];
+  providers = signal<IAssistantProvider[]>([]);
+  searchTerm = signal('');
+  filteredProviders = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.providers();
+    return this.providers().filter(p =>
+      (p.providerName ?? '').toLowerCase().includes(term) ||
+      (p.providerId ?? '').toLowerCase().includes(term)
+    );
+  });
   isLoading = this.providerService.isLoading;
   editingProvider: IAssistantProvider | null = null;
   private originalProvider: IAssistantProvider | null = null;
@@ -106,7 +116,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.providerService.getProviders()
       .pipe(takeUntil(this.destroy$))
       .subscribe(providers => {
-        this.providers = providers;
+        this.providers.set(providers);
         this.cdr.markForCheck();
       });
   }
@@ -219,8 +229,9 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onClickToggleEnable(index: number): Promise<void> {
-    if (index >= 0 && index < this.providers.length) {
-      const provider = this.providers[index];
+    const list = this.providers();
+    if (index >= 0 && index < list.length) {
+      const provider = list[index];
 
       if (provider && provider.id) {
         await this.providerService.toggleProviderStatus(

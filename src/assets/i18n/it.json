@@ -469,6 +469,7 @@
   "pagination.line": "Numero di Righe: ",
   "pagination.sum": "Numero di voci: ",
   "placeholder.search": "Inserisci nome o numero ID",
+  "placeholder.search-name": "Inserisci nome",
   "label.search": "Cerca",
   "reset": "Reset",
   "save": "salvare",

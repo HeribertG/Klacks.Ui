@@ -470,6 +470,7 @@
   "pagination.line": "Anzahl Zeilen: ",
   "pagination.sum": "Anzahl Einträge: ",
   "placeholder.search": "Name oder ID Nummer eingeben",
+  "placeholder.search-name": "Name eingeben",
   "label.search": "Suche",
   "reset": "Zurücksetzen",
   "save": "speichern",

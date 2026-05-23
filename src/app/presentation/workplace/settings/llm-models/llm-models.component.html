@@ -221,15 +221,18 @@
 </ng-template>
 
 <app-settings-list-card
-  [headline]="'settings.llm-models.title' | translate"
+  [headline]="''"
   [addLabel]="'settings.llm-models.add' | translate"
   idPrefix="llm-models"
   [showHeader]="true"
+  [showSearchInHeader]="true"
+  [searchPlaceholderKey]="'placeholder.search-name'"
+  (headerSearchChange)="searchTerm.set($event)"
   (addClick)="onClickAdd()"
 >
   <app-llm-models-header header id="llm-models-table-header"></app-llm-models-header>
   <div rows>
-    @for (model of models; track model.modelId || $index; let i = $index) {
+    @for (model of filteredModels(); track model.modelId || $index; let i = $index) {
       <app-llm-models-row
         [id]="'llm-models-row-' + i"
         [data]="model"

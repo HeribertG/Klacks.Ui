@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
   signal,
+  computed,
   ChangeDetectorRef,
 } from '@angular/core';
 
@@ -74,7 +75,18 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  models: IAssistantModel[] = [];
+  models = signal<IAssistantModel[]>([]);
+  searchTerm = signal('');
+  filteredModels = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.models();
+    return this.models().filter(m =>
+      (m.modelName ?? '').toLowerCase().includes(term) ||
+      (m.modelId ?? '').toLowerCase().includes(term) ||
+      (m.providerId ?? '').toLowerCase().includes(term) ||
+      (m.description ?? '').toLowerCase().includes(term)
+    );
+  });
   availableProviders: IAssistantProvider[] = [];
   isLoading = false;
   editingModel: IAssistantModel | null = null;
@@ -145,7 +157,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (models) => {
-          this.models = models;
+          this.models.set(models);
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -298,10 +310,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       await firstValueFrom(this.llmService.deleteModel(id));
 
-      const index = this.models.findIndex(m => m.id === id);
-      if (index !== -1) {
-        this.models.splice(index, 1);
-      }
+      this.models.update(m => m.filter(item => item.id !== id));
       this.cdr.markForCheck();
 
       this.toastService.showSuccess(
@@ -336,7 +345,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.llmService.createModel(this.editingModel)
         );
         if (createdModel) {
-          this.models.push(createdModel);
+          this.models.update(m => [...m, createdModel]);
           this.isNewModel = false;
           this.editingModel = createdModel;
           this.originalModel = createdModel;

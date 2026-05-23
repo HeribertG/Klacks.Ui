@@ -81,3 +81,17 @@
     color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
   }
 }
+
+.container-header-row.has-search {
+  padding-block: 18px;
+  padding-inline: 30px;
+  justify-content: center;
+}
+
+.has-search-card > .container-line {
+  margin-top: 0;
+}
+
+.header-search-input {
+  flex: 1;
+}

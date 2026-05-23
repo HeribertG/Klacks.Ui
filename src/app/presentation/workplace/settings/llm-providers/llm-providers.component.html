@@ -171,15 +171,17 @@
 </ng-template>
 
 <app-settings-list-card
-  [headline]="'settings.llm-providers.title' | translate"
   [addLabel]="'settings.llm-providers.add' | translate"
   [showHeader]="true"
+  [showSearchInHeader]="true"
+  [searchPlaceholderKey]="'placeholder.search-name'"
   idPrefix="llm-providers"
   (addClick)="onClickAdd()"
+  (headerSearchChange)="searchTerm.set($event)"
 >
   <app-llm-providers-header header id="llm-providers-table-header"></app-llm-providers-header>
   <div rows>
-    @for (provider of providers; track provider.providerId || $index; let i = $index) {
+    @for (provider of filteredProviders(); track provider.providerId || $index; let i = $index) {
       <app-llm-providers-row
         [id]="'llm-providers-row-' + i"
         [data]="provider"

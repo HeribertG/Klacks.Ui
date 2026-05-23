@@ -469,6 +469,7 @@
   "pagination.line": "Nombre de lignes : ",
   "pagination.sum": "Nombre d'entrées : ",
   "placeholder.search": "Entrez le nom ou le numéro d'identification",
+  "placeholder.search-name": "Entrer le nom",
   "label.search": "Rechercher",
   "reset": "Réinitialiser",
   "save": "enregistrer",
