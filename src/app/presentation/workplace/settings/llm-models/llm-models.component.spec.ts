@@ -245,7 +245,7 @@ describe('LLMModelsComponent', () => {
 
     describe('Delete Model', () => {
         beforeEach(() => {
-            component.models = [...mockModels];
+            component.models.set([...mockModels]);
         });
 
         it('should not delete if model has no id', () => {

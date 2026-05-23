@@ -205,7 +205,7 @@ describe('LLMProvidersComponent', () => {
 
     describe('Delete Provider', () => {
         beforeEach(() => {
-            component.providers = [...mockProviders];
+            component.providers.set([...mockProviders]);
             fixture.detectChanges();
         });
 
@@ -259,7 +259,7 @@ describe('LLMProvidersComponent', () => {
 
     describe('Toggle Provider Status', () => {
         beforeEach(() => {
-            component.providers = [...mockProviders];
+            component.providers.set([...mockProviders]);
         });
 
         it('should toggle provider status', async () => {
@@ -279,7 +279,7 @@ describe('LLMProvidersComponent', () => {
 
         it('should not toggle if provider has no ID', async () => {
             const providerWithoutId = { ...mockProviders[0], id: undefined } as any;
-            component.providers = [providerWithoutId];
+            component.providers.set([providerWithoutId]);
 
             await component.onClickToggleEnable(0);
 
