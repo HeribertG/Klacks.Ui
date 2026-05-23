@@ -140,8 +140,8 @@ describe('LLMProvidersComponent', () => {
             fixture.detectChanges();
 
             await new Promise(resolve => setTimeout(resolve, 50));
-            expect(component.providers.length).toBe(3);
-            expect(component.providers).toEqual(mockProviders);
+            expect(component.providers().length).toBe(3);
+            expect(component.providers()).toEqual(mockProviders);
         });
     });
 

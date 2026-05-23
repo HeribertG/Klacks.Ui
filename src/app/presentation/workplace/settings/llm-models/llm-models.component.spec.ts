@@ -150,8 +150,8 @@ describe('LLMModelsComponent', () => {
             fixture.detectChanges();
 
             expect(mockLLMService.getAvailableModels).toHaveBeenCalled();
-            expect(component.models.length).toBe(2);
-            expect(component.models).toEqual(mockModels);
+            expect(component.models().length).toBe(2);
+            expect(component.models()).toEqual(mockModels);
         });
 
         it('should load providers on init', () => {
@@ -186,7 +186,7 @@ describe('LLMModelsComponent', () => {
             fixture.detectChanges();
 
             expect(mockToastService.showError).toHaveBeenCalledWith('Translated text');
-            expect(component.models.length).toBe(0);
+            expect(component.models().length).toBe(0);
             expect(component.isLoading).toBe(false);
         });
 
