@@ -4,6 +4,7 @@ import { Injectable, inject } from '@angular/core';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   IEntitySearchStrategy,
   EntitySearchOptions,
@@ -21,7 +22,10 @@ import { ContainerTemplateSearchStrategy } from './strategies/container-template
 export class SearchStrategyService {
   private workplaceStateService = inject(WorkplaceStateService);
   private searchStateService = inject(SearchStateService);
+  private localStorageService = inject(LocalStorageService);
   private strategies = new Map<EntityName, IEntitySearchStrategy>();
+
+  private readonly SEARCH_RESTORE_KEY = 'klacks.search.restore-search';
 
   constructor() {
     const clientStrategy = inject(ClientSearchStrategy);
@@ -39,6 +43,11 @@ export class SearchStrategyService {
       shiftStrategy,
       containerTemplateStrategy,
     ]);
+
+    const stored = this.localStorageService.get(this.SEARCH_RESTORE_KEY);
+    if (stored) {
+      this.searchStateService.setRestoreSearch(stored);
+    }
   }
 
   private initializeStrategies(strategies: IEntitySearchStrategy[]): void {
@@ -53,6 +62,7 @@ export class SearchStrategyService {
     isIncludeClient = false
   ): void {
     this.searchStateService.setRestoreSearch(value);
+    this.localStorageService.set(this.SEARCH_RESTORE_KEY, value);
 
     const currentEntity =
       this.workplaceStateService.nameOfVisibleEntity() as EntityName;
@@ -71,6 +81,7 @@ export class SearchStrategyService {
 
   public resetFilter(): void {
     this.searchStateService.clearRestoreSearch();
+    this.localStorageService.remove(this.SEARCH_RESTORE_KEY);
     this.resetFilterWithoutSignalWrite();
   }
 
