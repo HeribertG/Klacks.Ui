@@ -343,6 +343,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     };
 
     this.orchestrator.addMessage(userMessage);
+    this.activeSuggestedReplies.set(null);
+    this.toastShowService.dismissInteractiveReplies();
     const messageText = this.inputText;
     this.inputText = '';
     this.isProcessing = true;
@@ -400,6 +402,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             if (data.suggestedReplies) {
               this.activeSuggestedReplies.set(data.suggestedReplies);
               this.showRepliesAsToast(data.suggestedReplies);
+            } else {
+              this.activeSuggestedReplies.set(null);
+              this.toastShowService.dismissInteractiveReplies();
             }
 
             if (data.functionCalls && data.functionCalls.length > 0) {
