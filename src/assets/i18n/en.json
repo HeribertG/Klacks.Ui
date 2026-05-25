@@ -1919,6 +1919,7 @@
   "assistant-chat.no-api-key.admin-link": "Go to Settings",
   "assistant-chat.whisper-loading": "Loading speech model...",
   "assistant-chat.transcribing": "Transcribing...",
+  "assistant-chat.replies.confirm": "Confirm",
   "autoWizard.tooltip": "AutoWizard - run plan + harmonizer + holistic harmonizer",
   "autoWizard.dropdown.tooltip": "AutoWizard menu",
   "autoWizard.menu.plan": "Plan",

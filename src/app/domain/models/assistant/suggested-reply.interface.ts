@@ -6,7 +6,7 @@ export interface ISuggestedReply {
 }
 
 export interface ISuggestedRepliesConfig {
-  selectionMode: 'single' | 'multi';
+  selectionMode: 'single' | 'multi' | 'date';
   prompt?: string;
   options: ISuggestedReply[];
 }

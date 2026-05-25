@@ -13,6 +13,8 @@ import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
 @Injectable()
@@ -20,6 +22,7 @@ export class ChatFunctionExecutionService {
   private functionExecutionService = inject(AssistantFunctionExecutionService);
   private uiActionEngine = inject(UiActionEngineService);
   private orchestrator = inject(ConversationOrchestratorService);
+  private eventBus = inject(EVENT_BUS_TOKEN);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
@@ -40,6 +43,11 @@ export class ChatFunctionExecutionService {
         uiActionCalls.push(call);
       } else if (this.NAVIGATION_FUNCTIONS.includes(functionName)) {
         navigationCalls.push(call);
+      }
+
+      const clientId = this.extractClientIdFromResult(call.Result || call.result);
+      if (clientId) {
+        this.eventBus.emit<SkillExecutedEvent>(DomainEventType.SKILL_EXECUTED, { skillName: functionName, clientId });
       }
     }
 
@@ -151,6 +159,20 @@ export class ChatFunctionExecutionService {
     try {
       const data = JSON.parse(dataMatch[1]);
       return data.Route || data.route || null;
+    } catch {
+      return null;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extractClientIdFromResult(result: any): string | null {
+    if (!result) return null;
+    const resultStr = typeof result === 'string' ? result : JSON.stringify(result);
+    const dataMatch = resultStr.match(/Data:\s*(\{.*\})/s);
+    if (!dataMatch) return null;
+    try {
+      const data = JSON.parse(dataMatch[1]);
+      return data.ClientId || data.clientId || null;
     } catch {
       return null;
     }

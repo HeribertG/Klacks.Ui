@@ -36,7 +36,7 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactiva
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
+import { DomainEventType, AddressValidationFailedEvent, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { AsideService } from 'src/app/presentation/aside/aside.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
@@ -101,6 +101,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     this.savebarService.setSavebarVisibility(true);
 
     this.subscribeToAddressValidation();
+    this.subscribeToSkillExecuted();
 
     combineLatest([
       this.activatedRoute.params,
@@ -147,6 +148,19 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       .subscribe((event) => {
         this.workplaceStateService.isDisabled = false;
         this.handleAddressValidationFailed(event);
+      });
+  }
+
+  private subscribeToSkillExecuted(): void {
+    this.eventBus.on<SkillExecutedEvent>(DomainEventType.SKILL_EXECUTED)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        const currentId = this.activatedRoute.snapshot.params['id'];
+        if (event.clientId && event.clientId === currentId
+          && !this.dataManagementClientService.areObjectsDirty()) {
+          this.dataManagementClientService.readClient(currentId);
+          this.cdr.markForCheck();
+        }
       });
   }
 

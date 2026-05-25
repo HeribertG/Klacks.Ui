@@ -54,4 +54,23 @@
     <fa-icon [icon]="faCheck"></fa-icon>
   </button>
   }
+
+  <!-- Date-picker: date input + confirm -->
+  @if (config().selectionMode === 'date') {
+  <input
+    type="date"
+    class="replies-date-input"
+    [value]="selectedDate()"
+    (input)="onDateInput($event)"
+    aria-label="{{ config().prompt || ('assistant-chat.replies.confirm' | translate) }}"
+  />
+  <button
+    type="button"
+    class="replies-confirm-btn replies-confirm-btn--date"
+    [disabled]="!selectedDate()"
+    (click)="onDateConfirm()"
+  >
+    {{ 'assistant-chat.replies.confirm' | translate }}
+  </button>
+  }
 </div>

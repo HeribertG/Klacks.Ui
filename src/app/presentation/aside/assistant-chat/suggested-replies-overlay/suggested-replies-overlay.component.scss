@@ -138,4 +138,27 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  &--date {
+    font-size: 13px;
+    padding: 7px 8px;
+  }
+}
+
+.replies-date-input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px 10px;
+  background: var(--backgroundColorFocus);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 6px;
+  color: var(--standartTextColor);
+  font-size: 13px;
+  cursor: pointer;
+
+  &:focus {
+    border-color: colors.$standartGreenColor;
+    box-shadow: 0 0 0 0.1rem rgba(colors.$standartGreenColor, 0.25);
+    outline: none;
+  }
 }

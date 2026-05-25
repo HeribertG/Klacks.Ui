@@ -38,6 +38,11 @@ export interface NavigationEvent {
   params?: Record<string, unknown>;
 }
 
+export interface SkillExecutedEvent {
+  skillName: string;
+  clientId?: string;
+}
+
 export interface AddressValidationNoLlmEvent {
   errorMessage: string;
 }

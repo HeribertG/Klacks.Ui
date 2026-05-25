@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Renders toast notifications including interactive reply toasts with single/multi-select options.
+ * Renders toast notifications including interactive reply toasts with single/multi-select and date-picker options.
  * @param toastService - Injected service providing the toast array
  */
 
@@ -82,7 +82,27 @@ import { IToast } from './toast.interface';
           [disabled]="getCheckedCount(toast.id) === 0"
           (click)="onMultiConfirm(toast)"
         >
-          Bestätigen
+          {{ 'assistant-chat.replies.confirm' | translate }}
+        </button>
+        }
+
+        @if (toast.interactive.repliesConfig.selectionMode === 'date') {
+        @if (toast.interactive.repliesConfig.prompt) {
+        <div class="reply-date-heading">{{ toast.interactive.repliesConfig.prompt }}</div>
+        }
+        <input
+          type="date"
+          class="form-control form-control-sm reply-date-input"
+          [value]="getDateValue(toast.id)"
+          (input)="onDateInput(toast.id, $event)"
+        />
+        <button
+          type="button"
+          class="reply-confirm-btn mt-2"
+          [disabled]="!getDateValue(toast.id)"
+          (click)="onDateConfirm(toast)"
+        >
+          {{ 'assistant-chat.replies.confirm' | translate }}
         </button>
         }
 
@@ -112,6 +132,7 @@ export class ToastsContainerComponent {
   toastService = inject(ToastService);
 
   private checkedState = signal<Map<string, Set<string>>>(new Map());
+  private dateState = signal<Map<string, string>>(new Map());
 
   calculateRows(text: string): number {
     if (!text || text.length === 0) return 1;
@@ -209,9 +230,29 @@ export class ToastsContainerComponent {
     this.toastService.remove(toast);
   }
 
+  onDateInput(toastId: string, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    const map = new Map(this.dateState());
+    map.set(toastId, value);
+    this.dateState.set(map);
+  }
+
+  getDateValue(toastId: string): string {
+    return this.dateState().get(toastId) ?? '';
+  }
+
+  onDateConfirm(toast: IToast): void {
+    const value = this.dateState().get(toast.id);
+    if (!value) return;
+    toast.interactive?.onSelected([value]);
+    this.cleanupDateState(toast.id);
+    this.toastService.remove(toast);
+  }
+
   onDismissInteractive(toast: IToast): void {
     toast.interactive?.onDismissed?.();
     this.cleanupCheckedState(toast.id);
+    this.cleanupDateState(toast.id);
     this.toastService.remove(toast);
   }
 
@@ -219,5 +260,11 @@ export class ToastsContainerComponent {
     const map = new Map(this.checkedState());
     map.delete(toastId);
     this.checkedState.set(map);
+  }
+
+  private cleanupDateState(toastId: string): void {
+    const map = new Map(this.dateState());
+    map.delete(toastId);
+    this.dateState.set(map);
   }
 }
