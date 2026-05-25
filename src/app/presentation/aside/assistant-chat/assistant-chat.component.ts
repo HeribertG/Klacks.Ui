@@ -83,6 +83,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 })
 export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  @ViewChild('chatInput') private chatInput!: ElementRef<HTMLTextAreaElement>;
 
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -432,6 +433,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
+            this.chatInput?.nativeElement?.focus();
           });
         },
         onError: (message: string) => {

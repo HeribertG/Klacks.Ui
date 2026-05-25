@@ -1,5 +1,12 @@
 @use "../../../../assets/standard-styles/colors" as colors;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .chat-container-integrated {
   width: 100%;
   height: 100%;
@@ -268,14 +275,13 @@
 }
 
 .messages-container {
-  flex: 1;
+  flex: 0 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px;
   background: var(--backgroundColorWorkplace);
   min-height: 0;
   max-height: calc(100vh - 280px);
-  height: 0;
   scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
@@ -656,8 +662,10 @@
   padding: 16px;
   background: var(--backgroundColorCard);
   border-top: 1px solid var(--cardBorderColor);
-  flex-shrink: 0;
+  flex: 1;
   min-height: 80px;
+  display: flex;
+  flex-direction: column;
 }
 
 .whisper-loading-indicator {
@@ -731,6 +739,7 @@
   padding: 8px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex: 1;
 
   &:focus-within {
     border-color: colors.$standartGreenColor;
@@ -864,13 +873,13 @@
 
 .input-field {
   flex: 1;
+  align-self: stretch;
   border: none;
   outline: none;
   background: none;
   resize: none;
   font-size: 14px;
   line-height: 1.4;
-  max-height: 80px;
   min-height: 40px;
   color: var(--standartTextColor);
 
