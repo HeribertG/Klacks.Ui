@@ -53,6 +53,7 @@ export class ScheduleEntryActionsService {
   ): void {
     if (!shiftId) return;
     if (!dataService.startDate) return;
+    if (dataService.isCellBeforeClientStart(row, column)) return;
 
     const clientIndex = dataService.rowGroupIndex[row];
     if (clientIndex === undefined) return;
@@ -85,6 +86,7 @@ export class ScheduleEntryActionsService {
   ): void {
     if (!absenceItemId) return;
     if (!dataService.startDate) return;
+    if (dataService.isCellBeforeClientStart(row, column)) return;
 
     const clientIndex = dataService.rowGroupIndex[row];
     if (clientIndex === undefined) return;

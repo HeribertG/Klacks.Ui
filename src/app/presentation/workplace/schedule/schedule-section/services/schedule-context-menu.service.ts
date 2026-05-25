@@ -103,7 +103,9 @@ export class ScheduleContextMenuService {
             context.column,
           );
 
-      const isLocked = entry ? (entry.lockLevel > 0 || entry.isGroupRestricted) : false;
+      const isLocked = entry
+        ? (entry.lockLevel > 0 || entry.isGroupRestricted || context.dataService.isCellBeforeClientStart(context.row, context.column))
+        : context.dataService.isCellBeforeClientStart(context.row, context.column);
 
       if (entry?.entryType === WorkScheduleEntryType.ScheduleNote || entry?.entryType === WorkScheduleEntryType.ScheduleCommand) {
         if (!isLocked) {
@@ -166,7 +168,7 @@ export class ScheduleContextMenuService {
         menuData.list.push(...MenuDataTemplate.divider());
         menuData.list.push(...MenuDataTemplate.showInShift());
       }
-    } else if (context.dataService.isColumnSealed(context.column)) {
+    } else if (context.dataService.isColumnSealed(context.column) || context.dataService.isCellBeforeClientStart(context.row, context.column)) {
       return menuData;
     } else {
       menuData.list.push(...MenuDataTemplate.paste());

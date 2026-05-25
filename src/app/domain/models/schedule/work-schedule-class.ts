@@ -88,6 +88,7 @@ export interface IWorkScheduleClient {
   type: number;
   neededRows: number;
   hasContract: boolean;
+  memberSince?: string | null;
 }
 
 export interface IWorkScheduleResponse {

@@ -41,6 +41,7 @@ export interface DropTargetInfo {
   clientId: string;
   date: Date;
   isEmpty: boolean;
+  isBeforeClientStart: boolean;
 }
 
 interface CellValueContext {
@@ -105,12 +106,14 @@ export class ScheduleDragDropService {
     }
 
     const isEmpty = !dataService.isCellActive(row, column);
+    const isBeforeClientStart = dataService.isCellBeforeClientStart(row, column);
 
     return {
       row,
       clientId: client.id,
       date,
       isEmpty,
+      isBeforeClientStart,
     };
   }
 

@@ -127,6 +127,10 @@ export class ScheduleDataService extends BaseDataService {
       this.applyAvailabilityHighlighting(cell, row, col, !entry);
     }
 
+    if (this.isCellBeforeClientStart(row, col)) {
+      cell.sealed = true;
+    }
+
     return cell;
   }
 
@@ -255,6 +259,10 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
 
+    if (this.isCellBeforeClientStart(row, col)) {
+      return false;
+    }
+
     const entry = this.getWorkScheduleEntryForCell(row, col);
     if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
       return false;
@@ -312,6 +320,19 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
     return this.dataManagementSchedule.sealedDates.has(formatDateOnly(date));
+  }
+
+  public isCellBeforeClientStart(row: number, col: number): boolean {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return false;
+
+    const memberSince = this.dataManagementSchedule.clients[clientIndex]?.memberSince;
+    if (!memberSince) return false;
+
+    const date = this.getDateForColumn(col);
+    if (!date) return false;
+
+    return formatDateOnly(date) < memberSince;
   }
 
   override getHeaderFontColor(column: number): string | null {
@@ -543,6 +564,7 @@ export class ScheduleDataService extends BaseDataService {
         const targetCol = startCol + colOffset;
 
         if (this.isColumnSealed(targetCol)) continue;
+        if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 
         const clientIndex = this.rowGroupIndex[targetRow];
@@ -619,6 +641,7 @@ export class ScheduleDataService extends BaseDataService {
         const targetCol = startCol + colOffset;
 
         if (this.isColumnSealed(targetCol)) continue;
+        if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 
         const clientIndex = this.rowGroupIndex[targetRow];

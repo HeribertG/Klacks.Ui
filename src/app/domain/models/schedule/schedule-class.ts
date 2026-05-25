@@ -68,6 +68,7 @@ export interface IClientWork {
   displayRows: number;
   works: Work[];
   hasContract: boolean;
+  memberSince?: string;
 }
 
 export class ClientWork implements IClientWork {
@@ -80,6 +81,7 @@ export class ClientWork implements IClientWork {
   maidenName = '';
   membership?: Membership;
   membershipId!: string;
+  memberSince?: string;
   name = '';
   secondName = '';
 

@@ -74,7 +74,7 @@ import { IShiftSchedule } from 'src/app/domain/models/schedule/shift-schedule-cl
 import { ScheduleContextMenuService } from './services/schedule-context-menu.service';
 import { ScheduleEntryActionsService } from './services/schedule-entry-actions.service';
 import { ScheduleDialogService } from './services/schedule-dialog.service';
-import { ScheduleDragDropService } from './services/schedule-drag-drop.service';
+import { DropTargetInfo, ScheduleDragDropService } from './services/schedule-drag-drop.service';
 import { ScheduleCellDropHandlerService } from './services/schedule-cell-drop-handler.service';
 import { ScheduleCellDropResult } from './services/schedule-cell-drag-drop.service';
 import {
@@ -417,7 +417,7 @@ export class ScheduleSectionComponent
   getDropTargetInfo(
     mouseY: number,
     column: number
-  ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
+  ): DropTargetInfo | null {
     const dataService = this.scheduleService;
     return this.facade.dragDrop.getDropTargetInfo(
       mouseY,

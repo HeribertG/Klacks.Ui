@@ -498,6 +498,7 @@ export class WorkScheduleLoaderService {
       displayRows: 2,
       works: [],
       hasContract: c.hasContract ?? false,
+      memberSince: c.memberSince ?? undefined,
     }));
   }
 

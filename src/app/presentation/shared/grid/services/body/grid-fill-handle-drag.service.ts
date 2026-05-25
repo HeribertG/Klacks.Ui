@@ -300,6 +300,10 @@ export class GridFillHandleDragService {
         continue;
       }
 
+      if (scheduleDataService.isCellBeforeClientStart(result.row, col)) {
+        continue;
+      }
+
       if (scheduleDataService.isCellActive(result.row, col)) {
         continue;
       }
@@ -355,6 +359,10 @@ export class GridFillHandleDragService {
       const date = scheduleDataService.getDateForColumn(col);
 
       if (scheduleDataService.isColumnSealed(col)) {
+        continue;
+      }
+
+      if (scheduleDataService.isCellBeforeClientStart(result.row, col)) {
         continue;
       }
 

@@ -150,7 +150,7 @@ export class ScheduleContainerComponent {
     }
 
     const isDifferentClient = dropInfo.clientId !== source.clientId;
-    const isValidMove = isDifferentClient && dropInfo.isEmpty;
+    const isValidMove = isDifferentClient && dropInfo.isEmpty && !dropInfo.isBeforeClientStart;
     this.cellDragService.setMoveTarget(dropInfo.row, dropInfo.clientId, isValidMove);
   }
 
@@ -172,7 +172,7 @@ export class ScheduleContainerComponent {
         this.shiftDragService.dragData()?.sourceColumn ?? 0
       );
       if (dropInfo) {
-        const isValid = this.viewModeService.isTimelineMode() ? true : dropInfo.isEmpty;
+        const isValid = (this.viewModeService.isTimelineMode() ? true : dropInfo.isEmpty) && !dropInfo.isBeforeClientStart;
         this.shiftDragService.setDropTarget(
           dropInfo.row,
           dropInfo.clientId,
