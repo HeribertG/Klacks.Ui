@@ -25,7 +25,6 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component ';
 import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
@@ -48,7 +47,6 @@ import { takeUntil } from 'rxjs/operators';
     TrashIconLightRedComponent,
     OtherGreyComponent,
     TranslateModule,
-    ButtonNewComponent,
     RichTextEditorComponent,
     ExpandableCardComponent,
   ],

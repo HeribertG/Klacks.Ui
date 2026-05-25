@@ -57,7 +57,6 @@ import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper'
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { DataMessagingInvitationService } from 'src/app/infrastructure/api/messaging/data-messaging-invitation.service';
-import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -77,7 +76,6 @@ import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-locati
     FontAwesomeModule,
     OtherGreyComponent,
     FallbackPipe,
-    ButtonNewComponent,
     ExpandableCardComponent,
     IconLocationPinComponent,
   ],
