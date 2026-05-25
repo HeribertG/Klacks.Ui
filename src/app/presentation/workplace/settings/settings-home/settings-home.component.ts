@@ -33,6 +33,7 @@ import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
 import { LlmSyncLogComponent } from '../llm-sync-log/llm-sync-log.component';
+import { KlacksyModelCheckComponent } from '../klacksy-model-check/klacksy-model-check.component';
 import { OpenrouteComponent } from '../openroute/openroute.component';
 import { DeeplComponent } from '../deepl/deepl.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
@@ -89,6 +90,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     LLMModelsComponent,
     LLMProvidersComponent,
     LlmSyncLogComponent,
+    KlacksyModelCheckComponent,
     OpenrouteComponent,
     DeeplComponent,
     WorkSettingComponent,

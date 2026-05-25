@@ -16,6 +16,7 @@ import {
   IGenerateProposalsResponse,
   IApproveProposalResponse,
   IRejectProposalResponse,
+  IKlacksyModelCheckResponse,
 } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
@@ -292,6 +293,22 @@ export class DataManagementAssistantService {
           message: 'settings.llm-models.error.set-default',
           code: 'LLMModelError',
           context: 'DataManagementAssistantService.setDefaultModel'
+        });
+        throw error;
+      })
+    );
+  }
+
+  optimizeForKlacksy(): Observable<IKlacksyModelCheckResponse> {
+    return this.dataAssistantService.optimizeForKlacksy().pipe(
+      tap(() => {
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: 'settings.klacksy-models.error.optimize',
+          code: 'LLMModelError',
+          context: 'DataManagementAssistantService.optimizeForKlacksy'
         });
         throw error;
       })

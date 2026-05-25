@@ -1,0 +1,134 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.klacksy-models.headline" | translate }}
+  </div>
+  <div class="container-line"></div>
+
+  <div class="settings-form">
+    <div class="intro">{{ "setting.klacksy-models.intro" | translate }}</div>
+
+    <div class="model-check-row">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        [disabled]="isRunning()"
+        (click)="onFindBestModels()"
+      >
+        @if (isRunning()) {
+          <span
+            class="spinner-border spinner-border-sm me-1"
+            role="status"
+          ></span>
+          {{ "setting.klacksy-models.running" | translate }}
+        } @else {
+          {{ "setting.klacksy-models.run" | translate }}
+        }
+      </button>
+      <span class="model-check-hint">{{
+        "setting.klacksy-models.hint" | translate
+      }}</span>
+    </div>
+
+    @if (error(); as err) {
+      <div class="alert alert-danger model-check-error">{{ err }}</div>
+    }
+
+    @if (results().length > 0) {
+      <div class="model-check-table-wrapper">
+        <table class="table table-sm model-check-table">
+          <thead>
+            <tr>
+              <th>{{ "setting.klacksy-models.col-model" | translate }}</th>
+              <th>{{ "setting.klacksy-models.col-provider" | translate }}</th>
+              <th>{{ "setting.klacksy-models.col-tool-calling" | translate }}</th>
+              <th class="text-end">
+                {{ "setting.klacksy-models.col-context" | translate }}
+              </th>
+              <th class="text-end">
+                {{ "setting.klacksy-models.col-cost" | translate }}
+              </th>
+              <th>{{ "setting.klacksy-models.col-state" | translate }}</th>
+              <th class="text-end">
+                {{ "setting.klacksy-models.col-action" | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of results(); track r.modelId) {
+              <tr
+                [class.table-success]="r.qualifies"
+                [class.table-warning]="!r.isHealthy"
+              >
+                <td>
+                  <strong>{{ r.displayName }}</strong>
+                  @if (isDefault(r.modelId)) {
+                    <span class="badge bg-primary ms-1">{{
+                      "setting.klacksy-models.default-badge" | translate
+                    }}</span>
+                  }
+                  <div class="model-check-id">{{ r.modelId }}</div>
+                </td>
+                <td>{{ r.providerId }}</td>
+                <td>
+                  @if (r.supportsToolCalling) {
+                    <span class="badge bg-success">{{
+                      "setting.klacksy-models.tool-calling-ok" | translate
+                    }}</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{
+                      "setting.klacksy-models.tool-calling-fail" | translate
+                    }}</span>
+                    @if (r.error) {
+                      <div class="model-check-error-detail">{{ r.error }}</div>
+                    }
+                  }
+                </td>
+                <td class="text-end model-check-num">
+                  {{ r.contextWindow | number }}
+                </td>
+                <td class="text-end model-check-num">
+                  @if (isModelFree(r)) {
+                    <span class="badge bg-info">{{
+                      "setting.klacksy-models.free" | translate
+                    }}</span>
+                  } @else {
+                    {{ r.costPerInputToken }}/{{ r.costPerOutputToken }}
+                  }
+                </td>
+                <td>
+                  @if (r.isEnabled) {
+                    <span class="badge bg-success">{{
+                      "setting.klacksy-models.state-enabled" | translate
+                    }}</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{
+                      "setting.klacksy-models.state-disabled" | translate
+                    }}</span>
+                  }
+                </td>
+                <td class="text-end">
+                  @if (r.qualifies) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      [disabled]="isDefault(r.modelId)"
+                      (click)="selectDefault(r.modelId)"
+                    >
+                      @if (isDefault(r.modelId)) {
+                        {{ "setting.klacksy-models.is-default" | translate }}
+                      } @else {
+                        {{ "setting.klacksy-models.set-default" | translate }}
+                      }
+                    </button>
+                  } @else {
+                    —
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

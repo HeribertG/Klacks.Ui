@@ -26,6 +26,27 @@ export interface ISpeechModelCheckResponse {
   models: ISpeechModelCheckDto[];
 }
 
+export interface IKlacksyModelCheckDto {
+  modelId: string;
+  displayName: string;
+  providerId: string;
+  isHealthy: boolean;
+  supportsToolCalling: boolean;
+  latencyMs: number;
+  contextWindow: number;
+  costPerInputToken: number;
+  costPerOutputToken: number;
+  qualifies: boolean;
+  isEnabled: boolean;
+  isDefault: boolean;
+  error: string | null;
+}
+
+export interface IKlacksyModelCheckResponse {
+  models: IKlacksyModelCheckDto[];
+  defaultModelId: string | null;
+}
+
 export interface IAssistantChatRequest {
   message: string;
   conversationId?: string;
@@ -132,6 +153,14 @@ export class DataAssistantService {
   checkSpeechModels(): Observable<ISpeechModelCheckResponse> {
     return this.httpClient.post<ISpeechModelCheckResponse>(
       `${this.baseUrl}models/check-speech`,
+      {},
+      { context: new HttpContext().set(SKIP_LOADING, true) },
+    );
+  }
+
+  optimizeForKlacksy(): Observable<IKlacksyModelCheckResponse> {
+    return this.httpClient.post<IKlacksyModelCheckResponse>(
+      `${this.baseUrl}models/optimize-for-klacksy`,
       {},
       { context: new HttpContext().set(SKIP_LOADING, true) },
     );
