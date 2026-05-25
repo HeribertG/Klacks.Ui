@@ -12,69 +12,63 @@
     </div>
 
     <div class="modal-body first-modal">
-      <div class="row-line-modal">
-        <div class="form-group">
-          <div class="form-group">
-            <label for="addressValidFrom">{{
-              "address.edit-address.address-persona.modal-address-typ.valid-date"
-                | translate
-            }}</label>
+      <div class="form-group">
+        <label for="addressValidFrom">{{
+          "address.edit-address.address-persona.modal-address-typ.valid-date"
+            | translate
+        }}</label>
 
-            <div class="input-group">
-              <input
-                id="addressValidFrom"
-                class="form-control"
-                name="addressValidFrom"
-                [ngModel]="addressValidFrom"
-                [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.valid-date' | translate"
-                (ngModelChange)="addressValidFrom = $event"
-                ngbDatepicker
-                #validFrom="ngbDatepicker"
-              />
+        <div class="input-group">
+          <input
+            id="addressValidFrom"
+            class="form-control"
+            name="addressValidFrom"
+            [ngModel]="addressValidFrom"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.valid-date' | translate"
+            (ngModelChange)="addressValidFrom = $event"
+            ngbDatepicker
+            #validFrom="ngbDatepicker"
+          />
 
-              <span
-                class="input-group-text"
-                style="width: 40px"
-                (click)="validFrom.toggle()"
-              >
-                <fa-icon
-                  [icon]="faCalendar"
-                  [style]="{ 'font-size': '16px', color: '#464e5f' }"
-                ></fa-icon>
-              </span>
-            </div>
-          </div>
+          <span
+            class="input-group-text"
+            style="width: 40px"
+            (click)="validFrom.toggle()"
+          >
+            <fa-icon
+              [icon]="faCalendar"
+              [style]="{ 'font-size': '16px', color: '#464e5f' }"
+            ></fa-icon>
+          </span>
         </div>
       </div>
 
       @if (dataManagementClientService.clientAttribute &&
       dataManagementClientService.clientAttribute.length > 1) {
-      <div class="row-line-modal">
-        <div class="form-group">
-          <label for="profile-gender">{{
-            "address.edit-address.address-persona.modal-address-typ.type"
-              | translate
-          }}</label>
-          <select
-            id="editClientType"
-            class="form-select"
-            [(ngModel)]="editClientType"
-            name="editClient.type"
-            [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.type' | translate"
+      <div class="form-group">
+        <label for="profile-gender">{{
+          "address.edit-address.address-persona.modal-address-typ.type"
+            | translate
+        }}</label>
+        <select
+          id="editClientType"
+          class="form-select"
+          [(ngModel)]="editClientType"
+          name="editClient.type"
+          [attr.aria-label]="'address.edit-address.address-persona.modal-address-typ.type' | translate"
+        >
+          @for (c of dataManagementClientService.clientAttribute; track
+          c.type) {
+          <option
+            [value]="c.type"
+            [selected]="
+              dataManagementClientService.editClient()?.type === c.type
+            "
           >
-            @for (c of dataManagementClientService.clientAttribute; track
-            c.type) {
-            <option
-              [value]="c.type"
-              [selected]="
-                dataManagementClientService.editClient()?.type === c.type
-              "
-            >
-              {{ c.name }}
-            </option>
-            }
-          </select>
-        </div>
+            {{ c.name }}
+          </option>
+          }
+        </select>
       </div>
       }
     </div>
@@ -107,62 +101,59 @@
       </div>
     </div>
     <div class="modal-body first-modal">
-      <div class="row-line">
-        <div class="form-group">
-          <label for="newAddressValidFrom">{{
-            "address.edit-address.address-persona.modal-new-address-typ.valid"
-              | translate
-          }}</label>
+      <div class="form-group">
+        <label for="newAddressValidFrom">{{
+          "address.edit-address.address-persona.modal-new-address-typ.valid"
+            | translate
+        }}</label>
 
-          <div class="input-group">
-            <input
-              id="newAddressValidFrom"
-              class="form-control"
-              name="newAddressValidFrom"
-              [ngModel]="newAddressValidFrom"
-              [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.valid' | translate"
-              (ngModelChange)="newAddressValidFrom = $event"
-              ngbDatepicker
-              #newAddressValidFrom1="ngbDatepicker"
-            />
+        <div class="input-group">
+          <input
+            id="newAddressValidFrom"
+            class="form-control"
+            name="newAddressValidFrom"
+            [ngModel]="newAddressValidFrom"
+            [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.valid' | translate"
+            (ngModelChange)="newAddressValidFrom = $event"
+            ngbDatepicker
+            #newAddressValidFrom1="ngbDatepicker"
+          />
 
-            <span
-              class="input-group-text"
-              (click)="newAddressValidFrom1.toggle()"
-            >
-              <fa-icon
-                [icon]="faCalendar"
-                [style]="{ 'font-size': '16px', color: '#464e5f' }"
-              ></fa-icon>
-            </span>
-          </div>
+          <span
+            class="input-group-text"
+            style="width: 40px"
+            (click)="newAddressValidFrom1.toggle()"
+          >
+            <fa-icon
+              [icon]="faCalendar"
+              [style]="{ 'font-size': '16px', color: '#464e5f' }"
+            ></fa-icon>
+          </span>
         </div>
       </div>
 
-      <div class="row-line-modal">
-        <div class="form-group">
-          <label for="profile-gender">{{
-            "address.edit-address.address-persona.modal-new-address-typ.type"
-              | translate
-          }}</label>
-          <select
-            id="newAddressType"
-            class="form-select"
-            [(ngModel)]="newAddressType"
-            name="newAddressType"
-            [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.type' | translate"
-          >
-            <option value="0" [selected]="newAddressType === 0">
-              {{ onAddressTypeName(0) }}
-            </option>
-            <option value="1" [selected]="newAddressType === 1">
-              {{ onAddressTypeName(1) }}
-            </option>
-            <option value="2" [selected]="newAddressType === 2">
-              {{ onAddressTypeName(2) }}
-            </option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label for="newAddressType">{{
+          "address.edit-address.address-persona.modal-new-address-typ.type"
+            | translate
+        }}</label>
+        <select
+          id="newAddressType"
+          class="form-select"
+          [(ngModel)]="newAddressType"
+          name="newAddressType"
+          [attr.aria-label]="'address.edit-address.address-persona.modal-new-address-typ.type' | translate"
+        >
+          <option value="0" [selected]="newAddressType === 0">
+            {{ onAddressTypeName(0) }}
+          </option>
+          <option value="1" [selected]="newAddressType === 1">
+            {{ onAddressTypeName(1) }}
+          </option>
+          <option value="2" [selected]="newAddressType === 2">
+            {{ onAddressTypeName(2) }}
+          </option>
+        </select>
       </div>
     </div>
   </form>
@@ -221,12 +212,6 @@
 
       @if (!isDisabled()) {
 
-      <app-button-new
-        id="new-address-button"
-        (click)="openNewAddress(newAddress)"
-        ngbTooltip="{{ newAddressString }}"
-      ></app-button-new>
-
       <button
         id="address-persona-options-button"
         class="btn dropdown-toggle ownStyle-button"
@@ -239,18 +224,14 @@
 
       <ul class="dropdown-menu dropdown-menu-lg-end">
         <li>
-          @if (dataManagementClientService.editClientDeleted() === false) {
-          <a id="change-address-type-link" class="dropdown-item" (click)="openAddressType(addressTypeModal)">
+          <a id="new-address-link" class="dropdown-item" (click)="openNewAddress(newAddress)">
             <div class="custom-control-inline" style="height: 25px">
-              <i class="far fa-address-book"></i>
+              <i class="fas fa-plus"></i>
               <p style="margin-inline-start: 10px; font-size: 13px">
-                {{
-                  "address.edit-address.address-persona.change-type" | translate
-                }}
+                {{ 'NEW_ADDRESS' | translate }}
               </p>
             </div>
           </a>
-          }
         </li>
 
         <li>

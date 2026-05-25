@@ -9,14 +9,6 @@
       @if (!isDisabled()) {
       <div>
         @if (dataManagementClientService.editClientDeleted() === false) {
-        <app-button-new
-          id="new-note-button"
-          placement="top"
-          (click)="newAnnotation()"
-          ngbTooltip="{{ note_new }}"
-        >
-        </app-button-new>
-        } @if (dataManagementClientService.editClientDeleted() === false) {
         <div
           id="note-options-button"
           class="btn dropdown-toggle ownStyle-button"
@@ -32,6 +24,18 @@
           class="dropdown-menu dropdown-menu-lg-end"
           aria-labelledby="dropdownMenuDel"
         >
+          <li>
+            @if (dataManagementClientService.editClientDeleted() === false) {
+            <a id="new-note-link" class="dropdown-item" (click)="newAnnotation()">
+              <div class="custom-control-inline" style="height: 25px">
+                <i class="fas fa-plus"></i>
+                <p style="margin-inline-start: 10px; font-size: 13px">
+                  {{ 'NOTE_NEW' | translate }}
+                </p>
+              </div>
+            </a>
+            }
+          </li>
           <li>
             @if (dataManagementClientService.editClient() !== undefined &&
             dataManagementClientService.currentAnnotationIndex() > -1) {

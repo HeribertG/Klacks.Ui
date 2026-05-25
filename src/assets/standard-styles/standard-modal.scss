@@ -93,6 +93,10 @@
     }
   }
 
+  .input-group > .form-control {
+    width: 1%;
+  }
+
   select.form-control {
     cursor: pointer;
   }
