@@ -2536,5 +2536,6 @@
   "nav.success.routed": "Ho aperto {{label}}.",
   "nav.fail.targetMissing": "Non trovo questa sezione su questa pagina — controlla se mancano i permessi.",
   "nav.fail.permissionDenied": "Non hai i permessi per quella sezione.",
+  "nav.ack.fastPath": "Apro la pagina per te.",
   "nav.greeting.empty": "Sì? Cosa posso fare per te?"
 }

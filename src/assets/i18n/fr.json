@@ -2536,5 +2536,6 @@
   "nav.success.routed": "J'ai ouvert {{label}}.",
   "nav.fail.targetMissing": "Je ne trouve pas cette section sur la page — vérifie si tu as les droits.",
   "nav.fail.permissionDenied": "Tu n'as pas les droits pour accéder à cette section.",
+  "nav.ack.fastPath": "J'ouvre la page pour toi.",
   "nav.greeting.empty": "Oui ? Qu'est-ce que je peux faire pour toi ?"
 }
