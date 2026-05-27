@@ -226,17 +226,6 @@
     </div>
   </div>
 
-  <!-- Suggested Replies Overlay -->
-  @if (activeSuggestedReplies()) {
-  <div class="suggested-replies-container">
-    <app-suggested-replies-overlay
-      [config]="activeSuggestedReplies()!"
-      (selected)="onReplySelected($event)"
-      (dismissed)="onRepliesDismissed()"
-    />
-  </div>
-  }
-
   <!-- Input Area -->
   <div class="input-container" [class.disabled]="isInitializing() || hasNoApiKey()">
     <!-- Whisper loading indicator -->

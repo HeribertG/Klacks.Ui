@@ -48,7 +48,6 @@ import { AssistantFunctionExecutionService } from 'src/app/domain/services/assis
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
-import { SuggestedRepliesOverlayComponent } from './suggested-replies-overlay/suggested-replies-overlay.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
@@ -71,7 +70,6 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
     TranslateModule,
     IconMMLComponent,
     IconUserComponent,
-    SuggestedRepliesOverlayComponent,
   ],
   templateUrl: './assistant-chat.component.html',
   styleUrls: ['./assistant-chat.component.scss'],
@@ -140,7 +138,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   faThumbsDown = faThumbsDown;
   faCheck = faCheck;
 
-  activeSuggestedReplies = signal<ISuggestedRepliesConfig | null>(null);
   correctionMenuMessageId = signal<string | null>(null);
 
   inputText = '';
@@ -344,7 +341,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     };
 
     this.orchestrator.addMessage(userMessage);
-    this.activeSuggestedReplies.set(null);
     this.toastShowService.dismissInteractiveReplies();
     const messageText = this.inputText;
     this.inputText = '';
@@ -401,10 +397,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             });
 
             if (data.suggestedReplies) {
-              this.activeSuggestedReplies.set(data.suggestedReplies);
               this.showRepliesAsToast(data.suggestedReplies);
             } else {
-              this.activeSuggestedReplies.set(null);
               this.toastShowService.dismissInteractiveReplies();
             }
 
@@ -486,34 +480,15 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.sendMessage();
   }
 
-  onReplySelected(values: string[]): void {
-    this.activeSuggestedReplies.set(null);
-    this.toastShowService.dismissInteractiveReplies();
-    if (values.length === 0) return;
-    this.inputText = values.join(', ');
-    this.sendMessage();
-  }
-
-  onRepliesDismissed(): void {
-    this.activeSuggestedReplies.set(null);
-    this.toastShowService.dismissInteractiveReplies();
-  }
-
   private showRepliesAsToast(config: ISuggestedRepliesConfig): void {
     this.toastShowService.dismissInteractiveReplies();
     this.toastShowService.showInteractiveReply(
       config,
       (values: string[]) => {
         this.ngZone.run(() => {
-          this.activeSuggestedReplies.set(null);
           if (values.length === 0) return;
           this.inputText = values.join(', ');
           this.sendMessage();
-        });
-      },
-      () => {
-        this.ngZone.run(() => {
-          this.activeSuggestedReplies.set(null);
         });
       },
     );
@@ -823,7 +798,6 @@ Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Reg
 
   clearChat(): void {
     this.orchestrator.clearMessages();
-    this.activeSuggestedReplies.set(null);
     this.toastShowService.dismissInteractiveReplies();
 
     this.assistantService.clearConversation(this.conversationId);
