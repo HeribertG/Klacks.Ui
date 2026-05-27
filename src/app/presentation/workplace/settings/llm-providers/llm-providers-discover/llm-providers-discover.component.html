@@ -1,0 +1,82 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div class="discover-browse">
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link"
+           [ngClass]="{ active: activeTab() === 'list' }"
+           (click)="setTab('list')"
+           (keydown.enter)="setTab('list')"
+           (keydown.space)="setTab('list')"
+           tabindex="0"
+           role="tab"
+        >{{ 'settings.llm-providers.discover.tab-list' | translate }}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           [ngClass]="{ active: activeTab() === 'manual' }"
+           (click)="setTab('manual')"
+           (keydown.enter)="setTab('manual')"
+           (keydown.space)="setTab('manual')"
+           tabindex="0"
+           role="tab"
+        >{{ 'settings.llm-providers.discover.tab-manual' | translate }}</a>
+      </li>
+    </ul>
+  </div>
+
+  @if (activeTab() === 'manual') {
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
+  } @else if (isLoading) {
+    <div class="text-center p-4">
+      <div class="spinner-border" role="status"></div>
+      <div class="mt-2 text-muted">{{ 'settings.llm-providers.discover.loading' | translate }}</div>
+    </div>
+  } @else if (candidates().length === 0) {
+    <div class="text-center p-4 text-muted">
+      {{ 'settings.llm-providers.discover.no-results' | translate }}
+    </div>
+  } @else {
+    <div class="discover-hint text-muted">
+      {{ 'settings.llm-providers.discover.hint' | translate }}
+    </div>
+    <div class="container-table">
+      <div class="table-header custom-control-inline">
+        <span class="col-select"></span>
+        <span class="col-name">{{ 'settings.llm-providers.provider-name' | translate }}</span>
+        <span class="col-url">{{ 'settings.llm-providers.base-url' | translate }}</span>
+        <span class="col-source">{{ 'settings.llm-providers.discover.source.label' | translate }}</span>
+        <span class="col-status">{{ 'settings.llm-providers.discover.status.label' | translate }}</span>
+      </div>
+      @for (candidate of candidates(); track candidate.providerId) {
+        <div
+          class="table-row custom-control-inline"
+          [class.not-selectable]="!isSelectable(candidate)"
+          (click)="onToggle(candidate)"
+        >
+          <span class="col-select table-cell">
+            <input
+              type="checkbox"
+              [id]="'discover-' + candidate.providerId"
+              [checked]="isSelected(candidate.providerId)"
+              [disabled]="!isSelectable(candidate)"
+              (click)="$event.stopPropagation()"
+              (change)="onToggle(candidate)"
+            />
+          </span>
+          <span class="col-name table-cell">{{ candidate.providerName }}</span>
+          <span class="col-url table-cell">{{ candidate.baseUrl }}</span>
+          <span class="col-source table-cell">
+            {{ sourceLabelKey(candidate.source) | translate }}
+          </span>
+          <span class="col-status table-cell">
+            <span class="status-badge" [class]="connectivityClass(candidate.connectivity)">
+              {{ connectivityLabelKey(candidate.connectivity) | translate }}
+            </span>
+          </span>
+        </div>
+      }
+    </div>
+  }
+</div>

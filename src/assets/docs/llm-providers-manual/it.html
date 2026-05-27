@@ -1,0 +1,70 @@
+<h2>Cerca provider LLM — Manuale</h2>
+
+<h3>A cosa serve questa funzione?</h3>
+<p>
+Questa vista ti propone provider LLM che non hai ancora nel tuo elenco e aggiunge quelli
+selezionati con un clic, così non devi inserire nome e URL di base a mano. Vengono proposti
+esclusivamente <strong>provider con API compatibili OpenAI</strong> — esattamente il tipo di
+servizio che usano anche i provider che hai già configurato.
+</p>
+
+<h3>Le colonne della tabella</h3>
+
+<h4>Nome provider</h4>
+<p>
+Il nome visualizzato del provider (es. «OpenRouter», «xAI (Grok)»).
+</p>
+
+<h4>URL di base</h4>
+<p>
+L'indirizzo dell'API usato per comunicare con il provider (es.
+<strong>https://api.x.ai/v1/</strong>). È proprio questo URL che verrà usato alla creazione.
+</p>
+
+<h4>Origine</h4>
+<p>
+Indica <strong>da dove</strong> proviene il suggerimento:
+</p>
+<ul>
+  <li>
+    <strong>Catalogo</strong> — da un elenco integrato e verificato di provider noti. Gli
+    URL di base sono verificati e quindi affidabili.
+  </li>
+  <li>
+    <strong>Web</strong> — trovato tramite ricerca su Internet e valutato automaticamente.
+    Queste voci compaiono solo se la ricerca web è configurata nelle impostazioni. Sono
+    utili, ma in caso di dubbio controlla l'URL di base.
+  </li>
+</ul>
+
+<h4>Raggiungibilità</h4>
+<p>
+Prima della visualizzazione ogni suggerimento viene testato in tempo reale (chiamata
+all'endpoint <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Raggiungibile</strong> — l'API risponde, il provider funziona.</li>
+  <li>
+    <strong>Raggiungibile (chiave necessaria)</strong> — l'API c'è ma richiede una chiave
+    API, quindi l'indirizzo è corretto.
+  </li>
+  <li>
+    <strong>Non raggiungibile</strong> — l'indirizzo non risponde. Queste voci non possono
+    essere selezionate.
+  </li>
+</ul>
+
+<h3>Aggiungere provider</h3>
+<p>
+Spunta uno o più provider e clicca in basso su <strong>«Aggiungi selezionati»</strong>. I
+provider scelti vengono creati <strong>disattivati e senza chiave API</strong>. I provider
+già presenti non vengono proposti.
+</p>
+
+<h3>Passaggi successivi dopo l'aggiunta</h3>
+<p>
+Un provider appena aggiunto non è ancora attivo. Aprilo nell'elenco, inserisci la
+<strong>chiave API</strong> e <strong>attivalo</strong>. Dopodiché funziona come gli altri
+tuoi provider. I singoli modelli di un provider si gestiscono sempre separatamente tramite
+la gestione dei modelli.
+</p>

@@ -1,0 +1,70 @@
+<h2>Search for LLM Providers — Manual</h2>
+
+<h3>What is this for?</h3>
+<p>
+This view suggests LLM providers you don't yet have in your list and adds the selected
+ones with a single click, so you don't have to type the name and base URL by hand. Only
+<strong>OpenAI-compatible API providers</strong> are suggested — exactly the kind of
+service your already configured providers use too.
+</p>
+
+<h3>The table columns</h3>
+
+<h4>Provider Name</h4>
+<p>
+The display name of the provider (e.g. "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>Base URL</h4>
+<p>
+The API address used to talk to the provider (e.g. <strong>https://api.x.ai/v1/</strong>).
+This exact URL is used when the provider is created.
+</p>
+
+<h4>Source</h4>
+<p>
+Indicates <strong>where</strong> the suggestion comes from:
+</p>
+<ul>
+  <li>
+    <strong>Catalog</strong> — from a built-in, vetted list of known providers. The base
+    URLs are verified and therefore reliable.
+  </li>
+  <li>
+    <strong>Web</strong> — found via internet search and evaluated automatically. These
+    entries only appear when web search is configured in the settings. They are helpful,
+    but when in doubt you should double-check the base URL.
+  </li>
+</ul>
+
+<h4>Reachability</h4>
+<p>
+Before being shown, each suggestion is tested live (a call to the <strong>/models</strong>
+endpoint):
+</p>
+<ul>
+  <li><strong>Reachable</strong> — the API responds, the provider works.</li>
+  <li>
+    <strong>Reachable (key required)</strong> — the API is there but requires an API key,
+    so the address is correct.
+  </li>
+  <li>
+    <strong>Not reachable</strong> — the address does not respond. Such entries cannot be
+    selected.
+  </li>
+</ul>
+
+<h3>Adding providers</h3>
+<p>
+Tick one or more providers and click <strong>"Add selected"</strong> at the bottom. The
+chosen providers are created <strong>disabled and without an API key</strong>. Providers
+that already exist are not suggested in the first place.
+</p>
+
+<h3>Next steps after adding</h3>
+<p>
+A newly added provider is not active yet. Open it in the list, enter the
+<strong>API key</strong> and <strong>enable</strong> it. After that it works just like your
+other providers. The individual models of a provider are still maintained separately via
+the model management.
+</p>

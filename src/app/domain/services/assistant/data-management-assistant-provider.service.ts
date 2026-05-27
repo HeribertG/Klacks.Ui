@@ -4,6 +4,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { DataAssistantProviderService, IAssistantProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
+import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
@@ -16,6 +17,7 @@ export class DataManagementAssistantProviderService {
 
   public providers = signal<IAssistantProvider[]>([]);
   public isLoading = signal(false);
+  public isDiscovering = signal(false);
   public providersInitialized = signal(false);
 
   private providers$ = toObservable(this.providers);
@@ -130,6 +132,23 @@ export class DataManagementAssistantProviderService {
       console.error('Error deleting provider:', error);
       this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.delete', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
       return false;
+    }
+  }
+
+  async discoverProviders(): Promise<IDiscoveredProvider[]> {
+    try {
+      this.isDiscovering.set(true);
+      const candidates = await firstValueFrom(
+        this.dataAssistantProviderService.discoverProviders(),
+        { defaultValue: [] as IDiscoveredProvider[] }
+      );
+      return candidates;
+    } catch (error) {
+      console.error('Error discovering providers:', error);
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.discover.error', code: 'LLMProviderError', context: 'DataManagementAssistantProviderService' });
+      return [];
+    } finally {
+      this.isDiscovering.set(false);
     }
   }
 

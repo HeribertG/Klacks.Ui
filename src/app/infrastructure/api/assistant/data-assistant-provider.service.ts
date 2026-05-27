@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
 
 export interface IAssistantProvider {
   id: string;
@@ -72,5 +73,9 @@ export class DataAssistantProviderService {
     return this.httpClient
       .delete<void>(`${this.apiUrl}/${id}`)
       .pipe(retry(3));
+  }
+
+  discoverProviders(): Observable<IDiscoveredProvider[]> {
+    return this.httpClient.post<IDiscoveredProvider[]>(`${this.apiUrl}/discover`, {});
   }
 }

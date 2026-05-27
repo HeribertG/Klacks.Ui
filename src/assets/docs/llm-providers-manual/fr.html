@@ -1,0 +1,70 @@
+<h2>Rechercher des fournisseurs LLM — Manuel</h2>
+
+<h3>À quoi sert cette fonction ?</h3>
+<p>
+Cette vue te propose des fournisseurs LLM que tu n'as pas encore dans ta liste et ajoute
+ceux que tu sélectionnes en un clic, t'évitant de saisir le nom et l'URL de base à la main.
+Seuls des <strong>fournisseurs d'API compatibles OpenAI</strong> sont proposés — exactement
+le type de service qu'utilisent aussi tes fournisseurs déjà configurés.
+</p>
+
+<h3>Les colonnes du tableau</h3>
+
+<h4>Nom du fournisseur</h4>
+<p>
+Le nom d'affichage du fournisseur (p. ex. « OpenRouter », « xAI (Grok) »).
+</p>
+
+<h4>URL de base</h4>
+<p>
+L'adresse de l'API utilisée pour communiquer avec le fournisseur (p. ex.
+<strong>https://api.x.ai/v1/</strong>). C'est cette URL qui sera utilisée lors de la création.
+</p>
+
+<h4>Source</h4>
+<p>
+Indique <strong>d'où</strong> provient la suggestion :
+</p>
+<ul>
+  <li>
+    <strong>Catalogue</strong> — d'une liste intégrée et vérifiée de fournisseurs connus.
+    Les URL de base sont vérifiées et donc fiables.
+  </li>
+  <li>
+    <strong>Web</strong> — trouvé via une recherche Internet et évalué automatiquement. Ces
+    entrées n'apparaissent que si la recherche web est configurée dans les paramètres. Elles
+    sont utiles, mais en cas de doute vérifie l'URL de base.
+  </li>
+</ul>
+
+<h4>Accessibilité</h4>
+<p>
+Avant l'affichage, chaque suggestion est testée en direct (appel du point de terminaison
+<strong>/models</strong>) :
+</p>
+<ul>
+  <li><strong>Accessible</strong> — l'API répond, le fournisseur fonctionne.</li>
+  <li>
+    <strong>Accessible (clé requise)</strong> — l'API est présente mais exige une clé API ;
+    l'adresse est donc correcte.
+  </li>
+  <li>
+    <strong>Non accessible</strong> — l'adresse ne répond pas. Ces entrées ne peuvent pas
+    être sélectionnées.
+  </li>
+</ul>
+
+<h3>Ajouter des fournisseurs</h3>
+<p>
+Coche un ou plusieurs fournisseurs et clique en bas sur <strong>« Ajouter la sélection »</strong>.
+Les fournisseurs choisis sont créés <strong>désactivés et sans clé API</strong>. Les
+fournisseurs déjà présents ne sont pas proposés.
+</p>
+
+<h3>Étapes suivantes après l'ajout</h3>
+<p>
+Un fournisseur nouvellement ajouté n'est pas encore actif. Ouvre-le dans la liste, saisis la
+<strong>clé API</strong> et <strong>active-le</strong>. Il fonctionnera alors comme tes autres
+fournisseurs. Les modèles d'un fournisseur se gèrent toujours séparément via la gestion des
+modèles.
+</p>

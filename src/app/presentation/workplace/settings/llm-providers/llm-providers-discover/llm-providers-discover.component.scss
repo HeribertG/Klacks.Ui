@@ -1,0 +1,116 @@
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../../assets/standard-styles/standard-manual.scss";
+
+$badge-needs-key-color: #f0ad4e;
+$badge-unknown-color: #9aa0a6;
+
+.discover-browse {
+  .discover-hint {
+    font-size: 12px;
+    padding-bottom: 8px;
+  }
+
+  .container-table {
+    padding-top: 10px;
+    padding-inline: 0;
+  }
+
+  .custom-control-inline {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  .table-header {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--colorWorkplaceHeadline);
+    border-bottom: 1px solid var(--colorLine);
+    padding-bottom: 6px;
+  }
+
+  .table-row {
+    border-bottom: 1px solid var(--cardBorderColor);
+    min-height: 36px;
+    cursor: pointer;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: var(--gridBackgroundColorRowHover);
+    }
+
+    &.not-selectable {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+  }
+
+  .table-cell {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    border-bottom: none;
+  }
+
+  .col-select {
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  .col-name {
+    width: 160px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .col-url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .col-source {
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .col-status {
+    width: 150px;
+    flex-shrink: 0;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+
+    &.reachable {
+      background-color: colors.$standartGreenColor;
+    }
+
+    &.needs-key {
+      background-color: $badge-needs-key-color;
+    }
+
+    &.unreachable {
+      background-color: colors.$standartRedLiteColor;
+    }
+
+    &.unknown {
+      background-color: $badge-unknown-color;
+    }
+  }
+
+  .text-center {
+    color: var(--colorLabel);
+  }
+}

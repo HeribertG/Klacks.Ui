@@ -1,0 +1,70 @@
+<h2>LLM-Provider suchen — Anleitung</h2>
+
+<h3>Wozu dient diese Funktion?</h3>
+<p>
+Diese Ansicht schlägt dir LLM-Provider vor, die du noch nicht in deiner Liste hast, und
+fügt die ausgewählten mit einem Klick hinzu. So musst du Name und Basis-URL nicht von Hand
+eintragen. Es werden ausschliesslich <strong>OpenAI-kompatible API-Provider</strong> vorgeschlagen —
+also genau die Art von Diensten, die auch deine bereits eingerichteten Provider nutzen.
+</p>
+
+<h3>Die Spalten der Tabelle</h3>
+
+<h4>Anbieter Name</h4>
+<p>
+Der Anzeigename des Providers (z. B. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>Basis URL</h4>
+<p>
+Die API-Adresse, über die mit dem Provider kommuniziert wird (z. B.
+<strong>https://api.x.ai/v1/</strong>). Genau diese URL wird später beim Anlegen verwendet.
+</p>
+
+<h4>Quelle</h4>
+<p>
+Gibt an, <strong>woher</strong> der Vorschlag stammt:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — aus einer fest hinterlegten, geprüften Liste bekannter
+    Provider. Die Basis-URLs sind verifiziert und damit zuverlässig.
+  </li>
+  <li>
+    <strong>Web</strong> — per Internet-Suche gefunden und automatisch ausgewertet. Diese
+    Einträge erscheinen nur, wenn die Web-Suche in den Einstellungen konfiguriert ist.
+    Sie sind hilfreich, aber im Zweifel solltest du die Basis-URL kurz prüfen.
+  </li>
+</ul>
+
+<h4>Erreichbarkeit</h4>
+<p>
+Vor der Anzeige wird jeder Vorschlag live getestet (Aufruf des <strong>/models</strong>-Endpunkts):
+</p>
+<ul>
+  <li><strong>Erreichbar</strong> — die API antwortet, der Provider funktioniert.</li>
+  <li>
+    <strong>Erreichbar (Key nötig)</strong> — die API ist da, verlangt aber einen
+    API-Schlüssel. Die Adresse stimmt also.
+  </li>
+  <li>
+    <strong>Nicht erreichbar</strong> — die Adresse antwortet nicht. Solche Einträge
+    lassen sich nicht auswählen.
+  </li>
+</ul>
+
+<h3>Provider hinzufügen</h3>
+<p>
+Setze ein Häkchen bei einem oder mehreren Providern und klicke unten auf
+<strong>„Auswahl hinzufügen"</strong>. Die gewählten Provider werden
+<strong>deaktiviert und ohne API-Schlüssel</strong> angelegt. Bereits vorhandene Provider
+werden gar nicht erst vorgeschlagen.
+</p>
+
+<h3>Nächste Schritte nach dem Hinzufügen</h3>
+<p>
+Ein neu hinzugefügter Provider ist noch nicht aktiv. Öffne ihn in der Liste, trage den
+<strong>API-Schlüssel</strong> ein und <strong>aktiviere</strong> ihn. Danach arbeitet er
+genau wie deine übrigen Provider. Die einzelnen Modelle eines Providers pflegst du
+weiterhin getrennt über die Modell-Verwaltung.
+</p>

@@ -68,7 +68,8 @@ describe('LLMProvidersComponent', () => {
             toggleProviderStatus: vi.fn(),
             getProviders: vi.fn(),
             providers$: of(mockProviders),
-            isLoading: signal(false)
+            isLoading: signal(false),
+            isDiscovering: signal(false)
         };
 
         const llmServiceSpy = {
@@ -126,6 +127,67 @@ describe('LLMProvidersComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    describe('Import discovered providers', () => {
+        it('imports selected candidates disabled and without API key', async () => {
+            mockProviderService.createProvider.mockResolvedValue({ id: 'new', providerId: 'groq' });
+            const candidates = [
+                {
+                    providerId: 'groq',
+                    providerName: 'Groq',
+                    baseUrl: 'https://api.groq.com/openai/v1/',
+                    requiresApiKey: true,
+                    source: 0,
+                    connectivity: 1,
+                },
+            ];
+
+            await component.onImportSelected(candidates as any);
+
+            expect(mockProviderService.createProvider).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    providerId: 'groq',
+                    baseUrl: 'https://api.groq.com/openai/v1/',
+                    isEnabled: false,
+                    apiKey: undefined,
+                })
+            );
+            expect(mockLLMService.reloadModels).toHaveBeenCalled();
+        });
+
+        it('does not reload models when nothing was created', async () => {
+            mockProviderService.createProvider.mockResolvedValue(undefined);
+
+            await component.onImportSelected([
+                { providerId: 'x', providerName: 'X', baseUrl: 'https://x/v1/', requiresApiKey: true, source: 0, connectivity: 1 },
+            ] as any);
+
+            expect(mockLLMService.reloadModels).not.toHaveBeenCalled();
+        });
+
+        it('imports the tracked selection and closes the modal', async () => {
+            mockProviderService.createProvider.mockResolvedValue({ id: 'new', providerId: 'groq' });
+            component.selectedDiscoveredProviders.set([
+                { providerId: 'groq', providerName: 'Groq', baseUrl: 'https://api.groq.com/openai/v1/', requiresApiKey: true, source: 0, connectivity: 1 },
+            ] as any);
+            const modal = { close: vi.fn() };
+
+            await component.onConfirmImport(modal);
+
+            expect(mockProviderService.createProvider).toHaveBeenCalledTimes(1);
+            expect(modal.close).toHaveBeenCalled();
+        });
+
+        it('tracks the selection emitted by the discover child', () => {
+            const selection = [
+                { providerId: 'groq', providerName: 'Groq', baseUrl: 'https://api.groq.com/openai/v1/', requiresApiKey: true, source: 0, connectivity: 1 },
+            ];
+
+            component.onDiscoverSelectionChanged(selection as any);
+
+            expect(component.selectedDiscoveredProviders().length).toBe(1);
+        });
     });
 
     describe('Initialization', () => {

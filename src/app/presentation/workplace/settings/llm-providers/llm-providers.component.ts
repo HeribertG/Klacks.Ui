@@ -23,12 +23,17 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
 import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.component';
+import { LLMProvidersDiscoverComponent } from './llm-providers-discover/llm-providers-discover.component';
+import { IDiscoveredProvider } from 'src/app/domain/models/assistant/discovered-provider';
+import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+
+const DEFAULT_PROVIDER_PRIORITY = 10;
 
 interface LLMProviderFormModel {
   providerId: string;
@@ -51,6 +56,8 @@ interface LLMProviderFormModel {
     SpinnerModule,
     LLMProvidersRowComponent,
     LLMProvidersHeaderComponent,
+    LLMProvidersDiscoverComponent,
+    RefreshButtonComponent,
     SettingsListCardComponent,
   ],
   templateUrl: './llm-providers.component.html',
@@ -60,6 +67,12 @@ interface LLMProviderFormModel {
 export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
+
+  @ViewChild('discoverModal', { read: TemplateRef })
+  discoverModal!: TemplateRef<any>;
+
+  @ViewChild(LLMProvidersDiscoverComponent)
+  discoverComponent?: LLMProvidersDiscoverComponent;
 
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
@@ -81,6 +94,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   });
   isLoading = this.providerService.isLoading;
+  isDiscovering = this.providerService.isDiscovering;
+  selectedDiscoveredProviders = signal<IDiscoveredProvider[]>([]);
   editingProvider: IAssistantProvider | null = null;
   private originalProvider: IAssistantProvider | null = null;
 
@@ -166,6 +181,51 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
         size: 'lg',
       });
     }, 0);
+  }
+
+  openDiscoverModal(): void {
+    this.selectedDiscoveredProviders.set([]);
+    this.ngbModal.open(this.discoverModal, {
+      ariaLabelledBy: 'modal-title',
+      size: 'lg',
+    });
+    setTimeout(() => this.discoverComponent?.load(), 0);
+  }
+
+  onDiscoverSelectionChanged(candidates: IDiscoveredProvider[]): void {
+    this.selectedDiscoveredProviders.set(candidates);
+  }
+
+  async onConfirmImport(modal: { close: () => void }): Promise<void> {
+    await this.onImportSelected(this.selectedDiscoveredProviders());
+    modal.close();
+  }
+
+  async onImportSelected(candidates: IDiscoveredProvider[]): Promise<void> {
+    let importedAny = false;
+
+    for (const candidate of candidates) {
+      const createRequest: ICreateProviderRequest = {
+        providerId: candidate.providerId,
+        providerName: candidate.providerName,
+        apiKey: undefined,
+        baseUrl: candidate.baseUrl,
+        apiVersion: candidate.apiVersion ?? undefined,
+        isEnabled: false,
+        priority: DEFAULT_PROVIDER_PRIORITY,
+      };
+
+      const created = await this.providerService.createProvider(createRequest);
+      if (created) {
+        importedAny = true;
+      }
+    }
+
+    if (importedAny) {
+      this.llmService.reloadModels();
+    }
+
+    this.cdr.markForCheck();
   }
 
   onClickEdit(provider: IAssistantProvider): void {

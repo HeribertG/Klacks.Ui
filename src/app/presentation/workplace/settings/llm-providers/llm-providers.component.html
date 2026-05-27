@@ -170,6 +170,50 @@
   </div>
 </ng-template>
 
+<!-- Discover Providers Modal -->
+<ng-template #discoverModal id="llm-providers-discover-template" let-modal>
+  <div id="llm-providers-discover-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ 'settings.llm-providers.discover.title' | translate }}
+    </div>
+    <span class="filler"></span>
+    <div
+      id="llm-providers-discover-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="llm-providers-discover-body" class="modal-body">
+    <app-llm-providers-discover (selectionChanged)="onDiscoverSelectionChanged($event)" />
+  </div>
+  <div id="llm-providers-discover-footer" class="modal-footer">
+    <span class="link-button red-font" (click)="modal.dismiss('Close click')">{{
+      'close' | translate
+    }}</span>
+    <button
+      id="llm-providers-discover-import-btn"
+      type="button"
+      class="btn save-btn"
+      [disabled]="selectedDiscoveredProviders().length === 0"
+      (click)="onConfirmImport(modal)"
+    >
+      {{ 'settings.llm-providers.discover.import' | translate: { count: selectedDiscoveredProviders().length } }}
+    </button>
+  </div>
+</ng-template>
+
 <app-settings-list-card
   [addLabel]="'settings.llm-providers.add' | translate"
   [showHeader]="true"
@@ -179,6 +223,16 @@
   (addClick)="onClickAdd()"
   (headerSearchChange)="searchTerm.set($event)"
 >
+  <app-refresh-button
+    headerAction
+    id="llm-providers-discover-btn"
+    class="discover-refresh-btn"
+    [isLoading]="isDiscovering()"
+    [ariaLabel]="'settings.llm-providers.discover.button' | translate"
+    [ngbTooltip]="'settings.llm-providers.discover.tooltip' | translate"
+    container="body"
+    (clicked)="openDiscoverModal()"
+  />
   <app-llm-providers-header header id="llm-providers-table-header"></app-llm-providers-header>
   <div rows>
     @for (provider of filteredProviders(); track provider.providerId || $index; let i = $index) {
