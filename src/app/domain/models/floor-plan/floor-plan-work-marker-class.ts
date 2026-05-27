@@ -6,6 +6,7 @@ export interface IFloorPlanWorkMarker {
   id?: string;
   floorPlanId: string;
   workId?: string;
+  shiftId?: string;
   clientId?: string;
   label?: string;
   x: number;
@@ -15,15 +16,18 @@ export interface IFloorPlanWorkMarker {
   color?: string;
   markerType: FloorPlanMarkerType;
   clientName?: string;
-  shiftName?: string;
+  abbreviation?: string;
   startTime?: string;
   endTime?: string;
+  fromDate?: Date;
+  untilDate?: Date;
 }
 
 export class FloorPlanWorkMarker implements IFloorPlanWorkMarker {
   id?: string;
   floorPlanId = '';
   workId?: string;
+  shiftId?: string;
   clientId?: string;
   label?: string;
   x = 0;
@@ -33,7 +37,9 @@ export class FloorPlanWorkMarker implements IFloorPlanWorkMarker {
   color?: string;
   markerType: FloorPlanMarkerType = FloorPlanMarkerType.Work;
   clientName?: string;
-  shiftName?: string;
+  abbreviation?: string;
   startTime?: string;
   endTime?: string;
+  fromDate?: Date;
+  untilDate?: Date;
 }

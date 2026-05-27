@@ -28,6 +28,15 @@ export interface FloorPlanObjectData {
   markerType?: FloorPlanMarkerType;
   liveMarker?: boolean;
   index?: number;
+  shiftId?: string;
+  workId?: string;
+  clientId?: string;
+  clientName?: string;
+  abbreviation?: string;
+  startTime?: string;
+  endTime?: string;
+  fromDate?: Date;
+  untilDate?: Date;
 }
 
 export type FabricWithData = FabricObject & { data?: FloorPlanObjectData };

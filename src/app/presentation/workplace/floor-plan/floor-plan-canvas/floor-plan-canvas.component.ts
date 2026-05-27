@@ -31,6 +31,8 @@ import { FloorPlanMergeService } from '../services/floor-plan-merge.service';
 import { FloorPlanJoinService } from '../services/floor-plan-join.service';
 import { FloorPlanPointEditorService } from '../services/floor-plan-point-editor.service';
 import { FloorPlanContextMenuComponent } from '../floor-plan-context-menu/floor-plan-context-menu.component';
+import { IFloorPlanWorkMarker } from 'src/app/domain/models/floor-plan/floor-plan-work-marker-class';
+import { FloorPlanMarkerType } from 'src/app/domain/enums/floor-plan-marker-type.enum';
 
 const CANVAS_DEFAULT_WIDTH = 1200;
 const CANVAS_DEFAULT_HEIGHT = 800;
@@ -542,18 +544,25 @@ export class FloorPlanCanvasComponent implements AfterViewInit, OnDestroy {
     const canvasX = (position.x - (vpt ? vpt[4] : 0)) / canvas.getZoom();
     const canvasY = (position.y - (vpt ? vpt[5] : 0)) / canvas.getZoom();
 
-    this.canvasService.addText(marker.clientName ?? marker.label ?? 'Work');
-    const obj = canvas.getObjects().at(-1);
-    if (obj) {
-      obj.set({ left: canvasX, top: canvasY });
-      const existingData = (obj as FabricWithData).data ?? {};
-      (obj as FabricWithData).data = {
-        ...existingData,
-        markerId: marker.id || '',
-        markerType: marker.shiftId ? 0 : 2, // Work = 0, Custom = 2
-      };
-      canvas.renderAll();
-    }
+    const workMarker: IFloorPlanWorkMarker = {
+      floorPlanId: '',
+      shiftId: marker.shiftId,
+      workId: marker.workId,
+      clientId: marker.clientId,
+      clientName: marker.clientName,
+      abbreviation: marker.abbreviation,
+      startTime: marker.startTime,
+      endTime: marker.endTime,
+      fromDate: marker.fromDate,
+      untilDate: marker.untilDate,
+      label: marker.label,
+      x: canvasX,
+      y: canvasY,
+      width: 120,
+      height: 50,
+      markerType: marker.shiftId ? FloorPlanMarkerType.Work : FloorPlanMarkerType.Custom,
+    };
+    this.canvasService.addWorkMarker(workMarker);
   }
 
   @HostListener('document:keydown', ['$event'])

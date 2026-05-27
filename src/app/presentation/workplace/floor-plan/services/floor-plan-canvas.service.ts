@@ -909,7 +909,7 @@ export class FloorPlanCanvasService {
 
     const lines: string[] = [];
     if (marker.clientName) lines.push(marker.clientName);
-    if (marker.shiftName) lines.push(marker.shiftName);
+    if (marker.abbreviation) lines.push(marker.abbreviation);
     if (marker.startTime || marker.endTime) {
       lines.push(`${marker.startTime ?? ''} - ${marker.endTime ?? ''}`);
     }
@@ -931,7 +931,19 @@ export class FloorPlanCanvasService {
       strokeWidth: 1,
     });
 
-    textbox.set('data', { markerId: marker.id, markerType: marker.markerType });
+    textbox.set('data', {
+      markerId: marker.id,
+      markerType: marker.markerType,
+      shiftId: marker.shiftId,
+      workId: marker.workId,
+      clientId: marker.clientId,
+      clientName: marker.clientName,
+      abbreviation: marker.abbreviation,
+      startTime: marker.startTime,
+      endTime: marker.endTime,
+      fromDate: marker.fromDate,
+      untilDate: marker.untilDate,
+    });
     this.assignToActiveLayer(textbox);
     this.canvas.add(textbox);
     this.canvas.renderAll();
@@ -950,6 +962,15 @@ export class FloorPlanCanvasService {
         return {
           id: data.markerId || undefined,
           floorPlanId,
+          shiftId: data.shiftId,
+          workId: data.workId,
+          clientId: data.clientId,
+          clientName: data.clientName,
+          abbreviation: data.abbreviation,
+          startTime: data.startTime,
+          endTime: data.endTime,
+          fromDate: data.fromDate,
+          untilDate: data.untilDate,
           x: obj.left ?? 0,
           y: obj.top ?? 0,
           width: obj.width ?? 120,

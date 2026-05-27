@@ -90,10 +90,12 @@ export class FloorPlanWorkPanelComponent implements OnInit, OnDestroy {
   onDragStartShift(shift: IShift, event: DragEvent): void {
     this.workDropService.startDrag({
       shiftId: shift.id,
-      shiftName: shift.name,
+      abbreviation: shift.abbreviation,
       label: shift.abbreviation || shift.name,
       startTime: shift.startShift?.slice(0, 5),
       endTime: shift.endShift?.slice(0, 5),
+      fromDate: shift.fromDate,
+      untilDate: shift.untilDate,
       markerType: FloorPlanMarkerType.Work,
     });
 
