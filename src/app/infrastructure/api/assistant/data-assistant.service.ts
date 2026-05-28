@@ -8,6 +8,7 @@ import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { IWelcomeRequest, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 export interface ISpeechModelCheckDto {
@@ -198,6 +199,26 @@ export class DataAssistantService {
 
   warmup(): void {
     this.httpClient.get(`${this.baseUrl}chat/warmup`).subscribe();
+  }
+
+  getWelcome(request: IWelcomeRequest): Observable<IWelcomeResponse> {
+    const params: Record<string, string> = {
+      lang: request.lang,
+      localHour: request.localHour.toString(),
+      weekday: request.weekday.toString(),
+    };
+    if (request.route) params['route'] = request.route;
+    if (request.displayName) params['displayName'] = request.displayName;
+    if (request.latitude !== undefined) params['latitude'] = request.latitude.toString();
+    if (request.longitude !== undefined) params['longitude'] = request.longitude.toString();
+
+    return this.httpClient.get<IWelcomeResponse>(
+      `${this.baseUrl}chat/welcome`,
+      {
+        params,
+        context: new HttpContext().set(SKIP_LOADING, true),
+      },
+    );
   }
 
   submitCorrection(request: ISubmitCorrectionRequest): Observable<ISubmitCorrectionResponse> {

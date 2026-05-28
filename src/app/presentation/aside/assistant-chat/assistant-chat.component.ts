@@ -57,6 +57,8 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
+import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
+import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
@@ -99,6 +101,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
   private toastShowService = inject(ToastShowService);
+  private welcomeGreetingService = inject(WelcomeGreetingService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -606,12 +609,32 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     return event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Enter';
   }
 
-  private addWelcomeMessage(_langCode: string): void {
-    const welcomeMessage: ChatMessage = {
-      id: this.generateMessageId(),
+  private addWelcomeMessage(langCode: string): void {
+    const placeholder = this.buildFallbackWelcome();
+    const messageId = this.generateMessageId();
+
+    this.orchestrator.addMessage({
+      id: messageId,
       sender: 'assistant',
-      content: this.translateService.instant('assistant-chat.welcome.content'),
+      content: placeholder.content,
       timestamp: new Date(),
+      suggestions: placeholder.suggestions,
+    });
+    this.showActionsAsToast(placeholder.suggestions);
+
+    this.welcomeGreetingService.fetchWelcome()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => this.applyWelcomeResponse(messageId, response, langCode),
+        error: () => {
+          /* keep the i18n fallback already shown */
+        },
+      });
+  }
+
+  private buildFallbackWelcome(): { content: string; suggestions: string[] } {
+    return {
+      content: this.translateService.instant('assistant-chat.welcome.content'),
       suggestions: [
         this.translateService.instant('assistant-chat.welcome.suggestion-1'),
         this.translateService.instant('assistant-chat.welcome.suggestion-2'),
@@ -619,8 +642,45 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         this.translateService.instant('assistant-chat.welcome.suggestion-4'),
       ],
     };
-    this.orchestrator.addMessage(welcomeMessage);
-    this.showActionsAsToast(welcomeMessage.suggestions);
+  }
+
+  private applyWelcomeResponse(messageId: string, response: IWelcomeResponse, langCode: string): void {
+    const content = this.resolveWelcomeContent(response, langCode);
+    const suggestions = response.suggestionKeys
+      .map((key) => this.translateService.instant(key))
+      .filter((label) => typeof label === 'string' && label.length > 0);
+
+    this.orchestrator.updateMessage(messageId, {
+      content,
+      suggestions,
+    });
+
+    if (suggestions.length > 0) {
+      this.showActionsAsToast(suggestions);
+    }
+  }
+
+  private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {
+    const weekday = response.weekdayKey
+      ? this.translateService.instant(response.weekdayKey)
+      : '';
+    const weather = response.weatherKey
+      ? this.translateService.instant(response.weatherKey)
+      : '';
+    const name = this.formatNameSlot(response.displayName, langCode);
+
+    return this.translateService.instant(response.greetingKey, {
+      name,
+      weekday,
+      weather,
+    });
+  }
+
+  private formatNameSlot(displayName: string | null | undefined, langCode: string): string {
+    if (!displayName) return '';
+    const usesSpaceSeparator = langCode === 'fr' || langCode === 'it';
+    const separator = usesSpaceSeparator ? ' ' : ', ';
+    return `${separator}${displayName}`;
   }
 
   private updateWelcomeMessage(langCode: string): void {
