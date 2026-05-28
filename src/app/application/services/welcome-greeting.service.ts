@@ -26,8 +26,11 @@ const GEOLOCATION_MAX_AGE_MS = 15 * 60 * 1000;
 const MORNING_END_HOUR = 12;
 const AFTERNOON_END_HOUR = 18;
 const LAST_VARIANT_KEY_PREFIX = 'klacksy.welcome.lastVariant.';
+const REOPEN_POOL_KEY = 'reopen';
+const SESSION_OPENED_KEY = 'klacksy.welcome.sessionOpened';
 
 type Daypart = 'morning' | 'afternoon' | 'evening';
+type GreetingPool = Daypart | 'reopen';
 
 @Injectable({
   providedIn: 'root',
@@ -39,23 +42,27 @@ export class WelcomeGreetingService {
   private readonly router = inject(Router);
 
   fetchWelcome(): Observable<IWelcomeResponse> {
+    const isReopen = this.isReopenSession();
     return this.tryGetGeolocation().pipe(
       switchMap((coords) => {
-        const request = this.buildRequest(coords);
-        const daypart = this.resolveDaypart(request.localHour);
+        const request = this.buildRequest(coords, isReopen);
+        const pool: GreetingPool = isReopen ? REOPEN_POOL_KEY : this.resolveDaypart(request.localHour);
         return this.dataAssistantService.getWelcome(request).pipe(
-          tap((response) => this.rememberVariantIndex(daypart, response.greetingVariantIndex)),
+          tap((response) => {
+            this.rememberVariantIndex(pool, response.greetingVariantIndex);
+            this.markSessionOpened();
+          }),
         );
       }),
     );
   }
 
-  private buildRequest(coords: GeolocationCoordinates | null): IWelcomeRequest {
+  private buildRequest(coords: GeolocationCoordinates | null, isReopen: boolean): IWelcomeRequest {
     const now = new Date();
     const localHour = now.getHours();
-    const daypart = this.resolveDaypart(localHour);
+    const pool: GreetingPool = isReopen ? REOPEN_POOL_KEY : this.resolveDaypart(localHour);
     const username = this.localStorageService.get(StorageKeys.TOKEN_USERNAME) ?? '';
-    const lastVariantIndex = this.readLastVariantIndex(daypart);
+    const lastVariantIndex = this.readLastVariantIndex(pool);
 
     const request: IWelcomeRequest = {
       lang: this.translateService.currentLang || this.translateService.defaultLang || 'en',
@@ -63,6 +70,7 @@ export class WelcomeGreetingService {
       weekday: now.getDay(),
       route: this.router.url,
       displayName: username,
+      isReopen,
     };
 
     if (coords) {
@@ -77,22 +85,32 @@ export class WelcomeGreetingService {
     return request;
   }
 
+  private isReopenSession(): boolean {
+    if (typeof sessionStorage === 'undefined') return false;
+    return sessionStorage.getItem(SESSION_OPENED_KEY) === '1';
+  }
+
+  private markSessionOpened(): void {
+    if (typeof sessionStorage === 'undefined') return;
+    sessionStorage.setItem(SESSION_OPENED_KEY, '1');
+  }
+
   private resolveDaypart(localHour: number): Daypart {
     if (localHour < MORNING_END_HOUR) return 'morning';
     if (localHour < AFTERNOON_END_HOUR) return 'afternoon';
     return 'evening';
   }
 
-  private readLastVariantIndex(daypart: Daypart): number | null {
-    const raw = this.localStorageService.get(LAST_VARIANT_KEY_PREFIX + daypart);
+  private readLastVariantIndex(pool: GreetingPool): number | null {
+    const raw = this.localStorageService.get(LAST_VARIANT_KEY_PREFIX + pool);
     if (!raw) return null;
     const parsed = parseInt(raw, 10);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
   }
 
-  private rememberVariantIndex(daypart: Daypart, index: number): void {
+  private rememberVariantIndex(pool: GreetingPool, index: number): void {
     if (!Number.isFinite(index) || index < 0) return;
-    this.localStorageService.set(LAST_VARIANT_KEY_PREFIX + daypart, index.toString());
+    this.localStorageService.set(LAST_VARIANT_KEY_PREFIX + pool, index.toString());
   }
 
   private tryGetGeolocation(): Observable<GeolocationCoordinates | null> {

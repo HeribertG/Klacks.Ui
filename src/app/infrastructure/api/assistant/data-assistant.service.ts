@@ -214,6 +214,9 @@ export class DataAssistantService {
     if (request.excludeVariantIndex !== undefined) {
       params['excludeVariantIndex'] = request.excludeVariantIndex.toString();
     }
+    if (request.isReopen) {
+      params['isReopen'] = 'true';
+    }
 
     return this.httpClient.get<IWelcomeResponse>(
       `${this.baseUrl}chat/welcome`,

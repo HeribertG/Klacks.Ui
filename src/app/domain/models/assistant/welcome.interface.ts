@@ -22,4 +22,5 @@ export interface IWelcomeRequest {
   longitude?: number;
   displayName?: string;
   excludeVariantIndex?: number;
+  isReopen?: boolean;
 }
