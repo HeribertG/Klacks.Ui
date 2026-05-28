@@ -46,6 +46,7 @@ import { IconAvailabilityComponent } from '../../icons/icon-availability.compone
 import { IconMailComponent } from '../../icons/icon-mail.component';
 import { PluginIconComponent } from '../../icons/plugin-icon.component';
 import { IconPeriodClosingComponent } from '../../icons/icon-period-closing.component';
+import { IconCompassComponent } from '../../icons/icon-compass.component';
 
 type NavigationPage =
   | 'absence'
@@ -81,6 +82,7 @@ type NavigationPage =
     IconMailComponent,
     PluginIconComponent,
     IconPeriodClosingComponent,
+    IconCompassComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -91,6 +93,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
   @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
   @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
+  @ViewChild('floorPlanIcon') floorPlanIcon!: IconCompassComponent;
   @ViewChild('periodClosingIcon')
   periodClosingIcon!: IconPeriodClosingComponent;
   @ViewChild('mailIcon') mailIcon!: IconMailComponent;
@@ -383,6 +386,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.employeesIcon,
       this.groupIcon,
       this.periodClosingIcon,
+      this.floorPlanIcon,
       this.mailIcon,
       this.userIcon,
       this.settingsIcon,
@@ -417,6 +421,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       availability: this.availabilityIcon,
       inbox: this.mailIcon,
       'period-closing': this.periodClosingIcon,
+      'floor-plan': this.floorPlanIcon,
     };
 
     const icon = iconMap[iconName as keyof typeof iconMap];
