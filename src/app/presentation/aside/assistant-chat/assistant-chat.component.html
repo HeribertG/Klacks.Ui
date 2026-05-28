@@ -141,34 +141,6 @@
           </button>
           }
 
-          <!-- Action buttons for assistant messages -->
-          @if (message.sender === 'assistant' && message.navigateTo) {
-          <button
-            type="button"
-            class="action-btn navigate-btn"
-            (click)="onNavigateClick(message.navigateTo!)"
-            [attr.aria-label]="'assistant-chat.open' | translate"
-          >
-            📍 {{ "assistant-chat.open" | translate }}
-          </button>
-          }
-
-          <!-- Suggestions -->
-          @if (message.suggestions && message.suggestions.length > 0) {
-          <div class="suggestions">
-            @for (suggestion of message.suggestions; track $index) {
-            <button
-              type="button"
-              class="suggestion-btn"
-              (click)="onSuggestionClick(suggestion)"
-              [attr.aria-label]="suggestion"
-            >
-              {{ suggestion }}
-            </button>
-            }
-          </div>
-          }
-
           <!-- Correction (thumbs-down) for assistant messages with a referenced user message -->
           @if (message.sender === 'assistant' && message.respondedToUserMessage && !message.isStreaming) {
           <div class="correction-controls">

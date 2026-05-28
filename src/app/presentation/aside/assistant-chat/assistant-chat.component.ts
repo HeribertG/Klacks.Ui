@@ -47,7 +47,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { AsideService } from '../aside.service';
 import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
+import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
@@ -398,6 +398,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
             if (data.suggestedReplies) {
               this.showRepliesAsToast(data.suggestedReplies);
+            } else if (data.navigateTo || (data.suggestions && data.suggestions.length > 0)) {
+              this.showActionsAsToast(data.suggestions, data.navigateTo);
             } else {
               this.toastShowService.dismissInteractiveReplies();
             }
@@ -494,6 +496,41 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     );
   }
 
+  private showActionsAsToast(suggestions?: string[], navigateTo?: string | null): void {
+    const options: ISuggestedReply[] = [];
+    if (navigateTo && navigateTo.startsWith('/workplace/')) {
+      options.push({
+        label: '📍 ' + this.translateService.instant('assistant-chat.open'),
+        value: navigateTo,
+      });
+    }
+    if (suggestions) {
+      for (const s of suggestions) {
+        options.push({ label: s, value: s });
+      }
+    }
+    if (options.length === 0) {
+      this.toastShowService.dismissInteractiveReplies();
+      return;
+    }
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      prompt: this.translateService.instant('assistant-chat.action-toast.prompt'),
+      options,
+    };
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        const value = values[0];
+        if (value.startsWith('/workplace/')) {
+          this.onNavigateClick(value);
+        } else {
+          this.onSuggestionClick(value);
+        }
+      });
+    });
+  }
+
   onNavigateClick(navigateTo: string): void {
     if (navigateTo.startsWith('/workplace/')) {
       this.router.navigate([navigateTo]);
@@ -583,6 +620,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       ],
     };
     this.orchestrator.addMessage(welcomeMessage);
+    this.showActionsAsToast(welcomeMessage.suggestions);
   }
 
   private updateWelcomeMessage(langCode: string): void {
