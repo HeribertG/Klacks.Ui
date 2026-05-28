@@ -6,6 +6,7 @@
  */
 export interface IWelcomeResponse {
   greetingKey: string;
+  greetingVariantIndex: number;
   weekdayKey: string;
   weatherKey: string;
   displayName: string;
@@ -20,4 +21,5 @@ export interface IWelcomeRequest {
   latitude?: number;
   longitude?: number;
   displayName?: string;
+  excludeVariantIndex?: number;
 }

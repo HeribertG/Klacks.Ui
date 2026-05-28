@@ -12,7 +12,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, defer, from, of, throwError } from 'rxjs';
+import { Observable, defer, from, of, tap, throwError } from 'rxjs';
 import { catchError, switchMap, timeout } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
@@ -22,6 +22,12 @@ import { IWelcomeRequest, IWelcomeResponse } from 'src/app/domain/models/assista
 
 const GEOLOCATION_TIMEOUT_MS = 2000;
 const GEOLOCATION_MAX_AGE_MS = 15 * 60 * 1000;
+
+const MORNING_END_HOUR = 12;
+const AFTERNOON_END_HOUR = 18;
+const LAST_VARIANT_KEY_PREFIX = 'klacksy.welcome.lastVariant.';
+
+type Daypart = 'morning' | 'afternoon' | 'evening';
 
 @Injectable({
   providedIn: 'root',
@@ -35,19 +41,25 @@ export class WelcomeGreetingService {
   fetchWelcome(): Observable<IWelcomeResponse> {
     return this.tryGetGeolocation().pipe(
       switchMap((coords) => {
-        const request: IWelcomeRequest = this.buildRequest(coords);
-        return this.dataAssistantService.getWelcome(request);
+        const request = this.buildRequest(coords);
+        const daypart = this.resolveDaypart(request.localHour);
+        return this.dataAssistantService.getWelcome(request).pipe(
+          tap((response) => this.rememberVariantIndex(daypart, response.greetingVariantIndex)),
+        );
       }),
     );
   }
 
   private buildRequest(coords: GeolocationCoordinates | null): IWelcomeRequest {
     const now = new Date();
+    const localHour = now.getHours();
+    const daypart = this.resolveDaypart(localHour);
     const username = this.localStorageService.get(StorageKeys.TOKEN_USERNAME) ?? '';
+    const lastVariantIndex = this.readLastVariantIndex(daypart);
 
     const request: IWelcomeRequest = {
       lang: this.translateService.currentLang || this.translateService.defaultLang || 'en',
-      localHour: now.getHours(),
+      localHour,
       weekday: now.getDay(),
       route: this.router.url,
       displayName: username,
@@ -58,7 +70,29 @@ export class WelcomeGreetingService {
       request.longitude = coords.longitude;
     }
 
+    if (lastVariantIndex !== null) {
+      request.excludeVariantIndex = lastVariantIndex;
+    }
+
     return request;
+  }
+
+  private resolveDaypart(localHour: number): Daypart {
+    if (localHour < MORNING_END_HOUR) return 'morning';
+    if (localHour < AFTERNOON_END_HOUR) return 'afternoon';
+    return 'evening';
+  }
+
+  private readLastVariantIndex(daypart: Daypart): number | null {
+    const raw = this.localStorageService.get(LAST_VARIANT_KEY_PREFIX + daypart);
+    if (!raw) return null;
+    const parsed = parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+  }
+
+  private rememberVariantIndex(daypart: Daypart, index: number): void {
+    if (!Number.isFinite(index) || index < 0) return;
+    this.localStorageService.set(LAST_VARIANT_KEY_PREFIX + daypart, index.toString());
   }
 
   private tryGetGeolocation(): Observable<GeolocationCoordinates | null> {

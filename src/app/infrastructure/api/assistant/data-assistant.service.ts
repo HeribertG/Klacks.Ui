@@ -211,6 +211,9 @@ export class DataAssistantService {
     if (request.displayName) params['displayName'] = request.displayName;
     if (request.latitude !== undefined) params['latitude'] = request.latitude.toString();
     if (request.longitude !== undefined) params['longitude'] = request.longitude.toString();
+    if (request.excludeVariantIndex !== undefined) {
+      params['excludeVariantIndex'] = request.excludeVariantIndex.toString();
+    }
 
     return this.httpClient.get<IWelcomeResponse>(
       `${this.baseUrl}chat/welcome`,
