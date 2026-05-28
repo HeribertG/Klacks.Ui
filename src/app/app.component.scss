@@ -51,3 +51,14 @@ app-toasts {
   inset-inline-end: 20px;
   z-index: 1001;
 }
+
+// Assistant interactive toasts pop out to the left and BELOW the surface
+// header (65px) so they neither cover the right-anchored chat aside
+// (open or audio-collapsed) nor the top navigation icons.
+ngb-toast.bg-assistant-interactive {
+  position: fixed;
+  top: 85px;
+  inset-inline-start: 20px;
+  inset-inline-end: auto;
+  z-index: 1002;
+}
