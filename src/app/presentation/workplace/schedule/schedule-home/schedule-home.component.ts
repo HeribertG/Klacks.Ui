@@ -53,7 +53,10 @@ import { DataCalendarSelectionService } from 'src/app/infrastructure/api/calenda
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
+import { ActivatedRoute } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { Group } from 'src/app/domain/models/group/group-class';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
@@ -122,6 +125,8 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private timelinePdfExportService = inject(TimelinePdfExportService);
   private scheduleViewModeService = inject(ScheduleViewModeService);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
+  private dataGroupService = inject(DataGroupService);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -135,11 +140,28 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.signalRService.startConnection();
 
+    await this.applyGroupQueryParam();
     await this.allScheduleStateService.initializeWorkplaceState();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
     this.setupEffects();
+  }
+
+  private async applyGroupQueryParam(): Promise<void> {
+    const groupId = this.route.snapshot.queryParamMap.get('groupId');
+    if (!groupId) return;
+
+    if (this.groupSelectionService.selectedGroup?.id === groupId) return;
+
+    try {
+      const group = await lastValueFrom(this.dataGroupService.getGroup(groupId));
+      if (group) {
+        this.groupSelectionService.selectGroup(group as Group);
+      }
+    } catch {
+      // ignore: invalid id or no permission → fall back to current selection
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {
