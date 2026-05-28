@@ -11,6 +11,7 @@
  * @param isLoading - Visual loading state for the search button
  * @param debounceMs - Debounce delay in ms for valueChange and search emissions
  * @param inputId - Optional id for the underlying input element
+ * @param klacksyTarget - Optional data-klacksy-target value applied to the input (and `.submit` on the button) so Klacksy skills can drive it via UiActionEngine
  */
 import {
   ChangeDetectionStrategy,
@@ -49,6 +50,7 @@ export class SearchInputComponent implements OnDestroy {
   @Input() isLoading = false;
   @Input() debounceMs = 300;
   @Input() inputId = '';
+  @Input() klacksyTarget = '';
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() searchSubmit = new EventEmitter<string>();
@@ -73,6 +75,10 @@ export class SearchInputComponent implements OnDestroy {
 
   get buttonId(): string | null {
     return this.inputId ? `${this.inputId}-button` : null;
+  }
+
+  get klacksySubmitTarget(): string | null {
+    return this.klacksyTarget ? `${this.klacksyTarget}.submit` : null;
   }
 
   onModelChange(next: string): void {

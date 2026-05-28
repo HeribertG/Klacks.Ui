@@ -35,6 +35,35 @@ const ZOOM_WHEEL_FACTOR = 0.999;
 const HISTORY_MAX = 50;
 const DEFAULT_REGULAR_POLYGON_RADIUS = 60;
 
+const LIVE_MARKER_COLS = 5;
+const LIVE_MARKER_PAD_X = 50;
+const LIVE_MARKER_PAD_Y = 50;
+const LIVE_MARKER_STEP_X = 160;
+const LIVE_MARKER_STEP_Y = 110;
+const LIVE_MARKER_WIDTH = 140;
+const LIVE_MARKER_FONT_SIZE = 11;
+const LIVE_MARKER_IMAGE_SIZE = 40;
+const LIVE_MARKER_SPACING = 4;
+const LIVE_MARKER_INNER_PAD = 4;
+
+export interface ILiveMarkerDisplay {
+  name: boolean;
+  time: boolean;
+  phone: boolean;
+  image: boolean;
+}
+
+export interface ILiveMarkerEntry {
+  clientId: string;
+  clientName: string;
+  startTime: string;
+  endTime: string;
+  phone: string | null;
+  imageDataUrl: string | null;
+  color?: string;
+  display: ILiveMarkerDisplay;
+}
+
 @Injectable()
 export class FloorPlanCanvasService {
   private canvas: Canvas | null = null;
@@ -64,6 +93,7 @@ export class FloorPlanCanvasService {
   private lastPanPoint: Point | null = null;
   private afterLoadCallback: (() => void) | null = null;
   private _suppressHistory = false;
+  private _readOnly = false;
 
   private polygonPoints: { x: number; y: number }[] = [];
   private tempPolyline: Polyline | null = null;
@@ -135,7 +165,7 @@ export class FloorPlanCanvasService {
       if (!layer) continue;
 
       const isVisible = layer.visible;
-      const isLocked = layer.locked;
+      const isLocked = layer.locked || this._readOnly;
 
       obj.set({
         visible: isVisible,
@@ -150,6 +180,34 @@ export class FloorPlanCanvasService {
     }
 
     this.canvas.renderAll();
+  }
+
+  setReadOnly(readOnly: boolean): void {
+    this._readOnly = readOnly;
+    if (!this.canvas) return;
+
+    this.canvas.selection = !readOnly;
+    this.canvas.isDrawingMode = false;
+    this.canvas.skipTargetFind = readOnly;
+
+    for (const obj of this.canvas.getObjects()) {
+      obj.set({
+        selectable: !readOnly,
+        evented: !readOnly,
+        lockMovementX: readOnly,
+        lockMovementY: readOnly,
+        lockRotation: readOnly,
+        lockScalingX: readOnly,
+        lockScalingY: readOnly,
+      });
+    }
+
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
+  }
+
+  isReadOnly(): boolean {
+    return this._readOnly;
   }
 
   setObjectLayer(obj: FabricObject, layerId: string): void {
@@ -992,42 +1050,131 @@ export class FloorPlanCanvasService {
     this.canvas.renderAll();
   }
 
-  renderLiveMarkers(entries: { clientName: string; shiftName: string; startTime: string; endTime: string; color?: string }[]): void {
+  renderLiveMarkers(entries: ILiveMarkerEntry[]): void {
     if (!this.canvas) return;
     this.clearLiveMarkers();
 
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
-      const lines: string[] = [];
-      if (entry.clientName) lines.push(entry.clientName);
-      if (entry.shiftName) lines.push(entry.shiftName);
-      if (entry.startTime || entry.endTime) {
-        lines.push(`${entry.startTime} - ${entry.endTime}`);
-      }
-
-      const text = lines.join('\n');
-      const fillColor = entry.color || '#2563eb';
-      const bgColor = this.hexToRgba(fillColor, 0.15);
-
-      const left = 50 + (i % 5) * 160;
-      const top = 50 + Math.floor(i / 5) * 80;
-
-      const textbox = new Textbox(text, {
-        left,
-        top,
-        width: 140,
-        fontSize: 11,
-        fill: fillColor,
-        backgroundColor: bgColor,
-        stroke: fillColor,
-        strokeWidth: 1,
-      });
-
-      textbox.set('data', { liveMarker: true, index: i });
-      this.canvas.add(textbox);
+      const left = LIVE_MARKER_PAD_X + (i % LIVE_MARKER_COLS) * LIVE_MARKER_STEP_X;
+      const top = LIVE_MARKER_PAD_Y + Math.floor(i / LIVE_MARKER_COLS) * LIVE_MARKER_STEP_Y;
+      this.addLiveMarkerGroup(entry, left, top, i);
     }
 
     this.canvas.renderAll();
+  }
+
+  private addLiveMarkerGroup(entry: ILiveMarkerEntry, left: number, top: number, index: number): void {
+    if (!this.canvas) return;
+
+    const fillColor = entry.color || '#2563eb';
+    const bgColor = this.hexToRgba(fillColor, 0.15);
+    let cursorY = top;
+
+    if (entry.display.image) {
+      this.addLiveMarkerImage(entry.imageDataUrl, fillColor, left, cursorY, index);
+      cursorY += LIVE_MARKER_IMAGE_SIZE + LIVE_MARKER_SPACING;
+    }
+
+    const textLines = this.buildLiveMarkerTextLines(entry);
+    if (textLines.length === 0) return;
+
+    const textbox = new Textbox(textLines.join('\n'), {
+      left,
+      top: cursorY,
+      width: LIVE_MARKER_WIDTH,
+      fontSize: LIVE_MARKER_FONT_SIZE,
+      fill: fillColor,
+      backgroundColor: bgColor,
+      stroke: fillColor,
+      strokeWidth: 1,
+      padding: LIVE_MARKER_INNER_PAD,
+      selectable: false,
+      evented: false,
+    });
+    textbox.set('data', { liveMarker: true, index });
+    this.canvas.add(textbox);
+  }
+
+  private buildLiveMarkerTextLines(entry: ILiveMarkerEntry): string[] {
+    const lines: string[] = [];
+    if (entry.display.name && entry.clientName) lines.push(entry.clientName);
+    if (entry.display.time && (entry.startTime || entry.endTime)) {
+      lines.push(`${entry.startTime ?? ''} - ${entry.endTime ?? ''}`);
+    }
+    if (entry.display.phone && entry.phone) lines.push(entry.phone);
+    return lines;
+  }
+
+  private addLiveMarkerImage(
+    imageDataUrl: string | null,
+    accentColor: string,
+    left: number,
+    top: number,
+    index: number,
+  ): void {
+    if (!this.canvas) return;
+    if (imageDataUrl) {
+      const html = document.createElement('img');
+      html.onload = () => {
+        const naturalWidth = html.naturalWidth || LIVE_MARKER_IMAGE_SIZE;
+        const fabricImg = new FabricImage(html, {
+          left,
+          top,
+          selectable: false,
+          evented: false,
+        });
+        fabricImg.scale(LIVE_MARKER_IMAGE_SIZE / naturalWidth);
+        fabricImg.set('data', { liveMarker: true, index, isMarkerImage: true });
+        this.canvas?.add(fabricImg);
+        this.canvas?.renderAll();
+      };
+      html.src = imageDataUrl;
+      return;
+    }
+    this.addPersonPlaceholder(accentColor, left, top, index);
+  }
+
+  private addPersonPlaceholder(accentColor: string, left: number, top: number, index: number): void {
+    if (!this.canvas) return;
+    const size = LIVE_MARKER_IMAGE_SIZE;
+    const background = new Rect({
+      left,
+      top,
+      width: size,
+      height: size,
+      fill: this.hexToRgba(accentColor, 0.18),
+      stroke: accentColor,
+      strokeWidth: 1,
+      rx: 4,
+      ry: 4,
+      selectable: false,
+      evented: false,
+    });
+    background.set('data', { liveMarker: true, index, isMarkerPlaceholder: true });
+    this.canvas.add(background);
+
+    const head = new Circle({
+      left: left + size * 0.32,
+      top: top + size * 0.18,
+      radius: size * 0.16,
+      fill: accentColor,
+      selectable: false,
+      evented: false,
+    });
+    head.set('data', { liveMarker: true, index, isMarkerPlaceholder: true });
+    this.canvas.add(head);
+
+    const body = new Path(
+      `M ${left + size * 0.18} ${top + size * 0.86} C ${left + size * 0.18} ${top + size * 0.6}, ${left + size * 0.82} ${top + size * 0.6}, ${left + size * 0.82} ${top + size * 0.86} Z`,
+      {
+        fill: accentColor,
+        selectable: false,
+        evented: false,
+      },
+    );
+    body.set('data', { liveMarker: true, index, isMarkerPlaceholder: true });
+    this.canvas.add(body);
   }
 
   clearLiveMarkers(): void {

@@ -1,0 +1,173 @@
+<form id="floorPlanSettingsForm">
+  <div class="floor-plan-filter-bar">
+    <div class="floor-plan-display-checks">
+      <label class="checkbox-label">
+        <input
+          id="floorPlanShowName"
+          type="checkbox"
+          name="showName"
+          [checked]="display().name"
+          (change)="onToggleDisplay('name', $any($event.target).checked)"
+        />
+        {{ 'floor-plan.settings.show-name' | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          id="floorPlanShowTime"
+          type="checkbox"
+          name="showTime"
+          [checked]="display().time"
+          (change)="onToggleDisplay('time', $any($event.target).checked)"
+        />
+        {{ 'floor-plan.settings.show-time' | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          id="floorPlanShowPhone"
+          type="checkbox"
+          name="showPhone"
+          [checked]="display().phone"
+          (change)="onToggleDisplay('phone', $any($event.target).checked)"
+        />
+        {{ 'floor-plan.settings.show-phone' | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          id="floorPlanShowImage"
+          type="checkbox"
+          name="showImage"
+          [checked]="display().image"
+          (change)="onToggleDisplay('image', $any($event.target).checked)"
+        />
+        {{ 'floor-plan.settings.show-image' | translate }}
+      </label>
+    </div>
+
+    <div class="input-group input-group-sm floor-plan-date-picker">
+      <input
+        id="floor-plan-date"
+        class="form-control"
+        placeholder="dd.mm.yyyy"
+        name="floorPlanDate"
+        ngbDatepicker
+        #dp="ngbDatepicker"
+        [ngModel]="datepickerModel()"
+        (ngModelChange)="onDatepickerChange($event)"
+      />
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="dp.toggle()"
+        [attr.aria-label]="'floor-plan.settings.date' | translate"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  @if (isLoading()) {
+    <div class="floor-plan-state-loading">
+      <div class="spinner-border spinner-border-sm" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else if (totalCount() === 0) {
+    <div class="floor-plan-state-empty">
+      {{ 'floor-plan.empty' | translate }}
+    </div>
+  } @else {
+    <div class="container-table">
+      <table id="floorPlanTable" class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header" style="width: 72px; max-width: 72px">
+              <div class="table-header-cell">
+                <p class="gap noselect">
+                  {{ 'floor-plan.list.column.preview' | translate }}
+                </p>
+              </div>
+            </th>
+            <th class="table-header" style="width: 200px">
+              <div class="table-header-cell">
+                <p class="gap noselect">
+                  {{ 'floor-plan.list.column.name' | translate }}
+                </p>
+              </div>
+            </th>
+            <th class="table-header">
+              <div class="table-header-cell">
+                <p class="gap noselect">
+                  {{ 'floor-plan.list.column.description' | translate }}
+                </p>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (
+            plan of pagedFloorPlans();
+            track plan.id;
+            let i = $index
+          ) {
+            <tr
+              [id]="'floor-plan-row-' + i"
+              class="table-row"
+              [class.active]="plan.id === selectedFloorPlanId()"
+              (click)="onRowClick(plan)"
+              (keydown.enter)="onRowClick(plan)"
+              tabindex="0"
+            >
+              <td class="table-cell">
+                @if (plan.thumbnailData) {
+                  <img
+                    [src]="plan.thumbnailData"
+                    [alt]="plan.name"
+                    class="floor-plan-thumb"
+                  />
+                } @else {
+                  <div class="floor-plan-thumb floor-plan-thumb-placeholder">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5z"
+                      />
+                    </svg>
+                  </div>
+                }
+              </td>
+              <td class="table-cell">{{ plan.name }}</td>
+              <td class="table-cell">{{ plan.description }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-simple-pagination
+      [collectionSize]="totalCount()"
+      [page]="page()"
+      [pageSize]="itemsPerPage()"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+</form>

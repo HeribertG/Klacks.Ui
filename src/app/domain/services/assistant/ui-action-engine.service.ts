@@ -359,7 +359,15 @@ export class UiActionEngineService {
   }
 
   private async executeSearch(step: IUiActionStep, context: IUiActionContext): Promise<void> {
-    const route = step.route;
+    let route = step.route;
+
+    if (step.routeMap && step.routeKeyFrom) {
+      const key = this.valueResolver.resolve(step.routeKeyFrom, context);
+      if (key && step.routeMap[key]) {
+        route = step.routeMap[key];
+      }
+    }
+
     if (!route) {
       throw new Error('search action requires a route');
     }

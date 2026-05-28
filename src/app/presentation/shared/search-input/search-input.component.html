@@ -4,6 +4,7 @@
       type="search"
       class="form-control"
       [id]="inputId || null"
+      [attr.data-klacksy-target]="klacksyTarget || null"
       [placeholder]="translatedPlaceholder"
       [disabled]="disabled"
       [ngModel]="value"
@@ -15,6 +16,7 @@
       <button
         type="button"
         [id]="buttonId"
+        [attr.data-klacksy-target]="klacksySubmitTarget"
         class="btn btn-outline-secondary container-search-button input-group-text"
         [class.container-search-button-disabled]="disabled || buttonDisabled || isLoading"
         [disabled]="disabled || buttonDisabled || isLoading"
