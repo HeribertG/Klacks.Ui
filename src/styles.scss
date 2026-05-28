@@ -125,3 +125,15 @@ p {
   padding: 0;
   color: var(--colorLabel);
 }
+
+ngb-toast.bg-assistant-interactive {
+  position: fixed;
+  top: 85px;
+  inset-inline-start: auto;
+  inset-inline-end: 470px;
+  z-index: 1002;
+}
+
+body:has(app-voice-shell) ngb-toast.bg-assistant-interactive {
+  inset-inline-end: 92px;
+}

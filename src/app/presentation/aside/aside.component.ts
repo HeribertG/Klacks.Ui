@@ -24,6 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { ToastShowService } from '../toast/toast-show.service';
 
 @Component({
   selector: 'app-aside',
@@ -45,6 +46,7 @@ export class AsideComponent {
   private elementRef = inject(ElementRef);
   private renderer = inject(Renderer2);
   private readonly appSettings = inject(AppSettingsManagementService);
+  private readonly toastShowService = inject(ToastShowService);
 
   protected readonly OutputMode = OutputMode;
 
@@ -62,6 +64,10 @@ export class AsideComponent {
         this.renderer.addClass(this.elementRef.nativeElement, 'visible');
       } else {
         this.renderer.removeClass(this.elementRef.nativeElement, 'visible');
+      }
+
+      if (!visible) {
+        this.toastShowService.dismissInteractiveReplies();
       }
     });
   }
