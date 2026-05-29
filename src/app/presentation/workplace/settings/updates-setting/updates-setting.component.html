@@ -6,11 +6,11 @@
 
   @if (status(); as s) {
     <div id="updates-setting-status" class="row-line">
-      <div class="form-group">
+      <div class="form-group firstColumn">
         <label>{{ 'settings.updates.status.current' | translate }}</label>
         <span class="hint-text">{{ s.currentVersion }}</span>
       </div>
-      <div class="form-group">
+      <div class="form-group secondColumn">
         <label>{{ 'settings.updates.status.available' | translate }}</label>
         @if (s.availability?.isUpdateAvailable) {
           <span class="hint-text update-available">{{ s.availability?.latestVersion }}</span>
@@ -19,12 +19,12 @@
         }
       </div>
       @if (s.activeOperation) {
-        <div class="form-group">
+        <div class="form-group secondColumn">
           <label>{{ 'settings.updates.status.active' | translate }}</label>
           <span class="hint-text">{{ s.activeOperation.operationType }} – {{ s.activeOperation.status }}</span>
         </div>
       } @else if (s.lastOperation) {
-        <div class="form-group">
+        <div class="form-group secondColumn">
           <label>{{ 'settings.updates.status.last' | translate }}</label>
           <span class="hint-text">{{ s.lastOperation.operationType }} – {{ s.lastOperation.status }}</span>
         </div>
@@ -35,7 +35,7 @@
       <button
         type="button"
         id="updates-trigger-btn"
-        class="btn btn-primary"
+        class="btn btn-primary firstColumn"
         [disabled]="busy() || !!s.activeOperation || !s.availability?.isUpdateAvailable"
         (click)="triggerNow()"
       >
@@ -53,49 +53,110 @@
     </div>
 
     @if (actionMessage()) {
-      <div class="info-text action-message">{{ actionMessage() }}</div>
+      <div class="action-message">{{ actionMessage() }}</div>
     }
   }
 
   @if (config(); as c) {
     <div id="updates-setting-config-line" class="container-line"></div>
     <form id="updates-setting-config-form">
-      <div class="row-line">
-        <div class="form-group">
-          <label for="updateAutoEnabled">{{ 'settings.updates.config.autoEnabled' | translate }}</label>
-          <input type="checkbox" id="updateAutoEnabled" [(ngModel)]="c.autoEnabled" name="autoEnabled" (ngModelChange)="onConfigChange()" />
-        </div>
-        <div class="form-group">
-          <label for="updateNotifyOnly">{{ 'settings.updates.config.notifyOnly' | translate }}</label>
-          <input type="checkbox" id="updateNotifyOnly" [(ngModel)]="c.notifyOnly" name="notifyOnly" (ngModelChange)="onConfigChange()" />
-        </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="updateAutoEnabled"
+          [(ngModel)]="c.autoEnabled"
+          name="autoEnabled"
+          (ngModelChange)="onConfigChange()"
+        />
+        <label class="form-check-label" for="updateAutoEnabled">
+          {{ 'settings.updates.config.autoEnabled' | translate }}
+        </label>
       </div>
+
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="updateNotifyOnly"
+          [(ngModel)]="c.notifyOnly"
+          name="notifyOnly"
+          (ngModelChange)="onConfigChange()"
+        />
+        <label class="form-check-label" for="updateNotifyOnly">
+          {{ 'settings.updates.config.notifyOnly' | translate }}
+        </label>
+      </div>
+
       <div class="row-line">
-        <div class="form-group">
+        <div class="form-group firstColumn">
           <label for="updateChannel">{{ 'settings.updates.config.channel' | translate }}</label>
-          <select id="updateChannel" class="form-control" [(ngModel)]="c.channel" name="channel" (ngModelChange)="onConfigChange()">
+          <select
+            id="updateChannel"
+            class="form-select form-select-sm"
+            [(ngModel)]="c.channel"
+            name="channel"
+            (ngModelChange)="onConfigChange()"
+          >
             @for (ch of channels; track ch) {
               <option [value]="ch">{{ ch }}</option>
             }
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group secondColumn">
           <label for="updateInterval">{{ 'settings.updates.config.interval' | translate }}</label>
-          <input type="number" min="1" id="updateInterval" class="form-control" [(ngModel)]="c.checkIntervalHours" name="interval" (ngModelChange)="onConfigChange()" />
+          <input
+            type="number"
+            min="1"
+            id="updateInterval"
+            class="form-control"
+            [(ngModel)]="c.checkIntervalHours"
+            name="interval"
+            (ngModelChange)="onConfigChange()"
+          />
+        </div>
+        <div class="form-group secondColumn">
+          <label for="updateRetention">{{ 'settings.updates.config.backupRetention' | translate }}</label>
+          <input
+            type="number"
+            min="1"
+            id="updateRetention"
+            class="form-control"
+            [(ngModel)]="c.backupRetentionCount"
+            name="retention"
+            (ngModelChange)="onConfigChange()"
+          />
         </div>
       </div>
+
       <div class="row-line">
-        <div class="form-group">
-          <label for="updateWindowStart">{{ 'settings.updates.config.windowStart' | translate }}</label>
-          <input type="time" id="updateWindowStart" class="form-control" [(ngModel)]="c.maintenanceWindowStart" name="windowStart" (ngModelChange)="onConfigChange()" />
+        <div class="form-group firstColumn">
+          <app-time-input
+            id="updates-window-start"
+            [label]="'settings.updates.config.windowStart' | translate"
+            [value]="parseTime(c.maintenanceWindowStart)"
+            (valueChange)="onWindowStartChange($event)"
+            hoursId="updateWindowStartH"
+            minutesId="updateWindowStartM"
+            hoursName="windowStartHours"
+            minutesName="windowStartMinutes"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+          ></app-time-input>
         </div>
-        <div class="form-group">
-          <label for="updateWindowEnd">{{ 'settings.updates.config.windowEnd' | translate }}</label>
-          <input type="time" id="updateWindowEnd" class="form-control" [(ngModel)]="c.maintenanceWindowEnd" name="windowEnd" (ngModelChange)="onConfigChange()" />
-        </div>
-        <div class="form-group">
-          <label for="updateRetention">{{ 'settings.updates.config.backupRetention' | translate }}</label>
-          <input type="number" min="1" id="updateRetention" class="form-control" [(ngModel)]="c.backupRetentionCount" name="retention" (ngModelChange)="onConfigChange()" />
+        <div class="form-group secondColumn">
+          <app-time-input
+            id="updates-window-end"
+            [label]="'settings.updates.config.windowEnd' | translate"
+            [value]="parseTime(c.maintenanceWindowEnd)"
+            (valueChange)="onWindowEndChange($event)"
+            hoursId="updateWindowEndH"
+            minutesId="updateWindowEndM"
+            hoursName="windowEndHours"
+            minutesName="windowEndMinutes"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+          ></app-time-input>
         </div>
       </div>
     </form>
@@ -104,7 +165,7 @@
   @if (history().length > 0) {
     <div id="updates-setting-history-line" class="container-line"></div>
     <div class="info-text">{{ 'settings.updates.history' | translate }}</div>
-    <table id="updates-setting-history" class="table">
+    <table id="updates-setting-history" class="table table-sm history-table">
       <thead>
         <tr>
           <th>{{ 'settings.updates.history.operation' | translate }}</th>

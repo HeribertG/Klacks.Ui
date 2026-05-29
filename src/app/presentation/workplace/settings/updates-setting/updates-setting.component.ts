@@ -3,25 +3,30 @@
 /**
  * Admin Updates card: shows current/available version, recent operation history, lets the admin
  * configure auto-update behaviour and trigger an update or rollback.
- * Reads/writes through DataUpdateService (api/backend/update); pure presentation, no execution.
+ * @param status - Current version and active/last operation state
+ * @param config - Auto-update configuration (channel, schedule, retention)
+ * @param history - Recent update operation history
  */
 import {
   Component,
   ChangeDetectionStrategy,
   OnInit,
+  OnDestroy,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
 import {
   IUpdateConfig,
   IUpdateHistoryItem,
   IUpdateStatus,
 } from 'src/app/infrastructure/api/settings/data-update.service';
+import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 const UPDATE_CHANNELS = ['Stable', 'Beta'];
 
@@ -30,11 +35,12 @@ const UPDATE_CHANNELS = ['Stable', 'Beta'];
   templateUrl: './updates-setting.component.html',
   styleUrls: ['./updates-setting.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [DatePipe, FormsModule, TranslateModule, TimeInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UpdatesSettingComponent implements OnInit {
+export class UpdatesSettingComponent implements OnInit, OnDestroy {
   private dataUpdateService = inject(DataManagementUpdateService);
+  private destroy$ = new Subject<void>();
 
   public readonly channels = UPDATE_CHANNELS;
   public status = signal<IUpdateStatus | null>(null);
@@ -45,12 +51,23 @@ export class UpdatesSettingComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
-    this.dataUpdateService.getConfig().subscribe(c => this.config.set(c));
+    this.dataUpdateService.getConfig()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(c => this.config.set(c));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public reload(): void {
-    this.dataUpdateService.getStatus().subscribe(s => this.status.set(s));
-    this.dataUpdateService.getHistory().subscribe(h => this.history.set(h));
+    this.dataUpdateService.getStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(s => this.status.set(s));
+    this.dataUpdateService.getHistory()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(h => this.history.set(h));
   }
 
   public async triggerNow(): Promise<void> {
@@ -64,8 +81,29 @@ export class UpdatesSettingComponent implements OnInit {
   public onConfigChange(): void {
     const current = this.config();
     if (current) {
-      this.dataUpdateService.saveConfig(current).subscribe(saved => this.config.set(saved));
+      this.dataUpdateService.saveConfig(current)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(saved => this.config.set(saved));
     }
+  }
+
+  public parseTime(str: string): OwnTime {
+    const parts = (str || '00:00').split(':');
+    return OwnTime.forTime(parts[0] ?? '00', parts[1] ?? '00');
+  }
+
+  public onWindowStartChange(time: OwnTime): void {
+    const c = this.config();
+    if (!c) return;
+    c.maintenanceWindowStart = `${time.hours.padStart(2, '0')}:${time.minutes.padStart(2, '0')}`;
+    this.onConfigChange();
+  }
+
+  public onWindowEndChange(time: OwnTime): void {
+    const c = this.config();
+    if (!c) return;
+    c.maintenanceWindowEnd = `${time.hours.padStart(2, '0')}:${time.minutes.padStart(2, '0')}`;
+    this.onConfigChange();
   }
 
   private async runAction(action: () => Promise<{ reason: string }>): Promise<void> {
