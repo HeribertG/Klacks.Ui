@@ -44,6 +44,12 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
       .subscribe((client: IPluginClient) => {
         this.onClientSelected(client);
       });
+
+    this.host.clientIdNumbersSelected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((idNumbers: number[]) => {
+        this.onClientIdNumbersSelected(idNumbers);
+      });
   }
 
   ngOnDestroy(): void {
@@ -61,5 +67,10 @@ export class MessagingHomeComponent implements OnInit, OnDestroy {
     this.groupSelection.clearSelection();
     this.messagingChat.selectedContact.set(displayName);
     this.messagingChat.loadMessages();
+  }
+
+  private onClientIdNumbersSelected(idNumbers: number[]): void {
+    this.groupSelection.clearSelection();
+    this.messagingChat.setMultiClientMode(idNumbers);
   }
 }

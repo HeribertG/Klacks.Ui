@@ -77,6 +77,23 @@ export class DataMessagingService {
       contentType,
     });
   }
+
+  previewBroadcastToIdNumbers(providerName: string, idNumbers: number[]): Observable<BroadcastPreview> {
+    const params = idNumbers.reduce(
+      (acc, id) => acc.append('idNumbers', id.toString()),
+      new HttpParams().set('provider', providerName)
+    );
+    return this.httpClient.get<BroadcastPreview>(`${this.apiUrl}messaging/broadcast/preview-by-id-numbers`, { params });
+  }
+
+  sendBroadcastToIdNumbers(providerName: string, idNumbers: number[], content: string): Observable<BroadcastSendResult> {
+    return this.httpClient.post<BroadcastSendResult>(`${this.apiUrl}messaging/broadcast/send-to-id-numbers`, {
+      provider: providerName,
+      idNumbers,
+      content,
+      contentType: 'text',
+    });
+  }
 }
 
 export interface BroadcastPreview {

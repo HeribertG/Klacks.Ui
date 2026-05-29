@@ -20,6 +20,20 @@
             } }}
           </span>
         }
+      } @else if (isMultiClientMode()) {
+        <span class="broadcast-badge">{{ "messaging.chat.multi-client-mode" | translate }}: {{ selectedIdNumbers()?.join('; ') }}</span>
+        @if (multiClientLoading()) {
+          <span class="spinner-border spinner-border-sm ms-2" role="status"></span>
+        } @else if (multiClientPreview(); as p) {
+          <span class="broadcast-summary">
+            {{ "messaging.chat.broadcast-summary" | translate: {
+              total: p.total,
+              contact: p.withMessengerContact,
+              phone: p.withPhoneFallback,
+              skipped: p.skipped
+            } }}
+          </span>
+        }
       } @else {
         {{ "messaging.chat.inbox-title" | translate }}
       }
@@ -114,9 +128,13 @@
               ? (canBroadcast()
                   ? ('messaging.chat.broadcast-placeholder' | translate)
                   : ('messaging.chat.broadcast-no-recipients' | translate))
-              : ('messaging.chat.select-contact-hint' | translate)
+              : isMultiClientMode()
+                ? (canMultiClientSend()
+                    ? ('messaging.chat.broadcast-placeholder' | translate)
+                    : ('messaging.chat.broadcast-no-recipients' | translate))
+                : ('messaging.chat.select-contact-hint' | translate)
         "
-        [disabled]="!selectedContact() && !canBroadcast()"
+        [disabled]="!selectedContact() && !canBroadcast() && !canMultiClientSend()"
       ></textarea>
 
       <div class="scroll-buttons">
@@ -132,7 +150,7 @@
         type="button"
         class="btn-send"
         [disabled]="
-          (!selectedContact() && !canBroadcast()) || !inputText.trim() || broadcastLoading()
+          (!selectedContact() && !canBroadcast() && !canMultiClientSend()) || !inputText.trim() || broadcastLoading() || multiClientLoading()
         "
         (click)="sendMessage()"
       >

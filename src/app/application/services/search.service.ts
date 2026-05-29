@@ -25,8 +25,10 @@ export class SearchService {
   private _isGroupViewMode = signal<boolean>(true); // Grid view by default
   private _isClientSearchMode = signal<boolean>(false);
   private _clientSelected$ = new Subject<IClient>();
+  private _clientIdNumbersSelected$ = new Subject<number[]>();
 
   public clientSelected$ = this._clientSelected$.asObservable();
+  public clientIdNumbersSelected$ = this._clientIdNumbersSelected$.asObservable();
 
   // Public computed signals
   public showSearch = computed(() => this._showSearch());
@@ -82,6 +84,10 @@ export class SearchService {
 
   public emitClientSelected(client: IClient): void {
     this._clientSelected$.next(client);
+  }
+
+  public emitClientIdNumbersSelected(idNumbers: number[]): void {
+    this._clientIdNumbersSelected$.next(idNumbers);
   }
   
   public setGroupViewMode(isGridView: boolean): void {

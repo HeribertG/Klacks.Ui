@@ -8,6 +8,7 @@
  * @param setSavebarVisibility - Shows or hides the save bar
  * @param setClientSearchMode - Enables or disables client search mode
  * @param clientSelected$ - Emits when a client is selected in search
+ * @param clientIdNumbersSelected$ - Emits when multiple client id numbers are entered in search (e.g. "5002;5043")
  */
 
 import { Observable } from 'rxjs';
@@ -20,4 +21,5 @@ export interface IPluginWorkplaceHost {
   setSavebarVisibility(visible: boolean): void;
   setClientSearchMode(enabled: boolean): void;
   clientSelected$: Observable<IPluginClient>;
+  clientIdNumbersSelected$: Observable<number[]>;
 }

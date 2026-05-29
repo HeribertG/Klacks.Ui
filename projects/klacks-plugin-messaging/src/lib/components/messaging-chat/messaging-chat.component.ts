@@ -82,6 +82,9 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   availableProviders = signal<MessagingProvider[]>([]);
   broadcastPreview = signal<BroadcastPreview | null>(null);
   broadcastLoading = signal<boolean>(false);
+  selectedIdNumbers = signal<number[] | null>(null);
+  multiClientPreview = signal<BroadcastPreview | null>(null);
+  multiClientLoading = signal<boolean>(false);
 
   selectedGroupId = this.groupSelection.selectedGroupId;
   isBroadcastMode = computed<boolean>(() => !!this.selectedGroupId() && !this.selectedContact());
@@ -90,6 +93,14 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
     return p ? p.withMessengerContact + p.withPhoneFallback : 0;
   });
   canBroadcast = computed<boolean>(() => this.isBroadcastMode() && this.broadcastEligible() > 0);
+  isMultiClientMode = computed<boolean>(() =>
+    !!this.selectedIdNumbers()?.length && !this.selectedContact() && !this.isBroadcastMode()
+  );
+  multiClientEligible = computed<number>(() => {
+    const p = this.multiClientPreview();
+    return p ? p.withMessengerContact + p.withPhoneFallback : 0;
+  });
+  canMultiClientSend = computed<boolean>(() => this.isMultiClientMode() && this.multiClientEligible() > 0);
 
   private groupEffectRef: EffectRef | null = null;
 
@@ -182,6 +193,71 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadMultiClientPreview(idNumbers: number[]): void {
+    const provider = this.singleSelectedProvider();
+    if (!provider) {
+      this.multiClientPreview.set(null);
+      return;
+    }
+    this.multiClientLoading.set(true);
+    this.dataService.previewBroadcastToIdNumbers(provider.name, idNumbers)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (preview) => {
+          this.multiClientPreview.set(preview);
+          this.multiClientLoading.set(false);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.multiClientPreview.set(null);
+          this.multiClientLoading.set(false);
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private sendBroadcastToIdNumbers(): void {
+    const idNumbers = this.selectedIdNumbers();
+    const provider = this.singleSelectedProvider();
+    if (!idNumbers?.length || !provider || !this.inputText.trim()) return;
+
+    const eligible = this.multiClientEligible();
+    if (eligible === 0) return;
+
+    if (eligible >= 2) {
+      const confirmed = window.confirm(
+        this.translate.instant('messaging.chat.broadcast-confirm', { count: eligible })
+      );
+      if (!confirmed) return;
+    }
+
+    const content = this.inputText.trim();
+    this.inputText = '';
+    this.multiClientLoading.set(true);
+
+    this.dataService.sendBroadcastToIdNumbers(provider.name, idNumbers, content)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (result) => {
+          this.multiClientLoading.set(false);
+          this.toast.showSuccess(
+            this.translate.instant('messaging.chat.broadcast-result', {
+              sent: result.sent,
+              failed: result.failed,
+              skipped: result.skippedNoContact,
+            }),
+            this.translate.instant('messaging.chat.broadcast-result-title')
+          );
+          this.loadMessages();
+        },
+        error: () => {
+          this.multiClientLoading.set(false);
+          this.toast.showError(this.translate.instant('messaging.chat.broadcast-error'));
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
   private singleSelectedProvider(): { id: string; name: string } | null {
     const ids = this.selectedProviderIds();
     if (ids.length === 1) {
@@ -238,6 +314,11 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
   }
 
   sendMessage(): void {
+    if (this.isMultiClientMode()) {
+      this.sendBroadcastToIdNumbers();
+      return;
+    }
+
     if (this.isBroadcastMode()) {
       this.sendBroadcast();
       return;
@@ -313,9 +394,19 @@ export class MessagingChatComponent implements OnInit, OnDestroy {
       });
   }
 
+  setMultiClientMode(idNumbers: number[]): void {
+    this.selectedContact.set(null);
+    this.selectedIdNumbers.set(idNumbers);
+    this.multiClientPreview.set(null);
+    this.loadMultiClientPreview(idNumbers);
+    this.loadMessages();
+  }
+
   clearContact(): void {
     this.selectedContact.set(null);
     this.selectedProvider.set(null);
+    this.selectedIdNumbers.set(null);
+    this.multiClientPreview.set(null);
     this.loadMessages();
   }
 

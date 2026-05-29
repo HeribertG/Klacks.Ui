@@ -61,6 +61,15 @@ export class SearchClientComponent implements OnDestroy {
 
   onKeyupSearch(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
+      if (isMultipleNumeric(this.searchString)) {
+        const idNumbers = this.searchString
+          .split(';')
+          .filter((p) => p.trim() !== '')
+          .map((p) => parseInt(p.trim(), 10));
+        this.searchService.emitClientIdNumbersSelected(idNumbers);
+        this.clearSelection();
+        return;
+      }
       this.applySelection();
       return;
     }

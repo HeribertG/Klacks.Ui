@@ -48,6 +48,7 @@ export function providePluginHost(): Provider[] {
         setSavebarVisibility: (v) => savebar.setSavebarVisibility(v),
         setClientSearchMode: (e) => search.setClientSearchMode(e),
         clientSelected$: search.clientSelected$,
+        clientIdNumbersSelected$: search.clientIdNumbersSelected$,
       }),
       deps: [WorkplaceStateService, LayoutService, SearchService, SavebarService],
     },
