@@ -85,6 +85,12 @@ export class SearchClientComponent implements OnDestroy {
     }, DEBOUNCE_DELAY_MS);
   }
 
+  onSearchStringChange(value: string): void {
+    this.searchString = value;
+    const matched = this.results.find((c) => this.formatClientName(c) === value);
+    this.selectedClient = matched;
+  }
+
   onClickSearch(): void {
     this.applySelection();
   }
