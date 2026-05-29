@@ -31,7 +31,7 @@
       }
     </div>
 
-    <div id="updates-setting-actions" class="row-line">
+    <div id="updates-setting-actions" class="row-line" style="margin-top: 12px">
       <button
         type="button"
         id="updates-trigger-btn"
@@ -44,7 +44,7 @@
       <button
         type="button"
         id="updates-rollback-btn"
-        class="btn btn-outline-secondary"
+        class="btn btn-outline-secondary secondColumn"
         [disabled]="busy() || !!s.activeOperation"
         (click)="rollback()"
       >
@@ -59,36 +59,33 @@
 
   @if (config(); as c) {
     <div id="updates-setting-config-line" class="container-line"></div>
-    <form id="updates-setting-config-form">
-      <div class="form-check">
+
+    <div class="row-line" style="margin-top: 10px">
+      <label class="checkbox-label firstColumn">
         <input
-          class="form-check-input"
           type="checkbox"
-          id="updateAutoEnabled"
           [(ngModel)]="c.autoEnabled"
           name="autoEnabled"
           (ngModelChange)="onConfigChange()"
         />
-        <label class="form-check-label" for="updateAutoEnabled">
-          {{ 'settings.updates.config.autoEnabled' | translate }}
-        </label>
-      </div>
+        {{ 'settings.updates.config.autoEnabled' | translate }}
+      </label>
+    </div>
 
-      <div class="form-check">
+    <div class="row-line">
+      <label class="checkbox-label firstColumn">
         <input
-          class="form-check-input"
           type="checkbox"
-          id="updateNotifyOnly"
           [(ngModel)]="c.notifyOnly"
           name="notifyOnly"
           (ngModelChange)="onConfigChange()"
         />
-        <label class="form-check-label" for="updateNotifyOnly">
-          {{ 'settings.updates.config.notifyOnly' | translate }}
-        </label>
-      </div>
+        {{ 'settings.updates.config.notifyOnly' | translate }}
+      </label>
+    </div>
 
-      <div class="row-line">
+    <form id="updates-setting-config-form">
+      <div class="row-line" style="margin-top: 10px">
         <div class="form-group firstColumn">
           <label for="updateChannel">{{ 'settings.updates.config.channel' | translate }}</label>
           <select

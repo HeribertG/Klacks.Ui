@@ -2,17 +2,10 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/colors.scss";
 
-.first {
-  padding-top: 10px;
-  margin-inline-start: 30px;
-  padding-inline-end: 40px;
-}
-
 .row-line {
   margin-top: 5px;
   display: inline-flex;
   align-items: flex-end;
-  gap: 1.5rem;
 }
 
 .firstColumn {
@@ -21,6 +14,12 @@
 
 .secondColumn {
   margin-inline-start: 40px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .info-text {
@@ -33,17 +32,12 @@
 
 .hint-text {
   color: var(--standartTextColor);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .update-available {
   color: var(--bs-success, #198754);
-}
-
-.form-check {
-  margin-inline-start: 30px;
-  margin-top: 8px;
 }
 
 .action-message {
@@ -64,7 +58,13 @@ select {
 
 .history-table {
   margin-inline-start: 30px;
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 12px;
   width: calc(100% - 60px);
+}
+
+label {
+  font-size: 12px;
+  color: var(--colorLabel);
+  margin-bottom: 0;
 }
