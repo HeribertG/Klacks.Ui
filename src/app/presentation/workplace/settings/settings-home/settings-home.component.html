@@ -719,5 +719,36 @@
     </div>
   }
 
+  <div
+    class="section-header"
+    tabindex="0"
+    role="button"
+    (click)="toggleSection('system')"
+    (keydown.enter)="toggleSection('system')"
+  >
+    <span>{{ "setting.section.system" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["system"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["system"]) {
+    <div id="settings-home-updates-row" class="container-profilline">
+      <app-updates-setting
+        id="settings-updates"
+        class="container-setting-small first border-right-card border-bottom-card"
+        data-klacksy-target="updates"
+        data-klacksy-label-key="settings.updates.title"
+        data-klacksy-category="settings.admin"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-updates-setting>
+    </div>
+  }
+
   <div class="bottom-border-space"></div>
 </div>

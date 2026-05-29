@@ -1,0 +1,30 @@
+.row-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+  margin: 0.75rem 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hint-text {
+  font-weight: 600;
+}
+
+.update-available {
+  color: var(--bs-success, #198754);
+}
+
+.action-message {
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.info-text {
+  margin: 0.5rem 0;
+}
