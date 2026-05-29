@@ -7,11 +7,11 @@
   @if (status(); as s) {
     <div id="updates-setting-status" class="row-line">
       <div class="form-group firstColumn">
-        <label>{{ 'settings.updates.status.current' | translate }}</label>
+        <span class="field-label">{{ 'settings.updates.status.current' | translate }}</span>
         <span class="hint-text">{{ s.currentVersion }}</span>
       </div>
       <div class="form-group secondColumn">
-        <label>{{ 'settings.updates.status.available' | translate }}</label>
+        <span class="field-label">{{ 'settings.updates.status.available' | translate }}</span>
         @if (s.availability?.isUpdateAvailable) {
           <span class="hint-text update-available">{{ s.availability?.latestVersion }}</span>
         } @else {
@@ -20,12 +20,12 @@
       </div>
       @if (s.activeOperation) {
         <div class="form-group secondColumn">
-          <label>{{ 'settings.updates.status.active' | translate }}</label>
+          <span class="field-label">{{ 'settings.updates.status.active' | translate }}</span>
           <span class="hint-text">{{ s.activeOperation.operationType }} – {{ s.activeOperation.status }}</span>
         </div>
       } @else if (s.lastOperation) {
         <div class="form-group secondColumn">
-          <label>{{ 'settings.updates.status.last' | translate }}</label>
+          <span class="field-label">{{ 'settings.updates.status.last' | translate }}</span>
           <span class="hint-text">{{ s.lastOperation.operationType }} – {{ s.lastOperation.status }}</span>
         </div>
       }
