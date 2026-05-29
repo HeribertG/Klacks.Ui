@@ -23,7 +23,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IClient } from 'src/app/domain/models/client/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { isNumeric, isMultipleNumeric } from 'src/app/shared/helpers/number.helper';
 
 const MIN_SEARCH_LENGTH = 3;
 const DEBOUNCE_DELAY_MS = 2000;
@@ -65,7 +65,7 @@ export class SearchClientComponent implements OnDestroy {
       return;
     }
 
-    if (isNumeric(this.searchString)) {
+    if (isNumeric(this.searchString) || isMultipleNumeric(this.searchString)) {
       this.searchClients(true);
       return;
     }

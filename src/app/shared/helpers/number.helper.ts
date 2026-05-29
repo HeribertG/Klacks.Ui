@@ -19,6 +19,18 @@ export function isNumeric(value: any): boolean {
 }
 
 /**
+ * Checks if a value is a semicolon-separated list of numeric parts.
+ *
+ * @param value - Value to check (e.g. "123;456")
+ * @returns true if the value contains a semicolon and every non-empty part is numeric
+ */
+export function isMultipleNumeric(value: string): boolean {
+  if (!value.includes(';')) return false;
+  const parts = value.split(';').filter((p) => p.trim() !== '');
+  return parts.length > 1 && parts.every((p) => isNumeric(p.trim()));
+}
+
+/**
  * Converts a string or number to a number (integer).
  *
  * @param value - Value to convert
