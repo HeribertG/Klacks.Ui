@@ -1,19 +1,24 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { UpdatesSettingComponent } from './updates-setting.component';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 
 describe('UpdatesSettingComponent', () => {
   let component: UpdatesSettingComponent;
   let fixture: ComponentFixture<UpdatesSettingComponent>;
-  let mockService: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
+  let mockUpdate: Partial<Record<keyof DataManagementUpdateService, ReturnType<typeof vi.fn>>>;
+  let updateConfigSignal: ReturnType<typeof signal<UpdateConfigSettings>>;
+  let triggerSignal: ReturnType<typeof signal<number>>;
 
   beforeEach(async () => {
-    mockService = {
+    mockUpdate = {
       getStatus: vi.fn().mockReturnValue(of({
         currentVersion: '1.0.0',
         availability: { currentVersion: '1.0.0', latestVersion: '1.2.0', containsMigrations: false, isUpdateAvailable: true },
@@ -21,19 +26,23 @@ describe('UpdatesSettingComponent', () => {
         lastOperation: null,
       })),
       getHistory: vi.fn().mockReturnValue(of([])),
-      getConfig: vi.fn().mockReturnValue(of({
-        autoEnabled: false, channel: 'Stable', checkIntervalHours: 6,
-        maintenanceWindowStart: '', maintenanceWindowEnd: '', notifyOnly: false,
-        backupRetentionCount: 3, pinnedVersion: '',
-      })),
       triggerUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Update enqueued.' })),
       rollbackUpdate: vi.fn().mockReturnValue(of({ enqueued: true, reason: 'Rollback enqueued.' })),
-      saveConfig: vi.fn().mockReturnValue(of({})),
+    };
+
+    updateConfigSignal = signal(new UpdateConfigSettings());
+    triggerSignal = signal(0);
+    const mockSettings = {
+      appSettings: { updateConfigSettings: updateConfigSignal },
+      settingsChangeTrigger: triggerSignal,
     };
 
     await TestBed.configureTestingModule({
       imports: [UpdatesSettingComponent, TranslateModule.forRoot()],
-      providers: [{ provide: DataManagementUpdateService, useValue: mockService }],
+      providers: [
+        { provide: DataManagementUpdateService, useValue: mockUpdate },
+        { provide: DataManagementSettingsService, useValue: mockSettings },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UpdatesSettingComponent);
@@ -44,24 +53,32 @@ describe('UpdatesSettingComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('loads status, history and config on init', () => {
+  it('loads status + history on init', () => {
     fixture.detectChanges();
-    expect(mockService.getStatus).toHaveBeenCalled();
-    expect(mockService.getHistory).toHaveBeenCalled();
-    expect(mockService.getConfig).toHaveBeenCalled();
+    expect(mockUpdate.getStatus).toHaveBeenCalled();
+    expect(mockUpdate.getHistory).toHaveBeenCalled();
     expect(component.status()?.availability?.isUpdateAvailable).toBe(true);
+  });
+
+  it('mirrors the central auto-update config into the local form', () => {
+    updateConfigSignal.set({ ...new UpdateConfigSettings(), channel: 'Beta', autoEnabled: true });
+    fixture.detectChanges();
+    expect(component.config()?.channel).toBe('Beta');
+    expect(component.config()?.autoEnabled).toBe(true);
+  });
+
+  it('persists config changes via the settings auto-save mechanism', () => {
+    fixture.detectChanges();
+    component.config.set({ ...component.config()!, channel: 'Beta' });
+    component.onConfigChange();
+    expect(updateConfigSignal().channel).toBe('Beta');
+    expect(triggerSignal()).toBeGreaterThan(0);
   });
 
   it('triggers an update and stores the action message', async () => {
     fixture.detectChanges();
     await component.triggerNow();
-    expect(mockService.triggerUpdate).toHaveBeenCalled();
+    expect(mockUpdate.triggerUpdate).toHaveBeenCalled();
     expect(component.actionMessage()).toBe('Update enqueued.');
-  });
-
-  it('saves config on change', () => {
-    fixture.detectChanges();
-    component.onConfigChange();
-    expect(mockService.saveConfig).toHaveBeenCalled();
   });
 });

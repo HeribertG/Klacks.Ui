@@ -12,6 +12,7 @@ import {
   ChangeDetectionStrategy,
   OnInit,
   OnDestroy,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -20,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { DataManagementUpdateService } from 'src/app/domain/services/update/data-management-update.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import {
   IUpdateConfig,
   IUpdateHistoryItem,
@@ -40,6 +42,7 @@ const UPDATE_CHANNELS = ['Stable', 'Beta'];
 })
 export class UpdatesSettingComponent implements OnInit, OnDestroy {
   private dataUpdateService = inject(DataManagementUpdateService);
+  private settingsService = inject(DataManagementSettingsService);
   private destroy$ = new Subject<void>();
 
   public readonly channels = UPDATE_CHANNELS;
@@ -49,11 +52,17 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
   public busy = signal(false);
   public actionMessage = signal<string>('');
 
+  constructor() {
+    // Mirror the centrally-loaded auto-update config into the local form model. Persistence runs
+    // through AppSettingsManagementService (Settings table, auto-save) like every other setting.
+    effect(() => {
+      const c = this.settingsService.appSettings.updateConfigSettings();
+      this.config.set({ ...c });
+    });
+  }
+
   ngOnInit(): void {
     this.reload();
-    this.dataUpdateService.getConfig()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(c => this.config.set(c));
   }
 
   ngOnDestroy(): void {
@@ -81,9 +90,8 @@ export class UpdatesSettingComponent implements OnInit, OnDestroy {
   public onConfigChange(): void {
     const current = this.config();
     if (current) {
-      this.dataUpdateService.saveConfig(current)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(saved => this.config.set(saved));
+      this.settingsService.appSettings.updateConfigSettings.set({ ...current });
+      this.settingsService.settingsChangeTrigger.update(v => v + 1);
     }
   }
 

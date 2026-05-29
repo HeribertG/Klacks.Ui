@@ -19,6 +19,7 @@ import {
   SchedulingDefaultSettings,
   DataRetentionSettings
 } from 'src/app/domain/models/settings/app-settings.model';
+import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -30,6 +31,7 @@ interface SettingsModels {
   work: IWorkSettings;
   schedulingDefaults: ISchedulingDefaultSettings;
   dataRetention: IDataRetentionSettings;
+  update: IUpdateConfigSettings;
   openRouteServiceApiKey: string;
   deeplApiKey: string;
   speech: ISpeechSettings;
@@ -147,6 +149,15 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = parseInt(v, 10) || 1500)],
 
     [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, (v, m) => (m.holisticHarmonizer.llmModelId = v)],
+
+    [AppSetting.UPDATE_AUTO_ENABLED, (v, m) => (m.update.autoEnabled = (v ?? '').toLowerCase() === 'true')],
+    [AppSetting.UPDATE_CHANNEL, (v, m) => (m.update.channel = v || 'Stable')],
+    [AppSetting.UPDATE_CHECK_INTERVAL_HOURS, (v, m) => (m.update.checkIntervalHours = parseInt(v, 10) || 6)],
+    [AppSetting.UPDATE_MAINTENANCE_WINDOW_START, (v, m) => (m.update.maintenanceWindowStart = v || '')],
+    [AppSetting.UPDATE_MAINTENANCE_WINDOW_END, (v, m) => (m.update.maintenanceWindowEnd = v || '')],
+    [AppSetting.UPDATE_NOTIFY_ONLY, (v, m) => (m.update.notifyOnly = (v ?? '').toLowerCase() === 'true')],
+    [AppSetting.UPDATE_BACKUP_RETENTION_COUNT, (v, m) => (m.update.backupRetentionCount = parseInt(v, 10) || 3)],
+    [AppSetting.UPDATE_PINNED_VERSION, (v, m) => (m.update.pinnedVersion = v || '')],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -155,6 +166,7 @@ export class AppSettingsManagementService {
   public workSettings = signal<IWorkSettings>(new WorkSettings());
   public schedulingDefaultSettings = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   public dataRetentionSettings = signal<IDataRetentionSettings>(new DataRetentionSettings());
+  public updateConfigSettings = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
@@ -166,6 +178,7 @@ export class AppSettingsManagementService {
   private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
   private schedulingDefaultSettingsOriginal = signal<ISchedulingDefaultSettings>(new SchedulingDefaultSettings());
   private dataRetentionSettingsOriginal = signal<IDataRetentionSettings>(new DataRetentionSettings());
+  private updateConfigSettingsOriginal = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
@@ -186,6 +199,7 @@ export class AppSettingsManagementService {
       this.workSettings();
       this.schedulingDefaultSettings();
       this.dataRetentionSettings();
+      this.updateConfigSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
       this.speechSettings();
@@ -249,6 +263,7 @@ export class AppSettingsManagementService {
       work: new WorkSettings(),
       schedulingDefaults: new SchedulingDefaultSettings(),
       dataRetention: new DataRetentionSettings(),
+      update: new UpdateConfigSettings(),
       openRouteServiceApiKey: '',
       deeplApiKey: '',
       speech: new SpeechSettings(),
@@ -268,6 +283,7 @@ export class AppSettingsManagementService {
     this.workSettings.set(models.work);
     this.schedulingDefaultSettings.set(models.schedulingDefaults);
     this.dataRetentionSettings.set(models.dataRetention);
+    this.updateConfigSettings.set(models.update);
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
     this.speechSettings.set(models.speech);
@@ -279,6 +295,7 @@ export class AppSettingsManagementService {
     this.workSettingsOriginal.set(cloneObject(models.work));
     this.schedulingDefaultSettingsOriginal.set(cloneObject(models.schedulingDefaults));
     this.dataRetentionSettingsOriginal.set(cloneObject(models.dataRetention));
+    this.updateConfigSettingsOriginal.set(cloneObject(models.update));
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
@@ -380,6 +397,15 @@ export class AppSettingsManagementService {
     { key: AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, getCurrent: () => String(this.speechSettings().silenceThresholdMs), getOriginal: () => String(this.speechSettingsOriginal().silenceThresholdMs) },
 
     { key: AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, getCurrent: () => this.holisticHarmonizerSettings().llmModelId, getOriginal: () => this.holisticHarmonizerSettingsOriginal().llmModelId },
+
+    { key: AppSetting.UPDATE_AUTO_ENABLED, getCurrent: () => String(this.updateConfigSettings().autoEnabled), getOriginal: () => String(this.updateConfigSettingsOriginal().autoEnabled) },
+    { key: AppSetting.UPDATE_CHANNEL, getCurrent: () => this.updateConfigSettings().channel, getOriginal: () => this.updateConfigSettingsOriginal().channel },
+    { key: AppSetting.UPDATE_CHECK_INTERVAL_HOURS, getCurrent: () => this.updateConfigSettings().checkIntervalHours.toString(), getOriginal: () => this.updateConfigSettingsOriginal().checkIntervalHours.toString() },
+    { key: AppSetting.UPDATE_MAINTENANCE_WINDOW_START, getCurrent: () => this.updateConfigSettings().maintenanceWindowStart, getOriginal: () => this.updateConfigSettingsOriginal().maintenanceWindowStart },
+    { key: AppSetting.UPDATE_MAINTENANCE_WINDOW_END, getCurrent: () => this.updateConfigSettings().maintenanceWindowEnd, getOriginal: () => this.updateConfigSettingsOriginal().maintenanceWindowEnd },
+    { key: AppSetting.UPDATE_NOTIFY_ONLY, getCurrent: () => String(this.updateConfigSettings().notifyOnly), getOriginal: () => String(this.updateConfigSettingsOriginal().notifyOnly) },
+    { key: AppSetting.UPDATE_BACKUP_RETENTION_COUNT, getCurrent: () => this.updateConfigSettings().backupRetentionCount.toString(), getOriginal: () => this.updateConfigSettingsOriginal().backupRetentionCount.toString() },
+    { key: AppSetting.UPDATE_PINNED_VERSION, getCurrent: () => this.updateConfigSettings().pinnedVersion, getOriginal: () => this.updateConfigSettingsOriginal().pinnedVersion },
   ];
 
   save(): void {
@@ -433,6 +459,7 @@ export class AppSettingsManagementService {
       this.workSettingsOriginal.set(cloneObject(this.workSettings()));
       this.schedulingDefaultSettingsOriginal.set(cloneObject(this.schedulingDefaultSettings()));
       this.dataRetentionSettingsOriginal.set(cloneObject(this.dataRetentionSettings()));
+      this.updateConfigSettingsOriginal.set(cloneObject(this.updateConfigSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
@@ -461,6 +488,7 @@ export class AppSettingsManagementService {
       !compareComplexObjects(work, workOriginal) ||
       !compareComplexObjects(sched, schedOriginal) ||
       !compareComplexObjects(retention, retentionOriginal) ||
+      !compareComplexObjects(this.updateConfigSettings(), this.updateConfigSettingsOriginal()) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal() ||
       !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
