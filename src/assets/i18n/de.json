@@ -814,6 +814,8 @@
   "schedule.error-list.rest-violation": "Ruhezeit nur {{actualHours}}h statt {{requiredHours}}h ({{endTime}} bis {{startTime}})",
   "schedule.error-list.overtime": "Tagesarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} aufeinanderfolgende Arbeitstage (max. {{maxDays}})",
+  "schedule.error-list.weekly-overtime": "Wochenarbeitszeit {{actualHours}}h überschreitet Maximum von {{maxHours}}h",
+  "schedule.error-list.min-rest-days": "Nur {{actualDays}} Ruhetage pro Woche (min. {{minDays}})",
   "schedule.error-list.travel-time-warning": "Reisezeit knapp: Lücke {{gapMinutes}} Min, Reisezeit ca. {{travelMinutes}} Min",
   "schedule.error-list.travel-time-error": "Reisezeit nicht ausreichend: Lücke {{gapMinutes}} Min, Reisezeit ca. {{travelMinutes}} Min",
   "schedule.error-list.travel-time-no-api-key": "Reisezeit-Prüfung nicht möglich, API-Key nicht konfiguriert",

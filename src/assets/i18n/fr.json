@@ -813,6 +813,8 @@
   "schedule.error-list.rest-violation": "Temps de repos seulement {{actualHours}}h au lieu de {{requiredHours}}h ({{endTime}} à {{startTime}})",
   "schedule.error-list.overtime": "Durée de travail journalière {{actualHours}}h dépasse le maximum de {{maxHours}}h",
   "schedule.error-list.consecutive-days": "{{actualDays}} jours de travail consécutifs (max. {{maxDays}})",
+  "schedule.error-list.weekly-overtime": "Durée de travail hebdomadaire {{actualHours}}h dépasse le maximum de {{maxHours}}h",
+  "schedule.error-list.min-rest-days": "Seulement {{actualDays}} jours de repos par semaine (min. {{minDays}})",
   "schedule.error-list.travel-time-warning": "Temps de trajet serré : écart {{gapMinutes}} min, temps de trajet env. {{travelMinutes}} min",
   "schedule.error-list.travel-time-error": "Temps de trajet insuffisant : écart {{gapMinutes}} min, temps de trajet env. {{travelMinutes}} min",
   "schedule.error-list.travel-time-no-api-key": "Vérification du temps de trajet impossible, clé API non configurée",
