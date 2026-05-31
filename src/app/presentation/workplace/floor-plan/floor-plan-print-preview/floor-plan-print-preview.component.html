@@ -1,0 +1,11 @@
+<div class="print-viewport">
+  @if (svgContent()) {
+    <div
+      class="print-page"
+      [style.width.px]="pageWidth()"
+      [style.height.px]="pageHeight()"
+    >
+      <img class="print-svg" [src]="svgDataUrl()" alt="" />
+    </div>
+  }
+</div>

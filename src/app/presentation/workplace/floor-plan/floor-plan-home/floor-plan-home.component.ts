@@ -21,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { FloorPlanCanvasComponent } from '../floor-plan-canvas/floor-plan-canvas.component';
 import { FloorPlanListComponent } from '../floor-plan-list/floor-plan-list.component';
+import { FloorPlanPrintPreviewComponent } from '../floor-plan-print-preview/floor-plan-print-preview.component';
 import {
   FloorPlanCanvasService,
   ILiveMarkerDisplay,
@@ -47,6 +48,9 @@ import {
   WorkScheduleEntryType,
 } from 'src/app/domain/models/schedule/work-schedule-class';
 
+type ViewMode = 'view' | 'print';
+type PrintOrientation = 'landscape' | 'portrait';
+
 const WORK_SCHEDULE_ROW_COUNT = 500;
 const DEFAULT_MARKER_COLOR = '#2563eb';
 const ZOOM_SLIDER_DEFAULT = 100;
@@ -64,6 +68,7 @@ const ZOOM_PERCENT_DIVISOR = 100;
     NgxSliderModule,
     FloorPlanCanvasComponent,
     FloorPlanListComponent,
+    FloorPlanPrintPreviewComponent,
   ],
   templateUrl: './floor-plan-home.component.html',
   styleUrls: ['./floor-plan-home.component.scss'],
@@ -89,6 +94,7 @@ export class FloorPlanHomeComponent implements OnInit {
   private searchService = inject(SearchService);
   private dataWorkSchedule = inject(DataWorkScheduleService);
   private enrichmentService = inject(FloorPlanMarkerEnrichmentService);
+  private exportService = inject(FloorPlanExportService);
 
   readonly selectedDate = signal<string>(this.formatDate(new Date()));
   readonly display = signal<ILiveMarkerDisplay>({
@@ -98,6 +104,9 @@ export class FloorPlanHomeComponent implements OnInit {
     image: false,
   });
   readonly isLoadingWorks = signal(false);
+  readonly viewMode = signal<ViewMode>('view');
+  readonly printOrientation = signal<PrintOrientation>('landscape');
+  readonly printSvgContent = signal<string>('');
 
   zoomValue = ZOOM_SLIDER_DEFAULT;
   readonly zoomOptions: Options = {
@@ -149,7 +158,27 @@ export class FloorPlanHomeComponent implements OnInit {
   }
 
   onZoomSliderChange(): void {
-    this.canvasService.setZoom(this.zoomValue / ZOOM_PERCENT_DIVISOR);
+    if (this.viewMode() === 'view') {
+      this.canvasService.setZoom(this.zoomValue / ZOOM_PERCENT_DIVISOR);
+    }
+  }
+
+  onViewModeChange(mode: ViewMode): void {
+    if (mode === 'print' && this.dataManagement.selectedFloorPlan()) {
+      this.printSvgContent.set(this.canvasService.toSVG());
+    }
+    this.viewMode.set(mode);
+  }
+
+  onOrientationChange(orientation: PrintOrientation): void {
+    this.printOrientation.set(orientation);
+  }
+
+  onPrint(): void {
+    const svg = this.printSvgContent();
+    if (svg) {
+      this.exportService.printCurrentPage(svg, this.printOrientation());
+    }
   }
 
   async loadWorksForSelectedDate(): Promise<void> {
@@ -200,6 +229,9 @@ export class FloorPlanHomeComponent implements OnInit {
       this.canvasService.clearLiveMarkers();
     } finally {
       this.isLoadingWorks.set(false);
+      if (this.viewMode() === 'print') {
+        this.printSvgContent.set(this.canvasService.toSVG());
+      }
     }
   }
 

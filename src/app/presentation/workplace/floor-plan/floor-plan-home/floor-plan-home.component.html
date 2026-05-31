@@ -30,13 +30,73 @@
         class="container-profile first border-right-card border-bottom-card floor-plan-viewer"
       >
         <div class="container-header header-container">
-          {{ selected.name }}
+          <div class="view-mode-tabs" role="tablist">
+            <button
+              type="button"
+              class="view-tab"
+              [class.active]="viewMode() === 'view'"
+              (click)="onViewModeChange('view')"
+              role="tab"
+            >
+              {{ 'floor-plan.view.tab-view' | translate }}
+            </button>
+            <button
+              type="button"
+              class="view-tab"
+              [class.active]="viewMode() === 'print'"
+              (click)="onViewModeChange('print')"
+              role="tab"
+            >
+              {{ 'floor-plan.view.tab-print' | translate }}
+            </button>
+          </div>
+
+          <span class="floor-plan-plan-name">{{ selected.name }}</span>
+
           @if (isLoadingWorks()) {
             <div class="spinner-border spinner-border-sm" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
           }
+
           <span class="filler"></span>
+
+          @if (viewMode() === 'print') {
+            <div class="print-controls">
+              <div class="btn-group btn-group-sm" role="group">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  [class.active]="printOrientation() === 'landscape'"
+                  (click)="onOrientationChange('landscape')"
+                  [title]="'floor-plan.print.landscape' | translate"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <rect x="1" y="4" width="14" height="8" rx="1" ry="1" stroke="currentColor" stroke-width="1" fill="none"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  [class.active]="printOrientation() === 'portrait'"
+                  (click)="onOrientationChange('portrait')"
+                  [title]="'floor-plan.print.portrait' | translate"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <rect x="4" y="1" width="8" height="14" rx="1" ry="1" stroke="currentColor" stroke-width="1" fill="none"/>
+                  </svg>
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary floor-plan-print-btn"
+                (click)="onPrint()"
+              >
+                {{ 'floor-plan.print.print' | translate }}
+              </button>
+            </div>
+          }
+
           <span class="floor-plan-zoom-label">
             {{ 'floor-plan.toolbar.zoom' | translate }}
           </span>
@@ -50,8 +110,19 @@
           </div>
         </div>
         <div class="container-line"></div>
-        <div class="floor-plan-viewer-canvas-area">
-          <app-floor-plan-canvas />
+        <div
+          class="floor-plan-viewer-canvas-area"
+          [class.print-mode]="viewMode() === 'print'"
+        >
+          @if (viewMode() === 'view') {
+            <app-floor-plan-canvas />
+          } @else {
+            <app-floor-plan-print-preview
+              [svgContent]="printSvgContent()"
+              [zoom]="zoomValue / 100"
+              [orientation]="printOrientation()"
+            />
+          }
         </div>
       </div>
     </div>
