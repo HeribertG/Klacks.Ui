@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 
 interface TargetEntry {
   targetId: string; route: string; labelKey: string; category?: string;
-  synonyms: Record<string, string[]>; synonymStatus: string;
+  synonyms: Record<string, string[]>; synonymStatus: string; obsolete?: boolean;
 }
 
 interface LlmConfig { url: string; key: string; model: string; }
@@ -75,28 +75,69 @@ function resolveConfig(): LlmConfig {
   return cachedConfig;
 }
 
+function humanizeId(id: string): string {
+  return id.replace(/[-.]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function buildMeaningAnchor(target: TargetEntry): string {
+  const en = target.synonyms?.['en'] ?? [];
+  const de = target.synonyms?.['de'] ?? [];
+  const source = en.length ? en : de;
+  if (!source.length) return '';
+  const sourceLang = en.length ? 'English' : 'German';
+  const sample = source.slice(0, 8).join(', ');
+  return `To understand WHAT this target is, here are phrases users already use in ${sourceLang} (use these ONLY to grasp the meaning, never translate them literally): ${sample}.`;
+}
+
 async function callLlm(target: TargetEntry, locale: string, label: string): Promise<string[]> {
   const { url, key, model } = resolveConfig();
 
-  const prompt = `You generate in-app navigation synonyms. Target: "${label}". Category: "${target.category ?? ''}". App: Klacks (workforce scheduling). Language: ${locale}. Generate 20 natural user phrases, lowercase, no duplicates, EXCLUDE the bot name "klacksy" and its variants. Output strict JSON array of strings.`;
+  const idConcept = humanizeId(target.targetId);
+  const labelHint = label && label.toLowerCase() !== idConcept.toLowerCase() ? ` (UI label hint: "${label}")` : '';
+  const anchor = buildMeaningAnchor(target);
+  const prompt = [
+    'You generate in-app navigation synonyms for Klacks, a workforce scheduling application (shifts, employees, absences, contracts, settings).',
+    `Navigation target: "${idConcept}"${labelHint} (internal id: "${target.targetId}", section: "${target.category ?? 'n/a'}", route: "${target.route}").`,
+    anchor,
+    `Task: write 20 phrases a native ${locale} speaker would naturally type or speak to navigate to this target.`,
+    `Write idiomatic, native ${locale} expressions — NOT word-for-word translations. Each language phrases things differently; honour the natural wording of ${locale}.`,
+    `Write every phrase in the natural native script and orthography of ${locale}, exactly as a native speaker types it (e.g. Japanese uses the normal Kanji/Hiragana/Katakana mix, Chinese uses Hanzi, Korean uses Hangul). Never output romanized, transliterated, or single-script (e.g. kana-only) text. Each phrase must be a complete, meaningful expression, never a fragment.`,
+    'Rules: lowercase (where the script has case), no duplicates, no markdown, EXCLUDE the bot name "klacksy" and its variants.',
+    'Output a strict JSON array of strings.',
+  ].filter(Boolean).join(' ');
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], response_format: { type: 'json_object' } })
-  });
-  if (!res.ok) throw new Error(`LLM ${res.status}`);
-  const data = await res.json() as { choices: { message: { content: string } }[] };
-  const content = data.choices[0].message.content;
-  const parsed = JSON.parse(content);
-  const arr: string[] = Array.isArray(parsed) ? parsed : (parsed.synonyms ?? parsed.phrases ?? []);
-  return [...new Set(arr.map(s => String(s).toLowerCase().trim()).filter(Boolean))];
+  const body = JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], response_format: { type: 'json_object' } });
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+        body
+      });
+      if (!res.ok) throw new Error(`LLM ${res.status}`);
+      const data = await res.json() as { choices: { message: { content: string } }[] };
+      const content = data.choices[0].message.content;
+      const parsed = JSON.parse(content);
+      const arr: string[] = Array.isArray(parsed) ? parsed : (parsed.synonyms ?? parsed.phrases ?? []);
+      return [...new Set(arr.map(s => String(s).toLowerCase().trim()).filter(Boolean))];
+    } catch (e) {
+      if (attempt === maxAttempts) throw e;
+      console.warn(`  retry ${attempt}/${maxAttempts} (${target.targetId}/${locale}): ${e}`);
+      await sleep(1000 * attempt);
+    }
+  }
+  return [];
 }
 
 async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
 const SKIP_PLUGINS = process.env.SYNONYM_SKIP_PLUGINS === '1' || process.argv.includes('--core-only');
 const PLUGINS_ONLY = process.env.SYNONYM_PLUGINS_ONLY === '1' || process.argv.includes('--plugins-only');
+const ONLY_LOCALES = (process.env.SYNONYM_ONLY_LOCALES ?? '').split(',').map(s => s.trim()).filter(Boolean);
+const ONLY_TARGETS = (process.env.SYNONYM_ONLY_TARGETS ?? '').split(',').map(s => s.trim()).filter(Boolean);
+const ACTIVE_PLUGIN_LOCALES = ONLY_LOCALES.length ? PLUGIN_LOCALES.filter(l => ONLY_LOCALES.includes(l)) : PLUGIN_LOCALES;
+const FORCE = process.env.SYNONYM_FORCE === '1' || process.argv.includes('--force');
 
 function pluginOverlayHasTarget(loc: string, targetId: string): boolean {
   const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
@@ -111,10 +152,20 @@ function pluginOverlayHasTarget(loc: string, targetId: string): boolean {
 
 async function generatePluginsForTarget(t: TargetEntry, label: string, force: boolean): Promise<number> {
   let calls = 0;
-  for (const loc of PLUGIN_LOCALES) {
+  for (const loc of ACTIVE_PLUGIN_LOCALES) {
     if (!force && pluginOverlayHasTarget(loc, t.targetId)) continue;
     console.log(`→ ${t.targetId} / ${loc} (plugin)`);
-    const synonyms = await callLlm(t, loc, label);
+    let synonyms: string[];
+    try {
+      synonyms = await callLlm(t, loc, label);
+    } catch (e) {
+      console.error(`  ✗ skipped ${t.targetId}/${loc}: ${e}`);
+      continue;
+    }
+    if (!synonyms.length) {
+      console.error(`  ✗ empty result ${t.targetId}/${loc}, skipped`);
+      continue;
+    }
     await sleep(200);
     const file = join(PLUGINS_ROOT, loc, 'navigation-targets.json');
     mkdirSync(dirname(file), { recursive: true });
@@ -133,10 +184,12 @@ async function run(): Promise<void> {
 
   let processed = 0;
   for (const t of manifest) {
+    if (t.obsolete) continue;
+    if (ONLY_TARGETS.length && !ONLY_TARGETS.includes(t.targetId)) continue;
     const label = t.labelKey.split('.').pop() ?? t.targetId;
 
     if (PLUGINS_ONLY) {
-      const calls = await generatePluginsForTarget(t, label, false);
+      const calls = await generatePluginsForTarget(t, label, FORCE);
       if (calls > 0) processed++;
     } else {
       if (t.synonymStatus !== 'pending') continue;
