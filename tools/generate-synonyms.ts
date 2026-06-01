@@ -80,13 +80,13 @@ function humanizeId(id: string): string {
 }
 
 function buildMeaningAnchor(target: TargetEntry): string {
-  const en = target.synonyms?.['en'] ?? [];
-  const de = target.synonyms?.['de'] ?? [];
-  const source = en.length ? en : de;
-  if (!source.length) return '';
-  const sourceLang = en.length ? 'English' : 'German';
-  const sample = source.slice(0, 8).join(', ');
-  return `To understand WHAT this target is, here are phrases users already use in ${sourceLang} (use these ONLY to grasp the meaning, never translate them literally): ${sample}.`;
+  const en = (target.synonyms?.['en'] ?? []).slice(0, 6);
+  const de = (target.synonyms?.['de'] ?? []).slice(0, 6);
+  const parts: string[] = [];
+  if (en.length) parts.push(`English: ${en.join(', ')}`);
+  if (de.length) parts.push(`German: ${de.join(', ')}`);
+  if (!parts.length) return '';
+  return `To understand WHAT this target is, here is how users already refer to it (use these ONLY to grasp the meaning across both languages — they disambiguate the concept — never translate them literally): ${parts.join(' || ')}.`;
 }
 
 async function callLlm(target: TargetEntry, locale: string, label: string): Promise<string[]> {
