@@ -102,7 +102,7 @@ async function callLlm(target: TargetEntry, locale: string, label: string): Prom
     `Task: write 20 phrases a native ${locale} speaker would naturally type or speak to navigate to this target.`,
     `Write idiomatic, native ${locale} expressions — NOT word-for-word translations. Each language phrases things differently; honour the natural wording of ${locale}.`,
     `Write every phrase in the natural native script and orthography of ${locale}, exactly as a native speaker types it (e.g. Japanese uses the normal Kanji/Hiragana/Katakana mix, Chinese uses Hanzi, Korean uses Hangul). Never output romanized, transliterated, or single-script (e.g. kana-only) text. Each phrase must be a complete, meaningful expression, never a fragment.`,
-    'Rules: lowercase (where the script has case), no duplicates, no markdown, EXCLUDE the bot name "klacksy" and its variants.',
+    `Rules: lowercase (where the script has case), no duplicates, no markdown, EXCLUDE the bot name "klacksy" and its variants. Do NOT copy any word from the reference phrases verbatim — the reference is English/German; output only natural ${locale} words (well-established loanwords excepted).`,
     'Output a strict JSON array of strings.',
   ].filter(Boolean).join(' ');
 
