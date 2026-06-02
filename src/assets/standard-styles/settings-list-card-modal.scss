@@ -39,7 +39,8 @@
   margin-inline: 30px;
   justify-content: space-between;
 
-  label {
+  label,
+  span.field-label {
     display: block;
     font-weight: 500;
     margin-bottom: 5px;
