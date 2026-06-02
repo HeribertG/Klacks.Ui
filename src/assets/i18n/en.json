@@ -472,6 +472,7 @@
   "placeholder.search": "Enter name or ID number",
   "placeholder.search-name": "Enter name",
   "placeholder.search-contract-name": "Enter contract name",
+  "placeholder.search-qualification": "Search qualification",
   "placeholder.search-staat": "Enter state",
   "placeholder.search-land": "Enter country",
   "label.search": "Search",

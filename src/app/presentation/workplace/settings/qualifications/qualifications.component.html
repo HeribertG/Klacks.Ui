@@ -130,15 +130,17 @@
 
 <!-- Settings Card -->
 <app-settings-list-card
-  [headline]="'setting.qualifications.title' | translate"
+  [showSearchInHeader]="true"
+  [searchPlaceholderKey]="'placeholder.search-qualification'"
   [addLabel]="'setting.qualifications.add' | translate"
-  [showHeader]="true"
+  [showHeader]="filteredQualifications().length > 0"
   idPrefix="qualifications"
   (addClick)="onClickAdd()"
+  (headerSearchChange)="searchTerm.set($event)"
 >
   <app-qualifications-header header id="qualifications-table-header"></app-qualifications-header>
   <div rows>
-    @for (q of qualifications; track q.id || $index; let i = $index) {
+    @for (q of filteredQualifications(); track q.id || $index; let i = $index) {
       <app-qualifications-row
         [id]="'qualifications-row-' + i"
         [data]="q"

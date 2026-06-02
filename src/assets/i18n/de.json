@@ -472,6 +472,7 @@
   "placeholder.search": "Name oder ID Nummer eingeben",
   "placeholder.search-name": "Name eingeben",
   "placeholder.search-contract-name": "Name Vertrag eingeben",
+  "placeholder.search-qualification": "Qualifikation suchen",
   "placeholder.search-staat": "Staat eingeben",
   "placeholder.search-land": "Länder eingeben",
   "label.search": "Suche",

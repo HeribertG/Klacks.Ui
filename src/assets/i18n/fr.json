@@ -471,6 +471,7 @@
   "placeholder.search": "Entrez le nom ou le numéro d'identification",
   "placeholder.search-name": "Entrer le nom",
   "placeholder.search-contract-name": "Entrer le nom du contrat",
+  "placeholder.search-qualification": "Rechercher une qualification",
   "placeholder.search-staat": "Entrer l'état",
   "placeholder.search-land": "Entrer le pays",
   "label.search": "Rechercher",

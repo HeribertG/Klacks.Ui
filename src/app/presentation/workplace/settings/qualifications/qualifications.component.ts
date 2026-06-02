@@ -66,7 +66,15 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  qualifications: IQualification[] = [];
+  qualifications = signal<IQualification[]>([]);
+  searchTerm = signal('');
+
+  filteredQualifications = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.qualifications();
+    return this.qualifications().filter(q => q.name.toLowerCase().includes(term));
+  });
+
   isLoading = false;
   editingQualification: IQualification | null = null;
   private originalQualification: IQualification | null = null;
@@ -121,7 +129,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: list => {
-          this.qualifications = list;
+          this.qualifications.set(list);
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -220,17 +228,18 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
         const updated = await firstValueFrom(
           this.dataQualService.updateQualification({ ...toSave, id: this.originalQualification.id })
         );
-        const idx = this.qualifications.findIndex(q => q.id === this.originalQualification!.id);
+        const idx = this.qualifications().findIndex(q => q.id === this.originalQualification!.id);
         if (idx !== -1) {
-          this.qualifications = [
-            ...this.qualifications.slice(0, idx),
+          const list = this.qualifications();
+          this.qualifications.set([
+            ...list.slice(0, idx),
             updated,
-            ...this.qualifications.slice(idx + 1),
-          ];
+            ...list.slice(idx + 1),
+          ]);
         }
       } else {
         const created = await firstValueFrom(this.dataQualService.addQualification(toSave));
-        this.qualifications = [...this.qualifications, created];
+        this.qualifications.update(list => [...list, created]);
       }
       this.cdr.markForCheck();
       return true;
@@ -246,7 +255,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private async executeDelete(id: string): Promise<void> {
     try {
       await firstValueFrom(this.dataQualService.deleteQualification(id));
-      this.qualifications = this.qualifications.filter(q => q.id !== id);
+      this.qualifications.update(list => list.filter(q => q.id !== id));
       this.cdr.markForCheck();
     } catch {
       this.toastService.showError('setting.qualifications.error.delete');
