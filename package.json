@@ -34,6 +34,7 @@
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/lang-xml": "^6.1.0",
     "@codemirror/legacy-modes": "^6.5.1",
+    "@fontsource/noto-color-emoji": "^5.2.12",
     "@fontsource/roboto": "^5.2.10",
     "@fortawesome/angular-fontawesome": "^4.0.0",
     "@fortawesome/fontawesome-free": "^6.6.0",

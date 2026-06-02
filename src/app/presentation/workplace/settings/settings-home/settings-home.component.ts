@@ -56,6 +56,7 @@ import { CalendarSelectionComponent } from '../calendar-selection/calendar-selec
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
+import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -115,6 +116,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     FloorPlanSettingsComponent,
     DataRetentionSettingComponent,
     UpdatesSettingComponent,
+    QualificationsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

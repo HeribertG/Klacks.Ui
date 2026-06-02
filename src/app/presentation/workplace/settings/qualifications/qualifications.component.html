@@ -1,0 +1,150 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+
+<!-- Qualification Edit / Create Modal -->
+<ng-template #qualModal id="qualifications-modal-template" let-modal>
+  <form id="qualifications-modal-form">
+    <div id="qualifications-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        @if (isNewQualification) {
+          {{ 'setting.qualifications.modal.title-new' | translate }}
+        } @else {
+          {{ 'setting.qualifications.modal.title-edit' | translate }}
+        }
+      </div>
+      <span class="filler"></span>
+      <div
+        id="qualifications-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline);"
+        >&times;</span>
+      </div>
+    </div>
+
+    <div id="qualifications-modal-body" class="modal-body">
+      @if (editingQualification) {
+
+        <!-- Name -->
+        <div id="qualifications-modal-name-row" class="row-line-modal-inline">
+          <div class="model-field model-field-wide">
+            <label for="qualifications-modal-name">
+              {{ 'setting.qualifications.modal.name' | translate }}
+              <span class="required-marker">*</span>
+            </label>
+            <input
+              id="qualifications-modal-name"
+              type="text"
+              [formField]="qualForm.name"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <!-- Emoji trigger + IsTimeLimited -->
+        <div id="qualifications-modal-emoji-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <label>{{ 'setting.qualifications.modal.emoji' | translate }}</label>
+            <button
+              id="qualifications-modal-emoji-btn"
+              type="button"
+              class="emoji-trigger-btn"
+              (click)="toggleEmojiPicker()"
+            >
+              <span class="emoji-trigger-display">{{ selectedEmoji() || '❓' }}</span>
+              <span class="emoji-trigger-hint">{{ 'setting.qualifications.modal.emoji-hint' | translate }}</span>
+            </button>
+          </div>
+
+          <div class="model-field">
+            <label>{{ 'setting.qualifications.modal.time-limited' | translate }}</label>
+            <div class="checkbox-field">
+              <input
+                id="qualifications-modal-time-limited"
+                type="checkbox"
+                [checked]="isTimeLimitedValue()"
+                (change)="onTimeLimitedChange($event)"
+              />
+              <label for="qualifications-modal-time-limited">
+                {{ 'setting.qualifications.modal.time-limited-label' | translate }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emoji picker — inline, not a dropdown -->
+        @if (emojiPickerOpen()) {
+          <div id="qualifications-emoji-picker" class="emoji-picker-inline">
+            <div class="emoji-category-tabs">
+              @for (cat of categories; track cat.name; let i = $index) {
+                <button
+                  type="button"
+                  class="emoji-cat-tab"
+                  [class.active]="selectedCategoryIndex() === i"
+                  (click)="onCategorySelect(i)"
+                  [title]="cat.name"
+                >{{ categoryIcons[i] }}</button>
+              }
+            </div>
+            <div class="emoji-grid">
+              @for (emoji of currentCategoryEmojis(); track emoji) {
+                <button
+                  type="button"
+                  class="emoji-cell"
+                  [class.selected]="selectedEmoji() === emoji"
+                  (click)="onSelectEmoji(emoji)"
+                  [title]="emojiNames[emoji] || ''"
+                >{{ emoji }}</button>
+              }
+            </div>
+          </div>
+        }
+
+      }
+    </div>
+
+    <div id="qualifications-modal-footer" class="modal-footer">
+      <button
+        id="qualifications-modal-cancel-btn"
+        type="button"
+        class="cancel-btn"
+        (click)="modal.dismiss('Cancel click')"
+      >{{ 'cancel' | translate }}</button>
+      <button
+        id="qualifications-modal-save-btn"
+        type="button"
+        class="save-btn"
+        (click)="onSaveModal(modal)"
+        [disabled]="!isFormValid()"
+      >
+        {{ 'save' | translate }}
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- Settings Card -->
+<app-settings-list-card
+  [headline]="'setting.qualifications.title' | translate"
+  [addLabel]="'setting.qualifications.add' | translate"
+  [showHeader]="true"
+  idPrefix="qualifications"
+  (addClick)="onClickAdd()"
+>
+  <app-qualifications-header header id="qualifications-table-header"></app-qualifications-header>
+  <div rows>
+    @for (q of qualifications; track q.id || $index; let i = $index) {
+      <app-qualifications-row
+        [id]="'qualifications-row-' + i"
+        [data]="q"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteQualification($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

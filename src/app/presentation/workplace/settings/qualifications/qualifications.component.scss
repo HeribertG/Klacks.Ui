@@ -1,0 +1,131 @@
+@use '../../../../../assets/standard-styles/standard-card-interior.scss';
+@use '../../../../../assets/standard-styles/standard-controls.scss';
+@use '../../../../../assets/standard-styles/standard-modal.scss';
+@use '../../../../../assets/standard-styles/settings-list-card-modal.scss';
+
+/* Trigger button: system fonts first → always visible immediately */
+$emoji-system-stack: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+/* Picker cells: Noto first → correct flag rendering once cached; fallback to Segoe */
+$emoji-picker-stack: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+
+.emoji-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--colorLine);
+  background: var(--standartTextBackground, #fff);
+  border-radius: 4px;
+  padding: 6px 14px;
+  cursor: pointer;
+  min-width: 130px;
+  font-family: $emoji-system-stack;
+
+  &:hover {
+    border-color: var(--standartGreenColor);
+  }
+}
+
+.emoji-trigger-display {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.emoji-trigger-hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--colorLabel);
+  font-family: inherit;
+}
+
+.emoji-picker-inline {
+  display: flex;
+  flex-direction: column;
+  margin: 0 30px 15px;
+  border: 1px solid var(--cardBorderColor, var(--colorLine));
+  border-radius: 8px;
+  height: 280px;
+  overflow: hidden;
+}
+
+.emoji-category-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 6px 4px;
+  gap: 4px;
+  height: 46px;
+  min-height: 46px;
+  max-height: 46px;
+  border-bottom: 1px solid var(--cardBorderColor, var(--colorLine));
+  align-items: center;
+  background-color: var(--backgroundColorCard, #fff);
+
+  &::-webkit-scrollbar { height: 3px; }
+  &::-webkit-scrollbar-thumb { background: var(--colorLine); border-radius: 2px; }
+}
+
+.emoji-cat-tab {
+  flex-shrink: 0;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  font-size: 1.1rem;
+  font-family: $emoji-picker-stack;
+  border: 1px solid var(--cardBorderColor, var(--colorLine));
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.active {
+    background: var(--standartGreenColor);
+    border-color: var(--standartGreenColor);
+  }
+
+  &:hover:not(.active) {
+    background: var(--backgroundColorHover, #f0f0f0);
+    border-color: var(--standartGreenColor);
+  }
+}
+
+.emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  gap: 2px;
+  align-content: flex-start;
+  background-color: var(--backgroundColorCard, #fff);
+}
+
+.emoji-cell {
+  width: 34px;
+  height: 34px;
+  font-size: 1.25rem;
+  font-family: $emoji-picker-stack;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.1s;
+  color: var(--standartTextColor);
+
+  &:hover {
+    background: var(--backgroundColorHover, #f0f0f0);
+    border-color: var(--colorLine);
+  }
+
+  &.selected {
+    background: var(--standartGreenColor);
+    border-color: var(--standartGreenColor);
+  }
+}

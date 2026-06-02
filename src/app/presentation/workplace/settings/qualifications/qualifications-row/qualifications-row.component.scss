@@ -1,0 +1,16 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+
+.qualification-emoji-col {
+  width: 48px;
+  min-width: 48px;
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.emoji-display {
+  font-size: 1.4rem;
+  cursor: default;
+  user-select: none;
+}
