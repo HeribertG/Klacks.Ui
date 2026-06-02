@@ -3,11 +3,6 @@
 @use '../../../../../assets/standard-styles/standard-modal.scss';
 @use '../../../../../assets/standard-styles/settings-list-card-modal.scss';
 
-/* Trigger button: system fonts first → always visible immediately */
-$emoji-system-stack: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-/* Picker cells: Noto first → correct flag rendering once cached; fallback to Segoe */
-$emoji-picker-stack: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
-
 .emoji-trigger-btn {
   display: flex;
   align-items: center;
@@ -18,7 +13,6 @@ $emoji-picker-stack: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 
   padding: 6px 14px;
   cursor: pointer;
   min-width: 130px;
-  font-family: $emoji-system-stack;
 
   &:hover {
     border-color: var(--standartGreenColor);
@@ -72,7 +66,6 @@ $emoji-picker-stack: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 
   height: 32px;
   padding: 0;
   font-size: 1.1rem;
-  font-family: $emoji-picker-stack;
   border: 1px solid var(--cardBorderColor, var(--colorLine));
   border-radius: 6px;
   background: transparent;
@@ -108,7 +101,6 @@ $emoji-picker-stack: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 
   width: 34px;
   height: 34px;
   font-size: 1.25rem;
-  font-family: $emoji-picker-stack;
   display: flex;
   align-items: center;
   justify-content: center;
