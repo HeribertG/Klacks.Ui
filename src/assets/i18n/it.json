@@ -1616,6 +1616,7 @@
   "setting.qualifications.modal.title-new": "Crea qualifica",
   "setting.qualifications.modal.title-edit": "Modifica qualifica",
   "setting.qualifications.modal.name": "Nome",
+  "setting.qualifications.modal.description": "Descrizione",
   "setting.qualifications.modal.emoji": "Simbolo",
   "setting.qualifications.modal.emoji-hint": "Seleziona",
   "setting.qualifications.modal.time-limited": "Limitata nel tempo",

@@ -9,7 +9,7 @@
       <input
         id="qualifications-row-name-{{ data.id }}"
         type="text"
-        [value]="data.name"
+        [value]="getDisplayName()"
         name="qualificationName"
         class="form-control attribute-name"
         aria-label="qualification name"

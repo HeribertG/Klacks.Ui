@@ -28,14 +28,22 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EMOJI_CATEGORIES, EMOJI_NAMES, EmojiCategory } from 'src/app/domain/constants/emoji-data';
 import { QualificationsHeaderComponent } from './qualifications-header/qualifications-header.component';
 import { QualificationsRowComponent } from './qualifications-row/qualifications-row.component';
 
-interface QualNameModel {
-  name: string;
+interface QualFormModel {
+  nameDe: string;
+  nameEn: string;
+  nameFr: string;
+  nameIt: string;
+  descDe: string;
+  descEn: string;
+  descFr: string;
+  descIt: string;
 }
 
 @Component({
@@ -72,7 +80,9 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   filteredQualifications = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     if (!term) return this.qualifications();
-    return this.qualifications().filter(q => q.name.toLowerCase().includes(term));
+    return this.qualifications().filter(q =>
+      Object.values(q.name ?? {}).some(v => typeof v === 'string' && v.toLowerCase().includes(term))
+    );
   });
 
   isLoading = false;
@@ -95,9 +105,16 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.categories[this.selectedCategoryIndex()]?.emojis ?? []
   );
 
-  private nameModel = signal<QualNameModel>({ name: '' });
-  qualForm = form(this.nameModel, f => {
-    debounce(f.name, 300);
+  private formModel = signal<QualFormModel>({ nameDe: '', nameEn: '', nameFr: '', nameIt: '', descDe: '', descEn: '', descFr: '', descIt: '' });
+  qualForm = form(this.formModel, f => {
+    debounce(f.nameDe, 300);
+    debounce(f.nameEn, 300);
+    debounce(f.nameFr, 300);
+    debounce(f.nameIt, 300);
+    debounce(f.descDe, 300);
+    debounce(f.descEn, 300);
+    debounce(f.descFr, 300);
+    debounce(f.descIt, 300);
   });
 
   ngOnInit(): void {
@@ -143,9 +160,9 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   onClickAdd(): void {
     this.isNewQualification = true;
-    this.editingQualification = { name: '', isTimeLimited: false };
+    this.editingQualification = { name: {}, isTimeLimited: false };
     this.originalQualification = null;
-    this.nameModel.set({ name: '' });
+    this.formModel.set({ nameDe: '', nameEn: '', nameFr: '', nameIt: '', descDe: '', descEn: '', descFr: '', descIt: '' });
     this.selectedEmoji.set('');
     this.isTimeLimitedValue.set(false);
     this.emojiPickerOpen.set(false);
@@ -160,7 +177,16 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isNewQualification = false;
     this.editingQualification = { ...q };
     this.originalQualification = q;
-    this.nameModel.set({ name: q.name });
+    this.formModel.set({
+      nameDe: q.name?.de ?? '',
+      nameEn: q.name?.en ?? '',
+      nameFr: q.name?.fr ?? '',
+      nameIt: q.name?.it ?? '',
+      descDe: q.description?.de ?? '',
+      descEn: q.description?.en ?? '',
+      descFr: q.description?.fr ?? '',
+      descIt: q.description?.it ?? '',
+    });
     this.selectedEmoji.set(q.emoji ?? '');
     this.isTimeLimitedValue.set(q.isTimeLimited);
     this.emojiPickerOpen.set(false);
@@ -207,7 +233,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   isFormValid(): boolean {
-    return !!(this.nameModel().name?.trim());
+    const m = this.formModel();
+    return !!(m.nameDe?.trim() || m.nameEn?.trim() || m.nameFr?.trim() || m.nameIt?.trim());
   }
 
   private async saveQualification(): Promise<boolean> {
@@ -216,9 +243,21 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     this.isSaving = true;
+    const m = this.formModel();
+    const name: IMultiLanguage = {
+      de: m.nameDe || undefined,
+      en: m.nameEn || undefined,
+      fr: m.nameFr || undefined,
+      it: m.nameIt || undefined,
+    };
+    const hasDesc = m.descDe || m.descEn || m.descFr || m.descIt;
+    const description: IMultiLanguage | undefined = hasDesc
+      ? { de: m.descDe || undefined, en: m.descEn || undefined, fr: m.descFr || undefined, it: m.descIt || undefined }
+      : undefined;
     const toSave: IQualification = {
       ...this.editingQualification,
-      name: this.nameModel().name.trim(),
+      name,
+      description,
       emoji: this.selectedEmoji() || undefined,
       isTimeLimited: this.isTimeLimitedValue(),
     };

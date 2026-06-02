@@ -1616,6 +1616,7 @@
   "setting.qualifications.modal.title-new": "Créer une qualification",
   "setting.qualifications.modal.title-edit": "Modifier la qualification",
   "setting.qualifications.modal.name": "Nom",
+  "setting.qualifications.modal.description": "Description",
   "setting.qualifications.modal.emoji": "Symbole",
   "setting.qualifications.modal.emoji-hint": "Sélectionner",
   "setting.qualifications.modal.time-limited": "Limité dans le temps",

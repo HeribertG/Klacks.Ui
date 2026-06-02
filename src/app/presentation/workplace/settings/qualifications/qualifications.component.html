@@ -30,19 +30,53 @@
     <div id="qualifications-modal-body" class="modal-body">
       @if (editingQualification) {
 
-        <!-- Name -->
+        <!-- Name (MultiLanguage) -->
         <div id="qualifications-modal-name-row" class="row-line-modal-inline">
           <div class="model-field model-field-wide">
-            <label for="qualifications-modal-name">
-              {{ 'setting.qualifications.modal.name' | translate }}
-              <span class="required-marker">*</span>
-            </label>
-            <input
-              id="qualifications-modal-name"
-              type="text"
-              [formField]="qualForm.name"
-              class="form-control"
-            />
+            <label>{{ 'setting.qualifications.modal.name' | translate }} <span class="required-marker">*</span></label>
+            <div class="multilang-inputs">
+              <div class="multilang-row">
+                <span class="lang-label">DE</span>
+                <input id="qualifications-modal-name-de" type="text" [formField]="qualForm.nameDe" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">EN</span>
+                <input id="qualifications-modal-name-en" type="text" [formField]="qualForm.nameEn" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">FR</span>
+                <input id="qualifications-modal-name-fr" type="text" [formField]="qualForm.nameFr" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">IT</span>
+                <input id="qualifications-modal-name-it" type="text" [formField]="qualForm.nameIt" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description (MultiLanguage) -->
+        <div id="qualifications-modal-desc-row" class="row-line-modal-inline">
+          <div class="model-field model-field-wide">
+            <label>{{ 'setting.qualifications.modal.description' | translate }}</label>
+            <div class="multilang-inputs">
+              <div class="multilang-row">
+                <span class="lang-label">DE</span>
+                <input id="qualifications-modal-desc-de" type="text" [formField]="qualForm.descDe" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">EN</span>
+                <input id="qualifications-modal-desc-en" type="text" [formField]="qualForm.descEn" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">FR</span>
+                <input id="qualifications-modal-desc-fr" type="text" [formField]="qualForm.descFr" class="form-control" />
+              </div>
+              <div class="multilang-row">
+                <span class="lang-label">IT</span>
+                <input id="qualifications-modal-desc-it" type="text" [formField]="qualForm.descIt" class="form-control" />
+              </div>
+            </div>
           </div>
         </div>
 
