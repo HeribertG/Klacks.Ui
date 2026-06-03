@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './presentation/auth/auth.guard';
 import { AdminGuard } from './presentation/auth/admin.guard';
 import { InboxGuard } from './presentation/auth/inbox.guard';
@@ -235,7 +235,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { urlUpdateStrategy: 'eager' })],
+  imports: [RouterModule.forRoot(routes, { urlUpdateStrategy: 'eager', preloadingStrategy: PreloadAllModules })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

@@ -17,7 +17,7 @@ import {
   runInInjectionContext,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -40,6 +40,7 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { InboxVisibilityService } from 'src/app/domain/services/email/inbox-visibility.service';
+import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
 import { PluginNavItem } from 'src/app/domain/models/plugins/plugin-nav-item';
 import { IconAvailabilityComponent } from '../../icons/icon-availability.component';
@@ -120,6 +121,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   public inboxService = inject(InboxService);
   public inboxVisibilityService = inject(InboxVisibilityService);
   public featurePluginState = inject(FeaturePluginStateService);
+  private spinnerService = inject(LOADING_INDICATOR_TOKEN);
 
   public tooltipPlacement =
     document.documentElement.dir === 'rtl' ? 'left' : 'right';
@@ -257,7 +259,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setupRxJSSubscriptions(): void {
-    // Language change subscription - verwende original approach
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -265,6 +266,18 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
           this.updateTranslations();
         }, 200);
       });
+
+    this.router.events.pipe(takeUntil(this.ngUnsubscribe)).subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.spinnerService.showProgressSpinner = true;
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        this.spinnerService.showProgressSpinner = false;
+      }
+    });
   }
 
   private updateTranslations(): void {
