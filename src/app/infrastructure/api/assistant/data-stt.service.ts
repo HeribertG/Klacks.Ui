@@ -10,6 +10,8 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const STT_TEST_ENDPOINT = 'stt/test';
 const STT_PROVIDERS_ENDPOINT = 'stt/providers';
+const STT_TRANSCRIBE_ENDPOINT = 'stt/transcribe';
+const WAV_CONTENT_TYPE = 'audio/wav';
 
 export interface SttTestResult {
   success: boolean;
@@ -45,6 +47,29 @@ export class DataSttService {
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Network error' };
     }
+  }
+
+  async transcribe(audio: Blob, locale: string): Promise<string> {
+    const token = localStorage.getItem(StorageKeys.TOKEN);
+
+    const response = await fetch(
+      `${this.baseUrl}${STT_TRANSCRIBE_ENDPOINT}?locale=${encodeURIComponent(locale)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': WAV_CONTENT_TYPE,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: audio,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Transcription failed: HTTP ${response.status}`);
+    }
+
+    const result = (await response.json()) as { text: string };
+    return result.text ?? '';
   }
 
   async getProviders(): Promise<SttProviderInfo[]> {

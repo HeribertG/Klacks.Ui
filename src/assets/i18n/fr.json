@@ -2051,7 +2051,7 @@
   "klacksy.voice.audio-mode.help": "In audio mode Klacksy shows only an icon in the top right. Open the conversation history via right-click on the icon.",
   "klacksy.voice.transcript.title": "Conversation history",
   "klacksy.voice.transcript.hint": "For full chat: switch to 'Text' in settings.",
-  "klacksy.voice.errors.stt-failed": "Microphone unavailable",
+  "klacksy.voice.errors.stt-failed": "Échec de la reconnaissance vocale",
   "klacksy.voice.errors.network-failed": "Network error",
   "klacksy.voice.errors.microphone-denied": "Microphone permission required",
   "klacksy.voice.errors.tts-failed": "Speech output unavailable",

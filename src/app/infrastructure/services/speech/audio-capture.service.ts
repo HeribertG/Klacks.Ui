@@ -10,6 +10,7 @@ import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
+import { ExtendedAudioConstraints } from './extended-audio-constraints.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AudioCaptureService implements OnDestroy {
@@ -70,22 +71,23 @@ export class AudioCaptureService implements OnDestroy {
       channelCount: SpeechDefaults.ChannelCount,
       echoCancellation: true,
       noiseSuppression: true,
+      autoGainControl: false,
+      advanced: [{ voiceIsolation: true } as ExtendedAudioConstraints],
     };
 
-    if (!deviceId) {
-      return navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
+    if (deviceId) {
+      baseConstraints.deviceId = { exact: deviceId };
     }
 
     try {
-      return await navigator.mediaDevices.getUserMedia({
-        audio: { ...baseConstraints, deviceId: { exact: deviceId } },
-      });
+      return await navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
     } catch (err) {
-      if (err instanceof DOMException && err.name === 'OverconstrainedError') {
-        this.micSelection.selectDevice(null);
-        return navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
+      if (err instanceof DOMException && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
+        throw err;
       }
-      throw err;
+      console.warn('[VS] enhanced audio constraints failed, retrying with minimal constraints:', err instanceof DOMException ? err.name : err, deviceId);
+      const minimal: MediaTrackConstraints = deviceId ? { deviceId: { exact: deviceId } } : {};
+      return navigator.mediaDevices.getUserMedia({ audio: minimal });
     }
   }
 

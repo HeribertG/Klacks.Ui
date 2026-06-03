@@ -44,3 +44,18 @@ export class SpeechDefaults {
   static readonly ChannelCount = 1;
   static readonly AudioProcessorBufferSize = 4096;
 }
+
+export class NonSpeechDefaults {
+  static readonly Phrases: readonly string[] = [
+    'musik',
+    'music',
+    'applaus',
+    'applause',
+    'gelächter',
+    'laughter',
+    'amara.org',
+    'untertitel der amara.org-community',
+    'untertitelung des zdf für funk',
+    'untertitel im auftrag des zdf',
+  ];
+}

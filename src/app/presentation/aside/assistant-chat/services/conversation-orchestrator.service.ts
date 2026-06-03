@@ -14,10 +14,12 @@ import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
 import { WhisperStreamingService } from 'src/app/infrastructure/services/speech/whisper-streaming.service';
 import { SttStreamService } from 'src/app/infrastructure/api/assistant/data-stt-stream.service';
+import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTranscriptionService } from 'src/app/infrastructure/api/assistant/data-transcription.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { AudioQueueService } from './audio-queue.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { TranscriptSanitizerService } from 'src/app/domain/services/speech/transcript-sanitizer.service';
 import { SttEngine, OutputMode, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import { ChatMessage } from '../chat-message.interface';
@@ -43,10 +45,12 @@ export class ConversationOrchestratorService implements OnDestroy {
   private readonly audioCapture = inject(AudioCaptureService);
   private readonly whisper = inject(WhisperStreamingService);
   private readonly sttStream = inject(SttStreamService);
+  private readonly dataStt = inject(DataSttService);
   private readonly transcription = inject(DataTranscriptionService);
   private readonly dataTts = inject(DataTtsService);
   private readonly audioQueue = inject(AudioQueueService);
   private readonly settings = inject(AppSettingsManagementService);
+  private readonly transcriptSanitizer = inject(TranscriptSanitizerService);
   private readonly ngZone = inject(NgZone);
 
   readonly state = signal(ConversationState.Idle);
@@ -296,7 +300,7 @@ export class ConversationOrchestratorService implements OnDestroy {
     const speechSettings = this.settings.speechSettings();
     console.log('[VS] sttEngine=', speechSettings.sttEngine, 'outputMode=', speechSettings.outputMode);
 
-    if (speechSettings.sttEngine !== SttEngine.Browser) {
+    if (!this.usesBlobStt(speechSettings.sttEngine)) {
       try {
         console.log('[VS] connecting sttStream with locale=', this.locale);
         this.sttStream.connect(this.locale);
@@ -327,16 +331,25 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
   }
 
+  /**
+   * Engines that capture the full utterance and transcribe a single blob (local Whisper
+   * or a buffered server REST provider) instead of streaming over a WebSocket.
+   * @param engine - The configured STT engine identifier
+   */
+  private usesBlobStt(engine: string): boolean {
+    return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper;
+  }
+
   private async onSilenceDetected(): Promise<void> {
     console.log('[VS] onSilenceDetected, state=', this.state(), 'callbacks=', this.callbacks ? 'SET' : 'NULL');
     if (this.state() !== ConversationState.Listening) return;
 
     const speechSettings = this.settings.speechSettings();
 
-    if (speechSettings.sttEngine === SttEngine.Browser) {
+    if (this.usesBlobStt(speechSettings.sttEngine)) {
       const blob = this.audioCapture.takeRecordedBlob();
       this.audioCapture.stop();
-      console.log('[VS] browser engine: transcribing', blob.size, 'bytes via Whisper');
+      console.log('[VS] blob STT engine=', speechSettings.sttEngine, 'bytes=', blob.size);
       if (blob.size < 1000) {
         console.log('[VS] blob too small, loop back');
         await this.transitionToListening();
@@ -344,12 +357,15 @@ export class ConversationOrchestratorService implements OnDestroy {
       }
       this.state.set(ConversationState.Enhancing);
       try {
-        const text = await this.whisper.transcribeBlob(blob, this.locale);
-        console.log('[VS] Whisper result:', JSON.stringify(text));
+        const text =
+          speechSettings.sttEngine === SttEngine.Browser
+            ? await this.whisper.transcribeBlob(blob, this.locale)
+            : await this.dataStt.transcribe(blob, this.locale);
+        console.log('[VS] blob STT result:', JSON.stringify(text));
         this.callbacks?.setInputText(text);
         this.callbacks?.detectChanges();
       } catch (err) {
-        console.error('[VS] Whisper transcription failed', err);
+        console.error('[VS] blob STT transcription failed', err);
         this.reportError({
           kind: 'stt-connection',
           i18nKey: 'klacksy.voice.errors.stt-failed',
@@ -364,7 +380,8 @@ export class ConversationOrchestratorService implements OnDestroy {
     }
 
     const rawText = this.callbacks?.getInputText() || '';
-    if (!rawText.trim()) {
+    if (!rawText.trim() || this.transcriptSanitizer.isNonSpeech(rawText)) {
+      this.callbacks?.setInputText('');
       await this.transitionToListening();
       return;
     }

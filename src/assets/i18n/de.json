@@ -2052,7 +2052,7 @@
   "klacksy.voice.audio-mode.help": "Im Audio-Modus zeigt Klacksy nur ein Icon oben rechts. Öffne die Konversationshistorie per Rechtsklick auf das Icon.",
   "klacksy.voice.transcript.title": "Konversationsverlauf",
   "klacksy.voice.transcript.hint": "Für vollen Chat: in Einstellungen zu ‚Text' wechseln.",
-  "klacksy.voice.errors.stt-failed": "Mikrofon nicht erreichbar",
+  "klacksy.voice.errors.stt-failed": "Spracherkennung fehlgeschlagen",
   "klacksy.voice.errors.network-failed": "Netzwerkfehler",
   "klacksy.voice.errors.microphone-denied": "Mikrofon-Berechtigung erforderlich",
   "klacksy.voice.errors.tts-failed": "Sprachausgabe nicht verfügbar",
