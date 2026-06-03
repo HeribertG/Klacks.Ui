@@ -153,14 +153,14 @@ describe('QualificationsComponent', () => {
   });
 
   describe('Form Validation', () => {
-    it('should be valid if any language name is provided', () => {
-      (component as any).formModel.set({ nameDe: 'Test', nameEn: '', nameFr: '', nameIt: '', descDe: '', descEn: '', descFr: '', descIt: '' });
+    it('should be valid if name is provided', () => {
+      (component as any).formModel.set({ name: 'Test', description: '' });
 
       expect(component.isFormValid()).toBe(true);
     });
 
-    it('should be invalid if all language names are empty', () => {
-      (component as any).formModel.set({ nameDe: '', nameEn: '', nameFr: '', nameIt: '', descDe: '', descEn: '', descFr: '', descIt: '' });
+    it('should be invalid if name is empty', () => {
+      (component as any).formModel.set({ name: '', description: '' });
 
       expect(component.isFormValid()).toBe(false);
     });
