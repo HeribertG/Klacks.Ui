@@ -75,15 +75,19 @@ export class AudioCaptureService implements OnDestroy {
       advanced: [{ voiceIsolation: true } as ExtendedAudioConstraints],
     };
 
-    if (deviceId) {
-      baseConstraints.deviceId = { exact: deviceId };
-    }
+    const constraints: MediaTrackConstraints = deviceId
+      ? { ...baseConstraints, deviceId: { exact: deviceId } }
+      : baseConstraints;
 
     try {
-      return await navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
+      return await navigator.mediaDevices.getUserMedia({ audio: constraints });
     } catch (err) {
       if (err instanceof DOMException && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
         throw err;
+      }
+      if (err instanceof DOMException && err.name === 'OverconstrainedError' && deviceId) {
+        this.micSelection.selectDevice(null);
+        return navigator.mediaDevices.getUserMedia({ audio: baseConstraints });
       }
       console.warn('[VS] enhanced audio constraints failed, retrying with minimal constraints:', err instanceof DOMException ? err.name : err, deviceId);
       const minimal: MediaTrackConstraints = deviceId ? { deviceId: { exact: deviceId } } : {};
