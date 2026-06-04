@@ -76,7 +76,7 @@ function formatDate(
   const dateFnsFormat = dateFormat
     .replace(/dddd/g, 'EEEE')
     .replace(/DD/g, 'dd')
-    .replace(/yyyy/g, 'yyyy');
+    .replace(/YYYY/g, 'yyyy');
 
   return format(dateObj, dateFnsFormat, { locale: localeObj });
 }

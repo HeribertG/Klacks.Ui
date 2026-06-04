@@ -1,0 +1,8 @@
+name: "Klacks.Ui CodeQL config"
+queries:
+  - uses: security-and-quality
+paths-ignore:
+  - "src/assets/**"
+  - "tools/**"
+  - "**/*.spec.ts"
+  - "node_modules/**"

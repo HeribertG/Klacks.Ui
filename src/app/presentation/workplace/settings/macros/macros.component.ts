@@ -155,13 +155,13 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
    */
   private parseName(value: string): string {
     return value
-      .replace(' ', '_')
-      .replace('(', '_')
-      .replace(')', '_')
-      .replace('=', '_')
-      .replace('>', '_')
-      .replace('<', '_')
-      .replace('/', '_')
-      .replace('\\', '_');
+      .replace(/ /g, '_')
+      .replace(/\(/g, '_')
+      .replace(/\)/g, '_')
+      .replace(/=/g, '_')
+      .replace(/>/g, '_')
+      .replace(/</g, '_')
+      .replace(/\//g, '_')
+      .replace(/\\/g, '_');
   }
 }

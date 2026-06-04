@@ -102,8 +102,8 @@ export class ClientDisplayService {
   }
 
   getHtmlWrapString(str: string): string {
-    str = str.replace('\r\n', '\n');
-    str = str.replace('\r', '\n');
+    str = str.replace(/\r\n/g, '\n');
+    str = str.replace(/\r/g, '\n');
     const spl = str.split('\n');
 
     let res = '';
