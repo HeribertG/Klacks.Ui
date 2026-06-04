@@ -124,7 +124,7 @@ export class OAuth2CallbackComponent implements OnInit {
         this.signalRService.resetAuthFailure();
         this.signalRService.startConnection();
         this.assistantSignalRService.startConnection();
-        this.navigationService.navigateToWorkplace();
+        this.navigationService.navigateAfterLogin();
         void this.syncNotificationService.checkAndShow();
       } else {
         this.error = 'Login failed';

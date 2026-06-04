@@ -1,4 +1,8 @@
 {
+  "draft-recovery.title": "Restaurer le travail non enregistré ?",
+  "draft-recovery.message": "Vous avez été déconnecté pendant la modification. Des modifications non enregistrées de votre session précédente ont été trouvées. Voulez-vous les restaurer ?",
+  "draft-recovery.restore": "Restaurer",
+  "draft-recovery.discard": "Ignorer",
   "messaging.sendTelegramInvitation": "Envoyer l'invitation Telegram",
   "accessibility.skip-to-main": "Aller au contenu principal",
   "accessibility.close": "Fermer",

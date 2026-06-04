@@ -142,7 +142,7 @@ export class AuthService {
         try {
           this.refreshToken().then((x) => {
             if (x! === true) {
-              this.navigationService.navigateToWorkplace();
+              this.navigationService.navigateAfterLogin();
             } else {
               this.logOut();
             }
@@ -152,7 +152,7 @@ export class AuthService {
           this.toastShowService.showInfo(DomainMessages.EXPIRED_TOKEN);
         }
       } else {
-        this.navigationService.navigateToWorkplace();
+        this.navigationService.navigateAfterLogin();
       }
     } else {
       this.logOut();
@@ -248,7 +248,7 @@ export class AuthService {
 
       case '401':
         this.logOut();
-        this.navigationService.navigateToRoot();
+        this.navigationService.redirectToLogin();
         this.toastShowService.showError(DomainMessages.HTTP401);
 
         break;

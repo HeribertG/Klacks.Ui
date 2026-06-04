@@ -1,4 +1,8 @@
 {
+  "draft-recovery.title": "Ungespeicherte Arbeit wiederherstellen?",
+  "draft-recovery.message": "Sie wurden während der Bearbeitung abgemeldet. Es wurden ungespeicherte Änderungen aus Ihrer vorherigen Sitzung gefunden. Möchten Sie diese wiederherstellen?",
+  "draft-recovery.restore": "Wiederherstellen",
+  "draft-recovery.discard": "Verwerfen",
   "messaging.sendTelegramInvitation": "Telegram-Einladung senden",
   "accessibility.skip-to-main": "Zum Hauptinhalt springen",
   "accessibility.close": "Schließen",

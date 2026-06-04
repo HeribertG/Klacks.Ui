@@ -14,4 +14,5 @@ export class StorageKeys {
   public static readonly WIZARD_AUCTION_RATIO = 'wizard.auctionRatio';
   public static readonly DASHBOARD_SECTION_VISIBILITY = 'dashboard.sectionVisibility';
   public static readonly DASHBOARD_SECTION_ORDER = 'dashboard.sectionOrder';
+  public static readonly RETURN_URL = 'klacks.returnUrl';
 }

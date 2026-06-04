@@ -21,3 +21,8 @@ export interface ILoadable {
 export interface INavigable {
   goBack(): string;
 }
+
+export interface IDraftable {
+  captureDraft(): unknown | null;
+  restoreDraft(draft: unknown): void;
+}

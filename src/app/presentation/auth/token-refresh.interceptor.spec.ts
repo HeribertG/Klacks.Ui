@@ -8,6 +8,7 @@ import { TokenRefreshInterceptor } from './token-refresh.interceptor';
 import { AuthService } from './auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
+import { DraftRecoveryService } from '../services/draft-recovery.service';
 
 describe('TokenRefreshInterceptor', () => {
     let httpClient: HttpClient;
@@ -15,6 +16,7 @@ describe('TokenRefreshInterceptor', () => {
     let authService: any;
     let localStorageService: any;
     let navigationService: any;
+    let draftRecoveryService: any;
 
     beforeEach(() => {
         const authServiceSpy = {
@@ -25,7 +27,11 @@ describe('TokenRefreshInterceptor', () => {
             get: vi.fn()
         };
         const navigationServiceSpy = {
-            navigateToRoot: vi.fn()
+            navigateToRoot: vi.fn(),
+            redirectToLogin: vi.fn()
+        };
+        const draftRecoveryServiceSpy = {
+            capture: vi.fn()
         };
 
         TestBed.configureTestingModule({
@@ -39,6 +45,7 @@ describe('TokenRefreshInterceptor', () => {
                 { provide: AuthService, useValue: authServiceSpy },
                 { provide: LocalStorageService, useValue: localStorageServiceSpy },
                 { provide: NavigationService, useValue: navigationServiceSpy },
+                { provide: DraftRecoveryService, useValue: draftRecoveryServiceSpy },
             ],
         });
 
@@ -47,6 +54,7 @@ describe('TokenRefreshInterceptor', () => {
         authService = TestBed.inject(AuthService) as any;
         localStorageService = TestBed.inject(LocalStorageService) as any;
         navigationService = TestBed.inject(NavigationService) as any;
+        draftRecoveryService = TestBed.inject(DraftRecoveryService) as any;
     });
 
     afterEach(() => {
@@ -127,8 +135,9 @@ describe('TokenRefreshInterceptor', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         expect(authService.refreshToken).toHaveBeenCalled();
+        expect(draftRecoveryService.capture).toHaveBeenCalled();
         expect(authService.logOut).toHaveBeenCalled();
-        expect(navigationService.navigateToRoot).toHaveBeenCalled();
+        expect(navigationService.redirectToLogin).toHaveBeenCalled();
         expect(completed).toBe(true);
     });
 
@@ -161,8 +170,9 @@ describe('TokenRefreshInterceptor', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         expect(authService.refreshToken).toHaveBeenCalled();
+        expect(draftRecoveryService.capture).toHaveBeenCalled();
         expect(authService.logOut).toHaveBeenCalled();
-        expect(navigationService.navigateToRoot).toHaveBeenCalled();
+        expect(navigationService.redirectToLogin).toHaveBeenCalled();
         expect(completed).toBe(true);
     });
 

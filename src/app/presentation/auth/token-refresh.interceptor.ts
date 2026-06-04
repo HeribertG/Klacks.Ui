@@ -15,12 +15,14 @@ import { AuthService } from '../auth/auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { NavigationService } from '../services/navigation.service';
+import { DraftRecoveryService } from '../services/draft-recovery.service';
 
 @Injectable()
 export class TokenRefreshInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
+  private draftRecoveryService = inject(DraftRecoveryService);
 
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -55,15 +57,17 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
             const newAuthReq = this.addAuthHeader(req);
             return next.handle(newAuthReq);
           } else {
+            this.draftRecoveryService.capture();
             this.authService.logOut();
-            this.navigationService.navigateToRoot();
+            this.navigationService.redirectToLogin();
             return EMPTY;
           }
         }),
         catchError(() => {
           this.isRefreshing = false;
+          this.draftRecoveryService.capture();
           this.authService.logOut();
-          this.navigationService.navigateToRoot();
+          this.navigationService.redirectToLogin();
           return EMPTY;
         })
       );

@@ -20,7 +20,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable, IDraftable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
@@ -30,7 +30,7 @@ import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-st
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable {
+export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable, IDraftable {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
@@ -73,6 +73,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   public onSaveCompleted?: () => void;
   public onBeforeSave?: () => void;
+  public onReadCompleted?: () => void;
   public onExternalFilterChange?: () => void;
   public isSaveAndClose = false;
   public returnUrl: string | null = null;
@@ -211,6 +212,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
+    if (this.onReadCompleted) {
+      this.onReadCompleted();
+    }
   }
 
   private prepareNewShift(): IShift {
@@ -268,6 +272,10 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
           }
 
           this.fireIsReadEvent();
+
+          if (this.onReadCompleted) {
+            this.onReadCompleted();
+          }
         });
     }
   }
@@ -364,23 +372,32 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     }
   }
 
+  private static readonly DIRTY_EXCLUDE_FIELDS = [
+    'startShift',
+    'endShift',
+    'beforeShift',
+    'afterShift',
+    'fromDate',
+    'untilDate',
+    'travelTimeAfter',
+    'travelTimeBefore',
+    'workTime',
+  ];
+
+  private hasUnsavedChanges(): boolean {
+    if (!this.editShift || !this.editShiftDummy) {
+      return false;
+    }
+    return !compareComplexObjects(
+      this.editShift as IShift,
+      this.editShiftDummy as IShift,
+      DataManagementShiftService.DIRTY_EXCLUDE_FIELDS
+    );
+  }
+
   private isEditShift_Dirty(): boolean {
     let result = false;
-    const a = this.editShift as IShift;
-    const b = this.editShiftDummy as IShift;
-    const exclude = [
-      'startShift',
-      'endShift',
-      'beforeShift',
-      'afterShift',
-      'endShift',
-      'fromDate',
-      'untilDate',
-      'travelTimeAfter',
-      'travelTimeBefore',
-      'workTime',
-    ];
-    if (!compareComplexObjects(a, b, exclude)) {
+    if (this.hasUnsavedChanges()) {
       result = this.isValidate();
     }
     this.makeValidation.set(true);
@@ -441,6 +458,24 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     if (this.editShiftDummy) {
       this.prepareShift(this.editShiftDummy);
     }
+  }
+
+  captureDraft(): unknown | null {
+    if (this.onBeforeSave) {
+      this.onBeforeSave();
+    }
+    if (!this.editShift || !this.hasUnsavedChanges()) {
+      return null;
+    }
+    return cloneObject<Shift>(this.editShift);
+  }
+
+  restoreDraft(draft: unknown): void {
+    if (!draft) {
+      return;
+    }
+    this.editShift = this.createShiftFromPlainObject(draft as IShift);
+    this.fireIsReadEvent();
   }
 
   private createShiftFromPlainObject(plainObject: IShift): Shift {

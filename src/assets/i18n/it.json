@@ -1,4 +1,8 @@
 {
+  "draft-recovery.title": "Ripristinare il lavoro non salvato?",
+  "draft-recovery.message": "Sei stato disconnesso durante la modifica. Sono state trovate modifiche non salvate dalla sessione precedente. Vuoi ripristinarle?",
+  "draft-recovery.restore": "Ripristina",
+  "draft-recovery.discard": "Ignora",
   "messaging.sendTelegramInvitation": "Invia invito Telegram",
   "accessibility.skip-to-main": "Vai al contenuto principale",
   "accessibility.close": "Chiudi",

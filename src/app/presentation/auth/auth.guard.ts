@@ -22,7 +22,7 @@ export class AuthGuard {
     ) {
       return true;
     } else {
-      this.navigationService.navigateToRoot();
+      this.navigationService.redirectToLogin(state.url);
       return false;
     }
   }

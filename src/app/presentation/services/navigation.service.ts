@@ -1,13 +1,31 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Central service for programmatic in-app navigation.
+ * Also captures the page the user was working on when an authentication loss
+ * forces a redirect to the login page, so the user can be returned there after
+ * a successful re-login instead of always landing on the dashboard.
+ */
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+
+interface ReturnUrlPayload {
+  url: string;
+  ts: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
+  private static readonly RETURN_URL_MAX_AGE_MS = 30 * 60 * 1000;
+  private static readonly RESTORABLE_PREFIX = '/workplace/';
+  private static readonly NON_RESTORABLE_PATHS = ['/workplace/dashboard'];
+
   private router = inject(Router);
+  private localStorageService = inject(LocalStorageService);
 
   navigateToDashboard(): void {
     this.router.navigate(['/workplace/dashboard']);
@@ -124,5 +142,62 @@ export class NavigationService {
 
   navigateToRouterToken(routerToken: string): void {
     this.router.navigate([routerToken]);
+  }
+
+  redirectToLogin(targetUrl?: string): Promise<boolean> {
+    const url = targetUrl ?? this.router.url;
+    if (this.isRestorableUrl(url)) {
+      const payload: ReturnUrlPayload = { url, ts: Date.now() };
+      this.localStorageService.setJson(StorageKeys.RETURN_URL, payload);
+    } else {
+      this.localStorageService.remove(StorageKeys.RETURN_URL);
+    }
+    return this.navigateToRoot();
+  }
+
+  navigateAfterLogin(): void {
+    const returnUrl = this.readReturnUrl();
+    if (returnUrl) {
+      this.localStorageService.remove(StorageKeys.RETURN_URL);
+      this.router.navigateByUrl(returnUrl).then((succeeded) => {
+        if (!succeeded) {
+          this.navigateToWorkplace();
+        }
+      });
+      return;
+    }
+    this.navigateToWorkplace();
+  }
+
+  private readReturnUrl(): string | null {
+    const payload = this.localStorageService.getJson(
+      StorageKeys.RETURN_URL
+    ) as ReturnUrlPayload | null;
+
+    if (
+      !payload ||
+      typeof payload.url !== 'string' ||
+      typeof payload.ts !== 'number'
+    ) {
+      this.localStorageService.remove(StorageKeys.RETURN_URL);
+      return null;
+    }
+
+    const isFresh =
+      Date.now() - payload.ts <= NavigationService.RETURN_URL_MAX_AGE_MS;
+    if (!isFresh || !this.isRestorableUrl(payload.url)) {
+      this.localStorageService.remove(StorageKeys.RETURN_URL);
+      return null;
+    }
+
+    return payload.url;
+  }
+
+  private isRestorableUrl(url: string): boolean {
+    if (!url || !url.startsWith(NavigationService.RESTORABLE_PREFIX)) {
+      return false;
+    }
+    const path = url.split('?')[0];
+    return !NavigationService.NON_RESTORABLE_PATHS.includes(path);
   }
 }

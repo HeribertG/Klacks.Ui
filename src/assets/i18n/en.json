@@ -1,4 +1,8 @@
 {
+  "draft-recovery.title": "Restore unsaved work?",
+  "draft-recovery.message": "You were signed out while editing. Unsaved changes from your previous session were found. Would you like to restore them?",
+  "draft-recovery.restore": "Restore",
+  "draft-recovery.discard": "Discard",
   "messaging.sendTelegramInvitation": "Send Telegram invitation",
   "accessibility.skip-to-main": "Skip to main content",
   "accessibility.close": "Close",

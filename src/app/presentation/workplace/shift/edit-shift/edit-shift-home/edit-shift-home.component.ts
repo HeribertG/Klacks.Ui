@@ -32,6 +32,7 @@ import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class'
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { ShiftFormService } from '../services/shift-form.service';
+import { DraftRecoveryService } from 'src/app/presentation/services/draft-recovery.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -63,6 +64,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private shiftFormService = inject(ShiftFormService);
+  private draftRecoveryService = inject(DraftRecoveryService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -100,6 +102,10 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
       this.shiftFormService.applyFormToShift();
     };
 
+    this.dataManagementShiftService.onReadCompleted = () => {
+      this.draftRecoveryService.offerRestore();
+    };
+
     combineLatest([
       this.activatedRoute.params,
       this.activatedRoute.queryParams
@@ -131,6 +137,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.dataManagementShiftService.returnUrl = null;
+    this.dataManagementShiftService.onReadCompleted = undefined;
     this.destroy$.next();
     this.destroy$.complete();
   }
