@@ -15,6 +15,7 @@ import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';
 import { ScheduleSearchStrategy } from './strategies/schedule-search.strategy';
 import { ShiftSearchStrategy } from './strategies/shift-search.strategy';
 import { ContainerTemplateSearchStrategy } from './strategies/container-template-search.strategy';
+import { ISearchStrategyOptions } from 'src/app/domain/interfaces/search-strategy.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -59,7 +60,8 @@ export class SearchStrategyService {
   public globalSearch(
     value: string,
     isIncludeAddress = false,
-    isIncludeClient = false
+    isIncludeClient = false,
+    options?: ISearchStrategyOptions
   ): void {
     this.searchStateService.setRestoreSearch(value);
     this.localStorageService.set(this.SEARCH_RESTORE_KEY, value);
@@ -69,11 +71,12 @@ export class SearchStrategyService {
     const strategy = this.strategies.get(currentEntity);
 
     if (strategy) {
-      const options: EntitySearchOptions = {
+      const entityOptions: EntitySearchOptions = {
         includeAddress: isIncludeAddress,
         includeClient: isIncludeClient,
+        ...options,
       };
-      strategy.search(value, options);
+      strategy.search(value, entityOptions);
     } else {
       console.warn(`No search strategy found for entity: ${currentEntity}`);
     }

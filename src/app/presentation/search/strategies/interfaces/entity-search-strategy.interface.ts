@@ -12,5 +12,6 @@ export interface IEntitySearchStrategy {
 export interface EntitySearchOptions {
   includeAddress?: boolean;
   includeClient?: boolean;
+  typeFilter?: string;
   [key: string]: any;
 }

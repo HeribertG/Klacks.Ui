@@ -28,6 +28,7 @@ export interface IUiActionStep {
   routeKeyFrom?: string;
   appendParamFrom?: string;
   queryParams?: Record<string, string>;
+  entityTypeFilterFrom?: string;
   pollInterval?: number;
   pollMaxAttempts?: number;
   pollCondition?: { type: string; selector?: string; value?: string };

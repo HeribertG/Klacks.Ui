@@ -375,9 +375,13 @@ export class UiActionEngineService {
     const searchValue = this.valueResolver.resolveValue(step, context) ?? '';
     this.searchStateService.setRestoreSearch(searchValue);
 
+    const typeFilter = step.entityTypeFilterFrom
+      ? (this.valueResolver.resolve(step.entityTypeFilterFrom, context) ?? undefined)
+      : undefined;
+
     await this.router.navigate([route]);
     await new Promise(r => setTimeout(r, SEARCH_DELAY));
-    this.searchStrategyService.globalSearch(searchValue, true, false);
+    this.searchStrategyService.globalSearch(searchValue, true, false, typeFilter ? { typeFilter } : undefined);
   }
 
   private resolveSelector(selector: string | undefined, context: IUiActionContext): string | undefined {
