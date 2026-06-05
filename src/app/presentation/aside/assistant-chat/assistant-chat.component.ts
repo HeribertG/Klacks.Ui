@@ -33,7 +33,7 @@ import {
   faCheck,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { Subject, takeUntil, firstValueFrom } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -54,7 +54,6 @@ import { ConversationOrchestratorService, ConversationState } from './services/c
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
-import { DomainEventType, AddressValidationFailedEvent } from 'src/app/domain/events/domain-events';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
@@ -262,13 +261,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         });
       });
 
-    this.eventBus.on<AddressValidationFailedEvent>(DomainEventType.ADDRESS_VALIDATION_FAILED)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.ngZone.run(() => {
-          this.handleAddressValidationForChat(event);
-        });
-      });
   }
 
   ngOnDestroy(): void {
@@ -813,85 +805,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private getSpeechLanguageCode(langCode: string): string {
     return this.languageMappingService.getSpeechLocale(langCode);
-  }
-
-  private handleAddressValidationForChat(event: AddressValidationFailedEvent): void {
-    if (this.isInitializing() || this.hasNoApiKey()) {
-      return;
-    }
-
-    const current = this.orchestrator.messages();
-    const welcomeIndex = current.findIndex(
-      (m) => m.sender === 'assistant' && m.suggestions && m.suggestions.length > 0
-    );
-    if (welcomeIndex === 0) {
-      this.orchestrator.replaceMessages(current.slice(1));
-    }
-
-    this.asideService.show(true);
-
-    const parts = [
-      event.street ? `Strasse: "${event.street}"` : '',
-      event.zip ? `PLZ: "${event.zip}"` : '',
-      event.city ? `Ort: "${event.city}"` : '',
-      event.state ? `Kanton/Bundesland: "${event.state}"` : '',
-      event.country ? `Land: "${event.country}"` : '',
-    ].filter(Boolean).join(', ');
-
-    const suggestionsText = event.suggestions.length > 0
-      ? `\nNominatim-Vorschläge:\n${event.suggestions.map((s) => `- ${s.displayName}`).join('\n')}`
-      : '';
-
-    const prompt = `Die folgende Adresse konnte nicht verifiziert werden: ${parts}.${suggestionsText}
-Pruefe die Adresse mit dem validate_address Skill und beachte dabei folgende Regeln:
-
-- Wenn der Skill ein Ergebnis fuer "Canton" oder eine Region zurueckgibt, ist die PLZ GUELTIG. Behaupte dann NICHT, dass die PLZ falsch oder ungueltig ist.
-- Vergleiche die vom Skill zurueckgegebene Region mit dem eingetragenen Kanton/Bundesland. Bei Abweichung: melde die korrekte Region.
-- Bei MatchType "city_only": PLZ und Ort sind korrekt, nur Strasse oder Hausnummer wurde nicht gefunden.
-- Bei MatchType "not_found": Die Kombination wurde beim Geocoding nicht gefunden.
-- Fasse zusammen was korrekt ist, was falsch ist, und schlage eine korrigierte Adresse vor.`;
-
-    this.sendHiddenMessage(prompt, true);
-  }
-
-  private async sendHiddenMessage(prompt: string, suppressSuggestions = false): Promise<void> {
-    if (this.isProcessing) return;
-
-    this.isProcessing = true;
-
-    try {
-      const response = await firstValueFrom(
-        this.assistantService.sendMessage(prompt, this.conversationId)
-      );
-
-      const assistantMessage: ChatMessage = {
-        id: this.generateMessageId(),
-        sender: 'assistant',
-        content: this.stripMetadataMarkers(response?.message || ''),
-        timestamp: new Date(),
-        suggestions: suppressSuggestions ? undefined : (response?.suggestedReplies ? undefined : response?.suggestions),
-        suggestedReplies: suppressSuggestions ? undefined : response?.suggestedReplies,
-      };
-
-      this.orchestrator.addMessage(assistantMessage);
-      this.shouldScrollToBottom = true;
-
-      if (response?.functionCalls && response.functionCalls.length > 0) {
-        await this.chatFunctionExecution.executeFunctionCalls(response.functionCalls);
-      }
-    } catch {
-      this.orchestrator.addMessage({
-        id: this.generateMessageId(),
-        sender: 'assistant',
-        content: this.translateService.instant('assistant-chat.error.generic'),
-        timestamp: new Date(),
-      });
-      this.shouldScrollToBottom = true;
-      this.cdr.detectChanges();
-    } finally {
-      this.isProcessing = false;
-      this.cdr.detectChanges();
-    }
   }
 
   clearChat(): void {

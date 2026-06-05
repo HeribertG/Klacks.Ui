@@ -20,6 +20,7 @@ import { NoteComponent } from '../note/note.component';
 import { MembershipComponent } from '../membership/membership.component';
 import { ClientContractsComponent } from '../client-contracts/client-contracts.component';
 import { ClientGroupsComponent } from '../client-groups/client-groups.component';
+import { ClientQualificationsComponent } from '../client-qualifications/client-qualifications.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { ClientImageComponent } from '../client-image/client-image.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,6 +54,7 @@ import { TranslateService } from '@ngx-translate/core';
     MembershipComponent,
     ClientContractsComponent,
     ClientGroupsComponent,
+    ClientQualificationsComponent,
     NoteComponent,
     ClientImageComponent,
     EditAddressNavComponent,
@@ -194,6 +196,8 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
         this.applySelectedAddress(selected.displayName, selected.latitude, selected.longitude);
       },
+      undefined,
+      true,
     );
   }
 

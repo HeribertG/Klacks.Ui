@@ -14,6 +14,7 @@ import { ICommunication } from './i-communication';
 import { IAnnotation } from './i-annotation';
 import { IClientContract } from './i-client-contract';
 import { IClientGroupItem } from './client-group-item-class';
+import { IClientQualification } from './client-qualification-class';
 import { IClientImage } from './i-client-image';
 import { Address } from './address';
 import { Annotation } from './annotation';
@@ -32,6 +33,7 @@ export class Client extends BaseEntity implements IClient {
 
     this.clientContracts = [];
     this.groupItems = [];
+    this.qualifications = [];
   }
 
   id = '';
@@ -53,6 +55,7 @@ export class Client extends BaseEntity implements IClient {
   annotations: IAnnotation[];
   clientContracts: IClientContract[];
   groupItems: IClientGroupItem[];
+  qualifications: IClientQualification[];
   clientImage: IClientImage | undefined = undefined;
 
   hasFutureAddress = false;

@@ -77,6 +77,7 @@ export class ToastShowService {
     config: ISuggestedRepliesConfig,
     onSelected: (values: string[]) => void,
     onDismissed?: () => void,
+    persistent = false,
   ): IToast | null {
     this.dismissInteractiveReplies();
 
@@ -87,6 +88,7 @@ export class ToastShowService {
       autohide: false,
       headertext: TOAST_ICONS.ASSISTANT + ' ' + INTERACTIVE_REPLY_DEFAULTS.HEADER,
       icon: TOAST_ICONS.ASSISTANT,
+      persistent,
       interactive: {
         repliesConfig: config,
         onSelected,
@@ -96,7 +98,7 @@ export class ToastShowService {
   }
 
   dismissInteractiveReplies(): void {
-    const interactiveToasts = this.toastService.toasts().filter((t) => t.interactive);
+    const interactiveToasts = this.toastService.toasts().filter((t) => t.interactive && !t.persistent);
     for (const toast of interactiveToasts) {
       toast.interactive?.onDismissed?.();
       this.toastService.remove(toast);

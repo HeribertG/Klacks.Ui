@@ -91,6 +91,42 @@ describe('ToastShowService', () => {
     });
   });
 
+  describe('interactive replies', () => {
+    const config = {
+      prompt: 'Please choose',
+      options: [{ label: 'Save anyway', value: '__save_anyway__' }],
+      selectionMode: 'single' as const,
+    };
+
+    it('should create an interactive toast', () => {
+      service.showInteractiveReply(config, () => undefined);
+
+      const toasts = toastService.toasts();
+      expect(toasts.length).toBe(1);
+      expect(toasts[0].interactive).toBeTruthy();
+      expect(toasts[0].persistent).toBeFalsy();
+    });
+
+    it('dismissInteractiveReplies should remove a non-persistent interactive toast', () => {
+      service.showInteractiveReply(config, () => undefined);
+      expect(toastService.toasts().length).toBe(1);
+
+      service.dismissInteractiveReplies();
+      expect(toastService.toasts().length).toBe(0);
+    });
+
+    it('dismissInteractiveReplies must NOT remove a persistent interactive toast', () => {
+      service.showInteractiveReply(config, () => undefined, undefined, true);
+      const toast = toastService.toasts()[0];
+      expect(toast.persistent).toBe(true);
+
+      service.dismissInteractiveReplies();
+
+      expect(toastService.toasts().length).toBe(1);
+      expect(toastService.toasts()[0].persistent).toBe(true);
+    });
+  });
+
   describe('signal reactivity', () => {
     it('should trigger signal update on showSuccess', () => {
       const before = toastService.toasts();

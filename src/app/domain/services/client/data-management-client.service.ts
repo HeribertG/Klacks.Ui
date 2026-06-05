@@ -26,6 +26,7 @@ import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
+import { ClientQualificationService } from './client-qualification.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { Subject } from 'rxjs';
@@ -45,6 +46,7 @@ export class DataManagementClientService
   public communicationService = inject(CommunicationService);
   public clientContractService = inject(ClientContractService);
   public clientGroupItemService = inject(ClientGroupItemService);
+  public clientQualificationService = inject(ClientQualificationService);
   private dataClientService = inject(DataClientService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
@@ -246,6 +248,13 @@ export class DataManagementClientService
   public addGroup = () => {
     if (this.editClient()) {
       this.clientGroupItemService.addGroup(this.editClient()!);
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
+    }
+  };
+
+  public addQualification = () => {
+    if (this.editClient()) {
+      this.clientQualificationService.addQualification(this.editClient()!);
       this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };

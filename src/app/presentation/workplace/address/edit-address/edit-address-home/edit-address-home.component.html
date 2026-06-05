@@ -43,6 +43,17 @@
   </div>
   }
 
+  @if (dataManagementClientService.editClient()?.type !== 2) {
+  <div class="container-profilline">
+    <app-client-qualifications
+      (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-client-qualifications>
+  </div>
+  }
+
   @if (featurePluginState.isPluginEnabled(messagingPluginName) && dataManagementClientService.editClient()?.id) {
   <div class="container-profilline">
     <lib-client-messenger-contacts

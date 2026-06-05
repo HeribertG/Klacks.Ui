@@ -7,6 +7,7 @@ import { ICommunication } from './i-communication';
 import { IAnnotation } from './i-annotation';
 import { IClientContract } from './i-client-contract';
 import { IClientGroupItem } from './client-group-item-class';
+import { IClientQualification } from './client-qualification-class';
 import { IClientImage } from './i-client-image';
 
 export interface IClient extends BaseEntity {
@@ -28,6 +29,7 @@ export interface IClient extends BaseEntity {
   annotations: IAnnotation[];
   clientContracts: IClientContract[];
   groupItems: IClientGroupItem[];
+  qualifications: IClientQualification[];
   clientImage: IClientImage | undefined;
 
   hasFutureAddress: boolean;

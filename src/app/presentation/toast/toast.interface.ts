@@ -21,6 +21,7 @@ export interface IToast {
   textFieldValue?: string;
   icon?: string;
   interactive?: IInteractiveToastConfig;
+  persistent?: boolean;
 }
 
 export interface IInteractiveToastConfig {
