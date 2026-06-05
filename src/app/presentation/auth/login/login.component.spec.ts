@@ -20,6 +20,8 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
 describe('LoginComponent', () => {
     let component: LoginComponent;
@@ -48,7 +50,14 @@ describe('LoginComponent', () => {
             get: vi.fn()
         };
         const navigationServiceSpy = {
-            navigateToWorkplace: vi.fn()
+            navigateAfterLogin: vi.fn()
+        };
+        const signalRServiceSpy = {
+            resetAuthFailure: vi.fn(),
+            startConnection: vi.fn()
+        };
+        const assistantSignalRServiceSpy = {
+            startConnection: vi.fn()
         };
         const translateServiceSpy = {
             setDefaultLang: vi.fn(),
@@ -89,6 +98,8 @@ describe('LoginComponent', () => {
                 },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: DataSyncNotificationService, useValue: syncNotificationServiceSpy },
+                { provide: SignalRService, useValue: signalRServiceSpy },
+                { provide: AssistantSignalRService, useValue: assistantSignalRServiceSpy },
             ],
         }).compileComponents();
 
@@ -155,7 +166,7 @@ describe('LoginComponent', () => {
         await component.onSave();
 
         expect(authService.logIn).toHaveBeenCalledWith('testuser', 'testpass');
-        expect(navigationService.navigateToWorkplace).toHaveBeenCalled();
+        expect(navigationService.navigateAfterLogin).toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
         expect(component.isClicked).toBe(false);
     });
@@ -176,7 +187,7 @@ describe('LoginComponent', () => {
         await component.onSave();
 
         expect(authService.logIn).toHaveBeenCalledWith('testuser', 'wrongpass');
-        expect(navigationService.navigateToWorkplace).not.toHaveBeenCalled();
+        expect(navigationService.navigateAfterLogin).not.toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
         expect(component.isClicked).toBe(false);
     });
