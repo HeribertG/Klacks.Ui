@@ -190,6 +190,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inboxVisibilityService.ensureSettingsLoaded();
     this.inboxService.refreshUnreadCount();
     this.featurePluginState.ensureLoaded();
+    this.setupRxJSSubscriptions();
 
     this.absence = DomainMessages.ABSENCE;
     this.all_schedule = DomainMessages.ALL_SCHEDULE;
@@ -202,8 +203,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.iconsInitialized.set(true);
-    this.setupRxJSSubscriptions();
-
     this.updateTranslations();
   }
 

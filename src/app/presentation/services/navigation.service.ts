@@ -161,12 +161,12 @@ export class NavigationService {
       this.localStorageService.remove(StorageKeys.RETURN_URL);
       this.router.navigateByUrl(returnUrl).then((succeeded) => {
         if (!succeeded) {
-          this.navigateToWorkplace();
+          this.navigateToDashboard();
         }
       });
       return;
     }
-    this.navigateToWorkplace();
+    this.navigateToDashboard();
   }
 
   private readReturnUrl(): string | null {
