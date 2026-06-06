@@ -105,7 +105,7 @@ describe('NavigationService', () => {
       service.navigateAfterLogin();
 
       expect(router.navigateByUrl).not.toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/workplace']);
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/dashboard']);
     });
 
     it('ignores a stale url and falls back to workplace', () => {
@@ -118,7 +118,7 @@ describe('NavigationService', () => {
       service.navigateAfterLogin();
 
       expect(router.navigateByUrl).not.toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledWith(['/workplace']);
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/dashboard']);
       expect(store[StorageKeys.RETURN_URL]).toBeUndefined();
     });
 
@@ -132,7 +132,7 @@ describe('NavigationService', () => {
       service.navigateAfterLogin();
       await Promise.resolve();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/workplace']);
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/dashboard']);
     });
   });
 });
