@@ -16,6 +16,7 @@ import { DataAuthService } from '../../infrastructure/api/data-auth.service';
 import { DataOAuth2Service } from '../../infrastructure/api/data-oauth2.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,7 @@ export class AuthService {
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
   private authorizationService = inject(AuthorizationService);
+  private spinnerService = inject(SpinnerService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     return await firstValueFrom(
@@ -66,6 +68,7 @@ export class AuthService {
     this.removeToken();
     this.removeStateValue();
     this.dataLoadFileService.clearAllImages();
+    this.spinnerService.reset();
   }
 
   async logOutWithSso(): Promise<void> {

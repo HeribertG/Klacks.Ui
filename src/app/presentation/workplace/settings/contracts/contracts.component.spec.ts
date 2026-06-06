@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter, signal } from '@angular/core';
+import { EventEmitter, signal, WritableSignal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of, Subject } from 'rxjs';
@@ -118,6 +118,27 @@ describe('ContractsComponent', () => {
 
       // Assert
       expect(mockDataManagementContractService.init).toHaveBeenCalled();
+    });
+  });
+
+  describe('contracts list reactivity (regression)', () => {
+    it('filteredContracts reflects the loaded contracts after ngOnInit', async () => {
+      mockDataManagementContractService.contracts = [mockContract];
+
+      await component.ngOnInit();
+
+      expect(component.filteredContracts()).toEqual([mockContract]);
+    });
+
+    it('filteredContracts updates reactively when the service signals a read', () => {
+      fixture.detectChanges();
+      expect(component.filteredContracts().length).toBe(0);
+
+      mockDataManagementContractService.contracts = [mockContract];
+      (mockDataManagementContractService.isRead as WritableSignal<boolean>).set(true);
+      fixture.detectChanges();
+
+      expect(component.filteredContracts()).toEqual([mockContract]);
     });
   });
 

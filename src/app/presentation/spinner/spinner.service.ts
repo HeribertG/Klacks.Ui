@@ -52,4 +52,14 @@ export class SpinnerService implements ILoadingIndicator {
       this._interceptorShow.set(false);
     }
   }
+
+  reset(): void {
+    this.activeRequests = 0;
+    if (this.showTimer) {
+      clearTimeout(this.showTimer);
+      this.showTimer = null;
+    }
+    this._interceptorShow.set(false);
+    this._manualShow.set(false);
+  }
 }

@@ -143,13 +143,20 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   searchTerm = signal('');
 
+  private contractsView = signal<IContract[]>([]);
+
   filteredContracts = computed(() => {
     const term = this.searchTerm().toLowerCase();
-    if (!term) return this.dataManagementContractService.contracts;
-    return this.dataManagementContractService.contracts.filter(c =>
+    const list = this.contractsView();
+    if (!term) return list;
+    return list.filter(c =>
       (c.name ?? '').toLowerCase().includes(term)
     );
   });
+
+  private syncContractsView(): void {
+    this.contractsView.set([...this.dataManagementContractService.contracts]);
+  }
 
   message = DomainMessages.DELETE_ENTRY;
 
@@ -200,6 +207,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isReadEffect = effect(() => {
     if (this.dataManagementContractService.isRead()) {
+      this.syncContractsView();
       this.cdr.markForCheck();
     }
   });
@@ -207,6 +215,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     try {
       await this.dataManagementContractService.init();
+      this.syncContractsView();
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error initializing contracts:', error);
@@ -291,6 +300,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
             );
           } else {
             contracts.splice(index, 1);
+            this.syncContractsView();
           }
         } catch (error) {
           console.error('Error deleting contract:', error);

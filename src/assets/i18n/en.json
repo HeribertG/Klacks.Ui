@@ -2691,5 +2691,16 @@
   "nav.fail.targetMissing": "I couldn't find that section on this page — check if you're missing permissions.",
   "nav.fail.permissionDenied": "You don't have permission for that section.",
   "nav.ack.fastPath": "Opening the page for you.",
-  "nav.greeting.empty": "Yes? What can I do for you?"
+  "nav.greeting.empty": "Yes? What can I do for you?",
+  "assistant-chat.speak-message": "Read message aloud",
+  "calendar.dropdown.filter-button": "Filter calendars",
+  "calendar.selector.controls": "Calendar selection controls",
+  "calendar.selector.select-calendar": "Select calendar",
+  "calendar.selector.help-text": "Choose a calendar selection from the list.",
+  "calendar.selector.add-selection": "Add calendar selection",
+  "calendar.selector.delete-selection": "Delete calendar selection",
+  "calendar.selector.selected-items": "Selected calendars",
+  "common.loading": "Loading …",
+  "schedule.shift-section.filter": "Filter",
+  "setting.report.designer.addTable": "Add table"
 }

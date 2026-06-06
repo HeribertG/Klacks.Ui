@@ -2683,5 +2683,16 @@
   "nav.fail.targetMissing": "Non trovo questa sezione su questa pagina — controlla se mancano i permessi.",
   "nav.fail.permissionDenied": "Non hai i permessi per quella sezione.",
   "nav.ack.fastPath": "Apro la pagina per te.",
-  "nav.greeting.empty": "Sì? Cosa posso fare per te?"
+  "nav.greeting.empty": "Sì? Cosa posso fare per te?",
+  "assistant-chat.speak-message": "Leggi il messaggio ad alta voce",
+  "calendar.dropdown.filter-button": "Filtra calendari",
+  "calendar.selector.controls": "Controlli di selezione del calendario",
+  "calendar.selector.select-calendar": "Seleziona calendario",
+  "calendar.selector.help-text": "Scegli una selezione di calendario dall'elenco.",
+  "calendar.selector.add-selection": "Aggiungi selezione di calendario",
+  "calendar.selector.delete-selection": "Elimina selezione di calendario",
+  "calendar.selector.selected-items": "Calendari selezionati",
+  "common.loading": "Caricamento …",
+  "schedule.shift-section.filter": "Filtra",
+  "setting.report.designer.addTable": "Aggiungi tabella"
 }

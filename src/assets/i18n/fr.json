@@ -2683,5 +2683,16 @@
   "nav.fail.targetMissing": "Je ne trouve pas cette section sur la page — vérifie si tu as les droits.",
   "nav.fail.permissionDenied": "Tu n'as pas les droits pour accéder à cette section.",
   "nav.ack.fastPath": "J'ouvre la page pour toi.",
-  "nav.greeting.empty": "Oui ? Qu'est-ce que je peux faire pour toi ?"
+  "nav.greeting.empty": "Oui ? Qu'est-ce que je peux faire pour toi ?",
+  "assistant-chat.speak-message": "Lire le message à voix haute",
+  "calendar.dropdown.filter-button": "Filtrer les calendriers",
+  "calendar.selector.controls": "Commandes de sélection du calendrier",
+  "calendar.selector.select-calendar": "Sélectionner le calendrier",
+  "calendar.selector.help-text": "Choisissez une sélection de calendrier dans la liste.",
+  "calendar.selector.add-selection": "Ajouter une sélection de calendrier",
+  "calendar.selector.delete-selection": "Supprimer la sélection de calendrier",
+  "calendar.selector.selected-items": "Calendriers sélectionnés",
+  "common.loading": "Chargement …",
+  "schedule.shift-section.filter": "Filtrer",
+  "setting.report.designer.addTable": "Ajouter un tableau"
 }

@@ -2691,5 +2691,16 @@
   "nav.fail.targetMissing": "Ich finde den Bereich auf dieser Seite nicht — prüf mal ob dir dafür Rechte fehlen.",
   "nav.fail.permissionDenied": "Für diesen Bereich hast du leider keine Berechtigung.",
   "nav.ack.fastPath": "Ich öffne die Seite für dich.",
-  "nav.greeting.empty": "Ja? Was kann ich für dich tun?"
+  "nav.greeting.empty": "Ja? Was kann ich für dich tun?",
+  "assistant-chat.speak-message": "Nachricht vorlesen",
+  "calendar.dropdown.filter-button": "Kalender filtern",
+  "calendar.selector.controls": "Kalenderauswahl-Steuerung",
+  "calendar.selector.select-calendar": "Kalender auswählen",
+  "calendar.selector.help-text": "Wählen Sie eine Kalenderauswahl aus der Liste.",
+  "calendar.selector.add-selection": "Kalenderauswahl hinzufügen",
+  "calendar.selector.delete-selection": "Kalenderauswahl löschen",
+  "calendar.selector.selected-items": "Ausgewählte Kalender",
+  "common.loading": "Lädt …",
+  "schedule.shift-section.filter": "Filter",
+  "setting.report.designer.addTable": "Tabelle hinzufügen"
 }
