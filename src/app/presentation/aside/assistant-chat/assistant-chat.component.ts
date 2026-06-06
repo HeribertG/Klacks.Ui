@@ -144,6 +144,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   inputText = '';
   isProcessing = false;
+  currentToolStatusKey = '';
   conversationId = '';
   private currentStreamController: AbortController | null = null;
   private currentRawStream = '';
@@ -154,6 +155,23 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
   private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
+
+  private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
+
+  private toolStatusKey(functionName: string): string {
+    const name = (functionName || '').toLowerCase();
+    let category = 'working';
+    if (name.startsWith('search') || name.startsWith('list') || name.startsWith('find') || name.startsWith('get') || name.includes('web_search')) {
+      category = 'searching';
+    } else if (name.startsWith('create') || name.startsWith('add')) {
+      category = 'creating';
+    } else if (name.startsWith('update') || name.startsWith('assign') || name.startsWith('remove') || name.startsWith('set') || name.startsWith('delete')) {
+      category = 'updating';
+    } else if (name.startsWith('navigate') || name.startsWith('open') || name.includes('navigate')) {
+      category = 'navigating';
+    }
+    return AssistantChatComponent.TOOL_STATUS_PREFIX + category;
+  }
 
   private stripMetadataMarkers(text: string): string {
     if (!text) return text;
@@ -340,6 +358,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     const messageText = this.inputText;
     this.inputText = '';
     this.isProcessing = true;
+    this.currentToolStatusKey = '';
     this.shouldScrollToBottom = true;
 
     const assistantMessageId = this.generateMessageId();
@@ -370,7 +389,16 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.conversationId = convId;
           }
         },
+        onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
+          this.ngZone.run(() => {
+            this.currentToolStatusKey = this.toolStatusKey(data.functionName);
+            this.cdr.detectChanges();
+          });
+        },
         onContent: (text: string) => {
+          if (this.currentToolStatusKey) {
+            this.currentToolStatusKey = '';
+          }
           this.streamBuffer += text;
           if (this.streamRafHandle !== null) return;
           this.streamRafHandle = requestAnimationFrame(() => {
@@ -421,6 +449,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.drainStreamBuffer(assistantMessageId);
             this.orchestrator.updateMessage(assistantMessageId, { isStreaming: false });
             this.isProcessing = false;
+            this.currentToolStatusKey = '';
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
@@ -438,6 +467,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               content: merged,
             });
             this.isProcessing = false;
+            this.currentToolStatusKey = '';
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamError();

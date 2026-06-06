@@ -444,6 +444,13 @@
   }
 }
 
+.tool-status {
+  font-size: 0.85em;
+  color: var(--colorLabel);
+  opacity: 0.85;
+  padding: 2px 0;
+}
+
 .typing-indicator {
   display: flex;
   gap: 4px;

@@ -186,6 +186,9 @@
         </div>
         <div class="message-content">
           <div class="message-bubble assistant">
+            @if (currentToolStatusKey) {
+            <div class="tool-status">{{ currentToolStatusKey | translate }}</div>
+            }
             <div class="typing-indicator">
               <span></span>
               <span></span>
