@@ -95,7 +95,8 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/arm64
+        # Multi-arch: arm64 for Hetzner (Ampere), amd64 for on-prem customers (Docker Desktop).
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.version }}
@@ -103,125 +104,9 @@ jobs:
           ghcr.io/heribertg/klacks-ui:${{ steps.version.outputs.major }}
           ghcr.io/heribertg/klacks-ui:latest
 
-  deploy:
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Deploy to server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT || 22 }}
-        command_timeout: 30m
-        script: |
-          set -e
-          echo "🚀 Deploying Klacks.Ui..."
-
-          # Serialize deploys via flock so a fresh push cannot start a second
-          # build on top of one that's still running from a previously-cancelled
-          # run (buildkit subprocesses keep going after the SSH session dies).
-          # The lock auto-releases when this shell exits.
-          LOCKFILE=/var/lock/klacks-ui-deploy.lock
-          exec 200>"$LOCKFILE"
-          echo "⏳ Acquiring deploy lock..."
-          if ! flock -w 1200 200; then
-            echo "❌ Could not acquire deploy lock within 20 minutes — another deploy is stuck"
-            exit 1
-          fi
-          echo "✅ Got deploy lock"
-
-          # Belt-and-braces: kill any orphan build processes from runs that
-          # were cancelled mid-build. We can't use pkill -f because
-          # drone-ssh invokes this whole script as `bash -c "<script>"` and
-          # the script text itself contains the pattern — pkill -f would
-          # SIGKILL the parent shell. Instead, match by process basename
-          # via pgrep -x and check /proc/PID/cmdline.
-          echo "🧹 Cleaning up orphan build processes from cancelled runs..."
-          for pid in $(pgrep -x docker-buildx 2>/dev/null); do
-            cmdline=$(tr '\0' ' ' < /proc/$pid/cmdline 2>/dev/null)
-            case "$cmdline" in
-              *"Klacks.Ui"*)
-                echo "  Killing orphan docker-buildx PID $pid"
-                kill -9 "$pid" 2>/dev/null || true
-                ;;
-            esac
-          done
-          sleep 2
-
-          # Navigate to correct directory
-          cd /root/apps
-
-          # Update Klacks.Ui Repository
-          if [ -d "Klacks.Ui" ]; then
-            echo "📦 Updating Klacks.Ui..."
-            cd Klacks.Ui
-            # Get current branch name
-            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            echo "Current branch: $CURRENT_BRANCH"
-            # Force pull
-            git fetch origin
-            git reset --hard origin/$CURRENT_BRANCH
-            cd ..
-          else
-            echo "📦 Cloning Klacks.Ui..."
-            git clone https://github.com/HeribertG/Klacks.Ui.git
-          fi
-
-          # Check Docker Compose version
-          if command -v docker-compose &> /dev/null; then
-            COMPOSE_CMD="docker-compose"
-          else
-            COMPOSE_CMD="docker compose"
-          fi
-          echo "Using: $COMPOSE_CMD"
-
-          # Rebuild and restart only UI service
-          echo "🔨 Building Klacks.Ui..."
-          $COMPOSE_CMD build klacks-ui --no-cache
-
-          echo "🔄 Restarting Klacks.Ui..."
-          $COMPOSE_CMD up -d --no-deps --force-recreate klacks-ui
-
-          # Free disk space: remove dangling images (previous build's <none>-tagged
-          # layers) and unused BuildKit cache. Each --no-cache build above leaves
-          # ~1-2GB behind; without pruning, the Hetzner disk fills within ~20 deploys.
-          echo "🧹 Pruning old Docker layers..."
-          docker image prune -f 2>&1 | tail -1
-          docker builder prune -f 2>&1 | tail -1
-          df -h / | tail -1
-
-          echo "✅ Klacks.Ui deployment completed!"
-
-          # Status check
-          echo "📊 Service status:"
-          $COMPOSE_CMD ps klacks-ui
-
-          # Health Check
-          sleep 10
-          echo "🏥 Health Check for Klacks.Ui..."
-
-          # Check if service is running
-          if $COMPOSE_CMD ps klacks-ui | grep -q "Up"; then
-            echo "✅ Container is running"
-          else
-            echo "❌ Container is not running"
-            $COMPOSE_CMD logs klacks-ui --tail=20
-            exit 1
-          fi
-
-          # Check HTTP response
-          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|301\|302"; then
-            echo "✅ Klacks.Ui is accessible on port 3000"
-          else
-            echo "❌ Klacks.Ui health check failed"
-            echo "Container logs:"
-            $COMPOSE_CMD logs klacks-ui --tail=20
-            exit 1
-          fi
+  # Server deploy removed in the UI image-mode cutover. Klacks.Ui no longer builds on the server;
+  # this repo only builds + pushes the ghcr image (build-and-push above). The Klacks.Api deploy job
+  # owns the server: on a stable vX.Y.Z tag it pulls + recreates BOTH klacks-api and klacks-ui at the
+  # same version (single deploy owner avoids compose-sync / double-recreate races). The out-of-process
+  # updater applies subsequent UI updates via DockerApplier. Releases must tag Klacks.Api AND Klacks.Ui
+  # with the same vX.Y.Z (scripts/release.sh) so klacks-ui:<tag> exists for the API deploy to pull.
