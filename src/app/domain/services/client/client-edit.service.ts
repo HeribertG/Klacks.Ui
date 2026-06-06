@@ -163,7 +163,9 @@ export class ClientEditService {
 
     const client = this.editClient()!;
     const addressesToValidate = client.addresses.filter(
-      (addr) => addr.zip && addr.zip.trim() !== '' && addr.city && addr.city.trim() !== ''
+      (addr) =>
+        addr.zip && addr.zip.trim() !== '' && addr.city && addr.city.trim() !== '' &&
+        !this.isAddressUnchangedFromStored(addr)
     );
 
     for (const address of addressesToValidate) {
@@ -172,6 +174,24 @@ export class ClientEditService {
     }
 
     this.executeClientSave();
+  }
+
+  private isAddressUnchangedFromStored(address: IAddress): boolean {
+    if (!address.id) {
+      return false;
+    }
+
+    const stored = this.editClientDummy?.addresses?.find((a) => a.id === address.id);
+    if (!stored) {
+      return false;
+    }
+
+    return (
+      stored.street === address.street &&
+      stored.zip === address.zip &&
+      stored.city === address.city &&
+      stored.country === address.country
+    );
   }
 
   public forceSaveClient(): void {

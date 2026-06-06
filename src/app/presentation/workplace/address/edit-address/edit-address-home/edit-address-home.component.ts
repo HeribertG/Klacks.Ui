@@ -226,12 +226,16 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     if (parts.length < 3) return {};
 
     const zipMatch = parts.find((p) => /^\d{4,5}$/.test(p));
-    const zipIndex = zipMatch ? parts.indexOf(zipMatch) : -1;
+    if (!zipMatch) {
+      return {};
+    }
+
+    const zipIndex = parts.indexOf(zipMatch);
 
     return {
       street: parts.length > 3 ? parts[0] : undefined,
       zip: zipMatch,
-      city: zipIndex >= 0 && zipIndex + 1 < parts.length ? parts[zipIndex + 1] : parts.length > 1 ? parts[1] : undefined,
+      city: zipIndex + 1 < parts.length ? parts[zipIndex + 1] : parts.length > 1 ? parts[1] : undefined,
     };
   }
 }
