@@ -48,6 +48,9 @@ export class GroupSelectionService {
   }
 
   public clearSelection(): void {
+    if (this._selectedGroup() === undefined) {
+      return;
+    }
     this._selectedGroup.set(undefined);
     this.triggerSelectedGroupChanged();
   }

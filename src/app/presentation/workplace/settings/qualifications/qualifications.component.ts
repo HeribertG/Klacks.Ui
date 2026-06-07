@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Settings card for managing qualification master entries (name, emoji, time-limited flag).
+ * Settings card for managing qualification master entries (name, emoji, time-limited flag, type, country).
  * Uses NgbModal for create/edit and ModalService for delete confirmation.
  */
 import {
@@ -33,6 +33,7 @@ import { Language } from 'src/app/domain/models/settings/language-config';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EMOJI_CATEGORIES, EMOJI_NAMES, EmojiCategory } from 'src/app/domain/constants/emoji-data';
+import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationsHeaderComponent } from './qualifications-header/qualifications-header.component';
 import { QualificationsRowComponent } from './qualifications-row/qualifications-row.component';
 
@@ -90,7 +91,11 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   selectedEmoji = signal<string>('');
   isTimeLimitedValue = signal<boolean>(false);
+  selectedType = signal<QualificationType>(QualificationType.Work);
+  selectedCountry = signal<string>('');
   emojiPickerOpen = signal<boolean>(false);
+
+  readonly QualificationType = QualificationType;
   selectedCategoryIndex = signal<number>(0);
 
   readonly categories: EmojiCategory[] = EMOJI_CATEGORIES;
@@ -158,11 +163,17 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   onClickAdd(): void {
     this.isNewQualification = true;
-    this.editingQualification = { name: new MultiLanguage(), isTimeLimited: false };
+    this.editingQualification = {
+      name: new MultiLanguage(),
+      isTimeLimited: false,
+      type: QualificationType.Work,
+    };
     this.originalQualification = null;
     this.formModel.set({ name: '', description: '' });
     this.selectedEmoji.set('');
     this.isTimeLimitedValue.set(false);
+    this.selectedType.set(QualificationType.Work);
+    this.selectedCountry.set('');
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -182,6 +193,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     });
     this.selectedEmoji.set(q.emoji ?? '');
     this.isTimeLimitedValue.set(q.isTimeLimited);
+    this.selectedType.set(q.type ?? QualificationType.Work);
+    this.selectedCountry.set(q.country ?? '');
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -205,6 +218,10 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
 
   onTimeLimitedChange(event: Event): void {
     this.isTimeLimitedValue.set((event.target as HTMLInputElement).checked);
+  }
+
+  onCountryInput(event: Event): void {
+    this.selectedCountry.set((event.target as HTMLInputElement).value);
   }
 
   async onSaveModal(modal: { close: () => void }): Promise<void> {
@@ -248,6 +265,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       description,
       emoji: this.selectedEmoji() || undefined,
       isTimeLimited: this.isTimeLimitedValue(),
+      type: this.selectedType(),
+      country: this.selectedCountry() || undefined,
     };
 
     try {

@@ -23,7 +23,6 @@ import {
   inject,
   OnInit,
   OnDestroy,
-  AfterViewInit,
   effect,
   Injector,
   runInInjectionContext,
@@ -108,7 +107,7 @@ import { FullViewportDirective } from 'src/app/presentation/directives/full-view
     BreakBlockRendererService,
   ],
 })
-export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
@@ -140,12 +139,16 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.signalRService.startConnection();
 
+    const holidayListPromise = this.holidayCollection.readDataAsync();
+
     await this.applyGroupQueryParam();
     await this.allScheduleStateService.initializeWorkplaceState();
     this.isInitialized = true;
     this.cdr.markForCheck();
 
     this.setupEffects();
+
+    void this.finalizeHolidays(holidayListPromise);
   }
 
   private async applyGroupQueryParam(): Promise<void> {
@@ -164,12 +167,17 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    await this.initializeHolidays();
-  }
-
-  private async initializeHolidays(): Promise<void> {
-    await this.holidayCollection.readDataAsync();
+  /**
+   * Resolves the holiday/calendar pipeline in parallel with the initial
+   * work- and shift-schedule reads. The shift read is triggered once by
+   * ScheduleSectionComponent (executeReadDatas) together with the work read,
+   * so both tables load in parallel and chunk-load independently. Holidays
+   * only feed the shift query and must not gate it; a late holiday result is
+   * applied via refreshShiftIfHolidaysInRange.
+   * @param holidayListPromise - In-flight holiday list fetch started in ngOnInit
+   */
+  private async finalizeHolidays(holidayListPromise: Promise<void>): Promise<void> {
+    await holidayListPromise;
 
     const chips = await this.resolveCalendarChips();
     if (chips.length > 0) {
@@ -177,9 +185,32 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.updateHolidayDates();
-    this.dataManagementSchedule.readShiftSchedule();
+    this.refreshShiftIfHolidaysInRange();
     this.refreshTrigger = !this.refreshTrigger;
     this.cdr.markForCheck();
+  }
+
+  /**
+   * Refetches the shift schedule only when a holiday falls inside the visible
+   * range AND the shift grid has already loaded (i.e. without those holidays).
+   * The condition is essential, not an optimization: an unconditional refetch
+   * would cancel and restart the shift chunk-load that runs in parallel with
+   * the work grid, recreating the sequential-loading bug. On the common path
+   * holidays are resolved before the shift read fires, so this is a no-op.
+   */
+  private refreshShiftIfHolidaysInRange(): void {
+    const start = this.dataManagementSchedule.visibleStartDate;
+    const end = this.dataManagementSchedule.visibleEndDate;
+    if (!start || !end) {
+      return;
+    }
+
+    const hasHolidayInRange = this.dataManagementSchedule.holidayDates.some(
+      (holiday) => holiday >= start && holiday <= end,
+    );
+    if (hasHolidayInRange) {
+      this.dataManagementSchedule.readShiftSchedule(false);
+    }
   }
 
   private async resolveCalendarChips(): Promise<StateCountryToken[]> {

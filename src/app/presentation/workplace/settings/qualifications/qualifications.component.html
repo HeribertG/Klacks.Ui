@@ -61,6 +61,37 @@
           </div>
         </div>
 
+        <!-- Type + Country -->
+        <div id="qualifications-modal-type-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <label for="qualifications-modal-type">
+              {{ 'setting.qualifications.modal.type' | translate }}
+            </label>
+            <select
+              id="qualifications-modal-type"
+              class="form-control"
+              [ngModel]="selectedType()"
+              (ngModelChange)="selectedType.set($event)"
+            >
+              <option [ngValue]="QualificationType.Language">{{ 'setting.qualifications.modal.type-language' | translate }}</option>
+              <option [ngValue]="QualificationType.Work">{{ 'setting.qualifications.modal.type-work' | translate }}</option>
+            </select>
+          </div>
+          <div class="model-field">
+            <label for="qualifications-modal-country">
+              {{ 'setting.qualifications.modal.country' | translate }}
+            </label>
+            <input
+              id="qualifications-modal-country"
+              type="text"
+              class="form-control"
+              maxlength="10"
+              [value]="selectedCountry()"
+              (input)="onCountryInput($event)"
+            />
+          </div>
+        </div>
+
         <!-- Emoji trigger + IsTimeLimited -->
         <div id="qualifications-modal-emoji-row" class="row-line-modal-inline">
           <div class="model-field">
