@@ -3,15 +3,21 @@
 /**
  * Token lifecycle helper for SignalR: expiry detection, backend validation and silent refresh.
  * @param localStorage - Reads and writes JWT and refresh tokens from local storage
+ * @param dataAuthService - Performs the refresh through the shared single-flight endpoint
  */
+import { firstValueFrom } from 'rxjs';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { environment } from 'src/environments/environment';
+import { DataAuthService } from '../api/data-auth.service';
 
 const TOKEN_EXPIRY_BUFFER_MS = 30000;
 
 export class SignalRTokenHelper {
-  constructor(private readonly localStorage: LocalStorageService) {}
+  constructor(
+    private readonly localStorage: LocalStorageService,
+    private readonly dataAuthService: DataAuthService,
+  ) {}
 
   isTokenExpired(token: string): boolean {
     try {
@@ -33,33 +39,22 @@ export class SignalRTokenHelper {
         return;
       }
 
-      const refreshUrl = environment.baseUrl + 'Accounts/RefreshToken';
-      const response = await fetch(refreshUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      });
+      const token = await firstValueFrom(
+        this.dataAuthService.refreshToken({ refreshToken }),
+      );
 
-      if (!response.ok) {
-        console.warn('[SignalR] refresh endpoint returned', response.status);
-        return;
-      }
-
-      const data = await response.json();
-      if (!data?.token) {
+      if (!token?.token) {
         console.warn('[SignalR] refresh response missing token field');
         return;
       }
 
-      this.localStorage.set(StorageKeys.TOKEN, data.token);
-      if (data.refreshToken) {
-        this.localStorage.set(StorageKeys.TOKEN_REFRESHTOKEN, data.refreshToken);
+      this.localStorage.set(StorageKeys.TOKEN, token.token);
+      if (token.refreshToken) {
+        this.localStorage.set(StorageKeys.TOKEN_REFRESHTOKEN, token.refreshToken);
       }
-      if (data.expTime !== undefined && data.expTime !== null) {
-        this.localStorage.set(StorageKeys.TOKEN_EXP, data.expTime.toString());
-      }
+      this.localStorage.set(StorageKeys.TOKEN_EXP, token.expTime.toString());
     } catch (error) {
-      console.warn('[SignalR] refresh request failed', error);
+      console.warn('[SignalR] token refresh failed', error);
     }
   }
 

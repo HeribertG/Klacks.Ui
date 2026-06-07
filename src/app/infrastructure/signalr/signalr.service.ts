@@ -8,6 +8,7 @@
 import { inject, Injectable, OnDestroy, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { DataAuthService } from '../api/data-auth.service';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { SignalRConstants } from './signalr.constants';
@@ -38,6 +39,7 @@ import {
 })
 export class SignalRService implements OnDestroy, IScheduleSignalR {
   private readonly _localStorage = inject(LocalStorageService);
+  private readonly _dataAuthService = inject(DataAuthService);
 
   private readonly _tokenHelper: SignalRTokenHelper;
   private readonly _groupHelper: SignalRGroupHelper;
@@ -68,7 +70,7 @@ export class SignalRService implements OnDestroy, IScheduleSignalR {
   public reconnected$ = new Subject<void>();
 
   constructor() {
-    this._tokenHelper = new SignalRTokenHelper(this._localStorage);
+    this._tokenHelper = new SignalRTokenHelper(this._localStorage, this._dataAuthService);
 
     const hubUrl = environment.baseUrl.replace('/api/backend/', SignalRConstants.HubPath);
 
