@@ -1,0 +1,32 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.qualification-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.no-qualifications-hint {
+  padding: 12px 30px;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+table select,
+.table select {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-inline-end: 30px !important;
+  width: 100%;
+}
+
+.icon {
+  cursor: pointer;
+}

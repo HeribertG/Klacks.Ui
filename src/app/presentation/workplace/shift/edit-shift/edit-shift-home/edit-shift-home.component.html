@@ -24,6 +24,13 @@
   }
 
   <div class="container-profilline">
+    <app-shift-qualifications
+      [isReadOnly]="isReadOnly"
+      class="container-profile first border-right-card border-bottom-card"
+    ></app-shift-qualifications>
+  </div>
+
+  <div class="container-profilline">
     <app-edit-shift-weekday
       (isChangingEvent)="onIsChanging($event)"
       [isComplex]="isComplex"

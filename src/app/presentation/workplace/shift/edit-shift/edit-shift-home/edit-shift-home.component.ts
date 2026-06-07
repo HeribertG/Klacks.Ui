@@ -27,6 +27,7 @@ import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.componen
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { EditShiftExpensesComponent } from '../edit-shift-expenses/edit-shift-expenses.component';
+import { ShiftQualificationsComponent } from '../edit-shift-qualifications/shift-qualifications.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -50,6 +51,7 @@ import { DraftRecoveryService } from 'src/app/presentation/services/draft-recove
     EditShiftNavComponent,
     EditShiftGroupComponent,
     EditShiftExpensesComponent,
+    ShiftQualificationsComponent,
 ],
 })
 export class EditShiftHomeComponent implements OnInit, OnDestroy {

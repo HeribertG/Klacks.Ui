@@ -1,0 +1,109 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<app-expandable-card
+  [headerTitle]="'shift.edit-shift.qualifications.header' | translate">
+
+  <div headerActions>
+    @if (!isDisabled() && hasMasterQualifications()) {
+    <app-button-new
+      id="add-shift-qualification-button"
+      placement="top"
+      type="button"
+      (click)="addRow()"
+      ngbTooltip="{{ 'shift.edit-shift.qualifications.add-qualification' | translate }}"
+    ></app-button-new>
+    }
+  </div>
+
+  <div>
+    @if (!hasMasterQualifications()) {
+    <div class="no-qualifications-hint">
+      {{ "shift.edit-shift.qualifications.none-defined" | translate }}
+    </div>
+    }
+    <div class="container-table">
+      <table class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header cell-center" style="width: 50px; min-width: 50px"></th>
+            <th class="table-header" style="width: 280px">
+              {{ "shift.edit-shift.qualifications.table.qualification" | translate }}
+            </th>
+            <th class="table-header" style="width: 160px">
+              {{ "shift.edit-shift.qualifications.table.min-level" | translate }}
+            </th>
+            <th class="table-header cell-center" style="width: 100px">
+              {{ "shift.edit-shift.qualifications.table.mandatory" | translate }}
+            </th>
+            <th
+              class="table-header action"
+              style="width: 60px; max-width: 60px; min-width: 60px"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track trackByIndex($index)) {
+          <tr class="table-row">
+            <td class="table-cell cell-center cell-center-vertical">
+              <span class="qualification-emoji">{{ getEmoji(row) }}</span>
+            </td>
+            <td class="table-cell cell-center-vertical">
+              <select
+                class="form-select"
+                id="sqQualificationId-{{ $index }}"
+                name="sqQualificationId-{{ $index }}"
+                [disabled]="isDisabled()"
+                [ngModel]="row.qualificationId"
+                (ngModelChange)="onQualificationChange($index, $event)"
+              >
+                <option [ngValue]="undefined">
+                  {{ "shift.edit-shift.qualifications.select-qualification" | translate }}
+                </option>
+                @for (option of availableQualifications(row); track option.id) {
+                <option [ngValue]="option.id">
+                  {{ option.emoji }} {{ localizedName(option) }}
+                </option>
+                }
+              </select>
+            </td>
+            <td class="table-cell cell-center-vertical">
+              <select
+                class="form-select"
+                id="sqMinLevel-{{ $index }}"
+                name="sqMinLevel-{{ $index }}"
+                [disabled]="isDisabled()"
+                [ngModel]="row.minLevel"
+                (ngModelChange)="onLevelChange($index, +$event)"
+              >
+                @for (level of levelOptions; track level) {
+                <option [ngValue]="level">
+                  {{ "shift.edit-shift.qualifications.level." + level | translate }}
+                </option>
+                }
+              </select>
+            </td>
+            <td class="table-cell cell-center cell-center-vertical">
+              <input
+                type="checkbox"
+                id="sqMandatory-{{ $index }}"
+                name="sqMandatory-{{ $index }}"
+                [disabled]="isDisabled()"
+                [ngModel]="row.isMandatory"
+                (ngModelChange)="onMandatoryChange($index, $event)"
+              />
+            </td>
+            <td class="table-cell cell-right cell-center-vertical">
+              @if (!isDisabled()) {
+              <div id="delete-sq-{{ $index }}" class="icon" (click)="removeRow($index)">
+                <app-icon-trash-red></app-icon-trash-red>
+              </div>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</app-expandable-card>
