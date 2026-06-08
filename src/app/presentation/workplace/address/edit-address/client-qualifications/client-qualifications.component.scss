@@ -53,3 +53,13 @@ table .input-group-text,
   font-size: 16px;
   color: var(--colorLine) !important;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-select {
+  max-width: 170px;
+}

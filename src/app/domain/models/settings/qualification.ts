@@ -8,7 +8,7 @@
  * @param emoji - Optional emoji symbol for the qualification
  * @param isTimeLimited - Whether the qualification expires over time
  * @param type - Category of the qualification (Language or Work)
- * @param country - Optional country abbreviation (e.g. "CH", "DE") for language qualifications
+ * @param countries - ISO 3166-1 alpha-2 country codes this qualification applies to (e.g. ["CH", "DE"])
  */
 import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
@@ -20,5 +20,5 @@ export interface IQualification {
   emoji?: string;
   isTimeLimited: boolean;
   type: QualificationType;
-  country?: string;
+  countries: string[];
 }

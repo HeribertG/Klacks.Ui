@@ -121,3 +121,37 @@
     border-color: var(--standartGreenColor);
   }
 }
+
+.country-checkbox-list {
+  height: 120px;
+  overflow-y: auto;
+  border: 1px solid var(--colorLine, #ced4da);
+  border-radius: 4px;
+  padding: 4px 6px;
+  background: var(--standartTextBackground, #fff);
+}
+
+.country-checkbox-option {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 2px 4px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--standartGreenColor);
+  }
+
+  input[type='checkbox'] {
+    width: auto !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  span {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+}

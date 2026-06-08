@@ -92,7 +92,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   selectedEmoji = signal<string>('');
   isTimeLimitedValue = signal<boolean>(false);
   selectedType = signal<QualificationType>(QualificationType.Work);
-  selectedCountry = signal<string>('');
+  selectedCountries = signal<string[]>([]);
   emojiPickerOpen = signal<boolean>(false);
 
   readonly QualificationType = QualificationType;
@@ -167,13 +167,14 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       name: new MultiLanguage(),
       isTimeLimited: false,
       type: QualificationType.Work,
+      countries: [],
     };
     this.originalQualification = null;
     this.formModel.set({ name: '', description: '' });
     this.selectedEmoji.set('');
     this.isTimeLimitedValue.set(false);
     this.selectedType.set(QualificationType.Work);
-    this.selectedCountry.set('');
+    this.selectedCountries.set([]);
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -194,7 +195,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.selectedEmoji.set(q.emoji ?? '');
     this.isTimeLimitedValue.set(q.isTimeLimited);
     this.selectedType.set(q.type ?? QualificationType.Work);
-    this.selectedCountry.set(q.country ?? '');
+    this.selectedCountries.set(q.countries ?? []);
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -220,8 +221,39 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isTimeLimitedValue.set((event.target as HTMLInputElement).checked);
   }
 
-  onCountryInput(event: Event): void {
-    this.selectedCountry.set((event.target as HTMLInputElement).value);
+  readonly countryOptions: { code: string; label: string }[] = [
+    { code: 'CH', label: 'CH – Schweiz' },
+    { code: 'DE', label: 'DE – Deutschland' },
+    { code: 'AT', label: 'AT – Österreich' },
+    { code: 'FR', label: 'FR – Frankreich' },
+    { code: 'BE', label: 'BE – Belgien' },
+    { code: 'IT', label: 'IT – Italien' },
+    { code: 'GB', label: 'GB – Großbritannien' },
+    { code: 'US', label: 'US – USA' },
+    { code: 'AU', label: 'AU – Australien' },
+    { code: 'CA', label: 'CA – Kanada' },
+    { code: 'IE', label: 'IE – Irland' },
+    { code: 'JP', label: 'JP – Japan' },
+    { code: 'CN', label: 'CN – China' },
+    { code: 'TW', label: 'TW – Taiwan' },
+    { code: 'KR', label: 'KR – Südkorea' },
+    { code: 'SG', label: 'SG – Singapur' },
+    { code: 'SA', label: 'SA – Saudi-Arabien' },
+    { code: 'AE', label: 'AE – Vereinigte Arabische Emirate' },
+    { code: 'MA', label: 'MA – Marokko' },
+    { code: 'IL', label: 'IL – Israel' },
+    { code: 'SM', label: 'SM – San Marino' },
+    { code: 'LI', label: 'LI – Liechtenstein' },
+    { code: 'LU', label: 'LU – Luxemburg' },
+  ];
+
+  onCountryToggle(code: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const checked = input.type === 'checkbox' ? input.checked : !this.selectedCountries().includes(code);
+    const current = this.selectedCountries();
+    this.selectedCountries.set(
+      checked ? [...current, code] : current.filter(c => c !== code)
+    );
   }
 
   async onSaveModal(modal: { close: () => void }): Promise<void> {
@@ -266,7 +298,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       emoji: this.selectedEmoji() || undefined,
       isTimeLimited: this.isTimeLimitedValue(),
       type: this.selectedType(),
-      country: this.selectedCountry() || undefined,
+      countries: this.selectedCountries(),
     };
 
     try {

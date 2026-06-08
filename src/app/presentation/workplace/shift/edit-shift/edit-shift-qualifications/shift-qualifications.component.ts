@@ -25,6 +25,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Subject, takeUntil } from 'rxjs';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
+import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
@@ -60,9 +61,12 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
+  public readonly QualificationType = QualificationType;
   public currentLang = 'de';
   public masterQualifications: IQualification[] = [];
   public rows: IShiftRequiredQualification[] = [];
+  public filterType: QualificationType | null = null;
+  public filterCountry = '';
   public readonly levelOptions: number[] = [
     QualificationLevel.Low,
     QualificationLevel.Basic,
@@ -119,13 +123,32 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     return getLocalizedValue(qualification.name, this.currentLang);
   }
 
+  get availableCountries(): string[] {
+    return [...new Set(this.masterQualifications.flatMap((q) => q.countries))].sort();
+  }
+
   availableQualifications(row: IShiftRequiredQualification): IQualification[] {
     const usedIds = new Set(
       this.rows.filter((q) => q !== row && !!q.qualificationId).map((q) => q.qualificationId)
     );
-    return this.masterQualifications.filter(
-      (q) => !!q.id && (!usedIds.has(q.id) || q.id === row.qualificationId)
-    );
+    return this.masterQualifications.filter((q) => {
+      if (!q.id) return false;
+      if (q.id === row.qualificationId) return true;
+      if (usedIds.has(q.id)) return false;
+      if (this.filterType !== null && q.type !== this.filterType) return false;
+      if (this.filterCountry && q.countries.length > 0 && !q.countries.includes(this.filterCountry)) return false;
+      return true;
+    });
+  }
+
+  onFilterTypeChange(value: QualificationType | null): void {
+    this.filterType = value;
+    this.cdr.markForCheck();
+  }
+
+  onFilterCountryChange(value: string): void {
+    this.filterCountry = value;
+    this.cdr.markForCheck();
   }
 
   addRow(): void {

@@ -30,3 +30,13 @@ table select,
 .icon {
   cursor: pointer;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-select {
+  max-width: 170px;
+}

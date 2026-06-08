@@ -34,6 +34,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IClientQualification } from 'src/app/domain/models/client/client-qualification-class';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationLevel } from 'src/app/domain/enums/qualification-level.enum';
+import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
@@ -77,9 +78,12 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
+  public readonly QualificationType = QualificationType;
   public faCalendar = faCalendar;
   public currentLang = 'de';
   public qualifications: IQualification[] = [];
+  public filterType: QualificationType | null = null;
+  public filterCountry = '';
   public readonly levelOptions: number[] = [
     QualificationLevel.Low,
     QualificationLevel.Basic,
@@ -161,13 +165,34 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
     return this.getQualification(row.qualificationId)?.isTimeLimited ?? false;
   }
 
+  get availableCountries(): string[] {
+    return [...new Set(this.qualifications.flatMap((q) => q.countries))].sort();
+  }
+
   availableQualifications(row: IClientQualification): IQualification[] {
     const usedIds = new Set(
       (this.dataManagementClientService.editClient()?.qualifications ?? [])
         .filter((q) => q !== row && !!q.qualificationId)
         .map((q) => q.qualificationId)
     );
-    return this.qualifications.filter((q) => !!q.id && (!usedIds.has(q.id) || q.id === row.qualificationId));
+    return this.qualifications.filter((q) => {
+      if (!q.id) return false;
+      if (q.id === row.qualificationId) return true;
+      if (usedIds.has(q.id)) return false;
+      if (this.filterType !== null && q.type !== this.filterType) return false;
+      if (this.filterCountry && q.countries.length > 0 && !q.countries.includes(this.filterCountry)) return false;
+      return true;
+    });
+  }
+
+  onFilterTypeChange(value: QualificationType | null): void {
+    this.filterType = value;
+    this.cdr.markForCheck();
+  }
+
+  onFilterCountryChange(value: string): void {
+    this.filterCountry = value;
+    this.cdr.markForCheck();
   }
 
   getValidUntil(row: IClientQualification): NgbDateStruct | undefined {

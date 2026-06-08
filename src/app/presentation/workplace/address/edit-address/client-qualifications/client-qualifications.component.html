@@ -4,7 +4,32 @@
   <app-expandable-card
     [headerTitle]="'address.edit-address.qualifications.header' | translate">
 
-    <div headerActions>
+    <div headerActions class="header-actions">
+      @if (hasMasterQualifications()) {
+      <select
+        class="form-select form-select-sm filter-select"
+        [ngModel]="filterType"
+        (ngModelChange)="onFilterTypeChange($event)"
+        [ngModelOptions]="{standalone: true}"
+      >
+        <option [ngValue]="null">{{ "address.edit-address.qualifications.filter.all-types" | translate }}</option>
+        <option [ngValue]="QualificationType.Work">{{ "setting.qualifications.modal.type-work" | translate }}</option>
+        <option [ngValue]="QualificationType.Language">{{ "setting.qualifications.modal.type-language" | translate }}</option>
+      </select>
+      @if (availableCountries.length > 0) {
+      <select
+        class="form-select form-select-sm filter-select"
+        [ngModel]="filterCountry"
+        (ngModelChange)="onFilterCountryChange($event)"
+        [ngModelOptions]="{standalone: true}"
+      >
+        <option value="">{{ "address.edit-address.qualifications.filter.all-countries" | translate }}</option>
+        @for (country of availableCountries; track country) {
+        <option [value]="country">{{ country }}</option>
+        }
+      </select>
+      }
+      }
       @if (!isDisabled() && hasMasterQualifications()) {
       <app-button-new
         id="add-qualification-button"
