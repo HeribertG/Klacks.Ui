@@ -1650,9 +1650,9 @@
   "setting.qualifications.modal.category-logistics": "Logistics",
   "setting.qualifications.modal.category-healthcare": "Healthcare",
   "setting.qualifications.modal.category-gastronomy": "Gastronomy",
-  "setting.qualifications.modal.category-construction": "Construction & Trades",
+  "setting.qualifications.modal.category-construction": "Construction",
   "setting.qualifications.modal.category-cleaning": "Cleaning",
-  "setting.qualifications.modal.category-transport": "Transport & Driving",
+  "setting.qualifications.modal.category-transport": "Transport",
   "qualification.filter.all-categories": "All categories",
   "setting.qualifications.error.load": "Error loading qualifications",
   "setting.qualifications.error.save": "Error saving qualification",
@@ -2733,26 +2733,5 @@
   "calendar.selector.selected-items": "Selected calendars",
   "common.loading": "Loading …",
   "schedule.shift-section.filter": "Filter",
-  "setting.report.designer.addTable": "Add table",
-  "setting": {
-    "qualifications": {
-      "modal": {
-        "category": "Category",
-        "category-none": "General",
-        "category-spitex": "Spitex",
-        "category-security": "Security",
-        "category-logistics": "Logistics",
-        "category-healthcare": "Healthcare",
-        "category-gastronomy": "Gastronomy",
-        "category-construction": "Construction",
-        "category-cleaning": "Cleaning",
-        "category-transport": "Transport"
-      }
-    }
-  },
-  "qualification": {
-    "filter": {
-      "all-categories": "All categories"
-    }
-  }
+  "setting.report.designer.addTable": "Add table"
 }

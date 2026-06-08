@@ -1648,11 +1648,11 @@
   "setting.qualifications.modal.category-spitex": "Spitex",
   "setting.qualifications.modal.category-security": "Security",
   "setting.qualifications.modal.category-logistics": "Logistik",
-  "setting.qualifications.modal.category-healthcare": "Gesundheitswesen",
+  "setting.qualifications.modal.category-healthcare": "Healthcare",
   "setting.qualifications.modal.category-gastronomy": "Gastronomie",
-  "setting.qualifications.modal.category-construction": "Bau & Handwerk",
+  "setting.qualifications.modal.category-construction": "Bau",
   "setting.qualifications.modal.category-cleaning": "Reinigung",
-  "setting.qualifications.modal.category-transport": "Transport & Fahrdienst",
+  "setting.qualifications.modal.category-transport": "Transport",
   "qualification.filter.all-categories": "Alle Kategorien",
   "setting.qualifications.error.load": "Fehler beim Laden der Qualifikationen",
   "setting.qualifications.error.save": "Fehler beim Speichern der Qualifikation",
@@ -2733,26 +2733,5 @@
   "calendar.selector.selected-items": "Ausgewählte Kalender",
   "common.loading": "Lädt …",
   "schedule.shift-section.filter": "Filter",
-  "setting.report.designer.addTable": "Tabelle hinzufügen",
-  "setting": {
-    "qualifications": {
-      "modal": {
-        "category": "Kategorie",
-        "category-none": "Allgemein",
-        "category-spitex": "Spitex",
-        "category-security": "Security",
-        "category-logistics": "Logistik",
-        "category-healthcare": "Healthcare",
-        "category-gastronomy": "Gastronomie",
-        "category-construction": "Bau",
-        "category-cleaning": "Reinigung",
-        "category-transport": "Transport"
-      }
-    }
-  },
-  "qualification": {
-    "filter": {
-      "all-categories": "Alle Kategorien"
-    }
-  }
+  "setting.report.designer.addTable": "Tabelle hinzufügen"
 }
