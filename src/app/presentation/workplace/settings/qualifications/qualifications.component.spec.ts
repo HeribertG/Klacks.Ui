@@ -12,6 +12,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
+import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 
 describe('QualificationsComponent', () => {
   let component: QualificationsComponent;
@@ -22,8 +23,8 @@ describe('QualificationsComponent', () => {
   let mockModalService: ModalService;
 
   const mockQualifications: IQualification[] = [
-    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false, type: QualificationType.Work },
-    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true, type: QualificationType.Work },
+    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
+    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true, type: QualificationType.Work, countries: [], category: QualificationCategory.None },
   ];
 
   beforeEach(async () => {
@@ -136,7 +137,7 @@ describe('QualificationsComponent', () => {
     });
 
     it('should not open delete modal if qualification has no id', () => {
-      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false, type: QualificationType.Work });
+      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false, type: QualificationType.Work, countries: [], category: QualificationCategory.None });
 
       expect(mockModalService.componentContext).not.toBe('qualifications');
     });
