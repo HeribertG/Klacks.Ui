@@ -319,7 +319,7 @@
                   />
                 </td>
                 <td class="table-cell cell-dict-language">
-                  <select class="form-select" [(ngModel)]="entry.language">
+                  <select class="form-select dict-lang-select" [(ngModel)]="entry.language">
                     @for (lang of dictionaryLanguages; track lang.value) {
                       <option [value]="lang.value">{{ lang.label }}</option>
                     }
@@ -378,7 +378,7 @@
               />
             </td>
             <td class="table-cell cell-dict-language">
-              <select class="form-select" [(ngModel)]="newEntry.language">
+              <select class="form-select dict-lang-select" [(ngModel)]="newEntry.language">
                 @for (lang of dictionaryLanguages; track lang.value) {
                   <option [value]="lang.value">{{ lang.label }}</option>
                 }

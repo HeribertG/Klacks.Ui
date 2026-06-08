@@ -114,6 +114,11 @@ select {
   width: 120px;
 }
 
+.dict-lang-select {
+  width: 120px !important;
+  min-width: 0 !important;
+}
+
 .table-dict .action {
   width: 60px;
 }
