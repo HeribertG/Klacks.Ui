@@ -7,7 +7,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inj
 import { ModalService, ModalType } from '../modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { FormsModule } from '@angular/forms';
 import { DeletewindowComponent } from '../deletewindow/deletewindow.component';
@@ -42,37 +42,15 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   // Private properties
   private ngbModal: NgbModal;
   private ngUnsubscribe = new Subject<void>();
-  private translateService: TranslateService;
 
   constructor() {
-    const modalService = inject(ModalService);
-    const ngbModal = inject(NgbModal);
-    const translateService = inject(TranslateService);
-
-    this.modalService = modalService;
-    this.ngbModal = ngbModal;
-    this.translateService = translateService;
+    this.modalService = inject(ModalService);
+    this.ngbModal = inject(NgbModal);
   }
 
   ngOnInit(): void {
-    this.translateService
-      .get('delete')
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.modalService.deleteMessageTitleDefault = x;
-      });
-    this.translateService
-      .get('button.delete')
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.modalService.deleteMessageOkButtonDefault = x;
-      });
-    this.translateService
-      .get('delete')
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.modalService.deleteMessageTitleDefault = x;
-      });
+    this.modalService.deleteMessageTitleDefault = 'delete';
+    this.modalService.deleteMessageOkButtonDefault = '';
   }
 
   ngAfterViewInit(): void {
