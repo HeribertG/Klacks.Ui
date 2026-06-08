@@ -17,7 +17,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletewindowComponent {
-  @Input() title = 'Löschen';
+  @Input() title = 'delete';
   @Input() message = '';
 
   public activeModal = inject(NgbActiveModal, { optional: true });
