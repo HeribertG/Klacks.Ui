@@ -6,9 +6,10 @@
  * @param isLoading - Whether a TTS request is in flight
  * @param playingMessageId - The id of the message currently being played or loaded
  */
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 const TTS_ENDPOINT = 'tts/synthesize';
 
@@ -18,6 +19,7 @@ export class TextToSpeechService implements OnDestroy {
   readonly isLoading = signal(false);
   readonly playingMessageId = signal<string | null>(null);
 
+  private readonly settings = inject(AppSettingsManagementService);
   private audio: HTMLAudioElement | null = null;
   private objectUrl: string | null = null;
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
@@ -34,6 +36,7 @@ export class TextToSpeechService implements OnDestroy {
 
     try {
       const token = localStorage.getItem(StorageKeys.TOKEN);
+      const speechSettings = this.settings.speechSettings();
 
       const response = await fetch(`${this.baseUrl}${TTS_ENDPOINT}`, {
         method: 'POST',
@@ -41,7 +44,12 @@ export class TextToSpeechService implements OnDestroy {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ text, locale }),
+        body: JSON.stringify({
+          text,
+          locale,
+          providerId: speechSettings.ttsProvider,
+          voiceId: speechSettings.ttsVoice,
+        }),
       });
 
       if (!response.ok) {

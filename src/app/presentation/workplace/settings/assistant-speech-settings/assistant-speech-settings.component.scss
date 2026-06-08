@@ -104,8 +104,10 @@ select {
   width: auto;
 }
 
-.header-dict-language {
+.header-dict-language,
+.cell-dict-language {
   width: 120px;
+  max-width: 120px;
 }
 
 .header-stt-name {

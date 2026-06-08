@@ -14,6 +14,7 @@ export class TtsProvider {
   static readonly Edge = 'edge';
   static readonly OpenAi = 'openai';
   static readonly ElevenLabs = 'elevenlabs';
+  static readonly Google = 'google-tts';
 }
 
 export class OutputMode {

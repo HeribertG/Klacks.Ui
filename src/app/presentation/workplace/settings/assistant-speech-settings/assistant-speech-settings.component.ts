@@ -100,8 +100,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   readonly modelCheckError = signal<string | null>(null);
   readonly recommendedModelIds = signal<Set<string>>(new Set<string>());
 
-  // Hide TTS provider picker until OpenAI/ElevenLabs backend providers are implemented.
-  readonly showTtsProvider = false;
+  readonly showTtsProvider = true;
 
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
@@ -137,10 +136,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   readonly ttsProviders = [
     { value: TtsProvider.Edge, labelKey: 'setting.speech.tts-edge' },
     { value: TtsProvider.OpenAi, labelKey: 'setting.speech.tts-openai' },
-    {
-      value: TtsProvider.ElevenLabs,
-      labelKey: 'setting.speech.tts-elevenlabs',
-    },
+    { value: TtsProvider.ElevenLabs, labelKey: 'setting.speech.tts-elevenlabs' },
+    { value: TtsProvider.Google, labelKey: 'setting.speech.tts-google' },
   ];
 
   readonly outputModes = [
@@ -167,14 +164,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.isInitialized = true;
     this.transcriptionPrompt = speech.transcriptionPrompt;
 
-    const voices = await this.dataTtsService.getVoices();
-    this.ttsVoices.set([
-      { value: VoiceId.Auto, label: 'Auto' },
-      ...voices.map((v) => ({
-        value: v.voiceId,
-        label: `${v.locale} - ${v.displayName}`,
-      })),
-    ]);
+    await this.loadVoices(this.ttsProvider);
 
     try {
       const models = await firstValueFrom(
@@ -200,6 +190,26 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   onEngineChanged(): void {
     this.applyEngineKeyToField();
     this.onSettingChanged();
+  }
+
+  async onTtsProviderChange(): Promise<void> {
+    this.ttsVoice = VoiceId.Auto;
+    await this.loadVoices(this.ttsProvider);
+    this.onSettingChanged();
+  }
+
+  private async loadVoices(providerId: string): Promise<void> {
+    const voices = await this.dataTtsService.getVoices(providerId);
+    this.ttsVoices.set([
+      { value: VoiceId.Auto, label: 'Auto' },
+      ...voices.map((v) => ({
+        value: v.voiceId,
+        label:
+          v.locale && v.locale !== VoiceId.Auto
+            ? `${v.locale} - ${v.displayName}`
+            : v.displayName,
+      })),
+    ]);
   }
 
   onSettingChanged(): void {

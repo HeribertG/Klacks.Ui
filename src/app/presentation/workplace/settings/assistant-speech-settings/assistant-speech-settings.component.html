@@ -35,7 +35,7 @@
             class="form-select"
             [(ngModel)]="ttsProvider"
             id="ttsProvider"
-            (ngModelChange)="onSettingChanged()"
+            (ngModelChange)="onTtsProviderChange()"
           >
             @for (provider of ttsProviders; track provider.value) {
               <option [value]="provider.value">
@@ -318,7 +318,7 @@
                     "
                   />
                 </td>
-                <td class="table-cell">
+                <td class="table-cell cell-dict-language">
                   <select class="form-select" [(ngModel)]="entry.language">
                     @for (lang of dictionaryLanguages; track lang.value) {
                       <option [value]="lang.value">{{ lang.label }}</option>
@@ -341,7 +341,7 @@
                 <td class="table-cell">
                   {{ formatVariants(entry.phoneticVariants) }}
                 </td>
-                <td class="table-cell">{{ entry.language || "Auto" }}</td>
+                <td class="table-cell cell-dict-language">{{ entry.language || "Auto" }}</td>
                 <td class="table-cell action">
                   <button
                     class="btn-icon"
@@ -377,7 +377,7 @@
                 [placeholder]="'setting.speech.dict-variants-hint' | translate"
               />
             </td>
-            <td class="table-cell">
+            <td class="table-cell cell-dict-language">
               <select class="form-select" [(ngModel)]="newEntry.language">
                 @for (lang of dictionaryLanguages; track lang.value) {
                   <option [value]="lang.value">{{ lang.label }}</option>

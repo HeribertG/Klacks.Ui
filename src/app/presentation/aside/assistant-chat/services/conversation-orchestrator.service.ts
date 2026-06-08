@@ -430,8 +430,14 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private async synthesizeAndEnqueue(sentence: string): Promise<void> {
     try {
+      const speechSettings = this.settings.speechSettings();
       console.log('[VS] TTS synthesize:', JSON.stringify(sentence.slice(0, 40)), 'locale=', this.locale);
-      const blob = await this.dataTts.synthesize({ text: sentence, locale: this.locale });
+      const blob = await this.dataTts.synthesize({
+        text: sentence,
+        locale: this.locale,
+        providerId: speechSettings.ttsProvider,
+        voiceId: speechSettings.ttsVoice,
+      });
       console.log('[VS] TTS synthesize result: blob=', blob ? `size=${blob.size} type=${blob.type}` : 'NULL');
       if (blob) {
         this.audioQueue.enqueue(blob);

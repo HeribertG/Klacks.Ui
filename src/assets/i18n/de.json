@@ -1211,6 +1211,7 @@
   "setting.speech.tts-edge": "Edge TTS (kostenlos)",
   "setting.speech.tts-openai": "OpenAI TTS",
   "setting.speech.tts-elevenlabs": "ElevenLabs",
+  "setting.speech.tts-google": "Google Cloud TTS",
   "setting.speech.silence-threshold": "Stille-Erkennung",
   "setting.speech.tts-voice": "Sprachausgabe Stimme",
   "setting.speech.transcription-model": "Transkriptions-Modell",
