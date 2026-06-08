@@ -311,7 +311,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
     const ttsDelta = nextContent.length > previousClean.length && nextContent.startsWith(previousClean)
       ? nextContent.substring(previousClean.length)
-      : nextContent;
+      : '';
     this.streamPreviousClean = nextContent;
 
     const ttsClean = this.stripForTts(ttsDelta);
