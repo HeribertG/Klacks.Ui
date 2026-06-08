@@ -233,7 +233,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     const currentLang =
       this.translateService.currentLang || this.translateService.defaultLang;
     this.updateSpeechLanguage(currentLang);
-    this.addWelcomeMessage(currentLang);
+    if (!this.asideService.openedWithContext() && this.messages.length === 0) {
+      this.addWelcomeMessage(currentLang);
+    }
 
     this.assistantService
       .getAvailableModels()
