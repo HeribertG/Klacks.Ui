@@ -96,6 +96,11 @@ select {
   }
 }
 
+.table-dict {
+  table-layout: fixed;
+  width: 100%;
+}
+
 .header-dict-term {
   width: 220px;
 }
@@ -107,7 +112,10 @@ select {
 .header-dict-language,
 .cell-dict-language {
   width: 120px;
-  max-width: 120px;
+}
+
+.table-dict .action {
+  width: 60px;
 }
 
 .header-stt-name {
