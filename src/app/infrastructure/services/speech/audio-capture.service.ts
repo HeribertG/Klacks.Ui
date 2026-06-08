@@ -46,7 +46,13 @@ export class AudioCaptureService implements OnDestroy {
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
     console.log('[VS] stream acquired, tracks=', this.mediaStream.getTracks().map(t => ({ label: t.label, enabled: t.enabled, muted: t.muted })));
 
-    this.audioContext = new AudioContext();
+    this.audioContext = this.createAudioContextAtTargetRate();
+    const actualRate = this.audioContext.sampleRate;
+    if (actualRate !== SpeechDefaults.SampleRate) {
+      console.warn('[VS] AudioContext rate mismatch: requested', SpeechDefaults.SampleRate, 'Hz but got', actualRate, 'Hz — streaming STT (Deepgram) declares', SpeechDefaults.SampleRate, 'Hz to the provider and will mis-decode; blob STT (Groq) self-corrects via its WAV header.');
+    } else {
+      console.log('[VS] AudioContext rate =', actualRate, 'Hz (matches the rate declared to streaming STT)');
+    }
     const source = this.audioContext.createMediaStreamSource(this.mediaStream);
 
     this.workletNode = this.audioContext.createScriptProcessor(SpeechDefaults.AudioProcessorBufferSize, SpeechDefaults.ChannelCount, SpeechDefaults.ChannelCount);
@@ -63,6 +69,15 @@ export class AudioCaptureService implements OnDestroy {
 
     this.isCapturing.set(true);
     console.log('[VS] audio-capture started, vadThreshold=', this.vadThreshold, 'silenceMs=', this.silenceThresholdMs());
+  }
+
+  private createAudioContextAtTargetRate(): AudioContext {
+    try {
+      return new AudioContext({ sampleRate: SpeechDefaults.SampleRate });
+    } catch (err) {
+      console.warn('[VS] AudioContext does not support', SpeechDefaults.SampleRate, 'Hz, falling back to default rate:', err instanceof Error ? err.message : err);
+      return new AudioContext();
+    }
   }
 
   private async acquireStream(deviceId: string | null): Promise<MediaStream> {
