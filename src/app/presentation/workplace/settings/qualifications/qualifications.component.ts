@@ -34,6 +34,7 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EMOJI_CATEGORIES, EMOJI_NAMES, EmojiCategory } from 'src/app/domain/constants/emoji-data';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
+import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { QualificationsHeaderComponent } from './qualifications-header/qualifications-header.component';
 import { QualificationsRowComponent } from './qualifications-row/qualifications-row.component';
 
@@ -96,6 +97,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   emojiPickerOpen = signal<boolean>(false);
 
   readonly QualificationType = QualificationType;
+  readonly QualificationCategory = QualificationCategory;
+  selectedCategory = signal<QualificationCategory>(QualificationCategory.None);
   selectedCategoryIndex = signal<number>(0);
 
   readonly categories: EmojiCategory[] = EMOJI_CATEGORIES;
@@ -168,6 +171,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       isTimeLimited: false,
       type: QualificationType.Work,
       countries: [],
+      category: QualificationCategory.None,
     };
     this.originalQualification = null;
     this.formModel.set({ name: '', description: '' });
@@ -175,6 +179,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isTimeLimitedValue.set(false);
     this.selectedType.set(QualificationType.Work);
     this.selectedCountries.set([]);
+    this.selectedCategory.set(QualificationCategory.None);
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -196,6 +201,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isTimeLimitedValue.set(q.isTimeLimited);
     this.selectedType.set(q.type ?? QualificationType.Work);
     this.selectedCountries.set(q.countries ?? []);
+    this.selectedCategory.set(q.category ?? QualificationCategory.None);
     this.emojiPickerOpen.set(false);
     this.selectedCategoryIndex.set(0);
 
@@ -299,6 +305,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
       isTimeLimited: this.isTimeLimitedValue(),
       type: this.selectedType(),
       countries: this.selectedCountries(),
+      category: this.selectedCategory(),
     };
 
     try {

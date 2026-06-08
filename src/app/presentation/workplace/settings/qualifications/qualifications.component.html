@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <!-- Type + Country -->
+        <!-- Type + Category + Country -->
         <div id="qualifications-modal-type-row" class="row-line-modal-inline">
           <div class="model-field">
             <label for="qualifications-modal-type">
@@ -78,6 +78,27 @@
               <option [ngValue]="QualificationType.Work">{{ 'setting.qualifications.modal.type-work' | translate }}</option>
             </select>
           </div>
+          @if (selectedType() !== QualificationType.Language) {
+          <div class="model-field">
+            <label for="qualifications-modal-category">
+              {{ 'setting.qualifications.modal.category' | translate }}
+            </label>
+            <select id="qualifications-modal-category" class="form-control"
+              [ngModel]="selectedCategory()"
+              (ngModelChange)="selectedCategory.set($event)"
+              [ngModelOptions]="{standalone: true}">
+              <option [ngValue]="QualificationCategory.None">{{ 'setting.qualifications.modal.category-none' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Spitex">{{ 'setting.qualifications.modal.category-spitex' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Security">{{ 'setting.qualifications.modal.category-security' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Logistics">{{ 'setting.qualifications.modal.category-logistics' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Healthcare">{{ 'setting.qualifications.modal.category-healthcare' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Gastronomy">{{ 'setting.qualifications.modal.category-gastronomy' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Construction">{{ 'setting.qualifications.modal.category-construction' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Cleaning">{{ 'setting.qualifications.modal.category-cleaning' | translate }}</option>
+              <option [ngValue]="QualificationCategory.Transport">{{ 'setting.qualifications.modal.category-transport' | translate }}</option>
+            </select>
+          </div>
+          }
           <div class="model-field">
             <label for="qualifications-modal-country">
               {{ 'setting.qualifications.modal.country' | translate }}

@@ -16,6 +16,24 @@
         <option [ngValue]="QualificationType.Work">{{ "setting.qualifications.modal.type-work" | translate }}</option>
         <option [ngValue]="QualificationType.Language">{{ "setting.qualifications.modal.type-language" | translate }}</option>
       </select>
+      @if (filterType === QualificationType.Work) {
+      <select
+        class="form-select form-select-sm filter-select"
+        [ngModel]="filterCategory"
+        (ngModelChange)="onFilterCategoryChange($event)"
+        [ngModelOptions]="{standalone: true}"
+      >
+        <option [ngValue]="null">{{ "qualification.filter.all-categories" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Spitex">{{ "setting.qualifications.modal.category-spitex" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Security">{{ "setting.qualifications.modal.category-security" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Logistics">{{ "setting.qualifications.modal.category-logistics" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Healthcare">{{ "setting.qualifications.modal.category-healthcare" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Gastronomy">{{ "setting.qualifications.modal.category-gastronomy" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Construction">{{ "setting.qualifications.modal.category-construction" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Cleaning">{{ "setting.qualifications.modal.category-cleaning" | translate }}</option>
+        <option [ngValue]="QualificationCategory.Transport">{{ "setting.qualifications.modal.category-transport" | translate }}</option>
+      </select>
+      }
       @if (availableCountries.length > 0) {
       <select
         class="form-select form-select-sm filter-select"

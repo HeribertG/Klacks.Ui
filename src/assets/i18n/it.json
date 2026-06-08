@@ -1643,6 +1643,17 @@
   "setting.qualifications.modal.type-language": "Lingua",
   "setting.qualifications.modal.type-work": "Lavoro",
   "setting.qualifications.modal.country": "Paese",
+  "setting.qualifications.modal.category": "Categoria",
+  "setting.qualifications.modal.category-none": "Generale",
+  "setting.qualifications.modal.category-spitex": "Spitex",
+  "setting.qualifications.modal.category-security": "Sicurezza",
+  "setting.qualifications.modal.category-logistics": "Logistica",
+  "setting.qualifications.modal.category-healthcare": "Sanità",
+  "setting.qualifications.modal.category-gastronomy": "Gastronomia",
+  "setting.qualifications.modal.category-construction": "Edilizia & Mestieri",
+  "setting.qualifications.modal.category-cleaning": "Pulizie",
+  "setting.qualifications.modal.category-transport": "Trasporto & Autista",
+  "qualification.filter.all-categories": "Tutte le categorie",
   "setting.qualifications.error.load": "Errore durante il caricamento delle qualifiche",
   "setting.qualifications.error.save": "Errore durante il salvataggio della qualifica",
   "setting.qualifications.error.delete": "Errore durante l'eliminazione della qualifica",
@@ -2714,5 +2725,26 @@
   "calendar.selector.selected-items": "Calendari selezionati",
   "common.loading": "Caricamento …",
   "schedule.shift-section.filter": "Filtra",
-  "setting.report.designer.addTable": "Aggiungi tabella"
+  "setting.report.designer.addTable": "Aggiungi tabella",
+  "setting": {
+    "qualifications": {
+      "modal": {
+        "category": "Categoria",
+        "category-none": "Generale",
+        "category-spitex": "Spitex",
+        "category-security": "Sicurezza",
+        "category-logistics": "Logistica",
+        "category-healthcare": "Assistenza sanitaria",
+        "category-gastronomy": "Gastronomia",
+        "category-construction": "Costruzione",
+        "category-cleaning": "Pulizie",
+        "category-transport": "Trasporto"
+      }
+    }
+  },
+  "qualification": {
+    "filter": {
+      "all-categories": "Tutte le categorie"
+    }
+  }
 }

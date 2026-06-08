@@ -1643,6 +1643,17 @@
   "setting.qualifications.modal.type-language": "Langue",
   "setting.qualifications.modal.type-work": "Travail",
   "setting.qualifications.modal.country": "Pays",
+  "setting.qualifications.modal.category": "Catégorie",
+  "setting.qualifications.modal.category-none": "Général",
+  "setting.qualifications.modal.category-spitex": "Spitex",
+  "setting.qualifications.modal.category-security": "Sécurité",
+  "setting.qualifications.modal.category-logistics": "Logistique",
+  "setting.qualifications.modal.category-healthcare": "Santé",
+  "setting.qualifications.modal.category-gastronomy": "Gastronomie",
+  "setting.qualifications.modal.category-construction": "Construction & Métiers",
+  "setting.qualifications.modal.category-cleaning": "Nettoyage",
+  "setting.qualifications.modal.category-transport": "Transport & Conduite",
+  "qualification.filter.all-categories": "Toutes catégories",
   "setting.qualifications.error.load": "Erreur lors du chargement des qualifications",
   "setting.qualifications.error.save": "Erreur lors de l'enregistrement de la qualification",
   "setting.qualifications.error.delete": "Erreur lors de la suppression de la qualification",
@@ -2714,5 +2725,26 @@
   "calendar.selector.selected-items": "Calendriers sélectionnés",
   "common.loading": "Chargement …",
   "schedule.shift-section.filter": "Filtrer",
-  "setting.report.designer.addTable": "Ajouter un tableau"
+  "setting.report.designer.addTable": "Ajouter un tableau",
+  "setting": {
+    "qualifications": {
+      "modal": {
+        "category": "Catégorie",
+        "category-none": "Général",
+        "category-spitex": "Spitex",
+        "category-security": "Sécurité",
+        "category-logistics": "Logistique",
+        "category-healthcare": "Santé",
+        "category-gastronomy": "Gastronomie",
+        "category-construction": "Construction",
+        "category-cleaning": "Nettoyage",
+        "category-transport": "Transport"
+      }
+    }
+  },
+  "qualification": {
+    "filter": {
+      "all-categories": "Toutes catégories"
+    }
+  }
 }
