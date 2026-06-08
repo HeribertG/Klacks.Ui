@@ -105,6 +105,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private callbacks: ConversationCallbacks | null = null;
   private destroy$ = new Subject<void>();
+  private subscriptionsWired = false;
   private sentenceBuffer = '';
   private pendingSentences: string[] = [];
   private locale = SpeechDefaults.Locale;
@@ -114,6 +115,12 @@ export class ConversationOrchestratorService implements OnDestroy {
     console.log('[VS] orchestrator.initialize called, locale=', locale);
     this.callbacks = callbacks;
     this.locale = locale;
+    this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
+
+    if (this.subscriptionsWired) {
+      return;
+    }
+    this.subscriptionsWired = true;
 
     this.audioCapture.silenceDetected$
       .pipe(takeUntil(this.destroy$))
@@ -162,7 +169,6 @@ export class ConversationOrchestratorService implements OnDestroy {
         });
       });
 
-    this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
   }
 
   async toggleVoiceMode(): Promise<void> {
