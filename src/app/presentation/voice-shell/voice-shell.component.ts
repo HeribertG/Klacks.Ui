@@ -26,6 +26,7 @@ import {
   ConversationState,
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
 import { AsideService } from '../aside/aside.service';
+import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
 import { TranscriptOverlayComponent } from './transcript-overlay/transcript-overlay.component';
 import {
@@ -45,6 +46,7 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
 export class VoiceShellComponent implements OnInit {
   readonly orchestrator = inject(ConversationOrchestratorService);
   private readonly asideService = inject(AsideService);
+  private readonly toastShowService = inject(ToastShowService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly errorHint = signal<IVoiceShellErrorHint | null>(null);
@@ -72,9 +74,11 @@ export class VoiceShellComponent implements OnInit {
       case ConversationState.Listening:
         console.log('[VS] calling endSession');
         this.orchestrator.endSession();
+        this.toastShowService.dismissInteractiveReplies();
         break;
       case ConversationState.Processing:
         this.orchestrator.endSession();
+        this.toastShowService.dismissInteractiveReplies();
         break;
       case ConversationState.Speaking:
         this.orchestrator.interruptAndListen();
