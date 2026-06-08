@@ -44,7 +44,7 @@ describe('DeletewindowComponent', () => {
     });
 
     it('should have default title', () => {
-        expect(component.title).toBe('Löschen');
+        expect(component.title).toBe('delete');
     });
 
     it('should have empty default message', () => {
