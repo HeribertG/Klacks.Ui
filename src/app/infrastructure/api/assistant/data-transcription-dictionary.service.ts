@@ -16,6 +16,7 @@ export interface DictionaryEntry {
   category: string | null;
   phoneticVariants: string[];
   description: string | null;
+  language: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

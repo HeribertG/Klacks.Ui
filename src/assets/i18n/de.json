@@ -1263,6 +1263,7 @@
   "setting.speech.prompt-reset": "Zurücksetzen",
   "setting.speech.dictionary-headline": "Wörterbuch",
   "setting.speech.dict-term": "Begriff",
+  "setting.speech.dict-language": "Sprache",
   "setting.speech.dict-category": "Kategorie",
   "setting.speech.dict-variants": "Varianten",
   "setting.speech.dict-description": "Beschreibung",

@@ -76,8 +76,17 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     category: '',
     phoneticVariants: [],
     description: '',
+    language: '',
   };
   editingEntryId = signal<string | null>(null);
+
+  readonly dictionaryLanguages: { value: string; label: string }[] = [
+    { value: '', label: 'Auto' },
+    { value: 'de', label: 'DE' },
+    { value: 'en', label: 'EN' },
+    { value: 'fr', label: 'FR' },
+    { value: 'it', label: 'IT' },
+  ];
 
   customSttProviders = signal<CustomSttProvider[]>([]);
   showSttModal = signal(false);
@@ -183,7 +192,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       this.transcriptionModels.set([]);
     }
 
-    this.dictionaryEntries.set(await this.dataDictionaryService.getAll());
+    const dictEntries = await this.dataDictionaryService.getAll();
+    this.dictionaryEntries.set(dictEntries.map((e) => ({ ...e, language: e.language ?? '' })));
     this.customSttProviders.set(await this.dataCustomSttService.getAll());
   }
 
@@ -263,20 +273,28 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       category: this.newEntry.category || null,
       phoneticVariants: this.newEntry.phoneticVariants || [],
       description: this.newEntry.description || null,
+      language: this.newEntry.language || null,
     });
     if (created) {
-      this.dictionaryEntries.set([...this.dictionaryEntries(), created]);
+      this.dictionaryEntries.set([
+        ...this.dictionaryEntries(),
+        { ...created, language: created.language ?? '' },
+      ]);
       this.newEntry = {
         correctTerm: '',
         category: '',
         phoneticVariants: [],
         description: '',
+        language: '',
       };
     }
   }
 
   async updateDictionaryEntry(entry: DictionaryEntry): Promise<void> {
-    const success = await this.dataDictionaryService.update(entry);
+    const success = await this.dataDictionaryService.update({
+      ...entry,
+      language: entry.language || null,
+    });
     if (success) {
       this.editingEntryId.set(null);
     }

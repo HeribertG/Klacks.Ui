@@ -1263,6 +1263,7 @@
   "setting.speech.prompt-reset": "Réinitialiser",
   "setting.speech.dictionary-headline": "Dictionnaire",
   "setting.speech.dict-term": "Terme",
+  "setting.speech.dict-language": "Langue",
   "setting.speech.dict-category": "Catégorie",
   "setting.speech.dict-variants": "Variantes",
   "setting.speech.dict-description": "Description",

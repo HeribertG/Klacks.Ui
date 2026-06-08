@@ -296,6 +296,9 @@
             <th class="table-header header-dict-variants">
               {{ "setting.speech.dict-variants" | translate }}
             </th>
+            <th class="table-header header-dict-language">
+              {{ "setting.speech.dict-language" | translate }}
+            </th>
             <th class="table-header action"></th>
           </tr>
         </thead>
@@ -315,6 +318,13 @@
                     "
                   />
                 </td>
+                <td class="table-cell">
+                  <select class="form-select" [(ngModel)]="entry.language">
+                    @for (lang of dictionaryLanguages; track lang.value) {
+                      <option [value]="lang.value">{{ lang.label }}</option>
+                    }
+                  </select>
+                </td>
                 <td class="table-cell action">
                   <button
                     class="btn-icon"
@@ -331,6 +341,7 @@
                 <td class="table-cell">
                   {{ formatVariants(entry.phoneticVariants) }}
                 </td>
+                <td class="table-cell">{{ entry.language || "Auto" }}</td>
                 <td class="table-cell action">
                   <button
                     class="btn-icon"
@@ -365,6 +376,13 @@
                 "
                 [placeholder]="'setting.speech.dict-variants-hint' | translate"
               />
+            </td>
+            <td class="table-cell">
+              <select class="form-select" [(ngModel)]="newEntry.language">
+                @for (lang of dictionaryLanguages; track lang.value) {
+                  <option [value]="lang.value">{{ lang.label }}</option>
+                }
+              </select>
             </td>
             <td class="table-cell action">
               <button class="btn-icon btn-add" (click)="addDictionaryEntry()">
