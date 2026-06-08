@@ -3,7 +3,7 @@
 /**
  * Settings component for configuring Klacksy speech preferences.
  * @param sttEngine - Selected speech-to-text engine
- * @param sttApiKey - API key for cloud STT providers
+ * @param sttApiKey - Editable API key field for the currently selected STT provider
  * @param ttsVoice - Selected text-to-speech voice
  * @param ttsProvider - Selected TTS provider
  * @param transcriptionModel - Selected LLM model for transcription cleanup
@@ -97,6 +97,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
   sttApiKeyConfigured = false;
+  private sttApiKeysByEngine: Record<string, string> = {};
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
   transcriptionModel = SpeechDefaults.TranscriptionModel;
@@ -146,13 +147,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     const speech = this.appSettingsService.speechSettings();
 
     this.sttEngine = speech.sttEngine;
-    if (speech.sttApiKey === '***') {
-      this.sttApiKeyConfigured = true;
-      this.sttApiKey = '';
-    } else {
-      this.sttApiKeyConfigured = false;
-      this.sttApiKey = speech.sttApiKey;
-    }
+    this.sttApiKeysByEngine = { ...speech.sttApiKeys };
+    this.applyEngineKeyToField();
     this.ttsVoice = speech.ttsVoice;
     this.ttsProvider = this.showTtsProvider ? speech.ttsProvider : TtsProvider.Edge;
     this.transcriptionModel = speech.transcriptionModel;
@@ -191,20 +187,21 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.customSttProviders.set(await this.dataCustomSttService.getAll());
   }
 
+  onEngineChanged(): void {
+    this.applyEngineKeyToField();
+    this.onSettingChanged();
+  }
+
   onSettingChanged(): void {
     if (!this.isInitialized) {
       return;
     }
 
-    const apiKeyToSave =
-      this.sttApiKey.length > 0
-        ? this.sttApiKey
-        : this.sttApiKeyConfigured
-          ? '***'
-          : '';
+    this.captureApiKeyForCurrentEngine();
+
     this.appSettingsService.speechSettings.set({
       sttEngine: this.sttEngine,
-      sttApiKey: apiKeyToSave,
+      sttApiKeys: { ...this.sttApiKeysByEngine },
       ttsVoice: this.ttsVoice,
       ttsProvider: this.ttsProvider,
       transcriptionModel: this.transcriptionModel,
@@ -215,12 +212,36 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     });
   }
 
+  private applyEngineKeyToField(): void {
+    const stored = this.sttApiKeysByEngine[this.sttEngine] ?? '';
+    if (stored === '***') {
+      this.sttApiKeyConfigured = true;
+      this.sttApiKey = '';
+    } else {
+      this.sttApiKeyConfigured = false;
+      this.sttApiKey = stored;
+    }
+  }
+
+  private captureApiKeyForCurrentEngine(): void {
+    if (!(this.sttEngine in this.sttApiKeysByEngine)) {
+      return;
+    }
+    this.sttApiKeysByEngine[this.sttEngine] =
+      this.sttApiKey.length > 0
+        ? this.sttApiKey
+        : this.sttApiKeyConfigured
+          ? '***'
+          : '';
+  }
+
   resetPrompt(): void {
     this.transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
     this.onSettingChanged();
   }
 
   async testSttConnection(): Promise<void> {
+    await this.appSettingsService.saveImmediately();
     const result = await this.dataSttService.testConnection(this.sttEngine);
     if (result.success) {
       this.toastShowService.showSuccess(

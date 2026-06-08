@@ -21,6 +21,7 @@ import {
 } from 'src/app/domain/models/settings/app-settings.model';
 import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
+import { SttEngine } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -139,7 +140,9 @@ export class AppSettingsManagementService {
     [AppSetting.DATA_RETENTION_DAYS, (v, m) => (m.dataRetention.dataRetentionDays = parseInt(v, 10) || 3650)],
 
     [AppSetting.ASSISTANT_STT_ENGINE, (v, m) => (m.speech.sttEngine = v)],
-    [AppSetting.ASSISTANT_STT_API_KEY, (v, m) => (m.speech.sttApiKey = v)],
+    [AppSetting.ASSISTANT_STT_API_KEY_DEEPGRAM, (v, m) => (m.speech.sttApiKeys[SttEngine.Deepgram] = v)],
+    [AppSetting.ASSISTANT_STT_API_KEY_GROQ, (v, m) => (m.speech.sttApiKeys[SttEngine.GroqWhisper] = v)],
+    [AppSetting.ASSISTANT_STT_API_KEY_ASSEMBLYAI, (v, m) => (m.speech.sttApiKeys[SttEngine.AssemblyAi] = v)],
     [AppSetting.ASSISTANT_TTS_VOICE, (v, m) => (m.speech.ttsVoice = v)],
     [AppSetting.ASSISTANT_TTS_PROVIDER, (v, m) => (m.speech.ttsProvider = v)],
     [AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, (v, m) => (m.speech.transcriptionModel = v)],
@@ -189,6 +192,7 @@ export class AppSettingsManagementService {
 
   private settingsList: ISetting[] = [];
   private saveCounter = 0;
+  private saveCompletionResolvers: (() => void)[] = [];
   private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -387,7 +391,9 @@ export class AppSettingsManagementService {
     { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
 
     { key: AppSetting.ASSISTANT_STT_ENGINE, getCurrent: () => this.speechSettings().sttEngine, getOriginal: () => this.speechSettingsOriginal().sttEngine },
-    { key: AppSetting.ASSISTANT_STT_API_KEY, getCurrent: () => this.speechSettings().sttApiKey, getOriginal: () => this.speechSettingsOriginal().sttApiKey },
+    { key: AppSetting.ASSISTANT_STT_API_KEY_DEEPGRAM, getCurrent: () => this.speechSettings().sttApiKeys[SttEngine.Deepgram] ?? '', getOriginal: () => this.speechSettingsOriginal().sttApiKeys[SttEngine.Deepgram] ?? '' },
+    { key: AppSetting.ASSISTANT_STT_API_KEY_GROQ, getCurrent: () => this.speechSettings().sttApiKeys[SttEngine.GroqWhisper] ?? '', getOriginal: () => this.speechSettingsOriginal().sttApiKeys[SttEngine.GroqWhisper] ?? '' },
+    { key: AppSetting.ASSISTANT_STT_API_KEY_ASSEMBLYAI, getCurrent: () => this.speechSettings().sttApiKeys[SttEngine.AssemblyAi] ?? '', getOriginal: () => this.speechSettingsOriginal().sttApiKeys[SttEngine.AssemblyAi] ?? '' },
     { key: AppSetting.ASSISTANT_TTS_VOICE, getCurrent: () => this.speechSettings().ttsVoice, getOriginal: () => this.speechSettingsOriginal().ttsVoice },
     { key: AppSetting.ASSISTANT_TTS_PROVIDER, getCurrent: () => this.speechSettings().ttsProvider, getOriginal: () => this.speechSettingsOriginal().ttsProvider },
     { key: AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, getCurrent: () => this.speechSettings().transcriptionModel, getOriginal: () => this.speechSettingsOriginal().transcriptionModel },
@@ -416,6 +422,18 @@ export class AppSettingsManagementService {
     for (const definition of this.saveDefinitions) {
       this.saveSetting(definition.getCurrent(), definition.getOriginal(), definition.key);
     }
+  }
+
+  async saveImmediately(): Promise<void> {
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+      this.autoSaveTimer = null;
+    }
+    this.save();
+    if (this.saveCounter === 0) {
+      return;
+    }
+    await new Promise<void>((resolve) => this.saveCompletionResolvers.push(resolve));
   }
 
   private saveSetting(value: string, originalValue: string, type: string): void {
@@ -453,6 +471,9 @@ export class AppSettingsManagementService {
 
   private checkSaveComplete(): void {
     if (this.saveCounter === 0) {
+      const resolvers = this.saveCompletionResolvers;
+      this.saveCompletionResolvers = [];
+      resolvers.forEach((resolve) => resolve());
       this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
       this.imapSettingsOriginal.set(cloneObject(this.imapSettings()));

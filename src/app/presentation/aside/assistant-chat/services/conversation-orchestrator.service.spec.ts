@@ -49,7 +49,7 @@ describe('ConversationOrchestratorService', () => {
 
   interface ISpeechSettings {
     sttEngine: string;
-    sttApiKey: string;
+    sttApiKeys: Record<string, string>;
     ttsVoice: string;
     ttsProvider: string;
     transcriptionModel: string;
@@ -63,7 +63,7 @@ describe('ConversationOrchestratorService', () => {
   beforeEach(() => {
     currentSettings = {
       sttEngine: 'stream',
-      sttApiKey: '',
+      sttApiKeys: {},
       ttsVoice: 'auto',
       ttsProvider: 'edge',
       transcriptionModel: 'deepseek-chat',

@@ -16,7 +16,7 @@
           class="form-select"
           [(ngModel)]="sttEngine"
           id="sttEngine"
-          (ngModelChange)="onSettingChanged()"
+          (ngModelChange)="onEngineChanged()"
         >
           @for (provider of sttProviders; track provider.value) {
             <option [value]="provider.value">

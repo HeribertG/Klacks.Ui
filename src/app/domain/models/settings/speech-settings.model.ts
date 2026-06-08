@@ -3,7 +3,7 @@
 /**
  * Speech feature settings for the Klacksy voice conversation pipeline.
  * @param sttEngine - Selected STT provider identifier
- * @param sttApiKey - API key for cloud STT providers (empty for browser)
+ * @param sttApiKeys - Per-provider API keys keyed by STT engine id (each cloud provider keeps its own key)
  * @param ttsVoice - Edge TTS voice identifier or 'auto'
  * @param ttsProvider - Selected TTS provider identifier
  * @param transcriptionModel - LLM model ID used for transcription enhancement
@@ -15,7 +15,7 @@ import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src
 
 export interface ISpeechSettings {
   sttEngine: string;
-  sttApiKey: string;
+  sttApiKeys: Record<string, string>;
   ttsVoice: string;
   ttsProvider: string;
   transcriptionModel: string;
@@ -25,9 +25,17 @@ export interface ISpeechSettings {
   silenceThresholdMs: number;
 }
 
+export function createEmptySttApiKeys(): Record<string, string> {
+  return {
+    [SttEngine.Deepgram]: '',
+    [SttEngine.GroqWhisper]: '',
+    [SttEngine.AssemblyAi]: '',
+  };
+}
+
 export class SpeechSettings implements ISpeechSettings {
   sttEngine = SttEngine.Browser;
-  sttApiKey = '';
+  sttApiKeys = createEmptySttApiKeys();
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
   transcriptionModel = SpeechDefaults.TranscriptionModel;
