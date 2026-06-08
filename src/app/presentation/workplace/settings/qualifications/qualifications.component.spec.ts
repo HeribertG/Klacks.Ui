@@ -11,6 +11,7 @@ import { DataQualificationService } from 'src/app/infrastructure/api/settings/da
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
+import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 
 describe('QualificationsComponent', () => {
   let component: QualificationsComponent;
@@ -21,8 +22,8 @@ describe('QualificationsComponent', () => {
   let mockModalService: ModalService;
 
   const mockQualifications: IQualification[] = [
-    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false },
-    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true },
+    { id: '1', name: { de: 'Erste Hilfe', en: 'First Aid' }, isTimeLimited: false, type: QualificationType.Work },
+    { id: '2', name: { de: 'Gabelstapler', en: 'Forklift' }, isTimeLimited: true, type: QualificationType.Work },
   ];
 
   beforeEach(async () => {
@@ -135,7 +136,7 @@ describe('QualificationsComponent', () => {
     });
 
     it('should not open delete modal if qualification has no id', () => {
-      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false });
+      component.openDeleteQualification({ name: { de: 'Test' }, isTimeLimited: false, type: QualificationType.Work });
 
       expect(mockModalService.componentContext).not.toBe('qualifications');
     });

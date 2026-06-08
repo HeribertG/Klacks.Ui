@@ -12,6 +12,7 @@ import { DataManagementClientService } from 'src/app/domain/services/client/data
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
+import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 
 describe('ClientQualificationsComponent', () => {
   let component: ClientQualificationsComponent;
@@ -27,12 +28,14 @@ describe('ClientQualificationsComponent', () => {
     name: { de: 'Erste Hilfe', en: 'First aid' },
     emoji: '🚑',
     isTimeLimited: true,
+    type: QualificationType.Work,
   };
   const permanent: IQualification = {
     id: 'q-perm',
     name: { de: 'Diplom', en: 'Diploma' },
     emoji: '🎓',
     isTimeLimited: false,
+    type: QualificationType.Work,
   };
 
   beforeEach(async () => {
