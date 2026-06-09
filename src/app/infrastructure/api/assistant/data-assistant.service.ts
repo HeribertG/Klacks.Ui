@@ -8,7 +8,12 @@ import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
-import { IWelcomeRequest, IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import {
+  IOnboardingState,
+  ISaveOnboardingStateRequest,
+  IWelcomeRequest,
+  IWelcomeResponse,
+} from 'src/app/domain/models/assistant/welcome.interface';
 import { SKIP_LOADING } from 'src/app/domain/constants/http-context.constants';
 
 export interface ISpeechModelCheckDto {
@@ -224,6 +229,14 @@ export class DataAssistantService {
         params,
         context: new HttpContext().set(SKIP_LOADING, true),
       },
+    );
+  }
+
+  saveOnboardingState(request: ISaveOnboardingStateRequest): Observable<IOnboardingState> {
+    return this.httpClient.post<IOnboardingState>(
+      `${this.baseUrl}chat/onboarding/state`,
+      request,
+      { context: new HttpContext().set(SKIP_LOADING, true) },
     );
   }
 

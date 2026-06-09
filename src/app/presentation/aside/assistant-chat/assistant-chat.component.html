@@ -90,6 +90,35 @@
       }
     </button>
   </div>
+  <!-- Onboarding setup-tour card -->
+  @if (onboarding.showCard()) {
+  <div class="onboarding-card">
+    <div class="onboarding-card-header">
+      <span class="onboarding-card-title">{{ 'assistant-chat.onboarding.card.title' | translate }}</span>
+      <button
+        type="button"
+        class="onboarding-card-dismiss"
+        (click)="dismissOnboarding()"
+        [attr.aria-label]="'assistant-chat.onboarding.card.dismiss' | translate"
+      >
+        ×
+      </button>
+    </div>
+    <div class="onboarding-card-progress-text">
+      {{ 'assistant-chat.onboarding.card.progress' | translate : { done: onboarding.progress(), total: onboarding.total } }}
+    </div>
+    <div class="onboarding-card-bar">
+      <div
+        class="onboarding-card-fill"
+        [style.width.%]="onboarding.total ? (onboarding.progress() / onboarding.total) * 100 : 0"
+      ></div>
+    </div>
+    <button type="button" class="onboarding-card-start" (click)="startOnboardingTour()">
+      {{ (onboarding.progress() > 0 ? 'assistant-chat.onboarding.card.resume' : 'assistant-chat.onboarding.card.start') | translate }}
+    </button>
+  </div>
+  }
+
   <!-- Messages Area -->
   <div id="assistant-chat-messages" class="messages-container" #messagesContainer>
     <div class="messages">

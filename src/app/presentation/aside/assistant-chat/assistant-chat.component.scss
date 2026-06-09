@@ -947,3 +947,68 @@
     bottom: 12px;
   }
 }
+
+.onboarding-card {
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .onboarding-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .onboarding-card-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .onboarding-card-dismiss {
+    background: transparent;
+    border: none;
+    color: colors.$CurrentGreyColor;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  .onboarding-card-progress-text {
+    font-size: 12px;
+    color: colors.$CurrentGreyColor;
+  }
+
+  .onboarding-card-bar {
+    background: rgba(colors.$CurrentGreyColor, 0.25);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .onboarding-card-fill {
+    background: colors.$standartGreenColor;
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .onboarding-card-start {
+    align-self: flex-start;
+    background: colors.$standartGreenColor;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}

@@ -11,6 +11,23 @@ export interface IWelcomeResponse {
   weatherKey: string;
   displayName: string;
   suggestionKeys: string[];
+  onboarding?: IOnboardingState | null;
+}
+
+/**
+ * First-run setup-tour state. Returned in the welcome payload and by the onboarding-state endpoint.
+ * `completedStations` holds station ids from the frontend catalog; progress is derived from it.
+ */
+export interface IOnboardingState {
+  shouldOffer: boolean;
+  showCard: boolean;
+  status: string;
+  completedStations: string[];
+}
+
+export interface ISaveOnboardingStateRequest {
+  status?: string;
+  completedStation?: string;
 }
 
 export interface IWelcomeRequest {

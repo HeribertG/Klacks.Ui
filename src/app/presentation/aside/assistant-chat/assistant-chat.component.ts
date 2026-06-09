@@ -58,6 +58,14 @@ import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assist
 import { ISubmitCorrectionRequest } from 'src/app/infrastructure/api/assistant/data-assistant.service';
 import { WelcomeGreetingService } from 'src/app/application/services/welcome-greeting.service';
 import { IWelcomeResponse } from 'src/app/domain/models/assistant/welcome.interface';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import {
+  IOnboardingStation,
+  ONBOARDING_OFFER_CHOICE,
+  ONBOARDING_SETTINGS_ROUTE,
+  ONBOARDING_STATIONS,
+  ONBOARDING_TOUR_CHOICE,
+} from 'src/app/domain/constants/onboarding-stations';
 
 type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
 
@@ -101,6 +109,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private assistantSignalR = inject(AssistantSignalRService);
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
+  readonly onboarding = inject(OnboardingService);
+  private tourIndex = 0;
   private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -345,6 +355,11 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   async sendMessage(): Promise<void> {
     if (!this.inputText.trim() || this.isProcessing) {
+      return;
+    }
+
+    if (this.onboarding.isAwaitingAnswer()) {
+      this.handleOnboardingAnswer(this.inputText.trim());
       return;
     }
 
@@ -682,6 +697,201 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     if (suggestions.length > 0) {
       this.showActionsAsToast(suggestions);
     }
+
+    this.onboarding.applyWelcome(response.onboarding);
+    this.maybeOfferOnboarding();
+  }
+
+  private maybeOfferOnboarding(): void {
+    if (!this.onboarding.shouldOffer() || this.onboarding.hasOfferedThisSession()) {
+      return;
+    }
+    this.onboarding.markOfferedThisSession();
+    this.showOnboardingOffer();
+  }
+
+  private showOnboardingOffer(): void {
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      prompt: this.translateService.instant('assistant-chat.onboarding.offer.prompt'),
+      options: [
+        { label: this.translateService.instant('assistant-chat.onboarding.offer.accept'), value: ONBOARDING_OFFER_CHOICE.Accept },
+        { label: this.translateService.instant('assistant-chat.onboarding.offer.snooze'), value: ONBOARDING_OFFER_CHOICE.Snooze },
+        { label: this.translateService.instant('assistant-chat.onboarding.offer.dismiss'), value: ONBOARDING_OFFER_CHOICE.Dismiss },
+      ],
+    };
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        this.handleOnboardingChoice(values[0]);
+      });
+    });
+  }
+
+  private handleOnboardingChoice(choice: string): void {
+    if (choice === ONBOARDING_OFFER_CHOICE.Accept) {
+      this.startOnboardingTour();
+    } else if (choice === ONBOARDING_OFFER_CHOICE.Snooze) {
+      this.onboarding.snooze();
+    } else if (choice === ONBOARDING_OFFER_CHOICE.Dismiss) {
+      this.onboarding.dismiss();
+    }
+  }
+
+  startOnboardingTour(): void {
+    this.onboarding.accept();
+    this.tourIndex = this.onboarding.firstPendingIndex();
+    this.presentStationAtCursor();
+  }
+
+  dismissOnboarding(): void {
+    this.onboarding.dismiss();
+  }
+
+  private presentStationAtCursor(): void {
+    if (this.tourIndex >= ONBOARDING_STATIONS.length) {
+      this.completeTour();
+      return;
+    }
+    const station = ONBOARDING_STATIONS[this.tourIndex];
+    this.klacksyNavigation.navigateAndScroll(ONBOARDING_SETTINGS_ROUTE, station.target);
+    if (station.type === 'ask') {
+      this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+      this.onboarding.beginAsk(station.id);
+      this.presentAskField();
+    } else {
+      this.postKlacksyMessage(this.translateService.instant(station.explainKey));
+      this.showStationChips(station);
+    }
+  }
+
+  private presentAskField(): void {
+    const field = this.onboarding.currentAskField();
+    if (!field) {
+      return;
+    }
+    this.postKlacksyMessage(this.translateService.instant(field.promptKey));
+    this.showAskChips();
+  }
+
+  private showStationChips(station: IOnboardingStation): void {
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      options: [
+        { label: this.translateService.instant('assistant-chat.onboarding.tour.done'), value: ONBOARDING_TOUR_CHOICE.Done },
+        { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
+        { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
+      ],
+    };
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        this.handleStationChoice(station, values[0]);
+      });
+    });
+  }
+
+  private showAskChips(): void {
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      options: [
+        { label: this.translateService.instant('assistant-chat.onboarding.tour.skip'), value: ONBOARDING_TOUR_CHOICE.Skip },
+        { label: this.translateService.instant('assistant-chat.onboarding.tour.end'), value: ONBOARDING_TOUR_CHOICE.End },
+      ],
+    };
+    this.toastShowService.dismissInteractiveReplies();
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        this.handleAskChoice(values[0]);
+      });
+    });
+  }
+
+  private handleStationChoice(station: IOnboardingStation, choice: string): void {
+    if (choice === ONBOARDING_TOUR_CHOICE.Done) {
+      this.onboarding.markStationCompleted(station.id);
+      this.advanceTour();
+    } else if (choice === ONBOARDING_TOUR_CHOICE.Skip) {
+      this.advanceTour();
+    } else {
+      this.endTour();
+    }
+  }
+
+  private handleAskChoice(choice: string): void {
+    this.onboarding.cancelAsk();
+    if (choice === ONBOARDING_TOUR_CHOICE.Skip) {
+      this.advanceTour();
+    } else {
+      this.endTour();
+    }
+  }
+
+  private handleOnboardingAnswer(text: string): void {
+    this.orchestrator.addMessage({
+      id: this.generateMessageId(),
+      sender: 'user',
+      content: text,
+      timestamp: new Date(),
+    });
+    this.inputText = '';
+    this.toastShowService.dismissInteractiveReplies();
+    this.shouldScrollToBottom = true;
+    this.cdr.detectChanges();
+
+    const stationId = this.onboarding.currentAskStationId();
+    const field = this.onboarding.currentAskField();
+    if (!stationId || !field) {
+      this.onboarding.cancelAsk();
+      return;
+    }
+    this.onboarding.writeField(field, text).subscribe({
+      next: () => this.ngZone.run(() => this.afterAskFieldWritten(stationId)),
+      error: () => this.ngZone.run(() => this.afterAskFieldWritten(stationId)),
+    });
+  }
+
+  private afterAskFieldWritten(stationId: string): void {
+    const next = this.onboarding.advanceAskField();
+    if (next) {
+      this.presentAskField();
+      return;
+    }
+    this.onboarding.cancelAsk();
+    this.onboarding.markStationCompleted(stationId);
+    this.postKlacksyMessage(this.translateService.instant('assistant-chat.onboarding.ask.saved'));
+    this.advanceTour();
+  }
+
+  private advanceTour(): void {
+    this.tourIndex += 1;
+    this.presentStationAtCursor();
+  }
+
+  private completeTour(): void {
+    this.toastShowService.dismissInteractiveReplies();
+    this.onboarding.completeTour();
+    this.postKlacksyMessage(this.translateService.instant('assistant-chat.onboarding.tour.completed'));
+  }
+
+  private endTour(): void {
+    this.toastShowService.dismissInteractiveReplies();
+    this.onboarding.cancelAsk();
+    this.onboarding.dismiss();
+  }
+
+  private postKlacksyMessage(content: string): void {
+    this.orchestrator.addMessage({
+      id: this.generateMessageId(),
+      sender: 'assistant',
+      content,
+      timestamp: new Date(),
+    });
+    this.shouldScrollToBottom = true;
+    this.cdr.detectChanges();
   }
 
   private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {
