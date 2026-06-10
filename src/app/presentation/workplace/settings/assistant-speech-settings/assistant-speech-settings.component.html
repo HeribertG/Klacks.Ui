@@ -45,67 +45,67 @@
       }
     </div>
 
-    @if (sttEngine !== SttEngine.Browser) {
+    @if (sttEngine !== SttEngine.Browser || ttsProvider !== TtsProvider.Edge) {
       <div class="row-line">
-        <div class="form-group firstColumn">
-          <label for="sttApiKey"
-            >{{ "setting.speech.stt-apikey" | translate }}
-            @if (sttApiKeyConfigured && sttApiKey.length === 0) {
-              <span class="key-configured-badge">{{
-                "setting.speech.stt-apikey-configured" | translate
-              }}</span>
-            }
-          </label>
-          <div class="input-with-button">
-            <input
-              type="password"
-              class="form-control"
-              [(ngModel)]="sttApiKey"
-              id="sttApiKey"
-              (ngModelChange)="onSettingChanged()"
-              [placeholder]="sttApiKeyConfigured ? '••••••••' : ''"
-            />
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              (click)="testSttConnection()"
-            >
-              {{ "setting.speech.stt-test" | translate }}
-            </button>
+        @if (sttEngine !== SttEngine.Browser) {
+          <div class="form-group firstColumn">
+            <label for="sttApiKey"
+              >{{ "setting.speech.stt-apikey" | translate }}
+              @if (sttApiKeyConfigured && sttApiKey.length === 0) {
+                <span class="key-configured-badge">{{
+                  "setting.speech.stt-apikey-configured" | translate
+                }}</span>
+              }
+            </label>
+            <div class="input-with-button">
+              <input
+                type="password"
+                class="form-control"
+                [(ngModel)]="sttApiKey"
+                id="sttApiKey"
+                (ngModelChange)="onSettingChanged()"
+                [placeholder]="sttApiKeyConfigured ? '••••••••' : ''"
+              />
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                (click)="testSttConnection()"
+              >
+                {{ "setting.speech.stt-test" | translate }}
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
-    }
+        }
 
-    @if (ttsProvider !== TtsProvider.Edge) {
-      <div class="row-line">
-        <div class="form-group firstColumn">
-          <label for="ttsApiKey"
-            >{{ "setting.speech.tts-apikey" | translate }}
-            @if (ttsApiKeyConfigured && ttsApiKey.length === 0) {
-              <span class="key-configured-badge">{{
-                "setting.speech.tts-apikey-configured" | translate
-              }}</span>
-            }
-          </label>
-          <div class="input-with-button">
-            <input
-              type="password"
-              class="form-control"
-              [(ngModel)]="ttsApiKey"
-              id="ttsApiKey"
-              (ngModelChange)="onSettingChanged()"
-              [placeholder]="ttsApiKeyConfigured ? '••••••••' : ''"
-            />
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              (click)="testTtsConnection()"
-            >
-              {{ "setting.speech.tts-test" | translate }}
-            </button>
+        @if (ttsProvider !== TtsProvider.Edge) {
+          <div class="form-group secondColumn">
+            <label for="ttsApiKey"
+              >{{ "setting.speech.tts-apikey" | translate }}
+              @if (ttsApiKeyConfigured && ttsApiKey.length === 0) {
+                <span class="key-configured-badge">{{
+                  "setting.speech.tts-apikey-configured" | translate
+                }}</span>
+              }
+            </label>
+            <div class="input-with-button">
+              <input
+                type="password"
+                class="form-control"
+                [(ngModel)]="ttsApiKey"
+                id="ttsApiKey"
+                (ngModelChange)="onSettingChanged()"
+                [placeholder]="ttsApiKeyConfigured ? '••••••••' : ''"
+              />
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                (click)="testTtsConnection()"
+              >
+                {{ "setting.speech.tts-test" | translate }}
+              </button>
+            </div>
           </div>
-        </div>
+        }
       </div>
     }
 
