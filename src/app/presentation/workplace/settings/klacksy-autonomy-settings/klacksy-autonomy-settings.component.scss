@@ -1,0 +1,82 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+:host {
+  display: block;
+  padding-bottom: 35px;
+}
+
+.saving-indicator {
+  font-size: 12px;
+  font-weight: normal;
+  margin-inline-start: 12px;
+  color: var(--standartTextColor);
+}
+
+.loading-hint,
+.autonomy-intro,
+.autonomy-note {
+  font-size: 13px;
+  color: var(--standartTextColor);
+  margin: 8px 0;
+}
+
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.level-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: start;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 6px;
+  color: var(--standartTextColor);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--standartTextColor);
+  }
+
+  &.active {
+    border-color: var(--standartTextColor);
+    border-width: 2px;
+    font-weight: 600;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.level-badge {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.level-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-label {
+  font-size: 13px;
+}
+
+.level-description {
+  font-size: 12px;
+  opacity: 0.8;
+}

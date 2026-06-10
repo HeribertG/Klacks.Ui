@@ -51,6 +51,7 @@ import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.comp
 import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
 import { AssistantPersonalitySettingsComponent } from '../assistant-personality-settings/assistant-personality-settings.component';
 import { AssistantSkillProposalsComponent } from '../assistant-skill-proposals/assistant-skill-proposals.component';
+import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/klacksy-autonomy-settings.component';
 import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-settings.component';
@@ -111,6 +112,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     AssistantSpeechSettingsComponent,
     AssistantPersonalitySettingsComponent,
     AssistantSkillProposalsComponent,
+    KlacksyAutonomySettingsComponent,
     WizardSettingsComponent,
     CalendarSelectionComponent,
     FloorPlanSettingsComponent,

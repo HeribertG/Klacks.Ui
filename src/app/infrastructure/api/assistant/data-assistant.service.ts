@@ -112,6 +112,15 @@ export interface IAssistantHelp {
   tips: string[];
 }
 
+export interface IAutonomyLevelDto {
+  level: number;
+  name: string;
+}
+
+export interface IUpdateAutonomyLevelRequest {
+  level: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -123,6 +132,18 @@ export class DataAssistantService {
   chat(request: IAssistantChatRequest): Observable<IAssistantChatResponse> {
     return this.httpClient
       .post<IAssistantChatResponse>(`${this.baseUrl}chat`, request)
+      .pipe(retry(3));
+  }
+
+  getAutonomyLevel(): Observable<IAutonomyLevelDto> {
+    return this.httpClient
+      .get<IAutonomyLevelDto>(`${this.baseUrl}autonomy-level`)
+      .pipe(retry(3));
+  }
+
+  setAutonomyLevel(request: IUpdateAutonomyLevelRequest): Observable<IAutonomyLevelDto> {
+    return this.httpClient
+      .put<IAutonomyLevelDto>(`${this.baseUrl}autonomy-level`, request)
       .pipe(retry(3));
   }
 

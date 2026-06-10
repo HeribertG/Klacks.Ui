@@ -1,0 +1,34 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.autonomy.headline" | translate }}
+    @if (isSaving()) {
+      <span class="saving-indicator">{{ "setting.autonomy.saving" | translate }}</span>
+    }
+  </div>
+  <div class="container-line"></div>
+
+  @if (isLoading()) {
+    <div class="loading-hint">{{ "setting.autonomy.loading" | translate }}</div>
+  } @else {
+    <p class="autonomy-intro">{{ "setting.autonomy.intro" | translate }}</p>
+    <div class="level-list">
+      @for (level of levels; track level.value) {
+        <button
+          type="button"
+          class="level-option"
+          [class.active]="currentLevel() === level.value"
+          [disabled]="isSaving()"
+          [id]="'autonomy-level-' + level.value"
+          (click)="onSelectLevel(level.value)"
+        >
+          <span class="level-badge">{{ level.value }}</span>
+          <span class="level-text">
+            <span class="level-label">{{ level.labelKey | translate }}</span>
+            <span class="level-description">{{ level.descriptionKey | translate }}</span>
+          </span>
+        </button>
+      }
+    </div>
+    <p class="autonomy-note">{{ "setting.autonomy.sensitive-note" | translate }}</p>
+  }
+</div>
