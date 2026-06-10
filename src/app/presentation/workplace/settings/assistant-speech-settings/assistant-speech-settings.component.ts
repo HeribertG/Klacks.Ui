@@ -35,11 +35,6 @@ import {
   DataTranscriptionDictionaryService,
   DictionaryEntry,
 } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
-import {
-  DataCustomSttProviderService,
-  CustomSttProvider,
-} from 'src/app/infrastructure/api/assistant/data-custom-stt-provider.service';
-import { CustomSttProviderModalComponent } from './custom-stt-provider-modal/custom-stt-provider-modal.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import {
@@ -55,7 +50,7 @@ import {
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgxSliderModule, CustomSttProviderModalComponent, PencilIconGreyComponent, TrashIconRedComponent],
+  imports: [CommonModule, TranslateModule, FormsModule, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
@@ -66,7 +61,6 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private dataTtsService = inject(DataTtsService);
   private dataAssistantService = inject(DataAssistantService);
   private dataDictionaryService = inject(DataTranscriptionDictionaryService);
-  private dataCustomSttService = inject(DataCustomSttProviderService);
 
   private isInitialized = false;
 
@@ -87,10 +81,6 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     { value: 'fr', label: 'FR' },
     { value: 'it', label: 'IT' },
   ];
-
-  customSttProviders = signal<CustomSttProvider[]>([]);
-  showSttModal = signal(false);
-  editingSttProvider = signal<CustomSttProvider | null>(null);
 
   private static readonly MinContextWindowForSpeech = 16000;
   private static readonly RecommendedCount = 3;
@@ -184,7 +174,6 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
     const dictEntries = await this.dataDictionaryService.getAll();
     this.dictionaryEntries.set(dictEntries.map((e) => ({ ...e, language: e.language ?? '' })));
-    this.customSttProviders.set(await this.dataCustomSttService.getAll());
   }
 
   onEngineChanged(): void {
@@ -328,36 +317,6 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   formatVariants(variants: string[]): string {
     return variants.join(', ');
-  }
-
-  openNewSttProvider(): void {
-    this.editingSttProvider.set(null);
-    this.showSttModal.set(true);
-  }
-
-  openEditSttProvider(provider: CustomSttProvider): void {
-    this.editingSttProvider.set(provider);
-    this.showSttModal.set(true);
-  }
-
-  async onSttProviderSaved(provider: CustomSttProvider): Promise<void> {
-    if (provider.id) {
-      await this.dataCustomSttService.update(provider);
-    } else {
-      await this.dataCustomSttService.create(provider);
-    }
-    this.customSttProviders.set(await this.dataCustomSttService.getAll());
-    this.showSttModal.set(false);
-  }
-
-  async deleteSttProvider(id: string): Promise<void> {
-    await this.dataCustomSttService.delete(id);
-    this.customSttProviders.set(await this.dataCustomSttService.getAll());
-  }
-
-  async toggleSttProvider(provider: CustomSttProvider): Promise<void> {
-    provider.isEnabled = !provider.isEnabled;
-    await this.dataCustomSttService.update(provider);
   }
 
   async onCheckBestModels(): Promise<void> {

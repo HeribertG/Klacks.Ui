@@ -7,7 +7,7 @@ import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { ISetting, AppSetting } from 'src/app/domain/models/settings/settings-various-class';
 import { IOnboardingState, ISaveOnboardingStateRequest } from 'src/app/domain/models/assistant/welcome.interface';
-import { onboardingAskFields, ONBOARDING_STATIONS, ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
+import { onboardingAskFields, ONBOARDING_NAV_ICON, ONBOARDING_STATIONS, ONBOARDING_STATUS } from 'src/app/domain/constants/onboarding-stations';
 
 describe('OnboardingService', () => {
     let service: OnboardingService;
@@ -140,6 +140,15 @@ describe('OnboardingService', () => {
             service.markStationCompleted('calendar');
 
             expect(saveOnboardingState).toHaveBeenCalledWith({ completedStation: 'calendar' });
+        });
+    });
+
+    describe('station catalog', () => {
+        it('every station carries a known main-nav icon id', () => {
+            const knownIconIds = Object.values(ONBOARDING_NAV_ICON);
+            for (const station of ONBOARDING_STATIONS) {
+                expect(knownIconIds).toContain(station.navIconId);
+            }
         });
     });
 });

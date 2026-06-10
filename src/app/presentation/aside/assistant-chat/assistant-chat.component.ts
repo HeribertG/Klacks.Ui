@@ -755,7 +755,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       return;
     }
     const station = ONBOARDING_STATIONS[this.tourIndex];
-    this.klacksyNavigation.navigateAndScroll(ONBOARDING_SETTINGS_ROUTE, station.target);
+    this.klacksyNavigation.navigateAndScroll(station.route ?? ONBOARDING_SETTINGS_ROUTE, station.target || undefined);
+    this.klacksyNavigation.highlightNavIcon(station.navIconId);
     if (station.type === 'ask') {
       this.postKlacksyMessage(this.translateService.instant(station.explainKey));
       this.onboarding.beginAsk(station.id);

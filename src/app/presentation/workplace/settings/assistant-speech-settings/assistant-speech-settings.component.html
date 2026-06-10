@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="container-dashboard">
   <div class="container-header">
     {{ "setting.speech.headline" | translate }}
@@ -393,81 +391,5 @@
         </tbody>
       </table>
     </div>
-
-    <div class="container-line section-divider"></div>
-    <div class="section-header">
-      {{ "setting.speech.stt-custom-headline" | translate }}
-    </div>
-
-    <div class="container-table">
-      <table class="table table-borderless">
-        <thead>
-          <tr>
-            <th class="table-header header-stt-name">
-              {{ "setting.speech.stt-provider-name" | translate }}
-            </th>
-            <th class="table-header header-stt-type">
-              {{ "setting.speech.stt-provider-type" | translate }}
-            </th>
-            <th class="table-header header-stt-enabled">
-              {{ "setting.speech.stt-provider-enabled" | translate }}
-            </th>
-            <th class="table-header action"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (provider of customSttProviders(); track provider.id) {
-            <tr class="table-row">
-              <td class="table-cell">
-                @if (provider.isSystem) {
-                  <span class="system-badge" title="System">&#128274;</span>
-                }
-                {{ provider.name }}
-              </td>
-              <td class="table-cell">
-                {{ provider.connectionType === "rest" ? "REST" : "WebSocket" }}
-              </td>
-              <td class="table-cell">
-                <input
-                  type="checkbox"
-                  [checked]="provider.isEnabled"
-                  (change)="toggleSttProvider(provider)"
-                />
-              </td>
-              <td class="table-cell action">
-                <button
-                  class="btn-icon"
-                  (click)="openEditSttProvider(provider)"
-                >
-                  <app-icon-pencil-icon-grey />
-                </button>
-                @if (!provider.isSystem) {
-                  <button
-                    class="btn-icon"
-                    (click)="deleteSttProvider(provider.id)"
-                  >
-                    <app-icon-trash-red />
-                  </button>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <div class="stt-add-button">
-      <span class="add-button" (click)="openNewSttProvider()">{{
-        "setting.speech.stt-new-provider" | translate
-      }}</span>
-    </div>
-
-    @if (showSttModal()) {
-      <app-custom-stt-provider-modal
-        [provider]="editingSttProvider()"
-        (providerSaved)="onSttProviderSaved($event)"
-        (dismissed)="showSttModal.set(false)"
-      />
-    }
   </div>
 </div>

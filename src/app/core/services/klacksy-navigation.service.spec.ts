@@ -46,4 +46,22 @@ describe('KlacksyNavigationService', () => {
     expect(result.reason).toBe('target-not-found');
     expect(telemetry.trackTargetMiss).toHaveBeenCalled();
   }, 5000);
+
+  it('highlights an existing nav icon by id', () => {
+    const icon = document.createElement('button');
+    icon.id = 'open-settings';
+    document.body.appendChild(icon);
+
+    const result = service.highlightNavIcon('open-settings');
+
+    expect(result).toBe(true);
+    expect(icon.classList.contains('klacksy-highlight')).toBe(true);
+  });
+
+  it('reports a miss when the nav icon does not exist', () => {
+    const result = service.highlightNavIcon('open-nonexistent');
+
+    expect(result).toBe(false);
+    expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('main-nav', 'open-nonexistent');
+  });
 });

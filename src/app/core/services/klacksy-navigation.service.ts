@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Klacksy navigation + in-page scroll service.
+ * Klacksy navigation + in-page scroll service. Also pulses main-nav icons so Klacksy
+ * can show the user which icon opens a page (highlightNavIcon).
  * @param route - destination Angular route
  * @param target - optional data-klacksy-target ID
+ * @param elementId - DOM id of a main-nav icon (e.g. 'open-settings')
  */
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -42,6 +44,18 @@ export class KlacksyNavigationService {
     const focusable = el.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
     focusable?.focus();
     return { success: true };
+  }
+
+  highlightNavIcon(elementId: string): boolean {
+    const el = document.getElementById(elementId);
+    if (!el) {
+      this.telemetry.trackTargetMiss('main-nav', elementId);
+      return false;
+    }
+
+    el.classList.add('klacksy-highlight');
+    setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
+    return true;
   }
 
   private waitForElement(selector: string, timeoutMs: number): Promise<Element | null> {
