@@ -91,6 +91,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   readonly recommendedModelIds = signal<Set<string>>(new Set<string>());
 
   readonly showTtsProvider = true;
+  readonly SttEngine = SttEngine;
+  readonly TtsProvider = TtsProvider;
 
   sttEngine = SttEngine.Browser;
   sttApiKey = '';
@@ -98,6 +100,9 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   private sttApiKeysByEngine: Record<string, string> = {};
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
+  ttsApiKey = '';
+  ttsApiKeyConfigured = false;
+  private ttsApiKeysByProvider: Record<string, string> = {};
   transcriptionModel = SpeechDefaults.TranscriptionModel;
   transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
   enhancementEnabled = true;
@@ -147,6 +152,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.applyEngineKeyToField();
     this.ttsVoice = speech.ttsVoice;
     this.ttsProvider = this.showTtsProvider ? speech.ttsProvider : TtsProvider.Edge;
+    this.ttsApiKeysByProvider = { ...speech.ttsApiKeys };
+    this.applyTtsKeyToField();
     this.transcriptionModel = speech.transcriptionModel;
     this.enhancementEnabled = speech.enhancementEnabled;
     this.outputMode = speech.outputMode;
@@ -184,6 +191,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   async onTtsProviderChange(): Promise<void> {
     this.ttsVoice = VoiceId.Auto;
     await this.loadVoices(this.ttsProvider);
+    this.applyTtsKeyToField();
     this.onSettingChanged();
   }
 
@@ -207,12 +215,14 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     }
 
     this.captureApiKeyForCurrentEngine();
+    this.captureTtsApiKeyForCurrentProvider();
 
     this.appSettingsService.speechSettings.set({
       sttEngine: this.sttEngine,
       sttApiKeys: { ...this.sttApiKeysByEngine },
       ttsVoice: this.ttsVoice,
       ttsProvider: this.ttsProvider,
+      ttsApiKeys: { ...this.ttsApiKeysByProvider },
       transcriptionModel: this.transcriptionModel,
       transcriptionPrompt: this.transcriptionPrompt,
       enhancementEnabled: this.enhancementEnabled,
@@ -244,6 +254,29 @@ export class AssistantSpeechSettingsComponent implements OnInit {
           : '';
   }
 
+  private applyTtsKeyToField(): void {
+    const stored = this.ttsApiKeysByProvider[this.ttsProvider] ?? '';
+    if (stored === '***') {
+      this.ttsApiKeyConfigured = true;
+      this.ttsApiKey = '';
+    } else {
+      this.ttsApiKeyConfigured = false;
+      this.ttsApiKey = stored;
+    }
+  }
+
+  private captureTtsApiKeyForCurrentProvider(): void {
+    if (!(this.ttsProvider in this.ttsApiKeysByProvider)) {
+      return;
+    }
+    this.ttsApiKeysByProvider[this.ttsProvider] =
+      this.ttsApiKey.length > 0
+        ? this.ttsApiKey
+        : this.ttsApiKeyConfigured
+          ? '***'
+          : '';
+  }
+
   resetPrompt(): void {
     this.transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
     this.onSettingChanged();
@@ -261,6 +294,22 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       this.toastShowService.showError(
         this.translateService.instant('setting.speech.stt-test-failed'),
         this.translateService.instant('setting.speech.stt-test'),
+      );
+    }
+  }
+
+  async testTtsConnection(): Promise<void> {
+    await this.appSettingsService.saveImmediately();
+    const result = await this.dataTtsService.testConnection(this.ttsProvider);
+    if (result.success) {
+      this.toastShowService.showSuccess(
+        this.translateService.instant('setting.speech.tts-test-success'),
+        this.translateService.instant('setting.speech.tts-test'),
+      );
+    } else {
+      this.toastShowService.showError(
+        this.translateService.instant('setting.speech.tts-test-failed'),
+        this.translateService.instant('setting.speech.tts-test'),
       );
     }
   }

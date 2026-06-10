@@ -6,6 +6,7 @@
  * @param sttApiKeys - Per-provider API keys keyed by STT engine id (each cloud provider keeps its own key)
  * @param ttsVoice - Edge TTS voice identifier or 'auto'
  * @param ttsProvider - Selected TTS provider identifier
+ * @param ttsApiKeys - Per-provider API keys keyed by TTS provider id (Edge needs none)
  * @param transcriptionModel - LLM model ID used for transcription enhancement
  * @param enhancementEnabled - Whether transcription enhancement is active
  * @param outputMode - How Klacksy responses are presented: text, audio, or both
@@ -18,6 +19,7 @@ export interface ISpeechSettings {
   sttApiKeys: Record<string, string>;
   ttsVoice: string;
   ttsProvider: string;
+  ttsApiKeys: Record<string, string>;
   transcriptionModel: string;
   transcriptionPrompt: string;
   enhancementEnabled: boolean;
@@ -33,11 +35,20 @@ export function createEmptySttApiKeys(): Record<string, string> {
   };
 }
 
+export function createEmptyTtsApiKeys(): Record<string, string> {
+  return {
+    [TtsProvider.OpenAi]: '',
+    [TtsProvider.ElevenLabs]: '',
+    [TtsProvider.Google]: '',
+  };
+}
+
 export class SpeechSettings implements ISpeechSettings {
   sttEngine = SttEngine.Browser;
   sttApiKeys = createEmptySttApiKeys();
   ttsVoice = VoiceId.Auto;
   ttsProvider = TtsProvider.Edge;
+  ttsApiKeys = createEmptyTtsApiKeys();
   transcriptionModel = SpeechDefaults.TranscriptionModel;
   transcriptionPrompt = SpeechDefaults.DefaultTranscriptionPrompt;
   enhancementEnabled = true;

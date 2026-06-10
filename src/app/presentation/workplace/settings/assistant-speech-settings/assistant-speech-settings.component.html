@@ -45,7 +45,7 @@
       }
     </div>
 
-    @if (sttEngine !== "browser") {
+    @if (sttEngine !== SttEngine.Browser) {
       <div class="row-line">
         <div class="form-group firstColumn">
           <label for="sttApiKey"
@@ -71,6 +71,38 @@
               (click)="testSttConnection()"
             >
               {{ "setting.speech.stt-test" | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (ttsProvider !== TtsProvider.Edge) {
+      <div class="row-line">
+        <div class="form-group firstColumn">
+          <label for="ttsApiKey"
+            >{{ "setting.speech.tts-apikey" | translate }}
+            @if (ttsApiKeyConfigured && ttsApiKey.length === 0) {
+              <span class="key-configured-badge">{{
+                "setting.speech.tts-apikey-configured" | translate
+              }}</span>
+            }
+          </label>
+          <div class="input-with-button">
+            <input
+              type="password"
+              class="form-control"
+              [(ngModel)]="ttsApiKey"
+              id="ttsApiKey"
+              (ngModelChange)="onSettingChanged()"
+              [placeholder]="ttsApiKeyConfigured ? '••••••••' : ''"
+            />
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="testTtsConnection()"
+            >
+              {{ "setting.speech.tts-test" | translate }}
             </button>
           </div>
         </div>

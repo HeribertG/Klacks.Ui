@@ -21,7 +21,7 @@ import {
 } from 'src/app/domain/models/settings/app-settings.model';
 import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/models/settings/update-config-settings.model';
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
-import { SttEngine } from 'src/app/domain/constants/speech-constants';
+import { SttEngine, TtsProvider } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -145,6 +145,9 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_STT_API_KEY_ASSEMBLYAI, (v, m) => (m.speech.sttApiKeys[SttEngine.AssemblyAi] = v)],
     [AppSetting.ASSISTANT_TTS_VOICE, (v, m) => (m.speech.ttsVoice = v)],
     [AppSetting.ASSISTANT_TTS_PROVIDER, (v, m) => (m.speech.ttsProvider = v)],
+    [AppSetting.ASSISTANT_TTS_API_KEY_OPENAI, (v, m) => (m.speech.ttsApiKeys[TtsProvider.OpenAi] = v)],
+    [AppSetting.ASSISTANT_TTS_API_KEY_ELEVENLABS, (v, m) => (m.speech.ttsApiKeys[TtsProvider.ElevenLabs] = v)],
+    [AppSetting.ASSISTANT_TTS_API_KEY_GOOGLE, (v, m) => (m.speech.ttsApiKeys[TtsProvider.Google] = v)],
     [AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, (v, m) => (m.speech.transcriptionModel = v)],
     [AppSetting.ASSISTANT_TRANSCRIPTION_PROMPT, (v, m) => (m.speech.transcriptionPrompt = v)],
     [AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, (v, m) => (m.speech.enhancementEnabled = v === 'true')],
@@ -396,6 +399,9 @@ export class AppSettingsManagementService {
     { key: AppSetting.ASSISTANT_STT_API_KEY_ASSEMBLYAI, getCurrent: () => this.speechSettings().sttApiKeys[SttEngine.AssemblyAi] ?? '', getOriginal: () => this.speechSettingsOriginal().sttApiKeys[SttEngine.AssemblyAi] ?? '' },
     { key: AppSetting.ASSISTANT_TTS_VOICE, getCurrent: () => this.speechSettings().ttsVoice, getOriginal: () => this.speechSettingsOriginal().ttsVoice },
     { key: AppSetting.ASSISTANT_TTS_PROVIDER, getCurrent: () => this.speechSettings().ttsProvider, getOriginal: () => this.speechSettingsOriginal().ttsProvider },
+    { key: AppSetting.ASSISTANT_TTS_API_KEY_OPENAI, getCurrent: () => this.speechSettings().ttsApiKeys[TtsProvider.OpenAi] ?? '', getOriginal: () => this.speechSettingsOriginal().ttsApiKeys[TtsProvider.OpenAi] ?? '' },
+    { key: AppSetting.ASSISTANT_TTS_API_KEY_ELEVENLABS, getCurrent: () => this.speechSettings().ttsApiKeys[TtsProvider.ElevenLabs] ?? '', getOriginal: () => this.speechSettingsOriginal().ttsApiKeys[TtsProvider.ElevenLabs] ?? '' },
+    { key: AppSetting.ASSISTANT_TTS_API_KEY_GOOGLE, getCurrent: () => this.speechSettings().ttsApiKeys[TtsProvider.Google] ?? '', getOriginal: () => this.speechSettingsOriginal().ttsApiKeys[TtsProvider.Google] ?? '' },
     { key: AppSetting.ASSISTANT_TRANSCRIPTION_MODEL, getCurrent: () => this.speechSettings().transcriptionModel, getOriginal: () => this.speechSettingsOriginal().transcriptionModel },
     { key: AppSetting.ASSISTANT_TRANSCRIPTION_PROMPT, getCurrent: () => this.speechSettings().transcriptionPrompt, getOriginal: () => this.speechSettingsOriginal().transcriptionPrompt },
     { key: AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, getCurrent: () => String(this.speechSettings().enhancementEnabled), getOriginal: () => String(this.speechSettingsOriginal().enhancementEnabled) },

@@ -11,6 +11,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const TTS_SYNTHESIZE_ENDPOINT = 'tts/synthesize';
 const TTS_VOICES_ENDPOINT = 'tts/voices';
+const TTS_TEST_ENDPOINT = 'tts/test';
 
 export interface TtsSynthesizeRequest {
   text: string;
@@ -23,6 +24,11 @@ export interface TtsVoiceDto {
   voiceId: string;
   locale: string;
   displayName: string;
+}
+
+export interface TtsTestResult {
+  success: boolean;
+  error?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,6 +52,29 @@ export class DataTtsService {
       return await response.blob();
     } catch {
       return null;
+    }
+  }
+
+  async testConnection(providerId: string): Promise<TtsTestResult> {
+    const token = localStorage.getItem(StorageKeys.TOKEN);
+
+    try {
+      const response = await fetch(`${this.baseUrl}${TTS_TEST_ENDPOINT}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ providerId }),
+      });
+
+      if (!response.ok) {
+        return { success: false, error: `HTTP ${response.status}` };
+      }
+
+      return (await response.json()) as TtsTestResult;
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : 'Network error' };
     }
   }
 
