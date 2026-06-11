@@ -25,6 +25,8 @@ import { AssistantFunctionExecutionService } from 'src/app/domain/services/assis
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { SEARCH_STRATEGY } from 'src/app/domain/interfaces/search-strategy.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ONBOARDING_STATIONS } from 'src/app/domain/constants/onboarding-stations';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -382,6 +384,94 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(mockRouter.navigate).toHaveBeenCalledWith(['/workplace/clients']);
             vi.useRealTimers();
+        });
+    });
+
+    describe('onboarding tour chips during side questions', () => {
+        let toastService: ToastShowService;
+        let dismissSpy: any;
+        let showSpy: any;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            toastService = TestBed.inject(ToastShowService);
+            dismissSpy = vi.spyOn(toastService, 'dismissInteractiveReplies');
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+        });
+
+        function presentExplainStation(index: number): void {
+            (component as any).tourIndex = index;
+            (component as any).showStationChips(ONBOARDING_STATIONS[index]);
+        }
+
+        it('should keep tour chips alive and restore them after a side question during the tour', async () => {
+            // Arrange
+            presentExplainStation(6);
+            expect((component as any).isTourStationPending).toBe(true);
+            dismissSpy.mockClear();
+            showSpy.mockClear();
+            component.inputText = 'Was sehe ich auf dieser Seite?';
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Eine ausführliche Erklärung der Seite.');
+                    callbacks.onMetadata({});
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            // Act
+            await component.sendMessage();
+
+            // Assert
+            expect(showSpy).toHaveBeenCalledTimes(1);
+            expect((component as any).isTourStationPending).toBe(true);
+        });
+
+        it('should prioritize tour chips over suggested replies from the answer', async () => {
+            // Arrange
+            presentExplainStation(6);
+            showSpy.mockClear();
+            component.inputText = 'Was sehe ich hier?';
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Antwort');
+                    callbacks.onMetadata({ suggestedReplies: { selectionMode: 'single', options: [{ label: 'A', value: 'a' }] } });
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            // Act
+            await component.sendMessage();
+
+            // Assert
+            const lastConfig = showSpy.mock.calls[showSpy.mock.calls.length - 1][0];
+            expect(lastConfig.options.length).toBe(3);
+            expect((component as any).isTourStationPending).toBe(true);
+        });
+
+        it('should dismiss interactive replies on send when no tour station is pending', async () => {
+            // Arrange
+            expect((component as any).isTourStationPending).toBe(false);
+            dismissSpy.mockClear();
+            showSpy.mockClear();
+            component.inputText = 'Hallo';
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Hi');
+                    callbacks.onMetadata({});
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+
+            // Act
+            await component.sendMessage();
+
+            // Assert
+            expect(dismissSpy).toHaveBeenCalled();
+            expect(showSpy).not.toHaveBeenCalled();
         });
     });
 

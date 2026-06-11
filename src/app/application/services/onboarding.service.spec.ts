@@ -151,4 +151,15 @@ describe('OnboardingService', () => {
             }
         });
     });
+
+    describe('tour start requests', () => {
+        it('increments the tourStartRequested signal on each request', () => {
+            expect(service.tourStartRequested()).toBe(0);
+
+            service.requestTourStart();
+            service.requestTourStart();
+
+            expect(service.tourStartRequested()).toBe(2);
+        });
+    });
 });

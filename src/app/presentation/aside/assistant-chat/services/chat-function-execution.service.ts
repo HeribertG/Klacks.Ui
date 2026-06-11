@@ -15,6 +15,8 @@ import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-acti
 import { IUiActionConfig } from 'src/app/domain/interfaces/ui-action-step.interface';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
+import { OnboardingService } from 'src/app/application/services/onboarding.service';
+import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
 @Injectable()
@@ -23,6 +25,7 @@ export class ChatFunctionExecutionService {
   private uiActionEngine = inject(UiActionEngineService);
   private orchestrator = inject(ConversationOrchestratorService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private onboarding = inject(OnboardingService);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
@@ -37,6 +40,11 @@ export class ChatFunctionExecutionService {
     for (const call of functionCalls) {
       const functionName = call.FunctionName || call.functionName;
       if (!functionName) continue;
+
+      if (functionName === START_GUIDED_TOUR_SKILL) {
+        this.onboarding.requestTourStart();
+        continue;
+      }
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
       if (uiActionSteps && uiActionSteps !== '{}') {

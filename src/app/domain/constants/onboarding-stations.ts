@@ -57,6 +57,8 @@ export interface IOnboardingAskField {
 
 export const ONBOARDING_SETTINGS_ROUTE = '/workplace/settings';
 
+export const START_GUIDED_TOUR_SKILL = 'start_guided_tour';
+
 export const ONBOARDING_STATUS = {
   Pending: 'pending',
   InProgress: 'in_progress',

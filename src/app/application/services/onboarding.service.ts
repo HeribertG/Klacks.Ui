@@ -40,8 +40,10 @@ export class OnboardingService {
 
   private readonly stateSignal = signal<IOnboardingState | null>(null);
   private readonly askSignal = signal<IAskCursor | null>(null);
+  private readonly tourStartRequestSignal = signal(0);
 
   readonly state = this.stateSignal.asReadonly();
+  readonly tourStartRequested = this.tourStartRequestSignal.asReadonly();
   readonly showCard = computed(() => this.stateSignal()?.showCard ?? false);
   readonly status = computed(() => this.stateSignal()?.status ?? '');
   readonly total = ONBOARDING_STATIONS.length;
@@ -57,6 +59,10 @@ export class OnboardingService {
 
   accept(): void {
     this.persist({ status: ONBOARDING_STATUS.InProgress });
+  }
+
+  requestTourStart(): void {
+    this.tourStartRequestSignal.update((n) => n + 1);
   }
 
   snooze(): void {

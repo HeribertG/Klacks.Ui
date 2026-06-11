@@ -111,6 +111,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private welcomeGreetingService = inject(WelcomeGreetingService);
   readonly onboarding = inject(OnboardingService);
   private tourIndex = 0;
+  private isTourStationPending = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -128,6 +129,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         }
       }
     });
+
+    effect(() => {
+      if (this.onboarding.tourStartRequested() > 0) {
+        this.restartGuidedTour();
+      }
+    });
+  }
+
+  private restartGuidedTour(): void {
+    this.onboarding.accept();
+    this.tourIndex = 0;
+    this.presentStationAtCursor();
   }
 
   get messages(): readonly ChatMessage[] {
@@ -371,7 +384,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     };
 
     this.orchestrator.addMessage(userMessage);
-    this.toastShowService.dismissInteractiveReplies();
+    if (!this.isTourStationPending) {
+      this.toastShowService.dismissInteractiveReplies();
+    }
     const messageText = this.inputText;
     this.inputText = '';
     this.isProcessing = true;
@@ -436,7 +451,9 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               actionPerformed: data.actionPerformed,
             });
 
-            if (data.suggestedReplies) {
+            if (this.isTourStationPending && this.tourIndex < ONBOARDING_STATIONS.length) {
+              this.showStationChips(ONBOARDING_STATIONS[this.tourIndex]);
+            } else if (data.suggestedReplies) {
               this.showRepliesAsToast(data.suggestedReplies);
             } else if (data.navigateTo || (data.suggestions && data.suggestions.length > 0)) {
               this.showActionsAsToast(data.suggestions, data.navigateTo);
@@ -750,6 +767,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   private presentStationAtCursor(): void {
+    this.isTourStationPending = false;
     if (this.tourIndex >= ONBOARDING_STATIONS.length) {
       this.completeTour();
       return;
@@ -792,6 +810,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         this.handleStationChoice(station, values[0]);
       });
     });
+    this.isTourStationPending = true;
   }
 
   private showAskChips(): void {
@@ -873,12 +892,14 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   private completeTour(): void {
+    this.isTourStationPending = false;
     this.toastShowService.dismissInteractiveReplies();
     this.onboarding.completeTour();
     this.postKlacksyMessage(this.translateService.instant('assistant-chat.onboarding.tour.completed'));
   }
 
   private endTour(): void {
+    this.isTourStationPending = false;
     this.toastShowService.dismissInteractiveReplies();
     this.onboarding.cancelAsk();
     this.onboarding.dismiss();
@@ -1051,6 +1072,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   clearChat(): void {
+    this.isTourStationPending = false;
     this.orchestrator.clearMessages();
     this.toastShowService.dismissInteractiveReplies();
 
