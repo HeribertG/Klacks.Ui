@@ -38,7 +38,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
+import { Router } from '@angular/router';
 import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { EXPLAIN_PAGE_SKILL_PREFIX } from 'src/app/domain/constants/page-explain-icons.constants';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
@@ -102,6 +104,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private klacksyNavigation = inject(KlacksyNavigationService);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private assistantSignalR = inject(AssistantSignalRService);
@@ -454,12 +457,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               actionPerformed: data.actionPerformed,
             });
 
+            const offerableNavigateTo = this.offerableNavigateTo(data);
             if (this.isTourStationPending && this.tourIndex < ONBOARDING_STATIONS.length) {
               this.showStationChips(ONBOARDING_STATIONS[this.tourIndex]);
             } else if (data.suggestedReplies) {
               this.showRepliesAsToast(data.suggestedReplies);
-            } else if (data.navigateTo || (data.suggestions && data.suggestions.length > 0)) {
-              this.showActionsAsToast(data.suggestions, data.navigateTo);
+            } else if (offerableNavigateTo || (data.suggestions && data.suggestions.length > 0)) {
+              this.showActionsAsToast(data.suggestions, offerableNavigateTo);
             } else {
               this.toastShowService.dismissInteractiveReplies();
             }
@@ -558,6 +562,29 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         });
       },
     );
+  }
+
+  private offerableNavigateTo(data: StreamMetadata): string | null {
+    const navigateTo = data.navigateTo;
+    if (!navigateTo) {
+      return null;
+    }
+
+    const explainCallNavigates = (data.functionCalls ?? []).some(call => {
+      const name = (call['FunctionName'] ?? call['functionName']) as string | undefined;
+      return !!name && name.startsWith(EXPLAIN_PAGE_SKILL_PREFIX);
+    });
+
+    if (explainCallNavigates || this.isCurrentRoute(navigateTo)) {
+      return null;
+    }
+
+    return navigateTo;
+  }
+
+  private isCurrentRoute(route: string): boolean {
+    const current = this.router.url.split('?')[0].split('#')[0];
+    return current === route || current.startsWith(`${route}/`);
   }
 
   private showActionsAsToast(suggestions?: string[], navigateTo?: string | null): void {

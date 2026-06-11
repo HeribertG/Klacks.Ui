@@ -142,7 +142,8 @@ describe('AssistantChatComponent', () => {
 
         const routerSpy = {
             navigate: vi.fn(),
-            navigateByUrl: vi.fn().mockResolvedValue(true)
+            navigateByUrl: vi.fn().mockResolvedValue(true),
+            url: '/workplace/dashboard'
         };
 
         const functionExecutionServiceSpy = {
@@ -385,6 +386,56 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
             vi.useRealTimers();
+        });
+    });
+
+    describe('navigation toast suppression', () => {
+        let toastService: ToastShowService;
+        let showSpy: any;
+
+        beforeEach(() => {
+            fixture.detectChanges();
+            toastService = TestBed.inject(ToastShowService);
+            showSpy = vi.spyOn(toastService, 'showInteractiveReply');
+        });
+
+        function streamWithMetadata(metadata: Record<string, unknown>): void {
+            component.inputText = 'Erkläre mir die Seite';
+            mockLlmService.sendMessageStream.mockImplementation(
+                (_msg: string, _convId: string, callbacks: any) => {
+                    callbacks.onContent('Antwort');
+                    callbacks.onMetadata(metadata);
+                    callbacks.onDone();
+                    return new AbortController();
+                },
+            );
+        }
+
+        it('does not offer navigation when an explain_page_* call auto-navigates', async () => {
+            streamWithMetadata({
+                navigateTo: '/workplace/client-availability',
+                functionCalls: [{ functionName: 'explain_page_availability' }],
+            });
+
+            await component.sendMessage();
+
+            expect(showSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not offer navigation to the page the user is already on', async () => {
+            streamWithMetadata({ navigateTo: '/workplace/dashboard' });
+
+            await component.sendMessage();
+
+            expect(showSpy).not.toHaveBeenCalled();
+        });
+
+        it('still offers navigation to a different page without explain calls', async () => {
+            streamWithMetadata({ navigateTo: '/workplace/group' });
+
+            await component.sendMessage();
+
+            expect(showSpy).toHaveBeenCalledTimes(1);
         });
     });
 
