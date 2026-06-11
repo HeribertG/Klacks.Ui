@@ -90,6 +90,21 @@ describe('ChatFunctionExecutionService', () => {
     expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/client');
   });
 
+  it('navigates concept explain skills to their home page', async () => {
+    await service.executeFunctionCalls([{ functionName: 'explain_shift_lifecycle_order_to_shift' }]);
+
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/shift');
+  });
+
+  it('pulses the route icon for concept skills when already on their home page', async () => {
+    routerMock.url = '/workplace/shift';
+
+    await service.executeFunctionCalls([{ functionName: 'explain_shift_lifecycle_order_to_shift' }]);
+
+    expect(mockNavigateAndScroll).not.toHaveBeenCalled();
+    expect(mockHighlightNavIcon).toHaveBeenCalledWith(ONBOARDING_NAV_ICON.Shifts);
+  });
+
   it('navigates to the profile page even though it has no nav icon', async () => {
     await service.executeFunctionCalls([{ functionName: `${EXPLAIN_PAGE_SKILL_PREFIX}profile` }]);
 

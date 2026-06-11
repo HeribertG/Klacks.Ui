@@ -10,6 +10,7 @@
 import { ONBOARDING_NAV_ICON } from './onboarding-stations';
 
 export const EXPLAIN_PAGE_SKILL_PREFIX = 'explain_page_';
+export const EXPLAIN_SKILL_PREFIX = 'explain_';
 
 export const HEADER_LOGO_ICON_ID = 'header-logo-icon';
 export const HEADER_LOGO_IMAGE_ID = 'header-logo-image';
@@ -26,6 +27,15 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}inbox`]: '/workplace/inbox',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_overview`]: '/workplace/settings',
   [`${EXPLAIN_PAGE_SKILL_PREFIX}profile`]: '/workplace/profile',
+  explain_planning_divide_et_impera: '/workplace/schedule',
+  explain_planning_sheets_modular: '/workplace/schedule',
+  explain_planning_assistant: '/workplace/schedule',
+  explain_shift_type_preferences: '/workplace/schedule',
+  explain_macro_editor: '/workplace/settings',
+  explain_shift_sporadic: '/workplace/shift',
+  explain_shift_time_range: '/workplace/shift',
+  explain_shift_container: '/workplace/shift',
+  explain_shift_lifecycle_order_to_shift: '/workplace/shift',
 };
 
 export const PAGE_EXPLAIN_NAV_ICONS: Record<string, readonly string[]> = {
