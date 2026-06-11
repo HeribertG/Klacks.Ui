@@ -3,7 +3,8 @@
 /**
  * Orchestrates function call execution from assistant responses: UI actions, navigation, and backend calls.
  * Mutates the conversation log via ConversationOrchestratorService so all observers (chat panel and
- * voice-shell transcript overlay) receive signal updates.
+ * voice-shell transcript overlay) receive signal updates. Pulses the matching main-nav icon as a side
+ * effect when an explain_page_* skill call streams through.
  * @param functionExecutionService - Handles individual function execution against the backend API
  * @param uiActionEngine - Executes UI action step configurations in the frontend
  * @param orchestrator - Holds the conversation messages signal and exposes update helpers
@@ -17,6 +18,8 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
+import { EXPLAIN_PAGE_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS } from 'src/app/domain/constants/page-explain-icons.constants';
+import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
 @Injectable()
@@ -26,6 +29,7 @@ export class ChatFunctionExecutionService {
   private orchestrator = inject(ConversationOrchestratorService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private onboarding = inject(OnboardingService);
+  private klacksyNavigation = inject(KlacksyNavigationService);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
@@ -44,6 +48,10 @@ export class ChatFunctionExecutionService {
       if (functionName === START_GUIDED_TOUR_SKILL) {
         this.onboarding.requestTourStart();
         continue;
+      }
+
+      if (functionName.startsWith(EXPLAIN_PAGE_SKILL_PREFIX)) {
+        this.highlightExplainedPageNavIcon(functionName);
       }
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
@@ -110,6 +118,15 @@ export class ChatFunctionExecutionService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.applyFunctionError(error);
+    }
+  }
+
+  private highlightExplainedPageNavIcon(functionName: string): void {
+    const iconIds = PAGE_EXPLAIN_NAV_ICONS[functionName];
+    if (!iconIds) return;
+
+    for (const iconId of iconIds) {
+      if (this.klacksyNavigation.highlightNavIcon(iconId)) return;
     }
   }
 
