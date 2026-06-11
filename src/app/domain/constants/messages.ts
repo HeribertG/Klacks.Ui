@@ -46,7 +46,7 @@ export class DomainMessages {
   public static REGISTER =
     'Die Account Daten wurden in der Zwischenablage gespeichert';
   public static REGISTER_CHANGE_PASSWORD =
-    'Die Account Daten wurden in der Zwischenablage gespeichert';
+    'Das Passwort wurde erfolgreich geändert.';
   public static REGISTER_SEND_PASSWORD =
     'Das Passwort wurde erfolgreich zurückgesetzt und an die Mailadresse versendet';
   public static REGISTER_SEND_PASSWORD_ERROR = 'Error';
@@ -56,8 +56,7 @@ export class DomainMessages {
     'Fehler beim Versenden der E-Mail zum Zurücksetzen des Passworts';
   public static USER_CREATION_ERROR = 'Fehler beim Erstellen des Benutzers';
   public static INVALID_USER_DATA = 'Ungültige Benutzerdaten. Bitte prüfen Sie alle Felder.';
-  public static REGISTER_CHANGE_PASSWORD_HEADER =
-    'Die Account Daten wurden in der Zwischenablage gespeichert';
+  public static REGISTER_CHANGE_PASSWORD_HEADER = 'Passwort geändert';
 
   public static DELETE_ENTRY = 'Wollen Sie diesen Datensatz wirklich löschen?';
   public static DEACTIVE_ADDRESS = 'Wollen Sie diese Adresse deaktivieren?';
@@ -265,7 +264,7 @@ export class DomainMessages {
   public static readonly UPDATE_ENTRY_ERROR = 'UPDATE_ENTRY_ERROR';
   public static readonly MODIFY_ENTRY_ERROR = 'MODIFY_ENTRY_ERROR';
 
-  public static SHIFT_SPORADIC_WEEK = 'Wöchendlich';
+  public static SHIFT_SPORADIC_WEEK = 'Wöchentlich';
   public static SHIFT_SPORADIC_MONTH = 'Monatlich';
   public static SHIFT_SPORADIC_YEAR = 'Jährlich';
   public static SHIFT_SPORADIC_QUARTER = 'Quartal';

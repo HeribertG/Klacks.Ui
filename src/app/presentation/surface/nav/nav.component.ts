@@ -170,7 +170,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   absence = DomainMessages.ABSENCE;
   all_schedule = DomainMessages.ALL_SCHEDULE;
   all_employee = DomainMessages.ALL_EMPLOYEE;
-  all_group = DomainMessages.ALL_GROUP;
   all_shift = DomainMessages.ALL_SHIFT;
   statistic = DomainMessages.STATISTIC;
   inbox = DomainMessages.INBOX;
@@ -195,7 +194,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.absence = DomainMessages.ABSENCE;
     this.all_schedule = DomainMessages.ALL_SCHEDULE;
     this.all_employee = DomainMessages.ALL_EMPLOYEE;
-    this.all_group = DomainMessages.ALL_GROUP;
     this.all_shift = DomainMessages.ALL_SHIFT;
     this.statistic = DomainMessages.STATISTIC;
     this.inbox = DomainMessages.INBOX;
@@ -279,7 +277,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.absence = DomainMessages.ABSENCE;
     this.all_schedule = DomainMessages.ALL_SCHEDULE;
     this.all_employee = DomainMessages.ALL_EMPLOYEE;
-    this.all_group = DomainMessages.ALL_GROUP;
     this.all_shift = DomainMessages.ALL_SHIFT;
     this.statistic = DomainMessages.STATISTIC;
     this.inbox = DomainMessages.INBOX;

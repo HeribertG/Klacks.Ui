@@ -27,6 +27,7 @@ import {
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
 import { SpeechRecognitionService } from 'src/app/presentation/aside/assistant-chat/services/speech-recognition.service';
 import { MicrophoneSelectionService } from 'src/app/domain/services/speech/microphone-selection.service';
+import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { MicrophoneTestDefaults } from 'src/app/domain/constants/microphone-test-constants';
 
 interface TestResult {
@@ -46,6 +47,7 @@ interface TestResult {
 export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
   private speechService = inject(SpeechRecognitionService);
   private micSelection = inject(MicrophoneSelectionService);
+  private languageMapping = inject(LanguageMappingService);
 
   public faMicrophone = faMicrophone;
   public faCheck = faCheck;
@@ -235,7 +237,10 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
 
   private async transcribeRecording(blob: Blob): Promise<void> {
     try {
-      const text = await this.speechService.transcribeBlob(blob, 'de');
+      const text = await this.speechService.transcribeBlob(
+        blob,
+        this.languageMapping.getSpeechLocale(),
+      );
       this.transcribedText.set(text);
     } catch (err) {
       this.errorMessage.set(err instanceof Error ? err.message : 'Transcription failed');

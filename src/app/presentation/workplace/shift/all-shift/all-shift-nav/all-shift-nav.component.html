@@ -142,19 +142,6 @@
             />
             {{ "shift.all-shift.nav.container" | translate }}
           </label>
-
-          <label class="radio-label">
-            <input
-              id="shift-filter-absence"
-              type="radio"
-              name="shiftType"
-              [value]="3"
-              [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
-              [disabled]="!authorizationService.isAdmin"
-              (change)="onSelect()"
-            />
-            {{ "shift.all-shift.nav.absence" | translate }}
-          </label>
         </div>
       </div>
     </li>
