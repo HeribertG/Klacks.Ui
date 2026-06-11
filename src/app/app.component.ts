@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 // Version: 1.0.1-deploy-test
-import { Component, OnInit, computed, effect, inject, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, DestroyRef } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -24,6 +24,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterModule,
     TranslateModule,

@@ -89,7 +89,7 @@
                           class="form-check-input"
                           [checked]="row.isDaySealed"
                           [disabled]="bulkLoading()"
-                          (change)="onDaySealToggle(row)" />
+                          (change)="onDaySealToggle(row, $event)" />
                       }
                     </td>
                     <td class="table-cell">{{ row.date | date:'mediumDate' }}</td>
@@ -126,7 +126,7 @@
           [ngModel]="unsealReasonText()"
           (ngModelChange)="unsealReasonText.set($event)"></textarea>
         <div class="reason-dialog-buttons">
-          @if (unsealReasonDay() === '__bulk__') {
+          @if (unsealReasonDay() === bulkUnsealKey) {
             <button type="button" class="btn btn-danger btn-sm" (click)="confirmBulkUnseal()">
               {{ 'periodClosing.action.unseal' | translate }}
             </button>

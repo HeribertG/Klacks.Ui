@@ -141,7 +141,8 @@ describe('AssistantChatComponent', () => {
         });
 
         const routerSpy = {
-            navigate: vi.fn()
+            navigate: vi.fn(),
+            navigateByUrl: vi.fn().mockResolvedValue(true)
         };
 
         const functionExecutionServiceSpy = {
@@ -382,7 +383,7 @@ describe('AssistantChatComponent', () => {
             await vi.advanceTimersByTimeAsync(2100);
 
             // Assert
-            expect(mockRouter.navigate).toHaveBeenCalledWith(['/workplace/clients']);
+            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
             vi.useRealTimers();
         });
     });
@@ -568,7 +569,7 @@ describe('AssistantChatComponent', () => {
             component.onNavigateClick('/workplace/clients');
 
             // Assert
-            expect(mockRouter.navigate).toHaveBeenCalledWith(['/workplace/clients']);
+            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/workplace/clients');
         });
     });
 

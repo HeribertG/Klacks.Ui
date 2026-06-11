@@ -38,7 +38,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
-import { Router } from '@angular/router';
 import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
@@ -102,7 +101,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   ttsService = inject(TextToSpeechService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
-  private router = inject(Router);
   private klacksyNavigation = inject(KlacksyNavigationService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
@@ -278,10 +276,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
+          const proactiveContent = this.stripMetadataMarkers(msg.content);
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
-            content: this.stripMetadataMarkers(msg.content),
+            content: proactiveContent,
+            formattedContent: this.formatMessage(proactiveContent),
             timestamp: new Date(msg.timestamp),
           });
           this.shouldScrollToBottom = true;
@@ -293,10 +293,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
+          const onboardingContent = this.stripMetadataMarkers(msg.content);
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
-            content: this.stripMetadataMarkers(msg.content),
+            content: onboardingContent,
+            formattedContent: this.formatMessage(onboardingContent),
             timestamp: new Date(msg.timestamp),
           });
           this.shouldScrollToBottom = true;
@@ -445,6 +447,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.orchestrator.updateMessage(assistantMessageId, {
               isStreaming: false,
               content: cleanedFinal,
+              formattedContent: this.formatMessage(cleanedFinal),
               suggestions: data.suggestedReplies ? undefined : data.suggestions,
               suggestedReplies: data.suggestedReplies,
               navigateTo: data.navigateTo,
@@ -467,11 +470,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               const navigateTo = data.navigateTo;
               const target = data.target;
               setTimeout(() => {
-                if (target) {
-                  this.klacksyNavigation.navigateAndScroll(navigateTo, target);
-                } else {
-                  this.router.navigate([navigateTo]);
-                }
+                this.klacksyNavigation.navigateAndScroll(navigateTo, target || undefined);
               }, AssistantChatComponent.FAST_PATH_NAVIGATE_DELAY_MS);
             }
 
@@ -481,7 +480,12 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         onDone: () => {
           this.ngZone.run(() => {
             this.drainStreamBuffer(assistantMessageId);
-            this.orchestrator.updateMessage(assistantMessageId, { isStreaming: false });
+            const doneMessage = this.orchestrator.messages().find((m) => m.id === assistantMessageId);
+            const doneContent = doneMessage?.content ?? '';
+            this.orchestrator.updateMessage(assistantMessageId, {
+              isStreaming: false,
+              formattedContent: doneMessage?.formattedContent ?? this.formatMessage(doneContent),
+            });
             this.isProcessing = false;
             this.currentToolStatusKey = '';
             this.currentStreamController = null;
@@ -499,6 +503,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.orchestrator.updateMessage(assistantMessageId, {
               isStreaming: false,
               content: merged,
+              formattedContent: this.formatMessage(merged),
             });
             this.isProcessing = false;
             this.currentToolStatusKey = '';
@@ -592,7 +597,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   onNavigateClick(navigateTo: string): void {
     if (navigateTo.startsWith('/workplace/')) {
-      this.router.navigate([navigateTo]);
+      this.klacksyNavigation.navigateAndScroll(navigateTo);
     }
   }
 
@@ -673,6 +678,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       id: messageId,
       sender: 'assistant',
       content: placeholder.content,
+      formattedContent: this.formatMessage(placeholder.content),
       timestamp: new Date(),
       suggestions: placeholder.suggestions,
     });
@@ -708,6 +714,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
     this.orchestrator.updateMessage(messageId, {
       content,
+      formattedContent: this.formatMessage(content),
       suggestions,
     });
 
@@ -910,6 +917,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       id: this.generateMessageId(),
       sender: 'assistant',
       content,
+      formattedContent: this.formatMessage(content),
       timestamp: new Date(),
     });
     this.shouldScrollToBottom = true;

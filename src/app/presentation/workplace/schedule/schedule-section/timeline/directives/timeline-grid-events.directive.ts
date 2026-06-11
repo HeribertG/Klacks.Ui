@@ -68,6 +68,8 @@ export class TimelineGridEventsDirective {
   private destroyRef = inject(DestroyRef);
 
   private readonly mouseMoveThrottleMs = 16;
+  private cachedRect: DOMRect | null = null;
+  private resizeObserver?: ResizeObserver;
 
   @Output() rightClick = new EventEmitter<TimelineGridRightClickEvent>();
   @Output() wheelScroll = new EventEmitter<{ deltaX: number; deltaY: number }>();
@@ -80,9 +82,28 @@ export class TimelineGridEventsDirective {
     fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove')
       .pipe(throttleTime(this.mouseMoveThrottleMs), takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => this.onMouseMove(event));
+
+    if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.cachedRect = null;
+      });
+      this.resizeObserver.observe(this.el.nativeElement);
+    }
+
+    this.destroyRef.onDestroy(() => {
+      this.resizeObserver?.disconnect();
+    });
+  }
+
+  private getCanvasRect(): DOMRect {
+    if (!this.cachedRect) {
+      this.cachedRect = this.el.nativeElement.getBoundingClientRect();
+    }
+    return this.cachedRect;
   }
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
+    this.cachedRect = this.el.nativeElement.getBoundingClientRect();
     if (event.buttons === 1) {
       this.respondToLeftButtonMouseDown(event);
     } else if (event.buttons === 2) {
@@ -196,7 +217,7 @@ export class TimelineGridEventsDirective {
       return false;
     }
 
-    const rect = this.el.nativeElement.getBoundingClientRect();
+    const rect = this.getCanvasRect();
     const relativeY = event.clientY - rect.top;
     if (relativeY >= this.gridSettings.cellHeaderHeight) {
       return false;
@@ -248,7 +269,7 @@ export class TimelineGridEventsDirective {
   }
 
   private computeRelativeYInCell(event: MouseEvent, row: number): number {
-    const rect = this.el.nativeElement.getBoundingClientRect();
+    const rect = this.getCanvasRect();
     const canvasY = event.clientY - rect.top;
     const cellTop =
       this.gridSettings.cellHeaderHeight +

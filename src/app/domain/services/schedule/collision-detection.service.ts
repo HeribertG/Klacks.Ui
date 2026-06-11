@@ -182,7 +182,7 @@ export class CollisionDetectionService implements OnDestroy {
     const shifts = this.dataManagement.shiftSchedules;
     if (!shifts || shifts.length === 0) return;
 
-    const understaffedByDate = new Map<string, { abbreviations: string[]; needed: number; scheduled: number }>();
+    const understaffedByDate = new Map<string, { abbreviations: Set<string>; needed: number; scheduled: number }>();
 
     for (const shift of shifts) {
       if (shift.engaged >= shift.sumEmployees * shift.quantity) continue;
@@ -190,13 +190,11 @@ export class CollisionDetectionService implements OnDestroy {
       const dateKey = formatDateOnly(new Date(shift.date));
       let group = understaffedByDate.get(dateKey);
       if (!group) {
-        group = { abbreviations: [], needed: 0, scheduled: 0 };
+        group = { abbreviations: new Set<string>(), needed: 0, scheduled: 0 };
         understaffedByDate.set(dateKey, group);
       }
 
-      if (!group.abbreviations.includes(shift.abbreviation)) {
-        group.abbreviations.push(shift.abbreviation);
-      }
+      group.abbreviations.add(shift.abbreviation);
       group.needed += shift.sumEmployees * shift.quantity;
       group.scheduled += shift.engaged;
     }
@@ -209,7 +207,7 @@ export class CollisionDetectionService implements OnDestroy {
         clientName: '',
         comment: 'schedule.error-list.understaffed',
         commentParams: {
-          shifts: group.abbreviations.join(', '),
+          shifts: [...group.abbreviations].join(', '),
           needed: group.needed.toString(),
           scheduled: group.scheduled.toString(),
         },

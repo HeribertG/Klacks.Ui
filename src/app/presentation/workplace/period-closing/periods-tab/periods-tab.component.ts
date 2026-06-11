@@ -3,9 +3,12 @@
 /**
  * Day-level sealed management for a selected billing period.
  * Shows all days in the period with seal checkboxes and bulk actions.
+ * Seal and unseal always require an explicit confirmation dialog; the
+ * unseal confirmation additionally warns when an export already exists.
  * @param api - PeriodClosing API service for seal/unseal/summary
  * @param toastShowService - Toast notifications
  * @param translate - i18n service
+ * @param modalService - Global confirmation modal service
  */
 
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
@@ -13,18 +16,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RefreshButtonComponent } from 'src/app/presentation/shared/refresh-button/refresh-button.component';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { ExportLog } from 'src/app/infrastructure/api/period-closing/models/export-log';
 import { PeriodIssue } from 'src/app/infrastructure/api/period-closing/models/period-issue';
 import { SealedPeriodSummary } from 'src/app/infrastructure/api/period-closing/models/sealed-period-summary';
 import { UsedPeriod } from 'src/app/infrastructure/api/period-closing/models/used-period';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/schedule/data-shift-schedule.service';
 import { IShiftScheduleFilter, ShiftScheduleFilter } from 'src/app/domain/models/schedule/shift-schedule-class';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { PeriodIssuesCardComponent } from '../period-issues-card/period-issues-card.component';
 
 const SHIFT_LOAD_LIMIT = 10000;
+const BULK_UNSEAL_KEY = '__bulk__';
+const ISO_DATE_LENGTH = 10;
 
 interface PeriodGroup {
   intervalKey: string;
@@ -44,11 +52,15 @@ export class PeriodsTabComponent implements OnInit {
   private shiftScheduleApi = inject(DataShiftScheduleService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
+  private modalService = inject(ModalService);
+
+  public readonly bulkUnsealKey = BULK_UNSEAL_KEY;
 
   public usedPeriods = signal<UsedPeriod[]>([]);
   public selectedPeriodKey = signal<string | null>(null);
   public summary = signal<SealedPeriodSummary[]>([]);
   public issues = signal<PeriodIssue[]>([]);
+  public exportLogs = signal<ExportLog[]>([]);
   public unstaffedShiftCount = signal<number>(0);
   public unstaffedShiftTruncated = signal<boolean>(false);
   public loading = signal<boolean>(false);
@@ -140,6 +152,7 @@ export class PeriodsTabComponent implements OnInit {
     if (!period) {
       this.summary.set([]);
       this.issues.set([]);
+      this.exportLogs.set([]);
       this.unstaffedShiftCount.set(0);
       this.unstaffedShiftTruncated.set(false);
       return;
@@ -155,10 +168,12 @@ export class PeriodsTabComponent implements OnInit {
       summary: this.api.getSealedPeriods(period.startDate, period.endDate, period.groupId),
       issues: this.api.getPeriodIssues(period.startDate, period.endDate, period.groupId),
       shifts: this.shiftScheduleApi.getShiftSchedule(shiftFilter),
+      exportLogs: this.api.getExportLog(bounds.start, bounds.end).pipe(catchError(() => of([] as ExportLog[]))),
     }).subscribe({
-      next: ({ summary, issues, shifts }) => {
+      next: ({ summary, issues, shifts, exportLogs }) => {
         this.summary.set(summary);
         this.issues.set(issues);
+        this.exportLogs.set(exportLogs);
         let total = 0;
         for (const shift of shifts.shifts) {
           const need = shift.sumEmployees * shift.quantity;
@@ -177,12 +192,14 @@ export class PeriodsTabComponent implements OnInit {
     });
   }
 
-  onDaySealToggle(row: SealedPeriodSummary): void {
+  onDaySealToggle(row: SealedPeriodSummary, event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    checkbox.checked = row.isDaySealed;
     if (row.isDaySealed) {
       this.unsealReasonDay.set(row.date);
       this.unsealReasonText.set('');
     } else {
-      this.sealDay(row.date);
+      this.openSealConfirmation(this.unsealedEntryCount(row), () => this.sealDay(row.date));
     }
   }
 
@@ -193,9 +210,11 @@ export class PeriodsTabComponent implements OnInit {
       this.toastShowService.showInfo(this.translate.instant('periodClosing.error.reasonRequired'));
       return;
     }
-    this.unsealDay(day, reason);
-    this.unsealReasonDay.set(null);
-    this.unsealReasonText.set('');
+    this.openUnsealConfirmation(day, () => {
+      this.unsealReasonDay.set(null);
+      this.unsealReasonText.set('');
+      this.unsealDay(day, reason);
+    });
   }
 
   cancelUnsealDay(): void {
@@ -208,6 +227,94 @@ export class PeriodsTabComponent implements OnInit {
     if (!period) {
       return;
     }
+    const count = this.displayDays().reduce((a, s) => a + this.unsealedEntryCount(s), 0);
+    this.openSealConfirmation(count, () => this.executeBulkSeal(period));
+  }
+
+  onBulkUnseal(): void {
+    this.unsealReasonDay.set(BULK_UNSEAL_KEY);
+    this.unsealReasonText.set('');
+  }
+
+  confirmBulkUnseal(): void {
+    const period = this.selectedPeriod();
+    const reason = this.unsealReasonText().trim();
+    if (!period || !reason) {
+      this.toastShowService.showInfo(this.translate.instant('periodClosing.error.reasonRequired'));
+      return;
+    }
+    this.openUnsealConfirmation(null, () => {
+      this.unsealReasonDay.set(null);
+      this.unsealReasonText.set('');
+      this.executeBulkUnseal(period, reason);
+    });
+  }
+
+  public periodKey(p: UsedPeriod): string {
+    return `${p.startDate}_${p.endDate}_${p.paymentInterval}_${p.groupId ?? 'none'}`;
+  }
+
+  public formatPeriodLabel(p: UsedPeriod): string {
+    const label = p.paymentInterval === 2 ? this.formatMonthYear(p.startDate, p.endDate) : `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
+    return p.groupName ? `${label} — ${p.groupName}` : label;
+  }
+
+  public hasEntries(row: SealedPeriodSummary): boolean {
+    return row.totalWorkCount > 0 || row.totalBreakCount > 0;
+  }
+
+  private openSealConfirmation(count: number, onConfirm: () => void): void {
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translate.instant('periodClosing.confirm.sealTitle'),
+      message: this.translate.instant('periodClosing.confirm.sealBody', { count }),
+      confirmText: this.translate.instant('periodClosing.action.seal'),
+      cancelText: this.translate.instant('periodClosing.action.cancel'),
+      onConfirm,
+    });
+  }
+
+  private openUnsealConfirmation(day: string | null, onConfirm: () => void): void {
+    this.modalService.openModal({
+      type: ModalType.Confirmation,
+      title: this.translate.instant('periodClosing.confirm.unsealTitle'),
+      message: this.buildUnsealMessage(day),
+      confirmText: this.translate.instant('periodClosing.action.unseal'),
+      cancelText: this.translate.instant('periodClosing.action.cancel'),
+      onConfirm,
+    });
+  }
+
+  private buildUnsealMessage(day: string | null): string {
+    const body = this.translate.instant('periodClosing.confirm.unsealBody');
+    const exportLog = this.findRelevantExport(day);
+    if (!exportLog) {
+      return body;
+    }
+    const warning = this.translate.instant('periodClosing.warning.hasExport', {
+      date: new Date(exportLog.exportedAt).toLocaleDateString(),
+    });
+    return `${body} ${warning}`;
+  }
+
+  private findRelevantExport(day: string | null): ExportLog | null {
+    const period = this.selectedPeriod();
+    return (
+      this.exportLogs().find((log) => {
+        const matchesGroup = !period?.groupId || !log.groupId || log.groupId === period.groupId;
+        const start = log.startDate.slice(0, ISO_DATE_LENGTH);
+        const end = log.endDate.slice(0, ISO_DATE_LENGTH);
+        const matchesDay = !day || (start <= day && end >= day);
+        return matchesGroup && matchesDay;
+      }) ?? null
+    );
+  }
+
+  private unsealedEntryCount(row: SealedPeriodSummary): number {
+    return row.totalWorkCount - row.sealedWorkCount + row.totalBreakCount - row.sealedBreakCount;
+  }
+
+  private executeBulkSeal(period: UsedPeriod): void {
     const bounds = this.getPeriodBounds(period);
     this.bulkLoading.set(true);
     this.api
@@ -232,22 +339,9 @@ export class PeriodsTabComponent implements OnInit {
       });
   }
 
-  onBulkUnseal(): void {
-    this.unsealReasonDay.set('__bulk__');
-    this.unsealReasonText.set('');
-  }
-
-  confirmBulkUnseal(): void {
-    const period = this.selectedPeriod();
-    const reason = this.unsealReasonText().trim();
-    if (!period || !reason) {
-      this.toastShowService.showInfo(this.translate.instant('periodClosing.error.reasonRequired'));
-      return;
-    }
-    this.bulkLoading.set(true);
-    this.unsealReasonDay.set(null);
-    this.unsealReasonText.set('');
+  private executeBulkUnseal(period: UsedPeriod, reason: string): void {
     const bounds = this.getPeriodBounds(period);
+    this.bulkLoading.set(true);
     this.api
       .unseal({
         startDate: bounds.start,
@@ -268,19 +362,6 @@ export class PeriodsTabComponent implements OnInit {
           this.bulkLoading.set(false);
         },
       });
-  }
-
-  public periodKey(p: UsedPeriod): string {
-    return `${p.startDate}_${p.endDate}_${p.paymentInterval}_${p.groupId ?? 'none'}`;
-  }
-
-  public formatPeriodLabel(p: UsedPeriod): string {
-    const label = p.paymentInterval === 2 ? this.formatMonthYear(p.startDate, p.endDate) : `${this.formatDate(p.startDate)} – ${this.formatDate(p.endDate)}`;
-    return p.groupName ? `${label} — ${p.groupName}` : label;
-  }
-
-  public hasEntries(row: SealedPeriodSummary): boolean {
-    return row.totalWorkCount > 0 || row.totalBreakCount > 0;
   }
 
   private sealDay(date: string): void {

@@ -26,6 +26,7 @@ import {
   inject,
   runInInjectionContext,
   effect,
+  untracked,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
@@ -169,10 +170,12 @@ export class GroupSelectComponent
         this.effects.push(effect1);
 
         const effect2 = effect(() => {
-          this.dataManagementSwitchboard.isFocusChanged();
+          const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
 
-          this.handleFocusChange();
-          this.dataManagementSwitchboard.isFocusChanged.set(false);
+          if (focusChanged) {
+            this.handleFocusChange();
+            untracked(() => this.dataManagementSwitchboard.isFocusChanged.set(false));
+          }
         });
         this.effects.push(effect2);
       });

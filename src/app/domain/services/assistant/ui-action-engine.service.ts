@@ -1,18 +1,23 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { IUiActionConfig, IUiActionContext, IUiActionStep } from '../../interfaces/ui-action-step.interface';
 import { UiActionValueResolverService } from './ui-action-value-resolver.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { ISearchStrategy, SEARCH_STRATEGY } from '../../interfaces/search-strategy.interface';
 import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
+import { GroupSelectionService } from '../group/group-selection.service';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { Group, IGroup } from '../../models/group/group-class';
 
 const DEFAULT_WAIT_TIMEOUT = 3000;
 const POLL_INTERVAL = 200;
 const DEFAULT_DELAY = 500;
 const SEARCH_DELAY = 500;
+const ALL_GROUPS_VALUES = ['all', 'alle', 'alle gruppen', 'all groups', '*'];
 
 @Injectable({ providedIn: 'root' })
 export class UiActionEngineService {
@@ -22,6 +27,9 @@ export class UiActionEngineService {
   private searchStateService = inject(SearchStateService);
   private searchStrategyService = inject<ISearchStrategy>(SEARCH_STRATEGY);
   private klacksyNavigation = inject(KlacksyNavigationService);
+  // Resolved lazily: GroupSelectionService pulls in the whole entity-state graph, which only
+  // selectGroup steps need and which would otherwise burden every engine instantiation and test.
+  private injector = inject(Injector);
 
   async executeConfig(config: IUiActionConfig, context: IUiActionContext): Promise<void> {
     const onError = config.onError ?? 'stop';
@@ -64,6 +72,8 @@ export class UiActionEngineService {
         return this.executeApiCall(step, context);
       case 'search':
         return this.executeSearch(step, context);
+      case 'selectGroup':
+        return this.executeSelectGroup(step, context);
       default:
         throw new Error(`Unknown UI action type: ${step.action}`);
     }
@@ -382,6 +392,50 @@ export class UiActionEngineService {
     await this.router.navigate([route]);
     await new Promise(r => setTimeout(r, SEARCH_DELAY));
     this.searchStrategyService.globalSearch(searchValue, true, false, typeFilter ? { typeFilter } : undefined);
+  }
+
+  private async executeSelectGroup(step: IUiActionStep, context: IUiActionContext): Promise<void> {
+    const groupName = (this.valueResolver.resolveValue(step, context) ?? '').toString().trim();
+    if (!groupName) {
+      throw new Error('selectGroup action requires a group name');
+    }
+
+    const groupSelection = this.injector.get(GroupSelectionService);
+
+    if (ALL_GROUPS_VALUES.includes(groupName.toLowerCase())) {
+      groupSelection.clearSelection();
+      return;
+    }
+
+    const tree = await firstValueFrom(this.injector.get(DataGroupService).getGroupTree());
+    const groups = this.flattenGroupNodes(tree.nodes);
+    const lowerName = groupName.toLowerCase();
+    const match =
+      groups.find(g => g.name?.toLowerCase() === lowerName) ??
+      groups.find(g => g.name?.toLowerCase().includes(lowerName));
+
+    if (!match) {
+      throw new Error(`Group '${groupName}' was not found`);
+    }
+
+    groupSelection.selectGroup(match);
+  }
+
+  private flattenGroupNodes(nodes: IGroup[]): Group[] {
+    const result: Group[] = [];
+
+    const flatten = (nodeList: IGroup[]): void => {
+      if (!Array.isArray(nodeList)) return;
+      for (const node of nodeList) {
+        result.push(node instanceof Group ? node : new Group(node));
+        if (Array.isArray(node.children) && node.children.length > 0) {
+          flatten(node.children);
+        }
+      }
+    };
+
+    flatten(nodes);
+    return result;
   }
 
   private resolveSelector(selector: string | undefined, context: IUiActionContext): string | undefined {

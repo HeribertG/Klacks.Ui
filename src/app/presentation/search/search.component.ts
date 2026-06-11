@@ -5,6 +5,7 @@ import {
   Component,
   HostListener,
   effect,
+  untracked,
   ChangeDetectorRef,
   inject,
   ChangeDetectionStrategy,
@@ -48,7 +49,7 @@ export class SearchComponent {
 
       if (focusChanged) {
         this.handleFocusChange();
-        this.workplaceState.isFocusChanged.set(false);
+        untracked(() => this.workplaceState.isFocusChanged.set(false));
       }
     });
   }

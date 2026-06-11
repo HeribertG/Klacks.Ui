@@ -19,8 +19,8 @@ export class DataAgentService {
   private httpClient = inject(HttpClient);
   private readonly baseUrl = `${environment.baseUrl}assistant/agents`;
 
-  getAll(): Observable<IAgent[]> {
-    return this.httpClient.get<IAgent[]>(this.baseUrl).pipe(retry(3));
+  getAll(page = 0, pageSize = 1000): Observable<IAgent[]> {
+    return this.httpClient.get<IAgent[]>(`${this.baseUrl}?page=${page}&pageSize=${pageSize}`).pipe(retry(3));
   }
 
   getById(id: string): Observable<IAgent> {

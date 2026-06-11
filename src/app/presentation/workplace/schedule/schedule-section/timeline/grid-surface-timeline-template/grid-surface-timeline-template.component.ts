@@ -162,6 +162,7 @@ export class GridSurfaceTimelineTemplateComponent
   private pixelRatio = 1;
   private pixelRatioMql?: MediaQueryList;
   private pixelRatioListener?: () => void;
+  private resizePending = false;
 
   ngOnInit(): void {
     this.registerSignalEffects();
@@ -285,12 +286,18 @@ export class GridSurfaceTimelineTemplateComponent
     if (parentElement && typeof window !== 'undefined' && 'ResizeObserver' in window) {
       this.resizeObserver = new ResizeObserver(() => {
         if (this.isDestroyed) return;
-        const box = this.boxTemplate.nativeElement;
-        this.drawSchedule.width = box.clientWidth;
-        this.drawSchedule.height = box.clientHeight;
-        this.drawSchedule.refresh();
-        this.checkPixelRatio();
-        this.updateScrollbarValues();
+        if (this.resizePending) return;
+        this.resizePending = true;
+        requestAnimationFrame(() => {
+          this.resizePending = false;
+          if (this.isDestroyed) return;
+          const box = this.boxTemplate.nativeElement;
+          this.drawSchedule.width = box.clientWidth;
+          this.drawSchedule.height = box.clientHeight;
+          this.drawSchedule.refresh();
+          this.checkPixelRatio();
+          this.updateScrollbarValues();
+        });
       });
       this.resizeObserver.observe(parentElement);
     }

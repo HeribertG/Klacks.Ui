@@ -143,7 +143,7 @@
           >
             <div
               class="message-text"
-              [innerHTML]="formatMessage(message.content)"
+              [innerHTML]="message.formattedContent ?? formatMessage(message.content)"
             ></div>
             <div class="message-time">
               {{ message.timestamp | date : "short" }}

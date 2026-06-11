@@ -128,6 +128,7 @@ export class ScheduleScheduleRowHeaderComponent
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
   private isDestroyed = false;
+  private resizePending = false;
 
   filterStyle: Record<string, string> = { visibility: 'hidden' };
   protected sortedClients: IClientWork[] = [];
@@ -207,11 +208,16 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
-    if (entries && entries.length > 0) {
-      const entry = entries[0];
+    if (!entries || entries.length === 0) return;
+    if (this.resizePending) return;
+    this.resizePending = true;
+    const entry = entries[0];
+    requestAnimationFrame(() => {
+      this.resizePending = false;
+      if (this.isDestroyed) return;
       this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
       this.drawRowHeader.refresh();
-    }
+    });
   }
 
   private initializeDrawRowHeader(): void {

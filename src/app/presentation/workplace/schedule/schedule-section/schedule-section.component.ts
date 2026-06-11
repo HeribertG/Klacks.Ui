@@ -431,11 +431,17 @@ export class ScheduleSectionComponent
     return this.hostElement.nativeElement.getBoundingClientRect();
   }
 
+  invalidateDragDropRect(): void {
+    this.facade.dragDrop.invalidateBoundingRect();
+  }
+
   handleShiftDrop(result: ShiftDropResult): void {
+    this.facade.dragDrop.invalidateBoundingRect();
     this.facade.dragDrop.handleShiftDrop(result);
   }
 
   handleScheduleCellDrop(result: ScheduleCellDropResult): void {
+    this.facade.dragDrop.invalidateBoundingRect();
     this.facade.cellDropHandler.handleDrop(result);
   }
 

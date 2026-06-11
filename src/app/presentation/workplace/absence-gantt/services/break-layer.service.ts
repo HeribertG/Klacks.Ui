@@ -28,11 +28,9 @@ export class BreakLayerService {
       return [];
     }
 
-    // Filtere gültige Breaks und sortiere nach Startdatum
     const validBreaks = this.filterValidBreaks(breaks);
     const sortedBreaks = this.sortBreaksByStartDate(validBreaks);
 
-    // Berechne Layer für jeden Break
     const breaksWithLayers = sortedBreaks.map((breakItem) => ({
       ...breakItem,
       layer: this.calculateLayerForBreak(breakItem, sortedBreaks),
@@ -53,34 +51,28 @@ export class BreakLayerService {
     }
 
     const validBreaks = this.filterValidBreaks(breaks);
-    const sortedBreaks = this.sortBreaksByStartDate(validBreaks);
-    const breaksWithLayers: IBreakPlaceholderWithLayer[] = [];
 
-    for (const currentBreak of sortedBreaks) {
-      let layer = 0;
-      let layerAssigned = false;
+    const items = validBreaks
+      .map((b) => ({
+        ...b,
+        fromTs: new Date(b.from!).getTime(),
+        untilTs: new Date(b.until!).getTime(),
+        layer: 0,
+      }))
+      .sort((a, b) => a.fromTs - b.fromTs);
 
-      // Finde den niedrigsten verfügbaren Layer
-      while (!layerAssigned) {
-        const conflictingBreaks = breaksWithLayers.filter(
-          (b) => b.layer === layer && this.hasOverlap(currentBreak, b)
-        );
-
-        if (conflictingBreaks.length === 0) {
-          // Layer ist verfügbar
-          breaksWithLayers.push({
-            ...currentBreak,
-            layer: layer,
-          });
-          layerAssigned = true;
-        } else {
-          // Layer ist belegt, probiere nächsten
-          layer++;
-        }
+    const layerEndTimes: number[] = [];
+    for (const item of items) {
+      let assignedLayer = layerEndTimes.findIndex((end) => end <= item.fromTs);
+      if (assignedLayer === -1) {
+        layerEndTimes.push(0);
+        assignedLayer = layerEndTimes.length - 1;
       }
+      layerEndTimes[assignedLayer] = item.untilTs;
+      item.layer = assignedLayer;
     }
 
-    return breaksWithLayers;
+    return items;
   }
 
   /**
@@ -97,7 +89,6 @@ export class BreakLayerService {
     const validBreaks = this.filterValidBreaks(breaks);
     let maxOverlaps = 0;
 
-    // Erstelle Events für Start und Ende jedes Breaks
     const events: { date: Date; type: 'start' | 'end'; break: IBreakPlaceholder }[] = [];
 
     validBreaks.forEach((breakItem) => {
@@ -113,14 +104,12 @@ export class BreakLayerService {
       });
     });
 
-    // Sortiere Events nach Datum (Ende-Events vor Start-Events bei gleichem Datum)
     events.sort((a, b) => {
       const timeDiff = a.date.getTime() - b.date.getTime();
       if (timeDiff !== 0) return timeDiff;
       return a.type === 'end' ? -1 : 1;
     });
 
-    // Durchlaufe Events und zähle aktive Breaks
     let currentOverlaps = 0;
     for (const event of events) {
       if (event.type === 'start') {
@@ -160,8 +149,6 @@ export class BreakLayerService {
     return baseCellHeight + maxLayers * layerHeight;
   }
 
-  // Private Helper Methods
-
   /**
    * Calculates the layer number for a single break
    */
@@ -172,12 +159,10 @@ export class BreakLayerService {
     let overlapCount = 0;
 
     for (const otherBreak of allBreaks) {
-      // Überspringe den Break selbst
       if (this.isSameBreak(currentBreak, otherBreak)) {
         continue;
       }
 
-      // Prüfe auf zeitliche Überschneidung
       if (this.hasOverlap(currentBreak, otherBreak)) {
         overlapCount++;
       }
@@ -199,8 +184,6 @@ export class BreakLayerService {
     const break2Start = new Date(break2.from).getTime();
     const break2End = new Date(break2.until).getTime();
 
-    // Überschneidung liegt vor wenn:
-    // Break1 startet vor Break2 endet UND Break1 endet nach Break2 startet
     return break1Start <= break2End && break1End >= break2Start;
   }
 
@@ -208,12 +191,10 @@ export class BreakLayerService {
    * Checks whether two breaks are identical
    */
   private isSameBreak(break1: IBreakPlaceholder, break2: IBreakPlaceholder): boolean {
-    // Wenn beide IDs haben, vergleiche IDs
     if (break1.id && break2.id) {
       return break1.id === break2.id;
     }
 
-    // Fallback: Vergleiche alle relevanten Eigenschaften
     return (
       break1.clientId === break2.clientId &&
       break1.absenceId === break2.absenceId &&

@@ -19,9 +19,9 @@ import { Observable } from 'rxjs';
 export class UserAdministrationService {
   private httpClient = inject(HttpClient);
 
-  readAccountsList(): Observable<IAuthentication[]> {
+  readAccountsList(page = 0, pageSize = 1000): Observable<IAuthentication[]> {
     return this.httpClient
-      .get<IAuthentication[]>(`${environment.baseUrl}Accounts/`)
+      .get<IAuthentication[]>(`${environment.baseUrl}Accounts/?page=${page}&pageSize=${pageSize}`)
       .pipe(retry(3));
   }
 

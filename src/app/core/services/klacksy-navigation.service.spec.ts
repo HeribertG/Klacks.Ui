@@ -56,6 +56,34 @@ describe('KlacksyNavigationService', () => {
 
     expect(result).toBe(true);
     expect(icon.classList.contains('klacksy-highlight')).toBe(true);
+    expect(icon.classList.contains('klacksy-highlight-icon')).toBe(true);
+  });
+
+  it('pulses the nav icon of the destination route after navigating', async () => {
+    const icon = document.createElement('button');
+    icon.id = 'open-absences';
+    document.body.appendChild(icon);
+
+    await service.navigateAndScroll('/workplace/absence');
+
+    expect(icon.classList.contains('klacksy-highlight-icon')).toBe(true);
+  });
+
+  it('falls back to the company logo image for the dashboard route', async () => {
+    const logoImage = document.createElement('img');
+    logoImage.id = 'header-logo-image';
+    document.body.appendChild(logoImage);
+
+    await service.navigateAndScroll('/workplace/dashboard?tab=resources');
+
+    expect(logoImage.classList.contains('klacksy-highlight-icon')).toBe(true);
+  });
+
+  it('does not pulse anything for routes without a mapped nav icon', async () => {
+    const result = await service.navigateAndScroll('/workplace/profile');
+
+    expect(result.success).toBe(true);
+    expect(telemetry.trackTargetMiss).not.toHaveBeenCalled();
   });
 
   it('reports a miss when the nav icon does not exist', () => {

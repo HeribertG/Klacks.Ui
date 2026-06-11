@@ -69,13 +69,22 @@ export class ScheduleDragDropService {
   private settings = inject(BaseSettingsService);
   private analyseScenarioService = inject(AnalyseScenarioService);
 
+  private cachedRect: DOMRect | null = null;
+
+  invalidateBoundingRect(): void {
+    this.cachedRect = null;
+  }
+
   getDropTargetInfo(
     mouseY: number,
     column: number,
     dataService: ScheduleDataService,
     scheduleBox: HTMLElement,
   ): DropTargetInfo | null {
-    const rect = scheduleBox.getBoundingClientRect();
+    if (!this.cachedRect) {
+      this.cachedRect = scheduleBox.getBoundingClientRect();
+    }
+    const rect = this.cachedRect;
     const relativeY = mouseY - rect.top - this.settings.cellHeaderHeight;
 
     if (relativeY < 0) {

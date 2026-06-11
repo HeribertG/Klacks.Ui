@@ -4,6 +4,7 @@
 import {
   Injectable,
   effect,
+  untracked,
   inject,
   signal,
   computed,
@@ -334,8 +335,10 @@ export class WorkplaceStateService implements IEntityStateProvider {
       }
 
       if (!isDirty) {
-        this._isSavedOrReset.set(false);
-        this._isDisabled.set(false);
+        untracked(() => {
+          this._isSavedOrReset.set(false);
+          this._isDisabled.set(false);
+        });
       }
     });
     this.effectRefs.push(dirtyCleanupEffect);

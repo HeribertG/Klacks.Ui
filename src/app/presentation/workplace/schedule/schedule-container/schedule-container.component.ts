@@ -68,19 +68,16 @@ export class ScheduleContainerComponent {
 
   constructor() {
     fromEvent<MouseEvent>(document, 'mousemove').pipe(
+      filter(() => this.shiftDragService.isDragging() || this.cellDragService.isDragging()),
       throttleTime(16),
-      filter(() => this.shiftDragService.isDragging()),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(event => {
-      this.onDocumentMouseMove(event);
-    });
-
-    fromEvent<MouseEvent>(document, 'mousemove').pipe(
-      throttleTime(16),
-      filter(() => this.cellDragService.isDragging()),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(event => {
-      this.onCellDragMouseMove(event);
+      if (this.shiftDragService.isDragging()) {
+        this.onDocumentMouseMove(event);
+      }
+      if (this.cellDragService.isDragging()) {
+        this.onCellDragMouseMove(event);
+      }
     });
   }
 
@@ -103,6 +100,8 @@ export class ScheduleContainerComponent {
       const result = this.shiftDragService.endDrag();
       if (result && this.scheduleSection) {
         this.scheduleSection.handleShiftDrop(result);
+      } else {
+        this.scheduleSection?.invalidateDragDropRect();
       }
       return;
     }
@@ -111,6 +110,8 @@ export class ScheduleContainerComponent {
       const result = this.cellDragService.endDrag();
       if (result && this.scheduleSection) {
         this.scheduleSection.handleScheduleCellDrop(result);
+      } else {
+        this.scheduleSection?.invalidateDragDropRect();
       }
     }
   }

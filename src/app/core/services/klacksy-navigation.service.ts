@@ -2,13 +2,15 @@
 
 /**
  * Klacksy navigation + in-page scroll service. Also pulses main-nav icons so Klacksy
- * can show the user which icon opens a page (highlightNavIcon).
+ * can show the user which icon opens a page (highlightNavIcon); every navigateAndScroll
+ * pulses the destination page's nav icon as a side effect.
  * @param route - destination Angular route
  * @param target - optional data-klacksy-target ID
  * @param elementId - DOM id of a main-nav icon (e.g. 'open-settings')
  */
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { resolveNavIconsForRoute } from 'src/app/domain/constants/route-nav-icons.constants';
 import { KlacksyTelemetryService } from './klacksy-telemetry.service';
 
 export interface NavigationResult {
@@ -26,9 +28,12 @@ export class KlacksyNavigationService {
   // the "target-not-found" feedback snappy without breaking slow lazy routes.
   private static readonly WAIT_MS = 1500;
   private static readonly HIGHLIGHT_MS = 5000;
+  private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
+  private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
     await this.router.navigateByUrl(route);
+    this.pulseNavIconForRoute(route);
     if (!target) return { success: true };
 
     const el = await this.waitForElement(`[data-klacksy-target="${target}"]`, KlacksyNavigationService.WAIT_MS);
@@ -53,9 +58,21 @@ export class KlacksyNavigationService {
       return false;
     }
 
-    el.classList.add('klacksy-highlight');
-    setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
+    el.classList.add(KlacksyNavigationService.HIGHLIGHT_CLASS, KlacksyNavigationService.ICON_HIGHLIGHT_CLASS);
+    setTimeout(
+      () => el.classList.remove(KlacksyNavigationService.HIGHLIGHT_CLASS, KlacksyNavigationService.ICON_HIGHLIGHT_CLASS),
+      KlacksyNavigationService.HIGHLIGHT_MS
+    );
     return true;
+  }
+
+  private pulseNavIconForRoute(route: string): void {
+    const candidates = resolveNavIconsForRoute(route);
+    if (!candidates) return;
+
+    for (const elementId of candidates) {
+      if (this.highlightNavIcon(elementId)) return;
+    }
   }
 
   private waitForElement(selector: string, timeoutMs: number): Promise<Element | null> {

@@ -61,6 +61,13 @@ export class AbsenceCalendarDirective {
     ).subscribe(event => {
       this.onMouseMove(event);
     });
+
+    fromEvent<WheelEvent>(this.el.nativeElement, 'wheel').pipe(
+      throttleTime(16),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(event => {
+      this.handleWheelEvent(event);
+    });
   }
 
   // @HostListener('mouseenter', ['$event']) onMouseEnter(
@@ -83,25 +90,20 @@ export class AbsenceCalendarDirective {
     this.gridBody.destroyToolTip();
   }
 
-  @HostListener('mousewheel', ['$event']) onMouseWheel(
-    event: Event
-  ): void {
+  private handleWheelEvent(event: WheelEvent): void {
     if (!this.isOwnElement(event)) {
       return;
     }
-    const wheelEvent = event as WheelEvent;
-    const moveY: number = wheelEvent.deltaY === 0 ? 0 : wheelEvent.deltaY > 0 ? 1 : -1;
-    const moveX: number = wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
+    const moveY: number = event.deltaY === 0 ? 0 : event.deltaY > 0 ? 1 : -1;
+    const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
       const newValue = this.gridBody.valueChangeHScrollbar + moveX;
-
       this.gridBody.valueHScrollbar.emit(newValue);
     }
 
     if (moveY !== 0) {
       const newValue = this.gridBody.valueChangeVScrollbar + moveY;
-
       this.gridBody.valueVScrollbar.emit(newValue);
     }
 

@@ -12,7 +12,8 @@ export type UiActionType =
   | 'readValue'
   | 'conditional'
   | 'apiCall'
-  | 'search';
+  | 'search'
+  | 'selectGroup';
 
 export interface IUiActionStep {
   action: UiActionType;

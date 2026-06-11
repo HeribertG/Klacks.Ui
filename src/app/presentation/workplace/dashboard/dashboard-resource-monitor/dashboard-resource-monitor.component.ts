@@ -6,7 +6,8 @@
  * two reference lines: pink dotted (Wunsch-Einsatzbereitschaft) + red dashed (Max-Einsatzbereitschaft).
  * @param dataDashboardService - Provides resource monitor data
  */
-import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -52,6 +53,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private holidayCollection = inject(HolidayCollectionService);
   private manualLoader = inject(ManualLoaderService);
   private translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   selectedYear = signal(new Date().getFullYear());
   selectedGroupId = signal<string | null>(null);
@@ -140,7 +142,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
     this.loadData();
     this.loadManual();
     void this.loadHolidays();
-    this.translate.onLangChange.subscribe(e => {
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => {
       this.loadManual();
       this.currentLang.set(e.lang);
     });

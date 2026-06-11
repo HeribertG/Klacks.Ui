@@ -23,9 +23,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  compareDate,
   addDays,
   daysBetweenDates,
+  formatDateOnly,
 } from 'src/app/shared/helpers/date.helper';
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
@@ -102,6 +102,7 @@ export class AbsenceGanttSurfaceComponent
 
   private isAbsenceHeaderInit = false;
   private eventListeners = new Array<() => void>();
+  private holidayMap = new Map<string, HolidayDate>();
 
   /* #region dom */
   setBodyCursorStyle(cursorStyle: string): void {
@@ -340,8 +341,15 @@ export class AbsenceGanttSurfaceComponent
   holidayInfo(column: number): HolidayDate | undefined {
     const today = addDays(this.drawCalendarGantt.startDate, column);
     this.ensureCorrectYearLoaded(today);
-    return this.holidayCollection.holidays.holidayList.find((x) =>
-      compareDate(x.currentDate, today),
+    return this.holidayMap.get(formatDateOnly(today));
+  }
+
+  private rebuildHolidayMap(): void {
+    this.holidayMap = new Map(
+      this.holidayCollection.holidays.holidayList.map((h) => [
+        formatDateOnly(h.currentDate),
+        h,
+      ]),
     );
   }
 
@@ -534,6 +542,7 @@ export class AbsenceGanttSurfaceComponent
 
       effect(() => {
         if (this.holidayCollection.isReset()) {
+          this.rebuildHolidayMap();
           this.drawCalendarGantt.selectedRow = -1;
           this.drawCalendarGantt.updateStartDate =
             this.holidayCollection.currentYear;

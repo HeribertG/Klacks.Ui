@@ -13,9 +13,9 @@ import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper'
 export class DataContractService {
   private httpClient = inject(HttpClient);
 
-  getList() {
+  getList(page = 0, pageSize = 1000) {
     return this.httpClient
-      .get<IContract[]>(`${environment.baseUrl}Contracts/`)
+      .get<IContract[]>(`${environment.baseUrl}Contracts/?page=${page}&pageSize=${pageSize}`)
       .pipe(retry(3));
   }
 

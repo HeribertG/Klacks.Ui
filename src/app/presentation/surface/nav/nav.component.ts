@@ -126,7 +126,7 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   public tooltipPlacement =
     document.documentElement.dir === 'rtl' ? 'left' : 'right';
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
-  private currentTheme = signal<string>('');
+  private currentTheme = computed(() => this.themeService.theme());
   private currentPage = signal<NavigationPage>('');
   private iconsInitialized = signal<boolean>(false);
   isAdmin = computed(() => this.authorizationService.isAdmin);
@@ -223,11 +223,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
         this.localeService.setLocale(lang);
       });
       this.effectRefs.push(langEffect);
-
-      const themeSyncEffect = effect(() => {
-        this.currentTheme.set(this.themeService.theme());
-      });
-      this.effectRefs.push(themeSyncEffect);
 
       const themeEffect = effect(() => {
         const theme = this.currentTheme();

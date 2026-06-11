@@ -13,8 +13,8 @@ import { ISchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rul
 export class SchedulingRuleApiService {
   private http = inject(HttpClient);
 
-  getAll(): Promise<ISchedulingRule[]> {
-    return firstValueFrom(this.http.get<ISchedulingRule[]>(`${environment.baseUrl}schedulingrules`).pipe(retry(3)));
+  getAll(page = 0, pageSize = 1000): Promise<ISchedulingRule[]> {
+    return firstValueFrom(this.http.get<ISchedulingRule[]>(`${environment.baseUrl}schedulingrules?page=${page}&pageSize=${pageSize}`).pipe(retry(3)));
   }
 
   getById(id: string): Promise<ISchedulingRule> {

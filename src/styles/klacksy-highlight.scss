@@ -13,6 +13,30 @@
   100% { box-shadow: 0 0 0 0   rgba(33, 150, 243, 0); }
 }
 
+// Nav-icon variant: the main-nav containers use overflow-x: hidden, which clips a pure
+// box-shadow glow into invisibility on the narrow icon column. Icons therefore pulse by
+// scaling and tinting the element itself (4 iterations x 1.25s = the 5s highlight window).
+.klacksy-highlight-icon {
+  animation: klacksy-pulse-icon 1.25s ease-in-out 4;
+  position: relative;
+  z-index: 1;
+  border-radius: 8px;
+}
+
+@keyframes klacksy-pulse-icon {
+  0%, 100% {
+    transform: scale(1);
+    background-color: transparent;
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.85);
+  }
+  50% {
+    transform: scale(1.3);
+    background-color: rgba(33, 150, 243, 0.3);
+    box-shadow: 0 0 12px 4px rgba(33, 150, 243, 0.55);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .klacksy-highlight { animation: none; outline: 2px solid rgba(33,150,243,.7); }
+  .klacksy-highlight-icon { animation: none; outline: 2px solid rgba(33,150,243,.7); }
 }

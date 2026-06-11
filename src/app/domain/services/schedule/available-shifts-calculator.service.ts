@@ -52,12 +52,21 @@ export class AvailableShiftsCalculatorService {
 
     const toUniqueAbbreviationsByDay = (
       entries: { dayIdx: number; abbreviation: string }[],
-    ) =>
-      Array.from({ length: totalDays }, (_, dayIdx) => [
-        ...new Set(
-          entries.filter((s) => s.dayIdx === dayIdx).map((s) => s.abbreviation),
-        ),
-      ]);
+    ): readonly string[][] => {
+      const byDay = new Map<number, Set<string>>();
+      for (const entry of entries) {
+        let set = byDay.get(entry.dayIdx);
+        if (!set) {
+          set = new Set<string>();
+          byDay.set(entry.dayIdx, set);
+        }
+        set.add(entry.abbreviation);
+      }
+      return Array.from({ length: totalDays }, (_, dayIdx) => {
+        const set = byDay.get(dayIdx);
+        return set ? [...set] : [];
+      });
+    };
 
     const availableShifts = shiftSchedules
       .filter(hasCapacity)

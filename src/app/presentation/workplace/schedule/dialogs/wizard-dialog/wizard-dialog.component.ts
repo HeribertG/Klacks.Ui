@@ -16,6 +16,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { take } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataWizardService } from 'src/app/infrastructure/api/wizard/data-wizard.service';
@@ -142,7 +143,7 @@ export class WizardDialogComponent {
     this.modalRef = this.ngbModal.open(this.modalTemplate, {
       centered: true, backdrop: 'static', keyboard: false, size: 'lg',
     });
-    this.modalRef.dismissed.subscribe(() => this.cancelIfRunning());
+    this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());
 
     const request = this.buildRequest();
     if (!request) {
