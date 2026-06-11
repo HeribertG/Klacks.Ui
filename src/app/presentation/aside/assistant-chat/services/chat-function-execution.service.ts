@@ -3,13 +3,15 @@
 /**
  * Orchestrates function call execution from assistant responses: UI actions, navigation, and backend calls.
  * Mutates the conversation log via ConversationOrchestratorService so all observers (chat panel and
- * voice-shell transcript overlay) receive signal updates. Pulses the matching main-nav icon as a side
- * effect when an explain_page_* skill call streams through.
+ * voice-shell transcript overlay) receive signal updates. When an explain_page_* skill call streams
+ * through, the user is brought to the explained page automatically (with the nav icon pulsing);
+ * if they are already there, only the icon pulses.
  * @param functionExecutionService - Handles individual function execution against the backend API
  * @param uiActionEngine - Executes UI action step configurations in the frontend
  * @param orchestrator - Holds the conversation messages signal and exposes update helpers
  */
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AssistantFunctionExecutionService } from 'src/app/domain/services/assistant/assistant-function-execution.service';
 import { UiActionEngineService } from 'src/app/domain/services/assistant/ui-action-engine.service';
@@ -18,7 +20,7 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType, SkillExecutedEvent } from 'src/app/domain/events/domain-events';
 import { OnboardingService } from 'src/app/application/services/onboarding.service';
 import { START_GUIDED_TOUR_SKILL } from 'src/app/domain/constants/onboarding-stations';
-import { EXPLAIN_PAGE_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS } from 'src/app/domain/constants/page-explain-icons.constants';
+import { EXPLAIN_PAGE_SKILL_PREFIX, PAGE_EXPLAIN_NAV_ICONS, PAGE_EXPLAIN_ROUTES } from 'src/app/domain/constants/page-explain-icons.constants';
 import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 import { ConversationOrchestratorService } from './conversation-orchestrator.service';
 
@@ -30,6 +32,7 @@ export class ChatFunctionExecutionService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private onboarding = inject(OnboardingService);
   private klacksyNavigation = inject(KlacksyNavigationService);
+  private router = inject(Router);
 
   private readonly NAVIGATION_FUNCTIONS = ['navigateToPage', 'navigate_to', 'navigate_to_page'];
 
@@ -51,7 +54,7 @@ export class ChatFunctionExecutionService {
       }
 
       if (functionName.startsWith(EXPLAIN_PAGE_SKILL_PREFIX)) {
-        this.highlightExplainedPageNavIcon(functionName);
+        this.bringUserToExplainedPage(functionName);
       }
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
@@ -119,6 +122,21 @@ export class ChatFunctionExecutionService {
     } catch (error: any) {
       this.applyFunctionError(error);
     }
+  }
+
+  private bringUserToExplainedPage(functionName: string): void {
+    const route = PAGE_EXPLAIN_ROUTES[functionName];
+    if (route && !this.isCurrentRoute(route)) {
+      this.klacksyNavigation.navigateAndScroll(route);
+      return;
+    }
+
+    this.highlightExplainedPageNavIcon(functionName);
+  }
+
+  private isCurrentRoute(route: string): boolean {
+    const current = this.router.url.split('?')[0].split('#')[0];
+    return current === route || current.startsWith(`${route}/`);
   }
 
   private highlightExplainedPageNavIcon(functionName: string): void {

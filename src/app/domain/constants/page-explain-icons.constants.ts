@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Maps explain_page_* skill names to the main-nav icon DOM ids Klacksy pulses while explaining a page.
- * Each entry lists candidate ids tried in order until one exists (dashboard falls back from the
+ * Maps explain_page_* skill names to the main-nav icon DOM ids Klacksy pulses while explaining a page,
+ * and to the route of the explained page so the app can bring the user there automatically.
+ * Icon entries list candidate ids tried in order until one exists (dashboard falls back from the
  * default logo icon to the custom company-logo image).
  */
 
@@ -12,6 +13,20 @@ export const EXPLAIN_PAGE_SKILL_PREFIX = 'explain_page_';
 
 export const HEADER_LOGO_ICON_ID = 'header-logo-icon';
 export const HEADER_LOGO_IMAGE_ID = 'header-logo-image';
+
+export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}dashboard`]: '/workplace/dashboard',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}schedule`]: '/workplace/schedule',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}absence`]: '/workplace/absence',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}availability`]: '/workplace/client-availability',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}shifts`]: '/workplace/shift',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}employees`]: '/workplace/client',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}groups`]: '/workplace/group',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}period_closing`]: '/workplace/period-closing',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}inbox`]: '/workplace/inbox',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}settings_overview`]: '/workplace/settings',
+  [`${EXPLAIN_PAGE_SKILL_PREFIX}profile`]: '/workplace/profile',
+};
 
 export const PAGE_EXPLAIN_NAV_ICONS: Record<string, readonly string[]> = {
   [`${EXPLAIN_PAGE_SKILL_PREFIX}dashboard`]: [HEADER_LOGO_ICON_ID, HEADER_LOGO_IMAGE_ID],
