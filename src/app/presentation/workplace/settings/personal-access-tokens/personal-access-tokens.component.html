@@ -1,0 +1,163 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Personal Access Token Modal -->
+<ng-template #tokenModal id="personal-access-tokens-modal-template" let-modal>
+  <form id="personal-access-tokens-modal-form" data-klacksy-target="personal-access-token-form">
+    <div id="personal-access-tokens-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ 'setting.personal-access-tokens.headline-modal' | translate }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        id="personal-access-tokens-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="personal-access-tokens-modal-body" class="modal-body">
+      @if (createdToken) {
+      <!-- One-time token display -->
+      <div id="personal-access-tokens-modal-warning-row" class="row-line-modal-inline">
+        <div id="personal-access-tokens-modal-warning" class="alert alert-warning one-time-warning">
+          {{ 'setting.personal-access-tokens.modal.one-time-warning' | translate }}
+        </div>
+      </div>
+
+      <div id="personal-access-tokens-modal-token-row" class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="personal-access-tokens-modal-token">{{
+            'setting.personal-access-tokens.modal.token' | translate
+          }}</label>
+          <div class="token-display-group">
+            <input
+              id="personal-access-tokens-modal-token"
+              type="text"
+              class="form-control token-value"
+              [value]="createdToken.token"
+              readonly
+            />
+            <button
+              id="personal-access-tokens-modal-copy-btn"
+              type="button"
+              class="btn copy-btn"
+              (click)="onCopyToken()"
+            >
+              <app-icon-copy-grey />
+              {{ 'setting.personal-access-tokens.modal.copy' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <!-- Name and Expiry -->
+      <div id="personal-access-tokens-modal-input-row" class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="personal-access-tokens-modal-name">{{
+            'setting.personal-access-tokens.modal.name' | translate
+          }}</label>
+          <input
+            id="personal-access-tokens-modal-name"
+            type="text"
+            [formField]="tokenForm.name"
+            class="form-control"
+          />
+        </div>
+        <div class="model-field">
+          <label for="personal-access-tokens-modal-expires">{{
+            'setting.personal-access-tokens.modal.expires-in-days' | translate
+          }}</label>
+          <input
+            id="personal-access-tokens-modal-expires"
+            type="number"
+            [formField]="tokenForm.expiresInDays"
+            class="form-control"
+          />
+          <small id="personal-access-tokens-modal-expires-hint" class="expiry-hint">
+            {{ 'setting.personal-access-tokens.modal.expires-in-days-hint' | translate }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div id="personal-access-tokens-modal-validation-row" class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ 'validation.errors' | translate }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div id="personal-access-tokens-modal-footer" class="modal-footer">
+    @if (createdToken) {
+    <button
+      id="personal-access-tokens-modal-done-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="modal.close()"
+    >
+      {{ 'setting.personal-access-tokens.modal.done' | translate }}
+    </button>
+    } @else {
+    <span
+      id="personal-access-tokens-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ 'cancel' | translate }}</span
+    >
+    <button
+      id="personal-access-tokens-modal-create-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onCreateToken()"
+      [disabled]="!isFormValid()"
+    >
+      {{ 'setting.personal-access-tokens.modal.create' | translate }}
+    </button>
+    }
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="'setting.personal-access-tokens.title' | translate"
+  [addLabel]="'setting.personal-access-tokens.add' | translate"
+  [showHeader]="true"
+  idPrefix="personal-access-tokens"
+  (addClick)="onClickAdd()"
+>
+  <app-personal-access-tokens-header
+    header
+    id="personal-access-tokens-table-header"
+  ></app-personal-access-tokens-header>
+  <div rows>
+    @for (token of tokens; track token.id || $index; let i = $index) {
+      <app-personal-access-tokens-row
+        [id]="'personal-access-tokens-row-' + i"
+        [data]="token"
+        (isDeleteEvent)="openRevokeToken($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

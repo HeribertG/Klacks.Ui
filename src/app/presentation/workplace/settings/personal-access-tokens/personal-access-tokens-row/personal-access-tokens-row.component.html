@@ -1,0 +1,48 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div
+  id="personal-access-tokens-row-container-{{ data.id }}"
+  class="first custom-control-inline"
+>
+  <span
+    id="personal-access-tokens-row-name-{{ data.id }}"
+    class="column-name"
+    [title]="data.name"
+    >{{ data.name }}</span
+  >
+  <span
+    id="personal-access-tokens-row-prefix-{{ data.id }}"
+    class="column-prefix token-prefix"
+    >{{ data.tokenPrefix }}</span
+  >
+  <span id="personal-access-tokens-row-created-{{ data.id }}" class="column-date">
+    @if (data.createdAt) {
+      {{ data.createdAt | date: 'short' }}
+    } @else {
+      -
+    }
+  </span>
+  <span id="personal-access-tokens-row-expires-{{ data.id }}" class="column-date">
+    @if (data.expiresAt) {
+      {{ data.expiresAt | date: 'short' }}
+    } @else {
+      -
+    }
+  </span>
+  <span id="personal-access-tokens-row-last-used-{{ data.id }}" class="column-date">
+    @if (data.lastUsedAt) {
+      {{ data.lastUsedAt | date: 'short' }}
+    } @else {
+      {{ 'setting.personal-access-tokens.never-used' | translate }}
+    }
+  </span>
+
+  <span
+    id="personal-access-tokens-row-delete-{{ data.id }}"
+    class="delete-button"
+    type="button"
+    [title]="'setting.personal-access-tokens.revoke' | translate"
+    (click)="onClickDelete()"
+    ><app-icon-trash-red /></span
+  >
+</div>

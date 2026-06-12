@@ -1,0 +1,40 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.one-time-warning {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.token-display-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .token-value {
+    flex: 1;
+    font-family: monospace;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    border: 1px solid var(--inputBorderColor);
+    color: var(--colorWorkplaceHeadline);
+  }
+}
+
+.expiry-hint {
+  display: block;
+  margin-top: 5px;
+  color: var(--colorLabel);
+}

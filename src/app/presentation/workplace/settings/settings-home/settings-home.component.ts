@@ -58,6 +58,7 @@ import { FloorPlanSettingsComponent } from '../floor-plan-settings/floor-plan-se
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
+import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconCollapseAllGreyComponent } from 'src/app/presentation/icons/icon-collapse-all-grey.component';
@@ -119,6 +120,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     DataRetentionSettingComponent,
     UpdatesSettingComponent,
     QualificationsComponent,
+    PersonalAccessTokensComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
