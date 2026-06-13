@@ -42,6 +42,24 @@ describe('ClientQualificationsComponent', () => {
     countries: [],
     category: QualificationCategory.None,
   };
+  const securityWork: IQualification = {
+    id: 'q-security',
+    name: { de: 'Sicherheitsdienst', en: 'Security' },
+    emoji: '🛡️',
+    isTimeLimited: false,
+    type: QualificationType.Work,
+    countries: ['CH'],
+    category: QualificationCategory.Security,
+  };
+  const swissLanguage: IQualification = {
+    id: 'q-lang',
+    name: { de: 'Deutsch', en: 'German' },
+    emoji: '🗣️',
+    isTimeLimited: false,
+    type: QualificationType.Language,
+    countries: ['CH'],
+    category: QualificationCategory.None,
+  };
 
   beforeEach(async () => {
     editClientSignal = signal({
@@ -62,7 +80,9 @@ describe('ClientQualificationsComponent', () => {
     };
 
     mockQualificationService = {
-      getQualificationList: vi.fn().mockReturnValue(of([timeLimited, permanent])),
+      getQualificationList: vi
+        .fn()
+        .mockReturnValue(of([timeLimited, permanent, securityWork, swissLanguage])),
     };
 
     mockAuthorizationService = {
@@ -95,7 +115,7 @@ describe('ClientQualificationsComponent', () => {
 
   it('should load the qualification master list on init', () => {
     expect(mockQualificationService.getQualificationList).toHaveBeenCalled();
-    expect(component.qualifications.length).toBe(2);
+    expect(component.qualifications.length).toBe(4);
     expect(component.hasMasterQualifications()).toBe(true);
   });
 
@@ -144,13 +164,26 @@ describe('ClientQualificationsComponent', () => {
       });
       const newRow = editClientSignal().qualifications[1];
       const available = component.availableQualifications(newRow);
-      expect(available.map((q) => q.id)).toEqual(['q-perm']);
+      expect(available.map((q) => q.id)).toEqual(['q-perm', 'q-security', 'q-lang']);
     });
 
     it('should keep the row own current selection in the list', () => {
       const row = editClientSignal().qualifications[0];
       const available = component.availableQualifications(row);
       expect(available.map((q) => q.id)).toContain('q-time');
+    });
+
+    it('should still list languages after switching from a work category filter', () => {
+      const row = { qualificationId: undefined, level: 2 } as any;
+
+      component.onFilterTypeChange(QualificationType.Work);
+      component.onFilterCategoryChange(QualificationCategory.Security);
+      component.onFilterCountryChange('CH');
+      expect(component.availableQualifications(row).map((q) => q.id)).toEqual(['q-security']);
+
+      component.onFilterTypeChange(QualificationType.Language);
+      expect(component.filterCategory).toBeNull();
+      expect(component.availableQualifications(row).map((q) => q.id)).toEqual(['q-lang']);
     });
   });
 

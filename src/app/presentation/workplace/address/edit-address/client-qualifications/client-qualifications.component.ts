@@ -191,6 +191,9 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
 
   onFilterTypeChange(value: QualificationType | null): void {
     this.filterType = value;
+    if (value !== QualificationType.Work) {
+      this.filterCategory = null;
+    }
     this.cdr.markForCheck();
   }
 
