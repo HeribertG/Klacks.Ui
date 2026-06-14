@@ -22,6 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { SporadicStatus } from 'src/app/domain/enums/sporadic-status.enum';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
@@ -73,6 +74,7 @@ interface ShiftRow {
   isSporadic: boolean;
   isTimeRange: boolean;
   shiftType: number;
+  qualifications: IScheduleQualification[];
 }
 
 @Injectable()
@@ -283,6 +285,7 @@ export class ShiftDataService extends BaseDataService {
           isSporadic: schedule.isSporadic,
           isTimeRange: schedule.isTimeRange,
           shiftType: schedule.shiftType,
+          qualifications: schedule.qualifications ?? [],
         });
       }
 
@@ -522,6 +525,13 @@ export class ShiftDataService extends BaseDataService {
       return this.shiftRows[row].workTime;
     }
     return 0;
+  }
+
+  getShiftQualifications(row: number): IScheduleQualification[] {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].qualifications;
+    }
+    return [];
   }
 
   formatWorkTime(workTime: number): string {

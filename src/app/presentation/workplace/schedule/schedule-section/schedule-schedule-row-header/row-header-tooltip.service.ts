@@ -17,9 +17,8 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
-import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
-import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { computeQualificationBubbleLayout } from '../services/qualification-bubble-layout';
+import { QualificationBubbleTooltipService } from '../../shared/qualification-bubbles/qualification-bubble-tooltip.service';
 
 @Injectable()
 export class RowHeaderTooltipService {
@@ -29,6 +28,7 @@ export class RowHeaderTooltipService {
   private settings = inject(BaseSettingsService);
   private scroll = inject(ScrollService);
   private scheduleChangeService = inject(ScheduleChangeService);
+  private bubbleTooltip = inject(QualificationBubbleTooltipService);
 
   hide(): void {
     this.tooltipService.hide();
@@ -173,16 +173,19 @@ export class RowHeaderTooltipService {
     });
     if (layout.bubbles.length === 0) return false;
 
-    const hitRadius = layout.diameter / 2 + 2;
-    const hovered = layout.bubbles.find(
-      (b) => Math.hypot(pos.x - b.cx, localY - b.cy) <= hitRadius,
+    const hovered = this.bubbleTooltip.findHoveredBubble(
+      layout.bubbles,
+      pos.x,
+      localY,
+      layout.diameter,
     );
     if (!hovered) return false;
 
-    const tooltipText =
-      hovered.overflowCount > 0
-        ? this.buildOverflowTooltip(qualifications, layout.bubbles)
-        : this.buildQualificationLabel(hovered.qualification);
+    const tooltipText = this.bubbleTooltip.buildTooltipText(
+      hovered,
+      qualifications,
+      layout.bubbles,
+    );
     if (!tooltipText) return false;
 
     this.tooltipService.show({
@@ -191,31 +194,6 @@ export class RowHeaderTooltipService {
       y: event.clientY,
     });
     return true;
-  }
-
-  private buildQualificationLabel(
-    qualification: IScheduleQualification | null,
-  ): string {
-    if (!qualification) return '';
-    const lang = this.translateService.currentLang ?? 'de';
-    const name = getLocalizedValue(qualification.name, lang);
-    const emoji = qualification.emoji ?? '';
-    return emoji ? `${emoji} ${name}` : name;
-  }
-
-  private buildOverflowTooltip(
-    qualifications: IScheduleQualification[],
-    bubbles: { qualification: IScheduleQualification | null }[],
-  ): string {
-    const shownIds = new Set(
-      bubbles
-        .map((b) => b.qualification?.qualificationId)
-        .filter((id): id is string => !!id),
-    );
-    const hidden = qualifications.filter(
-      (q) => !!q.emoji && q.emoji.trim() !== '' && !shownIds.has(q.qualificationId),
-    );
-    return hidden.map((q) => this.buildQualificationLabel(q)).join('\n');
   }
 
   checkInfoSpotTooltip(

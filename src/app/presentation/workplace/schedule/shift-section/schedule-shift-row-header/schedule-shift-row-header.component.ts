@@ -41,6 +41,7 @@ import { ShiftCreateRowHeaderService } from './services/shift-create-row-header.
 import { ShiftDrawRowHeaderService } from './services/shift-draw-row-header.service';
 import { ShiftRowHeaderIconsService } from './services/shift-row-header-icons.service';
 import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-events.directive';
+import { ShiftRowHeaderTooltipService } from './services/shift-row-header-tooltip.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -56,6 +57,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
     ShiftCreateRowHeaderService,
     ShiftDrawRowHeaderService,
     ShiftRowHeaderIconsService,
+    ShiftRowHeaderTooltipService,
     ProgressBarAnimationService,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,6 +79,7 @@ export class ScheduleShiftRowHeaderComponent
   private settings = inject(BaseSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private gridColorService = inject(GridColorService);
+  private tooltipHelper = inject(ShiftRowHeaderTooltipService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -122,6 +125,22 @@ export class ScheduleShiftRowHeaderComponent
       this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
       this.drawRowHeader.refresh();
     }
+  }
+
+  onCanvasMouseMove(event: MouseEvent): void {
+    const canvas = this.drawRowHeader.canvas;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const pos = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+    if (!this.tooltipHelper.checkQualificationTooltip(event, pos, canvas)) {
+      this.tooltipHelper.hide();
+    }
+  }
+
+  onCanvasMouseLeave(): void {
+    this.tooltipHelper.hide();
   }
 
   private initializeDrawRowHeader(): void {

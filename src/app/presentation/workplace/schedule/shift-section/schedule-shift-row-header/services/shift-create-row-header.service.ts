@@ -30,6 +30,11 @@ import { ShiftDataService } from '../../services/shift-data.service';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftRowHeaderCanvasService } from './shift-row-header-canvas.service';
 import { ShiftRowHeaderIconsService } from './shift-row-header-icons.service';
+import {
+  computeShiftBubbleReserves,
+  computeShiftQualificationBubbleLayout,
+} from './shift-qualification-bubble-layout';
+import { drawQualificationBubbles } from '../../../shared/qualification-bubbles/qualification-bubble-renderer';
 
 @Injectable()
 export class ShiftCreateRowHeaderService {
@@ -95,6 +100,7 @@ export class ShiftCreateRowHeaderService {
       this.drawIcon(ctx, row, rec);
       this.drawShiftName(ctx, row, rec);
       this.drawSporadicBubble(ctx, row, rec);
+      this.drawQualificationBubbles(ctx, row, rec);
     } else {
       this.fillEmptyBackground(ctx, rec);
     }
@@ -206,6 +212,42 @@ export class ShiftCreateRowHeaderService {
     ctx.textBaseline = 'middle';
     ctx.fillText(char, cx, cy);
     ctx.restore();
+  }
+
+  private drawQualificationBubbles(
+    ctx: CanvasRenderingContext2D,
+    row: number,
+    rec: Rectangle
+  ): void {
+    const qualifications = this.shiftData.getShiftQualifications(row);
+    if (qualifications.length === 0) {
+      return;
+    }
+
+    const isRtl = document.documentElement.dir === 'rtl';
+    const { iconReserve, anchorReserve } = computeShiftBubbleReserves(
+      this.settings.zoom,
+      this.shiftData.getShiftIsSporadic(row)
+    );
+
+    const layout = computeShiftQualificationBubbleLayout({
+      qualifications,
+      cellWidth: this.canvasManager.width,
+      cellHeight: rec.height,
+      zoom: this.settings.zoom,
+      isRtl,
+      iconReserve,
+      anchorReserve,
+    });
+    drawQualificationBubbles(ctx, layout.bubbles, {
+      diameter: layout.diameter,
+      emojiFontSize: layout.emojiFontSize,
+      fillColor: this.gridColors.backGroundColor,
+      borderColor: this.gridColors.foreGroundColor,
+      zoom: this.settings.zoom,
+      originX: rec.left,
+      originY: rec.top,
+    });
   }
 }
 

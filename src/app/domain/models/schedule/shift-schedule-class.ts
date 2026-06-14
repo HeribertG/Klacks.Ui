@@ -2,6 +2,7 @@
 
 import { ShiftSporadic } from '../../enums/shift-sporadic.enum';
 import { SporadicStatus } from '../../enums/sporadic-status.enum';
+import { IScheduleQualification } from './work-schedule-class';
 
 export interface IShiftSchedule {
   shiftId: string;
@@ -21,6 +22,7 @@ export interface IShiftSchedule {
   sporadicScope: ShiftSporadic;
   engaged: number;
   sporadicStatus: SporadicStatus;
+  qualifications: IScheduleQualification[];
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -41,6 +43,7 @@ export class ShiftSchedule implements IShiftSchedule {
   sporadicScope = ShiftSporadic.Week;
   engaged = 0;
   sporadicStatus = SporadicStatus.None;
+  qualifications: IScheduleQualification[] = [];
 }
 
 export interface IShiftScheduleFilter {

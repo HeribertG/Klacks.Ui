@@ -45,6 +45,10 @@ export class ShiftDrawRowHeaderService {
   public selectedRow = -1;
   public isSelectedRowActive = false;
 
+  public get canvas(): HTMLCanvasElement | undefined {
+    return this.canvasManager.canvas;
+  }
+
   public set width(value: number) {
     this.canvasManager.width = value;
     this.canvasManager.resizeMainCanvas();

@@ -4,6 +4,8 @@
   class="box-row-header"
   appResize
   (resizeElement)="onResize($event)"
+  (mousemove)="onCanvasMouseMove($event)"
+  (mouseleave)="onCanvasMouseLeave()"
 >
   <canvas
     id="shiftRowHeaderCanvas"
