@@ -16,6 +16,10 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
+import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
+import { IScheduleQualification } from 'src/app/domain/models/schedule/work-schedule-class';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { computeQualificationBubbleLayout } from '../services/qualification-bubble-layout';
 
 @Injectable()
 export class RowHeaderTooltipService {
@@ -125,6 +129,93 @@ export class RowHeaderTooltipService {
     }
 
     return false;
+  }
+
+  checkQualificationTooltip(
+    event: MouseEvent,
+    pos: { x: number; y: number },
+    canvas: HTMLCanvasElement | undefined,
+  ): boolean {
+    if (!canvas) return false;
+
+    const row =
+      Math.floor(
+        (pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight,
+      ) + this.scroll.verticalScrollPosition;
+    if (row < 0 || row >= this.dataService.rows) return false;
+
+    const clientIndex = this.dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) return false;
+
+    const client = this.dataService.getGroupIndex(clientIndex) as IClientWork | undefined;
+    const qualifications = client?.qualifications ?? [];
+    if (!client || qualifications.length === 0) return false;
+
+    const firstRow = this.dataService.indexGroupRow[clientIndex];
+    const lastRow = firstRow + (client.displayRows ?? 1) - 1;
+    if (row < firstRow || row > lastRow) return false;
+
+    const fullHeight = this.settings.getGroupLineHeight(client.displayRows);
+    const localY =
+      pos.y -
+      this.settings.cellHeaderHeight -
+      (firstRow - this.scroll.verticalScrollPosition) * this.settings.cellHeight;
+
+    const isRtl = document.documentElement.dir === 'rtl';
+    const layout = computeQualificationBubbleLayout({
+      qualifications,
+      cellWidth: canvas.getBoundingClientRect().width,
+      cellHeight: fullHeight,
+      zoom: this.settings.zoom,
+      isRtl,
+      infoSpotWidth: this.settings.InfoSpotWidth,
+      iconWidth: this.settings.rowHeaderIconWith,
+    });
+    if (layout.bubbles.length === 0) return false;
+
+    const hitRadius = layout.diameter / 2 + 2;
+    const hovered = layout.bubbles.find(
+      (b) => Math.hypot(pos.x - b.cx, localY - b.cy) <= hitRadius,
+    );
+    if (!hovered) return false;
+
+    const tooltipText =
+      hovered.overflowCount > 0
+        ? this.buildOverflowTooltip(qualifications, layout.bubbles)
+        : this.buildQualificationLabel(hovered.qualification);
+    if (!tooltipText) return false;
+
+    this.tooltipService.show({
+      text: tooltipText,
+      x: event.clientX,
+      y: event.clientY,
+    });
+    return true;
+  }
+
+  private buildQualificationLabel(
+    qualification: IScheduleQualification | null,
+  ): string {
+    if (!qualification) return '';
+    const lang = this.translateService.currentLang ?? 'de';
+    const name = getLocalizedValue(qualification.name, lang);
+    const emoji = qualification.emoji ?? '';
+    return emoji ? `${emoji} ${name}` : name;
+  }
+
+  private buildOverflowTooltip(
+    qualifications: IScheduleQualification[],
+    bubbles: { qualification: IScheduleQualification | null }[],
+  ): string {
+    const shownIds = new Set(
+      bubbles
+        .map((b) => b.qualification?.qualificationId)
+        .filter((id): id is string => !!id),
+    );
+    const hidden = qualifications.filter(
+      (q) => !!q.emoji && q.emoji.trim() !== '' && !shownIds.has(q.qualificationId),
+    );
+    return hidden.map((q) => this.buildQualificationLabel(q)).join('\n');
   }
 
   checkInfoSpotTooltip(

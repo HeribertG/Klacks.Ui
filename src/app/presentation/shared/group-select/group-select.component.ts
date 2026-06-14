@@ -178,6 +178,17 @@ export class GroupSelectComponent
           }
         });
         this.effects.push(effect2);
+
+        // Visibility must react to the entity shown in the workplace and to async group
+        // loading. Not every navigation path sets isFocusChanged, so relying on effect2
+        // alone leaves isVisible stuck on its ngOnInit value (header renders before the
+        // first entity is set).
+        const visibilityEffect = effect(() => {
+          this.dataManagementSwitchboard.nameOfVisibleEntity();
+          this.dataManagementGroupService.hasRootGroups();
+          untracked(() => this.handleFocusChange());
+        });
+        this.effects.push(visibilityEffect);
       });
     } catch (error) {
       console.error('Error when setting up the effect:', error);

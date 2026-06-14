@@ -205,6 +205,10 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.clients;
   }
 
+  get isIndividualClientSortActive(): boolean {
+    return this.workScheduleLoader.individualSortActive;
+  }
+
   get workScheduleEntries(): IScheduleCell[] {
     return this.workScheduleLoader.workScheduleEntries;
   }

@@ -4,7 +4,7 @@ import { IClient, Membership } from '../client/client-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from '../shift/shift-class';
 import { IBaseFilter } from '../general-class';
-import { IPeriodHours, IScheduleCell } from './work-schedule-class';
+import { IPeriodHours, IScheduleCell, IScheduleQualification } from './work-schedule-class';
 
 export interface IWork {
   client?: IClient;
@@ -69,6 +69,7 @@ export interface IClientWork {
   works: Work[];
   hasContract: boolean;
   memberSince?: string;
+  qualifications: IScheduleQualification[];
 }
 
 export class ClientWork implements IClientWork {
@@ -91,6 +92,7 @@ export class ClientWork implements IClientWork {
   displayRows = 3;
   works: Work[] = [];
   hasContract = false;
+  qualifications: IScheduleQualification[] = [];
 }
 
 export interface IWorkFilter extends IBaseFilter {

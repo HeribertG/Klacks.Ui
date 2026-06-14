@@ -31,6 +31,7 @@ export interface AutoWizardStartRequest {
   groupId: string | null;
   analyseToken: string | null;
   language: string | null;
+  agentOrderIsUserDefined: boolean;
 }
 
 export interface AutoWizardStartResponse {

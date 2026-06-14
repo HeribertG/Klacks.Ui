@@ -345,6 +345,10 @@ export class ScheduleScheduleRowHeaderComponent
       return;
     }
 
+    if (this.tooltipHelper.checkQualificationTooltip(event, pos, canvas)) {
+      return;
+    }
+
     this.tooltipHelper.checkInfoSpotTooltip(event, pos, canvas);
   }
 

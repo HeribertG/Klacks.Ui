@@ -34,6 +34,7 @@ import { BaseSettingsService } from '../../../../shared/grid/services/data-setti
 import { TranslateService } from '@ngx-translate/core';
 import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 import { ScheduleChangeService } from 'src/app/domain/services/schedule/schedule-change.service';
+import { computeQualificationBubbleLayout } from './qualification-bubble-layout';
 
 const INFO_SPOT_FONT_COLOR = '#000000';
 
@@ -374,6 +375,62 @@ export class BaseCreateRowHeaderService {
     ctx.drawImage(icon, x, y, iconW, iconH);
   }
 
+  private drawQualificationBubbles(
+    ctx: CanvasRenderingContext2D,
+    client: ClientWork,
+    width: number,
+    height: number
+  ): void {
+    const qualifications = client.qualifications ?? [];
+    if (qualifications.length === 0) {
+      return;
+    }
+
+    const isRtl = document.documentElement.dir === 'rtl';
+    const layout = computeQualificationBubbleLayout({
+      qualifications,
+      cellWidth: width,
+      cellHeight: height,
+      zoom: this.settings.zoom,
+      isRtl,
+      infoSpotWidth: this.settings.InfoSpotWidth,
+      iconWidth: this.settings.rowHeaderIconWith,
+    });
+    if (layout.bubbles.length === 0) {
+      return;
+    }
+
+    const radius = layout.diameter / 2;
+    const borderWidth = Math.max(1, Math.round(this.settings.zoom));
+    const overflowFontSize = Math.round(layout.diameter * 0.5);
+
+    for (let i = layout.bubbles.length - 1; i >= 0; i--) {
+      const bubble = layout.bubbles[i];
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(bubble.cx, bubble.cy, radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.gridColors.backGroundColor;
+      ctx.fill();
+      ctx.lineWidth = borderWidth;
+      ctx.strokeStyle = this.gridColors.headerForeGroundColor;
+      ctx.stroke();
+      ctx.clip();
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (bubble.overflowCount > 0) {
+        ctx.fillStyle = this.gridColors.headerForeGroundColor;
+        ctx.font = `bold ${overflowFontSize}px Arial`;
+        ctx.fillText(`+${bubble.overflowCount}`, bubble.cx, bubble.cy + 0.5);
+      } else {
+        ctx.font = `${layout.emojiFontSize}px Arial`;
+        ctx.fillText(bubble.emoji, bubble.cx, bubble.cy + 0.5);
+      }
+      ctx.restore();
+    }
+  }
+
   private drawInfoSpots(
     ctx: CanvasRenderingContext2D,
     client: ClientWork,
@@ -550,6 +607,7 @@ export class BaseCreateRowHeaderService {
         );
 
         this.drawGripIcon(ctx, height);
+        this.drawQualificationBubbles(ctx, client, width, height);
         cell.img = tempCanvas;
       }
     }

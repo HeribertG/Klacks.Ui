@@ -90,14 +90,14 @@ describe('ChatFunctionExecutionService', () => {
     expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/client');
   });
 
-  it('navigates concept explain skills to their home page', async () => {
+  it('navigates the order lifecycle concept skill to the empty shift mask', async () => {
     await service.executeFunctionCalls([{ functionName: 'explain_shift_lifecycle_order_to_shift' }]);
 
-    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/shift');
+    expect(mockNavigateAndScroll).toHaveBeenCalledWith('/workplace/new-shift');
   });
 
   it('pulses the route icon for concept skills when already on their home page', async () => {
-    routerMock.url = '/workplace/shift';
+    routerMock.url = '/workplace/new-shift';
 
     await service.executeFunctionCalls([{ functionName: 'explain_shift_lifecycle_order_to_shift' }]);
 

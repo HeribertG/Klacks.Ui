@@ -525,6 +525,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
         groupId: this.dataManagementSchedule.workFilter.selectedGroup ?? null,
         analyseToken: this.analyseScenarioService.activeToken(),
         language: this.translateService.currentLang ?? null,
+        agentOrderIsUserDefined: this.dataManagementSchedule.isIndividualClientSortActive,
       });
       this.toastShowService.showInfo(
         this.translateService.instant('autoWizard.toast.started'),

@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { IMultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
+
+export interface IScheduleQualification {
+  qualificationId: string;
+  emoji: string | null;
+  name: IMultiLanguage;
+  level: number;
+  validUntil?: string | null;
+}
+
 export interface IScheduleCell {
   id: string;
   entryType: number;
@@ -89,6 +99,7 @@ export interface IWorkScheduleClient {
   neededRows: number;
   hasContract: boolean;
   memberSince?: string | null;
+  qualifications: IScheduleQualification[];
 }
 
 export interface IWorkScheduleResponse {

@@ -35,7 +35,7 @@ export const PAGE_EXPLAIN_ROUTES: Record<string, string> = {
   explain_shift_sporadic: '/workplace/shift',
   explain_shift_time_range: '/workplace/shift',
   explain_shift_container: '/workplace/shift',
-  explain_shift_lifecycle_order_to_shift: '/workplace/shift',
+  explain_shift_lifecycle_order_to_shift: '/workplace/new-shift',
 };
 
 export const PAGE_EXPLAIN_NAV_ICONS: Record<string, readonly string[]> = {
