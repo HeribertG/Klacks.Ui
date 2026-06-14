@@ -3,9 +3,9 @@
 /**
  * Card component for managing required qualifications on a shift. Lists rows in a table with
  * emoji, qualification dropdown, min-level dropdown and a mandatory toggle. Changes are held
- * in-memory on the edited shift and persisted together with the shift via the savebar.
- * Editing is allowed only when the shift status is OriginalOrder; for any other status the card
- * is read-only so a qualification edit never triggers a full shift save on a derived/sealed shift.
+ * in-memory on the edited shift and persisted together with the shift via the savebar (shift PUT).
+ * Editability follows the same gate as the group / macro cards: editable on OriginalOrder for
+ * everyone, and on any other status (Sealed / OriginalShift / Split) for Admin / Authorised users.
  * @param isReadOnly - Disables all editing when true
  * @param isChangingEvent - Emits true whenever a qualification row is added, changed or removed
  */
@@ -36,6 +36,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/shift/data-m
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
 import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { IShiftRequiredQualification, ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
+import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
@@ -63,6 +64,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataQualificationService = inject(DataQualificationService);
+  private authService = inject(AuthService);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -114,7 +116,9 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     if (this.isReadOnly || !shift) {
       return true;
     }
-    return shift.status !== ShiftStatus.OriginalOrder;
+    const isNotOriginal = shift.status !== ShiftStatus.OriginalOrder;
+    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
+    return isNotOriginal && isNotAuthorisedOrAdmin;
   }
 
   hasMasterQualifications(): boolean {
