@@ -3,6 +3,7 @@
 import { Group } from '../group/group-class';
 import { IClient } from '../client/client-class';
 import { IShiftExpense } from './shift-expense.model';
+import { IShiftRequiredQualification } from './shift-required-qualification-class';
 
 export enum ShiftStatus {
   OriginalOrder = 0,
@@ -70,6 +71,7 @@ export interface IShift {
   addressName: string | undefined;
   isNew?: boolean;
   defaultExpenses: IShiftExpense[];
+  requiredQualifications: IShiftRequiredQualification[];
 }
 
 export class Shift implements IShift {
@@ -117,4 +119,5 @@ export class Shift implements IShift {
   addressName: string | undefined = undefined;
   isNew?: boolean = false;
   defaultExpenses: IShiftExpense[] = [];
+  requiredQualifications: IShiftRequiredQualification[] = [];
 }

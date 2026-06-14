@@ -2,20 +2,24 @@
 
 /**
  * Card component for managing required qualifications on a shift. Lists rows in a table with
- * emoji, qualification dropdown, min-level dropdown and a mandatory toggle. Changes are persisted
- * immediately via the Shifts/RequiredQualifications endpoints (not via the savebar).
- * Editing is allowed only when the shift status is OriginalOrder.
+ * emoji, qualification dropdown, min-level dropdown and a mandatory toggle. Changes are held
+ * in-memory on the edited shift and persisted together with the shift via the savebar.
+ * Editing is allowed only when the shift status is OriginalOrder; for any other status the card
+ * is read-only so a qualification edit never triggers a full shift save on a derived/sealed shift.
  * @param isReadOnly - Disables all editing when true
+ * @param isChangingEvent - Emits true whenever a qualification row is added, changed or removed
  */
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   effect,
+  EventEmitter,
   inject,
   Input,
   OnDestroy,
   OnInit,
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +34,7 @@ import { QualificationCategory } from 'src/app/domain/enums/qualification-catego
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
-import { DataShiftQualificationService } from 'src/app/infrastructure/api/shift/data-shift-qualification.service';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 import { IShiftRequiredQualification, ShiftRequiredQualification } from 'src/app/domain/models/shift/shift-required-qualification-class';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -55,9 +59,9 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 })
 export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   @Input() isReadOnly = false;
+  @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
-  private dataShiftQualificationService = inject(DataShiftQualificationService);
   private dataQualificationService = inject(DataQualificationService);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
@@ -66,7 +70,6 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   public readonly QualificationCategory = QualificationCategory;
   public currentLang = 'de';
   public masterQualifications: IQualification[] = [];
-  public rows: IShiftRequiredQualification[] = [];
   public filterType: QualificationType | null = null;
   public filterCountry = '';
   public filterCategory: QualificationCategory | null = null;
@@ -84,8 +87,12 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   private reloadEffect = effect(() => {
     this.dataManagementShiftService.isReset();
     this.dataManagementShiftService.isRead();
-    this.loadRows();
+    this.cdr.markForCheck();
   });
+
+  get rows(): IShiftRequiredQualification[] {
+    return this.dataManagementShiftService.editShift?.requiredQualifications ?? [];
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang ?? 'de';
@@ -103,7 +110,11 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   }
 
   isDisabled(): boolean {
-    return this.isReadOnly || !this.dataManagementShiftService.editShift;
+    const shift = this.dataManagementShiftService.editShift;
+    if (this.isReadOnly || !shift) {
+      return true;
+    }
+    return shift.status !== ShiftStatus.OriginalOrder;
   }
 
   hasMasterQualifications(): boolean {
@@ -166,10 +177,11 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   addRow(): void {
     if (this.isDisabled()) return;
     const shift = this.dataManagementShiftService.editShift;
-    if (!shift?.id) return;
+    if (!shift) return;
     const row = new ShiftRequiredQualification();
-    row.shiftId = shift.id;
-    this.rows = [...this.rows, row];
+    row.shiftId = shift.id ?? '';
+    shift.requiredQualifications = [...shift.requiredQualifications, row];
+    this.isChangingEvent.emit(true);
     this.cdr.markForCheck();
   }
 
@@ -177,76 +189,31 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     const row = this.rows[index];
     if (!row) return;
     row.qualificationId = qualificationId;
-    this.persistRow(row);
+    this.isChangingEvent.emit(true);
   }
 
   onLevelChange(index: number, level: number): void {
     const row = this.rows[index];
     if (!row) return;
     row.minLevel = level;
-    this.persistRow(row);
+    this.isChangingEvent.emit(true);
   }
 
   onMandatoryChange(index: number, value: boolean): void {
     const row = this.rows[index];
     if (!row) return;
     row.isMandatory = value;
-    this.persistRow(row);
+    this.isChangingEvent.emit(true);
   }
 
   removeRow(index: number): void {
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) return;
     const row = this.rows[index];
     if (!row) return;
-    if (row.id) {
-      this.dataShiftQualificationService
-        .deleteRequiredQualification(row.id)
-        .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe(() => {
-          this.rows.splice(index, 1);
-          this.rows = [...this.rows];
-          this.cdr.markForCheck();
-        });
-    } else {
-      this.rows.splice(index, 1);
-      this.rows = [...this.rows];
-      this.cdr.markForCheck();
-    }
-  }
-
-  private persistRow(row: IShiftRequiredQualification): void {
-    const shift = this.dataManagementShiftService.editShift;
-    if (!shift?.id || !row.qualificationId) return;
-
-    this.dataShiftQualificationService
-      .setRequiredQualification({
-        shiftId: shift.id,
-        qualificationId: row.qualificationId,
-        isMandatory: row.isMandatory,
-        minLevel: row.minLevel,
-      })
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((id) => {
-        if (!row.id) {
-          row.id = id;
-        }
-        this.cdr.markForCheck();
-      });
-  }
-
-  private loadRows(): void {
-    const shiftId = this.dataManagementShiftService.editShift?.id;
-    if (!shiftId) {
-      this.rows = [];
-      this.cdr.markForCheck();
-      return;
-    }
-    this.dataShiftQualificationService
-      .getByShiftId(shiftId)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((list) => {
-        this.rows = list ?? [];
-        this.cdr.markForCheck();
-      });
+    shift.requiredQualifications = shift.requiredQualifications.filter((r) => r !== row);
+    this.isChangingEvent.emit(true);
+    this.cdr.markForCheck();
   }
 
   private loadMasterQualifications(): void {

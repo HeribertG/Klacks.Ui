@@ -9,17 +9,16 @@ import { of } from 'rxjs';
 import { ShiftQualificationsComponent } from './shift-qualifications.component';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
-import { DataShiftQualificationService } from 'src/app/infrastructure/api/shift/data-shift-qualification.service';
 import { IQualification } from 'src/app/domain/models/settings/qualification';
 import { QualificationType } from 'src/app/domain/enums/qualification-type.enum';
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
+import { ShiftStatus } from 'src/app/domain/models/shift/shift-class';
 
 describe('ShiftQualificationsComponent', () => {
   let component: ShiftQualificationsComponent;
   let fixture: ComponentFixture<ShiftQualificationsComponent>;
   let mockDataManagementShiftService: any;
   let mockQualificationService: any;
-  let mockShiftQualificationService: any;
 
   const securityWork: IQualification = {
     id: 'q-security',
@@ -44,17 +43,11 @@ describe('ShiftQualificationsComponent', () => {
     mockDataManagementShiftService = {
       isReset: signal(false),
       isRead: signal(false),
-      editShift: { id: 'shift-1' },
+      editShift: { id: 'shift-1', status: ShiftStatus.OriginalOrder, requiredQualifications: [] },
     };
 
     mockQualificationService = {
       getQualificationList: vi.fn().mockReturnValue(of([securityWork, swissLanguage])),
-    };
-
-    mockShiftQualificationService = {
-      getByShiftId: vi.fn().mockReturnValue(of([])),
-      setRequiredQualification: vi.fn().mockReturnValue(of('id')),
-      deleteRequiredQualification: vi.fn().mockReturnValue(of(void 0)),
     };
 
     await TestBed.configureTestingModule({
@@ -62,7 +55,6 @@ describe('ShiftQualificationsComponent', () => {
       providers: [
         { provide: DataManagementShiftService, useValue: mockDataManagementShiftService },
         { provide: DataQualificationService, useValue: mockQualificationService },
-        { provide: DataShiftQualificationService, useValue: mockShiftQualificationService },
       ],
     }).compileComponents();
 
@@ -74,6 +66,38 @@ describe('ShiftQualificationsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should add a row to the shift in-memory and emit a change instead of persisting immediately', () => {
+    const emitSpy = vi.spyOn(component.isChangingEvent, 'emit');
+
+    component.addRow();
+
+    expect(mockDataManagementShiftService.editShift.requiredQualifications).toHaveLength(1);
+    expect(component.rows).toHaveLength(1);
+    expect(emitSpy).toHaveBeenCalledWith(true);
+  });
+
+  it('should be disabled and not mutate the shift when status is not OriginalOrder', () => {
+    mockDataManagementShiftService.editShift.status = ShiftStatus.SplitShift;
+    const emitSpy = vi.spyOn(component.isChangingEvent, 'emit');
+
+    expect(component.isDisabled()).toBe(true);
+
+    component.addRow();
+
+    expect(mockDataManagementShiftService.editShift.requiredQualifications).toHaveLength(0);
+    expect(emitSpy).not.toHaveBeenCalled();
+  });
+
+  it('should remove a row from the shift in-memory and emit a change', () => {
+    component.addRow();
+    const emitSpy = vi.spyOn(component.isChangingEvent, 'emit');
+
+    component.removeRow(0);
+
+    expect(mockDataManagementShiftService.editShift.requiredQualifications).toHaveLength(0);
+    expect(emitSpy).toHaveBeenCalledWith(true);
   });
 
   it('should still list languages after switching from a work category filter', () => {

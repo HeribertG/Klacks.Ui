@@ -25,6 +25,7 @@
 
   <div class="container-profilline">
     <app-shift-qualifications
+      (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     ></app-shift-qualifications>
