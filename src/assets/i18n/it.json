@@ -1291,6 +1291,7 @@
   "setting.speech.output-text-only": "Solo testo",
   "setting.speech.output-audio-only": "Solo audio",
   "setting.speech.output-both": "Testo + Audio",
+  "setting.speech.output-both-auto": "Testo + Audio (lettura automatica)",
   "setting.speech.prompt-headline": "Prompt di trascrizione",
   "setting.speech.prompt-hint": "{0} = segnaposto per il contesto del dizionario",
   "setting.speech.prompt-reset": "Reimposta",

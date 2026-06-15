@@ -1291,6 +1291,7 @@
   "setting.speech.output-text-only": "Text Only",
   "setting.speech.output-audio-only": "Audio Only",
   "setting.speech.output-both": "Text + Audio",
+  "setting.speech.output-both-auto": "Text + Audio (auto-read)",
   "setting.speech.prompt-headline": "Transcription Prompt",
   "setting.speech.prompt-hint": "{0} = placeholder for dictionary context",
   "setting.speech.prompt-reset": "Reset",

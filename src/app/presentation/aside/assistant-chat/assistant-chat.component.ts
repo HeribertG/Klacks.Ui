@@ -53,6 +53,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
+import { OutputMode } from 'src/app/domain/constants/speech-constants';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { StreamMetadata } from 'src/app/infrastructure/api/assistant/data-assistant-stream.service';
@@ -101,6 +103,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private asideService = inject(AsideService);
   speechService = inject(SpeechRecognitionService);
   ttsService = inject(TextToSpeechService);
+  private appSettings = inject(AppSettingsManagementService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
   private klacksyNavigation = inject(KlacksyNavigationService);
@@ -495,6 +498,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
+            if (
+              doneMessage &&
+              !this.voiceModeEnabled &&
+              this.appSettings.speechSettings().outputMode === OutputMode.BothAuto
+            ) {
+              this.speakMessage(doneMessage);
+            }
             setTimeout(() => this.chatInput?.nativeElement?.focus(), 0);
           });
         },

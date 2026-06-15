@@ -1291,6 +1291,7 @@
   "setting.speech.output-text-only": "Nur Text",
   "setting.speech.output-audio-only": "Nur Audio",
   "setting.speech.output-both": "Text + Audio",
+  "setting.speech.output-both-auto": "Text + Audio (automatische Sprachausgabe)",
   "setting.speech.prompt-headline": "Transkriptions-Prompt",
   "setting.speech.prompt-hint": "{0} = Platzhalter für Wörterbuch-Kontext",
   "setting.speech.prompt-reset": "Zurücksetzen",

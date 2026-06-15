@@ -137,8 +137,9 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   readonly outputModes = [
     { value: OutputMode.Text, labelKey: 'setting.speech.output-text-only' },
-    { value: OutputMode.Audio, labelKey: 'setting.speech.output-audio-only' },
     { value: OutputMode.Both, labelKey: 'setting.speech.output-both' },
+    { value: OutputMode.BothAuto, labelKey: 'setting.speech.output-both-auto' },
+    { value: OutputMode.Audio, labelKey: 'setting.speech.output-audio-only' },
   ];
 
   readonly transcriptionModels = signal<{ value: string; label: string }[]>([]);

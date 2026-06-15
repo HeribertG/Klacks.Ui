@@ -21,6 +21,7 @@ export class OutputMode {
   static readonly Text = 'text';
   static readonly Audio = 'audio';
   static readonly Both = 'both';
+  static readonly BothAuto = 'both-auto';
 }
 
 export class VoiceId {
