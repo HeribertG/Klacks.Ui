@@ -63,6 +63,10 @@ export class AssistantSignalRService implements OnDestroy {
       await this.hubConnection.start();
     } catch (error) {
       console.error('Assistant SignalR connection failed:', error);
+      // A failed initial start() does not fire onclose, so automatic reconnect never kicks in
+      // (e.g. the token was not ready yet at app init). Schedule an explicit retry so the proactive
+      // channel recovers instead of staying dead for the whole session.
+      this.scheduleReconnect();
     }
   }
 
