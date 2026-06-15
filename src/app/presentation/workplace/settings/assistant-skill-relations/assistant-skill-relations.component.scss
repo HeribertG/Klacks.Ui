@@ -1,0 +1,176 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+:host {
+  display: block;
+  padding-bottom: 35px;
+}
+
+.intro-hint {
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--colorLabel);
+  margin-bottom: 8px;
+}
+
+.actions-bar {
+  display: flex;
+  gap: 8px;
+  margin-inline-start: 30px;
+  margin-bottom: 4px;
+}
+
+.loading-hint,
+.empty-hint {
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  font-size: 13px;
+  color: var(--colorLabel);
+  text-align: center;
+}
+
+.relations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-inline-start: 30px;
+  padding-inline-end: 30px;
+}
+
+.relation-card {
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--backgroundColorCard);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.relation-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.relation-pair {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--colorHeadline);
+}
+
+.pair-connector {
+  font-size: 12px;
+  color: var(--colorLabel);
+}
+
+.relation-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--cardBorderColor);
+  color: var(--colorLabel);
+}
+
+.badge-source-learned {
+  background: rgba(13, 110, 253, 0.1);
+  border-color: rgba(13, 110, 253, 0.4);
+  color: rgb(13, 110, 253);
+}
+
+.badge-status-active {
+  background: rgba(40, 167, 69, 0.12);
+  border-color: rgba(40, 167, 69, 0.5);
+  color: rgb(34, 139, 58);
+}
+
+.badge-status-retired {
+  background: rgba(108, 117, 125, 0.12);
+  border-color: rgba(108, 117, 125, 0.5);
+  color: rgb(108, 117, 125);
+}
+
+.confidence-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confidence-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--colorLabel);
+}
+
+.confidence-value {
+  font-weight: 600;
+  color: var(--standartTextColor);
+}
+
+.confidence-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(108, 117, 125, 0.15);
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(40, 167, 69, 0.7);
+  transition: width 0.2s ease;
+}
+
+.relation-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--standartTextColor);
+}
+
+.stat strong {
+  color: var(--colorHeadline);
+}
+
+.stat-contradiction strong {
+  color: rgb(180, 45, 58);
+}
+
+.provenance {
+  font-size: 12px;
+  color: var(--standartTextColor);
+  line-height: 1.4;
+}
+
+.relation-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
