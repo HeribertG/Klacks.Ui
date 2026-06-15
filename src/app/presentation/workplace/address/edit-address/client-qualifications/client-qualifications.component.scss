@@ -9,6 +9,30 @@
   user-select: none;
 }
 
+.qualification-select {
+  position: relative;
+  width: 100%;
+
+  select {
+    color: transparent !important;
+  }
+
+  .qualification-select-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 30px;
+    pointer-events: none;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--standartTextColor);
+  }
+}
+
 .no-expiry {
   color: var(--colorLabel);
   padding-inline-start: 4px;

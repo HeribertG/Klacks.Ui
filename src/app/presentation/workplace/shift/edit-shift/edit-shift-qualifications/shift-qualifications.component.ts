@@ -137,6 +137,11 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
     return this.getQualification(row.qualificationId)?.emoji ?? '';
   }
 
+  getQualificationName(row: IShiftRequiredQualification): string {
+    const qualification = this.getQualification(row.qualificationId);
+    return qualification ? getLocalizedValue(qualification.name, this.currentLang) : '';
+  }
+
   localizedName(qualification: IQualification): string {
     return getLocalizedValue(qualification.name, this.currentLang);
   }

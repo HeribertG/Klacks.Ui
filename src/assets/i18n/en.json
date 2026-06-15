@@ -1703,6 +1703,7 @@
   "setting.qualifications.modal.category-construction": "Construction",
   "setting.qualifications.modal.category-cleaning": "Cleaning",
   "setting.qualifications.modal.category-transport": "Transport",
+  "setting.qualifications.modal.category-others": "Others",
   "qualification.filter.all-categories": "All categories",
   "setting.qualifications.error.load": "Error loading qualifications",
   "setting.qualifications.error.save": "Error saving qualification",

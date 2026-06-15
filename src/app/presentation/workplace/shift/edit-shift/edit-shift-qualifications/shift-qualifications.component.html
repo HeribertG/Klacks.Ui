@@ -29,6 +29,7 @@
       <option [ngValue]="QualificationCategory.Construction">{{ "setting.qualifications.modal.category-construction" | translate }}</option>
       <option [ngValue]="QualificationCategory.Cleaning">{{ "setting.qualifications.modal.category-cleaning" | translate }}</option>
       <option [ngValue]="QualificationCategory.Transport">{{ "setting.qualifications.modal.category-transport" | translate }}</option>
+      <option [ngValue]="QualificationCategory.Others">🧩 {{ "setting.qualifications.modal.category-others" | translate }}</option>
     </select>
     }
     @if (availableCountries.length > 0) {
@@ -88,23 +89,29 @@
               <span class="qualification-emoji">{{ getEmoji(row) }}</span>
             </td>
             <td class="table-cell cell-center-vertical">
-              <select
-                class="form-select"
-                id="sqQualificationId-{{ $index }}"
-                name="sqQualificationId-{{ $index }}"
-                [disabled]="isDisabled()"
-                [ngModel]="row.qualificationId"
-                (ngModelChange)="onQualificationChange($index, $event)"
-              >
-                <option [ngValue]="undefined">
-                  {{ "shift.edit-shift.qualifications.select-qualification" | translate }}
-                </option>
-                @for (option of availableQualifications(row); track option.id) {
-                <option [ngValue]="option.id">
-                  {{ option.emoji }} {{ localizedName(option) }}
-                </option>
-                }
-              </select>
+              <div class="qualification-select">
+                <select
+                  class="form-select"
+                  id="sqQualificationId-{{ $index }}"
+                  name="sqQualificationId-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  [ngModel]="row.qualificationId"
+                  (ngModelChange)="onQualificationChange($index, $event)"
+                >
+                  <option [ngValue]="undefined">
+                    {{ "shift.edit-shift.qualifications.select-qualification" | translate }}
+                  </option>
+                  @for (option of availableQualifications(row); track option.id) {
+                  <option [ngValue]="option.id">
+                    {{ option.emoji }} {{ localizedName(option) }}
+                  </option>
+                  }
+                </select>
+                <span class="qualification-select-value" aria-hidden="true">{{
+                  getQualificationName(row) ||
+                    ("shift.edit-shift.qualifications.select-qualification" | translate)
+                }}</span>
+              </div>
             </td>
             <td class="table-cell cell-center-vertical">
               <select

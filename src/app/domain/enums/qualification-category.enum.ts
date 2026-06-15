@@ -10,4 +10,5 @@ export enum QualificationCategory {
   Construction = 6,
   Cleaning = 7,
   Transport = 8,
+  Others = 9,
 }
