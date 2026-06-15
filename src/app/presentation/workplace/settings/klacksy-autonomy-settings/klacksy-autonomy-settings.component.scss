@@ -1,4 +1,5 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 :host {
   display: block;
@@ -6,24 +7,28 @@
 }
 
 .saving-indicator {
+  margin-inline-start: 12px;
   font-size: 12px;
   font-weight: normal;
-  margin-inline-start: 12px;
   color: var(--standartTextColor);
 }
 
 .loading-hint,
 .autonomy-intro,
 .autonomy-note {
+  margin-block: 8px;
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
   font-size: 13px;
   color: var(--standartTextColor);
-  margin: 8px 0;
 }
 
 .level-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-inline-start: 30px;
+  padding-inline-end: 30px;
 }
 
 .level-option {
@@ -44,8 +49,9 @@
   }
 
   &.active {
-    border-color: var(--standartTextColor);
-    border-width: 2px;
+    background-color: var(--standartGreenColor);
+    border-color: var(--standartGreenColor);
+    color: var(--standartTextColor);
     font-weight: 600;
   }
 
@@ -62,6 +68,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(colors.$standartGreenColor, 0.5);
   border: 1px solid var(--gridColorLine);
   border-radius: 50%;
   font-size: 13px;
