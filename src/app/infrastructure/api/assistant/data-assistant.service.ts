@@ -224,7 +224,10 @@ export class DataAssistantService {
   }
 
   warmup(): void {
-    this.httpClient.get(`${this.baseUrl}chat/warmup`).subscribe();
+    // Cache warm-up is best-effort; a failure (e.g. a rate limit) must never surface a user-facing error.
+    this.httpClient.get(`${this.baseUrl}chat/warmup`).subscribe({
+      error: () => undefined,
+    });
   }
 
   getWelcome(request: IWelcomeRequest): Observable<IWelcomeResponse> {
