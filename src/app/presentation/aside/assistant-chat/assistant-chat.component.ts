@@ -498,13 +498,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
-            if (
-              doneMessage &&
-              !this.voiceModeEnabled &&
-              this.appSettings.speechSettings().outputMode === OutputMode.BothAuto
-            ) {
-              this.speakMessage(doneMessage);
-            }
+            this.maybeAutoSpeak(doneMessage);
             setTimeout(() => this.chatInput?.nativeElement?.focus(), 0);
           });
         },
@@ -553,6 +547,16 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     const locale = this.languageMappingService.getSpeechLocale(currentLang);
     const cleaned = this.stripForTts(this.stripMetadataMarkers(message.content));
     this.ttsService.speak(cleaned, message.id, locale);
+  }
+
+  private maybeAutoSpeak(message: ChatMessage | undefined): void {
+    if (
+      message &&
+      !this.voiceModeEnabled &&
+      this.appSettings.speechSettings().outputMode === OutputMode.BothAuto
+    ) {
+      this.speakMessage(message);
+    }
   }
 
   onSuggestionClick(suggestion: string): void {
@@ -754,6 +758,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       formattedContent: this.formatMessage(content),
       suggestions,
     });
+
+    this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
 
     if (suggestions.length > 0) {
       this.showActionsAsToast(suggestions);
