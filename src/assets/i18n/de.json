@@ -1,4 +1,6 @@
 {
+  "data-refresh.changed-prompt": "Klacksy hat diese Daten geändert. Neu laden?",
+  "data-refresh.reload": "Neu laden",
   "draft-recovery.title": "Ungespeicherte Arbeit wiederherstellen?",
   "draft-recovery.message": "Sie wurden während der Bearbeitung abgemeldet. Es wurden ungespeicherte Änderungen aus Ihrer vorherigen Sitzung gefunden. Möchten Sie diese wiederherstellen?",
   "draft-recovery.restore": "Wiederherstellen",

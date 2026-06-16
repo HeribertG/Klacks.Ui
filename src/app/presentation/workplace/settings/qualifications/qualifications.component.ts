@@ -37,6 +37,9 @@ import { QualificationType } from 'src/app/domain/enums/qualification-type.enum'
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { QualificationsHeaderComponent } from './qualifications-header/qualifications-header.component';
 import { QualificationsRowComponent } from './qualifications-row/qualifications-row.component';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface QualFormModel {
   name: string;
@@ -60,7 +63,8 @@ interface QualFormModel {
   styleUrls: ['./qualifications.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.QUALIFICATION;
   @ViewChild('qualModal', { read: TemplateRef }) qualModal!: TemplateRef<unknown>;
 
   private dataQualService = inject(DataQualificationService);
@@ -69,6 +73,8 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
   private destroy$ = new Subject<void>();
   currentLang: Language = DomainMessages.DEFAULT_LANG;
 
@@ -138,11 +144,18 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
           this.cdr.markForCheck();
         }
       });
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    this.loadQualifications();
   }
 
   private loadQualifications(): void {

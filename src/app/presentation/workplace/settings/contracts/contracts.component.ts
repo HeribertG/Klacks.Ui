@@ -39,6 +39,9 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface ContractFormModel {
   name: string;
@@ -69,7 +72,8 @@ interface ContractFormModel {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.CONTRACT;
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
   @ViewChild('containerBox') containerBox?: ElementRef;
@@ -79,6 +83,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
 
   public editingContract: IContract | null = null;
   public originalContract: IContract | null = null;
@@ -236,11 +242,21 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    this.dataManagementContractService.readContracts().then(() => {
+      this.syncContractsView();
+      this.cdr.markForCheck();
+    });
   }
 
   onClickAdd(): void {

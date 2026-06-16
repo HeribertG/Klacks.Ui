@@ -1,4 +1,6 @@
 {
+  "data-refresh.changed-prompt": "Klacksy changed this data. Reload?",
+  "data-refresh.reload": "Reload",
   "draft-recovery.title": "Restore unsaved work?",
   "draft-recovery.message": "You were signed out while editing. Unsaved changes from your previous session were found. Would you like to restore them?",
   "draft-recovery.restore": "Restore",

@@ -10,11 +10,13 @@ import {
 } from 'src/app/domain/models/client/client-class';
 import {
   ILoadable,
+  IRefreshable,
   IResettable,
   ISaveable,
 } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';
 import { ClientConfigService } from './client-config.service';
@@ -36,8 +38,10 @@ import { takeUntil } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataManagementClientService
-  implements ISaveable, IResettable, ILoadable
+  implements ISaveable, IResettable, ILoadable, IRefreshable
 {
+  public readonly refreshableEntities = RefreshEntityTokens.CLIENT;
+
   public clientListService = inject(ClientListService);
   public clientEditService = inject(ClientEditService);
   public clientConfigService = inject(ClientConfigService);
@@ -161,6 +165,14 @@ export class DataManagementClientService
       this.clientConfigService.init();
     }
   };
+
+  public reload(): void {
+    this.readPage();
+    const openClient = this.editClient();
+    if (openClient?.id) {
+      this.readClient(openClient.id);
+    }
+  }
   public deleteClient = (key: string) =>
     this.clientListService.deleteClient(key);
   public exportExcel = (type = 0) =>

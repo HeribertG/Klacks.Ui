@@ -20,9 +20,10 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/settings/data-country-state.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
-import { ILoadable, IResettable, ISaveable, INavigable, IDraftable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable, IRefreshable, IResettable, ISaveable, INavigable, IDraftable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
@@ -30,7 +31,13 @@ import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-st
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable, IDraftable {
+export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable, IDraftable, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.SHIFT;
+
+  public reload(): void {
+    this.readPage();
+  }
+
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);

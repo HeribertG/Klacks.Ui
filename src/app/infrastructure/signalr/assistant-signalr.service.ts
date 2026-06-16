@@ -14,6 +14,7 @@ import { StorageKeys } from '../constants/storage-keys';
 import { AssistantSignalRConstants } from './signalr.constants';
 import { IProactiveMessage } from 'src/app/domain/interfaces/proactive-message.interface';
 import { IAgentPlanUpdate } from 'src/app/domain/models/assistant/agent-plan.interface';
+import { IEntityChanged } from 'src/app/domain/interfaces/entity-changed.interface';
 import { IncomingMessage } from 'klacks-plugin-messaging';
 
 @Injectable({
@@ -29,6 +30,7 @@ export class AssistantSignalRService implements OnDestroy {
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
   public incomingMessage$ = new Subject<IncomingMessage>();
   public planUpdated$ = new Subject<IAgentPlanUpdate>();
+  public entityChanged$ = new Subject<IEntityChanged>();
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', AssistantSignalRConstants.HubPath);
@@ -44,10 +46,8 @@ export class AssistantSignalRService implements OnDestroy {
       return;
     }
 
-    const urlWithToken = `${this.hubUrl}?${AssistantSignalRConstants.QueryParams.AccessToken}=${encodeURIComponent(token)}`;
-
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(urlWithToken, {
+      .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.localStorageService.get(StorageKeys.TOKEN) ?? '',
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
@@ -113,6 +113,13 @@ export class AssistantSignalRService implements OnDestroy {
         this.planUpdated$.next(update);
       }
     );
+
+    this.hubConnection.on(
+      AssistantSignalRConstants.Events.EntityChanged,
+      (change: IEntityChanged) => {
+        this.entityChanged$.next(change);
+      }
+    );
   }
 
   private registerConnectionEvents(): void {
@@ -149,5 +156,6 @@ export class AssistantSignalRService implements OnDestroy {
     this.onboardingPrompt$.complete();
     this.incomingMessage$.complete();
     this.planUpdated$.complete();
+    this.entityChanged$.complete();
   }
 }

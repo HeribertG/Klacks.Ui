@@ -139,6 +139,7 @@ export const AssistantSignalRConstants = {
     OnboardingPrompt: 'OnboardingPrompt',
     PluginEvent: 'PluginEvent',
     PlanUpdated: 'PlanUpdated',
+    EntityChanged: 'EntityChanged',
   },
 
   HubMethods: {

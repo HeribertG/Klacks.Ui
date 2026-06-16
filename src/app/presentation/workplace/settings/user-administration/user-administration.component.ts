@@ -35,6 +35,9 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface UserFormModel {
   firstName: string;
@@ -59,7 +62,8 @@ interface UserFormModel {
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy {
+export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.SYSTEM_USER;
   @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
 
   private ngbModal = inject(NgbModal);
@@ -68,6 +72,8 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   public userAdminService = inject(UserAdministrationManagementService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
@@ -243,10 +249,17 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
           this.cdr.markForCheck();
         }
       });
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  reload(): void {
+    this.userAdminService.loadAccounts();
   }
 }

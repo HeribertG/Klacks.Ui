@@ -30,6 +30,9 @@ import {
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface BranchFormModel {
   name: string;
@@ -55,7 +58,8 @@ interface BranchFormModel {
   styleUrls: ['./branches.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.BRANCH;
   @ViewChild('branchModal', { read: TemplateRef })
   branchModal!: TemplateRef<any>;
 
@@ -65,6 +69,8 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
   private destroy$ = new Subject<void>();
 
   branches: IBranch[] = [];
@@ -108,11 +114,18 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    this.loadBranches();
   }
 
   private loadBranches(): void {

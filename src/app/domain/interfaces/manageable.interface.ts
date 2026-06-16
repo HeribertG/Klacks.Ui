@@ -18,6 +18,11 @@ export interface ILoadable {
   readonly showProgressSpinner: boolean;
 }
 
+export interface IRefreshable {
+  readonly refreshableEntities: readonly string[];
+  reload(): void;
+}
+
 export interface INavigable {
   goBack(): string;
 }

@@ -1,4 +1,6 @@
 {
+  "data-refresh.changed-prompt": "Klacksy a modifié ces données. Recharger ?",
+  "data-refresh.reload": "Recharger",
   "draft-recovery.title": "Restaurer le travail non enregistré ?",
   "draft-recovery.message": "Vous avez été déconnecté pendant la modification. Des modifications non enregistrées de votre session précédente ont été trouvées. Voulez-vous les restaurer ?",
   "draft-recovery.restore": "Restaurer",

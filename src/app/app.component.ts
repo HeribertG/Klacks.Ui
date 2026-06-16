@@ -18,6 +18,8 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
+import { DataRefreshCoordinator } from 'src/app/application/services/data-refresh-coordinator.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
 
 @Component({
   selector: 'app-root',
@@ -42,6 +44,8 @@ export class AppComponent implements OnInit {
   private readonly appSettings = inject(AppSettingsManagementService);
   private readonly signalRService = inject(SignalRService);
   private readonly authService = inject(AuthService);
+  private readonly dataRefreshCoordinator = inject(DataRefreshCoordinator);
+  private readonly assistantSignalR = inject(AssistantSignalRService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   public title = 'klacks';
@@ -63,8 +67,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.applicationInitService.initializeBasics();
+    this.dataRefreshCoordinator.start();
     if (this.authService.authenticated()) {
       void this.signalRService.startConnection();
+      void this.assistantSignalR.startConnection();
     }
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),

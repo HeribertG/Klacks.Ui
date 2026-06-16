@@ -34,16 +34,23 @@ import { ICalendarSelection } from '../../models/calendar/calendar-selection-cla
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
+import { ILoadable, IRefreshable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { CheckboxStateService } from 'src/app/domain/services/shared/checkbox-state.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementGroupService implements ISaveable, IResettable, ILoadable, INavigable {
+export class DataManagementGroupService implements ISaveable, IResettable, ILoadable, INavigable, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.GROUP;
+
+  public reload(): void {
+    this.readPage();
+  }
+
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
   private eventBus = inject(EVENT_BUS_TOKEN);
