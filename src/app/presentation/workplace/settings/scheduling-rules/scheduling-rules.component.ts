@@ -33,6 +33,9 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 @Component({
   selector: 'app-scheduling-rules',
@@ -52,8 +55,9 @@ import { ManualLoaderService } from 'src/app/application/services/manual-loader.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulingRulesComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy, IRefreshable
 {
+  public readonly refreshableEntities = RefreshEntityTokens.SCHEDULING_RULE;
   @ViewChild('ruleModal', { read: TemplateRef })
   ruleModal!: TemplateRef<unknown>;
   @ViewChild('containerBox') containerBox?: ElementRef;
@@ -64,6 +68,8 @@ export class SchedulingRulesComponent
   private modalService = inject(ModalService);
   private manualLoader = inject(ManualLoaderService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
 
   public editingRule: ISchedulingRule | null = null;
   public originalRule: ISchedulingRule | null = null;
@@ -82,6 +88,7 @@ export class SchedulingRulesComponent
   });
 
   async ngOnInit(): Promise<void> {
+    this.unregisterRefresh = this.refreshRegistry.register(this);
     try {
       await this.dataManagementService.init();
       this.cdr.markForCheck();
@@ -107,8 +114,13 @@ export class SchedulingRulesComponent
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    void this.dataManagementService.readRules();
   }
 
   onClickAdd(): void {

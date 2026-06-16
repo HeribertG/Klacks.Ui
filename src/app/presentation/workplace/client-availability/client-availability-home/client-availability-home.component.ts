@@ -49,6 +49,9 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { FullViewportDirective } from 'src/app/presentation/directives/full-viewport.directive';
 import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/client-sort-preference.service';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 @Component({
   selector: 'app-client-availability-home',
@@ -86,7 +89,8 @@ import { ClientSortPreferenceService } from 'src/app/domain/services/schedule/cl
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.CLIENT_AVAILABILITY;
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private gridColors = inject(GridColorService);
@@ -107,6 +111,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private selectionService = inject(AvailabilitySelectionService);
   private readonly clientSortPreference = inject(ClientSortPreferenceService);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
 
   header = viewChild.required<ClientAvailabilityHeaderComponent>('header');
   container = viewChild.required<ClientAvailabilityContainerComponent>('container');
@@ -154,6 +160,8 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
       await this.applyCalendarSelection();
       await this.loadAvailabilityData();
     });
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -176,8 +184,13 @@ export class ClientAvailabilityHomeComponent implements OnInit, AfterViewInit, O
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.searchStrategy.removeStrategy(EntityName.CLIENT_AVAILABILITY);
     this.groupSelection.unregisterClientAvailabilityCallback();
+  }
+
+  reload(): void {
+    void this.loadAvailabilityData();
   }
 
   async onPeriodChanged(data: PeriodResetData): Promise<void> {

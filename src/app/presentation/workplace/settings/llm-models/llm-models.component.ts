@@ -30,6 +30,9 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface LLMModelFormModel {
   modelId: string;
@@ -63,7 +66,8 @@ interface LLMModelFormModel {
   styleUrls: ['./llm-models.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.LLM_MODEL;
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
 
   private llmService = inject(DataManagementAssistantService);
@@ -73,6 +77,8 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
   private destroy$ = new Subject<void>();
 
   models = signal<IAssistantModel[]>([]);
@@ -127,6 +133,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadModels();
     this.loadProviders();
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngAfterViewInit(): void {
@@ -146,8 +153,13 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    this.llmService.reloadModels();
   }
 
   private loadModels(): void {

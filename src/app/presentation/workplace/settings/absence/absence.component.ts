@@ -41,6 +41,9 @@ import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 interface AbsenceFormModel {
   name: string;
@@ -81,7 +84,8 @@ interface AbsenceFormModel {
   providers: [TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.ABSENCE_TYPE;
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
   public macroManagementService = inject(MacroManagementService);
   public sortingService = inject(TableSortingService);
@@ -90,6 +94,8 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngbModal = inject(NgbModal);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
 
   public currentAbsence = new Absence();
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
@@ -162,6 +168,8 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.macroManagementService.loadMacros();
     this.readPage();
+
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   ngAfterViewInit(): void {
@@ -188,8 +196,13 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  reload(): void {
+    this.readPage();
   }
 
   createNewAbsence(content: any): void {

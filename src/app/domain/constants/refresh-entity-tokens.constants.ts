@@ -24,4 +24,8 @@ export const RefreshEntityTokens = {
   BRANCH: ['branch'],
   SYSTEM_USER: ['user', 'systemuser', 'userpermissions'],
   CONTRACT: ['contract'],
+  ABSENCE_TYPE: ['absence'],
+  LLM_MODEL: ['llmmodel'],
+  LLM_PROVIDER: ['llmprovider'],
+  SCHEDULING_RULE: ['schedulingrule'],
 } as const;

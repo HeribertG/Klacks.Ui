@@ -32,6 +32,9 @@ import { DataManagementAssistantService } from 'src/app/domain/services/assistan
 import { IAssistantProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/assistant/data-assistant-provider.service';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
+import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
+import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
+import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
 const DEFAULT_PROVIDER_PRIORITY = 10;
 
@@ -64,7 +67,8 @@ interface LLMProviderFormModel {
   styleUrls: ['./llm-providers.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
+  public readonly refreshableEntities = RefreshEntityTokens.LLM_PROVIDER;
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
 
@@ -81,6 +85,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   private providerService = inject(DataManagementAssistantProviderService);
   private llmService = inject(DataManagementAssistantService);
   private cdr = inject(ChangeDetectorRef);
+  private refreshRegistry = inject(DataRefreshRegistry);
+  private unregisterRefresh?: () => void;
   private destroy$ = new Subject<void>();
 
   providers = signal<IAssistantProvider[]>([]);
@@ -125,6 +131,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadProviders();
     this.setupProviderSubscription();
+    this.unregisterRefresh = this.refreshRegistry.register(this);
   }
 
   private setupProviderSubscription(): void {
@@ -153,8 +160,13 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.unregisterRefresh?.();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  reload(): void {
+    void this.loadProviders();
   }
 
   private async loadProviders(): Promise<void> {
