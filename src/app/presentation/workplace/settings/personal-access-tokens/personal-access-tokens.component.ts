@@ -20,6 +20,7 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
+import { NgClass, NgStyle } from '@angular/common';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
@@ -42,6 +43,7 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 interface PersonalAccessTokenFormModel {
   name: string;
@@ -58,6 +60,8 @@ const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
     FormField,
     TranslateModule,
     SpinnerModule,
+    NgClass,
+    NgStyle,
     PersonalAccessTokensHeaderComponent,
     PersonalAccessTokensRowComponent,
     SettingsListCardComponent,
@@ -77,6 +81,7 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
   private modalService = inject(ModalService);
   private clipboard = inject(Clipboard);
   public translate = inject(TranslateService);
+  private manualLoader = inject(ManualLoaderService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -84,6 +89,9 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
   isLoading = false;
   createdToken: IPersonalAccessTokenCreated | null = null;
   private isSaving = false;
+
+  tabId = signal('token');
+  manualContent = signal('');
 
   private formModel = signal<PersonalAccessTokenFormModel>({
     name: '',
@@ -148,6 +156,8 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
       name: '',
       expiresInDays: String(PERSONAL_ACCESS_TOKEN_EXPIRY.DEFAULT_DAYS),
     });
+    this.tabId.set('token');
+    this.loadManual();
 
     setTimeout(() => {
       this.ngbModal
@@ -160,6 +170,13 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
           () => this.onModalClosed()
         );
     }, 0);
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    this.manualLoader.loadManual('personal-access-token-manual', lang)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(content => this.manualContent.set(content));
   }
 
   private onModalClosed(): void {

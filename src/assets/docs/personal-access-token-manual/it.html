@@ -1,0 +1,146 @@
+<h2>Manuale dei Personal Access Token</h2>
+
+<h3>Cosa sono i Personal Access Token?</h3>
+<p>
+I Personal Access Token (PAT) sono chiavi API di lunga durata che consentono a strumenti
+e servizi esterni di accedere a Klacks in modo sicuro — senza nome utente e password.
+</p>
+
+<p><strong>Casi d'uso tipici:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — consente agli assistenti IA come Claude Desktop di accedere direttamente alle competenze di Klacksy</li>
+  <li>Script di automazione e pipeline CI/CD</li>
+  <li>Strumenti di monitoraggio e integrazione esterni</li>
+</ul>
+
+<h4>Concetto di sicurezza</h4>
+<p>
+Klacks non memorizza mai il token in chiaro. Dopo la creazione, nel database viene salvato
+esclusivamente un <strong>hash SHA-256</strong> del token. Il token stesso viene visualizzato
+solo una volta, immediatamente dopo la creazione, e non può essere recuperato in seguito.
+</p>
+
+<p>
+<em>Nota: copiare o annotare il token immediatamente dopo la creazione. In caso di smarrimento
+è necessario creare un nuovo token e revocare quello precedente.</em>
+</p>
+
+<hr>
+
+<h3>Creare un token</h3>
+
+<h4>Passo dopo passo</h4>
+<ul>
+  <li>Accedere a <strong>Configurazione → Personal Access Token</strong></li>
+  <li>Fare clic su <strong>Crea nuovo token</strong></li>
+  <li>Inserire un <strong>nome</strong> descrittivo (ad es. <code>Claude Desktop</code> o <code>Pipeline CI</code>)</li>
+  <li>Selezionare la <strong>durata di validità</strong> desiderata (1–730 giorni, predefinito: 365 giorni)</li>
+  <li>Fare clic su <strong>Crea</strong></li>
+  <li>Copiare immediatamente il token visualizzato — viene mostrato una sola volta</li>
+</ul>
+
+<h4>Formato del token</h4>
+<pre>
+klacks_pat_&lt;stringa casuale&gt;
+</pre>
+
+<p>Ogni token inizia con il prefisso <code>klacks_pat_</code> seguito da una stringa casuale
+crittograficamente sicura.</p>
+
+<h4>Durate di validità</h4>
+<table>
+  <tr><th>Durata</th><th>Utilizzo consigliato</th></tr>
+  <tr><td>1–30 giorni</td><td>Test a breve termine e sviluppo</td></tr>
+  <tr><td>90–180 giorni</td><td>Pipeline CI/CD con rotazione regolare</td></tr>
+  <tr><td>365 giorni (predefinito)</td><td>Integrazioni permanenti (ad es. Claude Desktop)</td></tr>
+  <tr><td>730 giorni</td><td>Integrazioni di sistema a lungo termine</td></tr>
+</table>
+
+<hr>
+
+<h3>Utilizzare un token</h3>
+
+<h4>Bearer token nell'intestazione HTTP</h4>
+<p>Il token viene trasmesso come Bearer token nell'intestazione <code>Authorization</code> di ogni richiesta API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Configurare MCP con Claude Desktop</h4>
+<p>
+L'endpoint MCP (<code>/mcp</code>) consente agli assistenti IA come Claude Desktop di accedere
+direttamente a tutte le competenze Klacksy — consultare i dati dei dipendenti, pianificare
+i turni, gestire i gruppi e molto altro.
+</p>
+
+<p><strong>Configurazione nell'applicazione Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;dominio-klacks&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Sostituire <code>&lt;dominio-klacks&gt;</code> con l'indirizzo della propria installazione Klacks
+e <code>klacks_pat_...</code> con il token creato.</p>
+
+<h4>Richiesta API diretta (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;dominio-klacks&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Gestione e sicurezza</h3>
+
+<h4>Panoramica dei token</h4>
+<p>
+Sotto <strong>Configurazione → Personal Access Token</strong> sono visibili tutti i token con
+nome, data di creazione, data di scadenza e ultimo utilizzo.
+Il token in chiaro non viene mai visualizzato in questa schermata.
+</p>
+
+<h4>Revocare un token</h4>
+<p>
+Un token può essere revocato in qualsiasi momento. Dopo la revoca, tutte le richieste
+che utilizzano quel token vengono immediatamente rifiutate. Revocare un token
+immediatamente quando:
+</p>
+<ul>
+  <li>Il token è stato condiviso o esposto accidentalmente</li>
+  <li>Un dispositivo o servizio non è più in uso</li>
+  <li>Si notano attività sospette</li>
+</ul>
+
+<h4>Scadenza</h4>
+<p>
+I token scaduti vengono rifiutati automaticamente. Klacks evidenzia nella panoramica
+i token che scadono entro i prossimi 30 giorni in modo da poter creare token sostitutivi
+in tempo.
+</p>
+
+<h4>Suggerimenti per la sicurezza</h4>
+<ul>
+  <li>Utilizzare un token separato per ogni servizio o strumento</li>
+  <li>Scegliere nomi descrittivi per identificare chiaramente i token</li>
+  <li>Non memorizzare mai i token in chiaro nei sistemi di controllo versione</li>
+  <li>Ruotare i token regolarmente, specialmente nell'ambito CI/CD</li>
+  <li>Revocare immediatamente i token in caso di sospetto utilizzo improprio</li>
+</ul>
+
+<p>
+<em>Ogni token è associato al proprio account utente e dispone delle stesse autorizzazioni
+dell'account. Trattare i token con la stessa cura della propria password.</em>
+</p>

@@ -28,84 +28,116 @@
       </div>
     </div>
     <div id="personal-access-tokens-modal-body" class="modal-body">
-      @if (createdToken) {
-      <!-- One-time token display -->
-      <div id="personal-access-tokens-modal-warning-row" class="row-line-modal-inline">
-        <div id="personal-access-tokens-modal-warning" class="alert alert-warning one-time-warning">
-          {{ 'setting.personal-access-tokens.modal.one-time-warning' | translate }}
-        </div>
-      </div>
-
-      <div id="personal-access-tokens-modal-token-row" class="row-line-modal-inline">
-        <div class="model-field">
-          <label for="personal-access-tokens-modal-token">{{
-            'setting.personal-access-tokens.modal.token' | translate
-          }}</label>
-          <div class="token-display-group">
-            <input
-              id="personal-access-tokens-modal-token"
-              type="text"
-              class="form-control token-value"
-              [value]="createdToken.token"
-              readonly
-            />
-            <button
-              id="personal-access-tokens-modal-copy-btn"
-              type="button"
-              class="btn copy-btn"
-              (click)="onCopyToken()"
+      <div id="personal-access-tokens-modal-tabs-container">
+        <ul id="personal-access-tokens-modal-tabs" class="nav nav-tabs">
+          <li id="personal-access-tokens-modal-tab-token-item" class="nav-item">
+            <a
+              id="personal-access-tokens-modal-tab-token-link"
+              class="nav-link"
+              [ngClass]="{ active: tabId() === 'token' }"
+              (click)="tabId.set('token')"
+              >{{ 'setting.personal-access-tokens.modal.tab-token' | translate }}</a
             >
-              <app-icon-copy-grey />
-              {{ 'setting.personal-access-tokens.modal.copy' | translate }}
-            </button>
+          </li>
+          <li id="personal-access-tokens-modal-tab-manual-item" class="nav-item">
+            <a
+              id="personal-access-tokens-modal-tab-manual-link"
+              class="nav-link"
+              [ngClass]="{ active: tabId() === 'handbuch' }"
+              (click)="tabId.set('handbuch')"
+              >{{ 'setting.personal-access-tokens.modal.tab-manual' | translate }}</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div
+        id="personal-access-tokens-modal-token-content"
+        class="collapse"
+        [ngStyle]="{ display: tabId() === 'token' ? 'block' : 'none' }"
+      >
+        @if (createdToken) {
+        <div id="personal-access-tokens-modal-warning-row" class="row-line-modal-inline">
+          <div id="personal-access-tokens-modal-warning" class="alert alert-warning one-time-warning">
+            {{ 'setting.personal-access-tokens.modal.one-time-warning' | translate }}
           </div>
         </div>
-      </div>
-      } @else {
-      <!-- Name and Expiry -->
-      <div id="personal-access-tokens-modal-input-row" class="row-line-modal-inline">
-        <div class="model-field">
-          <label for="personal-access-tokens-modal-name">{{
-            'setting.personal-access-tokens.modal.name' | translate
-          }}</label>
-          <input
-            id="personal-access-tokens-modal-name"
-            type="text"
-            [formField]="tokenForm.name"
-            class="form-control"
-          />
-        </div>
-        <div class="model-field">
-          <label for="personal-access-tokens-modal-expires">{{
-            'setting.personal-access-tokens.modal.expires-in-days' | translate
-          }}</label>
-          <input
-            id="personal-access-tokens-modal-expires"
-            type="number"
-            [formField]="tokenForm.expiresInDays"
-            class="form-control"
-          />
-          <small id="personal-access-tokens-modal-expires-hint" class="expiry-hint">
-            {{ 'setting.personal-access-tokens.modal.expires-in-days-hint' | translate }}
-          </small>
-        </div>
-      </div>
 
-      <!-- Validation Errors -->
-      @if (getValidationErrors().length > 0) {
-      <div id="personal-access-tokens-modal-validation-row" class="row-line-modal-inline">
-        <div class="validation-errors-section">
-          <div class="alert alert-danger">
-            <strong>{{ 'validation.errors' | translate }}:</strong>
-            <ul>
-              @for (error of getValidationErrors(); track error) {
-              <li>{{ error }}</li>
-              }
-            </ul>
+        <div id="personal-access-tokens-modal-token-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <label for="personal-access-tokens-modal-token">{{
+              'setting.personal-access-tokens.modal.token' | translate
+            }}</label>
+            <div class="token-display-group">
+              <input
+                id="personal-access-tokens-modal-token"
+                type="text"
+                class="form-control token-value"
+                [value]="createdToken.token"
+                readonly
+              />
+              <button
+                id="personal-access-tokens-modal-copy-btn"
+                type="button"
+                class="btn copy-btn"
+                (click)="onCopyToken()"
+              >
+                <app-icon-copy-grey />
+                {{ 'setting.personal-access-tokens.modal.copy' | translate }}
+              </button>
+            </div>
           </div>
         </div>
+        } @else {
+        <div id="personal-access-tokens-modal-input-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <label for="personal-access-tokens-modal-name">{{
+              'setting.personal-access-tokens.modal.name' | translate
+            }}</label>
+            <input
+              id="personal-access-tokens-modal-name"
+              type="text"
+              [formField]="tokenForm.name"
+              class="form-control"
+            />
+          </div>
+          <div class="model-field">
+            <label for="personal-access-tokens-modal-expires">{{
+              'setting.personal-access-tokens.modal.expires-in-days' | translate
+            }}</label>
+            <input
+              id="personal-access-tokens-modal-expires"
+              type="number"
+              [formField]="tokenForm.expiresInDays"
+              class="form-control"
+            />
+            <small id="personal-access-tokens-modal-expires-hint" class="expiry-hint">
+              {{ 'setting.personal-access-tokens.modal.expires-in-days-hint' | translate }}
+            </small>
+          </div>
+        </div>
+
+        @if (getValidationErrors().length > 0) {
+        <div id="personal-access-tokens-modal-validation-row" class="row-line-modal-inline">
+          <div class="validation-errors-section">
+            <div class="alert alert-danger">
+              <strong>{{ 'validation.errors' | translate }}:</strong>
+              <ul>
+                @for (error of getValidationErrors(); track error) {
+                <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+        } }
       </div>
-      } }
+      <div
+        id="personal-access-tokens-modal-manual-content"
+        class="collapse"
+        [ngStyle]="{ display: tabId() === 'handbuch' ? 'inline' : 'none' }"
+      >
+        <div class="manual-content" [innerHTML]="manualContent()"></div>
+      </div>
     </div>
   </form>
 

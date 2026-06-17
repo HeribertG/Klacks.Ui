@@ -1186,6 +1186,8 @@
   "setting.personal-access-tokens.modal.expires-in-days-hint": "1 to 730 days, default 365",
   "setting.personal-access-tokens.modal.name": "Name",
   "setting.personal-access-tokens.modal.one-time-warning": "This token is only displayed once. Copy it now and store it in a safe place.",
+  "setting.personal-access-tokens.modal.tab-manual": "Manual",
+  "setting.personal-access-tokens.modal.tab-token": "Token",
   "setting.personal-access-tokens.modal.token": "Token",
   "setting.personal-access-tokens.never-used": "Never",
   "setting.personal-access-tokens.revoke": "Revoke token",

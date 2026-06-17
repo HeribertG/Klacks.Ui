@@ -1,0 +1,144 @@
+<h2>Personal Access Tokens Manual</h2>
+
+<h3>What are Personal Access Tokens?</h3>
+<p>
+Personal Access Tokens (PATs) are long-lived API keys that give external tools and
+services secure access to Klacks — without requiring a username and password.
+</p>
+
+<p><strong>Typical use cases:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — allows AI assistants like Claude Desktop direct access to Klacksy skills</li>
+  <li>Automation scripts and CI/CD pipelines</li>
+  <li>External monitoring and integration tools</li>
+</ul>
+
+<h4>Security concept</h4>
+<p>
+Klacks never stores the plaintext token. After creation, only a <strong>SHA-256 hash</strong>
+of the token is saved in the database. The token itself is shown only once immediately
+after creation and cannot be retrieved afterwards.
+</p>
+
+<p>
+<em>Note: Copy or save your token immediately after creation. If lost, you must create
+a new token and revoke the old one.</em>
+</p>
+
+<hr>
+
+<h3>Creating a Token</h3>
+
+<h4>Step by step</h4>
+<ul>
+  <li>Navigate to <strong>Configuration → Personal Access Tokens</strong></li>
+  <li>Click <strong>Create new token</strong></li>
+  <li>Enter a descriptive <strong>name</strong> (e.g. <code>Claude Desktop</code> or <code>CI Pipeline</code>)</li>
+  <li>Select the desired <strong>validity period</strong> (1–730 days, default: 365 days)</li>
+  <li>Click <strong>Create</strong></li>
+  <li>Copy the displayed token immediately — it is shown only once</li>
+</ul>
+
+<h4>Token format</h4>
+<pre>
+klacks_pat_&lt;random string&gt;
+</pre>
+
+<p>Every token starts with the prefix <code>klacks_pat_</code> followed by a cryptographically
+secure random string.</p>
+
+<h4>Validity periods</h4>
+<table>
+  <tr><th>Duration</th><th>Recommended use</th></tr>
+  <tr><td>1–30 days</td><td>Short-term testing and development</td></tr>
+  <tr><td>90–180 days</td><td>CI/CD pipelines with regular rotation</td></tr>
+  <tr><td>365 days (default)</td><td>Permanent integrations (e.g. Claude Desktop)</td></tr>
+  <tr><td>730 days</td><td>Long-term system integrations</td></tr>
+</table>
+
+<hr>
+
+<h3>Using a Token</h3>
+
+<h4>Bearer token in the HTTP header</h4>
+<p>The token is transmitted as a bearer token in the <code>Authorization</code> header of every API request:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Configure MCP with Claude Desktop</h4>
+<p>
+The MCP endpoint (<code>/mcp</code>) gives AI assistants like Claude Desktop direct
+access to all Klacksy skills — querying employee data, planning shifts,
+managing groups, and much more.
+</p>
+
+<p><strong>Configuration in the Claude Desktop app (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;your-klacks-domain&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Replace <code>&lt;your-klacks-domain&gt;</code> with the address of your Klacks installation
+and <code>klacks_pat_...</code> with the token you created.</p>
+
+<h4>Direct API request (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;your-klacks-domain&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Management and Security</h3>
+
+<h4>Token overview</h4>
+<p>
+Under <strong>Configuration → Personal Access Tokens</strong> you can see all your tokens
+with their name, creation date, expiry date, and last use.
+The plaintext token is never shown in this view.
+</p>
+
+<h4>Revoking a token</h4>
+<p>
+A token can be revoked at any time. After revocation, all requests using that token
+are immediately rejected. Revoke a token immediately when:
+</p>
+<ul>
+  <li>The token was accidentally shared or exposed</li>
+  <li>A device or service is no longer in use</li>
+  <li>You notice suspicious activity</li>
+</ul>
+
+<h4>Expiry</h4>
+<p>
+Expired tokens are automatically rejected. Klacks highlights tokens expiring within
+the next 30 days in the overview so you can create replacements in time.
+</p>
+
+<h4>Security tips</h4>
+<ul>
+  <li>Use a separate token for each service or tool</li>
+  <li>Choose descriptive names so tokens can be clearly identified</li>
+  <li>Never store tokens in plaintext in version control systems</li>
+  <li>Rotate tokens regularly, especially when used in CI/CD</li>
+  <li>Revoke tokens immediately if you suspect misuse</li>
+</ul>
+
+<p>
+<em>Each token is bound to your user account and carries the same permissions as your
+account. Treat tokens with the same care as your password.</em>
+</p>

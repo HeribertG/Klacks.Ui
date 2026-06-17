@@ -1186,6 +1186,8 @@
   "setting.personal-access-tokens.modal.expires-in-days-hint": "1 à 730 jours, 365 par défaut",
   "setting.personal-access-tokens.modal.name": "Nom",
   "setting.personal-access-tokens.modal.one-time-warning": "Ce jeton ne sera affiché qu'une seule fois. Copiez-le maintenant et conservez-le en lieu sûr.",
+  "setting.personal-access-tokens.modal.tab-manual": "Manuel",
+  "setting.personal-access-tokens.modal.tab-token": "Token",
   "setting.personal-access-tokens.modal.token": "Jeton",
   "setting.personal-access-tokens.never-used": "Jamais",
   "setting.personal-access-tokens.revoke": "Révoquer le jeton",
