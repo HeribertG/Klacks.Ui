@@ -1,0 +1,41 @@
+@if (gaps().length > 0) {
+  <div class="alert alert-warning qualification-gap-report">
+    <div class="fw-semibold mb-2">
+      ⚠ {{ 'schedule.qualificationGaps.title' | translate }} ({{ gaps().length }})
+    </div>
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>{{ 'schedule.qualificationGaps.col.severity' | translate }}</th>
+          <th>{{ 'schedule.qualificationGaps.col.shift' | translate }}</th>
+          <th>{{ 'schedule.qualificationGaps.col.date' | translate }}</th>
+          @if (hasAgentColumn()) {
+            <th>{{ 'schedule.qualificationGaps.col.agent' | translate }}</th>
+          }
+          <th>{{ 'schedule.qualificationGaps.col.qualification' | translate }}</th>
+          <th>{{ 'schedule.qualificationGaps.col.reason' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (gap of gaps(); track $index) {
+          <tr [class]="rowClass(gap)">
+            <td>
+              @if (isError(gap)) {
+                ⛔ {{ 'schedule.qualificationGaps.severity.error' | translate }}
+              } @else {
+                ⚠️ {{ 'schedule.qualificationGaps.severity.warning' | translate }}
+              }
+            </td>
+            <td>{{ gap.shiftName }}</td>
+            <td>{{ gap.date }}</td>
+            @if (hasAgentColumn()) {
+              <td>{{ gap.agentName }}</td>
+            }
+            <td>{{ qualificationLabel(gap) }}</td>
+            <td>{{ reasonKey(gap.reason) | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

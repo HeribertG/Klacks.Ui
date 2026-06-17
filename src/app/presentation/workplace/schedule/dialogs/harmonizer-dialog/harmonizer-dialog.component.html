@@ -47,6 +47,9 @@
                 }
               </tbody>
             </table>
+            @if (r.qualificationGaps?.length) {
+              <app-qualification-gap-report [gaps]="r.qualificationGaps ?? []" />
+            }
           }
           @if (phase() === 'applying') {
             <p class="apply-hint">{{ 'harmonizer.dialog.hint.applying' | translate }}</p>

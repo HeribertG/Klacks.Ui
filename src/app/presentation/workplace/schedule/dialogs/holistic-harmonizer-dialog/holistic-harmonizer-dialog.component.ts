@@ -32,6 +32,7 @@ import {
   HolisticHarmonizerRunRequest,
 } from 'src/app/domain/models/holistic-harmonizer/holistic-harmonizer-run.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 
 type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'cancelled' | 'error';
 
@@ -40,7 +41,7 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
   templateUrl: './holistic-harmonizer-dialog.component.html',
   styleUrls: ['./holistic-harmonizer-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HolisticHarmonizerDialogComponent {

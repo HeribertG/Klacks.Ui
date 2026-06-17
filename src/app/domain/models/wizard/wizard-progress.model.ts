@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
+
 export interface WizardProgress {
   jobId: string;
   generation: number;
@@ -44,6 +46,7 @@ export interface WizardResult {
   tokens: WizardTokenResult[];
   awards?: WizardAuctionAward[];
   escalations?: WizardEscalation[];
+  qualificationGaps?: QualificationGapDetail[];
 }
 
 export type WizardStatus = 'idle' | 'running' | 'completed' | 'cancelled' | 'failed';

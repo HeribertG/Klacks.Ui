@@ -27,6 +27,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
 import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-scenario-class';
 import { HarmonizerRequest } from 'src/app/domain/models/harmonizer/harmonizer-request.model';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 
 type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
 
@@ -35,7 +36,7 @@ type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | '
   templateUrl: './harmonizer-dialog.component.html',
   styleUrls: ['./harmonizer-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HarmonizerDialogComponent {

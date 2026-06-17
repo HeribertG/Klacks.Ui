@@ -96,6 +96,10 @@
             </div>
           }
 
+          @if (qualificationGaps().length) {
+            <app-qualification-gap-report [gaps]="qualificationGaps()" />
+          }
+
           <div class="auction-ratio-bar">
             <label for="wizard-auction-ratio">
               {{ "wizard.dialog.auctionRatio" | translate }}: {{ auctionRatioPercent() }}%

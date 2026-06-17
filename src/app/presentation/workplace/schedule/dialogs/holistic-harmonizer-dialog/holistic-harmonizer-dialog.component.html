@@ -99,6 +99,10 @@
               </div>
             }
 
+            @if (r.qualificationGaps?.length) {
+              <app-qualification-gap-report [gaps]="r.qualificationGaps ?? []" />
+            }
+
             @if (r.batches.length > 0) {
               <h5 class="holisticHarmonizer-section-title">{{ 'holisticHarmonizer.dialog.batches-section-title' | translate }}</h5>
               <div class="holisticHarmonizer-batch-list">

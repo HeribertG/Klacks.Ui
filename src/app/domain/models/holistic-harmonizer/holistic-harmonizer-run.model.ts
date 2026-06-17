@@ -6,6 +6,8 @@
  * the SignalR completion payload (/hubs/holistic-harmonizer OnCompleted), and /ApplyAsScenario.
  */
 
+import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
+
 export interface HolisticHarmonizerRunRequest {
   periodFrom: string;
   periodUntil: string;
@@ -50,6 +52,7 @@ export interface HolisticHarmonizerRunResponse {
   rejectedSwaps: HolisticHarmonizerRejectionDto[];
   batches: HolisticHarmonizerBatchDto[];
   agentDisplayNames: string[];
+  qualificationGaps?: QualificationGapDetail[];
   llmParsingError: string | null;
   llmRawResponsePreview: string | null;
 }

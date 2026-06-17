@@ -26,9 +26,11 @@ import { AnalyseScenarioStatus } from 'src/app/domain/models/schedule/analyse-sc
 import { IClientWork } from 'src/app/domain/models/schedule/schedule-class';
 import { WizardRequest } from 'src/app/domain/models/wizard/wizard-request.model';
 import { WizardResult } from 'src/app/domain/models/wizard/wizard-progress.model';
+import { QualificationGapDetail } from 'src/app/domain/models/schedule/qualification-gap.model';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { QualificationGapReportComponent } from 'src/app/presentation/workplace/schedule/shared/qualification-gap-report/qualification-gap-report.component';
 
 type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'cancelled';
 
@@ -37,7 +39,7 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
   templateUrl: './wizard-dialog.component.html',
   styleUrls: ['./wizard-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, QualificationGapReportComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WizardDialogComponent {
@@ -127,6 +129,17 @@ export class WizardDialogComponent {
   escalationCount(result: WizardResult): number {
     return result.escalations?.length ?? 0;
   }
+
+  readonly qualificationGaps = computed<QualificationGapDetail[]>(() => {
+    const gaps = this.wizardService.result()?.qualificationGaps ?? [];
+    if (gaps.length === 0) return [];
+    const clients = this.dataManagementSchedule.clients;
+    return gaps.map((g) =>
+      g.agentId && !g.agentName
+        ? { ...g, agentName: this.resolveAgentName(clients, g.agentId) }
+        : g,
+    );
+  });
 
   private shortenEscalation(full: string): string {
     const colon = full.indexOf(':');

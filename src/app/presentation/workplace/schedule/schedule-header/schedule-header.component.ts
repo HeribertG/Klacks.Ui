@@ -222,6 +222,15 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
           '',
           TOAST_ICONS.INFO,
         );
+        const gapCount = result?.qualificationGaps?.length ?? 0;
+        if (gapCount > 0) {
+          this.toastShowService.showError(
+            this.translateService.instant('autoWizard.toast.qualificationGaps', { count: gapCount }),
+            'auto-wizard',
+            '',
+            TOAST_ICONS.WARNING,
+          );
+        }
         this.dataAutoWizardService.status.set('idle');
       } else if (status === 'failed') {
         const rawReason = (this.dataAutoWizardService.failureReason() ?? '').trim();
