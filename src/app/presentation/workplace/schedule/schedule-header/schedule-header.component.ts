@@ -50,6 +50,7 @@ import { IconWizardComponent } from 'src/app/presentation/icons/icon-wizard.comp
 import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.component';
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
+import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
 import {
   ModalService,
   ModalType,
@@ -111,6 +112,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     WizardDialogComponent,
     HarmonizerDialogComponent,
     HolisticHarmonizerDialogComponent,
+    Wizard4DialogComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -127,6 +129,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
   @ViewChild('holisticHarmonizerDialog')
   holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
+  @ViewChild('wizard4Dialog') wizard4Dialog!: Wizard4DialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -439,6 +442,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onHolisticHarmonizerClick(): void {
     this.holisticHarmonizerDialog.open();
+  }
+
+  onWizard4Click(): void {
+    this.wizard4Dialog.open();
   }
 
   @HostListener('document:keydown', ['$event'])

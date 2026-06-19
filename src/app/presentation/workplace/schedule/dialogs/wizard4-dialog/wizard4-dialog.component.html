@@ -1,0 +1,41 @@
+<ng-template #wizard4Modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ 'wizard4.dialog.title' | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+  </div>
+  <div class="modal-body">
+    <p class="wizard4-description">{{ 'wizard4.dialog.description' | translate }}</p>
+
+    @if (wizard4Scenarios().length === 0) {
+      <div class="alert alert-info wizard4-empty">
+        {{ 'wizard4.dialog.noScenarios' | translate }}
+      </div>
+    } @else {
+      <h5 class="wizard4-section-title">{{ 'wizard4.dialog.scenariosTitle' | translate }}</h5>
+      <ul class="list-group wizard4-scenario-list">
+        @for (scenario of wizard4Scenarios(); track scenario.id) {
+          <li class="list-group-item list-group-item-action wizard4-scenario-item">
+            <div class="wizard4-scenario-name">{{ scenario.name }}</div>
+            @if (scenario.fromDate && scenario.untilDate) {
+              <div class="wizard4-scenario-dates text-muted">
+                {{ scenario.fromDate }} – {{ scenario.untilDate }}
+              </div>
+            }
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary wizard4-scenario-btn"
+              (click)="onSelectScenario(scenario)"
+            >
+              {{ 'wizard4.dialog.selectScenario' | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="onClose()">
+      {{ 'wizard4.dialog.close' | translate }}
+    </button>
+  </div>
+</ng-template>
