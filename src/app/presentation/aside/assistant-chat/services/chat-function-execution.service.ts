@@ -59,9 +59,10 @@ export class ChatFunctionExecutionService {
       }
 
       const uiActionSteps = call.UiActionSteps || call.uiActionSteps;
+      const resultRoute = this.extractRouteFromResult(call.Result || call.result);
       if (uiActionSteps && uiActionSteps !== '{}') {
         uiActionCalls.push(call);
-      } else if (this.NAVIGATION_FUNCTIONS.includes(functionName)) {
+      } else if (this.NAVIGATION_FUNCTIONS.includes(functionName) || resultRoute) {
         navigationCalls.push(call);
       }
 
@@ -85,7 +86,7 @@ export class ChatFunctionExecutionService {
       }
       const functionCall = {
         id: this.generateMessageId(),
-        name: functionName,
+        name: backendRoute && !this.NAVIGATION_FUNCTIONS.includes(functionName) ? 'navigate_to' : functionName,
         arguments: args,
       };
       try {

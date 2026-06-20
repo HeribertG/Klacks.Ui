@@ -49,7 +49,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       { functionName: 'navigate_to', parameters: { page: 'new-shift' } },
     ]);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: undefined });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: {} });
   });
 
   it('navigates using the backend route from the result when present', async () => {
@@ -61,7 +61,19 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       },
     ]);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: undefined });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: {} });
+  });
+
+  it('navigates a result-driven nav skill (open_schedule) and applies its query params', async () => {
+    await service.executeFunctionCalls([
+      {
+        functionName: 'open_schedule',
+        parameters: { groupName: 'Biel/Bienne' },
+        result: 'Open schedule for group Biel/Bienne. Data: {"Route":"/workplace/schedule?groupId=abc-123","GroupId":"abc-123"}',
+      },
+    ]);
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/schedule'], { queryParams: { groupId: 'abc-123' } });
   });
 
   it('rejects navigation when the resolved route leaves the workplace area', async () => {

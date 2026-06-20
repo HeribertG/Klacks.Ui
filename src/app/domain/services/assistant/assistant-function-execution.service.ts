@@ -48,6 +48,14 @@ export class AssistantFunctionExecutionService {
         pageEntry?.route ||
         `/workplace/${page}`;
 
+      let queryParams = (call.arguments['params'] as Record<string, unknown>) || {};
+      const queryIndex = route.indexOf('?');
+      if (queryIndex >= 0) {
+        const parsed = Object.fromEntries(new URLSearchParams(route.substring(queryIndex + 1)));
+        queryParams = { ...parsed, ...queryParams };
+        route = route.substring(0, queryIndex);
+      }
+
       if (entityId && (pageEntry?.hasEntityParam ?? true)) {
         route += `/${entityId}`;
       }
@@ -56,7 +64,7 @@ export class AssistantFunctionExecutionService {
         return of({ id: call.id, success: false, error: 'Navigation target not allowed' });
       }
 
-      this.router.navigate([route], { queryParams: call.arguments['params'] });
+      this.router.navigate([route], { queryParams });
       return of({
         id: call.id,
         success: true,
