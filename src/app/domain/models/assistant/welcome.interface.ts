@@ -6,6 +6,7 @@
  */
 export interface IWelcomeResponse {
   greetingKey: string;
+  greetingText?: string;
   greetingVariantIndex: number;
   weekdayKey: string;
   weatherKey: string;

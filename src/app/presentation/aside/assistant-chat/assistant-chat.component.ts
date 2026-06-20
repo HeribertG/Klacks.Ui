@@ -980,6 +980,10 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   private resolveWelcomeContent(response: IWelcomeResponse, langCode: string): string {
+    if (response.greetingText && response.greetingText.trim().length > 0) {
+      return response.greetingText;
+    }
+
     const weekday = response.weekdayKey
       ? this.translateService.instant(response.weekdayKey)
       : '';
