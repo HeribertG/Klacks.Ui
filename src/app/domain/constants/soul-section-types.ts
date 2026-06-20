@@ -8,6 +8,7 @@ export const SoulSectionTypes = {
   Identity: 'identity',
   Personality: 'personality',
   Tone: 'tone',
+  Humor: 'humor',
   Boundaries: 'boundaries',
   CommunicationStyle: 'communication_style',
   Values: 'values',
