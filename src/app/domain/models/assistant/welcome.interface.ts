@@ -9,6 +9,8 @@ export interface IWelcomeResponse {
   greetingVariantIndex: number;
   weekdayKey: string;
   weatherKey: string;
+  ambientKey?: string;
+  ambientHolidayName?: string;
   displayName: string;
   suggestionKeys: string[];
   onboarding?: IOnboardingState | null;

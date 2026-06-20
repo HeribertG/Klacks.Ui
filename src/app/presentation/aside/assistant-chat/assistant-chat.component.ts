@@ -988,11 +988,22 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       : '';
     const name = this.formatNameSlot(response.displayName, langCode);
 
-    return this.translateService.instant(response.greetingKey, {
+    const greeting = this.translateService.instant(response.greetingKey, {
       name,
       weekday,
       weather,
     });
+
+    if (response.ambientKey) {
+      const ambient = this.translateService.instant(response.ambientKey, {
+        holiday: response.ambientHolidayName ?? '',
+      });
+      if (ambient && ambient !== response.ambientKey) {
+        return `${greeting} ${ambient}`;
+      }
+    }
+
+    return greeting;
   }
 
   private formatNameSlot(displayName: string | null | undefined, langCode: string): string {
