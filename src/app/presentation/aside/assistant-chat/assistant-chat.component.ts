@@ -208,6 +208,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .trimEnd();
   }
 
+  private static readonly PROACTIVE_I18N_MARKER = 'i18n:';
+
+  private resolveProactiveContent(text: string): string {
+    const stripped = this.stripMetadataMarkers(text);
+    if (stripped.startsWith(AssistantChatComponent.PROACTIVE_I18N_MARKER)) {
+      return this.translateService.instant(
+        stripped.slice(AssistantChatComponent.PROACTIVE_I18N_MARKER.length),
+      );
+    }
+    return stripped;
+  }
+
   get voiceModeEnabled(): boolean {
     return this.orchestrator.voiceModeEnabled();
   }
@@ -282,7 +294,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          const proactiveContent = this.stripMetadataMarkers(msg.content);
+          const proactiveContent = this.resolveProactiveContent(msg.content);
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
@@ -299,7 +311,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          const onboardingContent = this.stripMetadataMarkers(msg.content);
+          const onboardingContent = this.resolveProactiveContent(msg.content);
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
