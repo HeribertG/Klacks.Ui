@@ -2230,6 +2230,7 @@
   "klacksy.welcome.weather.rainy": " Il pleut aujourd'hui.",
   "klacksy.welcome.ambient.holiday_today": "Au fait : aujourd'hui, c'est {{holiday}} — pense à la couverture des jours fériés.",
   "klacksy.welcome.ambient.holiday_tomorrow": "Au fait, demain c'est {{holiday}} — un coup d'œil au planning peut valoir la peine.",
+  "klacksy.welcome.ambient.air_poor": "La qualité de l'air est médiocre aujourd'hui — vas-y doucement dehors.",
   "klacksy.welcome.weather.snowy": " Il neige dehors.",
   "klacksy.welcome.weather.stormy": " Il fait orageux aujourd'hui.",
   "klacksy.welcome.weather.thunder": " Attention, il y a de l'orage dehors.",

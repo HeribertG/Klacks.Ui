@@ -2230,6 +2230,7 @@
   "klacksy.welcome.weather.rainy": " Oggi piove.",
   "klacksy.welcome.ambient.holiday_today": "A proposito: oggi è {{holiday}} — tieni a mente la copertura dei festivi.",
   "klacksy.welcome.ambient.holiday_tomorrow": "A proposito, domani è {{holiday}} — vale la pena dare un'occhiata al piano turni.",
+  "klacksy.welcome.ambient.air_poor": "Oggi la qualità dell'aria è scarsa — prenditela con calma all'aperto.",
   "klacksy.welcome.weather.snowy": " Fuori nevica.",
   "klacksy.welcome.weather.stormy": " Oggi è burrascoso.",
   "klacksy.welcome.weather.thunder": " Attenzione, fuori c'è un temporale.",

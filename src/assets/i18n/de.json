@@ -2231,6 +2231,7 @@
   "klacksy.welcome.weather.rainy": " Es regnet heute.",
   "klacksy.welcome.ambient.holiday_today": "Übrigens: Heute ist {{holiday}} — denk an die Feiertagsbesetzung.",
   "klacksy.welcome.ambient.holiday_tomorrow": "Übrigens, morgen ist {{holiday}} — ein Blick auf den Dienstplan lohnt sich vielleicht.",
+  "klacksy.welcome.ambient.air_poor": "Die Luft ist heute nicht die beste — gönn dir vielleicht zwischendurch eine kurze Pause drinnen.",
   "klacksy.welcome.weather.snowy": " Es schneit draußen.",
   "klacksy.welcome.weather.stormy": " Es ist stürmisch heute.",
   "klacksy.welcome.weather.thunder": " Pass auf, draußen gewittert es.",

@@ -2231,6 +2231,7 @@
   "klacksy.welcome.weather.rainy": " It's raining today.",
   "klacksy.welcome.ambient.holiday_today": "By the way: today is {{holiday}} — keep the holiday staffing in mind.",
   "klacksy.welcome.ambient.holiday_tomorrow": "By the way, tomorrow is {{holiday}} — the roster might be worth a quick look.",
+  "klacksy.welcome.ambient.air_poor": "Air quality's on the poor side today — maybe take it a little easy outdoors.",
   "klacksy.welcome.weather.snowy": " It's snowing outside.",
   "klacksy.welcome.weather.stormy": " It's stormy today.",
   "klacksy.welcome.weather.thunder": " Heads up, there's a thunderstorm outside.",
