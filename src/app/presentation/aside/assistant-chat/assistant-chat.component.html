@@ -293,7 +293,7 @@
         class="input-field"
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
-        [disabled]="isProcessing || isInitializing() || hasNoApiKey()"
+        [disabled]="isInitializing() || hasNoApiKey()"
         placeholder="{{ 'assistant-chat.placeholder' | translate }}"
         rows="1"
         #textInput
@@ -305,7 +305,7 @@
         id="assistant-chat-send-btn"
         type="button"
         class="btn-send"
-        [disabled]="!inputText.trim() || isProcessing || isInitializing() || hasNoApiKey()"
+        [disabled]="!inputText.trim() || isInitializing() || hasNoApiKey()"
         (click)="sendMessage()"
         [attr.aria-label]="'assistant-chat.send-message' | translate"
       >

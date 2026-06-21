@@ -386,9 +386,34 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     }
   }
 
+  private interruptCurrentStream(): void {
+    if (this.currentStreamController) {
+      this.currentStreamController.abort();
+      this.currentStreamController = null;
+    }
+    const streamingMessage = this.orchestrator.messages().find((m) => m.isStreaming);
+    if (streamingMessage) {
+      this.drainStreamBuffer(streamingMessage.id);
+      const finalized = this.orchestrator.messages().find((m) => m.id === streamingMessage.id);
+      this.orchestrator.updateMessage(streamingMessage.id, {
+        isStreaming: false,
+        formattedContent: finalized?.formattedContent ?? this.formatMessage(finalized?.content ?? ''),
+      });
+    }
+    this.isProcessing = false;
+    this.currentToolStatusKey = '';
+    this.streamBuffer = '';
+    this.streamPreviousClean = '';
+    this.currentRawStream = '';
+  }
+
   async sendMessage(): Promise<void> {
-    if (!this.inputText.trim() || this.isProcessing) {
+    if (!this.inputText.trim()) {
       return;
+    }
+
+    if (this.isProcessing) {
+      this.interruptCurrentStream();
     }
 
     if (this.onboarding.isAwaitingAnswer()) {
