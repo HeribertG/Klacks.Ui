@@ -24,6 +24,7 @@ import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setErr
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
+import { MacroCategoryEnum, MacroCategoryLabels } from 'src/app/domain/enums/macro-category.enum';
 import { IMacro, Macro } from 'src/app/domain/models/settings/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { Subject } from 'rxjs';
@@ -43,6 +44,7 @@ interface MacroFormModel {
   name: string;
   type: string;
   content: string;
+  category: string;
 }
 
 @Component({
@@ -85,11 +87,13 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
     name: '',
     type: '0',
     content: '',
+    category: '0',
   });
   macroForm = form(this.macroModel, f => {
     debounce(f.name, 300);
     debounce(f.type, 300);
     debounce(f.content, 300);
+    debounce(f.category, 300);
   });
 
   description?: MultiLanguage;
@@ -108,6 +112,13 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
       label: MacroTypeLabels[value],
     }));
 
+  macroCategoryOptions = Object.values(MacroCategoryEnum)
+    .filter((v): v is MacroCategoryEnum => typeof v === 'number')
+    .map((value) => ({
+      value,
+      label: MacroCategoryLabels[value],
+    }));
+
   klacksScriptLanguage = [...klacksScriptExtensions, ...errorExtensions];
 
   constructor() {
@@ -124,7 +135,8 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
     return (
       model.name !== this.lastModel.name ||
       model.type !== this.lastModel.type ||
-      model.content !== this.lastModel.content
+      model.content !== this.lastModel.content ||
+      model.category !== this.lastModel.category
     );
   }
 
@@ -135,6 +147,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
         name: this.data.name || '',
         type: String(this.data.type ?? 0),
         content: strippedContent,
+        category: String(this.data.category ?? 0),
       };
       this.macroModel.set(initialModel);
       this.lastModel = { ...initialModel };
@@ -207,6 +220,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
         name: this.data.name || '',
         type: String(this.data.type ?? 0),
         content: strippedContent,
+        category: String(this.data.category ?? 0),
       };
       this.macroModel.set(initialModel);
       this.lastModel = { ...initialModel };
@@ -225,6 +239,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
           const model = this.macroModel();
           this.data.name = model.name;
           this.data.type = +model.type;
+          this.data.category = +model.category as MacroCategoryEnum;
           this.data.content = this.addImports(this.editorContent());
           this.data.description = this.description;
         }
@@ -258,6 +273,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
       const model = this.macroModel();
       this.data.name = model.name;
       this.data.type = +model.type;
+      this.data.category = +model.category as MacroCategoryEnum;
       this.data.content = this.addImports(this.editorContent());
       this.data.description = this.description;
     }

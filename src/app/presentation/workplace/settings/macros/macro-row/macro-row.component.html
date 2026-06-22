@@ -55,6 +55,20 @@
         </select>
       </div>
 
+      <div
+        id="macro-modal-category-section"
+        style="margin-inline-start: 30px; width: 220px"
+      >
+        <label for="category">{{ 'setting.macro.category-modal' | translate }}</label>
+        <select class="form-select" [formField]="macroForm.category" id="category">
+          @for (option of macroCategoryOptions; track option.value) {
+          <option [value]="option.value">
+            {{ option.label | translate }}
+          </option>
+          }
+        </select>
+      </div>
+
       <div class="filler"></div>
 
       @if (tabId() === 'macro') {
