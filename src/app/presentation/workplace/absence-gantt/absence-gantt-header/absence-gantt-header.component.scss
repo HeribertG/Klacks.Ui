@@ -3,6 +3,17 @@
 @forward "../../../../../assets/standard-styles/navigation.scss";
 @use "../../../../../assets/standard-styles/standard-slider.scss";
 
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+#absence-gantt-header-controls {
+  height: 100%;
+  overflow: hidden;
+}
+
 .absence-reason {
   width: calc(100% - 200px);
   margin-inline-end: 5px;

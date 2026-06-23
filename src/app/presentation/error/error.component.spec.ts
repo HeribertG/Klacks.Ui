@@ -3,11 +3,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { ErrorComponent } from './error.component';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: '<div>Test Component</div>'
 })
 class TestComponent {

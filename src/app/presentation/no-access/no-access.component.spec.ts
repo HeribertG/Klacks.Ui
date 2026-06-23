@@ -5,12 +5,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { NoAccessComponent } from './no-access.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: '<div>Test Component</div>',
 })
 class TestComponent {

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-icon-trash-light-red',
@@ -27,6 +27,7 @@ import { Component } from '@angular/core';
     </g>
   </svg>`,
   styles: [''],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class TrashIconLightRedComponent {

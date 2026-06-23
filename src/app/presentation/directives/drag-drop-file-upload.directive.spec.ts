@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DragDropFileUploadDirective } from './drag-drop-file-upload.directive';
 
@@ -17,6 +17,7 @@ const createDragEvent = (type: string, dataTransfer?: any): DragEvent => {
 @Component({
     standalone: true,
     imports: [DragDropFileUploadDirective],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `<div
     appDragDropFileUpload
     (fileDropped)="onFileDropped($event)"

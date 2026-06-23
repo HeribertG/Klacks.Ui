@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AsideComponent } from './aside.component';
 import { AsideService } from './aside.service';
@@ -13,6 +13,7 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 @Component({
   selector: 'app-assistant-chat',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '',
 })
 class AssistantChatStubComponent {}

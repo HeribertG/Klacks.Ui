@@ -3,7 +3,7 @@
 /**
  * Tests for ConversationOrchestratorService state machine.
  */
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Subject, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
@@ -515,7 +515,8 @@ describe('ConversationOrchestratorService', () => {
   });
 });
 
-@Component({ standalone: true, template: '' })
+@Component({ standalone: true, changeDetection: ChangeDetectionStrategy.Eager,
+ template: '' })
 class HostHarnessComponent {
   readonly orchestrator = inject(ConversationOrchestratorService);
 }
