@@ -387,9 +387,7 @@
         <input
           id="filter-show-deleted"
           type="checkbox"
-          [checked]="navFilterFormModel().showDeleteEntries"
-          (change)="navFilterFormModel.update(m => ({...m, showDeleteEntries: $any($event).target.checked}))"
-          [disabled]="!isRequestPossible()"
+          [formField]="navFilterForm.showDeleteEntries"
         />
         {{ "address.all-address.all-address-nav.remove-address" | translate }}
       </label>

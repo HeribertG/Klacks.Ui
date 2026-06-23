@@ -18,7 +18,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, FormField } from '@angular/forms/signals';
+import { disabled, form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -88,7 +88,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private ngUnsubscribe = new Subject<void>();
   private isInitFinished = false;
-  private isInitializing = false;
+  private initSkipCount = 0;
 
   public navFilterFormModel = signal<NavFilterFormModel>({
     female: true,
@@ -105,7 +105,9 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
     scopeUntilFlag: false,
     showDeleteEntries: false,
   });
-  public navFilterForm = form(this.navFilterFormModel);
+  public navFilterForm = form(this.navFilterFormModel, (f) => {
+    disabled(f.showDeleteEntries, { when: () => !this.isRequestPossible() });
+  });
 
   public readonly isRequestPossible = computed(() => {
     const f = this.navFilterFormModel();
@@ -121,7 +123,8 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
 
     effect(() => {
       const f = this.navFilterFormModel();
-      if (!this.isInitFinished || this.isInitializing) return;
+      if (!this.isInitFinished) return;
+      if (this.initSkipCount > 0) { this.initSkipCount--; return; }
       const cf = this.dataManagementClientService.currentFilter;
       cf.female = f.female;
       cf.male = f.male;
@@ -236,7 +239,7 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private isInit(): void {
     const cf = this.dataManagementClientService.currentFilter;
-    this.isInitializing = true;
+    this.initSkipCount++;
     this.navFilterFormModel.set({
       female: cf.female ?? true,
       male: cf.male ?? true,
@@ -253,7 +256,6 @@ export class AllAddressNavComponent implements OnInit, AfterViewInit, OnDestroy 
       showDeleteEntries: cf.showDeleteEntries ?? false,
     });
     this.isInitFinished = true;
-    this.isInitializing = false;
     this.scopeFromValue = cf.scopeFrom ? transformDateToNgbDateStruct(cf.scopeFrom) : undefined;
     this.scopeUntilValue = cf.scopeUntil ? transformDateToNgbDateStruct(cf.scopeUntil) : undefined;
     this.cdr.markForCheck();
