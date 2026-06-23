@@ -1,22 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
+/**
+ * Select component for choosing a parent group node in the group hierarchy.
+ * @param isChangingEvent - Emitted when the selected parent changes
+ */
 import {
   Component,
   EventEmitter,
   OnInit,
   Output,
-  ViewChild,
   effect,
   OnDestroy,
   EffectRef,
   inject,
   Injector,
   runInInjectionContext,
+  signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormField, disabled, form } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Group } from 'src/app/domain/models/group/group-class';
@@ -26,17 +29,20 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
+interface EditGroupParentFormModel {
+  parent: string;
+}
+
 @Component({
   selector: 'app-edit-group-parent',
   templateUrl: './edit-group-parent.component.html',
   styleUrls: ['./edit-group-parent.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, ExpandableCardComponent],
+  imports: [FormField, TranslateModule, ExpandableCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupParentComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
-  @ViewChild('parentForm') parentForm!: NgForm;
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
@@ -49,9 +55,12 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   currentLang: Language = DomainMessages.DEFAULT_LANG;
 
   private ngUnsubscribe = new Subject<void>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private formChangeSubscription: any;
   private effectRef: EffectRef | null = null;
+
+  public parentFormModel = signal<EditGroupParentFormModel>({ parent: '' });
+  public parentSelectForm = form(this.parentFormModel, (f) => {
+    disabled(f, { when: () => !this.authorizationService.isAuthorised });
+  });
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -60,6 +69,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
     this.updateAvailableParents();
     this.updateGroupPath();
+    this.parentFormModel.set({
+      parent: this.dataManagementGroupService.editGroup?.parent ?? '',
+    });
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -67,23 +79,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
         this.currentLang = this.translateService.currentLang as Language;
         this.cdr.markForCheck();
       });
-
-    setTimeout(() => {
-      if (this.parentForm && this.parentForm.form) {
-        this.formChangeSubscription =
-          this.parentForm.form.valueChanges?.subscribe(() => {
-            if (this.parentForm.dirty) {
-              this.isChangingEvent.emit(true);
-            }
-          });
-      }
-    }, 0);
   }
 
   ngOnDestroy(): void {
-    if (this.formChangeSubscription) {
-      this.formChangeSubscription.unsubscribe();
-    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -156,10 +154,11 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
     return `${indent} ${node.name}`;
   }
 
-  /**
-   * Handler for parent group changes
-   */
   onParentChange(): void {
+    if (this.dataManagementGroupService.editGroup) {
+      const parentId = this.parentFormModel().parent;
+      this.dataManagementGroupService.editGroup.parent = parentId || undefined;
+    }
     this.isChangingEvent.emit(true);
   }
 
@@ -169,6 +168,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
         if (this.dataManagementGroupService.isRead()) {
           this.updateAvailableParents();
           this.updateGroupPath();
+          this.parentFormModel.set({
+            parent: this.dataManagementGroupService.editGroup?.parent ?? '',
+          });
         }
       });
     });

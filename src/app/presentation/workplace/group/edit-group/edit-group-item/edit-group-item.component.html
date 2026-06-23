@@ -1,4 +1,4 @@
-<form #groupForm="ngForm" id="edit-group-item-form">
+<form id="edit-group-item-form">
   <app-expandable-card
     id="edit-group-item-card"
     [headerTitle]="'group.edit-group.edit-group-item.headline' | translate"
@@ -14,12 +14,9 @@
             type="text"
             class="form-control"
             autocomplete="off"
-            [(ngModel)]="dataManagementGroupService.editGroup.name"
+            [formField]="groupForm.name"
             id="edit-group-item-name"
             data-klacksy-target="group-detail.name"
-            name="name"
-            required
-            [disabled]="!authorizationService.isAuthorised"
           />
         </div>
       </div>

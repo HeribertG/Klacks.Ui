@@ -50,8 +50,8 @@
             <input
               id="all-group-list-header-checkbox-input"
               type="checkbox"
-              [(ngModel)]="dataManagementGroupService.headerCheckBoxValue"
-              (change)="onChangeHeaderCheckBox()"
+              [checked]="dataManagementGroupService.headerCheckBoxValue"
+              (change)="dataManagementGroupService.headerCheckBoxValue = $any($event).target.checked; onChangeHeaderCheckBox()"
               [indeterminate]="checkBoxIndeterminate"
               name="headerCheckBoxValue"
               class="checkbox"

@@ -15,7 +15,6 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
 import { IGroupItem } from 'src/app/domain/models/group/group-class';
@@ -38,7 +37,6 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrls: ['./edit-group-members.component.scss'],
   standalone: true,
   imports: [
-    FormsModule,
     TranslateModule,
     TrashIconRedComponent,
     ExpandableCardComponent

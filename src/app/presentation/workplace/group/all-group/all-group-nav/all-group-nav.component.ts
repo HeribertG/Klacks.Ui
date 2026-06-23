@@ -1,10 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Navigation filter component for the group list (validity date range filters).
+ */
 
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject,
+import {
+  AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -12,12 +22,18 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 
+interface AllGroupNavFilterModel {
+  activeDateRange: boolean;
+  formerDateRange: boolean;
+  futureDateRange: boolean;
+}
+
 @Component({
   selector: 'app-all-group-nav',
   templateUrl: './all-group-nav.component.html',
   styleUrls: ['./all-group-nav.component.scss'],
   standalone: true,
-  imports: [FormsModule, NgbDropdownModule, TranslateModule],
+  imports: [FormField, NgbDropdownModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -25,17 +41,24 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
 
-  @ViewChild('navGroupForm', { static: false }) navGroupForm:
-    | NgForm
-    | undefined;
-  navClient: HTMLElement | undefined;
-
   currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
-  isComboBoxOpen = false;
+  public navFilterFormModel = signal<AllGroupNavFilterModel>({
+    activeDateRange: true,
+    formerDateRange: false,
+    futureDateRange: false,
+  });
+  public navFilterForm = form(this.navFilterFormModel, () => {});
+
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
+    const f = this.dataManagementGroupService.currentFilter;
+    this.navFilterFormModel.set({
+      activeDateRange: f.activeDateRange ?? true,
+      formerDateRange: f.formerDateRange ?? false,
+      futureDateRange: f.futureDateRange ?? false,
+    });
   }
 
   ngAfterViewInit(): void {
@@ -53,6 +76,11 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onClose() {
+    const values = this.navFilterFormModel();
+    const f = this.dataManagementGroupService.currentFilter;
+    f.activeDateRange = values.activeDateRange;
+    f.formerDateRange = values.formerDateRange;
+    f.futureDateRange = values.futureDateRange;
     this.dataManagementGroupService.readPage(false);
   }
 }

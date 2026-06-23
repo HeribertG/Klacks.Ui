@@ -21,7 +21,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
   NgbTooltipModule,
@@ -57,7 +56,6 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,

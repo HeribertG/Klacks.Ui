@@ -1,4 +1,4 @@
-<form #navGroupForm="ngForm" id="all-group-nav-form">
+<form id="all-group-nav-form">
   <ul id="all-group-nav-list" class="list-group">
     <!-- Gültigkeit -->
     <li class="list-group-item-action">
@@ -17,10 +17,7 @@
                 <input
                   id="all-group-filter-active"
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentFilter.activeDateRange
-                  "
-                  name="activeDateRange"
+                  [formField]="navFilterForm.activeDateRange"
                 />
                 {{ "active" | translate }}
               </label>
@@ -29,10 +26,7 @@
                 <input
                   id="all-group-filter-former"
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentFilter.formerDateRange
-                  "
-                  name="formerDateRange"
+                  [formField]="navFilterForm.formerDateRange"
                 />
                 {{ "former" | translate }}
               </label>
@@ -41,10 +35,7 @@
                 <input
                   id="all-group-filter-future"
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentFilter.futureDateRange
-                  "
-                  name="futureDateRange"
+                  [formField]="navFilterForm.futureDateRange"
                 />
                 {{ "future" | translate }}
               </label>

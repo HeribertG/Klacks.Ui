@@ -1,13 +1,12 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form #navClientForm="ngForm" id="navGroupForm">
+<form id="navGroupForm">
   <ul class="list-group">
     <li class="list-group-item-action">
       <label class="checkbox-label">
         <input
           type="checkbox"
-          [(ngModel)]="dataManagementGroupService.currentClientFilter.female"
-          name="female"
+          [formField]="navFilterForm.female"
         />
         {{ "female" | translate }}
       </label>
@@ -15,8 +14,7 @@
       <label class="checkbox-label">
         <input
           type="checkbox"
-          [(ngModel)]="dataManagementGroupService.currentClientFilter.male"
-          name="male"
+          [formField]="navFilterForm.male"
         />
         {{ "male" | translate }}
       </label>
@@ -24,10 +22,7 @@
       <label class="checkbox-label">
         <input
           type="checkbox"
-          [(ngModel)]="
-            dataManagementGroupService.currentClientFilter.legalEntity
-          "
-          name="legalEntity"
+          [formField]="navFilterForm.legalEntity"
         />
         {{ "legal-entity" | translate }}
       </label>
@@ -50,11 +45,7 @@
               <label class="checkbox-label">
                 <input
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentClientFilter
-                      .activeMembership
-                  "
-                  name="activeMembership"
+                  [formField]="navFilterForm.activeMembership"
                 />
                 {{ "active" | translate }}
               </label>
@@ -62,11 +53,7 @@
               <label class="checkbox-label">
                 <input
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentClientFilter
-                      .formerMembership
-                  "
-                  name="formerMembership"
+                  [formField]="navFilterForm.formerMembership"
                 />
                 {{ "alumni" | translate }}
               </label>
@@ -74,11 +61,7 @@
               <label class="checkbox-label">
                 <input
                   type="checkbox"
-                  [(ngModel)]="
-                    dataManagementGroupService.currentClientFilter
-                      .futureMembership
-                  "
-                  name="futureMembership"
+                  [formField]="navFilterForm.futureMembership"
                 />
                 {{ "future" | translate }}
               </label>
@@ -256,24 +239,16 @@
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
-                    [(ngModel)]="
-                      dataManagementGroupService.currentClientFilter
-                        .scopeFromFlag
-                    "
+                    [formField]="navFilterForm.scopeFromFlag"
                     id="scopeFromFlag"
-                    name="scopeFrom"
                   />
                   {{ "address.all-address.all-address-nav.entry" | translate }}
                 </label>
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
-                    [(ngModel)]="
-                      dataManagementGroupService.currentClientFilter
-                        .scopeUntilFlag
-                    "
+                    [formField]="navFilterForm.scopeUntilFlag"
                     id="scopeUntilFlag"
-                    name="scopeUntil"
                   />
                   {{
                     "address.all-address.all-address-nav.resignation"

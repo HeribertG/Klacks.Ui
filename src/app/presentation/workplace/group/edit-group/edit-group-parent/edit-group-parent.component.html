@@ -1,4 +1,4 @@
-<form #parentForm="ngForm" id="edit-group-parent-form">
+<form id="edit-group-parent-form">
   <app-expandable-card
     id="edit-group-parent-card"
     [headerTitle]="'group.edit-group.edit-group-parent.headline' | translate">
@@ -12,16 +12,14 @@
       <select
         id="edit-group-parent-select"
         class="form-select"
-        name="parent"
-        [(ngModel)]="dataManagementGroupService.editGroup.parent"
+        [formField]="parentSelectForm.parent"
         (change)="onParentChange()"
-        [disabled]="!authorizationService.isAuthorised"
       >
-        <option [ngValue]="null">
+        <option value="">
           {{ "group.edit-group.edit-group-parent.no-parent" | translate }}
         </option>
         @for (node of availableParents; track node.id) {
-        <option [ngValue]="node.id">
+        <option [value]="node.id">
           {{ getGroupPathDisplay(node) }}
         </option>
         }

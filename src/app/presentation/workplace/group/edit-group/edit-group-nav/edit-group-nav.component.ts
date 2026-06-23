@@ -1,21 +1,24 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Navigation filter component for the edit-group view (client filters: gender, membership, date range, region).
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  AfterViewInit,
   Component,
   Injector,
-  IterableDiffers,
   OnDestroy,
   OnInit,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
+  signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Filter } from 'src/app/domain/models/client/client-class';
@@ -35,6 +38,17 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 
+interface EditGroupNavFilterModel {
+  female: boolean;
+  male: boolean;
+  legalEntity: boolean;
+  activeMembership: boolean;
+  formerMembership: boolean;
+  futureMembership: boolean;
+  scopeFromFlag: boolean;
+  scopeUntilFlag: boolean;
+}
+
 @Component({
   selector: 'app-edit-group-nav',
   templateUrl: './edit-group-nav.component.html',
@@ -42,22 +56,18 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
   standalone: true,
   imports: [
     FormsModule,
+    FormField,
     NgbDropdownModule,
     NgbDatepickerModule,
     NgbTooltipModule,
     TranslateModule,
     FontAwesomeModule,
-    FallbackPipe
-],
+    FallbackPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('navGroupForm', { static: false }) navGroupForm:
-    | NgForm
-    | undefined;
-
+export class EditGroupNavComponent implements OnInit, OnDestroy {
   public dataManagementGroupService = inject(DataManagementGroupService);
-  private iterableDiffers = inject(IterableDiffers);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
@@ -67,17 +77,28 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public faCalendar = faCalendar;
   public isComboBoxOpen = false;
 
-  public objectForUnsubscribe: any;
   public clientTypeName = DomainMessages.ENTITY_TYPE_ALL;
 
-  public iterableDiffer: any;
   public isInitFinished = false;
+  private initSkipCount = 0;
   public defaultTop = 0;
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
   public scopeFromValue: NgbDateStruct | undefined;
   public scopeUntilValue: NgbDateStruct | undefined;
+
+  public navFilterFormModel = signal<EditGroupNavFilterModel>({
+    female: false,
+    male: false,
+    legalEntity: false,
+    activeMembership: false,
+    formerMembership: false,
+    futureMembership: false,
+    scopeFromFlag: false,
+    scopeUntilFlag: false,
+  });
+  public navFilterForm = form(this.navFilterFormModel, () => {});
 
   onScopeFromChange(value: NgbDateStruct | undefined): void {
     this.scopeFromValue = value;
@@ -91,10 +112,6 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     filter.scopeUntil = value ? transformNgbDateStructToDate(value) : undefined;
   }
 
-  constructor() {
-    this.iterableDiffer = this.iterableDiffers.find([]).create(undefined);
-  }
-
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
     this.dataManagementGroupService.init();
@@ -102,59 +119,34 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navGroup = document.getElementById('navGroupForm')!;
 
     this.readSignals();
-  }
 
-  ngAfterViewInit(): void {
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
         this.cdr.markForCheck();
       });
-
-    if (this.navGroupForm && this.navGroupForm.valueChanges) {
-      this.objectForUnsubscribe = this.navGroupForm.valueChanges.subscribe(
-        () => {
-          if (this.navGroupForm!.dirty) {
-            if (!this.isComboBoxOpen) {
-              setTimeout(() => {
-                this.dataManagementGroupService.readPage();
-                this.cdr.markForCheck();
-              }, 100);
-            }
-          }
-        }
-      );
-    }
   }
 
   ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
 
   private isInit(): void {
+    const filter = this.dataManagementGroupService.currentClientFilter;
+    this.initSkipCount++;
+    this.navFilterFormModel.set({
+      female: filter.female ?? false,
+      male: filter.male ?? false,
+      legalEntity: filter.legalEntity ?? false,
+      activeMembership: filter.activeMembership ?? false,
+      formerMembership: filter.formerMembership ?? false,
+      futureMembership: filter.futureMembership ?? false,
+      scopeFromFlag: filter.scopeFromFlag ?? false,
+      scopeUntilFlag: filter.scopeUntilFlag ?? false,
+    });
     this.isInitFinished = true;
-
-    const scopeFromFlag = document.getElementById(
-      'scopeFromFlag'
-    ) as HTMLInputElement;
-    const scopeUntilFlag = document.getElementById(
-      'scopeUntilFlag'
-    ) as HTMLInputElement;
-
-    if (scopeFromFlag) {
-      scopeFromFlag.checked =
-        this.dataManagementGroupService.currentClientFilter.scopeFromFlag!;
-    }
-
-    if (scopeUntilFlag) {
-      scopeUntilFlag.checked =
-        this.dataManagementGroupService.currentClientFilter.scopeUntilFlag!;
-    }
   }
 
   onOpenChange(event: boolean) {
@@ -168,7 +160,6 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     ) {
       setTimeout(() => {
         this.dataManagementGroupService.headerCheckBoxValue = false;
-
         this.dataManagementGroupService.readPage();
         this.cdr.markForCheck();
       }, 100);
@@ -178,11 +169,19 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickSetEmpty() {
     this.localStorageService.remove('edit-address');
     this.dataManagementGroupService.currentClientFilter = new Filter();
-    (document.getElementById('scopeFromFlag') as HTMLInputElement).checked =
-      false;
-    (document.getElementById('scopeUntilFlag') as HTMLInputElement).checked =
-      false;
-
+    this.scopeFromValue = undefined;
+    this.scopeUntilValue = undefined;
+    this.initSkipCount++;
+    this.navFilterFormModel.set({
+      female: false,
+      male: false,
+      legalEntity: false,
+      activeMembership: false,
+      formerMembership: false,
+      futureMembership: false,
+      scopeFromFlag: false,
+      scopeUntilFlag: false,
+    });
     this.onClickClientType(
       this.dataManagementGroupService.currentClientFilter.clientType
     );
@@ -195,7 +194,6 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataManagementGroupService.currentClientFilter.clientType = -1;
     } else {
       this.dataManagementGroupService.currentClientFilter.clientType = index;
-
       this.dataManagementGroupService.clearCheckedArray();
       this.dataManagementGroupService.headerCheckBoxValue = false;
     }
@@ -216,11 +214,21 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isRequestPossible(): boolean {
-    return (
-      this.dataManagementGroupService.currentClientFilter.male ||
-      this.dataManagementGroupService.currentClientFilter.female ||
-      this.dataManagementGroupService.currentClientFilter.legalEntity
-    );
+    const f = this.navFilterFormModel();
+    return f.male || f.female || f.legalEntity;
+  }
+
+  private syncFormToService(): void {
+    const f = this.navFilterFormModel();
+    const filter = this.dataManagementGroupService.currentClientFilter;
+    filter.female = f.female;
+    filter.male = f.male;
+    filter.legalEntity = f.legalEntity;
+    filter.activeMembership = f.activeMembership;
+    filter.formerMembership = f.formerMembership;
+    filter.futureMembership = f.futureMembership;
+    filter.scopeFromFlag = f.scopeFromFlag;
+    filter.scopeUntilFlag = f.scopeUntilFlag;
   }
 
   private readSignals(): void {
@@ -231,6 +239,19 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
           this.scopeFromValue = filter.scopeFrom ? transformDateToNgbDateStruct(filter.scopeFrom) : undefined;
           this.scopeUntilValue = filter.scopeUntil ? transformDateToNgbDateStruct(filter.scopeUntil) : undefined;
           this.isInit();
+        }
+      });
+
+      effect(() => {
+        const _ = this.navFilterFormModel();
+        if (!this.isInitFinished) return;
+        if (this.initSkipCount > 0) { this.initSkipCount--; return; }
+        if (!this.isComboBoxOpen) {
+          this.syncFormToService();
+          setTimeout(() => {
+            this.dataManagementGroupService.readPage();
+            this.cdr.markForCheck();
+          }, 100);
         }
       });
     });

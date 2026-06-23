@@ -1,6 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form #memberList="ngForm">
+<form>
   <app-expandable-card
     [headerTitle]="'group.edit-group.edit-group-member.headline' | translate">
 
@@ -13,21 +13,18 @@
           <input
             type="search"
             class="form-control"
-            [(ngModel)]="selectedClientName"
+            [value]="selectedClientName"
+            (input)="selectedClientName = $any($event).target.value"
             autocomplete="off"
             (keyup)="onKeyupSearchField($event)"
             (keydown)="onKeydownEnterSearchField($event)"
             id="member"
             list="dynamicClientName"
-            name="selectedClient"
             placeholder="{{ 'placeholder.search' | translate }}"
           />
           <datalist id="dynamicClientName">
             @for (item of result; track item) {
-            <option [ngValue]="item">
-              {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
-              {{ item.name }}
-            </option>
+            <option>{{ item.idNumber }} - {{ item.company }} {{ item.firstName }} {{ item.name }}</option>
             }
           </datalist>
           @if (!selectedClient) {
@@ -56,10 +53,9 @@
               <th class="table-header" style="width: 60px; max-width: 60px">
                 <input
                   type="checkbox"
-                  [(ngModel)]="dataManagementGroupService.headerCheckBoxValue"
-                  (change)="onChangeHeaderCheckBox()"
+                  [checked]="dataManagementGroupService.headerCheckBoxValue"
+                  (change)="dataManagementGroupService.headerCheckBoxValue = $any($event).target.checked; onChangeHeaderCheckBox()"
                   [indeterminate]="checkBoxIndeterminate"
-                  name="headerCheckBoxValue"
                   class="checkbox"
                 />
               </th>

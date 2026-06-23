@@ -9,7 +9,6 @@ import {
   LOCALE_ID,
   OnInit,
   Output,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
@@ -18,15 +17,13 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule, NgForm } from '@angular/forms';
-import { NgbDatepickerModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormField, disabled, form } from '@angular/forms/signals';
+import { NgbDateStruct, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
-import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
@@ -34,7 +31,10 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+
+interface EditGroupItemFormModel {
+  name: string;
+}
 
 @Component({
   selector: 'app-edit-group-item',
@@ -42,8 +42,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./edit-group-item.component.scss'],
   standalone: true,
   imports: [
-    FormsModule,
-    NgbDatepickerModule,
+    FormField,
     NgbDropdownModule,
     TranslateModule,
     FontAwesomeModule,
@@ -51,7 +50,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
     RichTextEditorComponent,
     ExpandableCardComponent,
     ChooseCalendarComponent,
-],
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupItemComponent
@@ -67,10 +66,7 @@ export class EditGroupItemComponent
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
-  @ViewChild('groupForm', { static: false }) groupForm: NgForm | undefined;
-
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
-  public faCalendar = faCalendar;
 
   public validFromValid: boolean | undefined = undefined;
   public validUntilValid: boolean | undefined = undefined;
@@ -82,6 +78,14 @@ export class EditGroupItemComponent
 
   calendarSelectionId = signal<string | undefined>(undefined);
   paymentInterval = signal<PaymentInterval>(PaymentInterval.Monthly);
+
+  public groupFormModel = signal<EditGroupItemFormModel>({ name: '' });
+  public groupForm = form(this.groupFormModel, (f) => {
+    disabled(f, { when: () => !this.authorizationService.isAuthorised });
+  });
+
+  private isFormLoaded = false;
+  private initSkipCount = 0;
 
   paymentIntervalOptions = [
     PaymentInterval.Weekly,
@@ -105,17 +109,6 @@ export class EditGroupItemComponent
   }
 
   ngAfterViewInit(): void {
-    this.groupForm!.valueChanges!
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.groupForm!.dirty) {
-          setTimeout(() => {
-            this.isChangingEvent.emit(true);
-            this.cdr.markForCheck();
-          }, 100);
-        }
-      });
-
     this.translateService.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -129,6 +122,7 @@ export class EditGroupItemComponent
       effect(() => {
         const isReset = this.dataManagementGroupService.isReset();
         if (isReset) {
+          this.isFormLoaded = false;
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }
       });
@@ -141,7 +135,23 @@ export class EditGroupItemComponent
           this.paymentInterval.set(group.paymentInterval ?? PaymentInterval.Monthly);
           this.calendarSelectionId.set(group.calendarSelectionId);
           this.calcValidation();
+          this.initSkipCount++;
+          this.groupFormModel.set({ name: group.name ?? '' });
+          this.isFormLoaded = true;
         }
+      });
+
+      effect(() => {
+        const data = this.groupFormModel();
+        if (!this.isFormLoaded) return;
+        if (this.initSkipCount > 0) { this.initSkipCount--; return; }
+        if (this.dataManagementGroupService.editGroup) {
+          this.dataManagementGroupService.editGroup.name = data.name;
+        }
+        setTimeout(() => {
+          this.isChangingEvent.emit(true);
+          this.cdr.markForCheck();
+        }, 100);
       });
     });
   }
