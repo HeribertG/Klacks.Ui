@@ -48,7 +48,7 @@
               </tbody>
             </table>
             @if (r.qualificationGaps?.length) {
-              <app-qualification-gap-report [gaps]="r.qualificationGaps ?? []" />
+              <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
           }
           @if (phase() === 'applying') {

@@ -875,7 +875,7 @@
             <div class="readonly-value">
               {{
                 formatWorkTime(
-                  propertiesService.contextMenuTargetItem.shift?.workTime || 0
+                  propertiesService.contextMenuTargetItem.shift.workTime || 0
                 )
               }}
             </div>
@@ -1023,10 +1023,10 @@
               | translate
                 : {
                     startShift: formatTime(
-                      propertiesService.contextMenuTargetItem.shift?.startShift
+                      propertiesService.contextMenuTargetItem.shift.startShift
                     ),
                     endShift: formatTime(
-                      propertiesService.contextMenuTargetItem.shift?.endShift
+                      propertiesService.contextMenuTargetItem.shift.endShift
                     ),
                   }
           }}

@@ -100,7 +100,7 @@
             }
 
             @if (r.qualificationGaps?.length) {
-              <app-qualification-gap-report [gaps]="r.qualificationGaps ?? []" />
+              <app-qualification-gap-report [gaps]="r.qualificationGaps" />
             }
 
             @if (r.batches.length > 0) {

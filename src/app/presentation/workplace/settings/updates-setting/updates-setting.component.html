@@ -13,7 +13,7 @@
       <div class="form-group secondColumn">
         <span class="field-label">{{ 'settings.updates.status.available' | translate }}</span>
         @if (s.availability?.isUpdateAvailable) {
-          <span class="hint-text update-available">{{ s.availability?.latestVersion }}</span>
+          <span class="hint-text update-available">{{ s.availability.latestVersion }}</span>
         } @else {
           <span class="hint-text">{{ 'settings.updates.status.upToDate' | translate }}</span>
         }
