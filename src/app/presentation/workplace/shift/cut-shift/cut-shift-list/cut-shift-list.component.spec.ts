@@ -11,7 +11,7 @@ import { Shift } from 'src/app/domain/models/shift/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 
 describe('CutShiftListComponent - Time Cut Logic', () => {
     let component: CutShiftListComponent;
@@ -31,7 +31,7 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
         TestBed.configureTestingModule({
             imports: [CutShiftListComponent],
             providers: [
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: NgbModal, useValue: mockModalService },
                 { provide: DataManagementShiftCutService, useValue: mockDataService },

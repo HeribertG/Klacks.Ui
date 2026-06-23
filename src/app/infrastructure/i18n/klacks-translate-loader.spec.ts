@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient, HttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, HttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { KlacksTranslateLoader } from './klacks-translate-loader';
 import { environment } from 'src/environments/environment';
 
@@ -13,7 +13,7 @@ describe('KlacksTranslateLoader', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+      providers: [provideHttpClient(withXhr(), withInterceptorsFromDi()), provideHttpClientTesting()]
     });
     const httpClient = TestBed.inject(HttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);

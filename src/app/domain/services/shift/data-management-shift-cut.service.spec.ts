@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/shift/data-shift-cuts.service';
@@ -36,7 +36,7 @@ describe('DataManagementShiftCutService', () => {
 
         TestBed.configureTestingModule({
             providers: [
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
                 { provide: DataShiftCutsService, useValue: mockDataShiftCutsService },

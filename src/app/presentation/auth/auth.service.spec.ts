@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { provideHttpClient, withInterceptorsFromDi, } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -21,7 +21,7 @@ describe('AuthService', () => {
             providers: [
                 AuthService,
                 ToastShowService,
-                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClient(withXhr(), withInterceptorsFromDi()),
                 provideHttpClientTesting(),
             ],
         });

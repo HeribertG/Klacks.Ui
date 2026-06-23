@@ -6,7 +6,7 @@ import { DataScheduleService } from './data-schedule.service';
 import { Work } from 'src/app/domain/models/schedule/schedule-class';
 import { environment } from 'src/environments/environment';
 import { Client, Address, Communication, Annotation } from 'src/app/domain/models/client/client-class';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 
 describe('DataScheduleService', () => {
     let service: DataScheduleService;
@@ -15,7 +15,7 @@ describe('DataScheduleService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [],
-            providers: [DataScheduleService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+            providers: [DataScheduleService, provideHttpClient(withXhr(), withInterceptorsFromDi()), provideHttpClientTesting()]
         });
         service = TestBed.inject(DataScheduleService);
         httpTestingController = TestBed.inject(HttpTestingController);

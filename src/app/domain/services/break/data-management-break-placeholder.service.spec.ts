@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -44,7 +44,7 @@ describe('DataManagementBreakPlaceholderService', () => {
         TestBed.configureTestingModule({
             imports: [TranslateModule.forRoot()],
             providers: [
-                provideHttpClient(),
+                provideHttpClient(withXhr()),
                 provideHttpClientTesting(),
                 DataManagementBreakPlaceholderService,
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },

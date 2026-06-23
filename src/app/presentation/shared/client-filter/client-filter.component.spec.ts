@@ -8,7 +8,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientFilterComponent } from './client-filter.component';
 import { IClientTypeFilter } from './client-filter.interface';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 
 function makeFilter(overrides: Partial<IClientTypeFilter> = {}): IClientTypeFilter {
   return {
@@ -28,7 +28,7 @@ describe('ClientFilterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ClientFilterComponent, TranslateModule.forRoot()],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(withXhr())],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClientFilterComponent);

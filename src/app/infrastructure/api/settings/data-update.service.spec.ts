@@ -2,7 +2,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { DataUpdateService } from './data-update.service';
 
@@ -13,7 +13,7 @@ describe('DataUpdateService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DataUpdateService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
+      providers: [DataUpdateService, provideHttpClient(withXhr(), withInterceptorsFromDi()), provideHttpClientTesting()],
     });
     service = TestBed.inject(DataUpdateService);
     httpMock = TestBed.inject(HttpTestingController);

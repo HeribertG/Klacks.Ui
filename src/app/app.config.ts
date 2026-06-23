@@ -13,6 +13,7 @@ import {
   HttpClient,
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr
 } from '@angular/common/http';
 import { ResponseInterceptor } from './presentation/error/http-interceptor';
 import { LoadingInterceptor } from './presentation/spinner/loading.interceptor';
@@ -88,7 +89,7 @@ export function initializeLanguageConfig(service: LanguageConfigService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter([]),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeDomainEventHandler,
