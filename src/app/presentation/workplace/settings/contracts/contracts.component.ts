@@ -8,7 +8,7 @@ import {
   OnInit,
   OnDestroy,
   AfterViewInit,
-  ViewChild,
+  viewChild,
   TemplateRef,
   signal,
   computed,
@@ -74,9 +74,8 @@ interface ContractFormModel {
 })
 export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.CONTRACT;
-  @ViewChild('contractModal', { read: TemplateRef })
-  contractModal!: TemplateRef<any>;
-  @ViewChild('containerBox') containerBox?: ElementRef;
+  readonly contractModal = viewChild.required<TemplateRef<any>>('contractModal');
+  readonly containerBox = viewChild<ElementRef>('containerBox');
 
   public translate = inject(TranslateService);
   public dataManagementContractService = inject(DataManagementContractService);
@@ -267,7 +266,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.isNewContract = true;
 
     setTimeout(() => {
-      this.ngbModal.open(this.contractModal, {
+      this.ngbModal.open(this.contractModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -283,7 +282,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.originalContract = contract;
     this.isNewContract = false;
 
-    this.ngbModal.open(this.contractModal, {
+    this.ngbModal.open(this.contractModal(), {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
@@ -357,12 +356,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
         this.originalContract = this.editingContract;
         this.isNewContract = false;
 
-        if (this.containerBox?.nativeElement) {
+        if (this.containerBox()?.nativeElement) {
           requestAnimationFrame(() => {
             setTimeout(() => {
-              if (this.containerBox?.nativeElement) {
-                this.containerBox.nativeElement.scrollTop =
-                  this.containerBox.nativeElement.scrollHeight;
+              if (this.containerBox()?.nativeElement) {
+                this.containerBox()!.nativeElement.scrollTop =
+                  this.containerBox()!.nativeElement.scrollHeight;
               }
             }, 100);
           });

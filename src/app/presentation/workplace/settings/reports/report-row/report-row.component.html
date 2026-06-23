@@ -150,11 +150,10 @@
         <ng-template ngbNavContent>
           <div class="designer-tab">
             <app-report-designer
-              [template]="editTemplate"
+              [(template)]="editTemplate"
               [sourceId]="editSourceId"
               [dataSetIds]="editDataSetIds"
               [imagePreviewCache]="imageCache"
-              (templateChange)="onTemplateChange($event)"
             >
             </app-report-designer>
           </div>
@@ -284,7 +283,7 @@
   <div class="form-group">
     <input
       type="text"
-      [value]="data.name"
+      [value]="data().name"
       class="form-control attribute-name"
       aria-label="name"
       (click)="openModal()"

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,15 +17,15 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 })
 export class BranchesRowComponent {
 
-  @Input() data!: IBranch;
-  @Output() editEvent = new EventEmitter<IBranch>();
-  @Output() isDeleteEvent = new EventEmitter<IBranch>();
+  readonly data = input.required<IBranch>();
+  readonly editEvent = output<IBranch>();
+  readonly isDeleteEvent = output<IBranch>();
 
   onClickEdit(): void {
-    this.editEvent.emit(this.data);
+    this.editEvent.emit(this.data());
   }
 
   onClickDelete(): void {
-    this.isDeleteEvent.emit(this.data);
+    this.isDeleteEvent.emit(this.data());
   }
 }

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -38,8 +38,8 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  @ViewChild('marketplaceModal') marketplaceModal!: TemplateRef<unknown>;
-  @ViewChild(MarketplaceBrowseComponent) marketplaceBrowse?: MarketplaceBrowseComponent;
+  readonly marketplaceModal = viewChild.required<TemplateRef<unknown>>('marketplaceModal');
+  readonly marketplaceBrowse = viewChild(MarketplaceBrowseComponent);
 
   allPlugins: LanguagePluginInfo[] = [];
   isLoading = false;
@@ -93,8 +93,8 @@ export class LanguagePluginsComponent implements OnInit, OnDestroy {
   }
 
   openMarketplaceModal(): void {
-    this.modalService.open(this.marketplaceModal, { size: 'lg' });
-    setTimeout(() => this.marketplaceBrowse?.search(), 0);
+    this.modalService.open(this.marketplaceModal(), { size: 'lg' });
+    setTimeout(() => this.marketplaceBrowse()?.search(), 0);
   }
 
   onMarketplaceInstalled(_code: string): void {

@@ -61,10 +61,10 @@
   </div>
 </ng-template>
 
-<div id="group-scope-row-container-{{ user!.id }}" class="first custom-control-inline">
-  <div id="group-scope-row-name-group-{{ user!.id }}" class="form-group">
+<div id="group-scope-row-container-{{ user()!.id }}" class="first custom-control-inline">
+  <div id="group-scope-row-name-group-{{ user()!.id }}" class="form-group">
     <input
-      id="group-scope-row-name-{{ user!.id }}"
+      id="group-scope-row-name-{{ user()!.id }}"
       type="text"
       [value]="userName()"
       class="form-control gap"
@@ -72,14 +72,14 @@
       aria-label="name"
     />
   </div>
-  <div id="group-scope-row-count-group-{{ user!.id }}" class="form-group">
+  <div id="group-scope-row-count-group-{{ user()!.id }}" class="form-group">
     <button
-      id="group-scope-row-count-btn-{{ user!.id }}"
+      id="group-scope-row-count-btn-{{ user()!.id }}"
       type="button"
       class="btn btn btn-info center"
       aria-label="number"
       (click)="open(content)"
-      [disabled]="user?.isAdmin"
+      [disabled]="user()?.isAdmin"
     >
       {{ assignedGroupsCount() }}
     </button>

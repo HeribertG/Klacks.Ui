@@ -1,17 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Row component for a single macro entry in the macro settings list.
+ * @param data - The macro entity to display and edit
+ */
 import {
   Component, ChangeDetectionStrategy,
-  EventEmitter,
-  Input,
-  OnChanges,
   OnDestroy,
-  Output,
   TemplateRef,
-  ViewChild,
   inject,
   signal,
   effect,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { form, FormField, debounce } from '@angular/forms/signals';
@@ -64,13 +66,13 @@ interface MacroFormModel {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MacroRowComponent implements OnChanges, OnDestroy {
-  @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
-  @ViewChild('codemirror') codeEditor!: CodeEditorComponent;
-  @Input() data: IMacro = new Macro();
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() cancelNewEvent = new EventEmitter<void>();
-  @Output() macroChangedEvent = new EventEmitter<void>();
+export class MacroRowComponent implements OnDestroy {
+  readonly contentTemplate = viewChild.required<TemplateRef<unknown>>('content');
+  readonly codeEditor = viewChild<CodeEditorComponent>('codemirror');
+  readonly data = input<IMacro>(new Macro());
+  readonly isDeleteEvent = output<void>();
+  readonly cancelNewEvent = output<void>();
+  readonly macroChangedEvent = output<void>();
 
   private wasSaved = false;
   private destroy$ = new Subject<void>();
@@ -123,8 +125,25 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
 
   constructor() {
     effect(() => {
+      const d = this.data();
+      if (d) {
+        const strippedContent = this.stripImports(d.content || '');
+        const initialModel: MacroFormModel = {
+          name: d.name || '',
+          type: String(d.type ?? 0),
+          content: strippedContent,
+          category: String(d.category ?? 0),
+        };
+        this.macroModel.set(initialModel);
+        this.lastModel = { ...initialModel };
+        this.editorContent.set(strippedContent);
+        this.isInitialized = true;
+      }
+    });
+
+    effect(() => {
       const model = this.macroModel();
-      if (this.isInitialized && this.data && this.hasModelChanged(model)) {
+      if (this.isInitialized && this.data() && this.hasModelChanged(model)) {
         this.lastModel = { ...model };
       }
     });
@@ -138,22 +157,6 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
       model.content !== this.lastModel.content ||
       model.category !== this.lastModel.category
     );
-  }
-
-  ngOnChanges(): void {
-    if (this.data) {
-      const strippedContent = this.stripImports(this.data.content || '');
-      const initialModel: MacroFormModel = {
-        name: this.data.name || '',
-        type: String(this.data.type ?? 0),
-        content: strippedContent,
-        category: String(this.data.category ?? 0),
-      };
-      this.macroModel.set(initialModel);
-      this.lastModel = { ...initialModel };
-      this.editorContent.set(strippedContent);
-      this.isInitialized = true;
-    }
   }
 
   private readonly AUTO_IMPORTS = [
@@ -195,12 +198,13 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
   }
 
   onChange(): void {
+    const d = this.data();
     if (
-      this.data &&
-      (this.data.isDirty === undefined ||
-        this.data.isDirty === CreateEntriesEnum.undefined)
+      d &&
+      (d.isDirty === undefined ||
+        d.isDirty === CreateEntriesEnum.undefined)
     ) {
-      this.data.isDirty = CreateEntriesEnum.rewrite;
+      d.isDirty = CreateEntriesEnum.rewrite;
     }
     this.macroChangedEvent.emit();
   }
@@ -210,22 +214,23 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
   }
 
   openModal(): void {
-    this.openModalInternal(this.contentTemplate);
+    this.openModalInternal(this.contentTemplate());
   }
 
   private openModalInternal(content: unknown): void {
-    if (this.data) {
-      const strippedContent = this.stripImports(this.data.content || '');
+    const d = this.data();
+    if (d) {
+      const strippedContent = this.stripImports(d.content || '');
       const initialModel: MacroFormModel = {
-        name: this.data.name || '',
-        type: String(this.data.type ?? 0),
+        name: d.name || '',
+        type: String(d.type ?? 0),
         content: strippedContent,
-        category: String(this.data.category ?? 0),
+        category: String(d.category ?? 0),
       };
       this.macroModel.set(initialModel);
       this.lastModel = { ...initialModel };
       this.editorContent.set(strippedContent);
-      this.description = this.data.description;
+      this.description = d.description;
     }
 
     this.wasSaved = false;
@@ -235,13 +240,14 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
-        if (this.data) {
+        const saved = this.data();
+        if (saved) {
           const model = this.macroModel();
-          this.data.name = model.name;
-          this.data.type = +model.type;
-          this.data.category = +model.category as MacroCategoryEnum;
-          this.data.content = this.addImports(this.editorContent());
-          this.data.description = this.description;
+          saved.name = model.name;
+          saved.type = +model.type;
+          saved.category = +model.category as MacroCategoryEnum;
+          saved.content = this.addImports(this.editorContent());
+          saved.description = this.description;
         }
 
         this.wasSaved = true;
@@ -249,7 +255,8 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
         this.macroManagementService.save();
       },
       () => {
-        if (!this.wasSaved && this.data.isDirty === CreateEntriesEnum.new) {
+        const d2 = this.data();
+        if (!this.wasSaved && d2.isDirty === CreateEntriesEnum.new) {
           this.cancelNewEvent.emit();
         }
       }
@@ -269,13 +276,14 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
   }
 
   onSave(): void {
-    if (this.data) {
+    const d = this.data();
+    if (d) {
       const model = this.macroModel();
-      this.data.name = model.name;
-      this.data.type = +model.type;
-      this.data.category = +model.category as MacroCategoryEnum;
-      this.data.content = this.addImports(this.editorContent());
-      this.data.description = this.description;
+      d.name = model.name;
+      d.type = +model.type;
+      d.category = +model.category as MacroCategoryEnum;
+      d.content = this.addImports(this.editorContent());
+      d.description = this.description;
     }
     this.wasSaved = true;
     this.onChange();
@@ -303,7 +311,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
 
   private setCursorPosition(line: number, column: number): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const view = (this.codeEditor as any)?.view;
+    const view = (this.codeEditor() as any)?.view;
     if (!view) return;
 
     const code = this.editorContent();
@@ -328,7 +336,7 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
 
   private clearErrorMark(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const view = (this.codeEditor as any)?.view;
+    const view = (this.codeEditor() as any)?.view;
     if (!view) return;
     clearError(view);
   }

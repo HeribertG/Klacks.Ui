@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, viewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -34,7 +34,7 @@ import { SearchInputComponent } from 'src/app/presentation/shared/search-input/s
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StateComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('containerBox') containerBox?: ElementRef;
+  readonly containerBox = viewChild<ElementRef>('containerBox');
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
@@ -84,8 +84,8 @@ export class StateComponent implements AfterViewInit, OnDestroy {
 
     requestAnimationFrame(() => {
       setTimeout(() => {
-        if (this.containerBox?.nativeElement) {
-          this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+        if (this.containerBox()?.nativeElement) {
+          this.containerBox()!.nativeElement.scrollTop = this.containerBox()!.nativeElement.scrollHeight;
         }
       }, 100);
     });

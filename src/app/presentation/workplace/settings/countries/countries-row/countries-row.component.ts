@@ -2,15 +2,14 @@
 
 import {
   Component, ChangeDetectionStrategy,
-  EventEmitter,
-  Input,
-  OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   inject,
   effect,
   signal,
+  input,
+  output,
+  untracked,
   ChangeDetectorRef,
 } from '@angular/core';
 import { form, FormField, debounce } from '@angular/forms/signals';
@@ -39,10 +38,10 @@ interface CountryModel {
   imports: [TranslateModule, FormField, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() data: ICountry | undefined;
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() isChangingEvent = new EventEmitter<void>();
+export class CountriesRowComponent implements OnInit, OnDestroy {
+  readonly data = input<ICountry | undefined>(undefined);
+  readonly isDeleteEvent = output<void>();
+  readonly isChangingEvent = output<void>();
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
   private translateService = inject(TranslateService);
@@ -70,14 +69,32 @@ export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor() {
     effect(() => {
+      const currentData = this.data();
+      if (currentData) {
+        const initialModel: CountryModel = {
+          abbreviation: currentData.abbreviation || '',
+          nameDe: currentData.name?.de || '',
+          nameEn: currentData.name?.en || '',
+          nameFr: currentData.name?.fr || '',
+          nameIt: currentData.name?.it || '',
+          prefix: currentData.prefix || '',
+        };
+        this.countryModel.set(initialModel);
+        this.lastModel = { ...initialModel };
+        this.isInitialized = true;
+      }
+    });
+
+    effect(() => {
       const model = this.countryModel();
-      if (this.isInitialized && this.data && this.hasModelChanged(model)) {
-        this.data.abbreviation = model.abbreviation;
-        this.data.name!.de = model.nameDe;
-        this.data.name!.en = model.nameEn;
-        this.data.name!.fr = model.nameFr;
-        this.data.name!.it = model.nameIt;
-        this.data.prefix = model.prefix;
+      const currentData = untracked(() => this.data());
+      if (this.isInitialized && currentData && this.hasModelChanged(model)) {
+        currentData.abbreviation = model.abbreviation;
+        currentData.name!.de = model.nameDe;
+        currentData.name!.en = model.nameEn;
+        currentData.name!.fr = model.nameFr;
+        currentData.name!.it = model.nameIt;
+        currentData.prefix = model.prefix;
         this.lastModel = { ...model };
         this.updateDataDirtyState();
       }
@@ -107,22 +124,6 @@ export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  ngOnChanges(): void {
-    if (this.data) {
-      const initialModel: CountryModel = {
-        abbreviation: this.data.abbreviation || '',
-        nameDe: this.data.name?.de || '',
-        nameEn: this.data.name?.en || '',
-        nameFr: this.data.name?.fr || '',
-        nameIt: this.data.name?.it || '',
-        prefix: this.data.prefix || '',
-      };
-      this.countryModel.set(initialModel);
-      this.lastModel = { ...initialModel };
-      this.isInitialized = true;
-    }
-  }
-
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -133,12 +134,13 @@ export class CountriesRowComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateDataDirtyState(): void {
-    if (this.data) {
+    const currentData = this.data();
+    if (currentData) {
       if (
-        this.data.isDirty === undefined ||
-        this.data.isDirty === CreateEntriesEnum.undefined
+        currentData.isDirty === undefined ||
+        currentData.isDirty === CreateEntriesEnum.undefined
       ) {
-        this.data.isDirty = CreateEntriesEnum.rewrite;
+        currentData.isDirty = CreateEntriesEnum.rewrite;
       }
       this.isChangingEvent.emit();
     }

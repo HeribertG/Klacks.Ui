@@ -2,14 +2,13 @@
 
 import {
   Component, ChangeDetectionStrategy,
-  EventEmitter,
-  Input,
   OnDestroy,
-  Output,
   TemplateRef,
-  ViewChild,
   inject,
+  input,
+  output,
   signal,
+  viewChild,
   ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -49,11 +48,11 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IdentityProviderRowComponent implements OnDestroy {
-  @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
-  @Input() data!: IIdentityProviderListItem;
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() cancelNewEvent = new EventEmitter<void>();
-  @Output() providerChangedEvent = new EventEmitter<void>();
+  readonly contentTemplate = viewChild.required<TemplateRef<unknown>>('content');
+  readonly data = input.required<IIdentityProviderListItem>();
+  readonly isDeleteEvent = output<void>();
+  readonly cancelNewEvent = output<void>();
+  readonly providerChangedEvent = output<void>();
 
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
@@ -96,7 +95,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
   }
 
   openModal(): void {
-    this.openModalInternal(this.contentTemplate);
+    this.openModalInternal(this.contentTemplate());
   }
 
   private async openModalInternal(content: unknown): Promise<void> {
@@ -106,16 +105,16 @@ export class IdentityProviderRowComponent implements OnDestroy {
     this.syncResult.set(null);
     this.loadManual();
 
-    if (this.data.isDirty === CreateEntriesEnum.new) {
+    if (this.data().isDirty === CreateEntriesEnum.new) {
       const newProvider = new IdentityProvider();
-      newProvider.name = this.data.name;
-      newProvider.type = this.data.type;
+      newProvider.name = this.data().name;
+      newProvider.type = this.data().type;
       newProvider.isDirty = CreateEntriesEnum.new;
       newProvider.port = 389;
       newProvider.userFilter = '(&(objectClass=user)(objectCategory=person))';
       this.editProvider.set(newProvider);
     } else {
-      const loaded = await this.providerService.loadProvider(this.data.id);
+      const loaded = await this.providerService.loadProvider(this.data().id);
       if (loaded) {
         this.editProvider.set(loaded);
       }
@@ -132,7 +131,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
         this.editProvider.set(null);
       },
       () => {
-        if (!this.wasSaved && this.data.isDirty === CreateEntriesEnum.new) {
+        if (!this.wasSaved && this.data().isDirty === CreateEntriesEnum.new) {
           this.cancelNewEvent.emit();
         }
         this.editProvider.set(null);

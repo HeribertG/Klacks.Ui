@@ -1,36 +1,36 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div id="user-admin-row-container-{{ user!.id }}" class="first custom-control-inline">
-  <div id="user-admin-row-name-group-{{ user!.id }}" class="form-group">
+<div id="user-admin-row-container-{{ user()!.id }}" class="first custom-control-inline">
+  <div id="user-admin-row-name-group-{{ user()!.id }}" class="form-group">
     <input
-      id="user-admin-row-name-{{ user!.id }}"
+      id="user-admin-row-name-{{ user()!.id }}"
       type="text"
       [value]="userName"
       class="form-control gap"
-      [class.editable]="enabled"
+      [class.editable]="enabled()"
       readonly
       aria-label="name"
       (dblclick)="onDoubleClickEdit()"
     />
   </div>
 
-  <div id="user-admin-row-email-group-{{ user!.id }}" class="form-group">
+  <div id="user-admin-row-email-group-{{ user()!.id }}" class="form-group">
     <input
-      id="user-admin-row-email-{{ user!.id }}"
+      id="user-admin-row-email-{{ user()!.id }}"
       type="email"
       [value]="userEmail"
       class="form-control gap"
       readonly
       aria-label="email"
     />
-    @if (enabled) {
-    <span id="user-admin-row-sendto-{{ user!.id }}" class="send-to" (click)="onClickSentTo()">{{ 'setting.user-admin.row.send' | translate }}</span>
+    @if (enabled()) {
+    <span id="user-admin-row-sendto-{{ user()!.id }}" class="send-to" (click)="onClickSentTo()">{{ 'setting.user-admin.row.send' | translate }}</span>
     }
   </div>
-  <div id="user-admin-row-authorised-group-{{ user!.id }}" class="form-group">
-    @if (enabled) {
+  <div id="user-admin-row-authorised-group-{{ user()!.id }}" class="form-group">
+    @if (enabled()) {
       <select
-        id="user-admin-row-authorised-{{ user!.id }}"
+        id="user-admin-row-authorised-{{ user()!.id }}"
         [formField]="userRoleForm.isAuthorised"
         class="form-select gap"
         aria-label="isAuthorised"
@@ -44,25 +44,25 @@
       </select>
     } @else {
       <select
-        id="user-admin-row-authorised-{{ user!.id }}"
+        id="user-admin-row-authorised-{{ user()!.id }}"
         class="form-select gap"
         disabled
         aria-label="isAuthorised"
       >
-        <option [selected]="user!.isAuthorised">
+        <option [selected]="user()!.isAuthorised">
           {{ 'setting.user-admin.row.yes' | translate }}
         </option>
-        <option [selected]="!user!.isAuthorised">
+        <option [selected]="!user()!.isAuthorised">
           {{ 'setting.user-admin.row.no' | translate }}
         </option>
       </select>
     }
   </div>
 
-  <div id="user-admin-row-admin-group-{{ user!.id }}" class="form-group">
-    @if (enabled) {
+  <div id="user-admin-row-admin-group-{{ user()!.id }}" class="form-group">
+    @if (enabled()) {
       <select
-        id="user-admin-row-admin-{{ user!.id }}"
+        id="user-admin-row-admin-{{ user()!.id }}"
         [formField]="userRoleForm.isAdmin"
         class="form-select"
         aria-label="isAdmin"
@@ -72,19 +72,19 @@
       </select>
     } @else {
       <select
-        id="user-admin-row-admin-{{ user!.id }}"
+        id="user-admin-row-admin-{{ user()!.id }}"
         class="form-select"
         disabled
         aria-label="isAdmin"
       >
-        <option [selected]="user!.isAdmin">Admin</option>
-        <option [selected]="!user!.isAdmin">User</option>
+        <option [selected]="user()!.isAdmin">Admin</option>
+        <option [selected]="!user()!.isAdmin">User</option>
       </select>
     }
   </div>
-  <div id="user-admin-row-delete-group-{{ user!.id }}">
-    @if (enabled) {
-    <span id="user-admin-row-delete-{{ user!.id }}" class="delete-button" type="button" (click)="onDelete()"><app-icon-trash-red /></span>
+  <div id="user-admin-row-delete-group-{{ user()!.id }}">
+    @if (enabled()) {
+    <span id="user-admin-row-delete-{{ user()!.id }}" class="delete-button" type="button" (click)="onDelete()"><app-icon-trash-red /></span>
     }
   </div>
 </div>

@@ -6,7 +6,7 @@
  * @param isDeleteEvent - Emits the token when the revoke button is clicked
  */
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,10 +23,10 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 })
 export class PersonalAccessTokensRowComponent {
 
-  @Input() data!: IPersonalAccessToken;
-  @Output() isDeleteEvent = new EventEmitter<IPersonalAccessToken>();
+  readonly data = input.required<IPersonalAccessToken>();
+  readonly isDeleteEvent = output<IPersonalAccessToken>();
 
   onClickDelete(): void {
-    this.isDeleteEvent.emit(this.data);
+    this.isDeleteEvent.emit(this.data());
   }
 }

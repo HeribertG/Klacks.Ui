@@ -357,12 +357,12 @@
   </div>
 </ng-template>
 
-<div id="identity-provider-row-container-{{ data.id }}" class="first custom-control-inline">
-  <div id="identity-provider-row-name-group-{{ data.id }}" class="form-group">
+<div id="identity-provider-row-container-{{ data().id }}" class="first custom-control-inline">
+  <div id="identity-provider-row-name-group-{{ data().id }}" class="form-group">
     <input
-      id="identity-provider-row-name-{{ data.id }}"
+      id="identity-provider-row-name-{{ data().id }}"
       type="text"
-      [value]="data.name"
+      [value]="data().name"
       class="form-control attribute-name"
       aria-label="name"
       (click)="open(content)"
@@ -371,7 +371,7 @@
   </div>
 
   <span
-    id="identity-provider-row-delete-{{ data.id }}"
+    id="identity-provider-row-delete-{{ data().id }}"
     class="delete-button"
     type="button"
     (click)="onClickDelete()"

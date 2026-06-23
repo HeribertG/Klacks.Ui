@@ -8,7 +8,7 @@ import {
   OnInit,
   OnDestroy,
   AfterViewInit,
-  ViewChild,
+  viewChild,
   TemplateRef,
   signal,
   ChangeDetectorRef,
@@ -58,9 +58,8 @@ export class SchedulingRulesComponent
   implements OnInit, AfterViewInit, OnDestroy, IRefreshable
 {
   public readonly refreshableEntities = RefreshEntityTokens.SCHEDULING_RULE;
-  @ViewChild('ruleModal', { read: TemplateRef })
-  ruleModal!: TemplateRef<unknown>;
-  @ViewChild('containerBox') containerBox?: ElementRef;
+  readonly ruleModal = viewChild.required<TemplateRef<unknown>>('ruleModal');
+  readonly containerBox = viewChild<ElementRef>('containerBox');
 
   public translate = inject(TranslateService);
   public dataManagementService = inject(DataManagementSchedulingRuleService);
@@ -143,7 +142,7 @@ export class SchedulingRulesComponent
     this.loadManual();
 
     setTimeout(() => {
-      this.ngbModal.open(this.ruleModal, {
+      this.ngbModal.open(this.ruleModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -209,12 +208,12 @@ export class SchedulingRulesComponent
         this.originalRule = this.editingRule;
         this.isNewRule = false;
 
-        if (this.containerBox?.nativeElement) {
+        if (this.containerBox()?.nativeElement) {
           requestAnimationFrame(() => {
             setTimeout(() => {
-              if (this.containerBox?.nativeElement) {
-                this.containerBox.nativeElement.scrollTop =
-                  this.containerBox.nativeElement.scrollHeight;
+              if (this.containerBox()?.nativeElement) {
+                this.containerBox()!.nativeElement.scrollTop =
+                  this.containerBox()!.nativeElement.scrollHeight;
               }
             }, 100);
           });

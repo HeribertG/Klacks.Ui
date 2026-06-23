@@ -14,7 +14,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -72,8 +72,7 @@ const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('tokenModal', { read: TemplateRef })
-  tokenModal!: TemplateRef<any>;
+  readonly tokenModal = viewChild.required<TemplateRef<any>>('tokenModal');
 
   private tokenService = inject(DataPersonalAccessTokenService);
   private toastService = inject(ToastShowService);
@@ -161,7 +160,7 @@ export class PersonalAccessTokensComponent implements OnInit, AfterViewInit, OnD
 
     setTimeout(() => {
       this.ngbModal
-        .open(this.tokenModal, {
+        .open(this.tokenModal(), {
           ariaLabelledBy: 'modal-title',
           size: 'lg',
         })

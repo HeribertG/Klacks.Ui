@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, viewChildren, effect } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -32,7 +32,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 })
 export class MacrosComponent implements AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.MACRO;
-  @ViewChildren(MacroRowComponent) macroRows!: QueryList<MacroRowComponent>;
+  readonly macroRows = viewChildren(MacroRowComponent);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private macroManagementService = inject(MacroManagementService);
   private modalService = inject(ModalService);
@@ -44,6 +44,20 @@ export class MacrosComponent implements AfterViewInit, OnDestroy, IRefreshable {
   message = DomainMessages.DELETE_ENTRY;
   private macroToDeleteIndex: number | null = null;
   private pendingOpenMacro: Macro | null = null;
+
+  constructor() {
+    effect(() => {
+      const rowList = this.macroRows();
+      if (this.pendingOpenMacro !== null) {
+        const row = rowList.find(r => r.data() === this.pendingOpenMacro);
+        if (row) {
+          setTimeout(() => row.openModal(), 0);
+        }
+        this.pendingOpenMacro = null;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent
@@ -58,19 +72,6 @@ export class MacrosComponent implements AfterViewInit, OnDestroy, IRefreshable {
           this.modalService.Filing = '';
           this.cdr.markForCheck();
         }
-      });
-
-    this.macroRows.changes
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.pendingOpenMacro !== null) {
-          const row = this.macroRows.find(r => r.data === this.pendingOpenMacro);
-          if (row) {
-            setTimeout(() => row.openModal(), 0);
-          }
-          this.pendingOpenMacro = null;
-        }
-        this.cdr.markForCheck();
       });
 
     this.unregisterRefresh = this.refreshRegistry.register(this);

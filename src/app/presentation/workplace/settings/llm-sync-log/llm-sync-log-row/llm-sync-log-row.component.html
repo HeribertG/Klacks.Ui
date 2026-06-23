@@ -8,16 +8,16 @@
       <app-icon-angle-right />
     }
   </span>
-  <span class="col-date">{{ formatDate(data.syncedAt) }}</span>
-  <span class="col-provider">{{ data.providerName }}</span>
-  <span class="col-count">{{ data.newModelsCount }}</span>
-  <span class="col-count" [class.has-failed]="data.failedModelsCount > 0">{{ data.failedModelsCount }}</span>
-  <span class="col-count">{{ data.deactivatedModelsCount }}</span>
+  <span class="col-date">{{ formatDate(data().syncedAt) }}</span>
+  <span class="col-provider">{{ data().providerName }}</span>
+  <span class="col-count">{{ data().newModelsCount }}</span>
+  <span class="col-count" [class.has-failed]="data().failedModelsCount > 0">{{ data().failedModelsCount }}</span>
+  <span class="col-count">{{ data().deactivatedModelsCount }}</span>
 </div>
 
-@if (isExpanded() && data.modelTestResults.length > 0) {
+@if (isExpanded() && data().modelTestResults.length > 0) {
   <div class="test-results">
-    @for (result of data.modelTestResults; track result.apiModelId) {
+    @for (result of data().modelTestResults; track result.apiModelId) {
       <div class="test-result-row" [class.failed]="!result.passed">
         <span class="result-icon" [class.failed-icon]="!result.passed">{{ result.passed ? '✓' : '✗' }}</span>
         <span class="result-name">{{ result.modelName }}</span>

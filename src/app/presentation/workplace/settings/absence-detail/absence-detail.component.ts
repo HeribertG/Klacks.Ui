@@ -8,7 +8,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -68,8 +68,7 @@ interface AbsenceDetailFormFields {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('absenceDetailModal', { read: TemplateRef })
-  absenceDetailModal!: TemplateRef<any>;
+  readonly absenceDetailModal = viewChild.required<TemplateRef<any>>('absenceDetailModal');
 
   private absenceDetailService = inject(DataAbsenceDetailService);
   private absenceService = inject(DataAbsenceService);
@@ -191,7 +190,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     this.originalAbsenceDetail = null;
 
     setTimeout(() => {
-      this.ngbModal.open(this.absenceDetailModal, {
+      this.ngbModal.open(this.absenceDetailModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'md',
       });
@@ -250,7 +249,7 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
     this.initFormFromAbsenceDetail(this.editingAbsenceDetail);
 
     setTimeout(() => {
-      this.ngbModal.open(this.absenceDetailModal, {
+      this.ngbModal.open(this.absenceDetailModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'md',
       });

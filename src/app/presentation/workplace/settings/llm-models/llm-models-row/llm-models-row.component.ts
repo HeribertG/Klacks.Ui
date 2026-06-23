@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,26 +17,25 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 })
 export class LLMModelsRowComponent {
 
-  @Input() data!: IAssistantModel;
-  @Output() editEvent = new EventEmitter<IAssistantModel>();
-  @Output() isDeleteEvent = new EventEmitter<IAssistantModel>();
+  readonly data = input.required<IAssistantModel>();
+  readonly editEvent = output<IAssistantModel>();
+  readonly isDeleteEvent = output<IAssistantModel>();
 
   onClickEdit(): void {
-    this.editEvent.emit(this.data);
+    this.editEvent.emit(this.data());
   }
 
   onClickDelete(): void {
-    if (!this.data.isDefault) {
-      this.isDeleteEvent.emit(this.data);
+    if (!this.data().isDefault) {
+      this.isDeleteEvent.emit(this.data());
     }
   }
 
   getModelDisplayText(): string {
-    const modelId = this.data.modelId || '';
-    const displayName = this.data.displayName || modelId;
-    const provider = this.data.providerId?.toUpperCase() || '';
+    const modelId = this.data().modelId || '';
+    const displayName = this.data().displayName || modelId;
+    const provider = this.data().providerId?.toUpperCase() || '';
 
-    // Try to extract version from modelId (e.g., "gpt-3.5-turbo" -> "3.5")
     const versionMatch = modelId.match(/(\d+\.?\d*)/);
     const version = versionMatch ? versionMatch[1] : '';
 

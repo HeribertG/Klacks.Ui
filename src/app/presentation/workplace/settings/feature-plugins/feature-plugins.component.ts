@@ -6,7 +6,7 @@
  * @param dataService - API service for feature plugin operations
  * @param toastService - Service for displaying toast notifications
  */
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, inject, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -44,8 +44,8 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  @ViewChild('marketplaceModal') marketplaceModal!: TemplateRef<unknown>;
-  @ViewChild(FeaturePluginMarketplaceBrowseComponent) marketplaceBrowse?: FeaturePluginMarketplaceBrowseComponent;
+  readonly marketplaceModal = viewChild.required<TemplateRef<unknown>>('marketplaceModal');
+  readonly marketplaceBrowse = viewChild(FeaturePluginMarketplaceBrowseComponent);
 
   allPlugins: FeaturePluginInfo[] = [];
   isLoading = false;
@@ -129,8 +129,8 @@ export class FeaturePluginsComponent implements OnInit, OnDestroy {
   }
 
   openMarketplaceModal(): void {
-    this.modalService.open(this.marketplaceModal, { size: 'lg' });
-    setTimeout(() => this.marketplaceBrowse?.search(), 0);
+    this.modalService.open(this.marketplaceModal(), { size: 'lg' });
+    setTimeout(() => this.marketplaceBrowse()?.search(), 0);
   }
 
   async onMarketplaceInstalled(_name: string): Promise<void> {

@@ -8,7 +8,7 @@
  * @param imagePreviewCache - Shared cache for image preview DataURLs
  */
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, effect, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -52,12 +52,11 @@ interface FieldPaletteGroup {
   providers: [ReportDesignerFieldService, ReportDesignerBorderService, ReportDesignerFormulaService, ReportDesignerImageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReportDesignerComponent implements OnChanges {
-  @Input() template!: ReportTemplate;
-  @Input() sourceId = 'schedule';
-  @Input() dataSetIds: string[] = ['work'];
-  @Input() imagePreviewCache = new Map<string, string>();
-  @Output() templateChange = new EventEmitter<ReportTemplate>();
+export class ReportDesignerComponent {
+  readonly template = model.required<ReportTemplate>();
+  readonly sourceId = input('schedule');
+  readonly dataSetIds = input<string[]>(['work']);
+  readonly imagePreviewCache = input(new Map<string, string>());
 
   translate = inject(TranslateService);
   protected fieldService = inject(ReportDesignerFieldService);
@@ -68,12 +67,15 @@ export class ReportDesignerComponent implements OnChanges {
   activeField: ReportField | null = null;
   fieldPrefixMap = new Map<string, string>();
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['template'] && this.template?.sections) {
-      for (const section of this.template.sections) {
-        this.imageService.loadExistingImages(section, this.imagePreviewCache);
+  constructor() {
+    effect(() => {
+      const t = this.template();
+      if (t?.sections) {
+        for (const section of t.sections) {
+          this.imageService.loadExistingImages(section, this.imagePreviewCache());
+        }
       }
-    }
+    });
   }
 
   TextAlignment = TextAlignment;
@@ -98,8 +100,8 @@ export class ReportDesignerComponent implements OnChanges {
   ];
 
   get activeDataSets(): ReportDataSet[] {
-    const source = REPORT_DATA_SOURCES.find(s => s.id === this.sourceId);
-    return source?.dataSets.filter(ds => this.dataSetIds.includes(ds.id)) ?? [];
+    const source = REPORT_DATA_SOURCES.find(s => s.id === this.sourceId());
+    return source?.dataSets.filter(ds => this.dataSetIds().includes(ds.id)) ?? [];
   }
 
   get paletteGroups(): FieldPaletteGroup[] {
@@ -109,7 +111,7 @@ export class ReportDesignerComponent implements OnChanges {
       return [];
     }
 
-    this.fieldPrefixMap = getFieldPrefixMap(this.sourceId, this.dataSetIds, k => this.translate.instant(k));
+    this.fieldPrefixMap = getFieldPrefixMap(this.sourceId(), this.dataSetIds(), k => this.translate.instant(k));
 
     if (dataSets.length <= 1) {
       return [
@@ -186,17 +188,17 @@ export class ReportDesignerComponent implements OnChanges {
   };
 
   get bodySections(): ReportSection[] {
-    return this.template.sections
+    return this.template().sections
       .filter(s => s.type !== ReportSectionType.Header && s.type !== ReportSectionType.Footer)
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
   get headerSection(): ReportSection | undefined {
-    return this.template.sections.find(s => s.type === ReportSectionType.Header);
+    return this.template().sections.find(s => s.type === ReportSectionType.Header);
   }
 
   get footerSection(): ReportSection | undefined {
-    return this.template.sections.find(s => s.type === ReportSectionType.Footer);
+    return this.template().sections.find(s => s.type === ReportSectionType.Footer);
   }
 
   getBodyTableDropId(section: ReportSection): string {
@@ -244,7 +246,8 @@ export class ReportDesignerComponent implements OnChanges {
       sortOrder: newSortOrder,
     };
 
-    this.template.sections = [...this.template.sections, newSection];
+    const t = this.template();
+    t.sections = [...t.sections, newSection];
     this.emitChange();
   }
 
@@ -255,15 +258,16 @@ export class ReportDesignerComponent implements OnChanges {
       this.activeField = null;
     }
 
-    this.template.sections = this.template.sections.filter(s => s !== section);
-    this.template.sections
+    const t = this.template();
+    t.sections = t.sections.filter(s => s !== section);
+    t.sections
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .forEach((s, i) => s.sortOrder = i);
     this.emitChange();
   }
 
   getSection(type: ReportSectionType): ReportSection | undefined {
-    return this.template.sections.find(s => s.type === type);
+    return this.template().sections.find(s => s.type === type);
   }
 
   getAvailableFields(group: FieldPaletteGroup): DataBindingDefinition[] {
@@ -348,13 +352,13 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   removeHeaderField(section: ReportSection, field: ReportField): void {
-    this.fieldService.removeHeaderField(section, field, this.imagePreviewCache);
+    this.fieldService.removeHeaderField(section, field, this.imagePreviewCache());
     if (this.activeField === field) this.activeField = null;
     this.emitChange();
   }
 
   async onImageChipUpload(event: Event, section: ReportSection, field: ReportField): Promise<void> {
-    const success = await this.imageService.onImageChipUpload(event, field, this.imagePreviewCache);
+    const success = await this.imageService.onImageChipUpload(event, field, this.imagePreviewCache());
     if (success) {
       this.activeField = field;
       this.emitChange();
@@ -362,7 +366,7 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   async onImageUpload(event: Event, section: ReportSection, rowIndex: number, alignment: TextAlignment): Promise<void> {
-    const field = await this.imageService.onImageUpload(event, section, rowIndex, alignment, this.imagePreviewCache);
+    const field = await this.imageService.onImageUpload(event, section, rowIndex, alignment, this.imagePreviewCache());
     if (field) {
       this.activeField = field;
       this.emitChange();
@@ -379,7 +383,7 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   isSectionShowFullPeriod(section: ReportSection): boolean {
-    return section.showFullPeriod ?? this.template.showFullPeriod ?? false;
+    return section.showFullPeriod ?? this.template().showFullPeriod ?? false;
   }
 
   toggleSectionShowFullPeriod(section: ReportSection, value: boolean): void {
@@ -403,8 +407,7 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   getAvailableFooterFields(): DataBindingDefinition[] {
-    const dataSets = this.activeDataSets;
-    return dataSets.flatMap(ds => ds.footerFields);
+    return this.activeDataSets.flatMap(ds => ds.footerFields);
   }
 
   addTableFooterField(section: ReportSection, binding: DataBindingDefinition): void {
@@ -517,10 +520,10 @@ export class ReportDesignerComponent implements OnChanges {
   }
 
   openFormulaEditor(field: ReportField): void {
-    this.formulaSvc.openFormulaEditor(field, this.bodySections, this.sourceId, this.dataSetIds);
+    this.formulaSvc.openFormulaEditor(field, this.bodySections, this.sourceId(), this.dataSetIds());
   }
 
   emitChange(): void {
-    this.templateChange.emit({ ...this.template });
+    this.template.set({ ...this.template() });
   }
 }

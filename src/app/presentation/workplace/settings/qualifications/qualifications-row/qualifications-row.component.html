@@ -1,13 +1,13 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div id="qualifications-row-form-{{ data.id }}">
-  <div id="qualifications-row-container-{{ data.id }}" class="first custom-control-inline">
+<div id="qualifications-row-form-{{ data().id }}">
+  <div id="qualifications-row-container-{{ data().id }}" class="first custom-control-inline">
     <div class="qualification-emoji-col">
-      <span class="emoji-display">{{ data.emoji || '❓' }}</span>
+      <span class="emoji-display">{{ data().emoji || '❓' }}</span>
     </div>
     <div class="form-group">
       <input
-        id="qualifications-row-name-{{ data.id }}"
+        id="qualifications-row-name-{{ data().id }}"
         type="text"
         [value]="getDisplayName()"
         name="qualificationName"
@@ -17,7 +17,7 @@
         readonly
       />
     </div>
-    <span id="qualifications-row-delete-{{ data.id }}" class="delete-button" type="button" (click)="onClickDelete()">
+    <span id="qualifications-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()">
       <app-icon-trash-red />
     </span>
   </div>

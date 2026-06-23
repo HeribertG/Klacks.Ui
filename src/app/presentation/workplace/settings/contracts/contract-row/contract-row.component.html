@@ -1,12 +1,12 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="contract-row-form-{{ data.id }}">
-  <div id="contract-row-container-{{ data.id }}" class="first custom-control-inline">
-    <div id="contract-row-name-group-{{ data.id }}" class="form-group">
+<form id="contract-row-form-{{ data().id }}">
+  <div id="contract-row-container-{{ data().id }}" class="first custom-control-inline">
+    <div id="contract-row-name-group-{{ data().id }}" class="form-group">
       <input
-        id="contract-row-name-{{ data.id }}"
+        id="contract-row-name-{{ data().id }}"
         type="text"
-        [value]="data.name"
+        [value]="data().name"
         name="data.name"
         class="form-control attribute-name"
         aria-label="name"
@@ -15,6 +15,6 @@
       />
     </div>
 
-    <span id="contract-row-delete-{{ data.id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+    <span id="contract-row-delete-{{ data().id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
   </div>
 </form>

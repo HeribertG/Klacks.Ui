@@ -1,10 +1,10 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="llm-providers-row-form-{{ data.providerId }}">
-  <div id="llm-providers-row-container-{{ data.providerId }}" class="first custom-control-inline">
+<form id="llm-providers-row-form-{{ data().providerId }}">
+  <div id="llm-providers-row-container-{{ data().providerId }}" class="first custom-control-inline">
     <div class="form-group">
       <input
-        id="llm-providers-row-display-{{ data.providerId }}"
+        id="llm-providers-row-display-{{ data().providerId }}"
         type="text"
         [value]="getProviderDisplayText()"
         name="providerDisplay"
@@ -16,12 +16,12 @@
     </div>
 
     <span
-      id="llm-providers-row-delete-{{ data.providerId }}"
+      id="llm-providers-row-delete-{{ data().providerId }}"
       class="delete-button"
       type="button"
       (click)="onDelete()"
-      [class.disabled]="!canDelete"
-      [title]="!canDelete ? ('settings.llm-providers.cannot-delete-default-provider' | translate) : ''"
+      [class.disabled]="!canDelete()"
+      [title]="!canDelete() ? ('settings.llm-providers.cannot-delete-default-provider' | translate) : ''"
     ><app-icon-trash-red /></span>
   </div>
 </form>

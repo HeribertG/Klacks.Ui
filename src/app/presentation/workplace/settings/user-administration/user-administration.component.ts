@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component, ChangeDetectionStrategy,
-  ViewChild,
+  viewChild,
   inject,
   OnInit,
   OnDestroy,
@@ -64,7 +64,7 @@ interface UserFormModel {
 })
 export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.SYSTEM_USER;
-  @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
+  readonly msgTemplate = viewChild.required<TemplateRef<any>>('msg');
 
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
@@ -163,7 +163,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   onSentTo(email: string): void {
     this.newUser = new Authentication();
     this.newUser.email = email;
-    this.ngbModal.open(this.msgTemplate, { size: 'sm', centered: true }).result.then(
+    this.ngbModal.open(this.msgTemplate(), { size: 'sm', centered: true }).result.then(
       () => {
         if (this.newUser?.email) {
           this.userAdminService.requestPasswordReset(this.newUser.email);

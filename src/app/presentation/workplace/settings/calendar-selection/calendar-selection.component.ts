@@ -4,12 +4,11 @@ import {
   AfterViewInit,
   Component, ChangeDetectionStrategy,
   effect,
-  EventEmitter,
   inject,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   runInInjectionContext,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -53,7 +52,7 @@ interface TranslationResults {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarSelectionComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Output() isChanging = new EventEmitter<boolean>();
+  readonly isChanging = output<boolean>();
 
   public dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
   private translateService = inject(TranslateService);

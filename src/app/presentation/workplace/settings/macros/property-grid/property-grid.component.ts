@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, ChangeDetectionStrategy, Input, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, signal, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ShiftType } from 'src/app/domain/models/shift/shift-class';
 import {
@@ -34,10 +34,10 @@ interface EnumOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PropertyGridComponent implements OnInit {
-  @Input() object: any = {};
-  @Input() readOnly = false;
-  @Input() excludeProps: string[] = [];
-  @Input() metadata?: PropertyMetadata;
+  readonly object = input<any>({});
+  readonly readOnly = input(false);
+  readonly excludeProps = input<string[]>([]);
+  readonly metadata = input<PropertyMetadata | undefined>(undefined);
 
   shiftTypeOptions: EnumOption[] = [];
   weekdayOptions: EnumOption[] = [];
@@ -76,34 +76,33 @@ export class PropertyGridComponent implements OnInit {
   }
 
   parseObject() {
-    if (!this.object) return;
+    const obj = this.object();
+    if (!obj) return;
 
-    // Wenn keine expliziten Metadaten übergeben wurden, prüfen ob es sich um ShiftData handelt
-    if (!this.metadata && this.object instanceof ShiftData) {
-      this.metadata = ShiftData.metadata;
+    let meta = this.metadata();
+    if (!meta && obj instanceof ShiftData) {
+      meta = ShiftData.metadata;
     }
 
     const props: PropertyItem[] = [];
 
-    for (const key in this.object) {
-      // Skip excluded properties or functions
+    for (const key in obj) {
       if (
-        this.excludeProps.includes(key) ||
-        typeof this.object[key] === 'function' ||
+        this.excludeProps().includes(key) ||
+        typeof obj[key] === 'function' ||
         key.startsWith('_')
       )
         continue;
 
-      const value = this.object[key];
-      // Erkennung der Typen basierend auf Eigenschaftsnamen
+      const value = obj[key];
       const type = this.getPropertyType(value, key);
 
       props.push({
         key,
         value,
         type,
-        editable: !this.readOnly && this.isEditable(type),
-        metadata: this.metadata?.[key], // Metadaten für diese Eigenschaft
+        editable: !this.readOnly() && this.isEditable(type),
+        metadata: meta?.[key],
       });
     }
 
@@ -190,8 +189,9 @@ export class PropertyGridComponent implements OnInit {
   }
 
   updateProperty(key: string, value: any) {
-    if (this.object) {
-      this.object[key] = value;
+    const obj = this.object();
+    if (obj) {
+      obj[key] = value;
     }
   }
 
@@ -240,8 +240,9 @@ export class PropertyGridComponent implements OnInit {
   }
 
   updateDateProperty(key: string, dateStr: string) {
-    if (this.object) {
-      this.object[key] = new Date(dateStr);
+    const obj = this.object();
+    if (obj) {
+      obj[key] = new Date(dateStr);
     }
   }
 

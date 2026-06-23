@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { ISchedulingRule, SchedulingRule } from 'src/app/domain/models/scheduling/scheduling-rule.model';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -14,15 +14,15 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchedulingRuleRowComponent {
-  @Input() data: ISchedulingRule = new SchedulingRule();
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() editEvent = new EventEmitter<ISchedulingRule>();
+  readonly data = input<ISchedulingRule>(new SchedulingRule());
+  readonly isDeleteEvent = output<void>();
+  readonly editEvent = output<ISchedulingRule>();
 
   onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
 
   onClickEdit(): void {
-    this.editEvent.emit(this.data);
+    this.editEvent.emit(this.data());
   }
 }

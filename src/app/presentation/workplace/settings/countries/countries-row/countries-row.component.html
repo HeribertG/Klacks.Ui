@@ -1,20 +1,20 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div id="country-row-form-{{ data!.id }}">
-  <div id="country-row-container-{{ data!.id }}" class="first custom-control-inline">
-    <div id="country-row-abbreviation-wrapper-{{ data!.id }}">
+<div id="country-row-form-{{ data()!.id }}">
+  <div id="country-row-container-{{ data()!.id }}" class="first custom-control-inline">
+    <div id="country-row-abbreviation-wrapper-{{ data()!.id }}">
       <input
-        id="country-row-abbreviation-{{ data!.id }}"
+        id="country-row-abbreviation-{{ data()!.id }}"
         type="text"
         [formField]="countryForm.abbreviation"
         aria-label="data.abbreviation"
         class="form-control abbreviation"
       />
     </div>
-    <div id="country-row-name-wrapper-{{ data!.id }}">
+    <div id="country-row-name-wrapper-{{ data()!.id }}">
       @if (currentLang === 'de') {
         <input
-          id="country-row-name-de-{{ data!.id }}"
+          id="country-row-name-de-{{ data()!.id }}"
           type="text"
           [formField]="countryForm.nameDe"
           aria-label="data.name"
@@ -22,7 +22,7 @@
         />
       } @else if (currentLang === 'en') {
         <input
-          id="country-row-name-en-{{ data!.id }}"
+          id="country-row-name-en-{{ data()!.id }}"
           type="text"
           [formField]="countryForm.nameEn"
           aria-label="data.name"
@@ -30,7 +30,7 @@
         />
       } @else if (currentLang === 'fr') {
         <input
-          id="country-row-name-fr-{{ data!.id }}"
+          id="country-row-name-fr-{{ data()!.id }}"
           type="text"
           [formField]="countryForm.nameFr"
           aria-label="data.name"
@@ -38,7 +38,7 @@
         />
       } @else if (currentLang === 'it') {
         <input
-          id="country-row-name-it-{{ data!.id }}"
+          id="country-row-name-it-{{ data()!.id }}"
           type="text"
           [formField]="countryForm.nameIt"
           aria-label="data.name"
@@ -46,9 +46,9 @@
         />
       }
     </div>
-    <div id="country-row-prefix-wrapper-{{ data!.id }}">
+    <div id="country-row-prefix-wrapper-{{ data()!.id }}">
       <input
-        id="country-row-prefix-{{ data!.id }}"
+        id="country-row-prefix-{{ data()!.id }}"
         type="text"
         [formField]="countryForm.prefix"
         aria-label="data.prefix"
@@ -56,6 +56,6 @@
       />
     </div>
 
-    <span id="country-row-delete-{{ data!.id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
+    <span id="country-row-delete-{{ data()!.id }}" class="delete-button" type="button" (click)="onClickDelete()"><app-icon-trash-red /></span>
   </div>
 </div>

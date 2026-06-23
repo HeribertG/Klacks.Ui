@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,22 +16,22 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LLMProvidersRowComponent {
-  @Input() data!: IAssistantProvider;
-  @Input() canDelete = true;
-  @Output() editEvent = new EventEmitter<IAssistantProvider>();
-  @Output() deleteEvent = new EventEmitter<IAssistantProvider>();
+  readonly data = input.required<IAssistantProvider>();
+  readonly canDelete = input(true);
+  readonly editEvent = output<IAssistantProvider>();
+  readonly deleteEvent = output<IAssistantProvider>();
 
   onEdit(): void {
-    this.editEvent.emit(this.data);
+    this.editEvent.emit(this.data());
   }
 
   onDelete(): void {
-    if (this.canDelete) {
-      this.deleteEvent.emit(this.data);
+    if (this.canDelete()) {
+      this.deleteEvent.emit(this.data());
     }
   }
 
   getProviderDisplayText(): string {
-    return `${this.data.providerName} (${this.data.providerId})`;
+    return `${this.data().providerName} (${this.data().providerId})`;
   }
 }

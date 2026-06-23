@@ -8,7 +8,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   computed,
   ChangeDetectorRef,
@@ -68,7 +68,7 @@ interface LLMModelFormModel {
 })
 export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.LLM_MODEL;
-  @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
+  readonly llmModal = viewChild.required<TemplateRef<any>>('llmModal');
 
   private llmService = inject(DataManagementAssistantService);
   private providerService = inject(DataManagementAssistantProviderService);
@@ -242,7 +242,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.originalModel = null;
 
     setTimeout(() => {
-      this.ngbModal.open(this.llmModal, {
+      this.ngbModal.open(this.llmModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -299,7 +299,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy, IRe
     this.initFormFromModel(this.editingModel);
 
     setTimeout(() => {
-      this.ngbModal.open(this.llmModal, {
+      this.ngbModal.open(this.llmModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });

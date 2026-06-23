@@ -8,7 +8,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   computed,
   ChangeDetectorRef,
@@ -69,14 +69,9 @@ interface LLMProviderFormModel {
 })
 export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.LLM_PROVIDER;
-  @ViewChild('providerModal', { read: TemplateRef })
-  providerModal!: TemplateRef<any>;
-
-  @ViewChild('discoverModal', { read: TemplateRef })
-  discoverModal!: TemplateRef<any>;
-
-  @ViewChild(LLMProvidersDiscoverComponent)
-  discoverComponent?: LLMProvidersDiscoverComponent;
+  readonly providerModal = viewChild.required<TemplateRef<any>>('providerModal');
+  readonly discoverModal = viewChild.required<TemplateRef<any>>('discoverModal');
+  readonly discoverComponent = viewChild(LLMProvidersDiscoverComponent);
 
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
@@ -188,7 +183,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.initFormFromProvider(this.editingProvider);
 
     setTimeout(() => {
-      this.ngbModal.open(this.providerModal, {
+      this.ngbModal.open(this.providerModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -197,11 +192,11 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
 
   openDiscoverModal(): void {
     this.selectedDiscoveredProviders.set([]);
-    this.ngbModal.open(this.discoverModal, {
+    this.ngbModal.open(this.discoverModal(), {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
-    setTimeout(() => this.discoverComponent?.load(), 0);
+    setTimeout(() => this.discoverComponent()?.load(), 0);
   }
 
   onDiscoverSelectionChanged(candidates: IDiscoveredProvider[]): void {
@@ -247,7 +242,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.initFormFromProvider(this.editingProvider, provider.apiKey || '');
 
     setTimeout(() => {
-      this.ngbModal.open(this.providerModal, {
+      this.ngbModal.open(this.providerModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });

@@ -13,7 +13,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   computed,
 } from '@angular/core';
@@ -65,7 +65,7 @@ interface QualFormModel {
 })
 export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.QUALIFICATION;
-  @ViewChild('qualModal', { read: TemplateRef }) qualModal!: TemplateRef<unknown>;
+  readonly qualModal = viewChild.required<TemplateRef<unknown>>('qualModal');
 
   private dataQualService = inject(DataQualificationService);
   private toastService = inject(ToastShowService);
@@ -197,7 +197,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.selectedCategoryIndex.set(0);
 
     setTimeout(() => {
-      this.ngbModal.open(this.qualModal, { ariaLabelledBy: 'modal-title' });
+      this.ngbModal.open(this.qualModal(), { ariaLabelledBy: 'modal-title' });
     }, 0);
   }
 
@@ -219,7 +219,7 @@ export class QualificationsComponent implements OnInit, AfterViewInit, OnDestroy
     this.selectedCategoryIndex.set(0);
 
     setTimeout(() => {
-      this.ngbModal.open(this.qualModal, { ariaLabelledBy: 'modal-title' });
+      this.ngbModal.open(this.qualModal(), { ariaLabelledBy: 'modal-title' });
     }, 0);
   }
 

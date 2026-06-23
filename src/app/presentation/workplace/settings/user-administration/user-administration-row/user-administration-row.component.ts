@@ -2,12 +2,10 @@
 
 import {
   Component, ChangeDetectionStrategy,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
   effect,
   signal,
+  input,
+  output,
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,13 +32,13 @@ interface UserRoleModel {
   imports: [TranslateModule, FormField, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserAdministrationRowComponent implements OnChanges {
-  @Input() user: IAuthentication | undefined;
-  @Input() enabled: boolean | undefined;
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() isRoleChangeEvent = new EventEmitter<RoleChangeEvent>();
-  @Output() isSentToEvent = new EventEmitter<string>();
-  @Output() isEditEvent = new EventEmitter<IAuthentication>();
+export class UserAdministrationRowComponent {
+  readonly user = input<IAuthentication | undefined>(undefined);
+  readonly enabled = input<boolean | undefined>(undefined);
+  readonly isDeleteEvent = output<void>();
+  readonly isRoleChangeEvent = output<RoleChangeEvent>();
+  readonly isSentToEvent = output<string>();
+  readonly isEditEvent = output<IAuthentication>();
 
   private isInitialized = false;
   private lastModel: UserRoleModel | null = null;
@@ -53,25 +51,39 @@ export class UserAdministrationRowComponent implements OnChanges {
 
   constructor() {
     effect(() => {
+      const u = this.user();
+      if (u) {
+        const initialModel: UserRoleModel = {
+          isAuthorised: u.isAuthorised ? 'true' : 'false',
+          isAdmin: u.isAdmin ? 'true' : 'false',
+        };
+        this.userRoleModel.set(initialModel);
+        this.lastModel = { ...initialModel };
+        this.isInitialized = true;
+      }
+    });
+
+    effect(() => {
       const model = this.userRoleModel();
-      if (this.isInitialized && this.user) {
+      const u = this.user();
+      if (this.isInitialized && u) {
         if (
           this.lastModel &&
           model.isAuthorised !== this.lastModel.isAuthorised
         ) {
-          this.user.isAuthorised = model.isAuthorised === 'true';
+          u.isAuthorised = model.isAuthorised === 'true';
           this.isRoleChangeEvent.emit({
-            account: this.user,
+            account: u,
             roleName: 'Authorised',
-            isSelected: this.user.isAuthorised,
+            isSelected: u.isAuthorised,
           });
         }
         if (this.lastModel && model.isAdmin !== this.lastModel.isAdmin) {
-          this.user.isAdmin = model.isAdmin === 'true';
+          u.isAdmin = model.isAdmin === 'true';
           this.isRoleChangeEvent.emit({
-            account: this.user,
+            account: u,
             roleName: 'Admin',
-            isSelected: this.user.isAdmin,
+            isSelected: u.isAdmin,
           });
         }
         this.lastModel = { ...model };
@@ -79,26 +91,13 @@ export class UserAdministrationRowComponent implements OnChanges {
     });
   }
 
-  ngOnChanges(): void {
-    if (this.user) {
-      const initialModel: UserRoleModel = {
-        isAuthorised: this.user.isAuthorised ? 'true' : 'false',
-        isAdmin: this.user.isAdmin ? 'true' : 'false',
-      };
-      this.userRoleModel.set(initialModel);
-      this.lastModel = { ...initialModel };
-      this.isInitialized = true;
-    }
-  }
-
   get userName(): string {
-    return this.user
-      ? `${this.user.firstName} ${this.user.lastName} (${this.user.userName})`
-      : '';
+    const u = this.user();
+    return u ? `${u.firstName} ${u.lastName} (${u.userName})` : '';
   }
 
   get userEmail(): string {
-    return this.user?.email || '';
+    return this.user()?.email || '';
   }
 
   onDelete(): void {
@@ -106,14 +105,16 @@ export class UserAdministrationRowComponent implements OnChanges {
   }
 
   onClickSentTo(): void {
-    if (this.user?.email) {
-      this.isSentToEvent.emit(this.user.email);
+    const email = this.user()?.email;
+    if (email) {
+      this.isSentToEvent.emit(email);
     }
   }
 
   onDoubleClickEdit(): void {
-    if (this.enabled && this.user) {
-      this.isEditEvent.emit(this.user);
+    const u = this.user();
+    if (this.enabled() && u) {
+      this.isEditEvent.emit(u);
     }
   }
 }

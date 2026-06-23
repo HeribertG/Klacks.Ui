@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter, Input, Output, TemplateRef, ViewChild, inject, signal, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, TemplateRef, inject, input, output, signal, viewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -33,12 +33,12 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent implements OnDestroy {
-  @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
-  @Input() data!: ReportTemplate;
-  @Input() id!: string;
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() cancelNewEvent = new EventEmitter<void>();
-  @Output() reportChangedEvent = new EventEmitter<void>();
+  readonly contentTemplate = viewChild.required<TemplateRef<unknown>>('content');
+  readonly data = input.required<ReportTemplate>();
+  readonly id = input.required<string>();
+  readonly isDeleteEvent = output<void>();
+  readonly cancelNewEvent = output<void>();
+  readonly reportChangedEvent = output<void>();
 
   translate = inject(TranslateService);
   private manualLoader = inject(ManualLoaderService);
@@ -90,7 +90,7 @@ export class ReportRowComponent implements OnDestroy {
 
   get isNew(): boolean {
     if (this.editTemplate?.id) return false;
-    return (this.data as any).isDirty === CreateEntriesEnum.new || (this.data as any).isLocal;
+    return (this.data() as any).isDirty === CreateEntriesEnum.new || (this.data() as any).isLocal;
   }
 
   get groups(): Group[] {
@@ -150,20 +150,20 @@ export class ReportRowComponent implements OnDestroy {
   }
 
   openModal(): void {
-    this.editName = this.data.name;
-    this.editDescription = this.data.description;
-    this.editOrientation = this.data.pageSetup?.orientation ?? ReportOrientation.Landscape;
-    this.editPageSize = this.data.pageSetup?.size ?? ReportPageSize.A4;
-    this.editSourceId = this.data.sourceId || 'schedule';
-    this.editDataSetIds = this.data.dataSetIds?.length
-      ? [...this.data.dataSetIds]
-      : [(this.data as any).dataSetId || 'work'];
+    this.editName = this.data().name;
+    this.editDescription = this.data().description;
+    this.editOrientation = this.data().pageSetup?.orientation ?? ReportOrientation.Landscape;
+    this.editPageSize = this.data().pageSetup?.size ?? ReportPageSize.A4;
+    this.editSourceId = this.data().sourceId || 'schedule';
+    this.editDataSetIds = this.data().dataSetIds?.length
+      ? [...this.data().dataSetIds!]
+      : [(this.data() as any).dataSetId || 'work'];
     this.editTemplate = {
-      ...this.data,
+      ...this.data(),
       sourceId: this.editSourceId,
       dataSetIds: this.editDataSetIds,
-      pageSetup: this.data.pageSetup || { ...DEFAULT_PAGE_SETUP },
-      sections: this.data.sections?.length ? this.data.sections : [...DEFAULT_SECTIONS]
+      pageSetup: this.data().pageSetup || { ...DEFAULT_PAGE_SETUP },
+      sections: this.data().sections?.length ? this.data().sections! : [...DEFAULT_SECTIONS]
     };
 
     const today = new Date();
@@ -177,7 +177,7 @@ export class ReportRowComponent implements OnDestroy {
     this.loadPreviewClients();
     this.loadManual();
 
-    this.modalRef = this.modalService.open(this.contentTemplate, {
+    this.modalRef = this.modalService.open(this.contentTemplate(), {
       size: 'xl',
       backdrop: 'static',
       keyboard: false

@@ -1,15 +1,15 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="branches-row-form-{{ data.id }}">
+<form id="branches-row-form-{{ data().id }}">
   <div
-    id="branches-row-container-{{ data.id }}"
+    id="branches-row-container-{{ data().id }}"
     class="first custom-control-inline"
   >
     <div class="form-group">
       <input
-        id="branches-row-name-{{ data.id }}"
+        id="branches-row-name-{{ data().id }}"
         type="text"
-        [value]="data.name"
+        [value]="data().name"
         name="branchName"
         class="form-control attribute-name"
         aria-label="branch name"
@@ -19,7 +19,7 @@
     </div>
 
     <span
-      id="branches-row-delete-{{ data.id }}"
+      id="branches-row-delete-{{ data().id }}"
       class="delete-button"
       type="button"
       (click)="onClickDelete()"

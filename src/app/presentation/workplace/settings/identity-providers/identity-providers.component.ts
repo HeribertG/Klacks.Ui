@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, AfterViewInit, OnDestroy, OnInit, viewChildren, effect } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -32,7 +32,7 @@ import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tok
 })
 export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.IDENTITY_PROVIDER;
-  @ViewChildren(IdentityProviderRowComponent) providerRows!: QueryList<IdentityProviderRowComponent>;
+  readonly providerRows = viewChildren(IdentityProviderRowComponent);
   public providerService = inject(DataManagementIdentityProviderService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
@@ -42,6 +42,20 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
 
   message = DomainMessages.DELETE_ENTRY;
   private pendingOpenProvider: IdentityProvider | null = null;
+
+  constructor() {
+    effect(() => {
+      const rowList = this.providerRows();
+      if (this.pendingOpenProvider !== null) {
+        const row = rowList.find(r => r.data() === this.pendingOpenProvider);
+        if (row) {
+          setTimeout(() => row.openModal(), 0);
+        }
+        this.pendingOpenProvider = null;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.providerService.loadProviders();
@@ -60,19 +74,6 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
           this.modalService.Filing = '';
           this.cdr.markForCheck();
         }
-      });
-
-    this.providerRows.changes
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.pendingOpenProvider !== null) {
-          const row = this.providerRows.find(r => r.data === this.pendingOpenProvider);
-          if (row) {
-            setTimeout(() => row.openModal(), 0);
-          }
-          this.pendingOpenProvider = null;
-        }
-        this.cdr.markForCheck();
       });
 
     this.unregisterRefresh = this.refreshRegistry.register(this);

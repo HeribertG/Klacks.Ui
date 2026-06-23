@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, DestroyRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, DestroyRef, AfterViewInit, viewChildren, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,7 +41,7 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsComponent implements AfterViewInit {
-  @ViewChildren(ReportRowComponent) reportRows!: QueryList<ReportRowComponent>;
+  readonly reportRows = viewChildren(ReportRowComponent);
   public dataManagementReportService = inject(DataManagementReportService);
   private modalService = inject(ModalService);
   private destroyRef = inject(DestroyRef);
@@ -50,6 +50,20 @@ export class ReportsComponent implements AfterViewInit {
   message = DomainMessages.DELETE_ENTRY;
   private reportToDeleteIndex: number | null = null;
   private pendingOpenReport: ReportTemplate | null = null;
+
+  constructor() {
+    effect(() => {
+      const rowList = this.reportRows();
+      if (this.pendingOpenReport !== null) {
+        const row = rowList.find(r => r.data() === this.pendingOpenReport);
+        if (row) {
+          setTimeout(() => row.openModal(), 0);
+        }
+        this.pendingOpenReport = null;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent
@@ -64,19 +78,6 @@ export class ReportsComponent implements AfterViewInit {
           this.modalService.Filing = '';
           this.cdr.markForCheck();
         }
-      });
-
-    this.reportRows.changes
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.pendingOpenReport !== null) {
-          const row = this.reportRows.find(r => r.data === this.pendingOpenReport);
-          if (row) {
-            setTimeout(() => row.openModal(), 0);
-          }
-          this.pendingOpenReport = null;
-        }
-        this.cdr.markForCheck();
       });
   }
 

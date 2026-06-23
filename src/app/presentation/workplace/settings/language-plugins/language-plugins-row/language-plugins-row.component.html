@@ -1,21 +1,21 @@
-<div [id]="'language-plugins-row-container-' + data.code" class="first custom-control-inline">
-  <span class="col-language">{{ data.code.toUpperCase() }}</span>
-  <span class="col-display-name">{{ data.displayName }}</span>
-  <span class="col-author">{{ data.author }}</span>
-  <span class="col-version">{{ data.isCore ? '' : data.version }}</span>
-  <span class="col-coverage">{{ (data.isCore ? 100 : data.coverage) | number:'1.0-0' }}%</span>
+<div [id]="'language-plugins-row-container-' + data().code" class="first custom-control-inline">
+  <span class="col-language">{{ data().code.toUpperCase() }}</span>
+  <span class="col-display-name">{{ data().displayName }}</span>
+  <span class="col-author">{{ data().author }}</span>
+  <span class="col-version">{{ data().isCore ? '' : data().version }}</span>
+  <span class="col-coverage">{{ (data().isCore ? 100 : data().coverage) | number:'1.0-0' }}%</span>
   <span class="col-status">
     <span class="status-badge" [class]="getStatusClass()">
       {{ getStatusKey() | translate }}
     </span>
   </span>
   <span class="col-actions">
-    @if (!data.isCore && !data.isInstalled) {
+    @if (!data().isCore && !data().isInstalled) {
       <button class="action-btn install-btn" (click)="onInstall()">
         {{ 'settings.language-plugins.action.install' | translate }}
       </button>
     }
-    @if (!data.isCore && data.isInstalled) {
+    @if (!data().isCore && data().isInstalled) {
       <app-icon-trash-red (click)="onUninstall()" />
     }
   </span>

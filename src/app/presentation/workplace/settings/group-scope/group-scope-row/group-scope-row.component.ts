@@ -3,9 +3,8 @@
 import {
   Component, ChangeDetectionStrategy,
   inject,
-  Input,
+  input,
   OnDestroy,
-  OnChanges,
   signal,
   computed,
   ChangeDetectorRef,
@@ -29,8 +28,8 @@ import { takeUntil } from 'rxjs/operators';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GroupScopeRowComponent implements OnChanges, OnDestroy {
-  @Input() user: IAuthentication | undefined;
+export class GroupScopeRowComponent implements OnDestroy {
+  readonly user = input<IAuthentication | undefined>(undefined);
   private modalService = inject(NgbModal);
   public dataManagementGroupVisibilityService = inject(
     DataManagementGroupVisibilityService
@@ -38,19 +37,17 @@ export class GroupScopeRowComponent implements OnChanges, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
-  private userSignal = signal<IAuthentication | undefined>(undefined);
-
   public selectedGroups = signal<string[]>([]);
   public readonly rootList = this.dataManagementGroupVisibilityService.rootList;
 
   public readonly userName = computed(() => {
-    const user = this.userSignal();
+    const user = this.user();
     if (!user) return '';
     return `${user.firstName || ''} ${user.lastName || ''}`.trim();
   });
 
   public readonly assignedGroupsCount = computed(() => {
-    const user = this.userSignal();
+    const user = this.user();
     if (!user?.id) return 0;
 
     if (user.isAdmin) {
@@ -62,12 +59,8 @@ export class GroupScopeRowComponent implements OnChanges, OnDestroy {
       .filter((gv) => gv.appUserId === user.id).length;
   });
 
-  ngOnChanges(): void {
-    this.userSignal.set(this.user);
-  }
-
   private loadUserGroups(): void {
-    const user = this.userSignal();
+    const user = this.user();
     if (!user?.id) return;
 
     const groups = this.dataManagementGroupVisibilityService
@@ -97,7 +90,7 @@ export class GroupScopeRowComponent implements OnChanges, OnDestroy {
   }
 
   open(content: unknown): void {
-    const user = this.userSignal();
+    const user = this.user();
     if (!user?.id) {
       console.error('User ID is required');
       return;
@@ -124,7 +117,7 @@ export class GroupScopeRowComponent implements OnChanges, OnDestroy {
   }
 
   private saveGroupVisibilities(): void {
-    const user = this.userSignal();
+    const user = this.user();
     if (!user?.id) {
       console.error('User ID is required for saving group visibilities');
       return;

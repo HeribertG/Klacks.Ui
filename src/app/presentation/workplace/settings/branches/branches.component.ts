@@ -8,7 +8,7 @@ import {
   AfterViewInit,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild,
   signal,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -60,8 +60,7 @@ interface BranchFormModel {
 })
 export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRefreshable {
   public readonly refreshableEntities = RefreshEntityTokens.BRANCH;
-  @ViewChild('branchModal', { read: TemplateRef })
-  branchModal!: TemplateRef<any>;
+  readonly branchModal = viewChild.required<TemplateRef<any>>('branchModal');
 
   private branchService = inject(DataBranchService);
   private toastService = inject(ToastShowService);
@@ -164,7 +163,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
     this.originalBranch = null;
 
     setTimeout(() => {
-      this.ngbModal.open(this.branchModal, {
+      this.ngbModal.open(this.branchModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -203,7 +202,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy, IRef
     this.initFormFromBranch(this.editingBranch);
 
     setTimeout(() => {
-      this.ngbModal.open(this.branchModal, {
+      this.ngbModal.open(this.branchModal(), {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });

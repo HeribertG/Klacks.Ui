@@ -1,15 +1,15 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="absence-detail-row-form-{{ data.id }}">
+<form id="absence-detail-row-form-{{ data().id }}">
   <div
-    id="absence-detail-row-container-{{ data.id }}"
+    id="absence-detail-row-container-{{ data().id }}"
     class="first custom-control-inline"
   >
     <div class="form-group">
       <input
-        id="absence-detail-row-name-{{ data.id }}"
+        id="absence-detail-row-name-{{ data().id }}"
         type="text"
-        [value]="data.detailName | fallback: translate.currentLang"
+        [value]="data().detailName | fallback: translate.currentLang"
         name="absenceDetailName"
         class="form-control attribute-name"
         aria-label="absence detail name"
@@ -19,7 +19,7 @@
     </div>
 
     <span
-      id="absence-detail-row-delete-{{ data.id }}"
+      id="absence-detail-row-delete-{{ data().id }}"
       class="delete-button"
       type="button"
       (click)="onClickDelete()"

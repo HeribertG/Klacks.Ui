@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, viewChild, inject, AfterViewInit, OnDestroy, signal, computed } from '@angular/core';
 import { Country } from 'src/app/domain/models/client/client-class';
 import { MultiLanguage } from 'src/app/domain/models/translation/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -32,7 +32,7 @@ import { SearchInputComponent } from 'src/app/presentation/shared/search-input/s
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountriesComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('containerBox') containerBox?: ElementRef;
+  readonly containerBox = viewChild<ElementRef>('containerBox');
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
@@ -81,8 +81,8 @@ export class CountriesComponent implements AfterViewInit, OnDestroy {
     this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList, c]);
 
     setTimeout(() => {
-      if (this.containerBox?.nativeElement) {
-        this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+      if (this.containerBox()?.nativeElement) {
+        this.containerBox()!.nativeElement.scrollTop = this.containerBox()!.nativeElement.scrollHeight;
       }
     }, 0);
   }

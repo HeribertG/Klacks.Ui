@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 import { IContract, Contract } from 'src/app/domain/models/contract/contract-class';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -14,15 +14,15 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContractRowComponent {
-  @Input() data: IContract = new Contract();
-  @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() editEvent = new EventEmitter<IContract>();
+  readonly data = input<IContract>(new Contract());
+  readonly isDeleteEvent = output<void>();
+  readonly editEvent = output<IContract>();
 
   onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
 
   onClickEdit(): void {
-    this.editEvent.emit(this.data);
+    this.editEvent.emit(this.data());
   }
 }

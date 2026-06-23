@@ -54,20 +54,20 @@
         {{ "setting.report.designer.reportPreview" | translate }}
       </h6>
 
-      @if (sourceId === 'schedule') {
+      @if (sourceId() === 'schedule') {
         <div class="designer-options">
           <div class="form-check form-check-inline">
             <input type="checkbox" class="form-check-input" id="designerMergeRows"
-                   [checked]="template.mergeRows"
-                   (change)="template.mergeRows = $any($event.target).checked; emitChange()" />
+                   [checked]="template().mergeRows"
+                   (change)="template().mergeRows = $any($event.target).checked; emitChange()" />
             <label class="form-check-label" for="designerMergeRows">
               {{ "setting.report.field.mergeRows" | translate }}
             </label>
           </div>
           <div class="form-check form-check-inline">
             <input type="checkbox" class="form-check-input" id="designerShowFullPeriod"
-                   [checked]="template.showFullPeriod"
-                   (change)="template.showFullPeriod = $any($event.target).checked; emitChange()" />
+                   [checked]="template().showFullPeriod"
+                   (change)="template().showFullPeriod = $any($event.target).checked; emitChange()" />
             <label class="form-check-label" for="designerShowFullPeriod">
               {{ "setting.report.field.showFullPeriod" | translate }}
             </label>
@@ -377,7 +377,7 @@
                               [class.chip-active]="activeField === field"
                             >
                               @if (
-                                imagePreviewCache.get(field.imageUrl);
+                                imagePreviewCache().get(field.imageUrl);
                                 as preview
                               ) {
                                 <img
@@ -515,7 +515,7 @@
                               [class.chip-active]="activeField === field"
                             >
                               @if (
-                                imagePreviewCache.get(field.imageUrl);
+                                imagePreviewCache().get(field.imageUrl);
                                 as preview
                               ) {
                                 <img
@@ -650,7 +650,7 @@
                               [class.chip-active]="activeField === field"
                             >
                               @if (
-                                imagePreviewCache.get(field.imageUrl);
+                                imagePreviewCache().get(field.imageUrl);
                                 as preview
                               ) {
                                 <img
@@ -840,7 +840,7 @@
                 />
                 %
               </label>
-              @if (sourceId === 'schedule') {
+              @if (sourceId() === 'schedule') {
                 <label class="section-show-full-period">
                   <input
                     type="checkbox"
