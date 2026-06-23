@@ -7,7 +7,6 @@
  * @param sectionOrder - Signal tracking display order of sections, persisted in localStorage
  */
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -48,7 +47,6 @@ interface SectionVisibilityFormModel {
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     FormField,
     CdkDropList,
     CdkDrag,
@@ -108,15 +106,11 @@ export class DashboardHomeComponent implements OnInit {
     });
   }
 
-  get isAuthorised(): boolean {
-    return this.authorizationService.isAuthorised;
-  }
-
   readonly visibleSectionOrder = computed(() =>
     this.sectionOrder().filter(
       k =>
         this.sectionVisibilityModel()[k as keyof SectionVisibilityFormModel] &&
-        (this.isAuthorised || k === 'locations')
+        (this.authorizationService.isAuthorised || k === 'locations')
     )
   );
 

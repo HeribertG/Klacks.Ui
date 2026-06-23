@@ -12,7 +12,6 @@
 import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked,
   ChangeDetectionStrategy, effect,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faStreetView } from '@fortawesome/free-solid-svg-icons';
@@ -68,7 +67,7 @@ interface MapSettingsFormModel {
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, FormField, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent, SearchInputComponent],
+  imports: [TranslateModule, FormField, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
