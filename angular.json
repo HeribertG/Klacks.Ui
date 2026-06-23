@@ -50,6 +50,9 @@
               "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"
             ],
             "browser": "src/main.ts",
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/assets/standard-styles"]
+            },
             "allowedCommonJsDependencies": [
               "leaflet",
               "leaflet.markercluster",
