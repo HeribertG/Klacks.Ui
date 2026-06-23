@@ -117,7 +117,7 @@ describe('StateComponent', () => {
                     scrollHeight: 1000,
                 },
             };
-            component.containerBox = mockContainer as ElementRef;
+            (component as any).containerBox = () => mockContainer as ElementRef;
 
             // Act
             component.onClickAdd();

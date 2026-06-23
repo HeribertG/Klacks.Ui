@@ -86,7 +86,7 @@ describe('MacroRowComponent', () => {
 
     fixture = TestBed.createComponent(MacroRowComponent);
     component = fixture.componentInstance;
-    component.data = { ...mockMacro } as IMacro;
+    fixture.componentRef.setInput('data', { ...mockMacro } as IMacro);
   });
 
   it('should create', () => {
@@ -115,18 +115,16 @@ describe('MacroRowComponent', () => {
     });
   });
 
-  describe('ngOnChanges', () => {
+  describe('input signal changes', () => {
     it('should initialize form with data values', () => {
-      // Arrange
-      component.data = {
+      // Arrange & Act
+      fixture.componentRef.setInput('data', {
         ...mockMacro,
         name: 'My Macro',
         type: MacroTypes.WorkRules,
         content: 'dim y as integer',
-      } as IMacro;
-
-      // Act
-      component.ngOnChanges();
+      } as IMacro);
+      fixture.detectChanges();
 
       // Assert
       const model = (component as unknown as MacroRowComponentPrivate).macroModel();
@@ -178,13 +176,13 @@ describe('MacroRowComponent', () => {
   describe('onChange', () => {
     it('should set isDirty to rewrite when undefined', () => {
       // Arrange
-      component.data.isDirty = CreateEntriesEnum.undefined;
+      component.data().isDirty = CreateEntriesEnum.undefined;
 
       // Act
       component.onChange();
 
       // Assert
-      expect(component.data.isDirty).toBe(CreateEntriesEnum.rewrite);
+      expect(component.data().isDirty).toBe(CreateEntriesEnum.rewrite);
     });
 
     it('should emit macroChangedEvent', () => {
@@ -215,7 +213,7 @@ describe('MacroRowComponent', () => {
   describe('onSave', () => {
     it('should update data from form and editorContent', () => {
       // Arrange
-      component.ngOnChanges();
+      fixture.detectChanges();
       (component as unknown as MacroRowComponentPrivate).macroModel.set({
         name: 'Updated Name',
         type: String(MacroTypes.WorkRules),
@@ -227,9 +225,9 @@ describe('MacroRowComponent', () => {
       component.onSave();
 
       // Assert
-      expect(component.data.name).toBe('Updated Name');
-      expect(component.data.type).toBe(MacroTypes.WorkRules);
-      expect(component.data.content).toContain('new code');
+      expect(component.data().name).toBe('Updated Name');
+      expect(component.data().type).toBe(MacroTypes.WorkRules);
+      expect(component.data().content).toContain('new code');
     });
 
     it('should call macroManagementService.save', () => {

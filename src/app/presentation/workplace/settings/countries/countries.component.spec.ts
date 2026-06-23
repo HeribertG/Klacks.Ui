@@ -128,7 +128,7 @@ describe('CountriesComponent', () => {
                     scrollHeight: 1000,
                 },
             };
-            component.containerBox = mockContainer as ElementRef;
+            (component as any).containerBox = () => mockContainer as ElementRef;
 
             // Act
             component.onClickAdd();
@@ -140,7 +140,7 @@ describe('CountriesComponent', () => {
 
         it('should not crash if containerBox is undefined', () => {
             // Arrange
-            component.containerBox = undefined;
+            (component as any).containerBox = () => undefined;
 
             // Act & Assert
             expect(() => component.onClickAdd()).not.toThrow();

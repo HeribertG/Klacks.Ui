@@ -459,7 +459,8 @@ describe('UserAdministrationComponent', () => {
         it('should open password reset modal with email', () => {
             // Arrange
             const email = 'test@example.com';
-            component.msgTemplate = {} as any;
+            const mockMsgTemplate = {} as any;
+            (component as any).msgTemplate = () => mockMsgTemplate;
 
             // Act
             component.onSentTo(email);
@@ -467,7 +468,7 @@ describe('UserAdministrationComponent', () => {
             // Assert
             expect(component.newUser).toBeTruthy();
             expect(component.newUser?.email).toBe(email);
-            expect(mockNgbModal.open).toHaveBeenCalledWith(component.msgTemplate, {
+            expect(mockNgbModal.open).toHaveBeenCalledWith(mockMsgTemplate, {
                 size: 'sm',
                 centered: true,
             });
@@ -476,7 +477,7 @@ describe('UserAdministrationComponent', () => {
         it('should request password reset when modal is confirmed', async () => {
             // Arrange
             const email = 'test@example.com';
-            component.msgTemplate = {} as any;
+            (component as any).msgTemplate = () => ({} as any);
             component.onSentTo(email);
 
             // Act
@@ -490,7 +491,7 @@ describe('UserAdministrationComponent', () => {
             // Arrange
             mockPasswordResetModalRef.result = Promise.reject();
             const email = 'test@example.com';
-            component.msgTemplate = {} as any;
+            (component as any).msgTemplate = () => ({} as any);
 
             // Act
             component.onSentTo(email);

@@ -89,8 +89,7 @@ describe('GroupScopeRowComponent', () => {
   describe('userName computed', () => {
     it('should return empty string when no user', () => {
       // Arrange
-      component.user = undefined;
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', undefined);
 
       // Act & Assert (no detectChanges - template requires user)
       expect(component.userName()).toBe('');
@@ -98,8 +97,7 @@ describe('GroupScopeRowComponent', () => {
 
     it('should return full name when user is set', () => {
       // Arrange
-      component.user = mockUser;
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', mockUser);
 
       // Act
       fixture.detectChanges();
@@ -110,8 +108,7 @@ describe('GroupScopeRowComponent', () => {
 
     it('should handle missing firstName', () => {
       // Arrange
-      component.user = { ...mockUser, firstName: '' };
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', { ...mockUser, firstName: '' });
 
       // Act
       fixture.detectChanges();
@@ -122,8 +119,7 @@ describe('GroupScopeRowComponent', () => {
 
     it('should handle missing lastName', () => {
       // Arrange
-      component.user = { ...mockUser, lastName: '' };
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', { ...mockUser, lastName: '' });
 
       // Act
       fixture.detectChanges();
@@ -136,8 +132,7 @@ describe('GroupScopeRowComponent', () => {
   describe('assignedGroupsCount computed', () => {
     it('should return 0 when no user', () => {
       // Arrange
-      component.user = undefined;
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', undefined);
 
       // Act & Assert (no detectChanges - template requires user)
       expect(component.assignedGroupsCount()).toBe(0);
@@ -145,8 +140,7 @@ describe('GroupScopeRowComponent', () => {
 
     it('should return count of assigned groups for regular user', () => {
       // Arrange
-      component.user = mockUser;
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', mockUser);
 
       // Act
       fixture.detectChanges();
@@ -157,8 +151,7 @@ describe('GroupScopeRowComponent', () => {
 
     it('should return all groups count for admin user', () => {
       // Arrange
-      component.user = mockAdminUser;
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', mockAdminUser);
 
       // Act
       fixture.detectChanges();
@@ -246,8 +239,7 @@ describe('GroupScopeRowComponent', () => {
   describe('open', () => {
     it('should not call modalService.open when user has no id', () => {
       // Arrange
-      component.user = { ...mockUser, id: undefined };
-      component.ngOnChanges();
+      fixture.componentRef.setInput('user', { ...mockUser, id: undefined });
       fixture.detectChanges();
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -260,13 +252,10 @@ describe('GroupScopeRowComponent', () => {
     });
   });
 
-  describe('ngOnChanges', () => {
+  describe('input signal changes', () => {
     it('should update userSignal when user input changes', () => {
-      // Arrange
-      component.user = mockUser;
-
-      // Act
-      component.ngOnChanges();
+      // Arrange & Act
+      fixture.componentRef.setInput('user', mockUser);
 
       // Assert
       expect(component.userName()).toBe('John Doe');
