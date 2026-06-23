@@ -6,7 +6,7 @@ import { AuthGuard } from './presentation/auth/auth.guard';
 import { AdminGuard } from './presentation/auth/admin.guard';
 import { InboxGuard } from './presentation/auth/inbox.guard';
 import { featurePluginGuard } from './presentation/auth/feature-plugin.guard';
-import { MESSAGING_PLUGIN_NAME } from './domain/constants/feature-plugin.constants';
+import { MESSAGING_PLUGIN_NAME, FLOOR_PLAN_PLUGIN_NAME } from './domain/constants/feature-plugin.constants';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
 import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
@@ -213,6 +213,7 @@ const routes: Routes = [
           import('klacks-plugin-floor-plan').then(
             (m) => m.FLOOR_PLAN_ROUTES,
           ),
+        canActivate: [AuthGuard, featurePluginGuard(FLOOR_PLAN_PLUGIN_NAME)],
       },
       {
         path: 'period-closing',

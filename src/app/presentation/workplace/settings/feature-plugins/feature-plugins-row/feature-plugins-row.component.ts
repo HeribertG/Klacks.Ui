@@ -7,7 +7,7 @@
  * @param uninstallEvent - Emitted when the uninstall button is clicked
  * @param toggleEnabledEvent - Emitted when the enable/disable toggle is clicked
  */
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FeaturePluginInfo } from 'src/app/domain/models/plugins/feature-plugin-info';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -22,32 +22,32 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 })
 export class FeaturePluginsRowComponent {
 
-  @Input() data!: FeaturePluginInfo;
-  @Output() installEvent = new EventEmitter<FeaturePluginInfo>();
-  @Output() uninstallEvent = new EventEmitter<FeaturePluginInfo>();
-  @Output() toggleEnabledEvent = new EventEmitter<FeaturePluginInfo>();
+  readonly data = input.required<FeaturePluginInfo>();
+  readonly installEvent = output<FeaturePluginInfo>();
+  readonly uninstallEvent = output<FeaturePluginInfo>();
+  readonly toggleEnabledEvent = output<FeaturePluginInfo>();
 
   getStatusKey(): string {
-    if (!this.data.isInstalled) return 'settings.feature-plugins.status.available';
-    if (this.data.isEnabled) return 'settings.feature-plugins.status.enabled';
+    if (!this.data().isInstalled) return 'settings.feature-plugins.status.available';
+    if (this.data().isEnabled) return 'settings.feature-plugins.status.enabled';
     return 'settings.feature-plugins.status.disabled';
   }
 
   getStatusClass(): string {
-    if (!this.data.isInstalled) return 'status-available';
-    if (this.data.isEnabled) return 'status-enabled';
+    if (!this.data().isInstalled) return 'status-available';
+    if (this.data().isEnabled) return 'status-enabled';
     return 'status-disabled';
   }
 
   onInstall(): void {
-    this.installEvent.emit(this.data);
+    this.installEvent.emit(this.data());
   }
 
   onUninstall(): void {
-    this.uninstallEvent.emit(this.data);
+    this.uninstallEvent.emit(this.data());
   }
 
   onToggleEnabled(): void {
-    this.toggleEnabledEvent.emit(this.data);
+    this.toggleEnabledEvent.emit(this.data());
   }
 }

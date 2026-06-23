@@ -104,20 +104,6 @@
       </div>
     }
 
-    <div class="icon">
-      <button
-        type="button"
-        class="icon-button"
-        id="open-floor-plan"
-        (click)="onClickFloorPlan()"
-        [attr.aria-label]="'Open Floor Plan'"
-        [placement]="tooltipPlacement"
-        ngbTooltip="Floor Plan"
-      >
-        <app-icon-compass #floorPlanIcon></app-icon-compass>
-      </button>
-    </div>
-
     @if (inboxVisibilityService.isAvailable()) {
       <div class="icon">
         <button

@@ -56,7 +56,6 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'inbox', route: '/workplace/inbox', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'messaging', route: '/workplace/messaging', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'profile', route: '/workplace/profile', requiredPermission: null, hasEntityParam: false },
-  { pageKey: 'floor-plan', route: '/workplace/floor-plan', requiredPermission: null, hasEntityParam: false },
   { pageKey: 'period-closing', route: '/workplace/period-closing', requiredPermission: 'CanEditSchedule', hasEntityParam: false },
   { pageKey: 'klacksy-training', route: '/workplace/klacksy-training', requiredPermission: 'CanEditSettings', hasEntityParam: false, llmHint: 'admin training review' },
 ];

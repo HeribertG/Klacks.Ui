@@ -14,7 +14,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { FeaturePluginStateService } from 'src/app/application/services/feature-plugin-state.service';
-import { MESSAGING_PLUGIN_NAME, FLOOR_PLAN_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
+import { MESSAGING_PLUGIN_NAME } from 'src/app/domain/constants/feature-plugin.constants';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -55,7 +55,6 @@ import { AssistantSkillRelationsComponent } from '../assistant-skill-relations/a
 import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/klacksy-autonomy-settings.component';
 import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
-import { FloorPlanSettingsComponent } from 'klacks-plugin-floor-plan';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
@@ -118,7 +117,6 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     KlacksyAutonomySettingsComponent,
     WizardSettingsComponent,
     CalendarSelectionComponent,
-    FloorPlanSettingsComponent,
     DataRetentionSettingComponent,
     UpdatesSettingComponent,
     QualificationsComponent,
@@ -137,7 +135,6 @@ export class SettingsHomeComponent implements OnInit {
   private searchService = inject(SearchService);
   public featurePluginState = inject(FeaturePluginStateService);
   public messagingPluginName = MESSAGING_PLUGIN_NAME;
-  public floorPlanPluginName = FLOOR_PLAN_PLUGIN_NAME;
 
   sections: Record<string, boolean> = {
     general: true,
