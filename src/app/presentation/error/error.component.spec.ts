@@ -8,7 +8,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ErrorComponent } from './error.component';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: '<div>Test Component</div>'
 })
 class TestComponent {

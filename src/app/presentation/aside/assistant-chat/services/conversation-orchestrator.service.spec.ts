@@ -515,7 +515,7 @@ describe('ConversationOrchestratorService', () => {
   });
 });
 
-@Component({ standalone: true, changeDetection: ChangeDetectionStrategy.Eager,
+@Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush,
  template: '' })
 class HostHarnessComponent {
   readonly orchestrator = inject(ConversationOrchestratorService);

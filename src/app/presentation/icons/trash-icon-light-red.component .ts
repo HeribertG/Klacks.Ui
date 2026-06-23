@@ -27,7 +27,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
     </g>
   </svg>`,
   styles: [''],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })
 export class TrashIconLightRedComponent {

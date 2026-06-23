@@ -13,7 +13,7 @@ import { OutputMode } from 'src/app/domain/constants/speech-constants';
 @Component({
   selector: 'app-assistant-chat',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: '',
 })
 class AssistantChatStubComponent {}

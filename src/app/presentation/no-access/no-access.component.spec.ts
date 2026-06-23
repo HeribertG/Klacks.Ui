@@ -11,7 +11,7 @@ import { NoAccessComponent } from './no-access.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: '<div>Test Component</div>',
 })
 class TestComponent {

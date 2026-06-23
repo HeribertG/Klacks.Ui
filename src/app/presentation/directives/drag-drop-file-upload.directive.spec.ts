@@ -17,7 +17,7 @@ const createDragEvent = (type: string, dataTransfer?: any): DragEvent => {
 @Component({
     standalone: true,
     imports: [DragDropFileUploadDirective],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div
     appDragDropFileUpload
     (fileDropped)="onFileDropped($event)"
