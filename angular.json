@@ -209,6 +209,42 @@
           }
         }
       }
+    },
+    "klacks-plugin-floor-plan": {
+      "projectType": "library",
+      "root": "projects/klacks-plugin-floor-plan",
+      "sourceRoot": "projects/klacks-plugin-floor-plan/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/klacks-plugin-floor-plan/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/klacks-plugin-floor-plan/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/klacks-plugin-floor-plan/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/klacks-plugin-floor-plan/**/*.ts",
+              "projects/klacks-plugin-floor-plan/**/*.html"
+            ],
+            "eslintConfig": "projects/klacks-plugin-floor-plan/eslint.config.js"
+          }
+        }
+      }
     }
   },
   "cli": {

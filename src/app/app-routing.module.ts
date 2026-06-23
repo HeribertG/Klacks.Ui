@@ -209,9 +209,9 @@ const routes: Routes = [
       },
       {
         path: 'floor-plan',
-        loadComponent: () =>
-          import('./presentation/workplace/floor-plan/floor-plan-home/floor-plan-home.component').then(
-            (m) => m.FloorPlanHomeComponent,
+        loadChildren: () =>
+          import('klacks-plugin-floor-plan').then(
+            (m) => m.FLOOR_PLAN_ROUTES,
           ),
       },
       {

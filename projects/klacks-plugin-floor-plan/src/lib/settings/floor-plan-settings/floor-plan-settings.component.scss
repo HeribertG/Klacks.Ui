@@ -1,0 +1,94 @@
+@use "standard-card-interior.scss";
+@use "standard-controls.scss";
+@use "standard-modal.scss";
+@use "settings-list-card-modal.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+::ng-deep .floor-plan-fullscreen-modal .modal-dialog {
+  max-width: 95vw;
+  width: 95vw;
+  margin: 2.5vh auto;
+}
+
+::ng-deep .floor-plan-fullscreen-modal .modal-content {
+  height: 95vh;
+}
+
+.floor-plan-modal-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(90vh - 130px);
+  overflow: hidden;
+}
+
+.floor-plan-name-row {
+  display: flex;
+  gap: 20px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--cardBorderColor);
+
+  .model-field {
+    flex: 1;
+    min-width: 200px;
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: var(--colorWorkplaceHeadline);
+    }
+
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.floor-plan-editor-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-left-panel {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  flex-shrink: 0;
+  border-inline-end: 1px solid var(--gridColorLine);
+  overflow: hidden;
+}
+
+.editor-canvas-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  background-color: #e8e8e8;
+}
+
+.editor-right-panel {
+  width: 220px;
+  flex-shrink: 0;
+  border-inline-start: 1px solid var(--gridColorLine);
+  overflow: hidden;
+}
+
+.loading-row {
+  padding: 10px;
+  text-align: center;
+  color: var(--standartTextColor);
+  opacity: 0.6;
+}

@@ -17,6 +17,13 @@
       "klacks-plugin-messaging": [
         "./projects/klacks-plugin-messaging/src/public-api.ts",
         "./dist/klacks-plugin-messaging"
+      ],
+      "klacks-plugin-floor-plan": [
+        "./projects/klacks-plugin-floor-plan/src/public-api.ts",
+        "./dist/klacks-plugin-floor-plan"
+      ],
+      "@floor-plan-plugin/*": [
+        "./projects/klacks-plugin-floor-plan/src/lib/*"
       ]
     },
     "noPropertyAccessFromIndexSignature": true,
@@ -51,6 +58,12 @@
     },
     {
       "path": "./projects/klacks-plugin-messaging/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/klacks-plugin-floor-plan/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/klacks-plugin-floor-plan/tsconfig.spec.json"
     }
   ]
 }

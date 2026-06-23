@@ -1,0 +1,37 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+@use "colors";
+@use "menu";
+
+// Fixed positioning over the canvas — overrides Bootstrap defaults
+.dropdown-menu {
+  position: fixed;
+  z-index: 9000;
+  display: block;
+  padding: 4px 0;
+  min-width: 160px;
+  border-radius: 4px;
+  box-shadow: 0 10px 20px rgb(64 64 64 / 30%);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &.disabled,
+  &:disabled {
+    color: var(--gridColorCellComment);
+    pointer-events: none;
+  }
+}
+
+.dropdown-divider {
+  border-color: var(--cardBorderColor);
+  margin: 2px 0;
+}

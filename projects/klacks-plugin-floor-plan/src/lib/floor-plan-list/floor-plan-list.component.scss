@@ -1,0 +1,63 @@
+@use "standard-grid.scss";
+@use "standard-card-interior.scss";
+@use "standard-controls.scss";
+@use "pagination.scss";
+@use "datepicker.scss";
+@use "spinner.scss";
+
+.floor-plan-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  padding-inline: 30px;
+  padding-block: 14px;
+}
+
+.floor-plan-display-checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 18px;
+
+  .checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--colorLabel);
+    cursor: pointer;
+  }
+}
+
+.floor-plan-date-picker {
+  width: auto;
+  max-width: 220px;
+}
+
+.floor-plan-thumb {
+  width: 48px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--gridColorLine);
+}
+
+.floor-plan-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--backgroundColorPage);
+  color: var(--colorLabel);
+}
+
+.floor-plan-state-loading,
+.floor-plan-state-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-block: 32px;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
