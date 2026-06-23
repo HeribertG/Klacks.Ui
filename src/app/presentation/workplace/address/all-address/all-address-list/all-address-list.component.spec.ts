@@ -304,8 +304,8 @@ describe('AllAddressListComponent', () => {
         });
 
         it('should handle header checkbox change', () => {
-            component.headerCheckBoxValue = true;
-            component.onChangeHeaderCheckBox();
+            const mockEvent = { target: { checked: true } } as unknown as Event;
+            component.onChangeHeaderCheckBox(mockEvent);
 
             expect(mockDataManagementClientService.clearCheckedArray).toHaveBeenCalled();
         });

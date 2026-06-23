@@ -74,10 +74,9 @@
           <th class="table-header" style="width: 40px; max-width: 40px">
             <input
               type="checkbox"
-              [(ngModel)]="headerCheckBoxValue"
-              (change)="onChangeHeaderCheckBox()"
+              [checked]="headerCheckBoxValue()"
+              (change)="onChangeHeaderCheckBox($event)"
               [indeterminate]="checkBoxIndeterminate"
-              name="headerCheckBoxValue"
               class="checkbox"
               aria-label="checkbox"
             />

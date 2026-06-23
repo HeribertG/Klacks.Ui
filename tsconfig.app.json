@@ -14,5 +14,13 @@
     "src/**/*.d.ts",
     "projects/klacks-plugin-messaging/src/**/*.ts",
     "projects/klacks-plugin-floor-plan/src/**/*.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

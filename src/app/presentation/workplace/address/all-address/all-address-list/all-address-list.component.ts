@@ -13,6 +13,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -28,7 +29,6 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
@@ -49,7 +49,6 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     TranslateModule,
     NgbPaginationModule,
     TrashIconRedComponent,
@@ -99,7 +98,7 @@ export class AllAddressListComponent
   public page = 1;
   public realRow = -1;
 
-  public headerCheckBoxValue = false;
+  public headerCheckBoxValue = signal(false);
 
   // Private properties
   private effects: EffectRef[] = [];
@@ -203,10 +202,10 @@ export class AllAddressListComponent
     }
   }
 
-  onChangeHeaderCheckBox(): void {
-    this.dataManagementClientService.clientListService.headerCheckBoxValue.set(
-      this.headerCheckBoxValue
-    );
+  onChangeHeaderCheckBox(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.headerCheckBoxValue.set(checked);
+    this.dataManagementClientService.clientListService.headerCheckBoxValue.set(checked);
     this.dataManagementClientService.clearCheckedArray();
   }
 
