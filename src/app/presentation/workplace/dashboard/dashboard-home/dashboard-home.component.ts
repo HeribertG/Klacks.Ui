@@ -2,11 +2,13 @@
 
 /**
  * Main dashboard component with collapsible, hideable and reorderable sections.
- * @param sections - Record of section expand/collapse states (open/closed)
- * @param sectionVisibility - Record of section visibility states (shown/hidden), persisted in localStorage
- * @param sectionOrder - Display order of sections, persisted in localStorage
+ * @param sectionsState - Signal tracking expand/collapse state per section key
+ * @param sectionVisibilityModel - Signal form model for per-section visibility, persisted in localStorage
+ * @param sectionOrder - Signal tracking display order of sections, persisted in localStorage
  */
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -30,7 +32,14 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
 import { IconSettingsThreeComponent } from 'src/app/presentation/icons/icon-settings-three.component';
 import { IconGripVerticalComponent } from 'src/app/presentation/icons/icon-grip-vertical.component';
 
-const DEFAULT_SECTION_ORDER = ['overview', 'coverage', 'resources', 'locations'];
+const DEFAULT_SECTION_ORDER = ['overview', 'coverage', 'resources', 'locations'] as const;
+
+interface SectionVisibilityFormModel {
+  overview: boolean;
+  coverage: boolean;
+  resources: boolean;
+  locations: boolean;
+}
 
 @Component({
   selector: 'app-dashboard-home',
@@ -39,6 +48,8 @@ const DEFAULT_SECTION_ORDER = ['overview', 'coverage', 'resources', 'locations']
   standalone: true,
   imports: [
     TranslateModule,
+    FormsModule,
+    FormField,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -66,35 +77,48 @@ export class DashboardHomeComponent implements OnInit {
   private authorizationService = inject(AuthorizationService);
   private localStorageService = inject(LocalStorageService);
 
-  readonly sectionKeys = ['overview', 'coverage', 'resources', 'locations'] as const;
+  readonly sectionKeys = DEFAULT_SECTION_ORDER;
 
   menuOpen = signal(false);
 
-  sections: Record<string, boolean> = {
+  sectionsState = signal<Record<string, boolean>>({
     overview: true,
     coverage: true,
     resources: true,
     locations: true,
-  };
+  });
 
-  sectionVisibility: Record<string, boolean> = {
+  sectionVisibilityModel = signal<SectionVisibilityFormModel>({
     overview: true,
     coverage: true,
     resources: true,
     locations: true,
-  };
+  });
+  sectionVisibilityForm = form(this.sectionVisibilityModel);
 
-  sectionOrder: string[] = [...DEFAULT_SECTION_ORDER];
+  sectionOrder = signal<string[]>([...DEFAULT_SECTION_ORDER]);
+
+  private visibilityFormInitialized = false;
+
+  constructor() {
+    effect(() => {
+      const vis = this.sectionVisibilityModel();
+      if (!this.visibilityFormInitialized) return;
+      this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY, vis);
+    });
+  }
 
   get isAuthorised(): boolean {
     return this.authorizationService.isAuthorised;
   }
 
-  get visibleSectionOrder(): string[] {
-    return this.sectionOrder.filter(
-      (k) => this.sectionVisibility[k] && (this.isAuthorised || k === 'locations')
-    );
-  }
+  readonly visibleSectionOrder = computed(() =>
+    this.sectionOrder().filter(
+      k =>
+        this.sectionVisibilityModel()[k as keyof SectionVisibilityFormModel] &&
+        (this.isAuthorised || k === 'locations')
+    )
+  );
 
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);
@@ -104,22 +128,27 @@ export class DashboardHomeComponent implements OnInit {
     this.layoutService.setContainerToNormalSize();
     this.loadSectionVisibility();
     this.loadSectionOrder();
+    this.visibilityFormInitialized = true;
   }
 
   toggleSection(section: string): void {
-    this.sections[section] = !this.sections[section];
+    this.sectionsState.update(s => ({ ...s, [section]: !s[section] }));
   }
 
   expandAll(): void {
-    Object.keys(this.sections).forEach((key) => (this.sections[key] = true));
+    this.sectionsState.update(s =>
+      Object.fromEntries(Object.keys(s).map(k => [k, true]))
+    );
   }
 
   collapseAll(): void {
-    Object.keys(this.sections).forEach((key) => (this.sections[key] = false));
+    this.sectionsState.update(s =>
+      Object.fromEntries(Object.keys(s).map(k => [k, false]))
+    );
   }
 
   toggleMenuOpen(): void {
-    this.menuOpen.update((v) => !v);
+    this.menuOpen.update(v => !v);
   }
 
   closeMenu(): void {
@@ -127,55 +156,66 @@ export class DashboardHomeComponent implements OnInit {
   }
 
   toggleSectionVisibility(key: string): void {
-    this.sectionVisibility[key] = !this.sectionVisibility[key];
-    this.saveSectionVisibility();
+    const k = key as keyof SectionVisibilityFormModel;
+    this.sectionVisibilityModel.update(m => ({ ...m, [k]: !m[k] }));
   }
 
   onSectionDrop(event: CdkDragDrop<string[]>): void {
-    const visibleKeys = this.sectionOrder.filter((k) => this.sectionVisibility[k]);
+    const vis = this.sectionVisibilityModel();
+    const currentOrder = this.sectionOrder();
+    const visibleKeys = currentOrder.filter(k => vis[k as keyof SectionVisibilityFormModel]);
     moveItemInArray(visibleKeys, event.previousIndex, event.currentIndex);
     let visibleIdx = 0;
-    this.sectionOrder = this.sectionOrder.map((k) =>
-      this.sectionVisibility[k] ? visibleKeys[visibleIdx++] : k
+    const newOrder = currentOrder.map(k =>
+      vis[k as keyof SectionVisibilityFormModel] ? visibleKeys[visibleIdx++] : k
     );
+    this.sectionOrder.set(newOrder);
     this.saveSectionOrder();
   }
 
   private loadSectionVisibility(): void {
     try {
-      const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY) as Record<string, boolean> | null;
-      if (!stored) {
-        return;
-      }
-      this.sectionKeys.forEach((key) => {
-        if (key in stored && typeof stored[key] === 'boolean') {
-          this.sectionVisibility[key] = stored[key];
-        }
+      const stored = this.localStorageService.getJson(
+        StorageKeys.DASHBOARD_SECTION_VISIBILITY
+      ) as Partial<SectionVisibilityFormModel> | null;
+      if (!stored) return;
+      this.sectionVisibilityModel.update(m => {
+        const updated = { ...m };
+        (this.sectionKeys as readonly string[]).forEach(key => {
+          const k = key as keyof SectionVisibilityFormModel;
+          if (k in stored && typeof stored[k] === 'boolean') {
+            updated[k] = stored[k]!;
+          }
+        });
+        return updated;
       });
     } catch {
       // Silently fall back to defaults on corrupt storage
     }
   }
 
-  private saveSectionVisibility(): void {
-    this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_VISIBILITY, this.sectionVisibility);
-  }
-
   private loadSectionOrder(): void {
     try {
-      const stored = this.localStorageService.getJson(StorageKeys.DASHBOARD_SECTION_ORDER) as string[] | null;
-      if (!Array.isArray(stored)) {
-        return;
-      }
-      const valid = stored.filter((k) => DEFAULT_SECTION_ORDER.includes(k));
-      const missing = DEFAULT_SECTION_ORDER.filter((k) => !valid.includes(k));
-      this.sectionOrder = [...valid, ...missing];
+      const stored = this.localStorageService.getJson(
+        StorageKeys.DASHBOARD_SECTION_ORDER
+      ) as string[] | null;
+      if (!Array.isArray(stored)) return;
+      const valid = stored.filter(k =>
+        (DEFAULT_SECTION_ORDER as readonly string[]).includes(k)
+      );
+      const missing = (DEFAULT_SECTION_ORDER as readonly string[]).filter(
+        k => !valid.includes(k)
+      );
+      this.sectionOrder.set([...valid, ...missing]);
     } catch {
       // Silently fall back to default order on corrupt storage
     }
   }
 
   private saveSectionOrder(): void {
-    this.localStorageService.setJson(StorageKeys.DASHBOARD_SECTION_ORDER, this.sectionOrder);
+    this.localStorageService.setJson(
+      StorageKeys.DASHBOARD_SECTION_ORDER,
+      this.sectionOrder()
+    );
   }
 }

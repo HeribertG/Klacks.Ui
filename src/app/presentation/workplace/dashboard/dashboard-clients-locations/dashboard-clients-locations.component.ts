@@ -10,9 +10,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faStreetView } from '@fortawesome/free-solid-svg-icons';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
@@ -58,12 +59,16 @@ export type LocationViewMode = 'city' | 'group';
 const MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
 const LOCATION_VIEW_MODE_STORAGE_KEY = 'dashboard-location-view-mode';
 
+interface MapSettingsFormModel {
+  tileProvider: string;
+}
+
 @Component({
   selector: 'app-dashboard-clients-locations',
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent, SearchInputComponent],
+  imports: [TranslateModule, FormsModule, FormField, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -135,7 +140,10 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     },
   ];
 
-  public selectedTileProviderId = signal('osm-standard');
+  public mapSettingsModel = signal<MapSettingsFormModel>({ tileProvider: 'osm-standard' });
+  public mapSettingsForm = form(this.mapSettingsModel);
+
+  private locationFormInitialized = false;
 
   private map: any;
   private currentTileLayer: any;
@@ -143,9 +151,32 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   private resizeObserver: ResizeObserver | null = null;
   private markerBounds: any[] = [];
 
+  constructor() {
+    effect(() => {
+      const providerId = this.mapSettingsModel().tileProvider;
+      if (!this.locationFormInitialized) return;
+
+      this.localStorageService.set(MAP_TILE_PROVIDER_STORAGE_KEY, providerId);
+
+      if (!this.map) return;
+
+      const provider = this.tileProviders.find(p => p.id === providerId);
+      if (!provider) return;
+
+      if (this.currentTileLayer) {
+        this.map.removeLayer(this.currentTileLayer);
+      }
+      this.currentTileLayer = L.tileLayer(provider.url, {
+        attribution: provider.attribution,
+        maxZoom: provider.maxZoom,
+      }).addTo(this.map);
+    });
+  }
+
   ngOnInit(): void {
     this.loadSavedTileProvider();
     this.loadSavedViewMode();
+    this.locationFormInitialized = true;
     this.loadDataForCurrentMode();
   }
 
@@ -161,7 +192,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   private loadSavedTileProvider(): void {
     const savedProviderId = this.localStorageService.get(MAP_TILE_PROVIDER_STORAGE_KEY);
     if (savedProviderId && this.tileProviders.some(p => p.id === savedProviderId)) {
-      this.selectedTileProviderId.set(savedProviderId);
+      this.mapSettingsModel.update(m => ({ ...m, tileProvider: savedProviderId }));
     }
   }
 
@@ -342,7 +373,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     this.map = L.map(mapContainer).setView([46.8182, 8.2275], 7);
 
-    const provider = this.tileProviders.find(p => p.id === this.selectedTileProviderId()) || this.tileProviders[0];
+    const provider = this.tileProviders.find(p => p.id === this.mapSettingsModel().tileProvider) || this.tileProviders[0];
     this.currentTileLayer = L.tileLayer(provider.url, {
       attribution: provider.attribution,
       maxZoom: provider.maxZoom,
@@ -365,29 +396,6 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       this.map?.invalidateSize();
     });
     this.resizeObserver.observe(mapContainer);
-  }
-
-  public onTileProviderChange(providerId: string): void {
-    this.selectedTileProviderId.set(providerId);
-    this.localStorageService.set(MAP_TILE_PROVIDER_STORAGE_KEY, providerId);
-
-    if (!this.map) {
-      return;
-    }
-
-    const provider = this.tileProviders.find(p => p.id === providerId);
-    if (!provider) {
-      return;
-    }
-
-    if (this.currentTileLayer) {
-      this.map.removeLayer(this.currentTileLayer);
-    }
-
-    this.currentTileLayer = L.tileLayer(provider.url, {
-      attribution: provider.attribution,
-      maxZoom: provider.maxZoom,
-    }).addTo(this.map);
   }
 
   private loadMarkersOnMap(locations: LocationData[]): void {

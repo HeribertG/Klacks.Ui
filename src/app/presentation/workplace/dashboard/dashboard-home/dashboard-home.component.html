@@ -41,26 +41,62 @@
             <div class="section-menu-title">
               {{ "dashboard.section-menu.title" | translate }}
             </div>
-            @for (key of sectionKeys; track key) {
-              <div
-                class="section-menu-row"
-                role="button"
-                tabindex="0"
-                (click)="toggleSectionVisibility(key)"
-                (keydown.enter)="toggleSectionVisibility(key)"
-                (keydown.space)="toggleSectionVisibility(key)"
-              >
-                <span>{{ "dashboard.section." + key | translate }}</span>
-                <label class="main-switch" (click)="$event.stopPropagation()">
-                  <input
-                    type="checkbox"
-                    [checked]="sectionVisibility[key]"
-                    (change)="toggleSectionVisibility(key)"
-                  />
-                  <div class="slider round"></div>
-                </label>
-              </div>
-            }
+            <div
+              class="section-menu-row"
+              role="button"
+              tabindex="0"
+              (click)="toggleSectionVisibility('overview')"
+              (keydown.enter)="toggleSectionVisibility('overview')"
+              (keydown.space)="toggleSectionVisibility('overview')"
+            >
+              <span>{{ "dashboard.section.overview" | translate }}</span>
+              <label class="main-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [formField]="sectionVisibilityForm.overview" />
+                <div class="slider round"></div>
+              </label>
+            </div>
+            <div
+              class="section-menu-row"
+              role="button"
+              tabindex="0"
+              (click)="toggleSectionVisibility('coverage')"
+              (keydown.enter)="toggleSectionVisibility('coverage')"
+              (keydown.space)="toggleSectionVisibility('coverage')"
+            >
+              <span>{{ "dashboard.section.coverage" | translate }}</span>
+              <label class="main-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [formField]="sectionVisibilityForm.coverage" />
+                <div class="slider round"></div>
+              </label>
+            </div>
+            <div
+              class="section-menu-row"
+              role="button"
+              tabindex="0"
+              (click)="toggleSectionVisibility('resources')"
+              (keydown.enter)="toggleSectionVisibility('resources')"
+              (keydown.space)="toggleSectionVisibility('resources')"
+            >
+              <span>{{ "dashboard.section.resources" | translate }}</span>
+              <label class="main-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [formField]="sectionVisibilityForm.resources" />
+                <div class="slider round"></div>
+              </label>
+            </div>
+            <div
+              class="section-menu-row"
+              role="button"
+              tabindex="0"
+              (click)="toggleSectionVisibility('locations')"
+              (keydown.enter)="toggleSectionVisibility('locations')"
+              (keydown.space)="toggleSectionVisibility('locations')"
+            >
+              <span>{{ "dashboard.section.locations" | translate }}</span>
+              <label class="main-switch" (click)="$event.stopPropagation()">
+                <input type="checkbox" [formField]="sectionVisibilityForm.locations" />
+                <div class="slider round"></div>
+              </label>
+            </div>
           </div>
         }
       </div>
@@ -72,7 +108,7 @@
     cdkDropList
     (cdkDropListDropped)="onSectionDrop($event)"
   >
-    @for (key of visibleSectionOrder; track key; let first = $first) {
+    @for (key of visibleSectionOrder(); track key; let first = $first) {
       <div cdkDrag class="section-drag-item">
         <div
           class="section-header"
@@ -84,7 +120,7 @@
         >
           <span
             class="section-drag-handle"
-            [class.hidden]="sections[key]"
+            [class.hidden]="sectionsState()[key]"
             cdkDragHandle
             (click)="$event.stopPropagation()"
           >
@@ -92,7 +128,7 @@
           </span>
           <span>{{ "dashboard.section." + key | translate }}</span>
           <button class="section-toggle-button">
-            @if (sections[key]) {
+            @if (sectionsState()[key]) {
               <app-icon-angle-down></app-icon-angle-down>
             } @else {
               <app-icon-angle-right></app-icon-angle-right>
@@ -100,7 +136,7 @@
           </button>
         </div>
 
-        @if (sections[key]) {
+        @if (sectionsState()[key]) {
           @switch (key) {
             @case ("overview") {
               <div class="container-dashboard-charts-row">

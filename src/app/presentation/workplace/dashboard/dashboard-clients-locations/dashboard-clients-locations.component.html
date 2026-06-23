@@ -42,8 +42,7 @@
       <select
         class="form-select map-style"
         id="map-style-select"
-        [ngModel]="selectedTileProviderId()"
-        (ngModelChange)="onTileProviderChange($event)"
+        [formField]="mapSettingsForm.tileProvider"
       >
         @for (provider of tileProviders; track provider.id) {
         <option [value]="provider.id">{{ provider.name }}</option>
