@@ -1,18 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ChangeDetectorRef } from '@angular/core';
+import { signal } from '@angular/core';
 
 import { SearchComponent } from './search.component';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { signal } from '@angular/core';
 
 describe('SearchComponent', () => {
     let component: SearchComponent;
@@ -20,7 +16,6 @@ describe('SearchComponent', () => {
     let searchStrategyService: any;
     let workplaceStateService: any;
     let searchService: any;
-    let cdr: any;
 
     beforeEach(async () => {
         const searchStrategyServiceSpy = {
@@ -37,11 +32,7 @@ describe('SearchComponent', () => {
             showIncludeAddress: vi.fn(),
             showIncludeClient: vi.fn()
         };
-        const cdrSpy = {
-            detectChanges: vi.fn()
-        };
 
-        // Setup default return values BEFORE TestBed configuration
         searchServiceSpy.showSearch.mockReturnValue(true);
         searchServiceSpy.showIncludeAddress.mockReturnValue(false);
         searchServiceSpy.showIncludeClient.mockReturnValue(false);
@@ -50,15 +41,12 @@ describe('SearchComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 SearchComponent,
-                FormsModule,
                 TranslateModule.forRoot(),
-                FontAwesomeModule,
             ],
             providers: [
                 { provide: SearchStrategyService, useValue: searchStrategyServiceSpy },
                 { provide: WorkplaceStateService, useValue: workplaceStateSpy },
                 { provide: SearchService, useValue: searchServiceSpy },
-                { provide: ChangeDetectorRef, useValue: cdrSpy },
             ],
         }).compileComponents();
 
@@ -68,7 +56,6 @@ describe('SearchComponent', () => {
         searchStrategyService = TestBed.inject(SearchStrategyService) as any;
         workplaceStateService = TestBed.inject(WorkplaceStateService) as any;
         searchService = TestBed.inject(SearchService) as any;
-        cdr = TestBed.inject(ChangeDetectorRef) as any;
     });
 
     it('should create', () => {
@@ -76,15 +63,14 @@ describe('SearchComponent', () => {
     });
 
     it('should initialize with default values', () => {
-        expect(component.searchString).toBe('');
-        expect(component.includeAddress).toBe(false);
-        expect(component.includeClient).toBe(false);
+        expect(component.searchString()).toBe('');
+        expect(component.filterModel().includeAddress).toBe(false);
+        expect(component.filterModel().includeClient).toBe(false);
     });
 
     it('should call globalSearch when onClickSearch is called', () => {
-        component.searchString = 'test search';
-        component.includeAddress = true;
-        component.includeClient = false;
+        component.searchString.set('test search');
+        component.filterModel.update(m => ({ ...m, includeAddress: true }));
 
         component.onClickSearch();
 
@@ -103,47 +89,36 @@ describe('SearchComponent', () => {
         expect(searchStrategyService.resetFilterWithoutSignalWrite).not.toHaveBeenCalled();
     });
 
+    it('should update searchString when onSearchValueChange is called', () => {
+        component.onSearchValueChange('new value');
+
+        expect(component.searchString()).toBe('new value');
+    });
+
     it('should trigger search on HostListener search event', () => {
         vi.spyOn(component, 'onClickSearch');
-        const mockEvent = new KeyboardEvent('search');
 
-        component.onsearch(mockEvent);
+        component.onsearch();
 
         expect(component.onClickSearch).toHaveBeenCalled();
     });
 
     it('should handle focus change correctly', () => {
-        component.searchString = 'existing search';
-        component.includeAddress = true;
-        component.includeClient = true;
-
-        // Create a spy on the private method to verify it calls detectChanges
-        vi.spyOn(component['cdr'], 'detectChanges');
+        component.searchString.set('existing search');
+        component.filterModel.update(m => ({ ...m, includeAddress: true, includeClient: true }));
 
         component['handleFocusChange']();
 
         expect(searchStrategyService.resetFilter).toHaveBeenCalled();
-        expect(component.searchString).toBe('');
-        expect(component.includeAddress).toBe(false);
-        expect(component.includeClient).toBe(false);
-        expect(component['cdr'].detectChanges).toHaveBeenCalled();
+        expect(component.searchString()).toBe('');
+        expect(component.filterModel().includeAddress).toBe(false);
+        expect(component.filterModel().includeClient).toBe(false);
     });
 
-    it('should restore search string when restoreSearch returns value', () => {
-        // The effect runs in the constructor, so restoreSearch should have been called during component creation
-        // Since the effect may be async, let's ensure it gets called by triggering the effect manually
-
-        // First verify that restoreSearch can be called
+    it('should update searchString via signal when value is set', () => {
         const restoredSearch = 'restored search';
-        searchStrategyService.restoreSearch.mockReturnValue(restoredSearch);
-
-        // Call restoreSearch manually to verify the functionality
-        const result = searchStrategyService.restoreSearch();
-        expect(result).toBe(restoredSearch);
-
-        // Test that searchString can be set correctly
-        component.searchString = restoredSearch;
-        expect(component.searchString).toBe(restoredSearch);
+        component.searchString.set(restoredSearch);
+        expect(component.searchString()).toBe(restoredSearch);
     });
 
     it('should render search input when showSearch returns true', () => {
@@ -167,7 +142,7 @@ describe('SearchComponent', () => {
         searchService.showIncludeAddress.mockReturnValue(true);
         fixture.detectChanges();
 
-        const addressCheckbox = fixture.nativeElement.querySelector('input[name="includeAddress"]');
+        const addressCheckbox = fixture.nativeElement.querySelector('#search-include-address');
         expect(addressCheckbox).toBeTruthy();
     });
 
@@ -176,13 +151,13 @@ describe('SearchComponent', () => {
         searchService.showIncludeClient.mockReturnValue(true);
         fixture.detectChanges();
 
-        const clientCheckbox = fixture.nativeElement.querySelector('input[name="includeClient"]');
+        const clientCheckbox = fixture.nativeElement.querySelector('#search-include-client');
         expect(clientCheckbox).toBeTruthy();
     });
 
-    it('should bind searchString to input value', async () => {
+    it('should bind searchString to search input', async () => {
         searchService.showSearch.mockReturnValue(true);
-        searchStrategyService.restoreSearch.mockReturnValue('test value');
+        component.searchString.set('test value');
 
         fixture.detectChanges();
         await fixture.whenStable();

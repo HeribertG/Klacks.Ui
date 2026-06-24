@@ -1,52 +1,55 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/**
+ * Global search component for the header bar.
+ * Delegates search execution to the active strategy via SearchStrategyService.
+ */
 import {
+  ChangeDetectionStrategy,
   Component,
   HostListener,
   effect,
-  untracked,
-  ChangeDetectorRef,
   inject,
-  ChangeDetectionStrategy,
+  signal,
+  untracked,
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
+
+interface ISearchFilterModel {
+  includeAddress: boolean;
+  includeClient: boolean;
+}
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, SearchInputComponent],
+  imports: [FormField, TranslateModule, SearchInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent {
-  private cdr = inject(ChangeDetectorRef);
-  private searchStrategyService = inject(SearchStrategyService);
-  private workplaceState = inject(WorkplaceStateService);
-  public searchService = inject(SearchService);
+  private readonly searchStrategyService = inject(SearchStrategyService);
+  private readonly workplaceState = inject(WorkplaceStateService);
+  readonly searchService = inject(SearchService);
 
-  public includeAddress = false;
-  public includeClient = false;
-  public searchString = '';
+  readonly searchString = signal('');
+  readonly filterModel = signal<ISearchFilterModel>({ includeAddress: false, includeClient: false });
+  readonly filterForm = form(this.filterModel, () => {});
 
   constructor() {
     effect(() => {
-      const restored = this.searchStrategyService.restoreSearch();
-      this.searchString = restored;
-      this.cdr.detectChanges();
+      this.searchString.set(this.searchStrategyService.restoreSearch());
     });
 
     effect(() => {
       const focusChanged = this.workplaceState.isFocusChanged();
-
       if (focusChanged) {
         this.handleFocusChange();
         untracked(() => this.workplaceState.isFocusChanged.set(false));
@@ -55,29 +58,29 @@ export class SearchComponent {
   }
 
   onClickSearch(): void {
+    const filter = this.filterModel();
     this.searchStrategyService.globalSearch(
-      this.searchString,
-      this.includeAddress,
-      this.includeClient
+      this.searchString(),
+      filter.includeAddress,
+      filter.includeClient
     );
   }
 
   onSearchValueChange(value: string): void {
+    this.searchString.set(value);
     if (value === '') {
       this.searchStrategyService.resetFilterWithoutSignalWrite();
     }
   }
 
-  @HostListener('search', ['$event'])
-  onsearch(event: Event): void {
+  @HostListener('search')
+  onsearch(): void {
     this.onClickSearch();
   }
 
   private handleFocusChange(): void {
     this.searchStrategyService.resetFilter();
-    this.searchString = '';
-    this.includeAddress = false;
-    this.includeClient = false;
-    this.cdr.detectChanges();
+    this.searchString.set('');
+    this.filterModel.set({ includeAddress: false, includeClient: false });
   }
 }

@@ -7,7 +7,7 @@
       placeholder="{{ 'placeholder.search' | translate }}"
       name="searchString"
       id="search-client"
-      [ngModel]="searchString"
+      [ngModel]="searchString()"
       (ngModelChange)="onSearchStringChange($event)"
       (keyup)="onKeyupSearch($event)"
       autocomplete="off"
@@ -15,7 +15,7 @@
     />
 
     <datalist id="clientSearchDatalist">
-      @for (item of results; track item) {
+      @for (item of results(); track item.idNumber) {
         <option [ngValue]="item">
           {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
           {{ item.name }}

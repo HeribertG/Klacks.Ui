@@ -3,7 +3,7 @@
   <app-search-input
     inputId="search"
     klacksyTarget="header-search"
-    [(value)]="searchString"
+    [value]="searchString()"
     (valueChange)="onSearchValueChange($event)"
     (searchSubmit)="onClickSearch()"
   ></app-search-input>
@@ -14,8 +14,7 @@
       <input
         id="search-include-address"
         type="checkbox"
-        name="includeAddress"
-        [(ngModel)]="includeAddress"
+        [formField]="filterForm.includeAddress"
       />
       {{ "search.inc.address" | translate }}
     </label>
@@ -23,7 +22,11 @@
   } @if (searchService.showIncludeClient()) {
   <div class="include-address">
     <label class="checkbox-label">
-      <input id="search-include-client" type="checkbox" name="includeClient" [(ngModel)]="includeClient" />
+      <input
+        id="search-include-client"
+        type="checkbox"
+        [formField]="filterForm.includeClient"
+      />
       {{ "search.inc.client" | translate }}
     </label>
   </div>
