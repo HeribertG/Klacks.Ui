@@ -1,30 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
-import { Component, inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+/**
+ * Page shown when the user lacks the required role for the requested route.
+ * Navigates back to the root when the button is clicked.
+ */
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   selector: 'app-no-access',
   templateUrl: './no-access.component.html',
   styleUrl: './no-access.component.scss',
-  imports: [FormsModule, TranslateModule, RouterModule],
+  imports: [TranslateModule, RouterModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoAccessComponent {
-  // Public injected services
-  public translate = inject(TranslateService);
-
-  // Private injected services
   private navigationService = inject(NavigationService);
 
-  // Public methods
   onClick(): void {
     this.navigationService.navigateToRoot();
   }

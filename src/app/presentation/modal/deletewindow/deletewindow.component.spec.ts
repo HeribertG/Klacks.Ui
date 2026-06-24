@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
@@ -44,16 +44,16 @@ describe('DeletewindowComponent', () => {
     });
 
     it('should have default title', () => {
-        expect(component.title).toBe('delete');
+        expect(component.title()).toBe('delete');
     });
 
     it('should have empty default message', () => {
-        expect(component.message).toBe('');
+        expect(component.message()).toBe('');
     });
 
     it('should accept custom title input', () => {
         const customTitle = 'Benutzer löschen';
-        component.title = customTitle;
+        fixture.componentRef.setInput('title', customTitle);
         fixture.detectChanges();
 
         const titleElement = fixture.nativeElement.querySelector('#modal-title');
@@ -62,7 +62,7 @@ describe('DeletewindowComponent', () => {
 
     it('should accept custom message input', () => {
         const customMessage = 'Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?';
-        component.message = customMessage;
+        fixture.componentRef.setInput('message', customMessage);
         fixture.detectChanges();
 
         const modalBody = fixture.nativeElement.querySelector('.modal-body');
@@ -92,8 +92,8 @@ describe('DeletewindowComponent', () => {
         const testTitle = 'Test Delete Title';
         const testMessage = 'Test delete message';
 
-        component.title = testTitle;
-        component.message = testMessage;
+        fixture.componentRef.setInput('title', testTitle);
+        fixture.componentRef.setInput('message', testMessage);
         fixture.detectChanges();
 
         const compiled = fixture.nativeElement;

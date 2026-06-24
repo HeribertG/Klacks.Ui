@@ -1,9 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { MessageWindowComponent } from './message-window.component';
 import { QuestionMarkRoundComponent } from 'src/app/presentation/icons/icon-round-question_mark.component';
@@ -11,7 +9,6 @@ import { QuestionMarkRoundComponent } from 'src/app/presentation/icons/icon-roun
 describe('MessageWindowComponent', () => {
     let component: MessageWindowComponent;
     let fixture: ComponentFixture<MessageWindowComponent>;
-    let translateService: any;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -24,10 +21,6 @@ describe('MessageWindowComponent', () => {
 
         fixture = TestBed.createComponent(MessageWindowComponent);
         component = fixture.componentInstance;
-        translateService = TestBed.inject(TranslateService) as any;
-
-        // Setup spy for get method
-        vi.spyOn(translateService, 'get').mockReturnValue(of('Test Message'));
     });
 
     it('should create', () => {
@@ -35,39 +28,13 @@ describe('MessageWindowComponent', () => {
     });
 
     it('should have default values', () => {
-        expect(component.title).toBe('Message');
-        expect(component.message).toBe('');
-    });
-
-    it('should translate title on ngOnInit', () => {
-        const translatedTitle = 'Nachricht';
-        translateService.get.mockReturnValue(of(translatedTitle));
-
-        component.ngOnInit();
-
-        expect(translateService.get).toHaveBeenCalledWith('message');
-        expect(component.title).toBe(translatedTitle);
-    });
-
-    it('should accept custom title input', () => {
-        const customTitle = 'Custom Message Title';
-
-        // Set title before ngOnInit runs, or after and then trigger change detection
-        component.title = customTitle;
-
-        // Need to call ngOnInit again or override the translation
-        translateService.get.mockReturnValue(of(customTitle));
-        component.ngOnInit();
-
-        fixture.detectChanges();
-
-        const titleElement = fixture.nativeElement.querySelector('#modal-title');
-        expect(titleElement.textContent.trim()).toBe(customTitle);
+        expect(component.title()).toBe('message');
+        expect(component.message()).toBe('');
     });
 
     it('should accept custom message input', () => {
         const customMessage = 'This is a test message';
-        component.message = customMessage;
+        fixture.componentRef.setInput('message', customMessage);
         fixture.detectChanges();
 
         const modalBody = fixture.nativeElement.querySelector('.modal-body');
@@ -93,32 +60,12 @@ describe('MessageWindowComponent', () => {
     });
 
     it('should render template correctly with inputs', () => {
-        const testTitle = 'Test Message Title';
         const testMessage = 'Test message content';
 
-        // Set the message first
-        component.message = testMessage;
-
-        // Override translation to return our test title
-        translateService.get.mockReturnValue(of(testTitle));
-        component.ngOnInit();
-
+        fixture.componentRef.setInput('message', testMessage);
         fixture.detectChanges();
 
         const compiled = fixture.nativeElement;
-        expect(compiled.querySelector('#modal-title').textContent).toContain(testTitle);
         expect(compiled.querySelector('.modal-body').textContent).toContain(testMessage);
-    });
-
-    it('should update title after translation in ngOnInit even with initial custom title', () => {
-        const initialTitle = 'Initial Title';
-        const translatedTitle = 'Übersetzter Titel';
-
-        component.title = initialTitle;
-        translateService.get.mockReturnValue(of(translatedTitle));
-
-        component.ngOnInit();
-
-        expect(component.title).toBe(translatedTitle);
     });
 });

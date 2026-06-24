@@ -1,14 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject,
+/**
+ * Host component that opens ng-bootstrap modals (input, delete/confirmation, message) in response to ModalService events.
+ * @param contentInput - Template ref for the text-input modal
+ * @param contentDelete - Template ref for the delete/confirmation modal
+ * @param contentMessage - Template ref for the message modal
+ */
+import { AfterViewInit, Component, DestroyRef, ElementRef, OnInit, ViewChild, inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ModalService, ModalType } from '../modal.service';
-import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { FormsModule } from '@angular/forms';
 import { DeletewindowComponent } from '../deletewindow/deletewindow.component';
 import { MessageWindowComponent } from '../message-window/message-window.component';
@@ -16,7 +21,7 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.scss'],
+  styleUrl: './modal.component.scss',
   standalone: true,
   imports: [
     FormsModule,
@@ -27,8 +32,7 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
-  // @ViewChild properties
+export class ModalComponent implements OnInit, AfterViewInit {
   @ViewChild('contentInput', { static: true })
   public contentInput!: ElementRef<HTMLElement>;
   @ViewChild('contentDelete', { static: true })
@@ -36,17 +40,9 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contentMessage', { static: true })
   private contentMessage!: ElementRef<HTMLElement>;
 
-  // Public properties (used in templates)
-  public modalService: ModalService;
-
-  // Private properties
-  private ngbModal: NgbModal;
-  private ngUnsubscribe = new Subject<void>();
-
-  constructor() {
-    this.modalService = inject(ModalService);
-    this.ngbModal = inject(NgbModal);
-  }
+  public modalService = inject(ModalService);
+  private ngbModal = inject(NgbModal);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.modalService.deleteMessageTitleDefault = 'delete';
@@ -55,7 +51,7 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.modalService.openModelEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x: ModalType) => {
         switch (x) {
           case ModalType.Input: {
@@ -73,11 +69,6 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   open(content: any, modalType: ModalType): void {

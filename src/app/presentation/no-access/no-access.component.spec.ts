@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
@@ -21,7 +21,6 @@ describe('NoAccessComponent', () => {
     let component: NoAccessComponent;
     let fixture: ComponentFixture<NoAccessComponent>;
     let navigationService: any;
-    let translateService: any;
 
     beforeEach(async () => {
         const navigationServiceSpy = {
@@ -44,7 +43,6 @@ describe('NoAccessComponent', () => {
         fixture = TestBed.createComponent(NoAccessComponent);
         component = fixture.componentInstance;
         navigationService = TestBed.inject(NavigationService) as any;
-        translateService = TestBed.inject(TranslateService) as any;
     });
 
     it('should create', () => {
@@ -53,10 +51,6 @@ describe('NoAccessComponent', () => {
 
     it('should have NavigationService injected', () => {
         expect(component['navigationService']).toBeTruthy();
-    });
-
-    it('should have TranslateService injected', () => {
-        expect(component.translate).toBeTruthy();
     });
 
     it('should call navigationService.navigateToRoot when onClick is called', () => {

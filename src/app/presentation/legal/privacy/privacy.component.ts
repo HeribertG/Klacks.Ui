@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-privacy',
   templateUrl: './privacy.component.html',
-  styleUrls: ['./privacy.component.scss'],
+  styleUrl: './privacy.component.scss',
   standalone: true,
   imports: [TranslateModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -10,7 +10,7 @@ import { SpinnerComponent } from '../spinner.component';
 @Component({
   selector: 'app-spinner-wrapper',
   templateUrl: './spinner-wrapper.component.html',
-  styleUrls: ['./spinner-wrapper.component.scss'],
+  styleUrl: './spinner-wrapper.component.scss',
   standalone: true,
   imports: [SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-imprint',
   templateUrl: './imprint.component.html',
-  styleUrls: ['./imprint.component.scss'],
+  styleUrl: './imprint.component.scss',
   standalone: true,
   imports: [TranslateModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,30 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
-import { Component, inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+/**
+ * Page shown when the router cannot match the requested URL.
+ * Navigates back to the root when the button is clicked.
+ */
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   selector: 'app-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrl: './page-not-found.component.scss',
-  imports: [FormsModule, TranslateModule, RouterModule],
+  imports: [TranslateModule, RouterModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageNotFoundComponent {
-  // Public injected services
-  public translate = inject(TranslateService);
-
-  // Private injected services
   private navigationService = inject(NavigationService);
 
-  // Public methods
   onClick(): void {
     this.navigationService.navigateToRoot();
   }
