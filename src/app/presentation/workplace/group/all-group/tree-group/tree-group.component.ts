@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   EffectRef,
   EventEmitter,
   Injector,
@@ -16,6 +17,7 @@ import {
   runInInjectionContext,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/domain/models/group/group-class';
@@ -39,8 +41,6 @@ import {
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from '@angular/cdk/drag-drop';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tree-group',
@@ -48,7 +48,7 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./tree-group.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
+    NgTemplateOutlet,
     TranslateModule,
     NgbTooltipModule,
     IconAngleDownComponent,
@@ -76,6 +76,7 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   @Output() switchToGrid = new EventEmitter<void>();
 
@@ -84,7 +85,6 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   public hoveredNodeId: string | null = null;
   public draggedNodeId: string | null = null;
 
-  private destroy$ = new Subject<void>();
   private effectRef: EffectRef | null = null;
   private expandTimeout: any = null;
   private scrollInterval: any = null;
@@ -98,8 +98,6 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.stopAutoScroll();
     this.clearExpandTimer();
 
@@ -208,14 +206,14 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
     this.modalService.openModel(ModalType.Delete);
 
     this.modalService.resultEvent
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((type) => {
         if (
           type === ModalType.Delete &&
           this.modalService.componentContext === 'tree-group'
         ) {
           this.dataManagementGroupService.deleteGroup(node.id!)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
           this.modalService.componentContext = '';
           this.modalService.Filing = '';

@@ -9,7 +9,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  OnDestroy,
+  DestroyRef,
   OnInit,
   inject,
   signal,
@@ -17,7 +17,7 @@ import {
 import { FormField, form } from '@angular/forms/signals';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -36,13 +36,13 @@ interface AllGroupNavFilterModel {
   imports: [FormField, NgbDropdownModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AllGroupNavComponent implements OnInit, AfterViewInit {
   dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   currentLang: Language = DomainMessages.DEFAULT_LANG;
-  private ngUnsubscribe = new Subject<void>();
 
   public navFilterFormModel = signal<AllGroupNavFilterModel>({
     activeDateRange: true,
@@ -63,16 +63,11 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.translateService.onLangChange
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   onClose() {

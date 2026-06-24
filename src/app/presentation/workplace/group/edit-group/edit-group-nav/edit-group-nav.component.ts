@@ -7,8 +7,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
+  DestroyRef,
   Injector,
-  OnDestroy,
   OnInit,
   effect,
   inject,
@@ -20,7 +20,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { FormField, form } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Filter } from 'src/app/domain/models/client/client-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
@@ -66,12 +66,13 @@ interface EditGroupNavFilterModel {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditGroupNavComponent implements OnInit, OnDestroy {
+export class EditGroupNavComponent implements OnInit {
   public dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   public navGroup: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -83,7 +84,6 @@ export class EditGroupNavComponent implements OnInit, OnDestroy {
   private initSkipCount = 0;
   public defaultTop = 0;
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
-  private ngUnsubscribe = new Subject<void>();
 
   public scopeFromValue: NgbDateStruct | undefined;
   public scopeUntilValue: NgbDateStruct | undefined;
@@ -121,16 +121,11 @@ export class EditGroupNavComponent implements OnInit, OnDestroy {
     this.readSignals();
 
     this.translateService.onLangChange
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   private isInit(): void {

@@ -2,10 +2,10 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EffectRef,
   ElementRef,
   EventEmitter,
@@ -21,12 +21,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
 import {
   NgbPaginationModule,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/domain/models/client/client-class';
 import { IGroup } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -55,7 +56,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrls: ['./all-group-list.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
+    DatePipe,
     NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,
@@ -88,6 +89,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private allGroupStateService = inject(AllGroupStateService);
   private localStorageService = inject(LocalStorageService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   private effectRef: EffectRef | null = null;
 
@@ -104,8 +106,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   isFirstRead = true;
 
   resizeWindow: (() => void) | undefined;
-
-  private ngUnsubscribe = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
     this.dataManagementGroupService.init();
@@ -134,7 +134,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getReset();
 
     this.modalService.resultEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x: ModalType) => {
         if (
           x === ModalType.Delete &&
@@ -162,9 +162,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.allGroupStateService.saveCurrentFilter();
-
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
 
     try {
       if (this.resizeWindow) {
@@ -378,7 +375,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private deleteGroup(id: string) {
     this.dataManagementGroupService
       .deleteGroup(id)
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.readPage();
         this.cdr.markForCheck();
@@ -405,7 +402,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.tableResizeService
       .createResizeObservable(this.myGridTable.nativeElement)
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((optimalRows: number) => {
         if (this.tableResizeService.isAutoMode()) {
           const currentRows =

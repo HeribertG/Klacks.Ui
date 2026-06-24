@@ -6,11 +6,11 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   EventEmitter,
   HostListener,
   inject,
   LOCALE_ID,
-  OnDestroy,
   OnInit,
   Output,
   ChangeDetectionStrategy,
@@ -27,8 +27,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
@@ -44,7 +43,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   providers: [TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastShowService = inject(ToastShowService);
@@ -53,7 +52,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   @Output() isChangingEvent = new EventEmitter();
   @Output() isEnterEvent = new EventEmitter();
@@ -162,7 +161,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
 
     this.dataClientService
       .readClientList(this.dataManagementGroupService.currentClientFilter)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x) => {
         this.result = x.clients;
 
@@ -174,11 +173,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
         }
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private visualName(value: IClient): string {

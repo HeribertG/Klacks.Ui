@@ -10,7 +10,7 @@ import {
   OnInit,
   Output,
   effect,
-  OnDestroy,
+  DestroyRef,
   EffectRef,
   inject,
   Injector,
@@ -19,9 +19,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, disabled, form } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/domain/models/settings/language-config';
@@ -41,7 +41,7 @@ interface EditGroupParentFormModel {
   imports: [FormField, TranslateModule, ExpandableCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditGroupParentComponent implements OnInit, OnDestroy {
+export class EditGroupParentComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public authorizationService = inject(AuthorizationService);
@@ -49,13 +49,22 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   availableParents: Group[] = [];
   groupPath: Group[] = [];
   currentLang: Language = DomainMessages.DEFAULT_LANG;
 
-  private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.effectRef) {
+        this.effectRef.destroy();
+        this.effectRef = null;
+      }
+    });
+  }
 
   public parentFormModel = signal<EditGroupParentFormModel>({ parent: '' });
   public parentSelectForm = form(this.parentFormModel, (f) => {
@@ -74,21 +83,11 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
     });
 
     this.translateService.onLangChange
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
         this.cdr.markForCheck();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
   }
 
   updateAvailableParents(): void {
