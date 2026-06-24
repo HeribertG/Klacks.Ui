@@ -1,11 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { AfterViewInit, Component, computed, inject, OnDestroy, ViewChild,
+/**
+ * Component for displaying the email list within the selected folder.
+ */
+
+import { AfterViewInit, Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
 import { InboxService } from 'src/app/domain/services/email/inbox.service';
 import { IReceivedEmailListItem } from 'src/app/domain/models/email/received-email.model';
 import { SPECIAL_USE_INBOX, SPECIAL_USE_JUNK, SPECIAL_USE_TRASH } from 'src/app/domain/constants/email.constants';
@@ -14,21 +20,39 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 
+interface InboxListFilterFormModel {
+  readFilter: string;
+}
+
 @Component({
   selector: 'app-inbox-list',
   templateUrl: './inbox-list.component.html',
   styleUrls: ['./inbox-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, DatePipe, TranslateModule, ContextMenuComponent],
+  imports: [CommonModule, DatePipe, TranslateModule, FormsModule, FormField, ContextMenuComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InboxListComponent implements AfterViewInit, OnDestroy {
+export class InboxListComponent implements OnInit, AfterViewInit {
   inboxService = inject(InboxService);
-  private ngUnsubscribe = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('contextMenu', { static: false }) contextMenu!: ContextMenuComponent;
 
   private contextEmailId: string | null = null;
+  private initSkipCount = 0;
+
+  filterFormModel = signal<InboxListFilterFormModel>({ readFilter: 'all' });
+  filterForm = form(this.filterFormModel);
+
+  constructor() {
+    effect(() => {
+      const { readFilter } = this.filterFormModel();
+      if (this.initSkipCount > 0) { this.initSkipCount--; return; }
+      untracked(() => {
+        this.inboxService.setReadFilter(readFilter as 'all' | 'read' | 'unread');
+      });
+    });
+  }
 
   currentFolderName = computed(() => {
     const selectedImapFolder = this.inboxService.selectedFolder();
@@ -38,15 +62,15 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
     return folder?.name ?? 'INBOX';
   });
 
-  ngAfterViewInit(): void {
-    this.contextMenu.hasClicked
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((keys) => this.onContextMenuClick(keys));
+  ngOnInit(): void {
+    this.initSkipCount++;
+    this.filterFormModel.set({ readFilter: this.inboxService.readFilter() });
   }
 
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+  ngAfterViewInit(): void {
+    this.contextMenu.hasClicked
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((keys) => this.onContextMenuClick(keys));
   }
 
   onSelectEmail(email: IReceivedEmailListItem): void {
@@ -63,11 +87,6 @@ export class InboxListComponent implements AfterViewInit, OnDestroy {
 
   getDisplayName(email: IReceivedEmailListItem): string {
     return email.fromName || email.fromAddress;
-  }
-
-  onReadFilterChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value as 'all' | 'read' | 'unread';
-    this.inboxService.setReadFilter(value);
   }
 
   onToggleSort(): void {

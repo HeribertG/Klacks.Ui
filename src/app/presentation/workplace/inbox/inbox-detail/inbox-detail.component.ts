@@ -3,7 +3,7 @@
 import { Component, inject, computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,7 @@ import { IconEyeClosedComponent } from 'src/app/presentation/icons/icon-eye-clos
   templateUrl: './inbox-detail.component.html',
   styleUrls: ['./inbox-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, DatePipe, TranslateModule, TrashIconRedComponent, IconEyeClosedComponent],
+  imports: [DatePipe, TranslateModule, TrashIconRedComponent, IconEyeClosedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InboxDetailComponent {

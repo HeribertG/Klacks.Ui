@@ -51,15 +51,16 @@
     </li>
   </ul>
   <div class="filter-sort-row">
-    <select
-      class="read-filter"
-      [value]="inboxService.readFilter()"
-      (change)="onReadFilterChange($event)"
-    >
-      <option value="all">{{ 'inbox.list.filter.all' | translate }}</option>
-      <option value="unread">{{ 'inbox.list.filter.unread' | translate }}</option>
-      <option value="read">{{ 'inbox.list.filter.read' | translate }}</option>
-    </select>
+    <form>
+      <select
+        class="read-filter"
+        [formField]="filterForm.readFilter"
+      >
+        <option value="all">{{ 'inbox.list.filter.all' | translate }}</option>
+        <option value="unread">{{ 'inbox.list.filter.unread' | translate }}</option>
+        <option value="read">{{ 'inbox.list.filter.read' | translate }}</option>
+      </select>
+    </form>
     <button
       type="button"
       class="sort-button"
