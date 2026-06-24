@@ -29,6 +29,7 @@ import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { ClientQualificationService } from './client-qualification.service';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { Subject } from 'rxjs';
@@ -52,6 +53,7 @@ export class DataManagementClientService
   public clientGroupItemService = inject(ClientGroupItemService);
   public clientQualificationService = inject(ClientQualificationService);
   private dataClientService = inject(DataClientService);
+  private readonly assistantPageContext = inject(AssistantPageContextService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
@@ -134,6 +136,7 @@ export class DataManagementClientService
 
     this.clientEditService.onSaveCompleted = () => {
       this.readPage();
+      this.assistantPageContext.setSelectedClientId(this.editClient()?.id || undefined);
       this.onSaveCompleted?.();
     };
 

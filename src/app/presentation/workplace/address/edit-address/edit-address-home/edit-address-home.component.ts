@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';
@@ -70,6 +71,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private activatedRoute = inject(ActivatedRoute);
+  private assistantPageContext = inject(AssistantPageContextService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private asideService = inject(AsideService);
   private toastShowService = inject(ToastShowService);
@@ -102,6 +104,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
       }
 
       const id = params['id'];
+      this.assistantPageContext.setSelectedClientId(id || undefined);
       if (id) {
         this.dataManagementClientService.readClient(id);
       } else {
@@ -113,6 +116,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   ngOnDestroy(): void {
     this.dataManagementClientService.returnUrl = null;
+    this.assistantPageContext.setSelectedClientId(undefined);
     this.destroy$.next();
     this.destroy$.complete();
   }
