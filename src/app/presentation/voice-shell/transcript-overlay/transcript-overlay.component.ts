@@ -18,7 +18,6 @@ import {
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChatMessage } from '../../aside/assistant-chat/chat-message.interface';
 import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-constants';
@@ -26,7 +25,7 @@ import { VoiceShellLayout } from 'src/app/domain/constants/voice-shell-constants
 @Component({
   selector: 'app-transcript-overlay',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './transcript-overlay.component.html',
   styleUrl: './transcript-overlay.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

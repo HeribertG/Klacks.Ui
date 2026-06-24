@@ -19,7 +19,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   ConversationOrchestratorService,
@@ -38,7 +37,7 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
 @Component({
   selector: 'app-voice-shell',
   standalone: true,
-  imports: [CommonModule, TranslateModule, VoiceShellIconComponent, TranscriptOverlayComponent],
+  imports: [TranslateModule, VoiceShellIconComponent, TranscriptOverlayComponent],
   templateUrl: './voice-shell.component.html',
   styleUrl: './voice-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,14 +64,11 @@ export class VoiceShellComponent implements OnInit {
 
   handleClick(): void {
     const state = this.orchestrator.state();
-    console.log('[VS] click, state=', state, 'voiceModeEnabled=', this.orchestrator.voiceModeEnabled());
     switch (state) {
       case ConversationState.Idle:
-        console.log('[VS] calling startSession');
         this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
-        console.log('[VS] calling endSession');
         this.orchestrator.endSession();
         this.toastShowService.dismissInteractiveReplies();
         break;
