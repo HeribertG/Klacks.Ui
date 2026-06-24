@@ -14,11 +14,10 @@
       <select
         class="form-select lang-select"
         id="profile-custom-setting-theme-select"
-        [value]="selectedTheme()"
         (change)="onThemeChanged($event)"
       >
         @for (theme of themes; track theme.value) {
-          <option [value]="theme.value">
+          <option [value]="theme.value" [selected]="theme.value === selectedTheme()">
             {{ theme.label }}
           </option>
         }
@@ -33,11 +32,10 @@
       <select
         class="form-select lang-select"
         id="profile-custom-setting-language-select"
-        [value]="selectedLanguage()"
         (change)="onChangeLanguage($any($event.target).value)"
       >
         @for (language of languages; track language) {
-          <option [value]="language">
+          <option [value]="language" [selected]="language === selectedLanguage()">
             {{ getDisplayName(language) }}
           </option>
         }
