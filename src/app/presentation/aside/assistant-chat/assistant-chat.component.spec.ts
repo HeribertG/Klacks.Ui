@@ -109,6 +109,7 @@ describe('AssistantChatComponent', () => {
             warmupCache: vi.fn(),
             modelsInitialized: signal(true),
             selectedModelId: signal('gpt-4'),
+            availableModels: signal<IAssistantModel[]>(mockModels.filter(m => m.isEnabled)),
         };
 
         const llmProviderServiceSpy = {
@@ -290,9 +291,8 @@ describe('AssistantChatComponent', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         // Assert
-        expect(mockLlmService.getAvailableModels).toHaveBeenCalled();
-        expect(component.availableModels.length).toBe(1);
-        expect(component.availableModels[0].modelId).toBe('gpt-4');
+        expect(component.availableModels().length).toBe(1);
+        expect(component.availableModels()[0].modelId).toBe('gpt-4');
     });
 
     it('should set current model on init', async () => {
@@ -301,8 +301,7 @@ describe('AssistantChatComponent', () => {
         await new Promise(resolve => setTimeout(resolve, 10));
 
         // Assert
-        expect(mockLlmService.getCurrentModelId).toHaveBeenCalled();
-        expect(component.currentModel).toBe('gpt-4');
+        expect(component.currentModel()).toBe('gpt-4');
     });
 
     describe('sendMessage', () => {
@@ -312,7 +311,7 @@ describe('AssistantChatComponent', () => {
 
         it('should not send empty message', async () => {
             // Arrange
-            component.inputText = '   ';
+            component.inputText.set('   ');
 
             // Act
             await component.sendMessage();
@@ -323,7 +322,7 @@ describe('AssistantChatComponent', () => {
 
         it('should send message and handle response', async () => {
             // Arrange
-            component.inputText = 'Hello';
+            component.inputText.set('Hello');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onStreamStart(component.conversationId);
@@ -344,12 +343,12 @@ describe('AssistantChatComponent', () => {
             expect(component.messages[1].sender).toBe('user');
             expect(component.messages[2].content).toBe('Hi there!');
             expect(component.messages[2].sender).toBe('assistant');
-            expect(component.inputText).toBe('');
+            expect(component.inputText()).toBe('');
         });
 
         it('should handle error in sendMessage', async () => {
             // Arrange
-            component.inputText = 'Hello';
+            component.inputText.set('Hello');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onError('API Error');
@@ -363,13 +362,13 @@ describe('AssistantChatComponent', () => {
             // Assert
             expect(component.messages.length).toBe(3); // Welcome + User + Error
             expect(component.messages[2].content).toContain('API Error');
-            expect(component.isProcessing).toBe(false);
+            expect(component.isProcessing()).toBe(false);
         });
 
         it('should navigate when actionPerformed is true', async () => {
             // Arrange
             vi.useFakeTimers();
-            component.inputText = 'Navigate to clients';
+            component.inputText.set('Navigate to clients');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Navigating to clients');
@@ -400,7 +399,7 @@ describe('AssistantChatComponent', () => {
         });
 
         function streamWithMetadata(metadata: Record<string, unknown>): void {
-            component.inputText = 'Erkläre mir die Seite';
+            component.inputText.set('Erkläre mir die Seite');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Antwort');
@@ -462,7 +461,7 @@ describe('AssistantChatComponent', () => {
             expect((component as any).isTourStationPending).toBe(true);
             dismissSpy.mockClear();
             showSpy.mockClear();
-            component.inputText = 'Was sehe ich auf dieser Seite?';
+            component.inputText.set('Was sehe ich auf dieser Seite?');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Eine ausführliche Erklärung der Seite.');
@@ -484,7 +483,7 @@ describe('AssistantChatComponent', () => {
             // Arrange
             presentExplainStation(6);
             showSpy.mockClear();
-            component.inputText = 'Was sehe ich hier?';
+            component.inputText.set('Was sehe ich hier?');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Antwort');
@@ -508,7 +507,7 @@ describe('AssistantChatComponent', () => {
             expect((component as any).isTourStationPending).toBe(false);
             dismissSpy.mockClear();
             showSpy.mockClear();
-            component.inputText = 'Hallo';
+            component.inputText.set('Hallo');
             mockLlmService.sendMessageStream.mockImplementation(
                 (_msg: string, _convId: string, callbacks: any) => {
                     callbacks.onContent('Hi');
@@ -557,19 +556,19 @@ describe('AssistantChatComponent', () => {
 
         it('should toggle model dropdown', () => {
             // Arrange
-            component.showModelDropdown = false;
+            component.showModelDropdown.set(false);
 
             // Act
             component.toggleModelDropdown();
 
             // Assert
-            expect(component.showModelDropdown).toBe(true);
+            expect(component.showModelDropdown()).toBe(true);
 
             // Act
             component.toggleModelDropdown();
 
             // Assert
-            expect(component.showModelDropdown).toBe(false);
+            expect(component.showModelDropdown()).toBe(false);
         });
 
         it('should select model', () => {
@@ -578,15 +577,15 @@ describe('AssistantChatComponent', () => {
 
             // Assert
             expect(mockLlmService.setCurrentModel).toHaveBeenCalledWith('gpt-3.5');
-            expect(component.currentModel).toBe('gpt-3.5');
-            expect(component.showModelDropdown).toBe(false);
+            expect(component.currentModel()).toBe('gpt-3.5');
+            expect(component.showModelDropdown()).toBe(false);
         });
 
         it('should get current model info', () => {
             // Arrange
             const mockModelInfo = mockModels[0];
             mockLlmService.getModelInfo.mockReturnValue(mockModelInfo);
-            component.currentModel = 'gpt-4';
+            component.currentModel.set('gpt-4');
 
             // Act
             const result = component.getCurrentModelInfo();
@@ -611,7 +610,7 @@ describe('AssistantChatComponent', () => {
             component.onSuggestionClick(suggestion);
 
             // Assert
-            expect(component.inputText).toBe(suggestion);
+            expect(component.inputText()).toBe(suggestion);
             expect(component.sendMessage).toHaveBeenCalled();
         });
 
@@ -860,7 +859,7 @@ describe('AssistantChatComponent', () => {
 
         it('should return true when no models available', () => {
             // Arrange
-            component.availableModels = [];
+            mockLlmService.availableModels.set([]);
             mockLlmProviderService.getCurrentProviders.mockReturnValue([]);
 
             // Act
@@ -874,8 +873,8 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = '';
+            mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
+            component.currentModel.set('');
 
             // Act
             const result = component.hasNoApiKey();
@@ -888,8 +887,8 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = null as any;
+            mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
+            component.currentModel.set(null as any);
 
             // Act
             const result = component.hasNoApiKey();
@@ -902,8 +901,8 @@ describe('AssistantChatComponent', () => {
             // Arrange
             const providersWithoutKey = mockProviders.map(p => ({ ...p, hasApiKey: false }));
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = 'non-existent-model';
+            mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
+            component.currentModel.set('non-existent-model');
 
             // Act
             const result = component.hasNoApiKey();
@@ -914,13 +913,13 @@ describe('AssistantChatComponent', () => {
 
         it('should return true when provider not found for current model', () => {
             // Arrange
-            component.availableModels = [
+            mockLlmService.availableModels.set([
                 {
                     ...mockModels[0],
                     providerId: 'unknown-provider',
                 },
-            ];
-            component.currentModel = mockModels[0].modelId;
+            ]);
+            component.currentModel.set(mockModels[0].modelId);
             mockLlmProviderService.getCurrentProviders.mockReturnValue([]);
 
             // Act
@@ -938,8 +937,8 @@ describe('AssistantChatComponent', () => {
                     hasApiKey: false,
                 },
             ];
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = 'gpt-4';
+            mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
+            component.currentModel.set('gpt-4');
             mockLlmProviderService.getCurrentProviders.mockReturnValue(providersWithoutKey);
 
             // Act
@@ -951,8 +950,8 @@ describe('AssistantChatComponent', () => {
 
         it('should return false when current model has valid provider with apiKey', () => {
             // Arrange
-            component.availableModels = mockModels.filter(m => m.isEnabled);
-            component.currentModel = 'gpt-4';
+            mockLlmService.availableModels.set(mockModels.filter(m => m.isEnabled));
+            component.currentModel.set('gpt-4');
             mockLlmProviderService.getCurrentProviders.mockReturnValue(mockProviders);
 
             // Act
@@ -975,18 +974,18 @@ describe('AssistantChatComponent', () => {
                 providerId: 'anthropic',
                 isEnabled: true,
             };
-            component.availableModels = [modelWithValidKey, modelWithoutValidKey];
+            mockLlmService.availableModels.set([modelWithValidKey, modelWithoutValidKey]);
             mockLlmProviderService.getCurrentProviders.mockReturnValue(mockProviders);
 
             // Act - Select model with valid API key
-            component.currentModel = 'model-with-key';
+            component.currentModel.set('model-with-key');
             const resultWithKey = component.hasNoApiKey();
 
             // Assert
             expect(resultWithKey).toBe(false);
 
             // Act - Switch to model without valid API key
-            component.currentModel = 'model-without-key';
+            component.currentModel.set('model-without-key');
             const resultWithoutKey = component.hasNoApiKey();
 
             // Assert

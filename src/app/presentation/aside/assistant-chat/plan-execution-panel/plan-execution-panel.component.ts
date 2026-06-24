@@ -8,7 +8,6 @@
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DataManagementAgentPlanService } from 'src/app/domain/services/assistant/data-management-agent-plan.service';
 import {
   IAgentPlanStep,
@@ -27,7 +26,7 @@ interface IPlanStepRow {
 @Component({
   selector: 'app-plan-execution-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './plan-execution-panel.component.html',
   styleUrls: ['./plan-execution-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

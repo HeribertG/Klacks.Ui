@@ -42,7 +42,7 @@
       class="model-dropdown"
       (click)="toggleModelDropdown()"
       [attr.aria-label]="'assistant-chat.select-model' | translate"
-      [attr.aria-expanded]="showModelDropdown"
+      [attr.aria-expanded]="showModelDropdown()"
     >
       <div class="current-model">
         <span class="model-name">{{
@@ -56,18 +56,18 @@
         }
         <fa-icon
           [icon]="faChevronDown"
-          [class.rotated]="showModelDropdown"
+          [class.rotated]="showModelDropdown()"
         ></fa-icon>
       </div>
 
-      @if (showModelDropdown) {
+      @if (showModelDropdown()) {
       <div class="dropdown-menu" role="menu" (click)="$event.stopPropagation()">
-        @for (model of availableModels; track model.modelId) {
+        @for (model of availableModels(); track model.modelId) {
         <button
           type="button"
           role="menuitem"
           class="dropdown-item"
-          [class.selected]="model.modelId === currentModel"
+          [class.selected]="model.modelId === currentModel()"
           (click)="selectModel(model.modelId); $event.stopPropagation()"
           [attr.aria-label]="model.displayName"
         >
@@ -208,15 +208,15 @@
       }
 
       <!-- Processing indicator -->
-      @if (isProcessing) {
+      @if (isProcessing()) {
       <div class="message-wrapper assistant">
         <div class="message-avatar">
           <app-icon-mml></app-icon-mml>
         </div>
         <div class="message-content">
           <div class="message-bubble assistant">
-            @if (currentToolStatusKey) {
-            <div class="tool-status">{{ currentToolStatusKey | translate }}</div>
+            @if (currentToolStatusKey()) {
+            <div class="tool-status">{{ currentToolStatusKey() | translate }}</div>
             }
             <div class="typing-indicator">
               <span></span>
@@ -265,7 +265,7 @@
         [class.processing]="orchestrator.state() === ConversationState.Processing"
         [class.speaking]="orchestrator.state() === ConversationState.Speaking"
         [class.not-supported]="!speechService.isSupported$()"
-        [disabled]="isProcessing && orchestrator.state() !== ConversationState.Speaking && orchestrator.state() !== ConversationState.Processing"
+        [disabled]="isProcessing() && orchestrator.state() !== ConversationState.Speaking && orchestrator.state() !== ConversationState.Processing"
         (click)="onVoiceButtonClick()"
         title="{{
           !speechService.isSupported$()
@@ -291,12 +291,12 @@
         #chatInput
         id="assistant-chat-input"
         class="input-field"
-        [(ngModel)]="inputText"
+        [ngModel]="inputText()"
+        (ngModelChange)="inputText.set($event)"
         (keydown)="onInputKeyPress($event)"
-        [disabled]="isInitializing() || hasNoApiKey()"
+        [attr.disabled]="(isInitializing() || hasNoApiKey()) || null"
         placeholder="{{ 'assistant-chat.placeholder' | translate }}"
         rows="1"
-        #textInput
       >
       </textarea>
 
@@ -305,7 +305,7 @@
         id="assistant-chat-send-btn"
         type="button"
         class="btn-send"
-        [disabled]="!inputText.trim() || isInitializing() || hasNoApiKey()"
+        [disabled]="!inputText().trim() || isInitializing() || hasNoApiKey()"
         (click)="sendMessage()"
         [attr.aria-label]="'assistant-chat.send-message' | translate"
       >

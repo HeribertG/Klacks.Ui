@@ -1,21 +1,27 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Chat component for the Klacksy AI assistant sidebar.
+ * @param messagesContainer - Scrollable message list element
+ * @param chatInput - Textarea element for user text input
+ */
 import {
   Component,
-  OnInit,
-  OnDestroy,
   inject,
   HostListener,
   ViewChild,
   ElementRef,
-  AfterViewChecked,
   effect,
   ChangeDetectorRef,
   NgZone,
   signal,
+  computed,
+  linkedSignal,
   ChangeDetectionStrategy,
+  DestroyRef,
+  afterEveryRender,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,7 +39,7 @@ import {
   faCheck,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { IAssistantModel } from 'src/app/domain/models/assistant/assistant-model.interface';
@@ -76,7 +82,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
   selector: 'app-assistant-chat',
   standalone: true,
   imports: [
-    CommonModule,
+    DatePipe,
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
@@ -91,7 +97,7 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class AssistantChatComponent {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('chatInput') private chatInput!: ElementRef<HTMLTextAreaElement>;
 
@@ -114,22 +120,160 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private toastShowService = inject(ToastShowService);
   private welcomeGreetingService = inject(WelcomeGreetingService);
   readonly onboarding = inject(OnboardingService);
+  private readonly destroyRef = inject(DestroyRef);
   private tourIndex = 0;
   private isTourStationPending = false;
   private eventBus = inject(EVENT_BUS_TOKEN);
-  private destroy$ = new Subject<void>();
 
   private shouldScrollToBottom = true;
 
+  faMicrophone = faMicrophone;
+  faMicrophoneSlash = faMicrophoneSlash;
+  faPaperPlane = faPaperPlane;
+  faUser = faUser;
+  faTimes = faTimes;
+  faChevronDown = faChevronDown;
+  faVolumeHigh = faVolumeHigh;
+  faStop = faStop;
+  faSpinner = faSpinner;
+  faThumbsDown = faThumbsDown;
+  faCheck = faCheck;
+
+  correctionMenuMessageId = signal<string | null>(null);
+
+  inputText = signal('');
+  isProcessing = signal(false);
+  currentToolStatusKey = signal('');
+  showModelDropdown = signal(false);
+
+  readonly availableModels = computed(() =>
+    this.assistantService.availableModels().filter((m) => m.isEnabled),
+  );
+  currentModel = linkedSignal(() => this.assistantService.selectedModelId());
+
+  readonly isInitializing = computed(
+    () => !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized(),
+  );
+
+  readonly hasNoApiKey = computed(() => {
+    if (this.isInitializing()) return false;
+    const providers = this.assistantProviderService.getCurrentProviders();
+    if (!providers || providers.length === 0) return true;
+    const currentModelInfo = this.availableModels().find((m) => m.modelId === this.currentModel());
+    if (currentModelInfo) {
+      const provider = providers.find((p) => p.providerId === currentModelInfo.providerId);
+      return !provider?.hasApiKey;
+    }
+    return !providers.some((p) => p.hasApiKey);
+  });
+
+  conversationId = '';
+  private currentStreamController: AbortController | null = null;
+  private currentRawStream = '';
+  private streamBuffer = '';
+  private streamRafHandle: number | null = null;
+  private streamPreviousClean = '';
+
+  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
+  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
+  private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
+  private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.model-dropdown')) {
+      this.showModelDropdown.set(false);
+    }
+  }
+
   constructor() {
+    this.conversationId = this.generateConversationId();
+
+    afterEveryRender(() => {
+      if (this.shouldScrollToBottom) {
+        this.scrollToBottom();
+      }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.streamRafHandle !== null) {
+        cancelAnimationFrame(this.streamRafHandle);
+        this.streamRafHandle = null;
+      }
+      this.ttsService.stop();
+    });
+
+    const currentLangForSpeech = this.translateService.currentLang || this.translateService.defaultLang;
+    const speechLocale = this.languageMappingService.getSpeechLocale(currentLangForSpeech);
+    this.orchestrator.initialize(
+      {
+        getInputText: () => this.inputText(),
+        setInputText: (text: string) => { this.inputText.set(text); },
+        sendMessage: () => this.sendMessage(),
+        getAbortController: () => this.currentStreamController,
+        detectChanges: () => this.cdr.detectChanges(),
+      },
+      speechLocale,
+    );
+
+    this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        this.updateSpeechLanguage(event.lang);
+        this.updateWelcomeMessage(event.lang);
+        const speechLang = this.getSpeechLanguageCode(event.lang);
+        this.speechService.updateLanguage(speechLang);
+      });
+
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    this.updateSpeechLanguage(currentLang);
+    if (!this.asideService.openedWithContext() && this.messages.length === 0) {
+      this.addWelcomeMessage(currentLang);
+    }
+
+    this.assistantSignalR.proactiveMessage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg) => {
+        this.ngZone.run(() => {
+          const proactiveContent = this.resolveProactiveContent(msg.content);
+          this.orchestrator.addMessage({
+            id: msg.messageId,
+            sender: 'assistant',
+            content: proactiveContent,
+            formattedContent: this.formatMessage(proactiveContent),
+            timestamp: new Date(msg.timestamp),
+          });
+          this.shouldScrollToBottom = true;
+          this.cdr.detectChanges();
+        });
+      });
+
+    this.assistantSignalR.onboardingPrompt$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg) => {
+        this.ngZone.run(() => {
+          const onboardingContent = this.resolveProactiveContent(msg.content);
+          this.orchestrator.addMessage({
+            id: msg.messageId,
+            sender: 'assistant',
+            content: onboardingContent,
+            formattedContent: this.formatMessage(onboardingContent),
+            timestamp: new Date(msg.timestamp),
+          });
+          this.shouldScrollToBottom = true;
+          this.cdr.detectChanges();
+        });
+      });
+
     effect(() => {
       if (this.asideService.isVisible()) {
         this.assistantProviderService.loadProviders();
         this.assistantService.warmupCache();
 
         if (!this.asideService.openedWithContext() && this.messages.length === 0) {
-          const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
-          this.addWelcomeMessage(currentLang);
+          const lang = this.translateService.currentLang || this.translateService.defaultLang;
+          this.addWelcomeMessage(lang);
         }
       }
     });
@@ -154,36 +298,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   set messages(next: readonly ChatMessage[]) {
     this.orchestrator.replaceMessages(next);
   }
-
-  faMicrophone = faMicrophone;
-  faMicrophoneSlash = faMicrophoneSlash;
-  faPaperPlane = faPaperPlane;
-  faUser = faUser;
-  faTimes = faTimes;
-  faChevronDown = faChevronDown;
-  faVolumeHigh = faVolumeHigh;
-  faStop = faStop;
-  faSpinner = faSpinner;
-  faThumbsDown = faThumbsDown;
-  faCheck = faCheck;
-
-  correctionMenuMessageId = signal<string | null>(null);
-
-  inputText = '';
-  isProcessing = false;
-  currentToolStatusKey = '';
-  conversationId = '';
-  private currentStreamController: AbortController | null = null;
-  private currentRawStream = '';
-  private streamBuffer = '';
-  private streamRafHandle: number | null = null;
-  private streamPreviousClean = '';
-
-  private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
-  private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
-  private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
-
-  private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
 
   private toolStatusKey(functionName: string): string {
     const name = (functionName || '').toLowerCase();
@@ -232,153 +346,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     return this.orchestrator.state() === ConversationState.Enhancing;
   }
 
-  availableModels: IAssistantModel[] = [];
-  currentModel = '';
-  showModelDropdown = false;
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.model-dropdown')) {
-      this.showModelDropdown = false;
-    }
-  }
-
-  ngOnInit(): void {
-    this.conversationId = this.generateConversationId();
-
-    const currentLangForSpeech = this.translateService.currentLang || this.translateService.defaultLang;
-    const speechLocale = this.languageMappingService.getSpeechLocale(currentLangForSpeech);
-    this.orchestrator.initialize(
-      {
-        getInputText: () => this.inputText,
-        setInputText: (text: string) => { this.inputText = text; },
-        sendMessage: () => this.sendMessage(),
-        getAbortController: () => this.currentStreamController,
-        detectChanges: () => this.cdr.detectChanges(),
-      },
-      speechLocale,
-    );
-
-    this.translateService.onLangChange
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.updateSpeechLanguage(event.lang);
-        this.updateWelcomeMessage(event.lang);
-
-        const speechLang = this.getSpeechLanguageCode(event.lang);
-        this.speechService.updateLanguage(speechLang);
-      });
-
-    const currentLang =
-      this.translateService.currentLang || this.translateService.defaultLang;
-    this.updateSpeechLanguage(currentLang);
-    if (!this.asideService.openedWithContext() && this.messages.length === 0) {
-      this.addWelcomeMessage(currentLang);
-    }
-
-    this.assistantService
-      .getAvailableModels()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((models) => {
-        this.availableModels = models.filter((model) => model.isEnabled);
-      });
-
-    this.assistantService
-      .getCurrentModelId()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((modelId) => {
-        this.currentModel = modelId;
-      });
-
-    this.assistantSignalR.proactiveMessage$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((msg) => {
-        this.ngZone.run(() => {
-          const proactiveContent = this.resolveProactiveContent(msg.content);
-          this.orchestrator.addMessage({
-            id: msg.messageId,
-            sender: 'assistant',
-            content: proactiveContent,
-            formattedContent: this.formatMessage(proactiveContent),
-            timestamp: new Date(msg.timestamp),
-          });
-          this.shouldScrollToBottom = true;
-          this.cdr.detectChanges();
-        });
-      });
-
-    this.assistantSignalR.onboardingPrompt$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((msg) => {
-        this.ngZone.run(() => {
-          const onboardingContent = this.resolveProactiveContent(msg.content);
-          this.orchestrator.addMessage({
-            id: msg.messageId,
-            sender: 'assistant',
-            content: onboardingContent,
-            formattedContent: this.formatMessage(onboardingContent),
-            timestamp: new Date(msg.timestamp),
-          });
-          this.shouldScrollToBottom = true;
-          this.cdr.detectChanges();
-        });
-      });
-
-  }
-
-  ngOnDestroy(): void {
-    if (this.streamRafHandle !== null) {
-      cancelAnimationFrame(this.streamRafHandle);
-      this.streamRafHandle = null;
-    }
-    this.ttsService.stop();
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private flushStreamBuffer(assistantMessageId: string): void {
-    this.streamRafHandle = null;
-    if (!this.streamBuffer) return;
-
-    const delta = this.streamBuffer;
-    this.streamBuffer = '';
-    this.currentRawStream += delta;
-    const nextContent = this.stripMetadataMarkers(this.currentRawStream);
-    const previousClean = this.streamPreviousClean;
-
-    this.orchestrator.updateMessage(assistantMessageId, {
-      content: nextContent,
-      isStreaming: true,
-    });
-    this.shouldScrollToBottom = true;
-
-    const ttsDelta = nextContent.length > previousClean.length && nextContent.startsWith(previousClean)
-      ? nextContent.substring(previousClean.length)
-      : '';
-    this.streamPreviousClean = nextContent;
-
-    const ttsClean = this.stripForTts(ttsDelta);
-    if (ttsClean) {
-      this.orchestrator.onStreamContent(ttsClean);
-    }
-  }
-
-  private drainStreamBuffer(assistantMessageId: string): void {
-    if (this.streamRafHandle !== null) {
-      cancelAnimationFrame(this.streamRafHandle);
-      this.streamRafHandle = null;
-    }
-    if (this.streamBuffer) {
-      this.flushStreamBuffer(assistantMessageId);
-    }
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
-    }
-  }
-
   private scrollToBottom(): void {
     if (this.messagesContainer?.nativeElement) {
       this.messagesContainer.nativeElement.scrollTop =
@@ -400,31 +367,69 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         formattedContent: finalized?.formattedContent ?? this.formatMessage(finalized?.content ?? ''),
       });
     }
-    this.isProcessing = false;
-    this.currentToolStatusKey = '';
+    this.isProcessing.set(false);
+    this.currentToolStatusKey.set('');
     this.streamBuffer = '';
     this.streamPreviousClean = '';
     this.currentRawStream = '';
   }
 
+  private flushStreamBuffer(assistantMessageId: string): void {
+    this.streamRafHandle = null;
+    if (!this.streamBuffer) return;
+
+    const delta = this.streamBuffer;
+    this.streamBuffer = '';
+    this.currentRawStream += delta;
+    const nextContent = this.stripMetadataMarkers(this.currentRawStream);
+    const previousClean = this.streamPreviousClean;
+
+    this.orchestrator.updateMessage(assistantMessageId, {
+      content: nextContent,
+      isStreaming: true,
+    });
+    this.shouldScrollToBottom = true;
+
+    const ttsDelta =
+      nextContent.length > previousClean.length && nextContent.startsWith(previousClean)
+        ? nextContent.substring(previousClean.length)
+        : '';
+    this.streamPreviousClean = nextContent;
+
+    const ttsClean = this.stripForTts(ttsDelta);
+    if (ttsClean) {
+      this.orchestrator.onStreamContent(ttsClean);
+    }
+  }
+
+  private drainStreamBuffer(assistantMessageId: string): void {
+    if (this.streamRafHandle !== null) {
+      cancelAnimationFrame(this.streamRafHandle);
+      this.streamRafHandle = null;
+    }
+    if (this.streamBuffer) {
+      this.flushStreamBuffer(assistantMessageId);
+    }
+  }
+
   async sendMessage(): Promise<void> {
-    if (!this.inputText.trim()) {
+    if (!this.inputText().trim()) {
       return;
     }
 
-    if (this.isProcessing) {
+    if (this.isProcessing()) {
       this.interruptCurrentStream();
     }
 
     if (this.onboarding.isAwaitingAnswer()) {
-      this.handleOnboardingAnswer(this.inputText.trim());
+      this.handleOnboardingAnswer(this.inputText().trim());
       return;
     }
 
     const userMessage: ChatMessage = {
       id: this.generateMessageId(),
       sender: 'user',
-      content: this.inputText.trim(),
+      content: this.inputText().trim(),
       timestamp: new Date(),
     };
 
@@ -432,10 +437,10 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     if (!this.isTourStationPending) {
       this.toastShowService.dismissInteractiveReplies();
     }
-    const messageText = this.inputText;
-    this.inputText = '';
-    this.isProcessing = true;
-    this.currentToolStatusKey = '';
+    const messageText = this.inputText();
+    this.inputText.set('');
+    this.isProcessing.set(true);
+    this.currentToolStatusKey.set('');
     this.shouldScrollToBottom = true;
 
     const assistantMessageId = this.generateMessageId();
@@ -468,13 +473,13 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
         },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
-            this.currentToolStatusKey = this.toolStatusKey(data.functionName);
+            this.currentToolStatusKey.set(this.toolStatusKey(data.functionName));
             this.cdr.detectChanges();
           });
         },
         onContent: (text: string) => {
-          if (this.currentToolStatusKey) {
-            this.currentToolStatusKey = '';
+          if (this.currentToolStatusKey()) {
+            this.currentToolStatusKey.set('');
           }
           this.streamBuffer += text;
           if (this.streamRafHandle !== null) return;
@@ -530,8 +535,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               isStreaming: false,
               formattedContent: doneMessage?.formattedContent ?? this.formatMessage(doneContent),
             });
-            this.isProcessing = false;
-            this.currentToolStatusKey = '';
+            this.isProcessing.set(false);
+            this.currentToolStatusKey.set('');
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
@@ -550,8 +555,8 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
               content: merged,
               formattedContent: this.formatMessage(merged),
             });
-            this.isProcessing = false;
-            this.currentToolStatusKey = '';
+            this.isProcessing.set(false);
+            this.currentToolStatusKey.set('');
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamError();
@@ -597,7 +602,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   onSuggestionClick(suggestion: string): void {
-    this.inputText = suggestion;
+    this.inputText.set(suggestion);
     this.sendMessage();
   }
 
@@ -608,7 +613,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       (values: string[]) => {
         this.ngZone.run(() => {
           if (values.length === 0) return;
-          this.inputText = values.join(', ');
+          this.inputText.set(values.join(', '));
           this.sendMessage();
         });
       },
@@ -621,7 +626,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       return null;
     }
 
-    const explainCallNavigates = (data.functionCalls ?? []).some(call => {
+    const explainCallNavigates = (data.functionCalls ?? []).some((call) => {
       const name = (call['FunctionName'] ?? call['functionName']) as string | undefined;
       return !!name && name.startsWith(EXPLAIN_PAGE_SKILL_PREFIX);
     });
@@ -694,7 +699,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
     this.assistantService
       .submitCorrection(request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.ngZone.run(() => {
@@ -713,18 +718,18 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   toggleModelDropdown(): void {
-    this.showModelDropdown = !this.showModelDropdown;
+    this.showModelDropdown.update((v) => !v);
   }
 
   selectModel(modelId: string): void {
     this.assistantService.setCurrentModel(modelId);
-    this.currentModel = modelId;
-    this.showModelDropdown = false;
+    this.currentModel.set(modelId);
+    this.showModelDropdown.set(false);
     this.assistantService.warmupCache();
   }
 
   getCurrentModelInfo(): IAssistantModel | undefined {
-    return this.assistantService.getModelInfo(this.currentModel);
+    return this.assistantService.getModelInfo(this.currentModel());
   }
 
   formatCost(cost: number): string {
@@ -763,7 +768,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.showActionsAsToast(placeholder.suggestions);
 
     this.welcomeGreetingService.fetchWelcome()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => this.applyWelcomeResponse(messageId, response, langCode),
         error: () => {
@@ -944,7 +949,7 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
       content: text,
       timestamp: new Date(),
     });
-    this.inputText = '';
+    this.inputText.set('');
     this.toastShowService.dismissInteractiveReplies();
     this.shouldScrollToBottom = true;
     this.cdr.detectChanges();
@@ -1162,7 +1167,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
   private updateSpeechLanguage(langCode: string): void {
     const speechLang = this.getSpeechLanguageCode(langCode);
     this.speechService.setLanguage(speechLang);
-
     this.updateLLMLanguage(langCode);
   }
 
@@ -1188,27 +1192,6 @@ export class AssistantChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.addWelcomeMessage(currentLang);
 
     this.shouldScrollToBottom = true;
-  }
-
-  isInitializing(): boolean {
-    return !this.assistantService.modelsInitialized() || !this.assistantProviderService.providersInitialized();
-  }
-
-  hasNoApiKey(): boolean {
-    if (this.isInitializing()) {
-      return false;
-    }
-
-    const providers = this.assistantProviderService.getCurrentProviders();
-    if (!providers || providers.length === 0) return true;
-
-    const currentModelInfo = this.availableModels?.find(m => m.modelId === this.currentModel);
-    if (currentModelInfo) {
-      const provider = providers.find(p => p.providerId === currentModelInfo.providerId);
-      return !provider?.hasApiKey;
-    }
-
-    return !providers.some(p => p.hasApiKey);
   }
 
   isUsingWhisper(): boolean {
