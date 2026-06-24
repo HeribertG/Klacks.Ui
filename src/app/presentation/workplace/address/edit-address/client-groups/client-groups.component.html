@@ -1,6 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="client-groups-form" #groupsForm="ngForm">
+<form id="client-groups-form">
   <app-expandable-card
     [headerTitle]="'address.edit-address.client-groups.header' | translate">
 
@@ -50,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (groupItem of dataManagementClientService.editClient()?.groupItems; track trackByIndex($index)) {
+          @for (groupItem of sortedGroupItems; track trackByIndex($index)) {
           <tr class="table-row">
             <td class="table-cell cell-center-vertical">
               <app-group-select
@@ -61,7 +61,7 @@
                 [disabled]="isDisabled()"
                 [(ngModel)]="groupItem.groupId"
                 name="groupId-{{ $index }}"
-                (groupSelected)="onGroupChanged($index, $event)"
+                (groupSelected)="onGroupChanged(groupItem, $event)"
               ></app-group-select>
             </td>
             <td class="table-cell">
@@ -126,7 +126,7 @@
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
-              <div id="delete-group-{{ $index }}" class="icon" (click)="removeGroup($index)">
+              <div id="delete-group-{{ $index }}" class="icon" (click)="removeGroup(groupItem)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }

@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Card that displays and edits free-text annotations for the edited client.
+ * Supports multiple notes with rich-text editing, expand/collapse, add and delete.
+ * @param isChangingEvent - Emitted whenever an annotation is added, removed or edited
+ */
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -8,12 +13,10 @@ import {
   AfterViewInit,
   Component,
   effect,
-  EventEmitter,
   inject,
-  Injector,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -53,7 +56,16 @@ import { takeUntil } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
+
+  constructor() {
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client?.annotations && !this.isInitializing) {
+        this.initializeExpandedNotes();
+      }
+    });
+  }
   public note_new = DomainMessages.NOTE_NEW;
   public expandedNotes: boolean[] = [];
 
@@ -62,7 +74,6 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
-  private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
   private isInitializing = false;
   private destroy$ = new Subject<void>();
@@ -70,18 +81,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   public sortedAnnotations: IAnnotation[] = [];
 
   ngOnInit(): void {
-    this.note_new = DomainMessages.NOTE_NEW;
     this.initializeExpandedNotes();
-
-    effect(
-      () => {
-        const client = this.dataManagementClientService.editClient();
-        if (client?.annotations && !this.isInitializing) {
-          this.initializeExpandedNotes();
-        }
-      },
-      { injector: this.injector }
-    );
   }
 
   private initializeExpandedNotes(): void {
@@ -163,11 +163,9 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
       const client = this.dataManagementClientService.editClient();
       if (client) {
         client.annotations[originalIndex].note = target.value;
-        this.dataManagementClientService.clientEditService.editClient.update(
-          (c) => ({ ...c! })
-        );
       }
       this.isChangingEvent.emit(true);
+      this.cdr.markForCheck();
     }
   }
 
@@ -243,10 +241,8 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     const client = this.dataManagementClientService.editClient();
     if (client) {
       client.annotations[originalIndex].note = content;
-      this.dataManagementClientService.clientEditService.editClient.update(
-        (c) => ({ ...c! })
-      );
     }
     this.isChangingEvent.emit(true);
+    this.cdr.markForCheck();
   }
 }

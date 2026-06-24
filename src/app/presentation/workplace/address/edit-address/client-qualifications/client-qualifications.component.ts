@@ -7,25 +7,19 @@
  * @param isReadOnly - Disables all editing when true
  * @param isChangingEvent - Emitted whenever the qualifications change, to flag the client dirty
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   effect,
-  EventEmitter,
   inject,
-  Injector,
-  Input,
+  input,
   OnDestroy,
   OnInit,
-  Output,
-  runInInjectionContext,
-  ViewChild,
+  output,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule, NgbDateStruct, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -38,7 +32,7 @@ import { QualificationType } from 'src/app/domain/enums/qualification-type.enum'
 import { QualificationCategory } from 'src/app/domain/enums/qualification-category.enum';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { DataQualificationService } from 'src/app/infrastructure/api/settings/data-qualification.service';
+import { DataManagementQualificationService } from 'src/app/domain/services/settings/data-management-qualification.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -66,17 +60,14 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() isReadOnly = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
-  @ViewChild('qualificationsForm', { static: false }) qualificationsForm: NgForm | undefined;
+export class ClientQualificationsComponent implements OnInit, OnDestroy {
+  readonly isReadOnly = input(false);
+  readonly isChangingEvent = output<boolean>();
 
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
-  private dataQualificationService = inject(DataQualificationService);
+  private dataQualificationService = inject(DataManagementQualificationService);
   private translate = inject(TranslateService);
-  private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 
   public readonly QualificationType = QualificationType;
@@ -98,8 +89,22 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
   public validUntilValues = new Map<IClientQualification, NgbDateStruct | undefined>();
 
   private qualificationMap = new Map<string, IQualification>();
-  private objectForUnsubscribe: any;
   private ngUnsubscribe = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client?.qualifications) {
+        this.validUntilValues.clear();
+        client.qualifications.forEach((row) => {
+          this.validUntilValues.set(
+            row,
+            row.validUntil ? transformDateToNgbDateStruct(row.validUntil) : undefined
+          );
+        });
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang ?? 'de';
@@ -108,32 +113,17 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
       this.cdr.markForCheck();
     });
 
-    this.readSignals();
     this.loadQualifications();
-  }
-
-  ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.qualificationsForm!.valueChanges!.subscribe(() => {
-      if (this.qualificationsForm!.dirty === true) {
-        setTimeout(() => {
-          this.isChangingEvent.emit(true);
-          this.cdr.markForCheck();
-        }, 100);
-      }
-    });
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
   }
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
@@ -282,20 +272,4 @@ export class ClientQualificationsComponent implements OnInit, OnDestroy, AfterVi
       });
   }
 
-  private readSignals(): void {
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const client = this.dataManagementClientService.editClient();
-        if (client?.qualifications) {
-          this.validUntilValues.clear();
-          client.qualifications.forEach((row) => {
-            this.validUntilValues.set(
-              row,
-              row.validUntil ? transformDateToNgbDateStruct(row.validUntil) : undefined
-            );
-          });
-        }
-      });
-    });
-  }
 }

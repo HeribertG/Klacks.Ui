@@ -1,6 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<form id="client-contracts-form" #contractsForm="ngForm">
+<form id="client-contracts-form">
   <app-expandable-card
     [headerTitle]="'address.edit-address.contracts.header' | translate">
 
@@ -59,7 +59,7 @@
                   id="contract-{{ $index }}"
                   [disabled]="isDisabled()"
                   [(ngModel)]="contract.contractId"
-                  (ngModelChange)="calcValidation()"
+                  (ngModelChange)="onContractChange()"
                 >
                   <option value="">
                     {{

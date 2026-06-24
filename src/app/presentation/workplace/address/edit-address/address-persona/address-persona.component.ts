@@ -10,12 +10,11 @@
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
-  Input,
+  input,
   LOCALE_ID,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   effect,
   inject,
   signal,
@@ -115,8 +114,8 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
 
-  @Input() isReadOnly = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isReadOnly = input(false);
+  readonly isChangingEvent = output<boolean>();
 
   public faCalendar = faCalendar;
   public faStreetView = faStreetView;
@@ -316,7 +315,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

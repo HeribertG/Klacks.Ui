@@ -1,24 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/consistent-generic-constructors */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  AfterViewInit,
   Component,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-  ViewChild,
-  OnDestroy,
-  OnInit,
-  Injector,
   effect,
-  runInInjectionContext,
+  inject,
+  input,
+  OnInit,
+  output,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { faCalendar, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -56,19 +48,13 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   providers: [TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientContractsComponent
-  implements AfterViewInit, OnDestroy, OnInit
-{
-  @ViewChild('contractsForm', { static: false }) contractsForm:
-    | NgForm
-    | undefined;
-  @Input() isReadOnly = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+export class ClientContractsComponent implements OnInit {
+  readonly isReadOnly = input(false);
+  readonly isChangingEvent = output<boolean>();
 
   public faCalendar = faCalendar;
   public faPlus = faPlus;
   public faTimes = faTimes;
-  public objectForUnsubscribe: any;
   public contracts: IContract[] = [];
   public sortedContracts: IClientContract[] = [];
   public contractValidationState: Map<number, boolean | undefined> = new Map();
@@ -86,8 +72,36 @@ export class ClientContractsComponent
   public contractService = inject(DataManagementContractService);
   public sortingService = inject(TableSortingService);
 
-  private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client?.clientContracts) {
+        this.contractFromDateValues.clear();
+        this.contractUntilDateValues.clear();
+
+        client.clientContracts.forEach((contract) => {
+          this.contractFromDateValues.set(
+            contract,
+            contract.fromDate ? transformDateToNgbDateStruct(contract.fromDate) : undefined
+          );
+          this.contractUntilDateValues.set(
+            contract,
+            contract.untilDate ? transformDateToNgbDateStruct(contract.untilDate) : undefined
+          );
+        });
+
+        const validFrom = client.membership?.validFrom;
+        this.minDateValue = validFrom
+          ? transformDateToNgbDateStruct(validFrom)!
+          : { year: 1900, month: 1, day: 1 };
+
+        this.sortContracts();
+        this.calcValidation();
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     this.sortingService.initialize({
@@ -97,24 +111,7 @@ export class ClientContractsComponent
       useThreeWaySort: true
     });
 
-    this.readSignals();
     await this.loadContracts();
-  }
-
-  ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.contractsForm!.valueChanges!.subscribe(
-      () => {
-        if (this.contractsForm!.dirty === true) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
-        }
-      }
-    );
-  }
-
-  ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
   }
 
   async loadContracts(): Promise<void> {
@@ -124,7 +121,7 @@ export class ClientContractsComponent
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
@@ -147,6 +144,7 @@ export class ClientContractsComponent
       }
     }
     this.calcValidation();
+    this.isChangingEvent.emit(true);
   }
 
   getContractUntilDate(contract: IClientContract): NgbDateStruct | undefined {
@@ -157,6 +155,12 @@ export class ClientContractsComponent
     this.contractUntilDateValues.set(contract, value);
     contract.untilDate = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
+    this.isChangingEvent.emit(true);
+  }
+
+  onContractChange(): void {
+    this.calcValidation();
+    this.isChangingEvent.emit(true);
   }
 
   addContract(): void {
@@ -239,37 +243,6 @@ export class ClientContractsComponent
 
   onClickHeader(orderBy: string): void {
     this.sortingService.onHeaderClick(orderBy, () => this.sortContracts());
-  }
-
-  private readSignals(): void {
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const client = this.dataManagementClientService.editClient();
-        if (client?.clientContracts) {
-          this.contractFromDateValues.clear();
-          this.contractUntilDateValues.clear();
-
-          client.clientContracts.forEach((contract) => {
-            this.contractFromDateValues.set(
-              contract,
-              contract.fromDate ? transformDateToNgbDateStruct(contract.fromDate) : undefined
-            );
-            this.contractUntilDateValues.set(
-              contract,
-              contract.untilDate ? transformDateToNgbDateStruct(contract.untilDate) : undefined
-            );
-          });
-
-          const validFrom = client.membership?.validFrom;
-          this.minDateValue = validFrom
-            ? transformDateToNgbDateStruct(validFrom)!
-            : { year: 1900, month: 1, day: 1 };
-
-          this.sortContracts();
-          this.calcValidation();
-        }
-      });
-    });
   }
 
   public calcValidation(): void {

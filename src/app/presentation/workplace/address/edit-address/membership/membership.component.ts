@@ -1,22 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  AfterViewInit,
   Component,
   effect,
-  EventEmitter,
   inject,
-  Injector,
-  Input,
-  Output,
-  runInInjectionContext,
-  ViewChild,
-  OnDestroy,
+  input,
+  output,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -43,16 +35,12 @@ import { toNumber } from 'src/app/shared/helpers/number.helper';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MembershipComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('membershipForm', { static: false }) membershipForm:
-    | NgForm
-    | undefined;
-  @Input() isReadOnly = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+export class MembershipComponent {
+  readonly isReadOnly = input(false);
+  readonly isChangingEvent = output<boolean>();
 
   public faCalendar = faCalendar;
   public now = new Date();
-  public objectForUnsubscribe: any;
   public isValidFromValid: boolean | undefined;
 
   public validFromValue: NgbDateStruct | undefined;
@@ -60,44 +48,23 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
-  private injector = inject(Injector);
-  private cdr = inject(ChangeDetectorRef);
 
-  ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.membershipForm!.valueChanges!.subscribe(
-      () => {
-        if (this.membershipForm!.dirty === true) {
-          setTimeout(() => {
-            this.isChangingEvent.emit(true);
-            this.cdr.markForCheck();
-          }, 100);
-        }
+  constructor() {
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client) {
+        const validFrom = client.membership?.validFrom;
+        const validUntil = client.membership?.validUntil;
+        this.validFromValue = validFrom ? transformDateToNgbDateStruct(validFrom) : undefined;
+        this.validUntilValue = validUntil ? transformDateToNgbDateStruct(validUntil) : undefined;
+        this.calcValidation();
       }
-    );
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const client = this.dataManagementClientService.editClient();
-        if (client) {
-          const validFrom = client.membership?.validFrom;
-          const validUntil = client.membership?.validUntil;
-          this.validFromValue = validFrom ? transformDateToNgbDateStruct(validFrom) : undefined;
-          this.validUntilValue = validUntil ? transformDateToNgbDateStruct(validUntil) : undefined;
-          this.calcValidation();
-        }
-      });
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
   }
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
@@ -113,6 +80,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.calcValidation();
+    this.isChangingEvent.emit(true);
   }
 
   onValidUntilChange(value: NgbDateStruct | undefined): void {
@@ -121,6 +89,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
     if (client?.membership) {
       client.membership.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
     }
+    this.isChangingEvent.emit(true);
   }
 
   onClientTypeChange(newType: number | string): void {
@@ -130,6 +99,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       }
       return client;
     });
+    this.isChangingEvent.emit(true);
   }
 
   public calcValidation(): void {

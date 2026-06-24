@@ -401,24 +401,6 @@ describe('ClientContractsComponent', () => {
         });
     });
 
-    describe('ngOnDestroy', () => {
-        it('should unsubscribe from form changes', () => {
-            const mockSubscription = {
-                unsubscribe: vi.fn()
-            };
-            component.objectForUnsubscribe = mockSubscription;
-
-            component.ngOnDestroy();
-
-            expect(mockSubscription.unsubscribe).toHaveBeenCalled();
-        });
-
-        it('should handle undefined subscription', () => {
-            component.objectForUnsubscribe = undefined;
-            expect(() => component.ngOnDestroy()).not.toThrow();
-        });
-    });
-
     describe('hasAtLeastOneActive validation', () => {
         it('should ignore contracts without contractId', () => {
             editClientSignal.set({

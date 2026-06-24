@@ -1,27 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/consistent-generic-constructors */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  EventEmitter,
-  inject,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-  AfterViewInit,
-  Injector,
   effect,
-  runInInjectionContext,
+  inject,
+  input,
+  OnInit,
+  output,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group/group-class';
 import { IClientGroupItem } from 'src/app/domain/models/client/client-group-item-class';
@@ -57,23 +47,16 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   providers: [TableSortingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() clientId?: string;
-  @Input() isReadOnly = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
-  @ViewChild('groupsForm', { static: false }) groupsForm: NgForm | undefined;
+export class ClientGroupsComponent implements OnInit {
+  readonly isReadOnly = input(false);
+  readonly isChangingEvent = output<boolean>();
 
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   public sortingService = inject(TableSortingService);
 
-  private injector = inject(Injector);
-  private cdr = inject(ChangeDetectorRef);
-
   public faCalendar = faCalendar;
   public highlightRowId: string | undefined = undefined;
-  public objectForUnsubscribe: any;
 
   public groupValidationState: Map<number, boolean | undefined> = new Map();
   public groupFromDateValidationState: Map<number, boolean | undefined> =
@@ -82,8 +65,36 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public groupValidFromValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();
   public groupValidUntilValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();
   public minDateValue: NgbDateStruct = { year: 1900, month: 1, day: 1 };
+  public sortedGroupItems: IClientGroupItem[] = [];
 
-  private ngUnsubscribe = new Subject<void>();
+  constructor() {
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client?.groupItems) {
+        this.groupValidFromValues.clear();
+        this.groupValidUntilValues.clear();
+
+        client.groupItems.forEach((groupItem) => {
+          this.groupValidFromValues.set(
+            groupItem,
+            groupItem.validFrom ? transformDateToNgbDateStruct(groupItem.validFrom) : undefined
+          );
+          this.groupValidUntilValues.set(
+            groupItem,
+            groupItem.validUntil ? transformDateToNgbDateStruct(groupItem.validUntil) : undefined
+          );
+        });
+
+        const validFrom = client.membership?.validFrom;
+        this.minDateValue = validFrom
+          ? transformDateToNgbDateStruct(validFrom)!
+          : { year: 1900, month: 1, day: 1 };
+
+        this.calcValidation();
+        this.sortClientGroups();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.sortingService.initialize({
@@ -92,32 +103,11 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
       defaultSortOrder: 'asc',
       useThreeWaySort: true
     });
-
-    this.readSignals();
-  }
-
-  ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.groupsForm!.valueChanges!.subscribe(() => {
-      if (this.groupsForm!.dirty === true) {
-        setTimeout(() => {
-          this.isChangingEvent.emit(true);
-          this.cdr.markForCheck();
-        }, 100);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
   }
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
@@ -135,6 +125,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.groupValidFromValues.set(groupItem, value);
     groupItem.validFrom = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
+    this.isChangingEvent.emit(true);
   }
 
   getGroupValidUntil(groupItem: IClientGroupItem): NgbDateStruct | undefined {
@@ -145,16 +136,20 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.groupValidUntilValues.set(groupItem, value);
     groupItem.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
+    this.isChangingEvent.emit(true);
   }
 
   sortClientGroups(): void {
     const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.groupItems) return;
+    if (!currentClient?.groupItems) {
+      this.sortedGroupItems = [];
+      return;
+    }
 
     const orderBy = this.sortingService.getCurrentOrderBy();
     const sortOrder = this.sortingService.getCurrentSortOrder();
 
-    currentClient.groupItems.sort((a, b) => {
+    this.sortedGroupItems = [...currentClient.groupItems].sort((a, b) => {
       let compareValue = 0;
 
       if (orderBy === 'name') {
@@ -181,22 +176,22 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     return index;
   }
 
-  onGroupChanged(index: number, selectedGroup: Group | null): void {
+  onGroupChanged(groupItem: IClientGroupItem, selectedGroup: Group | null): void {
     if (!selectedGroup) return;
 
-    const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.groupItems?.[index]) return;
-
-    currentClient.groupItems[index].groupId = selectedGroup.id;
-    currentClient.groupItems[index].groupName = selectedGroup.name;
+    groupItem.groupId = selectedGroup.id;
+    groupItem.groupName = selectedGroup.name;
 
     this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
     this.isChangingEvent.emit(true);
   }
 
-  removeGroup(index: number): void {
+  removeGroup(groupItem: IClientGroupItem): void {
     const currentClient = this.dataManagementClientService.editClient();
     if (!currentClient?.groupItems) return;
+
+    const index = currentClient.groupItems.indexOf(groupItem);
+    if (index === -1) return;
 
     currentClient.groupItems.splice(index, 1);
 
@@ -249,33 +244,4 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.groupFromDateValidationState.get(index);
   }
 
-  private readSignals(): void {
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const client = this.dataManagementClientService.editClient();
-        if (client?.groupItems) {
-          this.groupValidFromValues.clear();
-          this.groupValidUntilValues.clear();
-
-          client.groupItems.forEach((groupItem) => {
-            this.groupValidFromValues.set(
-              groupItem,
-              groupItem.validFrom ? transformDateToNgbDateStruct(groupItem.validFrom) : undefined
-            );
-            this.groupValidUntilValues.set(
-              groupItem,
-              groupItem.validUntil ? transformDateToNgbDateStruct(groupItem.validUntil) : undefined
-            );
-          });
-
-          const validFrom = client.membership?.validFrom;
-          this.minDateValue = validFrom
-            ? transformDateToNgbDateStruct(validFrom)!
-            : { year: 1900, month: 1, day: 1 };
-
-          this.calcValidation();
-        }
-      });
-    });
-  }
 }

@@ -2,13 +2,9 @@
 
 import {
   Component,
-  EventEmitter,
-  HostListener,
   inject,
-  Input,
   OnInit,
   OnDestroy,
-  Output,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
 } from '@angular/core';
@@ -63,17 +59,6 @@ import { TranslateService } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
-  @Input() isEditClient = false;
-  @Output() isEnterEvent = new EventEmitter();
-
-  @HostListener('keyup', ['$event']) onkeyup(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      if (this.dataManagementClientService.areObjectsDirty()) {
-        this.isEnterEvent.emit();
-      }
-    }
-  }
-
   private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementClientService = inject(DataManagementClientService);
   public dataManagementGroupService = inject(DataManagementGroupService);
