@@ -1,26 +1,24 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Side navigation bar providing links to all main workplaces and language/icon management.
+ */
 import {
-  AfterViewInit,
   Component,
   OnInit,
-  OnDestroy,
-  ViewChild,
-  ViewChildren,
-  QueryList,
   inject,
   signal,
   computed,
   effect,
-  EffectRef,
-  Injector,
-  runInInjectionContext,
+  viewChild,
+  viewChildren,
+  DestroyRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -84,47 +82,42 @@ type NavigationPage =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('scheduleIcon') scheduleIcon!: IconTimeScheduleComponent;
-  @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
-  @ViewChild('availabilityIcon') availabilityIcon!: IconAvailabilityComponent;
-  @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
-  @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
-  @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
-  @ViewChild('periodClosingIcon')
-  periodClosingIcon!: IconPeriodClosingComponent;
-  @ViewChild('mailIcon') mailIcon!: IconMailComponent;
-  @ViewChild('userIcon') userIcon!: IconUserComponent;
-  @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
-  @ViewChildren(PluginIconComponent)
-  pluginIcons!: QueryList<PluginIconComponent>;
+export class NavComponent implements OnInit {
+  readonly scheduleIcon = viewChild<IconTimeScheduleComponent>('scheduleIcon');
+  readonly absenceIcon = viewChild<IconGanttComponent>('absenceIcon');
+  readonly availabilityIcon = viewChild<IconAvailabilityComponent>('availabilityIcon');
+  readonly shiftIcon = viewChild<IconOrderComponent>('shiftIcon');
+  readonly employeesIcon = viewChild<IconClientsComponent>('employeesIcon');
+  readonly groupIcon = viewChild<IconGroupComponent>('groupIcon');
+  readonly periodClosingIcon = viewChild<IconPeriodClosingComponent>('periodClosingIcon');
+  readonly mailIcon = viewChild<IconMailComponent>('mailIcon');
+  readonly userIcon = viewChild<IconUserComponent>('userIcon');
+  readonly settingsIcon = viewChild<IconSettingComponent>('settingsIcon');
+  readonly pluginIcons = viewChildren(PluginIconComponent);
 
-  // Services
   public authorizationService = inject(AuthorizationService);
   public router = inject(Router);
   public dataLoadFileService = inject(DataLoadFileService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
-  private translateStringConstantsService = inject(
-    TranslateStringConstantsService,
-  );
+  private translateStringConstantsService = inject(TranslateStringConstantsService);
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
   private themeService = inject(ThemeService);
   private urlParameterService = inject(UrlParameterService);
-  private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
 
   public inboxService = inject(InboxService);
   public inboxVisibilityService = inject(InboxVisibilityService);
   public featurePluginState = inject(FeaturePluginStateService);
   private spinnerService = inject(LOADING_INDICATOR_TOKEN);
 
-  public tooltipPlacement =
-    document.documentElement.dir === 'rtl' ? 'left' : 'right';
+  public tooltipPlacement = document.documentElement.dir === 'rtl' ? 'left' : 'right';
+
   private currentLanguage = signal<string>(DomainMessages.DEFAULT_LANG);
   private currentTheme = computed(() => this.themeService.theme());
   private currentPage = signal<NavigationPage>('');
-  private iconsInitialized = signal<boolean>(false);
+
   isAdmin = computed(() => this.authorizationService.isAdmin);
   hasProfileImage = computed(() => !!this.dataLoadFileService.profileImage$());
 
@@ -161,15 +154,12 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   });
 
-  absence = DomainMessages.ABSENCE;
-  all_schedule = DomainMessages.ALL_SCHEDULE;
-  all_employee = DomainMessages.ALL_EMPLOYEE;
-  all_shift = DomainMessages.ALL_SHIFT;
-  statistic = DomainMessages.STATISTIC;
-  inbox = DomainMessages.INBOX;
-
-  private ngUnsubscribe = new Subject<void>();
-  private effectRefs: EffectRef[] = [];
+  readonly absence = DomainMessages.ABSENCE;
+  readonly all_schedule = DomainMessages.ALL_SCHEDULE;
+  readonly all_employee = DomainMessages.ALL_EMPLOYEE;
+  readonly all_shift = DomainMessages.ALL_SHIFT;
+  readonly statistic = DomainMessages.STATISTIC;
+  readonly inbox = DomainMessages.INBOX;
 
   constructor() {
     this.setupEffects();
@@ -183,77 +173,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inboxVisibilityService.ensureSettingsLoaded();
     this.inboxService.refreshUnreadCount();
     this.featurePluginState.ensureLoaded();
-    this.setupRxJSSubscriptions();
 
-    this.absence = DomainMessages.ABSENCE;
-    this.all_schedule = DomainMessages.ALL_SCHEDULE;
-    this.all_employee = DomainMessages.ALL_EMPLOYEE;
-    this.all_shift = DomainMessages.ALL_SHIFT;
-    this.statistic = DomainMessages.STATISTIC;
-    this.inbox = DomainMessages.INBOX;
-  }
-
-  ngAfterViewInit(): void {
-    this.iconsInitialized.set(true);
-    this.updateTranslations();
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.effectRefs.forEach((ref) => ref.destroy());
-    this.effectRefs = [];
-  }
-
-  private setupEffects(): void {
-    runInInjectionContext(this.injector, () => {
-      const langEffect = effect(() => {
-        const lang = this.currentLanguage();
-        this.translateService.use(lang);
-        this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
-        this.translateStringConstantsService.translate();
-        this.localeService.setLocale(lang);
-      });
-      this.effectRefs.push(langEffect);
-
-      const themeEffect = effect(() => {
-        const theme = this.currentTheme();
-        if (theme && this.iconsInitialized()) {
-          this.resetIconColor();
-          this.setSelectedIconColor();
-        }
-      });
-      this.effectRefs.push(themeEffect);
-
-      const pageEffect = effect(() => {
-        if (this.iconsInitialized()) {
-          this.resetIconColor();
-          this.setSelectedIconColor();
-        }
-      });
-      this.effectRefs.push(pageEffect);
-
-      const iconEffect = effect(() => {
-        const selected = this.selectedIcon();
-        if (this.iconsInitialized() && selected) {
-          this.resetIconColor();
-          this.activateIcon(selected);
-        }
-      });
-      this.effectRefs.push(iconEffect);
-    });
-  }
-
-  private setupRxJSSubscriptions(): void {
-    this.translateService.onLangChange
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        setTimeout(() => {
-          this.updateTranslations();
-        }, 200);
-      });
-
-    this.router.events.pipe(takeUntil(this.ngUnsubscribe)).subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
       if (event instanceof NavigationStart) {
         this.spinnerService.showProgressSpinner = true;
       } else if (
@@ -266,14 +187,24 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private updateTranslations(): void {
-    // Original approach - aktualisiere properties direkt
-    this.absence = DomainMessages.ABSENCE;
-    this.all_schedule = DomainMessages.ALL_SCHEDULE;
-    this.all_employee = DomainMessages.ALL_EMPLOYEE;
-    this.all_shift = DomainMessages.ALL_SHIFT;
-    this.statistic = DomainMessages.STATISTIC;
-    this.inbox = DomainMessages.INBOX;
+  private setupEffects(): void {
+    effect(() => {
+      const lang = this.currentLanguage();
+      this.translateService.use(lang);
+      this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
+      this.translateStringConstantsService.translate();
+      this.localeService.setLocale(lang);
+    });
+
+    effect(() => {
+      this.currentTheme();
+      const selected = this.selectedIcon();
+      if (!this.scheduleIcon()) return;
+      this.resetIconColor();
+      if (selected) {
+        this.activateIcon(selected);
+      }
+    });
   }
 
   private initializeTranslation(): void {
@@ -287,23 +218,15 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateCurrentPage(): void {
-    const page =
-      this.urlParameterService.getWorkplaceSubRoute() as NavigationPage;
+    const page = this.urlParameterService.getWorkplaceSubRoute() as NavigationPage;
     this.currentPage.set(page);
   }
 
   private tryLoadProfileImage(): void {
     const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
     if (id) {
-      const imgId = `${id}profile`;
-      this.dataLoadFileService.downLoadFile(imgId);
-      this.startProfileImageWatcher();
+      this.dataLoadFileService.downLoadFile(`${id}profile`);
     }
-  }
-
-  private startProfileImageWatcher(): void {
-    // No longer needed since we use reactive signals directly from DataLoadFileService
-    // The profileImage$() signal will automatically update when the image loads
   }
 
   onClickAbsence(): void {
@@ -369,80 +292,53 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentLanguage.set(lang);
   }
 
-  // Icon Management
   private resetIconColor(): void {
-    const icons = [
-      this.scheduleIcon,
-      this.absenceIcon,
-      this.availabilityIcon,
-      this.shiftIcon,
-      this.employeesIcon,
-      this.groupIcon,
-      this.periodClosingIcon,
-      this.mailIcon,
-      this.userIcon,
-      this.settingsIcon,
-    ];
-
-    icons.forEach((icon) => {
-      if (icon) {
-        icon.ChangeColor();
-      }
-    });
-
-    if (this.pluginIcons) {
-      this.pluginIcons.forEach((icon) => icon.ChangeColor());
-    }
+    [
+      this.scheduleIcon(),
+      this.absenceIcon(),
+      this.availabilityIcon(),
+      this.shiftIcon(),
+      this.employeesIcon(),
+      this.groupIcon(),
+      this.periodClosingIcon(),
+      this.mailIcon(),
+      this.userIcon(),
+      this.settingsIcon(),
+    ].forEach(icon => icon?.ChangeColor());
+    this.pluginIcons().forEach(icon => icon.ChangeColor());
   }
 
   private activateIcon(iconName: string): void {
     if (iconName.startsWith('plugin:')) {
-      const pluginName = iconName.substring(7);
-      this.activatePluginIcon(pluginName);
+      this.activatePluginIcon(iconName.substring(7));
       return;
     }
 
-    const iconMap = {
-      absence: this.absenceIcon,
-      group: this.groupIcon,
-      shift: this.shiftIcon,
-      schedule: this.scheduleIcon,
-      employees: this.employeesIcon,
-      user: this.userIcon,
-      settings: this.settingsIcon,
-      availability: this.availabilityIcon,
-      inbox: this.mailIcon,
-      'period-closing': this.periodClosingIcon,
+    const iconMap: Record<string, { ChangeColor(active?: boolean): void } | undefined> = {
+      absence: this.absenceIcon(),
+      group: this.groupIcon(),
+      shift: this.shiftIcon(),
+      schedule: this.scheduleIcon(),
+      employees: this.employeesIcon(),
+      user: this.userIcon(),
+      settings: this.settingsIcon(),
+      availability: this.availabilityIcon(),
+      inbox: this.mailIcon(),
+      'period-closing': this.periodClosingIcon(),
     };
 
-    const icon = iconMap[iconName as keyof typeof iconMap];
-    if (icon) {
-      icon.ChangeColor(true);
-    }
+    iconMap[iconName]?.ChangeColor(true);
   }
 
   private activatePluginIcon(pluginName: string): void {
-    if (!this.pluginIcons) return;
     const navItems = this.featurePluginState.pluginNavItems();
-    const index = navItems.findIndex((p) => p.name === pluginName);
+    const index = navItems.findIndex(p => p.name === pluginName);
     if (index >= 0) {
-      const icon = this.pluginIcons.get(index);
-      if (icon) {
-        icon.ChangeColor(true);
-      }
+      this.pluginIcons()[index]?.ChangeColor(true);
     }
   }
 
   private isPluginPage(page: string): boolean {
-    return this.featurePluginState
-      .pluginNavItems()
-      .some((p) => p.name === page);
-  }
-
-  private setSelectedIconColor(): void {
-    const selectedIcon = this.selectedIcon();
-    if (selectedIcon) {
-      this.activateIcon(selectedIcon);
-    }
+    return this.featurePluginState.pluginNavItems().some(p => p.name === page);
   }
 }

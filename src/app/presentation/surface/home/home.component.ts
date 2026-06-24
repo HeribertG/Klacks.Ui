@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, OnDestroy, inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+/**
+ * Root layout component that assembles the main app shell (header, nav, main, savebar, footer).
+ */
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
 import { ModalComponent } from 'src/app/presentation/modal/modal/modal.component';
 import { SpinnerWrapperComponent } from 'src/app/presentation/spinner/spinner-wrapper/spinner-wrapper.component';
 import { HeaderComponent } from '../header/header.component';
@@ -29,25 +29,17 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
     NavComponent,
     MainComponent,
     SavebarComponent,
-    FooterComponent
-],
+    FooterComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   private applicationInitService = inject(ApplicationInitService);
   private spinnerService = inject(SpinnerService);
-  private destroy$ = new Subject<void>();
-
-  constructor() {}
 
   ngOnInit(): void {
     this.spinnerService.interceptorSuppressed = true;
     this.applicationInitService.initialize();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   canDeactivate(): boolean {

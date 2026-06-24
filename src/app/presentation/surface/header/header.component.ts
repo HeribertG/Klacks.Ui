@@ -1,18 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-
+/**
+ * Main application header with logo, search, group selector, and navigation controls.
+ */
 import {
-  AfterViewInit,
   Component,
-  OnDestroy,
   inject,
   signal,
   computed,
-  EffectRef,
-  Injector,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { Subject } from 'rxjs';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
@@ -22,7 +19,6 @@ import { SearchClientComponent } from 'src/app/presentation/search/search-client
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { IClient } from 'src/app/domain/models/client/client-class';
-import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -49,67 +45,46 @@ import { SignalRStatusIndicatorComponent } from './signalr-status-indicator/sign
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeaderComponent implements AfterViewInit, OnDestroy {
+export class HeaderComponent {
   public dataLoadFileService = inject(DataLoadFileService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public searchService = inject(SearchService);
 
   private auth = inject(AuthService);
-  private injector = inject(Injector);
   private navigationService = inject(NavigationService);
-  private themeService = inject(ThemeService);
   private asideService = inject(AsideService);
   private appSettings = inject(AppSettingsManagementService);
 
   public authorised = signal<boolean>(false);
+  public readonly version = signal<string>('');
+
   public readonly isAudioMode = computed<boolean>(
     () => this.appSettings.speechSettings().outputMode === OutputMode.Audio,
   );
   public readonly hideAssistantButton = computed<boolean>(
     () => this.isAudioMode() && this.asideService.isVisible(),
   );
-  public logoImage = computed(() => this.dataLoadFileService.logoImage$());
-  public hasLogoImage = computed(() => !!this.logoImage());
-  public logoDimensions = computed(() =>
+  public readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
+  public readonly hasLogoImage = computed(() => !!this.logoImage());
+  public readonly logoDimensions = computed(() =>
     this.dataLoadFileService.logoImageDimensions$()
   );
-
-  public logoDisplayDimensions = computed(() => {
+  public readonly logoDisplayDimensions = computed(() => {
     const dimensions = this.logoDimensions();
     if (!dimensions) {
-      return { width: 32, height: 32 }; // fallback
+      return { width: 32, height: 32 };
     }
-
     return this.dataLoadFileService.calculateProportionalDimensions(
       dimensions.width,
       dimensions.height,
-      32, // max width
-      32, // max height
-      40 // absolute max
+      32,
+      32,
+      40,
     );
   });
-  public registerDropdown: HTMLDivElement | undefined;
-  public searchString = signal<string>('');
-  public selectedName = signal<string>('new-address');
-  public version = signal<string>('');
 
-  private effectRefs: EffectRef[] = [];
-  private ngUnsubscribe = new Subject<void>();
-
-  ngAfterViewInit(): void {
-    this.initializeAuthState();
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.effectRefs.forEach((ref) => ref.destroy());
-    this.effectRefs = [];
-  }
-
-  private initializeAuthState(): void {
-    const currentAuthState = this.auth.authenticated();
-    this.authorised.set(currentAuthState);
+  constructor() {
+    this.authorised.set(this.auth.authenticated());
   }
 
   onClickDashboard(): void {
@@ -134,41 +109,5 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   onToggleAssistant(): void {
     this.asideService.toggle();
-  }
-
-  updateSearchString(searchValue: string): void {
-    this.searchString.set(searchValue);
-  }
-
-  updateSelection(selection: string): void {
-    this.selectedName.set(selection);
-  }
-
-  setVersion(versionString: string): void {
-    this.version.set(versionString);
-  }
-
-  get logoImageValue(): string | null {
-    return this.logoImage();
-  }
-
-  get hasLogoImageValue(): boolean {
-    return this.hasLogoImage();
-  }
-
-  get searchStringValue(): string {
-    return this.searchString();
-  }
-
-  get versionValue(): string {
-    return this.version();
-  }
-
-  get authorisedValue(): boolean {
-    return this.authorised();
-  }
-
-  get selectedNameValue(): string {
-    return this.selectedName();
   }
 }

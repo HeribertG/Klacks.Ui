@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+/**
+ * Router outlet host for the main content area.
+ */
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterOutlet } from '@angular/router';
 

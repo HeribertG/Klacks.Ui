@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, inject, computed,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+/**
+ * Persistent save/reset bar shown at the bottom of edit workplaces.
+ * @param showSaveButtons - controls visibility of save button
+ * @param showSaveAndCloseButton - controls visibility of save-and-close button
+ */
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
