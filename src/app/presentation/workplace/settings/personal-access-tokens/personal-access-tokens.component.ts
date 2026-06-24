@@ -20,7 +20,6 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { NgClass, NgStyle } from '@angular/common';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
@@ -60,8 +59,6 @@ const PERSONAL_ACCESS_TOKENS_CONTEXT = 'personal-access-tokens';
     FormField,
     TranslateModule,
     SpinnerModule,
-    NgClass,
-    NgStyle,
     PersonalAccessTokensHeaderComponent,
     PersonalAccessTokensRowComponent,
     SettingsListCardComponent,

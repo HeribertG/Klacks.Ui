@@ -15,7 +15,6 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -55,7 +54,6 @@ interface MacroFormModel {
   styleUrls: ['./macro-row.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormField,
     FormsModule,
     TranslateModule,

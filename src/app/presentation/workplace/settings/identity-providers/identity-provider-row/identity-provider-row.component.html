@@ -91,7 +91,7 @@
             <a
               id="identity-provider-modal-tab-general-link"
               class="nav-link"
-              [ngClass]="{ active: tabId() === 'general' }"
+              [class.active]="tabId() === 'general'"
               (click)="tabId.set('general')"
               >{{ 'settings.identity-provider.tab-general' | translate }}</a
             >
@@ -101,7 +101,7 @@
               <a
                 id="identity-provider-modal-tab-connection-link"
                 class="nav-link"
-                [ngClass]="{ active: tabId() === 'connection' }"
+                [class.active]="tabId() === 'connection'"
                 (click)="tabId.set('connection')"
                 >{{ 'settings.identity-provider.tab-connection' | translate }}</a
               >
@@ -112,7 +112,7 @@
               <a
                 id="identity-provider-modal-tab-oauth-link"
                 class="nav-link"
-                [ngClass]="{ active: tabId() === 'oauth' }"
+                [class.active]="tabId() === 'oauth'"
                 (click)="tabId.set('oauth')"
                 >{{ 'settings.identity-provider.tab-oauth' | translate }}</a
               >
@@ -122,7 +122,7 @@
             <a
               id="identity-provider-modal-tab-help-link"
               class="nav-link"
-              [ngClass]="{ active: tabId() === 'help' }"
+              [class.active]="tabId() === 'help'"
               (click)="tabId.set('help')"
               >{{ 'settings.identity-provider.tab-help' | translate }}</a
             >
@@ -134,7 +134,7 @@
       <div
         id="identity-provider-modal-general-content"
         class="collapse tab-content-box"
-        [ngStyle]="{ display: tabId() === 'general' ? 'block' : 'none' }"
+        [style.display]="tabId() === 'general' ? 'block' : 'none'"
       >
         <div class="form-row-inline">
           <div class="form-group-inline">
@@ -175,7 +175,7 @@
       <div
         id="identity-provider-modal-connection-content"
         class="collapse tab-content-box"
-        [ngStyle]="{ display: tabId() === 'connection' ? 'block' : 'none' }"
+        [style.display]="tabId() === 'connection' ? 'block' : 'none'"
       >
         <div class="form-row-inline">
           <div style="margin-inline-start: 30px; width: 300px">
@@ -226,7 +226,7 @@
 
         <!-- Test & Sync Results -->
         @if (testResult(); as result) {
-          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [class.alert-success]="result.success" [class.alert-danger]="!result.success">
             @if (result.success) {
               <strong>{{ 'settings.identity-provider.test-success' | translate }}</strong>
               @if (result.userCount !== undefined) {
@@ -245,7 +245,7 @@
         }
 
         @if (syncResult(); as result) {
-          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+          <div class="alert" style="margin-inline: 30px; margin-top: 15px;" [class.alert-success]="result.success" [class.alert-danger]="!result.success">
             @if (result.success) {
               <strong>{{ 'settings.identity-provider.sync-success' | translate }}</strong>
               <br />{{ 'settings.identity-provider.total-processed' | translate }}: {{ result.totalProcessed }}
@@ -266,7 +266,7 @@
       <div
         id="identity-provider-modal-oauth-content"
         class="collapse tab-content-box"
-        [ngStyle]="{ display: tabId() === 'oauth' ? 'block' : 'none' }"
+        [style.display]="tabId() === 'oauth' ? 'block' : 'none'"
       >
         <div class="form-row-inline">
           <div style="margin-inline-start: 30px; width: 250px">
@@ -319,7 +319,7 @@
       <div
         id="identity-provider-modal-help-content"
         class="collapse tab-content-box"
-        [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+        [style.display]="tabId() === 'help' ? 'block' : 'none'"
       >
         <div
           id="identity-provider-modal-manual-content"

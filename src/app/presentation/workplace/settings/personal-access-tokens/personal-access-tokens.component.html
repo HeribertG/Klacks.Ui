@@ -34,7 +34,7 @@
             <a
               id="personal-access-tokens-modal-tab-token-link"
               class="nav-link"
-              [ngClass]="{ active: tabId() === 'token' }"
+              [class.active]="tabId() === 'token'"
               (click)="tabId.set('token')"
               >{{ 'setting.personal-access-tokens.modal.tab-token' | translate }}</a
             >
@@ -43,7 +43,7 @@
             <a
               id="personal-access-tokens-modal-tab-manual-link"
               class="nav-link"
-              [ngClass]="{ active: tabId() === 'handbuch' }"
+              [class.active]="tabId() === 'handbuch'"
               (click)="tabId.set('handbuch')"
               >{{ 'setting.personal-access-tokens.modal.tab-manual' | translate }}</a
             >
@@ -53,7 +53,7 @@
       <div
         id="personal-access-tokens-modal-token-content"
         class="collapse"
-        [ngStyle]="{ display: tabId() === 'token' ? 'block' : 'none' }"
+        [style.display]="tabId() === 'token' ? 'block' : 'none'"
       >
         @if (createdToken) {
         <div id="personal-access-tokens-modal-warning-row" class="row-line-modal-inline">
@@ -134,7 +134,7 @@
       <div
         id="personal-access-tokens-modal-manual-content"
         class="collapse"
-        [ngStyle]="{ display: tabId() === 'handbuch' ? 'inline' : 'none' }"
+        [style.display]="tabId() === 'handbuch' ? 'inline' : 'none'"
       >
         <div class="manual-content" [innerHTML]="manualContent()"></div>
       </div>

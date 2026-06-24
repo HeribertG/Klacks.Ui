@@ -2,7 +2,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, TemplateRef, inject, input, output, signal, viewChild, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef, NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -29,7 +28,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   templateUrl: './report-row.component.html',
   styleUrls: ['./report-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent],
+  imports: [TranslateModule, FormsModule, NgbModule, ReportDesignerComponent, DateInputComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportRowComponent implements OnDestroy {

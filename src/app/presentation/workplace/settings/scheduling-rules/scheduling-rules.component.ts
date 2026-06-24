@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Settings component for managing scheduling rules via a modal form.
+ * Uses signalForm for scalar fields (name, numeric limits, rates) and
+ * ngModel for boolean day-of-week checkboxes.
+ */
 import {
   Component, ChangeDetectionStrategy,
   ElementRef,
@@ -14,9 +19,9 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { form, FormField, debounce } from '@angular/forms/signals';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -37,15 +42,37 @@ import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
 
+interface SchedulingRuleFormModel {
+  name: string;
+  maxWorkDays: number;
+  minRestDays: number;
+  minPauseHours: number;
+  maxOptimalGap: number;
+  maxDailyHours: number;
+  maxWeeklyHours: number;
+  maxConsecutiveDays: number;
+  defaultWorkingHours: number;
+  overtimeThreshold: number;
+  guaranteedHours: number;
+  maximumHours: number;
+  minimumHours: number;
+  fullTimeHours: number;
+  vacationDaysPerYear: number;
+  nightRate: number;
+  holidayRate: number;
+  saRate: number;
+  soRate: number;
+}
+
 @Component({
   selector: 'app-scheduling-rules',
   templateUrl: './scheduling-rules.component.html',
   styleUrls: ['./scheduling-rules.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
+    FormField,
     NgbModule,
     SpinnerModule,
     SchedulingRuleHeaderComponent,
@@ -77,6 +104,32 @@ export class SchedulingRulesComponent
   private destroy$ = new Subject<void>();
   tabId = signal<'form' | 'help'>('form');
   manualContent = signal('');
+
+  private formModel = signal<SchedulingRuleFormModel>({
+    name: '',
+    maxWorkDays: 0,
+    minRestDays: 0,
+    minPauseHours: 0,
+    maxOptimalGap: 0,
+    maxDailyHours: 0,
+    maxWeeklyHours: 0,
+    maxConsecutiveDays: 0,
+    defaultWorkingHours: 0,
+    overtimeThreshold: 0,
+    guaranteedHours: 0,
+    maximumHours: 0,
+    minimumHours: 0,
+    fullTimeHours: 0,
+    vacationDaysPerYear: 0,
+    nightRate: 0,
+    holidayRate: 0,
+    saRate: 0,
+    soRate: 0,
+  });
+
+  ruleForm = form(this.formModel, f => {
+    debounce(f.name, 300);
+  });
 
   message = DomainMessages.DELETE_ENTRY;
 
@@ -124,6 +177,7 @@ export class SchedulingRulesComponent
 
   onClickAdd(): void {
     this.editingRule = this.dataManagementService.createRule();
+    this.initFormSignals(this.editingRule);
     this.originalRule = null;
     this.isNewRule = true;
     this.openModal();
@@ -132,9 +186,58 @@ export class SchedulingRulesComponent
   onClickEdit(rule: ISchedulingRule): void {
     const clonedRule = cloneObject<ISchedulingRule>(rule);
     this.editingRule = clonedRule;
+    this.initFormSignals(clonedRule);
     this.originalRule = rule;
     this.isNewRule = false;
     this.openModal();
+  }
+
+  private initFormSignals(rule: ISchedulingRule): void {
+    this.formModel.set({
+      name: rule.name || '',
+      maxWorkDays: rule.maxWorkDays ?? 0,
+      minRestDays: rule.minRestDays ?? 0,
+      minPauseHours: rule.minPauseHours ?? 0,
+      maxOptimalGap: rule.maxOptimalGap ?? 0,
+      maxDailyHours: rule.maxDailyHours ?? 0,
+      maxWeeklyHours: rule.maxWeeklyHours ?? 0,
+      maxConsecutiveDays: rule.maxConsecutiveDays ?? 0,
+      defaultWorkingHours: rule.defaultWorkingHours ?? 0,
+      overtimeThreshold: rule.overtimeThreshold ?? 0,
+      guaranteedHours: rule.guaranteedHours ?? 0,
+      maximumHours: rule.maximumHours ?? 0,
+      minimumHours: rule.minimumHours ?? 0,
+      fullTimeHours: rule.fullTimeHours ?? 0,
+      vacationDaysPerYear: rule.vacationDaysPerYear ?? 0,
+      nightRate: rule.nightRate ?? 0,
+      holidayRate: rule.holidayRate ?? 0,
+      saRate: rule.saRate ?? 0,
+      soRate: rule.soRate ?? 0,
+    });
+  }
+
+  private applySignalsToRule(): void {
+    if (!this.editingRule) return;
+    const formData = this.formModel();
+    this.editingRule.name = formData.name;
+    this.editingRule.maxWorkDays = formData.maxWorkDays;
+    this.editingRule.minRestDays = formData.minRestDays;
+    this.editingRule.minPauseHours = formData.minPauseHours;
+    this.editingRule.maxOptimalGap = formData.maxOptimalGap;
+    this.editingRule.maxDailyHours = formData.maxDailyHours;
+    this.editingRule.maxWeeklyHours = formData.maxWeeklyHours;
+    this.editingRule.maxConsecutiveDays = formData.maxConsecutiveDays;
+    this.editingRule.defaultWorkingHours = formData.defaultWorkingHours;
+    this.editingRule.overtimeThreshold = formData.overtimeThreshold;
+    this.editingRule.guaranteedHours = formData.guaranteedHours;
+    this.editingRule.maximumHours = formData.maximumHours;
+    this.editingRule.minimumHours = formData.minimumHours;
+    this.editingRule.fullTimeHours = formData.fullTimeHours;
+    this.editingRule.vacationDaysPerYear = formData.vacationDaysPerYear;
+    this.editingRule.nightRate = formData.nightRate;
+    this.editingRule.holidayRate = formData.holidayRate;
+    this.editingRule.saRate = formData.saRate;
+    this.editingRule.soRate = formData.soRate;
   }
 
   private openModal(): void {
@@ -192,6 +295,8 @@ export class SchedulingRulesComponent
       return;
     }
 
+    this.applySignalsToRule();
+
     if (!this.isFormValid()) {
       return;
     }
@@ -235,6 +340,7 @@ export class SchedulingRulesComponent
 
   isFormValid(): boolean {
     if (!this.editingRule) return false;
+    this.applySignalsToRule();
     return (
       this.dataManagementService.validateRule(this.editingRule).length === 0
     );
@@ -242,6 +348,7 @@ export class SchedulingRulesComponent
 
   getValidationErrors(): string[] {
     if (!this.editingRule) return [];
+    this.applySignalsToRule();
     return this.dataManagementService.validateRule(this.editingRule);
   }
 

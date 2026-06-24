@@ -12,7 +12,6 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -66,7 +65,6 @@ interface RuleFormModel {
   styleUrls: ['./calendar-rules.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     FormField,
     TranslateModule,

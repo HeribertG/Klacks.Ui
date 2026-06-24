@@ -99,7 +99,7 @@
           <a
             id="macro-modal-tab-macro-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'macro' }"
+            [class.active]="tabId() === 'macro'"
             (click)="tabId.set('macro')"
             >Macro</a
           >
@@ -108,7 +108,7 @@
           <a
             id="macro-modal-tab-data-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'data' }"
+            [class.active]="tabId() === 'data'"
             (click)="onClickData()"
             >{{ 'setting.macro.data-modal' | translate }}</a
           >
@@ -118,7 +118,7 @@
           <a
             id="macro-modal-tab-test-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'test' }"
+            [class.active]="tabId() === 'test'"
             (click)="tabId.set('test')"
             >{{ 'setting.macro.test-modal' | translate }}</a
           >
@@ -127,7 +127,7 @@
           <a
             id="macro-modal-tab-description-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'description' }"
+            [class.active]="tabId() === 'description'"
             (click)="tabId.set('description')"
             >{{ 'setting.macro.description-modal' | translate }}</a
           >
@@ -137,7 +137,7 @@
     <div
       id="macro-modal-macro-content"
       class="collapse"
-      [ngStyle]="{ display: tabId() === 'macro' ? 'inline' : 'none' }"
+      [style.display]="tabId() === 'macro' ? 'inline' : 'none'"
     >
       <ngx-code-editor
         id="macro-modal-code-editor"
@@ -154,7 +154,7 @@
     <div
       id="macro-modal-data-content"
       class="collapse"
-      [ngStyle]="{ display: tabId() === 'data' ? 'inline' : 'none' }"
+      [style.display]="tabId() === 'data' ? 'inline' : 'none'"
     >
       <app-property-grid
         id="macro-modal-property-grid"
@@ -165,7 +165,7 @@
     <div
       id="macro-modal-test-content"
       class="collapse"
-      [ngStyle]="{ display: tabId() === 'test' ? 'inline' : 'none' }"
+      [style.display]="tabId() === 'test' ? 'inline' : 'none'"
     >
       <textarea
         id="macro-modal-test-output"
@@ -178,7 +178,7 @@
     <div
       id="macro-modal-description-content"
       class="collapse"
-      [ngStyle]="{ display: tabId() === 'description' ? 'inline' : 'none' }"
+      [style.display]="tabId() === 'description' ? 'inline' : 'none'"
     >
       <div
         id="macro-modal-manual-content"

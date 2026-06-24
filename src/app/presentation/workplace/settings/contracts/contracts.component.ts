@@ -16,7 +16,6 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
@@ -57,7 +56,6 @@ interface ContractFormModel {
   styleUrls: ['./contracts.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     FormField,

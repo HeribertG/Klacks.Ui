@@ -11,7 +11,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -23,7 +23,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
   templateUrl: './klacksy-model-check.component.html',
   styleUrls: ['./klacksy-model-check.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [DecimalPipe, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KlacksyModelCheckComponent {

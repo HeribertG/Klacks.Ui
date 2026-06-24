@@ -34,7 +34,7 @@
           <a
             id="scheduling-rule-modal-tab-form-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'form' }"
+            [class.active]="tabId() === 'form'"
             (click)="tabId.set('form')"
             >{{ 'setting.schedulingRule.tab-form' | translate }}</a
           >
@@ -43,7 +43,7 @@
           <a
             id="scheduling-rule-modal-tab-help-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'help' }"
+            [class.active]="tabId() === 'help'"
             (click)="tabId.set('help')"
             >{{ 'setting.schedulingRule.tab-help' | translate }}</a
           >
@@ -52,14 +52,14 @@
     </div>
 
     @if (editingRule) {
-    <div [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
+    <div [style.display]="tabId() === 'form' ? 'block' : 'none'">
     <!-- Name -->
     <div id="scheduling-rule-modal-name-row" class="row-line-modal-inline">
       <div id="scheduling-rule-modal-name-section" class="rule-name-section">
         <label for="ruleName">{{ 'setting.schedulingRule.name-modal' | translate }}</label>
         <input
           type="text"
-          [(ngModel)]="editingRule.name"
+          [formField]="ruleForm.name"
           class="form-control"
           id="ruleName"
           aria-label="ruleName"
@@ -73,7 +73,7 @@
         <label for="maxWorkDays">{{ 'setting.schedulingRule.maxWorkDays' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maxWorkDays"
+          [formField]="ruleForm.maxWorkDays"
           class="form-control rule-input"
           id="maxWorkDays"
           aria-label="maxWorkDays"
@@ -86,7 +86,7 @@
         <label for="minRestDays">{{ 'setting.schedulingRule.minRestDays' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.minRestDays"
+          [formField]="ruleForm.minRestDays"
           class="form-control rule-input"
           id="minRestDays"
           aria-label="minRestDays"
@@ -102,7 +102,7 @@
         <label for="minPauseHours">{{ 'setting.schedulingRule.minPauseHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.minPauseHours"
+          [formField]="ruleForm.minPauseHours"
           class="form-control rule-input"
           id="minPauseHours"
           aria-label="minPauseHours"
@@ -115,7 +115,7 @@
         <label for="maxOptimalGap">{{ 'setting.schedulingRule.maxOptimalGap' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maxOptimalGap"
+          [formField]="ruleForm.maxOptimalGap"
           class="form-control rule-input"
           id="maxOptimalGap"
           aria-label="maxOptimalGap"
@@ -131,7 +131,7 @@
         <label for="maxDailyHours">{{ 'setting.schedulingRule.maxDailyHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maxDailyHours"
+          [formField]="ruleForm.maxDailyHours"
           class="form-control rule-input"
           id="maxDailyHours"
           aria-label="maxDailyHours"
@@ -144,7 +144,7 @@
         <label for="maxWeeklyHours">{{ 'setting.schedulingRule.maxWeeklyHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maxWeeklyHours"
+          [formField]="ruleForm.maxWeeklyHours"
           class="form-control rule-input"
           id="maxWeeklyHours"
           aria-label="maxWeeklyHours"
@@ -160,7 +160,7 @@
         <label for="maxConsecutiveDays">{{ 'setting.schedulingRule.maxConsecutiveDays' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maxConsecutiveDays"
+          [formField]="ruleForm.maxConsecutiveDays"
           class="form-control rule-input"
           id="maxConsecutiveDays"
           aria-label="maxConsecutiveDays"
@@ -176,7 +176,7 @@
         <label for="ruleDefaultWorkingHours">{{ 'setting.schedulingRule.defaultWorkingHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.defaultWorkingHours"
+          [formField]="ruleForm.defaultWorkingHours"
           class="form-control rule-input"
           id="ruleDefaultWorkingHours"
           aria-label="ruleDefaultWorkingHours"
@@ -189,7 +189,7 @@
         <label for="ruleOvertimeThreshold">{{ 'setting.schedulingRule.overtimeThreshold' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.overtimeThreshold"
+          [formField]="ruleForm.overtimeThreshold"
           class="form-control rule-input"
           id="ruleOvertimeThreshold"
           aria-label="ruleOvertimeThreshold"
@@ -205,7 +205,7 @@
         <label for="ruleGuaranteedHours">{{ 'setting.schedulingRule.guaranteedHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.guaranteedHours"
+          [formField]="ruleForm.guaranteedHours"
           class="form-control rule-input"
           id="ruleGuaranteedHours"
           aria-label="ruleGuaranteedHours"
@@ -218,7 +218,7 @@
         <label for="ruleMaximumHours">{{ 'setting.schedulingRule.maximumHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.maximumHours"
+          [formField]="ruleForm.maximumHours"
           class="form-control rule-input"
           id="ruleMaximumHours"
           aria-label="ruleMaximumHours"
@@ -234,7 +234,7 @@
         <label for="ruleMinimumHours">{{ 'setting.schedulingRule.minimumHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.minimumHours"
+          [formField]="ruleForm.minimumHours"
           class="form-control rule-input"
           id="ruleMinimumHours"
           aria-label="ruleMinimumHours"
@@ -247,7 +247,7 @@
         <label for="ruleFullTimeHours">{{ 'setting.schedulingRule.fullTimeHours' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.fullTimeHours"
+          [formField]="ruleForm.fullTimeHours"
           class="form-control rule-input"
           id="ruleFullTimeHours"
           aria-label="ruleFullTimeHours"
@@ -263,7 +263,7 @@
         <label for="ruleVacationDaysPerYear">{{ 'setting.schedulingRule.vacationDaysPerYear' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.vacationDaysPerYear"
+          [formField]="ruleForm.vacationDaysPerYear"
           class="form-control rule-input"
           id="ruleVacationDaysPerYear"
           aria-label="ruleVacationDaysPerYear"
@@ -278,7 +278,7 @@
         <label for="ruleNightRate">{{ 'setting.schedulingRule.nightRate' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.nightRate"
+          [formField]="ruleForm.nightRate"
           class="form-control rule-input"
           id="ruleNightRate"
           aria-label="ruleNightRate"
@@ -292,7 +292,7 @@
         <label for="ruleHolidayRate">{{ 'setting.schedulingRule.holidayRate' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.holidayRate"
+          [formField]="ruleForm.holidayRate"
           class="form-control rule-input"
           id="ruleHolidayRate"
           aria-label="ruleHolidayRate"
@@ -308,7 +308,7 @@
         <label for="ruleSaRate">{{ 'setting.schedulingRule.saRate' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.saRate"
+          [formField]="ruleForm.saRate"
           class="form-control rule-input"
           id="ruleSaRate"
           aria-label="ruleSaRate"
@@ -322,7 +322,7 @@
         <label for="ruleSoRate">{{ 'setting.schedulingRule.soRate' | translate }}</label>
         <input
           type="number"
-          [(ngModel)]="editingRule.soRate"
+          [formField]="ruleForm.soRate"
           class="form-control rule-input"
           id="ruleSoRate"
           aria-label="ruleSoRate"
@@ -398,7 +398,7 @@
     <div
       id="scheduling-rule-modal-help-content"
       class="collapse tab-content-box"
-      [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+      [style.display]="tabId() === 'help' ? 'block' : 'none'"
     >
       <div
         id="scheduling-rule-modal-manual-content"

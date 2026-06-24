@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReportDefaultsService } from 'src/app/domain/services/report/report-defaults.service';
@@ -13,7 +12,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 @Component({
   selector: 'app-report-defaults',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, SettingsListCardComponent],
+  imports: [FormsModule, TranslateModule, SettingsListCardComponent],
   templateUrl: './report-defaults.component.html',
   styleUrls: ['./report-defaults.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,7 +11,6 @@ import {
   viewChild,
   ChangeDetectorRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -39,7 +38,6 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   styleUrls: ['./identity-provider-row.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,

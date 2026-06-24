@@ -18,7 +18,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
@@ -50,7 +50,7 @@ import {
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
+  imports: [DecimalPipe, TranslateModule, FormsModule, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {

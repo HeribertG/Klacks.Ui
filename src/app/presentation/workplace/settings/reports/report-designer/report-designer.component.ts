@@ -9,7 +9,6 @@
  */
 
 import { Component, ChangeDetectionStrategy, inject, effect, input, model } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
@@ -48,7 +47,7 @@ interface FieldPaletteGroup {
   templateUrl: './report-designer.component.html',
   styleUrls: ['./report-designer.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent],
+  imports: [TranslateModule, FormsModule, CdkDrag, CdkDropList, PropertyGridComponent],
   providers: [ReportDesignerFieldService, ReportDesignerBorderService, ReportDesignerFormulaService, ReportDesignerImageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

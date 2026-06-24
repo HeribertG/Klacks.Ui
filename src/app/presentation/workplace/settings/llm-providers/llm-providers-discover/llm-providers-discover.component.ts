@@ -7,7 +7,6 @@
  */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, OnInit, computed, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
@@ -20,7 +19,7 @@ const MANUAL_NAME = 'llm-providers-manual';
 @Component({
   selector: 'app-llm-providers-discover',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './llm-providers-discover.component.html',
   styleUrls: ['./llm-providers-discover.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

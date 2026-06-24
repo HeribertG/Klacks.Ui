@@ -15,7 +15,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
@@ -27,7 +26,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
   templateUrl: './assistant-skill-proposals.component.html',
   styleUrls: ['./assistant-skill-proposals.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSkillProposalsComponent implements OnInit {

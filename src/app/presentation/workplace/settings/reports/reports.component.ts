@@ -2,7 +2,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject, DestroyRef, AfterViewInit, viewChildren, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -25,7 +24,6 @@ import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-l
   styleUrls: ['./reports.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     SettingsListCardComponent,
     ReportHeaderComponent,

@@ -6,7 +6,6 @@
  * compatibility check across all enabled models (latency + JSON-format compliance).
  */
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -18,7 +17,7 @@ import { HolisticHarmonizerModelCheckDto } from 'src/app/domain/models/holistic-
 @Component({
   selector: 'app-wizard-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule],
   templateUrl: './wizard-settings.component.html',
   styleUrls: ['./wizard-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

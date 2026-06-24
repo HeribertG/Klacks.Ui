@@ -11,7 +11,6 @@ import {
   signal,
   ChangeDetectorRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -67,7 +66,6 @@ interface AbsenceFormModel {
   styleUrls: ['./absence.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     FormField,
     TranslateModule,

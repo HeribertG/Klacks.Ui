@@ -28,7 +28,7 @@
           <a
             id="calendar-rules-modal-tab-form-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'form' }"
+            [class.active]="tabId() === 'form'"
             (click)="tabId.set('form')"
             >{{ 'setting.calendar-rule.tab-form' | translate }}</a
           >
@@ -37,7 +37,7 @@
           <a
             id="calendar-rules-modal-tab-help-link"
             class="nav-link"
-            [ngClass]="{ active: tabId() === 'help' }"
+            [class.active]="tabId() === 'help'"
             (click)="tabId.set('help')"
             >{{ 'setting.calendar-rule.tab-help' | translate }}</a
           >
@@ -45,7 +45,7 @@
       </ul>
     </div>
 
-    <form id="calendar-rules-modal-form" [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
+    <form id="calendar-rules-modal-form" [style.display]="tabId() === 'form' ? 'block' : 'none'">
       <div id="calendar-rules-modal-name-row" class="row-line">
         <label for="ruleName">{{ 'setting.holiday-rules.name' | translate }}</label>
         <input
@@ -167,7 +167,7 @@
     <div
       id="calendar-rules-modal-help-content"
       class="collapse tab-content-box"
-      [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+      [style.display]="tabId() === 'help' ? 'block' : 'none'"
     >
       <div
         id="calendar-rules-modal-manual-content"
