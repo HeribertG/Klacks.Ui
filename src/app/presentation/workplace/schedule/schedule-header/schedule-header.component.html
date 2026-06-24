@@ -99,6 +99,9 @@
         <button ngbDropdownItem (click)="onWizard4Click()">
           {{ "autoWizard.menu.backgroundOptimizer" | translate }}
         </button>
+        <button ngbDropdownItem (click)="onRecoveryClick()">
+          {{ "autoWizard.menu.recovery" | translate }}
+        </button>
       </div>
     </div>
   } @else {
@@ -124,6 +127,7 @@
 
   <app-holistic-harmonizer-dialog #holisticHarmonizerDialog />
   <app-wizard4-dialog #wizard4Dialog />
+  <app-recovery-dialog #recoveryDialog />
 
   <button
     id="schedule-pdf-export-btn"

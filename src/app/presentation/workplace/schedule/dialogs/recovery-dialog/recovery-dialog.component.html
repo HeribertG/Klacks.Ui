@@ -1,0 +1,52 @@
+<ng-template #recoveryModal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ 'recovery.dialog.title' | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="onClose()"></button>
+  </div>
+  <div class="modal-body">
+    <p class="recovery-description">{{ 'recovery.dialog.description' | translate }}</p>
+
+    <div class="mb-3">
+      <label class="form-label" for="recovery-client">{{ 'recovery.dialog.employee' | translate }}</label>
+      <select id="recovery-client" class="form-select" [(ngModel)]="selectedClientId">
+        <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
+        @for (client of clients(); track client.id) {
+          <option [value]="client.id">{{ clientLabel(client) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="recovery-date">{{ 'recovery.dialog.date' | translate }}</label>
+      <input id="recovery-date" type="date" class="form-control" [(ngModel)]="selectedDate" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="recovery-absence">{{ 'recovery.dialog.absenceType' | translate }}</label>
+      <select id="recovery-absence" class="form-select" [(ngModel)]="selectedAbsenceId">
+        <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
+        @for (absence of absences(); track absence.id) {
+          <option [value]="absence.id">{{ absenceLabel(absence) }}</option>
+        }
+      </select>
+    </div>
+
+    <p class="recovery-hint text-muted">{{ 'recovery.dialog.proposeOnlyHint' | translate }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="onClose()">
+      {{ 'recovery.dialog.close' | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!canSubmit()"
+      (click)="onSubmit()"
+    >
+      @if (isSubmitting()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'recovery.dialog.propose' | translate }}
+    </button>
+  </div>
+</ng-template>

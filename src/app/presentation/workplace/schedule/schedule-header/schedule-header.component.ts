@@ -51,6 +51,7 @@ import { WizardDialogComponent } from '../dialogs/wizard-dialog/wizard-dialog.co
 import { HarmonizerDialogComponent } from '../dialogs/harmonizer-dialog/harmonizer-dialog.component';
 import { HolisticHarmonizerDialogComponent } from '../dialogs/holistic-harmonizer-dialog/holistic-harmonizer-dialog.component';
 import { Wizard4DialogComponent } from '../dialogs/wizard4-dialog/wizard4-dialog.component';
+import { RecoveryDialogComponent } from '../dialogs/recovery-dialog/recovery-dialog.component';
 import {
   ModalService,
   ModalType,
@@ -113,6 +114,7 @@ const DEFAULT_ZOOM_VALUE = 100;
     HarmonizerDialogComponent,
     HolisticHarmonizerDialogComponent,
     Wizard4DialogComponent,
+    RecoveryDialogComponent,
     ScenarioSelectorComponent,
   ],
   providers: [],
@@ -130,6 +132,7 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   @ViewChild('holisticHarmonizerDialog')
   holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
   @ViewChild('wizard4Dialog') wizard4Dialog!: Wizard4DialogComponent;
+  @ViewChild('recoveryDialog') recoveryDialog!: RecoveryDialogComponent;
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -446,6 +449,10 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
 
   onWizard4Click(): void {
     this.wizard4Dialog.open();
+  }
+
+  onRecoveryClick(): void {
+    void this.recoveryDialog.open();
   }
 
   @HostListener('document:keydown', ['$event'])
