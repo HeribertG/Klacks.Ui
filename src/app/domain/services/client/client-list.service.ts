@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
+import { saveAs } from 'file-saver';
 import { DataClientService } from 'src/app/infrastructure/api/client/data-client.service';
 import {
   ITruncatedClient,
@@ -11,6 +12,7 @@ import {
   ExportClient,
   IClientAttribute,
 } from 'src/app/domain/models/client/client-class';
+import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -102,6 +104,32 @@ export class ClientListService {
       message: DomainMessages.PLEASE_BE_PATIENT_EXCEL,
       context: 'PLEASE_BE_PATIENT_EXCEL'
     });
+
+    this.dataClientService.exportList(filter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items) => this.generateAndDownloadCsv(items),
+        error: (err) => console.error('Client export failed:', err),
+      });
+  }
+
+  private generateAndDownloadCsv(items: IExportClientItem[]): void {
+    const header = ['Nr', 'Firma', 'Vorname', 'Name', 'Geburtsdatum', 'Typ'];
+    const rows = items.map((c) => [
+      c.idNumber,
+      c.company,
+      c.firstName,
+      c.name,
+      c.birthdate ? new Date(c.birthdate).toLocaleDateString('de-CH') : '',
+      c.type,
+    ]);
+
+    const csvLines = [header, ...rows].map((row) =>
+      row.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+    );
+    const csvContent = '﻿' + csvLines.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'clients.csv');
   }
 
   public clearCheckedArray() {

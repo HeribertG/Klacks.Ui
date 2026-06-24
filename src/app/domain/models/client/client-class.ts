@@ -37,6 +37,9 @@ export {
   ILastChangeMetaData,
   IExportClient,
   ExportClient,
+} from './index';
+export { IExportClientItem } from './i-export-client-item';
+export {
   IClientBreak,
   ClientBreak,
   MultiLanguage,

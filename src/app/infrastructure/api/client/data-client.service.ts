@@ -16,7 +16,9 @@ import {
   IClientAttribute,
   ILastChangeMetaData,
   IAddress,
+  IExportClient,
 } from 'src/app/domain/models/client/client-class';
+import { IExportClientItem } from 'src/app/domain/models/client/i-export-client-item';
 import { IAddressValidationResult } from 'src/app/domain/models/client/i-address-validation-result';
 
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
@@ -151,6 +153,15 @@ export class DataClientService {
       .post<IAddressValidationResult>(
         `${environment.baseUrl}Addresses/Validate`,
         { street: address.street, zip: address.zip, city: address.city, state: address.state, country: address.country },
+      )
+      .pipe();
+  }
+
+  exportList(filter: IExportClient) {
+    return this.httpClient
+      .post<IExportClientItem[]>(
+        `${environment.baseUrl}Clients/ExportList`,
+        filter,
       )
       .pipe();
   }
