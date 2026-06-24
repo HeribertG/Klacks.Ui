@@ -65,7 +65,7 @@ export class DataUpdateService {
     return this.httpClient.get<IUpdateStatus>(`${this.baseUrl}/Status`).pipe(retry(3));
   }
 
-  getHistory(take = 20): Observable<IUpdateHistoryItem[]> {
+  getHistory(take = 10): Observable<IUpdateHistoryItem[]> {
     return this.httpClient.get<IUpdateHistoryItem[]>(`${this.baseUrl}/History?take=${take}`).pipe(retry(3));
   }
 
