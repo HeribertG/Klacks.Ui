@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, OnInit, inject,
+import { Component, OnInit, inject, signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -30,15 +30,15 @@ interface OAuth2Token extends MyToken {
   template: `
     <div class="oauth2-callback-container">
       <div class="spinner-container">
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
           <p class="mt-3">{{ 'login.oauth2.processing' | translate }}</p>
         }
-        @if (error) {
+        @if (error()) {
           <div class="alert alert-danger" role="alert">
-            {{ error }}
+            {{ error() }}
           </div>
           <button class="btn btn-primary mt-3" (click)="navigateToLogin()">
             {{ 'login.oauth2.back-to-login' | translate }}
@@ -77,16 +77,16 @@ export class OAuth2CallbackComponent implements OnInit {
   private readonly syncNotificationService = inject(DataSyncNotificationService);
   private readonly authorizationService = inject(AuthorizationService);
 
-  isLoading = true;
-  error: string | null = null;
+  isLoading = signal(true);
+  error = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
     const errorParam = this.route.snapshot.queryParamMap.get('error');
     const errorDescription = this.route.snapshot.queryParamMap.get('error_description');
 
     if (errorParam) {
-      this.error = errorDescription || errorParam;
-      this.isLoading = false;
+      this.error.set(errorDescription || errorParam);
+      this.isLoading.set(false);
       return;
     }
 
@@ -94,8 +94,8 @@ export class OAuth2CallbackComponent implements OnInit {
     const state = this.route.snapshot.queryParamMap.get('state');
 
     if (!code || !state) {
-      this.error = 'Missing code or state parameter';
-      this.isLoading = false;
+      this.error.set('Missing code or state parameter');
+      this.isLoading.set(false);
       return;
     }
 
@@ -103,8 +103,8 @@ export class OAuth2CallbackComponent implements OnInit {
     const savedRedirectUri = this.localStorageService.get('oauth2_redirect_uri');
 
     if (savedState !== state) {
-      this.error = 'Invalid state parameter';
-      this.isLoading = false;
+      this.error.set('Invalid state parameter');
+      this.isLoading.set(false);
       return;
     }
 
@@ -127,13 +127,13 @@ export class OAuth2CallbackComponent implements OnInit {
         this.navigationService.navigateAfterLogin();
         void this.syncNotificationService.checkAndShow();
       } else {
-        this.error = 'Login failed';
-        this.isLoading = false;
+        this.error.set('Login failed');
+        this.isLoading.set(false);
       }
     } catch (err) {
       console.error('OAuth2 callback error:', err);
-      this.error = 'Authentication failed';
-      this.isLoading = false;
+      this.error.set('Authentication failed');
+      this.isLoading.set(false);
     }
   }
 

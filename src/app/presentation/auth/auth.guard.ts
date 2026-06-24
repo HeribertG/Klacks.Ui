@@ -1,29 +1,21 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+/**
+ * Guard that protects routes requiring authentication and authorization.
+ */
+import { inject } from '@angular/core';
+import { CanActivateFn, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './auth.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthGuard {
-  private navigationService = inject(NavigationService);
-  private authService = inject(AuthService);
+export const AuthGuard: CanActivateFn = (_route, state: RouterStateSnapshot) => {
+  const authService = inject(AuthService);
+  const navigationService = inject(NavigationService);
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    if (
-      this.authService.authenticated() &&
-      this.authService.isAuthorised(state.url)
-    ) {
-      return true;
-    } else {
-      this.navigationService.redirectToLogin(state.url);
-      return false;
-    }
+  if (authService.authenticated() && authService.isAuthorised(state.url)) {
+    return true;
   }
-}
+
+  navigationService.redirectToLogin(state.url);
+  return false;
+};

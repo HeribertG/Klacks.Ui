@@ -1,11 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ChangeDetectorRef, EventEmitter, OnDestroy, Output, inject, ChangeDetectionStrategy } from '@angular/core';
-
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+/**
+ * Component for uploading, displaying, and deleting the user's profile picture.
+ */
+import { Component, ChangeDetectorRef, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -21,21 +19,11 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './profile-picture.component.html',
   styleUrls: ['./profile-picture.component.scss'],
   standalone: true,
-  imports: [
-    FormsModule,
-    RouterModule,
-    NgbModule,
-    SpinnerModule,
-    TranslateModule,
-    FontAwesomeModule
-],
+  imports: [SpinnerModule, TranslateModule, FontAwesomeModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePictureComponent implements OnDestroy {
-  @Output() isChangingEvent = new EventEmitter();
-
   selectedFile: File | undefined = undefined;
-  profileImage: any;
 
   public dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
@@ -49,12 +37,9 @@ export class ProfilePictureComponent implements OnDestroy {
 
   private upload(): void {
     const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
-
     if (id) {
       const ext = getFileExtension(this.selectedFile!.name);
-
-      const filename =
-        ext !== null && ext.length > 0 ? `${id}profile.` + ext : `${id}profile`;
+      const filename = ext !== null && ext.length > 0 ? `${id}profile.` + ext : `${id}profile`;
       const fd = new FormData();
       fd.append('file', this.selectedFile!, filename);
 
@@ -75,26 +60,26 @@ export class ProfilePictureComponent implements OnDestroy {
 
   onDeleteImg(): void {
     const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
-
     if (id) {
-      const type = `${id}profile`;
-      this.dataLoadFileService.deleteFile(type);
+      this.dataLoadFileService.deleteFile(`${id}profile`);
     }
   }
 
-  onUpload(event: any): void {
-    this.selectedFile = event[0] as File;
+  onUpload(files: unknown): void {
+    this.selectedFile = (files as FileList)[0];
     this.upload();
   }
 
-  onUpload1(event: any): void {
-    this.selectedFile = event.target.files[0] as File;
-    this.upload();
+  onUpload1(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFile = input.files[0];
+      this.upload();
+    }
   }
 
   private tryLoadProfileImage(): void {
     const id = this.localStorageService.get(StorageKeys.TOKEN_USERID);
-    const imgId = `${id}profile`;
-    this.dataLoadFileService.downLoadFile(imgId);
+    this.dataLoadFileService.downLoadFile(`${id}profile`);
   }
 }

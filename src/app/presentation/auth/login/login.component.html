@@ -16,18 +16,17 @@
         type="email"
         class="form-control"
         id="resetEmail"
-        [(ngModel)]="resetEmail"
+        [ngModel]="resetEmail()"
+        (ngModelChange)="resetEmail.set($event)"
         name="resetEmail"
         [placeholder]="'auth.forgot-password.email-placeholder' | translate"
-        required
-        email
       />
     </div>
-    @if (resetEmailSent) {
+    @if (resetEmailSent()) {
     <div class="alert alert-success mt-3" role="alert">
       {{ "auth.forgot-password.success" | translate }}
     </div>
-    } @if (resetEmailError) {
+    } @if (resetEmailError()) {
     <div class="alert alert-danger mt-3" role="alert">
       {{ "auth.forgot-password.error" | translate }}
     </div>
@@ -45,9 +44,9 @@
       type="button"
       class="btn btn-primary"
       (click)="sendResetEmail()"
-      [disabled]="!resetEmail || resetEmailSending"
+      [disabled]="!resetEmail() || resetEmailSending()"
     >
-      @if (resetEmailSending) {
+      @if (resetEmailSending()) {
       <span
         class="spinner-border spinner-border-sm me-2"
         role="status"
@@ -55,7 +54,7 @@
       ></span>
       }
       {{
-        resetEmailSending
+        resetEmailSending()
           ? ("auth.forgot-password.sending" | translate)
           : ("auth.forgot-password.send-button" | translate)
       }}
@@ -64,9 +63,9 @@
 </ng-template>
 
 <div class="background">
-  @if (!isClicked) {
+  @if (!isClicked()) {
   <div class="container first border-right border-bottom">
-    <form (ngSubmit)="onSave()" #loginForm="ngForm">
+    <form (ngSubmit)="onSave()">
       <p class="h4 big-gap-top center">{{ "login.header" | translate }}</p>
 
       <div class="form-group first big-gap-top">
@@ -75,11 +74,9 @@
         }}</label>
         <input
           type="email"
-          [(ngModel)]="username"
-          name="username"
           class="form-control"
           id="loginForm-name"
-          required
+          [formField]="loginForm.username"
           aria-describedby="username"
         />
       </div>
@@ -90,7 +87,8 @@
             "login.password" | translate
           }}</label>
           <app-password-input
-            [(value)]="password"
+            [value]="loginFormModel().password"
+            (valueChange)="updatePassword($event)"
             inputId="loginForm-password"
             inputClass="input-password"
           />
@@ -120,20 +118,20 @@
         </button>
       </div>
 
-      @if (oauth2Providers.length > 0) {
+      @if (oauth2Providers().length > 0) {
         <div class="oauth2-divider">
           <span>{{ "login.oauth2.or" | translate }}</span>
         </div>
 
         <div class="oauth2-providers">
-          @for (provider of oauth2Providers; track provider.id) {
+          @for (provider of oauth2Providers(); track provider.id) {
             <button
               type="button"
               class="btn btn-outline-secondary oauth2-btn"
               (click)="loginWithOAuth2(provider)"
-              [disabled]="oauth2Loading"
+              [disabled]="oauth2Loading()"
             >
-              @if (oauth2Loading) {
+              @if (oauth2Loading()) {
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
               }
               {{ provider.name }}

@@ -120,9 +120,9 @@ describe('LoginComponent', () => {
     });
 
     it('should initialize with default values', () => {
-        expect(component.username).toBe('');
-        expect(component.password).toBe('');
-        expect(component.isClicked).toBe(false);
+        expect(component.loginFormModel().username).toBe('');
+        expect(component.loginFormModel().password).toBe('');
+        expect(component.isClicked()).toBe(false);
     });
 
     it('should set default language on ngOnInit', () => {
@@ -151,15 +151,7 @@ describe('LoginComponent', () => {
     });
 
     it('should handle successful login', async () => {
-        component.username = 'testuser';
-        component.password = 'testpass';
-
-        // Mock the loginForm
-        component.loginForm = {
-            form: {
-                valid: true,
-            },
-        } as any;
+        component.loginFormModel.update(m => ({ ...m, username: 'testuser', password: 'testpass' }));
 
         authService.logIn.mockReturnValue(Promise.resolve(true));
 
@@ -168,19 +160,11 @@ describe('LoginComponent', () => {
         expect(authService.logIn).toHaveBeenCalledWith('testuser', 'testpass');
         expect(navigationService.navigateAfterLogin).toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
-        expect(component.isClicked).toBe(false);
+        expect(component.isClicked()).toBe(false);
     });
 
     it('should handle failed login', async () => {
-        component.username = 'testuser';
-        component.password = 'wrongpass';
-
-        // Mock the loginForm
-        component.loginForm = {
-            form: {
-                valid: true,
-            },
-        } as any;
+        component.loginFormModel.update(m => ({ ...m, username: 'testuser', password: 'wrongpass' }));
 
         authService.logIn.mockReturnValue(Promise.resolve(false));
 
@@ -189,23 +173,18 @@ describe('LoginComponent', () => {
         expect(authService.logIn).toHaveBeenCalledWith('testuser', 'wrongpass');
         expect(navigationService.navigateAfterLogin).not.toHaveBeenCalled();
         expect(authorizationService.refresh).toHaveBeenCalled();
-        expect(component.isClicked).toBe(false);
+        expect(component.isClicked()).toBe(false);
     });
 
     it('should set isClicked to true during login process', async () => {
-        // Mock the loginForm
-        component.loginForm = {
-            form: {
-                valid: true,
-            },
-        } as any;
+        component.loginFormModel.update(m => ({ ...m, username: 'testuser', password: 'testpass' }));
 
         authService.logIn.mockReturnValue(Promise.resolve(true));
 
         const savePromise = component.onSave();
-        expect(component.isClicked).toBe(true);
+        expect(component.isClicked()).toBe(true);
 
         await savePromise;
-        expect(component.isClicked).toBe(false);
+        expect(component.isClicked()).toBe(false);
     });
 });

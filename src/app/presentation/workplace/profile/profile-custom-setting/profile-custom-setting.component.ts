@@ -1,12 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ChangeDetectorRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-
-import { FormsModule } from '@angular/forms';
+/**
+ * Settings card for selecting the application theme and display language.
+ */
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-
 import { Language } from 'src/app/domain/models/settings/language-config';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
@@ -21,29 +19,28 @@ import { LanguageConfigService } from 'src/app/application/services/language-con
   templateUrl: './profile-custom-setting.component.html',
   styleUrls: ['./profile-custom-setting.component.scss'],
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslateModule,
-    NgbModule,
-    SpinnerModule
-],
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileCustomSettingComponent implements OnInit {
-  selectedTheme: ThemeMode = 'light';
-  themes = AVAILABLE_THEMES;
+export class ProfileCustomSettingComponent {
+  public selectedTheme = signal<ThemeMode>('light');
+  public selectedLanguage = signal<Language>(DomainMessages.DEFAULT_LANG);
+  public readonly themes = AVAILABLE_THEMES;
 
-  selectedLanguage: Language = DomainMessages.DEFAULT_LANG;
-
-  public translate = inject(TranslateService);
-  private translateStringConstantsService = inject(
-    TranslateStringConstantsService
-  );
+  private translateService = inject(TranslateService);
+  private translateStringConstantsService = inject(TranslateStringConstantsService);
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
   private themeService = inject(ThemeService);
   private languageConfigService = inject(LanguageConfigService);
-  private cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    const savedLang = this.localStorageService.get(StorageKeys.CURRENT_LANG);
+    if (savedLang) {
+      this.onChangeLanguage(savedLang);
+    }
+    this.selectedTheme.set(this.themeService.getCurrentTheme());
+  }
 
   get languages(): Language[] {
     return this.languageConfigService.getSupportedLanguages() as Language[];
@@ -53,38 +50,17 @@ export class ProfileCustomSettingComponent implements OnInit {
     return this.languageConfigService.getDisplayName(lang);
   }
 
-  ngOnInit(): void {
-    const lang =
-      this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
-
-    if (lang) {
-      this.onChangeLanguage(
-        this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
-      );
-    }
-    this.initTheme();
-  }
-
-  onChange() {
-    setTimeout(() => {
-      this.onChangeLanguage(this.selectedLanguage);
-      this.cdr.markForCheck();
-    }, 100);
-  }
-
-  onChangeLanguage(lang: string) {
-    this.selectedLanguage = lang as Language;
-    this.translate.use(lang);
+  onChangeLanguage(lang: string): void {
+    this.selectedLanguage.set(lang as Language);
+    this.translateService.use(lang);
     this.localStorageService.set(StorageKeys.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang);
   }
 
-  onThemeChanged(): void {
-    this.themeService.setTheme(this.selectedTheme);
-  }
-
-  private initTheme(): void {
-    this.selectedTheme = this.themeService.getCurrentTheme();
+  onThemeChanged(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value as ThemeMode;
+    this.selectedTheme.set(value);
+    this.themeService.setTheme(value);
   }
 }

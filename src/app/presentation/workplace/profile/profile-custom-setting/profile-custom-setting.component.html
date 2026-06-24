@@ -14,8 +14,8 @@
       <select
         class="form-select lang-select"
         id="profile-custom-setting-theme-select"
-        [ngModel]="selectedTheme"
-        (ngModelChange)="selectedTheme = $event; onThemeChanged()"
+        [value]="selectedTheme()"
+        (change)="onThemeChanged($event)"
       >
         @for (theme of themes; track theme.value) {
           <option [value]="theme.value">
@@ -33,8 +33,8 @@
       <select
         class="form-select lang-select"
         id="profile-custom-setting-language-select"
-        [ngModel]="selectedLanguage"
-        (ngModelChange)="onChange(); selectedLanguage = $event"
+        [value]="selectedLanguage()"
+        (change)="onChangeLanguage($any($event.target).value)"
       >
         @for (language of languages; track language) {
           <option [value]="language">

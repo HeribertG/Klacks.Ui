@@ -5,7 +5,7 @@
 
   <div class="container-line"></div>
 
-  <form #clientForm="ngForm" id="profile-data-edit-form" autocomplete="off">
+  <div id="profile-data-edit-form">
     <div class="row-line">
       <div class="form-group firstColumn">
         <label for="profile-data-edit-username">{{
@@ -13,13 +13,9 @@
         }}</label>
         <input
           type="text"
-          AutoCompleteType="Disabled"
-          [(ngModel)]="
-            dataManagementProfileService.changePasswordWrapper!.userName
-          "
-          name="userName"
           class="form-control"
           id="profile-data-edit-username"
+          [value]="dataManagementProfileService.changePasswordWrapper!.userName"
           readonly
         />
       </div>
@@ -31,9 +27,9 @@
           "setting.data-edit.current-password" | translate
         }}</label>
         <app-password-input
-          [(value)]="dataManagementProfileService.changePasswordWrapper!.oldPassword"
+          [value]="pwForm.oldPassword().value()"
+          (valueChange)="pwForm.oldPassword().value.set($event)"
           inputId="profile-data-edit-old-password"
-          (valueChange)="onChange()"
         />
       </div>
     </div>
@@ -45,22 +41,16 @@
         }}</label>
         <input
           type="password"
-          (change)="onChange()"
-          (keyup)="onKeyUp()"
-          [(ngModel)]="
-            dataManagementProfileService.changePasswordWrapper!.password
-          "
-          name="newPassword"
           class="form-control"
           id="profile-data-edit-new-password"
+          [formField]="pwForm.newPassword"
+          (keyup)="onKeyUp()"
         />
         <span
           id="profile-data-edit-password-strength"
-          [ngClass]="{
-            weak: passwordStrengthFlag === false,
-            strong: passwordStrengthFlag === true
-          }"
-          >{{ passwordStrength }}</span
+          [class.weak]="!passwordStrengthFlag()"
+          [class.strong]="passwordStrengthFlag()"
+          >{{ passwordStrength() }}</span
         >
       </div>
     </div>
@@ -72,15 +62,11 @@
         }}</label>
         <input
           type="password"
-          (change)="onChange()"
-          (keyup)="onChange()"
-          [disabled]="passwordStrengthFlag === false"
-          [(ngModel)]="newPassword1"
-          name="newPassword1"
           class="form-control"
           id="profile-data-edit-new-password-repeat"
+          [formField]="pwForm.repeatPassword"
         />
       </div>
     </div>
-  </form>
+  </div>
 </div>

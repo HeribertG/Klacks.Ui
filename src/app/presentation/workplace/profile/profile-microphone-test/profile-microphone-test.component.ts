@@ -13,8 +13,6 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -39,7 +37,7 @@ interface TestResult {
 @Component({
   selector: 'app-profile-microphone-test',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FontAwesomeModule, RefreshButtonComponent],
+  imports: [TranslateModule, FontAwesomeModule, RefreshButtonComponent],
   templateUrl: './profile-microphone-test.component.html',
   styleUrls: ['./profile-microphone-test.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -98,7 +96,8 @@ export class ProfileMicrophoneTestComponent implements OnInit, OnDestroy {
     this.disposePlayback();
   }
 
-  onDeviceChange(value: string): void {
+  onDeviceChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
     this.micSelection.selectDevice(value === '' ? null : value);
   }
 

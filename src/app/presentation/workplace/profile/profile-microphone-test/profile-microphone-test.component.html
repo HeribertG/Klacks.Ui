@@ -20,8 +20,8 @@
         <select
           id="mic-device-picker"
           class="form-control"
-          [ngModel]="selectedDeviceId() ?? ''"
-          (ngModelChange)="onDeviceChange($event)"
+          [value]="selectedDeviceId() ?? ''"
+          (change)="onDeviceChange($event)"
         >
           <option value="">
             {{

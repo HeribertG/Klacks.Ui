@@ -1,38 +1,45 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Login page component with credential login and optional OAuth2 provider support.
+ * @param loginFormModel - Signal holding username and password form values
+ */
 import {
   AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  TemplateRef,
   ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { AuthService } from '../auth.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DomainMessages } from 'src/app/domain/constants/messages';
-import { StorageKeys } from 'src/app/domain/constants/storage-keys';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
-import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
-
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { RouterModule } from '@angular/router';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
-import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/domain/constants/storage-keys';
+import { DataSyncNotificationService } from 'src/app/infrastructure/api/assistant/data-sync-notification.service';
+import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
+import { UserAdministrationService } from 'src/app/infrastructure/api/settings/user-administration.service';
+import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistant-signalr.service';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { PasswordInputComponent } from 'src/app/presentation/shared/password-input/password-input.component';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { AuthService } from '../auth.service';
+
+interface LoginFormModel {
+  username: string;
+  password: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -41,17 +48,17 @@ import { AuthorizationService } from 'src/app/application/services/authorization
   standalone: true,
   imports: [
     FormsModule,
+    FormField,
     TranslateModule,
     RouterModule,
     PasswordInputComponent,
-    NgbModule
-],
+    NgbModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LoginComponent implements OnInit, AfterViewInit {
   @ViewChild('forgotPasswordModal', { read: TemplateRef })
   forgotPasswordModal!: TemplateRef<any>;
-  @ViewChild('loginForm', { static: false }) loginForm!: NgForm;
 
   private auth = inject(AuthService);
   private localStorageService = inject(LocalStorageService);
@@ -63,32 +70,25 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private signalRService = inject(SignalRService);
   private assistantSignalRService = inject(AssistantSignalRService);
   private dataOAuth2Service = inject(DataOAuth2Service);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly syncNotificationService = inject(DataSyncNotificationService);
   private readonly authorizationService = inject(AuthorizationService);
 
-  private destroy$ = new Subject<void>();
+  public loginFormModel = signal<LoginFormModel>({ username: '', password: '' });
+  public loginForm = form(this.loginFormModel);
 
-  public currentLang = StorageKeys.CURRENT_LANG;
-  public isClicked = false;
-  public password = '';
-  public token = '';
-  public username = '';
-
-  public resetEmail = '';
-  public resetEmailSent = false;
-  public resetEmailError = false;
-  public resetEmailSending = false;
-
-  public oauth2Providers: OAuth2Provider[] = [];
-  public oauth2Loading = false;
+  public isClicked = signal(false);
+  public resetEmail = signal('');
+  public resetEmailSent = signal(false);
+  public resetEmailError = signal(false);
+  public resetEmailSending = signal(false);
+  public oauth2Providers = signal<OAuth2Provider[]>([]);
+  public oauth2Loading = signal(false);
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(DomainMessages.DEFAULT_LANG);
 
-    const lang =
-      this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
-
+    const lang = this.localStorageService.get(StorageKeys.CURRENT_LANG) !== null;
     if (lang) {
       this.translateService.use(
         this.localStorageService.get(StorageKeys.CURRENT_LANG) as string
@@ -99,21 +99,19 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadOAuth2Providers(): void {
-    this.dataOAuth2Service.getProviders()
-      .pipe(takeUntil(this.destroy$))
+    this.dataOAuth2Service
+      .getProviders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (providers) => {
-          this.oauth2Providers = providers;
-          this.cdr.markForCheck();
+          this.oauth2Providers.set(providers);
         },
-        error: (err) => {
-          console.error('Error loading OAuth2 providers:', err);
-        }
+        error: () => {},
       });
   }
 
   loginWithOAuth2(provider: OAuth2Provider): void {
-    this.oauth2Loading = true;
+    this.oauth2Loading.set(true);
     // Use 127.0.0.1 instead of localhost for Synology SSO compatibility
     let origin = window.location.origin;
     if (origin.includes('localhost')) {
@@ -121,19 +119,19 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     const redirectUri = origin + '/oauth2/callback';
 
-    this.dataOAuth2Service.authorize(provider.id, redirectUri)
-      .pipe(takeUntil(this.destroy$))
+    this.dataOAuth2Service
+      .authorize(provider.id, redirectUri)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.localStorageService.set('oauth2_state', response.state);
           this.localStorageService.set('oauth2_redirect_uri', redirectUri);
           window.location.href = response.authorizationUrl;
         },
-        error: (err) => {
-          console.error('Error initiating OAuth2 login:', err);
+        error: () => {
           this.toastService.showError('', 'login.oauth2.error');
-          this.oauth2Loading = false;
-        }
+          this.oauth2Loading.set(false);
+        },
       });
   }
 
@@ -142,22 +140,22 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onSave(): Promise<void> {
-    if (!this.loginForm.form.valid) {
+    const { username, password } = this.loginFormModel();
+    if (!username || !password) {
       this.toastService.showError('', 'common.form-validation-errors');
       return;
     }
 
-    this.isClicked = true;
+    this.isClicked.set(true);
 
-    if (await this.auth.logIn(this.username, this.password)) {
+    if (await this.auth.logIn(username, password)) {
       this.signalRService.resetAuthFailure();
       this.signalRService.startConnection();
       this.assistantSignalRService.startConnection();
       this.navigationService.navigateAfterLogin();
-      this.isClicked = false;
-    } else {
-      this.isClicked = false;
     }
+
+    this.isClicked.set(false);
     this.authorizationService.refresh();
     if (this.auth.isAdminUser()) {
       void this.syncNotificationService.checkAndShow();
@@ -165,10 +163,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onForgotPassword(): void {
-    this.resetEmail = this.username || '';
-    this.resetEmailSent = false;
-    this.resetEmailError = false;
-    this.resetEmailSending = false;
+    this.resetEmail.set(this.loginFormModel().username);
+    this.resetEmailSent.set(false);
+    this.resetEmailError.set(false);
+    this.resetEmailSending.set(false);
 
     this.modalService.open(this.forgotPasswordModal, {
       size: 'md',
@@ -179,38 +177,37 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   sendResetEmail(): void {
-    if (!this.resetEmail || this.resetEmailSending) {
+    if (!this.resetEmail() || this.resetEmailSending()) {
       return;
     }
 
-    this.resetEmailSending = true;
-    this.resetEmailSent = false;
-    this.resetEmailError = false;
+    this.resetEmailSending.set(true);
+    this.resetEmailSent.set(false);
+    this.resetEmailError.set(false);
 
     this.userAdministrationService
-      .requestPasswordReset(this.resetEmail)
-      .pipe(takeUntil(this.destroy$))
+      .requestPasswordReset(this.resetEmail())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.resetEmailSending = false;
-          this.resetEmailSent = true;
+          this.resetEmailSending.set(false);
+          this.resetEmailSent.set(true);
           this.toastService.showInfo('', 'auth.forgot-password.success');
 
           setTimeout(() => {
             this.modalService.dismissAll();
-            this.resetEmail = '';
+            this.resetEmail.set('');
           }, 3000);
         },
         error: () => {
-          this.resetEmailSending = false;
-          this.resetEmailError = true;
+          this.resetEmailSending.set(false);
+          this.resetEmailError.set(true);
           this.toastService.showInfo('', 'auth.forgot-password.error');
         },
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  updatePassword(value: string): void {
+    this.loginFormModel.update(m => ({ ...m, password: value }));
   }
 }
