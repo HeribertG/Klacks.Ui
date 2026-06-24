@@ -5,14 +5,11 @@
  * @param toastService - Injected service providing the toast array
  */
 
-import { Component, TemplateRef, inject, signal,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import { ToastService } from './toast.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastService } from './toast.service';
 import { IToast } from './toast.interface';
 
 @Component({
@@ -40,9 +37,10 @@ import { IToast } from './toast.interface';
       <div class="mt-2">
         <textarea
           class="form-control form-control-sm"
-          [ngModel]="toast.textFieldValue"
+          [value]="toast.textFieldValue || ''"
           [rows]="calculateRows(toast.textFieldValue || '')"
           style="resize: none; overflow: hidden;"
+          readonly
         ></textarea>
       </div>
       }
@@ -125,14 +123,14 @@ import { IToast } from './toast.interface';
     style: 'z-index: 1200',
   },
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbToastModule, TranslateModule],
+  imports: [NgTemplateOutlet, NgbToastModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastsContainerComponent {
-  toastService = inject(ToastService);
+  readonly toastService = inject(ToastService);
 
-  private checkedState = signal<Map<string, Set<string>>>(new Map());
-  private dateState = signal<Map<string, string>>(new Map());
+  private readonly checkedState = signal<Map<string, Set<string>>>(new Map());
+  private readonly dateState = signal<Map<string, string>>(new Map());
 
   calculateRows(text: string): number {
     if (!text || text.length === 0) return 1;

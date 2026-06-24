@@ -16,7 +16,7 @@ import { IToast } from './toast.interface';
 export class ToastService {
   private idCounter = 0;
 
-  toasts = signal<IToast[]>([]);
+  readonly toasts = signal<IToast[]>([]);
 
   show(textOrTpl: string, options: Partial<IToast> = {}): IToast | null {
     if (textOrTpl === '') return null;

@@ -24,7 +24,7 @@ const INTERACTIVE_REPLY_DEFAULTS = {
   providedIn: 'root',
 })
 export class ToastShowService {
-  private toastService = inject(ToastService);
+  private readonly toastService = inject(ToastService);
 
   showInfo(message: string, infoName = '', additionalMessage = '', icon = ''): void {
     if (infoName) {
