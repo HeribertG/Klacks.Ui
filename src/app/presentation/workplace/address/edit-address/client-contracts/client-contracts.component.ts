@@ -57,9 +57,9 @@ export class ClientContractsComponent implements OnInit {
   public faTimes = faTimes;
   public contracts: IContract[] = [];
   public sortedContracts: IClientContract[] = [];
-  public contractValidationState: Map<number, boolean | undefined> = new Map();
-  public contractFromDateValidationState: Map<number, boolean | undefined> =
-    new Map();
+  public contractValidationState = new Map<number, boolean | undefined>();
+  public contractFromDateValidationState =
+    new Map<number, boolean | undefined>();
   public hasAtLeastOneActive = true;
   public hasValidContracts = false;
 

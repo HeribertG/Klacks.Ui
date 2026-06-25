@@ -58,9 +58,9 @@ export class ClientGroupsComponent implements OnInit {
   public faCalendar = faCalendar;
   public highlightRowId: string | undefined = undefined;
 
-  public groupValidationState: Map<number, boolean | undefined> = new Map();
-  public groupFromDateValidationState: Map<number, boolean | undefined> =
-    new Map();
+  public groupValidationState = new Map<number, boolean | undefined>();
+  public groupFromDateValidationState =
+    new Map<number, boolean | undefined>();
 
   public groupValidFromValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();
   public groupValidUntilValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();

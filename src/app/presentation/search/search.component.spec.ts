@@ -14,7 +14,7 @@ describe('SearchComponent', () => {
     let component: SearchComponent;
     let fixture: ComponentFixture<SearchComponent>;
     let searchStrategyService: any;
-    let workplaceStateService: any;
+    let _workplaceStateService: any;
     let searchService: any;
 
     beforeEach(async () => {
@@ -54,7 +54,7 @@ describe('SearchComponent', () => {
         component = fixture.componentInstance;
 
         searchStrategyService = TestBed.inject(SearchStrategyService) as any;
-        workplaceStateService = TestBed.inject(WorkplaceStateService) as any;
+        _workplaceStateService = TestBed.inject(WorkplaceStateService) as any;
         searchService = TestBed.inject(SearchService) as any;
     });
 
