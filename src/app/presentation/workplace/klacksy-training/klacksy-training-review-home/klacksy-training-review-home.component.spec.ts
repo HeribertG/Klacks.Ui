@@ -1,13 +1,26 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { KlacksyTrainingReviewHomeComponent } from './klacksy-training-review-home.component';
+import { KlacksyTrainingService } from '../../../../core/services/klacksy-training.service';
 
 describe('KlacksyTrainingReviewHomeComponent', () => {
   let fixture: ComponentFixture<KlacksyTrainingReviewHomeComponent>;
+
+  // Stub the training service so the rendered tab children (review/feedback/metrics) never make real HTTP
+  // calls in their ngOnInit. Without this the spec leaks fetches to /admin/klacksy-training/* which pollute
+  // the worker and fail unrelated tests downstream.
+  const trainingServiceStub = {
+    listTargets: () => of([]),
+    listFeedback: () => of([]),
+    updateSynonyms: () => of(true),
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [KlacksyTrainingReviewHomeComponent, TranslateModule.forRoot()]
+      imports: [KlacksyTrainingReviewHomeComponent, TranslateModule.forRoot()],
+      providers: [{ provide: KlacksyTrainingService, useValue: trainingServiceStub }]
     });
     fixture = TestBed.createComponent(KlacksyTrainingReviewHomeComponent);
   });
