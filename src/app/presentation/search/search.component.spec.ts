@@ -157,10 +157,14 @@ describe('SearchComponent', () => {
 
     it('should bind searchString to search input', async () => {
         searchService.showSearch.mockReturnValue(true);
+        // Flush the init effect that restores the persisted search first; otherwise it clobbers the value set
+        // below (signal migration: searchString is restored from searchStrategyService on first change detection).
+        fixture.detectChanges();
         component.searchString.set('test value');
 
         fixture.detectChanges();
         await fixture.whenStable();
+        fixture.detectChanges();
 
         const searchInput = fixture.nativeElement.querySelector('app-search-input input') as HTMLInputElement;
         expect(searchInput.value).toBe('test value');
