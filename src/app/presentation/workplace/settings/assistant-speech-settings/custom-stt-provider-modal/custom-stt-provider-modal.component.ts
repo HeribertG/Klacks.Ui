@@ -12,17 +12,27 @@ import {
   OnInit,
   input,
   output,
+  signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { CustomSttProvider } from 'src/app/infrastructure/api/assistant/data-custom-stt-provider.service';
+
+interface CustomSttProviderFormModel {
+  name: string;
+  connectionType: string;
+  apiUrl: string;
+  apiKey: string;
+  languageModel: string;
+  isEnabled: boolean;
+}
 
 @Component({
   selector: 'app-custom-stt-provider-modal',
   templateUrl: './custom-stt-provider-modal.component.html',
   styleUrls: ['./custom-stt-provider-modal.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormField],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomSttProviderModalComponent implements OnInit {
@@ -30,37 +40,43 @@ export class CustomSttProviderModalComponent implements OnInit {
   providerSaved = output<CustomSttProvider>();
   dismissed = output<void>();
 
-  name = '';
-  connectionType = 'rest';
-  apiUrl = '';
-  apiKey = '';
-  languageModel = '';
-  isEnabled = false;
+  private readonly formModel = signal<CustomSttProviderFormModel>({
+    name: '',
+    connectionType: 'rest',
+    apiUrl: '',
+    apiKey: '',
+    languageModel: '',
+    isEnabled: false,
+  });
+  protected readonly providerForm = form(this.formModel);
 
   ngOnInit(): void {
     const p = this.provider();
     if (p) {
-      this.name = p.name;
-      this.connectionType = p.connectionType;
-      this.apiUrl = p.apiUrl;
-      this.apiKey = '';
-      this.languageModel = p.languageModel ?? '';
-      this.isEnabled = p.isEnabled;
+      this.formModel.set({
+        name: p.name,
+        connectionType: p.connectionType,
+        apiUrl: p.apiUrl,
+        apiKey: '',
+        languageModel: p.languageModel ?? '',
+        isEnabled: p.isEnabled,
+      });
     }
   }
 
   onSave(): void {
-    if (!this.name.trim() || !this.apiUrl.trim()) return;
+    const model = this.formModel();
+    if (!model.name.trim() || !model.apiUrl.trim()) return;
 
     const existing = this.provider();
     this.providerSaved.emit({
       id: existing?.id ?? '',
-      name: this.name,
-      connectionType: this.connectionType,
-      apiUrl: this.apiUrl,
-      apiKey: this.apiKey || null,
-      languageModel: this.languageModel || null,
-      isEnabled: this.isEnabled,
+      name: model.name,
+      connectionType: model.connectionType,
+      apiUrl: model.apiUrl,
+      apiKey: model.apiKey || null,
+      languageModel: model.languageModel || null,
+      isEnabled: model.isEnabled,
       isSystem: existing?.isSystem ?? false,
     });
   }

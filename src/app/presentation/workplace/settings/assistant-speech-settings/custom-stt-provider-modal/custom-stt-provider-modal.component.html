@@ -18,14 +18,14 @@
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-name">{{ "setting.speech.stt-provider-name" | translate }}</label>
-          <input id="stt-name" class="form-control" [(ngModel)]="name" />
+          <input id="stt-name" class="form-control" [formField]="providerForm.name" />
         </div>
       </div>
 
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-type">{{ "setting.speech.stt-provider-type" | translate }}</label>
-          <select id="stt-type" class="form-control" [(ngModel)]="connectionType">
+          <select id="stt-type" class="form-control" [formField]="providerForm.connectionType">
             <option value="rest">REST Upload</option>
             <option value="websocket">WebSocket Stream</option>
           </select>
@@ -35,27 +35,27 @@
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-url">{{ "setting.speech.stt-provider-url" | translate }}</label>
-          <input id="stt-url" class="form-control" [(ngModel)]="apiUrl" placeholder="https://..." />
+          <input id="stt-url" class="form-control" [formField]="providerForm.apiUrl" placeholder="https://..." />
         </div>
       </div>
 
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-apikey">{{ "setting.speech.stt-provider-apikey" | translate }}</label>
-          <input id="stt-apikey" type="password" class="form-control" [(ngModel)]="apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
+          <input id="stt-apikey" type="password" class="form-control" [formField]="providerForm.apiKey" [placeholder]="provider()?.apiKey === '***' ? '••••••••' : ''" />
         </div>
       </div>
 
       <div class="row-line-modal-inline">
         <div class="modal-field full-width">
           <label for="stt-model">{{ "setting.speech.stt-provider-model" | translate }}</label>
-          <input id="stt-model" class="form-control" [(ngModel)]="languageModel" placeholder="(optional)" />
+          <input id="stt-model" class="form-control" [formField]="providerForm.languageModel" placeholder="(optional)" />
         </div>
       </div>
 
       <div class="row-line-modal-inline">
         <label class="checkbox-label" for="stt-enabled">
-          <input id="stt-enabled" type="checkbox" [(ngModel)]="isEnabled" />
+          <input id="stt-enabled" type="checkbox" [formField]="providerForm.isEnabled" />
           {{ "setting.speech.stt-provider-enabled" | translate }}
         </label>
       </div>

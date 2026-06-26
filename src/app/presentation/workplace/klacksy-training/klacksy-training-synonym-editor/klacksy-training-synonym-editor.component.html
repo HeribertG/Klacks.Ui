@@ -55,7 +55,7 @@
       id="klacksy-training-new-synonym"
       type="text"
       class="form-control form-control-sm new-synonym-input"
-      [(ngModel)]="newSynonym"
+      [formField]="synonymForm.newSynonym"
       [placeholder]="'klacksyTraining.editor.placeholder' | translate"
       (keydown.enter)="add()"
     />

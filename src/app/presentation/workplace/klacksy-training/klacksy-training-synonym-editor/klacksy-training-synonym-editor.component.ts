@@ -5,8 +5,8 @@
  * @param target - selected target (input signal)
  * @param locale - active locale (input signal)
  */
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
 import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
@@ -14,7 +14,7 @@ import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
 @Component({
   selector: 'app-klacksy-training-synonym-editor',
   standalone: true,
-  imports: [FormsModule, TranslateModule, TrashIconRedComponent],
+  imports: [FormField, TranslateModule, TrashIconRedComponent],
   templateUrl: './klacksy-training-synonym-editor.component.html',
   styleUrls: ['./klacksy-training-synonym-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -25,15 +25,17 @@ export class KlacksyTrainingSynonymEditorComponent {
   readonly saved = output<void>();
 
   private readonly service = inject(KlacksyTrainingService);
-  protected newSynonym = '';
+
+  private readonly formModel = signal<{ newSynonym: string }>({ newSynonym: '' });
+  protected readonly synonymForm = form(this.formModel);
 
   protected synonyms(): string[] { return this.target().synonyms[this.locale()] ?? []; }
 
   protected add(): void {
-    const v = this.newSynonym.trim().toLowerCase();
+    const v = this.formModel().newSynonym.trim().toLowerCase();
     if (!v) return;
     this.target().synonyms[this.locale()] = [...this.synonyms(), v];
-    this.newSynonym = '';
+    this.formModel.set({ newSynonym: '' });
   }
 
   protected remove(s: string): void {
