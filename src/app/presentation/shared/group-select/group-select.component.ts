@@ -16,12 +16,10 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   EffectRef,
-  EventEmitter,
   Injector,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   forwardRef,
   inject,
   runInInjectionContext,
@@ -29,7 +27,8 @@ import {
   untracked,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -102,7 +101,7 @@ export class GroupSelectComponent
   readonly useGlobalSelection = input(true);
 
   // @Output() properties
-  @Output() groupSelected = new EventEmitter<Group | null>();
+  readonly groupSelected = output<Group | null>();
 
   // Public injected services
   public dataManagementGroupService = inject(DataManagementGroupService);

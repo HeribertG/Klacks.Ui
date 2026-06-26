@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild, input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnDestroy, OnInit, ViewChild, input, output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -41,7 +41,7 @@ export class EditShiftMacroComponent
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   @ViewChild('macroShiftForm', { static: false }) macroShiftForm:
     | NgForm

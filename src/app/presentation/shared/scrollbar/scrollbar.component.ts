@@ -10,8 +10,6 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
   ViewChild,
   ElementRef,
   AfterViewInit,
@@ -23,6 +21,7 @@ import {
   ChangeDetectorRef,
   inject,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
@@ -111,8 +110,8 @@ export class ScrollbarComponent
   @Input() maxValue = 365;
   @Input() visibleValue = 180;
 
-  @Output() valueChange = new EventEmitter<number>();
-  @Output() maxValueChange = new EventEmitter<number>();
+  readonly valueChange = output<number>();
+  readonly maxValueChange = output<number>();
   @Input()
   get value(): number {
     return this._value;

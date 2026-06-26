@@ -7,15 +7,14 @@ import {
   Component,
   DestroyRef,
   EffectRef,
-  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   effect,
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -78,7 +77,7 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  @Output() switchToGrid = new EventEmitter<void>();
+  readonly switchToGrid = output<void>();
 
   public hierarchicalTree: Group[] = [];
   public isDragging = false;

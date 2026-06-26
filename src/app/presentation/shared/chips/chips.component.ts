@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, EventEmitter, Input, Output,
+import {
+  Component, Input,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -23,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChipsComponent {
-  @Output() delete = new EventEmitter<string>();
+  readonly delete = output<string>();
   @Input() name = '';
   @Input() key = '';
 

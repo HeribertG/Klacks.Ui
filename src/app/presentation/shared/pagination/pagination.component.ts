@@ -5,12 +5,11 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  Output,
-  EventEmitter,
   OnInit,
   inject,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -42,9 +41,9 @@ export class PaginationComponent implements OnInit {
   readonly ellipses = input(false);
   readonly boundaryLinks = input(true);
 
-  @Output() pageChange = new EventEmitter<number>();
-  @Output() numberOfItemsPerPageChange = new EventEmitter<number>();
-  @Output() rowSizeChange = new EventEmitter<any>();
+  readonly pageChange = output<number>();
+  readonly numberOfItemsPerPageChange = output<number>();
+  readonly rowSizeChange = output<any>();
 
   firstItemOnLastPage: number | undefined = undefined;
   isPreviousPage: boolean | undefined = undefined;

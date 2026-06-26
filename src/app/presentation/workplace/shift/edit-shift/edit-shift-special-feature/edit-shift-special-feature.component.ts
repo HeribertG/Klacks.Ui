@@ -7,12 +7,11 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
-  EventEmitter,
   inject,
   OnDestroy,
-  Output,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -52,7 +51,7 @@ export class EditShiftSpecialFeatureComponent
   implements AfterViewInit, OnDestroy
 {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   @ViewChild('specialFeatureShiftForm', { static: false })
   specialFeatureShiftForm: NgForm | undefined;

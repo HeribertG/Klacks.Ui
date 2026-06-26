@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject,
+import {
+  Component, ElementRef, forwardRef, Input, ViewChild, inject,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MenuItem } from '../context-menu-class';
@@ -27,7 +29,7 @@ export class MenuItemComponent {
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;
   @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
   @Input() menuItem: MenuItem | undefined;
-  @Output() hasClicked = new EventEmitter<string>();
+  readonly hasClicked = output<string>();
 
   private readonly SUBMENU_OVERLAP = 6;
   private readonly SUBMENU_CLOSE_DELAY = 150;

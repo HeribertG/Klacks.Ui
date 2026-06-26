@@ -4,17 +4,16 @@ import {
   AfterViewInit,
   Component,
   DestroyRef,
-  EventEmitter,
   Injector,
   LOCALE_ID,
   OnInit,
-  Output,
   effect,
   inject,
   runInInjectionContext,
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, disabled, form } from '@angular/forms/signals';
@@ -64,7 +63,7 @@ export class EditGroupItemComponent
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   public currentLang: Language = DomainMessages.DEFAULT_LANG;
 

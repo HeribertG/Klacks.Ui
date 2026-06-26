@@ -9,11 +9,10 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
   ViewChild,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import {
   ScrollbarComponent,
@@ -40,8 +39,8 @@ export class VScrollbarComponent {
   readonly maxValue = input(365);
   readonly visibleValue = input(180);
   @Input() value = 0;
-  @Output() valueChange = new EventEmitter<number>();
-  @Output() maxValueChange = new EventEmitter<number>();
+  readonly valueChange = output<number>();
+  readonly maxValueChange = output<number>();
 
   @ViewChild(ScrollbarComponent) scrollbar!: ScrollbarComponent;
 

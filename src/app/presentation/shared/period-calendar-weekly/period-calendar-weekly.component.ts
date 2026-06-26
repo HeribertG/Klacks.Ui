@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, EventEmitter, inject, Input, OnInit, Output,
+import {
+  Component, inject, Input, OnInit,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -20,7 +22,7 @@ import { PeriodResetData } from '../period-calendar-monthly/period-calendar-mont
 export class PeriodCalendarWeeklyComponent implements OnInit {
   @Input() year = new Date().getFullYear();
   @Input() week = 1;
-  @Output() periodChanged = new EventEmitter<PeriodResetData>();
+  readonly periodChanged = output<PeriodResetData>();
 
   private calendarUtil = inject(CalendarUtilService);
 

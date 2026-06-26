@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Directive, ElementRef, EventEmitter, HostListener, Output, inject } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, output } from '@angular/core';
 
 @Directive({
   selector: '[appClickOutside]',
@@ -9,7 +9,7 @@ import { Directive, ElementRef, EventEmitter, HostListener, Output, inject } fro
 export class ClickOutsideDirective {
   private elementRef = inject(ElementRef);
 
-  @Output() clickOutside = new EventEmitter<MouseEvent>();
+  readonly clickOutside = output<MouseEvent>();
 
   @HostListener('document:click', ['$event'])
   public onClick(event: MouseEvent): void {

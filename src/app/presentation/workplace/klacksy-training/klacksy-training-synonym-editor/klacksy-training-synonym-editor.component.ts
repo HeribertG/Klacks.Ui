@@ -5,7 +5,7 @@
  * @param target - selected target (input signal)
  * @param locale - active locale (input signal)
  */
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { KlacksyTrainingService, NavigationTargetDto } from '../../../../core/services/klacksy-training.service';
@@ -22,7 +22,7 @@ import { TrashIconRedComponent } from '../../../icons/trash-icon-red.component';
 export class KlacksyTrainingSynonymEditorComponent {
   readonly target = input.required<NavigationTargetDto>();
   readonly locale = input.required<string>();
-  @Output() saved = new EventEmitter<void>();
+  readonly saved = output<void>();
 
   private readonly service = inject(KlacksyTrainingService);
   protected newSynonym = '';

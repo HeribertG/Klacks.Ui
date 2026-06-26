@@ -11,12 +11,11 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  EventEmitter,
   effect,
   inject,
   runInInjectionContext,
-  input
+  input,
+  output
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -61,8 +60,8 @@ export class AbsenceGanttGridComponent
 {
   @Input() selectedRowData: IBreakPlaceholder[] | undefined;
   readonly selectedRow = input(-1);
-  @Output() exportPDF = new EventEmitter<void>();
-  @Output() breakSelected = new EventEmitter<string>();
+  readonly exportPDF = output<void>();
+  readonly breakSelected = output<string>();
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);

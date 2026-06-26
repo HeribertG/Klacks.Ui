@@ -4,15 +4,14 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   effect,
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -60,9 +59,9 @@ interface TranslationResults {
 export class CalendarSelectorComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Output() openMenu = new EventEmitter();
-  @Output() changeEvent = new EventEmitter();
-  @Output() initialized = new EventEmitter();
+  readonly openMenu = output();
+  readonly changeEvent = output();
+  readonly initialized = output();
 
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService

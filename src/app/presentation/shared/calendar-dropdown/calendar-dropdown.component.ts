@@ -5,12 +5,11 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   inject,
   OnDestroy,
   OnInit,
-  Output,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconSearchComponent } from 'src/app/presentation/icons/icon-search.component';
@@ -44,9 +43,9 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 export class CalendarDropdownComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Output() changed = new EventEmitter();
-  @Output() isClosing = new EventEmitter();
-  @Output() isOpening = new EventEmitter();
+  readonly changed = output();
+  readonly isClosing = output();
+  readonly isOpening = output();
 
   public dataManagementCalendarRulesService = inject(
     DataManagementCalendarRulesService

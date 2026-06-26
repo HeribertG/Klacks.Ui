@@ -5,16 +5,15 @@ import {
   Component,
   effect,
   EffectRef,
-  EventEmitter,
   inject,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   signal,
   ViewChild,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,7 +41,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 })
 export class ClientImageComponent implements OnInit, OnDestroy {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   @ViewChild('imageForm', { static: false }) imageForm: NgForm | undefined;
 

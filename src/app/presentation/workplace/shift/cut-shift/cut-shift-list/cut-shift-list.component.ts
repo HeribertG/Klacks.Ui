@@ -17,12 +17,11 @@ import {
   inject,
   Input,
   OnInit,
-  EventEmitter,
-  Output,
   HostListener,
   DestroyRef,
   computed,
-  input
+  input,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -67,7 +66,7 @@ import { createDefaultCutParameterState } from './services/cut-parameter-state';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CutShiftListComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private dataShiftCutsService = inject(DataShiftCutsService);

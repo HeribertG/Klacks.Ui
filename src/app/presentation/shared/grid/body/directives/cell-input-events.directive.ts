@@ -3,10 +3,9 @@
 import {
   Directive,
   ElementRef,
-  EventEmitter,
   HostListener,
   inject,
-  Output,
+  output
 } from '@angular/core';
 
 export interface CellInputRightClickEvent {
@@ -21,10 +20,10 @@ export interface CellInputRightClickEvent {
 export class CellInputEventsDirective {
   private el = inject(ElementRef<HTMLInputElement>);
 
-  @Output() navigationKey = new EventEmitter<KeyboardEvent>();
-  @Output() saveInput = new EventEmitter<void>();
-  @Output() cancelInput = new EventEmitter<void>();
-  @Output() rightClick = new EventEmitter<CellInputRightClickEvent>();
+  readonly navigationKey = output<KeyboardEvent>();
+  readonly saveInput = output<void>();
+  readonly cancelInput = output<void>();
+  readonly rightClick = output<CellInputRightClickEvent>();
 
   private readonly verticalNavigationKeys = ['ArrowUp', 'ArrowDown', 'Home', 'End'];
   private readonly alwaysSaveKeys = ['Enter', 'Tab'];

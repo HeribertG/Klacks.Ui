@@ -9,15 +9,14 @@ import {
   Component,
   effect,
   EffectRef,
-  EventEmitter,
   inject,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   runInInjectionContext,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,7 +48,7 @@ export class EditShiftWeekdayComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
   readonly isComplex = input(false);
 
   @ViewChild('weekdayShiftForm', { static: false }) weekdayShiftForm:

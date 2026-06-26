@@ -14,12 +14,11 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
-  EventEmitter,
   inject,
   OnDestroy,
   OnInit,
-  Output,
-  input
+  input,
+  output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -60,7 +59,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
 })
 export class ShiftQualificationsComponent implements OnInit, OnDestroy {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataQualificationService = inject(DataQualificationService);

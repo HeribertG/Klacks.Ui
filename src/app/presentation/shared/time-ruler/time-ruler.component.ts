@@ -15,13 +15,12 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
-  Output,
-  EventEmitter,
   inject,
   effect,
   Injector,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -52,8 +51,8 @@ export interface IShiftContextMenuEvent {
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   readonly fromTime = input<OwnTime>(OwnTime.forTime('00', '00'));
   readonly untilTime = input<OwnTime>(OwnTime.forTime('24', '00'));
-  @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
-  @Output() itemsDisplaced = new EventEmitter<void>();
+  readonly shiftRightClick = output<IShiftContextMenuEvent>();
+  readonly itemsDisplaced = output<void>();
 
   private shifts: IContainerTemplateItem[] = [];
   private shiftRectangles = new Map<IContainerTemplateItem, Rectangle>();

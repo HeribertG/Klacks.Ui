@@ -8,13 +8,12 @@ import {
   ChangeDetectorRef,
   Component,
   effect,
-  EventEmitter,
   HostListener,
   inject,
   OnInit,
-  Output,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,7 +43,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 })
 export class EditShiftAddressComponent implements OnInit {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   @ViewChild('addressShiftForm', { static: false }) addressShiftForm:
     | NgForm

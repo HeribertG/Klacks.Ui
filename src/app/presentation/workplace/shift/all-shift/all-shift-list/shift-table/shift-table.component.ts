@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
@@ -40,10 +40,10 @@ export class ShiftTableComponent {
   readonly shifts = input<IShift[]>();
   @Input() sortingService!: TableSortingService;
   @Input() tableMode: 'cut' | 'container' = 'cut';
-  @Output() editClicked = new EventEmitter<Shift>();
-  @Output() actionClicked = new EventEmitter<Shift>();
-  @Output() rowClicked = new EventEmitter<Shift>();
-  @Output() headerClicked = new EventEmitter<string>();
+  readonly editClicked = output<Shift>();
+  readonly actionClicked = output<Shift>();
+  readonly rowClicked = output<Shift>();
+  readonly headerClicked = output<string>();
 
   highlightRowId?: string;
   selectedRowId?: string;

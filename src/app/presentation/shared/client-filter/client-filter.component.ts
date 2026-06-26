@@ -7,12 +7,11 @@
  */
 import {
   Component,
-  EventEmitter,
   inject,
   Input,
   OnInit,
-  Output,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IconAscComponent } from 'src/app/presentation/icons/icon-asc.component';
@@ -35,7 +34,7 @@ const DEFAULT_SORT_ORDER = 'asc' as const;
 })
 export class ClientFilterComponent implements OnInit {
   @Input() filter!: IClientTypeFilter;
-  @Output() filterChange = new EventEmitter<void>();
+  readonly filterChange = output<void>();
 
   protected sortingService = inject(TableSortingService);
 

@@ -2,10 +2,9 @@
 
 import {
   Component,
-  Output,
-  EventEmitter,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
@@ -26,8 +25,8 @@ export class SettingsListCardComponent {
   readonly idPrefix = input('settings-list');
   readonly showSearchInHeader = input(false);
   readonly searchPlaceholderKey = input('placeholder.search');
-  @Output() addClick = new EventEmitter<void>();
-  @Output() headerSearchChange = new EventEmitter<string>();
+  readonly addClick = output<void>();
+  readonly headerSearchChange = output<string>();
 
   onAddClick(): void {
     this.addClick.emit();

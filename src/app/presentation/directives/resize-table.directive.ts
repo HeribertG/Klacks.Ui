@@ -5,12 +5,11 @@
 import {
   Directive,
   ElementRef,
-  EventEmitter,
   OnDestroy,
   OnInit,
-  Output,
   inject,
-  input
+  input,
+  output
 } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
@@ -31,8 +30,8 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   readonly maxItems = input(0);
   readonly currentPage = input(1);
 
-  @Output() itemsPerPageChange = new EventEmitter<number>();
-  @Output() recalculateRequired = new EventEmitter<boolean>();
+  readonly itemsPerPageChange = output<number>();
+  readonly recalculateRequired = output<boolean>();
 
   private resizeObserver: ResizeObserver | null = null;
   private windowResizeListener: (() => void) | null = null;

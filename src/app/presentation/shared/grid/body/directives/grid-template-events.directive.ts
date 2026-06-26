@@ -15,10 +15,9 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
-  EventEmitter,
   HostListener,
   inject,
-  Output,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
@@ -62,10 +61,10 @@ export class GridTemplateEventsDirective {
   private scheduleEvents = inject(GridScheduleEventsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  @Output() rightClick = new EventEmitter<GridRightClickEvent>();
-  @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
-  @Output() workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
-  @Output() containerWorkDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  readonly rightClick = output<GridRightClickEvent>();
+  readonly workChangeDoubleClick = output<GridDoubleClickEvent>();
+  readonly workDoubleClick = output<GridDoubleClickEvent>();
+  readonly containerWorkDoubleClick = output<GridDoubleClickEvent>();
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;

@@ -17,18 +17,17 @@ import {
   Component,
   EffectRef,
   ElementRef,
-  EventEmitter,
   Injector,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
   ViewChild,
   effect,
   inject,
   runInInjectionContext,
-  input
+  input,
+  output
 } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -127,18 +126,20 @@ export class GridSurfaceTimelineTemplateComponent
   readonly valueChangeHScrollbar = input.required<number>();
   readonly valueChangeVScrollbar = input.required<number>();
 
-  @Output() valueHScrollbar = new EventEmitter<number>();
-  @Output() maxValueHScrollbar = new EventEmitter<number>();
-  @Output() visibleValueHScrollbar = new EventEmitter<number>();
-  @Output() valueVScrollbar = new EventEmitter<number>();
-  @Output() maxValueVScrollbar = new EventEmitter<number>();
-  @Output() visibleValueVScrollbar = new EventEmitter<number>();
-  @Output() cellValueChange = new EventEmitter<TimelineCellValueChangeEvent>();
-  @Output() rightClick = new EventEmitter<TimelineGridRightClickEvent & { source: 'canvas' }>();
-  @Output() workChangeDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
-  @Output() workDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
-  @Output() containerWorkDoubleClick = new EventEmitter<TimelineDoubleClickEvent>();
-  @Output() deleteBlock = new EventEmitter<TimelineDoubleClickEvent>();
+  readonly valueHScrollbar = output<number>();
+  readonly maxValueHScrollbar = output<number>();
+  readonly visibleValueHScrollbar = output<number>();
+  readonly valueVScrollbar = output<number>();
+  readonly maxValueVScrollbar = output<number>();
+  readonly visibleValueVScrollbar = output<number>();
+  readonly cellValueChange = output<TimelineCellValueChangeEvent>();
+  readonly rightClick = output<TimelineGridRightClickEvent & {
+    source: 'canvas';
+}>();
+  readonly workChangeDoubleClick = output<TimelineDoubleClickEvent>();
+  readonly workDoubleClick = output<TimelineDoubleClickEvent>();
+  readonly containerWorkDoubleClick = output<TimelineDoubleClickEvent>();
+  readonly deleteBlock = output<TimelineDoubleClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })

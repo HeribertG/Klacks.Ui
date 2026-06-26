@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component, Input, Output, EventEmitter,
+  Component, Input,
   ChangeDetectionStrategy, ViewChild, ElementRef,
-  input
+  input,
+  output
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -33,9 +34,9 @@ export class TimeInputComponent {
   @Input() forDuration = true;
   readonly labelAlign = input<'left' | 'center' | 'right'>('left');
   @Input() value: OwnTime = OwnTime.forTime('00', '00');
-  @Output() valueChange = new EventEmitter<OwnTime>();
-  @Output() timeChange = new EventEmitter<OwnTime>();
-  @Output() keyUp = new EventEmitter<Event>();
+  readonly valueChange = output<OwnTime>();
+  readonly timeChange = output<OwnTime>();
+  readonly keyUp = output<Event>();
 
   partialHours: string | null = null;
   partialMinutes: string | null = null;

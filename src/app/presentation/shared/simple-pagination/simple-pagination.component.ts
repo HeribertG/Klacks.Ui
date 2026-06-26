@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component, Input, Output, EventEmitter,
+  Component, Input,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -29,7 +30,7 @@ export class SimplePaginationComponent {
   readonly showSummary = input(true);
   readonly summaryLabel = input('pagination.sum');
 
-  @Output() pageChange = new EventEmitter<number>();
+  readonly pageChange = output<number>();
 
   onPageChange(event: number): void {
     this.page = event;

@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  ChangeDetectorRef, Component, EventEmitter, inject, Output,
+  ChangeDetectorRef, Component, inject,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -52,10 +53,10 @@ export class RichTextEditorComponent {
   readonly showToolbarOnlyOnFocus = input(true);
   readonly height = input<string>();
 
-  @Output() contentChange = new EventEmitter<string>();
-  @Output() plainTextChange = new EventEmitter<string>();
-  @Output() focused = new EventEmitter<void>();
-  @Output() blurred = new EventEmitter<void>();
+  readonly contentChange = output<string>();
+  readonly plainTextChange = output<string>();
+  readonly focused = output<void>();
+  readonly blurred = output<void>();
 
   isFocused = false;
 

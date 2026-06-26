@@ -7,15 +7,14 @@ import {
   Component,
   effect,
   EffectRef,
-  EventEmitter,
   inject,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   runInInjectionContext,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -62,8 +61,8 @@ export class EditShiftItemComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly isReadOnly = input(false);
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-  @Output() isChangingMode = new EventEmitter();
+  readonly isChangingEvent = output<boolean>();
+  readonly isChangingMode = output();
 
   @ViewChild('mainShiftForm', { static: false }) mainShiftForm:
     | NgForm

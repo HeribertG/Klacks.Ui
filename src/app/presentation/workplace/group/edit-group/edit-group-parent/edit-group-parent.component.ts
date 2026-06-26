@@ -6,9 +6,7 @@
  */
 import {
   Component,
-  EventEmitter,
   OnInit,
-  Output,
   effect,
   DestroyRef,
   EffectRef,
@@ -18,6 +16,7 @@ import {
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, disabled, form } from '@angular/forms/signals';
@@ -42,7 +41,7 @@ interface EditGroupParentFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGroupParentComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);

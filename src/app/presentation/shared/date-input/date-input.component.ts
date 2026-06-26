@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component, Input, Output, EventEmitter,
+  Component, Input,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -33,8 +34,8 @@ export class DateInputComponent {
   readonly isValid = input<boolean>();
   readonly touched = input(false);
   readonly showInvalidImmediately = input(false);
-  @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
-  @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();
+  readonly valueChange = output<NgbDateStruct | null | undefined>();
+  readonly dateChange = output<NgbDateStruct | null | undefined>();
 
   faCalendar = faCalendar;
 

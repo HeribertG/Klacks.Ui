@@ -8,15 +8,14 @@ import {
   Component,
   effect,
   EffectRef,
-  EventEmitter,
   inject,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   runInInjectionContext,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -56,7 +55,7 @@ export class EditShiftGroupComponent
     | NgForm
     | undefined;
 
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  readonly isChangingEvent = output<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private authService = inject(AuthService);

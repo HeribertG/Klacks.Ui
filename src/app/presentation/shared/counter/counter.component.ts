@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { Component, EventEmitter, Input, Output,
+import {
+  Component, Input,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +18,7 @@ import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CounterComponent {
-  @Output() isChanged = new EventEmitter<number>();
+  readonly isChanged = output<number>();
   @Input() maxNumber: number | undefined = 99;
   @Input() currentNumber = 1;
 

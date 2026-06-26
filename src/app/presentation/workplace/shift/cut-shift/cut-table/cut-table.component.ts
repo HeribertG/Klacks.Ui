@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output, OnChanges, SimpleChanges, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnChanges, SimpleChanges, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
@@ -20,12 +20,12 @@ export class CutTableComponent implements OnChanges {
   private textFormatterService = inject(TextFormatterService);
   readonly shifts = input<IShift[]>();
   readonly selectedShiftId = input<string>(); // Input für externe Selektion
-  @Output() rowClicked = new EventEmitter<Shift>();
-  @Output() cellUpdated = new EventEmitter<{
+  readonly rowClicked = output<Shift>();
+  readonly cellUpdated = output<{
     shift: Shift;
     field: string;
     value: string;
-  }>();
+}>();
 
   highlightRowId?: string;
   selectedRowId?: string;

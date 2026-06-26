@@ -16,12 +16,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
-  Output,
   inject,
-  input
+  input,
+  output
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -53,8 +52,8 @@ export class SearchInputComponent implements OnDestroy {
   readonly inputId = input('');
   readonly klacksyTarget = input('');
 
-  @Output() valueChange = new EventEmitter<string>();
-  @Output() searchSubmit = new EventEmitter<string>();
+  readonly valueChange = output<string>();
+  readonly searchSubmit = output<string>();
 
   faSearch = faSearch;
 

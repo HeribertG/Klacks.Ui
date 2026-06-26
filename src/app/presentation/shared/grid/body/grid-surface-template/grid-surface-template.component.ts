@@ -6,19 +6,18 @@ import {
   Component,
   EffectRef,
   ElementRef,
-  EventEmitter,
   Injector,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
   ViewChild,
   effect,
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
-  input
+  input,
+  output
 } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
@@ -88,17 +87,17 @@ export class GridSurfaceTemplateComponent
   readonly valueChangeVScrollbar = input.required<number>();
   readonly nameId = input.required<string>();
 
-  @Output() valueHScrollbar = new EventEmitter<number>();
-  @Output() maxValueHScrollbar = new EventEmitter<number>();
-  @Output() visibleValueHScrollbar = new EventEmitter<number>();
-  @Output() valueVScrollbar = new EventEmitter<number>();
-  @Output() maxValueVScrollbar = new EventEmitter<number>();
-  @Output() visibleValueVScrollbar = new EventEmitter<number>();
-  @Output() cellValueChange = new EventEmitter<CellValueChangeEvent>();
-  @Output() rightClick = new EventEmitter<GridSurfaceRightClickEvent>();
-  @Output() workChangeDoubleClick = new EventEmitter<GridDoubleClickEvent>();
-  @Output() workDoubleClick = new EventEmitter<GridDoubleClickEvent>();
-  @Output() containerWorkDoubleClick = new EventEmitter<GridDoubleClickEvent>();
+  readonly valueHScrollbar = output<number>();
+  readonly maxValueHScrollbar = output<number>();
+  readonly visibleValueHScrollbar = output<number>();
+  readonly valueVScrollbar = output<number>();
+  readonly maxValueVScrollbar = output<number>();
+  readonly visibleValueVScrollbar = output<number>();
+  readonly cellValueChange = output<CellValueChangeEvent>();
+  readonly rightClick = output<GridSurfaceRightClickEvent>();
+  readonly workChangeDoubleClick = output<GridDoubleClickEvent>();
+  readonly workDoubleClick = output<GridDoubleClickEvent>();
+  readonly containerWorkDoubleClick = output<GridDoubleClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })

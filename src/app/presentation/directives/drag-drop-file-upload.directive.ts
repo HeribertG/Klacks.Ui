@@ -3,10 +3,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Directive,
-  EventEmitter,
-  Output,
   HostListener,
   HostBinding,
+  output
 } from '@angular/core';
 
 @Directive({
@@ -14,7 +13,7 @@ import {
   standalone: true,
 })
 export class DragDropFileUploadDirective {
-  @Output() fileDropped = new EventEmitter<any>();
+  readonly fileDropped = output<any>();
 
   @HostBinding('style.background-color') background = '#ffffff';
 

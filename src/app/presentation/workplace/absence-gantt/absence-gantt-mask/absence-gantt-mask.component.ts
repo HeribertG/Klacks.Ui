@@ -14,7 +14,8 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
-  input
+  input,
+  output
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
@@ -69,10 +70,10 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 export class AbsenceGanttMaskComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Output() ErrorMessageEvent = new EventEmitter<string>();
-  @Output() selectedBreakIndexEvent = new EventEmitter<number>();
+  readonly ErrorMessageEvent = output<string>();
+  readonly selectedBreakIndexEvent = output<number>();
   @Output() UpdateEvent = new EventEmitter();
-  @Output() breakPlaceholderIdSelected = new EventEmitter<string>();
+  readonly breakPlaceholderIdSelected = output<string>();
   @Input() selectedRow = -1;
   readonly selectedRowBreaksMaxIndex = input<number>();
   @Input() selectedBreakIndex = -1;

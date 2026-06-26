@@ -7,13 +7,12 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  EventEmitter,
   HostListener,
   inject,
   LOCALE_ID,
   OnInit,
-  Output,
   ChangeDetectionStrategy,
+  output
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
@@ -54,8 +53,8 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  @Output() isChangingEvent = new EventEmitter();
-  @Output() isEnterEvent = new EventEmitter();
+  readonly isChangingEvent = output();
+  readonly isEnterEvent = output();
 
   result = new Array<IClient>();
   selectedClientName = '';

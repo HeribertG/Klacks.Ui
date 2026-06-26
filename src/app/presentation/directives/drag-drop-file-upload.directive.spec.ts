@@ -48,7 +48,9 @@ describe('DragDropFileUploadDirective', () => {
     });
 
     it('should create an instance', () => {
-        const directive = new DragDropFileUploadDirective();
+        const directive = TestBed.runInInjectionContext(
+            () => new DragDropFileUploadDirective()
+        );
         expect(directive).toBeTruthy();
     });
 

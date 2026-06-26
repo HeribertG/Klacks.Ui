@@ -16,10 +16,9 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
-  EventEmitter,
   HostListener,
   inject,
-  Output,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent, throttleTime } from 'rxjs';
@@ -71,12 +70,15 @@ export class TimelineGridEventsDirective {
   private cachedRect: DOMRect | null = null;
   private resizeObserver?: ResizeObserver;
 
-  @Output() rightClick = new EventEmitter<TimelineGridRightClickEvent>();
-  @Output() wheelScroll = new EventEmitter<{ deltaX: number; deltaY: number }>();
-  @Output() workDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
-  @Output() workChangeDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
-  @Output() containerWorkDoubleClick = new EventEmitter<TimelineGridBlockEvent>();
-  @Output() deleteKey = new EventEmitter<TimelineGridBlockEvent>();
+  readonly rightClick = output<TimelineGridRightClickEvent>();
+  readonly wheelScroll = output<{
+    deltaX: number;
+    deltaY: number;
+}>();
+  readonly workDoubleClick = output<TimelineGridBlockEvent>();
+  readonly workChangeDoubleClick = output<TimelineGridBlockEvent>();
+  readonly containerWorkDoubleClick = output<TimelineGridBlockEvent>();
+  readonly deleteKey = output<TimelineGridBlockEvent>();
 
   constructor() {
     fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove')

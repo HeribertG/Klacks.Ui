@@ -12,10 +12,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   inject,
   input,
-  Output,
+  output
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -135,45 +134,48 @@ export class ContainerEditorLayoutComponent {
   absencesDropListId = input('container-absences-list');
 
   // Outputs — Time
-  @Output() timeFromChange = new EventEmitter<OwnTime>();
-  @Output() timeToChange = new EventEmitter<OwnTime>();
+  readonly timeFromChange = output<OwnTime>();
+  readonly timeToChange = output<OwnTime>();
 
   // Outputs — Filter/Tolerance
-  @Output() shiftFilterChange = new EventEmitter<string>();
-  @Output() toleranceChange = new EventEmitter<number>();
+  readonly shiftFilterChange = output<string>();
+  readonly toleranceChange = output<number>();
 
   // Outputs — Drag-Drop
-  @Output() taskDrop = new EventEmitter<CdkDragDrop<IContainerTemplateItem[]>>();
-  @Output() availableTasksDrop = new EventEmitter<void>();
+  readonly taskDrop = output<CdkDragDrop<IContainerTemplateItem[]>>();
+  readonly availableTasksDrop = output<void>();
 
   // Outputs — Task actions
-  @Output() removeTask = new EventEmitter<IContainerTemplateItem>();
-  @Output() removeAllTasks = new EventEmitter<void>();
+  readonly removeTask = output<IContainerTemplateItem>();
+  readonly removeAllTasks = output<void>();
 
   // Outputs — Toolbar
-  @Output() autofillClick = new EventEmitter<void>();
-  @Output() compactClick = new EventEmitter<boolean>();
-  @Output() optimizeRouteClick = new EventEmitter<void>();
-  @Output() exportShiftsPdfClick = new EventEmitter<void>();
-  @Output() exportRoutePdfClick = new EventEmitter<void>();
+  readonly autofillClick = output<void>();
+  readonly compactClick = output<boolean>();
+  readonly optimizeRouteClick = output<void>();
+  readonly exportShiftsPdfClick = output<void>();
+  readonly exportRoutePdfClick = output<void>();
 
   // Outputs — Tabs
-  @Output() employmentTabClick = new EventEmitter<void>();
-  @Output() shiftsTabClick = new EventEmitter<void>();
-  @Output() dayTabClick = new EventEmitter<number>();
+  readonly employmentTabClick = output<void>();
+  readonly shiftsTabClick = output<void>();
+  readonly dayTabClick = output<number>();
 
   // Outputs — Row interaction
-  @Output() shiftRowClick = new EventEmitter<IContainerTemplateItem>();
-  @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
-  @Output() tableRowRightClick = new EventEmitter<{ event: MouseEvent; item: IContainerTemplateItem }>();
-  @Output() absenceRowDblClick = new EventEmitter<IContainerTemplateItem>();
-  @Output() itemsDisplaced = new EventEmitter<void>();
+  readonly shiftRowClick = output<IContainerTemplateItem>();
+  readonly shiftRightClick = output<IShiftContextMenuEvent>();
+  readonly tableRowRightClick = output<{
+    event: MouseEvent;
+    item: IContainerTemplateItem;
+}>();
+  readonly absenceRowDblClick = output<IContainerTemplateItem>();
+  readonly itemsDisplaced = output<void>();
 
   // Outputs — Address/Transport
-  @Output() transportModeChange = new EventEmitter<number>();
-  @Output() startBaseChange = new EventEmitter<string>();
-  @Output() endBaseChange = new EventEmitter<string>();
-  @Output() markDirty = new EventEmitter<void>();
+  readonly transportModeChange = output<number>();
+  readonly startBaseChange = output<string>();
+  readonly endBaseChange = output<string>();
+  readonly markDirty = output<void>();
 
   toleranceOptions: Options = {
     floor: 0,

@@ -8,11 +8,9 @@ import {
   DestroyRef,
   EffectRef,
   ElementRef,
-  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   Renderer2,
   ViewChild,
   effect,
@@ -20,6 +18,7 @@ import {
   runInInjectionContext,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
@@ -77,7 +76,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     | ElementRef
     | undefined;
 
-  @Output() switchToTree = new EventEmitter<void>();
+  readonly switchToTree = output<void>();
 
   public dataManagementGroupService = inject(DataManagementGroupService);
   public sortingService = inject(TableSortingService);

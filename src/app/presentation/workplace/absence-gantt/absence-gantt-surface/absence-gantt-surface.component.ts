@@ -7,19 +7,18 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  EventEmitter,
   Injector,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   Renderer2,
   SimpleChanges,
   ViewChild,
   effect,
   inject,
   runInInjectionContext,
-  input
+  input,
+  output
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -71,12 +70,12 @@ export class AbsenceGanttSurfaceComponent
   readonly valueChangeHScrollbar = input.required<number>();
   readonly valueChangeVScrollbar = input.required<number>();
 
-  @Output() valueHScrollbar = new EventEmitter<number>();
-  @Output() maxValueHScrollbar = new EventEmitter<number>();
-  @Output() visibleValueHScrollbar = new EventEmitter<number>();
-  @Output() valueVScrollbar = new EventEmitter<number>();
-  @Output() maxValueVScrollbar = new EventEmitter<number>();
-  @Output() visibleValueVScrollbar = new EventEmitter<number>();
+  readonly valueHScrollbar = output<number>();
+  readonly maxValueHScrollbar = output<number>();
+  readonly visibleValueHScrollbar = output<number>();
+  readonly valueVScrollbar = output<number>();
+  readonly maxValueVScrollbar = output<number>();
+  readonly visibleValueVScrollbar = output<number>();
 
   @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
 
