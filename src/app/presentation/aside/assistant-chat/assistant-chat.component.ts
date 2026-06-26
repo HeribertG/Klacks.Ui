@@ -9,7 +9,6 @@ import {
   Component,
   inject,
   HostListener,
-  ViewChild,
   ElementRef,
   effect,
   ChangeDetectorRef,
@@ -20,6 +19,7 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
   afterEveryRender,
+  viewChild
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -98,8 +98,8 @@ type CorrectionType = 'wrong_skill' | 'wrong_param' | 'none_needed';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantChatComponent {
-  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
-  @ViewChild('chatInput') private chatInput!: ElementRef<HTMLTextAreaElement>;
+  private readonly messagesContainer = viewChild.required<ElementRef>('messagesContainer');
+  private readonly chatInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('chatInput');
 
   private assistantService = inject(DataManagementAssistantService);
   private assistantProviderService = inject(DataManagementAssistantProviderService);
@@ -348,9 +348,10 @@ export class AssistantChatComponent {
   }
 
   private scrollToBottom(): void {
-    if (this.messagesContainer?.nativeElement) {
-      this.messagesContainer.nativeElement.scrollTop =
-        this.messagesContainer.nativeElement.scrollHeight;
+    const messagesContainer = this.messagesContainer();
+    if (messagesContainer?.nativeElement) {
+      messagesContainer.nativeElement.scrollTop =
+        messagesContainer.nativeElement.scrollHeight;
     }
   }
 
@@ -542,7 +543,7 @@ export class AssistantChatComponent {
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
             this.maybeAutoSpeak(doneMessage);
-            setTimeout(() => this.chatInput?.nativeElement?.focus(), 0);
+            setTimeout(() => this.chatInput()?.nativeElement?.focus(), 0);
           });
         },
         onError: (message: string) => {

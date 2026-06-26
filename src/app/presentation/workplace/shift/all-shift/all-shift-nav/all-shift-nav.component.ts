@@ -10,7 +10,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -31,9 +31,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   imports: [FormsModule, NgbDropdownModule, TranslateModule],
 })
 export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('navShiftForm', { static: false }) navGroupForm:
-    | NgForm
-    | undefined;
+  readonly navGroupForm = viewChild<NgForm>('navShiftForm');
   navClient: HTMLElement | undefined;
 
   public dataManagementShiftService = inject(DataManagementShiftService);

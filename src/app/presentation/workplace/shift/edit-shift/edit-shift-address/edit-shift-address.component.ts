@@ -11,9 +11,9 @@ import {
   HostListener,
   inject,
   OnInit,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -45,9 +45,7 @@ export class EditShiftAddressComponent implements OnInit {
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
 
-  @ViewChild('addressShiftForm', { static: false }) addressShiftForm:
-    | NgForm
-    | undefined;
+  readonly addressShiftForm = viewChild<NgForm>('addressShiftForm');
 
   @HostListener('search', ['$event']) onsearch(event: any) {
     if (!this.selectedClientName) {

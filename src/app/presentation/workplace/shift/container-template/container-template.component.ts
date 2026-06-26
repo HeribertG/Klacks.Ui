@@ -19,8 +19,8 @@ import {
   OnInit,
   effect,
   computed,
-  ViewChild,
   TemplateRef,
+  viewChild
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -212,12 +212,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
-  @ViewChild('propertiesModal', { static: false })
-  propertiesModal!: TemplateRef<unknown>;
-  @ViewChild('absenceTimeModal', { static: false })
-  absenceTimeModal!: TemplateRef<unknown>;
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly propertiesModal = viewChild.required<TemplateRef<unknown>>('propertiesModal');
+  readonly absenceTimeModal = viewChild.required<TemplateRef<unknown>>('absenceTimeModal');
 
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
@@ -748,7 +745,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     if (keys.includes('properties')) {
       this.openPropertiesDialog();
     }
-    this.contextMenu.closeMenu(true);
+    this.contextMenu().closeMenu(true);
   }
 
   onContainerContextMenu(event: MouseEvent): void {
@@ -795,8 +792,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
     menuData.list.push(propertiesItem);
 
-    this.contextMenu.menuData = menuData;
-    this.contextMenu.openMenu(event);
+    contextMenu.menuData = menuData;
+    contextMenu.openMenu(event);
   }
 
   private openPropertiesDialog(): void {
@@ -804,7 +801,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     if (target?.absenceId) {
       this.absenceService.openAbsenceTimeModal(
         target,
-        this.absenceTimeModal,
+        this.absenceTimeModal(),
         this.timeFrom,
         this.timeTo,
         this.selectedWeekday,
@@ -813,7 +810,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       return;
     }
     this.propertiesService.openPropertiesDialog(
-      this.propertiesModal,
+      this.propertiesModal(),
       this.selectedWeekday,
       this.isHoliday,
     );
@@ -822,7 +819,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   onAbsenceRowDblClick(item: IContainerTemplateItem): void {
     this.absenceService.openAbsenceTimeModal(
       item,
-      this.absenceTimeModal,
+      this.absenceTimeModal(),
       this.timeFrom,
       this.timeTo,
       this.selectedWeekday,

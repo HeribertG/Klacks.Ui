@@ -26,9 +26,9 @@ import {
   OnDestroy,
   runInInjectionContext,
   SimpleChanges,
-  ViewChild,
   effect,
-  input
+  input,
+  viewChild
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
@@ -65,7 +65,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 export class ScheduleShiftRowHeaderComponent
   implements AfterViewInit, OnChanges, OnDestroy
 {
-  @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+  readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
 
   readonly valueChangeVScrollbar = input.required<number>();
   readonly selectedRow = input(-1);
@@ -149,7 +149,7 @@ export class ScheduleShiftRowHeaderComponent
   }
 
   private updateDrawRowHeaderDimensions(element?: Element): void {
-    const box = element || this.boxElement.nativeElement;
+    const box = element || this.boxElement().nativeElement;
     this.drawRowHeader.width = box.clientWidth;
     this.drawRowHeader.height = box.clientHeight;
   }

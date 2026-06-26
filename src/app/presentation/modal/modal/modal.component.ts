@@ -7,8 +7,10 @@
  * @param contentDelete - Template ref for the delete/confirmation modal
  * @param contentMessage - Template ref for the message modal
  */
-import { AfterViewInit, Component, DestroyRef, ElementRef, OnInit, ViewChild, inject,
+import {
+  AfterViewInit, Component, DestroyRef, ElementRef, OnInit, inject,
   ChangeDetectionStrategy,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ModalService, ModalType } from '../modal.service';
@@ -33,12 +35,9 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('contentInput', { static: true })
-  public contentInput!: ElementRef<HTMLElement>;
-  @ViewChild('contentDelete', { static: true })
-  private contentDelete!: ElementRef<HTMLElement>;
-  @ViewChild('contentMessage', { static: true })
-  private contentMessage!: ElementRef<HTMLElement>;
+  public readonly contentInput = viewChild.required<ElementRef<HTMLElement>>('contentInput');
+  private readonly contentDelete = viewChild.required<ElementRef<HTMLElement>>('contentDelete');
+  private readonly contentMessage = viewChild.required<ElementRef<HTMLElement>>('contentMessage');
 
   public modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
@@ -55,16 +54,16 @@ export class ModalComponent implements OnInit, AfterViewInit {
       .subscribe((x: ModalType) => {
         switch (x) {
           case ModalType.Input: {
-            this.open(this.contentInput, ModalType.Input);
+            this.open(this.contentInput(), ModalType.Input);
             break;
           }
           case ModalType.Delete:
           case ModalType.Confirmation: {
-            this.open(this.contentDelete, x);
+            this.open(this.contentDelete(), x);
             break;
           }
           case ModalType.Message: {
-            this.open(this.contentMessage, ModalType.Message);
+            this.open(this.contentMessage(), ModalType.Message);
             break;
           }
         }

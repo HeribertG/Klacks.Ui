@@ -13,12 +13,12 @@ import {
   OnInit,
   Renderer2,
   SimpleChanges,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -63,8 +63,7 @@ import { Language } from 'src/app/domain/models/settings/language-config';
 export class AbsenceGanttSurfaceComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
   readonly absenceMask = input<AbsenceGanttMaskComponent>();
   readonly absenceRowHeader = input<AbsenceGanttRowHeaderComponent>();
   readonly valueChangeHScrollbar = input.required<number>();
@@ -77,7 +76,7 @@ export class AbsenceGanttSurfaceComponent
   readonly maxValueVScrollbar = output<number>();
   readonly visibleValueVScrollbar = output<number>();
 
-  @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
+  readonly boxCalendar = viewChild.required<ElementRef<HTMLCanvasElement>>('boxCalendar');
 
   public calendarSetting = inject(CalendarSettingService);
   public holidayCollection = inject(HolidayCollectionService);
@@ -126,7 +125,8 @@ export class AbsenceGanttSurfaceComponent
 
   ngAfterViewInit(): void {
     this.initializeDrawCalendarGantt();
-    this.contextMenuService.setContextMenu(this.contextMenu);
+    const contextMenu = this.contextMenu();
+    this.contextMenuService.setContextMenu(contextMenu);
 
     this.calendarSetting.zoomChangingEvent
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -142,7 +142,7 @@ export class AbsenceGanttSurfaceComponent
         this.drawCalendarGantt.drawCalendar();
       });
 
-    this.contextMenu?.hasClicked
+    contextMenu?.hasClicked
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((x) => {
         this.contextMenuService.menuClicked(x);
@@ -251,7 +251,7 @@ export class AbsenceGanttSurfaceComponent
   }
 
   private initializeDrawCalendarGantt(): void {
-    const box = this.boxCalendar.nativeElement;
+    const box = this.boxCalendar().nativeElement;
     this.drawCalendarGantt.height = box.clientHeight;
     this.drawCalendarGantt.width = box.clientWidth;
     this.drawCalendarGantt.createCanvas();

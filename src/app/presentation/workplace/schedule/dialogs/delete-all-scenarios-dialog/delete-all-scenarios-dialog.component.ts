@@ -11,7 +11,7 @@ import {
   inject,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -27,7 +27,7 @@ import { AnalyseScenarioService } from 'src/app/domain/services/schedule/analyse
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteAllScenariosDialogComponent {
-  @ViewChild('deleteAllScenariosModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('deleteAllScenariosModal');
 
   private ngbModal = inject(NgbModal);
   private analyseScenarioService = inject(AnalyseScenarioService);
@@ -43,7 +43,7 @@ export class DeleteAllScenariosDialogComponent {
     this.isDeleting.set(false);
     this.errorMessage.set(null);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       size: 'md',

@@ -8,9 +8,9 @@ import {
   forwardRef,
   inject,
   Input,
-  ViewChild,
   ChangeDetectionStrategy,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
@@ -33,7 +33,7 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
 export class MenuComponent {
   @Input() menu: Menu | undefined;
   readonly mouseEntered = output<void>();
-  @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
+  readonly appRoot = viewChild.required<ElementRef>('appRoot');
 
   private cdr = inject(ChangeDetectorRef);
   private elementRef = inject(ElementRef);

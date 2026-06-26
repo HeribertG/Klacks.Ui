@@ -12,7 +12,6 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
@@ -55,10 +54,8 @@ export class AbsenceGanttRowHeaderComponent
 {
   readonly valueChangeVScrollbar = input.required<number>();
 
-  @ViewChild('boxCalendarRowHeader')
-  boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
+  readonly boxCalendarRowHeader = viewChild.required<ElementRef<HTMLDivElement>>('boxCalendarRowHeader');
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
 
   public scroll = inject(ScrollService);
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
@@ -110,7 +107,7 @@ export class AbsenceGanttRowHeaderComponent
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
 
-    this.contextMenu?.hasClicked
+    this.contextMenu()?.hasClicked
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((keys) => {
         this.menuClicked(keys);
@@ -148,7 +145,7 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   private initializeDrawRowHeader(): void {
-    const box = this.boxCalendarRowHeader.nativeElement;
+    const box = this.boxCalendarRowHeader().nativeElement;
     this.drawRowHeader.height = box.clientHeight;
     this.drawRowHeader.width = box.clientWidth;
     this.drawRowHeader.createCanvas();
@@ -238,7 +235,8 @@ export class AbsenceGanttRowHeaderComponent
 
   onRightClick(event: MouseEvent): void {
     event.preventDefault();
-    if (!this.contextMenu) return;
+    const contextMenu = this.contextMenu();
+    if (!contextMenu) return;
 
     const pos = this.getMousePos(event);
     if (!pos) return;
@@ -261,9 +259,9 @@ export class AbsenceGanttRowHeaderComponent
     this.contextMenuRow = row;
     const menuData = new Menu();
     menuData.list.push(...MenuDataTemplate.goToAddress());
-    this.contextMenu.menuData = menuData;
+    contextMenu.menuData = menuData;
 
-    this.contextMenu.openMenu({
+    contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
@@ -273,7 +271,7 @@ export class AbsenceGanttRowHeaderComponent
     if (!keys || keys.length === 0) return;
 
     if (keys[0] === 'goToAddress') {
-      this.contextMenu.closeMenu(true);
+      this.contextMenu().closeMenu(true);
       const clientId = this.dataManagementBreak.readClientId(this.contextMenuRow);
       if (clientId) {
         this.router.navigate(['/workplace/edit-address', clientId], {

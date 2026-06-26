@@ -13,9 +13,9 @@ import {
   OnDestroy,
   OnInit,
   runInInjectionContext,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -51,9 +51,7 @@ export class EditShiftGroupComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   readonly isReadOnly = input(false);
-  @ViewChild('groupShiftForm', { static: false }) groupShiftForm:
-    | NgForm
-    | undefined;
+  readonly groupShiftForm = viewChild<NgForm>('groupShiftForm');
 
   readonly isChangingEvent = output<boolean>();
 
@@ -75,9 +73,9 @@ export class EditShiftGroupComponent
     this.readSignals();
   }
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.groupShiftForm!.valueChanges!.subscribe(
+    this.objectForUnsubscribe = this.groupShiftForm()!.valueChanges!.subscribe(
       () => {
-        if (this.groupShiftForm!.dirty === true) {
+        if (this.groupShiftForm()!.dirty === true) {
           setTimeout(() => {
             this.validateGroups();
             this.cdr.markForCheck();

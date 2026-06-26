@@ -26,7 +26,7 @@ import {
   OnInit,
   output,
   signal,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { TranslateModule } from '@ngx-translate/core';
@@ -121,18 +121,14 @@ const DEFAULT_ZOOM_VALUE = 100;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
-  @ViewChild('breakPlaceholderIcon')
-  breakPlaceholderIcon!: IconBreakPlaceholderComponent;
-  @ViewChild('scheduleCommandsIcon')
-  scheduleCommandsIcon!: IconThunderCircleComponent;
-  @ViewChild('availabilityCheckIcon')
-  availabilityCheckIcon!: IconAvailabilityCheckComponent;
-  @ViewChild('wizardDialog') wizardDialog!: WizardDialogComponent;
-  @ViewChild('harmonizerDialog') harmonizerDialog!: HarmonizerDialogComponent;
-  @ViewChild('holisticHarmonizerDialog')
-  holisticHarmonizerDialog!: HolisticHarmonizerDialogComponent;
-  @ViewChild('wizard4Dialog') wizard4Dialog!: Wizard4DialogComponent;
-  @ViewChild('recoveryDialog') recoveryDialog!: RecoveryDialogComponent;
+  readonly breakPlaceholderIcon = viewChild.required<IconBreakPlaceholderComponent>('breakPlaceholderIcon');
+  readonly scheduleCommandsIcon = viewChild.required<IconThunderCircleComponent>('scheduleCommandsIcon');
+  readonly availabilityCheckIcon = viewChild.required<IconAvailabilityCheckComponent>('availabilityCheckIcon');
+  readonly wizardDialog = viewChild.required<WizardDialogComponent>('wizardDialog');
+  readonly harmonizerDialog = viewChild.required<HarmonizerDialogComponent>('harmonizerDialog');
+  readonly holisticHarmonizerDialog = viewChild.required<HolisticHarmonizerDialogComponent>('holisticHarmonizerDialog');
+  readonly wizard4Dialog = viewChild.required<Wizard4DialogComponent>('wizard4Dialog');
+  readonly recoveryDialog = viewChild.required<RecoveryDialogComponent>('recoveryDialog');
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
@@ -394,14 +390,16 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   private updateBreakPlaceholderIcon(): void {
-    if (this.breakPlaceholderIcon) {
-      this.breakPlaceholderIcon.ChangeColor(this.showBreakPlaceholders);
+    const breakPlaceholderIcon = this.breakPlaceholderIcon();
+    if (breakPlaceholderIcon) {
+      breakPlaceholderIcon.ChangeColor(this.showBreakPlaceholders);
     }
   }
 
   private updateScheduleCommandsIcon(): void {
-    if (this.scheduleCommandsIcon) {
-      this.scheduleCommandsIcon.ChangeColor(this.showScheduleCommands);
+    const scheduleCommandsIcon = this.scheduleCommandsIcon();
+    if (scheduleCommandsIcon) {
+      scheduleCommandsIcon.ChangeColor(this.showScheduleCommands);
     }
   }
 
@@ -430,29 +428,30 @@ export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
   }
 
   private updateAvailabilityCheckIcon(): void {
-    if (this.availabilityCheckIcon) {
-      this.availabilityCheckIcon.ChangeColor(this.showAvailability);
+    const availabilityCheckIcon = this.availabilityCheckIcon();
+    if (availabilityCheckIcon) {
+      availabilityCheckIcon.ChangeColor(this.showAvailability);
     }
   }
 
   onWizardClick(): void {
-    this.wizardDialog.open();
+    this.wizardDialog().open();
   }
 
   onHarmonizerClick(): void {
-    this.harmonizerDialog.open();
+    this.harmonizerDialog().open();
   }
 
   onHolisticHarmonizerClick(): void {
-    this.holisticHarmonizerDialog.open();
+    this.holisticHarmonizerDialog().open();
   }
 
   onWizard4Click(): void {
-    this.wizard4Dialog.open();
+    this.wizard4Dialog().open();
   }
 
   onRecoveryClick(): void {
-    void this.recoveryDialog.open();
+    void this.recoveryDialog().open();
   }
 
   @HostListener('document:keydown', ['$event'])

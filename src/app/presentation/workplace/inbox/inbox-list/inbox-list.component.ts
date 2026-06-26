@@ -4,8 +4,10 @@
  * Component for displaying the email list within the selected folder.
  */
 
-import { AfterViewInit, Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, ViewChild,
+import {
+  AfterViewInit, Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked,
   ChangeDetectionStrategy,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -36,7 +38,7 @@ export class InboxListComponent implements OnInit, AfterViewInit {
   inboxService = inject(InboxService);
   private destroyRef = inject(DestroyRef);
 
-  @ViewChild('contextMenu', { static: false }) contextMenu!: ContextMenuComponent;
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
 
   private contextEmailId: string | null = null;
   private initSkipCount = 0;
@@ -68,7 +70,7 @@ export class InboxListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.contextMenu.hasClicked
+    this.contextMenu().hasClicked
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((keys) => this.onContextMenuClick(keys));
   }
@@ -100,8 +102,8 @@ export class InboxListComponent implements OnInit, AfterViewInit {
   onRightClick(event: MouseEvent, email: IReceivedEmailListItem): void {
     event.preventDefault();
     this.contextEmailId = email.id;
-    this.contextMenu.menuData = this.buildContextMenu(email);
-    this.contextMenu.openMenu(event);
+    contextMenu.menuData = this.buildContextMenu(email);
+    contextMenu.openMenu(event);
   }
 
   private buildContextMenu(email: IReceivedEmailListItem): Menu {
@@ -164,7 +166,7 @@ export class InboxListComponent implements OnInit, AfterViewInit {
     const value = keys[1];
     const emailId = this.contextEmailId;
 
-    this.contextMenu.closeMenu(true);
+    this.contextMenu().closeMenu(true);
 
     if (!emailId) return;
 

@@ -13,10 +13,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
-  ViewChild,
   computed,
   inject,
   signal,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { take } from 'rxjs';
@@ -45,7 +45,7 @@ type HolisticHarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'ca
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HolisticHarmonizerDialogComponent {
-  @ViewChild('holisticHarmonizerModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('holisticHarmonizerModal');
 
   private readonly ngbModal = inject(NgbModal);
   readonly holisticHarmonizerService = inject(DataHolisticHarmonizerService);
@@ -172,7 +172,7 @@ export class HolisticHarmonizerDialogComponent {
     this._localError.set(null);
     this.appliedScenarioName.set(null);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       keyboard: false,

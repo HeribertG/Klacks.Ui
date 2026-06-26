@@ -10,7 +10,6 @@
 import {
   Component,
   ElementRef,
-  ViewChild,
   AfterViewInit,
   OnDestroy,
   OnChanges,
@@ -20,7 +19,8 @@ import {
   Injector,
   ChangeDetectionStrategy,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -60,10 +60,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private _lastFromTimeString = '';
   private _lastUntilTimeString = '';
 
-  @ViewChild('inboxCanvas', { static: false })
-  inboxCanvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('rulerCanvas', { static: false })
-  rulerCanvasRef!: ElementRef<HTMLCanvasElement>;
+  readonly inboxCanvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('inboxCanvas');
+  readonly rulerCanvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('rulerCanvas');
 
   private timeRangeService = inject(TimeRangeService);
   private dragDropService = inject(TimeRulerDragDropService);
@@ -85,7 +83,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.shiftService.selectedContainerTemplateItemsSignal();
         this.shifts = newShifts;
 
-        if (this.inboxCanvasRef) {
+        if (this.inboxCanvasRef()) {
           this.setupCanvas();
         }
       },
@@ -98,7 +96,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         void selectedItems.size;
         void this.shiftService.selectedShiftSignal();
 
-        if (this.inboxCanvasRef) {
+        if (this.inboxCanvasRef()) {
           this.redrawWithSelection();
         }
       },
@@ -113,7 +111,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['fromTime'] || changes['untilTime']) && this.inboxCanvasRef) {
+    if ((changes['fromTime'] || changes['untilTime']) && this.inboxCanvasRef()) {
       const fromTimeString = `${this.fromTime().hours}:${this.fromTime().minutes}`;
       const untilTimeString = `${this.untilTime().hours}:${this.untilTime().minutes}`;
 
@@ -134,8 +132,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private setupCanvas(): void {
-    const inboxCanvas = this.inboxCanvasRef.nativeElement;
-    const rulerCanvas = this.rulerCanvasRef.nativeElement;
+    const inboxCanvas = this.inboxCanvasRef().nativeElement;
+    const rulerCanvas = this.rulerCanvasRef().nativeElement;
 
     const container = inboxCanvas.parentElement;
     if (!container) return;
@@ -258,7 +256,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const selectedItem = this.blockSelectionService.getSelectedSingle()
       ?? this.shiftService.selectedShiftSignal();
     this.renderService.redrawWithSelection(
-      this.inboxCanvasRef.nativeElement,
+      this.inboxCanvasRef().nativeElement,
       this.renderCanvas,
       selectedItem,
       this.buildScene(),
@@ -276,7 +274,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private setupResizeObserver(): void {
-    const inboxCanvas = this.inboxCanvasRef.nativeElement;
+    const inboxCanvas = this.inboxCanvasRef().nativeElement;
     const container = inboxCanvas.parentElement;
     if (!container) return;
 
@@ -290,7 +288,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   onCanvasClick(event: MouseEvent): void {
     this.interactionService.handleCanvasClick(
       event,
-      this.inboxCanvasRef.nativeElement,
+      this.inboxCanvasRef().nativeElement,
       this.shiftRectangles,
       this.blockSelectionService,
       this.shifts
@@ -300,7 +298,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   onContextMenu(event: MouseEvent): void {
     this.interactionService.handleContextMenu(
       event,
-      this.inboxCanvasRef.nativeElement,
+      this.inboxCanvasRef().nativeElement,
       this.shiftRectangles,
       this.shiftRightClick
     );
@@ -309,7 +307,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   onMouseDown(event: MouseEvent): void {
     this.interactionService.handleMouseDown(
       event,
-      this.inboxCanvasRef.nativeElement,
+      this.inboxCanvasRef().nativeElement,
       this.shiftRectangles,
       this.shifts,
       this.blockSelectionService
@@ -320,7 +318,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (this.interactionService.isPaintSelecting) {
       this.interactionService.handlePaintSelectMove(
         event,
-        this.inboxCanvasRef.nativeElement,
+        this.inboxCanvasRef().nativeElement,
         this.shiftRectangles,
         this.blockSelectionService
       );
@@ -329,7 +327,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const result = this.interactionService.handleMouseMove(
       event,
-      this.inboxCanvasRef.nativeElement,
+      this.inboxCanvasRef().nativeElement,
       this.shifts
     );
 
@@ -373,7 +371,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if (this.renderCanvas && this.renderCtx) {
       this.renderService.redrawCanvas(
-        this.inboxCanvasRef.nativeElement,
+        this.inboxCanvasRef().nativeElement,
         this.renderCanvas,
         this.renderCtx,
         draggedShift,
@@ -414,7 +412,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const dragHandled = this.interactionService.handleMouseUp(event, this.shifts);
 
     if (dragHandled) {
-      const canvas = this.inboxCanvasRef.nativeElement;
+      const canvas = this.inboxCanvasRef().nativeElement;
       const container = canvas.parentElement;
       if (!container) return;
 

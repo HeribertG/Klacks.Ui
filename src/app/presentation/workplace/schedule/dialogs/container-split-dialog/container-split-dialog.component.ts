@@ -16,7 +16,7 @@ import {
   inject,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -61,7 +61,7 @@ export interface IOpenContainerSplitOptions {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContainerSplitDialogComponent {
-  @ViewChild('modalTemplate') private modalTemplate!: TemplateRef<unknown>;
+  private readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('modalTemplate');
 
   private ngbModal = inject(NgbModal);
   private childrenService = inject(DataContainerWorkChildrenService);
@@ -147,7 +147,7 @@ export class ContainerSplitDialogComponent {
     this.selectedClientName.set('');
     this.isLoading.set(true);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
     });

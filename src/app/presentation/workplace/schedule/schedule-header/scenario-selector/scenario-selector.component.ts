@@ -10,7 +10,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -30,14 +30,11 @@ import { DeleteAllScenariosDialogComponent } from '../../dialogs/delete-all-scen
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScenarioSelectorComponent implements OnInit {
-  @ViewChild('createScenarioDialog')
-  createScenarioDialog!: CreateScenarioDialogComponent;
+  readonly createScenarioDialog = viewChild.required<CreateScenarioDialogComponent>('createScenarioDialog');
 
-  @ViewChild('renameScenarioDialog')
-  renameScenarioDialog!: RenameScenarioDialogComponent;
+  readonly renameScenarioDialog = viewChild.required<RenameScenarioDialogComponent>('renameScenarioDialog');
 
-  @ViewChild('deleteAllScenariosDialog')
-  deleteAllScenariosDialog!: DeleteAllScenariosDialogComponent;
+  readonly deleteAllScenariosDialog = viewChild.required<DeleteAllScenariosDialogComponent>('deleteAllScenariosDialog');
 
   public analyseScenarioService = inject(AnalyseScenarioService);
   protected dataManagementSchedule = inject(DataManagementScheduleService);
@@ -57,7 +54,7 @@ export class ScenarioSelectorComponent implements OnInit {
   }
 
   onCreateNew(): void {
-    this.createScenarioDialog.open();
+    this.createScenarioDialog().open();
   }
 
   onAccept(): void {
@@ -75,11 +72,11 @@ export class ScenarioSelectorComponent implements OnInit {
   onRename(): void {
     const scenario = this.analyseScenarioService.activeScenario();
     if (!scenario) return;
-    this.renameScenarioDialog.open(scenario);
+    this.renameScenarioDialog().open(scenario);
   }
 
   onDeleteAll(): void {
-    this.deleteAllScenariosDialog.open(
+    this.deleteAllScenariosDialog().open(
       this.dataManagementSchedule.workFilter.selectedGroup,
     );
   }

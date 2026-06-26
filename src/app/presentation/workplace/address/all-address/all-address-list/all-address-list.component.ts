@@ -9,13 +9,13 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  viewChild
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client/client-class';
@@ -65,11 +65,8 @@ export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   // @ViewChild properties
-  @ViewChild(ResizeTableDirective, { static: false })
-  resizeDirective!: ResizeTableDirective;
-  @ViewChild('myAddressTable', { static: true }) myAddressTable:
-    | ElementRef
-    | undefined;
+  readonly resizeDirective = viewChild.required(ResizeTableDirective);
+  readonly myAddressTable = viewChild<ElementRef>('myAddressTable');
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
@@ -141,8 +138,9 @@ export class AllAddressListComponent
       });
 
     setTimeout(() => {
-      if (this.resizeDirective) {
-        this.resizeDirective.recalcHeight();
+      const resizeDirective = this.resizeDirective();
+      if (resizeDirective) {
+        resizeDirective.recalcHeight();
       }
       this.setupTableResize();
     }, 100);
@@ -213,9 +211,10 @@ export class AllAddressListComponent
     const value = +event.srcElement.value;
     this.page = 1;
 
-    if (value === -1 && this.myAddressTable?.nativeElement) {
+    const myAddressTable = this.myAddressTable();
+    if (value === -1 && myAddressTable?.nativeElement) {
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
-        this.myAddressTable.nativeElement
+        myAddressTable.nativeElement
       );
       this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
         optimalRows;
@@ -224,7 +223,7 @@ export class AllAddressListComponent
         value;
     }
 
-    this.resizeDirective?.onRowSizeChange(value);
+    this.resizeDirective()?.onRowSizeChange(value);
     this.readPage();
   }
 
@@ -393,7 +392,7 @@ export class AllAddressListComponent
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
-            this.resizeDirective?.triggerMeasurement();
+            this.resizeDirective()?.triggerMeasurement();
           }
         }
       });
@@ -402,10 +401,11 @@ export class AllAddressListComponent
   }
 
   private setupTableResize(): void {
-    if (!this.myAddressTable?.nativeElement) return;
+    const myAddressTable = this.myAddressTable();
+    if (!myAddressTable?.nativeElement) return;
 
     this.tableResizeService
-      .createResizeObservable(this.myAddressTable.nativeElement)
+      .createResizeObservable(myAddressTable.nativeElement)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((optimalRows: number) => {
         if (this.tableResizeService.isAutoMode()) {

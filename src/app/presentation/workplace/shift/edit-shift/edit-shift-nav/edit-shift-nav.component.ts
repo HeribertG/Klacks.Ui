@@ -10,10 +10,10 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -51,9 +51,7 @@ import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/
 ],
 })
 export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('navShiftForm', { static: false }) navShiftForm:
-    | NgForm
-    | undefined;
+  readonly navShiftForm = viewChild<NgForm>('navShiftForm');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private translateService = inject(TranslateService);
@@ -102,10 +100,11 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-    if (this.navShiftForm && this.navShiftForm.valueChanges) {
-      this.objectForUnsubscribe = this.navShiftForm.valueChanges.subscribe(
+    const navShiftForm = this.navShiftForm();
+    if (navShiftForm && navShiftForm.valueChanges) {
+      this.objectForUnsubscribe = navShiftForm.valueChanges.subscribe(
         () => {
-          if (this.navShiftForm!.dirty) {
+          if (this.navShiftForm()!.dirty) {
             if (!this.isComboBoxOpen) {
               setTimeout(() => {
                 this.onFilterChange();

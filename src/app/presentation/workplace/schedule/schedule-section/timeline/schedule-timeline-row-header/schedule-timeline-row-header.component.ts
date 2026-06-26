@@ -23,7 +23,6 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
   effect,
   runInInjectionContext,
   viewChild,
@@ -74,9 +73,9 @@ import { ShiftPreferencesDialogComponent } from '../../../dialogs/shift-preferen
 export class ScheduleTimelineRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
-  @ViewChild('contextMenu', { static: false }) contextMenu!: ContextMenuComponent;
-  @ViewChild(ShiftPreferencesDialogComponent) shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
+  readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly shiftPreferencesDialog = viewChild.required(ShiftPreferencesDialogComponent);
 
   readonly valueChangeVScrollbar = input.required<number>();
 
@@ -121,7 +120,7 @@ export class ScheduleTimelineRowHeaderComponent
     this.initializeDrawRowHeader();
     this.registerSignalEffects();
 
-    this.contextMenu?.hasClicked
+    this.contextMenu()?.hasClicked
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((keys) => {
         this.menuClicked(keys);
@@ -183,7 +182,8 @@ export class ScheduleTimelineRowHeaderComponent
 
   onRightClick(event: MouseEvent): void {
     event.preventDefault();
-    if (!this.contextMenu) return;
+    const contextMenu = this.contextMenu();
+    if (!contextMenu) return;
 
     const pos = this.getMousePos(event);
     if (!pos) return;
@@ -208,9 +208,9 @@ export class ScheduleTimelineRowHeaderComponent
     }
 
     this.contextMenuRow = row;
-    this.contextMenu.menuData = this.reportHelper.createContextMenu();
+    contextMenu.menuData = this.reportHelper.createContextMenu();
 
-    this.contextMenu.openMenu({
+    contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
@@ -221,19 +221,19 @@ export class ScheduleTimelineRowHeaderComponent
 
     switch (keys[0]) {
       case 'goToAddress':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.navigateToAddress(this.contextMenuRow);
         break;
       case 'staffSchedule':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.generateStaffSchedule(this.contextMenuRow);
         break;
       case 'sendStaffSchedule':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.sendStaffSchedule(this.contextMenuRow);
         break;
       case 'shiftPreferences':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.openShiftPreferencesDialog(this.contextMenuRow);
         break;
     }
@@ -246,9 +246,10 @@ export class ScheduleTimelineRowHeaderComponent
     if (groupIndex === undefined) return;
 
     const client = this.dataService.getGroupIndex(groupIndex);
-    if (client?.id && this.shiftPreferencesDialog) {
+    const shiftPreferencesDialog = this.shiftPreferencesDialog();
+    if (client?.id && shiftPreferencesDialog) {
       const name = [client.firstName, client.name].filter(Boolean).join(' ');
-      this.shiftPreferencesDialog.open(client.id, name);
+      shiftPreferencesDialog.open(client.id, name);
     }
   }
 
@@ -385,7 +386,7 @@ export class ScheduleTimelineRowHeaderComponent
   }
 
   private updateDrawRowHeaderDimensions(element?: Element): void {
-    const box = element ?? this.boxElement.nativeElement;
+    const box = element ?? this.boxElement().nativeElement;
     this.drawRowHeader.width = box.clientWidth;
     this.drawRowHeader.height = box.clientHeight;
   }

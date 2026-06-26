@@ -13,7 +13,7 @@ import {
   inject,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -31,7 +31,7 @@ import { IAnalyseScenario } from 'src/app/domain/models/schedule/analyse-scenari
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RenameScenarioDialogComponent {
-  @ViewChild('renameScenarioModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('renameScenarioModal');
 
   private ngbModal = inject(NgbModal);
   private analyseScenarioService = inject(AnalyseScenarioService);
@@ -51,7 +51,7 @@ export class RenameScenarioDialogComponent {
     this.isSaving.set(false);
     this.errorMessage.set(null);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       size: 'md',

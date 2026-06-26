@@ -20,7 +20,6 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   ElementRef,
   inject,
   OnChanges,
@@ -96,13 +95,11 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
-  @ViewChild('dragClip') private dragClipEl!: ElementRef<HTMLDivElement>;
-  @ViewChild(CdkDropList) private cdkDropListRef!: CdkDropList;
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
-  @ViewChild(ShiftPreferencesDialogComponent)
-  shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
+  readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
+  private readonly dragClipEl = viewChild.required<ElementRef<HTMLDivElement>>('dragClip');
+  private readonly cdkDropListRef = viewChild.required(CdkDropList);
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly shiftPreferencesDialog = viewChild.required(ShiftPreferencesDialogComponent);
 
   readonly valueChangeVScrollbar = input.required<number>();
   readonly vScrollChange = output<number>();
@@ -165,7 +162,7 @@ export class ScheduleScheduleRowHeaderComponent
     this.initializeDrawRowHeader();
     this.readSignals();
     this.syncSortedClients();
-    this.contextMenu?.hasClicked
+    this.contextMenu()?.hasClicked
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((keys) => {
         this.menuClicked(keys);
@@ -226,7 +223,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   private updateDrawRowHeaderDimensions(element?: Element): void {
-    const box = element || this.boxElement.nativeElement;
+    const box = element || this.boxElement().nativeElement;
     this.drawRowHeader.width = box.clientWidth;
     this.drawRowHeader.height = box.clientHeight;
   }
@@ -365,7 +362,8 @@ export class ScheduleScheduleRowHeaderComponent
 
   onRightClick(event: MouseEvent): void {
     event.preventDefault();
-    if (!this.contextMenu) return;
+    const contextMenu = this.contextMenu();
+    if (!contextMenu) return;
 
     const pos = this.getMousePos(event);
     if (!pos) return;
@@ -390,9 +388,9 @@ export class ScheduleScheduleRowHeaderComponent
     }
 
     this.contextMenuRow = row;
-    this.contextMenu.menuData = this.reportHelper.createContextMenu();
+    contextMenu.menuData = this.reportHelper.createContextMenu();
 
-    this.contextMenu.openMenu({
+    contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
@@ -403,19 +401,19 @@ export class ScheduleScheduleRowHeaderComponent
 
     switch (keys[0]) {
       case 'goToAddress':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.navigateToAddress(this.contextMenuRow);
         break;
       case 'staffSchedule':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.generateStaffSchedule(this.contextMenuRow);
         break;
       case 'sendStaffSchedule':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.reportHelper.sendStaffSchedule(this.contextMenuRow);
         break;
       case 'shiftPreferences':
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         this.openShiftPreferencesDialog(this.contextMenuRow);
         break;
     }
@@ -428,9 +426,10 @@ export class ScheduleScheduleRowHeaderComponent
     if (groupIndex === undefined) return;
 
     const client = this.dataService.getGroupIndex(groupIndex);
-    if (client?.id && this.shiftPreferencesDialog) {
+    const shiftPreferencesDialog = this.shiftPreferencesDialog();
+    if (client?.id && shiftPreferencesDialog) {
       const name = [client.firstName, client.name].filter(Boolean).join(' ');
-      this.shiftPreferencesDialog.open(client.id, name);
+      shiftPreferencesDialog.open(client.id, name);
     }
   }
 
@@ -456,7 +455,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   private resolvePlaceholderIndex(cdkCurrentIndex: number): number {
-    const overlay = this.boxElement.nativeElement.querySelector('.drag-overlay');
+    const overlay = this.boxElement().nativeElement.querySelector('.drag-overlay');
     if (!overlay) return cdkCurrentIndex;
     const children = Array.from(overlay.children);
     const idx = children.findIndex(c => c.classList.contains('cdk-drag-placeholder'));
@@ -580,7 +579,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   protected onDragMoved(event: CdkDragMove): void {
-    const rect = this.boxElement.nativeElement.getBoundingClientRect();
+    const rect = this.boxElement().nativeElement.getBoundingClientRect();
     const nativeEvent = event.event as MouseEvent;
     const y = nativeEvent.clientY;
     const threshold = ScheduleScheduleRowHeaderComponent.SCROLL_EDGE_THRESHOLD;
@@ -615,14 +614,15 @@ export class ScheduleScheduleRowHeaderComponent
 
   private applyScrollOffset(offset: number): void {
     this.scrollOffsetPx = offset;
-    if (this.dragClipEl?.nativeElement) {
-      this.dragClipEl.nativeElement.scrollTop = offset;
+    const dragClipEl = this.dragClipEl();
+    if (dragClipEl?.nativeElement) {
+      dragClipEl.nativeElement.scrollTop = offset;
     }
   }
 
   private refreshCdkPositions(): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ref = (this.cdkDropListRef as any)?._dropListRef;
+    const ref = (this.cdkDropListRef() as any)?._dropListRef;
     if (ref) {
       ref._cacheOwnPosition?.();
       ref._cacheItemPositions?.();

@@ -13,7 +13,7 @@ import {
   inject,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { take } from 'rxjs';
@@ -43,7 +43,7 @@ type WizardPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | 'canc
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WizardDialogComponent {
-  @ViewChild('wizardModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('wizardModal');
 
   private readonly ngbModal = inject(NgbModal);
   readonly wizardService = inject(DataWizardService);
@@ -153,7 +153,7 @@ export class WizardDialogComponent {
     this._localError.set(null);
     this.appliedCount.set(0);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true, backdrop: 'static', keyboard: false, size: 'lg',
     });
     this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());

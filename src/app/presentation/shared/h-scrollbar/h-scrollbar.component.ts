@@ -11,9 +11,9 @@ import {
   Input,
   Output,
   EventEmitter,
-  ViewChild,
   ChangeDetectionStrategy,
-  input
+  input,
+  viewChild
 } from '@angular/core';
 import {
   ScrollbarComponent,
@@ -43,7 +43,7 @@ export class HScrollbarComponent {
   @Output() valueChange = new EventEmitter<number>();
   @Output() maxValueChange = new EventEmitter<number>();
 
-  @ViewChild(ScrollbarComponent) scrollbar!: ScrollbarComponent;
+  readonly scrollbar = viewChild.required(ScrollbarComponent);
 
   onValueChange(newValue: number) {
     this.value = newValue;
@@ -51,7 +51,7 @@ export class HScrollbarComponent {
   }
 
   refresh(): void {
-    this.scrollbar?.refresh();
+    this.scrollbar()?.refresh();
   }
 }
 

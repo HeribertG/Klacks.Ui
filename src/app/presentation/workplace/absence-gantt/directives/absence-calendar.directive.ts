@@ -123,14 +123,15 @@ export class AbsenceCalendarDirective {
       this.gridBody.onMouseDown(event);
     }
     if (event.buttons === 2) {
-      if (this.gridBody.contextMenu) {
-        this.gridBody.contextMenu.closeMenu(true);
+      const contextMenu = this.gridBody.contextMenu();
+      if (contextMenu) {
+        contextMenu.closeMenu(true);
         this.stopEvent(event);
         const isHeader = event.offsetY < this.gridBody.calendarSetting.cellHeaderHeight;
         if (this.gridBody.drawCalendarGantt.rows > 0 && !isHeader) {
           this.gridBody.onSelectByMouse(event);
           this.gridBody.createContextMenu(event);
-          this.gridBody.contextMenu.openMenu(event);
+          contextMenu.openMenu(event);
         }
       }
     }
@@ -194,8 +195,9 @@ export class AbsenceCalendarDirective {
 
     this.keyDown = true;
 
-    if (this.gridBody.contextMenu) {
-      this.gridBody.contextMenu.closeMenu(true);
+    const contextMenu = this.gridBody.contextMenu();
+    if (contextMenu) {
+      contextMenu.closeMenu(true);
     }
 
     if (event.shiftKey) {

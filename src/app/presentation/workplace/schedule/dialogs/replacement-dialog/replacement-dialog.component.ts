@@ -15,7 +15,7 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: CorrectionDialogComponent
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -49,7 +49,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReplacementDialogComponent {
-  @ViewChild('replacementModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('replacementModal');
 
   private ngbModal = inject(NgbModal);
   private workChangeService = inject(DataManagementWorkchangeService);
@@ -117,7 +117,7 @@ export class ReplacementDialogComponent {
     this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
     this.reset();
     this.loadClients(() => {
-      this.modalRef = this.ngbModal.open(this.modalTemplate, {
+      this.modalRef = this.ngbModal.open(this.modalTemplate(), {
         centered: true,
         backdrop: 'static',
       });
@@ -170,7 +170,7 @@ export class ReplacementDialogComponent {
           this.recalculate();
           this.cdr.markForCheck();
 
-          this.modalRef = this.ngbModal.open(this.modalTemplate, {
+          this.modalRef = this.ngbModal.open(this.modalTemplate(), {
             centered: true,
             backdrop: 'static',
           });

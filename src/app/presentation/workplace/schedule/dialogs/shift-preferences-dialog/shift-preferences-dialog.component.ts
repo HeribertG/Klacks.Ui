@@ -12,7 +12,7 @@ import {
   Component,
   inject,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -35,7 +35,7 @@ import { forkJoin } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftPreferencesDialogComponent {
-  @ViewChild('shiftPreferencesModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('shiftPreferencesModal');
 
   private ngbModal = inject(NgbModal);
   private dataService = inject(DataShiftPreferenceService);
@@ -74,7 +74,7 @@ export class ShiftPreferencesDialogComponent {
       this.cdr.markForCheck();
     });
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       size: 'md',

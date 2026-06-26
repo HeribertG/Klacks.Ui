@@ -9,7 +9,7 @@
  * @param clientId - ID of the client associated with the work entry
  * @param currentDate - The date of the work entry being modified
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -43,7 +43,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TravelDialogComponent {
-  @ViewChild('travelModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('travelModal');
 
   private ngbModal = inject(NgbModal);
   private workChangeService = inject(DataManagementWorkchangeService);
@@ -85,7 +85,7 @@ export class TravelDialogComponent {
     this.currentDate = currentDate;
     this.workContext = this.logicService.createWorkTimeContext(workStartTime, workEndTime);
     this.reset();
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
     });
@@ -119,7 +119,7 @@ export class TravelDialogComponent {
         this.recalculate();
         this.cdr.markForCheck();
 
-        this.modalRef = this.ngbModal.open(this.modalTemplate, {
+        this.modalRef = this.ngbModal.open(this.modalTemplate(), {
           centered: true,
           backdrop: 'static',
         });

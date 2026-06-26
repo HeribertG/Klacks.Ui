@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectionStrategy, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -28,7 +28,7 @@ interface WorkEditValidation {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkEditDialogComponent {
-  @ViewChild('workEditModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('workEditModal');
 
   private ngbModal = inject(NgbModal);
   private dataScheduleService = inject(DataScheduleService);
@@ -73,7 +73,7 @@ export class WorkEditDialogComponent {
     this.description = information || '';
     this.recalculate();
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
     });

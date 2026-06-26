@@ -9,8 +9,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked,
+import {
+  Component, inject, OnInit, OnDestroy, signal, ElementRef, AfterViewChecked,
   ChangeDetectionStrategy, effect,
+  viewChild
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -71,7 +73,7 @@ interface MapSettingsFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('mapContainer') mapContainerRef!: ElementRef<HTMLDivElement>;
+  readonly mapContainerRef = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
   private mapInitialized = false;
   private shouldInitializeMap = false;
   private dataDashboardService = inject(DataDashboardService);
@@ -180,7 +182,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   }
 
   ngAfterViewChecked(): void {
-    if (this.shouldInitializeMap && !this.mapInitialized && this.mapContainerRef?.nativeElement) {
+    if (this.shouldInitializeMap && !this.mapInitialized && this.mapContainerRef()?.nativeElement) {
       this.mapInitialized = true;
       this.shouldInitializeMap = false;
       this.initializeMap();
@@ -353,7 +355,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       return;
     }
 
-    const mapContainer = this.mapContainerRef?.nativeElement;
+    const mapContainer = this.mapContainerRef()?.nativeElement;
     if (!mapContainer) {
       console.error('Map container not found');
       return;

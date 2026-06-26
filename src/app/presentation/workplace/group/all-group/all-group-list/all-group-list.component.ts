@@ -12,13 +12,13 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
@@ -70,11 +70,8 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(ResizeTableDirective, { static: false })
-  resizeDirective!: ResizeTableDirective;
-  @ViewChild('myGridTable', { static: true }) myGridTable:
-    | ElementRef
-    | undefined;
+  readonly resizeDirective = viewChild.required(ResizeTableDirective);
+  readonly myGridTable = viewChild<ElementRef>('myGridTable');
 
   readonly switchToTree = output<void>();
 
@@ -147,8 +144,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
     setTimeout(() => {
-      if (this.resizeDirective) {
-        this.resizeDirective.recalcHeight();
+      const resizeDirective = this.resizeDirective();
+      if (resizeDirective) {
+        resizeDirective.recalcHeight();
       }
       this.setupTableResize();
     }, 100);
@@ -320,9 +318,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = +event.srcElement.value;
     this.page = 1;
 
-    if (value === -1 && this.myGridTable?.nativeElement) {
+    const myGridTable = this.myGridTable();
+    if (value === -1 && myGridTable?.nativeElement) {
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
-        this.myGridTable.nativeElement
+        myGridTable.nativeElement
       );
       this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
         optimalRows;
@@ -331,7 +330,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         value;
     }
 
-    this.resizeDirective?.onRowSizeChange(value);
+    this.resizeDirective()?.onRowSizeChange(value);
     this.readPage();
   }
 
@@ -389,7 +388,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
-            this.resizeDirective?.triggerMeasurement();
+            this.resizeDirective()?.triggerMeasurement();
           }
         }
       });
@@ -397,10 +396,11 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setupTableResize(): void {
-    if (!this.myGridTable?.nativeElement) return;
+    const myGridTable = this.myGridTable();
+    if (!myGridTable?.nativeElement) return;
 
     this.tableResizeService
-      .createResizeObservable(this.myGridTable.nativeElement)
+      .createResizeObservable(myGridTable.nativeElement)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((optimalRows: number) => {
         if (this.tableResizeService.isAutoMode()) {

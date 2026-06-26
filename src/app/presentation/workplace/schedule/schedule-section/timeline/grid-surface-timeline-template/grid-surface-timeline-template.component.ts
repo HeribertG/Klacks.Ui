@@ -22,12 +22,12 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -141,9 +141,8 @@ export class GridSurfaceTimelineTemplateComponent
   readonly containerWorkDoubleClick = output<TimelineDoubleClickEvent>();
   readonly deleteBlock = output<TimelineDoubleClickEvent>();
 
-  @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
-  @ViewChild('canvasTemplateRef', { static: true })
-  canvasRef!: ElementRef<HTMLCanvasElement>;
+  readonly boxTemplate = viewChild.required<ElementRef<HTMLDivElement>>('boxTemplate');
+  readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvasTemplateRef');
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
@@ -203,7 +202,7 @@ export class GridSurfaceTimelineTemplateComponent
   }
 
   setFocus(): void {
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     if (canvas) {
       canvas.focus();
       this.drawSchedule.isFocused = true;
@@ -274,7 +273,7 @@ export class GridSurfaceTimelineTemplateComponent
   }
 
   private initializeDrawSchedule(): void {
-    const box = this.boxTemplate.nativeElement;
+    const box = this.boxTemplate().nativeElement;
     this.drawSchedule.createCanvas();
     this.drawSchedule.width = box.clientWidth;
     this.drawSchedule.height = box.clientHeight;
@@ -283,7 +282,7 @@ export class GridSurfaceTimelineTemplateComponent
   }
 
   private observeParentResize(): void {
-    const parentElement = this.canvasRef.nativeElement.parentElement;
+    const parentElement = this.canvasRef().nativeElement.parentElement;
     if (parentElement && typeof window !== 'undefined' && 'ResizeObserver' in window) {
       this.resizeObserver = new ResizeObserver(() => {
         if (this.isDestroyed) return;
@@ -292,7 +291,7 @@ export class GridSurfaceTimelineTemplateComponent
         requestAnimationFrame(() => {
           this.resizePending = false;
           if (this.isDestroyed) return;
-          const box = this.boxTemplate.nativeElement;
+          const box = this.boxTemplate().nativeElement;
           this.drawSchedule.width = box.clientWidth;
           this.drawSchedule.height = box.clientHeight;
           this.drawSchedule.refresh();

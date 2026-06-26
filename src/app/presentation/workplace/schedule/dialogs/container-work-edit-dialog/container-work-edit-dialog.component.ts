@@ -13,12 +13,12 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
-  ViewChild,
   TemplateRef,
   afterNextRender,
   Injector,
   effect,
   signal,
+  viewChild
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -158,14 +158,10 @@ export class ContainerWorkEditDialogComponent {
   private timeChange$ = new Subject<void>();
   private modalRef: NgbModalRef | null = null;
 
-  @ViewChild('containerWorkEditModal', { static: false })
-  modalTemplate!: TemplateRef<unknown>;
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
-  @ViewChild('propertiesModal', { static: false })
-  propertiesModal!: TemplateRef<unknown>;
-  @ViewChild('absenceTimeModal', { static: false })
-  absenceTimeModal!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('containerWorkEditModal');
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly propertiesModal = viewChild.required<TemplateRef<unknown>>('propertiesModal');
+  readonly absenceTimeModal = viewChild.required<TemplateRef<unknown>>('absenceTimeModal');
 
   timeRangeToleranceValue = 50;
 
@@ -276,7 +272,7 @@ export class ContainerWorkEditDialogComponent {
       useThreeWaySort: false,
     });
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       windowClass: MODAL_WINDOW_CLASS,
@@ -503,7 +499,7 @@ export class ContainerWorkEditDialogComponent {
     if (keys.includes('properties')) {
       this.openPropertiesDialog();
     }
-    this.contextMenu.closeMenu(true);
+    this.contextMenu().closeMenu(true);
   }
 
   onContainerContextMenu(event: MouseEvent): void {
@@ -533,8 +529,8 @@ export class ContainerWorkEditDialogComponent {
     );
     menuData.list.push(propertiesItem);
 
-    this.contextMenu.menuData = menuData;
-    this.contextMenu.openMenu(event);
+    contextMenu.menuData = menuData;
+    contextMenu.openMenu(event);
   }
 
   private openPropertiesDialog(): void {
@@ -542,7 +538,7 @@ export class ContainerWorkEditDialogComponent {
     if (target?.absenceId) {
       this.absenceService.openAbsenceTimeModal(
         target,
-        this.absenceTimeModal,
+        this.absenceTimeModal(),
         this.timeFrom,
         this.timeTo,
         this.lifecycleService.weekday,
@@ -551,7 +547,7 @@ export class ContainerWorkEditDialogComponent {
       return;
     }
     this.propertiesService.openPropertiesDialog(
-      this.propertiesModal,
+      this.propertiesModal(),
       this.lifecycleService.weekday,
       this.lifecycleService.isHoliday,
     );
@@ -560,7 +556,7 @@ export class ContainerWorkEditDialogComponent {
   onAbsenceRowDblClick(item: IContainerTemplateItem): void {
     this.absenceService.openAbsenceTimeModal(
       item,
-      this.absenceTimeModal,
+      this.absenceTimeModal(),
       this.timeFrom,
       this.timeTo,
       this.lifecycleService.weekday,

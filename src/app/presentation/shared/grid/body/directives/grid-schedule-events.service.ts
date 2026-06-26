@@ -214,7 +214,7 @@ export class GridScheduleEventsService {
     cellWidth: number,
     cellHeight: number,
   ): string | null {
-    const sourceCanvas = this.gridSurface.canvasRef?.nativeElement;
+    const sourceCanvas = this.gridSurface.canvasRef()?.nativeElement;
     if (!sourceCanvas) return null;
 
     const dpr = window.devicePixelRatio || 1;

@@ -10,9 +10,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
-  ViewChild,
   computed,
   inject,
+  viewChild
 } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +31,7 @@ const WIZARD4_CREATOR = 'wizard4';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Wizard4DialogComponent {
-  @ViewChild('wizard4Modal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('wizard4Modal');
 
   private readonly ngbModal = inject(NgbModal);
   private readonly analyseScenarioService = inject(AnalyseScenarioService);
@@ -44,7 +44,7 @@ export class Wizard4DialogComponent {
   );
 
   open(): void {
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       size: 'md',
     });

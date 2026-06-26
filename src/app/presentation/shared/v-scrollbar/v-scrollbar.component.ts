@@ -9,10 +9,10 @@
 import {
   Component,
   Input,
-  ViewChild,
   ChangeDetectionStrategy,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import {
   ScrollbarComponent,
@@ -42,7 +42,7 @@ export class VScrollbarComponent {
   readonly valueChange = output<number>();
   readonly maxValueChange = output<number>();
 
-  @ViewChild(ScrollbarComponent) scrollbar!: ScrollbarComponent;
+  readonly scrollbar = viewChild.required(ScrollbarComponent);
 
   onValueChange(newValue: number) {
     this.value = newValue;
@@ -50,7 +50,7 @@ export class VScrollbarComponent {
   }
 
   refresh(): void {
-    this.scrollbar?.refresh();
+    this.scrollbar()?.refresh();
   }
 }
 

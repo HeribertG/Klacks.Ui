@@ -12,9 +12,9 @@ import {
   OnDestroy,
   OnInit,
   runInInjectionContext,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -64,12 +64,8 @@ export class EditShiftItemComponent
   readonly isChangingEvent = output<boolean>();
   readonly isChangingMode = output();
 
-  @ViewChild('mainShiftForm', { static: false }) mainShiftForm:
-    | NgForm
-    | undefined;
-  @ViewChild('abbreviation', { static: false }) abbreviation:
-    | NgModel
-    | undefined;
+  readonly mainShiftForm = viewChild<NgForm>('mainShiftForm');
+  readonly abbreviation = viewChild<NgModel>('abbreviation');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public shiftFormService = inject(ShiftFormService);
@@ -95,9 +91,9 @@ export class EditShiftItemComponent
   ngAfterViewInit(): void {
     this.setMode();
 
-    this.objectForUnsubscribe = this.mainShiftForm!.valueChanges!.subscribe(
+    this.objectForUnsubscribe = this.mainShiftForm()!.valueChanges!.subscribe(
       () => {
-        if (this.mainShiftForm!.dirty === true) {
+        if (this.mainShiftForm()!.dirty === true) {
           setTimeout(() => {
             this.isChangingEvent.emit(true);
             this.cdr.markForCheck();
@@ -130,7 +126,7 @@ export class EditShiftItemComponent
 
     if (
       this.dataManagementShiftService.editShift &&
-      this.abbreviation?.untouched
+      this.abbreviation()?.untouched
     ) {
       if (nameValue && nameValue.trim() !== '') {
         this.dataManagementShiftService.editShift.abbreviation =

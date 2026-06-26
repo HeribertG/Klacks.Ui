@@ -14,7 +14,7 @@ import {
   OnInit,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -57,8 +57,7 @@ interface LoginFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  @ViewChild('forgotPasswordModal', { read: TemplateRef })
-  forgotPasswordModal!: TemplateRef<any>;
+  readonly forgotPasswordModal = viewChild.required('forgotPasswordModal', { read: TemplateRef });
 
   private auth = inject(AuthService);
   private localStorageService = inject(LocalStorageService);
@@ -168,7 +167,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.resetEmailError.set(false);
     this.resetEmailSending.set(false);
 
-    this.modalService.open(this.forgotPasswordModal, {
+    this.modalService.open(this.forgotPasswordModal(), {
       size: 'md',
       centered: true,
       backdrop: 'static',

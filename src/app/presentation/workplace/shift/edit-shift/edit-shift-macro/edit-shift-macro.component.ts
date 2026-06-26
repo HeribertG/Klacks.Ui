@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnDestroy, OnInit, ViewChild, input, output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnDestroy, OnInit, input, output, viewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -43,9 +43,7 @@ export class EditShiftMacroComponent
 
   readonly isChangingEvent = output<boolean>();
 
-  @ViewChild('macroShiftForm', { static: false }) macroShiftForm:
-    | NgForm
-    | undefined;
+  readonly macroShiftForm = viewChild<NgForm>('macroShiftForm');
 
   visibleTable = 'inline';
   currentLang: Language = DomainMessages.DEFAULT_LANG;
@@ -65,9 +63,9 @@ export class EditShiftMacroComponent
     this.currentLang = this.translateService.currentLang as Language;
   }
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.macroShiftForm!.valueChanges!.subscribe(
+    this.objectForUnsubscribe = this.macroShiftForm()!.valueChanges!.subscribe(
       () => {
-        if (this.macroShiftForm!.dirty === true) {
+        if (this.macroShiftForm()!.dirty === true) {
           if (!this.dataManagementShiftService.editShift?.macroId) {
             this.macroDescription = '';
           }

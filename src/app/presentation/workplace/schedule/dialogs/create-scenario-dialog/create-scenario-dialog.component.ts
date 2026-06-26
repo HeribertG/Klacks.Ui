@@ -8,7 +8,7 @@
  * @param description - Optional description of the new scenario
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +26,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateScenarioDialogComponent {
-  @ViewChild('createScenarioModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('createScenarioModal');
 
   private ngbModal = inject(NgbModal);
   private analyseScenarioService = inject(AnalyseScenarioService);
@@ -48,7 +48,7 @@ export class CreateScenarioDialogComponent {
     this.isSaving.set(false);
     this.errorMessage.set(null);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
       size: 'md',

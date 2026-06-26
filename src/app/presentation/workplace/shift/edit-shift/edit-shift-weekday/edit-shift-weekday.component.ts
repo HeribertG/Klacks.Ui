@@ -14,9 +14,9 @@ import {
   OnDestroy,
   OnInit,
   runInInjectionContext,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -51,9 +51,7 @@ export class EditShiftWeekdayComponent
   readonly isChangingEvent = output<boolean>();
   readonly isComplex = input(false);
 
-  @ViewChild('weekdayShiftForm', { static: false }) weekdayShiftForm:
-    | NgForm
-    | undefined;
+  readonly weekdayShiftForm = viewChild<NgForm>('weekdayShiftForm');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public shiftFormService = inject(ShiftFormService);
@@ -74,9 +72,9 @@ export class EditShiftWeekdayComponent
   }
 
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.weekdayShiftForm!.valueChanges!.subscribe(
+    this.objectForUnsubscribe = this.weekdayShiftForm()!.valueChanges!.subscribe(
       () => {
-        if (this.weekdayShiftForm!.dirty === true) {
+        if (this.weekdayShiftForm()!.dirty === true) {
           setTimeout(() => {
             this.isChangingEvent.emit(true);
             this.check();

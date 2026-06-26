@@ -12,7 +12,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ViewChild,
   TemplateRef,
   inject,
   Input,
@@ -21,7 +20,8 @@ import {
   DestroyRef,
   computed,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -89,15 +89,12 @@ export class CutShiftListComponent implements OnInit {
   private cutByWeekdayService = inject(CutByWeekdayService);
   private cutByStaffService = inject(CutByStaffService);
 
-  @ViewChild('cutDateModal', { static: true }) cutDateModal!: TemplateRef<any>;
-  @ViewChild('cutTimeModal', { static: true }) cutTimeModal!: TemplateRef<any>;
-  @ViewChild('cutWeekdaysModal', { static: true })
-  cutWeekdaysModal!: TemplateRef<any>;
-  @ViewChild('cutStaffModal', { static: true })
-  cutStaffModal!: TemplateRef<any>;
-  @ViewChild('cutTaskModal', { static: true }) cutTaskModal!: TemplateRef<any>;
-  @ViewChild('resetCutsModal', { static: true })
-  resetCutsModal!: TemplateRef<any>;
+  readonly cutDateModal = viewChild.required<TemplateRef<any>>('cutDateModal');
+  readonly cutTimeModal = viewChild.required<TemplateRef<any>>('cutTimeModal');
+  readonly cutWeekdaysModal = viewChild.required<TemplateRef<any>>('cutWeekdaysModal');
+  readonly cutStaffModal = viewChild.required<TemplateRef<any>>('cutStaffModal');
+  readonly cutTaskModal = viewChild.required<TemplateRef<any>>('cutTaskModal');
+  readonly resetCutsModal = viewChild.required<TemplateRef<any>>('resetCutsModal');
 
   cutDate: NgbDateStruct | null = null;
   resetDate: NgbDateStruct | null = null;
@@ -203,7 +200,7 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    this.activeModal = this.modalService.open(this.cutDateModal, {
+    this.activeModal = this.modalService.open(this.cutDateModal(), {
       size: 'sm',
       centered: true,
       windowClass: 'modal-window',
@@ -224,7 +221,7 @@ export class CutShiftListComponent implements OnInit {
     if (!this.isCutTimeEnabled) {
       return;
     }
-    this.activeModal = this.modalService.open(this.cutTimeModal, {
+    this.activeModal = this.modalService.open(this.cutTimeModal(), {
       size: 'sm',
       centered: true,
       windowClass: 'modal-window',
@@ -242,7 +239,7 @@ export class CutShiftListComponent implements OnInit {
   }
 
   onCutWeekdays(): void {
-    this.activeModal = this.modalService.open(this.cutWeekdaysModal, {
+    this.activeModal = this.modalService.open(this.cutWeekdaysModal(), {
       size: 'md',
       centered: true,
       windowClass: 'modal-window',
@@ -260,7 +257,7 @@ export class CutShiftListComponent implements OnInit {
   }
 
   onCutStaff(): void {
-    this.activeModal = this.modalService.open(this.cutStaffModal, {
+    this.activeModal = this.modalService.open(this.cutStaffModal(), {
       size: 'sm',
       centered: true,
       windowClass: 'modal-window',
@@ -278,7 +275,7 @@ export class CutShiftListComponent implements OnInit {
   }
 
   onCutTask(): void {
-    this.activeModal = this.modalService.open(this.cutTaskModal, {
+    this.activeModal = this.modalService.open(this.cutTaskModal(), {
       size: 'sm',
       centered: true,
       windowClass: 'modal-window',
@@ -547,7 +544,7 @@ export class CutShiftListComponent implements OnInit {
 
           this.cdr.markForCheck();
 
-          this.activeModal = this.modalService.open(this.resetCutsModal, {
+          this.activeModal = this.modalService.open(this.resetCutsModal(), {
             size: 'md',
             centered: true,
             windowClass: 'modal-window',

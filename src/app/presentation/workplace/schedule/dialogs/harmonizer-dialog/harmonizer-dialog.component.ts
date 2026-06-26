@@ -15,7 +15,7 @@ import {
   inject,
   signal,
   TemplateRef,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { take } from 'rxjs';
@@ -40,7 +40,7 @@ type HarmonizerPhase = 'running' | 'done' | 'applying' | 'applied' | 'error' | '
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HarmonizerDialogComponent {
-  @ViewChild('harmonizerModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('harmonizerModal');
 
   private readonly ngbModal = inject(NgbModal);
   readonly harmonizerService = inject(DataHarmonizerService);
@@ -104,7 +104,7 @@ export class HarmonizerDialogComponent {
     this._localError.set(null);
     this.appliedScenarioName.set(null);
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true, backdrop: 'static', keyboard: false, size: 'lg',
     });
     this.modalRef.dismissed.pipe(take(1)).subscribe(() => this.cancelIfRunning());

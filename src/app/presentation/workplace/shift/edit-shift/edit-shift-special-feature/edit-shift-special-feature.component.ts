@@ -9,9 +9,9 @@ import {
   effect,
   inject,
   OnDestroy,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,8 +53,7 @@ export class EditShiftSpecialFeatureComponent
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
 
-  @ViewChild('specialFeatureShiftForm', { static: false })
-  specialFeatureShiftForm: NgForm | undefined;
+  readonly specialFeatureShiftForm = viewChild<NgForm>('specialFeatureShiftForm');
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public shiftFormService = inject(ShiftFormService);
@@ -73,8 +72,8 @@ export class EditShiftSpecialFeatureComponent
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe =
-      this.specialFeatureShiftForm!.valueChanges!.subscribe(() => {
-        if (this.specialFeatureShiftForm!.dirty === true) {
+      this.specialFeatureShiftForm()!.valueChanges!.subscribe(() => {
+        if (this.specialFeatureShiftForm()!.dirty === true) {
           setTimeout(() => {
             this.validateNumberInputs();
             this.isChangingEvent.emit(true);

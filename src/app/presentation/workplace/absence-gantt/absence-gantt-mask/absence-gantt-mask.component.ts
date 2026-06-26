@@ -13,9 +13,9 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-  ViewChild,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
@@ -77,7 +77,7 @@ export class AbsenceGanttMaskComponent
   @Input() selectedRow = -1;
   readonly selectedRowBreaksMaxIndex = input<number>();
   @Input() selectedBreakIndex = -1;
-  @ViewChild(AbsenceGanttGridComponent) gridComponent!: AbsenceGanttGridComponent;
+  readonly gridComponent = viewChild.required(AbsenceGanttGridComponent);
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
@@ -299,8 +299,9 @@ export class AbsenceGanttMaskComponent
   /* #endregion db*/
 
   onExportPDF(): void {
-    if (this.gridComponent) {
-      this.gridComponent.exportToPDF();
+    const gridComponent = this.gridComponent();
+    if (gridComponent) {
+      gridComponent.exportToPDF();
     }
   }
 

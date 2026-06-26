@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import {
-  Component, ElementRef, forwardRef, Input, ViewChild, inject,
+  Component, ElementRef, forwardRef, Input, inject,
   ChangeDetectionStrategy,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MenuItem } from '../context-menu-class';
@@ -26,8 +27,8 @@ export class MenuItemComponent {
   private contextMenuService = inject(ContextMenuService);
   private sanitizer = inject(DomSanitizer);
 
-  @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;
-  @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
+  readonly subMenu = viewChild<MenuComponent>('subMenu');
+  readonly appRoot = viewChild.required<ElementRef>('appRoot');
   @Input() menuItem: MenuItem | undefined;
   readonly hasClicked = output<string>();
 
@@ -61,11 +62,12 @@ export class MenuItemComponent {
   }
   onMouseLeave(): void {
     this.myTimer.stop();
-    if (this.subMenu?.isVisible) {
+    if (this.subMenu()?.isVisible) {
       this.closeTimer.start(() => {
         this.closeTimer.stop();
-        if (this.subMenu?.isVisible) {
-          this.subMenu.closeMenu();
+        const subMenu = this.subMenu();
+        if (subMenu?.isVisible) {
+          subMenu.closeMenu();
         }
       }, this.SUBMENU_CLOSE_DELAY);
     }
@@ -104,14 +106,15 @@ export class MenuItemComponent {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
     const boundingRect = nativeElement.getBoundingClientRect();
 
-    if (this.subMenu) {
-      if (this.subMenu.isVisible) {
+    const subMenu = this.subMenu();
+    if (subMenu) {
+      if (subMenu.isVisible) {
         return;
       }
       const openX = this.isRtl
         ? boundingRect.left + this.SUBMENU_OVERLAP
         : boundingRect.right - this.SUBMENU_OVERLAP;
-      this.subMenu.openMenu(
+      subMenu.openMenu(
         openX,
         boundingRect.top,
         boundingRect.width,

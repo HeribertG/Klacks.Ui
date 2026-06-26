@@ -11,13 +11,13 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
   effect,
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
@@ -99,11 +99,9 @@ export class GridSurfaceTemplateComponent
   readonly workDoubleClick = output<GridDoubleClickEvent>();
   readonly containerWorkDoubleClick = output<GridDoubleClickEvent>();
 
-  @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
-  @ViewChild('canvasTemplateRef', { static: true })
-  canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild(CellInputEventsDirective)
-  cellInputDirective?: CellInputEventsDirective;
+  readonly boxTemplate = viewChild.required<ElementRef<HTMLDivElement>>('boxTemplate');
+  readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvasTemplateRef');
+  readonly cellInputDirective = viewChild(CellInputEventsDirective);
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
@@ -157,7 +155,7 @@ export class GridSurfaceTemplateComponent
 
   ngAfterViewInit(): void {
     this.drawSchedule.init('template-canvas' + this.canvasId);
-    this.cellInput.setDirective(this.cellInputDirective);
+    this.cellInput.setDirective(this.cellInputDirective());
     this.initializeDrawSchedule();
     this.observeParentResize();
   }
@@ -243,7 +241,7 @@ export class GridSurfaceTemplateComponent
   }
 
   private initializeDrawSchedule(): void {
-    const box = this.boxTemplate.nativeElement;
+    const box = this.boxTemplate().nativeElement;
     this.drawSchedule.createCanvas();
     this.drawSchedule.width = box.clientWidth;
     this.drawSchedule.height = box.clientHeight;
@@ -401,7 +399,7 @@ export class GridSurfaceTemplateComponent
   }
 
   private passEventToCanvas(originalEvent: KeyboardEvent): void {
-    const canvas = this.canvasRef?.nativeElement;
+    const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) return;
 
     canvas.focus();

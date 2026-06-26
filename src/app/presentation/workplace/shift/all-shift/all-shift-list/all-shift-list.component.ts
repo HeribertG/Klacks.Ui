@@ -9,10 +9,10 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
   ElementRef,
   AfterViewInit,
   OnDestroy,
+  viewChild
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -60,8 +60,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   providers: [ShiftTableResizeService, AllShiftStateService, TableSortingService],
 })
 export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('shiftTableContainer', { static: false })
-  shiftTableContainer?: ElementRef<HTMLElement>;
+  readonly shiftTableContainer = viewChild<ElementRef<HTMLElement>>('shiftTableContainer');
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
@@ -250,10 +249,11 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = +event.srcElement.value;
     this.realRow = value;
 
-    if (value === -1 && this.shiftTableContainer?.nativeElement) {
+    const shiftTableContainer = this.shiftTableContainer();
+    if (value === -1 && shiftTableContainer?.nativeElement) {
       const tableElement =
-        this.shiftTableContainer.nativeElement.querySelector('table') ||
-        this.shiftTableContainer.nativeElement;
+        shiftTableContainer.nativeElement.querySelector('table') ||
+        shiftTableContainer.nativeElement;
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
         tableElement as HTMLElement
       );
@@ -302,11 +302,12 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private setupTableResize(): void {
     setTimeout(() => {
-      if (!this.shiftTableContainer?.nativeElement) return;
+      const shiftTableContainer = this.shiftTableContainer();
+      if (!shiftTableContainer?.nativeElement) return;
 
       const tableElement =
-        this.shiftTableContainer.nativeElement.querySelector('table') ||
-        this.shiftTableContainer.nativeElement;
+        shiftTableContainer.nativeElement.querySelector('table') ||
+        shiftTableContainer.nativeElement;
 
       this.tableResizeService
         .createWindowResizeObservable()
@@ -408,7 +409,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!this.shiftTableContainer?.nativeElement) {
+    const shiftTableContainer = this.shiftTableContainer();
+    if (!shiftTableContainer?.nativeElement) {
       return;
     }
 
@@ -417,8 +419,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const tableElement =
-      this.shiftTableContainer.nativeElement.querySelector('table') ||
-      this.shiftTableContainer.nativeElement;
+      shiftTableContainer.nativeElement.querySelector('table') ||
+      shiftTableContainer.nativeElement;
 
     const optimalRows = this.tableResizeService.calculateOptimalRowCount(
       tableElement as HTMLElement

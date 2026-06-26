@@ -12,10 +12,10 @@ import {
   inject,
   ElementRef,
   Renderer2,
-  ViewChild,
   effect,
   computed,
   ChangeDetectionStrategy,
+  viewChild
 } from '@angular/core';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
@@ -40,7 +40,7 @@ import { ToastShowService } from '../toast/toast-show.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AsideComponent {
-  @ViewChild(AssistantChatComponent) assistantChatComponent!: AssistantChatComponent;
+  readonly assistantChatComponent = viewChild.required(AssistantChatComponent);
 
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
@@ -80,8 +80,9 @@ export class AsideComponent {
 
   clearChat(): void {
     setTimeout(() => {
-      if (this.assistantChatComponent) {
-        this.assistantChatComponent.clearChat();
+      const assistantChatComponent = this.assistantChatComponent();
+      if (assistantChatComponent) {
+        assistantChatComponent.clearChat();
       }
     }, 0);
   }

@@ -2,9 +2,10 @@
 
 import {
   Component, Input,
-  ChangeDetectionStrategy, ViewChild, ElementRef,
+  ChangeDetectionStrategy, ElementRef,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeInputComponent {
-  @ViewChild('minutesInput') minutesInput?: ElementRef<HTMLInputElement>;
+  readonly minutesInput = viewChild<ElementRef<HTMLInputElement>>('minutesInput');
 
   @Input() label?: string;
   readonly hoursId = input<string>();
@@ -144,7 +145,7 @@ export class TimeInputComponent {
 
   private focusMinutes(): void {
     setTimeout(() => {
-      const el = this.minutesInput?.nativeElement;
+      const el = this.minutesInput()?.nativeElement;
       if (el) {
         el.focus();
         el.select();

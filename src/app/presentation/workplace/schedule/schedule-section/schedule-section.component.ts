@@ -14,7 +14,6 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  ViewChild,
   inject,
   AfterViewInit,
   effect,
@@ -26,7 +25,7 @@ import {
   input,
   output,
   viewChild,
-  computed,
+  computed
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -152,31 +151,20 @@ type ActiveSurface = GridSurfaceTemplateComponent | GridSurfaceTimelineTemplateC
 export class ScheduleSectionComponent
   implements OnInit, AfterViewInit, OnDestroy, ScheduleMenuHost, ScheduleEffectsHost
 {
-  @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
-  @ViewChild('scheduleHScrollbar', { static: true })
-  scheduleHScrollbar!: HScrollbarComponent;
-  @ViewChild('scheduleBox', { static: true })
-  scheduleBox!: ElementRef<HTMLElement>;
+  readonly splitEl = viewChild.required<SplitComponent>('splitEl');
+  readonly scheduleHScrollbar = viewChild.required<HScrollbarComponent>('scheduleHScrollbar');
+  readonly scheduleBox = viewChild.required<ElementRef<HTMLElement>>('scheduleBox');
   scheduleSurface = viewChild<GridSurfaceTemplateComponent>('scheduleSurface');
   timelineSurface = viewChild<GridSurfaceTimelineTemplateComponent>('timelineSurface');
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
-  @ViewChild(CorrectionDialogComponent)
-  correctionDialog!: CorrectionDialogComponent;
-  @ViewChild(ReplacementDialogComponent)
-  replacementDialog!: ReplacementDialogComponent;
-  @ViewChild(WorkEditDialogComponent)
-  workEditDialog!: WorkEditDialogComponent;
-  @ViewChild(ExpensesDialogComponent)
-  expensesDialog!: ExpensesDialogComponent;
-  @ViewChild(ContainerWorkEditDialogComponent)
-  containerWorkEditDialog!: ContainerWorkEditDialogComponent;
-  @ViewChild(TravelDialogComponent)
-  travelDialog!: TravelDialogComponent;
-  @ViewChild(BriefingDialogComponent)
-  briefingDialog!: BriefingDialogComponent;
-  @ViewChild(ContainerSplitDialogComponent)
-  containerSplitDialog!: ContainerSplitDialogComponent;
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly correctionDialog = viewChild.required(CorrectionDialogComponent);
+  readonly replacementDialog = viewChild.required(ReplacementDialogComponent);
+  readonly workEditDialog = viewChild.required(WorkEditDialogComponent);
+  readonly expensesDialog = viewChild.required(ExpensesDialogComponent);
+  readonly containerWorkEditDialog = viewChild.required(ContainerWorkEditDialogComponent);
+  readonly travelDialog = viewChild.required(TravelDialogComponent);
+  readonly briefingDialog = viewChild.required(BriefingDialogComponent);
+  readonly containerSplitDialog = viewChild.required(ContainerSplitDialogComponent);
 
   horizontalSize = input(200);
   zoom = input(1.0);
@@ -240,28 +228,28 @@ export class ScheduleSectionComponent
     if (tableSurface) {
       tableSurface.drawSchedule.showFillHandle = true;
     }
-    this.facade.dialog.setDialogs(this.correctionDialog, this.replacementDialog, this.workEditDialog, this.expensesDialog, this.containerWorkEditDialog, this.travelDialog, this.briefingDialog, this.containerSplitDialog);
+    this.facade.dialog.setDialogs(this.correctionDialog(), this.replacementDialog(), this.workEditDialog(), this.expensesDialog(), this.containerWorkEditDialog(), this.travelDialog(), this.briefingDialog(), this.containerSplitDialog());
     this.facade.gridRender.overlayRenderer = (ctx) => this.facade.breakBarRender.renderBreakBars(ctx);
 
-    this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
+    this.splitEl().dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
       this.horizontalSizeChange.emit(newSize + 5);
     });
 
-    this.scheduleHScrollbar.valueChange
+    this.scheduleHScrollbar().valueChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
         this.hScrollService.setPosition(value);
         this.hScrollPositionChange.emit(value);
       });
 
-    this.scheduleHScrollbar.maxValueChange
+    this.scheduleHScrollbar().maxValueChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
         this.hScrollService.setMaxValue(value);
       });
 
-    this.contextMenu?.hasClicked
+    this.contextMenu()?.hasClicked
       .pipe(takeUntil(this.destroy$))
       .subscribe((keys) => {
         this.menuClicked(keys);
@@ -373,7 +361,7 @@ export class ScheduleSectionComponent
     this.hScrollService.forceSetPosition(dayBefore);
     this.hScrollPositionChange.emit(dayBefore);
 
-    const innerScrollbar = this.scheduleHScrollbar?.scrollbar;
+    const innerScrollbar = this.scheduleHScrollbar()?.scrollbar();
     if (innerScrollbar) {
       innerScrollbar.value = dayBefore;
       innerScrollbar.refresh();
@@ -423,7 +411,7 @@ export class ScheduleSectionComponent
       mouseY,
       column,
       dataService,
-      this.scheduleBox.nativeElement,
+      this.scheduleBox().nativeElement,
     );
   }
 
@@ -451,22 +439,23 @@ export class ScheduleSectionComponent
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
-    if (!this.contextMenu) {
+    const contextMenu = this.contextMenu();
+    if (!contextMenu) {
       return;
     }
 
-    this.contextMenu.closeMenu(true);
+    contextMenu.closeMenu(true);
 
     const bp = this.facade.breakBarRender.getBreakPlaceholderAt(event.row, event.column);
     if (bp) {
       this.contextMenuBreakPlaceholder = bp;
-      this.contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp);
+      contextMenu.menuData = this.facade.contextMenu.createBreakPlaceholderContextMenu(bp);
     } else {
       this.contextMenuBreakPlaceholder = null;
       this.createContextMenu(event.row, event.column, event.entry);
     }
 
-    this.contextMenu.openMenu({
+    contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
@@ -481,7 +470,7 @@ export class ScheduleSectionComponent
     this.contextMenuColumn = column;
     this.contextMenuEntry = entry;
     const dataService = this.scheduleService;
-    this.contextMenu.menuData = this.facade.contextMenu.createContextMenu({
+    this.contextMenu().menuData = this.facade.contextMenu.createContextMenu({
       row,
       column,
       dataService,
@@ -491,7 +480,7 @@ export class ScheduleSectionComponent
 
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
-    this.contextMenu.closeMenu(true);
+    this.contextMenu().closeMenu(true);
     this.menuDispatcher.dispatch(keys, this.scheduleService, this);
   }
 

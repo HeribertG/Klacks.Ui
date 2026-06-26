@@ -21,8 +21,8 @@ import {
   DestroyRef,
   HostListener,
   inject,
-  ViewChild,
-  input
+  input,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
@@ -51,7 +51,7 @@ import { DirectionService } from 'src/app/application/services/direction.service
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleContainerComponent {
-  @ViewChild('scheduleSection') scheduleSection!: ScheduleSectionComponent;
+  readonly scheduleSection = viewChild.required<ScheduleSectionComponent>('scheduleSection');
 
   readonly zoom = input(1.0);
   readonly refreshTrigger = input(false);
@@ -98,20 +98,22 @@ export class ScheduleContainerComponent {
   onDocumentMouseUp(event: MouseEvent): void {
     if (this.shiftDragService.isDragging()) {
       const result = this.shiftDragService.endDrag();
-      if (result && this.scheduleSection) {
-        this.scheduleSection.handleShiftDrop(result);
+      const scheduleSection = this.scheduleSection();
+      if (result && scheduleSection) {
+        scheduleSection.handleShiftDrop(result);
       } else {
-        this.scheduleSection?.invalidateDragDropRect();
+        scheduleSection?.invalidateDragDropRect();
       }
       return;
     }
 
     if (this.cellDragService.isDragging()) {
       const result = this.cellDragService.endDrag();
-      if (result && this.scheduleSection) {
-        this.scheduleSection.handleScheduleCellDrop(result);
+      const scheduleSection = this.scheduleSection();
+      if (result && scheduleSection) {
+        scheduleSection.handleScheduleCellDrop(result);
       } else {
-        this.scheduleSection?.invalidateDragDropRect();
+        scheduleSection?.invalidateDragDropRect();
       }
     }
   }
@@ -122,12 +124,13 @@ export class ScheduleContainerComponent {
   }
 
   private updateCellDragMoveTarget(event: MouseEvent): void {
-    if (!this.scheduleSection) {
+    const scheduleSection = this.scheduleSection();
+    if (!scheduleSection) {
       this.cellDragService.setOverTable(false);
       return;
     }
 
-    const rect = this.scheduleSection.getHostRect();
+    const rect = scheduleSection.getHostRect();
     const isOver =
       event.clientY >= rect.top &&
       event.clientY <= rect.bottom &&
@@ -141,7 +144,7 @@ export class ScheduleContainerComponent {
     const source = this.cellDragService.source();
     if (!source) return;
 
-    const dropInfo = this.scheduleSection.getDropTargetInfo(
+    const dropInfo = scheduleSection.getDropTargetInfo(
       event.clientY,
       source.column,
     );
@@ -156,19 +159,20 @@ export class ScheduleContainerComponent {
   }
 
   private updateDropTarget(event: MouseEvent): void {
-    if (!this.scheduleSection) {
+    const scheduleSection = this.scheduleSection();
+    if (!scheduleSection) {
       this.shiftDragService.setOverScheduleSection(false);
       return;
     }
 
-    const rect = this.scheduleSection.getHostRect();
+    const rect = scheduleSection.getHostRect();
     const isOverSchedule =
       event.clientY >= rect.top && event.clientY <= rect.bottom;
 
     this.shiftDragService.setOverScheduleSection(isOverSchedule);
 
     if (isOverSchedule) {
-      const dropInfo = this.scheduleSection.getDropTargetInfo(
+      const dropInfo = scheduleSection.getDropTargetInfo(
         event.clientY,
         this.shiftDragService.dragData()?.sourceColumn ?? 0
       );

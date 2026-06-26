@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -18,7 +18,7 @@ import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/sched
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpensesDialogComponent {
-  @ViewChild('expensesModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('expensesModal');
 
   private ngbModal = inject(NgbModal);
   private expensesService = inject(DataManagementExpensesService);
@@ -44,7 +44,7 @@ export class ExpensesDialogComponent {
     this.clientId = clientId;
     this.currentDate = currentDate;
     this.reset();
-    this.modalRef = this.ngbModal.open(this.modalTemplate, {
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), {
       centered: true,
       backdrop: 'static',
     });
@@ -64,7 +64,7 @@ export class ExpensesDialogComponent {
         this.taxable = data.taxable;
         this.cdr.markForCheck();
 
-        this.modalRef = this.ngbModal.open(this.modalTemplate, {
+        this.modalRef = this.ngbModal.open(this.modalTemplate(), {
           centered: true,
           backdrop: 'static',
         });

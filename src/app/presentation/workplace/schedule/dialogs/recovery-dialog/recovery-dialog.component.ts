@@ -7,7 +7,7 @@
  * @param clients - Visible schedule employees to pick the absent one from
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  */
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -34,7 +34,7 @@ const RECOVERY_CREATOR = 'recovery';
   providers: [AbsenceLookupService],
 })
 export class RecoveryDialogComponent {
-  @ViewChild('recoveryModal') modalTemplate!: TemplateRef<unknown>;
+  readonly modalTemplate = viewChild.required<TemplateRef<unknown>>('recoveryModal');
 
   private readonly ngbModal = inject(NgbModal);
   private readonly recoveryService = inject(DataRecoveryService);
@@ -63,7 +63,7 @@ export class RecoveryDialogComponent {
     this.selectedClientId = '';
     this.selectedAbsenceId = '';
 
-    this.modalRef = this.ngbModal.open(this.modalTemplate, { centered: true, size: 'md' });
+    this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
   }
 
   protected clientLabel(client: IClientWork): string {

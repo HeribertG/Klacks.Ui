@@ -28,7 +28,7 @@ import {
   OnDestroy,
   OnInit,
   runInInjectionContext,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -124,12 +124,9 @@ import { WEEKDAY_NAMES } from 'src/app/shared/helpers/date.helper';
 export class ShiftSectionComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @ViewChild('shiftSurface', { static: true })
-  shiftSurface!: GridSurfaceTemplateComponent;
-  @ViewChild('contextMenu', { static: false })
-  contextMenu!: ContextMenuComponent;
-  @ViewChild(ContainerShiftOverrideDialogComponent)
-  overrideDialog!: ContainerShiftOverrideDialogComponent;
+  readonly shiftSurface = viewChild.required<GridSurfaceTemplateComponent>('shiftSurface');
+  readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
+  readonly overrideDialog = viewChild.required(ContainerShiftOverrideDialogComponent);
 
   direction = inject(DirectionService).direction;
 
@@ -197,7 +194,7 @@ export class ShiftSectionComponent
   ngAfterViewInit(): void {
     this.readSignals();
 
-    this.contextMenu?.hasClicked
+    this.contextMenu()?.hasClicked
       .pipe(takeUntil(this.destroy$))
       .subscribe((keys) => {
         this.menuClicked(keys);
@@ -257,7 +254,7 @@ export class ShiftSectionComponent
       this.lastShiftReadCount = readState.count;
 
       const resetScroll = isNewRead && readState.resetScroll;
-      this.shiftSurface.Refresh(resetScroll);
+      this.shiftSurface().Refresh(resetScroll);
       this.cdr.markForCheck();
     }));
   }
@@ -289,7 +286,7 @@ export class ShiftSectionComponent
       this.tooltipService.handleHoveredCell(
         hoveredCell,
         this.dataService,
-        this.shiftSurface,
+        this.shiftSurface(),
         this.tooltipState,
         false,
       );
@@ -300,7 +297,7 @@ export class ShiftSectionComponent
     this.effects.push(effect(() => {
       const updateId = this.workNotificationService.shiftUpdateSignal();
       if (updateId)
-        this.shiftSurface.Refresh(false);
+        this.shiftSurface().Refresh(false);
     }));
   }
 
@@ -317,7 +314,7 @@ export class ShiftSectionComponent
   private wireColorResetEffect(): void {
     this.effects.push(effect(() => {
       if (this.gridColorService.isReset())
-        this.shiftSurface.Refresh(false);
+        this.shiftSurface().Refresh(false);
     }));
   }
 
@@ -336,7 +333,7 @@ export class ShiftSectionComponent
     this.effects.push(effect(() => {
       void this.refreshTrigger();
       if (initialized)
-        this.shiftSurface.Refresh(false);
+        this.shiftSurface().Refresh(false);
       initialized = true;
     }));
   }
@@ -355,10 +352,10 @@ export class ShiftSectionComponent
       shiftId,
       column,
       shiftDataService,
-      this.shiftSurface.drawSchedule.height,
+      this.shiftSurface().drawSchedule.height,
       this.vScrollbarShift,
       () => {
-        this.shiftSurface.drawSchedule.redraw();
+        this.shiftSurface().drawSchedule.redraw();
         this.cdr.detectChanges();
       }
     );
@@ -369,13 +366,14 @@ export class ShiftSectionComponent
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {
-    if (!this.contextMenu) {
+    const contextMenu = this.contextMenu();
+    if (!contextMenu) {
       return;
     }
 
-    this.contextMenu.closeMenu(true);
+    contextMenu.closeMenu(true);
     this.createContextMenu(event.row, event.column);
-    this.contextMenu.openMenu({
+    contextMenu.openMenu({
       clientX: event.clientX,
       clientY: event.clientY,
     } as MouseEvent);
@@ -383,7 +381,7 @@ export class ShiftSectionComponent
 
   private createContextMenu(row: number, column: number): void {
     const shiftDataService = this.dataService as ShiftDataService;
-    this.contextMenu.menuData = this.contextMenuService.createContextMenu(row, column, shiftDataService);
+    this.contextMenu().menuData = this.contextMenuService.createContextMenu(row, column, shiftDataService);
   }
 
   private menuClicked(keys: string[]): void {
@@ -391,13 +389,13 @@ export class ShiftSectionComponent
 
     switch (keys[0]) {
       case 'showInSchedule': {
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         const shiftDataService = this.dataService as ShiftDataService;
         this.contextMenuService.showSelectedShiftInScheduleSection(shiftDataService);
         break;
       }
       case 'editContainerShift': {
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         const shiftDataService = this.dataService as ShiftDataService;
         const pos = this.cellManipulation.Position;
         const shiftId = shiftDataService.getShiftId(pos.row);
@@ -406,7 +404,7 @@ export class ShiftSectionComponent
           const date = new Date(dateStr);
           const weekday = WEEKDAY_NAMES[date.getDay()];
           const abbreviation = shiftDataService.getShiftAbbreviation(pos.row);
-          this.overrideDialog.open({
+          this.overrideDialog().open({
             containerId: shiftId,
             date: dateStr,
             weekday,
@@ -417,7 +415,7 @@ export class ShiftSectionComponent
         break;
       }
       case 'resetContainerShift': {
-        this.contextMenu.closeMenu(true);
+        this.contextMenu().closeMenu(true);
         const shiftDataService = this.dataService as ShiftDataService;
         const pos = this.cellManipulation.Position;
         const shiftId = shiftDataService.getShiftId(pos.row);

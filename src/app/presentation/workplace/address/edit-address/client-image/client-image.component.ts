@@ -10,10 +10,10 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
   ChangeDetectionStrategy,
   input,
-  output
+  output,
+  viewChild
 } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,7 +43,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
 
-  @ViewChild('imageForm', { static: false }) imageForm: NgForm | undefined;
+  readonly imageForm = viewChild<NgForm>('imageForm');
 
   selectedFile: File | undefined;
   imageUrl = signal<string | undefined>(undefined);
