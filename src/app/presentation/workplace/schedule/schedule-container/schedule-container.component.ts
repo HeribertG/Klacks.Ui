@@ -21,8 +21,8 @@ import {
   DestroyRef,
   HostListener,
   inject,
-  Input,
   ViewChild,
+  input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
@@ -53,8 +53,8 @@ import { DirectionService } from 'src/app/application/services/direction.service
 export class ScheduleContainerComponent {
   @ViewChild('scheduleSection') scheduleSection!: ScheduleSectionComponent;
 
-  @Input() zoom = 1.0;
-  @Input() refreshTrigger = false;
+  readonly zoom = input(1.0);
+  readonly refreshTrigger = input(false);
   public horizontalSize = 205;
   public hScrollPosition = 0;
   public IsInfoVisible = false;

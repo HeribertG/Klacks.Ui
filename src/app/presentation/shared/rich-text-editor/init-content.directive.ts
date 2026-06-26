@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Directive, ElementRef, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, inject, OnChanges, OnInit, SimpleChanges, input } from '@angular/core';
 import DOMPurify from 'dompurify';
 
 @Directive({
@@ -8,7 +8,7 @@ import DOMPurify from 'dompurify';
   standalone: true,
 })
 export class InitContentDirective implements OnInit, OnChanges {
-  @Input() appInitContent: string | undefined;
+  readonly appInitContent = input<string>();
 
   private el = inject(ElementRef);
 
@@ -23,7 +23,8 @@ export class InitContentDirective implements OnInit, OnChanges {
   }
 
   private updateContent(): void {
-    const rawContent = this.appInitContent !== undefined ? this.appInitContent : '';
+    const appInitContent = this.appInitContent();
+    const rawContent = appInitContent !== undefined ? appInitContent : '';
     const newContent = DOMPurify.sanitize(rawContent);
     const currentContent = this.el.nativeElement.innerHTML;
 

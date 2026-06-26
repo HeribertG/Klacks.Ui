@@ -9,7 +9,6 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -20,6 +19,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -66,10 +66,10 @@ export class AbsenceGanttSurfaceComponent
 {
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
-  @Input() absenceMask: AbsenceGanttMaskComponent | undefined;
-  @Input() absenceRowHeader: AbsenceGanttRowHeaderComponent | undefined;
-  @Input() valueChangeHScrollbar!: number;
-  @Input() valueChangeVScrollbar!: number;
+  readonly absenceMask = input<AbsenceGanttMaskComponent>();
+  readonly absenceRowHeader = input<AbsenceGanttRowHeaderComponent>();
+  readonly valueChangeHScrollbar = input.required<number>();
+  readonly valueChangeVScrollbar = input.required<number>();
 
   @Output() valueHScrollbar = new EventEmitter<number>();
   @Output() maxValueHScrollbar = new EventEmitter<number>();
@@ -118,7 +118,7 @@ export class AbsenceGanttSurfaceComponent
 
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
-    this.absenceMask?.UpdateEvent.pipe(
+    this.absenceMask()?.UpdateEvent.pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(() => {
       this.onUpdateMask();
@@ -156,12 +156,12 @@ export class AbsenceGanttSurfaceComponent
     let hDirection = false;
 
     if (changes['valueChangeHScrollbar']) {
-      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
+      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar();
       hDirection = true;
     }
 
     if (changes['valueChangeVScrollbar']) {
-      const requestedPosition = this.valueChangeVScrollbar;
+      const requestedPosition = this.valueChangeVScrollbar();
       const loadedRows = this.dataManagementBreak.rows;
       const totalRows = this.dataManagementBreak.totalAvailableRows;
 
@@ -324,8 +324,9 @@ export class AbsenceGanttSurfaceComponent
           this.drawCalendarGantt.drawSelectionRow();
           this.drawCalendarGantt.drawSelectedBreak();
 
-          if (this.absenceMask) {
-            this.absenceMask.onBreakChange(breakIndex);
+          const absenceMask = this.absenceMask();
+          if (absenceMask) {
+            absenceMask.onBreakChange(breakIndex);
           }
 
           break;

@@ -19,7 +19,6 @@ import {
   ElementRef,
   inject,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -28,6 +27,7 @@ import {
   effect,
   runInInjectionContext,
   viewChild,
+  input
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -78,7 +78,7 @@ export class ScheduleTimelineRowHeaderComponent
   @ViewChild('contextMenu', { static: false }) contextMenu!: ContextMenuComponent;
   @ViewChild(ShiftPreferencesDialogComponent) shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
 
-  @Input() valueChangeVScrollbar!: number;
+  readonly valueChangeVScrollbar = input.required<number>();
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);

@@ -156,14 +156,14 @@ export class GridTemplateEventsDirective {
       wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
-      const newValue = this.gridSurface.valueChangeHScrollbar + moveX;
+      const newValue = this.gridSurface.valueChangeHScrollbar() + moveX;
       if (newValue >= 0) {
         this.gridSurface.valueHScrollbar.emit(newValue);
       }
     }
 
     if (moveY !== 0) {
-      const newValue = this.gridSurface.valueChangeVScrollbar + moveY;
+      const newValue = this.gridSurface.valueChangeVScrollbar() + moveY;
       if (newValue >= 0) {
         this.gridSurface.valueVScrollbar.emit(newValue);
       }
@@ -355,8 +355,9 @@ export class GridTemplateEventsDirective {
 
     this.keyDown = true;
 
-    if (this.gridSurface.contextMenu) {
-      this.gridSurface.contextMenu.closeMenu(true);
+    const contextMenu = this.gridSurface.contextMenu();
+    if (contextMenu) {
+      contextMenu.closeMenu(true);
     }
 
     const mapKey = event.ctrlKey ? `Ctrl+${event.key}` : event.key;

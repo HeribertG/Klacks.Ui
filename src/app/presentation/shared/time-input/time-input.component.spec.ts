@@ -25,13 +25,13 @@ describe('TimeInputComponent', () => {
     });
 
     it('should have default values', () => {
-        expect(component.disabled).toBe(false);
-        expect(component.hoursMaxLength).toBe(3);
-        expect(component.hoursPlaceholder).toBe('hh');
-        expect(component.minutesPlaceholder).toBe('mm');
+        expect(component.disabled()).toBe(false);
+        expect(component.hoursMaxLength()).toBe(3);
+        expect(component.hoursPlaceholder()).toBe('hh');
+        expect(component.minutesPlaceholder()).toBe('mm');
         expect(component.showLabel).toBe(true);
         expect(component.forDuration).toBe(true);
-        expect(component.labelAlign).toBe('left');
+        expect(component.labelAlign()).toBe('left');
     });
 
     it('should initialize with default OwnTime value', () => {

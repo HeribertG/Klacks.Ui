@@ -15,13 +15,13 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
-  Input,
   Output,
   EventEmitter,
   inject,
   effect,
   Injector,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule/schedule-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
@@ -50,8 +50,8 @@ export interface IShiftContextMenuEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
-  @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
-  @Input() untilTime: OwnTime = OwnTime.forTime('24', '00');
+  readonly fromTime = input<OwnTime>(OwnTime.forTime('00', '00'));
+  readonly untilTime = input<OwnTime>(OwnTime.forTime('24', '00'));
   @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
   @Output() itemsDisplaced = new EventEmitter<void>();
 
@@ -115,8 +115,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['fromTime'] || changes['untilTime']) && this.inboxCanvasRef) {
-      const fromTimeString = `${this.fromTime.hours}:${this.fromTime.minutes}`;
-      const untilTimeString = `${this.untilTime.hours}:${this.untilTime.minutes}`;
+      const fromTimeString = `${this.fromTime().hours}:${this.fromTime().minutes}`;
+      const untilTimeString = `${this.untilTime().hours}:${this.untilTime().minutes}`;
 
       if (
         fromTimeString !== this._lastFromTimeString ||
@@ -165,12 +165,12 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     DrawHelper.setAntiAliasing(this.renderCtx);
 
     const paddingMinutes = this.renderService.calculatePaddingMinutes(
-      this.fromTime,
-      this.untilTime
+      this.fromTime(),
+      this.untilTime()
     );
     const range = this.timeRangeService.calculateDisplayRange(
-      this.fromTime,
-      this.untilTime,
+      this.fromTime(),
+      this.untilTime(),
       paddingMinutes
     );
     const pixelsPerMinute = height / range.totalMinutes;
@@ -191,12 +191,14 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     rulerCtx.fillStyle = this.gridColorService.toolTipBackGroundColor;
     rulerCtx.fillRect(0, 0, rulerWidth, height);
 
-    this.renderService.drawTimeRuler(rulerCtx, height, this.fromTime, this.untilTime);
+    const fromTime = this.fromTime();
+    const untilTime = this.untilTime();
+    this.renderService.drawTimeRuler(rulerCtx, height, fromTime, untilTime);
 
     inboxCtx.save();
     inboxCtx.translate(contentOffsetX, 0);
     this.renderService.drawRedBoundaryLines(
-      inboxCtx, boundaryWidth, height, this.fromTime, this.untilTime
+      inboxCtx, boundaryWidth, height, fromTime, untilTime
     );
     inboxCtx.restore();
 
@@ -211,7 +213,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         boxWidth,
         marginLeftRight,
       } = this.renderService.calculateShiftBoxParameters(
-        boundaryWidth, height, this.fromTime, this.untilTime
+        boundaryWidth, height, fromTime, untilTime
       );
 
       inboxCtx.save();
@@ -269,8 +271,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     return {
       shifts: this.shifts,
       shiftRectangles: this.shiftRectangles,
-      fromTime: this.fromTime,
-      untilTime: this.untilTime,
+      fromTime: this.fromTime(),
+      untilTime: this.untilTime(),
     };
   }
 

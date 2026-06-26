@@ -1,6 +1,6 @@
 <div class="pie-chart-container">
   <div class="donut-wrapper">
-    <svg [attr.width]="width" [attr.height]="height" [attr.viewBox]="'0 0 ' + width + ' ' + height" class="pie-chart-svg">
+    <svg [attr.width]="width()" [attr.height]="height()" [attr.viewBox]="'0 0 ' + width() + ' ' + height()" class="pie-chart-svg">
       <defs>
         <filter id="donutShadow" x="-10%" y="-10%" width="120%" height="120%">
           <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.12"/>
@@ -39,7 +39,7 @@
       }
       </g>
     </svg>
-    @if (showTotal) {
+    @if (showTotal()) {
       <div class="donut-center">
         <span class="donut-total-value">{{ total }}</span>
         <span class="donut-total-label">Gesamt</span>

@@ -2,10 +2,10 @@
 
 import {
   Component,
-  Input,
   OnChanges,
   SimpleChanges,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 
 export interface PieChartData {
@@ -23,10 +23,10 @@ export interface PieChartData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PieChartComponent implements OnChanges {
-  @Input() data: PieChartData[] = [];
-  @Input() width = 400;
-  @Input() height = 400;
-  @Input() showTotal = true;
+  readonly data = input<PieChartData[]>([]);
+  readonly width = input(400);
+  readonly height = input(400);
+  readonly showTotal = input(true);
 
   public slices: {
     path: string;
@@ -51,13 +51,14 @@ export class PieChartComponent implements OnChanges {
   }
 
   private calculateChart(): void {
-    this.total = this.data?.reduce((sum, item) => sum + item.value, 0) ?? 0;
-    this.centerX = this.width / 2;
-    this.centerY = this.height / 2;
-    this.outerRadius = Math.min(this.width, this.height) / 2 - 20;
+    this.total = this.data()?.reduce((sum, item) => sum + item.value, 0) ?? 0;
+    this.centerX = this.width() / 2;
+    this.centerY = this.height() / 2;
+    this.outerRadius = Math.min(this.width(), this.height()) / 2 - 20;
     this.innerRadius = this.outerRadius * 0.8;
 
-    if (!this.data || this.data.length === 0 || this.total === 0) {
+    const data = this.data();
+    if (!data || data.length === 0 || this.total === 0) {
       this.slices = [];
       return;
     }
@@ -65,7 +66,7 @@ export class PieChartComponent implements OnChanges {
 
     const hoverOffset = 12;
 
-    this.slices = this.data.map((item) => {
+    this.slices = data.map((item) => {
       const percentage = ((item.value / this.total) * 100).toFixed(1);
       const rawAngle = (item.value / this.total) * 360;
       const angle = rawAngle >= 360 ? 359.9999 : rawAngle;

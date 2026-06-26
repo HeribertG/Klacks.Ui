@@ -3,23 +3,23 @@
     <input
       type="search"
       class="form-control"
-      [id]="inputId || null"
-      [attr.data-klacksy-target]="klacksyTarget || null"
+      [id]="inputId() || null"
+      [attr.data-klacksy-target]="klacksyTarget() || null"
       [placeholder]="translatedPlaceholder"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       [ngModel]="value"
       (ngModelChange)="onModelChange($event)"
       (keydown.enter)="onSubmit()"
     />
 
-    @if (showButton) {
+    @if (showButton()) {
       <button
         type="button"
         [id]="buttonId"
         [attr.data-klacksy-target]="klacksySubmitTarget"
         class="btn btn-outline-secondary container-search-button input-group-text"
-        [class.container-search-button-disabled]="disabled || buttonDisabled || isLoading"
-        [disabled]="disabled || buttonDisabled || isLoading"
+        [class.container-search-button-disabled]="disabled() || buttonDisabled() || isLoading()"
+        [disabled]="disabled() || buttonDisabled() || isLoading()"
         (click)="onSubmit()"
       >
         <fa-icon [icon]="faSearch"></fa-icon>

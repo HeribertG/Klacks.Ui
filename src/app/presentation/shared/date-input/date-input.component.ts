@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter,
+import {
+  Component, Input, Output, EventEmitter,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,9 +30,9 @@ export class DateInputComponent {
   @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
   @Input() inputWidth = 'medium-width';
   @Input() value: NgbDateStruct | null | undefined = null;
-  @Input() isValid: boolean | undefined = undefined;
-  @Input() touched = false;
-  @Input() showInvalidImmediately = false;
+  readonly isValid = input<boolean>();
+  readonly touched = input(false);
+  readonly showInvalidImmediately = input(false);
   @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
   @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();
 

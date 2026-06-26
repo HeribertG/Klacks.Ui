@@ -16,10 +16,10 @@ import {
   effect,
   EventEmitter,
   inject,
-  Input,
   OnDestroy,
   OnInit,
   Output,
+  input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -59,7 +59,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftQualificationsComponent implements OnInit, OnDestroy {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);
@@ -113,7 +113,7 @@ export class ShiftQualificationsComponent implements OnInit, OnDestroy {
 
   isDisabled(): boolean {
     const shift = this.dataManagementShiftService.editShift;
-    if (this.isReadOnly || !shift) {
+    if (this.isReadOnly() || !shift) {
       return true;
     }
     const isNotOriginal = shift.status !== ShiftStatus.OriginalOrder;

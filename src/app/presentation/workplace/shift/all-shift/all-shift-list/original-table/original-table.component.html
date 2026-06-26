@@ -7,7 +7,7 @@
         (click)="onClickHeader('name')"
       >
         {{ "list.all-list.all-shift-list.table.name" | translate }}
-        {{ sortingService.getArrow("name") }}
+        {{ sortingService().getArrow("name") }}
       </th>
       <th
         class="table-header-border"
@@ -17,7 +17,7 @@
         {{
           "list.all-list.all-shift-list.table.description" | translate
         }}
-        {{ sortingService.getArrow("description") }}
+        {{ sortingService().getArrow("description") }}
       </th>
       <th
         class="table-header-border cell-center"
@@ -25,7 +25,7 @@
         (click)="onClickHeader('valid_from')"
       >
         {{ "list.all-list.all-shift-list.table.from" | translate }}
-        {{ sortingService.getArrow("valid_from") }}
+        {{ sortingService().getArrow("valid_from") }}
       </th>
       <th
         class="table-header-border cell-center"
@@ -33,7 +33,7 @@
         (click)="onClickHeader('valid_until')"
       >
         {{ "list.all-list.all-shift-list.table.until" | translate }}
-        {{ sortingService.getArrow("valid_until") }}
+        {{ sortingService().getArrow("valid_until") }}
       </th>
       <th class="col-action table-header-border" rowspan="2"></th>
     </tr>
@@ -74,7 +74,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of shifts; track data.id; let i = $index) {
+    @for (data of shifts(); track data.id; let i = $index) {
     <tr
       (click)="onClickRow(data)"
       (mouseenter)="onMouseEnter(data)"
@@ -103,7 +103,7 @@
       </td>
 
       <td rowspan="2" class="table-cell-small-border cell-right">
-        @if(!isSealedOrder){
+        @if(!isSealedOrder()){
         <div class="icon icon-padding">
           <app-icon-pencil-icon-grey
             (click)="onClickEdit(data, $event)"

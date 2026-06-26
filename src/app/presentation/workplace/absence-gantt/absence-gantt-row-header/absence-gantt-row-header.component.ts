@@ -8,7 +8,6 @@ import {
   EffectRef,
   ElementRef,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -18,6 +17,7 @@ import {
   inject,
   runInInjectionContext,
   viewChild,
+  input
 } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
@@ -53,7 +53,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Input() valueChangeVScrollbar!: number;
+  readonly valueChangeVScrollbar = input.required<number>();
 
   @ViewChild('boxCalendarRowHeader')
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;

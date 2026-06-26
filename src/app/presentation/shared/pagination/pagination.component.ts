@@ -10,6 +10,7 @@ import {
   OnInit,
   inject,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -31,15 +32,15 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginationComponent implements OnInit {
-  @Input() paginationType: 'standard' | 'shift' = 'standard';
+  readonly paginationType = input<'standard' | 'shift'>('standard');
   @Input() dataService!: IPaginationDataService;
   @Input() page = 1;
   @Input() numberOfItemsPerPage?: number;
   @Input() showRowSelector = true;
   @Input() maxSize = 5;
-  @Input() rotate = true;
-  @Input() ellipses = false;
-  @Input() boundaryLinks = true;
+  readonly rotate = input(true);
+  readonly ellipses = input(false);
+  readonly boundaryLinks = input(true);
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() numberOfItemsPerPageChange = new EventEmitter<number>();
@@ -57,18 +58,18 @@ export class PaginationComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.numberOfItemsPerPage === undefined) {
-      this.numberOfItemsPerPage = this.paginationType === 'shift' ? 3 : 5;
+      this.numberOfItemsPerPage = this.paginationType() === 'shift' ? 3 : 5;
     }
 
-    const storageKey = this.paginationType === 'shift'
+    const storageKey = this.paginationType() === 'shift'
       ? DomainMessages.SELECTED_ROW_ORDER_SHIFT
       : DomainMessages.SELECTED_ROW_ORDER;
 
-    this.visibleRow = this.paginationType === 'shift'
+    this.visibleRow = this.paginationType() === 'shift'
       ? visibleShiftRow()
       : visibleRow();
 
-    const fallbackDefault = this.paginationType === 'shift' ? 3 : 10;
+    const fallbackDefault = this.paginationType() === 'shift' ? 3 : 10;
 
     const tmpRow = this.localStorageService.get(storageKey);
 
@@ -117,7 +118,7 @@ export class PaginationComponent implements OnInit {
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
-    const storageKey = this.paginationType === 'shift'
+    const storageKey = this.paginationType() === 'shift'
       ? DomainMessages.SELECTED_ROW_ORDER_SHIFT
       : DomainMessages.SELECTED_ROW_ORDER;
 

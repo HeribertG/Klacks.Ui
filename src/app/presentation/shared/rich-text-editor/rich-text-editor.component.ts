@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output,
+import {
+  ChangeDetectorRef, Component, EventEmitter, inject, Output,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -42,13 +44,13 @@ import { TextFormatterService } from './text-formatter.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RichTextEditorComponent {
-  @Input() content = '';
-  @Input() disabled = false;
-  @Input() editorId = 'rich-text-editor';
-  @Input() placeholder = '';
-  @Input() showToolbar = true;
-  @Input() showToolbarOnlyOnFocus = true;
-  @Input() height?: string;
+  readonly content = input('');
+  readonly disabled = input(false);
+  readonly editorId = input('rich-text-editor');
+  readonly placeholder = input('');
+  readonly showToolbar = input(true);
+  readonly showToolbarOnlyOnFocus = input(true);
+  readonly height = input<string>();
 
   @Output() contentChange = new EventEmitter<string>();
   @Output() plainTextChange = new EventEmitter<string>();
@@ -74,7 +76,7 @@ export class RichTextEditorComponent {
   }
 
   formatText(command: string): void {
-    const editable = document.getElementById(this.editorId);
+    const editable = document.getElementById(this.editorId());
     if (!editable) {
       return;
     }
@@ -97,7 +99,7 @@ export class RichTextEditorComponent {
   }
 
   async onCopy(): Promise<void> {
-    const editable = document.getElementById(this.editorId) as HTMLDivElement;
+    const editable = document.getElementById(this.editorId()) as HTMLDivElement;
     if (!editable) {
       return;
     }
@@ -113,7 +115,7 @@ export class RichTextEditorComponent {
   }
 
   async onCut(): Promise<void> {
-    const editable = document.getElementById(this.editorId) as HTMLDivElement;
+    const editable = document.getElementById(this.editorId()) as HTMLDivElement;
     if (!editable) {
       return;
     }
@@ -145,7 +147,7 @@ export class RichTextEditorComponent {
   }
 
   async onPaste(): Promise<void> {
-    const editable = document.getElementById(this.editorId) as HTMLDivElement;
+    const editable = document.getElementById(this.editorId()) as HTMLDivElement;
     if (!editable) {
       return;
     }

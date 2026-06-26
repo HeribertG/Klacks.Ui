@@ -60,7 +60,7 @@ export class GridFillHandleDragService {
   }
 
   tryStartDrag(event: MouseEvent): boolean {
-    if (this.context.gridSurface.nameId !== 'surface') {
+    if (this.context.gridSurface.nameId() !== 'surface') {
       return false;
     }
 
@@ -145,7 +145,7 @@ export class GridFillHandleDragService {
   }
 
   updateCursorForFillHandle(event: MouseEvent): void {
-    if (this.context.gridSurface.nameId !== 'surface') {
+    if (this.context.gridSurface.nameId() !== 'surface') {
       return;
     }
 

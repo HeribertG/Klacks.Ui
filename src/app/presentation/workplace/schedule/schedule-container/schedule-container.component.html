@@ -4,8 +4,8 @@
       <as-split-area [size]="70" [minSize]="10">
         <app-schedule-section
           #scheduleSection
-          [zoom]="zoom"
-          [refreshTrigger]="refreshTrigger"
+          [zoom]="zoom()"
+          [refreshTrigger]="refreshTrigger()"
           (horizontalSizeChange)="onHorizontalSizeChange($event)"
           (hScrollPositionChange)="onHScrollPositionChange($event)"
         >
@@ -14,8 +14,8 @@
 
       <as-split-area [size]="30" [minSize]="10">
         <app-shift-section
-          [zoom]="zoom"
-          [refreshTrigger]="refreshTrigger"
+          [zoom]="zoom()"
+          [refreshTrigger]="refreshTrigger()"
           [horizontalSize]="horizontalSize"
           [hScrollPosition]="hScrollPosition"
         >

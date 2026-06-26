@@ -55,8 +55,8 @@ describe('HScrollbarComponent', () => {
 
     it('should initialize with default values', () => {
         expect(component.value).toBe(0);
-        expect(component.maxValue).toBe(365);
-        expect(component.visibleValue).toBe(180);
+        expect(component.maxValue()).toBe(365);
+        expect(component.visibleValue()).toBe(180);
     });
 
     it('should emit valueChange when value changes', () => {

@@ -12,7 +12,7 @@
  * @param zoomPercent - Horizontal zoom 100-400. ViewBox width scales proportionally so bars get
  *   wider while text stays pixel-stable (no stretching).
  */
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject, input } from '@angular/core';
 import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 
 const BASE_VBW = 900;
@@ -79,14 +79,14 @@ interface IRenderedReferenceLine {
 })
 export class StackedBarChartComponent {
   private tooltipService = inject(TooltipService);
-  @Input() bottomBars: number[] = [];
-  @Input() topBars: number[] = [];
-  @Input() referenceLines: IReferenceLine[] = [];
-  @Input() monthMarkers: IMonthMarker[] = [];
-  @Input() specialDays: ISpecialDay[] = [];
+  readonly bottomBars = input<number[]>([]);
+  readonly topBars = input<number[]>([]);
+  readonly referenceLines = input<IReferenceLine[]>([]);
+  readonly monthMarkers = input<IMonthMarker[]>([]);
+  readonly specialDays = input<ISpecialDay[]>([]);
   @Input() plotBackground = '';
-  @Input() unit = 'h';
-  @Input() zoomPercent = MIN_ZOOM;
+  readonly unit = input('h');
+  readonly zoomPercent = input(MIN_ZOOM);
 
   readonly vbH = VBH;
   readonly axisY = PAD_T + PLOT_H;
@@ -94,7 +94,7 @@ export class StackedBarChartComponent {
   readonly plotTop = PAD_T;
 
   private get zoomFactor(): number {
-    return Math.max(MIN_ZOOM, this.zoomPercent) / 100;
+    return Math.max(MIN_ZOOM, this.zoomPercent()) / 100;
   }
 
   get vbW(): number {
@@ -110,7 +110,7 @@ export class StackedBarChartComponent {
   }
 
   private get count(): number {
-    return Math.max(this.bottomBars.length, 1);
+    return Math.max(this.bottomBars().length, 1);
   }
 
   private get colW(): number {
@@ -124,11 +124,12 @@ export class StackedBarChartComponent {
   private get maxY(): number {
     const maxStack = Math.max(
       0,
-      ...this.bottomBars.map((b, i) => b + (this.topBars[i] ?? 0))
+      ...this.bottomBars().map((b, i) => b + (this.topBars()[i] ?? 0))
     );
-    const maxRef = this.referenceLines.length === 0
+    const referenceLines = this.referenceLines();
+    const maxRef = referenceLines.length === 0
       ? 0
-      : Math.max(0, ...this.referenceLines.flatMap(line => line.values));
+      : Math.max(0, ...referenceLines.flatMap(line => line.values));
     const raw = Math.max(maxStack, maxRef) * HEADROOM;
     return raw === 0 ? 1 : this.niceMax(raw);
   }
@@ -155,7 +156,7 @@ export class StackedBarChartComponent {
       const value = (max / tickCount) * i;
       const y = PAD_T + PLOT_H - (value / max) * PLOT_H;
       const formatted = value >= 10 ? Math.round(value).toString() : value.toFixed(1).replace(/\.0$/, '');
-      return { y, label: `${formatted}${this.unit}` };
+      return { y, label: `${formatted}${this.unit()}` };
     });
   }
 
@@ -164,8 +165,8 @@ export class StackedBarChartComponent {
     const colW = this.colW;
     const bw = this.barW;
     const bottom = PAD_T + PLOT_H;
-    return this.bottomBars.map((dienst, i) => {
-      const absenz = this.topBars[i] ?? 0;
+    return this.bottomBars().map((dienst, i) => {
+      const absenz = this.topBars()[i] ?? 0;
       const x = PAD_L + i * colW + (colW - bw) / 2;
       const greenH = (dienst / max) * PLOT_H;
       const grayH = (absenz / max) * PLOT_H;
@@ -176,7 +177,7 @@ export class StackedBarChartComponent {
   get renderedReferenceLines(): IRenderedReferenceLine[] {
     const max = this.maxY;
     const colW = this.colW;
-    return this.referenceLines.map(line => ({
+    return this.referenceLines().map(line => ({
       points: line.values
         .map((val, i) => {
           const x = PAD_L + (i + 0.5) * colW;
@@ -192,7 +193,7 @@ export class StackedBarChartComponent {
 
   get monthLabelPositions(): { x: number; label: string }[] {
     const colW = this.colW;
-    return this.monthMarkers.map(m => ({
+    return this.monthMarkers().map(m => ({
       x: PAD_L + m.index * colW,
       label: m.label,
     }));
@@ -200,14 +201,14 @@ export class StackedBarChartComponent {
 
   get monthDividers(): number[] {
     const colW = this.colW;
-    return this.monthMarkers
+    return this.monthMarkers()
       .filter(m => m.index > 0)
       .map(m => PAD_L + m.index * colW);
   }
 
   get specialDayRects(): { x: number; w: number; color: string; tooltip: string | undefined }[] {
     const colW = this.colW;
-    return this.specialDays.map(sd => ({
+    return this.specialDays().map(sd => ({
       x: PAD_L + sd.index * colW,
       w: colW,
       color: sd.color,

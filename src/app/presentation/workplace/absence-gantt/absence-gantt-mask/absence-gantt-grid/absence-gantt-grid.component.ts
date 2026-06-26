@@ -16,6 +16,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  input
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -59,7 +60,7 @@ export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @Input() selectedRowData: IBreakPlaceholder[] | undefined;
-  @Input() selectedRow = -1;
+  readonly selectedRow = input(-1);
   @Output() exportPDF = new EventEmitter<void>();
   @Output() breakSelected = new EventEmitter<string>();
 
@@ -271,16 +272,16 @@ export class AbsenceGanttGridComponent
   }
 
   private getSelectedClient(): { id?: string; name?: string; firstName?: string } | undefined {
-    if (this.selectedRow >= 0 && this.selectedRow < this.dataManagementBreak.clients.length) {
-      const c = this.dataManagementBreak.clients[this.selectedRow];
+    if (this.selectedRow() >= 0 && this.selectedRow() < this.dataManagementBreak.clients.length) {
+      const c = this.dataManagementBreak.clients[this.selectedRow()];
       return { id: c.id, name: c.name, firstName: c.firstName };
     }
     return undefined;
   }
 
   private getClientName(): string {
-    if (this.selectedRow >= 0 && this.selectedRow < this.dataManagementBreak.clients.length) {
-      const client = this.dataManagementBreak.clients[this.selectedRow];
+    if (this.selectedRow() >= 0 && this.selectedRow() < this.dataManagementBreak.clients.length) {
+      const client = this.dataManagementBreak.clients[this.selectedRow()];
       const firstName = client.firstName || '';
       const lastName = client.name || '';
       const company = client.company || '';

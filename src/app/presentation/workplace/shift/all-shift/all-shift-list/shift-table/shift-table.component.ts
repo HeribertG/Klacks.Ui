@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
@@ -37,7 +37,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 })
 export class ShiftTableComponent {
   private textFormatterService = inject(TextFormatterService);
-  @Input() shifts: IShift[] | undefined;
+  readonly shifts = input<IShift[]>();
   @Input() sortingService!: TableSortingService;
   @Input() tableMode: 'cut' | 'container' = 'cut';
   @Output() editClicked = new EventEmitter<Shift>();

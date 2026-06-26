@@ -19,7 +19,6 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -29,6 +28,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  input
 } from '@angular/core';
 import { IScheduleCell } from 'src/app/domain/models/schedule/work-schedule-class';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
@@ -123,9 +123,9 @@ export interface TimelineDoubleClickEvent {
 export class GridSurfaceTimelineTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy, IGridTooltipHost
 {
-  @Input() nameId = 'surface';
-  @Input() valueChangeHScrollbar!: number;
-  @Input() valueChangeVScrollbar!: number;
+  readonly nameId = input('surface');
+  readonly valueChangeHScrollbar = input.required<number>();
+  readonly valueChangeVScrollbar = input.required<number>();
 
   @Output() valueHScrollbar = new EventEmitter<number>();
   @Output() maxValueHScrollbar = new EventEmitter<number>();
@@ -259,13 +259,13 @@ export class GridSurfaceTimelineTemplateComponent
 
   onWheelScroll(event: { deltaX: number; deltaY: number }): void {
     if (event.deltaX !== 0) {
-      const next = (this.valueChangeHScrollbar ?? 0) + event.deltaX;
+      const next = (this.valueChangeHScrollbar() ?? 0) + event.deltaX;
       if (next >= 0) {
         this.valueHScrollbar.emit(next);
       }
     }
     if (event.deltaY !== 0) {
-      const next = (this.valueChangeVScrollbar ?? 0) + event.deltaY;
+      const next = (this.valueChangeVScrollbar() ?? 0) + event.deltaY;
       if (next >= 0) {
         this.valueVScrollbar.emit(next);
       }

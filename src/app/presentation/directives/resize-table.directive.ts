@@ -6,11 +6,11 @@ import {
   Directive,
   ElementRef,
   EventEmitter,
-  Input,
   OnDestroy,
   OnInit,
   Output,
   inject,
+  input
 } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
@@ -26,10 +26,10 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);
   private localStorageService = inject(LocalStorageService);
 
-  @Input() defaultItemsPerPage = 5;
-  @Input() minItemsPerPage = 5;
-  @Input() maxItems = 0;
-  @Input() currentPage = 1;
+  readonly defaultItemsPerPage = input(5);
+  readonly minItemsPerPage = input(5);
+  readonly maxItems = input(0);
+  readonly currentPage = input(1);
 
   @Output() itemsPerPageChange = new EventEmitter<number>();
   @Output() recalculateRequired = new EventEmitter<boolean>();
@@ -100,15 +100,15 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
         return;
       }
 
-      const currentItemsPerPage = this.defaultItemsPerPage;
-      let newItemsPerPage = this.minItemsPerPage;
+      const currentItemsPerPage = this.defaultItemsPerPage();
+      let newItemsPerPage = this.minItemsPerPage();
 
       // Calculate the optimal number of items per page based on available space
-      if (addLine.lines > this.minItemsPerPage) {
+      if (addLine.lines > this.minItemsPerPage()) {
         // If we can fit more than the minimum, use the calculated lines
         // But don't exceed the total number of items available
-        if (this.maxItems > 0) {
-          newItemsPerPage = Math.min(addLine.lines, this.maxItems);
+        if (this.maxItems() > 0) {
+          newItemsPerPage = Math.min(addLine.lines, this.maxItems());
         } else {
           newItemsPerPage = addLine.lines;
         }

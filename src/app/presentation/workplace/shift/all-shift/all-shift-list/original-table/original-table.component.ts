@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
@@ -29,9 +29,9 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 })
 export class OriginalTableComponent {
   private textFormatterService = inject(TextFormatterService);
-  @Input() shifts: IShift[] | undefined;
-  @Input() isSealedOrder = false;
-  @Input() sortingService!: TableSortingService;
+  readonly shifts = input<IShift[]>();
+  readonly isSealedOrder = input(false);
+  readonly sortingService = input.required<TableSortingService>();
   @Output() editClicked = new EventEmitter<Shift>();
   @Output() deleteClicked = new EventEmitter<Shift>();
   @Output() headerClicked = new EventEmitter<string>();

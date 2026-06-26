@@ -84,9 +84,9 @@ describe('PaginationComponent', () => {
             expect(component.numberOfItemsPerPage).toBe(5);
             expect(component.showRowSelector).toBe(true);
             expect(component.maxSize).toBe(5);
-            expect(component.rotate).toBe(true);
-            expect(component.ellipses).toBe(false);
-            expect(component.boundaryLinks).toBe(true);
+            expect(component.rotate()).toBe(true);
+            expect(component.ellipses()).toBe(false);
+            expect(component.boundaryLinks()).toBe(true);
         });
 
         it('should initialize visibleRow options', () => {
@@ -295,9 +295,9 @@ describe('PaginationComponent', () => {
             expect(paginationComponent.collectionSize).toBe(component.dataService.maxItems);
             expect(paginationComponent.pageSize).toBe(component.numberOfItemsPerPage);
             expect(paginationComponent.maxSize).toBe(component.maxSize);
-            expect(paginationComponent.rotate).toBe(component.rotate);
-            expect(paginationComponent.ellipses).toBe(component.ellipses);
-            expect(paginationComponent.boundaryLinks).toBe(component.boundaryLinks);
+            expect(paginationComponent.rotate).toBe(component.rotate());
+            expect(paginationComponent.ellipses).toBe(component.ellipses());
+            expect(paginationComponent.boundaryLinks).toBe(component.boundaryLinks());
         });
     });
 

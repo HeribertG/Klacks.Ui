@@ -42,7 +42,7 @@ export class GridScheduleEventsService {
   containerWorkDoubleClick = new EventEmitter<GridDoubleClickEvent>();
 
   handleDoubleClick(pos: MyPosition): boolean {
-    if (this.gridSurface.nameId !== 'surface') {
+    if (this.gridSurface.nameId() !== 'surface') {
       return false;
     }
 
@@ -108,7 +108,7 @@ export class GridScheduleEventsService {
   }
 
   tryPrepareShiftDrag(event: MouseEvent): void {
-    if (this.gridSurface.nameId !== 'shift') {
+    if (this.gridSurface.nameId() !== 'shift') {
       return;
     }
 
@@ -154,7 +154,7 @@ export class GridScheduleEventsService {
   }
 
   tryPrepareScheduleCellDrag(event: MouseEvent): void {
-    if (this.gridSurface.nameId !== 'surface') {
+    if (this.gridSurface.nameId() !== 'surface') {
       return;
     }
 
@@ -265,7 +265,7 @@ export class GridScheduleEventsService {
   }
 
   handleDeleteKey(): void {
-    if (this.gridSurface.nameId !== 'surface') {
+    if (this.gridSurface.nameId() !== 'surface') {
       return;
     }
 

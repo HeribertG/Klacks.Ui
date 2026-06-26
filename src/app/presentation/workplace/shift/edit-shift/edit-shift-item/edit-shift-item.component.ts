@@ -10,12 +10,12 @@ import {
   EventEmitter,
   inject,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
   runInInjectionContext,
   ViewChild,
+  input
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -61,7 +61,7 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 export class EditShiftItemComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isChangingMode = new EventEmitter();
 
@@ -298,7 +298,7 @@ export class EditShiftItemComponent
   }
 
   get isFieldsDisabled(): boolean {
-    if (this.isReadOnly) return true;
+    if (this.isReadOnly()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

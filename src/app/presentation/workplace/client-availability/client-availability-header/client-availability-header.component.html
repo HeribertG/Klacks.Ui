@@ -21,7 +21,7 @@
         <span>{{ displayPeriod }} {{ displayYear }}</span>
       </button>
       <div ngbDropdownMenu>
-        @switch (viewMode) {
+        @switch (viewMode()) {
           @case (PaymentInterval.Weekly) {
             <app-period-calendar-weekly
               [year]="currentYear"

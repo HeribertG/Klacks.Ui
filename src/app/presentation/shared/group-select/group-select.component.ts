@@ -29,6 +29,7 @@ import {
   untracked,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -81,10 +82,10 @@ export class GroupSelectComponent
 {
   // @Input() properties
   @Input() label?: string;
-  @Input() required = false;
-  @Input() showAllGroupsOption = true;
-  @Input() hasOptionButton = true;
-  @Input() index?: number;
+  readonly required = input(false);
+  readonly showAllGroupsOption = input(true);
+  readonly hasOptionButton = input(true);
+  readonly index = input<number>();
   @Input() set disabled(value: boolean) {
     this.setDisabledState(value);
   }
@@ -98,7 +99,7 @@ export class GroupSelectComponent
    * - Local mode (false): Used in tables for local data selection (e.g., Client-Groups).
    *   Selection is independent, always visible, and doesn't sync with global state.
    */
-  @Input() useGlobalSelection = true;
+  readonly useGlobalSelection = input(true);
 
   // @Output() properties
   @Output() groupSelected = new EventEmitter<Group | null>();
@@ -135,7 +136,8 @@ export class GroupSelectComponent
   private readonly SELECTED_GROUP_STORAGE_KEY = 'group-select.selected-group-id';
 
   get idSuffix(): string {
-    return this.index !== undefined ? `-${this.index}` : '';
+    const index = this.index();
+    return index !== undefined ? `-${index}` : '';
   }
 
   ngOnInit(): void {
@@ -145,7 +147,7 @@ export class GroupSelectComponent
     this.isVisible = this.isComponentVisible();
 
     this.readSignals();
-    if (this.useGlobalSelection) {
+    if (this.useGlobalSelection()) {
       this.readSignalsService();
     }
   }
@@ -238,7 +240,8 @@ export class GroupSelectComponent
 
         this.buildDisplayTree();
 
-        if (this.useGlobalSelection && !this.groupSelectionService.selectedGroup) {
+        const useGlobalSelection = this.useGlobalSelection();
+        if (useGlobalSelection && !this.groupSelectionService.selectedGroup) {
           const storedId = await this.sessionStorageService.restoreFilter<string>(this.SELECTED_GROUP_STORAGE_KEY);
           if (storedId && storedId !== this.ALL_GROUPS_ID) {
             this.selectedGroupId = storedId;
@@ -250,11 +253,11 @@ export class GroupSelectComponent
           this.selectedGroupId !== this.ALL_GROUPS_ID
         ) {
           this.findAndSelectGroup(this.selectedGroupId, this.hierarchicalTree);
-          if (!this.selectedGroup && this.useGlobalSelection) {
+          if (!this.selectedGroup && useGlobalSelection) {
             this.sessionStorageService.removeFilter(this.SELECTED_GROUP_STORAGE_KEY);
             this.selectAllGroups();
           }
-        } else if (this.showAllGroupsOption) {
+        } else if (this.showAllGroupsOption()) {
           this.selectAllGroups();
         } else if (this.hierarchicalTree.length > 0) {
           this.selectGroupProgrammatically(this.hierarchicalTree[0]);
@@ -267,7 +270,7 @@ export class GroupSelectComponent
   buildDisplayTree(): void {
     this.displayTree = [];
 
-    if (this.showAllGroupsOption) {
+    if (this.showAllGroupsOption()) {
       const allGroupsOption: VirtualGroup = {
         id: this.ALL_GROUPS_ID,
         name: this.translate.instant('group.select.all-groups'),
@@ -286,7 +289,7 @@ export class GroupSelectComponent
     this.onTouched();
     this.groupSelected.emit(null);
 
-    if (this.useGlobalSelection) {
+    if (this.useGlobalSelection()) {
       this.groupSelectionService.clearSelection();
       this.dataManagementGroupService.selectNode(null as any);
       this.sessionStorageService.removeFilter(this.SELECTED_GROUP_STORAGE_KEY);
@@ -304,7 +307,7 @@ export class GroupSelectComponent
       this.onTouched();
       this.groupSelected.emit(group);
 
-      if (this.useGlobalSelection) {
+      if (this.useGlobalSelection()) {
         this.groupSelectionService.selectGroup(group);
         this.dataManagementGroupService.selectNode(group);
         this.sessionStorageService.saveFilter(this.SELECTED_GROUP_STORAGE_KEY, this.selectedGroupId);
@@ -375,7 +378,7 @@ export class GroupSelectComponent
         this.onTouched();
         this.groupSelected.emit(this.selectedGroup);
 
-        if (this.useGlobalSelection) {
+        if (this.useGlobalSelection()) {
           this.groupSelectionService.selectGroup(this.selectedGroup);
           this.dataManagementGroupService.selectNode(this.selectedGroup);
           this.sessionStorageService.saveFilter(this.SELECTED_GROUP_STORAGE_KEY, this.selectedGroupId);
@@ -391,17 +394,17 @@ export class GroupSelectComponent
 
     if (value === this.ALL_GROUPS_ID) {
       this.selectedGroup = null;
-      if (this.useGlobalSelection) {
+      if (this.useGlobalSelection()) {
         this.groupSelectionService.clearSelection();
       }
     } else if (value && this.hierarchicalTree.length > 0) {
       this.findAndSelectGroup(value, this.hierarchicalTree);
     } else if (!value) {
-      if (this.showAllGroupsOption) {
+      if (this.showAllGroupsOption()) {
         this.selectAllGroups();
       } else {
         this.selectedGroup = null;
-        if (this.useGlobalSelection) {
+        if (this.useGlobalSelection()) {
           this.groupSelectionService.clearSelection();
         }
       }
@@ -426,7 +429,7 @@ export class GroupSelectComponent
         const group = node as Group;
         this.selectedGroup = group;
 
-        if (this.useGlobalSelection) {
+        if (this.useGlobalSelection()) {
           this.groupSelectionService.selectGroup(group);
           this.dataManagementGroupService.selectNode(group);
         }
@@ -440,7 +443,7 @@ export class GroupSelectComponent
   }
 
   private isComponentVisible(): boolean {
-    if (!this.useGlobalSelection) {
+    if (!this.useGlobalSelection()) {
       return true;
     }
 

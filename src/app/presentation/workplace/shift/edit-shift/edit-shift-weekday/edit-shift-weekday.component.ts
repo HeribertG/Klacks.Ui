@@ -12,12 +12,12 @@ import {
   EventEmitter,
   inject,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
   runInInjectionContext,
   ViewChild,
+  input
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -48,9 +48,9 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 export class EditShiftWeekdayComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
-  @Input() isComplex = false;
+  readonly isComplex = input(false);
 
   @ViewChild('weekdayShiftForm', { static: false }) weekdayShiftForm:
     | NgForm
@@ -240,7 +240,7 @@ export class EditShiftWeekdayComponent
   }
 
   get isFieldsDisabled(): boolean {
-    if (this.isReadOnly) return true;
+    if (this.isReadOnly()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

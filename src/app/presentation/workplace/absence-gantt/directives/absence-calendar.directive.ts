@@ -98,12 +98,12 @@ export class AbsenceCalendarDirective {
     const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
-      const newValue = this.gridBody.valueChangeHScrollbar + moveX;
+      const newValue = this.gridBody.valueChangeHScrollbar() + moveX;
       this.gridBody.valueHScrollbar.emit(newValue);
     }
 
     if (moveY !== 0) {
-      const newValue = this.gridBody.valueChangeVScrollbar + moveY;
+      const newValue = this.gridBody.valueChangeVScrollbar() + moveY;
       this.gridBody.valueVScrollbar.emit(newValue);
     }
 

@@ -65,7 +65,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of shifts; track data.id; let i = $index) {
+    @for (data of shifts(); track data.id; let i = $index) {
     <tr
       (click)="onClickRow(data)"
       (mouseenter)="onMouseEnter(data)"

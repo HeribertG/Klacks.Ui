@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter,
+import {
+  Component, Input, Output, EventEmitter,
   ChangeDetectionStrategy, ViewChild, ElementRef,
+  input
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -19,17 +21,17 @@ export class TimeInputComponent {
   @ViewChild('minutesInput') minutesInput?: ElementRef<HTMLInputElement>;
 
   @Input() label?: string;
-  @Input() hoursId?: string;
-  @Input() minutesId?: string;
-  @Input() hoursName?: string;
-  @Input() minutesName?: string;
-  @Input() disabled = false;
-  @Input() hoursMaxLength = 3;
-  @Input() hoursPlaceholder = 'hh';
-  @Input() minutesPlaceholder = 'mm';
+  readonly hoursId = input<string>();
+  readonly minutesId = input<string>();
+  readonly hoursName = input<string>();
+  readonly minutesName = input<string>();
+  readonly disabled = input(false);
+  readonly hoursMaxLength = input(3);
+  readonly hoursPlaceholder = input('hh');
+  readonly minutesPlaceholder = input('mm');
   @Input() showLabel = true;
   @Input() forDuration = true;
-  @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
+  readonly labelAlign = input<'left' | 'center' | 'right'>('left');
   @Input() value: OwnTime = OwnTime.forTime('00', '00');
   @Output() valueChange = new EventEmitter<OwnTime>();
   @Output() timeChange = new EventEmitter<OwnTime>();

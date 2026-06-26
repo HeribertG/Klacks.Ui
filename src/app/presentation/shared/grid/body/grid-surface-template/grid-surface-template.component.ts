@@ -8,7 +8,6 @@ import {
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -19,6 +18,7 @@ import {
   inject,
   runInInjectionContext,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
@@ -83,10 +83,10 @@ export interface CellValueChangeEvent {
 export class GridSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Input() contextMenu?: ContextMenuComponent;
-  @Input() valueChangeHScrollbar!: number;
-  @Input() valueChangeVScrollbar!: number;
-  @Input() nameId!: string;
+  readonly contextMenu = input<ContextMenuComponent>();
+  readonly valueChangeHScrollbar = input.required<number>();
+  readonly valueChangeVScrollbar = input.required<number>();
+  readonly nameId = input.required<string>();
 
   @Output() valueHScrollbar = new EventEmitter<number>();
   @Output() maxValueHScrollbar = new EventEmitter<number>();
@@ -239,7 +239,7 @@ export class GridSurfaceTemplateComponent
   private observeParentResize(): void {
     this.resize.observeParent(this.el.nativeElement.parentElement, {
       onResized: () => this.updateScrollbarValues(true),
-      nameId: this.nameId,
+      nameId: this.nameId(),
     });
   }
 

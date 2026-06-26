@@ -22,6 +22,7 @@ import {
   HostListener,
   DestroyRef,
   computed,
+  input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -142,7 +143,7 @@ export class CutShiftListComponent implements OnInit {
   @Input() isSundayEnabled = false;
   public isResetCutsEnabled = false;
 
-  @Input() shifts: IShift[] = [];
+  readonly shifts = input<IShift[]>([]);
 
   public selectedShift: Shift | undefined = undefined;
   private activeModal: NgbModalRef | null = null;

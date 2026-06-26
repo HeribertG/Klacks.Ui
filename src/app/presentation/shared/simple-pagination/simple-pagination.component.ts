@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, Input, Output, EventEmitter,
+import {
+  Component, Input, Output, EventEmitter,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -17,15 +19,15 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SimplePaginationComponent {
-  @Input() collectionSize = 0;
+  readonly collectionSize = input(0);
   @Input() page = 1;
-  @Input() pageSize = 1;
-  @Input() maxSize = 5;
-  @Input() rotate = true;
-  @Input() ellipses = false;
-  @Input() boundaryLinks = true;
-  @Input() showSummary = true;
-  @Input() summaryLabel = 'pagination.sum';
+  readonly pageSize = input(1);
+  readonly maxSize = input(5);
+  readonly rotate = input(true);
+  readonly ellipses = input(false);
+  readonly boundaryLinks = input(true);
+  readonly showSummary = input(true);
+  readonly summaryLabel = input('pagination.sum');
 
   @Output() pageChange = new EventEmitter<number>();
 

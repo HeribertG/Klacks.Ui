@@ -14,6 +14,7 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  input
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
@@ -73,7 +74,7 @@ export class AbsenceGanttMaskComponent
   @Output() UpdateEvent = new EventEmitter();
   @Output() breakPlaceholderIdSelected = new EventEmitter<string>();
   @Input() selectedRow = -1;
-  @Input() selectedRowBreaksMaxIndex: number | undefined;
+  readonly selectedRowBreaksMaxIndex = input<number>();
   @Input() selectedBreakIndex = -1;
   @ViewChild(AbsenceGanttGridComponent) gridComponent!: AbsenceGanttGridComponent;
 

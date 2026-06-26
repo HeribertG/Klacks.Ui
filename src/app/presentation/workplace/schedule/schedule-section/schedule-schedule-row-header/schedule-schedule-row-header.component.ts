@@ -23,7 +23,6 @@ import {
   ViewChild,
   ElementRef,
   inject,
-  Input,
   OnChanges,
   SimpleChanges,
   effect,
@@ -32,6 +31,7 @@ import {
   runInInjectionContext,
   viewChild,
   output,
+  input
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDragPlaceholder, CdkDragHandle, moveItemInArray, CdkDragPreview, CdkDragMove } from '@angular/cdk/drag-drop';
@@ -104,7 +104,7 @@ export class ScheduleScheduleRowHeaderComponent
   @ViewChild(ShiftPreferencesDialogComponent)
   shiftPreferencesDialog!: ShiftPreferencesDialogComponent;
 
-  @Input() valueChangeVScrollbar!: number;
+  readonly valueChangeVScrollbar = input.required<number>();
   readonly vScrollChange = output<number>();
 
   public dataService = inject(BaseDataService);

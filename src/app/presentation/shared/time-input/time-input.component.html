@@ -2,48 +2,48 @@
 <div
   class="time-input-container"
   [style.align-items]="
-    labelAlign === 'center'
+    labelAlign() === 'center'
       ? 'center'
-      : labelAlign === 'right'
+      : labelAlign() === 'right'
       ? 'flex-end'
       : 'flex-start'
   "
 >
   @if (showLabel && label) {
-  <label [for]="hoursId" [style.text-align]="labelAlign">{{ label }}</label>
+  <label [for]="hoursId()" [style.text-align]="labelAlign()">{{ label }}</label>
   }
   <div class="row-line-inline-simple">
     <input
       [value]="partialHours ?? value.hours"
-      [id]="hoursId"
-      [name]="hoursName || 'hours'"
+      [id]="hoursId()"
+      [name]="hoursName() || 'hours'"
       (input)="onHoursInputChange($event)"
       (focus)="onFocus($event)"
       (blur)="onHoursBlur()"
       (keyup)="onInputKeyUp($event)"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       class="form-control time-hour hours"
       type="text"
       inputmode="numeric"
-      [attr.maxlength]="hoursMaxLength"
-      [placeholder]="hoursPlaceholder"
+      [attr.maxlength]="hoursMaxLength()"
+      [placeholder]="hoursPlaceholder()"
     />
     <label class="delimiter-time">:</label>
     <input
       #minutesInput
-      [id]="minutesId"
+      [id]="minutesId()"
       [value]="partialMinutes !== null ? partialMinutes : value.minutes"
-      [name]="minutesName || 'minutes'"
+      [name]="minutesName() || 'minutes'"
       (input)="onMinutesInputChange($event)"
       (focus)="onFocus($event)"
       (blur)="onMinutesBlur()"
       (keyup)="onInputKeyUp($event)"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       class="form-control time-minute minutes"
       type="text"
       inputmode="numeric"
       maxlength="2"
-      [placeholder]="minutesPlaceholder"
+      [placeholder]="minutesPlaceholder()"
     />
   </div>
 </div>

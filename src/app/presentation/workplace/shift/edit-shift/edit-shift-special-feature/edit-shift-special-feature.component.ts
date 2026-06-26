@@ -9,10 +9,10 @@ import {
   effect,
   EventEmitter,
   inject,
-  Input,
   OnDestroy,
   Output,
   ViewChild,
+  input
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -51,7 +51,7 @@ const SPORADIC_TYPE_TRANSLATION_KEYS: readonly string[] = [
 export class EditShiftSpecialFeatureComponent
   implements AfterViewInit, OnDestroy
 {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('specialFeatureShiftForm', { static: false })
@@ -149,7 +149,7 @@ export class EditShiftSpecialFeatureComponent
   }
 
   get isFieldsDisabled(): boolean {
-    if (this.isReadOnly) return true;
+    if (this.isReadOnly()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

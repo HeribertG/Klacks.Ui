@@ -12,8 +12,8 @@ import {
   effect,
   EventEmitter,
   inject,
-  Input,
   Output,
+  input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -40,7 +40,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   ],
 })
 export class EditShiftExpensesComponent {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftService = inject(DataManagementShiftService);

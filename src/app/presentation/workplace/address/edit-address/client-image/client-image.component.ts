@@ -8,13 +8,13 @@ import {
   EventEmitter,
   inject,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
   signal,
   ViewChild,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -41,7 +41,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientImageComponent implements OnInit, OnDestroy {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('imageForm', { static: false }) imageForm: NgForm | undefined;
@@ -82,7 +82,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
 
   isDisabled(): boolean {
     return (
-      this.isReadOnly ||
+      this.isReadOnly() ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

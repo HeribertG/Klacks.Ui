@@ -10,8 +10,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Input,
   inject,
+  input
 } from '@angular/core';
 import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
 import { PluginSvgPath } from 'src/app/domain/models/plugins/plugin-nav-item';
@@ -24,14 +24,14 @@ import { PluginSvgPath } from 'src/app/domain/models/plugins/plugin-nav-item';
     <svg
       width="24px"
       height="24px"
-      [attr.viewBox]="viewBox"
+      [attr.viewBox]="viewBox()"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       [style.color]="currentColor"
     >
       <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect x="0" y="0" width="24" height="24"></rect>
-        @for (path of svgPaths; track path.d) {
+        @for (path of svgPaths(); track path.d) {
           <path
             [attr.d]="path.d"
             [attr.opacity]="path.opacity ?? '1'"
@@ -47,8 +47,8 @@ export class PluginIconComponent {
   private navIconColorService = inject(NavIconColorService);
   private cdr = inject(ChangeDetectorRef);
 
-  @Input() svgPaths: PluginSvgPath[] = [];
-  @Input() viewBox = '0 0 24 24';
+  readonly svgPaths = input<PluginSvgPath[]>([]);
+  readonly viewBox = input('0 0 24 24');
 
   private isSelected = false;
 

@@ -11,10 +11,10 @@ import {
   EventEmitter,
   HostListener,
   inject,
-  Input,
   OnInit,
   Output,
   ViewChild,
+  input
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,7 +43,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
   ],
 })
 export class EditShiftAddressComponent implements OnInit {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('addressShiftForm', { static: false }) addressShiftForm:
@@ -77,7 +77,7 @@ export class EditShiftAddressComponent implements OnInit {
   }
 
   get isFieldsDisabled(): boolean {
-    if (this.isReadOnly) return true;
+    if (this.isReadOnly()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

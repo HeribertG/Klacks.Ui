@@ -22,13 +22,13 @@ import {
   ElementRef,
   inject,
   Injector,
-  Input,
   OnChanges,
   OnDestroy,
   runInInjectionContext,
   SimpleChanges,
   ViewChild,
   effect,
+  input
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
@@ -67,9 +67,9 @@ export class ScheduleShiftRowHeaderComponent
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
 
-  @Input() valueChangeVScrollbar!: number;
-  @Input() selectedRow = -1;
-  @Input() isSelectedRowActive = false;
+  readonly valueChangeVScrollbar = input.required<number>();
+  readonly selectedRow = input(-1);
+  readonly isSelectedRowActive = input(false);
 
   private injector = inject(Injector);
   private scroll = inject(ScrollService);
@@ -111,8 +111,8 @@ export class ScheduleShiftRowHeaderComponent
       }
     }
     if (changes['selectedRow'] || changes['isSelectedRowActive']) {
-      this.drawRowHeader.selectedRow = this.selectedRow;
-      this.drawRowHeader.isSelectedRowActive = this.isSelectedRowActive;
+      this.drawRowHeader.selectedRow = this.selectedRow();
+      this.drawRowHeader.isSelectedRowActive = this.isSelectedRowActive();
       if (this.drawRowHeader.isCanvasAvailable()) {
         this.drawRowHeader.refresh();
       }

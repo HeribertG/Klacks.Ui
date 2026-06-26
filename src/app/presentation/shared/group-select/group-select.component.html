@@ -9,7 +9,7 @@
   @if (label) {
   <label [for]="'group-select-' + label" class="group-select-label">
     {{ label }}
-    @if (required) {
+    @if (required()) {
     <span class="required-marker">*</span>
     }
   </label>
@@ -143,7 +143,7 @@
       }
     </div>
 
-    @if (hasOptionButton) {
+    @if (hasOptionButton()) {
     <div
       [id]="'group-option-' + node.id"
       class="group-option-button"

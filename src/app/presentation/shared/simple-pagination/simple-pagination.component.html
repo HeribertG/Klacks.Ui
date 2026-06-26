@@ -1,18 +1,18 @@
 <div class="pagination justify-content-end">
-  @if (showSummary) {
+  @if (showSummary()) {
   <label for="pagination" class="entry-info">
-    {{ summaryLabel | translate }} {{ collectionSize }}
+    {{ summaryLabel() | translate }} {{ collectionSize() }}
   </label>
   }
   <ngb-pagination
     id="pagination"
-    [collectionSize]="collectionSize"
+    [collectionSize]="collectionSize()"
     (pageChange)="onPageChange($event)"
     [(page)]="page"
-    [maxSize]="maxSize"
-    [pageSize]="pageSize"
-    [rotate]="rotate"
-    [ellipses]="ellipses"
-    [boundaryLinks]="boundaryLinks"
+    [maxSize]="maxSize()"
+    [pageSize]="pageSize()"
+    [rotate]="rotate()"
+    [ellipses]="ellipses()"
+    [boundaryLinks]="boundaryLinks()"
   ></ngb-pagination>
 </div>

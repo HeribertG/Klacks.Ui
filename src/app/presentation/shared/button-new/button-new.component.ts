@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -12,5 +12,5 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   imports: [],
 })
 export class ButtonNewComponent {
-  @Input() id?: string;
+  readonly id = input<string>();
 }

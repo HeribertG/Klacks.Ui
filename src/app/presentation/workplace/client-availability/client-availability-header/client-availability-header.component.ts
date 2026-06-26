@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, output, signal, WritableSignal,
+import {
+  Component, DestroyRef, EventEmitter, inject, OnInit, output, signal, WritableSignal,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgxSliderModule, Options, ChangeContext } from '@angular-slider/ngx-slider';
@@ -54,7 +56,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
 
   readonly isRtl = document.documentElement.dir === 'rtl';
 
-  @Input() viewMode: PaymentInterval = PaymentInterval.Weekly;
+  readonly viewMode = input<PaymentInterval>(PaymentInterval.Weekly);
 
   periodChanged = output<PeriodResetData>();
 
@@ -109,7 +111,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
 
   get displayPeriod(): string {
     const cw = this.translateService.instant('client-availability.calendar-week');
-    switch (this.viewMode) {
+    switch (this.viewMode()) {
       case PaymentInterval.Weekly:
         return `${cw} ${this.currentWeek}`;
       case PaymentInterval.Biweekly:
@@ -136,7 +138,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   goToPrevious(): void {
-    switch (this.viewMode) {
+    switch (this.viewMode()) {
       case PaymentInterval.Weekly:
         this.goToPreviousWeek();
         break;
@@ -151,7 +153,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   goToNext(): void {
-    switch (this.viewMode) {
+    switch (this.viewMode()) {
       case PaymentInterval.Weekly:
         this.goToNextWeek();
         break;
@@ -237,7 +239,7 @@ export class ClientAvailabilityHeaderComponent implements OnInit {
   }
 
   private emitPeriodChange(): void {
-    switch (this.viewMode) {
+    switch (this.viewMode()) {
       case PaymentInterval.Monthly:
         this.periodChanged.emit({
           year: this.currentYear,

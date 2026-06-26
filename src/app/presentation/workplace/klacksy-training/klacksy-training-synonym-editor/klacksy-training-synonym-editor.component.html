@@ -1,9 +1,9 @@
 <div id="klacksyTrainingSynonymEditor" class="synonym-editor">
   <div class="container-header header-container">
-    {{ target.targetId }}
-    <span class="locale-tag">{{ locale }}</span>
+    {{ target().targetId }}
+    <span class="locale-tag">{{ locale() }}</span>
     <span class="filler"></span>
-    <span class="label">{{ target.labelKey | translate }}</span>
+    <span class="label">{{ target().labelKey | translate }}</span>
   </div>
 
   <div class="container-line"></div>

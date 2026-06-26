@@ -21,6 +21,7 @@ import {
   OnDestroy,
   Output,
   inject,
+  input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,15 +43,15 @@ const DEFAULT_PLACEHOLDER_KEY = 'placeholder.search';
 export class SearchInputComponent implements OnDestroy {
   private translateService = inject(TranslateService);
 
-  @Input() placeholderKey = DEFAULT_PLACEHOLDER_KEY;
+  readonly placeholderKey = input(DEFAULT_PLACEHOLDER_KEY);
   @Input() value = '';
-  @Input() showButton = true;
-  @Input() disabled = false;
-  @Input() buttonDisabled = false;
-  @Input() isLoading = false;
-  @Input() debounceMs = 300;
-  @Input() inputId = '';
-  @Input() klacksyTarget = '';
+  readonly showButton = input(true);
+  readonly disabled = input(false);
+  readonly buttonDisabled = input(false);
+  readonly isLoading = input(false);
+  readonly debounceMs = input(300);
+  readonly inputId = input('');
+  readonly klacksyTarget = input('');
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() searchSubmit = new EventEmitter<string>();
@@ -69,21 +70,23 @@ export class SearchInputComponent implements OnDestroy {
 
   get translatedPlaceholder(): string {
     return this.translateService.instant(
-      this.placeholderKey || DEFAULT_PLACEHOLDER_KEY,
+      this.placeholderKey() || DEFAULT_PLACEHOLDER_KEY,
     );
   }
 
   get buttonId(): string | null {
-    return this.inputId ? `${this.inputId}-button` : null;
+    const inputId = this.inputId();
+    return inputId ? `${inputId}-button` : null;
   }
 
   get klacksySubmitTarget(): string | null {
-    return this.klacksyTarget ? `${this.klacksyTarget}.submit` : null;
+    const klacksyTarget = this.klacksyTarget();
+    return klacksyTarget ? `${klacksyTarget}.submit` : null;
   }
 
   onModelChange(next: string): void {
     this.value = next;
-    if (this.debounceMs > 0) {
+    if (this.debounceMs() > 0) {
       this.scheduleDebounced(next);
       return;
     }
@@ -91,7 +94,7 @@ export class SearchInputComponent implements OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.disabled || this.buttonDisabled || this.isLoading) return;
+    if (this.disabled() || this.buttonDisabled() || this.isLoading()) return;
     this.searchSubmit.emit(this.value);
   }
 
@@ -99,7 +102,7 @@ export class SearchInputComponent implements OnDestroy {
     this.debounceSub.unsubscribe();
     this.debounceSubject = new Subject<string>();
     this.debounceSub = this.debounceSubject
-      .pipe(debounceTime(this.debounceMs))
+      .pipe(debounceTime(this.debounceMs()))
       .subscribe(v => this.valueChange.emit(v));
     this.debounceSubject.next(next);
   }

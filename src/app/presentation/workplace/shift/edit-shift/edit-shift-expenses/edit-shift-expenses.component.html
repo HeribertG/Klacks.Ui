@@ -8,7 +8,7 @@
 
     <span class="filler"></span>
 
-    @if (!isReadOnly) {
+    @if (!isReadOnly()) {
       <button class="btn new-btn" (click)="onAdd()">
         {{ "shift.expenses.add" | translate }}
       </button>
@@ -50,7 +50,7 @@
                   {{ "shift.expenses.taxable" | translate }}
                 </div>
               </th>
-              @if (!isReadOnly) {
+              @if (!isReadOnly()) {
                 <th class="table-header action" style="width: 90px; max-width: 90px; min-width: 90px"></th>
               }
             </tr>
@@ -65,7 +65,7 @@
                     [(ngModel)]="expense.description"
                     [ngModelOptions]="{ standalone: true }"
                     (input)="onChange()"
-                    [disabled]="isReadOnly"
+                    [disabled]="isReadOnly()"
                   />
                 </td>
                 <td class="table-cell cell-right">
@@ -75,7 +75,7 @@
                     [(ngModel)]="expense.amount"
                     [ngModelOptions]="{ standalone: true }"
                     (input)="onChange()"
-                    [disabled]="isReadOnly"
+                    [disabled]="isReadOnly()"
                     step="0.01"
                     min="0"
                   />
@@ -86,10 +86,10 @@
                     [(ngModel)]="expense.taxable"
                     [ngModelOptions]="{ standalone: true }"
                     (change)="onChange()"
-                    [disabled]="isReadOnly"
+                    [disabled]="isReadOnly()"
                   />
                 </td>
-                @if (!isReadOnly) {
+                @if (!isReadOnly()) {
                   <td class="table-cell cell-right">
                     <div>
                       <div class="icon" (click)="onDelete(expense)">

@@ -266,7 +266,7 @@
     @if (selectedBreak) {
       <app-simple-pagination
         id="absence-mask-pagination"
-        [collectionSize]="selectedRowBreaksMaxIndex!"
+        [collectionSize]="selectedRowBreaksMaxIndex()!"
         (pageChange)="onBreakChange($event)"
         [(page)]="page"
         [maxSize]="5"

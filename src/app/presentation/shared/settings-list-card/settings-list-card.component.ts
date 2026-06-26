@@ -2,10 +2,10 @@
 
 import {
   Component,
-  Input,
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
@@ -19,13 +19,13 @@ import { SearchInputComponent } from 'src/app/presentation/shared/search-input/s
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsListCardComponent {
-  @Input() headline = '';
-  @Input() addLabel = 'Hinzufügen';
-  @Input() showAddButton = true;
-  @Input() showHeader = false;
-  @Input() idPrefix = 'settings-list';
-  @Input() showSearchInHeader = false;
-  @Input() searchPlaceholderKey = 'placeholder.search';
+  readonly headline = input('');
+  readonly addLabel = input('Hinzufügen');
+  readonly showAddButton = input(true);
+  readonly showHeader = input(false);
+  readonly idPrefix = input('settings-list');
+  readonly showSearchInHeader = input(false);
+  readonly searchPlaceholderKey = input('placeholder.search');
   @Output() addClick = new EventEmitter<void>();
   @Output() headerSearchChange = new EventEmitter<string>();
 

@@ -13,6 +13,7 @@ import {
   EventEmitter,
   ViewChild,
   ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import {
   ScrollbarComponent,
@@ -25,8 +26,8 @@ import {
   template: `<app-scrollbar
     [orientation]="'vertical'"
     [value]="value"
-    [maxValue]="maxValue"
-    [visibleValue]="visibleValue"
+    [maxValue]="maxValue()"
+    [visibleValue]="visibleValue()"
     (valueChange)="onValueChange($event)"
     (maxValueChange)="maxValueChange.emit($event)"
   ></app-scrollbar>`,
@@ -36,8 +37,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VScrollbarComponent {
-  @Input() maxValue = 365;
-  @Input() visibleValue = 180;
+  readonly maxValue = input(365);
+  readonly visibleValue = input(180);
   @Input() value = 0;
   @Output() valueChange = new EventEmitter<number>();
   @Output() maxValueChange = new EventEmitter<number>();

@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild, input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -34,7 +34,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
 export class EditShiftMacroComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input() isReadOnly = false;
+  readonly isReadOnly = input(false);
 
   dataManagementShiftService = inject(DataManagementShiftService);
   private translateService = inject(TranslateService);
@@ -101,7 +101,7 @@ export class EditShiftMacroComponent
   }
 
   get isFieldsDisabled(): boolean {
-    if (this.isReadOnly) return true;
+    if (this.isReadOnly()) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     const isNotOriginal = status !== undefined && status !== ShiftStatus.OriginalOrder;
     const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
