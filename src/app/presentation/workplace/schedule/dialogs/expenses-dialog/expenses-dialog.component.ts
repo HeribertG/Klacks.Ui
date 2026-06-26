@@ -1,20 +1,26 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementExpensesService } from 'src/app/domain/services/expenses/data-management-expenses.service';
 import { ExpensesRequest, ExpensesResource } from 'src/app/domain/models/expenses/expenses';
 import { ScheduleEntryCrudService } from 'src/app/domain/services/schedule/schedule-entry-crud.service';
 
+interface ExpensesFormModel {
+  amount: number;
+  description: string;
+  taxable: boolean;
+}
+
 @Component({
   selector: 'app-expenses-dialog',
   templateUrl: './expenses-dialog.component.html',
   styleUrls: ['./expenses-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormField, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpensesDialogComponent {
@@ -29,9 +35,13 @@ export class ExpensesDialogComponent {
   workId = '';
   clientId = '';
   currentDate: Date | null = null;
-  amount = 0;
-  description = '';
-  taxable = false;
+
+  private formModel = signal<ExpensesFormModel>({
+    amount: 0,
+    description: '',
+    taxable: false,
+  });
+  protected expensesForm = form(this.formModel);
 
   private modalRef: NgbModalRef | null = null;
   private editMode = false;
@@ -59,9 +69,11 @@ export class ExpensesDialogComponent {
     this.expensesService.get(expenseId).subscribe({
       next: (data) => {
         this.workId = data.workId;
-        this.amount = data.amount;
-        this.description = data.description || '';
-        this.taxable = data.taxable;
+        this.formModel.set({
+          amount: data.amount,
+          description: data.description || '',
+          taxable: data.taxable,
+        });
         this.cdr.markForCheck();
 
         this.modalRef = this.ngbModal.open(this.modalTemplate(), {
@@ -76,13 +88,11 @@ export class ExpensesDialogComponent {
   }
 
   private reset(): void {
-    this.amount = 0;
-    this.description = '';
-    this.taxable = false;
+    this.formModel.set({ amount: 0, description: '', taxable: false });
   }
 
   isValid(): boolean {
-    return this.amount > 0;
+    return this.formModel().amount > 0;
   }
 
   onSave(): void {
@@ -96,11 +106,12 @@ export class ExpensesDialogComponent {
   }
 
   private createExpenses(): void {
+    const { amount, description, taxable } = this.formModel();
     const request: ExpensesRequest = {
       workId: this.workId,
-      amount: this.amount,
-      description: this.description,
-      taxable: this.taxable,
+      amount,
+      description,
+      taxable,
     };
 
     this.expensesService.create(request).subscribe({
@@ -114,12 +125,13 @@ export class ExpensesDialogComponent {
   }
 
   private updateExpenses(): void {
+    const { amount, description, taxable } = this.formModel();
     const resource: ExpensesResource = {
       id: this.editId,
       workId: this.workId,
-      amount: this.amount,
-      description: this.description,
-      taxable: this.taxable,
+      amount,
+      description,
+      taxable,
     };
 
     this.expensesService.update(resource).subscribe({

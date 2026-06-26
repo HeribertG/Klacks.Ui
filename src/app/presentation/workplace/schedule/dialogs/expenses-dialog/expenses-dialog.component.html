@@ -25,8 +25,7 @@
         type="number"
         id="amount"
         class="form-control"
-        [(ngModel)]="amount"
-        min="0"
+        [formField]="expensesForm.amount"
         step="0.01"
       />
     </div>
@@ -35,7 +34,7 @@
       <label for="description">{{ "dialog.expenses.description" | translate }}</label>
       <textarea
         id="description"
-        [(ngModel)]="description"
+        [formField]="expensesForm.description"
         class="form-control"
         rows="3"
       ></textarea>
@@ -43,7 +42,7 @@
 
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="taxable" />
+        <input type="checkbox" [formField]="expensesForm.taxable" />
         {{ "dialog.expenses.taxable" | translate }}
       </label>
     </div>
