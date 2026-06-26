@@ -3,7 +3,7 @@
 /**
  * Tests for ConversationOrchestratorService state machine.
  */
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Subject, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
@@ -174,6 +174,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -193,6 +194,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -216,6 +218,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -237,6 +240,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -260,6 +264,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -288,6 +293,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -322,6 +328,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -348,6 +355,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -383,6 +391,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => ({ abort: abortSpy } as unknown as AbortController),
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -403,6 +412,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
     service.initialize(callbacks, 'de');
 
@@ -418,6 +428,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
@@ -497,6 +508,7 @@ describe('ConversationOrchestratorService', () => {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getAbortController: () => null,
       detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
     };
 
     service.initialize(callbacks, 'de');
