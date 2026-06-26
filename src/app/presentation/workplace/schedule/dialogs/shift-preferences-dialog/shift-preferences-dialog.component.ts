@@ -11,11 +11,12 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  signal,
   TemplateRef,
   viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataShiftPreferenceService } from 'src/app/infrastructure/api/shift/data-shift-preference.service';
@@ -31,7 +32,7 @@ import { forkJoin } from 'rxjs';
   templateUrl: './shift-preferences-dialog.component.html',
   styleUrls: ['./shift-preferences-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormField, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftPreferencesDialogComponent {
@@ -43,7 +44,9 @@ export class ShiftPreferencesDialogComponent {
 
   clientId = '';
   clientName = '';
-  selectedShiftId = '';
+
+  private formModel = signal<{ selectedShiftId: string }>({ selectedShiftId: '' });
+  protected prefForm = form(this.formModel);
 
   preferredShifts: IClientShiftPreference[] = [];
   blacklistShifts: IClientShiftPreference[] = [];
@@ -57,7 +60,7 @@ export class ShiftPreferencesDialogComponent {
   open(clientId: string, clientName: string): void {
     this.clientId = clientId;
     this.clientName = clientName;
-    this.selectedShiftId = '';
+    this.formModel.set({ selectedShiftId: '' });
 
     forkJoin({
       preferences: this.dataService.getByClient(clientId),
@@ -82,9 +85,10 @@ export class ShiftPreferencesDialogComponent {
   }
 
   addToCategory(type: ShiftPreferenceType): void {
-    if (!this.selectedShiftId) return;
+    const selectedShiftId = this.formModel().selectedShiftId;
+    if (!selectedShiftId) return;
 
-    const shift = this.allShifts.find((s) => s.id === this.selectedShiftId);
+    const shift = this.allShifts.find((s) => s.id === selectedShiftId);
     if (!shift) return;
 
     const preference: IClientShiftPreference = {
@@ -105,7 +109,7 @@ export class ShiftPreferencesDialogComponent {
         break;
     }
 
-    this.selectedShiftId = '';
+    this.formModel.set({ selectedShiftId: '' });
     this.updateAvailableShifts();
   }
 

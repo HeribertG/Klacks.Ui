@@ -26,9 +26,8 @@
           <input
             type="radio"
             name="correctionMode"
-            [value]="CorrectionMode.AtStart"
-            [(ngModel)]="correctionMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="correctionMode() === CorrectionMode.AtStart"
+            (change)="onModeChange(CorrectionMode.AtStart)"
           />
           {{ "dialog.correction.atStart" | translate }}
         </label>
@@ -36,9 +35,8 @@
           <input
             type="radio"
             name="correctionMode"
-            [value]="CorrectionMode.AtEnd"
-            [(ngModel)]="correctionMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="correctionMode() === CorrectionMode.AtEnd"
+            (change)="onModeChange(CorrectionMode.AtEnd)"
           />
           {{ "dialog.correction.atEnd" | translate }}
         </label>
@@ -69,7 +67,7 @@
       }}</label>
       <textarea
         id="description"
-        [(ngModel)]="description"
+        [formField]="correctionForm.description"
         class="form-control"
         rows="3"
       ></textarea>
@@ -77,7 +75,7 @@
 
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="toInvoice" />
+        <input type="checkbox" [formField]="correctionForm.toInvoice" />
         {{ "dialog.correction.toInvoice" | translate }}
       </label>
     </div>

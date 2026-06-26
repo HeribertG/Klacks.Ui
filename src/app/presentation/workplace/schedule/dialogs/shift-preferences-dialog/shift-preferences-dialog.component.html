@@ -24,7 +24,7 @@
     <div class="form-group shift-selector">
       <label>{{ "dialog.shiftPreferences.addShift" | translate }}</label>
       <div class="selector-row">
-        <select [(ngModel)]="selectedShiftId" class="form-select">
+        <select [formField]="prefForm.selectedShiftId" class="form-select">
           <option value="">
             {{ "dialog.shiftPreferences.selectShift" | translate }}
           </option>
@@ -37,7 +37,7 @@
         <div class="add-buttons">
           <button
             class="btn btn-add preferred"
-            [disabled]="!selectedShiftId"
+            [disabled]="!prefForm.selectedShiftId().value()"
             (click)="addToCategory(ShiftPreferenceType.Preferred)"
             title="{{ 'dialog.shiftPreferences.addToPreferred' | translate }}"
           >
@@ -45,7 +45,7 @@
           </button>
           <button
             class="btn btn-add blacklist"
-            [disabled]="!selectedShiftId"
+            [disabled]="!prefForm.selectedShiftId().value()"
             (click)="addToCategory(ShiftPreferenceType.Blacklist)"
             title="{{ 'dialog.shiftPreferences.addToBlacklist' | translate }}"
           >

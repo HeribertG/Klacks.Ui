@@ -15,9 +15,9 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: ReplacementDialogComponent
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
@@ -43,7 +43,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   templateUrl: './correction-dialog.component.html',
   styleUrls: ['./correction-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [CommonModule, FormField, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,11 +61,15 @@ export class CorrectionDialogComponent {
   workId = '';
   clientId = '';
   currentDate: Date | null = null;
-  correctionMode: CorrectionMode = CorrectionMode.AtEnd;
+  correctionMode = signal<CorrectionMode>(CorrectionMode.AtEnd);
   durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
-  description = '';
-  toInvoice = false;
+
+  private formModel = signal<{ description: string; toInvoice: boolean }>({
+    description: '',
+    toInvoice: false,
+  });
+  protected correctionForm = form(this.formModel);
 
   workContext: WorkTimeContext | null = null;
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
@@ -99,11 +103,15 @@ export class CorrectionDialogComponent {
       next: (data) => {
         this.workId = data.workId;
         this.clientId = data.work?.clientId || '';
-        this.description = data.description || '';
-        this.toInvoice = data.toInvoice;
-        this.correctionMode = data.type === WorkChangeType.CorrectionStart
-          ? CorrectionMode.AtStart
-          : CorrectionMode.AtEnd;
+        this.formModel.set({
+          description: data.description || '',
+          toInvoice: data.toInvoice,
+        });
+        this.correctionMode.set(
+          data.type === WorkChangeType.CorrectionStart
+            ? CorrectionMode.AtStart
+            : CorrectionMode.AtEnd,
+        );
         this.durationMinutes = Math.round(data.changeTime * 60);
 
         const workStartTime = data.work?.startTime || data.startTime;
@@ -125,14 +133,14 @@ export class CorrectionDialogComponent {
   }
 
   private reset(): void {
-    this.correctionMode = CorrectionMode.AtEnd;
+    this.correctionMode.set(CorrectionMode.AtEnd);
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.description = '';
-    this.toInvoice = true;
+    this.formModel.set({ description: '', toInvoice: true });
     this.recalculate();
   }
 
-  onModeChange(): void {
+  onModeChange(mode: CorrectionMode): void {
+    this.correctionMode.set(mode);
     this.recalculate();
   }
 
@@ -165,7 +173,7 @@ export class CorrectionDialogComponent {
   }
 
   private mapModeToWorkChangeType(): WorkChangeType {
-    switch (this.correctionMode) {
+    switch (this.correctionMode()) {
       case CorrectionMode.AtStart:
         return WorkChangeType.CorrectionStart;
       case CorrectionMode.AtEnd:
@@ -192,8 +200,8 @@ export class CorrectionDialogComponent {
       surcharges: 0,
       startTime: '00:00',
       endTime: '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 
@@ -231,8 +239,8 @@ export class CorrectionDialogComponent {
       surcharges: 0,
       startTime: '00:00',
       endTime: '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 

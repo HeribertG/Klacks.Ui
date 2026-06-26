@@ -26,9 +26,8 @@
           <input
             type="radio"
             name="briefingMode"
-            [value]="CorrectionMode.AtStart"
-            [(ngModel)]="correctionMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="correctionMode() === CorrectionMode.AtStart"
+            (change)="onModeChange(CorrectionMode.AtStart)"
           />
           {{ "dialog.briefing.atStart" | translate }}
         </label>
@@ -36,9 +35,8 @@
           <input
             type="radio"
             name="briefingMode"
-            [value]="CorrectionMode.AtEnd"
-            [(ngModel)]="correctionMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="correctionMode() === CorrectionMode.AtEnd"
+            (change)="onModeChange(CorrectionMode.AtEnd)"
           />
           {{ "dialog.briefing.atEnd" | translate }}
         </label>
@@ -69,7 +67,7 @@
       }}</label>
       <textarea
         id="description"
-        [(ngModel)]="description"
+        [formField]="briefingForm.description"
         class="form-control"
         rows="3"
       ></textarea>

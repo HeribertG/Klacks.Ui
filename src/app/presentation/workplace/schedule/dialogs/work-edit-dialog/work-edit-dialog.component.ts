@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { ChangeDetectionStrategy, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataScheduleService } from 'src/app/infrastructure/api/schedule/data-schedule.service';
@@ -24,7 +24,7 @@ interface WorkEditValidation {
   templateUrl: './work-edit-dialog.component.html',
   styleUrls: ['./work-edit-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [CommonModule, FormField, TranslateModule, TimeInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkEditDialogComponent {
@@ -45,7 +45,9 @@ export class WorkEditDialogComponent {
   endTime: OwnTime = OwnTime.forTime('00', '00');
   originalStartTime: OwnTime = OwnTime.forTime('00', '00');
   duration: OwnTime = OwnTime.forDuration('00', '00');
-  description = '';
+
+  private formModel = signal<{ description: string }>({ description: '' });
+  protected workEditForm = form(this.formModel);
 
   validation: WorkEditValidation = { isValid: false, durationMinutes: 0 };
 
@@ -70,7 +72,7 @@ export class WorkEditDialogComponent {
     this.startTime = this.parseTimeString(workStartTime);
     this.endTime = this.parseTimeString(workEndTime);
     this.originalStartTime = this.parseTimeString(workStartTime);
-    this.description = information || '';
+    this.formModel.set({ description: information || '' });
     this.recalculate();
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), {
@@ -157,7 +159,7 @@ export class WorkEditDialogComponent {
     work.startTime = this.ownTimeToString(this.startTime);
     work.endTime = this.ownTimeToString(this.endTime);
     work.workTime = this.validation.durationMinutes / 60;
-    work.information = this.description || undefined;
+    work.information = this.formModel().description || undefined;
     work.surcharges = 0;
 
     if (this.workScheduleLoader.startDate && this.workScheduleLoader.endDate) {

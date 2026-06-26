@@ -9,9 +9,9 @@
  * @param clientId - ID of the client associated with the work entry
  * @param currentDate - The date of the work entry being modified
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
@@ -37,7 +37,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   templateUrl: './briefing-dialog.component.html',
   styleUrls: ['./briefing-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [CommonModule, FormField, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -55,11 +55,15 @@ export class BriefingDialogComponent {
   workId = '';
   clientId = '';
   currentDate: Date | null = null;
-  correctionMode: CorrectionMode = CorrectionMode.AtStart;
+  correctionMode = signal<CorrectionMode>(CorrectionMode.AtStart);
   durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
-  description = '';
-  toInvoice = false;
+
+  private formModel = signal<{ description: string; toInvoice: boolean }>({
+    description: '',
+    toInvoice: false,
+  });
+  protected briefingForm = form(this.formModel);
 
   workContext: WorkTimeContext | null = null;
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
@@ -93,11 +97,15 @@ export class BriefingDialogComponent {
       next: (data) => {
         this.workId = data.workId;
         this.clientId = data.work?.clientId || '';
-        this.description = data.description || '';
-        this.toInvoice = false;
-        this.correctionMode = data.type === WorkChangeType.Debriefing
-          ? CorrectionMode.AtEnd
-          : CorrectionMode.AtStart;
+        this.formModel.set({
+          description: data.description || '',
+          toInvoice: false,
+        });
+        this.correctionMode.set(
+          data.type === WorkChangeType.Debriefing
+            ? CorrectionMode.AtEnd
+            : CorrectionMode.AtStart,
+        );
         this.durationMinutes = Math.round(data.changeTime * 60);
 
         const workStartTime = data.work?.startTime || data.startTime;
@@ -119,14 +127,14 @@ export class BriefingDialogComponent {
   }
 
   private reset(): void {
-    this.correctionMode = CorrectionMode.AtStart;
+    this.correctionMode.set(CorrectionMode.AtStart);
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.description = '';
-    this.toInvoice = false;
+    this.formModel.set({ description: '', toInvoice: false });
     this.recalculate();
   }
 
-  onModeChange(): void {
+  onModeChange(mode: CorrectionMode): void {
+    this.correctionMode.set(mode);
     this.recalculate();
   }
 
@@ -159,7 +167,7 @@ export class BriefingDialogComponent {
   }
 
   private mapModeToWorkChangeType(): WorkChangeType {
-    switch (this.correctionMode) {
+    switch (this.correctionMode()) {
       case CorrectionMode.AtStart: return WorkChangeType.Briefing;
       case CorrectionMode.AtEnd: return WorkChangeType.Debriefing;
       default: return WorkChangeType.Briefing;
@@ -184,8 +192,8 @@ export class BriefingDialogComponent {
       surcharges: 0,
       startTime: '00:00',
       endTime: '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 
@@ -223,8 +231,8 @@ export class BriefingDialogComponent {
       surcharges: 0,
       startTime: '00:00',
       endTime: '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 
