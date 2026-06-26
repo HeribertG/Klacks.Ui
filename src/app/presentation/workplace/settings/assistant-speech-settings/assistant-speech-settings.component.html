@@ -333,23 +333,21 @@
           </tr>
         </thead>
         <tbody>
-          @for (entry of dictionaryEntries(); track entry.id) {
+          @for (entry of dictionaryEntries(); track entry.id; let i = $index) {
             <tr class="table-row">
               @if (editingEntryId() === entry.id) {
                 <td class="table-cell">
-                  <input class="form-control" [(ngModel)]="entry.correctTerm" />
+                  <input class="form-control" [formField]="dictForm[i].correctTerm" />
                 </td>
                 <td class="table-cell">
                   <input
                     class="form-control"
                     [ngModel]="formatVariants(entry.phoneticVariants)"
-                    (ngModelChange)="
-                      entry.phoneticVariants = parseVariants($event)
-                    "
+                    (ngModelChange)="onVariantsChange(i, $event)"
                   />
                 </td>
                 <td class="table-cell cell-dict-language">
-                  <select class="form-select dict-lang-select" [(ngModel)]="entry.language">
+                  <select class="form-select dict-lang-select" [formField]="dictForm[i].language">
                     @for (lang of dictionaryLanguages; track lang.value) {
                       <option [value]="lang.value">{{ lang.label }}</option>
                     }
@@ -358,7 +356,7 @@
                 <td class="table-cell action">
                   <button
                     class="btn-icon"
-                    (click)="updateDictionaryEntry(entry)"
+                    (click)="updateDictionaryEntry(i)"
                   >
                     &#10003;
                   </button>

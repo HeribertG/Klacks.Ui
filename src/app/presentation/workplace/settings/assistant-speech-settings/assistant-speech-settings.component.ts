@@ -20,6 +20,7 @@ import {
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { firstValueFrom } from 'rxjs';
@@ -45,12 +46,16 @@ import {
   SpeechDefaults,
 } from 'src/app/domain/constants/speech-constants';
 
+type EditableDictionaryEntry = Omit<DictionaryEntry, 'language'> & {
+  language: string;
+};
+
 @Component({
   selector: 'app-assistant-speech-settings',
   templateUrl: './assistant-speech-settings.component.html',
   styleUrls: ['./assistant-speech-settings.component.scss'],
   standalone: true,
-  imports: [DecimalPipe, TranslateModule, FormsModule, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
+  imports: [DecimalPipe, TranslateModule, FormsModule, FormField, NgxSliderModule, PencilIconGreyComponent, TrashIconRedComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantSpeechSettingsComponent implements OnInit {
@@ -64,7 +69,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   private isInitialized = false;
 
-  dictionaryEntries = signal<DictionaryEntry[]>([]);
+  dictionaryEntries = signal<EditableDictionaryEntry[]>([]);
+  protected dictForm = form(this.dictionaryEntries);
   newEntry: Partial<DictionaryEntry> = {
     correctTerm: '',
     category: '',
@@ -339,7 +345,11 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     }
   }
 
-  async updateDictionaryEntry(entry: DictionaryEntry): Promise<void> {
+  async updateDictionaryEntry(index: number): Promise<void> {
+    const entry = this.dictionaryEntries()[index];
+    if (!entry) {
+      return;
+    }
     const success = await this.dataDictionaryService.update({
       ...entry,
       language: entry.language || null,
@@ -347,6 +357,15 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     if (success) {
       this.editingEntryId.set(null);
     }
+  }
+
+  onVariantsChange(index: number, raw: string): void {
+    const variants = this.parseVariants(raw);
+    this.dictionaryEntries.update((entries) =>
+      entries.map((e, i) =>
+        i === index ? { ...e, phoneticVariants: variants } : e,
+      ),
+    );
   }
 
   async deleteDictionaryEntry(id: string): Promise<void> {
