@@ -213,6 +213,7 @@ export class AssistantChatComponent {
         sendMessage: () => this.sendMessage(),
         getAbortController: () => this.currentStreamController,
         detectChanges: () => this.cdr.detectChanges(),
+        isTextProcessing: this.isProcessing,
       },
       speechLocale,
     );

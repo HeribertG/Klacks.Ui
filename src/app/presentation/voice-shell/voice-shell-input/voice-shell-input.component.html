@@ -1,0 +1,21 @@
+<div class="floating-input-bar">
+  <textarea
+    class="floating-textarea"
+    [ngModel]="inputText()"
+    (ngModelChange)="inputText.set($event)"
+    (keydown)="onKeyDown($event)"
+    [attr.disabled]="isDisabled() || null"
+    placeholder="{{ 'assistant-chat.placeholder' | translate }}"
+    rows="1"
+    [attr.aria-label]="'assistant-chat.placeholder' | translate"
+  ></textarea>
+  <button
+    type="button"
+    class="floating-send-btn"
+    [disabled]="!inputText().trim() || isDisabled()"
+    (click)="send()"
+    [attr.aria-label]="'assistant-chat.send-message' | translate"
+  >
+    <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
+  </button>
+</div>

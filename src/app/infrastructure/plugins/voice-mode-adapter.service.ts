@@ -5,7 +5,7 @@
  * Translates plain boolean interface properties to orchestrator signals and maps plugin callbacks.
  * @param orchestrator - The shared conversation state machine handling voice lifecycle
  */
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IPluginVoiceService, IPluginVoiceCallbacks } from 'klacks-plugin-contracts';
@@ -39,6 +39,7 @@ export class VoiceModeAdapterService implements IPluginVoiceService, OnDestroy {
       sendMessage: async () => { await callbacks.sendMessage(); },
       getAbortController: () => null,
       detectChanges: callbacks.detectChanges,
+      isTextProcessing: signal(false),
     };
 
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang || 'de';

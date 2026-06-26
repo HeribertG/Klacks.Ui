@@ -51,7 +51,15 @@ export class VoiceShellComponent implements OnInit {
   readonly errorHint = signal<IVoiceShellErrorHint | null>(null);
   readonly transcriptOpen = signal<boolean>(false);
 
-  readonly isIdle = computed<boolean>(() => this.orchestrator.state() === ConversationState.Idle);
+  readonly effectiveState = computed<ConversationState>(() => {
+    const state = this.orchestrator.state();
+    if (state === ConversationState.Idle && this.orchestrator.isTextProcessing()) {
+      return ConversationState.Processing;
+    }
+    return state;
+  });
+
+  readonly isIdle = computed<boolean>(() => this.effectiveState() === ConversationState.Idle);
 
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private errorClearTimer: ReturnType<typeof setTimeout> | null = null;
@@ -60,6 +68,10 @@ export class VoiceShellComponent implements OnInit {
     this.orchestrator.errors$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((hint) => this.onErrorHint(hint));
+
+    this.toastShowService.interactiveReplyShown$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.transcriptOpen.set(false));
   }
 
   handleClick(): void {
@@ -86,11 +98,13 @@ export class VoiceShellComponent implements OnInit {
 
   handleContextMenu(event: MouseEvent): void {
     event.preventDefault();
+    this.toastShowService.dismissInteractiveReplies();
     this.transcriptOpen.set(true);
   }
 
   handleTouchStart(): void {
     this.longPressTimer = setTimeout(() => {
+      this.toastShowService.dismissInteractiveReplies();
       this.transcriptOpen.set(true);
     }, VoiceShellTiming.LongPressMs);
   }

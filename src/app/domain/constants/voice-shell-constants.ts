@@ -45,4 +45,5 @@ export class VoiceShellLayout {
   static readonly CloseButtonSizePx = 16;
   static readonly TranscriptMaxMessages = 20;
   static readonly TranscriptMaxWidthPx = 360;
+  static readonly FloatingInputTopPx = 118;
 }

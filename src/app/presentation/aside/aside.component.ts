@@ -53,14 +53,16 @@ export class AsideComponent {
   isVisible = this.asideService.isVisible;
 
   readonly outputMode = computed<string>(() => this.appSettings.speechSettings().outputMode);
-  readonly isAudioMode = computed<boolean>(() => this.outputMode() === OutputMode.Audio);
+  readonly isFloatingMode = computed<boolean>(
+    () => this.outputMode() === OutputMode.Audio || this.outputMode() === OutputMode.BothAuto,
+  );
 
   constructor() {
     effect(() => {
       const visible = this.isVisible();
-      const audio = this.isAudioMode();
+      const floating = this.isFloatingMode();
 
-      if (visible && !audio) {
+      if (visible && !floating) {
         this.renderer.addClass(this.elementRef.nativeElement, 'visible');
       } else {
         this.renderer.removeClass(this.elementRef.nativeElement, 'visible');

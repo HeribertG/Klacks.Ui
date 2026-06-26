@@ -9,6 +9,7 @@
  */
 
 import { inject, Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { ToastService } from './toast.service';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { ISuggestedRepliesConfig } from 'src/app/domain/models/assistant/suggested-reply.interface';
@@ -25,6 +26,8 @@ const INTERACTIVE_REPLY_DEFAULTS = {
 })
 export class ToastShowService {
   private readonly toastService = inject(ToastService);
+  private readonly interactiveReplyShown = new Subject<void>();
+  readonly interactiveReplyShown$ = this.interactiveReplyShown.asObservable();
 
   showInfo(message: string, infoName = '', additionalMessage = '', icon = ''): void {
     if (infoName) {
@@ -80,6 +83,7 @@ export class ToastShowService {
     persistent = false,
   ): IToast | null {
     this.dismissInteractiveReplies();
+    this.interactiveReplyShown.next();
 
     const promptText = config.prompt || INTERACTIVE_REPLY_DEFAULTS.PROMPT_FALLBACK;
 

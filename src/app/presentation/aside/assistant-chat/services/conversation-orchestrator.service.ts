@@ -8,7 +8,7 @@
  * @param voiceModeEnabled - Whether voice mode is active
  * @param interimText - Live transcription preview while user speaks
  */
-import { Injectable, OnDestroy, Signal, signal, inject, NgZone } from '@angular/core';
+import { Injectable, OnDestroy, Signal, signal, computed, inject, NgZone } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AudioCaptureService } from 'src/app/infrastructure/services/speech/audio-capture.service';
@@ -38,6 +38,7 @@ export interface ConversationCallbacks {
   sendMessage: () => Promise<void>;
   getAbortController: () => AbortController | null;
   detectChanges: () => void;
+  isTextProcessing: Signal<boolean>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -56,6 +57,9 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly state = signal(ConversationState.Idle);
   readonly voiceModeEnabled = signal(false);
   readonly interimText = signal('');
+
+  private textProcessingSignal: Signal<boolean> | null = null;
+  readonly isTextProcessing = computed(() => this.textProcessingSignal?.() ?? false);
 
   private readonly messagesSignal = signal<readonly ChatMessage[]>([]);
   readonly messages: Signal<readonly ChatMessage[]> = this.messagesSignal.asReadonly();
@@ -114,6 +118,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     console.log('[VS] orchestrator.initialize called, locale=', locale);
     this.callbacks = callbacks;
+    this.textProcessingSignal = callbacks.isTextProcessing;
     this.locale = locale;
     this.audioCapture.setSilenceThresholdMs(this.settings.speechSettings().silenceThresholdMs);
 
@@ -268,6 +273,12 @@ export class ConversationOrchestratorService implements OnDestroy {
       i18nKey: 'klacksy.voice.errors.network-failed',
       persistent: false,
     });
+  }
+
+  async submitText(text: string): Promise<void> {
+    if (!text.trim()) return;
+    this.callbacks?.setInputText(text);
+    await this.callbacks?.sendMessage();
   }
 
   ngOnDestroy(): void {

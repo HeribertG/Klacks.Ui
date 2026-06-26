@@ -13,6 +13,7 @@ import { KeyboardShortcutDirective } from './presentation/directives/keyboard-sh
 import { AsideComponent } from './presentation/aside/aside.component';
 import { AsideService } from './presentation/aside/aside.service';
 import { VoiceShellComponent } from './presentation/voice-shell/voice-shell.component';
+import { VoiceShellInputComponent } from './presentation/voice-shell/voice-shell-input/voice-shell-input.component';
 import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
@@ -34,6 +35,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
     KeyboardShortcutDirective,
     AsideComponent,
     VoiceShellComponent,
+    VoiceShellInputComponent,
     TooltipComponent,
   ],
 })
@@ -52,9 +54,14 @@ export class AppComponent implements OnInit {
 
   private readonly publicRoutes = ['/login', '/error'];
 
-  readonly showVoiceShell = computed<boolean>(() =>
+  readonly showVoiceShell = computed<boolean>(() => {
+    const mode = this.appSettings.speechSettings().outputMode;
+    return this.asideService.isVisible() && (mode === OutputMode.Audio || mode === OutputMode.BothAuto);
+  });
+
+  readonly showFloatingInput = computed<boolean>(() =>
     this.asideService.isVisible() &&
-    this.appSettings.speechSettings().outputMode === OutputMode.Audio,
+    this.appSettings.speechSettings().outputMode === OutputMode.BothAuto,
   );
 
   constructor() {
