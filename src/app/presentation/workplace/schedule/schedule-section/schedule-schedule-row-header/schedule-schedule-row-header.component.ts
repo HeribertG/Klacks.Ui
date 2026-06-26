@@ -22,8 +22,6 @@ import {
   OnInit,
   ElementRef,
   inject,
-  OnChanges,
-  SimpleChanges,
   effect,
   EffectRef,
   Injector,
@@ -93,7 +91,7 @@ import { ShiftPreferencesDialogComponent } from '../../dialogs/shift-preferences
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleScheduleRowHeaderComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
   private readonly dragClipEl = viewChild.required<ElementRef<HTMLDivElement>>('dragClip');
@@ -182,26 +180,6 @@ export class ScheduleScheduleRowHeaderComponent
       }
     });
     this.effects = [];
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['valueChangeHScrollbar']) {
-      const prevH = changes['valueChangeHScrollbar'].previousValue;
-      const currH = changes['valueChangeHScrollbar'].currentValue;
-
-      if (currH !== prevH) {
-        this.scroll.horizontalScrollPosition = currH;
-      }
-    }
-
-    if (changes['valueChangeVScrollbar']) {
-      const prevV = changes['valueChangeVScrollbar'].previousValue;
-      const currV = changes['valueChangeVScrollbar'].currentValue;
-      if (currV !== prevV) {
-        this.scroll.verticalScrollPosition = currV;
-        this.applyScrollOffset(this.scroll.verticalScrollPosition * this.settings.cellHeight);
-      }
-    }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -305,6 +283,13 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(colorResetEffect);
+
+      const vScrollEffect = effect(() => {
+        const currV = this.valueChangeVScrollbar();
+        this.scroll.verticalScrollPosition = currV;
+        this.applyScrollOffset(currV * this.settings.cellHeight);
+      });
+      this.effects.push(vScrollEffect);
     });
   }
 

@@ -22,10 +22,8 @@ import {
   ElementRef,
   inject,
   Injector,
-  OnChanges,
   OnDestroy,
   runInInjectionContext,
-  SimpleChanges,
   effect,
   input,
   viewChild
@@ -63,7 +61,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleShiftRowHeaderComponent
-  implements AfterViewInit, OnChanges, OnDestroy
+  implements AfterViewInit, OnDestroy
 {
   readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
 
@@ -100,23 +98,6 @@ export class ScheduleShiftRowHeaderComponent
       }
     });
     this.effects = [];
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['valueChangeVScrollbar']) {
-      const prevV = changes['valueChangeVScrollbar'].previousValue;
-      const currV = changes['valueChangeVScrollbar'].currentValue;
-      if (currV !== prevV) {
-        this.scroll.verticalScrollPosition = currV;
-      }
-    }
-    if (changes['selectedRow'] || changes['isSelectedRowActive']) {
-      this.drawRowHeader.selectedRow = this.selectedRow();
-      this.drawRowHeader.isSelectedRowActive = this.isSelectedRowActive();
-      if (this.drawRowHeader.isCanvasAvailable()) {
-        this.drawRowHeader.refresh();
-      }
-    }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -194,6 +175,20 @@ export class ScheduleShiftRowHeaderComponent
         }
       });
       this.effects.push(colorResetEffect);
+
+      const vScrollbarEffect = effect(() => {
+        this.scroll.verticalScrollPosition = this.valueChangeVScrollbar();
+      });
+      this.effects.push(vScrollbarEffect);
+
+      const selectionEffect = effect(() => {
+        this.drawRowHeader.selectedRow = this.selectedRow();
+        this.drawRowHeader.isSelectedRowActive = this.isSelectedRowActive();
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.refresh();
+        }
+      });
+      this.effects.push(selectionEffect);
     });
   }
 }

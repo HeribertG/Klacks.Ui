@@ -8,10 +8,8 @@ import {
   EffectRef,
   ElementRef,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   effect,
   inject,
   runInInjectionContext,
@@ -50,7 +48,7 @@ import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data
   providers: [ProgressBarAnimationService, ContextMenuService],
 })
 export class AbsenceGanttRowHeaderComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   readonly valueChangeVScrollbar = input.required<number>();
 
@@ -112,21 +110,6 @@ export class AbsenceGanttRowHeaderComponent
       .subscribe((keys) => {
         this.menuClicked(keys);
       });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['valueChangeVScrollbar']) {
-      const currentValue = changes['valueChangeVScrollbar'].currentValue;
-      const previousValue = changes['valueChangeVScrollbar'].previousValue;
-      const diff = currentValue - previousValue;
-
-      if (diff) {
-        setTimeout(() => {
-          this.drawRowHeader.moveRow(diff);
-          this.cdr.markForCheck();
-        }, 50);
-      }
-    }
   }
 
   ngOnDestroy(): void {
@@ -363,6 +346,20 @@ export class AbsenceGanttRowHeaderComponent
         }
       });
       this.effects.push(effect3);
+
+      let lastVScroll: number | undefined;
+      const vScrollEffect = effect(() => {
+        const currentValue = this.valueChangeVScrollbar();
+        const diff = lastVScroll === undefined ? 0 : currentValue - lastVScroll;
+        lastVScroll = currentValue;
+        if (diff) {
+          setTimeout(() => {
+            this.drawRowHeader.moveRow(diff);
+            this.cdr.markForCheck();
+          }, 50);
+        }
+      });
+      this.effects.push(vScrollEffect);
     });
   }
 }

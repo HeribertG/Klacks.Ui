@@ -8,11 +8,9 @@ import {
   DestroyRef,
   ElementRef,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
   Renderer2,
-  SimpleChanges,
   effect,
   inject,
   runInInjectionContext,
@@ -61,7 +59,7 @@ import { Language } from 'src/app/domain/models/settings/language-config';
   providers: [ScrollbarService, ContextMenuService],
 })
 export class AbsenceGanttSurfaceComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
   readonly absenceMask = input<AbsenceGanttMaskComponent>();
@@ -150,47 +148,6 @@ export class AbsenceGanttSurfaceComponent
       });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    let vDirection = false;
-    let hDirection = false;
-
-    if (changes['valueChangeHScrollbar']) {
-      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar();
-      hDirection = true;
-    }
-
-    if (changes['valueChangeVScrollbar']) {
-      const requestedPosition = this.valueChangeVScrollbar();
-      const loadedRows = this.dataManagementBreak.rows;
-      const totalRows = this.dataManagementBreak.totalAvailableRows;
-
-      if (totalRows > 0 && loadedRows < totalRows) {
-        const maxAllowedPosition = Math.max(
-          0,
-          loadedRows - this.scroll.visibleRows,
-        );
-        this.scroll.verticalScrollPosition = Math.min(
-          requestedPosition,
-          maxAllowedPosition,
-        );
-
-        if (requestedPosition > maxAllowedPosition) {
-          this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
-
-          if (!this.dataManagementBreak.isLoadingMore) {
-            this.dataManagementBreak.loadMoreRows();
-          }
-        }
-      } else {
-        this.scroll.verticalScrollPosition = requestedPosition;
-      }
-      vDirection = true;
-    }
-
-    if (vDirection || hDirection) {
-      this.drawCalendarGantt.moveCalendar(hDirection, vDirection);
-    }
-  }
 
   ngOnDestroy(): void {
     this.eventListeners.forEach((fn) => fn());
@@ -578,6 +535,52 @@ export class AbsenceGanttSurfaceComponent
       effect(() => {
         if (this.gridColorService.isReset()) {
           this.redrawComponents();
+        }
+      });
+
+      let lastH: number | undefined;
+      let lastV: number | undefined;
+      effect(() => {
+        const currH = this.valueChangeHScrollbar();
+        const currV = this.valueChangeVScrollbar();
+        const hChanged = currH !== lastH;
+        const vChanged = currV !== lastV;
+        lastH = currH;
+        lastV = currV;
+
+        if (hChanged) {
+          this.scroll.horizontalScrollPosition = currH;
+        }
+
+        if (vChanged) {
+          const requestedPosition = currV;
+          const loadedRows = this.dataManagementBreak.rows;
+          const totalRows = this.dataManagementBreak.totalAvailableRows;
+
+          if (totalRows > 0 && loadedRows < totalRows) {
+            const maxAllowedPosition = Math.max(
+              0,
+              loadedRows - this.scroll.visibleRows,
+            );
+            this.scroll.verticalScrollPosition = Math.min(
+              requestedPosition,
+              maxAllowedPosition,
+            );
+
+            if (requestedPosition > maxAllowedPosition) {
+              this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
+
+              if (!this.dataManagementBreak.isLoadingMore) {
+                this.dataManagementBreak.loadMoreRows();
+              }
+            }
+          } else {
+            this.scroll.verticalScrollPosition = requestedPosition;
+          }
+        }
+
+        if (hChanged || vChanged) {
+          this.drawCalendarGantt.moveCalendar(hChanged, vChanged);
         }
       });
     });

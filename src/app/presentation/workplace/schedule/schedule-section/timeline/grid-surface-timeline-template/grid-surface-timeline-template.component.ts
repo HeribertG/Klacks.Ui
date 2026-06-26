@@ -18,10 +18,8 @@ import {
   EffectRef,
   ElementRef,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   effect,
   inject,
   runInInjectionContext,
@@ -120,7 +118,7 @@ export interface TimelineDoubleClickEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GridSurfaceTimelineTemplateComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy, IGridTooltipHost
+  implements OnInit, AfterViewInit, OnDestroy, IGridTooltipHost
 {
   readonly nameId = input('surface');
   readonly valueChangeHScrollbar = input.required<number>();
@@ -185,21 +183,6 @@ export class GridSurfaceTimelineTemplateComponent
     this.resizeObserver?.disconnect();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['valueChangeHScrollbar']) {
-      const currH = changes['valueChangeHScrollbar'].currentValue;
-      if (currH > this.scroll.maxCols) {
-        this.scroll.maxCols = currH + 10;
-      }
-      this.scroll.horizontalScrollPosition = currH;
-      this.drawSchedule.moveGrid();
-    }
-    if (changes['valueChangeVScrollbar']) {
-      this.scroll.verticalScrollPosition =
-        changes['valueChangeVScrollbar'].currentValue;
-      this.drawSchedule.moveGrid();
-    }
-  }
 
   setFocus(): void {
     const canvas = this.canvasRef().nativeElement;
@@ -371,6 +354,19 @@ export class GridSurfaceTimelineTemplateComponent
           this.selection.selectedBlock();
           if (this.isDestroyed) return;
           this.drawSchedule.refresh();
+        }),
+      );
+
+      this.effects.push(
+        effect(() => {
+          const currH = this.valueChangeHScrollbar();
+          const currV = this.valueChangeVScrollbar();
+          if (currH > this.scroll.maxCols) {
+            this.scroll.maxCols = currH + 10;
+          }
+          this.scroll.horizontalScrollPosition = currH;
+          this.scroll.verticalScrollPosition = currV;
+          this.drawSchedule.moveGrid();
         }),
       );
     });

@@ -19,10 +19,8 @@ import {
   ElementRef,
   inject,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   effect,
   runInInjectionContext,
   viewChild,
@@ -71,7 +69,7 @@ import { ShiftPreferencesDialogComponent } from '../../../dialogs/shift-preferen
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleTimelineRowHeaderComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   readonly boxElement = viewChild.required<ElementRef<HTMLDivElement>>('box');
   readonly contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
@@ -135,13 +133,6 @@ export class ScheduleTimelineRowHeaderComponent
     this.drawRowHeader.deleteCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['valueChangeVScrollbar']) {
-      this.scroll.verticalScrollPosition =
-        changes['valueChangeVScrollbar'].currentValue;
-    }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -477,6 +468,12 @@ export class ScheduleTimelineRowHeaderComponent
           if (this.drawRowHeader.isCanvasAvailable()) {
             this.drawRowHeader.redraw();
           }
+        }),
+      );
+
+      this.effects.push(
+        effect(() => {
+          this.scroll.verticalScrollPosition = this.valueChangeVScrollbar();
         }),
       );
     });

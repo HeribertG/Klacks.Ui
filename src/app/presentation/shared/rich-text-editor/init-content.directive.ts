@@ -1,25 +1,21 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-import { Directive, ElementRef, inject, OnChanges, OnInit, SimpleChanges, input } from '@angular/core';
+import { Directive, ElementRef, inject, effect, input } from '@angular/core';
 import DOMPurify from 'dompurify';
 
 @Directive({
   selector: '[appInitContent]',
   standalone: true,
 })
-export class InitContentDirective implements OnInit, OnChanges {
+export class InitContentDirective {
   readonly appInitContent = input<string>();
 
   private el = inject(ElementRef);
 
-  ngOnInit(): void {
-    this.updateContent();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['appInitContent']) {
+  constructor() {
+    effect(() => {
       this.updateContent();
-    }
+    });
   }
 
   private updateContent(): void {

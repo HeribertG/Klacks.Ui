@@ -7,10 +7,8 @@ import {
   EffectRef,
   ElementRef,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   effect,
   inject,
   runInInjectionContext,
@@ -80,7 +78,7 @@ export interface CellValueChangeEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GridSurfaceTemplateComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   readonly contextMenu = input<ContextMenuComponent>();
   readonly valueChangeHScrollbar = input.required<number>();
@@ -168,45 +166,6 @@ export class GridSurfaceTemplateComponent
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
     this.resize.disconnect();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    let vDirection = false;
-    let hDirection = false;
-
-    if (changes['valueChangeHScrollbar']) {
-      const prevH = changes['valueChangeHScrollbar'].previousValue;
-      const currH = changes['valueChangeHScrollbar'].currentValue;
-      if (currH !== prevH) {
-        if (currH > this.scroll.maxCols) {
-          this.scroll.maxCols = currH + 10;
-        }
-        this.scroll.horizontalScrollPosition = currH;
-        this.scroll.updateScrollPosition(
-          currH,
-          this.scroll.verticalScrollPosition,
-        );
-        hDirection = true;
-      }
-    }
-
-    if (changes['valueChangeVScrollbar']) {
-      const prevV = changes['valueChangeVScrollbar'].previousValue;
-      const currV = changes['valueChangeVScrollbar'].currentValue;
-      if (currV !== prevV) {
-        this.scroll.verticalScrollPosition = currV;
-        this.scroll.updateScrollPosition(
-          this.scroll.horizontalScrollPosition,
-          currV,
-        );
-        vDirection = true;
-      }
-    }
-
-    if (vDirection || hDirection) {
-      this.drawSchedule.moveGrid();
-      this.cellInput.refreshForScroll();
-    }
   }
 
   setFocus(): void {
@@ -348,6 +307,20 @@ export class GridSurfaceTemplateComponent
         this.cellInput.updatePosition(pos.row, pos.column, isEditing);
       });
       this.effects.push(cellInputEffect);
+
+      const scrollEffect = effect(() => {
+        const currH = this.valueChangeHScrollbar();
+        const currV = this.valueChangeVScrollbar();
+        if (currH > this.scroll.maxCols) {
+          this.scroll.maxCols = currH + 10;
+        }
+        this.scroll.horizontalScrollPosition = currH;
+        this.scroll.verticalScrollPosition = currV;
+        this.scroll.updateScrollPosition(currH, currV);
+        this.drawSchedule.moveGrid();
+        this.cellInput.refreshForScroll();
+      });
+      this.effects.push(scrollEffect);
     });
   }
 

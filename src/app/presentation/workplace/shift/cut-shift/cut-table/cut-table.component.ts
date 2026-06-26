@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnChanges, SimpleChanges, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
@@ -16,7 +16,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
   styleUrl: './cut-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CutTableComponent implements OnChanges {
+export class CutTableComponent {
   private textFormatterService = inject(TextFormatterService);
   readonly shifts = input<IShift[]>();
   readonly selectedShiftId = input<string>(); // Input für externe Selektion
@@ -28,7 +28,7 @@ export class CutTableComponent implements OnChanges {
 }>();
 
   highlightRowId?: string;
-  selectedRowId?: string;
+  selectedRowId = signal<string | undefined>(undefined);
   hoveredRowId?: string;
 
   // Inline editing properties
@@ -37,11 +37,13 @@ export class CutTableComponent implements OnChanges {
 
   formatTime = formatTime;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // Reagiere auf Änderungen der selectedShiftId von außen
-    if (changes['selectedShiftId'] && changes['selectedShiftId'].currentValue) {
-      this.selectedRowId = changes['selectedShiftId'].currentValue;
-    }
+  constructor() {
+    effect(() => {
+      const id = this.selectedShiftId();
+      if (id) {
+        this.selectedRowId.set(id);
+      }
+    });
   }
 
   onMouseEnter(data: Shift): void {
@@ -53,13 +55,13 @@ export class CutTableComponent implements OnChanges {
   }
 
   onClickRow(data: Shift) {
-    this.selectedRowId = data.id;
+    this.selectedRowId.set(data.id);
     this.rowClicked.emit(data);
   }
 
   onCellClick(event: Event, shift: Shift, field: string): void {
-    if (this.selectedRowId !== shift.id) {
-      this.selectedRowId = shift.id;
+    if (this.selectedRowId() !== shift.id) {
+      this.selectedRowId.set(shift.id);
       this.rowClicked.emit(shift);
       event.stopPropagation();
       return;

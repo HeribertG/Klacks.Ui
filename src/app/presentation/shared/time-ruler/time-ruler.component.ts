@@ -12,8 +12,6 @@ import {
   ElementRef,
   AfterViewInit,
   OnDestroy,
-  OnChanges,
-  SimpleChanges,
   inject,
   effect,
   Injector,
@@ -48,7 +46,7 @@ export interface IShiftContextMenuEvent {
   providers: [TimeRulerDragDropService, TimeRulerInteractionService, TimeRulerBlockSelectionService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
+export class TimeRulerComponent implements AfterViewInit, OnDestroy {
   readonly fromTime = input<OwnTime>(OwnTime.forTime('00', '00'));
   readonly untilTime = input<OwnTime>(OwnTime.forTime('24', '00'));
   readonly shiftRightClick = output<IShiftContextMenuEvent>();
@@ -102,28 +100,35 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       },
       { injector: this.injector, allowSignalWrites: true }
     );
+
+    effect(
+      () => {
+        const fromTime = this.fromTime();
+        const untilTime = this.untilTime();
+        if (!this.inboxCanvasRef()) {
+          return;
+        }
+        const fromTimeString = `${fromTime.hours}:${fromTime.minutes}`;
+        const untilTimeString = `${untilTime.hours}:${untilTime.minutes}`;
+        if (
+          fromTimeString !== this._lastFromTimeString ||
+          untilTimeString !== this._lastUntilTimeString
+        ) {
+          this._lastFromTimeString = fromTimeString;
+          this._lastUntilTimeString = untilTimeString;
+          this.setupCanvas();
+        }
+      },
+      { injector: this.injector, allowSignalWrites: true }
+    );
   }
 
   ngAfterViewInit(): void {
     this.setupCanvas();
+    this._lastFromTimeString = `${this.fromTime().hours}:${this.fromTime().minutes}`;
+    this._lastUntilTimeString = `${this.untilTime().hours}:${this.untilTime().minutes}`;
     this.setupResizeObserver();
     document.addEventListener('keydown', this.onKeyDown);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ((changes['fromTime'] || changes['untilTime']) && this.inboxCanvasRef()) {
-      const fromTimeString = `${this.fromTime().hours}:${this.fromTime().minutes}`;
-      const untilTimeString = `${this.untilTime().hours}:${this.untilTime().minutes}`;
-
-      if (
-        fromTimeString !== this._lastFromTimeString ||
-        untilTimeString !== this._lastUntilTimeString
-      ) {
-        this._lastFromTimeString = fromTimeString;
-        this._lastUntilTimeString = untilTimeString;
-        this.setupCanvas();
-      }
-    }
   }
 
   ngOnDestroy(): void {

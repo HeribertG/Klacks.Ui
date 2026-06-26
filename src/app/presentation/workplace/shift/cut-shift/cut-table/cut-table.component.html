@@ -70,11 +70,11 @@
       (mouseenter)="onMouseEnter(data)"
       (mouseleave)="onMouseLeave()"
       [class.hover-row]="data.id === hoveredRowId"
-      [class.selected-row]="data.id === selectedRowId"
+      [class.selected-row]="data.id === selectedRowId()"
     >
       <td rowspan="2" class="table-cell-small-border cell-center editable-cell"
           (click)="onCellClick($event, data, 'abbreviation')"
-          [class.selected-editable]="selectedRowId === data.id">
+          [class.selected-editable]="selectedRowId() === data.id">
         @if (isEditing(data.id!, 'abbreviation')) {
           <input
             type="text"
@@ -89,7 +89,7 @@
       </td>
       <td colspan="2" class="table-cell-small-border editable-cell"
           (click)="onCellClick($event, data, 'name')"
-          [class.selected-editable]="selectedRowId === data.id">
+          [class.selected-editable]="selectedRowId() === data.id">
         @if (isEditing(data.id!, 'name')) {
           <input
             type="text"
@@ -105,7 +105,7 @@
 
       <td colspan="5" class="table-cell-small-border editable-cell"
           (click)="onCellClick($event, data, 'description')"
-          [class.selected-editable]="selectedRowId === data.id">
+          [class.selected-editable]="selectedRowId() === data.id">
         @if (isEditing(data.id!, 'description')) {
           <input
             type="text"
@@ -141,7 +141,7 @@
       (mouseenter)="onMouseEnter(data)"
       (mouseleave)="onMouseLeave()"
       [class.hover-row]="data.id === hoveredRowId"
-      [class.selected-row]="data.id === selectedRowId"
+      [class.selected-row]="data.id === selectedRowId()"
     >
       <td class="table-cell-small-border-with-bottom cell-center">
         <p>{{ formatTime(data.startShift) || "00:00" }}</p>
