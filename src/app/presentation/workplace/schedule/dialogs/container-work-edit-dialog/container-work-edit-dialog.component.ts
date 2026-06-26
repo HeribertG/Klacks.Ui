@@ -529,6 +529,7 @@ export class ContainerWorkEditDialogComponent {
     );
     menuData.list.push(propertiesItem);
 
+    const contextMenu = this.contextMenu();
     contextMenu.menuData = menuData;
     contextMenu.openMenu(event);
   }

@@ -7,7 +7,7 @@
  * @param timeRangeService - Calculation of shift start/end minutes for sorting
  */
 
-import { EventEmitter, inject, Injectable } from '@angular/core';
+import { inject, Injectable, OutputEmitterRef } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawImageHelper } from '../../../helpers/draw-image-helper';
@@ -93,7 +93,7 @@ export class TimeRulerInteractionService {
     event: MouseEvent,
     canvas: HTMLCanvasElement,
     shiftRectangles: Map<IContainerTemplateItem, Rectangle>,
-    shiftRightClick: EventEmitter<IShiftContextMenuEvent>
+    shiftRightClick: OutputEmitterRef<IShiftContextMenuEvent>
   ): void {
     const { x, y } = this.resolveCanvasCoordinates(event, canvas);
 

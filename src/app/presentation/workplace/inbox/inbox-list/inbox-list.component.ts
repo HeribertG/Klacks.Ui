@@ -102,6 +102,7 @@ export class InboxListComponent implements OnInit, AfterViewInit {
   onRightClick(event: MouseEvent, email: IReceivedEmailListItem): void {
     event.preventDefault();
     this.contextEmailId = email.id;
+    const contextMenu = this.contextMenu();
     contextMenu.menuData = this.buildContextMenu(email);
     contextMenu.openMenu(event);
   }
