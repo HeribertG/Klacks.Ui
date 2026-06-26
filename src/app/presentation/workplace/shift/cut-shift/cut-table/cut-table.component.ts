@@ -2,7 +2,7 @@
 
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift/shift-class';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
@@ -11,7 +11,7 @@ import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 @Component({
   selector: 'app-cut-shift-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormField, TranslateModule],
   templateUrl: './cut-table.component.html',
   styleUrl: './cut-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,7 +33,9 @@ export class CutTableComponent {
 
   // Inline editing properties
   editingCell: { rowId: string; field: string } | null = null;
-  editingValue = '';
+
+  private formModel = signal<{ editingValue: string }>({ editingValue: '' });
+  protected editForm = form(this.formModel);
 
   formatTime = formatTime;
 
@@ -74,17 +76,19 @@ export class CutTableComponent {
   private startCellEditing(shift: Shift, field: string): void {
     this.editingCell = { rowId: shift.id!, field };
 
+    let value = '';
     switch (field) {
       case 'name':
-        this.editingValue = shift.name;
+        value = shift.name;
         break;
       case 'description':
-        this.editingValue = shift.description;
+        value = shift.description;
         break;
       case 'abbreviation':
-        this.editingValue = shift.abbreviation;
+        value = shift.abbreviation;
         break;
     }
+    this.formModel.set({ editingValue: value });
 
     setTimeout(() => {
       const input = document.querySelector(
@@ -110,20 +114,21 @@ export class CutTableComponent {
   }
 
   private saveCellEdit(shift: Shift, field: string): void {
-    if (this.editingValue !== this.getCellValue(shift, field)) {
+    const editingValue = this.formModel().editingValue;
+    if (editingValue !== this.getCellValue(shift, field)) {
       this.cellUpdated.emit({
         shift: shift,
         field: field,
-        value: this.editingValue,
+        value: editingValue,
       });
     }
     this.editingCell = null;
-    this.editingValue = '';
+    this.formModel.set({ editingValue: '' });
   }
 
   private cancelCellEdit(): void {
     this.editingCell = null;
-    this.editingValue = '';
+    this.formModel.set({ editingValue: '' });
   }
 
   private getCellValue(shift: Shift, field: string): string {

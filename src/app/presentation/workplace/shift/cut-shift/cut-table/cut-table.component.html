@@ -78,7 +78,7 @@
         @if (isEditing(data.id!, 'abbreviation')) {
           <input
             type="text"
-            [(ngModel)]="editingValue"
+            [formField]="editForm.editingValue"
             (keydown)="onInputKeyDown($event, data, 'abbreviation')"
             (blur)="onInputBlur(data, 'abbreviation')"
             class="editing-input"
@@ -93,7 +93,7 @@
         @if (isEditing(data.id!, 'name')) {
           <input
             type="text"
-            [(ngModel)]="editingValue"
+            [formField]="editForm.editingValue"
             (keydown)="onInputKeyDown($event, data, 'name')"
             (blur)="onInputBlur(data, 'name')"
             class="editing-input"
@@ -109,7 +109,7 @@
         @if (isEditing(data.id!, 'description')) {
           <input
             type="text"
-            [(ngModel)]="editingValue"
+            [formField]="editForm.editingValue"
             (keydown)="onInputKeyDown($event, data, 'description')"
             (blur)="onInputBlur(data, 'description')"
             class="editing-input"

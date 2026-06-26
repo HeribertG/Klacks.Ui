@@ -10,8 +10,7 @@
       <select
         id="klacksy-training-status-filter"
         class="form-select form-select-sm filter-select"
-        [(ngModel)]="status"
-        name="status"
+        [formField]="filterForm.status"
         (change)="reload()"
       >
         <option value="">{{ 'klacksyTraining.filter.statusAll' | translate }}</option>
@@ -29,8 +28,7 @@
       <select
         id="klacksy-training-locale-filter"
         class="form-select form-select-sm filter-select"
-        [(ngModel)]="locale"
-        name="locale"
+        [formField]="filterForm.locale"
         (change)="reload()"
       >
         <option value="de">de</option>
@@ -95,7 +93,7 @@
     <div class="container-line"></div>
     <app-klacksy-training-synonym-editor
       [target]="sel"
-      [locale]="locale()"
+      [locale]="filterForm.locale().value()"
       (saved)="reload()"
     />
   }
