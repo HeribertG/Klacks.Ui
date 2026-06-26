@@ -17,7 +17,7 @@
         {{ "setting.personality.intro" | translate }}
       </div>
 
-      @for (field of fields; track field.key) {
+      @for (field of fields(); track field.key; let i = $index) {
         <div class="field-group">
           <label [attr.for]="'personality-' + field.key">
             {{ field.labelKey | translate }}
@@ -25,8 +25,8 @@
           <textarea
             [id]="'personality-' + field.key"
             class="form-control personality-textarea"
-            [(ngModel)]="field.content"
-            (blur)="onFieldBlur(field)"
+            [formField]="personalityForm[i].content"
+            (blur)="onFieldBlur(i)"
             rows="5"
           ></textarea>
           <div class="field-hint">

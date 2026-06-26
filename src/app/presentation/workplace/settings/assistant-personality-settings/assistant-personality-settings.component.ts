@@ -2,7 +2,8 @@
 
 /**
  * Settings component for editing Klacksy personality soul sections of the default agent.
- * @param fields - Editable soul section textareas (identity, personality, tone, boundaries, communication style, values)
+ * @param personalityForm - Signal Forms field array over the soul section model (one entry per textarea)
+ * @param fields - Read-only view of the section model used for static label/hint rendering
  * @param isLoading - True while the default agent and its soul sections are being loaded
  * @param isSaving - True while a section upsert is in flight
  */
@@ -13,7 +14,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DataAgentService } from 'src/app/infrastructure/api/assistant/data-agent.service';
@@ -33,7 +34,7 @@ interface SectionField {
   templateUrl: './assistant-personality-settings.component.html',
   styleUrls: ['./assistant-personality-settings.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormField],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssistantPersonalitySettingsComponent implements OnInit {
@@ -43,7 +44,7 @@ export class AssistantPersonalitySettingsComponent implements OnInit {
 
   private agentId: string | null = null;
 
-  readonly fields: SectionField[] = [
+  private readonly fieldsModel = signal<SectionField[]>([
     {
       key: SoulSectionTypes.Identity,
       labelKey: 'setting.personality.identity',
@@ -86,7 +87,10 @@ export class AssistantPersonalitySettingsComponent implements OnInit {
       content: '',
       initialContent: '',
     },
-  ];
+  ]);
+
+  protected readonly personalityForm = form(this.fieldsModel);
+  readonly fields = this.fieldsModel.asReadonly();
 
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
@@ -104,14 +108,15 @@ export class AssistantPersonalitySettingsComponent implements OnInit {
       const sections = await firstValueFrom(
         this.dataAgentService.getSoulSections(this.agentId),
       );
-      for (const field of this.fields) {
-        const existing = sections.find(
-          (s) => s.sectionType === field.key && s.isActive,
-        );
-        const content = existing?.content ?? '';
-        field.content = content;
-        field.initialContent = content;
-      }
+      this.fieldsModel.update((arr) =>
+        arr.map((field) => {
+          const existing = sections.find(
+            (s) => s.sectionType === field.key && s.isActive,
+          );
+          const content = existing?.content ?? '';
+          return { ...field, content, initialContent: content };
+        }),
+      );
     } catch {
       this.toastShowService.showError(
         this.translateService.instant('setting.personality.load-failed'),
@@ -122,11 +127,12 @@ export class AssistantPersonalitySettingsComponent implements OnInit {
     }
   }
 
-  async onFieldBlur(field: SectionField): Promise<void> {
+  async onFieldBlur(index: number): Promise<void> {
     if (!this.agentId) {
       return;
     }
-    if (field.content === field.initialContent) {
+    const field = this.fieldsModel()[index];
+    if (!field || field.content === field.initialContent) {
       return;
     }
 
@@ -137,7 +143,11 @@ export class AssistantPersonalitySettingsComponent implements OnInit {
           content: field.content,
         }),
       );
-      field.initialContent = field.content;
+      this.fieldsModel.update((arr) =>
+        arr.map((f, i) =>
+          i === index ? { ...f, initialContent: f.content } : f,
+        ),
+      );
     } catch {
       this.toastShowService.showError(
         this.translateService.instant('setting.personality.save-failed'),
