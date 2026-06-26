@@ -9,9 +9,9 @@
  * @param clientId - ID of the client associated with the work entry
  * @param currentDate - The date of the work entry being modified
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
@@ -38,7 +38,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   templateUrl: './travel-dialog.component.html',
   styleUrls: ['./travel-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [CommonModule, FormField, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -56,13 +56,17 @@ export class TravelDialogComponent {
   workId = '';
   clientId = '';
   currentDate: Date | null = null;
-  travelMode: TravelMode = TravelMode.AtEnd;
+  travelMode = signal<TravelMode>(TravelMode.AtEnd);
   startTime: OwnTime = OwnTime.forTime('00', '00');
   endTime: OwnTime = OwnTime.forTime('00', '00');
   durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
-  description = '';
-  toInvoice = true;
+
+  private formModel = signal<{ description: string; toInvoice: boolean }>({
+    description: '',
+    toInvoice: true,
+  });
+  protected travelForm = form(this.formModel);
 
   workContext: WorkTimeContext | null = null;
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
@@ -74,7 +78,7 @@ export class TravelDialogComponent {
   TravelMode = TravelMode;
 
   get isWithinMode(): boolean {
-    return this.travelMode === TravelMode.Within;
+    return this.travelMode() === TravelMode.Within;
   }
 
   open(workId: string, clientId: string, currentDate: Date, workStartTime: string, workEndTime: string): void {
@@ -100,15 +104,17 @@ export class TravelDialogComponent {
       next: (data) => {
         this.workId = data.workId;
         this.clientId = data.work?.clientId || '';
-        this.description = data.description || '';
-        this.toInvoice = data.toInvoice;
+        this.formModel.set({
+          description: data.description || '',
+          toInvoice: data.toInvoice,
+        });
 
         if (data.type === WorkChangeType.TravelWithin) {
-          this.travelMode = TravelMode.Within;
+          this.travelMode.set(TravelMode.Within);
           this.startTime = this.logicService.parseTimeString(data.startTime);
           this.endTime = this.logicService.parseTimeString(data.endTime);
         } else {
-          this.travelMode = data.type === WorkChangeType.TravelStart ? TravelMode.AtStart : TravelMode.AtEnd;
+          this.travelMode.set(data.type === WorkChangeType.TravelStart ? TravelMode.AtStart : TravelMode.AtEnd);
           this.durationMinutes = Math.round(data.changeTime * 60);
         }
 
@@ -131,16 +137,15 @@ export class TravelDialogComponent {
   }
 
   private reset(): void {
-    this.travelMode = TravelMode.AtEnd;
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.description = '';
-    this.toInvoice = true;
-    this.onModeChange();
+    this.formModel.set({ description: '', toInvoice: true });
+    this.onModeChange(TravelMode.AtEnd);
   }
 
-  onModeChange(): void {
+  onModeChange(mode: TravelMode): void {
+    this.travelMode.set(mode);
     if (this.isWithinMode && this.workContext) {
-      const defaults = this.logicService.getDefaultTimesForMode(this.travelMode as unknown as CorrectionMode, this.workContext);
+      const defaults = this.logicService.getDefaultTimesForMode(this.travelMode() as unknown as CorrectionMode, this.workContext);
       this.startTime = defaults.startTime;
       this.endTime = defaults.endTime;
     } else {
@@ -173,7 +178,7 @@ export class TravelDialogComponent {
 
     if (this.isWithinMode) {
       this.duration = this.logicService.calculateDurationDisplay(this.startTime, this.endTime, this.workContext);
-      this.validation = this.logicService.validateTravelMode(this.startTime, this.endTime, this.workContext, this.travelMode);
+      this.validation = this.logicService.validateTravelMode(this.startTime, this.endTime, this.workContext, this.travelMode());
     } else {
       this.duration = this.logicService.minutesToOwnTime(this.durationMinutes, true);
       this.validation = this.logicService.validateDurationOnly(this.durationMinutes);
@@ -185,7 +190,7 @@ export class TravelDialogComponent {
   }
 
   private mapModeToWorkChangeType(): WorkChangeType {
-    switch (this.travelMode) {
+    switch (this.travelMode()) {
       case TravelMode.AtStart: return WorkChangeType.TravelStart;
       case TravelMode.AtEnd: return WorkChangeType.TravelEnd;
       case TravelMode.Within: return WorkChangeType.TravelWithin;
@@ -211,8 +216,8 @@ export class TravelDialogComponent {
       surcharges: 0,
       startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
       endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 
@@ -250,8 +255,8 @@ export class TravelDialogComponent {
       surcharges: 0,
       startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
       endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: null,
     };
 

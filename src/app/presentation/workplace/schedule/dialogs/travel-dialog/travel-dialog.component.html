@@ -26,9 +26,8 @@
           <input
             type="radio"
             name="travelMode"
-            [value]="TravelMode.AtStart"
-            [(ngModel)]="travelMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="travelMode() === TravelMode.AtStart"
+            (change)="onModeChange(TravelMode.AtStart)"
           />
           {{ "dialog.travel.atStart" | translate }}
         </label>
@@ -36,9 +35,8 @@
           <input
             type="radio"
             name="travelMode"
-            [value]="TravelMode.AtEnd"
-            [(ngModel)]="travelMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="travelMode() === TravelMode.AtEnd"
+            (change)="onModeChange(TravelMode.AtEnd)"
           />
           {{ "dialog.travel.atEnd" | translate }}
         </label>
@@ -46,9 +44,8 @@
           <input
             type="radio"
             name="travelMode"
-            [value]="TravelMode.Within"
-            [(ngModel)]="travelMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="travelMode() === TravelMode.Within"
+            (change)="onModeChange(TravelMode.Within)"
           />
           {{ "dialog.travel.within" | translate }}
         </label>
@@ -112,7 +109,7 @@
       }}</label>
       <textarea
         id="description"
-        [(ngModel)]="description"
+        [formField]="travelForm.description"
         class="form-control"
         rows="3"
       ></textarea>
@@ -120,7 +117,7 @@
 
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="toInvoice" />
+        <input type="checkbox" [formField]="travelForm.toInvoice" />
         {{ "dialog.correction.toInvoice" | translate }}
       </label>
     </div>

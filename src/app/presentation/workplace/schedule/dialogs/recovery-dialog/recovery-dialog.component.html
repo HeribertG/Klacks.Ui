@@ -8,7 +8,7 @@
 
     <div class="mb-3">
       <label class="form-label" for="recovery-client">{{ 'recovery.dialog.employee' | translate }}</label>
-      <select id="recovery-client" class="form-select" [(ngModel)]="selectedClientId">
+      <select id="recovery-client" class="form-select" [formField]="recoveryForm.selectedClientId">
         <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
         @for (client of clients(); track client.id) {
           <option [value]="client.id">{{ clientLabel(client) }}</option>
@@ -18,12 +18,12 @@
 
     <div class="mb-3">
       <label class="form-label" for="recovery-date">{{ 'recovery.dialog.date' | translate }}</label>
-      <input id="recovery-date" type="date" class="form-control" [(ngModel)]="selectedDate" />
+      <input id="recovery-date" type="date" class="form-control" [formField]="recoveryForm.selectedDate" />
     </div>
 
     <div class="mb-3">
       <label class="form-label" for="recovery-absence">{{ 'recovery.dialog.absenceType' | translate }}</label>
-      <select id="recovery-absence" class="form-select" [(ngModel)]="selectedAbsenceId">
+      <select id="recovery-absence" class="form-select" [formField]="recoveryForm.selectedAbsenceId">
         <option value="">{{ 'recovery.dialog.choose' | translate }}</option>
         @for (absence of absences(); track absence.id) {
           <option [value]="absence.id">{{ absenceLabel(absence) }}</option>

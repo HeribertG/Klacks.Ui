@@ -8,7 +8,7 @@
  * @param absences - Absence types (sick/vacation/...) loaded from the catalog
  */
 import { ChangeDetectionStrategy, Component, TemplateRef, inject, signal, viewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -29,7 +29,7 @@ const RECOVERY_CREATOR = 'recovery';
   templateUrl: './recovery-dialog.component.html',
   styleUrls: ['./recovery-dialog.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormField, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AbsenceLookupService],
 })
@@ -49,9 +49,13 @@ export class RecoveryDialogComponent {
   protected readonly clients = signal<IClientWork[]>([]);
   protected readonly absences = signal<IAbsence[]>([]);
   protected readonly isSubmitting = signal(false);
-  protected selectedClientId = '';
-  protected selectedAbsenceId = '';
-  protected selectedDate = '';
+
+  private readonly formModel = signal<{
+    selectedClientId: string;
+    selectedAbsenceId: string;
+    selectedDate: string;
+  }>({ selectedClientId: '', selectedAbsenceId: '', selectedDate: '' });
+  protected readonly recoveryForm = form(this.formModel);
 
   async open(): Promise<void> {
     this.clients.set(this.dataManagementSchedule.clients);
@@ -59,9 +63,11 @@ export class RecoveryDialogComponent {
     this.absences.set(this.absenceLookup.absences());
 
     const start = this.dataManagementSchedule.periodStartDate;
-    this.selectedDate = start ? this.toIsoDate(start) : '';
-    this.selectedClientId = '';
-    this.selectedAbsenceId = '';
+    this.formModel.set({
+      selectedClientId: '',
+      selectedAbsenceId: '',
+      selectedDate: start ? this.toIsoDate(start) : '',
+    });
 
     this.modalRef = this.ngbModal.open(this.modalTemplate(), { centered: true, size: 'md' });
   }
@@ -75,7 +81,8 @@ export class RecoveryDialogComponent {
   }
 
   protected canSubmit(): boolean {
-    return !!this.selectedClientId && !!this.selectedAbsenceId && !!this.selectedDate && !this.isSubmitting();
+    const { selectedClientId, selectedAbsenceId, selectedDate } = this.formModel();
+    return !!selectedClientId && !!selectedAbsenceId && !!selectedDate && !this.isSubmitting();
   }
 
   async onSubmit(): Promise<void> {
@@ -89,14 +96,15 @@ export class RecoveryDialogComponent {
       return;
     }
 
+    const { selectedClientId, selectedAbsenceId, selectedDate } = this.formModel();
     this.isSubmitting.set(true);
     try {
       const outcome = await firstValueFrom(
         this.recoveryService.coverAbsence({
-          clientId: this.selectedClientId,
-          date: this.selectedDate,
+          clientId: selectedClientId,
+          date: selectedDate,
           groupId,
-          absenceId: this.selectedAbsenceId,
+          absenceId: selectedAbsenceId,
         }),
       );
 

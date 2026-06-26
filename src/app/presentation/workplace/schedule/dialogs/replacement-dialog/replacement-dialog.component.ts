@@ -15,9 +15,9 @@
  * - Uses: DataWorkChangeService for API communication
  * - Counterpart: CorrectionDialogComponent
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementWorkchangeService } from 'src/app/domain/services/workchange/data-management-workchange.service';
@@ -44,7 +44,7 @@ import { addDays } from 'src/app/shared/helpers/date.helper';
   templateUrl: './replacement-dialog.component.html',
   styleUrls: ['./replacement-dialog.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TimeInputComponent],
+  imports: [CommonModule, FormField, TranslateModule, TimeInputComponent],
   providers: [WorkChangeLogicService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -65,16 +65,20 @@ export class ReplacementDialogComponent {
   workId = '';
   currentClientId = '';
   currentDate: Date | null = null;
-  replacementMode: CorrectionMode = CorrectionMode.AtStart;
+  replacementMode = signal<CorrectionMode>(CorrectionMode.AtStart);
   replaceClientId: string | null = null;
-  searchText = '';
   searchResults: IClientForReplacement[] = [];
   startTime: OwnTime = OwnTime.forTime('00', '00');
   endTime: OwnTime = OwnTime.forTime('00', '00');
   durationMinutes = 15;
   duration: OwnTime = OwnTime.forDuration('00', '00');
-  description = '';
-  toInvoice = false;
+
+  private formModel = signal<{ searchText: string; description: string; toInvoice: boolean }>({
+    searchText: '',
+    description: '',
+    toInvoice: false,
+  });
+  protected replacementForm = form(this.formModel);
 
   workContext: WorkTimeContext | null = null;
   validation: WorkChangeValidation = { isValid: false, changeTime: 0 };
@@ -92,15 +96,15 @@ export class ReplacementDialogComponent {
   }
 
   get isWithinMode(): boolean {
-    return this.replacementMode === CorrectionMode.Within;
+    return this.replacementMode() === CorrectionMode.Within;
   }
 
   get isStartTimeDisabled(): boolean {
-    return this.replacementMode === CorrectionMode.AtStart;
+    return this.replacementMode() === CorrectionMode.AtStart;
   }
 
   get isEndTimeDisabled(): boolean {
-    return this.replacementMode === CorrectionMode.AtEnd;
+    return this.replacementMode() === CorrectionMode.AtEnd;
   }
 
   get selectedClient(): IClientForReplacement | null {
@@ -134,16 +138,19 @@ export class ReplacementDialogComponent {
         next: (data) => {
           this.workId = data.workId;
           this.currentClientId = data.work?.clientId || '';
-          this.description = data.description || '';
-          this.toInvoice = data.toInvoice;
+          this.formModel.set({
+            searchText: '',
+            description: data.description || '',
+            toInvoice: data.toInvoice,
+          });
           this.replaceClientId = data.replaceClientId;
 
           if (data.type === WorkChangeType.ReplacementWithin) {
-            this.replacementMode = CorrectionMode.Within;
+            this.replacementMode.set(CorrectionMode.Within);
             this.startTime = this.logicService.parseTimeString(data.startTime);
             this.endTime = this.logicService.parseTimeString(data.endTime);
           } else {
-            this.replacementMode = data.type === WorkChangeType.ReplacementStart ? CorrectionMode.AtStart : CorrectionMode.AtEnd;
+            this.replacementMode.set(data.type === WorkChangeType.ReplacementStart ? CorrectionMode.AtStart : CorrectionMode.AtEnd);
             this.durationMinutes = Math.round(data.changeTime * 60);
           }
 
@@ -156,7 +163,7 @@ export class ReplacementDialogComponent {
           if (this.replaceClientId) {
             const replaceClient = this.availableClients.find(c => c.id === this.replaceClientId);
             if (replaceClient) {
-              this.searchText = this.getClientDisplayName(replaceClient);
+              this.formModel.update(m => ({ ...m, searchText: this.getClientDisplayName(replaceClient) }));
             }
           }
 
@@ -199,22 +206,20 @@ export class ReplacementDialogComponent {
   }
 
   private reset(): void {
-    this.replacementMode = CorrectionMode.AtStart;
     this.replaceClientId = null;
-    this.searchText = '';
     this.searchResults = [];
     this.durationMinutes = this.logicService.getDefaultDurationMinutes();
-    this.description = '';
-    this.toInvoice = false;
+    this.formModel.set({ searchText: '', description: '', toInvoice: false });
     this.isOpenedFromReplaceClient = false;
     this.workClientName = '';
-    this.onModeChange();
+    this.onModeChange(CorrectionMode.AtStart);
   }
 
-  onModeChange(): void {
+  onModeChange(mode: CorrectionMode): void {
+    this.replacementMode.set(mode);
     if (this.workContext) {
       if (this.isWithinMode) {
-        const defaults = this.logicService.getDefaultTimesForReplacementMode(this.replacementMode, this.workContext);
+        const defaults = this.logicService.getDefaultTimesForReplacementMode(this.replacementMode(), this.workContext);
         this.startTime = defaults.startTime;
         this.endTime = defaults.endTime;
       } else {
@@ -260,12 +265,13 @@ export class ReplacementDialogComponent {
   }
 
   onSearchKeyup(): void {
-    if (!this.searchText || this.searchText.length < 1) {
+    const searchText = this.formModel().searchText;
+    if (!searchText || searchText.length < 1) {
       this.searchResults = [];
       return;
     }
 
-    const searchLower = this.searchText.toLowerCase();
+    const searchLower = searchText.toLowerCase();
     this.searchResults = this.availableClients.filter((c) => {
       const name = (c.name || '').toLowerCase();
       const firstName = (c.firstName || '').toLowerCase();
@@ -283,7 +289,7 @@ export class ReplacementDialogComponent {
 
   onSelectClient(client: IClientForReplacement): void {
     this.replaceClientId = client.id;
-    this.searchText = this.getClientDisplayName(client);
+    this.formModel.update(m => ({ ...m, searchText: this.getClientDisplayName(client) }));
     this.searchResults = [];
   }
 
@@ -300,7 +306,7 @@ export class ReplacementDialogComponent {
   }
 
   private mapModeToWorkChangeType(): WorkChangeType {
-    switch (this.replacementMode) {
+    switch (this.replacementMode()) {
       case CorrectionMode.AtStart: return WorkChangeType.ReplacementStart;
       case CorrectionMode.AtEnd: return WorkChangeType.ReplacementEnd;
       case CorrectionMode.Within: return WorkChangeType.ReplacementWithin;
@@ -326,8 +332,8 @@ export class ReplacementDialogComponent {
       surcharges: 0,
       startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
       endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: this.replaceClientId,
     };
 
@@ -350,8 +356,8 @@ export class ReplacementDialogComponent {
       surcharges: 0,
       startTime: this.isWithinMode ? this.logicService.ownTimeToString(this.startTime) : '00:00',
       endTime: this.isWithinMode ? this.logicService.ownTimeToString(this.endTime) : '00:00',
-      description: this.description,
-      toInvoice: this.toInvoice,
+      description: this.formModel().description,
+      toInvoice: this.formModel().toInvoice,
       replaceClientId: this.replaceClientId,
     };
 

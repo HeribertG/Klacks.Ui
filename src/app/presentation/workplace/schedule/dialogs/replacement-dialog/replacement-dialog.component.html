@@ -26,9 +26,8 @@
           <input
             type="radio"
             name="replacementMode"
-            [value]="CorrectionMode.AtStart"
-            [(ngModel)]="replacementMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="replacementMode() === CorrectionMode.AtStart"
+            (change)="onModeChange(CorrectionMode.AtStart)"
           />
           {{ "dialog.replacement.atStart" | translate }}
         </label>
@@ -36,9 +35,8 @@
           <input
             type="radio"
             name="replacementMode"
-            [value]="CorrectionMode.AtEnd"
-            [(ngModel)]="replacementMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="replacementMode() === CorrectionMode.AtEnd"
+            (change)="onModeChange(CorrectionMode.AtEnd)"
           />
           {{ "dialog.replacement.atEnd" | translate }}
         </label>
@@ -46,9 +44,8 @@
           <input
             type="radio"
             name="replacementMode"
-            [value]="CorrectionMode.Within"
-            [(ngModel)]="replacementMode"
-            (ngModelChange)="onModeChange()"
+            [checked]="replacementMode() === CorrectionMode.Within"
+            (change)="onModeChange(CorrectionMode.Within)"
           />
           {{ "dialog.replacement.within" | translate }}
         </label>
@@ -67,7 +64,7 @@
             type="search"
             id="replaceClient"
             class="form-select"
-            [(ngModel)]="searchText"
+            [formField]="replacementForm.searchText"
             (keyup)="onSearchKeyup()"
             autocomplete="off"
             placeholder="{{ 'placeholder.search' | translate }}"
@@ -141,7 +138,7 @@
       }}</label>
       <textarea
         id="description"
-        [(ngModel)]="description"
+        [formField]="replacementForm.description"
         class="form-control"
         rows="3"
       ></textarea>
@@ -149,7 +146,7 @@
 
     <div class="form-group checkbox-group">
       <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="toInvoice" />
+        <input type="checkbox" [formField]="replacementForm.toInvoice" />
         {{ "dialog.replacement.toInvoice" | translate }}
       </label>
     </div>
