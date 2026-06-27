@@ -2950,5 +2950,10 @@
   "assistant.proactive.unstaffedShift": "Un turno il {{date}} (tra {{days}} giorno/i) è ancora scoperto.",
   "assistant.proactive.lockConflict": "Una registrazione del {{date}} è bloccata e non è stato possibile modificarla automaticamente.",
   "assistant.proactive.scenarioPending": "Lo scenario di {{group}} attende una decisione da {{hours}} h.",
-  "assistant.proactive.contractExpiringSoon": "Il contratto di {{name}} scade il {{date}} (tra {{days}} giorno/i) — senza seguito."
+  "assistant.proactive.contractExpiringSoon": "Il contratto di {{name}} scade il {{date}} (tra {{days}} giorno/i) — senza seguito.",
+  "group.validation.has-planned-works": "Questo gruppo non può essere eliminato perché esistono voci di lavoro pianificate.",
+  "group.validation.works-exist-after-valid-until": "La data di fine validità non può essere impostata perché esistono voci di lavoro dopo quella data.",
+  "group.validation.member-has-planned-works": "Questo dipendente non può essere rimosso dal gruppo perché ha voci di lavoro pianificate in questo gruppo.",
+  "group.validation.group-item-has-planned-works": "Questo elemento del gruppo non può essere eliminato perché esistono voci di lavoro pianificate.",
+  "shift.validation.has-active-works": "Questo servizio non può essere eliminato perché esistono voci di lavoro attive."
 }

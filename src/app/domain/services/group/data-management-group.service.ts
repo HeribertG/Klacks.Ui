@@ -34,6 +34,7 @@ import { ICalendarSelection } from '../../models/calendar/calendar-selection-cla
 import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { TranslateService } from '@ngx-translate/core';
 import { ILoadable, IRefreshable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
@@ -58,6 +59,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
+  private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
   private checkboxState = new CheckboxStateService();
 
@@ -289,7 +291,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       }),
       catchError((error) => {
         this.eventBus.emit(DomainEventType.ERROR, {
-          message: error,
+          message: this.extractErrorMessage(error),
           code: 'GroupDeleteError',
           context: 'DataManagementGroupService.deleteGroup'
         });
@@ -396,7 +398,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
             }
 
             this.eventBus.emit(DomainEventType.ERROR, {
-              message: error,
+              message: this.extractErrorMessage(error),
               code: 'GroupError',
               context: 'DataManagementGroupService.saveEditGroup'
             });
@@ -669,5 +671,26 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public destroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private extractErrorMessage(error: unknown): string {
+    const httpError = error as { error?: { errors?: Record<string, string[]>; detail?: string; title?: string } };
+    if (httpError?.error?.errors) {
+      const keys = Object.values(httpError.error.errors).flat();
+      if (keys.length > 0) {
+        return keys.map(key => {
+          const translated = this.translateService.instant(key);
+          return translated !== key ? translated : key;
+        }).join(' ');
+      }
+    }
+    if (httpError?.error?.detail) {
+      const translated = this.translateService.instant(httpError.error.detail);
+      return translated !== httpError.error.detail ? translated : httpError.error.detail;
+    }
+    if (httpError?.error?.title) {
+      return httpError.error.title;
+    }
+    return 'An error occurred';
   }
 }
