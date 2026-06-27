@@ -57,7 +57,7 @@ describe('AssistantPersonalitySettingsComponent (Signal Forms array)', () => {
 
   it('reflects a form edit in the model and preserves sibling fields', async () => {
     await component.ngOnInit();
-    const form = component['personalityForm'] as any;
+    const form = component['personalityForm'];
     form[0].content().value.set('Edited identity');
 
     const identity = component.fields()[0];
@@ -72,7 +72,7 @@ describe('AssistantPersonalitySettingsComponent (Signal Forms array)', () => {
 
   it('sends the edited content to upsertSoulSection on blur', async () => {
     await component.ngOnInit();
-    const form = component['personalityForm'] as any;
+    const form = component['personalityForm'];
     form[0].content().value.set('Edited identity');
 
     await component.onFieldBlur(0);

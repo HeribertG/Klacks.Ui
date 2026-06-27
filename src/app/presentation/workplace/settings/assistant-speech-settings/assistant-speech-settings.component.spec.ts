@@ -4,18 +4,18 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AssistantSpeechSettingsComponent } from './assistant-speech-settings.component';
+import {
+  AssistantSpeechSettingsComponent,
+  EditableDictionaryEntry,
+} from './assistant-speech-settings.component';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
 import { DataTtsService } from 'src/app/infrastructure/api/assistant/data-tts.service';
 import { DataAssistantService } from 'src/app/infrastructure/api/assistant/data-assistant.service';
-import {
-  DataTranscriptionDictionaryService,
-  DictionaryEntry,
-} from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
+import { DataTranscriptionDictionaryService } from 'src/app/infrastructure/api/assistant/data-transcription-dictionary.service';
 
-function makeEntry(over: Partial<DictionaryEntry> = {}): any {
+function makeEntry(over: Partial<EditableDictionaryEntry> = {}): EditableDictionaryEntry {
   return {
     id: 'e1',
     correctTerm: 'Klacks',
@@ -48,7 +48,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
         {
           provide: AppSettingsManagementService,
           useValue: {
-            speechSettings: signal({ sttApiKeys: {}, ttsApiKeys: {} } as any),
+            speechSettings: signal({ sttApiKeys: {}, ttsApiKeys: {} }),
             loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
             saveImmediately: vi.fn().mockResolvedValue(undefined),
           },
@@ -75,7 +75,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
 
   it('reflects a form edit in the model and preserves sibling fields', () => {
     component.dictionaryEntries.set([makeEntry()]);
-    const form = component['dictForm'] as any;
+    const form = component['dictForm'];
     form[0].correctTerm().value.set('Klacksy');
 
     const entry = component.dictionaryEntries()[0];
@@ -91,7 +91,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
 
   it('persists the edited row read by index on save', async () => {
     component.dictionaryEntries.set([makeEntry()]);
-    const form = component['dictForm'] as any;
+    const form = component['dictForm'];
     form[0].correctTerm().value.set('Klacksy');
     form[0].language().value.set('en');
 

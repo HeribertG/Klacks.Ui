@@ -46,7 +46,7 @@ import {
   SpeechDefaults,
 } from 'src/app/domain/constants/speech-constants';
 
-type EditableDictionaryEntry = Omit<DictionaryEntry, 'language'> & {
+export type EditableDictionaryEntry = Omit<DictionaryEntry, 'language'> & {
   language: string;
 };
 
