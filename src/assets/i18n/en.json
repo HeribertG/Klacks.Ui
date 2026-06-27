@@ -2952,5 +2952,11 @@
   "calendar.selector.selected-items": "Selected calendars",
   "common.loading": "Loading …",
   "schedule.shift-section.filter": "Filter",
-  "setting.report.designer.addTable": "Add table"
+  "setting.report.designer.addTable": "Add table",
+  "assistant.proactive.targetHoursDrift": "{{name}}'s hours deviate from target by {{hours}} h in {{period}}.",
+  "assistant.proactive.periodCloseDue": "The accounting period for {{group}} ends on {{date}} (in {{days}} day(s)) and is still open.",
+  "assistant.proactive.unstaffedShift": "A shift on {{date}} (in {{days}} day(s)) is still unstaffed.",
+  "assistant.proactive.lockConflict": "A booking on {{date}} is locked and could not be adjusted automatically.",
+  "assistant.proactive.scenarioPending": "The scenario for {{group}} has been awaiting a decision for {{hours}} h.",
+  "assistant.proactive.contractExpiringSoon": "{{name}}'s contract expires on {{date}} (in {{days}} day(s)) — with no follow-up."
 }

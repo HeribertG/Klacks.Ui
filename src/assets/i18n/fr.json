@@ -2944,5 +2944,11 @@
   "calendar.selector.selected-items": "Calendriers sélectionnés",
   "common.loading": "Chargement …",
   "schedule.shift-section.filter": "Filtrer",
-  "setting.report.designer.addTable": "Ajouter un tableau"
+  "setting.report.designer.addTable": "Ajouter un tableau",
+  "assistant.proactive.targetHoursDrift": "Les heures de {{name}} s'écartent de l'objectif de {{hours}} h sur la période {{period}}.",
+  "assistant.proactive.periodCloseDue": "La période de décompte de {{group}} se termine le {{date}} (dans {{days}} jour(s)) et est encore ouverte.",
+  "assistant.proactive.unstaffedShift": "Un service le {{date}} (dans {{days}} jour(s)) n'est toujours pas pourvu.",
+  "assistant.proactive.lockConflict": "Une saisie du {{date}} est verrouillée et n'a pas pu être ajustée automatiquement.",
+  "assistant.proactive.scenarioPending": "Le scénario de {{group}} attend une décision depuis {{hours}} h.",
+  "assistant.proactive.contractExpiringSoon": "Le contrat de {{name}} expire le {{date}} (dans {{days}} jour(s)) — sans suite."
 }

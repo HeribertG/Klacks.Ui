@@ -6,4 +6,5 @@ export interface IProactiveMessage {
   conversationId?: string;
   timestamp: string;
   messageType: 'proactive' | 'onboarding';
+  contentParams?: Record<string, string>;
 }

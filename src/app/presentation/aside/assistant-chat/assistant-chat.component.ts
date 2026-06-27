@@ -237,7 +237,10 @@ export class AssistantChatComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          const proactiveContent = this.resolveProactiveContent(msg.content);
+          const proactiveContent = this.resolveProactiveContent(
+            msg.content,
+            msg.contentParams,
+          );
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
@@ -254,7 +257,10 @@ export class AssistantChatComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((msg) => {
         this.ngZone.run(() => {
-          const onboardingContent = this.resolveProactiveContent(msg.content);
+          const onboardingContent = this.resolveProactiveContent(
+            msg.content,
+            msg.contentParams,
+          );
           this.orchestrator.addMessage({
             id: msg.messageId,
             sender: 'assistant',
@@ -325,11 +331,15 @@ export class AssistantChatComponent {
 
   private static readonly PROACTIVE_I18N_MARKER = 'i18n:';
 
-  private resolveProactiveContent(text: string): string {
+  private resolveProactiveContent(
+    text: string,
+    params?: Record<string, string>,
+  ): string {
     const stripped = this.stripMetadataMarkers(text);
     if (stripped.startsWith(AssistantChatComponent.PROACTIVE_I18N_MARKER)) {
       return this.translateService.instant(
         stripped.slice(AssistantChatComponent.PROACTIVE_I18N_MARKER.length),
+        params,
       );
     }
     return stripped;

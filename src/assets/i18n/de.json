@@ -2952,5 +2952,11 @@
   "calendar.selector.selected-items": "Ausgewählte Kalender",
   "common.loading": "Lädt …",
   "schedule.shift-section.filter": "Filter",
-  "setting.report.designer.addTable": "Tabelle hinzufügen"
+  "setting.report.designer.addTable": "Tabelle hinzufügen",
+  "assistant.proactive.targetHoursDrift": "Bei {{name}} weichen die Stunden im Zeitraum {{period}} um {{hours}} h vom Soll ab.",
+  "assistant.proactive.periodCloseDue": "Die Abrechnungsperiode für {{group}} endet am {{date}} (in {{days}} Tag(en)) und ist noch offen.",
+  "assistant.proactive.unstaffedShift": "Eine Schicht am {{date}} (in {{days}} Tag(en)) ist noch unbesetzt.",
+  "assistant.proactive.lockConflict": "Eine Buchung am {{date}} ist gesperrt und konnte nicht automatisch angepasst werden.",
+  "assistant.proactive.scenarioPending": "Das Szenario für {{group}} wartet seit {{hours}} h auf eine Entscheidung.",
+  "assistant.proactive.contractExpiringSoon": "Der Vertrag von {{name}} läuft am {{date}} aus (in {{days}} Tag(en)) – ohne Nachfolge."
 }

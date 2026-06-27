@@ -2944,5 +2944,11 @@
   "calendar.selector.selected-items": "Calendari selezionati",
   "common.loading": "Caricamento …",
   "schedule.shift-section.filter": "Filtra",
-  "setting.report.designer.addTable": "Aggiungi tabella"
+  "setting.report.designer.addTable": "Aggiungi tabella",
+  "assistant.proactive.targetHoursDrift": "Le ore di {{name}} si discostano dall'obiettivo di {{hours}} h nel periodo {{period}}.",
+  "assistant.proactive.periodCloseDue": "Il periodo di conteggio di {{group}} termina il {{date}} (tra {{days}} giorno/i) ed è ancora aperto.",
+  "assistant.proactive.unstaffedShift": "Un turno il {{date}} (tra {{days}} giorno/i) è ancora scoperto.",
+  "assistant.proactive.lockConflict": "Una registrazione del {{date}} è bloccata e non è stato possibile modificarla automaticamente.",
+  "assistant.proactive.scenarioPending": "Lo scenario di {{group}} attende una decisione da {{hours}} h.",
+  "assistant.proactive.contractExpiringSoon": "Il contratto di {{name}} scade il {{date}} (tra {{days}} giorno/i) — senza seguito."
 }

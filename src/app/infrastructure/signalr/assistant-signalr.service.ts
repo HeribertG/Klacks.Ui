@@ -139,6 +139,12 @@ export class AssistantSignalRService implements OnDestroy {
       if (!token) return;
 
       try {
+        // Stop any lingering connection before building a new one. withAutomaticReconnect can keep
+        // the old instance alive; nulling it without stopping leaks a second connection whose event
+        // handlers keep firing, so every proactive message would arrive twice.
+        if (this.hubConnection) {
+          await this.hubConnection.stop();
+        }
         this.hubConnection = null;
         await this.startConnection();
         if (!this.isConnected()) {
