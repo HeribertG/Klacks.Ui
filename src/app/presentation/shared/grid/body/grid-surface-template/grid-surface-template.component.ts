@@ -308,17 +308,39 @@ export class GridSurfaceTemplateComponent
       });
       this.effects.push(cellInputEffect);
 
+      let lastH: number | undefined;
+      let lastV: number | undefined;
       const scrollEffect = effect(() => {
         const currH = this.valueChangeHScrollbar();
         const currV = this.valueChangeVScrollbar();
-        if (currH > this.scroll.maxCols) {
-          this.scroll.maxCols = currH + 10;
+        const hChanged = currH !== lastH;
+        const vChanged = currV !== lastV;
+        lastH = currH;
+        lastV = currV;
+
+        if (hChanged) {
+          if (currH > this.scroll.maxCols) {
+            this.scroll.maxCols = currH + 10;
+          }
+          this.scroll.horizontalScrollPosition = currH;
+          this.scroll.updateScrollPosition(
+            currH,
+            this.scroll.verticalScrollPosition,
+          );
         }
-        this.scroll.horizontalScrollPosition = currH;
-        this.scroll.verticalScrollPosition = currV;
-        this.scroll.updateScrollPosition(currH, currV);
-        this.drawSchedule.moveGrid();
-        this.cellInput.refreshForScroll();
+
+        if (vChanged) {
+          this.scroll.verticalScrollPosition = currV;
+          this.scroll.updateScrollPosition(
+            this.scroll.horizontalScrollPosition,
+            currV,
+          );
+        }
+
+        if (hChanged || vChanged) {
+          this.drawSchedule.moveGrid();
+          this.cellInput.refreshForScroll();
+        }
       });
       this.effects.push(scrollEffect);
     });

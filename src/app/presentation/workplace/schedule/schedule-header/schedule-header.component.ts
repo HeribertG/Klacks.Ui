@@ -121,9 +121,9 @@ const DEFAULT_ZOOM_VALUE = 100;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleHeaderComponent implements OnInit, AfterViewInit {
-  readonly breakPlaceholderIcon = viewChild.required<IconBreakPlaceholderComponent>('breakPlaceholderIcon');
-  readonly scheduleCommandsIcon = viewChild.required<IconThunderCircleComponent>('scheduleCommandsIcon');
-  readonly availabilityCheckIcon = viewChild.required<IconAvailabilityCheckComponent>('availabilityCheckIcon');
+  readonly breakPlaceholderIcon = viewChild<IconBreakPlaceholderComponent>('breakPlaceholderIcon');
+  readonly scheduleCommandsIcon = viewChild<IconThunderCircleComponent>('scheduleCommandsIcon');
+  readonly availabilityCheckIcon = viewChild<IconAvailabilityCheckComponent>('availabilityCheckIcon');
   readonly wizardDialog = viewChild.required<WizardDialogComponent>('wizardDialog');
   readonly harmonizerDialog = viewChild.required<HarmonizerDialogComponent>('harmonizerDialog');
   readonly holisticHarmonizerDialog = viewChild.required<HolisticHarmonizerDialogComponent>('holisticHarmonizerDialog');

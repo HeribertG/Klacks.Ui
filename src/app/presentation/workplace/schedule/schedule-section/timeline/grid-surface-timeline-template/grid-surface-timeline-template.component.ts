@@ -357,16 +357,29 @@ export class GridSurfaceTimelineTemplateComponent
         }),
       );
 
+      let lastH: number | undefined;
+      let lastV: number | undefined;
       this.effects.push(
         effect(() => {
           const currH = this.valueChangeHScrollbar();
           const currV = this.valueChangeVScrollbar();
-          if (currH > this.scroll.maxCols) {
-            this.scroll.maxCols = currH + 10;
+          const hChanged = currH !== lastH;
+          const vChanged = currV !== lastV;
+          lastH = currH;
+          lastV = currV;
+
+          if (hChanged) {
+            if (currH > this.scroll.maxCols) {
+              this.scroll.maxCols = currH + 10;
+            }
+            this.scroll.horizontalScrollPosition = currH;
+            this.drawSchedule.moveGrid();
           }
-          this.scroll.horizontalScrollPosition = currH;
-          this.scroll.verticalScrollPosition = currV;
-          this.drawSchedule.moveGrid();
+
+          if (vChanged) {
+            this.scroll.verticalScrollPosition = currV;
+            this.drawSchedule.moveGrid();
+          }
         }),
       );
     });
