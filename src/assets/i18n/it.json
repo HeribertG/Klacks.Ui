@@ -1174,7 +1174,7 @@
   "setting.owner-address.state": "Cantone",
   "setting.owner-address.country": "Paese",
   "setting.owner-address.timezone": "Fuso orario",
-  "setting.owner-address.noTimezone": "Deduci dal paese",
+  "setting.owner-address.noTimezone": "Deduci dal paese (altrimenti UTC)",
   "setting.owner-address.globalCalendarCountry": "Calendario globale - Paese",
   "setting.owner-address.globalCalendarState": "Calendario globale - Cantone",
   "setting.owner-address.noCountry": "Nessun paese",
@@ -2956,6 +2956,7 @@
   "group.validation.has-planned-works": "Questo gruppo non può essere eliminato perché esistono voci di lavoro pianificate.",
   "group.validation.works-exist-after-valid-until": "La data di fine validità non può essere impostata perché esistono voci di lavoro dopo quella data.",
   "group.validation.member-has-planned-works": "Questo dipendente non può essere rimosso dal gruppo perché ha voci di lavoro pianificate in questo gruppo.",
+  "group.validation.membership-close-has-future-works": "Questa appartenenza non può essere terminata in questa data perché il dipendente ha ancora voci di lavoro pianificate in questo gruppo dopo tale data.",
   "group.validation.group-item-has-planned-works": "Questo elemento del gruppo non può essere eliminato perché esistono voci di lavoro pianificate.",
   "shift.validation.has-active-works": "Questo servizio non può essere eliminato perché esistono voci di lavoro attive."
 }

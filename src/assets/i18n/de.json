@@ -1174,7 +1174,7 @@
   "setting.owner-address.state": "Kanton",
   "setting.owner-address.country": "Land",
   "setting.owner-address.timezone": "Zeitzone",
-  "setting.owner-address.noTimezone": "Aus Land ableiten",
+  "setting.owner-address.noTimezone": "Aus Land ableiten (sonst UTC)",
   "setting.owner-address.globalCalendarCountry": "Globaler Kalender - Land",
   "setting.owner-address.globalCalendarState": "Globaler Kalender - Kanton",
   "setting.owner-address.noCountry": "Kein Land",
@@ -2964,6 +2964,7 @@
   "group.validation.has-planned-works": "Diese Gruppe kann nicht gelöscht werden, da noch Dienste geplant sind.",
   "group.validation.works-exist-after-valid-until": "Das Gültig-Bis-Datum kann nicht gesetzt werden, da nach diesem Datum noch Dienste geplant sind.",
   "group.validation.member-has-planned-works": "Dieser Mitarbeiter kann nicht aus der Gruppe entfernt werden, da er noch Dienste in dieser Gruppe hat.",
+  "group.validation.membership-close-has-future-works": "Diese Mitgliedschaft kann nicht zu diesem Datum beendet werden, da der Mitarbeiter danach noch Dienste in dieser Gruppe hat.",
   "group.validation.group-item-has-planned-works": "Dieser Eintrag kann nicht gelöscht werden, da noch Dienste geplant sind.",
   "shift.validation.has-active-works": "Dieser Dienst kann nicht gelöscht werden, da noch Planungseinträge vorhanden sind."
 }

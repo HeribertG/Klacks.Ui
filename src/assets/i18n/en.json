@@ -1174,7 +1174,7 @@
   "setting.owner-address.state": "State",
   "setting.owner-address.country": "Country",
   "setting.owner-address.timezone": "Time Zone",
-  "setting.owner-address.noTimezone": "Derive from country",
+  "setting.owner-address.noTimezone": "Derive from country (else UTC)",
   "setting.owner-address.globalCalendarCountry": "Global Calendar - Country",
   "setting.owner-address.globalCalendarState": "Global Calendar - State",
   "setting.owner-address.noCountry": "No Country",
@@ -2964,6 +2964,7 @@
   "group.validation.has-planned-works": "This group cannot be deleted because planned work entries exist.",
   "group.validation.works-exist-after-valid-until": "The valid-until date cannot be set because work entries exist after that date.",
   "group.validation.member-has-planned-works": "This employee cannot be removed from the group because they have planned work entries in this group.",
+  "group.validation.membership-close-has-future-works": "This membership cannot be ended on this date because the employee still has planned work entries in this group afterwards.",
   "group.validation.group-item-has-planned-works": "This group item cannot be deleted because planned work entries exist.",
   "shift.validation.has-active-works": "This shift cannot be deleted because active work entries exist."
 }
