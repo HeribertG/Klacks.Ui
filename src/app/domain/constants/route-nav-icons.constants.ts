@@ -23,7 +23,6 @@ export const ROUTE_NAV_ICONS: Record<string, readonly string[]> = {
   '/workplace/client': [ONBOARDING_NAV_ICON.Employees],
   '/workplace/edit-address': [ONBOARDING_NAV_ICON.Employees],
   '/workplace/group': [ONBOARDING_NAV_ICON.Groups],
-  '/workplace/group-structure': [ONBOARDING_NAV_ICON.Groups],
   '/workplace/edit-group': [ONBOARDING_NAV_ICON.Groups],
   '/workplace/period-closing': [ONBOARDING_NAV_ICON.PeriodClosing],
   '/workplace/inbox': [ONBOARDING_NAV_ICON.Inbox],

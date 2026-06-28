@@ -67,8 +67,6 @@ export class NavigationService {
     this.router.navigate(['/workplace/settings']);
   }
 
-  navigateToStatistic(): void {}
-
   navigateToRoot(): Promise<boolean> {
     return this.router.navigate(['/']);
   }
@@ -114,10 +112,6 @@ export class NavigationService {
 
   navigateToNewShift(): void {
     this.router.navigate(['/workplace/new-shift']);
-  }
-
-  navigateToGroupTree(): void {
-    this.router.navigate(['/workplace/group-structure']);
   }
 
   navigateToClientAvailability(): void {

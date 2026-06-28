@@ -26,7 +26,6 @@ export enum RouteName {
   SETTINGS = 'settings',
   GROUP = 'group',
   EDIT_GROUP = 'edit-group',
-  GROUP_STRUCTURE = 'group-structure',
   SHIFT = 'shift',
   NEW_SHIFT = 'new-shift',
   EDIT_SHIFT = 'edit-shift',

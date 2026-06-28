@@ -47,7 +47,6 @@ export const KLACKSY_PAGE_KEYS: readonly KlacksyPageKeyEntry[] = [
   { pageKey: 'group-list', route: '/workplace/group', requiredPermission: 'CanViewGroups', hasEntityParam: false },
   { pageKey: 'new-group', route: '/workplace/edit-group', requiredPermission: 'CanCreateGroups', hasEntityParam: false, llmHint: 'create group form' },
   { pageKey: 'edit-group', route: '/workplace/edit-group', requiredPermission: 'CanEditGroups', hasEntityParam: true, llmHint: 'edit existing group' },
-  { pageKey: 'group-structure', route: '/workplace/group-structure', requiredPermission: 'CanViewSettings', hasEntityParam: false },
   { pageKey: 'shift-list', route: '/workplace/shift', requiredPermission: 'CanViewShifts', hasEntityParam: false },
   { pageKey: 'new-shift', route: '/workplace/new-shift', requiredPermission: 'CanCreateShifts', hasEntityParam: false, llmHint: 'create shift template' },
   { pageKey: 'edit-shift', route: '/workplace/edit-shift', requiredPermission: 'CanEditShifts', hasEntityParam: true, llmHint: 'edit shift template' },

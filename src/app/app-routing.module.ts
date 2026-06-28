@@ -139,14 +139,6 @@ const routes: Routes = [
         canActivate: [AdminGuard],
       },
       {
-        path: 'group-structure',
-        loadComponent: () =>
-          import('./presentation/workplace/settings/group-scope/group-scope.component').then(
-            (m) => m.GroupScopeComponent,
-          ),
-        canActivate: [AdminGuard],
-      },
-      {
         path: 'shift',
         loadComponent: () =>
           import('./presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component').then(
