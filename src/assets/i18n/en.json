@@ -1173,6 +1173,8 @@
   "setting.owner-address.zip": "ZIP",
   "setting.owner-address.state": "State",
   "setting.owner-address.country": "Country",
+  "setting.owner-address.timezone": "Time Zone",
+  "setting.owner-address.noTimezone": "Derive from country",
   "setting.owner-address.globalCalendarCountry": "Global Calendar - Country",
   "setting.owner-address.globalCalendarState": "Global Calendar - State",
   "setting.owner-address.noCountry": "No Country",

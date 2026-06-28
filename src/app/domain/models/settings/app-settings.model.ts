@@ -9,6 +9,7 @@ export interface IAppContactSettings {
   place: string;
   state: string;
   country: string;
+  timeZone: string;
   phone: string;
   email: string;
   accountingStart: number;
@@ -40,6 +41,7 @@ export class AppContactSettings implements IAppContactSettings {
   place = '';
   state = '';
   country = '';
+  timeZone = '';
   phone = '';
   email = '';
   accountingStart = 0;

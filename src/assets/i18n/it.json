@@ -1173,6 +1173,8 @@
   "setting.owner-address.zip": "CAP",
   "setting.owner-address.state": "Cantone",
   "setting.owner-address.country": "Paese",
+  "setting.owner-address.timezone": "Fuso orario",
+  "setting.owner-address.noTimezone": "Deduci dal paese",
   "setting.owner-address.globalCalendarCountry": "Calendario globale - Paese",
   "setting.owner-address.globalCalendarState": "Calendario globale - Cantone",
   "setting.owner-address.noCountry": "Nessun paese",

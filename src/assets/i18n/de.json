@@ -1173,6 +1173,8 @@
   "setting.owner-address.zip": "PLZ",
   "setting.owner-address.state": "Kanton",
   "setting.owner-address.country": "Land",
+  "setting.owner-address.timezone": "Zeitzone",
+  "setting.owner-address.noTimezone": "Aus Land ableiten",
   "setting.owner-address.globalCalendarCountry": "Globaler Kalender - Land",
   "setting.owner-address.globalCalendarState": "Globaler Kalender - Kanton",
   "setting.owner-address.noCountry": "Kein Land",

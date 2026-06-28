@@ -161,6 +161,30 @@
       </div>
     </div>
 
+    <div id="owner-address-timezone-row" class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-timezone">{{
+          "setting.owner-address.timezone" | translate
+        }}</label>
+        <select
+          id="setting-owner-address-timezone"
+          class="form-control form-select"
+          [ngModel]="selectedTimeZone()"
+          (ngModelChange)="onTimeZoneChange($event)"
+          aria-label="appAddressTimeZone"
+        >
+          <option value="">
+            {{ "setting.owner-address.noTimezone" | translate }}
+          </option>
+          @for (timeZone of timeZones; track timeZone) {
+            <option [value]="timeZone">
+              {{ timeZone }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
     <div id="owner-address-calendar-row" class="row-line-single">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-calendar">{{

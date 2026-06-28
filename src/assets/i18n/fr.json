@@ -1173,6 +1173,8 @@
   "setting.owner-address.zip": "Code postal",
   "setting.owner-address.state": "Canton",
   "setting.owner-address.country": "Pays",
+  "setting.owner-address.timezone": "Fuseau horaire",
+  "setting.owner-address.noTimezone": "Déduire du pays",
   "setting.owner-address.globalCalendarCountry": "Calendrier global - Pays",
   "setting.owner-address.globalCalendarState": "Calendrier global - Canton",
   "setting.owner-address.noCountry": "Aucun pays",

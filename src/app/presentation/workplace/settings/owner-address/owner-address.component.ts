@@ -36,7 +36,9 @@ export class OwnerAddressComponent implements OnInit {
   private isInitialized = false;
   public selectedCountry = signal<string>('');
   public selectedState = signal<string>('');
+  public selectedTimeZone = signal<string>('');
   public selectedCalendarId = signal<string>('');
+  public readonly timeZones: string[] = this.loadTimeZones();
 
   private addressModel = signal<AddressModel>({
     addressName: '',
@@ -69,6 +71,7 @@ export class OwnerAddressComponent implements OnInit {
       const model = this.addressModel();
       const country = this.selectedCountry();
       const state = this.selectedState();
+      const timeZone = this.selectedTimeZone();
       const calendarId = this.selectedCalendarId();
       if (this.isInitialized) {
         this.appSettingsService.contactSettings.update(s => ({
@@ -82,6 +85,7 @@ export class OwnerAddressComponent implements OnInit {
           place: model.place,
           state: state,
           country: country,
+          timeZone: timeZone,
           globalCalendarCountry: country,
           globalCalendarState: state,
           globalCalendarSelectionId: calendarId,
@@ -107,6 +111,7 @@ export class OwnerAddressComponent implements OnInit {
     });
     this.selectedCountry.set(contact.country || contact.globalCalendarCountry || '');
     this.selectedState.set(contact.state || contact.globalCalendarState || '');
+    this.selectedTimeZone.set(contact.timeZone || '');
     this.selectedCalendarId.set(contact.globalCalendarSelectionId || '');
     this.isInitialized = true;
   }
@@ -126,6 +131,21 @@ export class OwnerAddressComponent implements OnInit {
 
   onStateChange(state: string): void {
     this.selectedState.set(state);
+  }
+
+  onTimeZoneChange(timeZone: string): void {
+    this.selectedTimeZone.set(timeZone);
+  }
+
+  private loadTimeZones(): string[] {
+    type IntlWithSupportedValues = typeof Intl & {
+      supportedValuesOf?: (key: string) => string[];
+    };
+    try {
+      return (Intl as IntlWithSupportedValues).supportedValuesOf?.('timeZone') ?? [];
+    } catch {
+      return [];
+    }
   }
 
   get currentLang(): string {
