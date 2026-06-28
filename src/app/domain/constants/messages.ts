@@ -98,7 +98,7 @@ export class DomainMessages {
   public static ALL_EMPLOYEE = 'ALL_EMPLOYEE';
   public static STATISTIC = 'STATISTIC';
   public static ALL_GROUP = 'Alle Gruppen';
-  public static ALL_SHIFT = 'Alle Dienste';
+  public static ALL_SHIFT = 'ALL_SHIFT';
   public static INBOX = 'INBOX';
 
   public static NOTE_NEW = 'neue Notiz hinzufügen';

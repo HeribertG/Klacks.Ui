@@ -45,6 +45,7 @@ import { IconAvailabilityComponent } from '../../icons/icon-availability.compone
 import { IconMailComponent } from '../../icons/icon-mail.component';
 import { PluginIconComponent } from '../../icons/plugin-icon.component';
 import { IconPeriodClosingComponent } from '../../icons/icon-period-closing.component';
+import { TooltipAutoCloseDirective } from '../../directives/tooltip-auto-close.directive';
 
 type NavigationPage =
   | 'absence'
@@ -79,6 +80,7 @@ type NavigationPage =
     IconMailComponent,
     PluginIconComponent,
     IconPeriodClosingComponent,
+    TooltipAutoCloseDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
