@@ -41,6 +41,7 @@ import { TableResizeService } from 'src/app/presentation/services/table-resize.s
 import { AllAddressStateService } from '../services/all-address-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -80,6 +81,9 @@ export class AllAddressListComponent
   private allAddressStateService = inject(AllAddressStateService);
   private navigationService = inject(NavigationService);
   private cdr = inject(ChangeDetectorRef);
+  private assistantPageContext = inject(AssistantPageContextService);
+
+  private static readonly assistantEntityType = 'client';
 
   public checkBoxIndeterminate = false;
   public firstItemOnLastPage: number | undefined = undefined;
@@ -161,6 +165,7 @@ export class AllAddressListComponent
   }
 
   ngOnDestroy(): void {
+    this.assistantPageContext.setSelectedClients(undefined, undefined);
     this.allAddressStateService.saveCurrentFilter();
 
     this.ngUnsubscribe.next();
@@ -197,6 +202,7 @@ export class AllAddressListComponent
     } finally {
       this.checkBoxIndeterminate =
         this.dataManagementClientService.checkBoxIndeterminate();
+      this.pushSelectionToAssistant();
     }
   }
 
@@ -205,6 +211,19 @@ export class AllAddressListComponent
     this.headerCheckBoxValue.set(checked);
     this.dataManagementClientService.clientListService.headerCheckBoxValue.set(checked);
     this.dataManagementClientService.clearCheckedArray();
+    this.pushSelectionToAssistant();
+  }
+
+  private pushSelectionToAssistant(): void {
+    const selectedIds = this.dataManagementClientService.clientListService
+      .checkedArray()
+      .filter((c) => c.checked)
+      .map((c) => c.id)
+      .filter((id): id is string => !!id);
+    this.assistantPageContext.setSelectedClients(
+      selectedIds,
+      AllAddressListComponent.assistantEntityType
+    );
   }
 
   onChangeRowSize(event: any): void {

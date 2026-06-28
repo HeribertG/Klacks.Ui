@@ -12,6 +12,7 @@ import { TableResizeService } from 'src/app/presentation/services/table-resize.s
 import { AllAddressStateService } from '../services/all-address-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { AssistantPageContextService } from 'src/app/domain/services/assistant/assistant-page-context.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
@@ -51,7 +52,8 @@ describe('AllAddressListComponent', () => {
             isRead: signal(false),
             initIsRead: signal(false),
             clientListService: {
-                headerCheckBoxValue: signal(false)
+                headerCheckBoxValue: signal(false),
+                checkedArray: signal([])
             },
             clientAttribute: []
         };
@@ -127,6 +129,7 @@ describe('AllAddressListComponent', () => {
                 { provide: TableResizeService, useValue: mockTableResizeService },
                 { provide: AllAddressStateService, useValue: mockAllAddressStateService },
                 { provide: NavigationService, useValue: mockNavigationService },
+                { provide: AssistantPageContextService, useValue: { setSelectedClients: vi.fn() } },
                 { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
                 { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },

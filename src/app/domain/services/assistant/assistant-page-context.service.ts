@@ -19,6 +19,8 @@ export class AssistantPageContextService {
   private readonly selectedPeriodFrom = signal<string | undefined>(undefined);
   private readonly selectedPeriodUntil = signal<string | undefined>(undefined);
   private readonly selectedClientId = signal<string | undefined>(undefined);
+  private readonly selectedClientIds = signal<string[] | undefined>(undefined);
+  private readonly selectedEntityType = signal<string | undefined>(undefined);
 
   getPageContext(): IAssistantPageContext {
     const ctx: IAssistantPageContext = {};
@@ -48,6 +50,16 @@ export class AssistantPageContextService {
       ctx.selectedClientId = clientId;
     }
 
+    const clientIds = this.selectedClientIds();
+    if (clientIds && clientIds.length > 0) {
+      ctx.selectedClientIds = clientIds;
+
+      const entityType = this.selectedEntityType();
+      if (entityType) {
+        ctx.selectedEntityType = entityType;
+      }
+    }
+
     return ctx;
   }
 
@@ -64,10 +76,18 @@ export class AssistantPageContextService {
     this.selectedClientId.set(id || undefined);
   }
 
+  setSelectedClients(ids: string[] | undefined, entityType: string | undefined): void {
+    const cleaned = ids && ids.length > 0 ? ids : undefined;
+    this.selectedClientIds.set(cleaned);
+    this.selectedEntityType.set(cleaned ? entityType || undefined : undefined);
+  }
+
   reset(): void {
     this.selectedGroupId.set(undefined);
     this.selectedPeriodFrom.set(undefined);
     this.selectedPeriodUntil.set(undefined);
     this.selectedClientId.set(undefined);
+    this.selectedClientIds.set(undefined);
+    this.selectedEntityType.set(undefined);
   }
 }

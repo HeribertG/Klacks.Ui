@@ -6,4 +6,6 @@ export interface IAssistantPageContext {
   selectedPeriodFrom?: string;
   selectedPeriodUntil?: string;
   selectedClientId?: string;
+  selectedClientIds?: string[];
+  selectedEntityType?: string;
 }
