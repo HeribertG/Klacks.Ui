@@ -162,7 +162,7 @@ export class DrawAvailabilityGridService {
       ctx.strokeStyle = this.gridColors.focusBorderColor;
       ctx.setLineDash([]);
     } else {
-      ctx.strokeStyle = 'grey';
+      ctx.strokeStyle = this.gridColors.unfocusedSelectionBorderColor;
       ctx.setLineDash([1, 2]);
     }
 

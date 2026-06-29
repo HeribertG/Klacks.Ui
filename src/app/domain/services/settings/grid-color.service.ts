@@ -40,6 +40,7 @@ export class GridColorService {
   headerBackGroundColor = '#FFFFFF';
   headerForeGroundColor = '#4d4d4d';
   focusBorderColor = '#1E90FF';
+  unfocusedSelectionBorderColor = 'grey';
   evenMonthColor = this.backGroundColor;
   oddMonthColor = '#dad7d7';
   borderColorEndMonth = '#566573';

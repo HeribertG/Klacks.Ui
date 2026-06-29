@@ -72,7 +72,7 @@ export class ApplicationInitService {
         }
       });
     } catch (e) {
-      console.log('Error loading application title:', e);
+      console.error('Error loading application title:', e);
     }
   }
 

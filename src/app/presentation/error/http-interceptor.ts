@@ -429,7 +429,6 @@ export class ResponseInterceptor implements HttpInterceptor {
     for (const key in validationErrors) {
       if (validationErrors.hasOwnProperty(key)) {
         const messages = validationErrors[key];
-        console.log('Validation error for ' + key + ':', messages);
         this.toastShowService.showError(
           'Validation error for ' + key + ':',
           messages

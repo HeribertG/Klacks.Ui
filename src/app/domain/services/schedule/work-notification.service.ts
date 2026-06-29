@@ -116,15 +116,12 @@ export class WorkNotificationService {
       return;
     }
 
-    console.log('Received schedule notification:', notification);
-
     const clientDisplayed = this.isClientDisplayed(notification.clientId);
 
     if (clientDisplayed) {
       // Wait for data to be loaded before triggering UI refresh
       this.refreshAffectedDays(notification.clientId, new Date(notification.currentDate))
         .then(() => {
-          console.log(`[WorkNotification] Data refreshed for ${notification.clientId}, triggering UI update`);
           this.scheduleUpdateSignal.set(notification.clientId);
           setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
         })
@@ -138,8 +135,6 @@ export class WorkNotificationService {
     if ((notification.analyseToken ?? null) !== (this.analyseScenarioService.activeToken() ?? null)) {
       return;
     }
-
-    console.log('Received shift stats notification:', notification);
 
     const updated = this.shiftScheduleLoader.updateShiftEngaged(
       notification.shiftId,

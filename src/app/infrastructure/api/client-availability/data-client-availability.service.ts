@@ -4,10 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import {
-  IClientAvailability,
-  IClientAvailabilityBulkRequest,
-} from 'src/app/domain/models/client-availability/client-availability-class';
+import { IClientAvailability } from 'src/app/domain/models/client-availability/client-availability.interface';
+import { IClientAvailabilityBulkRequest } from 'src/app/domain/models/client-availability/client-availability-bulk-request.interface';
 import { IClientAvailabilityClientFilter } from 'src/app/domain/models/client-availability/client-availability-client-filter.interface';
 import { IClientAvailabilityClientResponse } from 'src/app/domain/models/client-availability/client-availability-client-response.interface';
 

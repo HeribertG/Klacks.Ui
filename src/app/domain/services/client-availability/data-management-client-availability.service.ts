@@ -3,10 +3,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import {
-  IClientAvailability,
-  IClientAvailabilityBulkRequest,
-} from 'src/app/domain/models/client-availability/client-availability-class';
+import { IClientAvailability } from 'src/app/domain/models/client-availability/client-availability.interface';
+import { IClientAvailabilityBulkRequest } from 'src/app/domain/models/client-availability/client-availability-bulk-request.interface';
 import { DataClientAvailabilityService } from 'src/app/infrastructure/api/client-availability/data-client-availability.service';
 
 const AUTO_SAVE_DEBOUNCE_MS = 800;
