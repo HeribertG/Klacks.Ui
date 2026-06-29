@@ -49,6 +49,8 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break/break-class';
 import { CellTypeEnum } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { formatTime, timeToMinutes } from 'src/app/shared/helpers/time-format.helper';
 
+const GROUP_PERIOD_RESTRICTED_COLOR = 'rgba(70, 130, 180, 0.25)';
+
 @Injectable()
 export class ScheduleDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
@@ -129,6 +131,11 @@ export class ScheduleDataService extends BaseDataService {
 
     if (this.isCellBeforeClientStart(row, col)) {
       cell.sealed = true;
+    }
+
+    if (this.isCellOutsideGroupPeriod(row, col)) {
+      cell.sealed = true;
+      cell.backgroundColor = GROUP_PERIOD_RESTRICTED_COLOR;
     }
 
     return cell;
@@ -263,6 +270,10 @@ export class ScheduleDataService extends BaseDataService {
       return false;
     }
 
+    if (this.isCellOutsideGroupPeriod(row, col)) {
+      return false;
+    }
+
     const entry = this.getWorkScheduleEntryForCell(row, col);
     if (entry && (entry.lockLevel > 0 || entry.isGroupRestricted)) {
       return false;
@@ -333,6 +344,27 @@ export class ScheduleDataService extends BaseDataService {
     if (!date) return false;
 
     return formatDateOnly(date) < memberSince;
+  }
+
+  public isCellOutsideGroupPeriod(row: number, col: number): boolean {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) return false;
+
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    const validFrom = client?.groupItemValidFrom;
+    const validUntil = client?.groupItemValidUntil;
+
+    if (!validFrom && !validUntil) return false;
+
+    const date = this.getDateForColumn(col);
+    if (!date) return false;
+
+    const dateStr = formatDateOnly(date);
+
+    if (validFrom && dateStr < validFrom) return true;
+    if (validUntil && dateStr > validUntil) return true;
+
+    return false;
   }
 
   override getHeaderFontColor(column: number): string | null {
@@ -565,6 +597,7 @@ export class ScheduleDataService extends BaseDataService {
 
         if (this.isColumnSealed(targetCol)) continue;
         if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
+        if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 
         const clientIndex = this.rowGroupIndex[targetRow];
@@ -642,6 +675,7 @@ export class ScheduleDataService extends BaseDataService {
 
         if (this.isColumnSealed(targetCol)) continue;
         if (this.isCellBeforeClientStart(targetRow, targetCol)) continue;
+        if (this.isCellOutsideGroupPeriod(targetRow, targetCol)) continue;
         if (this.isCellActive(targetRow, targetCol)) continue;
 
         const clientIndex = this.rowGroupIndex[targetRow];

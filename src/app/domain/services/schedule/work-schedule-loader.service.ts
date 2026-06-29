@@ -499,6 +499,8 @@ export class WorkScheduleLoaderService {
       works: [],
       hasContract: c.hasContract ?? false,
       memberSince: c.memberSince ?? undefined,
+      groupItemValidFrom: c.groupItemValidFrom ?? undefined,
+      groupItemValidUntil: c.groupItemValidUntil ?? undefined,
       qualifications: c.qualifications ?? [],
     }));
   }

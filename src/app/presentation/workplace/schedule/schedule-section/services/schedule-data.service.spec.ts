@@ -24,23 +24,29 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
+    let dataManagement: { clients: unknown[] };
 
     beforeEach(() => {
+        const dm = {
+            workFilter: { currentYear: 2024, currentMonth: 1, paymentInterval: 2 },
+            clients: [] as unknown[],
+            shiftSchedules: [],
+            visibleStartDate: null,
+            visibleEndDate: null,
+            availableShiftsByDay: [],
+            overbookedShiftsByDay: [],
+            showAvailability: vi.fn().mockReturnValue(false),
+            sealedDates: new Set<string>(),
+        };
+        dataManagement = dm;
+
         TestBed.configureTestingModule({
             providers: [
                 ScheduleDataService,
                 { provide: ScrollService, useValue: { maxRows: 0, maxCols: 0 } },
                 { provide: HolidayCollectionService, useValue: { holidays: { holidayList: [] } } },
                 { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
-                { provide: DataManagementScheduleService, useValue: {
-                        workFilter: { currentYear: 2024, currentMonth: 1, paymentInterval: 2 },
-                        clients: [],
-                        shiftSchedules: [],
-                        visibleStartDate: null,
-                        visibleEndDate: null,
-                        availableShiftsByDay: [],
-                        overbookedShiftsByDay: []
-                    } },
+                { provide: DataManagementScheduleService, useValue: dataManagement },
                 { provide: AppSettingsManagementService, useValue: {
                         workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
                     } },
@@ -62,5 +68,84 @@ describe('ScheduleDataService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    describe('isCellOutsideGroupPeriod', () => {
+        const START_DATE = new Date('2026-01-01');
+
+        beforeEach(() => {
+            service.startDate = START_DATE;
+            service.rowGroupIndex = [0];
+        });
+
+        it('returns false when client has no groupItemValidFrom and no groupItemValidUntil', () => {
+            dataManagement.clients = [{ groupItemValidFrom: undefined, groupItemValidUntil: undefined }];
+            expect(service.isCellOutsideGroupPeriod(0, 10)).toBe(false);
+        });
+
+        it('returns false when row has no client index', () => {
+            service.rowGroupIndex = [];
+            expect(service.isCellOutsideGroupPeriod(0, 10)).toBe(false);
+        });
+
+        it('returns false when startDate is not set', () => {
+            service.startDate = undefined;
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15' }];
+            expect(service.isCellOutsideGroupPeriod(0, 0)).toBe(false);
+        });
+
+        it('returns true when date is before groupItemValidFrom', () => {
+            // col 0 → 2026-01-01, validFrom = 2026-01-15 → outside
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 0)).toBe(true);
+        });
+
+        it('returns false when date equals groupItemValidFrom (boundary is inside)', () => {
+            // col 14 → 2026-01-15, validFrom = 2026-01-15 → on boundary, inside
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 14)).toBe(false);
+        });
+
+        it('returns false when date is within valid range', () => {
+            // col 20 → 2026-01-21, validFrom = 2026-01-15, validUntil = 2026-01-25 → inside
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 20)).toBe(false);
+        });
+
+        it('returns false when date equals groupItemValidUntil (boundary is inside)', () => {
+            // col 24 → 2026-01-25, validUntil = 2026-01-25 → on boundary, inside
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 24)).toBe(false);
+        });
+
+        it('returns true when date is after groupItemValidUntil', () => {
+            // col 25 → 2026-01-26, validUntil = 2026-01-25 → outside
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 25)).toBe(true);
+        });
+
+        it('returns true when only validFrom set and date is before it', () => {
+            // col 0 → 2026-01-01, validFrom = 2026-01-15, no validUntil
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: undefined }];
+            expect(service.isCellOutsideGroupPeriod(0, 0)).toBe(true);
+        });
+
+        it('returns false when only validFrom set and date is on or after it', () => {
+            // col 14 → 2026-01-15, validFrom = 2026-01-15, no validUntil → no upper bound
+            dataManagement.clients = [{ groupItemValidFrom: '2026-01-15', groupItemValidUntil: undefined }];
+            expect(service.isCellOutsideGroupPeriod(0, 14)).toBe(false);
+        });
+
+        it('returns true when only validUntil set and date is after it', () => {
+            // col 25 → 2026-01-26, no validFrom, validUntil = 2026-01-25
+            dataManagement.clients = [{ groupItemValidFrom: undefined, groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 25)).toBe(true);
+        });
+
+        it('returns false when only validUntil set and date is before or on it', () => {
+            // col 0 → 2026-01-01, no validFrom, validUntil = 2026-01-25 → no lower bound
+            dataManagement.clients = [{ groupItemValidFrom: undefined, groupItemValidUntil: '2026-01-25' }];
+            expect(service.isCellOutsideGroupPeriod(0, 0)).toBe(false);
+        });
     });
 });
