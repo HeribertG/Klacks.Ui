@@ -3,7 +3,7 @@
     {{ "address.edit-address.home.header" | translate }}
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-persona">
     <app-address-persona
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -11,7 +11,7 @@
     ></app-address-persona>
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-membership">
     <app-membership
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -22,7 +22,7 @@
   </div>
 
   @if (dataManagementClientService.editClient()?.type !== 2) {
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-contracts">
     <app-client-contracts
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -33,7 +33,7 @@
   }
 
   @if (dataManagementClientService.hasRootGroups()) {
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-groups">
     <app-client-groups
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -44,7 +44,7 @@
   }
 
   @if (dataManagementClientService.editClient()?.type !== 2) {
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-qualifications">
     <app-client-qualifications
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -64,7 +64,7 @@
   </div>
   }
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-note">
     <app-note
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"
@@ -72,7 +72,7 @@
     </app-note>
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="address-image">
     <app-client-image
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"

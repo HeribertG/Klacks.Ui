@@ -3,7 +3,7 @@
     {{ "group.edit-group.edit-group-home.header" | translate }}
   </div>
 
-  <div id="edit-group-item-container" class="container-profilline">
+  <div id="edit-group-item-container" class="container-profilline" data-klacksy-target="group-item">
     <app-edit-group-item
       id="edit-group-item"
       (isChangingEvent)="onIsChanging($event)"
@@ -12,7 +12,7 @@
     </app-edit-group-item>
   </div>
 
-  <div id="edit-group-parent-container" class="container-profilline">
+  <div id="edit-group-parent-container" class="container-profilline" data-klacksy-target="group-parent">
     <app-edit-group-parent
       id="edit-group-parent"
       (isChangingEvent)="onIsChanging($event)"
@@ -21,7 +21,7 @@
     </app-edit-group-parent>
   </div>
 
-  <div id="edit-group-members-container" class="container-profilline">
+  <div id="edit-group-members-container" class="container-profilline" data-klacksy-target="group-members">
     <app-edit-group-members
       id="edit-group-members"
       (isChangingEvent)="onIsChanging($event)"

@@ -6,10 +6,12 @@
   <div id="profile-home-upper-row" class="container-profilline">
     <app-profile-picture
       id="profile-picture"
+      data-klacksy-target="profile-picture"
       class="container-profile-small container-profile-login container-profile-login-margin first border-right-card border-bottom-card"
     ></app-profile-picture>
     <app-profile-data-edit
       id="profile-data-edit"
+      data-klacksy-target="profile-data"
       class="container-profile-small container-profile-login border-right-card border-bottom-card"
       (isChangingEvent)="onIsChanging($event)"
     ></app-profile-data-edit>
@@ -17,11 +19,13 @@
   <div id="profile-home-lower-row" class="container-profilline">
     <app-profile-custom-setting
       id="profile-custom-setting"
+      data-klacksy-target="profile-settings"
       class="container-profile-small container-profile-login-margin first border-right-card border-bottom-card"
     >
     </app-profile-custom-setting>
     <app-profile-microphone-test
       id="profile-microphone-test"
+      data-klacksy-target="profile-microphone"
       class="container-profile-small container-profile-login-margin border-right-card border-bottom-card"
     >
     </app-profile-microphone-test>

@@ -3,7 +3,7 @@
     {{ "shift.edit-shift.home.header" | translate }}
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="shift-item">
     <app-edit-shift-item
       (isChangingEvent)="onIsChanging($event)"
       (isChangingMode)="onIsChangingMode()"
@@ -13,7 +13,7 @@
   </div>
 
   @if (dataManagementGroupService.hasRootGroups()) {
-    <div class="container-profilline">
+    <div class="container-profilline" data-klacksy-target="shift-group">
       <app-edit-shift-group
         (isChangingEvent)="onIsChanging($event)"
         [isReadOnly]="isReadOnly"
@@ -23,7 +23,7 @@
     </div>
   }
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="shift-qualifications">
     <app-shift-qualifications
       (isChangingEvent)="onIsChanging($event)"
       [isReadOnly]="isReadOnly"
@@ -31,7 +31,7 @@
     ></app-shift-qualifications>
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="shift-weekday">
     <app-edit-shift-weekday
       (isChangingEvent)="onIsChanging($event)"
       [isComplex]="isComplex"
@@ -41,7 +41,7 @@
     </app-edit-shift-weekday>
   </div>
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="shift-macro">
     @if (isComplex) {
       <app-edit-shift-macro
         (isChangingEvent)="onIsChanging($event)"
@@ -52,7 +52,7 @@
   </div>
 
   @if (!isContainer) {
-    <div class="container-profilline">
+    <div class="container-profilline" data-klacksy-target="shift-address">
       <app-edit-shift-address
         (isChangingEvent)="onIsChanging($event)"
         [isReadOnly]="isReadOnly"
@@ -62,7 +62,7 @@
     </div>
   }
 
-  <div class="container-profilline">
+  <div class="container-profilline" data-klacksy-target="shift-special-feature">
     @if (isComplex || isContainer) {
       <app-edit-shift-special-feature
         (isChangingEvent)="onIsChanging($event)"
@@ -74,7 +74,7 @@
   </div>
 
   @if (!isContainer && isComplex) {
-    <div class="container-profilline">
+    <div class="container-profilline" data-klacksy-target="shift-expenses">
       <app-edit-shift-expenses
         (isChangingEvent)="onIsChanging($event)"
         [isReadOnly]="isReadOnly"

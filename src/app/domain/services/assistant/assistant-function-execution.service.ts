@@ -12,11 +12,13 @@ import {
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { KLACKSY_PAGE_KEYS_BY_KEY } from 'src/app/domain/constants/klacksy-page-keys';
+import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigation.service';
 
 @Injectable()
 export class AssistantFunctionExecutionService {
   private httpClient = inject(HttpClient);
   private router = inject(Router);
+  private readonly klacksyNavigation = inject(KlacksyNavigationService);
   private readonly apiBaseUrl = environment.baseUrl;
 
   executeFunction(
@@ -40,6 +42,7 @@ export class AssistantFunctionExecutionService {
     try {
       const page = ((call.arguments['page'] as string) || 'dashboard').toLowerCase();
       const entityId = call.arguments['entityId'] as string;
+      const scrollTarget = (call.arguments['target'] as string) || (call.arguments['Target'] as string) || undefined;
       const pageEntry = KLACKSY_PAGE_KEYS_BY_KEY.get(page);
 
       let route =
@@ -64,7 +67,7 @@ export class AssistantFunctionExecutionService {
         return of({ id: call.id, success: false, error: 'Navigation target not allowed' });
       }
 
-      this.router.navigate([route], { queryParams });
+      void this.klacksyNavigation.navigateAndScroll(route, scrollTarget);
       return of({
         id: call.id,
         success: true,
