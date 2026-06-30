@@ -101,7 +101,7 @@ export class AssistantSkillRelationsComponent implements OnInit, OnDestroy {
     this.processingRelationId.set(relation.id);
     try {
       const updated = await firstValueFrom(this.skillRelationService.accept(relation.id));
-      this.replaceRelation(updated);
+      this.removeRelation(relation.id);
       this.showInfo('setting.skillRelations.info.accepted', {
         skillA: updated.skillAName,
         skillB: updated.skillBName,
@@ -120,7 +120,7 @@ export class AssistantSkillRelationsComponent implements OnInit, OnDestroy {
     this.processingRelationId.set(relation.id);
     try {
       const updated = await firstValueFrom(this.skillRelationService.dismiss(relation.id));
-      this.replaceRelation(updated);
+      this.removeRelation(relation.id);
       this.showInfo('setting.skillRelations.info.dismissed', {
         skillA: updated.skillAName,
         skillB: updated.skillBName,
@@ -132,10 +132,8 @@ export class AssistantSkillRelationsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private replaceRelation(updated: ISkillRelation): void {
-    this.relations.update((list) =>
-      list.map((relation) => (relation.id === updated.id ? updated : relation)),
-    );
+  private removeRelation(id: string): void {
+    this.relations.update((list) => list.filter((r) => r.id !== id));
   }
 
   private showInfo(key: string, params?: Record<string, unknown>): void {
