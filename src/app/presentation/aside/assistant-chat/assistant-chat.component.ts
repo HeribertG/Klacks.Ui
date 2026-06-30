@@ -127,7 +127,7 @@ export class AssistantChatComponent {
 
   private shouldScrollToBottom = true;
   private pendingGreetingMessageId: string | null = null;
-  private pendingGreetingSuggestions: string[] = [];
+  private pendingGreetingOptions: ISuggestedReply[] = [];
   private greetingSpoken = false;
 
   faMicrophone = faMicrophone;
@@ -205,9 +205,9 @@ export class AssistantChatComponent {
         if (msg) {
           this.maybeAutoSpeak(msg);
           this.greetingSpoken = true;
-          if (this.pendingGreetingSuggestions.length > 0) {
-            this.showActionsAsToast(this.pendingGreetingSuggestions);
-            this.pendingGreetingSuggestions = [];
+          if (this.pendingGreetingOptions.length > 0) {
+            this.showGreetingOptionsAsToast(this.pendingGreetingOptions);
+            this.pendingGreetingOptions = [];
           }
         }
       }
@@ -707,6 +707,26 @@ export class AssistantChatComponent {
     });
   }
 
+  private showGreetingOptionsAsToast(options: ISuggestedReply[]): void {
+    if (!options.length) return;
+    const config: ISuggestedRepliesConfig = {
+      selectionMode: 'single',
+      prompt: this.translateService.instant('assistant-chat.action-toast.prompt'),
+      options,
+    };
+    this.toastShowService.showInteractiveReply(config, (values: string[]) => {
+      this.ngZone.run(() => {
+        if (values.length === 0) return;
+        const value = values[0];
+        if (value.startsWith('/workplace/')) {
+          this.onNavigateClick(value);
+        } else {
+          this.onSuggestionClick(value);
+        }
+      });
+    });
+  }
+
   onNavigateClick(navigateTo: string): void {
     if (navigateTo.startsWith('/workplace/')) {
       this.klacksyNavigation.navigateAndScroll(navigateTo);
@@ -820,9 +840,18 @@ export class AssistantChatComponent {
 
   private applyWelcomeResponse(messageId: string, response: IWelcomeResponse, langCode: string): void {
     const content = this.stripMetadataMarkers(this.resolveWelcomeContent(response, langCode));
+    const routes = response.suggestionRoutes ?? {};
     const suggestions = response.suggestionKeys
       .map((key) => this.translateService.instant(key))
       .filter((label) => typeof label === 'string' && label.length > 0);
+
+    const greetingOptions: ISuggestedReply[] = response.suggestionKeys
+      .map((key) => {
+        const label = this.translateService.instant(key) as string;
+        if (!label || !label.length) return null;
+        return { label, value: routes[key] ?? label };
+      })
+      .filter((o): o is ISuggestedReply => o !== null);
 
     this.orchestrator.updateMessage(messageId, {
       content,
@@ -833,12 +862,12 @@ export class AssistantChatComponent {
     if (this.asideService.isVisible()) {
       this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
       this.greetingSpoken = true;
-      if (suggestions.length > 0) {
-        this.showActionsAsToast(suggestions);
+      if (greetingOptions.length > 0) {
+        this.showGreetingOptionsAsToast(greetingOptions);
       }
     } else {
       this.pendingGreetingMessageId = messageId;
-      this.pendingGreetingSuggestions = suggestions;
+      this.pendingGreetingOptions = greetingOptions;
     }
 
     this.onboarding.applyWelcome(response.onboarding);

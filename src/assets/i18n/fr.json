@@ -2180,6 +2180,7 @@
   "assistant-chat.voice-mode-on": "Activer le mode vocal",
   "assistant-chat.voice-mode-off": "Désactiver le mode vocal",
   "assistant-chat.placeholder": "Écrivez ici ou utilisez le microphone...",
+  "assistant-chat.placeholder.voice-input": "Message...",
   "assistant-chat.send-message": "Envoyer le message",
   "assistant-chat.correction.flag": "Corriger cette réponse",
   "assistant-chat.correction.thanks": "Merci pour le retour",

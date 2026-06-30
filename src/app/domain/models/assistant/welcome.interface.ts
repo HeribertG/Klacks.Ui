@@ -14,6 +14,7 @@ export interface IWelcomeResponse {
   ambientHolidayName?: string;
   displayName: string;
   suggestionKeys: string[];
+  suggestionRoutes?: Record<string, string>;
   onboarding?: IOnboardingState | null;
 }
 

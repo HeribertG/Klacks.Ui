@@ -2181,6 +2181,7 @@
   "assistant-chat.voice-mode-on": "Sprachmodus aktivieren",
   "assistant-chat.voice-mode-off": "Sprachmodus deaktivieren",
   "assistant-chat.placeholder": "Schreiben Sie hier oder nutzen Sie das Mikrofon...",
+  "assistant-chat.placeholder.voice-input": "Nachricht...",
   "assistant-chat.send-message": "Nachricht senden",
   "assistant-chat.correction.flag": "Antwort korrigieren",
   "assistant-chat.correction.thanks": "Danke für die Rückmeldung",
