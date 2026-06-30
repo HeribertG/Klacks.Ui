@@ -22,6 +22,7 @@ export class TextToSpeechService implements OnDestroy {
   private readonly settings = inject(AppSettingsManagementService);
   private audio: HTMLAudioElement | null = null;
   private objectUrl: string | null = null;
+  private abortController: AbortController | null = null;
   private readonly baseUrl = environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
   async speak(text: string, messageId: string, locale: string): Promise<void> {
@@ -34,12 +35,16 @@ export class TextToSpeechService implements OnDestroy {
     this.isLoading.set(true);
     this.playingMessageId.set(messageId);
 
+    const controller = new AbortController();
+    this.abortController = controller;
+
     try {
       const token = localStorage.getItem(StorageKeys.TOKEN);
       const speechSettings = this.settings.speechSettings();
 
       const response = await fetch(`${this.baseUrl}${TTS_ENDPOINT}`, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -52,12 +57,21 @@ export class TextToSpeechService implements OnDestroy {
         }),
       });
 
+      if (controller.signal.aborted) {
+        return;
+      }
+
       if (!response.ok) {
         this.reset();
         return;
       }
 
       const blob = await response.blob();
+
+      if (controller.signal.aborted) {
+        return;
+      }
+
       this.objectUrl = URL.createObjectURL(blob);
       this.audio = new Audio(this.objectUrl);
 
@@ -76,11 +90,17 @@ export class TextToSpeechService implements OnDestroy {
 
       await this.audio.play();
     } catch {
-      this.reset();
+      if (!controller.signal.aborted) {
+        this.reset();
+      }
     }
   }
 
   stop(): void {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0;
