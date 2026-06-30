@@ -126,6 +126,9 @@ export class AssistantChatComponent {
   private eventBus = inject(EVENT_BUS_TOKEN);
 
   private shouldScrollToBottom = true;
+  private pendingGreetingMessageId: string | null = null;
+  private pendingGreetingSuggestions: string[] = [];
+  private greetingSpoken = false;
 
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
@@ -193,6 +196,20 @@ export class AssistantChatComponent {
     afterEveryRender(() => {
       if (this.shouldScrollToBottom) {
         this.scrollToBottom();
+      }
+    });
+
+    effect(() => {
+      if (this.asideService.isVisible() && !this.greetingSpoken && this.pendingGreetingMessageId) {
+        const msg = this.orchestrator.messages().find(m => m.id === this.pendingGreetingMessageId);
+        if (msg) {
+          this.maybeAutoSpeak(msg);
+          this.greetingSpoken = true;
+          if (this.pendingGreetingSuggestions.length > 0) {
+            this.showActionsAsToast(this.pendingGreetingSuggestions);
+            this.pendingGreetingSuggestions = [];
+          }
+        }
       }
     });
 
@@ -802,7 +819,7 @@ export class AssistantChatComponent {
   }
 
   private applyWelcomeResponse(messageId: string, response: IWelcomeResponse, langCode: string): void {
-    const content = this.resolveWelcomeContent(response, langCode);
+    const content = this.stripMetadataMarkers(this.resolveWelcomeContent(response, langCode));
     const suggestions = response.suggestionKeys
       .map((key) => this.translateService.instant(key))
       .filter((label) => typeof label === 'string' && label.length > 0);
@@ -813,10 +830,15 @@ export class AssistantChatComponent {
       suggestions,
     });
 
-    this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
-
-    if (suggestions.length > 0) {
-      this.showActionsAsToast(suggestions);
+    if (this.asideService.isVisible()) {
+      this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
+      this.greetingSpoken = true;
+      if (suggestions.length > 0) {
+        this.showActionsAsToast(suggestions);
+      }
+    } else {
+      this.pendingGreetingMessageId = messageId;
+      this.pendingGreetingSuggestions = suggestions;
     }
 
     this.onboarding.applyWelcome(response.onboarding);
