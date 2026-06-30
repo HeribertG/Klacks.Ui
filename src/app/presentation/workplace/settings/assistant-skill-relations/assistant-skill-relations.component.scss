@@ -1,6 +1,8 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
 @use "../../../../../assets/standard-styles/colors.scss";
 
 :host {
@@ -173,4 +175,8 @@
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.manual-tab-body {
+  padding: 20px 30px;
 }

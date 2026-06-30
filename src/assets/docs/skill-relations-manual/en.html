@@ -1,0 +1,74 @@
+<h2>Skill Relations – Manual</h2>
+
+<h3>What are skill relations?</h3>
+<p>
+Klacksy observes in the background which skills are frequently used together or in sequence
+within a session. From this it derives <strong>relations</strong> – e.g. that
+<em>create_work</em> almost always follows <em>get_scheduling_defaults</em>. These relations
+help Klacksy select the right skills more precisely next time.
+</p>
+<p>
+The learning process runs automatically every 6&nbsp;hours. This page shows all detected
+relations and lets admins decide whether to accept or dismiss them.
+</p>
+
+<hr>
+
+<h3>Relation types</h3>
+<ul>
+  <li>
+    <strong>Sequential</strong> – Skill A is regularly used <em>before</em> Skill B in the
+    same session. Example: <em>search_employees</em> leads to <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Co-required</strong> – Skill A and Skill B are frequently used in the same
+    session without a fixed order. Both are typically needed for the use case.
+  </li>
+</ul>
+
+<h3>Source</h3>
+<ul>
+  <li>
+    <strong>Learned</strong> – Calculated from real usage data (PMI / sequence mining).
+    High reliability.
+  </li>
+  <li>
+    <strong>Derived</strong> – Logically inferred from skill structure, not yet confirmed
+    by usage data.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Candidate</strong> – Newly detected relation, awaiting admin decision.</li>
+  <li><strong>Active</strong> – Accepted relation, actively influences Klacksy.</li>
+  <li><strong>Retired</strong> – Dismissed relation, ignored going forward.</li>
+</ul>
+
+<hr>
+
+<h3>Confidence, support, and contradictions</h3>
+<p>
+The <strong>confidence</strong> (0–100&nbsp;%) indicates how certain Klacksy is about the
+relation. It rises with each usage session that confirms the pattern
+(<strong>support</strong>) and falls with sessions that contradict it
+(<strong>contradictions</strong>).
+</p>
+
+<hr>
+
+<h3>When to accept, when to dismiss?</h3>
+<ul>
+  <li>
+    <strong>Accept</strong> when the relation makes sense – the two skills genuinely belong
+    together and the pattern reflects the desired workflow.
+  </li>
+  <li>
+    <strong>Dismiss</strong> when the relation is coincidental or the skills do not belong
+    together in this context (e.g. caused by test sessions).
+  </li>
+</ul>
+<p>
+Only <em>learned</em> relations with high confidence are typically worth accepting.
+Derived candidates with low support are worth dismissing until more usage data is available.
+</p>

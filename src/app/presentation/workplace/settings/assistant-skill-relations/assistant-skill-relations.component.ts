@@ -6,19 +6,23 @@
  * @param relations - Skill relations from the backend, already sorted by confidence (highest first)
  * @param isLoading - True while relations are being loaded
  * @param processingRelationId - Set while one relation is being accepted/dismissed
+ * @param activeTab - Currently selected tab ('relations' | 'manual')
+ * @param manualContent - Localized HTML for the manual tab, loaded lazily on first switch
  */
 import {
   Component,
   ChangeDetectionStrategy,
   OnInit,
+  OnDestroy,
   inject,
   signal,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { SkillRelationService } from 'src/app/domain/services/assistant/skill-relation.service';
 import { ISkillRelation } from 'src/app/domain/models/assistant/skill-relation.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 @Component({
   selector: 'app-assistant-skill-relations',
@@ -28,17 +32,47 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
   imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AssistantSkillRelationsComponent implements OnInit {
+export class AssistantSkillRelationsComponent implements OnInit, OnDestroy {
   private skillRelationService = inject(SkillRelationService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private manualLoaderService = inject(ManualLoaderService);
+  private readonly destroy$ = new Subject<void>();
 
   readonly relations = signal<ISkillRelation[]>([]);
   readonly isLoading = signal(false);
   readonly processingRelationId = signal<string | null>(null);
+  readonly activeTab = signal<'relations' | 'manual'>('relations');
+  readonly manualContent = signal<string>('');
 
   ngOnInit(): void {
     this.loadRelations();
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.activeTab() === 'manual') {
+          this.loadManual();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  setTab(tab: 'relations' | 'manual'): void {
+    this.activeTab.set(tab);
+    if (tab === 'manual' && !this.manualContent()) {
+      this.loadManual();
+    }
+  }
+
+  private loadManual(): void {
+    const lang = this.translateService.currentLang || this.translateService.defaultLang || 'de';
+    this.manualLoaderService.loadManual('skill-relations-manual', lang)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(content => this.manualContent.set(content));
   }
 
   loadRelations(): void {

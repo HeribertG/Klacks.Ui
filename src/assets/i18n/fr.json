@@ -1389,6 +1389,8 @@
   "setting.skillRelations.error.load": "Impossible de charger les relations de skills.",
   "setting.skillRelations.error.acceptFailed": "Échec de l'acceptation.",
   "setting.skillRelations.error.dismissFailed": "Échec du rejet.",
+  "setting.skillRelations.tab.relations": "Relations",
+  "setting.skillRelations.tab.manual": "Manuel",
   "settings.assistantSkillRelations": "Relations de skills",
   "settings.assistantSkillProposals": "Propositions de skills",
   "settings.klacksyAutonomy": "Autonomie de Klacksy",

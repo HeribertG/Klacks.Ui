@@ -1,0 +1,78 @@
+<h2>Relations de skills – Manuel</h2>
+
+<h3>Qu'est-ce que les relations de skills&nbsp;?</h3>
+<p>
+Klacksy observe en arrière-plan quels skills sont fréquemment utilisés ensemble ou en
+séquence au cours d'une session. Il en déduit des <strong>relations</strong> – par exemple
+que <em>create_work</em> suit presque toujours <em>get_scheduling_defaults</em>. Ces
+relations aident Klacksy à sélectionner les skills appropriés de façon plus ciblée.
+</p>
+<p>
+Le processus d'apprentissage s'exécute automatiquement toutes les 6&nbsp;heures. Cette page
+affiche toutes les relations détectées et permet aux admins de décider si elles doivent être
+acceptées ou rejetées.
+</p>
+
+<hr>
+
+<h3>Types de relations</h3>
+<ul>
+  <li>
+    <strong>Séquentiel</strong> – Le skill A est régulièrement utilisé <em>avant</em> le
+    skill B dans la même session. Exemple&nbsp;: <em>search_employees</em> conduit à
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Co-requis</strong> – Le skill A et le skill B sont fréquemment utilisés dans la
+    même session sans ordre fixe. Les deux sont généralement nécessaires pour le cas
+    d'usage.
+  </li>
+</ul>
+
+<h3>Source</h3>
+<ul>
+  <li>
+    <strong>Appris</strong> – Calculé à partir de données d'utilisation réelles
+    (PMI / exploration de séquences). Haute fiabilité.
+  </li>
+  <li>
+    <strong>Déduit</strong> – Inféré logiquement depuis la structure des skills, pas encore
+    confirmé par les données d'utilisation.
+  </li>
+</ul>
+
+<h3>Statut</h3>
+<ul>
+  <li><strong>Candidat</strong> – Relation nouvellement détectée, en attente de décision admin.</li>
+  <li><strong>Actif</strong> – Relation acceptée, influence activement Klacksy.</li>
+  <li><strong>Retiré</strong> – Relation rejetée, ignorée à l'avenir.</li>
+</ul>
+
+<hr>
+
+<h3>Confiance, confirmations et contradictions</h3>
+<p>
+La <strong>confiance</strong> (0–100&nbsp;%) indique à quel point Klacksy est certain de
+la relation. Elle augmente avec chaque session d'utilisation qui confirme le schéma
+(<strong>confirmations</strong>) et diminue avec les sessions qui le contredisent
+(<strong>contradictions</strong>).
+</p>
+
+<hr>
+
+<h3>Quand accepter, quand rejeter&nbsp;?</h3>
+<ul>
+  <li>
+    <strong>Accepter</strong> lorsque la relation a du sens – les deux skills vont
+    réellement ensemble et le schéma correspond au flux de travail souhaité.
+  </li>
+  <li>
+    <strong>Rejeter</strong> lorsque la relation est accidentelle ou que les skills
+    n'appartiennent pas ensemble dans ce contexte (par ex. à cause de sessions de test).
+  </li>
+</ul>
+<p>
+Seules les relations <em>apprises</em> avec une haute confiance valent généralement la
+peine d'être acceptées. Les candidats déduits avec peu de confirmations peuvent être rejetés
+en attendant davantage de données d'utilisation.
+</p>

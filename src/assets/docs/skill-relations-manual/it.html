@@ -1,0 +1,78 @@
+<h2>Relazioni tra skill – Manuale</h2>
+
+<h3>Cosa sono le relazioni tra skill?</h3>
+<p>
+Klacksy osserva in background quali skill vengono usate frequentemente insieme o in
+sequenza durante una sessione. Da ciò ricava delle <strong>relazioni</strong> – per esempio
+che <em>create_work</em> segue quasi sempre <em>get_scheduling_defaults</em>. Queste
+relazioni aiutano Klacksy a selezionare le skill giuste in modo più mirato la volta
+successiva.
+</p>
+<p>
+Il processo di apprendimento viene eseguito automaticamente ogni 6&nbsp;ore. Questa pagina
+mostra tutte le relazioni rilevate e consente agli admin di decidere se accettarle o
+rifiutarle.
+</p>
+
+<hr>
+
+<h3>Tipi di relazione</h3>
+<ul>
+  <li>
+    <strong>Sequenziale</strong> – La skill A viene regolarmente usata <em>prima</em> della
+    skill B nella stessa sessione. Esempio: <em>search_employees</em> porta a
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Co-richiesta</strong> – La skill A e la skill B vengono usate frequentemente
+    nella stessa sessione senza un ordine fisso. Entrambe sono tipicamente necessarie per
+    il caso d'uso.
+  </li>
+</ul>
+
+<h3>Origine</h3>
+<ul>
+  <li>
+    <strong>Appresa</strong> – Calcolata da dati d'uso reali (PMI / sequence mining).
+    Alta affidabilità.
+  </li>
+  <li>
+    <strong>Derivata</strong> – Inferita logicamente dalla struttura delle skill, non ancora
+    confermata dai dati d'uso.
+  </li>
+</ul>
+
+<h3>Stato</h3>
+<ul>
+  <li><strong>Candidata</strong> – Relazione appena rilevata, in attesa di decisione admin.</li>
+  <li><strong>Attiva</strong> – Relazione accettata, influenza attivamente Klacksy.</li>
+  <li><strong>Ritirata</strong> – Relazione rifiutata, ignorata in futuro.</li>
+</ul>
+
+<hr>
+
+<h3>Affidabilità, conferme e contraddizioni</h3>
+<p>
+L'<strong>affidabilità</strong> (0–100&nbsp;%) indica quanto Klacksy è sicuro della
+relazione. Aumenta con ogni sessione che conferma il pattern (<strong>conferme</strong>) e
+diminuisce con le sessioni che lo contraddicono (<strong>contraddizioni</strong>).
+</p>
+
+<hr>
+
+<h3>Quando accettare, quando rifiutare?</h3>
+<ul>
+  <li>
+    <strong>Accettare</strong> quando la relazione ha senso – le due skill appartengono
+    davvero insieme e il pattern riflette il flusso di lavoro desiderato.
+  </li>
+  <li>
+    <strong>Rifiutare</strong> quando la relazione è casuale o le skill non appartengono
+    insieme in questo contesto (ad es. a causa di sessioni di test).
+  </li>
+</ul>
+<p>
+Solo le relazioni <em>apprese</em> con alta affidabilità meritano tipicamente di essere
+accettate. I candidati derivati con poche conferme conviene rifiutarli finché non sono
+disponibili più dati d'uso.
+</p>

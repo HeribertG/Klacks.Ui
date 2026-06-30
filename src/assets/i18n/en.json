@@ -1389,6 +1389,8 @@
   "setting.skillRelations.error.load": "Could not load skill relations.",
   "setting.skillRelations.error.acceptFailed": "Accept failed.",
   "setting.skillRelations.error.dismissFailed": "Dismiss failed.",
+  "setting.skillRelations.tab.relations": "Relations",
+  "setting.skillRelations.tab.manual": "Manual",
   "settings.assistantSkillRelations": "Skill relations",
   "settings.assistantSkillProposals": "Skill proposals",
   "settings.klacksyAutonomy": "Klacksy Autonomy",

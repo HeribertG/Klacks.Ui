@@ -4,131 +4,172 @@
   </div>
   <div class="container-line"></div>
 
-  <div class="relations-form">
-    <div class="intro-hint">
-      {{ "setting.skillRelations.intro" | translate }}
-    </div>
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="skill-relations-tab-relations"
+          class="nav-link"
+          [class.active]="activeTab() === 'relations'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'relations'"
+          tabindex="0"
+          (click)="setTab('relations')"
+        >
+          {{ "setting.skillRelations.tab.relations" | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="skill-relations-tab-manual"
+          class="nav-link"
+          [class.active]="activeTab() === 'manual'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'manual'"
+          tabindex="0"
+          (click)="setTab('manual')"
+        >
+          {{ "setting.skillRelations.tab.manual" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
 
-    <div class="actions-bar">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        [disabled]="isLoading()"
-        (click)="loadRelations()"
-      >
-        {{ "setting.skillRelations.reload" | translate }}
-      </button>
-    </div>
+  <div class="standard-tab-body">
+    @if (activeTab() === 'relations') {
+      <div class="relations-form">
+        <div class="intro-hint">
+          {{ "setting.skillRelations.intro" | translate }}
+        </div>
 
-    @if (isLoading()) {
-      <div class="loading-hint">
-        {{ "setting.skillRelations.loading" | translate }}
-      </div>
-    } @else if (relations().length === 0) {
-      <div class="empty-hint">
-        {{ "setting.skillRelations.empty" | translate }}
-      </div>
-    } @else {
-      <div class="relations-list">
-        @for (relation of relations(); track relation.id) {
-          <div class="relation-card">
-            <div class="relation-header">
-              <div class="relation-pair">
-                <span class="skill-name">{{ relation.skillAName }}</span>
-                <span class="pair-connector">
-                  @if (relation.type === "Sequential") {
-                    {{ "setting.skillRelations.type.sequential.connector" | translate }}
-                  } @else {
-                    {{ "setting.skillRelations.type.coRequired.connector" | translate }}
-                  }
-                </span>
-                <span class="skill-name">{{ relation.skillBName }}</span>
-              </div>
-              <div class="relation-badges">
-                <span class="badge badge-type">
-                  @if (relation.type === "Sequential") {
-                    {{ "setting.skillRelations.type.sequential" | translate }}
-                  } @else {
-                    {{ "setting.skillRelations.type.coRequired" | translate }}
-                  }
-                </span>
-                <span
-                  class="badge badge-source"
-                  [class.badge-source-learned]="relation.source === 'Learned'"
-                >
-                  @if (relation.source === "Learned") {
-                    {{ "setting.skillRelations.source.learned" | translate }}
-                  } @else {
-                    {{ "setting.skillRelations.source.derived" | translate }}
-                  }
-                </span>
-                <span
-                  class="badge badge-status"
-                  [class.badge-status-active]="relation.status === 'Active'"
-                  [class.badge-status-retired]="relation.status === 'Retired'"
-                >
-                  @if (relation.status === "Active") {
-                    {{ "setting.skillRelations.status.active" | translate }}
-                  } @else if (relation.status === "Retired") {
-                    {{ "setting.skillRelations.status.retired" | translate }}
-                  } @else {
-                    {{ "setting.skillRelations.status.candidate" | translate }}
-                  }
-                </span>
-              </div>
-            </div>
+        <div class="actions-bar">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            [disabled]="isLoading()"
+            (click)="loadRelations()"
+          >
+            {{ "setting.skillRelations.reload" | translate }}
+          </button>
+        </div>
 
-            <div class="confidence-block">
-              <div class="confidence-label">
-                <span>{{ "setting.skillRelations.confidence" | translate }}</span>
-                <span class="confidence-value">{{ confidencePercent(relation) }}%</span>
-              </div>
-              <div class="confidence-track" role="presentation">
-                <div
-                  class="confidence-fill"
-                  [style.width.%]="confidencePercent(relation)"
-                ></div>
-              </div>
-            </div>
+        @if (isLoading()) {
+          <div class="loading-hint">
+            {{ "setting.skillRelations.loading" | translate }}
+          </div>
+        } @else if (relations().length === 0) {
+          <div class="empty-hint">
+            {{ "setting.skillRelations.empty" | translate }}
+          </div>
+        } @else {
+          <div class="relations-list">
+            @for (relation of relations(); track relation.id) {
+              <div class="relation-card">
+                <div class="relation-header">
+                  <div class="relation-pair">
+                    <span class="skill-name">{{ relation.skillAName }}</span>
+                    <span class="pair-connector">
+                      @if (relation.type === "Sequential") {
+                        {{ "setting.skillRelations.type.sequential.connector" | translate }}
+                      } @else {
+                        {{ "setting.skillRelations.type.coRequired.connector" | translate }}
+                      }
+                    </span>
+                    <span class="skill-name">{{ relation.skillBName }}</span>
+                  </div>
+                  <div class="relation-badges">
+                    <span class="badge badge-type">
+                      @if (relation.type === "Sequential") {
+                        {{ "setting.skillRelations.type.sequential" | translate }}
+                      } @else {
+                        {{ "setting.skillRelations.type.coRequired" | translate }}
+                      }
+                    </span>
+                    <span
+                      class="badge badge-source"
+                      [class.badge-source-learned]="relation.source === 'Learned'"
+                    >
+                      @if (relation.source === "Learned") {
+                        {{ "setting.skillRelations.source.learned" | translate }}
+                      } @else {
+                        {{ "setting.skillRelations.source.derived" | translate }}
+                      }
+                    </span>
+                    <span
+                      class="badge badge-status"
+                      [class.badge-status-active]="relation.status === 'Active'"
+                      [class.badge-status-retired]="relation.status === 'Retired'"
+                    >
+                      @if (relation.status === "Active") {
+                        {{ "setting.skillRelations.status.active" | translate }}
+                      } @else if (relation.status === "Retired") {
+                        {{ "setting.skillRelations.status.retired" | translate }}
+                      } @else {
+                        {{ "setting.skillRelations.status.candidate" | translate }}
+                      }
+                    </span>
+                  </div>
+                </div>
 
-            <div class="relation-stats">
-              <span class="stat stat-support">
-                {{ "setting.skillRelations.support" | translate }}:
-                <strong>{{ relation.supportCount }}</strong>
-              </span>
-              <span class="stat stat-contradiction">
-                {{ "setting.skillRelations.contradiction" | translate }}:
-                <strong>{{ relation.contradictionCount }}</strong>
-              </span>
-            </div>
+                <div class="confidence-block">
+                  <div class="confidence-label">
+                    <span>{{ "setting.skillRelations.confidence" | translate }}</span>
+                    <span class="confidence-value">{{ confidencePercent(relation) }}%</span>
+                  </div>
+                  <div class="confidence-track" role="presentation">
+                    <div
+                      class="confidence-fill"
+                      [style.width.%]="confidencePercent(relation)"
+                    ></div>
+                  </div>
+                </div>
 
-            @if (relation.provenance) {
-              <div class="provenance">
-                <strong>{{ "setting.skillRelations.provenance" | translate }}:</strong>
-                {{ relation.provenance }}
+                <div class="relation-stats">
+                  <span class="stat stat-support">
+                    {{ "setting.skillRelations.support" | translate }}:
+                    <strong>{{ relation.supportCount }}</strong>
+                  </span>
+                  <span class="stat stat-contradiction">
+                    {{ "setting.skillRelations.contradiction" | translate }}:
+                    <strong>{{ relation.contradictionCount }}</strong>
+                  </span>
+                </div>
+
+                @if (relation.provenance) {
+                  <div class="provenance">
+                    <strong>{{ "setting.skillRelations.provenance" | translate }}:</strong>
+                    {{ relation.provenance }}
+                  </div>
+                }
+
+                <div class="relation-actions">
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    [disabled]="processingRelationId() !== null || relation.status === 'Active'"
+                    (click)="onAccept(relation)"
+                  >
+                    {{ "setting.skillRelations.accept" | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    [disabled]="processingRelationId() !== null || relation.status === 'Retired'"
+                    (click)="onDismiss(relation)"
+                  >
+                    {{ "setting.skillRelations.dismiss" | translate }}
+                  </button>
+                </div>
               </div>
             }
-
-            <div class="relation-actions">
-              <button
-                type="button"
-                class="btn btn-success btn-sm"
-                [disabled]="processingRelationId() !== null || relation.status === 'Active'"
-                (click)="onAccept(relation)"
-              >
-                {{ "setting.skillRelations.accept" | translate }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-secondary btn-sm"
-                [disabled]="processingRelationId() !== null || relation.status === 'Retired'"
-                (click)="onDismiss(relation)"
-              >
-                {{ "setting.skillRelations.dismiss" | translate }}
-              </button>
-            </div>
           </div>
         }
+      </div>
+    }
+
+    @if (activeTab() === 'manual') {
+      <div class="manual-tab-body">
+        <div class="manual-content" [innerHTML]="manualContent()"></div>
       </div>
     }
   </div>

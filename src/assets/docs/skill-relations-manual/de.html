@@ -1,0 +1,77 @@
+<h2>Skill-Beziehungen – Handbuch</h2>
+
+<h3>Was sind Skill-Beziehungen?</h3>
+<p>
+Klacksy beobachtet im Hintergrund, welche Skills in einer Sitzung häufig zusammen oder
+nacheinander verwendet werden. Daraus leitet es <strong>Beziehungen</strong> ab – z.&nbsp;B.
+dass <em>create_work</em> fast immer nach <em>get_scheduling_defaults</em> folgt. Diese
+Beziehungen helfen Klacksy, beim nächsten Mal die passenden Skills gezielter auszuwählen.
+</p>
+<p>
+Der Lernprozess läuft automatisch alle 6&nbsp;Stunden. Diese Seite zeigt alle erkannten
+Beziehungen und lässt Admins entscheiden, ob sie übernommen oder verworfen werden sollen.
+</p>
+
+<hr>
+
+<h3>Beziehungstypen</h3>
+<ul>
+  <li>
+    <strong>Aufeinanderfolgend</strong> – Skill A wird in derselben Sitzung regelmässig
+    <em>vor</em> Skill B verwendet. Beispiel: <em>search_employees</em> führt zu
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Gemeinsam nötig</strong> – Skill A und Skill B werden häufig in der gleichen
+    Sitzung eingesetzt, ohne feste Reihenfolge. Beide sind für den Anwendungsfall
+    typischerweise erforderlich.
+  </li>
+</ul>
+
+<h3>Quelle</h3>
+<ul>
+  <li>
+    <strong>Gelernt</strong> – Aus echten Nutzungsdaten errechnet (PMI / Sequenz-Mining).
+    Hohe Verlässlichkeit.
+  </li>
+  <li>
+    <strong>Abgeleitet</strong> – Aus der Struktur der Skills logisch erschlossen, noch
+    nicht durch Nutzungsdaten bestätigt.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandidat</strong> – Neu erkannte Beziehung, wartet auf Admin-Entscheidung.</li>
+  <li><strong>Aktiv</strong> – Übernommene Beziehung, beeinflusst Klacksy aktiv.</li>
+  <li><strong>Ausgemustert</strong> – Verworfene Beziehung, wird ignoriert.</li>
+</ul>
+
+<hr>
+
+<h3>Konfidenz, Bestätigungen und Widersprüche</h3>
+<p>
+Die <strong>Konfidenz</strong> (0–100&nbsp;%) gibt an, wie sicher Klacksy sich bei der
+Beziehung ist. Sie steigt mit jeder Nutzungssession, die das Muster bestätigt
+(<strong>Bestätigungen</strong>), und sinkt bei Sitzungen, die dagegensprechen
+(<strong>Widersprüche</strong>).
+</p>
+
+<hr>
+
+<h3>Wann übernehmen, wann verwerfen?</h3>
+<ul>
+  <li>
+    <strong>Übernehmen</strong>, wenn die Beziehung inhaltlich sinnvoll ist – beide Skills
+    gehören tatsächlich zusammen und das Muster entspricht dem gewünschten Arbeitsablauf.
+  </li>
+  <li>
+    <strong>Verwerfen</strong>, wenn die Beziehung zufällig entstanden ist oder die Skills
+    in diesem Kontext nicht zusammengehören (z.&nbsp;B. wegen Test-Sessions).
+  </li>
+</ul>
+<p>
+Nur <em>gelernte</em> Beziehungen mit hoher Konfidenz sind typischerweise sinnvoll zu
+übernehmen. Abgeleitete Kandidaten mit niedrigem Support lohnen sich zu verwerfen, bis
+mehr Nutzungsdaten vorliegen.
+</p>

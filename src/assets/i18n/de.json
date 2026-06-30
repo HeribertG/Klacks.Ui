@@ -1389,6 +1389,8 @@
   "setting.skillRelations.error.load": "Skill-Beziehungen konnten nicht geladen werden.",
   "setting.skillRelations.error.acceptFailed": "Übernehmen fehlgeschlagen.",
   "setting.skillRelations.error.dismissFailed": "Verwerfen fehlgeschlagen.",
+  "setting.skillRelations.tab.relations": "Beziehungen",
+  "setting.skillRelations.tab.manual": "Handbuch",
   "settings.assistantSkillRelations": "Skill-Beziehungen",
   "settings.assistantSkillProposals": "Skill-Vorschläge",
   "settings.klacksyAutonomy": "Klacksy Autonomie",
