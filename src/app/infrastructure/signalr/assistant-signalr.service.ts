@@ -25,6 +25,7 @@ export class AssistantSignalRService implements OnDestroy {
 
   private hubConnection: signalR.HubConnection | null = null;
   private readonly hubUrl: string;
+  private pendingStart: Promise<void> | null = null;
 
   public proactiveMessage$ = new Subject<IProactiveMessage>();
   public onboardingPrompt$ = new Subject<IProactiveMessage>();
@@ -40,7 +41,24 @@ export class AssistantSignalRService implements OnDestroy {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return;
     }
+    // app.component/login/oauth2-callback can all call startConnection() around the same time
+    // (e.g. after login). Without this guard, a second call while the first is still connecting
+    // would build a second hub instance and orphan the first one - leaving two live connections
+    // registered server-side for the same user, so every proactive message arrives twice.
+    if (this.pendingStart) {
+      await this.pendingStart;
+      return;
+    }
 
+    this.pendingStart = this.startConnectionInternal();
+    try {
+      await this.pendingStart;
+    } finally {
+      this.pendingStart = null;
+    }
+  }
+
+  private async startConnectionInternal(): Promise<void> {
     const token = this.localStorageService.get(StorageKeys.TOKEN);
     if (!token) {
       return;

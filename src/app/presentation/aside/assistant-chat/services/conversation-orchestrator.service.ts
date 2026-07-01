@@ -68,11 +68,18 @@ export class ConversationOrchestratorService implements OnDestroy {
   readonly errors$: Observable<IVoiceShellErrorHint> = this.errorsSubject.asObservable();
 
   /**
-   * Append a single message to the conversation log.
+   * Append a single message to the conversation log. No-op if a message with the same id
+   * is already present, since duplicate SignalR deliveries (e.g. stale connections still
+   * registered for the same user) must not render the same proactive message twice.
    * @param message - The message to append; identity is preserved by id
    */
   addMessage(message: ChatMessage): void {
-    this.messagesSignal.update((current) => [...current, message]);
+    this.messagesSignal.update((current) => {
+      if (current.some((m) => m.id === message.id)) {
+        return current;
+      }
+      return [...current, message];
+    });
   }
 
   /**

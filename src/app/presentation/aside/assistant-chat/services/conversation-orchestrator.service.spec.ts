@@ -465,6 +465,12 @@ describe('ConversationOrchestratorService', () => {
     expect(service.messages()[0].id).toBe('m1');
   });
 
+  it('addMessage ignores a duplicate id (e.g. same proactive message delivered twice)', () => {
+    service.addMessage({ id: 'm1', sender: 'assistant', content: 'first', timestamp: new Date() });
+    service.addMessage({ id: 'm1', sender: 'assistant', content: 'first', timestamp: new Date() });
+    expect(service.messages().length).toBe(1);
+  });
+
   it('clearMessages empties the messages signal', () => {
     service.addMessage({
       id: 'm1',
