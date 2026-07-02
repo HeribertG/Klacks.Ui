@@ -2,38 +2,40 @@
 
 <h3>Prerequisites</h3>
 <p>
-To send and receive SMS messages through Klacks, you need an account with an
-SMS gateway provider. Klacks supports any provider offering a REST API,
-for example:
+To send SMS messages through Klacks, you need an account with
+<strong>Twilio</strong> or a Twilio-compatible SMS gateway. Klacks uses the
+Twilio REST API (Messages endpoint with basic authentication).
 </p>
-<ul>
-  <li><strong>Twilio</strong> — globally established, pay-per-use</li>
-  <li><strong>Vonage (Nexmo)</strong> — European provider, GDPR-compliant</li>
-  <li><strong>MessageBird</strong> — Dutch provider, EU data centres</li>
-</ul>
 
 <p>
-<em>Note: The steps below use Twilio as an example.
-Other providers may use different labels, but the principle remains the same.</em>
+<strong>Important:</strong> The SMS integration is designed <strong>for sending only</strong>.
+Incoming SMS are not received in Klacks.
 </p>
 
 <hr>
 
-<h3>Step 1 — Create an account with the SMS provider</h3>
+<h3>Step 1 — Set up a Twilio account</h3>
 <ol>
-  <li>Sign up with the provider of your choice (e.g. <strong>twilio.com</strong>).</li>
-  <li>Verify your phone number and email address.</li>
-  <li>Purchase a <strong>sender number</strong>. This number will appear as the sender for outgoing SMS.</li>
-  <li>Note down the <strong>API key</strong> (API Key / Auth Token) from the provider dashboard.</li>
-  <li>Note down the <strong>gateway URL</strong> (API endpoint) of the provider.</li>
+  <li>Sign up on <strong>twilio.com</strong> and verify your
+    phone number and email address.</li>
+  <li>Open the <strong>Twilio Console</strong>. On the dashboard, under
+    <strong>Account Info</strong>, you will find the two required credentials:
+    <ul>
+      <li><strong>Account SID</strong> — starts with <code>AC</code></li>
+      <li><strong>Auth Token</strong> — click "Show"</li>
+    </ul>
+  </li>
+  <li>Purchase a <strong>sender number</strong> under
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (SMS-capable).
+    This number appears as the sender for outgoing SMS.</li>
+  <li><em>Trial accounts:</em> With a free trial account, SMS can only be sent to previously
+    verified numbers and include a trial notice.</li>
 </ol>
 
-<table>
-  <tr><th>Provider</th><th>Gateway URL</th></tr>
-  <tr><td>Twilio</td><td><code>https://api.twilio.com/2010-04-01/Accounts/{AccountSID}/Messages.json</code></td></tr>
-  <tr><td>Vonage</td><td><code>https://rest.nexmo.com/sms/json</code></td></tr>
-  <tr><td>MessageBird</td><td><code>https://rest.messagebird.com/messages</code></td></tr>
-</table>
+<p>
+<em>Note: Treat the Auth Token like a password.
+Do not share it publicly and store it securely.</em>
+</p>
 
 <hr>
 
@@ -49,9 +51,10 @@ Other providers may use different labels, but the principle remains the same.</e
   <tr><td>Name</td><td>Unique internal name</td><td><code>sms-twilio</code></td></tr>
   <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>SMS (Twilio)</code></td></tr>
   <tr><td>Provider Type</td><td>Select <strong>SMS</strong></td><td>SMS</td></tr>
-  <tr><td>API Key</td><td>Auth Token / API Key from the provider</td><td><code>sk_live_abc123...</code></td></tr>
+  <tr><td>Account SID</td><td>Account SID from the Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token from the Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
   <tr><td>Sender Number</td><td>Your purchased phone number in international format</td><td><code>+41791234567</code></td></tr>
-  <tr><td>Gateway URL</td><td>API endpoint of the SMS provider</td><td><code>https://api.twilio.com/...</code></td></tr>
+  <tr><td>Gateway URL (optional)</td><td>Only for Twilio-compatible alternative gateways — leave empty for Twilio</td><td><code>https://api.twilio.com</code></td></tr>
   <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
 </table>
 
@@ -60,45 +63,44 @@ Other providers may use different labels, but the principle remains the same.</e
   <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
 </ol>
 
+<p>
+<em>Note on the Gateway URL: Leave the field empty if you use Twilio —
+Klacks then automatically uses <code>https://api.twilio.com</code>. Only enter
+a URL if you use an alternative gateway with a Twilio-compatible API.</em>
+</p>
+
 <hr>
 
 <h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
 <p>
 Once the SMS provider is configured and enabled, the chatbot Klacksy can send
-messages. You don't need to know any phone numbers — simply use the name of
-the employee or client:
+messages. You don't need to know any phone numbers — simply use
+the name of the employee or client:
 </p>
 
 <pre>
-"Send a message to Max Muster: Your appointment is tomorrow at 2 PM."
-"Send Anna Beispiel a message: The shift has been swapped."
-"Notify Peter Müller that his shift on Monday is cancelled."
+"Send an SMS to Max Muster: Your appointment is tomorrow at 2 PM."
+"Send Anna Beispiel an SMS: The shift has been swapped."
+"Notify Peter Müller via SMS that his shift on Monday is cancelled."
 </pre>
 
 <p>
-Klacksy automatically looks up the recipient's phone number and uses the
-configured SMS provider. The process is fully transparent to you —
+Klacksy automatically looks up the recipient's stored mobile number and
+uses the configured SMS provider. The process is fully transparent to you —
 you work with names, Klacksy takes care of the rest.
 </p>
 
 <p><strong>Prerequisite:</strong> The recipient must have a mobile number stored in Klacks
-(under Address &rarr; Contact Details).</p>
+(under Address &rarr; Contact Details), in international format (e.g. <code>+41791234567</code>).</p>
 
 <hr>
 
-<h3>Step 4 — Receive incoming SMS (Webhook)</h3>
+<h3>Incoming messages</h3>
 <p>
-To display incoming SMS in Klacks, a webhook must be configured with the SMS provider.
+The SMS integration does not support receiving — replies to sent SMS are
+<strong>not</strong> transferred to Klacks. The Messaging Inbox therefore
+does not show any incoming messages for this provider.
 </p>
-
-<ol>
-  <li>Go to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
-  <li>Note the automatically generated <strong>webhook secret</strong> of your SMS provider.</li>
-  <li>Configure the webhook URL in your SMS provider dashboard:
-    <pre>https://{your-domain}/api/messaging/webhook/sms</pre>
-  </li>
-  <li>Incoming SMS will now appear in real time in the <strong>Messaging Inbox</strong>.</li>
-</ol>
 
 <hr>
 
@@ -108,13 +110,18 @@ To display incoming SMS in Klacks, a webhook must be configured with the SMS pro
   <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
   <tr>
     <td>Connection test fails</td>
-    <td>API key or gateway URL incorrect</td>
-    <td>Check the credentials in the provider dashboard</td>
+    <td>Account SID or Auth Token incorrect</td>
+    <td>Check both values on the dashboard of the Twilio Console</td>
   </tr>
   <tr>
     <td>SMS not delivered</td>
-    <td>Sender number not verified</td>
-    <td>Make sure the number is activated with the provider</td>
+    <td>Sender number not SMS-capable or not activated</td>
+    <td>Check the number under Phone Numbers in the Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Recipient does not receive SMS (trial account)</td>
+    <td>Recipient number not verified</td>
+    <td>Verify the number in the Twilio Console or switch to a paid account</td>
   </tr>
   <tr>
     <td>Recipient does not receive SMS</td>
@@ -122,13 +129,13 @@ To display incoming SMS in Klacks, a webhook must be configured with the SMS pro
     <td>Use the format <code>+{country code}{number}</code> (e.g. <code>+41791234567</code>)</td>
   </tr>
   <tr>
-    <td>Incoming SMS missing</td>
-    <td>Webhook not configured</td>
-    <td>Check the webhook URL in the provider dashboard</td>
+    <td>Error "Permission to send an SMS has not been enabled"</td>
+    <td>Destination country not enabled in the geo permissions</td>
+    <td>Enable the country under Messaging &rarr; Geographic Permissions in the Twilio Console</td>
   </tr>
   <tr>
     <td>Account balance depleted</td>
     <td>Pay-per-use budget exhausted</td>
-    <td>Top up your balance with the provider</td>
+    <td>Top up your balance in the Twilio Console</td>
   </tr>
 </table>

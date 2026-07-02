@@ -2,38 +2,40 @@
 
 <h3>Voraussetzungen</h3>
 <p>
-Um SMS-Nachrichten über Klacks zu senden und zu empfangen, benötigen Sie ein Konto bei einem
-SMS-Gateway-Anbieter. Klacks unterstützt alle Anbieter, die eine REST-API bereitstellen,
-beispielsweise:
+Um SMS-Nachrichten über Klacks zu senden, benötigen Sie ein Konto bei
+<strong>Twilio</strong> oder einem Twilio-kompatiblen SMS-Gateway. Klacks verwendet die
+Twilio-REST-API (Messages-Endpunkt mit Basic-Authentifizierung).
 </p>
-<ul>
-  <li><strong>Twilio</strong> — weltweit verbreitet, Pay-per-Use</li>
-  <li><strong>Vonage (Nexmo)</strong> — europäischer Anbieter, DSGVO-konform</li>
-  <li><strong>MessageBird</strong> — niederländischer Anbieter, EU-Rechenzentren</li>
-</ul>
 
 <p>
-<em>Hinweis: Die hier gezeigten Schritte verwenden Twilio als Beispiel.
-Bei anderen Anbietern unterscheiden sich die Bezeichnungen, das Prinzip bleibt gleich.</em>
+<strong>Wichtig:</strong> Die SMS-Anbindung ist <strong>nur für den Versand</strong> ausgelegt.
+Eingehende SMS werden in Klacks nicht empfangen.
 </p>
 
 <hr>
 
-<h3>Schritt 1 — Konto beim SMS-Anbieter erstellen</h3>
+<h3>Schritt 1 — Twilio-Konto einrichten</h3>
 <ol>
-  <li>Registrieren Sie sich beim Anbieter Ihrer Wahl (z.B. <strong>twilio.com</strong>).</li>
-  <li>Verifizieren Sie Ihre Telefonnummer und E-Mail-Adresse.</li>
-  <li>Erwerben Sie eine <strong>Absendernummer</strong> (Sender Number). Diese Nummer erscheint als Absender bei ausgehenden SMS.</li>
-  <li>Notieren Sie sich den <strong>API-Schlüssel</strong> (API Key / Auth Token) aus dem Dashboard des Anbieters.</li>
-  <li>Notieren Sie sich die <strong>Gateway-URL</strong> (API-Endpunkt) des Anbieters.</li>
+  <li>Registrieren Sie sich auf <strong>twilio.com</strong> und verifizieren Sie Ihre
+    Telefonnummer und E-Mail-Adresse.</li>
+  <li>Öffnen Sie die <strong>Twilio Console</strong>. Auf dem Dashboard finden Sie unter
+    <strong>Account Info</strong> die beiden benötigten Zugangsdaten:
+    <ul>
+      <li><strong>Account SID</strong> — beginnt mit <code>AC</code></li>
+      <li><strong>Auth Token</strong> — auf „Anzeigen" klicken</li>
+    </ul>
+  </li>
+  <li>Erwerben Sie eine <strong>Absendernummer</strong> unter
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (SMS-fähig).
+    Diese Nummer erscheint als Absender bei ausgehenden SMS.</li>
+  <li><em>Testkonten:</em> Mit einem kostenlosen Trial-Konto können SMS nur an vorher
+    verifizierte Nummern gesendet werden und enthalten einen Trial-Hinweis.</li>
 </ol>
 
-<table>
-  <tr><th>Anbieter</th><th>Gateway-URL</th></tr>
-  <tr><td>Twilio</td><td><code>https://api.twilio.com/2010-04-01/Accounts/{AccountSID}/Messages.json</code></td></tr>
-  <tr><td>Vonage</td><td><code>https://rest.nexmo.com/sms/json</code></td></tr>
-  <tr><td>MessageBird</td><td><code>https://rest.messagebird.com/messages</code></td></tr>
-</table>
+<p>
+<em>Hinweis: Behandeln Sie das Auth Token wie ein Passwort.
+Teilen Sie es nicht öffentlich und speichern Sie es sicher.</em>
+</p>
 
 <hr>
 
@@ -49,9 +51,10 @@ Bei anderen Anbietern unterscheiden sich die Bezeichnungen, das Prinzip bleibt g
   <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>sms-twilio</code></td></tr>
   <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>SMS (Twilio)</code></td></tr>
   <tr><td>Anbietertyp</td><td>Wählen Sie <strong>SMS</strong></td><td>SMS</td></tr>
-  <tr><td>API-Schlüssel</td><td>Auth Token / API Key vom Anbieter</td><td><code>sk_live_abc123...</code></td></tr>
+  <tr><td>Account-SID</td><td>Account SID aus der Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-Token</td><td>Auth Token aus der Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
   <tr><td>Absendernummer</td><td>Ihre gekaufte Telefonnummer im internationalen Format</td><td><code>+41791234567</code></td></tr>
-  <tr><td>Gateway-URL</td><td>API-Endpunkt des SMS-Anbieters</td><td><code>https://api.twilio.com/...</code></td></tr>
+  <tr><td>Gateway-URL (optional)</td><td>Nur für Twilio-kompatible Alternativ-Gateways — bei Twilio leer lassen</td><td><code>https://api.twilio.com</code></td></tr>
   <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
 </table>
 
@@ -59,6 +62,12 @@ Bei anderen Anbietern unterscheiden sich die Bezeichnungen, das Prinzip bleibt g
   <li>Klicken Sie auf <strong>Speichern</strong>.</li>
   <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
 </ol>
+
+<p>
+<em>Hinweis zur Gateway-URL: Lassen Sie das Feld leer, wenn Sie Twilio verwenden —
+Klacks nutzt dann automatisch <code>https://api.twilio.com</code>. Tragen Sie nur dann
+eine URL ein, wenn Sie ein alternatives Gateway mit Twilio-kompatibler API verwenden.</em>
+</p>
 
 <hr>
 
@@ -70,35 +79,28 @@ einfach den Namen des Mitarbeiters oder Klienten:
 </p>
 
 <pre>
-"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
-"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
-"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+"Sende eine SMS an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine SMS: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller per SMS, dass sein Dienst am Montag ausfällt."
 </pre>
 
 <p>
-Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+Klacksy sucht automatisch die hinterlegte Mobilnummer des Empfängers und
 verwendet den konfigurierten SMS-Anbieter. Der Versand ist für Sie vollständig transparent —
 Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
 </p>
 
 <p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
-(unter Adresse &rarr; Kontaktdaten).</p>
+(unter Adresse &rarr; Kontaktdaten), im internationalen Format (z.B. <code>+41791234567</code>).</p>
 
 <hr>
 
-<h3>Schritt 4 — Eingehende SMS empfangen (Webhook)</h3>
+<h3>Eingehende Nachrichten</h3>
 <p>
-Um eingehende SMS in Klacks anzuzeigen, muss beim SMS-Anbieter ein Webhook konfiguriert werden.
+Die SMS-Anbindung unterstützt keinen Empfang — Antworten auf versendete SMS werden
+<strong>nicht</strong> an Klacks übertragen. Die Messaging-Inbox zeigt für diesen Anbieter
+daher keine eingehenden Nachrichten an.
 </p>
-
-<ol>
-  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
-  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres SMS-Anbieters.</li>
-  <li>Konfigurieren Sie im Dashboard Ihres SMS-Anbieters die Webhook-URL:
-    <pre>https://{ihre-domain}/api/messaging/webhook/sms</pre>
-  </li>
-  <li>Eingehende SMS erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
-</ol>
 
 <hr>
 
@@ -108,13 +110,18 @@ Um eingehende SMS in Klacks anzuzeigen, muss beim SMS-Anbieter ein Webhook konfi
   <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
   <tr>
     <td>Verbindungstest schlägt fehl</td>
-    <td>API-Schlüssel oder Gateway-URL falsch</td>
-    <td>Prüfen Sie die Zugangsdaten im Anbieter-Dashboard</td>
+    <td>Account-SID oder Auth-Token falsch</td>
+    <td>Prüfen Sie beide Werte auf dem Dashboard der Twilio Console</td>
   </tr>
   <tr>
     <td>SMS wird nicht zugestellt</td>
-    <td>Absendernummer nicht verifiziert</td>
-    <td>Stellen Sie sicher, dass die Nummer beim Anbieter freigeschaltet ist</td>
+    <td>Absendernummer nicht SMS-fähig oder nicht freigeschaltet</td>
+    <td>Prüfen Sie die Nummer unter Phone Numbers in der Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Empfänger erhält keine SMS (Trial-Konto)</td>
+    <td>Empfängernummer nicht verifiziert</td>
+    <td>Verifizieren Sie die Nummer in der Twilio Console oder wechseln Sie auf ein bezahltes Konto</td>
   </tr>
   <tr>
     <td>Empfänger erhält keine SMS</td>
@@ -122,13 +129,13 @@ Um eingehende SMS in Klacks anzuzeigen, muss beim SMS-Anbieter ein Webhook konfi
     <td>Verwenden Sie das Format <code>+{Ländervorwahl}{Nummer}</code> (z.B. <code>+41791234567</code>)</td>
   </tr>
   <tr>
-    <td>Eingehende SMS fehlen</td>
-    <td>Webhook nicht konfiguriert</td>
-    <td>Prüfen Sie die Webhook-URL im Anbieter-Dashboard</td>
+    <td>Fehler „Permission to send an SMS has not been enabled"</td>
+    <td>Zielland in den Geo-Permissions nicht freigeschaltet</td>
+    <td>Aktivieren Sie das Land unter Messaging &rarr; Geographic Permissions in der Twilio Console</td>
   </tr>
   <tr>
     <td>Konto-Guthaben aufgebraucht</td>
-    <td>Pay-per-Use Budget erschöpft</td>
-    <td>Laden Sie Guthaben beim Anbieter nach</td>
+    <td>Pay-per-Use-Budget erschöpft</td>
+    <td>Laden Sie Guthaben in der Twilio Console nach</td>
   </tr>
 </table>

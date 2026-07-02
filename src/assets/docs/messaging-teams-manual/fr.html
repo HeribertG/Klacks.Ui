@@ -1,38 +1,48 @@
 <h2>Configurer Microsoft Teams</h2>
 
-<h3>Conditions prealables</h3>
+<h3>Conditions préalables</h3>
 <p>
-Pour envoyer et recevoir des messages via Microsoft Teams avec Klacks, vous avez besoin
-d'un compte Microsoft 365 Business avec une licence Teams active. L'integration se fait
-via une Azure App Registration et le service Azure Bot.
+Pour envoyer des messages depuis Klacks vers un canal Microsoft Teams, vous avez besoin
+d'un compte Microsoft 365 avec une licence Teams. L'intégration s'effectue via un
+<strong>workflow Teams</strong> (Power Automate) avec webhook entrant — <em>aucune</em>
+inscription d'application Azure ni <em>aucun</em> service de bot n'est nécessaire.
 </p>
 
 <p>
-<em>Remarque : le service Azure Bot est gratuit pour les canaux standard (y compris Teams).
-Il n'y a pas de frais supplementaires pour le service de bot. Cependant, une licence
-Microsoft 365 Business est requise.</em>
+<strong>Important :</strong> L'intégration Teams est conçue <strong>uniquement pour l'envoi</strong>.
+Tous les messages sont postés dans le <em>seul</em> canal défini dans le workflow —
+les messages directs (chats 1:1) à des personnes individuelles ne sont pas possibles, et les
+messages Teams entrants ne sont pas reçus dans Klacks.
 </p>
 
 <hr>
 
-<h3>Etape 1 &mdash; Creer une Azure App Registration et un Bot</h3>
+<h3>Étape 1 — Créer un workflow Teams avec webhook</h3>
 <ol>
-  <li>Connectez-vous au <strong>portail Azure</strong> (<strong>portal.azure.com</strong>).</li>
-  <li>Naviguez vers <strong>App registrations</strong> et cliquez sur <strong>New registration</strong>.</li>
-  <li>Saisissez un nom (p. ex. <code>Klacks-Teams-Bot</code>) et selectionnez le type de compte approprie.</li>
-  <li>Notez l'<strong>Application (client) ID</strong> &mdash; c'est votre <strong>Client-ID</strong>.</li>
-  <li>Notez le <strong>Directory (tenant) ID</strong> &mdash; c'est votre <strong>Tenant-ID</strong>.</li>
-  <li>Sous <strong>Certificates &amp; secrets</strong>, creez un nouveau <strong>Client Secret</strong> et notez la valeur.</li>
-  <li>Naviguez vers <strong>Azure Bot</strong> (anciennement Bot Channel Registration) et creez un nouveau bot.</li>
-  <li>Associez le bot a l'App Registration creee.</li>
-  <li>Sous <strong>Channels</strong>, activez le canal <strong>Microsoft Teams</strong>.</li>
+  <li>Ouvrez Microsoft Teams et recherchez l'application <strong>Workflows</strong> dans la
+    barre latérale gauche (ou via <strong>Apps</strong>).</li>
+  <li>Cliquez sur <strong>Nouveau flux</strong> et choisissez le modèle
+    <strong>« Post to a channel when a webhook request is received »</strong>
+    (en français : « Publier dans un canal lors de la réception d'une demande de webhook »).
+    Vous trouverez également ce modèle sur <strong>make.powerautomate.com</strong>.</li>
+  <li>Connectez-vous si vous y êtes invité et sélectionnez l'<strong>équipe</strong> et le
+    <strong>canal</strong> dans lesquels les messages doivent être postés.</li>
+  <li>Cliquez sur <strong>Créer un flux</strong>.</li>
+  <li>Copiez l'<strong>URL HTTP</strong> générée (commence par
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Cette URL ne s'affiche qu'une seule fois — conservez-la en lieu sûr.</li>
 </ol>
 
+<p>
+<em>Remarque : traitez l'URL du webhook comme un mot de passe. Toute personne connaissant l'URL
+peut envoyer des messages dans le canal.</em>
+</p>
+
 <hr>
 
-<h3>Etape 2 &mdash; Configurer Microsoft Teams dans Klacks</h3>
+<h3>Étape 2 — Configurer Microsoft Teams dans Klacks</h3>
 <ol>
-  <li>Accedez a <strong>Parametres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
+  <li>Accédez à <strong>Paramètres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
   <li>Cliquez sur <strong>Ajouter</strong>.</li>
   <li>Remplissez les champs comme suit :</li>
 </ol>
@@ -40,87 +50,77 @@ Microsoft 365 Business est requise.</em>
 <table>
   <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
   <tr><td>Nom</td><td>Nom interne unique</td><td><code>teams-main</code></td></tr>
-  <tr><td>Nom affiche</td><td>Affiche dans l'interface utilisateur</td><td><code>Microsoft Teams</code></td></tr>
-  <tr><td>Type de fournisseur</td><td>Selectionnez <strong>Teams</strong></td><td>Teams</td></tr>
-  <tr><td>Tenant-ID</td><td>Directory (Tenant) ID du portail Azure</td><td><code>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td></tr>
-  <tr><td>Client-ID</td><td>Application (Client) ID de l'App Registration</td><td><code>12345678-abcd-efgh-ijkl-1234567890ab</code></td></tr>
-  <tr><td>Client-Secret</td><td>Valeur secrete de Certificates &amp; Secrets</td><td><code>abc~DEF123...</code></td></tr>
-  <tr><td>Active</td><td>Active ou desactive le fournisseur</td><td>Oui</td></tr>
+  <tr><td>Nom affiché</td><td>Affiché dans l'interface utilisateur</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Type de fournisseur</td><td>Sélectionnez <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL du webhook du workflow</td><td>L'URL HTTP du workflow copiée à l'étape 1 (doit commencer par <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Activé</td><td>Active ou désactive le fournisseur</td><td>Oui</td></tr>
 </table>
 
 <ol start="4">
   <li>Cliquez sur <strong>Enregistrer</strong>.</li>
-  <li>Testez la connexion a l'aide du bouton <strong>Tester</strong> dans la liste des fournisseurs.</li>
+  <li>Testez la connexion à l'aide du bouton <strong>Tester</strong> dans la liste des fournisseurs.
+    <strong>Attention :</strong> le test envoie un message de test visible
+    (<code>Klacks connection test</code>) dans le canal configuré.</li>
 </ol>
 
 <hr>
 
-<h3>Etape 3 &mdash; Envoyer des messages via le chatbot (Klacksy)</h3>
+<h3>Étape 3 — Envoyer des messages via le chatbot (Klacksy)</h3>
 <p>
-Une fois le fournisseur Teams configure et active, le chatbot Klacksy peut envoyer
-des messages via Microsoft Teams. Utilisez simplement le nom de l'employe ou du client :
+Une fois le fournisseur Teams configuré et activé, le chatbot Klacksy peut poster
+des messages dans le canal Teams :
 </p>
 
 <pre>
-&laquo; Envoie un message a Max Muster : Votre rendez-vous est demain a 14h. &raquo;
-&laquo; Envoie un message a Anna Beispiel : Le service a ete echange. &raquo;
-&laquo; Previens Peter Muller que son service de lundi est annule. &raquo;
+« Poste dans Teams : Les plannings de la semaine prochaine sont prêts. »
+« Envoie un message Teams : La réunion d'équipe commence à 15h. »
 </pre>
 
 <p>
-Klacksy recherche automatiquement l'utilisateur Teams associe et envoie le message
-via Microsoft Teams. Le processus est entierement transparent pour vous &mdash;
-vous travaillez avec des noms, Klacksy s'occupe du reste.
+Le message est posté sous forme d'Adaptive Card dans le canal défini dans le workflow.
+Un nom de destinataire éventuellement indiqué est ignoré — tous les messages arrivent dans le même canal.
+Pour plusieurs canaux, créez simplement plusieurs workflows et autant de fournisseurs
+Teams correspondants dans Klacks.
 </p>
-
-<p><strong>Condition prealable :</strong> L'utilisateur Teams doit etre associe au
-contact Klacks correspondant (sous Adresse &rarr; Coordonnees).</p>
 
 <hr>
 
-<h3>Etape 4 &mdash; Recevoir des messages entrants (Webhook)</h3>
+<h3>Messages entrants</h3>
 <p>
-Pour afficher les messages Teams entrants dans Klacks, un webhook doit etre configure.
+Le webhook du workflow est un simple canal d'entrée vers Teams — les réponses ou les messages
+provenant de Teams ne sont <strong>pas</strong> transmis à Klacks. La boîte de réception de messagerie
+n'affiche donc aucun message entrant pour ce fournisseur.
 </p>
-
-<ol>
-  <li>Accedez a <strong>Parametres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
-  <li>Notez le <strong>secret du webhook</strong> genere automatiquement pour votre fournisseur Teams.</li>
-  <li>Configurez l'URL du point de terminaison de messagerie dans le portail Azure sous votre bot :
-    <pre>https://{votre-domaine}/api/messaging/webhook/teams</pre>
-  </li>
-  <li>Les messages entrants apparaitront desormais en temps reel dans la <strong>boite de reception de messagerie</strong>.</li>
-</ol>
 
 <hr>
 
-<h3>Depannage</h3>
+<h3>Dépannage</h3>
 
 <table>
-  <tr><th>Probleme</th><th>Cause possible</th><th>Solution</th></tr>
+  <tr><th>Problème</th><th>Cause possible</th><th>Solution</th></tr>
   <tr>
-    <td>Le test de connexion echoue</td>
-    <td>Client-ID, Tenant-ID ou Client-Secret incorrect</td>
-    <td>Verifiez les identifiants dans le portail Azure</td>
+    <td>Le test de connexion échoue</td>
+    <td>URL du webhook incorrecte ou copiée de manière incomplète</td>
+    <td>Copiez à nouveau l'URL HTTP complète depuis le workflow (avec tous les paramètres)</td>
   </tr>
   <tr>
-    <td>Le message n'est pas livre</td>
-    <td>Canal Teams non active dans le bot</td>
-    <td>Activez le canal Teams dans la configuration Azure Bot</td>
+    <td>Erreur 401/403 lors de l'envoi</td>
+    <td>L'URL du workflow a été renouvelée ou le workflow a été recréé</td>
+    <td>Copiez l'URL actuelle depuis le workflow et mettez-la à jour dans Klacks</td>
   </tr>
   <tr>
-    <td>Le destinataire ne recoit pas le message</td>
-    <td>Utilisateur Teams non associe au contact Klacks</td>
-    <td>Associez l'utilisateur Teams sous Adresse &rarr; Coordonnees</td>
+    <td>Le message n'apparaît pas dans le canal</td>
+    <td>Workflow désactivé ou en échec</td>
+    <td>Vérifiez l'état du workflow et l'historique d'exécution dans l'application Workflows ou sur make.powerautomate.com</td>
   </tr>
   <tr>
-    <td>Les messages entrants manquent</td>
-    <td>URL du webhook non configuree</td>
-    <td>Verifiez l'URL du point de terminaison dans le portail Azure</td>
+    <td>Le message apparaît dans le mauvais canal</td>
+    <td>Un autre canal est défini dans le workflow</td>
+    <td>Modifiez le workflow et ajustez l'équipe et le canal dans l'action de publication</td>
   </tr>
   <tr>
-    <td>Erreur d'authentification (401/403)</td>
-    <td>Client-Secret expire</td>
-    <td>Creez un nouveau Client-Secret dans le portail Azure et mettez-le a jour dans Klacks</td>
+    <td>Aucun message entrant dans Klacks</td>
+    <td>Ce n'est pas une erreur — l'approche par workflow ne prend pas en charge la réception</td>
+    <td>Pour une communication bidirectionnelle, utilisez un autre fournisseur (p. ex. Telegram ou Slack)</td>
   </tr>
 </table>

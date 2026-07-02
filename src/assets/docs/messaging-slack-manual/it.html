@@ -2,26 +2,27 @@
 
 <h3>Prerequisiti</h3>
 <p>
-Per inviare e ricevere messaggi tramite Slack con Klacks, e necessario un workspace Slack
-e un'app Slack con le autorizzazioni appropriate.
+Per inviare e ricevere messaggi tramite Slack con Klacks, sono necessari un workspace
+Slack e un'app Slack con le autorizzazioni appropriate. Klacks utilizza la
+<strong>Slack Web API</strong> per l'invio e la <strong>Events API</strong> per la ricezione.
 </p>
 
 <p>
-<em>Nota: il piano gratuito di Slack consente fino a 10.000 messaggi nella cronologia.
-Il piano Pro e consigliato per l'utilizzo completo dell'API.</em>
+<em>Nota: il piano gratuito di Slack è sufficiente per l'integrazione.
+Le app Slack vengono create su <strong>api.slack.com</strong> e sono gratuite.</em>
 </p>
 
 <hr>
 
-<h3>Passo 1 &mdash; Creare un'app Slack</h3>
+<h3>Passo 1 — Creare un'app Slack</h3>
 <ol>
   <li>Aprire <strong>api.slack.com/apps</strong> e fare clic su <strong>Create New App</strong>.</li>
-  <li>Selezionare <strong>From scratch</strong> e inserire un nome (ad es. <code>Klacks Bot</code>).</li>
-  <li>Selezionare il workspace in cui l'app deve essere installata.</li>
+  <li>Selezionare <strong>From scratch</strong> e assegnare un nome (ad es. <code>Klacks Bot</code>).</li>
+  <li>Selezionare il workspace in cui installare l'app.</li>
   <li>Navigare su <strong>OAuth &amp; Permissions</strong> e aggiungere i seguenti <strong>Bot Token Scopes</strong>:
     <ul>
-      <li><code>chat:write</code> &mdash; per inviare messaggi</li>
-      <li><code>users:read</code> &mdash; per leggere le informazioni utente</li>
+      <li><code>chat:write</code> — per inviare messaggi nei canali</li>
+      <li><code>im:write</code> — per inviare messaggi diretti agli utenti</li>
     </ul>
   </li>
   <li>Fare clic su <strong>Install to Workspace</strong> e confermare le autorizzazioni.</li>
@@ -31,7 +32,7 @@ Il piano Pro e consigliato per l'utilizzo completo dell'API.</em>
 
 <hr>
 
-<h3>Passo 2 &mdash; Configurare Slack in Klacks</h3>
+<h3>Passo 2 — Configurare Slack in Klacks</h3>
 <ol>
   <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
   <li>Fare clic su <strong>Aggiungi</strong>.</li>
@@ -44,9 +45,10 @@ Il piano Pro e consigliato per l'utilizzo completo dell'API.</em>
   <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>Slack</code></td></tr>
   <tr><td>Tipo di fornitore</td><td>Selezionare <strong>Slack</strong></td><td>Slack</td></tr>
   <tr><td>Bot Token</td><td>Bot User OAuth Token (inizia con <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
-  <tr><td>Signing Secret</td><td>Signing Secret da Basic Information</td><td><code>a1b2c3d4e5f6...</code></td></tr>
-  <tr><td>Canale predefinito</td><td>Canale predefinito per messaggi senza destinatario specifico</td><td><code>#general</code></td></tr>
-  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Si</td></tr>
+  <tr><td>Signing Secret</td><td>Signing Secret da Basic Information — per la verifica della firma degli eventi in arrivo</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Canale predefinito</td><td>Canale di fallback per messaggi senza destinatario specifico</td><td><code>#general</code></td></tr>
+  <tr><td>URL del webhook</td><td>Compilato automaticamente — questo URL va inserito presso Slack come Request URL nel passo 4</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
 </table>
 
 <ol start="4">
@@ -56,42 +58,51 @@ Il piano Pro e consigliato per l'utilizzo completo dell'API.</em>
 
 <hr>
 
-<h3>Passo 3 &mdash; Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
 <p>
-Una volta configurato e attivato il fornitore Slack, il chatbot Klacksy puo inviare
-messaggi tramite Slack. Usate il nome del dipendente o il nome di un canale:
+Una volta configurato e attivato il fornitore Slack, il chatbot Klacksy può inviare
+messaggi tramite Slack. Usare il nome del dipendente o il nome di un canale:
 </p>
 
 <pre>
-"Invia un messaggio a Max Muster: Il suo appuntamento e domani alle 14:00."
-"Manda un messaggio a Anna Beispiel: Il turno e stato scambiato."
-"Posta in #team-updates: I turni della prossima settimana sono pronti."
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Posta in #team-updates: I piani di servizio della prossima settimana sono pronti."
 </pre>
 
 <p>
-Klacksy cerca automaticamente l'utente Slack associato e invia il messaggio.
-Per i messaggi nei canali, pubblica direttamente nel canale specificato. Il processo
-e completamente trasparente per voi &mdash; lavorate con i nomi, Klacksy si occupa del resto.
+Come destinatario si utilizza una <strong>Channel-ID</strong> (ad es. <code>C0123456789</code>) o una
+<strong>User-ID</strong> (ad es. <code>U0123456789</code>) — con una User-ID viene inviato un messaggio
+diretto. Se non è indicato alcun destinatario, viene utilizzato il <strong>canale predefinito</strong> configurato.
+Il processo è completamente trasparente per voi — lavorate con i nomi, Klacksy si occupa del resto.
 </p>
 
 <p><strong>Prerequisito:</strong> L'utente Slack deve essere associato al corrispondente
 contatto Klacks (sotto Indirizzo &rarr; Dati di contatto). Per i messaggi nei canali,
-l'app deve essere aggiunta al canale in questione.</p>
+il bot deve essere invitato nel canale in questione (<code>/invite @Klacks Bot</code>).</p>
 
 <hr>
 
-<h3>Passo 4 &mdash; Ricevere messaggi in arrivo (Webhook)</h3>
+<h3>Passo 4 — Ricevere messaggi in arrivo (Events API)</h3>
 <p>
-Per visualizzare i messaggi Slack in arrivo in Klacks, e necessario configurare le Event Subscriptions.
+Per visualizzare i messaggi Slack in arrivo in Klacks, è necessario configurare la Events API
+dell'app Slack. Salvare e attivare il fornitore in Klacks <em>prima</em> di inserire
+la Request URL — Slack verifica immediatamente l'URL con una richiesta di challenge, alla quale
+Klacks risponde automaticamente.
 </p>
 
 <ol>
-  <li>Andare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
-  <li>Annotare il <strong>segreto del webhook</strong> generato automaticamente per il fornitore Slack.</li>
-  <li>Configurare l'URL di richiesta nell'app Slack sotto <strong>Event Subscriptions</strong>:
+  <li>Aprire la propria app Slack su <strong>api.slack.com/apps</strong> e navigare su
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Attivare <strong>Enable Events</strong> e inserire come <strong>Request URL</strong>
+    l'URL del webhook mostrato in Klacks:
     <pre>https://{il-vostro-dominio}/api/messaging/webhook/slack</pre>
   </li>
-  <li>I messaggi in arrivo appariranno ora in tempo reale nella <strong>casella di messaggistica</strong>.</li>
+  <li>Abbonarsi, sotto <strong>Subscribe to bot events</strong>, agli eventi
+    <code>message.im</code> (messaggi diretti) e <code>message.channels</code> (messaggi nei canali).</li>
+  <li>Salvare le modifiche e, se richiesto, reinstallare l'app nel workspace.</li>
+  <li>I messaggi in arrivo appariranno ora in tempo reale nella <strong>casella di messaggistica</strong>.
+    Klacks verifica la firma di ogni richiesta con il Signing Secret memorizzato.</li>
 </ol>
 
 <hr>
@@ -102,27 +113,27 @@ Per visualizzare i messaggi Slack in arrivo in Klacks, e necessario configurare 
   <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
   <tr>
     <td>Il test di connessione fallisce</td>
-    <td>Bot Token o Signing Secret errati</td>
-    <td>Verificare le credenziali nella configurazione dell'app Slack</td>
+    <td>Bot Token non valido o revocato</td>
+    <td>Verificare il token sotto OAuth &amp; Permissions e reinstallare l'app</td>
   </tr>
   <tr>
-    <td>Il messaggio non viene consegnato</td>
-    <td>App non installata nel workspace</td>
-    <td>Reinstallare l'app tramite OAuth &amp; Permissions</td>
-  </tr>
-  <tr>
-    <td>Il destinatario non riceve il messaggio</td>
-    <td>Utente Slack non associato al contatto Klacks</td>
-    <td>Associare l'utente Slack sotto Indirizzo &rarr; Dati di contatto</td>
-  </tr>
-  <tr>
-    <td>Il messaggio nel canale fallisce</td>
+    <td>Errore <code>channel_not_found</code> o <code>not_in_channel</code></td>
     <td>Bot non aggiunto al canale</td>
-    <td>Aggiungere l'app al canale Slack (Canale &rarr; Integrazioni)</td>
+    <td>Invitare il bot nel canale (<code>/invite</code>) o verificare la Channel-ID</td>
+  </tr>
+  <tr>
+    <td>Il messaggio senza destinatario fallisce</td>
+    <td>Nessun canale predefinito configurato</td>
+    <td>Inserire un canale predefinito nelle impostazioni del fornitore</td>
+  </tr>
+  <tr>
+    <td>La verifica della Request URL fallisce</td>
+    <td>Fornitore non salvato/attivato in Klacks o Signing Secret errato</td>
+    <td>Salvare e attivare prima il fornitore in Klacks e verificare il Signing Secret</td>
   </tr>
   <tr>
     <td>Messaggi in arrivo mancanti</td>
-    <td>Event Subscriptions non configurate</td>
-    <td>Verificare l'URL di richiesta nell'app Slack sotto Event Subscriptions</td>
+    <td>Eventi bot non sottoscritti</td>
+    <td>Sottoscrivere <code>message.im</code> e <code>message.channels</code> sotto Event Subscriptions</td>
   </tr>
 </table>

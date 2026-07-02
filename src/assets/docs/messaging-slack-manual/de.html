@@ -2,97 +2,108 @@
 
 <h3>Voraussetzungen</h3>
 <p>
-Um Nachrichten uber Slack mit Klacks zu senden und zu empfangen, benotigen Sie einen
-Slack-Workspace und eine Slack App mit den entsprechenden Berechtigungen.
+Um Nachrichten über Slack mit Klacks zu senden und zu empfangen, benötigen Sie einen
+Slack-Workspace und eine Slack-App mit den entsprechenden Berechtigungen. Klacks verwendet
+die <strong>Slack Web API</strong> für den Versand und die <strong>Events API</strong> für den Empfang.
 </p>
 
 <p>
-<em>Hinweis: Der kostenlose Slack-Plan erlaubt bis zu 10.000 Nachrichten im Verlauf.
-Fur die volle API-Nutzung wird der Pro Plan empfohlen.</em>
+<em>Hinweis: Der kostenlose Slack-Plan reicht für die Anbindung aus.
+Slack-Apps werden auf <strong>api.slack.com</strong> erstellt und sind kostenlos.</em>
 </p>
 
 <hr>
 
-<h3>Schritt 1 &mdash; Slack App erstellen</h3>
+<h3>Schritt 1 — Slack-App erstellen</h3>
 <ol>
-  <li>Offnen Sie <strong>api.slack.com/apps</strong> und klicken Sie auf <strong>Create New App</strong>.</li>
-  <li>Wahlen Sie <strong>From scratch</strong> und vergeben Sie einen Namen (z.B. <code>Klacks Bot</code>).</li>
-  <li>Wahlen Sie den Workspace aus, in dem die App installiert werden soll.</li>
-  <li>Navigieren Sie zu <strong>OAuth &amp; Permissions</strong> und fugen Sie folgende <strong>Bot Token Scopes</strong> hinzu:
+  <li>Öffnen Sie <strong>api.slack.com/apps</strong> und klicken Sie auf <strong>Create New App</strong>.</li>
+  <li>Wählen Sie <strong>From scratch</strong> und vergeben Sie einen Namen (z.B. <code>Klacks Bot</code>).</li>
+  <li>Wählen Sie den Workspace aus, in dem die App installiert werden soll.</li>
+  <li>Navigieren Sie zu <strong>OAuth &amp; Permissions</strong> und fügen Sie folgende <strong>Bot Token Scopes</strong> hinzu:
     <ul>
-      <li><code>chat:write</code> &mdash; zum Senden von Nachrichten</li>
-      <li><code>users:read</code> &mdash; zum Lesen von Benutzerinformationen</li>
+      <li><code>chat:write</code> — zum Senden von Nachrichten in Kanäle</li>
+      <li><code>im:write</code> — zum Senden von Direktnachrichten an Benutzer</li>
     </ul>
   </li>
-  <li>Klicken Sie auf <strong>Install to Workspace</strong> und bestatigen Sie die Berechtigungen.</li>
+  <li>Klicken Sie auf <strong>Install to Workspace</strong> und bestätigen Sie die Berechtigungen.</li>
   <li>Notieren Sie sich das <strong>Bot User OAuth Token</strong> (beginnt mit <code>xoxb-</code>).</li>
   <li>Navigieren Sie zu <strong>Basic Information</strong> und notieren Sie sich das <strong>Signing Secret</strong>.</li>
 </ol>
 
 <hr>
 
-<h3>Schritt 2 &mdash; Slack in Klacks konfigurieren</h3>
+<h3>Schritt 2 — Slack in Klacks konfigurieren</h3>
 <ol>
   <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
-  <li>Klicken Sie auf <strong>Hinzufugen</strong>.</li>
-  <li>Fullen Sie die Felder wie folgt aus:</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
 </ol>
 
 <table>
   <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
   <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>slack-main</code></td></tr>
-  <tr><td>Anzeigename</td><td>Wird in der Oberflache angezeigt</td><td><code>Slack</code></td></tr>
-  <tr><td>Anbietertyp</td><td>Wahlen Sie <strong>Slack</strong></td><td>Slack</td></tr>
-  <tr><td>Bot Token</td><td>Bot User OAuth Token (beginnt mit <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
-  <tr><td>Signing Secret</td><td>Signing Secret aus Basic Information</td><td><code>a1b2c3d4e5f6...</code></td></tr>
-  <tr><td>Standard-Kanal</td><td>Standard-Kanal fur Nachrichten ohne spezifischen Empfanger</td><td><code>#general</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Slack</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-Token</td><td>Bot User OAuth Token (beginnt mit <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret aus Basic Information — für die Signaturprüfung eingehender Events</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Standard-Kanal</td><td>Fallback-Kanal für Nachrichten ohne spezifischen Empfänger</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wird automatisch ausgefüllt — diese URL tragen Sie in Schritt 4 als Request-URL bei Slack ein</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
   <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
 </table>
 
 <ol start="4">
   <li>Klicken Sie auf <strong>Speichern</strong>.</li>
-  <li>Testen Sie die Verbindung uber den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
 </ol>
 
 <hr>
 
-<h3>Schritt 3 &mdash; Nachrichten uber den Chatbot (Klacksy) senden</h3>
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
 <p>
 Sobald der Slack-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
-Nachrichten uber Slack versenden. Verwenden Sie den Namen des Mitarbeiters oder
+Nachrichten über Slack versenden. Verwenden Sie den Namen des Mitarbeiters oder
 einen Kanal-Namen:
 </p>
 
 <pre>
 "Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
 "Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
-"Poste in #team-updates: Die Dienstplane fur nachste Woche sind fertig."
+"Poste in #team-updates: Die Dienstpläne für nächste Woche sind fertig."
 </pre>
 
 <p>
-Klacksy sucht automatisch den verknupften Slack-Benutzer und sendet die Nachricht.
-Bei Kanal-Nachrichten wird direkt in den angegebenen Kanal gepostet. Der Versand ist
-fur Sie vollstandig transparent &mdash; Sie arbeiten mit Namen, Klacksy kummert sich um den Rest.
+Als Empfänger dient eine <strong>Channel-ID</strong> (z.B. <code>C0123456789</code>) oder eine
+<strong>User-ID</strong> (z.B. <code>U0123456789</code>) — bei einer User-ID wird eine Direktnachricht
+gesendet. Ist kein Empfänger angegeben, wird der konfigurierte <strong>Standard-Kanal</strong> verwendet.
+Der Versand ist für Sie vollständig transparent — Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
 </p>
 
 <p><strong>Voraussetzung:</strong> Der Slack-Benutzer muss mit dem entsprechenden
-Klacks-Kontakt verknupft sein (unter Adresse &rarr; Kontaktdaten). Fur Kanal-Nachrichten
-muss die App dem jeweiligen Kanal hinzugefugt sein.</p>
+Klacks-Kontakt verknüpft sein (unter Adresse &rarr; Kontaktdaten). Für Kanal-Nachrichten
+muss der Bot in den jeweiligen Kanal eingeladen sein (<code>/invite @Klacks Bot</code>).</p>
 
 <hr>
 
-<h3>Schritt 4 &mdash; Eingehende Nachrichten empfangen (Webhook)</h3>
+<h3>Schritt 4 — Eingehende Nachrichten empfangen (Events API)</h3>
 <p>
-Um eingehende Slack-Nachrichten in Klacks anzuzeigen, mussen Event Subscriptions konfiguriert werden.
+Um eingehende Slack-Nachrichten in Klacks anzuzeigen, muss die Events API der Slack-App
+konfiguriert werden. Speichern und aktivieren Sie den Anbieter in Klacks, <em>bevor</em> Sie
+die Request-URL eintragen — Slack prüft die URL sofort mit einer Challenge-Anfrage, die
+Klacks automatisch beantwortet.
 </p>
 
 <ol>
-  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
-  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Slack-Anbieters.</li>
-  <li>Konfigurieren Sie in der Slack App unter <strong>Event Subscriptions</strong> die Request-URL:
+  <li>Öffnen Sie Ihre Slack-App auf <strong>api.slack.com/apps</strong> und navigieren Sie zu
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktivieren Sie <strong>Enable Events</strong> und tragen Sie als <strong>Request URL</strong>
+    die in Klacks angezeigte Webhook-URL ein:
     <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
   </li>
-  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+  <li>Abonnieren Sie unter <strong>Subscribe to bot events</strong> die Events
+    <code>message.im</code> (Direktnachrichten) und <code>message.channels</code> (Kanal-Nachrichten).</li>
+  <li>Speichern Sie die Änderungen und installieren Sie die App bei Aufforderung erneut im Workspace.</li>
+  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.
+    Klacks prüft dabei die Signatur jeder Anfrage mit dem hinterlegten Signing-Secret.</li>
 </ol>
 
 <hr>
@@ -100,30 +111,30 @@ Um eingehende Slack-Nachrichten in Klacks anzuzeigen, mussen Event Subscriptions
 <h3>Fehlerbehebung</h3>
 
 <table>
-  <tr><th>Problem</th><th>Mogliche Ursache</th><th>Losung</th></tr>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
   <tr>
-    <td>Verbindungstest schlagt fehl</td>
-    <td>Bot Token oder Signing Secret falsch</td>
-    <td>Prufen Sie die Zugangsdaten in der Slack App-Konfiguration</td>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Bot-Token ungültig oder widerrufen</td>
+    <td>Prüfen Sie das Token unter OAuth &amp; Permissions und installieren Sie die App neu</td>
   </tr>
   <tr>
-    <td>Nachricht wird nicht zugestellt</td>
-    <td>App nicht im Workspace installiert</td>
-    <td>Installieren Sie die App erneut uber OAuth &amp; Permissions</td>
+    <td>Fehler <code>channel_not_found</code> oder <code>not_in_channel</code></td>
+    <td>Bot nicht zum Kanal hinzugefügt</td>
+    <td>Laden Sie den Bot in den Kanal ein (<code>/invite</code>) oder prüfen Sie die Channel-ID</td>
   </tr>
   <tr>
-    <td>Empfanger erhalt keine Nachricht</td>
-    <td>Slack-Benutzer nicht mit Klacks-Kontakt verknupft</td>
-    <td>Verknupfen Sie den Slack-Benutzer unter Adresse &rarr; Kontaktdaten</td>
+    <td>Nachricht ohne Empfänger schlägt fehl</td>
+    <td>Kein Standard-Kanal konfiguriert</td>
+    <td>Tragen Sie einen Standard-Kanal in den Anbieter-Einstellungen ein</td>
   </tr>
   <tr>
-    <td>Kanal-Nachricht schlagt fehl</td>
-    <td>Bot nicht zum Kanal hinzugefugt</td>
-    <td>Fugen Sie die App im Slack-Kanal hinzu (Kanal &rarr; Integrationen)</td>
+    <td>Request-URL-Verifizierung schlägt fehl</td>
+    <td>Anbieter in Klacks nicht gespeichert/aktiviert oder Signing-Secret falsch</td>
+    <td>Speichern und aktivieren Sie den Anbieter zuerst in Klacks und prüfen Sie das Signing-Secret</td>
   </tr>
   <tr>
     <td>Eingehende Nachrichten fehlen</td>
-    <td>Event Subscriptions nicht konfiguriert</td>
-    <td>Prufen Sie die Request-URL in der Slack App unter Event Subscriptions</td>
+    <td>Bot-Events nicht abonniert</td>
+    <td>Abonnieren Sie <code>message.im</code> und <code>message.channels</code> unter Event Subscriptions</td>
   </tr>
 </table>

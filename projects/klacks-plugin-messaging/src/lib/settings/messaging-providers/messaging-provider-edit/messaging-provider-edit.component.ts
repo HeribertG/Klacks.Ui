@@ -13,67 +13,38 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MessagingProvider } from '../../../models/messaging-provider.model';
 import { CreateMessagingProvider } from '../../../models/create-messaging-provider.model';
 
-const PROVIDER_TYPES = ['Telegram', 'WhatsApp', 'Signal', 'SMS', 'Threema', 'Viber', 'LINE', 'KakaoTalk', 'WeChat', 'Zalo', 'MicrosoftTeams', 'Slack'] as const;
+const PROVIDER_TYPES = ['Telegram', 'Signal', 'SMS', 'MicrosoftTeams', 'Slack'] as const;
 
 type ProviderConfigFields = Record<string, string>;
 
 type TokenValidationState = { state: 'idle' | 'loading' | 'invalid' } | { state: 'valid'; botName: string };
 
 const TELEGRAM_WEBHOOK_PATH = '/api/messaging/webhook/telegram';
+const SLACK_WEBHOOK_PATH = '/api/messaging/webhook/slack';
 
 const PROVIDER_FIELD_DEFINITIONS: Record<string, { key: string; labelDe: string; labelEn: string; type: string; placeholder: string; readonly?: boolean; autoFill?: () => string }[]> = {
   Telegram: [
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11' },
     { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: TELEGRAM_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${TELEGRAM_WEBHOOK_PATH}` },
   ],
-  WhatsApp: [
-    { key: 'AccessToken', labelDe: 'Access-Token', labelEn: 'Access Token', type: 'password', placeholder: 'EAABs...' },
-    { key: 'PhoneNumberId', labelDe: 'Telefonnummer-ID', labelEn: 'Phone Number ID', type: 'text', placeholder: '106540352...' },
-    { key: 'BusinessAccountId', labelDe: 'Business-Account-ID', labelEn: 'Business Account ID', type: 'text', placeholder: '102489...' },
-  ],
   Signal: [
     { key: 'SignalNumber', labelDe: 'Signal-Nummer', labelEn: 'Signal Number', type: 'tel', placeholder: '+49171...' },
     { key: 'ApiUrl', labelDe: 'Signal-CLI API-URL', labelEn: 'Signal CLI API URL', type: 'url', placeholder: 'http://localhost:8080' },
   ],
   SMS: [
-    { key: 'ApiKey', labelDe: 'API-Schlüssel', labelEn: 'API Key', type: 'password', placeholder: 'sk_live_...' },
-    { key: 'SenderNumber', labelDe: 'Absendernummer', labelEn: 'Sender Number', type: 'tel', placeholder: '+49171...' },
-    { key: 'GatewayUrl', labelDe: 'Gateway-URL', labelEn: 'Gateway URL', type: 'url', placeholder: 'https://api.twilio.com/...' },
-  ],
-  Threema: [
-    { key: 'GatewayId', labelDe: 'Gateway-ID', labelEn: 'Gateway ID', type: 'text', placeholder: '*MYGATEWAY' },
-    { key: 'ApiSecret', labelDe: 'API-Secret', labelEn: 'API Secret', type: 'password', placeholder: 'a1b2c3d4e5...' },
-  ],
-  Viber: [
-    { key: 'AuthToken', labelDe: 'Auth-Token', labelEn: 'Auth Token', type: 'password', placeholder: '4a5e6f7g8h9i...' },
-    { key: 'SenderName', labelDe: 'Absendername', labelEn: 'Sender Name', type: 'text', placeholder: 'Klacks Bot' },
-  ],
-  LINE: [
-    { key: 'ChannelAccessToken', labelDe: 'Channel-Access-Token', labelEn: 'Channel Access Token', type: 'password', placeholder: 'eyJhbGciOi...' },
-    { key: 'ChannelSecret', labelDe: 'Channel-Secret', labelEn: 'Channel Secret', type: 'password', placeholder: 'abc123def456...' },
-  ],
-  KakaoTalk: [
-    { key: 'AppKey', labelDe: 'App-Schlüssel', labelEn: 'App Key', type: 'password', placeholder: 'a1b2c3d4...' },
-    { key: 'TemplateId', labelDe: 'Template-ID', labelEn: 'Template ID', type: 'text', placeholder: '12345' },
-  ],
-  WeChat: [
-    { key: 'AppId', labelDe: 'App-ID', labelEn: 'App ID', type: 'text', placeholder: 'wx1234567890abcdef' },
-    { key: 'AppSecret', labelDe: 'App-Secret', labelEn: 'App Secret', type: 'password', placeholder: 'abc123def456...' },
-  ],
-  Zalo: [
-    { key: 'AppId', labelDe: 'App-ID', labelEn: 'App ID', type: 'text', placeholder: '123456789...' },
-    { key: 'SecretKey', labelDe: 'Secret-Key', labelEn: 'Secret Key', type: 'password', placeholder: 'abc123...' },
-    { key: 'OaId', labelDe: 'OA-ID', labelEn: 'OA ID', type: 'text', placeholder: '987654321...' },
+    { key: 'AccountSid', labelDe: 'Account-SID', labelEn: 'Account SID', type: 'text', placeholder: 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' },
+    { key: 'AuthToken', labelDe: 'Auth-Token', labelEn: 'Auth Token', type: 'password', placeholder: 'a1b2c3d4e5f6...' },
+    { key: 'SenderNumber', labelDe: 'Absendernummer', labelEn: 'Sender Number', type: 'tel', placeholder: '+41791234567' },
+    { key: 'GatewayUrl', labelDe: 'Gateway-URL (optional)', labelEn: 'Gateway URL (optional)', type: 'url', placeholder: 'https://api.twilio.com' },
   ],
   MicrosoftTeams: [
-    { key: 'TenantId', labelDe: 'Tenant-ID', labelEn: 'Tenant ID', type: 'text', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
-    { key: 'ClientId', labelDe: 'Client-ID (App-ID)', labelEn: 'Client ID (App ID)', type: 'text', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
-    { key: 'ClientSecret', labelDe: 'Client-Secret', labelEn: 'Client Secret', type: 'password', placeholder: '~abc123...' },
+    { key: 'WebhookUrl', labelDe: 'Workflow-Webhook-URL', labelEn: 'Workflow Webhook URL', type: 'url', placeholder: 'https://prod-XX.westeurope.logic.azure.com/workflows/...' },
   ],
   Slack: [
     { key: 'BotToken', labelDe: 'Bot-Token', labelEn: 'Bot Token', type: 'password', placeholder: 'xoxb-123456789-...' },
     { key: 'SigningSecret', labelDe: 'Signing-Secret', labelEn: 'Signing Secret', type: 'password', placeholder: 'abc123def456...' },
     { key: 'DefaultChannel', labelDe: 'Standard-Kanal', labelEn: 'Default Channel', type: 'text', placeholder: '#general' },
+    { key: 'WebhookUrl', labelDe: 'Webhook-URL', labelEn: 'Webhook URL', type: 'url', placeholder: SLACK_WEBHOOK_PATH, readonly: true, autoFill: () => `${window.location.origin}${SLACK_WEBHOOK_PATH}` },
   ],
 };
 
