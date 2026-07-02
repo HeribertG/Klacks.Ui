@@ -10,6 +10,7 @@ import {
   ConversationOrchestratorService,
   ConversationState,
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AsideService } from '../aside/aside.service';
 import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice-shell-error-hint.model';
 import type { ChatMessage } from '../aside/assistant-chat/chat-message.interface';
@@ -38,17 +39,34 @@ function makeOrchestratorMock(): MockOrchestrator {
   };
 }
 
+interface MockTts {
+  isPlaying: ReturnType<typeof signal<boolean>>;
+  isLoading: ReturnType<typeof signal<boolean>>;
+  stop: ReturnType<typeof vi.fn>;
+}
+
+function makeTtsMock(): MockTts {
+  return {
+    isPlaying: signal<boolean>(false),
+    isLoading: signal<boolean>(false),
+    stop: vi.fn(),
+  };
+}
+
 describe('VoiceShellComponent — click matrix', () => {
   let fixture: ComponentFixture<VoiceShellComponent>;
   let component: VoiceShellComponent;
   let orch: MockOrchestrator;
+  let tts: MockTts;
 
   beforeEach(() => {
     orch = makeOrchestratorMock();
+    tts = makeTtsMock();
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: tts },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -99,6 +117,7 @@ describe('VoiceShellComponent — error hint', () => {
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: makeTtsMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -119,6 +138,7 @@ describe('VoiceShellComponent — error hint', () => {
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: makeTtsMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -139,6 +159,7 @@ describe('VoiceShellComponent — close button', () => {
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: makeTtsMock() },
         { provide: AsideService, useValue: { hide: vi.fn() } },
       ],
     });
@@ -158,6 +179,7 @@ describe('VoiceShellComponent — close button', () => {
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: makeTtsMock() },
         { provide: AsideService, useValue: aside },
       ],
     });
@@ -166,5 +188,67 @@ describe('VoiceShellComponent — close button', () => {
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.close-btn')!.click();
     expect(aside.hide).toHaveBeenCalledOnce();
+  });
+});
+
+describe('VoiceShellComponent — auto-play TTS (BothAuto)', () => {
+  let fixture: ComponentFixture<VoiceShellComponent>;
+  let component: VoiceShellComponent;
+  let orch: MockOrchestrator;
+  let tts: MockTts;
+
+  beforeEach(() => {
+    orch = makeOrchestratorMock();
+    tts = makeTtsMock();
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [
+        { provide: ConversationOrchestratorService, useValue: orch },
+        { provide: TextToSpeechService, useValue: tts },
+        { provide: AsideService, useValue: { hide: vi.fn() } },
+      ],
+    });
+    fixture = TestBed.createComponent(VoiceShellComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('idle + tts playing → effectiveState is Speaking', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isPlaying.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Speaking);
+  });
+
+  it('idle + tts loading → effectiveState is Processing', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isLoading.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Processing);
+  });
+
+  it('idle without tts activity → effectiveState is Idle', () => {
+    orch.state.set(ConversationState.Idle);
+    expect(component.effectiveState()).toBe(ConversationState.Idle);
+  });
+
+  it('orchestrator state takes precedence over tts playing', () => {
+    orch.state.set(ConversationState.Listening);
+    tts.isPlaying.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Listening);
+  });
+
+  it('idle click while tts playing stops playback instead of starting a session', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isPlaying.set(true);
+    component.handleClick();
+    expect(tts.stop).toHaveBeenCalledOnce();
+    expect(orch.startSession).not.toHaveBeenCalled();
+  });
+
+  it('idle click while tts loading stops playback instead of starting a session', () => {
+    orch.state.set(ConversationState.Idle);
+    tts.isLoading.set(true);
+    component.handleClick();
+    expect(tts.stop).toHaveBeenCalledOnce();
+    expect(orch.startSession).not.toHaveBeenCalled();
   });
 });

@@ -5,6 +5,7 @@
  * wires click-matrix to the ConversationOrchestratorService state machine,
  * and exposes errorHint signal for transient / persistent error visuals.
  * @param orchestrator - single source of truth for conversation state (root singleton)
+ * @param ttsService - auto-play TTS in BothAuto mode; drives the Speaking icon state outside voice sessions
  * @param asideService - existing visibility service, used for manual close gesture
  */
 
@@ -24,6 +25,7 @@ import {
   ConversationOrchestratorService,
   ConversationState,
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
+import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
 import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
@@ -44,6 +46,7 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
 })
 export class VoiceShellComponent implements OnInit {
   readonly orchestrator = inject(ConversationOrchestratorService);
+  private readonly ttsService = inject(TextToSpeechService);
   private readonly asideService = inject(AsideService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly destroyRef = inject(DestroyRef);
@@ -53,10 +56,16 @@ export class VoiceShellComponent implements OnInit {
 
   readonly effectiveState = computed<ConversationState>(() => {
     const state = this.orchestrator.state();
-    if (state === ConversationState.Idle && this.orchestrator.isTextProcessing()) {
+    if (state !== ConversationState.Idle) {
+      return state;
+    }
+    if (this.ttsService.isPlaying()) {
+      return ConversationState.Speaking;
+    }
+    if (this.orchestrator.isTextProcessing() || this.ttsService.isLoading()) {
       return ConversationState.Processing;
     }
-    return state;
+    return ConversationState.Idle;
   });
 
   readonly isIdle = computed<boolean>(() => this.effectiveState() === ConversationState.Idle);
@@ -78,6 +87,10 @@ export class VoiceShellComponent implements OnInit {
     const state = this.orchestrator.state();
     switch (state) {
       case ConversationState.Idle:
+        if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
+          this.ttsService.stop();
+          break;
+        }
         this.orchestrator.startSession();
         break;
       case ConversationState.Listening:
