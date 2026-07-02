@@ -8,7 +8,7 @@
         (click)="onClickSchedule()"
         [attr.aria-label]="'Manage schedules (Alt+1)'"
         [placement]="tooltipPlacement"
-        tooltipAutoClose
+        appTooltipAutoClose
         ngbTooltip="{{ all_schedule | translate }} (Alt+1)"
       >
         <app-time-schedule #scheduleIcon></app-time-schedule>
@@ -23,7 +23,7 @@
         (click)="onClickAbsence()"
         [attr.aria-label]="'Manage absences (Alt+2)'"
         [placement]="tooltipPlacement"
-        tooltipAutoClose
+        appTooltipAutoClose
         ngbTooltip="{{ absence | translate }} (Alt+2)"
       >
         <app-icon-gantt #absenceIcon></app-icon-gantt>
@@ -40,7 +40,7 @@
           ('client-availability.nav.tooltip' | translate) + ' (Alt+3)'
         "
         [placement]="tooltipPlacement"
-        tooltipAutoClose
+        appTooltipAutoClose
         ngbTooltip="{{ 'client-availability.nav.tooltip' | translate }} (Alt+3)"
       >
         <app-icon-availability #availabilityIcon></app-icon-availability>
@@ -55,7 +55,7 @@
         (click)="onClickShift()"
         [attr.aria-label]="'Manage shifts (Alt+4)'"
         [placement]="tooltipPlacement"
-        tooltipAutoClose
+        appTooltipAutoClose
         ngbTooltip="{{ all_shift | translate }} (Alt+4)"
       >
         <app-icon-order #shiftIcon></app-icon-order>
@@ -70,7 +70,7 @@
         (click)="onClickClients()"
         [attr.aria-label]="'Manage employees (Alt+5)'"
         [placement]="tooltipPlacement"
-        tooltipAutoClose
+        appTooltipAutoClose
         ngbTooltip="{{ all_employee | translate }} (Alt+5)"
       >
         <app-icon-clients #employeesIcon></app-icon-clients>
@@ -86,7 +86,7 @@
           (click)="onClickGroup()"
           [attr.aria-label]="'Manage groups (Alt+6)'"
           [placement]="tooltipPlacement"
-          tooltipAutoClose
+          appTooltipAutoClose
           ngbTooltip="{{ 'group.select.all-groups' | translate }} (Alt+6)"
         >
           <app-icon-group #groupIcon></app-icon-group>
@@ -103,7 +103,7 @@
           (click)="onClickPeriodClosing()"
           [attr.aria-label]="'periodClosing.title' | translate"
           [placement]="tooltipPlacement"
-          tooltipAutoClose
+          appTooltipAutoClose
           ngbTooltip="{{ 'periodClosing.title' | translate }}"
         >
           <app-icon-period-closing #periodClosingIcon></app-icon-period-closing>
@@ -120,7 +120,7 @@
           (click)="onClickInbox()"
           [attr.aria-label]="'Open Inbox (Alt+9)'"
           [placement]="tooltipPlacement"
-          tooltipAutoClose
+          appTooltipAutoClose
           ngbTooltip="{{ inbox | translate }} (Alt+9)"
         >
           <app-icon-mail #mailIcon></app-icon-mail>

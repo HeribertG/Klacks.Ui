@@ -2,7 +2,7 @@
 
 /**
  * Directive that automatically closes an NgbTooltip after a configurable delay once shown.
- * @param tooltipAutoClose - Milliseconds before the tooltip auto-closes after being shown (default: 2500); bare attribute uses default
+ * @param appTooltipAutoClose - Milliseconds before the tooltip auto-closes after being shown (default: 2500); bare attribute uses default
  */
 import { DestroyRef, Directive, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,11 +17,11 @@ function coerceDelay(v: string | number | ''): number {
 }
 
 @Directive({
-  selector: '[ngbTooltip][tooltipAutoClose]',
+  selector: '[ngbTooltip][appTooltipAutoClose]',
   standalone: true,
 })
 export class TooltipAutoCloseDirective implements OnInit, OnDestroy {
-  readonly tooltipAutoClose = input<number, string | number | ''>(DEFAULT_DELAY, { transform: coerceDelay });
+  readonly appTooltipAutoClose = input<number, string | number | ''>(DEFAULT_DELAY, { transform: coerceDelay });
 
   private readonly tooltip = inject(NgbTooltip);
   private readonly destroyRef = inject(DestroyRef);
@@ -30,7 +30,7 @@ export class TooltipAutoCloseDirective implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tooltip.shown.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.clearTimer();
-      this.timer = setTimeout(() => this.tooltip.close(), this.tooltipAutoClose());
+      this.timer = setTimeout(() => this.tooltip.close(), this.appTooltipAutoClose());
     });
     this.tooltip.hidden.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.clearTimer();

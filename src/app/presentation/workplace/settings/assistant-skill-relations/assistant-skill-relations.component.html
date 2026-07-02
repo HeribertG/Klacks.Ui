@@ -15,6 +15,7 @@
           [attr.aria-selected]="activeTab() === 'relations'"
           tabindex="0"
           (click)="setTab('relations')"
+          (keydown.enter)="setTab('relations')"
         >
           {{ "setting.skillRelations.tab.relations" | translate }}
         </a>
@@ -28,6 +29,7 @@
           [attr.aria-selected]="activeTab() === 'manual'"
           tabindex="0"
           (click)="setTab('manual')"
+          (keydown.enter)="setTab('manual')"
         >
           {{ "setting.skillRelations.tab.manual" | translate }}
         </a>
