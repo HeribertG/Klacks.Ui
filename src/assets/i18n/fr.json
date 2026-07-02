@@ -1891,6 +1891,8 @@
   "setting.user-admin.row.no": "Non",
   "setting.user-admin.row.send": "Envoyer les informations d'accès",
   "setting.user-admin.row.yes": "Oui",
+  "setting.user-admin.tab.users": "Utilisateurs",
+  "setting.user-admin.tab.manual": "Manuel",
   "settings.email-setting.headline": "Paramètres e-mail",
   "settings.email-setting.outgoing-server": "Serveur sortant",
   "settings.email-setting.outgoing-server-port": "Port du serveur sortant",

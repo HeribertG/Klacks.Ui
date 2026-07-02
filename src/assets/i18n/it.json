@@ -1891,6 +1891,8 @@
   "setting.user-admin.row.no": "No",
   "setting.user-admin.row.send": "Invia Credenziali di Accesso",
   "setting.user-admin.row.yes": "Sì",
+  "setting.user-admin.tab.users": "Utenti",
+  "setting.user-admin.tab.manual": "Manuale",
   "settings.email-setting.headline": "Impostazioni e-mail",
   "settings.email-setting.outgoing-server": "Server in uscita",
   "settings.email-setting.outgoing-server-port": "Porta server in uscita",

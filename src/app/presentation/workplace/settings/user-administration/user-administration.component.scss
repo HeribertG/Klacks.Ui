@@ -3,6 +3,8 @@
 @use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
+@use "../../../../../assets/standard-styles/standard-manual.scss";
 
 .add-button {
   padding-inline-end: 50px;
@@ -78,5 +80,9 @@ label {
   padding-inline-end: 30px;
   color: #b6b6c3;
   pointer-events: none;
+}
+
+.manual-tab-body {
+  padding: 20px 30px;
 }
 

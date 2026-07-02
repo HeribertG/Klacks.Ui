@@ -1873,6 +1873,8 @@
   "setting.user-admin.row.no": "Nein",
   "setting.user-admin.row.send": "Passwort zurücksetzen",
   "setting.user-admin.row.yes": "Ja",
+  "setting.user-admin.tab.users": "Benutzer",
+  "setting.user-admin.tab.manual": "Handbuch",
   "settings.email-setting.headline": "E-Mail-Einstellungen",
   "settings.email-setting.outgoing-server": "Postausgangsserver",
   "settings.email-setting.outgoing-server-port": "Postausgangsserver Port",

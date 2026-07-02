@@ -158,45 +158,88 @@
   </div>
 </ng-template>
 
-<form id="user-administration-form">
-  <div id="user-administration-header" class="container-header">
-    {{ 'setting.user-admin.headline' | translate }}
-  </div>
+<div id="user-administration-header" class="container-header">
+  {{ 'setting.user-admin.headline' | translate }}
+</div>
 
-  <div id="user-administration-line" class="container-line"></div>
+<div id="user-administration-line" class="container-line"></div>
 
-  <div id="user-administration-box" class="container-box">
-    <app-user-administration-header
-      id="user-administration-table-header"
-    ></app-user-administration-header>
-    @for (c of userAdminService.accountsList(); track c.id || c.userName ||
-    $index; let i = $index) {
-    <div [id]="'user-administration-row-wrapper-' + i">
-      <app-user-administration-row
-        [id]="'user-administration-row-' + i"
-        [user]="c"
-        [enabled]="!(c.id === userAdminService.currentAccountId())"
-        (isSentToEvent)="onSentTo($event)"
-        (isRoleChangeEvent)="
-          onRoleChange($event.account, $event.roleName, $event.isSelected)
-        "
-        (isDeleteEvent)="onDelete(i)"
-        (isEditEvent)="onEdit($event, content)"
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="user-administration-tab-users"
+        class="nav-link"
+        [class.active]="activeTab() === 'users'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'users'"
+        tabindex="0"
+        (click)="setTab('users')"
+        (keydown.enter)="setTab('users')"
       >
-      </app-user-administration-row>
-    </div>
-    }
-  </div>
+        {{ 'setting.user-admin.tab.users' | translate }}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="user-administration-tab-manual"
+        class="nav-link"
+        [class.active]="activeTab() === 'manual'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'manual'"
+        tabindex="0"
+        (click)="setTab('manual')"
+        (keydown.enter)="setTab('manual')"
+      >
+        {{ 'setting.user-admin.tab.manual' | translate }}
+      </a>
+    </li>
+  </ul>
+</div>
 
-  <div id="user-administration-add-row" class="row">
-    <div class="filler"></div>
-    <span
-      id="user-admin-add-user-btn"
-      class="first add-button"
-      type="button"
-      (click)="open(content)"
-      >{{ 'setting.user-admin.add' | translate }}
-    </span>
-  </div>
-  <div class="bottom-border-space"></div>
-</form>
+<div class="standard-tab-body">
+  @if (activeTab() === 'users') {
+    <form id="user-administration-form">
+      <div id="user-administration-box" class="container-box">
+        <app-user-administration-header
+          id="user-administration-table-header"
+        ></app-user-administration-header>
+        @for (c of userAdminService.accountsList(); track c.id || c.userName ||
+        $index; let i = $index) {
+        <div [id]="'user-administration-row-wrapper-' + i">
+          <app-user-administration-row
+            [id]="'user-administration-row-' + i"
+            [user]="c"
+            [enabled]="!(c.id === userAdminService.currentAccountId())"
+            (isSentToEvent)="onSentTo($event)"
+            (isRoleChangeEvent)="
+              onRoleChange($event.account, $event.roleName, $event.isSelected)
+            "
+            (isDeleteEvent)="onDelete(i)"
+            (isEditEvent)="onEdit($event, content)"
+          >
+          </app-user-administration-row>
+        </div>
+        }
+      </div>
+
+      <div id="user-administration-add-row" class="row">
+        <div class="filler"></div>
+        <span
+          id="user-admin-add-user-btn"
+          class="first add-button"
+          type="button"
+          (click)="open(content)"
+          >{{ 'setting.user-admin.add' | translate }}
+        </span>
+      </div>
+      <div class="bottom-border-space"></div>
+    </form>
+  }
+
+  @if (activeTab() === 'manual') {
+    <div class="manual-tab-body">
+      <div class="manual-content" [innerHTML]="manualContent()"></div>
+    </div>
+  }
+</div>

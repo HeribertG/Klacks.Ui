@@ -38,6 +38,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IRefreshable } from 'src/app/domain/interfaces/manageable.interface';
 import { DataRefreshRegistry } from 'src/app/application/services/data-refresh-registry.service';
 import { RefreshEntityTokens } from 'src/app/domain/constants/refresh-entity-tokens.constants';
+import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 
 interface UserFormModel {
   firstName: string;
@@ -73,6 +74,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   public translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private refreshRegistry = inject(DataRefreshRegistry);
+  private manualLoaderService = inject(ManualLoaderService);
   private unregisterRefresh?: () => void;
   private ngUnsubscribe = new Subject<void>();
 
@@ -80,6 +82,9 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   message = DomainMessages.DELETE_ENTRY;
   pendingDeleteIndex = -1;
   isEditMode = false;
+
+  readonly activeTab = signal<'users' | 'manual'>('users');
+  readonly manualContent = signal<string>('');
 
   public formModel = signal<UserFormModel>({
     firstName: '',
@@ -122,6 +127,27 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
 
   ngOnInit(): void {
     this.userAdminService.loadAccounts();
+    this.translate.onLangChange
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(() => {
+        if (this.activeTab() === 'manual') {
+          this.loadManual();
+        }
+      });
+  }
+
+  setTab(tab: 'users' | 'manual'): void {
+    this.activeTab.set(tab);
+    if (tab === 'manual' && !this.manualContent()) {
+      this.loadManual();
+    }
+  }
+
+  private loadManual(): void {
+    const lang = this.translate.currentLang || this.translate.defaultLang || 'de';
+    this.manualLoaderService.loadManual('user-administration-manual', lang)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(content => this.manualContent.set(content));
   }
 
   onNameChange(): void {

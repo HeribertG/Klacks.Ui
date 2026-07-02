@@ -1873,6 +1873,8 @@
   "setting.user-admin.row.no": "No",
   "setting.user-admin.row.send": "Send Access Credentials",
   "setting.user-admin.row.yes": "Yes",
+  "setting.user-admin.tab.users": "Users",
+  "setting.user-admin.tab.manual": "Manual",
   "settings.email-setting.headline": "Email Settings",
   "settings.email-setting.outgoing-server": "Outgoing Server",
   "settings.email-setting.outgoing-server-port": "Outgoing Server Port",
