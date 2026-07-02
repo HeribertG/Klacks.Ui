@@ -20,12 +20,17 @@ import { KlacksyNavigationService } from 'src/app/core/services/klacksy-navigati
 describe('ChatFunctionExecutionService navigate_to chain', () => {
   let service: ChatFunctionExecutionService;
   let routerMock: { url: string; navigate: ReturnType<typeof vi.fn>; navigateByUrl: ReturnType<typeof vi.fn> };
+  let klacksyNavigationMock: { highlightNavIcon: ReturnType<typeof vi.fn>; navigateAndScroll: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     routerMock = {
       url: '/workplace/shift',
       navigate: vi.fn().mockResolvedValue(true),
       navigateByUrl: vi.fn().mockResolvedValue(true),
+    };
+    klacksyNavigationMock = {
+      highlightNavIcon: vi.fn(() => true),
+      navigateAndScroll: vi.fn().mockResolvedValue({ success: true }),
     };
 
     TestBed.configureTestingModule({
@@ -37,7 +42,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
         { provide: ConversationOrchestratorService, useValue: { messages: vi.fn(() => []), updateMessage: vi.fn() } },
         { provide: EVENT_BUS_TOKEN, useValue: { emit: vi.fn() } },
         { provide: OnboardingService, useValue: { requestTourStart: vi.fn() } },
-        { provide: KlacksyNavigationService, useValue: { highlightNavIcon: vi.fn(() => true), navigateAndScroll: vi.fn() } },
+        { provide: KlacksyNavigationService, useValue: klacksyNavigationMock },
         { provide: Router, useValue: routerMock },
       ],
     });
@@ -49,7 +54,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       { functionName: 'navigate_to', parameters: { page: 'new-shift' } },
     ]);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: {} });
+    expect(klacksyNavigationMock.navigateAndScroll).toHaveBeenCalledWith('/workplace/new-shift', undefined);
   });
 
   it('navigates using the backend route from the result when present', async () => {
@@ -61,7 +66,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       },
     ]);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/new-shift'], { queryParams: {} });
+    expect(klacksyNavigationMock.navigateAndScroll).toHaveBeenCalledWith('/workplace/new-shift', undefined);
   });
 
   it('navigates a result-driven nav skill (open_schedule) and applies its query params', async () => {
@@ -73,7 +78,10 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       },
     ]);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/workplace/schedule'], { queryParams: { groupId: 'abc-123' } });
+    expect(klacksyNavigationMock.navigateAndScroll).toHaveBeenCalledWith(
+      '/workplace/schedule?groupId=abc-123',
+      undefined,
+    );
   });
 
   it('rejects navigation when the resolved route leaves the workplace area', async () => {
@@ -85,6 +93,7 @@ describe('ChatFunctionExecutionService navigate_to chain', () => {
       },
     ]);
 
+    expect(klacksyNavigationMock.navigateAndScroll).not.toHaveBeenCalled();
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

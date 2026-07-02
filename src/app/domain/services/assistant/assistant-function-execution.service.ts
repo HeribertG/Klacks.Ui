@@ -67,7 +67,11 @@ export class AssistantFunctionExecutionService {
         return of({ id: call.id, success: false, error: 'Navigation target not allowed' });
       }
 
-      void this.klacksyNavigation.navigateAndScroll(route, scrollTarget);
+      const queryString = new URLSearchParams(
+        Object.entries(queryParams).map(([key, value]) => [key, String(value)])
+      ).toString();
+      const url = queryString ? `${route}?${queryString}` : route;
+      void this.klacksyNavigation.navigateAndScroll(url, scrollTarget);
       return of({
         id: call.id,
         success: true,
