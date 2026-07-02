@@ -306,7 +306,8 @@ function ensureDir(dir: string): void {
 function routeFromTemplatePath(templateFile: string, pageKeys: KlacksyPageKeyEntry[]): string {
   // Map presentation/workplace/<segment>/... templates to the canonical route by
   // matching the deepest folder name against a page-key entry's last route segment.
-  const parts = templateFile.split('/');
+  // glob returns backslash-separated paths on Windows, so split on both separators.
+  const parts = templateFile.split(/[\\/]/);
   for (let i = parts.length - 1; i >= 0; i--) {
     const segment = parts[i];
     const hit = pageKeys.find((pk) => pk.route.endsWith('/' + segment));
