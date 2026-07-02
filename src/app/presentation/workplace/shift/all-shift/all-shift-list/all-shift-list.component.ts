@@ -165,6 +165,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onClickInfo(data: Shift): void {
+    if (data && data.id) {
+      this.allShiftStateService.saveCurrentFilter();
+      this.navigationService.navigateToEditShift(data.id, true);
+    }
+  }
+
   onMouseEnter(data: any): void {
     this.hoveredRowId = data.id;
   }

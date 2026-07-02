@@ -34,6 +34,7 @@ export class OriginalTableComponent {
   readonly sortingService = input.required<TableSortingService>();
   readonly editClicked = output<Shift>();
   readonly deleteClicked = output<Shift>();
+  readonly infoClicked = output<Shift>();
   readonly headerClicked = output<string>();
 
   highlightRowId?: string;
@@ -61,6 +62,7 @@ export class OriginalTableComponent {
   }
   onShowInfo(s: Shift, $event: MouseEvent) {
     $event.stopPropagation();
+    this.infoClicked.emit(s);
   }
   onClickHeader(columnKey: string): void {
     this.headerClicked.emit(columnKey);

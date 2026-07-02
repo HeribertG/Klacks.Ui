@@ -21,6 +21,7 @@
       [sortingService]="sortingService"
       (editClicked)="onClickEdit($event)"
       (deleteClicked)="onClickDelete($event)"
+      (infoClicked)="onClickInfo($event)"
       (headerClicked)="onClickHeader($event)"
     ></app-original-table>
     } @else if (dataManagementShiftService.currentFilter.filterType === 1) {

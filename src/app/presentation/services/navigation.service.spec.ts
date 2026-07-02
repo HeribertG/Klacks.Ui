@@ -48,6 +48,28 @@ describe('NavigationService', () => {
     service = TestBed.inject(NavigationService);
   });
 
+  describe('navigateToEditShift', () => {
+    it('navigates without query params when readOnly is not set', () => {
+      service.navigateToEditShift('shift-1');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/edit-shift', 'shift-1']);
+    });
+
+    it('navigates with the readonly query params when readOnly is true', () => {
+      service.navigateToEditShift('shift-1', true);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/edit-shift', 'shift-1'], {
+        queryParams: { readonly: 'true', returnUrl: '/workplace/shift' },
+      });
+    });
+
+    it('navigates to the new-shift route when no id is given', () => {
+      service.navigateToEditShift();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/workplace/edit-shift']);
+    });
+  });
+
   describe('redirectToLogin', () => {
     it('stores a restorable workplace url and navigates to root', () => {
       router.url = '/workplace/edit-shift/123';

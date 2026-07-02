@@ -102,9 +102,15 @@ export class NavigationService {
     }
   }
 
-  navigateToEditShift(id?: string): void {
+  navigateToEditShift(id?: string, readOnly?: boolean): void {
     if (id) {
-      this.router.navigate(['/workplace/edit-shift', id]);
+      if (readOnly) {
+        this.router.navigate(['/workplace/edit-shift', id], {
+          queryParams: { readonly: 'true', returnUrl: '/workplace/shift' },
+        });
+      } else {
+        this.router.navigate(['/workplace/edit-shift', id]);
+      }
     } else {
       this.router.navigate(['/workplace/edit-shift']);
     }
