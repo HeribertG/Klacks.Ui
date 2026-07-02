@@ -2966,6 +2966,7 @@
   "assistant.proactive.lockConflict": "A booking on {{date}} is locked and could not be adjusted automatically.",
   "assistant.proactive.scenarioPending": "The scenario for {{group}} has been awaiting a decision for {{hours}} h.",
   "assistant.proactive.contractExpiringSoon": "{{name}}'s contract expires on {{date}} (in {{days}} day(s)) — with no follow-up.",
+  "assistant.proactive.workDroppedByErpImport": "{{employee}}'s assignment on {{date}} was cancelled because its order was replaced by an ERP import. Please re-plan it.",
   "group.validation.has-planned-works": "This group cannot be deleted because planned work entries exist.",
   "group.validation.works-exist-after-valid-until": "The valid-until date cannot be set because work entries exist after that date.",
   "group.validation.member-has-planned-works": "This employee cannot be removed from the group because they have planned work entries in this group.",

@@ -2966,6 +2966,7 @@
   "assistant.proactive.lockConflict": "Eine Buchung am {{date}} ist gesperrt und konnte nicht automatisch angepasst werden.",
   "assistant.proactive.scenarioPending": "Das Szenario für {{group}} wartet seit {{hours}} h auf eine Entscheidung.",
   "assistant.proactive.contractExpiringSoon": "Der Vertrag von {{name}} läuft am {{date}} aus (in {{days}} Tag(en)) – ohne Nachfolge.",
+  "assistant.proactive.workDroppedByErpImport": "Der Einsatz von {{employee}} am {{date}} ist entfallen, weil die zugehörige Bestellung per ERP-Import ersetzt wurde. Bitte neu einplanen.",
   "group.validation.has-planned-works": "Diese Gruppe kann nicht gelöscht werden, da noch Dienste geplant sind.",
   "group.validation.works-exist-after-valid-until": "Das Gültig-Bis-Datum kann nicht gesetzt werden, da nach diesem Datum noch Dienste geplant sind.",
   "group.validation.member-has-planned-works": "Dieser Mitarbeiter kann nicht aus der Gruppe entfernt werden, da er noch Dienste in dieser Gruppe hat.",
