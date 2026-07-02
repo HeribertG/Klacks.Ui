@@ -30,6 +30,14 @@ export class KlacksyNavigationService {
   private static readonly HIGHLIGHT_MS = 5000;
   private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
   private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
+  // Async sibling cards (contracts/groups/qualifications/notes/image) keep growing
+  // the scroll container's height well after the target marker itself already
+  // exists in the DOM. Poll until the container's height stops changing before
+  // scrolling, otherwise scrollIntoView fires against a not-yet-final layout and
+  // under-shoots (a single-shot scroll never re-runs once the page keeps growing).
+  private static readonly SETTLE_POLL_MS = 100;
+  private static readonly SETTLE_MAX_MS = 1500;
+  private static readonly SETTLE_STABLE_ROUNDS = 2;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
     await this.router.navigateByUrl(route);
@@ -42,7 +50,8 @@ export class KlacksyNavigationService {
       return { success: false, reason: 'target-not-found' };
     }
 
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    await this.waitForLayoutSettle(this.findScrollableAncestor(el));
+    el.scrollIntoView({ behavior: 'auto', block: 'start' });
     el.classList.add('klacksy-highlight');
     setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
 
@@ -72,6 +81,34 @@ export class KlacksyNavigationService {
 
     for (const elementId of candidates) {
       if (this.highlightNavIcon(elementId)) return;
+    }
+  }
+
+  private findScrollableAncestor(el: Element): HTMLElement | null {
+    let node = el.parentElement;
+    while (node) {
+      const overflowY = getComputedStyle(node).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  private async waitForLayoutSettle(container: HTMLElement | null): Promise<void> {
+    if (!container) return;
+    let lastHeight = container.scrollHeight;
+    let stableRounds = 0;
+    const start = performance.now();
+    while (performance.now() - start < KlacksyNavigationService.SETTLE_MAX_MS) {
+      await new Promise<void>((resolve) => setTimeout(resolve, KlacksyNavigationService.SETTLE_POLL_MS));
+      const height = container.scrollHeight;
+      if (height === lastHeight) {
+        stableRounds++;
+        if (stableRounds >= KlacksyNavigationService.SETTLE_STABLE_ROUNDS) return;
+      } else {
+        stableRounds = 0;
+        lastHeight = height;
+      }
     }
   }
 

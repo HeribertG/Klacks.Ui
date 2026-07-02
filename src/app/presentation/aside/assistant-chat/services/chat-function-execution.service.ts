@@ -49,6 +49,9 @@ export class ChatFunctionExecutionService {
       const functionName = call.FunctionName || call.functionName;
       if (!functionName) continue;
 
+      const success = call.Success ?? call.success;
+      if (success === false) continue;
+
       if (functionName === START_GUIDED_TOUR_SKILL) {
         this.onboarding.requestTourStart();
         continue;
