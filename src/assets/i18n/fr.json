@@ -2959,6 +2959,7 @@
   "assistant.proactive.scenarioPending": "Le scénario de {{group}} attend une décision depuis {{hours}} h.",
   "assistant.proactive.contractExpiringSoon": "Le contrat de {{name}} expire le {{date}} (dans {{days}} jour(s)) — sans suite.",
   "assistant.proactive.workDroppedByErpImport": "L'affectation de {{employee}} le {{date}} a été annulée car la commande correspondante a été remplacée par un import ERP. Merci de replanifier.",
+  "assistant.proactive.orderImportFailed": "L'import ERP du fichier {{file}} a échoué : {{reason}}",
   "group.validation.has-planned-works": "Ce groupe ne peut pas être supprimé car des entrées de travail planifiées existent.",
   "group.validation.works-exist-after-valid-until": "La date de fin de validité ne peut pas être définie car des entrées de travail existent après cette date.",
   "group.validation.member-has-planned-works": "Cet employé ne peut pas être supprimé du groupe car il a des entrées de travail planifiées dans ce groupe.",
