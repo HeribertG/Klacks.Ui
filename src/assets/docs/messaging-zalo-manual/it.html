@@ -1,0 +1,137 @@
+<h2>Configurare la messaggistica Zalo</h2>
+
+<h3>Prerequisiti</h3>
+<p>
+Per inviare messaggi tramite Zalo, è necessario uno <strong>Zalo Official
+Account (OA)</strong> su <strong>oa.zalo.me</strong> e un'app su
+<strong>developers.zalo.me</strong>. Zalo è il principale messenger in Vietnam.
+</p>
+
+<p>
+<strong>Importante:</strong> l'integrazione Zalo è concepita <strong>solo per
+l'invio</strong>. Si applicano inoltre le restrizioni della piattaforma Zalo:
+</p>
+<ul>
+  <li>L'access token scade dopo <strong>circa 25 ore</strong> e deve essere rinnovato
+    al di fuori di Klacks e inserito nuovamente.</li>
+  <li>I messaggi possono essere inviati solo a utenti che hanno precedentemente
+    <strong>interagito</strong> con l'Official Account (finestra di interazione).</li>
+</ul>
+
+<hr>
+
+<h3>Passo 1 — Configurare uno Zalo Official Account e un'app</h3>
+<ol>
+  <li>Creare un <strong>Official Account</strong> su <strong>oa.zalo.me</strong>.</li>
+  <li>Creare un'<strong>app</strong> su <strong>developers.zalo.me</strong>.</li>
+  <li>Collegare l'Official Account all'app.</li>
+  <li>Ottenere un <strong>access token</strong> tramite il flusso OAuth della console
+    developer di Zalo.</li>
+</ol>
+
+<p>
+<em>Nota: trattare l'access token come una password.
+Non condividerlo pubblicamente e conservarlo in modo sicuro.</em>
+</p>
+
+<hr>
+
+<h3>Passo 2 — Configurare Zalo in Klacks</h3>
+<ol>
+  <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Fare clic su <strong>Aggiungi</strong>.</li>
+  <li>Compilare i campi come segue:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>Nome</td><td>Nome interno univoco</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>Zalo</code></td></tr>
+  <tr><td>Tipo di fornitore</td><td>Selezionare <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access Token</td><td>Il token ottenuto tramite il flusso OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA ID</td><td>L'ID del proprio Official Account (informativo, serve per l'identificazione)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
+</table>
+
+<ol start="4">
+  <li>Fare clic su <strong>Salva</strong>.</li>
+  <li>Testare la connessione tramite il pulsante <strong>Test</strong> nell'elenco dei fornitori.</li>
+</ol>
+
+<p>
+<strong>Importante:</strong> l'access token scade dopo <strong>circa 25 ore</strong>.
+Klacks non lo rinnova automaticamente — è necessario rinnovarlo esternamente tramite
+il flusso refresh token di Zalo e inserirlo nuovamente in Klacks. Attenzione: il
+refresh token è <strong>monouso</strong> — ogni rinnovo fornisce una nuova coppia
+di token.
+</p>
+
+<hr>
+
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<p>
+Una volta configurato e attivato il fornitore Zalo, il chatbot Klacksy può inviare
+messaggi. Non è necessario conoscere gli ID utente Zalo — basta usare il nome
+del dipendente o del cliente:
+</p>
+
+<pre>
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Avvisa Peter Müller che il suo turno di lunedì è annullato."
+</pre>
+
+<p>
+Klacksy cerca automaticamente l'ID utente Zalo registrato del destinatario e
+utilizza il fornitore Zalo configurato. Il processo è completamente trasparente per voi —
+lavorate con i nomi, Klacksy si occupa del resto.
+</p>
+
+<p>
+<strong>Prerequisito:</strong> l'<strong>ID utente Zalo</strong> del destinatario deve
+essere registrato in Klacks (sotto Indirizzo &rarr; Dati di contatto). Il destinatario
+deve aver precedentemente interagito con l'Official Account (ad es. seguire l'OA o
+inviargli un messaggio) — al di fuori della finestra di interazione, Zalo rifiuta l'invio.
+</p>
+
+<hr>
+
+<h3>Messaggi in arrivo</h3>
+<p>
+L'integrazione Zalo non supporta la ricezione — le risposte ai messaggi inviati
+<strong>non</strong> vengono trasmesse a Klacks. La casella di messaggistica non mostra
+quindi messaggi in arrivo per questo fornitore.
+</p>
+
+<hr>
+
+<h3>Risoluzione dei problemi</h3>
+
+<table>
+  <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
+  <tr>
+    <td>Il test di connessione fallisce</td>
+    <td>Access token scaduto (validità circa 25 ore)</td>
+    <td>Rinnovare il token tramite il flusso refresh token e inserirlo nuovamente</td>
+  </tr>
+  <tr>
+    <td>Il messaggio non viene consegnato</td>
+    <td>L'utente non ha interagito con l'Official Account</td>
+    <td>Il destinatario deve seguire l'OA o inviargli un messaggio</td>
+  </tr>
+  <tr>
+    <td>Destinatario non trovato</td>
+    <td>ID utente Zalo non registrato</td>
+    <td>Inserire l'ID utente sotto Indirizzo &rarr; Dati di contatto</td>
+  </tr>
+  <tr>
+    <td>Il rinnovo del token fallisce</td>
+    <td>Refresh token già utilizzato (monouso)</td>
+    <td>Eseguire nuovamente il flusso OAuth nella console developer di Zalo</td>
+  </tr>
+  <tr>
+    <td>Invio rifiutato con errore di autorizzazione</td>
+    <td>OA non collegato all'app</td>
+    <td>Verificare il collegamento tra app e Official Account su developers.zalo.me</td>
+  </tr>
+</table>

@@ -1,0 +1,137 @@
+<h2>Zalo-Messaging einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über Zalo zu senden, benötigen Sie einen <strong>Zalo Official
+Account (OA)</strong> auf <strong>oa.zalo.me</strong> sowie eine App auf
+<strong>developers.zalo.me</strong>. Zalo ist der führende Messenger in Vietnam.
+</p>
+
+<p>
+<strong>Wichtig:</strong> Die Zalo-Anbindung ist <strong>nur für den Versand</strong>
+ausgelegt. Zudem gelten Einschränkungen der Zalo-Plattform:
+</p>
+<ul>
+  <li>Der Access-Token läuft nach <strong>ca. 25 Stunden</strong> ab und muss außerhalb
+    von Klacks erneuert und neu hinterlegt werden.</li>
+  <li>Nachrichten können nur an Nutzer gesendet werden, die zuvor mit dem Official
+    Account <strong>interagiert</strong> haben (Interaktions-Fenster).</li>
+</ul>
+
+<hr>
+
+<h3>Schritt 1 — Zalo Official Account und App einrichten</h3>
+<ol>
+  <li>Erstellen Sie einen <strong>Official Account</strong> auf <strong>oa.zalo.me</strong>.</li>
+  <li>Erstellen Sie eine <strong>App</strong> auf <strong>developers.zalo.me</strong>.</li>
+  <li>Verknüpfen Sie den Official Account mit der App.</li>
+  <li>Beziehen Sie einen <strong>Access-Token</strong> über den OAuth-Flow der
+    Zalo-Developer-Konsole.</li>
+</ol>
+
+<p>
+<em>Hinweis: Behandeln Sie den Access-Token wie ein Passwort.
+Teilen Sie ihn nicht öffentlich und speichern Sie ihn sicher.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 2 — Zalo in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Zalo</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access-Token</td><td>Der über den OAuth-Flow bezogene Token</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>Die ID Ihres Official Accounts (informativ, dient der Zuordnung)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<p>
+<strong>Wichtig:</strong> Der Access-Token läuft nach <strong>ca. 25 Stunden</strong> ab.
+Klacks erneuert ihn nicht automatisch — Sie müssen ihn extern über den
+Refresh-Token-Flow von Zalo erneuern und in Klacks neu hinterlegen. Beachten Sie:
+Der Refresh-Token ist <strong>single-use</strong> — jede Erneuerung liefert ein neues
+Token-Paar.
+</p>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Zalo-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Zalo-User-IDs kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Zalo-User-ID des Empfängers und
+verwendet den konfigurierten Zalo-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p>
+<strong>Voraussetzung:</strong> Beim Empfänger muss die <strong>Zalo-User-ID</strong>
+in Klacks hinterlegt sein (unter Adresse &rarr; Kontaktdaten). Der Empfänger muss
+zuvor mit dem Official Account interagiert haben (z.B. dem OA folgen oder ihm eine
+Nachricht senden) — außerhalb des Interaktions-Fensters lehnt Zalo den Versand ab.
+</p>
+
+<hr>
+
+<h3>Eingehende Nachrichten</h3>
+<p>
+Die Zalo-Anbindung unterstützt keinen Empfang — Antworten auf versendete Nachrichten
+werden <strong>nicht</strong> an Klacks übertragen. Die Messaging-Inbox zeigt für diesen
+Anbieter daher keine eingehenden Nachrichten an.
+</p>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Access-Token abgelaufen (ca. 25 Stunden Gültigkeit)</td>
+    <td>Erneuern Sie den Token über den Refresh-Token-Flow und hinterlegen Sie ihn neu</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Nutzer hat nicht mit dem Official Account interagiert</td>
+    <td>Der Empfänger muss dem OA folgen bzw. ihm eine Nachricht senden</td>
+  </tr>
+  <tr>
+    <td>Empfänger nicht gefunden</td>
+    <td>Zalo-User-ID nicht hinterlegt</td>
+    <td>Tragen Sie die User-ID unter Adresse &rarr; Kontaktdaten ein</td>
+  </tr>
+  <tr>
+    <td>Token-Erneuerung schlägt fehl</td>
+    <td>Refresh-Token bereits verwendet (single-use)</td>
+    <td>Durchlaufen Sie den OAuth-Flow in der Zalo-Developer-Konsole erneut</td>
+  </tr>
+  <tr>
+    <td>Versand mit Berechtigungsfehler abgelehnt</td>
+    <td>OA nicht mit der App verknüpft</td>
+    <td>Prüfen Sie die Verknüpfung zwischen App und Official Account auf developers.zalo.me</td>
+  </tr>
+</table>

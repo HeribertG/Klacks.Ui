@@ -1,0 +1,136 @@
+<h2>Setting up Zalo Messaging</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send messages via Zalo, you need a <strong>Zalo Official Account (OA)</strong>
+on <strong>oa.zalo.me</strong> and an app on <strong>developers.zalo.me</strong>.
+Zalo is the leading messenger in Vietnam.
+</p>
+
+<p>
+<strong>Important:</strong> The Zalo integration is designed <strong>for sending only</strong>.
+In addition, Zalo platform restrictions apply:
+</p>
+<ul>
+  <li>The access token expires after <strong>approx. 25 hours</strong> and must be
+    renewed outside of Klacks and re-entered.</li>
+  <li>Messages can only be sent to users who have previously
+    <strong>interacted</strong> with the Official Account (interaction window).</li>
+</ul>
+
+<hr>
+
+<h3>Step 1 — Set up a Zalo Official Account and app</h3>
+<ol>
+  <li>Create an <strong>Official Account</strong> on <strong>oa.zalo.me</strong>.</li>
+  <li>Create an <strong>app</strong> on <strong>developers.zalo.me</strong>.</li>
+  <li>Link the Official Account to the app.</li>
+  <li>Obtain an <strong>access token</strong> via the OAuth flow of the Zalo
+    developer console.</li>
+</ol>
+
+<p>
+<em>Note: Treat the access token like a password.
+Do not share it publicly and store it securely.</em>
+</p>
+
+<hr>
+
+<h3>Step 2 — Configure Zalo in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>Zalo</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access Token</td><td>The token obtained via the OAuth flow</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA ID</td><td>The ID of your Official Account (informational, used for identification)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<p>
+<strong>Important:</strong> The access token expires after <strong>approx. 25 hours</strong>.
+Klacks does not renew it automatically — you must renew it externally via Zalo's
+refresh token flow and re-enter it in Klacks. Note: the refresh token is
+<strong>single-use</strong> — each renewal yields a new token pair.
+</p>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the Zalo provider is configured and enabled, the chatbot Klacksy can send
+messages. You do not need to know any Zalo user IDs — simply use the name of the
+employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's stored Zalo user ID and uses the
+configured Zalo provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
+</p>
+
+<p>
+<strong>Prerequisite:</strong> The recipient's <strong>Zalo user ID</strong> must be
+stored in Klacks (under Address &rarr; Contact Details). The recipient must have
+previously interacted with the Official Account (e.g. followed the OA or sent it a
+message) — outside the interaction window, Zalo rejects the message.
+</p>
+
+<hr>
+
+<h3>Incoming Messages</h3>
+<p>
+The Zalo integration does not support receiving — replies to sent messages are
+<strong>not</strong> transmitted to Klacks. The messaging inbox therefore does not
+show any incoming messages for this provider.
+</p>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>Access token expired (approx. 25 hours validity)</td>
+    <td>Renew the token via the refresh token flow and re-enter it</td>
+  </tr>
+  <tr>
+    <td>Message is not delivered</td>
+    <td>User has not interacted with the Official Account</td>
+    <td>The recipient must follow the OA or send it a message</td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>Zalo user ID not stored</td>
+    <td>Enter the user ID under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Token renewal fails</td>
+    <td>Refresh token already used (single-use)</td>
+    <td>Run the OAuth flow in the Zalo developer console again</td>
+  </tr>
+  <tr>
+    <td>Sending rejected with a permission error</td>
+    <td>OA not linked to the app</td>
+    <td>Check the link between the app and the Official Account on developers.zalo.me</td>
+  </tr>
+</table>

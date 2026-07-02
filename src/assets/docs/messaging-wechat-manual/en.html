@@ -1,0 +1,138 @@
+<h2>Setting up WeChat Messaging</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send messages via WeChat, you need a <strong>WeChat Official Account</strong> of
+type <strong>Service Account</strong> on <strong>mp.weixin.qq.com</strong>.
+WeChat is the dominant messenger in China.
+</p>
+
+<p>
+<strong>Important:</strong> The WeChat integration is designed <strong>for sending only</strong>.
+In addition, WeChat platform restrictions apply:
+</p>
+<ul>
+  <li>Customer service messages only reach <strong>followers</strong> who have
+    interacted with the account within the last <strong>48 hours</strong>.</li>
+  <li>Verifying an Official Account involves <strong>high hurdles for companies
+    outside China</strong> (including Chinese business documents); plan for this
+    realistically.</li>
+</ul>
+
+<hr>
+
+<h3>Step 1 — Set up a WeChat Official Account</h3>
+<ol>
+  <li>Apply for a <strong>Service Account</strong> on <strong>mp.weixin.qq.com</strong>
+    and complete the verification process.</li>
+  <li>Open <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> and
+    note down the <strong>AppID</strong> and <strong>AppSecret</strong>.</li>
+  <li>Maintain the <strong>server IP whitelist</strong>: enter the public IP address
+    of your Klacks server. Without this entry, WeChat rejects the token requests
+    from Klacks.</li>
+</ol>
+
+<p>
+<em>Note: Treat the AppSecret like a password.
+Do not share it publicly and store it securely.</em>
+</p>
+
+<hr>
+
+<h3>Step 2 — Configure WeChat in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>WeChat</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>AppID from Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>AppSecret from Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<p>
+<em>Note: Klacks fetches the WeChat access token automatically and caches it —
+you do not need to maintain any token manually.</em>
+</p>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the WeChat provider is configured and enabled, the chatbot Klacksy can send
+messages. You do not need to know any OpenIDs — simply use the name of the
+employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's stored OpenID and uses the
+configured WeChat provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
+</p>
+
+<p>
+<strong>Prerequisite:</strong> The follower's <strong>OpenID</strong> must be stored
+in Klacks (under Address &rarr; Contact Details). The recipient must follow the
+Official Account and have interacted with it within the last <strong>48 hours</strong> —
+otherwise WeChat rejects the message with the error
+<em>"response out of time limit"</em> (shown in the message log).
+</p>
+
+<hr>
+
+<h3>Incoming Messages</h3>
+<p>
+The WeChat integration does not support receiving — replies to sent messages are
+<strong>not</strong> transmitted to Klacks. The messaging inbox therefore does not
+show any incoming messages for this provider.
+</p>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>App ID or App Secret wrong</td>
+    <td>Check both values under Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Token request is rejected</td>
+    <td>Klacks server IP not in the whitelist</td>
+    <td>Enter the public IP of the Klacks server in the server IP whitelist</td>
+  </tr>
+  <tr>
+    <td>Error "response out of time limit"</td>
+    <td>48-hour window expired</td>
+    <td>The follower must interact with the Official Account again (e.g. send a message)</td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>OpenID not stored</td>
+    <td>Enter the follower's OpenID under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Sending rejected with a permission error</td>
+    <td>Account type or verification insufficient</td>
+    <td>Customer service messages require a verified Service Account</td>
+  </tr>
+</table>

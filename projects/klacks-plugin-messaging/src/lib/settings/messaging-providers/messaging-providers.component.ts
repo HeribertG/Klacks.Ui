@@ -173,6 +173,12 @@ export class MessagingProvidersComponent implements OnInit, OnDestroy {
     Telegram: 'messaging-telegram-manual',
     Signal: 'messaging-signal-manual',
     SMS: 'messaging-sms-manual',
+    Threema: 'messaging-threema-manual',
+    Viber: 'messaging-viber-manual',
+    LINE: 'messaging-line-manual',
+    KakaoTalk: 'messaging-kakaotalk-manual',
+    WeChat: 'messaging-wechat-manual',
+    Zalo: 'messaging-zalo-manual',
     MicrosoftTeams: 'messaging-teams-manual',
     Slack: 'messaging-slack-manual',
   };

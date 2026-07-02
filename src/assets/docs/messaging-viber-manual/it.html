@@ -1,0 +1,133 @@
+<h2>Configurare un bot Viber</h2>
+
+<h3>Prerequisiti</h3>
+<p>
+Per inviare e ricevere messaggi tramite Viber, è necessario un <strong>bot Viber</strong>,
+da creare tramite il portale partner di Viber. Viber è particolarmente popolare
+nell'Europa orientale e nel Medio Oriente.
+</p>
+
+<p>
+<em>Nota: Viber ha commercializzato l'uso dei bot — a seconda del paese e del volume
+di messaggi possono applicarsi modelli a pagamento. Verificare le condizioni attuali
+su <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Passo 1 — Creare un bot Viber</h3>
+<ol>
+  <li>Registrarsi su <strong>partners.viber.com</strong>.</li>
+  <li>Creare un nuovo <strong>bot</strong> nel portale partner.</li>
+  <li>Annotare l'<strong>auth token</strong> dal dashboard del bot.</li>
+  <li>Definire un <strong>nome mittente</strong> (ad es. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Passo 2 — Configurare Viber in Klacks</h3>
+<ol>
+  <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Fare clic su <strong>Aggiungi</strong>.</li>
+  <li>Compilare i campi come segue:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>Nome</td><td>Nome interno univoco</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>Viber</code></td></tr>
+  <tr><td>Tipo di fornitore</td><td>Selezionare <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>L'auth token dal dashboard del bot</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Nome mittente</td><td>Nome mostrato al destinatario</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>URL del webhook</td><td>Compilato automaticamente con l'URL della propria istanza Klacks (non modificabile)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
+</table>
+
+<ol start="4">
+  <li>Fare clic su <strong>Salva</strong>. Klacks registra il webhook presso Viber
+    <strong>automaticamente</strong> (<code>set_webhook</code>).</li>
+  <li>Testare la connessione tramite il pulsante <strong>Test</strong> nell'elenco dei fornitori.</li>
+</ol>
+
+<p>
+<strong>Importante:</strong> l'URL del webhook visualizzato deve essere raggiungibile
+pubblicamente tramite <strong>HTTPS</strong> — altrimenti la registrazione del webhook
+fallisce al salvataggio.
+</p>
+
+<hr>
+
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<p>
+Una volta configurato e attivato il fornitore Viber, il chatbot Klacksy può inviare
+messaggi. Non è necessario conoscere gli ID utente Viber — basta usare il nome
+del dipendente o del cliente:
+</p>
+
+<pre>
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Avvisa Peter Müller che il suo turno di lunedì è annullato."
+</pre>
+
+<p>
+Klacksy cerca automaticamente l'ID utente Viber registrato del destinatario e
+utilizza il fornitore Viber configurato. Il processo è completamente trasparente per voi —
+lavorate con i nomi, Klacksy si occupa del resto.
+</p>
+
+<p>
+<strong>Importante:</strong> i bot Viber possono scrivere solo agli utenti che si sono
+<strong>iscritti</strong> al bot (chat 1:1 avviata con il bot). Il destinatario deve
+quindi prima inviare un messaggio al bot. Il suo <strong>ID utente Viber</strong>
+diventa noto tramite il messaggio in arrivo (visibile nella casella di messaggistica)
+e viene registrato per il destinatario sotto Indirizzo &rarr; Dati di contatto.
+</p>
+
+<hr>
+
+<h3>Passo 4 — Ricevere i messaggi in arrivo</h3>
+<p>
+I messaggi Viber in arrivo vengono ricevuti automaticamente tramite il webhook
+registrato al salvataggio — non è necessaria alcuna configurazione aggiuntiva.
+</p>
+
+<ol>
+  <li>L'utente cerca il bot in Viber e gli invia un messaggio.</li>
+  <li>Il messaggio appare in tempo reale nella <strong>casella di messaggistica</strong>.</li>
+  <li>Riportare l'ID utente Viber del mittente nei dati di contatto del dipendente,
+    affinché Klacksy possa scrivergli direttamente in futuro.</li>
+</ol>
+
+<hr>
+
+<h3>Risoluzione dei problemi</h3>
+
+<table>
+  <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
+  <tr>
+    <td>Il test di connessione fallisce</td>
+    <td>Auth token errato</td>
+    <td>Verificare il token nel dashboard del bot su partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>La registrazione del webhook fallisce al salvataggio</td>
+    <td>Istanza Klacks non raggiungibile pubblicamente tramite HTTPS</td>
+    <td>Assicurarsi che l'URL del webhook sia raggiungibile pubblicamente con un certificato SSL valido</td>
+  </tr>
+  <tr>
+    <td>Il messaggio non viene consegnato</td>
+    <td>Il destinatario non si è iscritto al bot</td>
+    <td>Il destinatario deve prima inviare un messaggio al bot in Viber</td>
+  </tr>
+  <tr>
+    <td>Destinatario non trovato</td>
+    <td>ID utente Viber non registrato</td>
+    <td>Inserire l'ID utente dalla casella di messaggistica sotto Indirizzo &rarr; Dati di contatto</td>
+  </tr>
+  <tr>
+    <td>Messaggi in arrivo mancanti</td>
+    <td>Webhook non registrato</td>
+    <td>Salvare nuovamente il fornitore affinché Klacks registri di nuovo il webhook</td>
+  </tr>
+</table>

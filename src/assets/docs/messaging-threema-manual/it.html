@@ -1,0 +1,125 @@
+<h2>Configurare Threema Gateway</h2>
+
+<h3>Prerequisiti</h3>
+<p>
+Per inviare messaggi tramite Threema, è necessario un account presso il
+<strong>Threema Gateway</strong>. Threema è un fornitore svizzero, molto diffuso in
+Svizzera e rispettoso della protezione dei dati (LPD svizzera).
+</p>
+
+<p>
+<strong>Importante:</strong> l'integrazione Threema è concepita <strong>solo per l'invio</strong>.
+La ricezione di messaggi in arrivo richiederebbe la modalità end-to-end del gateway e
+non è supportata. L'invio è a pagamento — ogni messaggio inviato consuma
+<strong>crediti</strong>.
+</p>
+
+<hr>
+
+<h3>Passo 1 — Creare un account Threema Gateway</h3>
+<ol>
+  <li>Registrarsi su <strong>gateway.threema.ch</strong>.</li>
+  <li>Richiedere un <strong>Gateway ID in modalità basic</strong>
+    (ad es. <code>*MYGATEWAY</code>). Inizia sempre con un asterisco (<code>*</code>)
+    e deve essere approvato da Threema.</li>
+  <li>Acquistare <strong>crediti</strong> — senza credito non è possibile inviare messaggi.</li>
+  <li>Annotare l'<strong>API secret</strong> dal dashboard del gateway.</li>
+</ol>
+
+<p>
+<em>Nota: trattare l'API secret come una password.
+Non condividerlo pubblicamente e conservarlo in modo sicuro.</em>
+</p>
+
+<hr>
+
+<h3>Passo 2 — Configurare Threema in Klacks</h3>
+<ol>
+  <li>Navigare su <strong>Impostazioni</strong> &rarr; <strong>Fornitori di messaggistica</strong>.</li>
+  <li>Fare clic su <strong>Aggiungi</strong>.</li>
+  <li>Compilare i campi come segue:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrizione</th><th>Esempio</th></tr>
+  <tr><td>Nome</td><td>Nome interno univoco</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Nome visualizzato</td><td>Mostrato nell'interfaccia utente</td><td><code>Threema</code></td></tr>
+  <tr><td>Tipo di fornitore</td><td>Selezionare <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>Il proprio Threema Gateway ID (modalità basic, inizia con <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>L'API secret dal dashboard del gateway</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Attivato</td><td>Attiva o disattiva il fornitore</td><td>Sì</td></tr>
+</table>
+
+<ol start="4">
+  <li>Fare clic su <strong>Salva</strong>.</li>
+  <li>Testare la connessione tramite il pulsante <strong>Test</strong> nell'elenco dei fornitori.
+    Il test verifica le credenziali tramite la query dei crediti del gateway.</li>
+</ol>
+
+<hr>
+
+<h3>Passo 3 — Inviare messaggi tramite il chatbot (Klacksy)</h3>
+<p>
+Una volta configurato e attivato il fornitore Threema, il chatbot Klacksy può inviare
+messaggi. Non è necessario conoscere i Threema ID — basta usare il nome
+del dipendente o del cliente:
+</p>
+
+<pre>
+"Invia un messaggio a Max Muster: Il suo appuntamento è domani alle 14:00."
+"Manda un messaggio a Anna Beispiel: Il turno è stato scambiato."
+"Avvisa Peter Müller che il suo turno di lunedì è annullato."
+</pre>
+
+<p>
+Klacksy cerca automaticamente il Threema ID registrato del destinatario e
+utilizza il fornitore Threema configurato. Il processo è completamente trasparente per voi —
+lavorate con i nomi, Klacksy si occupa del resto.
+</p>
+
+<p><strong>Prerequisito:</strong> Il <strong>Threema ID di 8 caratteri</strong> del
+destinatario deve essere registrato in Klacks (sotto Indirizzo &rarr; Dati di contatto).
+Il dipendente trova il proprio Threema ID nell'app Threema sotto "Il mio profilo".</p>
+
+<hr>
+
+<h3>Messaggi in arrivo</h3>
+<p>
+L'integrazione Threema non supporta la ricezione — le risposte ai messaggi inviati
+<strong>non</strong> vengono trasmesse a Klacks. La ricezione richiederebbe la modalità
+end-to-end del Threema Gateway; l'integrazione Klacks utilizza la modalità basic.
+La casella di messaggistica non mostra quindi messaggi in arrivo per questo fornitore.
+</p>
+
+<hr>
+
+<h3>Risoluzione dei problemi</h3>
+
+<table>
+  <tr><th>Problema</th><th>Possibile causa</th><th>Soluzione</th></tr>
+  <tr>
+    <td>Il test di connessione fallisce</td>
+    <td>Gateway ID o API secret errato</td>
+    <td>Verificare le credenziali nel dashboard su gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Il messaggio non viene consegnato</td>
+    <td>Threema ID errato o inesistente</td>
+    <td>Verificare che il Threema ID di 8 caratteri sia registrato correttamente</td>
+  </tr>
+  <tr>
+    <td>L'invio fallisce</td>
+    <td>Crediti esauriti</td>
+    <td>Ricaricare i crediti nel Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Destinatario non trovato</td>
+    <td>Threema ID non registrato</td>
+    <td>Inserire il Threema ID sotto Indirizzo &rarr; Dati di contatto</td>
+  </tr>
+  <tr>
+    <td>Il Gateway ID non funziona</td>
+    <td>ID non ancora approvato</td>
+    <td>Attendere l'approvazione da parte di Threema (stato visibile nel dashboard)</td>
+  </tr>
+</table>

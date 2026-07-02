@@ -2,21 +2,26 @@
 
 <h3>Prerequisites</h3>
 <p>
-To send and receive Signal messages through Klacks, you need a running instance
-of the <strong>Signal-CLI REST API</strong>. This is an open-source project that makes
-Signal accessible via a REST interface.
+To send Signal messages through Klacks, you need a self-hosted instance of the
+<strong>signal-cli-rest-api</strong>. This is an open-source project that makes
+Signal accessible through a REST interface.
 </p>
 <ul>
   <li><strong>Docker</strong> must be installed on the server</li>
-  <li>A <strong>phone number</strong> to be registered with Signal (a dedicated number is recommended)</li>
+  <li>A <strong>phone number</strong> registered with Signal (a dedicated number is recommended)</li>
   <li>The Docker image: <code>bbernhard/signal-cli-rest-api</code></li>
 </ul>
 
+<p>
+<strong>Important:</strong> The Signal integration is designed <strong>for sending only</strong>.
+Incoming Signal messages are not received in Klacks.
+</p>
+
 <hr>
 
-<h3>Step 1 — Set up the Signal-CLI REST API</h3>
+<h3>Step 1 — Set up the signal-cli-rest-api</h3>
 <ol>
-  <li>Start the Signal-CLI container with Docker:
+  <li>Start the container with Docker:
     <pre>docker run -d --name signal-cli-rest-api \
   --restart=unless-stopped \
   -p 8080:8080 \
@@ -24,24 +29,23 @@ Signal accessible via a REST interface.
   -e MODE=normal \
   bbernhard/signal-cli-rest-api</pre>
   </li>
-  <li>Register your phone number via the API:
-    <pre>curl -X POST 'http://localhost:8080/v1/register/{number}' \
-  -H 'Content-Type: application/json' \
-  -d '{"captcha": "", "use_voice": false}'</pre>
-    <p>Replace <code>{number}</code> with your number in the format <code>+49171...</code></p>
-  </li>
-  <li>Verify the number with the received code:
-    <pre>curl -X POST 'http://localhost:8080/v1/register/{number}/verify/{code}'</pre>
-  </li>
+  <li>Link your Signal number using the <strong>QR link method</strong>:
+    Open in your browser
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    and scan the displayed QR code with the Signal app on the phone where the number
+    is registered (<strong>Settings</strong> &rarr; <strong>Linked Devices</strong> &rarr;
+    <strong>Link New Device</strong>). This links the container as a secondary device.</li>
+  <li>Alternatively, you can register the number independently via the API —
+    see the project documentation for details.</li>
   <li>Test the API with a health check:
     <pre>curl http://localhost:8080/v1/about</pre>
   </li>
 </ol>
 
 <p>
-<em>Note: For further configuration details, refer to the
+<em>Note: You can find further configuration details in the
 <a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
-Signal-CLI REST API documentation</a>.</em>
+signal-cli-rest-api documentation</a>.</em>
 </p>
 
 <hr>
@@ -58,55 +62,54 @@ Signal-CLI REST API documentation</a>.</em>
   <tr><td>Name</td><td>Unique internal name</td><td><code>signal-main</code></td></tr>
   <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>Signal</code></td></tr>
   <tr><td>Provider Type</td><td>Select <strong>Signal</strong></td><td>Signal</td></tr>
-  <tr><td>Signal Number</td><td>The registered phone number in international format</td><td><code>+491711234567</code></td></tr>
-  <tr><td>API URL</td><td>URL of the Signal-CLI REST API</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Signal Number</td><td>The registered phone number in international format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal CLI API URL</td><td>URL of the signal-cli-rest-api container. If the container runs on the same server as Klacks, this may be <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
   <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
 </table>
 
 <ol start="4">
   <li>Click <strong>Save</strong>.</li>
-  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.
+    The test checks whether the given number is registered in the container.</li>
 </ol>
+
+<p>
+<em>Note: Klacks sends messages via the container's <code>POST /v2/send</code> endpoint.</em>
+</p>
 
 <hr>
 
 <h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
 <p>
 Once the Signal provider is configured and enabled, the chatbot Klacksy can send
-messages. You don't need to know any phone numbers — simply use the name of
-the employee or client:
+messages. You do not need to know any phone numbers — simply use the name of the
+employee or client:
 </p>
 
 <pre>
-"Send a message to Max Muster: Your appointment is tomorrow at 2 PM."
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
 "Send Anna Beispiel a Signal message: The shift has been swapped."
 "Notify Peter Müller that his shift on Monday is cancelled."
 </pre>
 
 <p>
-Klacksy automatically looks up the recipient's phone number and uses the
-configured Signal provider. The process is fully transparent to you —
-you work with names, Klacksy takes care of the rest.
+Klacksy automatically looks up the recipient's stored mobile number and uses the
+configured Signal provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
 </p>
 
 <p><strong>Prerequisite:</strong> The recipient must have a mobile number stored in Klacks
-(under Address &rarr; Contact Details).</p>
+(under Address &rarr; Contact Details), in international format (e.g. <code>+41791234567</code>).
+Broadcast messages also fall back to the stored mobile number for Signal delivery.</p>
 
 <hr>
 
-<h3>Step 4 — Receive incoming messages (Webhook)</h3>
+<h3>Incoming Messages</h3>
 <p>
-To display incoming Signal messages in Klacks, a webhook must be configured.
+The Signal integration does not support receiving — replies to sent messages are
+<strong>not</strong> transmitted to Klacks. The messaging inbox therefore does not
+show any incoming messages for this provider.
 </p>
-
-<ol>
-  <li>Go to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
-  <li>Note the automatically generated <strong>webhook secret</strong> of your Signal provider.</li>
-  <li>Configure the webhook URL in the Signal-CLI REST API:
-    <pre>https://{your-domain}/api/messaging/webhook/signal</pre>
-  </li>
-  <li>Incoming messages will now appear in real time in the <strong>Messaging Inbox</strong>.</li>
-</ol>
 
 <hr>
 
@@ -116,27 +119,27 @@ To display incoming Signal messages in Klacks, a webhook must be configured.
   <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
   <tr>
     <td>Connection test fails</td>
-    <td>Signal-CLI REST API not reachable</td>
-    <td>Check whether the Docker container is running: <code>docker ps</code></td>
+    <td>Container not reachable</td>
+    <td>Check whether the Docker container is running (<code>docker ps</code>) and the API URL is correct</td>
   </tr>
   <tr>
-    <td>Message not delivered</td>
-    <td>Signal number not registered or verified</td>
-    <td>Repeat the registration and verification via the API</td>
+    <td>Connection test fails</td>
+    <td>Number not registered in the container</td>
+    <td>Repeat the linking process using the QR link method</td>
   </tr>
   <tr>
-    <td>Recipient does not receive the message</td>
-    <td>Recipient does not use Signal or number is incorrect</td>
+    <td>Message is not delivered</td>
+    <td>Recipient does not use Signal or number is wrong</td>
     <td>Make sure the recipient has Signal installed and the number is stored in the format <code>+{country code}{number}</code></td>
   </tr>
   <tr>
-    <td>Incoming messages missing</td>
-    <td>Webhook not configured</td>
-    <td>Check the webhook URL in the Signal-CLI REST API configuration</td>
+    <td>Link lost</td>
+    <td>Device was unlinked in the Signal app</td>
+    <td>Link the container again via the QR link</td>
   </tr>
   <tr>
     <td>Container does not start</td>
     <td>Port 8080 already in use</td>
-    <td>Use a different port: <code>-p 9090:8080</code> and update the API URL in Klacks accordingly</td>
+    <td>Use a different port: <code>-p 9090:8080</code> and adjust the API URL in Klacks</td>
   </tr>
 </table>

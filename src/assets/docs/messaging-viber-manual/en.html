@@ -1,0 +1,132 @@
+<h2>Setting up a Viber Bot</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send and receive messages via Viber, you need a <strong>Viber bot</strong>,
+which you create through the Viber partner portal. Viber is particularly popular
+in Eastern Europe and the Middle East.
+</p>
+
+<p>
+<em>Note: Viber has commercialized bot usage — depending on country and message
+volume, paid models may apply. Check the current conditions on
+<strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Step 1 — Create a Viber bot</h3>
+<ol>
+  <li>Sign up on <strong>partners.viber.com</strong>.</li>
+  <li>Create a new <strong>bot</strong> in the partner portal.</li>
+  <li>Note down the <strong>auth token</strong> from the bot dashboard.</li>
+  <li>Choose a <strong>sender name</strong> (e.g. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Step 2 — Configure Viber in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>Viber</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>The auth token from the bot dashboard</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Sender Name</td><td>Name shown to the recipient</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook URL</td><td>Automatically filled with the URL of your Klacks instance (not editable)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>. Klacks registers the webhook with Viber
+    <strong>automatically</strong> (<code>set_webhook</code>).</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<p>
+<strong>Important:</strong> The displayed webhook URL must be publicly reachable via
+<strong>HTTPS</strong> — otherwise the webhook registration fails when saving.
+</p>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the Viber provider is configured and enabled, the chatbot Klacksy can send
+messages. You do not need to know any Viber user IDs — simply use the name of the
+employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's stored Viber user ID and uses the
+configured Viber provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
+</p>
+
+<p>
+<strong>Important:</strong> Viber bots can only message users who have
+<strong>subscribed</strong> to the bot (started a 1:1 chat with it). The recipient
+must therefore send a message to the bot first. Their <strong>Viber user ID</strong>
+becomes known through the incoming message (visible in the messaging inbox) and is
+stored for the recipient under Address &rarr; Contact Details.
+</p>
+
+<hr>
+
+<h3>Step 4 — Receive incoming messages</h3>
+<p>
+Incoming Viber messages are received automatically through the webhook registered
+when saving — no further configuration is required.
+</p>
+
+<ol>
+  <li>The user searches for the bot in Viber and sends it a message.</li>
+  <li>The message appears in real time in the <strong>messaging inbox</strong>.</li>
+  <li>Copy the sender's Viber user ID into the employee's contact details so that
+    Klacksy can message them directly in the future.</li>
+</ol>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>Auth token wrong</td>
+    <td>Check the token in the bot dashboard on partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Webhook registration fails when saving</td>
+    <td>Klacks instance not publicly reachable via HTTPS</td>
+    <td>Make sure the webhook URL is publicly reachable and a valid SSL certificate is in place</td>
+  </tr>
+  <tr>
+    <td>Message is not delivered</td>
+    <td>Recipient has not subscribed to the bot</td>
+    <td>The recipient must first send a message to the bot in Viber</td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>Viber user ID not stored</td>
+    <td>Enter the user ID from the messaging inbox under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Incoming messages missing</td>
+    <td>Webhook not registered</td>
+    <td>Save the provider again so that Klacks re-registers the webhook</td>
+  </tr>
+</table>

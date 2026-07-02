@@ -1,0 +1,142 @@
+<h2>Setting up LINE Messaging</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send and receive messages via LINE, you need a <strong>LINE Official Account</strong>
+with a <strong>Messaging API channel</strong> in the LINE Developers Console.
+LINE is particularly widespread in Japan, Taiwan, and Thailand.
+</p>
+
+<p>
+<em>Note: Push messages have a monthly quota depending on your LINE plan
+(the free plan is limited). Check the current conditions of your Official
+Account plan.</em>
+</p>
+
+<hr>
+
+<h3>Step 1 — Create a LINE Official Account and Messaging API channel</h3>
+<ol>
+  <li>Create a <strong>LINE Official Account</strong>
+    (via the LINE Official Account Manager).</li>
+  <li>Open the <strong>LINE Developers Console</strong> (developers.line.biz) and
+    create a <strong>Messaging API channel</strong> or link your Official Account
+    to the Messaging API.</li>
+  <li>In the <strong>Messaging API</strong> tab, issue a long-lived
+    <strong>channel access token</strong>.</li>
+  <li>Note down the <strong>channel secret</strong> from the
+    <strong>Basic Settings</strong> tab.</li>
+</ol>
+
+<p>
+<em>Note: Treat the channel access token and channel secret like passwords.
+Do not share them publicly and store them securely.</em>
+</p>
+
+<hr>
+
+<h3>Step 2 — Configure LINE in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>line-bot</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>LINE</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>The long-lived token from the Messaging API tab</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>The secret from the Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook URL</td><td>Automatically filled with the URL of your Klacks instance (not editable)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.</li>
+</ol>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the LINE provider is configured and enabled, the chatbot Klacksy can send
+messages. You do not need to know any LINE user IDs — simply use the name of the
+employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's stored LINE user ID and uses the
+configured LINE provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
+</p>
+
+<p>
+<strong>Prerequisite:</strong> The recipient's <strong>LINE user ID</strong>
+(starts with <code>U</code>…) must be stored in Klacks (under Address &rarr; Contact
+Details). The user ID becomes known through incoming messages (visible in the
+messaging inbox) — for this, the recipient must have added your Official Account
+as a friend and sent it a message.
+</p>
+
+<hr>
+
+<h3>Step 4 — Receive incoming messages (webhook)</h3>
+<p>
+To display incoming LINE messages in Klacks, the webhook URL must be entered
+<strong>manually</strong> in the LINE Developers Console.
+</p>
+
+<ol>
+  <li>Copy the <strong>webhook URL</strong> displayed in Klacks from the provider
+    settings:
+    <pre>https://{your-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Enter this URL in the LINE Developers Console under
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> as the
+    <strong>Webhook URL</strong>.</li>
+  <li>Enable the <strong>"Use webhook"</strong> option.</li>
+  <li>Make sure your Klacks instance is publicly reachable via HTTPS.</li>
+  <li>Incoming messages now appear in real time in the <strong>messaging inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>Channel access token invalid</td>
+    <td>Issue a new token in the LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>Message is not delivered</td>
+    <td>Recipient has not added the Official Account as a friend or has blocked it</td>
+    <td>The recipient must add the account as a friend in LINE</td>
+  </tr>
+  <tr>
+    <td>Sending fails</td>
+    <td>Monthly push quota exhausted</td>
+    <td>Check your plan's quota in the LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>LINE user ID not stored</td>
+    <td>Enter the user ID from the messaging inbox under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Incoming messages missing</td>
+    <td>Webhook URL not entered or "Use webhook" disabled</td>
+    <td>Check the webhook settings in the LINE Developers Console</td>
+  </tr>
+</table>

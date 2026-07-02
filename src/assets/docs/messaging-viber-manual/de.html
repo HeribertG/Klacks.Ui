@@ -1,0 +1,133 @@
+<h2>Viber-Bot einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über Viber zu senden und zu empfangen, benötigen Sie einen
+<strong>Viber-Bot</strong>, den Sie über das Viber-Partner-Portal erstellen.
+Viber ist besonders beliebt in Osteuropa und dem Nahen Osten.
+</p>
+
+<p>
+<em>Hinweis: Viber hat die Bot-Nutzung kommerzialisiert — je nach Land und
+Nachrichtenvolumen können kostenpflichtige Modelle gelten. Prüfen Sie die aktuellen
+Konditionen auf <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 1 — Viber-Bot erstellen</h3>
+<ol>
+  <li>Registrieren Sie sich auf <strong>partners.viber.com</strong>.</li>
+  <li>Erstellen Sie einen neuen <strong>Bot</strong> im Partner-Portal.</li>
+  <li>Notieren Sie sich den <strong>Auth-Token</strong> aus dem Bot-Dashboard.</li>
+  <li>Legen Sie einen <strong>Absendernamen</strong> fest (z.B. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Schritt 2 — Viber in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Viber</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth-Token</td><td>Der Auth-Token aus dem Bot-Dashboard</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Absendername</td><td>Name, der beim Empfänger angezeigt wird</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wird automatisch mit der URL Ihrer Klacks-Instanz befüllt (nicht editierbar)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>. Klacks registriert den Webhook dabei
+    <strong>automatisch</strong> bei Viber (<code>set_webhook</code>).</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<p>
+<strong>Wichtig:</strong> Die angezeigte Webhook-URL muss öffentlich über
+<strong>HTTPS</strong> erreichbar sein — sonst schlägt die Webhook-Registrierung
+beim Speichern fehl.
+</p>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der Viber-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine Viber-User-IDs kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte Viber-User-ID des Empfängers und
+verwendet den konfigurierten Viber-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p>
+<strong>Wichtig:</strong> Viber-Bots können nur Nutzern schreiben, die den Bot
+<strong>abonniert</strong> haben (1:1-Chat mit dem Bot gestartet). Der Empfänger muss
+dem Bot also zuerst eine Nachricht senden. Seine <strong>Viber-User-ID</strong> wird
+dabei über die eingehende Nachricht bekannt (sichtbar in der Messaging-Inbox) und
+wird beim Empfänger unter Adresse &rarr; Kontaktdaten hinterlegt.
+</p>
+
+<hr>
+
+<h3>Schritt 4 — Eingehende Nachrichten empfangen</h3>
+<p>
+Eingehende Viber-Nachrichten werden automatisch über den beim Speichern registrierten
+Webhook empfangen — es ist keine weitere Konfiguration nötig.
+</p>
+
+<ol>
+  <li>Der Nutzer sucht den Bot in Viber und sendet ihm eine Nachricht.</li>
+  <li>Die Nachricht erscheint in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
+  <li>Übernehmen Sie die Viber-User-ID des Absenders in die Kontaktdaten des Mitarbeiters,
+    damit Klacksy ihn künftig direkt anschreiben kann.</li>
+</ol>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Auth-Token falsch</td>
+    <td>Prüfen Sie den Token im Bot-Dashboard auf partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Webhook-Registrierung schlägt beim Speichern fehl</td>
+    <td>Klacks-Instanz nicht öffentlich per HTTPS erreichbar</td>
+    <td>Stellen Sie sicher, dass die Webhook-URL öffentlich erreichbar ist und ein gültiges SSL-Zertifikat vorliegt</td>
+  </tr>
+  <tr>
+    <td>Nachricht wird nicht zugestellt</td>
+    <td>Empfänger hat den Bot nicht abonniert</td>
+    <td>Der Empfänger muss dem Bot in Viber zuerst eine Nachricht senden</td>
+  </tr>
+  <tr>
+    <td>Empfänger nicht gefunden</td>
+    <td>Viber-User-ID nicht hinterlegt</td>
+    <td>Tragen Sie die User-ID aus der Messaging-Inbox unter Adresse &rarr; Kontaktdaten ein</td>
+  </tr>
+  <tr>
+    <td>Eingehende Nachrichten fehlen</td>
+    <td>Webhook nicht registriert</td>
+    <td>Speichern Sie den Anbieter erneut, damit Klacks den Webhook neu registriert</td>
+  </tr>
+</table>

@@ -2,9 +2,9 @@
 
 <h3>Voraussetzungen</h3>
 <p>
-Um Signal-Nachrichten über Klacks zu senden und zu empfangen, benötigen Sie eine laufende
-Instanz der <strong>Signal-CLI REST API</strong>. Dabei handelt es sich um ein Open-Source-Projekt,
-das Signal über eine REST-Schnittstelle zugänglich macht.
+Um Signal-Nachrichten über Klacks zu senden, benötigen Sie eine selbst gehostete
+Instanz der <strong>signal-cli-rest-api</strong>. Dabei handelt es sich um ein
+Open-Source-Projekt, das Signal über eine REST-Schnittstelle zugänglich macht.
 </p>
 <ul>
   <li><strong>Docker</strong> muss auf dem Server installiert sein</li>
@@ -12,11 +12,16 @@ das Signal über eine REST-Schnittstelle zugänglich macht.
   <li>Das Docker-Image: <code>bbernhard/signal-cli-rest-api</code></li>
 </ul>
 
+<p>
+<strong>Wichtig:</strong> Die Signal-Anbindung ist <strong>nur für den Versand</strong> ausgelegt.
+Eingehende Signal-Nachrichten werden in Klacks nicht empfangen.
+</p>
+
 <hr>
 
-<h3>Schritt 1 — Signal-CLI REST API einrichten</h3>
+<h3>Schritt 1 — signal-cli-rest-api einrichten</h3>
 <ol>
-  <li>Starten Sie den Signal-CLI-Container mit Docker:
+  <li>Starten Sie den Container mit Docker:
     <pre>docker run -d --name signal-cli-rest-api \
   --restart=unless-stopped \
   -p 8080:8080 \
@@ -24,15 +29,15 @@ das Signal über eine REST-Schnittstelle zugänglich macht.
   -e MODE=normal \
   bbernhard/signal-cli-rest-api</pre>
   </li>
-  <li>Registrieren Sie Ihre Telefonnummer über die API:
-    <pre>curl -X POST 'http://localhost:8080/v1/register/{nummer}' \
-  -H 'Content-Type: application/json' \
-  -d '{"captcha": "", "use_voice": false}'</pre>
-    <p>Ersetzen Sie <code>{nummer}</code> durch Ihre Nummer im Format <code>+49171...</code></p>
-  </li>
-  <li>Verifizieren Sie die Nummer mit dem empfangenen Code:
-    <pre>curl -X POST 'http://localhost:8080/v1/register/{nummer}/verify/{code}'</pre>
-  </li>
+  <li>Verknüpfen Sie Ihre Signal-Nummer über das <strong>QR-Link-Verfahren</strong>:
+    Öffnen Sie im Browser
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    und scannen Sie den angezeigten QR-Code mit der Signal-App auf dem Telefon, auf dem
+    die Nummer registriert ist (<strong>Einstellungen</strong> &rarr;
+    <strong>Gekoppelte Geräte</strong> &rarr; <strong>Gerät koppeln</strong>).
+    Der Container wird damit als Zweitgerät verknüpft.</li>
+  <li>Alternativ können Sie die Nummer eigenständig über die API registrieren —
+    Details dazu finden Sie in der Dokumentation des Projekts.</li>
   <li>Testen Sie die API mit einem Healthcheck:
     <pre>curl http://localhost:8080/v1/about</pre>
   </li>
@@ -41,7 +46,7 @@ das Signal über eine REST-Schnittstelle zugänglich macht.
 <p>
 <em>Hinweis: Weitere Details zur Konfiguration finden Sie in der
 <a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
-Signal-CLI REST API Dokumentation</a>.</em>
+signal-cli-rest-api Dokumentation</a>.</em>
 </p>
 
 <hr>
@@ -58,15 +63,21 @@ Signal-CLI REST API Dokumentation</a>.</em>
   <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>signal-main</code></td></tr>
   <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>Signal</code></td></tr>
   <tr><td>Anbietertyp</td><td>Wählen Sie <strong>Signal</strong></td><td>Signal</td></tr>
-  <tr><td>Signal-Nummer</td><td>Die registrierte Telefonnummer im internationalen Format</td><td><code>+491711234567</code></td></tr>
-  <tr><td>API-URL</td><td>URL der Signal-CLI REST API</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Signal-Nummer</td><td>Die registrierte Telefonnummer im internationalen Format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API-URL</td><td>URL des signal-cli-rest-api-Containers. Läuft der Container auf demselben Server wie Klacks, darf hier <code>http://localhost:8080</code> stehen.</td><td><code>http://localhost:8080</code></td></tr>
   <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
 </table>
 
 <ol start="4">
   <li>Klicken Sie auf <strong>Speichern</strong>.</li>
-  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.
+    Der Test prüft, ob die angegebene Nummer im Container registriert ist.</li>
 </ol>
+
+<p>
+<em>Hinweis: Klacks versendet Nachrichten über den Endpunkt <code>POST /v2/send</code>
+des Containers.</em>
+</p>
 
 <hr>
 
@@ -84,29 +95,23 @@ einfach den Namen des Mitarbeiters oder Klienten:
 </pre>
 
 <p>
-Klacksy sucht automatisch die hinterlegte Telefonnummer des Empfängers und
+Klacksy sucht automatisch die hinterlegte Mobilnummer des Empfängers und
 verwendet den konfigurierten Signal-Anbieter. Der Versand ist für Sie vollständig transparent —
 Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
 </p>
 
 <p><strong>Voraussetzung:</strong> Beim Empfänger muss eine Mobilnummer in Klacks hinterlegt sein
-(unter Adresse &rarr; Kontaktdaten).</p>
+(unter Adresse &rarr; Kontaktdaten), im internationalen Format (z.B. <code>+41791234567</code>).
+Auch bei Broadcast-Nachrichten greift der Signal-Versand auf die hinterlegte Mobilnummer zurück.</p>
 
 <hr>
 
-<h3>Schritt 4 — Eingehende Nachrichten empfangen (Webhook)</h3>
+<h3>Eingehende Nachrichten</h3>
 <p>
-Um eingehende Signal-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfiguriert werden.
+Die Signal-Anbindung unterstützt keinen Empfang — Antworten auf versendete Nachrichten
+werden <strong>nicht</strong> an Klacks übertragen. Die Messaging-Inbox zeigt für diesen
+Anbieter daher keine eingehenden Nachrichten an.
 </p>
-
-<ol>
-  <li>Gehen Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
-  <li>Notieren Sie das automatisch generierte <strong>Webhook-Secret</strong> Ihres Signal-Anbieters.</li>
-  <li>Konfigurieren Sie die Webhook-URL in der Signal-CLI REST API:
-    <pre>https://{ihre-domain}/api/messaging/webhook/signal</pre>
-  </li>
-  <li>Eingehende Nachrichten erscheinen nun in Echtzeit in der <strong>Messaging-Inbox</strong>.</li>
-</ol>
 
 <hr>
 
@@ -116,23 +121,23 @@ Um eingehende Signal-Nachrichten in Klacks anzuzeigen, muss ein Webhook konfigur
   <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
   <tr>
     <td>Verbindungstest schlägt fehl</td>
-    <td>Signal-CLI REST API nicht erreichbar</td>
-    <td>Prüfen Sie, ob der Docker-Container läuft: <code>docker ps</code></td>
+    <td>Container nicht erreichbar</td>
+    <td>Prüfen Sie, ob der Docker-Container läuft (<code>docker ps</code>) und ob die API-URL korrekt ist</td>
+  </tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>Nummer nicht im Container registriert</td>
+    <td>Wiederholen Sie die Verknüpfung über das QR-Link-Verfahren</td>
   </tr>
   <tr>
     <td>Nachricht wird nicht zugestellt</td>
-    <td>Signal-Nummer nicht registriert oder verifiziert</td>
-    <td>Wiederholen Sie die Registrierung und Verifizierung über die API</td>
-  </tr>
-  <tr>
-    <td>Empfänger erhält keine Nachricht</td>
     <td>Empfänger nutzt kein Signal oder Nummer falsch</td>
     <td>Stellen Sie sicher, dass der Empfänger Signal installiert hat und die Nummer im Format <code>+{Ländervorwahl}{Nummer}</code> hinterlegt ist</td>
   </tr>
   <tr>
-    <td>Eingehende Nachrichten fehlen</td>
-    <td>Webhook nicht konfiguriert</td>
-    <td>Prüfen Sie die Webhook-URL in der Signal-CLI REST API Konfiguration</td>
+    <td>Verknüpfung verloren</td>
+    <td>Gerät wurde in der Signal-App entkoppelt</td>
+    <td>Verknüpfen Sie den Container erneut über den QR-Link</td>
   </tr>
   <tr>
     <td>Container startet nicht</td>

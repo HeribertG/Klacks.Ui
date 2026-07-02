@@ -1,0 +1,139 @@
+<h2>Configurer la messagerie KakaoTalk</h2>
+
+<h3>Conditions préalables</h3>
+<p>
+Pour envoyer des messages via KakaoTalk, vous avez besoin d'une application sur
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk est le messager
+dominant en Corée du Sud. L'intégration Klacks utilise l'API développeur de Kakao
+(« envoyer un message aux amis »).
+</p>
+
+<p>
+<strong>Limitations importantes de l'API développeur Kakao :</strong>
+</p>
+<ul>
+  <li>L'intégration est conçue <strong>uniquement pour l'envoi</strong> — pas de réception.</li>
+  <li>Le token d'accès est <strong>de courte durée (env. 6 heures)</strong> et doit être
+    renouvelé en dehors de Klacks puis saisi à nouveau.</li>
+  <li>Les messages ne peuvent être envoyés qu'aux utilisateurs connectés comme
+    <strong>« amis » Kakao de l'application</strong> et ayant consenti à la réception
+    de messages.</li>
+  <li>Pour les messages professionnels en production (<strong>AlimTalk</strong>), un
+    canal business via des agences autorisées est requis en Corée — cette intégration
+    ne couvre <strong>pas</strong> cela ; elle utilise l'API développeur.</li>
+</ul>
+
+<hr>
+
+<h3>Étape 1 — Configurer une application Kakao Developers</h3>
+<ol>
+  <li>Créez une application sur <strong>developers.kakao.com</strong>.</li>
+  <li>Activez <strong>Kakao Login</strong> pour l'application.</li>
+  <li>Activez les scopes <code>talk_message</code> et <code>friends</code>.</li>
+  <li>Obtenez un <strong>token d'accès</strong> via le flux OAuth de Kakao Login
+    (l'utilisateur au nom duquel les messages sont envoyés doit consentir aux scopes).</li>
+</ol>
+
+<p>
+<em>Remarque : traitez le token d'accès comme un mot de passe.
+Ne le partagez pas publiquement et conservez-le en lieu sûr.</em>
+</p>
+
+<hr>
+
+<h3>Étape 2 — Configurer KakaoTalk dans Klacks</h3>
+<ol>
+  <li>Accédez à <strong>Paramètres</strong> &rarr; <strong>Fournisseurs de messagerie</strong>.</li>
+  <li>Cliquez sur <strong>Ajouter</strong>.</li>
+  <li>Remplissez les champs comme suit :</li>
+</ol>
+
+<table>
+  <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>Nom</td><td>Nom interne unique</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Nom affiché</td><td>Affiché dans l'interface utilisateur</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Type de fournisseur</td><td>Sélectionnez <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Token d'accès</td><td>Le token obtenu via le flux OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Activé</td><td>Active ou désactive le fournisseur</td><td>Oui</td></tr>
+</table>
+
+<ol start="4">
+  <li>Cliquez sur <strong>Enregistrer</strong>.</li>
+  <li>Testez la connexion à l'aide du bouton <strong>Tester</strong> dans la liste des fournisseurs.</li>
+</ol>
+
+<p>
+<strong>Important :</strong> Le token d'accès expire après <strong>env. 6 heures</strong>.
+Klacks ne le renouvelle pas automatiquement — vous devez le renouveler en externe
+(flux refresh token de Kakao) et le saisir à nouveau dans Klacks.
+</p>
+
+<hr>
+
+<h3>Étape 3 — Envoyer des messages via le chatbot (Klacksy)</h3>
+<p>
+Une fois le fournisseur KakaoTalk configuré et activé, le chatbot Klacksy peut envoyer
+des messages. Vous n'avez pas besoin de connaître les ID —
+utilisez simplement le nom de l'employé ou du client :
+</p>
+
+<pre>
+« Envoie un message à Max Muster : Votre rendez-vous est demain à 14h. »
+« Envoie un message à Anna Beispiel : Le service a été échangé. »
+« Préviens Peter Müller que son service de lundi est annulé. »
+</pre>
+
+<p>
+Klacksy recherche automatiquement l'identifiant enregistré du destinataire et
+utilise le fournisseur KakaoTalk configuré. Le processus est entièrement transparent
+pour vous — vous travaillez avec des noms, Klacksy s'occupe du reste.
+</p>
+
+<p>
+<strong>Condition préalable :</strong> L'<strong>UUID d'ami</strong> (friend UUID) issu
+de l'API friends de Kakao doit être enregistré dans Klacks pour le destinataire
+(sous Adresse &rarr; Coordonnées). Le destinataire doit être connecté comme « ami »
+Kakao de l'application — il est impossible d'envoyer à d'autres utilisateurs.
+</p>
+
+<hr>
+
+<h3>Messages entrants</h3>
+<p>
+L'intégration KakaoTalk ne prend pas en charge la réception — les réponses aux messages
+envoyés ne sont <strong>pas</strong> transmises à Klacks. La boîte de réception de
+messagerie n'affiche donc aucun message entrant pour ce fournisseur.
+</p>
+
+<hr>
+
+<h3>Dépannage</h3>
+
+<table>
+  <tr><th>Problème</th><th>Cause possible</th><th>Solution</th></tr>
+  <tr>
+    <td>Le test de connexion échoue</td>
+    <td>Token d'accès expiré (validité env. 6 heures)</td>
+    <td>Renouvelez le token via le flux OAuth de Kakao et saisissez-le à nouveau</td>
+  </tr>
+  <tr>
+    <td>Le message n'est pas livré</td>
+    <td>Le destinataire n'est pas un « ami » Kakao de l'application</td>
+    <td>Le destinataire doit se connecter à l'application via Kakao Login et consentir au scope</td>
+  </tr>
+  <tr>
+    <td>Destinataire introuvable</td>
+    <td>UUID d'ami non enregistré</td>
+    <td>Déterminez l'UUID via l'API friends et saisissez-le sous Adresse &rarr; Coordonnées</td>
+  </tr>
+  <tr>
+    <td>Envoi rejeté avec une erreur de permission</td>
+    <td>Scope <code>talk_message</code> ou <code>friends</code> non activé</td>
+    <td>Vérifiez les paramètres de scope de l'application sur developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Envoi de masse en production impossible</td>
+    <td>L'API développeur ne couvre pas AlimTalk</td>
+    <td>Les messages business en Corée nécessitent un canal business via une agence autorisée</td>
+  </tr>
+</table>

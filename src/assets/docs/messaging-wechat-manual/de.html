@@ -1,0 +1,138 @@
+<h2>WeChat-Messaging einrichten</h2>
+
+<h3>Voraussetzungen</h3>
+<p>
+Um Nachrichten über WeChat zu senden, benötigen Sie einen <strong>WeChat Official
+Account</strong> vom Typ <strong>Service Account</strong> auf
+<strong>mp.weixin.qq.com</strong>. WeChat ist der dominierende Messenger in China.
+</p>
+
+<p>
+<strong>Wichtig:</strong> Die WeChat-Anbindung ist <strong>nur für den Versand</strong>
+ausgelegt. Zudem gelten Einschränkungen der WeChat-Plattform:
+</p>
+<ul>
+  <li>Customer-Service-Nachrichten erreichen nur <strong>Follower</strong>, die innerhalb
+    der letzten <strong>48 Stunden</strong> mit dem Account interagiert haben.</li>
+  <li>Die Verifizierung eines Official Accounts hat für Unternehmen
+    <strong>außerhalb Chinas hohe Hürden</strong> (u.a. chinesische Geschäftsunterlagen);
+    planen Sie dies realistisch ein.</li>
+</ul>
+
+<hr>
+
+<h3>Schritt 1 — WeChat Official Account einrichten</h3>
+<ol>
+  <li>Beantragen Sie auf <strong>mp.weixin.qq.com</strong> einen
+    <strong>Service Account</strong> und durchlaufen Sie die Verifizierung.</li>
+  <li>Öffnen Sie <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> und
+    notieren Sie sich <strong>AppID</strong> und <strong>AppSecret</strong>.</li>
+  <li>Pflegen Sie die <strong>Server-IP-Whitelist</strong>: Tragen Sie die öffentliche
+    IP-Adresse Ihres Klacks-Servers ein. Ohne diesen Eintrag lehnt WeChat die
+    Token-Anfragen von Klacks ab.</li>
+</ol>
+
+<p>
+<em>Hinweis: Behandeln Sie das AppSecret wie ein Passwort.
+Teilen Sie es nicht öffentlich und speichern Sie es sicher.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 2 — WeChat in Klacks konfigurieren</h3>
+<ol>
+  <li>Navigieren Sie zu <strong>Einstellungen</strong> &rarr; <strong>Messaging-Anbieter</strong>.</li>
+  <li>Klicken Sie auf <strong>Hinzufügen</strong>.</li>
+  <li>Füllen Sie die Felder wie folgt aus:</li>
+</ol>
+
+<table>
+  <tr><th>Feld</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Name</td><td>Interner eindeutiger Name</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Anzeigename</td><td>Wird in der Oberfläche angezeigt</td><td><code>WeChat</code></td></tr>
+  <tr><td>Anbietertyp</td><td>Wählen Sie <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID aus Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret aus Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Aktiviert</td><td>Schaltet den Anbieter ein/aus</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicken Sie auf <strong>Speichern</strong>.</li>
+  <li>Testen Sie die Verbindung über den <strong>Test</strong>-Button in der Anbieter-Liste.</li>
+</ol>
+
+<p>
+<em>Hinweis: Klacks holt das WeChat-Access-Token automatisch bei WeChat ab und
+speichert es zwischen — Sie müssen kein Token manuell pflegen.</em>
+</p>
+
+<hr>
+
+<h3>Schritt 3 — Nachrichten über den Chatbot (Klacksy) senden</h3>
+<p>
+Sobald der WeChat-Anbieter konfiguriert und aktiviert ist, kann der Chatbot Klacksy
+Nachrichten versenden. Sie müssen keine OpenIDs kennen — verwenden Sie
+einfach den Namen des Mitarbeiters oder Klienten:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy sucht automatisch die hinterlegte OpenID des Empfängers und
+verwendet den konfigurierten WeChat-Anbieter. Der Versand ist für Sie vollständig transparent —
+Sie arbeiten mit Namen, Klacksy kümmert sich um den Rest.
+</p>
+
+<p>
+<strong>Voraussetzung:</strong> Beim Empfänger muss die <strong>OpenID</strong> des
+Followers in Klacks hinterlegt sein (unter Adresse &rarr; Kontaktdaten). Der Empfänger
+muss dem Official Account folgen und innerhalb der letzten <strong>48 Stunden</strong>
+mit ihm interagiert haben — sonst lehnt WeChat den Versand mit dem Fehler
+<em>„response out of time limit"</em> ab (dieser wird im Nachrichtenlog angezeigt).
+</p>
+
+<hr>
+
+<h3>Eingehende Nachrichten</h3>
+<p>
+Die WeChat-Anbindung unterstützt keinen Empfang — Antworten auf versendete Nachrichten
+werden <strong>nicht</strong> an Klacks übertragen. Die Messaging-Inbox zeigt für diesen
+Anbieter daher keine eingehenden Nachrichten an.
+</p>
+
+<hr>
+
+<h3>Fehlerbehebung</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mögliche Ursache</th><th>Lösung</th></tr>
+  <tr>
+    <td>Verbindungstest schlägt fehl</td>
+    <td>App-ID oder App-Secret falsch</td>
+    <td>Prüfen Sie beide Werte unter Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Token-Abruf wird abgelehnt</td>
+    <td>Klacks-Server-IP nicht in der Whitelist</td>
+    <td>Tragen Sie die öffentliche IP des Klacks-Servers in die Server-IP-Whitelist ein</td>
+  </tr>
+  <tr>
+    <td>Fehler „response out of time limit"</td>
+    <td>48-Stunden-Fenster abgelaufen</td>
+    <td>Der Follower muss erneut mit dem Official Account interagieren (z.B. eine Nachricht senden)</td>
+  </tr>
+  <tr>
+    <td>Empfänger nicht gefunden</td>
+    <td>OpenID nicht hinterlegt</td>
+    <td>Tragen Sie die OpenID des Followers unter Adresse &rarr; Kontaktdaten ein</td>
+  </tr>
+  <tr>
+    <td>Versand mit Berechtigungsfehler abgelehnt</td>
+    <td>Account-Typ oder Verifizierung unzureichend</td>
+    <td>Customer-Service-Nachrichten erfordern einen verifizierten Service Account</td>
+  </tr>
+</table>

@@ -1,0 +1,124 @@
+<h2>Setting up Threema Gateway</h2>
+
+<h3>Prerequisites</h3>
+<p>
+To send messages via Threema, you need an account with the
+<strong>Threema Gateway</strong>. Threema is a Swiss provider, widely used in
+Switzerland and privacy-friendly (Swiss DPA).
+</p>
+
+<p>
+<strong>Important:</strong> The Threema integration is designed <strong>for sending only</strong>.
+Receiving incoming messages would require the gateway's end-to-end mode and is not
+supported. Sending is a paid service — every sent message consumes <strong>credits</strong>.
+</p>
+
+<hr>
+
+<h3>Step 1 — Create a Threema Gateway account</h3>
+<ol>
+  <li>Sign up on <strong>gateway.threema.ch</strong>.</li>
+  <li>Request a <strong>Gateway ID in basic mode</strong>
+    (e.g. <code>*MYGATEWAY</code>). It always starts with an asterisk (<code>*</code>)
+    and must be approved by Threema.</li>
+  <li>Purchase <strong>credits</strong> — without a balance, no messages can be sent.</li>
+  <li>Note down the <strong>API secret</strong> from the gateway dashboard.</li>
+</ol>
+
+<p>
+<em>Note: Treat the API secret like a password.
+Do not share it publicly and store it securely.</em>
+</p>
+
+<hr>
+
+<h3>Step 2 — Configure Threema in Klacks</h3>
+<ol>
+  <li>Navigate to <strong>Settings</strong> &rarr; <strong>Messaging Providers</strong>.</li>
+  <li>Click <strong>Add</strong>.</li>
+  <li>Fill in the fields as follows:</li>
+</ol>
+
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Name</td><td>Unique internal name</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Display Name</td><td>Shown in the user interface</td><td><code>Threema</code></td></tr>
+  <tr><td>Provider Type</td><td>Select <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>Your Threema Gateway ID (basic mode, starts with <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>The API secret from the gateway dashboard</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Enabled</td><td>Turns the provider on/off</td><td>Yes</td></tr>
+</table>
+
+<ol start="4">
+  <li>Click <strong>Save</strong>.</li>
+  <li>Test the connection using the <strong>Test</strong> button in the provider list.
+    The test verifies the credentials via the gateway's credits query.</li>
+</ol>
+
+<hr>
+
+<h3>Step 3 — Send messages via the chatbot (Klacksy)</h3>
+<p>
+Once the Threema provider is configured and enabled, the chatbot Klacksy can send
+messages. You do not need to know any Threema IDs — simply use the name of the
+employee or client:
+</p>
+
+<pre>
+"Send a message to Max Muster: Your appointment is tomorrow at 2:00 PM."
+"Send Anna Beispiel a message: The shift has been swapped."
+"Notify Peter Müller that his shift on Monday is cancelled."
+</pre>
+
+<p>
+Klacksy automatically looks up the recipient's stored Threema ID and uses the
+configured Threema provider. The process is fully transparent for you — you work
+with names, Klacksy takes care of the rest.
+</p>
+
+<p><strong>Prerequisite:</strong> The recipient's <strong>8-character Threema ID</strong>
+must be stored in Klacks (under Address &rarr; Contact Details). Employees can find
+their Threema ID in the Threema app under "My Profile".</p>
+
+<hr>
+
+<h3>Incoming Messages</h3>
+<p>
+The Threema integration does not support receiving — replies to sent messages are
+<strong>not</strong> transmitted to Klacks. Receiving would require the end-to-end
+mode of the Threema Gateway; the Klacks integration uses basic mode.
+The messaging inbox therefore does not show any incoming messages for this provider.
+</p>
+
+<hr>
+
+<h3>Troubleshooting</h3>
+
+<table>
+  <tr><th>Problem</th><th>Possible Cause</th><th>Solution</th></tr>
+  <tr>
+    <td>Connection test fails</td>
+    <td>Gateway ID or API secret wrong</td>
+    <td>Check the credentials in the gateway dashboard on gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Message is not delivered</td>
+    <td>Threema ID wrong or does not exist</td>
+    <td>Check that the 8-character Threema ID is stored correctly</td>
+  </tr>
+  <tr>
+    <td>Sending fails</td>
+    <td>Credits used up</td>
+    <td>Top up credits in the Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Recipient not found</td>
+    <td>Threema ID not stored</td>
+    <td>Enter the Threema ID under Address &rarr; Contact Details</td>
+  </tr>
+  <tr>
+    <td>Gateway ID does not work</td>
+    <td>ID not yet approved</td>
+    <td>Wait for approval by Threema (status shown in the dashboard)</td>
+  </tr>
+</table>
