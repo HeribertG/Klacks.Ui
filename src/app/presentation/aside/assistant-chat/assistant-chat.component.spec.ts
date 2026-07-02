@@ -992,5 +992,42 @@ describe('AssistantChatComponent', () => {
             expect(resultWithoutKey).toBe(true);
         });
     });
+
+    describe('TTS barge-in (interrupt monologue on user input)', () => {
+        it('typing a printable key interrupts a running TTS playback', () => {
+            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+
+            component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'a' }));
+
+            expect(interruptSpy).toHaveBeenCalledOnce();
+        });
+
+        it('modifier shortcuts do not interrupt TTS playback', () => {
+            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+
+            component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'c', ctrlKey: true }));
+
+            expect(interruptSpy).not.toHaveBeenCalled();
+        });
+
+        it('sending a message interrupts a running TTS playback', async () => {
+            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            mockLlmService.sendMessageStream.mockReturnValue(new AbortController());
+            component.inputText.set('Neue Frage');
+
+            await component.sendMessage();
+
+            expect(interruptSpy).toHaveBeenCalled();
+        });
+
+        it('sending with empty input does not touch TTS playback', async () => {
+            const interruptSpy = vi.spyOn(component.ttsService, 'interrupt');
+            component.inputText.set('   ');
+
+            await component.sendMessage();
+
+            expect(interruptSpy).not.toHaveBeenCalled();
+        });
+    });
 });
 

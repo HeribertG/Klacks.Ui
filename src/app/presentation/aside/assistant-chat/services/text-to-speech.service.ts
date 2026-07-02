@@ -108,6 +108,12 @@ export class TextToSpeechService implements OnDestroy {
     this.cleanup();
   }
 
+  interrupt(): void {
+    if (this.isPlaying() || this.isLoading()) {
+      this.stop();
+    }
+  }
+
   ngOnDestroy(): void {
     this.stop();
   }

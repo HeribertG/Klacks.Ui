@@ -59,6 +59,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ChatMessage } from './chat-message.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
+import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 import { OutputMode } from 'src/app/domain/constants/speech-constants';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ChatFunctionExecutionService } from './services/chat-function-execution.service';
@@ -449,6 +450,7 @@ export class AssistantChatComponent {
     if (this.isProcessing()) {
       this.interruptCurrentStream();
     }
+    this.ttsService.interrupt();
 
     if (this.onboarding.isAwaitingAnswer()) {
       this.handleOnboardingAnswer(this.inputText().trim());
@@ -786,20 +788,17 @@ export class AssistantChatComponent {
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
-    if (this.orchestrator.voiceModeEnabled() && this.isPrintableKey(event)) {
-      this.orchestrator.endSession();
+    if (isPrintableKey(event)) {
+      if (this.orchestrator.voiceModeEnabled()) {
+        this.orchestrator.endSession();
+      }
+      this.ttsService.interrupt();
     }
 
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     }
-  }
-
-  private isPrintableKey(event: KeyboardEvent): boolean {
-    if (event.ctrlKey || event.altKey || event.metaKey) return false;
-    if (event.key.length === 1) return true;
-    return event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Enter';
   }
 
   private addWelcomeMessage(langCode: string): void {

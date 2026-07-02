@@ -19,8 +19,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConversationOrchestratorService } from '../../aside/assistant-chat/services/conversation-orchestrator.service';
+import { TextToSpeechService } from '../../aside/assistant-chat/services/text-to-speech.service';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
 import { DataManagementAssistantProviderService } from 'src/app/domain/services/assistant/data-management-assistant-provider.service';
+import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
 
 @Component({
   selector: 'app-voice-shell-input',
@@ -32,6 +34,7 @@ import { DataManagementAssistantProviderService } from 'src/app/domain/services/
 })
 export class VoiceShellInputComponent {
   private readonly orchestrator = inject(ConversationOrchestratorService);
+  private readonly ttsService = inject(TextToSpeechService);
   private readonly assistantService = inject(DataManagementAssistantService);
   private readonly assistantProviderService = inject(DataManagementAssistantProviderService);
 
@@ -61,6 +64,9 @@ export class VoiceShellInputComponent {
   }
 
   onKeyDown(event: KeyboardEvent): void {
+    if (isPrintableKey(event)) {
+      this.ttsService.interrupt();
+    }
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       void this.send();
