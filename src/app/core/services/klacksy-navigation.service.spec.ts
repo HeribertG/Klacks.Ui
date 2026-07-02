@@ -92,4 +92,71 @@ describe('KlacksyNavigationService', () => {
     expect(result).toBe(false);
     expect(telemetry.trackTargetMiss).toHaveBeenCalledWith('main-nav', 'open-nonexistent');
   });
+
+  describe('re-anchoring while async cards grow the page', () => {
+    let container: HTMLDivElement;
+    let el: HTMLDivElement;
+    let containerHeight: number;
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date', 'performance'] });
+      container = document.createElement('div');
+      container.style.overflowY = 'auto';
+      containerHeight = 1000;
+      Object.defineProperty(container, 'scrollHeight', { get: () => containerHeight });
+      el = document.createElement('div');
+      el.setAttribute('data-klacksy-target', 'assistant-speech');
+      el.scrollIntoView = vi.fn();
+      container.appendChild(el);
+      document.body.appendChild(container);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('scrolls immediately and re-anchors when the container keeps growing', async () => {
+      const result = await service.navigateAndScroll('/settings', 'assistant-speech');
+      expect(result.success).toBe(true);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+
+      containerHeight = 1800;
+      await vi.advanceTimersByTimeAsync(200);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(2);
+
+      containerHeight = 2400;
+      await vi.advanceTimersByTimeAsync(200);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not re-anchor when the layout is stable', async () => {
+      await service.navigateAndScroll('/settings', 'assistant-speech');
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops re-anchoring after user scroll intent', async () => {
+      await service.navigateAndScroll('/settings', 'assistant-speech');
+      window.dispatchEvent(new Event('wheel'));
+      containerHeight = 1800;
+      await vi.advanceTimersByTimeAsync(500);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops re-anchoring once the target leaves the DOM', async () => {
+      await service.navigateAndScroll('/settings', 'assistant-speech');
+      container.removeChild(el);
+      containerHeight = 1800;
+      await vi.advanceTimersByTimeAsync(500);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops re-anchoring after the anchor window elapses', async () => {
+      await service.navigateAndScroll('/settings', 'assistant-speech');
+      await vi.advanceTimersByTimeAsync(6000);
+      containerHeight = 1800;
+      await vi.advanceTimersByTimeAsync(500);
+      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+  });
 });

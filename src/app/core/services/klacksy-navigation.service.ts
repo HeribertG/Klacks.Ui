@@ -30,14 +30,15 @@ export class KlacksyNavigationService {
   private static readonly HIGHLIGHT_MS = 5000;
   private static readonly HIGHLIGHT_CLASS = 'klacksy-highlight';
   private static readonly ICON_HIGHLIGHT_CLASS = 'klacksy-highlight-icon';
-  // Async sibling cards (contracts/groups/qualifications/notes/image) keep growing
-  // the scroll container's height well after the target marker itself already
-  // exists in the DOM. Poll until the container's height stops changing before
-  // scrolling, otherwise scrollIntoView fires against a not-yet-final layout and
-  // under-shoots (a single-shot scroll never re-runs once the page keeps growing).
-  private static readonly SETTLE_POLL_MS = 100;
-  private static readonly SETTLE_MAX_MS = 1500;
-  private static readonly SETTLE_STABLE_ROUNDS = 2;
+  // Async sibling cards (settings sections, contracts/groups/qualifications/notes)
+  // keep growing the scroll container long after the target marker exists in the
+  // DOM, and response bursts are separated by quiet gaps — so any "wait until the
+  // height settles, then scroll once" heuristic either fires too early or delays
+  // the scroll. Instead: scroll immediately, then re-anchor the target whenever
+  // the container height changes, until the window elapses or the user scrolls.
+  private static readonly ANCHOR_POLL_MS = 100;
+  private static readonly ANCHOR_MAX_MS = 5000;
+  private static readonly ANCHOR_CANCEL_EVENTS = ['wheel', 'touchstart', 'mousedown'] as const;
 
   async navigateAndScroll(route: string, target?: string): Promise<NavigationResult> {
     await this.router.navigateByUrl(route);
@@ -50,13 +51,13 @@ export class KlacksyNavigationService {
       return { success: false, reason: 'target-not-found' };
     }
 
-    await this.waitForLayoutSettle(this.findScrollableAncestor(el));
     el.scrollIntoView({ behavior: 'auto', block: 'start' });
     el.classList.add('klacksy-highlight');
     setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
 
     const focusable = el.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
     focusable?.focus();
+    void this.keepAnchoredWhileLayoutGrows(el);
     return { success: true };
   }
 
@@ -94,21 +95,34 @@ export class KlacksyNavigationService {
     return null;
   }
 
-  private async waitForLayoutSettle(container: HTMLElement | null): Promise<void> {
+  private async keepAnchoredWhileLayoutGrows(el: Element): Promise<void> {
+    const container = this.findScrollableAncestor(el) ?? document.scrollingElement;
     if (!container) return;
-    let lastHeight = container.scrollHeight;
-    let stableRounds = 0;
-    const start = performance.now();
-    while (performance.now() - start < KlacksyNavigationService.SETTLE_MAX_MS) {
-      await new Promise<void>((resolve) => setTimeout(resolve, KlacksyNavigationService.SETTLE_POLL_MS));
-      const height = container.scrollHeight;
-      if (height === lastHeight) {
-        stableRounds++;
-        if (stableRounds >= KlacksyNavigationService.SETTLE_STABLE_ROUNDS) return;
-      } else {
-        stableRounds = 0;
-        lastHeight = height;
+
+    let cancelled = false;
+    const cancel = (): void => {
+      cancelled = true;
+    };
+    KlacksyNavigationService.ANCHOR_CANCEL_EVENTS.forEach((event) =>
+      window.addEventListener(event, cancel, { passive: true })
+    );
+
+    try {
+      let lastHeight = container.scrollHeight;
+      const start = performance.now();
+      while (!cancelled && performance.now() - start < KlacksyNavigationService.ANCHOR_MAX_MS) {
+        await new Promise<void>((resolve) => setTimeout(resolve, KlacksyNavigationService.ANCHOR_POLL_MS));
+        if (cancelled || !el.isConnected) return;
+        const height = container.scrollHeight;
+        if (height !== lastHeight) {
+          lastHeight = height;
+          el.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
       }
+    } finally {
+      KlacksyNavigationService.ANCHOR_CANCEL_EVENTS.forEach((event) =>
+        window.removeEventListener(event, cancel)
+      );
     }
   }
 
