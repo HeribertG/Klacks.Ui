@@ -29,6 +29,17 @@ import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift/shift-class'
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
+const MINUTES_PER_HOUR = 60;
+const WORK_TIME_PRECISION_FACTOR = 10000;
+
+/**
+ * Rounds decimal hours to four decimal places, matching the backend precision.
+ * Shift.workTime is stored in DECIMAL HOURS everywhere (database truth).
+ */
+function roundToWorkTimePrecision(decimalHours: number): number {
+  return Math.round(decimalHours * WORK_TIME_PRECISION_FACTOR) / WORK_TIME_PRECISION_FACTOR;
+}
+
 @Component({
   selector: 'app-edit-shift-weekday',
   templateUrl: './edit-shift-weekday.component.html',
@@ -222,11 +233,11 @@ export class EditShiftWeekdayComponent
       shiftForm.internalEndShift
     );
 
-    const workTimeMinutes = Math.round(workTimeHours * 60);
-    shift.workTime = workTimeMinutes;
+    const workTimeMinutes = Math.round(workTimeHours * MINUTES_PER_HOUR);
+    shift.workTime = roundToWorkTimePrecision(workTimeMinutes / MINUTES_PER_HOUR);
 
-    const workHours = Math.floor(workTimeMinutes / 60);
-    const workMinutesRemainder = workTimeMinutes % 60;
+    const workHours = Math.floor(workTimeMinutes / MINUTES_PER_HOUR);
+    const workMinutesRemainder = workTimeMinutes % MINUTES_PER_HOUR;
 
     shiftForm.internalWorkTime.hours = workHours.toString().padStart(2, '0');
     shiftForm.internalWorkTime.minutes = workMinutesRemainder

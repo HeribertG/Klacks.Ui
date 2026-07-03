@@ -1,0 +1,281 @@
+<h2>ERP-Bestellungs-Import – Handbuch</h2>
+
+<h3>Was ist der ERP-Bestellungs-Import?</h3>
+<p>
+Externe ERP-Systeme liefern Bestellungen als <strong>XML-Dateien</strong> an Klacks.
+Für die Übertragung gibt es drei Wege:
+</p>
+<ul>
+  <li>
+    <strong>Drop-Point (Abholung):</strong> Das ERP legt die Dateien in der
+    Dateiablage des Drop-Points ab – je nach Installation ein Verzeichnis auf dem
+    Klacks-Server (Standard) oder ein S3-kompatibler Objektspeicher. Klacks holt
+    die Dateien nach dem konfigurierten Zeitplan automatisch ab.
+  </li>
+  <li>
+    <strong>Direkter Upload (Push):</strong> Das ERP sendet die Datei per HTTP POST an
+    <code>/api/erp-import/upload</code> und authentifiziert sich dabei mit einem
+    ERP-Import-Token als Bearer-Token. Pro Datei sind maximal 50&nbsp;MB erlaubt.
+  </li>
+  <li>
+    <strong>Manueller Upload:</strong> Administratoren ziehen XML-Dateien direkt auf
+    dieser Seite in die Ablage-Zone (oder klicken die Zone an, um eine Datei
+    auszuwählen). Nach dem Hochladen wird der Import automatisch angestossen und
+    startet innerhalb einer Minute; der Button <em>Jetzt importieren</em> stösst ihn
+    jederzeit zusätzlich an.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-Point</h3>
+<p>
+Der Drop-Point ist der zentrale Briefkasten für alle Import-Dateien. Klacks verwaltet
+ihn automatisch – niemand muss ihn anlegen oder konfigurieren. Die Seite zeigt seinen
+Inhalt als Datei-Ansicht mit drei Bereichen: <strong>Eingang</strong> (wartet auf den
+nächsten Import-Lauf), <strong>Verarbeitet</strong> (Archiv) und <strong>Fehler</strong>
+(nicht lesbare oder ungültige Dateien samt Fehlergrund). Fehler-Dateien lassen sich über
+den Button <em>Erneut importieren</em> zurück in den Eingang verschieben.
+</p>
+<ul>
+  <li>
+    <strong>Aktiv-Schalter (Import aktiv)</strong> – pausiert den automatischen Import;
+    bereits abgelegte Dateien bleiben erhalten.
+  </li>
+  <li>
+    <strong>Statusanzeige</strong> – letzter Abrufzeitpunkt und, falls vorhanden, der
+    letzte Fehler.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Zugriffstoken</h3>
+<ul>
+  <li>
+    Für die Push-Anlieferung können Administratoren Zugriffstoken erstellen — nötig
+    nur, wenn ein externes ERP-System Dateien per HTTPS anliefert. Jedes Token beginnt
+    mit dem Präfix <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Die Gültigkeitsdauer ist wählbar (1 bis 730 Tage, Standard 365 Tage).
+  </li>
+  <li>
+    Der Token-Klartext wird <strong>nur einmal bei der Erstellung</strong> angezeigt.
+    Danach ist er nicht mehr abrufbar – sofort kopieren und sicher hinterlegen.
+  </li>
+  <li>
+    Ein ERP-Import-Token ist bewusst <strong>nur für den Import-Endpoint gültig</strong>.
+    Gerät ein Token beim ERP-Dienstleister in falsche Hände, ist damit kein anderer
+    API-Zugriff auf Klacks möglich.
+  </li>
+  <li>Tokens können jederzeit widerrufen werden; der Zugriff endet sofort.</li>
+</ul>
+
+<hr>
+
+<h3>Zeitplan</h3>
+<p>
+Der Abruf des Drop-Points folgt einem <strong>Cron-Ausdruck</strong> (Standard
+<code>0 * * * *</code> = stündlich) in der gewählten <strong>Zeitzone</strong>. Beides
+wird auf dieser Seite konfiguriert. Ein ungültiger Cron-Ausdruck würde den Import
+stoppen – die Eingabe wird deshalb validiert und ungültige Werte werden nicht
+gespeichert.
+</p>
+
+<hr>
+
+<h3>XML-Format (Referenz)</h3>
+<p>
+Wurzelelement ist <code>ErpOrderImport</code> mit den Pflicht-Attributen
+<code>schemaVersion</code> (aktuell <code>1</code>) und <code>sourceSystemId</code>.
+Die <code>sourceSystemId</code> identifiziert das liefernde System <strong>in den
+Dateien</strong> und sorgt für die stabile Kunden-Zuordnung über alle Lieferungen –
+sie muss pro Quellsystem dauerhaft konstant bleiben. Jede Bestellung steht in einem
+eigenen <code>&lt;Order&gt;</code>-Element. Eine Datei darf beliebig viele
+Bestellungen enthalten.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Pflicht</th>
+      <th>Format</th>
+      <th>Bedeutung</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ja</td>
+      <td>Text</td>
+      <td>Eindeutige Bestellreferenz des ERP-Systems.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nein</td>
+      <td>Text</td>
+      <td>Freitext zur Bestellung (z.&nbsp;B. Einsatzhinweise); wird auf der Bestellung angezeigt.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ja</td>
+      <td>Element</td>
+      <td>Kundendaten der Bestellung (siehe Unterelemente).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nein (empfohlen)</td>
+      <td>Text</td>
+      <td>Externe Kundenreferenz; sichert die stabile Kunden-Zuordnung über alle Importe.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ja</td>
+      <td>Text</td>
+      <td>Firmenname des Kunden.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ja</td>
+      <td>Text</td>
+      <td>Strasse und Hausnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ja</td>
+      <td>Text</td>
+      <td>Postleitzahl.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nein</td>
+      <td>Text</td>
+      <td>Ort, Kanton/Region und Land.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ja</td>
+      <td>yyyy-MM-dd</td>
+      <td>Beginn der Bestellung.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nein</td>
+      <td>yyyy-MM-dd</td>
+      <td>Ende der Bestellung; fehlend oder leer = unbefristet.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ja</td>
+      <td>HH:mm</td>
+      <td>Beginn- und Endzeit des Einsatzes.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nein</td>
+      <td>true/false (Standard false)</td>
+      <td>true = Zeitfenster, in dem gearbeitet wird; false = feste Schicht von StartTime bis EndTime. Bei true ist <code>Duration</code> Pflicht.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Bei IsTimeRange=true</td>
+      <td>Element mit <code>&lt;Hours&gt;</code> und <code>&lt;Minutes&gt;</code> (Ganzzahlen)</td>
+      <td>Dauer des einzelnen Einsatzes, z.&nbsp;B. 0 h 20 min für einen 20-Minuten-Einsatz im Zeitfenster 08:00–15:00. Bei fester Schicht optional; fehlt das Element, gilt die Dauer von StartTime bis EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nein</td>
+      <td>Ganzzahl (Standard 1)</td>
+      <td>Anzahl Einsätze.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nein</td>
+      <td>Ganzzahl (Standard 1)</td>
+      <td>Anzahl benötigter Mitarbeitender.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ja</td>
+      <td>Attribute <code>monday</code> … <code>sunday</code>, je true/false</td>
+      <td>Wochentage der Bestellung; mindestens ein Wochentag muss true sein, ein
+        fehlendes Attribut zählt als false. Bestellungen ohne Wochentag werden
+        abgelehnt.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Hinweis:</strong> Die Element-Namen sind case-sensitiv. Eine vollständige
+Beispieldatei lässt sich über den Button <em>Beispieldatei herunterladen</em> oberhalb
+dieses Handbuchs beziehen.
+</p>
+
+<hr>
+
+<h3>Kunden-Zuordnung</h3>
+<p>
+Klacks ordnet jede Bestellung einem Kunden zu:
+</p>
+<ul>
+  <li>
+    Zuerst über die Kombination aus Quellsystem-ID und externer Kundenreferenz –
+    einmal zugeordnet, bleibt diese Referenz dauerhaft demselben Kunden zugewiesen.
+  </li>
+  <li>
+    Ohne externe Referenz wird beim ersten Auftreten über Firma + PLZ + Strasse
+    gesucht; Gross-/Kleinschreibung und Leerzeichen werden dabei ignoriert.
+  </li>
+  <li>Findet sich kein Treffer, legt Klacks den Kunden automatisch neu an.</li>
+</ul>
+
+<hr>
+
+<h3>Verarbeitung &amp; Lebenszyklus</h3>
+<ul>
+  <li>
+    Importierte Bestellungen entstehen als <strong>Entwurf</strong> und müssen von
+    Planern oder Administratoren geprüft und versiegelt werden. Dabei ergänzt der
+    Planer auch allfällige Qualifikationsanforderungen — das ERP kann diese als
+    Hinweis im Feld <code>Description</code> mitliefern.
+  </li>
+  <li>
+    Liefert das ERP später eine <strong>geänderte</strong> Version einer bereits
+    versiegelten Bestellung, schliesst Klacks die alte Bestellung automatisch per
+    Enddatum und legt eine neue, verknüpfte Entwurfs-Version an. Bereits geplante
+    zukünftige, nicht gesperrte Einsätze der alten Bestellung werden entfernt und die
+    Planer benachrichtigt.
+  </li>
+  <li>
+    <strong>Unveränderte</strong> Wiederholungslieferungen (z.&nbsp;B. ein nächtlicher
+    Vollexport) lösen nichts aus.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Fehlerbehandlung &amp; Archiv</h3>
+<ul>
+  <li>
+    Verarbeitete Dateien werden in der Dateiablage in den Unterordner
+    <code>processed/</code> verschoben (Archiv, keine Löschung); sie erscheinen auf der
+    Import-Seite im Bereich <em>Verarbeitet</em>.
+  </li>
+  <li>
+    Nicht lesbare oder ungültige Dateien wandern in den Unterordner <code>error/</code>
+    und erscheinen im Bereich <em>Fehler</em>; von dort lassen sie sich per
+    <em>Erneut importieren</em> zurück in den Eingang verschieben.
+  </li>
+  <li>
+    Unvollständige oder ungültige Bestellungen werden abgelehnt (z.&nbsp;B. ohne
+    Wochentag, mit <code>UntilDate</code> vor <code>FromDate</code> oder mit doppelter
+    <code>ExternalOrderReference</code> in derselben Datei); die übrigen Bestellungen
+    derselben Datei werden trotzdem importiert.
+  </li>
+  <li>
+    Enthält eine Datei mindestens eine abgelehnte Bestellung, wandert sie mit dem
+    Ablehnungsgrund in den Bereich <em>Fehler</em> — die bereits importierten
+    Bestellungen bleiben dabei erhalten.
+  </li>
+  <li>Fehler werden protokolliert und die Administratoren benachrichtigt.</li>
+</ul>

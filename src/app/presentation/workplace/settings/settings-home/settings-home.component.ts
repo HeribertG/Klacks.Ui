@@ -38,6 +38,7 @@ import { OpenrouteComponent } from '../openroute/openroute.component';
 import { DeeplComponent } from '../deepl/deepl.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
+import { ErpDropPointsComponent } from '../erp-drop-points/erp-drop-points.component';
 import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
 import { ReportsComponent } from '../reports/reports.component';
 import { ReportDefaultsComponent } from '../reports/report-defaults/report-defaults.component';
@@ -99,6 +100,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     DeeplComponent,
     WorkSettingComponent,
     IdentityProvidersComponent,
+    ErpDropPointsComponent,
     AbsenceDetailComponent,
     ReportsComponent,
     ReportDefaultsComponent,
@@ -147,6 +149,7 @@ export class SettingsHomeComponent implements OnInit {
     llm: true,
     klacksy: true,
     externalServices: true,
+    erp: true,
     plugins: true,
     system: true,
   };

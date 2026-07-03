@@ -1,0 +1,41 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div
+  id="erp-drop-point-token-row-container-{{ data().id }}"
+  class="first custom-control-inline"
+>
+  <span
+    id="erp-drop-point-token-row-name-{{ data().id }}"
+    class="column-name"
+    [title]="data().name"
+    >{{ data().name }}</span
+  >
+  <span
+    id="erp-drop-point-token-row-prefix-{{ data().id }}"
+    class="column-prefix token-prefix"
+    >{{ data().tokenPrefix }}</span
+  >
+  <span id="erp-drop-point-token-row-expires-{{ data().id }}" class="column-date">
+    @if (data().expiresAt) {
+      {{ data().expiresAt | date: 'short' }}
+    } @else {
+      -
+    }
+  </span>
+  <span id="erp-drop-point-token-row-last-used-{{ data().id }}" class="column-date">
+    @if (data().lastUsedAt) {
+      {{ data().lastUsedAt | date: 'short' }}
+    } @else {
+      {{ 'settings.erp-drop-points.tokens.never-used' | translate }}
+    }
+  </span>
+
+  <span
+    id="erp-drop-point-token-row-delete-{{ data().id }}"
+    class="delete-button"
+    type="button"
+    [title]="'settings.erp-drop-points.tokens.revoke' | translate"
+    (click)="onClickDelete()"
+    ><app-icon-trash-red /></span
+  >
+</div>

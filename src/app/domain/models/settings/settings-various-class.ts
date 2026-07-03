@@ -49,6 +49,9 @@ export class AppSetting {
   public static OPENROUTESERVICE_API_KEY = 'OPENROUTESERVICE_API_KEY';
   public static DEEPL_API_KEY = 'DEEPL_API_KEY';
 
+  public static ERP_IMPORT_CRON_EXPRESSION = 'ERP_IMPORT_CRON_EXPRESSION';
+  public static ERP_IMPORT_CRON_TIMEZONE = 'ERP_IMPORT_CRON_TIMEZONE';
+
   public static WORK_DEFAULT_WORKING_HOURS = 'defaultWorkingHours';
   public static WORK_OVERTIME_THRESHOLD = 'overtimeThreshold';
   public static WORK_VACATION_DAYS_PER_YEAR = 'vacationDaysPerYear';

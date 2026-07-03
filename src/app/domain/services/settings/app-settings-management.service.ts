@@ -23,6 +23,7 @@ import { IUpdateConfigSettings, UpdateConfigSettings } from 'src/app/domain/mode
 import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/speech-settings.model';
 import { SttEngine, TtsProvider } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
+import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 interface SettingsModels {
@@ -35,6 +36,8 @@ interface SettingsModels {
   update: IUpdateConfigSettings;
   openRouteServiceApiKey: string;
   deeplApiKey: string;
+  erpImportCronExpression: string;
+  erpImportCronTimeZone: string;
   speech: ISpeechSettings;
   holisticHarmonizer: IHolisticHarmonizerSettings;
 }
@@ -85,6 +88,9 @@ export class AppSettingsManagementService {
 
     [AppSetting.OPENROUTESERVICE_API_KEY, (v, m) => (m.openRouteServiceApiKey = v)],
     [AppSetting.DEEPL_API_KEY, (v, m) => (m.deeplApiKey = v)],
+
+    [AppSetting.ERP_IMPORT_CRON_EXPRESSION, (v, m) => (m.erpImportCronExpression = v || ErpImportScheduleDefaults.CronExpression)],
+    [AppSetting.ERP_IMPORT_CRON_TIMEZONE, (v, m) => (m.erpImportCronTimeZone = v || ErpImportScheduleDefaults.CronTimeZone)],
 
     [AppSetting.WORK_VACATION_DAYS_PER_YEAR, (v, m) => (m.work.vacationDaysPerYear = parseInt(v, 10) || 25)],
     [AppSetting.WORK_PROBATION_PERIOD, (v, m) => (m.work.probationPeriod = parseInt(v, 10) || 3)],
@@ -176,6 +182,8 @@ export class AppSettingsManagementService {
   public updateConfigSettings = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   public openRouteServiceApiKey = signal<string>('');
   public deeplApiKey = signal<string>('');
+  public erpImportCronExpression = signal<string>(ErpImportScheduleDefaults.CronExpression);
+  public erpImportCronTimeZone = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   public speechSettings = signal<ISpeechSettings>(new SpeechSettings());
   public holisticHarmonizerSettings = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
 
@@ -188,6 +196,8 @@ export class AppSettingsManagementService {
   private updateConfigSettingsOriginal = signal<IUpdateConfigSettings>(new UpdateConfigSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
   private deeplApiKeyOriginal = signal<string>('');
+  private erpImportCronExpressionOriginal = signal<string>(ErpImportScheduleDefaults.CronExpression);
+  private erpImportCronTimeZoneOriginal = signal<string>(ErpImportScheduleDefaults.CronTimeZone);
   private speechSettingsOriginal = signal<ISpeechSettings>(new SpeechSettings());
   private holisticHarmonizerSettingsOriginal = signal<IHolisticHarmonizerSettings>(new HolisticHarmonizerSettings());
 
@@ -210,6 +220,8 @@ export class AppSettingsManagementService {
       this.updateConfigSettings();
       this.openRouteServiceApiKey();
       this.deeplApiKey();
+      this.erpImportCronExpression();
+      this.erpImportCronTimeZone();
       this.speechSettings();
       this.holisticHarmonizerSettings();
 
@@ -274,6 +286,8 @@ export class AppSettingsManagementService {
       update: new UpdateConfigSettings(),
       openRouteServiceApiKey: '',
       deeplApiKey: '',
+      erpImportCronExpression: ErpImportScheduleDefaults.CronExpression,
+      erpImportCronTimeZone: ErpImportScheduleDefaults.CronTimeZone,
       speech: new SpeechSettings(),
       holisticHarmonizer: new HolisticHarmonizerSettings(),
     };
@@ -294,6 +308,8 @@ export class AppSettingsManagementService {
     this.updateConfigSettings.set(models.update);
     this.openRouteServiceApiKey.set(models.openRouteServiceApiKey);
     this.deeplApiKey.set(models.deeplApiKey);
+    this.erpImportCronExpression.set(models.erpImportCronExpression);
+    this.erpImportCronTimeZone.set(models.erpImportCronTimeZone);
     this.speechSettings.set(models.speech);
     this.holisticHarmonizerSettings.set(models.holisticHarmonizer);
 
@@ -306,6 +322,8 @@ export class AppSettingsManagementService {
     this.updateConfigSettingsOriginal.set(cloneObject(models.update));
     this.openRouteServiceApiKeyOriginal.set(models.openRouteServiceApiKey);
     this.deeplApiKeyOriginal.set(models.deeplApiKey);
+    this.erpImportCronExpressionOriginal.set(models.erpImportCronExpression);
+    this.erpImportCronTimeZoneOriginal.set(models.erpImportCronTimeZone);
     this.speechSettingsOriginal.set(cloneObject(models.speech));
     this.holisticHarmonizerSettingsOriginal.set(cloneObject(models.holisticHarmonizer));
   }
@@ -394,6 +412,9 @@ export class AppSettingsManagementService {
 
     { key: AppSetting.OPENROUTESERVICE_API_KEY, getCurrent: () => this.openRouteServiceApiKey(), getOriginal: () => this.openRouteServiceApiKeyOriginal() },
     { key: AppSetting.DEEPL_API_KEY, getCurrent: () => this.deeplApiKey(), getOriginal: () => this.deeplApiKeyOriginal() },
+
+    { key: AppSetting.ERP_IMPORT_CRON_EXPRESSION, getCurrent: () => this.erpImportCronExpression(), getOriginal: () => this.erpImportCronExpressionOriginal() },
+    { key: AppSetting.ERP_IMPORT_CRON_TIMEZONE, getCurrent: () => this.erpImportCronTimeZone(), getOriginal: () => this.erpImportCronTimeZoneOriginal() },
 
     { key: AppSetting.ASSISTANT_STT_ENGINE, getCurrent: () => this.speechSettings().sttEngine, getOriginal: () => this.speechSettingsOriginal().sttEngine },
     { key: AppSetting.ASSISTANT_STT_API_KEY_DEEPGRAM, getCurrent: () => this.speechSettings().sttApiKeys[SttEngine.Deepgram] ?? '', getOriginal: () => this.speechSettingsOriginal().sttApiKeys[SttEngine.Deepgram] ?? '' },
@@ -491,6 +512,8 @@ export class AppSettingsManagementService {
       this.updateConfigSettingsOriginal.set(cloneObject(this.updateConfigSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
       this.deeplApiKeyOriginal.set(this.deeplApiKey());
+      this.erpImportCronExpressionOriginal.set(this.erpImportCronExpression());
+      this.erpImportCronTimeZoneOriginal.set(this.erpImportCronTimeZone());
       this.speechSettingsOriginal.set(cloneObject(this.speechSettings()));
       this.holisticHarmonizerSettingsOriginal.set(cloneObject(this.holisticHarmonizerSettings()));
     }
@@ -520,6 +543,8 @@ export class AppSettingsManagementService {
       !compareComplexObjects(this.updateConfigSettings(), this.updateConfigSettingsOriginal()) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal() ||
       this.deeplApiKey() !== this.deeplApiKeyOriginal() ||
+      this.erpImportCronExpression() !== this.erpImportCronExpressionOriginal() ||
+      this.erpImportCronTimeZone() !== this.erpImportCronTimeZoneOriginal() ||
       !compareComplexObjects(this.speechSettings(), this.speechSettingsOriginal()) ||
       !compareComplexObjects(this.holisticHarmonizerSettings(), this.holisticHarmonizerSettingsOriginal())
     );

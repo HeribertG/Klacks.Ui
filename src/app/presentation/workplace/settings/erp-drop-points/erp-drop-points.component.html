@@ -1,0 +1,310 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="erp-drop-points-header" class="container-header">
+  {{ 'settings.erp-drop-points.headline' | translate }}
+</div>
+
+<div id="erp-drop-points-line" class="container-line"></div>
+
+<div class="standard-tabs-header">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="erp-drop-points-tab-list"
+        class="nav-link"
+        [class.active]="activeTab() === 'list'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'list'"
+        tabindex="0"
+        (click)="setTab('list')"
+        (keydown.enter)="setTab('list')"
+      >
+        {{ 'settings.erp-drop-points.tab.list' | translate }}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="erp-drop-points-tab-manual"
+        class="nav-link"
+        [class.active]="activeTab() === 'manual'"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'manual'"
+        tabindex="0"
+        (click)="setTab('manual')"
+        (keydown.enter)="setTab('manual')"
+      >
+        {{ 'settings.erp-drop-points.tab.manual' | translate }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="standard-tab-body">
+@if (activeTab() === 'list') {
+<app-expandable-card
+  id="erp-drop-points-schedule-section"
+  [headerTitle]="'settings.erp-drop-points.schedule.headline' | translate"
+>
+  <div id="erp-drop-points-schedule-row" class="row-line-modal-inline">
+    <div class="model-field">
+      <label for="erp-drop-points-schedule-cron">
+        {{ 'settings.erp-drop-points.schedule.cron-expression' | translate }}
+      </label>
+      <input
+        id="erp-drop-points-schedule-cron"
+        type="text"
+        [formField]="scheduleForm.cronExpression"
+        class="form-control"
+        placeholder="0 * * * *"
+        aria-label="erpImportCronExpression"
+      />
+      <small class="info-text">{{ 'settings.erp-drop-points.schedule.cron-expression-info' | translate }}</small>
+      @if (!isScheduleCronValid()) {
+        <small id="erp-drop-points-schedule-cron-error" class="red-font">
+          {{ 'settings.erp-drop-points.schedule.cron-invalid' | translate }}
+        </small>
+      }
+    </div>
+
+    <div class="model-field">
+      <label for="erp-drop-points-schedule-timezone">
+        {{ 'settings.erp-drop-points.schedule.timezone' | translate }}
+      </label>
+      <select
+        id="erp-drop-points-schedule-timezone"
+        class="form-control form-select"
+        [ngModel]="selectedScheduleTimeZone()"
+        (ngModelChange)="onScheduleTimeZoneChange($event)"
+        aria-label="erpImportCronTimeZone"
+      >
+        @for (timeZone of timeZones; track timeZone) {
+          <option [value]="timeZone">
+            {{ timeZone }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (dropPointService.defaultDropPoint(); as dropPoint) {
+    <div id="erp-drop-points-import-enabled-row" class="row-line-modal-inline">
+      <div class="checkbox-field">
+        <input
+          id="erp-drop-points-import-enabled"
+          type="checkbox"
+          [checked]="dropPoint.isEnabled"
+          (change)="onToggleImportEnabled($event)"
+        />
+        <label for="erp-drop-points-import-enabled">
+          {{ 'settings.erp-drop-points.is-enabled' | translate }}</label
+        >
+      </div>
+    </div>
+
+    <div id="erp-drop-points-status-line" class="first status-line">
+      <span id="erp-drop-points-status-last-polled">
+        {{ 'settings.erp-drop-points.last-polled-at' | translate }}:
+        @if (dropPoint.lastPolledAt) {
+          {{ dropPoint.lastPolledAt | date: 'medium' }}
+        } @else {
+          {{ 'settings.erp-drop-points.never-polled' | translate }}
+        }
+      </span>
+      @if (dropPoint.lastError) {
+        <span id="erp-drop-points-status-last-error" class="status-error">
+          {{ 'settings.erp-drop-points.last-error' | translate }}: {{ dropPoint.lastError }}
+        </span>
+      }
+    </div>
+  }
+
+  <div id="erp-drop-points-schedule-actions" class="first schedule-actions">
+    <button
+      id="erp-drop-points-run-import-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onRunImport()"
+      [disabled]="dropPointService.isTriggeringImport()"
+    >
+      {{ 'settings.erp-drop-points.run-import' | translate }}
+    </button>
+  </div>
+</app-expandable-card>
+
+<app-expandable-card
+  id="erp-drop-points-upload-section"
+  [headerTitle]="'settings.erp-drop-points.upload-zone.headline' | translate"
+>
+  <div class="first">
+    <div
+      id="erp-drop-points-upload-zone"
+      class="fileupload-zone"
+      [class.disabled]="dropPointService.isUploading()"
+      appDragDropFileUpload
+      (click)="onDropZoneClick()"
+      (fileDropped)="onDropZoneFiles($event)"
+    >
+      <span class="ddinfo">{{ 'settings.erp-drop-points.upload-zone.info' | translate }}</span>
+    </div>
+  </div>
+</app-expandable-card>
+
+<app-expandable-card
+  id="erp-drop-points-files-section"
+  [headerTitle]="'settings.erp-drop-points.files.headline' | translate"
+>
+  <button
+    headerActions
+    id="erp-drop-points-files-refresh-btn"
+    type="button"
+    class="header-action-button"
+    [title]="'settings.erp-drop-points.files.refresh' | translate"
+    (click)="onRefreshFiles()"
+  >
+    <app-icon-refresh-grey />
+  </button>
+
+  <div class="standard-tabs-header">
+  <ul id="erp-drop-points-files-tabs" class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        id="erp-drop-points-files-tab-pending"
+        class="nav-link"
+        [class.active]="fileTab() === 'pending'"
+        role="tab"
+        [attr.aria-selected]="fileTab() === 'pending'"
+        tabindex="0"
+        (click)="setFileTab('pending')"
+        (keydown.enter)="setFileTab('pending')"
+      >
+        {{ 'settings.erp-drop-points.files.tab.pending' | translate }} ({{ dropPointService.files().pending.length }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="erp-drop-points-files-tab-processed"
+        class="nav-link"
+        [class.active]="fileTab() === 'processed'"
+        role="tab"
+        [attr.aria-selected]="fileTab() === 'processed'"
+        tabindex="0"
+        (click)="setFileTab('processed')"
+        (keydown.enter)="setFileTab('processed')"
+      >
+        {{ 'settings.erp-drop-points.files.tab.processed' | translate }} ({{ dropPointService.files().processed.length }})
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        id="erp-drop-points-files-tab-error"
+        class="nav-link"
+        [class.active]="fileTab() === 'error'"
+        role="tab"
+        [attr.aria-selected]="fileTab() === 'error'"
+        tabindex="0"
+        (click)="setFileTab('error')"
+        (keydown.enter)="setFileTab('error')"
+      >
+        {{ 'settings.erp-drop-points.files.tab.error' | translate }} ({{ dropPointService.files().error.length }})
+      </a>
+    </li>
+  </ul>
+  </div>
+
+  <div id="erp-drop-points-files-table-container" class="container-table files-table-height">
+    <table id="erp-drop-points-files-table" class="table table-borderless">
+      <thead id="erp-drop-points-files-table-header">
+        <tr id="erp-drop-points-files-header-row">
+          <th id="erp-drop-points-files-header-name" class="table-header header-file-name">
+            {{ 'settings.erp-drop-points.files.header.file-name' | translate }}
+          </th>
+          <th id="erp-drop-points-files-header-size" class="table-header header-file-size">
+            {{ 'settings.erp-drop-points.files.header.size' | translate }}
+          </th>
+          <th id="erp-drop-points-files-header-date" class="table-header header-file-date">
+            {{ 'settings.erp-drop-points.files.header.date' | translate }}
+          </th>
+          @if (fileTab() === 'error') {
+            <th id="erp-drop-points-files-header-error-reason" class="table-header header-error-reason">
+              {{ 'settings.erp-drop-points.files.header.error-reason' | translate }}
+            </th>
+            <th id="erp-drop-points-files-header-actions" class="table-header action header-file-action"></th>
+          }
+        </tr>
+      </thead>
+      <tbody id="erp-drop-points-files-table-body">
+        @for (file of visibleFiles(); track file.key; let i = $index) {
+          <tr [id]="'erp-drop-points-files-row-' + i" class="table-row">
+            <td class="table-cell cell-file-name" [title]="file.fileName">
+              {{ file.fileName }}
+            </td>
+            <td class="table-cell">{{ formatSize(file.sizeBytes) }}</td>
+            <td class="table-cell">{{ file.lastModifiedUtc | date: 'medium' }}</td>
+            @if (fileTab() === 'error') {
+              <td class="table-cell cell-error-reason" [title]="file.errorReason ?? ''">
+                {{ file.errorReason }}
+              </td>
+              <td class="table-cell cell-right">
+                <button
+                  [id]="'erp-drop-points-files-retry-btn-' + i"
+                  type="button"
+                  class="btn save-btn retry-btn"
+                  (click)="onRetryFile(file.key)"
+                  [disabled]="dropPointService.isRetrying()"
+                >
+                  {{ 'settings.erp-drop-points.files.retry' | translate }}
+                </button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr id="erp-drop-points-files-empty-row" class="table-row">
+            <td class="table-cell files-empty" [attr.colspan]="fileTab() === 'error' ? 5 : 3">
+              {{ 'settings.erp-drop-points.files.empty' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-expandable-card>
+
+<app-expandable-card
+  id="erp-drop-points-tokens-section"
+  [headerTitle]="'settings.erp-drop-points.tokens.section-title' | translate"
+  [initiallyExpanded]="false"
+>
+  <div id="erp-drop-points-tokens-section-info" class="first token-section-info">
+    {{ 'settings.erp-drop-points.tokens.section-info' | translate }}
+  </div>
+  @if (dropPointService.defaultDropPoint(); as dropPoint) {
+    <app-erp-drop-point-tokens [dropPointId]="dropPoint.id" />
+  }
+</app-expandable-card>
+}
+
+@if (activeTab() === 'manual') {
+  <div class="manual-tab-body">
+    <div class="manual-actions">
+      <button
+        id="erp-drop-points-download-sample-btn"
+        type="button"
+        class="btn save-btn"
+        (click)="onDownloadSample()"
+      >
+        {{ 'settings.erp-drop-points.download-sample' | translate }}
+      </button>
+    </div>
+    <div class="manual-content" [innerHTML]="manualContent()"></div>
+  </div>
+}
+</div>
+
+<input
+  #uploadFileInput
+  id="erp-drop-points-upload-file-input"
+  type="file"
+  accept=".xml"
+  class="hidden-file-input"
+  (change)="onUploadFileSelected($event)"
+/>

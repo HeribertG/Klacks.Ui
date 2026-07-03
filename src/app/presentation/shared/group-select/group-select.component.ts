@@ -83,6 +83,7 @@ export class GroupSelectComponent
   @Input() label?: string;
   readonly required = input(false);
   readonly showAllGroupsOption = input(true);
+  readonly autoSelectFirstGroup = input(true);
   readonly hasOptionButton = input(true);
   readonly index = input<number>();
   @Input() set disabled(value: boolean) {
@@ -258,7 +259,7 @@ export class GroupSelectComponent
           }
         } else if (this.showAllGroupsOption()) {
           this.selectAllGroups();
-        } else if (this.hierarchicalTree.length > 0) {
+        } else if (this.autoSelectFirstGroup() && this.hierarchicalTree.length > 0) {
           this.selectGroupProgrammatically(this.hierarchicalTree[0]);
         }
         this.cdr.markForCheck();

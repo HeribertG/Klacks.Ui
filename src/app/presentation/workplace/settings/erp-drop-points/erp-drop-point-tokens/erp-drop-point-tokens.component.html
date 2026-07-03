@@ -1,0 +1,143 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<div id="erp-drop-point-tokens-container" class="tokens-container">
+  <div id="erp-drop-point-tokens-list-box" class="token-list-box">
+    <app-erp-drop-point-token-header id="erp-drop-point-tokens-header" />
+
+    @if (isLoading()) {
+      <div id="erp-drop-point-tokens-loading" class="token-list-hint">
+        {{ 'settings.erp-drop-points.tokens.loading' | translate }}
+      </div>
+    } @else if (tokens().length === 0) {
+      <div id="erp-drop-point-tokens-empty" class="token-list-hint">
+        {{ 'settings.erp-drop-points.tokens.empty' | translate }}
+      </div>
+    } @else {
+      @for (token of tokens(); track token.id) {
+        <app-erp-drop-point-token-row
+          [id]="'erp-drop-point-tokens-row-' + token.id"
+          [data]="token"
+          (deleteEvent)="openRevokeToken($event)"
+        />
+      }
+    }
+  </div>
+
+  @if (!showCreateForm() && !createdToken()) {
+    <span id="erp-drop-point-tokens-add-btn" class="add-button" (click)="onClickAdd()">
+      + {{ 'settings.erp-drop-points.tokens.add' | translate }}
+    </span>
+  }
+
+  @if (createdToken(); as created) {
+    <div id="erp-drop-point-tokens-reveal" class="token-create-panel">
+      <div class="row-line-modal-inline">
+        <div class="alert alert-warning one-time-warning">
+          {{ 'settings.erp-drop-points.tokens.one-time-warning' | translate }}
+        </div>
+      </div>
+
+      <div class="row-line-modal-inline">
+        <div class="model-field-wide">
+          <label for="erp-drop-point-tokens-value">{{
+            'settings.erp-drop-points.tokens.token' | translate
+          }}</label>
+          <div class="token-display-group">
+            <input
+              id="erp-drop-point-tokens-value"
+              type="text"
+              class="form-control token-value"
+              [value]="created.token"
+              readonly
+            />
+            <button
+              id="erp-drop-point-tokens-copy-btn"
+              type="button"
+              class="btn copy-btn"
+              (click)="onCopyToken()"
+            >
+              <app-icon-copy-grey />
+              {{ 'settings.erp-drop-points.tokens.copy' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line-modal-inline token-create-actions">
+        <button
+          id="erp-drop-point-tokens-done-btn"
+          type="button"
+          class="btn save-btn"
+          (click)="onDoneCreate()"
+        >
+          {{ 'settings.erp-drop-points.tokens.done' | translate }}
+        </button>
+      </div>
+    </div>
+  } @else if (showCreateForm()) {
+    <div id="erp-drop-point-tokens-create-form" class="token-create-panel">
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="erp-drop-point-tokens-name">
+            {{ 'settings.erp-drop-points.tokens.name' | translate }}
+            <span class="required-marker">*</span>
+          </label>
+          <input
+            id="erp-drop-point-tokens-name"
+            type="text"
+            [formField]="tokenForm.name"
+            class="form-control"
+          />
+        </div>
+        <div class="model-field">
+          <label for="erp-drop-point-tokens-expires">{{
+            'settings.erp-drop-points.tokens.expires-in-days' | translate
+          }}</label>
+          <input
+            id="erp-drop-point-tokens-expires"
+            type="number"
+            [formField]="tokenForm.expiresInDays"
+            class="form-control"
+          />
+          <small id="erp-drop-point-tokens-expires-hint" class="expiry-hint">
+            {{ 'settings.erp-drop-points.tokens.expires-in-days-hint' | translate }}
+          </small>
+        </div>
+      </div>
+
+      @if (getValidationErrors().length > 0) {
+        <div class="row-line-modal-inline">
+          <div class="validation-errors-section">
+            <div class="alert alert-danger">
+              <strong>{{ 'validation.errors' | translate }}:</strong>
+              <ul>
+                @for (error of getValidationErrors(); track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="row-line-modal-inline token-create-actions">
+        <span
+          id="erp-drop-point-tokens-cancel-btn"
+          type="button"
+          class="link-button red-font"
+          (click)="onCancelCreate()"
+          >{{ 'cancel' | translate }}</span
+        >
+        <button
+          id="erp-drop-point-tokens-create-btn"
+          type="button"
+          class="btn save-btn"
+          (click)="onCreateToken()"
+          [disabled]="!isFormValid()"
+        >
+          {{ 'settings.erp-drop-points.tokens.create' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

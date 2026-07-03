@@ -1,0 +1,283 @@
+<h2>Importation des commandes ERP – Manuel</h2>
+
+<h3>Qu'est-ce que l'importation des commandes ERP ?</h3>
+<p>
+Les systèmes ERP externes livrent leurs commandes à Klacks sous forme de
+<strong>fichiers XML</strong>. Trois canaux de transfert sont disponibles :
+</p>
+<ul>
+  <li>
+    <strong>Drop point (collecte) :</strong> l'ERP dépose les fichiers dans l'espace de
+    dépôt du drop point – selon l'installation, un répertoire sur le serveur Klacks
+    (par défaut) ou un stockage d'objets compatible S3. Klacks collecte les fichiers
+    automatiquement selon la planification configurée.
+  </li>
+  <li>
+    <strong>Téléversement direct (push) :</strong> l'ERP envoie le fichier par HTTP POST
+    à <code>/api/erp-import/upload</code> en s'authentifiant avec un jeton d'importation
+    ERP comme jeton Bearer. Chaque fichier est limité à 50&nbsp;Mo.
+  </li>
+  <li>
+    <strong>Téléversement manuel :</strong> les administrateurs glissent les fichiers
+    XML directement dans la zone de dépôt de cette page (ou cliquent sur la zone pour
+    sélectionner un fichier). Après le téléversement, l'importation est déclenchée
+    automatiquement et démarre dans la minute ; le bouton
+    <em>Importer maintenant</em> permet de la relancer à tout moment.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop point</h3>
+<p>
+Le drop point est la boîte aux lettres centrale pour tous les fichiers d'importation.
+Klacks le gère automatiquement – personne ne doit le créer ni le configurer. La page
+affiche son contenu sous forme de vue de fichiers avec trois zones :
+<strong>Entrée</strong> (en attente de la prochaine exécution d'importation),
+<strong>Traités</strong> (archive) et <strong>Erreurs</strong> (fichiers illisibles ou
+invalides avec la cause de l'erreur). Les fichiers en erreur peuvent être replacés dans
+l'entrée via le bouton <em>Réimporter</em>.
+</p>
+<ul>
+  <li>
+    <strong>Interrupteur actif (importation active)</strong> – met en pause
+    l'importation automatique ; les fichiers déjà déposés sont conservés.
+  </li>
+  <li>
+    <strong>Affichage d'état</strong> – heure de la dernière interrogation et, le cas
+    échéant, la dernière erreur.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Jetons d'accès</h3>
+<ul>
+  <li>
+    Les administrateurs peuvent créer des jetons d'accès pour la livraison en push —
+    nécessaires uniquement si un système ERP externe livre des fichiers via HTTPS.
+    Chaque jeton commence par le préfixe <code>klacks_erp_</code>.
+  </li>
+  <li>
+    La durée de validité est configurable (1 à 730 jours, 365 jours par défaut).
+  </li>
+  <li>
+    Le jeton en clair n'est affiché <strong>qu'une seule fois, à la création</strong>.
+    Il ne peut plus être récupéré ensuite – il faut le copier immédiatement et le
+    conserver en lieu sûr.
+  </li>
+  <li>
+    Un jeton d'importation ERP est délibérément <strong>valable uniquement pour le
+    point de terminaison d'importation</strong>. En cas de fuite chez le prestataire
+    ERP, aucun autre accès API à Klacks n'est possible avec ce jeton.
+  </li>
+  <li>Les jetons peuvent être révoqués à tout moment ; l'accès cesse immédiatement.</li>
+</ul>
+
+<hr>
+
+<h3>Planification</h3>
+<p>
+La collecte du drop point suit une <strong>expression cron</strong> (par défaut
+<code>0 * * * *</code> = toutes les heures) dans le <strong>fuseau horaire</strong>
+sélectionné. Les deux se configurent sur cette page. Une expression cron invalide
+arrêterait l'importation – la saisie est donc validée et les valeurs invalides ne sont
+pas enregistrées.
+</p>
+
+<hr>
+
+<h3>Format XML (référence)</h3>
+<p>
+L'élément racine est <code>ErpOrderImport</code> avec les attributs obligatoires
+<code>schemaVersion</code> (actuellement <code>1</code>) et <code>sourceSystemId</code>.
+Le <code>sourceSystemId</code> identifie le système livreur <strong>dans les
+fichiers</strong> et assure l'affectation stable des clients à travers toutes les
+livraisons – il doit rester constant pour chaque système source. Chaque commande figure
+dans son propre élément <code>&lt;Order&gt;</code>. Un fichier peut contenir un nombre
+quelconque de commandes.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Élément</th>
+      <th>Obligatoire</th>
+      <th>Format</th>
+      <th>Signification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Oui</td>
+      <td>Texte</td>
+      <td>Référence de commande unique du système ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Non</td>
+      <td>Texte</td>
+      <td>Texte libre de la commande (p.&nbsp;ex. consignes d'intervention) ; affiché sur la commande.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Oui</td>
+      <td>Élément</td>
+      <td>Données client de la commande (voir sous-éléments).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Non (recommandé)</td>
+      <td>Texte</td>
+      <td>Référence client externe ; garantit une attribution stable du client à chaque importation.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Oui</td>
+      <td>Texte</td>
+      <td>Raison sociale du client.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Oui</td>
+      <td>Texte</td>
+      <td>Rue et numéro.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Oui</td>
+      <td>Texte</td>
+      <td>Code postal.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Non</td>
+      <td>Texte</td>
+      <td>Localité, canton/région et pays.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Oui</td>
+      <td>yyyy-MM-dd</td>
+      <td>Début de la commande.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Non</td>
+      <td>yyyy-MM-dd</td>
+      <td>Fin de la commande ; absent ou vide = durée indéterminée.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Oui</td>
+      <td>HH:mm</td>
+      <td>Heure de début et de fin de l'intervention.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Non</td>
+      <td>true/false (false par défaut)</td>
+      <td>true = plage horaire dans laquelle le travail a lieu ; false = service fixe de StartTime à EndTime. Si true, <code>Duration</code> est obligatoire.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Si IsTimeRange=true</td>
+      <td>Élément avec <code>&lt;Hours&gt;</code> et <code>&lt;Minutes&gt;</code> (entiers)</td>
+      <td>Durée de l'intervention, p.&nbsp;ex. 0 h 20 min pour une visite de 20 minutes dans la plage 08:00–15:00. Facultatif pour un service fixe ; en son absence, la durée de StartTime à EndTime s'applique.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Non</td>
+      <td>Entier (1 par défaut)</td>
+      <td>Nombre d'interventions.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Non</td>
+      <td>Entier (1 par défaut)</td>
+      <td>Nombre de collaborateurs requis.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Oui</td>
+      <td>Attributs <code>monday</code> … <code>sunday</code>, chacun true/false</td>
+      <td>Jours de la semaine de la commande ; au moins un jour doit être true, un
+        attribut absent vaut false. Les commandes sans jour de semaine sont
+        rejetées.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Remarque :</strong> les noms d'éléments sont sensibles à la casse. Un fichier
+d'exemple complet est disponible via le bouton <em>Télécharger le fichier d'exemple</em>
+au-dessus de ce manuel.
+</p>
+
+<hr>
+
+<h3>Attribution des clients</h3>
+<p>
+Klacks attribue chaque commande à un client :
+</p>
+<ul>
+  <li>
+    D'abord via la combinaison ID du système source + référence client externe – une
+    fois attribuée, cette référence renvoie durablement au même client.
+  </li>
+  <li>
+    Sans référence externe, la première occurrence est recherchée via raison sociale +
+    code postal + rue ; la casse et les espaces sont ignorés.
+  </li>
+  <li>Sans correspondance, Klacks crée automatiquement le client.</li>
+</ul>
+
+<hr>
+
+<h3>Traitement &amp; cycle de vie</h3>
+<ul>
+  <li>
+    Les commandes importées sont créées comme <strong>brouillons</strong> et doivent
+    être vérifiées et scellées par les planificateurs ou les administrateurs. Lors de
+    la vérification, le planificateur ajoute aussi les qualifications requises — l'ERP
+    peut les transmettre comme indication dans le champ <code>Description</code>.
+  </li>
+  <li>
+    Si l'ERP livre plus tard une version <strong>modifiée</strong> d'une commande déjà
+    scellée, Klacks clôt automatiquement l'ancienne commande par date de fin et crée une
+    nouvelle version brouillon liée. Les interventions futures déjà planifiées et non
+    verrouillées de l'ancienne commande sont supprimées et les planificateurs sont
+    notifiés.
+  </li>
+  <li>
+    Les livraisons répétées <strong>inchangées</strong> (p.&nbsp;ex. un export complet
+    nocturne) ne déclenchent rien.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Gestion des erreurs &amp; archive</h3>
+<ul>
+  <li>
+    Les fichiers traités sont déplacés dans le sous-dossier <code>processed/</code> de
+    l'espace de dépôt (archive, pas de suppression) ; ils apparaissent sur la page
+    d'importation dans la zone <em>Traités</em>.
+  </li>
+  <li>
+    Les fichiers illisibles ou invalides sont déplacés dans le sous-dossier
+    <code>error/</code> et apparaissent dans la zone <em>Erreurs</em> ; de là, ils
+    peuvent être replacés dans l'entrée via <em>Réimporter</em>.
+  </li>
+  <li>
+    Les commandes incomplètes ou non valides sont rejetées (par exemple sans jour de
+    semaine, avec <code>UntilDate</code> avant <code>FromDate</code> ou avec une
+    <code>ExternalOrderReference</code> en double dans le même fichier) ; les autres
+    commandes du même fichier sont tout de même importées.
+  </li>
+  <li>
+    Un fichier contenant au moins une commande rejetée passe dans la zone
+    <em>Erreur</em> avec le motif du rejet — les commandes déjà importées restent
+    importées.
+  </li>
+  <li>Les erreurs sont journalisées et les administrateurs sont notifiés.</li>
+</ul>

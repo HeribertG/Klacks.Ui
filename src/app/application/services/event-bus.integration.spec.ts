@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { EventBus } from './event-bus.service';
 import { DomainEventHandler } from 'src/app/presentation/handlers/domain-event.handler';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -29,6 +30,7 @@ describe('EventBus Integration Tests', () => {
                 DomainEventHandler,
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: Router, useValue: routerSpy },
+                { provide: TranslateService, useValue: { instant: (key: string) => key } },
             ],
         });
 

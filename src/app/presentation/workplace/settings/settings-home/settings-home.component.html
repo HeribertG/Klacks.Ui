@@ -708,6 +708,39 @@
     class="section-header first"
     tabindex="0"
     role="button"
+    (click)="toggleSection('erp')"
+    (keydown.enter)="toggleSection('erp')"
+  >
+    <span>{{ "setting.section.erp" | translate }}</span>
+    <button class="section-toggle-button">
+      @if (sections["erp"]) {
+        <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  @if (sections["erp"]) {
+    <div id="settings-home-erp-drop-points-row" class="container-profilline">
+      <app-erp-drop-points
+        id="settings-erp-drop-points"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="isfocused('app-erp-drop-points')"
+        data-klacksy-target="erp-drop-points"
+        data-klacksy-label-key="settings.erpDropPoints"
+        data-klacksy-category="settings.integrations"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-erp-drop-points>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div
+    class="section-header first"
+    tabindex="0"
+    role="button"
     (click)="toggleSection('plugins')"
     (keydown.enter)="toggleSection('plugins')"
   >

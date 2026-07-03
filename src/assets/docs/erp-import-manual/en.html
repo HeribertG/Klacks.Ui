@@ -1,0 +1,273 @@
+<h2>ERP Order Import – Manual</h2>
+
+<h3>What is the ERP order import?</h3>
+<p>
+External ERP systems deliver orders to Klacks as <strong>XML files</strong>. There are
+three transfer channels:
+</p>
+<ul>
+  <li>
+    <strong>Drop point (pull):</strong> The ERP places the files in the drop point's
+    file store – depending on the installation a directory on the Klacks server
+    (default) or an S3-compatible object storage. Klacks collects the files
+    automatically according to the configured schedule.
+  </li>
+  <li>
+    <strong>Direct upload (push):</strong> The ERP sends the file via HTTP POST to
+    <code>/api/erp-import/upload</code>, authenticating with an ERP import token as a
+    bearer token. Each file may be at most 50&nbsp;MB.
+  </li>
+  <li>
+    <strong>Manual upload:</strong> Administrators drag XML files into the drop zone
+    directly on this page (or click the zone to select a file). After the upload the
+    import is triggered automatically and starts within a minute; the
+    <em>Import now</em> button triggers it again at any time.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop point</h3>
+<p>
+The drop point is the central mailbox for all import files. Klacks manages it
+automatically – nobody has to create or configure it. The page shows its content as a
+file view with three areas: <strong>Inbox</strong> (waiting for the next import run),
+<strong>Processed</strong> (archive) and <strong>Errors</strong> (unreadable or invalid
+files including the error reason). Failed files can be moved back to the inbox via the
+<em>Import again</em> button.
+</p>
+<ul>
+  <li>
+    <strong>Enabled switch (import active)</strong> – pauses the automatic import;
+    files already delivered are kept.
+  </li>
+  <li>
+    <strong>Status display</strong> – time of the last poll and, if present, the last
+    error.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Access tokens</h3>
+<ul>
+  <li>
+    Administrators can create access tokens for push delivery — only needed if an
+    external ERP system delivers files via HTTPS. Every token starts with the
+    prefix <code>klacks_erp_</code>.
+  </li>
+  <li>
+    The validity period is configurable (1 to 730 days, default 365 days).
+  </li>
+  <li>
+    The token plaintext is shown <strong>only once, at creation</strong>. It cannot be
+    retrieved afterwards – copy it immediately and store it securely.
+  </li>
+  <li>
+    An ERP import token is deliberately <strong>valid for the import endpoint only</strong>.
+    If a token leaks at the ERP vendor, no other API access to Klacks is possible with it.
+  </li>
+  <li>Tokens can be revoked at any time; access ends immediately.</li>
+</ul>
+
+<hr>
+
+<h3>Schedule</h3>
+<p>
+Polling of the drop point follows a <strong>cron expression</strong> (default
+<code>0 * * * *</code> = hourly) in the selected <strong>time zone</strong>. Both are
+configured on this page. An invalid cron expression would stop the import – the input
+is therefore validated and invalid values are not saved.
+</p>
+
+<hr>
+
+<h3>XML format (reference)</h3>
+<p>
+The root element is <code>ErpOrderImport</code> with the required attributes
+<code>schemaVersion</code> (currently <code>1</code>) and <code>sourceSystemId</code>.
+The <code>sourceSystemId</code> identifies the delivering system <strong>in the
+files</strong> and provides the stable customer matching across all deliveries – it
+must stay constant for each source system. Each order lives in its own
+<code>&lt;Order&gt;</code> element. A file may contain any number of orders.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Required</th>
+      <th>Format</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Yes</td>
+      <td>Text</td>
+      <td>Unique order reference of the ERP system.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>No</td>
+      <td>Text</td>
+      <td>Free text for the order (e.g. assignment notes); shown on the order.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Yes</td>
+      <td>Element</td>
+      <td>Customer data of the order (see child elements).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>No (recommended)</td>
+      <td>Text</td>
+      <td>External customer reference; guarantees stable customer matching across imports.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Yes</td>
+      <td>Text</td>
+      <td>Company name of the customer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Yes</td>
+      <td>Text</td>
+      <td>Street and house number.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Yes</td>
+      <td>Text</td>
+      <td>Postal code.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>No</td>
+      <td>Text</td>
+      <td>City, state/region and country.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Yes</td>
+      <td>yyyy-MM-dd</td>
+      <td>Start of the order.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>No</td>
+      <td>yyyy-MM-dd</td>
+      <td>End of the order; missing or empty = open-ended.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Yes</td>
+      <td>HH:mm</td>
+      <td>Start and end time of the assignment.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>No</td>
+      <td>true/false (default false)</td>
+      <td>true = time window in which work takes place; false = fixed shift from StartTime to EndTime. When true, <code>Duration</code> is required.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>When IsTimeRange=true</td>
+      <td>Element with <code>&lt;Hours&gt;</code> and <code>&lt;Minutes&gt;</code> (integers)</td>
+      <td>Duration of the single assignment, e.g. 0 h 20 min for a 20-minute visit within the 08:00–15:00 window. Optional for fixed shifts; if missing, the duration from StartTime to EndTime applies.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>No</td>
+      <td>Integer (default 1)</td>
+      <td>Number of assignments.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>No</td>
+      <td>Integer (default 1)</td>
+      <td>Number of employees required.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Yes</td>
+      <td>Attributes <code>monday</code> … <code>sunday</code>, each true/false</td>
+      <td>Weekdays of the order; at least one weekday must be true, a missing
+        attribute counts as false. Orders without a weekday are rejected.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Note:</strong> Element names are case-sensitive. A complete sample file is
+available via the <em>Download sample file</em> button above this manual.
+</p>
+
+<hr>
+
+<h3>Customer matching</h3>
+<p>
+Klacks assigns every order to a customer:
+</p>
+<ul>
+  <li>
+    First via the combination of source system ID and external customer reference –
+    once matched, this reference permanently resolves to the same customer.
+  </li>
+  <li>
+    Without an external reference, the first occurrence is matched via company + postal
+    code + street; casing and whitespace are ignored.
+  </li>
+  <li>If no match is found, Klacks creates the customer automatically.</li>
+</ul>
+
+<hr>
+
+<h3>Processing &amp; lifecycle</h3>
+<ul>
+  <li>
+    Imported orders are created as <strong>drafts</strong> and must be reviewed and
+    sealed by planners or administrators. During review the planner also adds any
+    required qualifications — the ERP can pass them along as a hint in the
+    <code>Description</code> field.
+  </li>
+  <li>
+    If the ERP later delivers a <strong>changed</strong> version of an already sealed
+    order, Klacks automatically closes the old order by end date and creates a new,
+    linked draft version. Already planned future, unlocked assignments of the old order
+    are removed and the planners are notified.
+  </li>
+  <li>
+    <strong>Unchanged</strong> repeat deliveries (e.g. a nightly full export) trigger
+    nothing.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Error handling &amp; archive</h3>
+<ul>
+  <li>
+    Processed files are moved to the <code>processed/</code> subfolder in the object
+    storage (archive, no deletion); they appear on the import page in the
+    <em>Processed</em> area.
+  </li>
+  <li>
+    Unreadable or invalid files are moved to the <code>error/</code> subfolder and
+    appear in the <em>Errors</em> area; from there they can be moved back to the inbox
+    via <em>Import again</em>.
+  </li>
+  <li>
+    Incomplete or invalid orders are rejected (for example without a weekday, with
+    <code>UntilDate</code> before <code>FromDate</code>, or with a duplicate
+    <code>ExternalOrderReference</code> within the same file); the remaining orders
+    of the same file are still imported.
+  </li>
+  <li>
+    A file with at least one rejected order moves to the <em>Error</em> area together
+    with the rejection reason — orders that were already imported stay imported.
+  </li>
+  <li>Errors are logged and the administrators are notified.</li>
+</ul>
