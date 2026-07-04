@@ -6,6 +6,9 @@
  * an ExportLog entry automatically. The export is keyed on the order (the
  * SealedOrder shift), so renames or splits of the operational shift never leak
  * into the exported document.
+ *
+ * A second, date-range-based section downloads hours/expenses/breaks for all
+ * employees (internal and external) as XML, independent of individual orders.
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
@@ -27,6 +30,8 @@ import {
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
 
 type ExportFormat = 'csv' | 'json' | 'xml' | 'datev' | 'bmd';
+
+const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 
 @Component({
   selector: 'app-exports-tab',
@@ -51,6 +56,10 @@ export class ExportsTabComponent {
 
   public format = signal<ExportFormat>('csv');
   public busy = signal<boolean>(false);
+
+  public clientExportFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
+  public clientExportUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
+  public clientExportBusy = signal<boolean>(false);
 
   public readonly formats: { key: ExportFormat; labelKey: string }[] = [
     { key: 'csv',   labelKey: 'periodClosing.format.csv' },
@@ -151,6 +160,45 @@ export class ExportsTabComponent {
         const msg: string = err?.error?.message ?? err?.message ?? 'Error';
         this.toastShowService.showError(msg);
         this.busy.set(false);
+      },
+    });
+  }
+
+  onClientPeriodExport(): void {
+    const fromDate = ngbDateStructToIsoDate(this.clientExportFrom());
+    const untilDate = ngbDateStructToIsoDate(this.clientExportUntil());
+
+    if (!fromDate || !untilDate || fromDate > untilDate) {
+      this.toastShowService.showError(this.translate.instant('periodClosing.clientExport.error.invalidRange'));
+      return;
+    }
+
+    this.clientExportBusy.set(true);
+    this.api.downloadClientPeriodExport({
+      fromDate,
+      untilDate,
+      language: this.translate.currentLang || this.translate.defaultLang || 'de',
+      currencyCode: CLIENT_EXPORT_CURRENCY_CODE,
+    }).subscribe({
+      next: (res) => {
+        const blob = res.body;
+        if (!blob) {
+          this.toastShowService.showError('Empty response body');
+          this.clientExportBusy.set(false);
+          return;
+        }
+        const fileName = this.extractFileName(res.headers.get('content-disposition'))
+          ?? `client-period-export_${fromDate}_${untilDate}.xml`;
+        this.triggerDownload(blob, fileName);
+        const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
+        const header = this.translate.instant('periodClosing.clientExport.title');
+        this.toastShowService.showSuccess(msg, header);
+        this.clientExportBusy.set(false);
+      },
+      error: (err) => {
+        const msg: string = err?.error?.message ?? err?.message ?? 'Error';
+        this.toastShowService.showError(msg);
+        this.clientExportBusy.set(false);
       },
     });
   }

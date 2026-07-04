@@ -97,5 +97,49 @@
     </section>
   </div>
 
+  <div class="container-line"></div>
+
+  <div class="first exports-tab-body client-export-body">
+    <div class="container-subline-borderless">
+      {{ 'periodClosing.clientExport.title' | translate }}
+    </div>
+    <p class="client-export-description">
+      {{ 'periodClosing.clientExport.description' | translate }}
+    </p>
+
+    <section class="filter-row">
+      <div class="filter-field">
+        <label class="form-label" for="clientExportFrom">{{ 'periodClosing.form.filterFrom' | translate }}</label>
+        <app-date-input
+          inputId="clientExportFrom"
+          [showLabel]="false"
+          [value]="clientExportFrom()"
+          (valueChange)="clientExportFrom.set($event ?? null)">
+        </app-date-input>
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="clientExportUntil">{{ 'periodClosing.form.filterUntil' | translate }}</label>
+        <app-date-input
+          inputId="clientExportUntil"
+          [showLabel]="false"
+          [value]="clientExportUntil()"
+          (valueChange)="clientExportUntil.set($event ?? null)">
+        </app-date-input>
+      </div>
+      <div class="filter-field filter-action">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="clientExportBusy()"
+          (click)="onClientPeriodExport()">
+          @if (clientExportBusy()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          }
+          {{ 'periodClosing.action.export' | translate }}
+        </button>
+      </div>
+    </section>
+  </div>
+
   <div class="bottom-border-space"></div>
 </div>

@@ -77,6 +77,19 @@ export class DataPeriodClosingService {
     );
   }
 
+  downloadClientPeriodExport(request: {
+    fromDate: string;
+    untilDate: string;
+    language: string;
+    currencyCode: string;
+  }): Observable<HttpResponse<Blob>> {
+    return this.httpClient.post(
+      `${environment.baseUrl}ClientPeriodExport`,
+      request,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
   listSealedOrders(
     from: string | null,
     until: string | null,

@@ -77,4 +77,19 @@ describe('DataPeriodClosingService', () => {
         );
         flush.flush([]);
     });
+
+    it('POSTs to ClientPeriodExport endpoint and requests a blob response', () => {
+        const req = {
+            fromDate: '2026-01-01',
+            untilDate: '2026-01-31',
+            language: 'de',
+            currencyCode: 'EUR',
+        };
+        service.downloadClientPeriodExport(req).subscribe();
+        const flush = httpMock.expectOne(`${environment.baseUrl}ClientPeriodExport`);
+        expect(flush.request.method).toBe('POST');
+        expect(flush.request.body).toEqual(req);
+        expect(flush.request.responseType).toBe('blob');
+        flush.flush(new Blob(['<xml/>']));
+    });
 });
