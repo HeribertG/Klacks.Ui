@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import {
   IReceivedEmail,
   IReceivedEmailListResponse,
+  ITranslatedEmail,
 } from 'src/app/domain/models/email/received-email.model';
 import { IEmailGroupNode } from 'src/app/domain/models/email/email-group-node.model';
 import { Observable } from 'rxjs';
@@ -82,6 +83,13 @@ export class DataReceivedEmailService {
     return this.httpClient
       .put<boolean>(`${environment.baseUrl}${API_PATH}${id}/MoveToFolder?folder=${encodeURIComponent(folder)}`, {})
       .pipe(retry(3));
+  }
+
+  translateEmail(id: string, targetLanguage: string) {
+    return this.httpClient.post<ITranslatedEmail>(
+      `${environment.baseUrl}${API_PATH}${id}/Translate?targetLanguage=${encodeURIComponent(targetLanguage)}`,
+      {}
+    );
   }
 
   fetchNow() {

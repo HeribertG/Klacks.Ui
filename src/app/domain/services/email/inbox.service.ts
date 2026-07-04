@@ -194,6 +194,10 @@ export class InboxService {
     });
   }
 
+  translateEmail(id: string, targetLanguage: string) {
+    return this.dataReceivedEmailService.translateEmail(id, targetLanguage);
+  }
+
   deleteEmail(id: string): void {
     this.dataReceivedEmailService.delete(id).subscribe({
       next: () => {

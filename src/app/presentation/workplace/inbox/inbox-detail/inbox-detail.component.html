@@ -1,7 +1,31 @@
 @if (email()) {
   <div class="detail-header">
-    <div class="detail-subject">{{ email()!.subject }}</div>
+    <div class="detail-subject">{{ displaySubject() }}</div>
     <div class="detail-actions">
+      @if (translationService.isConfigured) {
+        <button
+          type="button"
+          class="action-button action-button--icon"
+          [disabled]="isTranslating()"
+          [attr.aria-label]="(isTranslating() ? 'inbox.detail.translating' : 'inbox.detail.translate') | translate"
+          (click)="onTranslate()"
+        >
+          @if (!isTranslating()) {
+            <fa-icon [icon]="faLanguage" aria-hidden="true"></fa-icon>
+          } @else {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          }
+        </button>
+        @if (translatedResult()) {
+          <button
+            type="button"
+            class="action-button"
+            (click)="onToggleTranslation()"
+          >
+            {{ (showOriginal() ? 'inbox.detail.show-translation' : 'inbox.detail.show-original') | translate }}
+          </button>
+        }
+      }
       <button
         type="button"
         class="action-button action-button--icon"
@@ -39,6 +63,10 @@
       }
     </div>
   </div>
+
+  @if (translateError()) {
+    <div class="alert alert-warning">{{ 'inbox.detail.translate-error' | translate }}</div>
+  }
 
   <div class="detail-meta">
     <div class="meta-row">

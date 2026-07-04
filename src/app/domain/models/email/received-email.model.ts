@@ -24,3 +24,10 @@ export interface IReceivedEmailListResponse {
   totalCount: number;
   unreadCount: number;
 }
+
+export interface ITranslatedEmail {
+  subject: string;
+  bodyHtml: string | null;
+  bodyText: string | null;
+  targetLanguage: string;
+}
