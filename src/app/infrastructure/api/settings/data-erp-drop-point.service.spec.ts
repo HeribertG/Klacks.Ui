@@ -113,6 +113,15 @@ describe('DataErpDropPointService', () => {
     req.flush(null);
   });
 
+  it('deletes a failed file via DELETE with the key in the body', () => {
+    service.deleteFile('error/broken.xml').subscribe();
+
+    const req = httpMock.expectOne(`${base}/files`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toEqual({ key: 'error/broken.xml' });
+    req.flush(null);
+  });
+
   it('triggers an import run via POST without a body', () => {
     service.triggerImportRun().subscribe();
 

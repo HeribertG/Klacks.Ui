@@ -244,7 +244,7 @@
               <td class="table-cell cell-error-reason" [title]="file.errorReason ?? ''">
                 {{ file.errorReason }}
               </td>
-              <td class="table-cell cell-right">
+              <td class="table-cell cell-right file-actions">
                 <button
                   [id]="'erp-drop-points-files-retry-btn-' + i"
                   type="button"
@@ -254,6 +254,14 @@
                 >
                   {{ 'settings.erp-drop-points.files.retry' | translate }}
                 </button>
+                <div
+                  [id]="'erp-drop-points-files-delete-btn-' + i"
+                  class="icon"
+                  [title]="'settings.erp-drop-points.files.delete' | translate"
+                  (click)="onDeleteFile(file)"
+                >
+                  <app-icon-trash-red></app-icon-trash-red>
+                </div>
               </td>
             }
           </tr>

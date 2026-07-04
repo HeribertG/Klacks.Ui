@@ -55,6 +55,7 @@ describe('DataManagementErpDropPointService', () => {
       uploadFile: vi.fn(),
       getFiles: vi.fn(),
       retryFile: vi.fn(),
+      deleteFile: vi.fn(),
       triggerImportRun: vi.fn(),
     };
 
@@ -346,6 +347,49 @@ describe('DataManagementErpDropPointService', () => {
       expect(mockEventBus.emit).toHaveBeenCalledWith(
         DomainEventType.ERROR,
         expect.objectContaining({ message: 'settings.erp-drop-points.files.error.retry' })
+      );
+    });
+  });
+
+  describe('deleteFile', () => {
+    it('returns true and emits a SUCCESS event when the file was deleted', async () => {
+      mockDataService.deleteFile.mockReturnValue(of(void 0));
+
+      const result = await service.deleteFile('error/broken.xml');
+
+      expect(result).toBe(true);
+      expect(mockDataService.deleteFile).toHaveBeenCalledWith('error/broken.xml');
+      expect(service.isDeleting()).toBe(false);
+      expect(mockEventBus.emit).toHaveBeenCalledWith(
+        DomainEventType.SUCCESS,
+        expect.objectContaining({ message: 'settings.erp-drop-points.files.success.delete' })
+      );
+    });
+
+    it('sets isDeleting while the request is pending and resets it afterwards', async () => {
+      const subject = new Subject<void>();
+      mockDataService.deleteFile.mockReturnValue(subject.asObservable());
+
+      const promise = service.deleteFile('error/broken.xml');
+      expect(service.isDeleting()).toBe(true);
+
+      subject.next();
+      subject.complete();
+      await promise;
+
+      expect(service.isDeleting()).toBe(false);
+    });
+
+    it('returns false and emits an ERROR event on failure', async () => {
+      mockDataService.deleteFile.mockReturnValue(throwError(() => new Error('network')));
+
+      const result = await service.deleteFile('error/broken.xml');
+
+      expect(result).toBe(false);
+      expect(service.isDeleting()).toBe(false);
+      expect(mockEventBus.emit).toHaveBeenCalledWith(
+        DomainEventType.ERROR,
+        expect.objectContaining({ message: 'settings.erp-drop-points.files.error.delete' })
       );
     });
   });

@@ -7,6 +7,7 @@
  * @param uploadFile - Uploads an XML order file into the drop point and returns the storage key
  * @param getFiles - Loads the stored files grouped by state (pending, processed, error)
  * @param retryFile - Moves a failed file back into the inbox so the next run imports it again
+ * @param deleteFile - Permanently removes a failed file from the error segment
  * @param triggerImportRun - Triggers an immediate import run
  */
 
@@ -62,6 +63,11 @@ export class DataErpDropPointService {
   retryFile(key: string): Observable<void> {
     return this.httpClient
       .post<void>(`${this.apiUrl}/${FILES_PATH_SEGMENT}/${RETRY_PATH_SEGMENT}`, { key });
+  }
+
+  deleteFile(key: string): Observable<void> {
+    return this.httpClient
+      .delete<void>(`${this.apiUrl}/${FILES_PATH_SEGMENT}`, { body: { key } });
   }
 
   triggerImportRun(): Observable<void> {

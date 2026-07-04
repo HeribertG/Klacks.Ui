@@ -9,6 +9,7 @@
  * @param isLoadingFiles - Signal indicating whether the file listing is currently being (re)loaded
  * @param isUploading - Signal indicating whether a file upload is currently running
  * @param isRetrying - Signal indicating whether a failed file is currently being moved back to the inbox
+ * @param isDeleting - Signal indicating whether a failed file is currently being permanently deleted
  * @param isTriggeringImport - Signal indicating whether a manual import run is currently being triggered
  */
 
@@ -42,6 +43,7 @@ export class DataManagementErpDropPointService {
   public isLoadingFiles = signal(false);
   public isUploading = signal(false);
   public isRetrying = signal(false);
+  public isDeleting = signal(false);
   public isTriggeringImport = signal(false);
 
   async loadDefaultDropPoint(): Promise<IErpDropPoint | null> {
@@ -171,6 +173,22 @@ export class DataManagementErpDropPointService {
       return false;
     } finally {
       this.isRetrying.set(false);
+    }
+  }
+
+  async deleteFile(key: string): Promise<boolean> {
+    try {
+      this.isDeleting.set(true);
+      await firstValueFrom(this.dataService.deleteFile(key));
+
+      this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.erp-drop-points.files.success.delete', context: 'Success' });
+      return true;
+    } catch (error) {
+      console.error('Error deleting ERP drop point file:', error);
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.erp-drop-points.files.error.delete', code: 'ErpDropPointError', context: 'DataManagementErpDropPointService' });
+      return false;
+    } finally {
+      this.isDeleting.set(false);
     }
   }
 

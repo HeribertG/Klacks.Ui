@@ -31,6 +31,7 @@ import { ErpDropPointTokensComponent } from './erp-drop-point-tokens/erp-drop-po
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { DataManagementErpDropPointService } from 'src/app/domain/services/settings/data-management-erp-drop-point.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { IErpDropPoint, IErpDropPointFile, IErpDropPointRequest } from 'src/app/domain/models/settings/erp-drop-point';
@@ -40,6 +41,7 @@ import { isValidCronExpression } from 'src/app/domain/helpers/cron-expression.he
 import { formatFileSize } from 'src/app/domain/helpers/file-size.helper';
 import { ManualLoaderService } from 'src/app/application/services/manual-loader.service';
 import { AssetDownloadService } from 'src/app/application/services/asset-download.service';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 const ERP_IMPORT_MANUAL_NAME = 'erp-import-manual';
 const SAMPLE_FILE_NAME = 'sample-erp-order-import.xml';
@@ -70,6 +72,7 @@ type IntlWithSupportedValues = typeof Intl & {
     ErpDropPointTokensComponent,
     ExpandableCardComponent,
     IconRefreshGreyComponent,
+    TrashIconRedComponent,
     DragDropFileUploadDirective,
   ],
   templateUrl: './erp-drop-points.component.html',
@@ -84,6 +87,7 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsManagementService);
   private manualLoaderService = inject(ManualLoaderService);
   private assetDownloadService = inject(AssetDownloadService);
+  private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
@@ -224,6 +228,20 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  onDeleteFile(file: ErpDropPointFileView): void {
+    if (this.dropPointService.isDeleting()) {
+      return;
+    }
+    this.modalService.openModal({
+      type: ModalType.Delete,
+      title: this.translate.instant('delete'),
+      message: this.translate.instant('settings.erp-drop-points.files.confirm-delete', { name: file.fileName }),
+      confirmText: this.translate.instant('button.delete'),
+      cancelText: this.translate.instant('cancel'),
+      onConfirm: () => void this.deleteFile(file.key),
+    });
+  }
+
   formatSize(sizeBytes: number): string {
     return formatFileSize(sizeBytes);
   }
@@ -250,6 +268,14 @@ export class ErpDropPointsComponent implements OnInit, OnDestroy {
     if (uploadedKeys.length > 0) {
       await this.dropPointService.loadFiles();
       void this.dropPointService.watchProcessingResults(uploadedKeys);
+    }
+    this.cdr.markForCheck();
+  }
+
+  private async deleteFile(key: string): Promise<void> {
+    const success = await this.dropPointService.deleteFile(key);
+    if (success) {
+      await this.dropPointService.loadFiles();
     }
     this.cdr.markForCheck();
   }

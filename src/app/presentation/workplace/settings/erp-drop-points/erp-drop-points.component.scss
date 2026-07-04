@@ -109,6 +109,13 @@
   min-width: 160px;
 }
 
+.file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .cell-file-name,
 .cell-error-reason {
   overflow: hidden;
@@ -119,6 +126,7 @@
 .retry-btn {
   font-size: 12px;
   padding: 2px 10px;
+  margin-inline-end: 0;
 }
 
 .files-empty {
