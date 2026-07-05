@@ -11,7 +11,6 @@ import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -72,7 +71,6 @@ export class DashboardHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
-  private authorizationService = inject(AuthorizationService);
   private localStorageService = inject(LocalStorageService);
 
   readonly sectionKeys = DEFAULT_SECTION_ORDER;
@@ -108,9 +106,7 @@ export class DashboardHomeComponent implements OnInit {
 
   readonly visibleSectionOrder = computed(() =>
     this.sectionOrder().filter(
-      k =>
-        this.sectionVisibilityModel()[k as keyof SectionVisibilityFormModel] &&
-        (this.authorizationService.isAuthorised || k === 'locations')
+      k => this.sectionVisibilityModel()[k as keyof SectionVisibilityFormModel]
     )
   );
 

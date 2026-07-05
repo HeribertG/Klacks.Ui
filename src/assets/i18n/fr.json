@@ -430,6 +430,7 @@
   "dashboard.locations.headline": "Emplacements",
   "dashboard.locations.loading": "Chargement des emplacements...",
   "dashboard.locations.noData": "Aucun emplacement disponible",
+  "dashboard.locations.noGroupsAssigned": "Aucun groupe ne vous a encore été attribué — veuillez contacter votre administrateur",
   "dashboard.locations.byCity": "Par ville",
   "dashboard.locations.byGroup": "Par groupe",
   "dashboard.locations.totalLocations": "Total des emplacements",

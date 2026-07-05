@@ -73,7 +73,7 @@ interface MapSettingsFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
-  readonly mapContainerRef = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
+  readonly mapContainerRef = viewChild<ElementRef<HTMLDivElement>>('mapContainer');
   private mapInitialized = false;
   private shouldInitializeMap = false;
   private dataDashboardService = inject(DataDashboardService);
@@ -92,6 +92,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   public isLoading = signal(true);
   public error = signal<string | null>(null);
   public viewMode = signal<LocationViewMode>('city');
+  public noGroupsAssigned = signal(false);
 
   public searchQuery = signal('');
   private searchMarker: any = null;
@@ -178,7 +179,19 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     this.loadSavedTileProvider();
     this.loadSavedViewMode();
     this.locationFormInitialized = true;
+    this.loadVisibilityStatus();
     this.loadDataForCurrentMode();
+  }
+
+  private loadVisibilityStatus(): void {
+    this.dataDashboardService.getVisibilityStatus().subscribe({
+      next: (status) => {
+        this.noGroupsAssigned.set(status.isRestricted && !status.hasVisibleGroups);
+      },
+      error: () => {
+        this.noGroupsAssigned.set(false);
+      },
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -293,9 +306,10 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
         this.totalClients.set(clients.length);
         this.isLoading.set(false);
 
-        this.shouldInitializeMap = true;
+        this.shouldInitializeMap = locationsArray.length > 0;
       },
       error: (err) => {
+        this.shouldInitializeMap = false;
         this.error.set('Failed to load location data');
         console.error('Error loading locations:', err);
         this.isLoading.set(false);
@@ -367,9 +381,9 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     }
 
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
-      iconUrl: 'assets/leaflet/marker-icon.png',
-      shadowUrl: 'assets/leaflet/marker-shadow.png',
+      iconRetinaUrl: '/assets/leaflet/marker-icon-2x.png',
+      iconUrl: '/assets/leaflet/marker-icon.png',
+      shadowUrl: '/assets/leaflet/marker-shadow.png',
     });
 
     this.map = L.map(mapContainer).setView([46.8182, 8.2275], 7);

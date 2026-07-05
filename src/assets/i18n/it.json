@@ -430,6 +430,7 @@
   "dashboard.locations.headline": "Ubicazioni",
   "dashboard.locations.loading": "Caricamento ubicazioni...",
   "dashboard.locations.noData": "Nessuna ubicazione disponibile",
+  "dashboard.locations.noGroupsAssigned": "Non ti è ancora stato assegnato alcun gruppo — contatta il tuo amministratore",
   "dashboard.locations.byCity": "Per città",
   "dashboard.locations.byGroup": "Per gruppo",
   "dashboard.locations.totalLocations": "Totale ubicazioni",

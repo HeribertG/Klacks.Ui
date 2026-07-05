@@ -431,6 +431,7 @@
   "dashboard.locations.headline": "Locations",
   "dashboard.locations.loading": "Loading locations...",
   "dashboard.locations.noData": "No locations available",
+  "dashboard.locations.noGroupsAssigned": "No groups have been assigned to you yet — please contact your administrator",
   "dashboard.locations.byCity": "By City",
   "dashboard.locations.byGroup": "By Group",
   "dashboard.locations.totalLocations": "Total Locations",

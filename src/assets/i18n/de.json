@@ -431,6 +431,7 @@
   "dashboard.locations.headline": "Standorte",
   "dashboard.locations.loading": "Lade Standorte...",
   "dashboard.locations.noData": "Keine Standorte verfügbar",
+  "dashboard.locations.noGroupsAssigned": "Ihnen sind noch keine Gruppen zugewiesen — bitte kontaktieren Sie Ihren Administrator",
   "dashboard.locations.byCity": "Nach Stadt",
   "dashboard.locations.byGroup": "Nach Gruppe",
   "dashboard.locations.totalLocations": "Anzahl Standorte",

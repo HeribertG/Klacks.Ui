@@ -17,7 +17,9 @@
   <div class="container-dashboard-card-content">
     @if (locations().length === 0) {
     <div class="container-dashboard-no-data">
-      <p>{{ "dashboard.locations.noData" | translate }}</p>
+      <p>
+        {{ (noGroupsAssigned() ? "dashboard.locations.noGroupsAssigned" : "dashboard.locations.noData") | translate }}
+      </p>
     </div>
     } @else {
 

@@ -35,3 +35,8 @@ export interface IResourceMonitorDay {
 export interface IResourceMonitorData {
   dailyData: IResourceMonitorDay[];
 }
+
+export interface IDashboardVisibilityStatus {
+  isRestricted: boolean;
+  hasVisibleGroups: boolean;
+}
