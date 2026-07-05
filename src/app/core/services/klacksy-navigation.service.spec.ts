@@ -40,6 +40,37 @@ describe('KlacksyNavigationService', () => {
     expect(el.classList.contains('klacksy-highlight')).toBe(true);
   });
 
+  it('never scrolls an overflow:hidden shell ancestor when a nested scroll container exists', async () => {
+    // Mirrors the real app shell: #main_container (overflow:hidden, holds the
+    // fixed header/footer) wrapping app-main's own overflow:auto content area.
+    const shell = document.createElement('div');
+    shell.style.overflowY = 'hidden';
+    let shellScrollTopSets = 0;
+    Object.defineProperty(shell, 'scrollTop', {
+      get: () => 0,
+      set: () => { shellScrollTopSets++; },
+    });
+    shell.scrollIntoView = vi.fn();
+
+    const scrollArea = document.createElement('div');
+    scrollArea.style.overflowY = 'auto';
+
+    const el = document.createElement('div');
+    el.setAttribute('data-klacksy-target', 'user-management');
+    el.scrollIntoView = vi.fn();
+
+    scrollArea.appendChild(el);
+    shell.appendChild(scrollArea);
+    document.body.appendChild(shell);
+
+    const result = await service.navigateAndScroll('/settings', 'user-management');
+
+    expect(result.success).toBe(true);
+    expect(shellScrollTopSets).toBe(0);
+    expect(shell.scrollIntoView).not.toHaveBeenCalled();
+    expect(el.scrollIntoView).not.toHaveBeenCalled();
+  });
+
   it('falls back gracefully when target missing', async () => {
     const result = await service.navigateAndScroll('/settings', 'nonexistent');
     expect(result.success).toBe(false);
@@ -97,13 +128,19 @@ describe('KlacksyNavigationService', () => {
     let container: HTMLDivElement;
     let el: HTMLDivElement;
     let containerHeight: number;
+    let scrollAdjustCount: number;
 
     beforeEach(() => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date', 'performance'] });
       container = document.createElement('div');
       container.style.overflowY = 'auto';
       containerHeight = 1000;
+      scrollAdjustCount = 0;
       Object.defineProperty(container, 'scrollHeight', { get: () => containerHeight });
+      Object.defineProperty(container, 'scrollTop', {
+        get: () => 0,
+        set: () => { scrollAdjustCount++; },
+      });
       el = document.createElement('div');
       el.setAttribute('data-klacksy-target', 'assistant-speech');
       el.scrollIntoView = vi.fn();
@@ -115,24 +152,30 @@ describe('KlacksyNavigationService', () => {
       vi.useRealTimers();
     });
 
+    it('scrolls only the nested scroll container, never the outer app shell', async () => {
+      await service.navigateAndScroll('/settings', 'assistant-speech');
+      expect(el.scrollIntoView).not.toHaveBeenCalled();
+      expect(scrollAdjustCount).toBe(1);
+    });
+
     it('scrolls immediately and re-anchors when the container keeps growing', async () => {
       const result = await service.navigateAndScroll('/settings', 'assistant-speech');
       expect(result.success).toBe(true);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollAdjustCount).toBe(1);
 
       containerHeight = 1800;
       await vi.advanceTimersByTimeAsync(200);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(2);
+      expect(scrollAdjustCount).toBe(2);
 
       containerHeight = 2400;
       await vi.advanceTimersByTimeAsync(200);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(3);
+      expect(scrollAdjustCount).toBe(3);
     });
 
     it('does not re-anchor when the layout is stable', async () => {
       await service.navigateAndScroll('/settings', 'assistant-speech');
       await vi.advanceTimersByTimeAsync(1000);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollAdjustCount).toBe(1);
     });
 
     it('stops re-anchoring after user scroll intent', async () => {
@@ -140,7 +183,7 @@ describe('KlacksyNavigationService', () => {
       window.dispatchEvent(new Event('wheel'));
       containerHeight = 1800;
       await vi.advanceTimersByTimeAsync(500);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollAdjustCount).toBe(1);
     });
 
     it('stops re-anchoring once the target leaves the DOM', async () => {
@@ -148,7 +191,7 @@ describe('KlacksyNavigationService', () => {
       container.removeChild(el);
       containerHeight = 1800;
       await vi.advanceTimersByTimeAsync(500);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollAdjustCount).toBe(1);
     });
 
     it('stops re-anchoring after the anchor window elapses', async () => {
@@ -156,7 +199,7 @@ describe('KlacksyNavigationService', () => {
       await vi.advanceTimersByTimeAsync(6000);
       containerHeight = 1800;
       await vi.advanceTimersByTimeAsync(500);
-      expect(el.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollAdjustCount).toBe(1);
     });
   });
 });

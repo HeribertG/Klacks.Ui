@@ -51,12 +51,12 @@ export class KlacksyNavigationService {
       return { success: false, reason: 'target-not-found' };
     }
 
-    el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    this.scrollTargetIntoView(el);
     el.classList.add('klacksy-highlight');
     setTimeout(() => el.classList.remove('klacksy-highlight'), KlacksyNavigationService.HIGHLIGHT_MS);
 
     const focusable = el.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
-    focusable?.focus();
+    focusable?.focus({ preventScroll: true });
     void this.keepAnchoredWhileLayoutGrows(el);
     return { success: true };
   }
@@ -95,6 +95,21 @@ export class KlacksyNavigationService {
     return null;
   }
 
+  // Native el.scrollIntoView() walks every ancestor scroll container, including
+  // ones with overflow:hidden (e.g. the app shell's #main_container) — CSS still
+  // allows scrolling those programmatically, which clips the fixed header/footer
+  // out of view. Scrolling only the nearest auto/scroll ancestor keeps the shell put.
+  private scrollTargetIntoView(el: Element): void {
+    const container = this.findScrollableAncestor(el);
+    if (!container) {
+      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+      return;
+    }
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    container.scrollTop += elRect.top - containerRect.top;
+  }
+
   private async keepAnchoredWhileLayoutGrows(el: Element): Promise<void> {
     const container = this.findScrollableAncestor(el) ?? document.scrollingElement;
     if (!container) return;
@@ -116,7 +131,7 @@ export class KlacksyNavigationService {
         const height = container.scrollHeight;
         if (height !== lastHeight) {
           lastHeight = height;
-          el.scrollIntoView({ behavior: 'auto', block: 'start' });
+          this.scrollTargetIntoView(el);
         }
       }
     } finally {
