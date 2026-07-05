@@ -2310,6 +2310,7 @@
   "autoWizard.toast.tooLarge": "Selection too large\nToo many agents {{agents}}, max. {{maxAgents}}\nToo many shifts {{shifts}}, max. {{maxShifts}}",
   "autoWizard.toast.failedUnknown": "Unknown error (no server message received)",
   "klacksy.voice.close": "Close Klacksy",
+  "klacksy.voice.clear-chat": "Clear chat",
   "klacksy.voice.audio-mode.help": "In audio mode Klacksy shows only an icon in the top right. Open the conversation history via right-click on the icon.",
   "klacksy.voice.transcript.title": "Conversation history",
   "klacksy.voice.transcript.hint": "For full chat: switch to 'Text' in settings.",

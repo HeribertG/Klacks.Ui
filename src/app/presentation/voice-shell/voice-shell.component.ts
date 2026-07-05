@@ -30,6 +30,7 @@ import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
 import { TranscriptOverlayComponent } from './transcript-overlay/transcript-overlay.component';
+import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import {
   VoiceShellTiming,
   VoiceShellClass,
@@ -39,7 +40,12 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
 @Component({
   selector: 'app-voice-shell',
   standalone: true,
-  imports: [TranslateModule, VoiceShellIconComponent, TranscriptOverlayComponent],
+  imports: [
+    TranslateModule,
+    VoiceShellIconComponent,
+    TranscriptOverlayComponent,
+    TrashIconRedComponent,
+  ],
   templateUrl: './voice-shell.component.html',
   styleUrl: './voice-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -132,6 +138,11 @@ export class VoiceShellComponent implements OnInit {
   handleClose(event: MouseEvent): void {
     event.stopPropagation();
     this.asideService.hide();
+  }
+
+  handleClearChat(event: MouseEvent): void {
+    event.stopPropagation();
+    this.asideService.requestClearChat();
   }
 
   handleOverlayClose(): void {

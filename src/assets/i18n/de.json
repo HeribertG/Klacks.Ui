@@ -2310,6 +2310,7 @@
   "autoWizard.toast.tooLarge": "Auswahl zu gross\nZuviele Mitarbeiter {{agents}}, max. {{maxAgents}}\nZuviele Schichten {{shifts}}, max. {{maxShifts}}",
   "autoWizard.toast.failedUnknown": "Unbekannter Fehler (keine Servermeldung empfangen)",
   "klacksy.voice.close": "Klacksy schließen",
+  "klacksy.voice.clear-chat": "Chat löschen",
   "klacksy.voice.audio-mode.help": "Im Audio-Modus zeigt Klacksy nur ein Icon oben rechts. Öffne die Konversationshistorie per Rechtsklick auf das Icon.",
   "klacksy.voice.transcript.title": "Konversationsverlauf",
   "klacksy.voice.transcript.hint": "Für vollen Chat: in Einstellungen zu ‚Text' wechseln.",

@@ -12,11 +12,13 @@ import {
   inject,
   ElementRef,
   Renderer2,
+  DestroyRef,
   effect,
   computed,
   ChangeDetectionStrategy,
   viewChild
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AsideService } from './aside.service';
 import { AssistantChatComponent } from './assistant-chat/assistant-chat.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
@@ -47,6 +49,7 @@ export class AsideComponent {
   private renderer = inject(Renderer2);
   private readonly appSettings = inject(AppSettingsManagementService);
   private readonly toastShowService = inject(ToastShowService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly OutputMode = OutputMode;
 
@@ -72,6 +75,10 @@ export class AsideComponent {
         this.toastShowService.dismissInteractiveReplies();
       }
     });
+
+    this.asideService.clearChatRequested$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.clearChat());
   }
 
   close(): void {

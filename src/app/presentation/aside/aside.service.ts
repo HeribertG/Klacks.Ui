@@ -6,6 +6,7 @@
  * @param openedWithContext - Whether the aside was opened with context (e.g. error validation)
  */
 import { Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,9 @@ import { Injectable, signal } from '@angular/core';
 export class AsideService {
   public isVisible = signal<boolean>(false);
   public openedWithContext = signal<boolean>(false);
+
+  private readonly clearChatRequested = new Subject<void>();
+  readonly clearChatRequested$ = this.clearChatRequested.asObservable();
 
   show(withContext = false): void {
     this.openedWithContext.set(withContext);
@@ -30,5 +34,9 @@ export class AsideService {
       this.openedWithContext.set(false);
     }
     this.isVisible.set(newVisible);
+  }
+
+  requestClearChat(): void {
+    this.clearChatRequested.next();
   }
 }

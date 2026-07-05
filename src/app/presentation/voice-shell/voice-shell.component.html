@@ -18,6 +18,14 @@
   @if (isIdle()) {
     <button
       type="button"
+      class="clear-btn"
+      (click)="handleClearChat($event)"
+      [attr.aria-label]="'klacksy.voice.clear-chat' | translate"
+    >
+      <app-icon-trash-red aria-hidden="true" />
+    </button>
+    <button
+      type="button"
       class="close-btn"
       (click)="handleClose($event)"
       [attr.aria-label]="'klacksy.voice.close' | translate"
