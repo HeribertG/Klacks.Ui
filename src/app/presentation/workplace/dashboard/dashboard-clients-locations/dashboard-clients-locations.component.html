@@ -23,7 +23,7 @@
     </div>
     } @else {
 
-    @if (viewMode() === 'city') {
+    @if (mapMarkers().length > 0) {
     <app-search-input
       inputId="address-search"
       placeholderKey="dashboard.locations.searchPlaceholder"
@@ -93,7 +93,7 @@
             {{ totalClients() }}</span
           >
         </div>
-        @if (viewMode() === 'city') {
+        @if (mapMarkers().length > 0) {
         <button
           type="button"
           class="container-dashboard-btn"

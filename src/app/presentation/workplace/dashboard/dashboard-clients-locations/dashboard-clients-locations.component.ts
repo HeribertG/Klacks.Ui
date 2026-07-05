@@ -27,6 +27,8 @@ import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IGroup } from 'src/app/domain/models/group/group-class';
+import { IClientLocationResource } from 'src/app/domain/models/dashboard-class';
+import { forkJoin } from 'rxjs';
 
 declare let L: any;
 
@@ -87,6 +89,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
   public faStreetView = faStreetView;
 
   public locations = signal<LocationData[]>([]);
+  public mapMarkers = signal<LocationData[]>([]);
   public totalLocations = signal(0);
   public totalClients = signal(0);
   public isLoading = signal(true);
@@ -199,7 +202,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
       this.mapInitialized = true;
       this.shouldInitializeMap = false;
       this.initializeMap();
-      this.loadMarkersOnMap(this.locations());
+      this.loadMarkersOnMap(this.mapMarkers());
     }
   }
 
@@ -260,48 +263,10 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
 
     this.dataDashboardService.getClientsLocationsData().subscribe({
       next: (clients) => {
-        const locationMap = new Map<string, LocationData>();
-
-        clients.forEach((client) => {
-          if (client.currentAddress) {
-            const address = client.currentAddress;
-
-            if (address.city && address.country) {
-              const key = `${address.city}_${address.country}`;
-              const clientType = client.type;
-
-              if (locationMap.has(key)) {
-                const existing = locationMap.get(key)!;
-                existing.count++;
-
-                if (clientType === ClientType.Employee) {
-                  existing.employeeCount++;
-                } else if (clientType === ClientType.ExternEmp) {
-                  existing.externEmpCount++;
-                } else if (clientType === ClientType.Customer) {
-                  existing.customerCount++;
-                }
-              } else {
-                locationMap.set(key, {
-                  city: address.city,
-                  country: address.country,
-                  count: 1,
-                  employeeCount: clientType === ClientType.Employee ? 1 : 0,
-                  externEmpCount: clientType === ClientType.ExternEmp ? 1 : 0,
-                  customerCount: clientType === ClientType.Customer ? 1 : 0,
-                  latitude: address.latitude ?? undefined,
-                  longitude: address.longitude ?? undefined,
-                });
-              }
-            }
-          }
-        });
-
-        const locationsArray = Array.from(locationMap.values()).sort(
-          (a, b) => b.count - a.count
-        );
+        const locationsArray = this.buildCityLocations(clients);
 
         this.locations.set(locationsArray);
+        this.mapMarkers.set(locationsArray);
         this.totalLocations.set(locationsArray.length);
         this.totalClients.set(clients.length);
         this.isLoading.set(false);
@@ -321,8 +286,11 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.dataDashboardService.getClientsOverviewData().subscribe({
-      next: (tree) => {
+    forkJoin({
+      tree: this.dataDashboardService.getClientsOverviewData(),
+      clients: this.dataDashboardService.getClientsLocationsData(),
+    }).subscribe({
+      next: ({ tree, clients }) => {
         const groups = this.flattenGroups(tree.nodes || []);
         const groupsWithClients = groups.filter(g => g.clientsCount > 0);
 
@@ -342,14 +310,61 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, Af
         this.locations.set(groupLocations);
         this.totalLocations.set(groupLocations.length);
         this.totalClients.set(totalClients);
+
+        const mapLocations = this.buildCityLocations(clients);
+        this.mapMarkers.set(mapLocations);
+        this.shouldInitializeMap = mapLocations.length > 0;
+
         this.isLoading.set(false);
       },
       error: (err) => {
+        this.shouldInitializeMap = false;
         this.error.set('Failed to load group data');
         console.error('Error loading group data:', err);
         this.isLoading.set(false);
       },
     });
+  }
+
+  private buildCityLocations(clients: IClientLocationResource[]): LocationData[] {
+    const locationMap = new Map<string, LocationData>();
+
+    clients.forEach((client) => {
+      if (client.currentAddress) {
+        const address = client.currentAddress;
+
+        if (address.city && address.country) {
+          const key = `${address.city}_${address.country}`;
+          const clientType = client.type;
+
+          if (locationMap.has(key)) {
+            const existing = locationMap.get(key)!;
+            existing.count++;
+
+            if (clientType === ClientType.Employee) {
+              existing.employeeCount++;
+            } else if (clientType === ClientType.ExternEmp) {
+              existing.externEmpCount++;
+            } else if (clientType === ClientType.Customer) {
+              existing.customerCount++;
+            }
+          } else {
+            locationMap.set(key, {
+              city: address.city,
+              country: address.country,
+              count: 1,
+              employeeCount: clientType === ClientType.Employee ? 1 : 0,
+              externEmpCount: clientType === ClientType.ExternEmp ? 1 : 0,
+              customerCount: clientType === ClientType.Customer ? 1 : 0,
+              latitude: address.latitude ?? undefined,
+              longitude: address.longitude ?? undefined,
+            });
+          }
+        }
+      }
+    });
+
+    return Array.from(locationMap.values()).sort((a, b) => b.count - a.count);
   }
 
   private flattenGroups(groups: IGroup[]): IGroup[] {

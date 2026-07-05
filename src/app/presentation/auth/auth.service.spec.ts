@@ -8,6 +8,7 @@ import { MyToken } from 'src/app/domain/models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 
 describe('AuthService', () => {
     let service: AuthService;
@@ -74,5 +75,17 @@ describe('AuthService', () => {
         service.logOut();
 
         expect(localStorage.getItem(StorageKeys.TOKEN)).toBeNull();
+    });
+
+    it('should invalidate the cached group tree on logout so the next user gets fresh scope-checked data', () => {
+        const dataDashboardService = TestBed.inject(DataDashboardService);
+
+        dataDashboardService.getClientsOverviewData().subscribe();
+        httpMock.expectOne('https://localhost:5001/api/backend/Dashboard/GroupTree').flush({ rootId: null, nodes: [] });
+
+        service.logOut();
+
+        dataDashboardService.getClientsOverviewData().subscribe();
+        httpMock.expectOne('https://localhost:5001/api/backend/Dashboard/GroupTree').flush({ rootId: null, nodes: [] });
     });
 });

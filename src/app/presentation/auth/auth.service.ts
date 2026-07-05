@@ -14,6 +14,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataAuthService } from '../../infrastructure/api/data-auth.service';
 import { DataOAuth2Service } from '../../infrastructure/api/data-oauth2.service';
+import { DataDashboardService } from '../../infrastructure/api/data-dashboard.service';
 import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
@@ -30,6 +31,7 @@ export class AuthService {
   private dataLoadFileService = inject(DataLoadFileService);
   private authorizationService = inject(AuthorizationService);
   private spinnerService = inject(SpinnerService);
+  private dataDashboardService = inject(DataDashboardService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     return await firstValueFrom(
@@ -52,6 +54,7 @@ export class AuthService {
           return false;
         } else {
           this.storeToken(tok);
+          this.dataDashboardService.invalidateGroupTreeCache();
           return true;
         }
       })
@@ -68,6 +71,7 @@ export class AuthService {
     this.removeToken();
     this.removeStateValue();
     this.dataLoadFileService.clearAllImages();
+    this.dataDashboardService.invalidateGroupTreeCache();
     this.spinnerService.reset();
   }
 
@@ -84,6 +88,7 @@ export class AuthService {
         this.removeToken();
         this.removeStateValue();
         this.dataLoadFileService.clearAllImages();
+        this.dataDashboardService.invalidateGroupTreeCache();
         this.localStorageService.remove('oauth2_provider_id');
 
         if (response.supportsLogout && response.logoutUrl) {
@@ -102,12 +107,14 @@ export class AuthService {
         this.removeToken();
         this.removeStateValue();
         this.dataLoadFileService.clearAllImages();
+        this.dataDashboardService.invalidateGroupTreeCache();
         this.localStorageService.remove('oauth2_provider_id');
       }
     } else {
       this.removeToken();
       this.removeStateValue();
       this.dataLoadFileService.clearAllImages();
+      this.dataDashboardService.invalidateGroupTreeCache();
     }
 
     this.navigationService.navigateToRoot();
