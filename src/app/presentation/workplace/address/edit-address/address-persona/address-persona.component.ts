@@ -662,7 +662,11 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   async onZipFocusout() {
-    await this.dataManagementClientService.writeCity();
+    try {
+      await this.dataManagementClientService.writeCity();
+    } catch {
+      // Zip has no matching city (e.g. foreign postcode) - address fields are left as typed
+    }
     const client = this.dataManagementClientService.editClient();
     const idx = this.dataManagementClientService.currentAddressIndex();
     if (client?.addresses[idx]) {

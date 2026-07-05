@@ -268,10 +268,14 @@ export class AppSettingsManagementService {
   }
 
   async loadSettingsAsync(): Promise<void> {
-    const settings = await firstValueFrom(this.dataSettingsService.readSettingList());
-    if (settings) {
-      this.settingsList = settings as ISetting[];
-      this.applySettingsToModels(settings as ISetting[]);
+    try {
+      const settings = await firstValueFrom(this.dataSettingsService.readSettingList());
+      if (settings) {
+        this.settingsList = settings as ISetting[];
+        this.applySettingsToModels(settings as ISetting[]);
+      }
+    } catch (error) {
+      console.error('Failed to load app settings:', error);
     }
   }
 

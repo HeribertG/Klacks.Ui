@@ -31,7 +31,7 @@ export class ResponseInterceptor implements HttpInterceptor {
   private dataTranslationService = inject(DataTranslationService);
 
   private static readonly ERROR_PATTERNS = {
-    POSTCODE: 'PostcodeCH',
+    POSTCODE: 'PostcodeCh',
     CHANGE_PASSWORD: 'Accounts/ChangePassword',
     REGISTER: 'Accounts/Register',
     DOWNLOAD_IMAGE: 'LoadFile/DownLoadImage',
@@ -92,6 +92,12 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
+      return throwError(() => error);
+    }
+
+    // GeneralSettings ist Admin-only; ein 403 für Nicht-Admins ist erwartet und wird
+    // vom aufrufenden Code (z.B. loadSettingsAsync) bereits sauber behandelt.
+    if (url.includes('GeneralSettings/') && error.status === 403) {
       return throwError(() => error);
     }
 

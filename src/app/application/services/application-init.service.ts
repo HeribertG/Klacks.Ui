@@ -9,6 +9,7 @@ import { AppSetting, ISetting } from 'src/app/domain/models/settings/settings-va
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 import { DataManagementAssistantService } from 'src/app/domain/services/assistant/data-management-assistant.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -21,6 +22,7 @@ export class ApplicationInitService {
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
   private assistantService = inject(DataManagementAssistantService);
+  private authorizationService = inject(AuthorizationService);
   private destroy$ = new Subject<void>();
 
   public initialize(): void {
@@ -60,9 +62,13 @@ export class ApplicationInitService {
     this.dataLoadFileService.downLoadIcon();
     this.dataLoadFileService.downLoadLogo();
 
-    // Set application title from settings
-    try {
-      this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
+    // Set application title from settings (Admin-only endpoint, non-admins keep the default title)
+    if (!this.authorizationService.isAdmin) {
+      return;
+    }
+
+    this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (l) => {
         if (l) {
           const tmp = l as ISetting[];
           const title = tmp.find((x) => x.type === AppSetting.APP_NAME);
@@ -70,10 +76,9 @@ export class ApplicationInitService {
             this.titleService.setTitle(title.value);
           }
         }
-      });
-    } catch (e) {
-      console.error('Error loading application title:', e);
-    }
+      },
+      error: (e) => console.error('Error loading application title:', e),
+    });
   }
 
   public destroy(): void {

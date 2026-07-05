@@ -54,12 +54,12 @@ export class AddressService {
             stateList = this.filterState(address, countries);
             resolve({ address, lastCountries, stateList });
           })
-          .catch(() => {
+          .catch((error) => {
             this.eventBus.emit(DomainEventType.INFO, {
               message: DomainMessages.ZIP_NOT_VALID,
               context: 'AddressService.writeCity'
             });
-            reject();
+            reject(error);
           });
       } else {
         let leftCharacters = address.zip.substring(0, 2);
