@@ -58,11 +58,12 @@ export class HeaderComponent {
   public authorised = signal<boolean>(false);
   public readonly version = signal<string>('');
 
-  public readonly isAudioMode = computed<boolean>(
-    () => this.appSettings.speechSettings().outputMode === OutputMode.Audio,
-  );
+  public readonly isFloatingMode = computed<boolean>(() => {
+    const mode = this.appSettings.speechSettings().outputMode;
+    return mode === OutputMode.Audio || mode === OutputMode.BothAuto;
+  });
   public readonly hideAssistantButton = computed<boolean>(
-    () => this.isAudioMode() && this.asideService.isVisible(),
+    () => this.isFloatingMode() && this.asideService.isVisible(),
   );
   public readonly logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public readonly hasLogoImage = computed(() => !!this.logoImage());
