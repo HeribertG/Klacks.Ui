@@ -3,6 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Subject } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AsideComponent } from './aside.component';
 import { AsideService } from './aside.service';
@@ -38,6 +39,7 @@ describe('AsideComponent — panel rendering', () => {
             isVisible: isVisibleSignal,
             openedWithContext: signal(false),
             hide: () => undefined,
+            clearChatRequested$: new Subject<void>().asObservable(),
           },
         },
       ],
