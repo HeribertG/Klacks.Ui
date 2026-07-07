@@ -229,6 +229,8 @@ describe('AssistantChatComponent', () => {
                                 onStreamContent: vi.fn(),
                                 onStreamDone: vi.fn(),
                                 onStreamError: vi.fn(),
+                                stopAutoSpeak: vi.fn(),
+                                isAutoSpeakStreaming: vi.fn(() => false),
                             };
                         },
                     },
@@ -1027,6 +1029,45 @@ describe('AssistantChatComponent', () => {
             await component.sendMessage();
 
             expect(interruptSpy).not.toHaveBeenCalled();
+        });
+
+        it('typing a printable key stops sentence-wise auto-speak playback', () => {
+            component.onInputKeyPress(new KeyboardEvent('keydown', { key: 'a' }));
+
+            expect(component.orchestrator.stopAutoSpeak).toHaveBeenCalledOnce();
+        });
+
+        it('sending a message stops sentence-wise auto-speak playback', async () => {
+            mockLlmService.sendMessageStream.mockReturnValue(new AbortController());
+            component.inputText.set('Neue Frage');
+
+            await component.sendMessage();
+
+            expect(component.orchestrator.stopAutoSpeak).toHaveBeenCalled();
+        });
+    });
+
+    describe('Tool step history', () => {
+        it('function calls append steps and function results mark the matching step done', async () => {
+            let callbacks: any;
+            mockLlmService.sendMessageStream.mockImplementation((_msg: string, _conv: string, cbs: any) => {
+                callbacks = cbs;
+                return new AbortController();
+            });
+            component.inputText.set('Lege einen Mitarbeiter an');
+            await component.sendMessage();
+
+            callbacks.onFunctionCall({ functionName: 'create_employee', parameters: {} });
+            callbacks.onFunctionCall({ functionName: 'search_address', parameters: {} });
+            expect(component.toolSteps().length).toBe(2);
+            expect(component.toolSteps().every((s) => !s.done)).toBe(true);
+
+            callbacks.onFunctionResult({ functionName: 'search_address', functionResult: '', executionType: '' });
+            expect(component.toolSteps().find((s) => s.functionName === 'search_address')?.done).toBe(true);
+            expect(component.toolSteps().find((s) => s.functionName === 'create_employee')?.done).toBe(false);
+
+            callbacks.onContent('Erledigt.');
+            expect(component.toolSteps().length).toBe(0);
         });
     });
 });

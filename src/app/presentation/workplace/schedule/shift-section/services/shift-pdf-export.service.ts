@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/**
+ * Exports the shift-section schedule (shift capacity per day) as a landscape PDF,
+ * coloring weekend and holiday columns via the configured week settings.
+ */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
-import { WeekDay } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
@@ -11,6 +14,7 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { SchedulePdfDrawingService, ScheduleDrawingConfig } from '../../schedule-section/services/schedule-pdf-drawing.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, compareDate } from 'src/app/shared/helpers/date.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
@@ -57,6 +61,7 @@ export class ShiftPdfExportService {
   private drawingService = inject(SchedulePdfDrawingService);
   private groupSelectionService = inject(GroupSelectionService);
   private holidayCollection = inject(HolidayCollectionService);
+  private weekConfiguration = inject(WeekConfigurationService);
 
   private readonly A4_LANDSCAPE = {
     width: 841.89,
@@ -323,10 +328,11 @@ export class ShiftPdfExportService {
         : WeekDaysEnum.Holiday;
     }
 
-    if (date.getDay() === WeekDay.Sunday) {
-      return WeekDaysEnum.Sunday;
-    } else if (date.getDay() === WeekDay.Saturday) {
+    const weekendSlot = this.weekConfiguration.getWeekendSlot(date);
+    if (weekendSlot === 1) {
       return WeekDaysEnum.Saturday;
+    } else if (weekendSlot === 2) {
+      return WeekDaysEnum.Sunday;
     }
 
     return WeekDaysEnum.Workday;

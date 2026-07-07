@@ -19,6 +19,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar/calendar-rule-
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
@@ -50,6 +51,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private appSettings = inject(AppSettingsManagementService);
   private gridColorService = inject(GridColorService);
+  private weekConfiguration = inject(WeekConfigurationService);
   private holidayCollection = inject(HolidayCollectionService);
   private manualLoader = inject(ManualLoaderService);
   private translate = inject(TranslateService);
@@ -104,10 +106,10 @@ export class DashboardResourceMonitorComponent implements OnInit {
     return this.dailyData().flatMap((d, i) => {
       const [y, m, day] = d.date.split('-').map(Number);
       const date = new Date(y, m - 1, day);
-      const dow = date.getDay();
+      const weekendSlot = this.weekConfiguration.getWeekendSlot(date);
       const result: ISpecialDay[] = [];
-      if (dow === 6) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
-      else if (dow === 0) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
+      if (weekendSlot === 1) result.push({ index: i, type: 'saturday' as SpecialDayType, color: satColor });
+      else if (weekendSlot === 2) result.push({ index: i, type: 'sunday' as SpecialDayType, color: sunColor });
       const holidayInfo = this.holidayCollection.holidays.holidayInfo(date);
       if (holidayInfo) {
         result.push({
@@ -139,6 +141,7 @@ export class DashboardResourceMonitorComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    void this.appSettings.loadSettingsAsync();
     this.loadData();
     this.loadManual();
     void this.loadHolidays();

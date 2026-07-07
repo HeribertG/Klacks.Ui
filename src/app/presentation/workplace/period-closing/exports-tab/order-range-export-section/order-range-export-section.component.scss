@@ -1,0 +1,122 @@
+@use "../../../../../../assets/standard-styles/date-input-sm.scss" as dateInputSm;
+
+@include dateInputSm.date-input-sm;
+
+.range-export-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 20px;
+  padding-bottom: 30px;
+}
+
+.range-export-description {
+  color: var(--colorSubHeadline);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-action {
+  padding-bottom: 0;
+}
+
+.range-export-empty {
+  font-style: italic;
+  color: var(--colorLabel);
+  margin: 0;
+}
+
+.range-export-table-wrapper {
+  overflow-x: auto;
+}
+
+.range-export-table {
+  margin-bottom: 0;
+
+  th,
+  td {
+    vertical-align: middle;
+  }
+}
+
+.toggle-column {
+  width: 2.5rem;
+}
+
+.works-column {
+  white-space: nowrap;
+}
+
+.toggle-button {
+  padding: 0 0.25rem;
+  color: var(--colorText);
+  text-decoration: none;
+}
+
+.order-abbreviation {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.detail-row > td {
+  padding: 0.5rem 0.75rem 0.75rem 2.5rem;
+  background-color: var(--gridBackgroundColorRowHover);
+}
+
+.detail-loading {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+}
+
+.detail-empty {
+  font-style: italic;
+  color: var(--colorLabel);
+  margin: 0;
+}
+
+.detail-table {
+  margin-bottom: 0;
+}
+
+.numeric-column {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-exportable {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-period-open {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.status-not-closed {
+  background-color: #e9ecef;
+  color: #495057;
+}

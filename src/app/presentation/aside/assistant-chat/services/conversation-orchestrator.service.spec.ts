@@ -531,6 +531,82 @@ describe('ConversationOrchestratorService', () => {
     expect(mockAudioCapture.stop).toHaveBeenCalled();
     expect(mockSttStream.disconnect).toHaveBeenCalled();
   });
+
+  it('Test 12: auto-speak (BothAuto, voice mode off) synthesizes sentences during streaming', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both-auto' };
+
+    expect(service.voiceModeEnabled()).toBe(false);
+    expect(service.state()).toBe(ConversationState.Idle);
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    await flushPromises();
+
+    expect(mockAudioQueue.enqueue).toHaveBeenCalled();
+    expect(service.isAutoSpeakStreaming()).toBe(true);
+    expect(service.state()).toBe(ConversationState.Idle);
+  });
+
+  it('Test 13: auto-speak flushes the trailing sentence on onStreamDone without state transitions', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both-auto' };
+
+    service.onStreamContent('Short answer without punctuation');
+    service.onStreamDone();
+    await flushPromises();
+
+    expect(mockAudioQueue.enqueue).toHaveBeenCalledTimes(1);
+    expect(service.state()).toBe(ConversationState.Idle);
+    expect(mockAudioCapture.start).not.toHaveBeenCalled();
+  });
+
+  it('Test 14: no auto-speak when output mode is not BothAuto and voice mode is off', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both' };
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    await flushPromises();
+
+    expect(mockAudioQueue.enqueue).not.toHaveBeenCalled();
+    expect(service.isAutoSpeakStreaming()).toBe(false);
+  });
+
+  it('Test 15: stopAutoSpeak stops the audio queue and clears the streaming flag', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both-auto' };
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    await flushPromises();
+    expect(service.isAutoSpeakStreaming()).toBe(true);
+
+    service.stopAutoSpeak();
+
+    expect(mockAudioQueue.stop).toHaveBeenCalled();
+    expect(service.isAutoSpeakStreaming()).toBe(false);
+  });
+
+  it('Test 16: auto-speak flag persists after playback finishes so the whole-message fallback stays suppressed', async () => {
+    currentSettings = { ...currentSettings, outputMode: 'both-auto' };
+
+    const callbacks: ConversationCallbacks = {
+      getInputText: () => '',
+      setInputText: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+    };
+    service.initialize(callbacks, 'de');
+
+    service.onStreamContent('Hello world.');
+    await flushPromises();
+    expect(service.isAutoSpeakStreaming()).toBe(true);
+
+    mockAudioQueue.playbackFinished$.next();
+    await flushPromises();
+
+    expect(service.isAutoSpeakStreaming()).toBe(true);
+    expect(service.state()).toBe(ConversationState.Idle);
+
+    service.stopAutoSpeak();
+    expect(service.isAutoSpeakStreaming()).toBe(false);
+  });
 });
 
 @Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush,

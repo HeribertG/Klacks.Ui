@@ -215,8 +215,19 @@
         </div>
         <div class="message-content">
           <div class="message-bubble assistant">
-            @if (currentToolStatusKey()) {
-            <div class="tool-status">{{ currentToolStatusKey() | translate }}</div>
+            @if (toolSteps().length > 0) {
+            <div class="tool-status">
+              @for (step of toolSteps(); track $index) {
+              <div class="tool-step" [class.done]="step.done">
+                @if (step.done) {
+                <fa-icon class="tool-step-check" [icon]="faCheck"></fa-icon>
+                } @else {
+                <span class="tool-step-dot"></span>
+                }
+                <span>{{ step.key | translate }}</span>
+              </div>
+              }
+            </div>
             }
             <div class="typing-indicator">
               <span></span>

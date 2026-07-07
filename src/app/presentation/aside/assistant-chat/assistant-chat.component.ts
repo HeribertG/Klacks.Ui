@@ -57,6 +57,7 @@ import { AssistantSignalRService } from 'src/app/infrastructure/signalr/assistan
 import { ISuggestedRepliesConfig, ISuggestedReply } from 'src/app/domain/models/assistant/suggested-reply.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ChatMessage } from './chat-message.interface';
+import { ToolStep } from './tool-step.interface';
 import { ConversationOrchestratorService, ConversationState } from './services/conversation-orchestrator.service';
 import { TextToSpeechService } from './services/text-to-speech.service';
 import { isPrintableKey } from 'src/app/shared/helpers/keyboard.helper';
@@ -147,7 +148,7 @@ export class AssistantChatComponent {
 
   inputText = signal('');
   isProcessing = signal(false);
-  currentToolStatusKey = signal('');
+  toolSteps = signal<readonly ToolStep[]>([]);
   showModelDropdown = signal(false);
 
   readonly availableModels = computed(() =>
@@ -197,6 +198,7 @@ export class AssistantChatComponent {
     afterEveryRender(() => {
       if (this.shouldScrollToBottom) {
         this.scrollToBottom();
+        this.shouldScrollToBottom = false;
       }
     });
 
@@ -398,10 +400,30 @@ export class AssistantChatComponent {
       });
     }
     this.isProcessing.set(false);
-    this.currentToolStatusKey.set('');
+    this.toolSteps.set([]);
     this.streamBuffer = '';
     this.streamPreviousClean = '';
     this.currentRawStream = '';
+  }
+
+  private addToolStep(functionName: string): void {
+    this.toolSteps.update((steps) => [
+      ...steps,
+      { functionName, key: this.toolStatusKey(functionName), done: false },
+    ]);
+  }
+
+  private markToolStepDone(functionName: string): void {
+    this.toolSteps.update((steps) => {
+      let idx = steps.findIndex((s) => !s.done && s.functionName === functionName);
+      if (idx < 0) {
+        idx = steps.findIndex((s) => !s.done);
+      }
+      if (idx < 0) return steps;
+      const next = steps.slice();
+      next[idx] = { ...next[idx], done: true };
+      return next;
+    });
   }
 
   private flushStreamBuffer(assistantMessageId: string): void {
@@ -416,6 +438,7 @@ export class AssistantChatComponent {
 
     this.orchestrator.updateMessage(assistantMessageId, {
       content: nextContent,
+      formattedContent: this.formatMessage(nextContent),
       isStreaming: true,
     });
     this.shouldScrollToBottom = true;
@@ -451,16 +474,19 @@ export class AssistantChatComponent {
       this.interruptCurrentStream();
     }
     this.ttsService.interrupt();
+    this.orchestrator.stopAutoSpeak();
 
     if (this.onboarding.isAwaitingAnswer()) {
       this.handleOnboardingAnswer(this.inputText().trim());
       return;
     }
 
+    const userContent = this.inputText().trim();
     const userMessage: ChatMessage = {
       id: this.generateMessageId(),
       sender: 'user',
-      content: this.inputText().trim(),
+      content: userContent,
+      formattedContent: this.formatMessage(userContent),
       timestamp: new Date(),
     };
 
@@ -471,7 +497,7 @@ export class AssistantChatComponent {
     const messageText = this.inputText();
     this.inputText.set('');
     this.isProcessing.set(true);
-    this.currentToolStatusKey.set('');
+    this.toolSteps.set([]);
     this.shouldScrollToBottom = true;
 
     const assistantMessageId = this.generateMessageId();
@@ -479,6 +505,7 @@ export class AssistantChatComponent {
       id: assistantMessageId,
       sender: 'assistant',
       content: '',
+      formattedContent: '',
       timestamp: new Date(),
       isStreaming: true,
       respondedToUserMessage: messageText.trim(),
@@ -493,6 +520,7 @@ export class AssistantChatComponent {
     }
     this.cdr.detectChanges();
 
+    const voiceModeActive = this.orchestrator.voiceModeEnabled();
     this.currentStreamController = this.assistantService.sendMessageStream(
       messageText,
       this.conversationId,
@@ -504,13 +532,20 @@ export class AssistantChatComponent {
         },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
-            this.currentToolStatusKey.set(this.toolStatusKey(data.functionName));
+            this.addToolStep(data.functionName);
+            this.shouldScrollToBottom = true;
+            this.cdr.detectChanges();
+          });
+        },
+        onFunctionResult: (data: { functionName: string }) => {
+          this.ngZone.run(() => {
+            this.markToolStepDone(data.functionName);
             this.cdr.detectChanges();
           });
         },
         onContent: (text: string) => {
-          if (this.currentToolStatusKey()) {
-            this.currentToolStatusKey.set('');
+          if (this.toolSteps().length > 0) {
+            this.toolSteps.set([]);
           }
           this.streamBuffer += text;
           if (this.streamRafHandle !== null) return;
@@ -532,6 +567,7 @@ export class AssistantChatComponent {
               navigateTo: data.navigateTo,
               actionPerformed: data.actionPerformed,
             });
+            this.shouldScrollToBottom = true;
 
             const offerableNavigateTo = this.offerableNavigateTo(data);
             if (this.isTourStationPending && this.tourIndex < ONBOARDING_STATIONS.length) {
@@ -566,8 +602,9 @@ export class AssistantChatComponent {
               isStreaming: false,
               formattedContent: doneMessage?.formattedContent ?? this.formatMessage(doneContent),
             });
+            this.shouldScrollToBottom = true;
             this.isProcessing.set(false);
-            this.currentToolStatusKey.set('');
+            this.toolSteps.set([]);
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamDone();
@@ -586,14 +623,16 @@ export class AssistantChatComponent {
               content: merged,
               formattedContent: this.formatMessage(merged),
             });
+            this.shouldScrollToBottom = true;
             this.isProcessing.set(false);
-            this.currentToolStatusKey.set('');
+            this.toolSteps.set([]);
             this.currentStreamController = null;
             this.cdr.detectChanges();
             this.orchestrator.onStreamError();
           });
         },
       },
+      voiceModeActive,
     );
   }
 
@@ -616,6 +655,7 @@ export class AssistantChatComponent {
   }
 
   speakMessage(message: ChatMessage): void {
+    this.orchestrator.stopAutoSpeak();
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
     const locale = this.languageMappingService.getSpeechLocale(currentLang);
     const cleaned = this.stripForTts(this.stripMetadataMarkers(message.content));
@@ -623,6 +663,9 @@ export class AssistantChatComponent {
   }
 
   private maybeAutoSpeak(message: ChatMessage | undefined): void {
+    if (this.orchestrator.isAutoSpeakStreaming()) {
+      return;
+    }
     if (
       message &&
       !this.voiceModeEnabled &&
@@ -793,6 +836,7 @@ export class AssistantChatComponent {
         this.orchestrator.endSession();
       }
       this.ttsService.interrupt();
+      this.orchestrator.stopAutoSpeak();
     }
 
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -813,6 +857,7 @@ export class AssistantChatComponent {
       timestamp: new Date(),
       suggestions: placeholder.suggestions,
     });
+    this.shouldScrollToBottom = true;
     this.showActionsAsToast(placeholder.suggestions);
 
     this.welcomeGreetingService.fetchWelcome()
@@ -857,6 +902,7 @@ export class AssistantChatComponent {
       formattedContent: this.formatMessage(content),
       suggestions,
     });
+    this.shouldScrollToBottom = true;
 
     if (this.asideService.isVisible()) {
       this.maybeAutoSpeak(this.orchestrator.messages().find((m) => m.id === messageId));
@@ -1009,6 +1055,7 @@ export class AssistantChatComponent {
       id: this.generateMessageId(),
       sender: 'user',
       content: text,
+      formattedContent: this.formatMessage(text),
       timestamp: new Date(),
     });
     this.inputText.set('');

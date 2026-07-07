@@ -1,0 +1,21 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.calendar-summary {
+  min-width: 40px;
+  font-size: 13px;
+  color: var(--colorLabel);
+  cursor: default;
+}
+
+.seeded-badge {
+  margin-inline-start: 10px;
+  padding: 1px 8px;
+  border: 1px solid var(--colorLabel);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--colorLabel);
+  white-space: nowrap;
+}

@@ -11,6 +11,8 @@ import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { ExportLog } from './models/export-log';
+import { IOrderRangeExportFilter } from './models/order-range-export-filter';
+import { ISealedOrderDetails } from './models/sealed-order-details';
 import { PeriodAuditLog } from './models/period-audit-log';
 import { PeriodIssue } from './models/period-issue';
 import { SealedOrderListItem } from './models/sealed-order-list-item';
@@ -88,6 +90,27 @@ export class DataPeriodClosingService {
       request,
       { responseType: 'blob', observe: 'response' }
     );
+  }
+
+  downloadOrderRangeExport(request: IOrderRangeExportFilter): Observable<HttpResponse<Blob>> {
+    return this.httpClient.post(
+      `${environment.baseUrl}OrderRangeExport`,
+      request,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
+  getSealedOrderDetails(
+    id: string,
+    fromDate: string | null,
+    untilDate: string | null
+  ): Observable<ISealedOrderDetails> {
+    let params = new HttpParams();
+    if (fromDate) params = params.set('fromDate', fromDate);
+    if (untilDate) params = params.set('untilDate', untilDate);
+    return this.httpClient
+      .get<ISealedOrderDetails>(`${environment.baseUrl}OrderExport/orders/${id}/details`, { params })
+      .pipe(retry(3));
   }
 
   listSealedOrders(

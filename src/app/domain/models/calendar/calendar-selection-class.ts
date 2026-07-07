@@ -16,12 +16,14 @@ export class SelectedCalendar implements ISelectedCalendar {
 export interface ICalendarSelection {
   id: string | undefined;
   name: string;
+  isSeeded: boolean;
   selectedCalendars: ISelectedCalendar[];
   internal: boolean | undefined;
 }
 export class CalendarSelection implements ICalendarSelection {
   id: string | undefined = '';
   name = '';
+  isSeeded = false;
   selectedCalendars: ISelectedCalendar[] = [];
   internal: boolean | undefined = undefined;
 }

@@ -121,6 +121,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private pendingSentences: string[] = [];
   private locale = SpeechDefaults.Locale;
   private synthesisChain: Promise<void> = Promise.resolve();
+  private autoSpeakStreaming = false;
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     console.log('[VS] orchestrator.initialize called, locale=', locale);
@@ -231,13 +232,19 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   onStreamContent(text: string): void {
-    if (this.state() !== ConversationState.Processing && this.state() !== ConversationState.Speaking) {
+    const inVoiceFlow =
+      this.state() === ConversationState.Processing || this.state() === ConversationState.Speaking;
+    if (!inVoiceFlow && !this.isAutoSpeakMode()) {
       return;
     }
 
     const speechSettings = this.settings.speechSettings();
     if (speechSettings.outputMode === OutputMode.Text) {
       return;
+    }
+
+    if (!inVoiceFlow) {
+      this.autoSpeakStreaming = true;
     }
 
     this.sentenceBuffer += text;
@@ -251,6 +258,35 @@ export class ConversationOrchestratorService implements OnDestroy {
     if (this.state() === ConversationState.Processing && this.pendingSentences.length > 0) {
       this.state.set(ConversationState.Speaking);
     }
+  }
+
+  /**
+   * Whether the current stream was spoken sentence-by-sentence in auto-speak
+   * (text mode with BothAuto output), so callers can skip the whole-message TTS fallback.
+   * Stays true after playback ends and resets when the next stream starts via stopAutoSpeak.
+   */
+  isAutoSpeakStreaming(): boolean {
+    return this.autoSpeakStreaming;
+  }
+
+  /**
+   * Stop sentence-wise auto-speak playback and discard queued sentences.
+   * No-op while voice mode is active or when auto-speak is not running.
+   */
+  stopAutoSpeak(): void {
+    if (!this.autoSpeakStreaming) return;
+    this.autoSpeakStreaming = false;
+    this.audioQueue.stop();
+    this.sentenceBuffer = '';
+    this.pendingSentences = [];
+    this.synthesisChain = Promise.resolve();
+  }
+
+  private isAutoSpeakMode(): boolean {
+    return (
+      !this.voiceModeEnabled() &&
+      this.settings.speechSettings().outputMode === OutputMode.BothAuto
+    );
   }
 
   onStreamDone(): void {
@@ -304,6 +340,7 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private disable(): void {
     this.voiceModeEnabled.set(false);
+    this.autoSpeakStreaming = false;
     this.audioQueue.stop();
     this.audioCapture.stop();
     this.sttStream.disconnect();

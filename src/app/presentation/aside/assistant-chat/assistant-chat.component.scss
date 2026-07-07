@@ -445,10 +445,34 @@
 }
 
 .tool-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 0.85em;
   color: var(--colorLabel);
-  opacity: 0.85;
   padding: 2px 0;
+}
+
+.tool-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &.done {
+    opacity: 0.6;
+  }
+
+  .tool-step-check {
+    font-size: 0.85em;
+  }
+
+  .tool-step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--colorLabel);
+    animation: typing 1.4s infinite ease-in-out;
+  }
 }
 
 .typing-indicator {

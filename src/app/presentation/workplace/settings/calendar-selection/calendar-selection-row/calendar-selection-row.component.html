@@ -1,0 +1,48 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="calendar-selection-row-form-{{ data().id }}">
+  <div
+    id="calendar-selection-row-container-{{ data().id }}"
+    class="first custom-control-inline"
+  >
+    <div class="form-group">
+      <input
+        id="calendar-selection-row-name-{{ data().id }}"
+        type="text"
+        [value]="data().name"
+        name="calendarSelectionName"
+        class="form-control attribute-name"
+        aria-label="calendar selection name"
+        (click)="onClickEdit()"
+        readonly
+      />
+    </div>
+
+    <span
+      id="calendar-selection-row-calendars-{{ data().id }}"
+      class="calendar-summary"
+      [title]="getCalendarSummary()"
+      >{{ data().selectedCalendars.length }}</span
+    >
+
+    @if (data().isSeeded) {
+      <span
+        id="calendar-selection-row-seeded-{{ data().id }}"
+        class="seeded-badge"
+        >{{ 'setting.calendar-selection.seeded' | translate }}</span
+      >
+    }
+
+    @if (!data().isSeeded) {
+      <span
+        id="calendar-selection-row-delete-{{ data().id }}"
+        class="delete-button"
+        type="button"
+        (click)="onClickDelete()"
+        [class.disabled]="!canDelete()"
+        [title]="!canDelete() ? (deleteDisabledReasonKey() | translate) : ''"
+        ><app-icon-trash-red /></span
+      >
+    }
+  </div>
+</form>

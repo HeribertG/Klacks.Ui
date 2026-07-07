@@ -12,7 +12,7 @@ export interface ChatMessage {
   navigateTo?: string;
   actionPerformed?: boolean;
   isStreaming?: boolean;
-  /** Pre-formatted HTML content, set once the message is no longer streaming. */
+  /** Pre-formatted HTML content, kept in sync with content on every update including streaming flushes. */
   formattedContent?: string;
   /** User message that this assistant response answered. Set on assistant messages only. */
   respondedToUserMessage?: string;

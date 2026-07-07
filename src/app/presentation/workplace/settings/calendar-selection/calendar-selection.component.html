@@ -1,84 +1,172 @@
-<div id="calendar-selection-card" class="settings-list-card">
-  <div id="calendar-selection-header" class="container-header">
-    {{ "setting.calendar-selection.title" | translate }}
-  </div>
-  <div class="container-line"></div>
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- Calendar Selection Modal -->
+<ng-template #calendarSelectionModal id="calendar-selection-modal-template" let-modal>
+  <form id="calendar-selection-modal-form" data-klacksy-target="calendar-selection-form">
+    <div id="calendar-selection-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ 'setting.calendar-selection.headline-modal' | translate }}
+      </div>
+      <span class="filler"></span>
 
-  <div id="calendar-selection-content" class="card-content">
-    @if (hasValidCalendarSelections) {
       <div
-        class="selector-row"
-        role="group"
-        [attr.aria-label]="'calendar.selector.controls' | translate"
+        id="calendar-selection-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
       >
-        <div class="form-group">
-          <label for="settings-select-calendar" class="visually-hidden">
-            {{ "calendar.selector.select-calendar" | translate }}
-          </label>
-          <select
-            class="form-select select-calendar"
-            name="settings-select-calendar"
-            id="settings-select-calendar"
-            [(ngModel)]="dataManagementCalendarSelectionService.currentCalendarSelection"
-            [compareWith]="compareCalendars"
-            (ngModelChange)="onChangeSelection()"
-          >
-            @for (c of dataManagementCalendarSelectionService.calendarsSelections; track c.id || c.name) {
-              <option [ngValue]="c">{{ c.name }}</option>
-            }
-          </select>
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="calendar-selection-modal-body" class="modal-body">
+      @if (editingSelection) {
+        <div id="calendar-selection-modal-name-row" class="row-line-modal-inline">
+          <div class="model-field">
+            <label for="calendar-selection-modal-name">{{
+              'setting.calendar-selection.modal.name' | translate
+            }}</label>
+            <input
+              id="calendar-selection-modal-name"
+              type="text"
+              [formField]="calendarSelectionForm.name"
+              class="form-control"
+            />
+          </div>
+          <div class="model-field">
+            <label for="calendar-selection-modal-country">{{
+              'setting.calendar-selection.modal.country' | translate
+            }}</label>
+            <select
+              id="calendar-selection-modal-country"
+              name="calendarSelectionCountry"
+              class="form-select"
+              [ngModel]="selectedCountry()"
+              (ngModelChange)="onCountryChange($event)"
+            >
+              @for (c of countries(); track c.country) {
+                <option [value]="c.country">{{ getCountryLabel(c) }}</option>
+              }
+            </select>
+          </div>
         </div>
 
-        <button
-          id="calendar-selection-add-btn"
-          class="crud-button btn btn-success"
-          [disabled]="!shouldEnableAddButton"
-          (click)="onOpen(modalTypeInput)"
-          [attr.aria-label]="'calendar.selector.add-selection' | translate"
-          [attr.title]="'calendar.selector.add-selection' | translate"
-          type="button"
-        >
-          <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-        </button>
+        <div id="calendar-selection-modal-calendars-row" class="row-line-modal-inline">
+          <div class="model-field calendars-field">
+            <label>{{
+              'setting.calendar-selection.modal.calendars' | translate
+            }}</label>
+            <div id="calendar-selection-modal-states" class="states-list">
+              @for (t of statesForCountry(); track t.country + '|' + t.state) {
+                <label class="state-checkbox" for="calendar-selection-modal-state-{{ t.country }}-{{ t.state }}">
+                  <input
+                    id="calendar-selection-modal-state-{{ t.country }}-{{ t.state }}"
+                    type="checkbox"
+                    [checked]="isTokenSelected(t)"
+                    (change)="toggleToken(t)"
+                  />
+                  <span>{{ getTokenLabel(t) }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
 
-        <button
-          id="calendar-selection-delete-btn"
-          class="crud-button btn btn-danger"
-          [disabled]="!shouldShowDeleteButton"
-          (click)="onOpen(modalTypeDelete)"
-          [attr.aria-label]="'calendar.selector.delete-selection' | translate"
-          [attr.title]="'calendar.selector.delete-selection' | translate"
-          type="button"
-        >
-          <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-        </button>
-      </div>
-    }
-
-    <div class="dropdown-row">
-      <app-calendar-dropdown
-        (changed)="onChangeFilter()"
-        (isClosing)="onIsClosing()"
-        (isOpening)="onIsOpening()"
-      ></app-calendar-dropdown>
-    </div>
-
-    @if (hasChips) {
-      <div
-        class="chips-list"
-        role="region"
-        [attr.aria-label]="'calendar.selector.selected-items' | translate"
-      >
-        @for (chip of chipList; track trackByChip($index, chip)) {
-          <div>
-            <app-chips
-              [name]="getChipDisplayName(chip)"
-              [key]="getChipKey(chip)"
-              (delete)="onDeleteChip($event)"
-            ></app-chips>
+        @if (selectedTokens().length > 0) {
+          <div id="calendar-selection-modal-selected-row" class="row-line-modal-inline">
+            <div class="model-field calendars-field">
+              <label>{{
+                'setting.calendar-selection.modal.selected' | translate
+              }}</label>
+              <div id="calendar-selection-modal-selected" class="selected-tokens">
+                @for (token of selectedTokens(); track token.country + '|' + token.state) {
+                  <span class="selected-token">
+                    {{ getSelectedTokenLabel(token) }}
+                    <span
+                      class="remove-token"
+                      role="button"
+                      [attr.aria-label]="'delete' | translate"
+                      (click)="removeToken(token)"
+                      >&times;</span
+                    >
+                  </span>
+                }
+              </div>
+            </div>
           </div>
         }
-      </div>
+
+        @if (getValidationErrors().length > 0) {
+          <div id="calendar-selection-modal-validation-row" class="row-line-modal-inline">
+            <div class="validation-errors-section">
+              <div class="alert alert-danger">
+                <strong>{{ 'validation.errors' | translate }}:</strong>
+                <ul>
+                  @for (error of getValidationErrors(); track error) {
+                    <li>{{ error }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </form>
+
+  <div id="calendar-selection-modal-footer" class="modal-footer">
+    <span
+      id="calendar-selection-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ 'cancel' | translate }}</span
+    >
+    <button
+      id="calendar-selection-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ 'save' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="'setting.calendar-selection.title' | translate"
+  [addLabel]="'setting.calendar-selection.add' | translate"
+  [showHeader]="true"
+  [showSearchInHeader]="true"
+  [searchPlaceholderKey]="'placeholder.search'"
+  idPrefix="calendar-selection"
+  (addClick)="onClickAdd()"
+  (headerSearchChange)="onSearchChange($event)"
+>
+  <app-calendar-selection-header
+    header
+    id="calendar-selection-table-header"
+  ></app-calendar-selection-header>
+  <div rows>
+    @for (item of filteredSelections(); track item.id || $index; let i = $index) {
+      <app-calendar-selection-row
+        [id]="'calendar-selection-row-' + i"
+        [data]="item"
+        [canDelete]="canDelete(item)"
+        [deleteDisabledReasonKey]="deleteDisabledReasonKey(item)"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteCalendarSelection($event)"
+      />
     }
   </div>
-</div>
+</app-settings-list-card>

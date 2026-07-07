@@ -1,39 +1,62 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
 
 :host {
   display: block;
   height: 100%;
 }
 
-.card-content {
-  padding: 10px;
+.calendars-field {
+  width: 100%;
 }
 
-.selector-row {
+.states-list {
   display: flex;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--inputBorderColor);
+  border-radius: 4px;
+  padding: 8px 12px;
 }
 
-.dropdown-row {
+.state-checkbox {
   display: flex;
-  justify-content: right;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  font-size: 13px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
 }
 
-.select-calendar {
-  width: 180px;
-}
-
-.crud-button {
-  margin-inline-start: 5px;
-  width: auto;
-  font-size: xx-small;
-}
-
-.chips-list {
+.selected-tokens {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  max-height: 200px;
-  overflow: auto;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.selected-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border: 1px solid var(--inputBorderColor);
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.remove-token {
+  cursor: pointer;
+  color: var(--standartRedColor);
+  font-weight: 600;
 }

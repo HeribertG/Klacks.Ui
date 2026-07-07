@@ -21,6 +21,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
 import {
   firstOfMonth,
@@ -28,8 +29,13 @@ import {
   ngbDateStructToIsoDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { DateToStringShort } from 'src/app/shared/helpers/date.helper';
-
-type ExportFormat = 'csv' | 'json' | 'xml' | 'datev' | 'bmd';
+import {
+  CONTENT_DISPOSITION_HEADER,
+  extractFileNameFromContentDisposition,
+  triggerBlobDownload,
+} from 'src/app/shared/helpers/file-download.helper';
+import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
+import { DEFAULT_EXPORT_FORMAT, EXPORT_FORMAT_OPTIONS } from './export-format-options.constants';
 
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 
@@ -38,7 +44,15 @@ const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
   templateUrl: './exports-tab.component.html',
   styleUrls: ['./exports-tab.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, RefreshButtonComponent, DateInputComponent, SearchInputComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    RefreshButtonComponent,
+    DateInputComponent,
+    SearchInputComponent,
+    OrderRangeExportSectionComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportsTabComponent {
@@ -54,20 +68,14 @@ export class ExportsTabComponent {
   public selectedOrderId = signal<string | null>(null);
   public loadingOrders = signal<boolean>(false);
 
-  public format = signal<ExportFormat>('csv');
+  public format = signal<ExportFormat>(DEFAULT_EXPORT_FORMAT);
   public busy = signal<boolean>(false);
 
   public clientExportFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
   public clientExportUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
   public clientExportBusy = signal<boolean>(false);
 
-  public readonly formats: { key: ExportFormat; labelKey: string }[] = [
-    { key: 'csv',   labelKey: 'periodClosing.format.csv' },
-    { key: 'json',  labelKey: 'periodClosing.format.json' },
-    { key: 'xml',   labelKey: 'periodClosing.format.xml' },
-    { key: 'datev', labelKey: 'periodClosing.format.datev' },
-    { key: 'bmd',   labelKey: 'periodClosing.format.bmd' },
-  ];
+  public readonly formats = EXPORT_FORMAT_OPTIONS;
 
   public selectedOrder = computed<SealedOrderListItem | null>(() => {
     const id = this.selectedOrderId();
@@ -148,9 +156,9 @@ export class ExportsTabComponent {
           this.busy.set(false);
           return;
         }
-        const fileName = this.extractFileName(res.headers.get('content-disposition'))
+        const fileName = extractFileNameFromContentDisposition(res.headers.get(CONTENT_DISPOSITION_HEADER))
           ?? `order-export_${order.abbreviation || order.id}.${this.format()}`;
-        this.triggerDownload(blob, fileName);
+        triggerBlobDownload(blob, fileName);
         const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
         const header = this.translate.instant('periodClosing.action.export');
         this.toastShowService.showSuccess(msg, header);
@@ -187,9 +195,9 @@ export class ExportsTabComponent {
           this.clientExportBusy.set(false);
           return;
         }
-        const fileName = this.extractFileName(res.headers.get('content-disposition'))
+        const fileName = extractFileNameFromContentDisposition(res.headers.get(CONTENT_DISPOSITION_HEADER))
           ?? `client-period-export_${fromDate}_${untilDate}.xml`;
-        this.triggerDownload(blob, fileName);
+        triggerBlobDownload(blob, fileName);
         const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
         const header = this.translate.instant('periodClosing.clientExport.title');
         this.toastShowService.showSuccess(msg, header);
@@ -217,20 +225,4 @@ export class ExportsTabComponent {
     return fromTxt === untilTxt ? fromTxt : `${fromTxt}–${untilTxt}`;
   }
 
-  private triggerDownload(blob: Blob, fileName: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }
-
-  private extractFileName(contentDisposition: string | null): string | null {
-    if (!contentDisposition) return null;
-    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(contentDisposition);
-    return match?.[1] ?? null;
-  }
 }

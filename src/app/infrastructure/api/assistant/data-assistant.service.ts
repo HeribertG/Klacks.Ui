@@ -61,6 +61,7 @@ export interface IAssistantChatRequest {
   context?: any;
   agentId?: string;
   pageContext?: import('src/app/domain/models/assistant/assistant-page-context.interface').IAssistantPageContext;
+  isVoiceMode?: boolean;
 }
 
 export interface IAssistantChatResponse {

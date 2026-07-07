@@ -180,6 +180,7 @@ export class DataManagementAssistantService {
     message: string,
     conversationId: string | undefined,
     callbacks: StreamCallbacks,
+    isVoiceMode = false,
   ): AbortController {
     const convId = conversationId || this.generateConversationId();
     const conversation = this.getOrCreateConversation(convId);
@@ -207,6 +208,7 @@ export class DataManagementAssistantService {
         userContext: this.getUserContext(),
       },
       pageContext: this.pageContextService.getPageContext(),
+      isVoiceMode,
     };
 
     this.isLoading.set(true);

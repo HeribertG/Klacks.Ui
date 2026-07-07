@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-export interface SealedOrderListItem {
+import { ISealedOrderWorkEntry } from './sealed-order-work-entry';
+
+export interface ISealedOrderDetails {
   id: string;
-  abbreviation: string;
   name: string;
-  fromDate: string;
-  untilDate: string | null;
+  abbreviation: string;
   sourceSystemId: string | null;
   externalOrderReference: string | null;
   customerId: string | null;
   customerNumber: number | null;
   customerName: string | null;
-  totalWorks: number;
-  closedWorks: number;
+  customerExternalReference: string | null;
+  workEntries: ISealedOrderWorkEntry[];
 }

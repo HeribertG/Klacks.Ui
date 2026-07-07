@@ -159,6 +159,13 @@ export class DataManagementCalendarRulesService {
     );
   }
 
+  async loadRuleTokens(): Promise<StateCountryToken[]> {
+    const tokens = await lastValueFrom(
+      this.dataCalendarRuleService.readRuleTokenList(false)
+    );
+    return tokens ?? [];
+  }
+
   readCalendarRuleList(value: boolean): void {
     this.dataCalendarRuleService.readRuleTokenList(value)
       .pipe(takeUntil(this.destroy$))

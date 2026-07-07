@@ -89,6 +89,43 @@ export class DataManagementCalendarSelectionService {
       });
   }
 
+  getPersistedSelections(): ICalendarSelection[] {
+    return this.calendarsSelections.filter((x) => !x.internal);
+  }
+
+  async createCalendarSelection(
+    value: ICalendarSelection
+  ): Promise<ICalendarSelection | undefined> {
+    delete value.id;
+    value.selectedCalendars.forEach((x) => {
+      delete x.id;
+    });
+    const created = await lastValueFrom(
+      this.dataCalendarSelectionService.addCalendarSelection(
+        value as CalendarSelection
+      )
+    );
+    await this.readData();
+    return created;
+  }
+
+  async updateCalendarSelectionItem(
+    value: ICalendarSelection
+  ): Promise<ICalendarSelection | undefined> {
+    const updated = await lastValueFrom(
+      this.dataCalendarSelectionService.updateCalendarSelection(value)
+    );
+    await this.readData();
+    return updated;
+  }
+
+  async removeCalendarSelection(id: string): Promise<void> {
+    await lastValueFrom(
+      this.dataCalendarSelectionService.deleteCalendarSelection(id)
+    );
+    await this.readData();
+  }
+
   async readData(): Promise<void> {
     this.isRead.set(false);
 
