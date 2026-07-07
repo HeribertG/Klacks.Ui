@@ -53,6 +53,11 @@ export abstract class BaseStateService<
     if (selectedGroupId !== undefined) {
       (this.dataManagementService.currentFilter as IBaseFilter & { selectedGroup?: string }).selectedGroup = selectedGroupId;
     }
+
+    const filter = this.dataManagementService.currentFilter as IBaseFilter & { withoutGroup?: boolean };
+    if ('withoutGroup' in filter) {
+      filter.withoutGroup = this.groupSelectionService.withoutGroup;
+    }
   }
 
   async saveCurrentFilter(key = this.editRouteName): Promise<void> {

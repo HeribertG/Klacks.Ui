@@ -35,6 +35,8 @@
       <span>{{ selectedGroup.name }}</span>
       } @else { @if (selectedGroupId === ALL_GROUPS_ID) {
       <span>{{ "group.select.all-groups" | translate }}</span>
+      } @else if (selectedGroupId === WITHOUT_GROUP_ID) {
+      <span>{{ "group.select.without-group" | translate }}</span>
       } @else {
       <span class="placeholder">{{
         "group.select.select" | translate
@@ -60,9 +62,9 @@
         <li class="group-tree-node">
           @if (isVirtualGroup(node)) {
           <div
-            [id]="'group-select-all-groups' + idSuffix"
+            [id]="'group-select-' + node.id + idSuffix"
             class="group-tree-node-item all-groups-option"
-            [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+            [class.selected]="selectedGroupId === node.id"
             (click)="selectGroup(node, $event)"
           >
             <div class="group-tree-node-indicator" [style.padding-inline-start.px]="0">
@@ -72,20 +74,20 @@
               class="group-option-button"
               tabindex="0"
               role="option"
-              [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-              [attr.aria-label]="'Select all groups'"
+              [attr.aria-selected]="selectedGroupId === node.id"
+              [attr.aria-label]="node.name"
             >
               <div
                 class="option-circle"
-                [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+                [class.selected]="selectedGroupId === node.id"
               ></div>
             </div>
             <div
               class="group-tree-node-content"
               tabindex="0"
               role="option"
-              [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-              [attr.aria-label]="'Select all groups'"
+              [attr.aria-selected]="selectedGroupId === node.id"
+              [attr.aria-label]="node.name"
             >
               <span class="group-tree-node-name">{{ node.name }}</span>
             </div>

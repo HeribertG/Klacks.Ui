@@ -133,6 +133,7 @@ export class GroupSelectComponent
 
   // Constants
   readonly ALL_GROUPS_ID = 'all-groups-virtual';
+  readonly WITHOUT_GROUP_ID = 'without-group-virtual';
   private readonly SELECTED_GROUP_STORAGE_KEY = 'group-select.selected-group-id';
 
   get idSuffix(): string {
@@ -202,8 +203,16 @@ export class GroupSelectComponent
       runInInjectionContext(this.injector, () => {
         const effect3 = effect(() => {
           const serviceSelectedGroup = this.groupSelectionService.selectedGroup;
+          const serviceWithoutGroup = this.groupSelectionService.withoutGroup;
 
-          if (
+          if (serviceWithoutGroup) {
+            if (this.selectedGroupId !== this.WITHOUT_GROUP_ID) {
+              this.selectedGroup = null;
+              this.selectedGroupId = this.WITHOUT_GROUP_ID;
+              this.onChange(this.selectedGroupId);
+              this.onTouched();
+            }
+          } else if (
             serviceSelectedGroup === undefined ||
             serviceSelectedGroup === null
           ) {
@@ -241,14 +250,27 @@ export class GroupSelectComponent
         this.buildDisplayTree();
 
         const useGlobalSelection = this.useGlobalSelection();
-        if (useGlobalSelection && !this.groupSelectionService.selectedGroup) {
+        if (
+          useGlobalSelection &&
+          !this.groupSelectionService.selectedGroup &&
+          !this.groupSelectionService.withoutGroup
+        ) {
           const storedId = await this.sessionStorageService.restoreFilter<string>(this.SELECTED_GROUP_STORAGE_KEY);
           if (storedId && storedId !== this.ALL_GROUPS_ID) {
             this.selectedGroupId = storedId;
           }
         }
 
-        if (
+        if (useGlobalSelection && this.groupSelectionService.withoutGroup) {
+          this.selectWithoutGroup();
+        } else if (this.selectedGroupId === this.WITHOUT_GROUP_ID) {
+          if (this.showWithoutGroupOption()) {
+            this.selectWithoutGroup();
+          } else {
+            this.sessionStorageService.removeFilter(this.SELECTED_GROUP_STORAGE_KEY);
+            this.selectAllGroups();
+          }
+        } else if (
           this.selectedGroupId &&
           this.selectedGroupId !== this.ALL_GROUPS_ID
         ) {
@@ -279,7 +301,24 @@ export class GroupSelectComponent
       this.displayTree.push(allGroupsOption);
     }
 
+    if (this.showWithoutGroupOption()) {
+      const withoutGroupOption: VirtualGroup = {
+        id: this.WITHOUT_GROUP_ID,
+        name: this.translate.instant('group.select.without-group'),
+        depth: 0,
+      };
+      this.displayTree.push(withoutGroupOption);
+    }
+
     this.displayTree = [...this.displayTree, ...this.hierarchicalTree];
+  }
+
+  private showWithoutGroupOption(): boolean {
+    return (
+      this.useGlobalSelection() &&
+      this.showAllGroupsOption() &&
+      this.dataManagementSwitchboard.nameOfVisibleEntity() === EntityName.CLIENT
+    );
   }
 
   selectAllGroups(): void {
@@ -293,6 +332,22 @@ export class GroupSelectComponent
       this.groupSelectionService.clearSelection();
       this.dataManagementGroupService.selectNode(null as any);
       this.sessionStorageService.removeFilter(this.SELECTED_GROUP_STORAGE_KEY);
+    }
+
+    this.closeDropdown();
+  }
+
+  selectWithoutGroup(): void {
+    this.selectedGroup = null;
+    this.selectedGroupId = this.WITHOUT_GROUP_ID;
+    this.onChange(this.selectedGroupId);
+    this.onTouched();
+    this.groupSelected.emit(null);
+
+    if (this.useGlobalSelection()) {
+      this.groupSelectionService.selectWithoutGroup();
+      this.dataManagementGroupService.selectNode(null as any);
+      this.sessionStorageService.saveFilter(this.SELECTED_GROUP_STORAGE_KEY, this.WITHOUT_GROUP_ID);
     }
 
     this.closeDropdown();
@@ -326,11 +381,11 @@ export class GroupSelectComponent
   }
 
   isVirtualGroup(node: TreeNode): node is VirtualGroup {
-    return node.id === this.ALL_GROUPS_ID;
+    return node.id === this.ALL_GROUPS_ID || node.id === this.WITHOUT_GROUP_ID;
   }
 
   isRealGroup(node: TreeNode): node is Group {
-    return node.id !== this.ALL_GROUPS_ID;
+    return !this.isVirtualGroup(node);
   }
 
   hasChildren(node: TreeNode): boolean {
@@ -367,6 +422,10 @@ export class GroupSelectComponent
     event.stopPropagation();
     if (this.isVirtualGroup(node) && node.id === this.ALL_GROUPS_ID) {
       this.selectAllGroups();
+      return;
+    }
+    if (this.isVirtualGroup(node) && node.id === this.WITHOUT_GROUP_ID) {
+      this.selectWithoutGroup();
       return;
     }
     if (this.isRealGroup(node)) {
@@ -467,6 +526,9 @@ export class GroupSelectComponent
 
   private handleFocusChange() {
     this.isVisible = this.isComponentVisible();
+    if (this.hierarchicalTree.length > 0) {
+      this.buildDisplayTree();
+    }
     this.cdr.detectChanges();
   }
 }

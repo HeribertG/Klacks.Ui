@@ -11,6 +11,7 @@ export class VoiceShellColors {
   static readonly Listening = '#007bff';
   static readonly Enhancing = '#a855f7';
   static readonly Processing = '#f59e0b';
+  static readonly Planning = '#6366f1';
   static readonly Speaking = '#10b981';
   static readonly Error = '#ef4444';
   static readonly CloseButtonBg = '#475569';
@@ -23,6 +24,7 @@ export class VoiceShellClass {
   static readonly StateListening = 'state-listening';
   static readonly StateEnhancing = 'state-enhancing';
   static readonly StateProcessing = 'state-processing';
+  static readonly StatePlanning = 'state-planning';
   static readonly StateSpeaking = 'state-speaking';
   static readonly ErrorActive = 'error-active';
   static readonly ErrorPersistent = 'error-persistent';

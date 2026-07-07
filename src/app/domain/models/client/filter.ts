@@ -53,6 +53,7 @@ export class Filter extends BaseFilter implements IFilter {
   filteredStateToken: StateCountryToken[] = [];
 
   selectedGroup: string | undefined = undefined;
+  withoutGroup = false;
 
   employee = true;
   externEmp = true;
@@ -82,7 +83,8 @@ export class Filter extends BaseFilter implements IFilter {
       this.scopeUntilFlag === undefined &&
       this.employee &&
       this.externEmp &&
-      this.customer
+      this.customer &&
+      !this.withoutGroup
     );
   }
 

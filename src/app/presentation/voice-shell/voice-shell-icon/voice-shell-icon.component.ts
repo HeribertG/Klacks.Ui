@@ -3,7 +3,7 @@
 /**
  * Presentational icon for the Klacksy voice-only shell.
  * Renders a state-coloured SVG with animation driven purely by CSS classes.
- * @param state - current 5-state orchestrator state (ConversationState enum)
+ * @param state - current orchestrator state (ConversationState enum)
  */
 
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
@@ -28,6 +28,7 @@ export class VoiceShellIconComponent {
       case ConversationState.Listening: return VoiceShellClass.StateListening;
       case ConversationState.Enhancing: return VoiceShellClass.StateEnhancing;
       case ConversationState.Processing: return VoiceShellClass.StateProcessing;
+      case ConversationState.Planning: return VoiceShellClass.StatePlanning;
       case ConversationState.Speaking: return VoiceShellClass.StateSpeaking;
     }
   });
@@ -38,6 +39,7 @@ export class VoiceShellIconComponent {
       case ConversationState.Listening: return 'klacksy.voice.aria.listening';
       case ConversationState.Enhancing: return 'klacksy.voice.aria.transcribing';
       case ConversationState.Processing: return 'klacksy.voice.aria.thinking';
+      case ConversationState.Planning: return 'klacksy.voice.aria.planning';
       case ConversationState.Speaking: return 'klacksy.voice.aria.speaking';
     }
   });
@@ -46,6 +48,7 @@ export class VoiceShellIconComponent {
   readonly isListening = computed(() => this.state() === ConversationState.Listening);
   readonly isEnhancing = computed(() => this.state() === ConversationState.Enhancing);
   readonly isProcessing = computed(() => this.state() === ConversationState.Processing);
+  readonly isPlanning = computed(() => this.state() === ConversationState.Planning);
   readonly isSpeaking = computed(() => this.state() === ConversationState.Speaking);
   readonly showMic = computed(() => {
     const s = this.state();

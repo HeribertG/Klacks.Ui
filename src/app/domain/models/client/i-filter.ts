@@ -38,6 +38,7 @@ export interface IFilter extends IBaseFilter {
   filteredStateToken: StateCountryToken[];
 
   selectedGroup: string | undefined;
+  withoutGroup: boolean;
 
   employee: boolean;
   externEmp: boolean;

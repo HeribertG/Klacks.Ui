@@ -607,6 +607,35 @@ describe('ConversationOrchestratorService', () => {
     service.stopAutoSpeak();
     expect(service.isAutoSpeakStreaming()).toBe(false);
   });
+
+  it('planning signal: onStreamFunctionCall sets it, onStreamPlanningEnded clears it', () => {
+    expect(service.isPlanning()).toBe(false);
+    service.onStreamFunctionCall();
+    expect(service.isPlanning()).toBe(true);
+    service.onStreamPlanningEnded();
+    expect(service.isPlanning()).toBe(false);
+  });
+
+  it('planning signal: onStreamDone clears a stuck planning flag', () => {
+    service.onStreamFunctionCall();
+    expect(service.isPlanning()).toBe(true);
+    service.onStreamDone();
+    expect(service.isPlanning()).toBe(false);
+  });
+
+  it('planning signal: onStreamError clears a stuck planning flag', () => {
+    service.onStreamFunctionCall();
+    expect(service.isPlanning()).toBe(true);
+    service.onStreamError();
+    expect(service.isPlanning()).toBe(false);
+  });
+
+  it('planning signal: endSession clears a stuck planning flag on abort', () => {
+    service.onStreamFunctionCall();
+    expect(service.isPlanning()).toBe(true);
+    service.endSession();
+    expect(service.isPlanning()).toBe(false);
+  });
 });
 
 @Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush,

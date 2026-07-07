@@ -4,6 +4,7 @@ $color-idle: #94a3b8;
 $color-listening: #007bff;
 $color-enhancing: #a855f7;
 $color-processing: #f59e0b;
+$color-planning: #6366f1;
 $color-speaking: #10b981;
 
 .icon-root {
@@ -32,6 +33,7 @@ $color-speaking: #10b981;
 .state-listening .icon-core { background: $color-listening; }
 .state-enhancing .icon-core { background: $color-enhancing; }
 .state-processing .icon-core { background: $color-processing; }
+.state-planning .icon-core { background: $color-planning; }
 .state-speaking .icon-core { background: $color-speaking; }
 
 .pulse-ring {
@@ -89,6 +91,18 @@ $color-speaking: #10b981;
   .dot-3 { animation-delay: 360ms; }
 }
 
+.planning-orbit {
+  .orbit-track {
+    transform-origin: center;
+    animation: planning-spin 1.2s linear infinite;
+  }
+
+  .orbit-hub {
+    transform-origin: center;
+    animation: planning-hub-pulse 1.2s ease-in-out infinite;
+  }
+}
+
 @keyframes pulse-ring {
   0% { transform: scale(1); opacity: 0.6; }
   100% { transform: scale(1.6); opacity: 0; }
@@ -114,4 +128,14 @@ $color-speaking: #10b981;
 @keyframes thinking-bounce {
   0%, 60%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
   30% { transform: translateY(-3px) scale(1.2); opacity: 1; }
+}
+
+@keyframes planning-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes planning-hub-pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
 }

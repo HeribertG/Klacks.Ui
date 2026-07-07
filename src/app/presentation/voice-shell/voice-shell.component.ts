@@ -5,7 +5,8 @@
  * wires click-matrix to the ConversationOrchestratorService state machine,
  * and exposes errorHint signal for transient / persistent error visuals.
  * @param orchestrator - single source of truth for conversation state (root singleton)
- * @param ttsService - auto-play TTS in BothAuto mode; drives the Speaking icon state outside voice sessions
+ * @param ttsService - whole-message TTS playback; drives the Speaking icon state outside voice sessions
+ * @param audioQueue - sentence-wise auto-speak playback (BothAuto); also drives the Speaking icon state
  * @param asideService - existing visibility service, used for manual close gesture
  */
 
@@ -26,6 +27,7 @@ import {
   ConversationState,
 } from '../aside/assistant-chat/services/conversation-orchestrator.service';
 import { TextToSpeechService } from '../aside/assistant-chat/services/text-to-speech.service';
+import { AudioQueueService } from '../aside/assistant-chat/services/audio-queue.service';
 import { AsideService } from '../aside/aside.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { VoiceShellIconComponent } from './voice-shell-icon/voice-shell-icon.component';
@@ -53,6 +55,7 @@ import type { IVoiceShellErrorHint } from 'src/app/domain/models/assistant/voice
 export class VoiceShellComponent implements OnInit {
   readonly orchestrator = inject(ConversationOrchestratorService);
   private readonly ttsService = inject(TextToSpeechService);
+  private readonly audioQueue = inject(AudioQueueService);
   private readonly asideService = inject(AsideService);
   private readonly toastShowService = inject(ToastShowService);
   private readonly destroyRef = inject(DestroyRef);
@@ -62,14 +65,18 @@ export class VoiceShellComponent implements OnInit {
 
   readonly effectiveState = computed<ConversationState>(() => {
     const state = this.orchestrator.state();
+    const planning = this.orchestrator.isPlanning();
     if (state !== ConversationState.Idle) {
+      if (state === ConversationState.Processing && planning) {
+        return ConversationState.Planning;
+      }
       return state;
     }
-    if (this.ttsService.isPlaying()) {
+    if (this.ttsService.isPlaying() || this.audioQueue.isPlaying()) {
       return ConversationState.Speaking;
     }
     if (this.orchestrator.isTextProcessing() || this.ttsService.isLoading()) {
-      return ConversationState.Processing;
+      return planning ? ConversationState.Planning : ConversationState.Processing;
     }
     return ConversationState.Idle;
   });
@@ -95,6 +102,10 @@ export class VoiceShellComponent implements OnInit {
       case ConversationState.Idle:
         if (this.ttsService.isPlaying() || this.ttsService.isLoading()) {
           this.ttsService.stop();
+          break;
+        }
+        if (this.audioQueue.isPlaying()) {
+          this.orchestrator.stopAutoSpeak();
           break;
         }
         this.orchestrator.startSession();

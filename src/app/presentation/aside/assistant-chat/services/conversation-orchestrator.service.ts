@@ -29,6 +29,7 @@ export enum ConversationState {
   Listening = 'LISTENING',
   Enhancing = 'ENHANCING',
   Processing = 'PROCESSING',
+  Planning = 'PLANNING',
   Speaking = 'SPEAKING',
 }
 
@@ -60,6 +61,9 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   private textProcessingSignal: Signal<boolean> | null = null;
   readonly isTextProcessing = computed(() => this.textProcessingSignal?.() ?? false);
+
+  private readonly isPlanningSignal = signal(false);
+  readonly isPlanning = this.isPlanningSignal.asReadonly();
 
   private readonly messagesSignal = signal<readonly ChatMessage[]>([]);
   readonly messages: Signal<readonly ChatMessage[]> = this.messagesSignal.asReadonly();
@@ -220,6 +224,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   interrupt(): void {
     if (this.state() !== ConversationState.Speaking && this.state() !== ConversationState.Processing) return;
 
+    this.isPlanningSignal.set(false);
     this.audioQueue.stop();
     this.pendingSentences = [];
     this.sentenceBuffer = '';
@@ -290,6 +295,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   }
 
   onStreamDone(): void {
+    this.isPlanningSignal.set(false);
     if (this.sentenceBuffer.trim()) {
       const finalSentence = this.sentenceBuffer.trim();
       this.pendingSentences.push(finalSentence);
@@ -311,11 +317,31 @@ export class ConversationOrchestratorService implements OnDestroy {
    * forwards the SSE network error here to keep all error-hint emission centralized.
    */
   onStreamError(): void {
+    this.isPlanningSignal.set(false);
     this.reportError({
       kind: 'network',
       i18nKey: 'klacksy.voice.errors.network-failed',
       persistent: false,
     });
+  }
+
+  /**
+   * Bridge invoked by AssistantChatComponent when the SSE stream emits a tool call.
+   * Signals that Klacksy has entered the planning phase (executing a chain of tools)
+   * so the voice-shell can surface a dedicated Planning state instead of a static
+   * Processing state that reads as "frozen" during long tool loops.
+   */
+  onStreamFunctionCall(): void {
+    this.isPlanningSignal.set(true);
+  }
+
+  /**
+   * Bridge invoked when the model starts emitting answer content, which marks the end
+   * of the tool-planning phase for the current turn. onStreamDone/onStreamError and
+   * session teardown reset the flag as well, so it never stays stuck true.
+   */
+  onStreamPlanningEnded(): void {
+    this.isPlanningSignal.set(false);
   }
 
   async submitText(text: string): Promise<void> {
@@ -341,6 +367,7 @@ export class ConversationOrchestratorService implements OnDestroy {
   private disable(): void {
     this.voiceModeEnabled.set(false);
     this.autoSpeakStreaming = false;
+    this.isPlanningSignal.set(false);
     this.audioQueue.stop();
     this.audioCapture.stop();
     this.sttStream.disconnect();

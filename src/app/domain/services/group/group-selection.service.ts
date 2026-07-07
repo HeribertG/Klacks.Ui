@@ -30,6 +30,7 @@ export class GroupSelectionService {
   private analyseScenarioService = inject(AnalyseScenarioService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
+  private _withoutGroup = signal(false);
   private clientAvailabilityGroupCallback: ((groupId: string | undefined) => void) | null = null;
 
   public get selectedGroup(): Group | undefined {
@@ -40,17 +41,29 @@ export class GroupSelectionService {
     this._selectedGroup.set(group);
   }
 
+  public get withoutGroup(): boolean {
+    return this._withoutGroup();
+  }
+
   public selectedGroupChanged = signal(false);
 
   public selectGroup(group: Group): void {
+    this._withoutGroup.set(false);
     this._selectedGroup.set(group);
     this.triggerSelectedGroupChanged();
   }
 
+  public selectWithoutGroup(): void {
+    this._selectedGroup.set(undefined);
+    this._withoutGroup.set(true);
+    this.triggerSelectedGroupChanged();
+  }
+
   public clearSelection(): void {
-    if (this._selectedGroup() === undefined) {
+    if (this._selectedGroup() === undefined && !this._withoutGroup()) {
       return;
     }
+    this._withoutGroup.set(false);
     this._selectedGroup.set(undefined);
     this.triggerSelectedGroupChanged();
   }
@@ -63,6 +76,8 @@ export class GroupSelectionService {
       case EntityName.CLIENT:
         this.dataManagementClientService.currentFilter.selectedGroup =
           this.selectedGroupId;
+        this.dataManagementClientService.currentFilter.withoutGroup =
+          this._withoutGroup();
         this.dataManagementClientService.readPage();
         break;
       case EntityName.ABSENCE:

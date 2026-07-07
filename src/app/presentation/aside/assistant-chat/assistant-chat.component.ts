@@ -181,6 +181,10 @@ export class AssistantChatComponent {
 
   private static readonly METADATA_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[^\]]*?)?\]/g;
   private static readonly TRAILING_MARKER_REGEX = /\[(SUGGESTIONS|REPLIES)(?::[\s\S]*)?$/;
+  private static readonly TOOL_CALL_BLOCK_REGEX = /<\s*function_calls\b[\s\S]*?<\s*\/\s*function_calls\s*>/gi;
+  private static readonly TOOL_CALL_TRAILING_REGEX = /<\s*function_calls\b[\s\S]*$/i;
+  private static readonly INVOKE_BLOCK_REGEX = /<\s*invoke\b[\s\S]*?<\s*\/\s*invoke\s*>/gi;
+  private static readonly INVOKE_TRAILING_REGEX = /<\s*invoke\b[\s\S]*$/i;
   private static readonly FAST_PATH_NAVIGATE_DELAY_MS = 0;
   private static readonly TOOL_STATUS_PREFIX = 'assistant-chat.tool-status.';
 
@@ -344,6 +348,10 @@ export class AssistantChatComponent {
   private stripMetadataMarkers(text: string): string {
     if (!text) return text;
     return text
+      .replace(AssistantChatComponent.TOOL_CALL_BLOCK_REGEX, '')
+      .replace(AssistantChatComponent.TOOL_CALL_TRAILING_REGEX, '')
+      .replace(AssistantChatComponent.INVOKE_BLOCK_REGEX, '')
+      .replace(AssistantChatComponent.INVOKE_TRAILING_REGEX, '')
       .replace(AssistantChatComponent.METADATA_MARKER_REGEX, '')
       .replace(AssistantChatComponent.TRAILING_MARKER_REGEX, '')
       .trimEnd();
@@ -532,6 +540,7 @@ export class AssistantChatComponent {
         },
         onFunctionCall: (data: { functionName: string; parameters: Record<string, unknown> }) => {
           this.ngZone.run(() => {
+            this.orchestrator.onStreamFunctionCall();
             this.addToolStep(data.functionName);
             this.shouldScrollToBottom = true;
             this.cdr.detectChanges();
@@ -546,6 +555,7 @@ export class AssistantChatComponent {
         onContent: (text: string) => {
           if (this.toolSteps().length > 0) {
             this.toolSteps.set([]);
+            this.orchestrator.onStreamPlanningEnded();
           }
           this.streamBuffer += text;
           if (this.streamRafHandle !== null) return;

@@ -59,4 +59,15 @@ describe('VoiceShellIconComponent', () => {
     expect(host.querySelector('.thinking-dots')).toBeTruthy();
     expect(host.querySelectorAll('.thinking-dots .dot').length).toBe(3);
   });
+
+  it('renders planning orbit spinner when Planning', () => {
+    const fixture = TestBed.createComponent(VoiceShellIconComponent);
+    fixture.componentRef.setInput('state', ConversationState.Planning);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector(`.${VoiceShellClass.StatePlanning}`)).toBeTruthy();
+    expect(host.querySelector('.planning-orbit')).toBeTruthy();
+    expect(host.querySelector('.planning-orbit .orbit-track')).toBeTruthy();
+    expect(host.querySelector('.thinking-dots')).toBeFalsy();
+  });
 });

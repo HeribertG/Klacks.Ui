@@ -19,6 +19,7 @@ interface MockOrchestrator {
   state: ReturnType<typeof signal<ConversationState>>;
   voiceModeEnabled: ReturnType<typeof signal<boolean>>;
   isTextProcessing: ReturnType<typeof signal<boolean>>;
+  isPlanning: ReturnType<typeof signal<boolean>>;
   messages: ReturnType<typeof signal<readonly ChatMessage[]>>;
   errors$: Subject<IVoiceShellErrorHint>;
   startSession: ReturnType<typeof vi.fn>;
@@ -31,6 +32,7 @@ function makeOrchestratorMock(): MockOrchestrator {
     state: signal<ConversationState>(ConversationState.Idle),
     voiceModeEnabled: signal<boolean>(false),
     isTextProcessing: signal<boolean>(false),
+    isPlanning: signal<boolean>(false),
     messages: signal<readonly ChatMessage[]>([]),
     errors$: new Subject<IVoiceShellErrorHint>(),
     startSession: vi.fn().mockResolvedValue(undefined),
@@ -234,6 +236,32 @@ describe('VoiceShellComponent — auto-play TTS (BothAuto)', () => {
     orch.state.set(ConversationState.Listening);
     tts.isPlaying.set(true);
     expect(component.effectiveState()).toBe(ConversationState.Listening);
+  });
+
+  it('processing + planning → effectiveState is Planning', () => {
+    orch.state.set(ConversationState.Processing);
+    orch.isPlanning.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Planning);
+  });
+
+  it('idle text-processing + planning → effectiveState is Planning', () => {
+    orch.state.set(ConversationState.Idle);
+    orch.isTextProcessing.set(true);
+    orch.isPlanning.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Planning);
+  });
+
+  it('planning never overrides an active Speaking playback', () => {
+    orch.state.set(ConversationState.Speaking);
+    orch.isPlanning.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Speaking);
+  });
+
+  it('idle + tts playing wins over a stray planning flag', () => {
+    orch.state.set(ConversationState.Idle);
+    orch.isPlanning.set(true);
+    tts.isPlaying.set(true);
+    expect(component.effectiveState()).toBe(ConversationState.Speaking);
   });
 
   it('idle click while tts playing stops playback instead of starting a session', () => {
