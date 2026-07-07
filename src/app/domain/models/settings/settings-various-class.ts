@@ -129,6 +129,8 @@ export class AppSetting {
   public static UPDATE_NOTIFY_ONLY = 'UPDATE_NOTIFY_ONLY';
   public static UPDATE_BACKUP_RETENTION_COUNT = 'UPDATE_BACKUP_RETENTION_COUNT';
   public static UPDATE_PINNED_VERSION = 'UPDATE_PINNED_VERSION';
+  public static CALENDAR_WEEKEND_DAYS = 'CALENDAR_WEEKEND_DAYS';
+  public static CALENDAR_WEEK_START_DAY = 'CALENDAR_WEEK_START_DAY';
 }
 
 export interface IMacroType {

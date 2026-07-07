@@ -24,6 +24,7 @@ import { ISpeechSettings, SpeechSettings } from 'src/app/domain/models/settings/
 import { SttEngine, TtsProvider } from 'src/app/domain/constants/speech-constants';
 import { IHolisticHarmonizerSettings, HolisticHarmonizerSettings } from 'src/app/domain/models/settings/holistic-harmonizer-settings.model';
 import { ErpImportScheduleDefaults } from 'src/app/domain/constants/erp-import-schedule.constants';
+import { sortDayNamesMondayFirst } from 'src/app/domain/constants/day-of-week.constants';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 interface SettingsModels {
@@ -171,6 +172,10 @@ export class AppSettingsManagementService {
     [AppSetting.UPDATE_NOTIFY_ONLY, (v, m) => (m.update.notifyOnly = (v ?? '').toLowerCase() === 'true')],
     [AppSetting.UPDATE_BACKUP_RETENTION_COUNT, (v, m) => (m.update.backupRetentionCount = parseInt(v, 10) || 3)],
     [AppSetting.UPDATE_PINNED_VERSION, (v, m) => (m.update.pinnedVersion = v || '')],
+    [AppSetting.CALENDAR_WEEKEND_DAYS, (v, m) => (m.schedulingDefaults.weekendDays = v
+      ? sortDayNamesMondayFirst(v.split(',').map(s => s.trim()).filter(s => s.length > 0))
+      : ['Saturday', 'Sunday'])],
+    [AppSetting.CALENDAR_WEEK_START_DAY, (v, m) => (m.schedulingDefaults.weekStartDay = v || 'Monday')],
   ]);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
@@ -445,6 +450,9 @@ export class AppSettingsManagementService {
     { key: AppSetting.UPDATE_NOTIFY_ONLY, getCurrent: () => String(this.updateConfigSettings().notifyOnly), getOriginal: () => String(this.updateConfigSettingsOriginal().notifyOnly) },
     { key: AppSetting.UPDATE_BACKUP_RETENTION_COUNT, getCurrent: () => this.updateConfigSettings().backupRetentionCount.toString(), getOriginal: () => this.updateConfigSettingsOriginal().backupRetentionCount.toString() },
     { key: AppSetting.UPDATE_PINNED_VERSION, getCurrent: () => this.updateConfigSettings().pinnedVersion, getOriginal: () => this.updateConfigSettingsOriginal().pinnedVersion },
+
+    { key: AppSetting.CALENDAR_WEEKEND_DAYS, getCurrent: () => this.schedulingDefaultSettings().weekendDays.join(','), getOriginal: () => this.schedulingDefaultSettingsOriginal().weekendDays.join(',') },
+    { key: AppSetting.CALENDAR_WEEK_START_DAY, getCurrent: () => this.schedulingDefaultSettings().weekStartDay, getOriginal: () => this.schedulingDefaultSettingsOriginal().weekStartDay },
   ];
 
   save(): void {

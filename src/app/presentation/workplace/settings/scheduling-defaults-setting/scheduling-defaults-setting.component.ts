@@ -39,6 +39,14 @@ interface SchedulingDefaultsFormModel {
   workOnSaturday: boolean;
   workOnSunday: boolean;
   performsShiftWork: boolean;
+  weekendMonday: boolean;
+  weekendTuesday: boolean;
+  weekendWednesday: boolean;
+  weekendThursday: boolean;
+  weekendFriday: boolean;
+  weekendSaturday: boolean;
+  weekendSunday: boolean;
+  weekStartDay: string;
   commandKeywordFree: string;
   commandKeywordEarly: string;
   commandKeywordLate: string;
@@ -88,6 +96,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     workOnSaturday: false,
     workOnSunday: false,
     performsShiftWork: false,
+    weekendMonday: false,
+    weekendTuesday: false,
+    weekendWednesday: false,
+    weekendThursday: false,
+    weekendFriday: false,
+    weekendSaturday: true,
+    weekendSunday: true,
+    weekStartDay: 'Monday',
     commandKeywordFree: 'FREE',
     commandKeywordEarly: 'EARLY',
     commandKeywordLate: 'LATE',
@@ -153,6 +169,14 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       workOnSaturday: sched.workOnSaturday,
       workOnSunday: sched.workOnSunday,
       performsShiftWork: sched.performsShiftWork,
+      weekendMonday: sched.weekendDays.includes('Monday'),
+      weekendTuesday: sched.weekendDays.includes('Tuesday'),
+      weekendWednesday: sched.weekendDays.includes('Wednesday'),
+      weekendThursday: sched.weekendDays.includes('Thursday'),
+      weekendFriday: sched.weekendDays.includes('Friday'),
+      weekendSaturday: sched.weekendDays.includes('Saturday'),
+      weekendSunday: sched.weekendDays.includes('Sunday'),
+      weekStartDay: sched.weekStartDay,
       commandKeywordFree: sched.commandKeywordFree,
       commandKeywordEarly: sched.commandKeywordEarly,
       commandKeywordLate: sched.commandKeywordLate,
@@ -189,6 +213,8 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
       workOnSaturday: data.workOnSaturday,
       workOnSunday: data.workOnSunday,
       performsShiftWork: data.performsShiftWork,
+      weekendDays: buildWeekendDays(data),
+      weekStartDay: data.weekStartDay,
       commandKeywordFree: data.commandKeywordFree,
       commandKeywordEarly: data.commandKeywordEarly,
       commandKeywordLate: data.commandKeywordLate,
@@ -204,4 +230,16 @@ export class SchedulingDefaultsSettingComponent implements OnInit {
     svc.soRate = data.soRate;
     svc.settingsChangeTrigger.update(v => v + 1);
   }
+}
+
+function buildWeekendDays(data: SchedulingDefaultsFormModel): string[] {
+  const days: string[] = [];
+  if (data.weekendMonday) days.push('Monday');
+  if (data.weekendTuesday) days.push('Tuesday');
+  if (data.weekendWednesday) days.push('Wednesday');
+  if (data.weekendThursday) days.push('Thursday');
+  if (data.weekendFriday) days.push('Friday');
+  if (data.weekendSaturday) days.push('Saturday');
+  if (data.weekendSunday) days.push('Sunday');
+  return days;
 }

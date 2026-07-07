@@ -106,6 +106,8 @@ export interface ISchedulingDefaultSettings {
   workOnSaturday: boolean;
   workOnSunday: boolean;
   performsShiftWork: boolean;
+  weekendDays: string[];
+  weekStartDay: string;
   commandKeywordFree: string;
   commandKeywordEarly: string;
   commandKeywordLate: string;
@@ -138,6 +140,8 @@ export class SchedulingDefaultSettings implements ISchedulingDefaultSettings {
   workOnSaturday = false;
   workOnSunday = false;
   performsShiftWork = false;
+  weekendDays = ['Saturday', 'Sunday'];
+  weekStartDay = 'Monday';
   commandKeywordFree = 'FREE';
   commandKeywordEarly = 'EARLY';
   commandKeywordLate = 'LATE';

@@ -1941,6 +1941,8 @@
   "settings.work.saturday": "Sa",
   "settings.work.sunday": "So",
   "settings.work.performs-shift-work": "Schichtarbeit (Früh-/Spät-/Nachtdienste)",
+  "settings.work.weekend-days": "Wochenendtage",
+  "settings.work.week-start-day": "Wochenstart",
   "settings.data-retention.title": "Datenschutz (DSGVO)",
   "settings.data-retention.description": "Gelöschte Datensätze werden nach Ablauf der Aufbewahrungsfrist endgültig entfernt.",
   "settings.data-retention.days": "Aufbewahrungsfrist (Tage)",

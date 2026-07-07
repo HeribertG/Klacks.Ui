@@ -15,7 +15,6 @@
  * - Uses: DataManagementScheduleService for raw schedule data
  * - Uses: Cell formatter services for display formatting
  */
-import { WeekDay } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DomainMessages } from 'src/app/domain/constants/messages';
@@ -27,6 +26,7 @@ import {
 import { AbsenceLookupService } from 'src/app/domain/services/schedule/absence-lookup.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { addDays, compareDate, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { hoursToHHMM } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
@@ -57,6 +57,7 @@ export class ScheduleDataService extends BaseDataService {
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private weekConfiguration = inject(WeekConfigurationService);
   private emptyFormatter = inject(EmptyCellFormatterService);
   private workFormatter = inject(WorkCellFormatterService);
   private breakFormatter = inject(BreakCellFormatterService);
@@ -455,10 +456,11 @@ export class ScheduleDataService extends BaseDataService {
         }
       }
 
-      if (today.getDay() === WeekDay.Sunday) {
-        return WeekDaysEnum.Sunday;
-      } else if (today.getDay() === WeekDay.Saturday) {
+      const weekendSlot = this.weekConfiguration.getWeekendSlot(today);
+      if (weekendSlot === 1) {
         return WeekDaysEnum.Saturday;
+      } else if (weekendSlot === 2) {
+        return WeekDaysEnum.Sunday;
       } else {
         return WeekDaysEnum.Workday;
       }

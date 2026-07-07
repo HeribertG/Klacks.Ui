@@ -8,6 +8,7 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 
 describe('ShiftDataService', () => {
@@ -29,6 +30,10 @@ describe('ShiftDataService', () => {
                     } },
                 { provide: AppSettingsManagementService, useValue: {
                         workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
+                    } },
+                { provide: WeekConfigurationService, useValue: {
+                        isWeekend: (date: Date) => date.getDay() === 0 || date.getDay() === 6,
+                        getWeekendSlot: (date: Date) => date.getDay() === 6 ? 1 : date.getDay() === 0 ? 2 : null
                     } },
                 { provide: WorkNotificationService, useValue: {
                         isShiftAffected: () => false

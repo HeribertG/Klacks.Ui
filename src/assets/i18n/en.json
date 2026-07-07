@@ -1941,6 +1941,8 @@
   "settings.work.saturday": "Sat",
   "settings.work.sunday": "Sun",
   "settings.work.performs-shift-work": "Shift Work (Early/Late/Night Shifts)",
+  "settings.work.weekend-days": "Weekend Days",
+  "settings.work.week-start-day": "Week Start",
   "settings.data-retention.title": "Data Protection (GDPR)",
   "settings.data-retention.description": "Deleted records are permanently removed after the retention period expires.",
   "settings.data-retention.days": "Retention Period (Days)",

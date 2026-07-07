@@ -329,6 +329,87 @@
         </div>
       </div>
       <div
+        id="scheduling-defaults-weekend-row"
+        class="row-line"
+        style="margin-top: 16px"
+      >
+        <div class="form-group firstColumn">
+          <label for="scheduling-defaults-weekend-days">{{
+            "settings.work.weekend-days" | translate
+          }}</label>
+          <div class="workdays-inline">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendMonday"
+              />
+              {{ "settings.work.monday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendTuesday"
+              />
+              {{ "settings.work.tuesday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendWednesday"
+              />
+              {{ "settings.work.wednesday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendThursday"
+              />
+              {{ "settings.work.thursday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendFriday"
+              />
+              {{ "settings.work.friday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendSaturday"
+              />
+              {{ "settings.work.saturday" | translate }}
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formField]="schedulingForm.weekendSunday"
+              />
+              {{ "settings.work.sunday" | translate }}
+            </label>
+          </div>
+        </div>
+        <div class="form-group secondColumn">
+          <label for="sdWeekStartDay">{{
+            "settings.work.week-start-day" | translate
+          }}</label>
+          <select
+            class="form-control"
+            [formField]="schedulingForm.weekStartDay"
+            aria-label="sdWeekStartDay"
+            id="sdWeekStartDay"
+          >
+            <option value="Monday">{{ "settings.work.monday" | translate }}</option>
+            <option value="Tuesday">{{ "settings.work.tuesday" | translate }}</option>
+            <option value="Wednesday">{{ "settings.work.wednesday" | translate }}</option>
+            <option value="Thursday">{{ "settings.work.thursday" | translate }}</option>
+            <option value="Friday">{{ "settings.work.friday" | translate }}</option>
+            <option value="Saturday">{{ "settings.work.saturday" | translate }}</option>
+            <option value="Sunday">{{ "settings.work.sunday" | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div
         id="scheduling-defaults-command-keywords-header"
         class="row-line"
         style="margin-top: 16px"

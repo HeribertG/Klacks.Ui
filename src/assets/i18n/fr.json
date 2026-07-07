@@ -1958,6 +1958,8 @@
   "settings.work.saturday": "Sa",
   "settings.work.sunday": "Di",
   "settings.work.performs-shift-work": "Travail posté (équipes matin/soir/nuit)",
+  "settings.work.weekend-days": "Jours de week-end",
+  "settings.work.week-start-day": "Début de semaine",
   "settings.data-retention.title": "Protection des données (RGPD)",
   "settings.data-retention.description": "Les enregistrements supprimés sont définitivement effacés après la période de conservation.",
   "settings.data-retention.days": "Période de conservation (jours)",

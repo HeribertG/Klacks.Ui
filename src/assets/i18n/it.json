@@ -1958,6 +1958,8 @@
   "settings.work.saturday": "Sa",
   "settings.work.sunday": "Do",
   "settings.work.performs-shift-work": "Lavoro a turni (mattina/pomeriggio/notte)",
+  "settings.work.weekend-days": "Giorni di fine settimana",
+  "settings.work.week-start-day": "Inizio settimana",
   "settings.data-retention.title": "Protezione dei dati (GDPR)",
   "settings.data-retention.description": "I record eliminati vengono rimossi definitivamente dopo il periodo di conservazione.",
   "settings.data-retention.days": "Periodo di conservazione (giorni)",

@@ -11,6 +11,7 @@ import { CalendarCalculationService } from './calendar-calculation.service';
 import { CalendarHeaderDayRank } from 'src/app/domain/models/absence/absence-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 
 describe('CalendarDayRenderingService', () => {
     let service: CalendarDayRenderingService;
@@ -69,6 +70,15 @@ describe('CalendarDayRenderingService', () => {
             calculateHeaderDayRect: vi.fn().mockReturnValue(new Rectangle(0, 45, 20, 55))
         };
 
+        const mockWeekConfiguration = {
+            isWeekend: (date: Date) => date.getDay() === 0 || date.getDay() === 6,
+            getWeekendSlot: (date: Date): 1 | 2 | null => {
+                if (date.getDay() === 6) return 1; // Saturday
+                if (date.getDay() === 0) return 2; // Sunday
+                return null;
+            }
+        };
+
         TestBed.configureTestingModule({
             providers: [
                 CalendarDayRenderingService,
@@ -76,7 +86,8 @@ describe('CalendarDayRenderingService', () => {
                 { provide: GridColorService, useValue: mockGridColors },
                 { provide: HolidayCollectionService, useValue: mockHolidayCollection },
                 { provide: CalendarSettingService, useValue: mockCalendarSetting },
-                { provide: CalendarCalculationService, useValue: mockCalculationService }
+                { provide: CalendarCalculationService, useValue: mockCalculationService },
+                { provide: WeekConfigurationService, useValue: mockWeekConfiguration }
             ]
         });
 

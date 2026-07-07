@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { GanttPdfDrawingService, GanttDrawingConfig, } from './gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { signal } from '@angular/core';
 
 describe('GanttPdfDrawingService', () => {
@@ -28,11 +29,21 @@ describe('GanttPdfDrawingService', () => {
             absenceList: signal([])
         };
 
+        const weekConfigurationSpy = {
+            isWeekend: (date: Date) => date.getDay() === 0 || date.getDay() === 6,
+            getWeekendSlot: (date: Date): 1 | 2 | null => {
+                if (date.getDay() === 6) return 1;
+                if (date.getDay() === 0) return 2;
+                return null;
+            },
+        };
+
         TestBed.configureTestingModule({
             providers: [
                 GanttPdfDrawingService,
                 { provide: TranslateService, useValue: translateSpy },
                 { provide: DataManagementAbsenceGanttService, useValue: absenceGanttSpy },
+                { provide: WeekConfigurationService, useValue: weekConfigurationSpy },
             ],
         });
 

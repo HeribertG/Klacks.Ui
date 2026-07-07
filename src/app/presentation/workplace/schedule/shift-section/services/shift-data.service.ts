@@ -16,7 +16,6 @@
  * - Provides: Drag data for ShiftToScheduleDragDropService
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { WeekDay } from '@angular/common';
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
@@ -28,6 +27,7 @@ import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/
 import { HolidayDate } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import {
   addDays,
   compareDate,
@@ -83,6 +83,7 @@ export class ShiftDataService extends BaseDataService {
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private appSettingsService = inject(AppSettingsManagementService);
+  private weekConfiguration = inject(WeekConfigurationService);
   private workNotificationService = inject(WorkNotificationService);
   private overrideDataService = inject(DataContainerShiftOverrideService);
   private destroyRef = inject(DestroyRef);
@@ -376,10 +377,11 @@ export class ShiftDataService extends BaseDataService {
         }
       }
 
-      if (today.getDay() === WeekDay.Sunday) {
-        return WeekDaysEnum.Sunday;
-      } else if (today.getDay() === WeekDay.Saturday) {
+      const weekendSlot = this.weekConfiguration.getWeekendSlot(today);
+      if (weekendSlot === 1) {
         return WeekDaysEnum.Saturday;
+      } else if (weekendSlot === 2) {
+        return WeekDaysEnum.Sunday;
       } else {
         return WeekDaysEnum.Workday;
       }

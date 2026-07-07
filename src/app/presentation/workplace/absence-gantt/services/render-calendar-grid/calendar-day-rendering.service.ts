@@ -11,6 +11,7 @@ import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { compareDate } from 'src/app/shared/helpers/date.helper';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { CalendarCalculationService } from './calendar-calculation.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 
 @Injectable()
 export class CalendarDayRenderingService {
@@ -19,9 +20,7 @@ export class CalendarDayRenderingService {
   private holidayCollection = inject(HolidayCollectionService);
   private calendarSetting = inject(CalendarSettingService);
   private calculationService = inject(CalendarCalculationService);
-
-  private readonly SUNDAY = 0;
-  private readonly SATURDAY = 6;
+  private weekConfiguration = inject(WeekConfigurationService);
 
   public isCanvasAvailable(): boolean {
     return this.ganttCanvasManager.isCanvasAvailable();
@@ -39,9 +38,9 @@ export class CalendarDayRenderingService {
       if (this.isHoliday(currDate)) {
         this.drawHolidayBackground(dayRect, currDate);
       } else {
-        const dayOfWeek = currDate.getDay();
-        if (dayOfWeek === this.SUNDAY || dayOfWeek === this.SATURDAY) {
-          this.drawWeekendBackground(dayRect, dayOfWeek === this.SUNDAY);
+        const weekendSlot = this.weekConfiguration.getWeekendSlot(currDate);
+        if (weekendSlot !== null) {
+          this.drawWeekendBackground(dayRect, weekendSlot);
         } else {
           this.drawWeekdayBorder(dayRect);
         }
@@ -92,8 +91,8 @@ export class CalendarDayRenderingService {
   }
 
   @CanvasAvailable('queue')
-  private drawWeekendBackground(dayRect: Rectangle, isWeekend: boolean): void {
-    const backgroundColor = isWeekend
+  private drawWeekendBackground(dayRect: Rectangle, weekendSlot: 1 | 2): void {
+    const backgroundColor = weekendSlot === 2
       ? this.gridColors.backGroundColorSunday
       : this.gridColors.backGroundColorSaturday;
 
@@ -125,17 +124,17 @@ export class CalendarDayRenderingService {
     dayRect: Rectangle,
     headerDayRank: CalendarHeaderDayRank[]
   ): void {
-    const dayOfWeek = date.getDay();
+    const weekendSlot = this.weekConfiguration.getWeekendSlot(date);
 
-    if (dayOfWeek === this.SUNDAY || dayOfWeek === this.SATURDAY) {
+    if (weekendSlot !== null) {
       const headerDay = new CalendarHeaderDayRank();
       headerDay.name = date.getDate().toString();
       headerDay.rect = this.calculationService.calculateHeaderDayRect(
         dayRect,
-        dayOfWeek === this.SATURDAY
+        weekendSlot === 1
       );
       headerDay.backColor =
-        dayOfWeek === this.SUNDAY
+        weekendSlot === 2
           ? this.gridColors.backGroundColorSunday
           : this.gridColors.backGroundColorSaturday;
 

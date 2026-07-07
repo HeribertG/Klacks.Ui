@@ -6,6 +6,7 @@ import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { HolidaysListHelper } from 'src/app/domain/models/calendar/calendar-rule-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { Absence } from 'src/app/domain/models/absence/absence-class';
 
 export interface GanttDrawingConfig {
@@ -35,6 +36,7 @@ export class GanttPdfDrawingService {
   private translateService = inject(TranslateService);
   private holidaysHelper = new HolidaysListHelper();
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  private weekConfiguration = inject(WeekConfigurationService);
 
   get isRtl(): boolean {
     return document.documentElement.dir === 'rtl';
@@ -131,9 +133,7 @@ export class GanttPdfDrawingService {
     pdf.setFillColor(config.weekendColor);
 
     for (let dayOfYear = 0; dayOfYear < daysInYear; dayOfYear++) {
-      const dayOfWeek = currentDate.getDay();
-
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
+      if (this.weekConfiguration.isWeekend(currentDate)) {
         const ltrX = startX + dayOfYear * dayWidth;
         const xPos = this.mirrorX(startX, calendarWidth, ltrX, dayWidth);
         pdf.rect(xPos, startY, dayWidth, rowHeight, 'F');

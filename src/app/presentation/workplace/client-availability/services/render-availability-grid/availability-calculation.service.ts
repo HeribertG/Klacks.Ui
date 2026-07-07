@@ -9,6 +9,7 @@ import {
 } from 'src/app/domain/models/client-availability/hour-grouping-mode.enum';
 import { PaymentInterval } from 'src/app/domain/models/contract/contract-class';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 import { compareDate } from 'src/app/shared/helpers/date.helper';
 
 const WEEKDAY_KEYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
@@ -25,6 +26,7 @@ export class AvailabilityCalculationService {
   private settings = inject(AvailabilitySettingService);
   private holidayCollection = inject(HolidayCollectionService);
   private translateService = inject(TranslateService);
+  private weekConfiguration = inject(WeekConfigurationService);
 
   public startDate: Date = new Date();
 
@@ -139,12 +141,12 @@ export class AvailabilityCalculationService {
   }
 
   public isWeekend(date: Date): boolean {
-    const day = date.getDay();
-    return day === 0 || day === 6;
+    return this.weekConfiguration.isWeekend(date);
   }
 
+  /** True for the 2nd configured weekend day (legacy name from the Saturday/Sunday-only era). */
   public isSunday(date: Date): boolean {
-    return date.getDay() === 0;
+    return this.weekConfiguration.getWeekendSlot(date) === 2;
   }
 
   public isHoliday(date: Date): boolean {

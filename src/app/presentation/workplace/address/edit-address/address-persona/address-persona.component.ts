@@ -62,6 +62,8 @@ import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.c
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { WeekConfigurationService } from 'src/app/domain/services/settings/week-configuration.service';
 
 interface AddressPersonaFormModel {
   company: string;
@@ -113,6 +115,8 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
   private translateService = inject(TranslateService);
   private modalService = inject(ModalService);
   private cdr = inject(ChangeDetectorRef);
+  private appSettingsService = inject(AppSettingsManagementService);
+  private weekConfiguration = inject(WeekConfigurationService);
 
   readonly isReadOnly = input(false);
   readonly isChangingEvent = output<boolean>();
@@ -273,6 +277,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
     this.message = DomainMessages.DEACTIVE_ADDRESS;
     this.title = DomainMessages.DEACTIVE_ADDRESS_TITLE;
     this.newAddressString = DomainMessages.NEW_ADDRESS;
+    void this.appSettingsService.loadSettingsAsync();
   }
 
   ngAfterViewInit(): void {
@@ -387,7 +392,7 @@ export class AddressPersonaComponent implements OnInit, AfterViewInit, OnDestroy
 
   isWeekend(date: NgbDateStruct) {
     const d = new Date(date.year!, date.month! - 1, date.day!);
-    return d.getDay() === 0 || d.getDay() === 6;
+    return this.weekConfiguration.isWeekend(d);
   }
 
   private loadToForm(client: IClient): void {
