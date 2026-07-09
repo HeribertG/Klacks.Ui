@@ -5,6 +5,55 @@
 
   <div id="exports-tab-line" class="container-line"></div>
 
+  <div class="standard-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          id="exports-tab-tab-single"
+          class="nav-link"
+          [class.active]="activeTab() === 'single'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'single'"
+          tabindex="0"
+          (click)="setTab('single')"
+          (keydown.enter)="setTab('single')"
+        >
+          {{ 'periodClosing.exportsTabs.singleOrder' | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="exports-tab-tab-employee"
+          class="nav-link"
+          [class.active]="activeTab() === 'employee'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'employee'"
+          tabindex="0"
+          (click)="setTab('employee')"
+          (keydown.enter)="setTab('employee')"
+        >
+          {{ 'periodClosing.exportsTabs.employeeHours' | translate }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          id="exports-tab-tab-range"
+          class="nav-link"
+          [class.active]="activeTab() === 'range'"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'range'"
+          tabindex="0"
+          (click)="setTab('range')"
+          (keydown.enter)="setTab('range')"
+        >
+          {{ 'periodClosing.exportsTabs.rangeOrders' | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="standard-tab-body">
+  @if (activeTab() === 'single') {
   <div class="first exports-tab-body">
     <section class="filter-row">
       <div class="filter-field">
@@ -96,13 +145,10 @@
       </div>
     </section>
   </div>
+  }
 
-  <div class="container-line"></div>
-
-  <div class="first exports-tab-body client-export-body">
-    <div class="container-subline-borderless">
-      {{ 'periodClosing.clientExport.title' | translate }}
-    </div>
+  @if (activeTab() === 'employee') {
+  <div class="first exports-tab-body">
     <p class="client-export-description">
       {{ 'periodClosing.clientExport.description' | translate }}
     </p>
@@ -140,10 +186,14 @@
       </div>
     </section>
   </div>
+  }
 
-  <div class="container-line"></div>
-
-  <app-order-range-export-section />
+  @if (activeTab() === 'range') {
+  <div class="first exports-tab-body">
+    <app-order-range-export-section />
+  </div>
+  }
+  </div>
 
   <div class="bottom-border-space"></div>
 </div>

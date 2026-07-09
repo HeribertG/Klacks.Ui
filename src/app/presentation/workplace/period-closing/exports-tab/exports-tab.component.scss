@@ -1,5 +1,6 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-tabs.scss";
 @use "../../../../../assets/standard-styles/date-input-sm.scss" as dateInputSm;
 
 @include dateInputSm.date-input-sm;
@@ -110,10 +111,6 @@
 
 .filter-action {
   padding-bottom: 0;
-}
-
-.client-export-body {
-  padding-top: 20px;
 }
 
 .client-export-description {

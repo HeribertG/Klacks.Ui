@@ -1,7 +1,4 @@
-<div class="first range-export-body">
-  <div class="container-subline-borderless">
-    {{ 'periodClosing.rangeExport.title' | translate }}
-  </div>
+<div class="range-export-body">
   <p class="range-export-description">
     {{ 'periodClosing.rangeExport.description' | translate }}
   </p>
@@ -63,94 +60,108 @@
   }
 
   @if (orders().length > 0) {
-    <div class="range-export-table-wrapper">
-      <table class="table table-sm range-export-table">
-        <thead>
-          <tr>
-            <th class="toggle-column"></th>
-            <th>{{ 'periodClosing.rangeExport.column.order' | translate }}</th>
-            <th>{{ 'periodClosing.rangeExport.column.customer' | translate }}</th>
-            <th>{{ 'periodClosing.rangeExport.column.erpReference' | translate }}</th>
-            <th class="works-column">{{ 'periodClosing.rangeExport.column.works' | translate }}</th>
+    <table class="table table-borderless range-export-table">
+      <thead>
+        <tr>
+          <th class="table-header toggle-column"></th>
+          <th class="table-header">{{ 'periodClosing.rangeExport.column.order' | translate }}</th>
+          <th class="table-header">{{ 'periodClosing.rangeExport.column.customer' | translate }}</th>
+          <th class="table-header">{{ 'periodClosing.rangeExport.column.erpReference' | translate }}</th>
+          <th class="table-header works-column">{{ 'periodClosing.rangeExport.column.works' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of pagedOrders(); track order.id) {
+          <tr class="table-row order-row">
+            <td class="table-cell toggle-column">
+              <button
+                type="button"
+                class="btn btn-link btn-sm toggle-button"
+                [attr.aria-expanded]="isExpanded(order.id)"
+                [attr.aria-label]="'periodClosing.rangeExport.toggleDetails' | translate"
+                (click)="toggleDetails(order)">
+                <i
+                  class="fa"
+                  [class.fa-chevron-right]="!isExpanded(order.id)"
+                  [class.fa-chevron-down]="isExpanded(order.id)"
+                  aria-hidden="true"></i>
+              </button>
+            </td>
+            <td class="table-cell">
+              @if (order.abbreviation) {
+                <span class="order-abbreviation">{{ order.abbreviation }}</span>
+              }
+              {{ order.name }}
+            </td>
+            <td class="table-cell">{{ order.customerName ?? ('periodClosing.form.noCustomer' | translate) }}</td>
+            <td class="table-cell" [attr.title]="order.sourceSystemId">
+              {{ order.externalOrderReference ?? emptyPlaceholder }}
+            </td>
+            <td class="table-cell works-column">{{ order.closedWorks }}/{{ order.totalWorks }}</td>
           </tr>
-        </thead>
-        <tbody>
-          @for (order of orders(); track order.id) {
-            <tr class="order-row">
-              <td class="toggle-column">
-                <button
-                  type="button"
-                  class="btn btn-link btn-sm toggle-button"
-                  [attr.aria-expanded]="isExpanded(order.id)"
-                  [attr.aria-label]="'periodClosing.rangeExport.toggleDetails' | translate"
-                  (click)="toggleDetails(order)">
-                  <i
-                    class="fa"
-                    [class.fa-chevron-right]="!isExpanded(order.id)"
-                    [class.fa-chevron-down]="isExpanded(order.id)"
-                    aria-hidden="true"></i>
-                </button>
-              </td>
-              <td>
-                @if (order.abbreviation) {
-                  <span class="order-abbreviation">{{ order.abbreviation }}</span>
-                }
-                {{ order.name }}
-              </td>
-              <td>{{ order.customerName ?? ('periodClosing.form.noCustomer' | translate) }}</td>
-              <td [attr.title]="order.sourceSystemId">
-                {{ order.externalOrderReference ?? emptyPlaceholder }}
-              </td>
-              <td class="works-column">{{ order.closedWorks }}/{{ order.totalWorks }}</td>
-            </tr>
-            @if (isExpanded(order.id)) {
-              <tr class="detail-row">
-                <td colspan="5">
-                  @if (isDetailLoading(order.id)) {
-                    <div class="detail-loading">
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </div>
-                  } @else if (detailFor(order.id); as detail) {
-                    @if (detail.workEntries.length === 0) {
-                      <p class="detail-empty">{{ 'periodClosing.rangeExport.detail.empty' | translate }}</p>
-                    } @else {
-                      <table class="table table-sm detail-table">
-                        <thead>
-                          <tr>
-                            <th>{{ 'periodClosing.rangeExport.detail.date' | translate }}</th>
-                            <th>{{ 'periodClosing.rangeExport.detail.employee' | translate }}</th>
-                            <th>{{ 'periodClosing.rangeExport.detail.time' | translate }}</th>
-                            <th class="numeric-column">{{ 'periodClosing.rangeExport.detail.hours' | translate }}</th>
-                            <th class="numeric-column">{{ 'periodClosing.rangeExport.detail.surcharges' | translate }}</th>
-                            <th>{{ 'periodClosing.rangeExport.detail.status' | translate }}</th>
+          @if (isExpanded(order.id)) {
+            <tr class="detail-row">
+              <td class="table-cell" colspan="5">
+                @if (isDetailLoading(order.id)) {
+                  <div class="detail-loading">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  </div>
+                } @else if (detailFor(order.id); as detail) {
+                  @if (detail.workEntries.length === 0) {
+                    <p class="detail-empty">{{ 'periodClosing.rangeExport.detail.empty' | translate }}</p>
+                  } @else {
+                    <table class="table table-borderless detail-table">
+                      <thead>
+                        <tr>
+                          <th class="table-header">{{ 'periodClosing.rangeExport.detail.date' | translate }}</th>
+                          <th class="table-header">{{ 'periodClosing.rangeExport.detail.employee' | translate }}</th>
+                          <th class="table-header">{{ 'periodClosing.rangeExport.detail.time' | translate }}</th>
+                          <th class="table-header numeric-column">{{ 'periodClosing.rangeExport.detail.hours' | translate }}</th>
+                          <th class="table-header numeric-column">{{ 'periodClosing.rangeExport.detail.surcharges' | translate }}</th>
+                          <th class="table-header">{{ 'periodClosing.rangeExport.detail.status' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (entry of detail.workEntries; track entry.workId) {
+                          @let meta = statusMeta[workEntryStatus(entry)];
+                          <tr class="table-row">
+                            <td class="table-cell">{{ formatWorkDate(entry.workDate) }}</td>
+                            <td class="table-cell">{{ entry.employeeName }}</td>
+                            <td class="table-cell">{{ entry.startTime }}–{{ entry.endTime }}</td>
+                            <td class="table-cell numeric-column">{{ entry.hours | number: '1.2-2' }}</td>
+                            <td class="table-cell numeric-column">{{ entry.surcharges | number: '1.2-2' }}</td>
+                            <td class="table-cell">
+                              <span class="status-badge" [ngClass]="meta.cssClass">
+                                {{ meta.labelKey | translate }}
+                              </span>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          @for (entry of detail.workEntries; track entry.workId) {
-                            @let meta = statusMeta[workEntryStatus(entry)];
-                            <tr>
-                              <td>{{ formatWorkDate(entry.workDate) }}</td>
-                              <td>{{ entry.employeeName }}</td>
-                              <td>{{ entry.startTime }}–{{ entry.endTime }}</td>
-                              <td class="numeric-column">{{ entry.hours | number: '1.2-2' }}</td>
-                              <td class="numeric-column">{{ entry.surcharges | number: '1.2-2' }}</td>
-                              <td>
-                                <span class="status-badge" [ngClass]="meta.cssClass">
-                                  {{ meta.labelKey | translate }}
-                                </span>
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    }
+                        }
+                      </tbody>
+                    </table>
                   }
-                </td>
-              </tr>
-            }
+                }
+              </td>
+            </tr>
           }
-        </tbody>
-      </table>
+        }
+      </tbody>
+    </table>
+
+    <div class="range-export-pagination-row">
+      <app-simple-pagination
+        id="order-range-export-pagination"
+        [collectionSize]="orders().length"
+        [page]="page()"
+        (pageChange)="onPageChange($event)"
+        [pageSize]="pageSize"
+        [maxSize]="5"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+        [showSummary]="true"
+        summaryLabel="pagination.sum">
+      </app-simple-pagination>
     </div>
   }
 </div>

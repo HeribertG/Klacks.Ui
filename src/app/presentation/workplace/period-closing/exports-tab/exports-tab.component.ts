@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Exports tab: pick a sealed order, format, language, currency, then download
- * the proof-of-service file. After a successful download the server persists
- * an ExportLog entry automatically. The export is keyed on the order (the
- * SealedOrder shift), so renames or splits of the operational shift never leak
- * into the exported document.
- *
- * A second, date-range-based section downloads hours/expenses/breaks for all
- * employees (internal and external) as XML, independent of individual orders.
+ * Exports tab: three independent export flows, switched via an internal tab bar.
+ * "Single order" picks a sealed order, format, language, currency, then downloads
+ * the proof-of-service file; the server persists an ExportLog entry on success.
+ * The export is keyed on the order (the SealedOrder shift), so renames or splits
+ * of the operational shift never leak into the exported document.
+ * "Employee hours" downloads hours/expenses/breaks for all employees (internal
+ * and external) as XML for a date range, independent of individual orders.
+ * "Orders in range" delegates to app-order-range-export-section, which downloads
+ * a ZIP of every sealed order in a date range.
+ * @param activeTab - Which of the three export tabs is currently visible
  */
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
@@ -39,6 +41,9 @@ import { DEFAULT_EXPORT_FORMAT, EXPORT_FORMAT_OPTIONS } from './export-format-op
 
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 
+type ExportsTab = 'single' | 'employee' | 'range';
+const DEFAULT_EXPORTS_TAB: ExportsTab = 'single';
+
 @Component({
   selector: 'app-exports-tab',
   templateUrl: './exports-tab.component.html',
@@ -59,6 +64,8 @@ export class ExportsTabComponent {
   private api = inject(DataPeriodClosingService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
+
+  public activeTab = signal<ExportsTab>(DEFAULT_EXPORTS_TAB);
 
   public filterFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
   public filterUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
@@ -89,6 +96,10 @@ export class ExportsTabComponent {
     const selectedLabel = this.selectedOrder() ? this.formatOrderLabel(this.selectedOrder()!) : '';
     return term !== selectedLabel;
   });
+
+  setTab(tab: ExportsTab): void {
+    this.activeTab.set(tab);
+  }
 
   reloadOrders(): void {
     this.loadingOrders.set(true);
