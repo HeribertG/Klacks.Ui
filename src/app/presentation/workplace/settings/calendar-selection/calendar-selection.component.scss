@@ -21,17 +21,23 @@
   border: 1px solid var(--inputBorderColor);
   border-radius: 4px;
   padding: 8px 12px;
-}
 
-.state-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0;
-  font-size: 13px;
-  cursor: pointer;
+  // Higher specificity than the leaking `.row-line-modal-inline label` / `.model-field input`
+  // rules from settings-list-card-modal.scss, which would otherwise force display:block and
+  // width:100% onto these checkboxes.
+  .state-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+  }
 
   input[type="checkbox"] {
+    width: auto;
+    flex: none;
     cursor: pointer;
   }
 }
