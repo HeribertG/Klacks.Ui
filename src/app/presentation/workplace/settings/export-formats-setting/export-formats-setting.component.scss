@@ -1,22 +1,21 @@
-.export-format-row {
-  display: flex;
-  align-items: center;
-  padding: 0.35rem 0;
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+
+.row-line-single {
+  margin-top: 5px;
 }
 
-.export-format-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  cursor: pointer;
-
-  input[disabled] {
-    cursor: default;
-  }
+.firstColumn {
+  margin-inline-start: 30px;
 }
 
-.export-format-fixed-hint {
-  font-size: 0.8rem;
-  opacity: 0.6;
+.info-text {
+  margin-inline-start: 30px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: var(--standartTextColor);
+  font-size: 12px;
+}
+
+.checkbox-label input[disabled] {
+  cursor: default;
 }

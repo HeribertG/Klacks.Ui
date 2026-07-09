@@ -13,6 +13,7 @@ import { ExportFormatResource } from 'src/app/infrastructure/api/period-closing/
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/settings/data-settings-various.service';
 import { ISetting } from 'src/app/domain/models/settings/settings-various-class';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 
 const ENABLED_EXPORT_FORMATS_KEY = 'ENABLED_EXPORT_FORMATS';
 const FORMAT_LABEL_PREFIX = 'periodClosing.format.';
@@ -23,7 +24,7 @@ const FORMAT_SEPARATOR = ',';
   templateUrl: './export-formats-setting.component.html',
   styleUrls: ['./export-formats-setting.component.scss'],
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, SettingsListCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportFormatsSettingComponent implements OnInit {
