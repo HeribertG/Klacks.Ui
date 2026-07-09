@@ -1270,6 +1270,7 @@
   "setting.speech.stt-test-success": "Verbindung erfolgreich",
   "setting.speech.stt-test-failed": "Verbindung fehlgeschlagen",
   "setting.speech.enhancement-enabled": "Textbereinigung durch LLM aktiv",
+  "setting.speech.stt-custom-server": "Eigener STT-Server (Konfiguration serverseitig)",
   "setting.speech.barge-in-enabled": "Sprach-Unterbrechung (Barge-in) aktiv",
   "setting.speech.barge-in-hint": "Im Sprachmodus bleibt das Mikrofon während der Antwort offen: Reinreden stoppt die Sprachausgabe. Am zuverlässigsten mit Headset oder Streaming-Erkennung (Deepgram/AssemblyAI).",
   "setting.speech.tts-provider": "Sprachausgabe Anbieter",

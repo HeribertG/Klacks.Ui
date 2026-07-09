@@ -24,7 +24,10 @@ describe('ConversationOrchestratorService', () => {
     start: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
     setSilenceThresholdMs: ReturnType<typeof vi.fn>;
+    setVadThresholdMultiplier: ReturnType<typeof vi.fn>;
+    clearRecording: ReturnType<typeof vi.fn>;
     isCapturing: ReturnType<typeof vi.fn>;
+    isSpeechDetected: ReturnType<typeof vi.fn>;
     audioChunk$: Subject<ArrayBuffer>;
     silenceDetected$: Subject<void>;
     speechStarted$: Subject<void>;
@@ -56,6 +59,7 @@ describe('ConversationOrchestratorService', () => {
     enhancementEnabled: boolean;
     outputMode: string;
     silenceThresholdMs: number;
+    bargeInEnabled: boolean;
   }
 
   let currentSettings: ISpeechSettings;
@@ -70,13 +74,17 @@ describe('ConversationOrchestratorService', () => {
       enhancementEnabled: true,
       outputMode: 'both',
       silenceThresholdMs: 1500,
+      bargeInEnabled: false,
     };
 
     mockAudioCapture = {
       start: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn(),
       setSilenceThresholdMs: vi.fn(),
+      setVadThresholdMultiplier: vi.fn(),
+      clearRecording: vi.fn(),
       isCapturing: vi.fn(() => false),
+      isSpeechDetected: vi.fn(() => false),
       audioChunk$: new Subject(),
       silenceDetected$: new Subject(),
       speechStarted$: new Subject(),
@@ -635,6 +643,147 @@ describe('ConversationOrchestratorService', () => {
     expect(service.isPlanning()).toBe(true);
     service.endSession();
     expect(service.isPlanning()).toBe(false);
+  });
+
+  // --- Barge-in (voice interruption during playback) ---
+
+  const makeCallbacks = (): ConversationCallbacks => {
+    let inputText = 'hello';
+    return {
+      getInputText: () => inputText,
+      setInputText: (text: string) => { inputText = text; },
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      getAbortController: () => null,
+      detectChanges: vi.fn(),
+      isTextProcessing: signal(false),
+    };
+  };
+
+  it('Barge-in 1: disabled (default) → microphone is NOT restarted after silence', async () => {
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+    expect(mockAudioCapture.start).toHaveBeenCalledTimes(1);
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Processing);
+    expect(mockAudioCapture.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('Barge-in 2: enabled → monitor restarts the microphone with a raised VAD threshold', async () => {
+    currentSettings = { ...currentSettings, bargeInEnabled: true };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Processing);
+    expect(mockAudioCapture.setVadThresholdMultiplier).toHaveBeenCalledWith(2.5);
+    expect(mockAudioCapture.start).toHaveBeenCalledTimes(2);
+  });
+
+  it('Barge-in 3: sustained speech during SPEAKING interrupts playback and returns to LISTENING', async () => {
+    currentSettings = { ...currentSettings, bargeInEnabled: true };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    mockAudioCapture.isCapturing.mockReturnValue(true);
+    mockAudioCapture.isSpeechDetected.mockReturnValue(true);
+    mockAudioCapture.clearRecording.mockClear();
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(400);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockAudioQueue.stop).toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(mockAudioCapture.setVadThresholdMultiplier).toHaveBeenLastCalledWith(1);
+    expect(mockAudioCapture.clearRecording).not.toHaveBeenCalled();
+  });
+
+  it('Barge-in 4: short blip (speech ended before the confirmation timer) does NOT interrupt', async () => {
+    currentSettings = { ...currentSettings, bargeInEnabled: true };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    service.onStreamContent('Hello world. This is Klacksy.');
+    expect(service.state()).toBe(ConversationState.Speaking);
+
+    mockAudioCapture.isCapturing.mockReturnValue(true);
+    mockAudioCapture.isSpeechDetected.mockReturnValue(false);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(400);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockAudioQueue.stop).not.toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Speaking);
+  });
+
+  it('Barge-in 5: speech start while LISTENING never schedules an interrupt', async () => {
+    currentSettings = { ...currentSettings, bargeInEnabled: true };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+    expect(service.state()).toBe(ConversationState.Listening);
+
+    mockAudioCapture.isCapturing.mockReturnValue(true);
+    mockAudioCapture.isSpeechDetected.mockReturnValue(true);
+
+    vi.useFakeTimers();
+    try {
+      mockAudioCapture.speechStarted$.next();
+      await vi.advanceTimersByTimeAsync(400);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(mockAudioQueue.stop).not.toHaveBeenCalled();
+    expect(service.state()).toBe(ConversationState.Listening);
+  });
+
+  it('Barge-in 6: normal playback end resets the VAD multiplier and discards monitor audio', async () => {
+    currentSettings = { ...currentSettings, bargeInEnabled: true };
+
+    service.initialize(makeCallbacks(), 'de');
+    await service.toggleVoiceMode();
+
+    mockAudioCapture.silenceDetected$.next();
+    await flushPromises();
+
+    service.onStreamContent('Hi there.');
+    await flushPromises();
+    service.onStreamDone();
+    await flushPromises();
+
+    mockAudioQueue.playbackFinished$.next();
+    await flushPromises();
+
+    expect(service.state()).toBe(ConversationState.Listening);
+    expect(mockAudioCapture.setVadThresholdMultiplier).toHaveBeenLastCalledWith(1);
+    expect(mockAudioCapture.clearRecording).toHaveBeenCalled();
   });
 });
 

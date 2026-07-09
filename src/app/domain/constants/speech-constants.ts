@@ -8,6 +8,11 @@ export class SttEngine {
   static readonly Deepgram = 'deepgram';
   static readonly GroqWhisper = 'groq-whisper';
   static readonly AssemblyAi = 'assemblyai';
+  static readonly CustomPrefix = 'custom:';
+
+  static isCustom(engine: string): boolean {
+    return engine.startsWith(SttEngine.CustomPrefix);
+  }
 }
 
 export class TtsProvider {
@@ -45,6 +50,8 @@ export class SpeechDefaults {
   static readonly SampleRate = 16000;
   static readonly ChannelCount = 1;
   static readonly AudioProcessorBufferSize = 4096;
+  static readonly BargeInMinSpeechDurationMs = 400;
+  static readonly BargeInVadThresholdMultiplier = 2.5;
 }
 
 export class NonSpeechDefaults {

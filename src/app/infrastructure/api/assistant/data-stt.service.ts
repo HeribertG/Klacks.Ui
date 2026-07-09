@@ -10,6 +10,7 @@ import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const STT_TEST_ENDPOINT = 'stt/test';
 const STT_PROVIDERS_ENDPOINT = 'stt/providers';
+const STT_CUSTOM_PROVIDERS_ENDPOINT = 'stt/providers/custom';
 const STT_TRANSCRIBE_ENDPOINT = 'stt/transcribe';
 const WAV_CONTENT_TYPE = 'audio/wav';
 
@@ -20,6 +21,16 @@ export interface SttTestResult {
 
 export interface SttProviderInfo {
   providerId: string;
+}
+
+export interface CustomSttProviderInfo {
+  id: string;
+  name: string;
+  connectionType: string;
+  apiUrl: string;
+  languageModel: string | null;
+  isEnabled: boolean;
+  isSystem: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,6 +96,24 @@ export class DataSttService {
 
       if (!response.ok) return [];
       return (await response.json()) as SttProviderInfo[];
+    } catch {
+      return [];
+    }
+  }
+
+  async getCustomProviders(): Promise<CustomSttProviderInfo[]> {
+    const token = localStorage.getItem(StorageKeys.TOKEN);
+
+    try {
+      const response = await fetch(`${this.baseUrl}${STT_CUSTOM_PROVIDERS_ENDPOINT}`, {
+        method: 'GET',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) return [];
+      return (await response.json()) as CustomSttProviderInfo[];
     } catch {
       return [];
     }

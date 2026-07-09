@@ -54,7 +54,7 @@ describe('AssistantSpeechSettingsComponent (dictionary Signal Forms array)', () 
           },
         },
         { provide: ToastShowService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
-        { provide: DataSttService, useValue: { testConnection: vi.fn() } },
+        { provide: DataSttService, useValue: { testConnection: vi.fn(), getCustomProviders: vi.fn().mockResolvedValue([]) } },
         { provide: DataTtsService, useValue: { getVoices: vi.fn().mockResolvedValue([]) } },
         {
           provide: DataAssistantService,

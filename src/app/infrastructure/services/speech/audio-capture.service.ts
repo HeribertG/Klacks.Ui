@@ -5,6 +5,7 @@
  * and emits PCM audio chunks for streaming to the STT service.
  * @param silenceThresholdMs - Duration of silence before emitting silence-detected event
  * @param audioChunk$ - Observable of PCM audio chunks (ArrayBuffer, Int16 samples)
+ * @param vadThresholdMultiplier - Factor applied to the base VAD threshold (raised during barge-in monitoring to reject TTS echo)
  */
 import { inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -24,9 +25,11 @@ export class AudioCaptureService implements OnDestroy {
 
   private audioContext: AudioContext | null = null;
   private mediaStream: MediaStream | null = null;
+  private startPromise: Promise<void> | null = null;
   private workletNode: ScriptProcessorNode | null = null;
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly vadThreshold = SpeechDefaults.VadThreshold;
+  private vadThresholdMultiplier = 1;
   private readonly micSelection = inject(MicrophoneSelectionService);
   private recordedPcm: Int16Array[] = [];
   private debugRmsLogCounter = 0;
@@ -36,12 +39,28 @@ export class AudioCaptureService implements OnDestroy {
     this.silenceThresholdMs.set(ms);
   }
 
+  setVadThresholdMultiplier(multiplier: number): void {
+    this.vadThresholdMultiplier = multiplier;
+  }
+
+  clearRecording(): void {
+    this.recordedPcm = [];
+  }
+
   async start(): Promise<void> {
     if (this.isCapturing()) {
       console.log('[VS] audio-capture already capturing, noop');
       return;
     }
+    if (this.startPromise) {
+      return this.startPromise;
+    }
 
+    this.startPromise = this.doStart().finally(() => (this.startPromise = null));
+    return this.startPromise;
+  }
+
+  private async doStart(): Promise<void> {
     console.log('[VS] audio-capture start, selectedDeviceId=', this.micSelection.selectedDeviceId());
     this.mediaStream = await this.acquireStream(this.micSelection.selectedDeviceId());
     console.log('[VS] stream acquired, tracks=', this.mediaStream.getTracks().map(t => ({ label: t.label, enabled: t.enabled, muted: t.muted })));
@@ -136,12 +155,13 @@ export class AudioCaptureService implements OnDestroy {
       sumSquares += sample * sample;
     }
     const rms = Math.sqrt(sumSquares / float32Data.length);
-    const hasSpeech = rms > this.vadThreshold;
+    const effectiveThreshold = this.vadThreshold * this.vadThresholdMultiplier;
+    const hasSpeech = rms > effectiveThreshold;
 
     if (rms > this.debugMaxRms) this.debugMaxRms = rms;
     this.debugRmsLogCounter++;
     if (this.debugRmsLogCounter % 20 === 0) {
-      console.log('[VS] VAD tick: rms=', rms.toFixed(5), 'max=', this.debugMaxRms.toFixed(5), 'threshold=', this.vadThreshold, 'speech=', this.isSpeechDetected());
+      console.log('[VS] VAD tick: rms=', rms.toFixed(5), 'max=', this.debugMaxRms.toFixed(5), 'threshold=', effectiveThreshold, 'speech=', this.isSpeechDetected());
     }
 
     if (hasSpeech) {

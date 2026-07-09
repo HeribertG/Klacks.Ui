@@ -4,6 +4,8 @@
  * State machine orchestrating the voice conversation lifecycle.
  * States: IDLE → LISTENING → ENHANCING → PROCESSING → SPEAKING → LISTENING (loop).
  * Replaces VoiceModeService with deterministic state transitions and interrupt support.
+ * With barge-in enabled, the microphone keeps monitoring during PROCESSING/SPEAKING
+ * (raised VAD threshold) and sustained user speech interrupts playback.
  * @param state - Current state of the conversation (signal)
  * @param voiceModeEnabled - Whether voice mode is active
  * @param interimText - Live transcription preview while user speaks
@@ -126,6 +128,8 @@ export class ConversationOrchestratorService implements OnDestroy {
   private locale = SpeechDefaults.Locale;
   private synthesisChain: Promise<void> = Promise.resolve();
   private autoSpeakStreaming = false;
+  private bargeInCandidateTimer: ReturnType<typeof setTimeout> | null = null;
+  private bargeInTriggered = false;
 
   initialize(callbacks: ConversationCallbacks, locale: string): void {
     console.log('[VS] orchestrator.initialize called, locale=', locale);
@@ -142,6 +146,10 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.audioCapture.silenceDetected$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.ngZone.run(() => this.onSilenceDetected()));
+
+    this.audioCapture.speechStarted$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.ngZone.run(() => this.onSpeechStarted()));
 
     this.sttStream.transcript$
       .pipe(takeUntil(this.destroy$))
@@ -368,6 +376,9 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.voiceModeEnabled.set(false);
     this.autoSpeakStreaming = false;
     this.isPlanningSignal.set(false);
+    this.clearBargeInCandidateTimer();
+    this.bargeInTriggered = false;
+    this.audioCapture.setVadThresholdMultiplier(1);
     this.audioQueue.stop();
     this.audioCapture.stop();
     this.sttStream.disconnect();
@@ -381,6 +392,13 @@ export class ConversationOrchestratorService implements OnDestroy {
   private async transitionToListening(): Promise<void> {
     console.log('[VS] transitionToListening, voiceModeEnabled=', this.voiceModeEnabled());
     if (!this.voiceModeEnabled()) return;
+
+    this.clearBargeInCandidateTimer();
+    this.audioCapture.setVadThresholdMultiplier(1);
+    if (!this.bargeInTriggered) {
+      this.audioCapture.clearRecording();
+    }
+    this.bargeInTriggered = false;
 
     this.state.set(ConversationState.Listening);
     this.interimText.set('');
@@ -421,11 +439,12 @@ export class ConversationOrchestratorService implements OnDestroy {
 
   /**
    * Engines that capture the full utterance and transcribe a single blob (local Whisper
-   * or a buffered server REST provider) instead of streaming over a WebSocket.
+   * or a buffered server REST provider, including custom self-hosted providers)
+   * instead of streaming over a WebSocket.
    * @param engine - The configured STT engine identifier
    */
   private usesBlobStt(engine: string): boolean {
-    return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper;
+    return engine === SttEngine.Browser || engine === SttEngine.GroqWhisper || SttEngine.isCustom(engine);
   }
 
   private async onSilenceDetected(): Promise<void> {
@@ -489,7 +508,62 @@ export class ConversationOrchestratorService implements OnDestroy {
     this.sentenceBuffer = '';
     this.pendingSentences = [];
     this.synthesisChain = Promise.resolve();
+    void this.startBargeInMonitorIfEnabled();
     await this.callbacks?.sendMessage();
+  }
+
+  /**
+   * Keep the microphone open during PROCESSING/SPEAKING with a raised VAD threshold
+   * so the user can interrupt Klacksy by simply talking over the answer. The captured
+   * chunks are not forwarded to STT while monitoring; on a confirmed barge-in the
+   * recorded PCM is preserved so blob STT keeps the start of the user's sentence.
+   */
+  private async startBargeInMonitorIfEnabled(): Promise<void> {
+    if (!this.voiceModeEnabled() || !this.settings.speechSettings().bargeInEnabled) return;
+
+    this.audioCapture.setVadThresholdMultiplier(SpeechDefaults.BargeInVadThresholdMultiplier);
+    try {
+      await this.audioCapture.start();
+      console.log('[VS] barge-in monitor active');
+    } catch (err) {
+      console.warn('[VS] barge-in monitor could not start microphone', err);
+      this.audioCapture.setVadThresholdMultiplier(1);
+    }
+  }
+
+  private onSpeechStarted(): void {
+    if (!this.isBargeInWatching()) return;
+
+    this.clearBargeInCandidateTimer();
+    this.bargeInCandidateTimer = setTimeout(
+      () => this.ngZone.run(() => this.confirmBargeIn()),
+      SpeechDefaults.BargeInMinSpeechDurationMs,
+    );
+  }
+
+  private confirmBargeIn(): void {
+    this.bargeInCandidateTimer = null;
+    if (!this.isBargeInWatching() || !this.audioCapture.isSpeechDetected()) return;
+
+    console.log('[VS] BARGE-IN: sustained speech during playback, interrupting');
+    this.bargeInTriggered = true;
+    this.interrupt();
+  }
+
+  private isBargeInWatching(): boolean {
+    return (
+      this.voiceModeEnabled() &&
+      this.settings.speechSettings().bargeInEnabled &&
+      this.audioCapture.isCapturing() &&
+      (this.state() === ConversationState.Processing || this.state() === ConversationState.Speaking)
+    );
+  }
+
+  private clearBargeInCandidateTimer(): void {
+    if (this.bargeInCandidateTimer) {
+      clearTimeout(this.bargeInCandidateTimer);
+      this.bargeInCandidateTimer = null;
+    }
   }
 
   private extractSentences(): string[] {

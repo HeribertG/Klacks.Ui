@@ -1270,6 +1270,7 @@
   "setting.speech.stt-test-success": "Connection successful",
   "setting.speech.stt-test-failed": "Connection failed",
   "setting.speech.enhancement-enabled": "LLM text enhancement enabled",
+  "setting.speech.stt-custom-server": "Custom STT server (configured server-side)",
   "setting.speech.barge-in-enabled": "Voice interruption (barge-in) enabled",
   "setting.speech.barge-in-hint": "In voice mode the microphone stays open while Klacksy answers: talking over the answer stops playback. Works best with a headset or streaming recognition (Deepgram/AssemblyAI).",
   "setting.speech.tts-provider": "TTS Provider",

@@ -21,6 +21,11 @@
               {{ provider.labelKey | translate }}
             </option>
           }
+          @for (provider of customSttProviders(); track provider.value) {
+            <option [value]="provider.value">
+              {{ provider.label }}
+            </option>
+          }
         </select>
       </div>
 
@@ -47,7 +52,7 @@
 
     @if (sttEngine !== SttEngine.Browser || ttsProvider !== TtsProvider.Edge) {
       <div class="row-line">
-        @if (sttEngine !== SttEngine.Browser) {
+        @if (sttEngine !== SttEngine.Browser && !isCustomStt()) {
           <div class="form-group firstColumn">
             <label for="sttApiKey"
               >{{ "setting.speech.stt-apikey" | translate }}
@@ -66,6 +71,19 @@
                 (ngModelChange)="onSettingChanged()"
                 [placeholder]="sttApiKeyConfigured ? '••••••••' : ''"
               />
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                (click)="testSttConnection()"
+              >
+                {{ "setting.speech.stt-test" | translate }}
+              </button>
+            </div>
+          </div>
+        } @else if (isCustomStt()) {
+          <div class="form-group firstColumn">
+            <label>{{ "setting.speech.stt-custom-server" | translate }}</label>
+            <div class="input-with-button">
               <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"
@@ -284,6 +302,22 @@
           />
           {{ "setting.speech.enhancement-enabled" | translate }}
         </label>
+      </div>
+
+      <div class="form-group secondColumn">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="bargeInEnabled"
+            (ngModelChange)="onSettingChanged()"
+          />
+          {{ "setting.speech.barge-in-enabled" | translate }}
+        </label>
+        @if (bargeInEnabled) {
+          <div class="prompt-hint">
+            {{ "setting.speech.barge-in-hint" | translate }}
+          </div>
+        }
       </div>
     </div>
 

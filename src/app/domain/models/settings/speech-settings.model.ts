@@ -11,6 +11,7 @@
  * @param enhancementEnabled - Whether transcription enhancement is active
  * @param outputMode - How Klacksy responses are presented: text, audio, or both
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
+ * @param bargeInEnabled - Whether the microphone stays open during TTS playback so the user can interrupt by speaking
  */
 import { SttEngine, TtsProvider, OutputMode, VoiceId, SpeechDefaults } from 'src/app/domain/constants/speech-constants';
 
@@ -25,6 +26,7 @@ export interface ISpeechSettings {
   enhancementEnabled: boolean;
   outputMode: string;
   silenceThresholdMs: number;
+  bargeInEnabled: boolean;
 }
 
 export function createEmptySttApiKeys(): Record<string, string> {
@@ -54,4 +56,5 @@ export class SpeechSettings implements ISpeechSettings {
   enhancementEnabled = true;
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
+  bargeInEnabled = false;
 }

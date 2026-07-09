@@ -1270,6 +1270,7 @@
   "setting.speech.stt-test-success": "Connexion réussie",
   "setting.speech.stt-test-failed": "Échec de la connexion",
   "setting.speech.enhancement-enabled": "Amélioration du texte par LLM activée",
+  "setting.speech.stt-custom-server": "Serveur STT personnalisé (configuré côté serveur)",
   "setting.speech.barge-in-enabled": "Interruption vocale (barge-in) activée",
   "setting.speech.barge-in-hint": "En mode vocal, le microphone reste ouvert pendant la réponse : parler par-dessus arrête la lecture. Fonctionne le mieux avec un casque ou la reconnaissance en continu (Deepgram/AssemblyAI).",
   "setting.speech.tts-provider": "Fournisseur de synthèse vocale",

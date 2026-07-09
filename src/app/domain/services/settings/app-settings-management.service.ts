@@ -161,6 +161,7 @@ export class AppSettingsManagementService {
     [AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, (v, m) => (m.speech.enhancementEnabled = v === 'true')],
     [AppSetting.ASSISTANT_OUTPUT_MODE, (v, m) => (m.speech.outputMode = v)],
     [AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, (v, m) => (m.speech.silenceThresholdMs = parseInt(v, 10) || 1500)],
+    [AppSetting.ASSISTANT_BARGE_IN_ENABLED, (v, m) => (m.speech.bargeInEnabled = v === 'true')],
 
     [AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, (v, m) => (m.holisticHarmonizer.llmModelId = v)],
 
@@ -439,6 +440,7 @@ export class AppSettingsManagementService {
     { key: AppSetting.ASSISTANT_ENHANCEMENT_ENABLED, getCurrent: () => String(this.speechSettings().enhancementEnabled), getOriginal: () => String(this.speechSettingsOriginal().enhancementEnabled) },
     { key: AppSetting.ASSISTANT_OUTPUT_MODE, getCurrent: () => this.speechSettings().outputMode, getOriginal: () => this.speechSettingsOriginal().outputMode },
     { key: AppSetting.ASSISTANT_SILENCE_THRESHOLD_MS, getCurrent: () => String(this.speechSettings().silenceThresholdMs), getOriginal: () => String(this.speechSettingsOriginal().silenceThresholdMs) },
+    { key: AppSetting.ASSISTANT_BARGE_IN_ENABLED, getCurrent: () => String(this.speechSettings().bargeInEnabled), getOriginal: () => String(this.speechSettingsOriginal().bargeInEnabled) },
 
     { key: AppSetting.HOLISTIC_HARMONIZER_LLM_MODEL, getCurrent: () => this.holisticHarmonizerSettings().llmModelId, getOriginal: () => this.holisticHarmonizerSettingsOriginal().llmModelId },
 

@@ -10,6 +10,7 @@
  * @param enhancementEnabled - Whether transcription enhancement is active
  * @param outputMode - Selected output mode (text, audio, or both)
  * @param silenceThresholdMs - Silence duration in milliseconds before auto-send
+ * @param bargeInEnabled - Whether the microphone stays open during voice playback so speaking interrupts Klacksy
  */
 import {
   Component,
@@ -115,6 +116,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   enhancementEnabled = true;
   outputMode = OutputMode.Both;
   silenceThresholdMs = SpeechDefaults.SilenceThresholdMs;
+  bargeInEnabled = false;
 
   readonly silenceOptions: Options = {
     floor: 500,
@@ -134,6 +136,8 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     { value: SttEngine.GroqWhisper, labelKey: 'setting.speech.stt-groq' },
     { value: SttEngine.AssemblyAi, labelKey: 'setting.speech.stt-assemblyai' },
   ];
+
+  readonly customSttProviders = signal<{ value: string; label: string }[]>([]);
 
   readonly ttsProviders = [
     { value: TtsProvider.Edge, labelKey: 'setting.speech.tts-edge' },
@@ -166,10 +170,12 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.enhancementEnabled = speech.enhancementEnabled;
     this.outputMode = speech.outputMode;
     this.silenceThresholdMs = speech.silenceThresholdMs;
+    this.bargeInEnabled = speech.bargeInEnabled;
     this.isInitialized = true;
     this.transcriptionPrompt = speech.transcriptionPrompt;
 
     await this.loadVoices(this.ttsProvider);
+    await this.loadCustomSttProviders();
 
     try {
       const models = await firstValueFrom(
@@ -194,6 +200,22 @@ export class AssistantSpeechSettingsComponent implements OnInit {
   onEngineChanged(): void {
     this.applyEngineKeyToField();
     this.onSettingChanged();
+  }
+
+  isCustomStt(): boolean {
+    return SttEngine.isCustom(this.sttEngine);
+  }
+
+  private async loadCustomSttProviders(): Promise<void> {
+    const providers = await this.dataSttService.getCustomProviders();
+    this.customSttProviders.set(
+      providers
+        .filter((p) => p.isEnabled)
+        .map((p) => ({
+          value: `${SttEngine.CustomPrefix}${p.id}`,
+          label: p.name,
+        })),
+    );
   }
 
   async onTtsProviderChange(): Promise<void> {
@@ -236,6 +258,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
       enhancementEnabled: this.enhancementEnabled,
       outputMode: this.outputMode,
       silenceThresholdMs: this.silenceThresholdMs,
+      bargeInEnabled: this.bargeInEnabled,
     });
   }
 
