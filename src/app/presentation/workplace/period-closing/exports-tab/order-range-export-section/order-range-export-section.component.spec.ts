@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { OrderRangeExportSectionComponent } from './order-range-export-section.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
 import { ISealedOrderDetails } from 'src/app/infrastructure/api/period-closing/models/sealed-order-details';
 import { ISealedOrderWorkEntry } from 'src/app/infrastructure/api/period-closing/models/sealed-order-work-entry';
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
@@ -74,6 +75,9 @@ describe('OrderRangeExportSectionComponent', () => {
     getSealedOrderDetails: ReturnType<typeof vi.fn>;
     downloadOrderRangeExport: ReturnType<typeof vi.fn>;
   };
+  let exportFormatsApi: {
+    getFormats: ReturnType<typeof vi.fn>;
+  };
   let toastShowService: {
     showInfo: ReturnType<typeof vi.fn>;
     showSuccess: ReturnType<typeof vi.fn>;
@@ -100,6 +104,15 @@ describe('OrderRangeExportSectionComponent', () => {
       showSuccess: vi.fn(),
       showError: vi.fn(),
     };
+    exportFormatsApi = {
+      getFormats: vi.fn().mockReturnValue(
+        of([
+          { key: 'csv', fixed: true, enabled: true },
+          { key: 'json', fixed: true, enabled: true },
+          { key: 'xml', fixed: true, enabled: true },
+        ]),
+      ),
+    };
     window.URL.createObjectURL = vi.fn().mockReturnValue('blob:url');
     window.URL.revokeObjectURL = vi.fn();
 
@@ -107,6 +120,7 @@ describe('OrderRangeExportSectionComponent', () => {
       imports: [OrderRangeExportSectionComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DataPeriodClosingService, useValue: api },
+        { provide: DataExportFormatsService, useValue: exportFormatsApi },
         { provide: ToastShowService, useValue: toastShowService },
       ],
     });

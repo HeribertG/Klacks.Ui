@@ -57,6 +57,7 @@ import { KlacksyAutonomySettingsComponent } from '../klacksy-autonomy-settings/k
 import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.component';
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
+import { ExportFormatsSettingComponent } from '../export-formats-setting/export-formats-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
@@ -120,6 +121,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     WizardSettingsComponent,
     CalendarSelectionComponent,
     DataRetentionSettingComponent,
+    ExportFormatsSettingComponent,
     UpdatesSettingComponent,
     QualificationsComponent,
     PersonalAccessTokensComponent,

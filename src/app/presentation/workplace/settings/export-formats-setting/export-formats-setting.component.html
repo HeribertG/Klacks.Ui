@@ -1,0 +1,29 @@
+<div id="export-formats-setting-container" class="container-dashboard">
+  <div id="export-formats-setting-header" class="container-header">{{ 'settings.exportFormats.title' | translate }}</div>
+
+  <div id="export-formats-setting-line" class="container-line"></div>
+
+  @if (isDataLoaded()) {
+  <div id="export-formats-setting-body">
+    <div class="info-text">{{ 'settings.exportFormats.description' | translate }}</div>
+
+    @for (format of formats(); track format.key) {
+    <div class="export-format-row">
+      <label class="export-format-label">
+        <input
+          type="checkbox"
+          [checked]="format.enabled"
+          [disabled]="format.fixed"
+          (change)="toggle(format)"
+          [attr.aria-label]="labelKey(format.key) | translate"
+        />
+        <span>{{ labelKey(format.key) | translate }}</span>
+        @if (format.fixed) {
+        <span class="export-format-fixed-hint">{{ 'settings.exportFormats.fixed' | translate }}</span>
+        }
+      </label>
+    </div>
+    }
+  </div>
+  }
+</div>

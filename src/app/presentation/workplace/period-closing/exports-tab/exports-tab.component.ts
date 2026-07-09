@@ -13,7 +13,7 @@
  * @param activeTab - Which of the three export tabs is currently visible
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,6 +23,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
 import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
 import {
@@ -37,7 +38,7 @@ import {
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
 import { OrderRangeExportSectionComponent } from './order-range-export-section/order-range-export-section.component';
-import { DEFAULT_EXPORT_FORMAT, EXPORT_FORMAT_OPTIONS } from './export-format-options.constants';
+import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from './export-format-options.constants';
 
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
 
@@ -60,8 +61,9 @@ const DEFAULT_EXPORTS_TAB: ExportsTab = 'single';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExportsTabComponent {
+export class ExportsTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
+  private exportFormatsApi = inject(DataExportFormatsService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -82,7 +84,32 @@ export class ExportsTabComponent {
   public clientExportUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
   public clientExportBusy = signal<boolean>(false);
 
-  public readonly formats = EXPORT_FORMAT_OPTIONS;
+  public formats = signal<ExportFormatOption[]>([
+    { key: DEFAULT_EXPORT_FORMAT, labelKey: `${FORMAT_LABEL_PREFIX}${DEFAULT_EXPORT_FORMAT}` },
+  ]);
+
+  ngOnInit(): void {
+    this.exportFormatsApi.getFormats().subscribe({
+      next: (list) => {
+        const enabled = list.filter((f) => f.enabled);
+        this.formats.set(
+          enabled.map((f) => ({
+            key: f.key as ExportFormat,
+            labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
+          })),
+        );
+        if (!enabled.some((f) => f.key === this.format())) {
+          const fallback = enabled[0]?.key as ExportFormat | undefined;
+          if (fallback) {
+            this.format.set(fallback);
+          }
+        }
+      },
+      error: () => {
+        // Keep the built-in default format option if the backend call fails.
+      },
+    });
+  }
 
   public selectedOrder = computed<SealedOrderListItem | null>(() => {
     const id = this.selectedOrderId();

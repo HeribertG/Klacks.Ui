@@ -19,6 +19,7 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
+import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
 import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
 import { ISealedOrderDetails } from 'src/app/infrastructure/api/period-closing/models/sealed-order-details';
 import { ISealedOrderWorkEntry } from 'src/app/infrastructure/api/period-closing/models/sealed-order-work-entry';
@@ -34,7 +35,7 @@ import {
   extractFileNameFromContentDisposition,
   triggerBlobDownload,
 } from 'src/app/shared/helpers/file-download.helper';
-import { DEFAULT_EXPORT_FORMAT, EXPORT_FORMAT_OPTIONS } from '../export-format-options.constants';
+import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from '../export-format-options.constants';
 
 type WorkEntryStatus = 'exportable' | 'periodOpen' | 'notClosed';
 
@@ -64,6 +65,7 @@ const FIRST_PAGE = 1;
 })
 export class OrderRangeExportSectionComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
+  private exportFormatsApi = inject(DataExportFormatsService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -89,7 +91,9 @@ export class OrderRangeExportSectionComponent implements OnInit {
 
   public readonly emptyPlaceholder = EMPTY_VALUE_PLACEHOLDER;
 
-  public readonly formats = EXPORT_FORMAT_OPTIONS;
+  public formats = signal<ExportFormatOption[]>([
+    { key: DEFAULT_EXPORT_FORMAT, labelKey: `${FORMAT_LABEL_PREFIX}${DEFAULT_EXPORT_FORMAT}` },
+  ]);
 
   public readonly statusMeta: Record<WorkEntryStatus, { cssClass: string; labelKey: string }> = {
     exportable: { cssClass: 'status-exportable',  labelKey: 'periodClosing.rangeExport.status.exportable' },
@@ -99,6 +103,30 @@ export class OrderRangeExportSectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.reloadOrders();
+    this.loadFormats();
+  }
+
+  private loadFormats(): void {
+    this.exportFormatsApi.getFormats().subscribe({
+      next: (list) => {
+        const enabled = list.filter((f) => f.enabled);
+        this.formats.set(
+          enabled.map((f) => ({
+            key: f.key as ExportFormat,
+            labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
+          })),
+        );
+        if (!enabled.some((f) => f.key === this.format())) {
+          const fallback = enabled[0]?.key as ExportFormat | undefined;
+          if (fallback) {
+            this.format.set(fallback);
+          }
+        }
+      },
+      error: () => {
+        // Keep the built-in default format option if the backend call fails.
+      },
+    });
   }
 
   reloadOrders(): void {

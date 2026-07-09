@@ -29,7 +29,7 @@
         class="form-select form-select-sm"
         [ngModel]="format()"
         (ngModelChange)="format.set($event)">
-        @for (f of formats; track f.key) {
+        @for (f of formats(); track f.key) {
           <option [value]="f.key">{{ f.labelKey | translate }}</option>
         }
       </select>
