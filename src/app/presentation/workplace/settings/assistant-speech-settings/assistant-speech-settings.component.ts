@@ -23,7 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataSttService } from 'src/app/infrastructure/api/assistant/data-stt.service';
@@ -90,6 +90,7 @@ export class AssistantSpeechSettingsComponent implements OnInit {
 
   private static readonly MinContextWindowForSpeech = 16000;
   private static readonly RecommendedCount = 3;
+  private static readonly ModelCheckClientTimeoutMs = 90000;
 
   readonly modelCheckResults = signal<ISpeechModelCheckDto[]>([]);
   readonly isCheckingModels = signal(false);
@@ -398,7 +399,11 @@ export class AssistantSpeechSettingsComponent implements OnInit {
     this.recommendedModelIds.set(new Set<string>());
     try {
       const response = await firstValueFrom(
-        this.dataAssistantService.checkSpeechModels(),
+        this.dataAssistantService
+          .checkSpeechModels()
+          .pipe(
+            timeout(AssistantSpeechSettingsComponent.ModelCheckClientTimeoutMs),
+          ),
       );
       const sorted = this.sortModelsByScore(response.models);
       this.modelCheckResults.set(sorted);

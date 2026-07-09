@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { StorageKeys } from 'src/app/domain/constants/storage-keys';
 
 const TRANSCRIPTION_ENDPOINT = 'transcription/enhance';
+const ENHANCE_TIMEOUT_MS = 15000;
 
 @Injectable({ providedIn: 'root' })
 export class DataTranscriptionService {
@@ -26,6 +27,7 @@ export class DataTranscriptionService {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ rawText, locale, modelId }),
+        signal: AbortSignal.timeout(ENHANCE_TIMEOUT_MS),
       });
 
       if (!response.ok) {
