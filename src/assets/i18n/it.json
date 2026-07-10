@@ -2013,6 +2013,8 @@
   "settings.exportFormats.description": "Scegli quali formati di esportazione e paghe per paese aggiuntivi sono disponibili. CSV, JSON e XML sono sempre disponibili. Un formato paghe disabilitato non esporta nulla anche se un gruppo vi è configurato.",
   "settings.exportFormats.fixed": "sempre attivo",
   "settings.exportFormats.saved": "Formati di esportazione salvati.",
+  "settings.exportFormats.slotOrders": "Ordini",
+  "settings.exportFormats.slotPayroll": "Paghe (dati di movimento)",
   "settings.work.payment-interval-locked": "Non può essere modificato perché esistono già contratti",
   "settings.llm-providers.title": "Fornitori LLM",
   "settings.llm-providers.header.name": "Fornitori",

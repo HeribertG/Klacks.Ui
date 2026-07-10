@@ -172,6 +172,18 @@
           (valueChange)="clientExportUntil.set($event ?? null)">
         </app-date-input>
       </div>
+      <div class="filter-field">
+        <label class="form-label" for="clientExportFormat">{{ 'periodClosing.form.format' | translate }}</label>
+        <select
+          id="clientExportFormat"
+          class="form-select form-select-sm"
+          [ngModel]="clientExportFormat()"
+          (ngModelChange)="clientExportFormat.set($event)">
+          @for (f of clientExportFormats(); track f.key) {
+            <option [value]="f.key">{{ f.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
       <div class="filter-field filter-action">
         <button
           type="button"

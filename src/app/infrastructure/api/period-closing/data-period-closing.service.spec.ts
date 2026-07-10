@@ -84,6 +84,7 @@ describe('DataPeriodClosingService', () => {
             untilDate: '2026-01-31',
             language: 'de',
             currencyCode: 'EUR',
+            format: 'xml',
         };
         service.downloadClientPeriodExport(req).subscribe();
         const flush = httpMock.expectOne(`${environment.baseUrl}ClientPeriodExport`);

@@ -2013,6 +2013,8 @@
   "settings.exportFormats.description": "Choisissez les formats d'export et de paie par pays disponibles. CSV, JSON et XML sont toujours disponibles. Un format de paie désactivé n'exporte rien, même si un groupe y est configuré.",
   "settings.exportFormats.fixed": "toujours actif",
   "settings.exportFormats.saved": "Formats d'export enregistrés.",
+  "settings.exportFormats.slotOrders": "Commandes",
+  "settings.exportFormats.slotPayroll": "Paie (données de mouvement)",
   "settings.work.payment-interval-locked": "Ne peut pas être modifié car des contrats existent déjà",
   "settings.llm-providers.title": "Fournisseurs LLM",
   "settings.llm-providers.header.name": "Fournisseurs",

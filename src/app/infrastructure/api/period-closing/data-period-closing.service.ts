@@ -84,6 +84,7 @@ export class DataPeriodClosingService {
     untilDate: string;
     language: string;
     currencyCode: string;
+    format: string;
   }): Observable<HttpResponse<Blob>> {
     return this.httpClient.post(
       `${environment.baseUrl}ClientPeriodExport`,

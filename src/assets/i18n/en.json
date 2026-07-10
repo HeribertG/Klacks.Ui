@@ -1996,6 +1996,8 @@
   "settings.exportFormats.description": "Choose which additional export and payroll country formats are available. CSV, JSON and XML are always available. A disabled payroll format exports nothing even if a group is configured to use it.",
   "settings.exportFormats.fixed": "always on",
   "settings.exportFormats.saved": "Export formats saved.",
+  "settings.exportFormats.slotOrders": "Orders",
+  "settings.exportFormats.slotPayroll": "Payroll (Movement Data)",
   "aside.header.title": "Assistant",
   "aside.header.close": "Close assistant",
   "aside.header.clear-chat": "Clear chat",

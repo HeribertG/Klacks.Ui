@@ -4,4 +4,6 @@ export interface ExportFormatResource {
   key: string;
   fixed: boolean;
   enabled: boolean;
+  family: string;
+  brand: string;
 }

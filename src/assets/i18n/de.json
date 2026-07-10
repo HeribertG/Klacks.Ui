@@ -1996,6 +1996,8 @@
   "settings.exportFormats.description": "Wähle, welche zusätzlichen Export- und Lohn-Länder-Formate verfügbar sind. CSV, JSON und XML sind immer verfügbar. Deaktivierte Lohn-Formate exportieren nichts, auch wenn eine Gruppe darauf konfiguriert ist.",
   "settings.exportFormats.fixed": "immer aktiv",
   "settings.exportFormats.saved": "Export-Formate gespeichert.",
+  "settings.exportFormats.slotOrders": "Bestellungen",
+  "settings.exportFormats.slotPayroll": "Lohn & Gehalt (Bewegungsdaten)",
   "aside.header.title": "Assistent",
   "aside.header.close": "Assistent schließen",
   "aside.header.clear-chat": "Chat löschen",

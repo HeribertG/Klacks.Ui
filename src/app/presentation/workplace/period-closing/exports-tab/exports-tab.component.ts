@@ -83,8 +83,13 @@ export class ExportsTabComponent implements OnInit {
   public clientExportFrom = signal<NgbDateStruct | null>(firstOfMonth(-1));
   public clientExportUntil = signal<NgbDateStruct | null>(lastOfMonth(0));
   public clientExportBusy = signal<boolean>(false);
+  public clientExportFormat = signal<ExportFormat>(DEFAULT_EXPORT_FORMAT);
 
   public formats = signal<ExportFormatOption[]>([
+    { key: DEFAULT_EXPORT_FORMAT, labelKey: `${FORMAT_LABEL_PREFIX}${DEFAULT_EXPORT_FORMAT}` },
+  ]);
+
+  public clientExportFormats = signal<ExportFormatOption[]>([
     { key: DEFAULT_EXPORT_FORMAT, labelKey: `${FORMAT_LABEL_PREFIX}${DEFAULT_EXPORT_FORMAT}` },
   ]);
 
@@ -102,6 +107,19 @@ export class ExportsTabComponent implements OnInit {
           const fallback = enabled[0]?.key as ExportFormat | undefined;
           if (fallback) {
             this.format.set(fallback);
+          }
+        }
+
+        const generic = list.filter((f) => f.fixed);
+        if (generic.length > 0) {
+          this.clientExportFormats.set(
+            generic.map((f) => ({
+              key: f.key as ExportFormat,
+              labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
+            })),
+          );
+          if (!generic.some((f) => f.key === this.clientExportFormat())) {
+            this.clientExportFormat.set(generic[0].key as ExportFormat);
           }
         }
       },
@@ -225,6 +243,7 @@ export class ExportsTabComponent implements OnInit {
       untilDate,
       language: this.translate.currentLang || this.translate.defaultLang || 'de',
       currencyCode: CLIENT_EXPORT_CURRENCY_CODE,
+      format: this.clientExportFormat(),
     }).subscribe({
       next: (res) => {
         const blob = res.body;
@@ -234,7 +253,7 @@ export class ExportsTabComponent implements OnInit {
           return;
         }
         const fileName = extractFileNameFromContentDisposition(res.headers.get(CONTENT_DISPOSITION_HEADER))
-          ?? `client-period-export_${fromDate}_${untilDate}.xml`;
+          ?? `client-period-export_${fromDate}_${untilDate}.${this.clientExportFormat()}`;
         triggerBlobDownload(blob, fileName);
         const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
         const header = this.translate.instant('periodClosing.clientExport.title');

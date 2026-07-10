@@ -9,7 +9,52 @@
     {{ 'settings.exportFormats.description' | translate }}
   </div>
   <div rows>
-    @for (format of formats(); track format.key) {
+    @for (family of families(); track family.brand) {
+    @if (family.isGroup) {
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="groupChecked(family)"
+            (change)="toggleGroup(family)"
+            [attr.aria-label]="labelKey(family.brand) | translate"
+          />
+          {{ labelKey(family.brand) | translate }}
+        </label>
+      </div>
+    </div>
+    @if (family.orders; as orders) {
+    <div class="row-line-single">
+      <div class="form-group slotColumn">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="orders.enabled"
+            (change)="toggle(orders)"
+            [attr.aria-label]="'settings.exportFormats.slotOrders' | translate"
+          />
+          {{ 'settings.exportFormats.slotOrders' | translate }}
+        </label>
+      </div>
+    </div>
+    }
+    @if (family.payroll; as payroll) {
+    <div class="row-line-single">
+      <div class="form-group slotColumn">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="payroll.enabled"
+            (change)="toggle(payroll)"
+            [attr.aria-label]="'settings.exportFormats.slotPayroll' | translate"
+          />
+          {{ 'settings.exportFormats.slotPayroll' | translate }}
+        </label>
+      </div>
+    </div>
+    }
+    } @else if (family.single; as format) {
     <div class="row-line-single">
       <div class="form-group firstColumn">
         <label class="checkbox-label">
@@ -27,6 +72,7 @@
         </label>
       </div>
     </div>
+    }
     }
   </div>
 </app-settings-list-card>
