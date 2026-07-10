@@ -50,6 +50,7 @@ import { LanguagePluginsComponent } from '../language-plugins/language-plugins.c
 import { MessagingProvidersComponent, OwnerMessengersComponent } from 'klacks-plugin-messaging';
 import { FeaturePluginsComponent } from '../feature-plugins/feature-plugins.component';
 import { AssistantSpeechSettingsComponent } from '../assistant-speech-settings/assistant-speech-settings.component';
+import { WhisperPluginSettingComponent } from '../whisper-plugin-setting/whisper-plugin-setting.component';
 import { AssistantPersonalitySettingsComponent } from '../assistant-personality-settings/assistant-personality-settings.component';
 import { AssistantSkillProposalsComponent } from '../assistant-skill-proposals/assistant-skill-proposals.component';
 import { AssistantSkillRelationsComponent } from '../assistant-skill-relations/assistant-skill-relations.component';
@@ -114,6 +115,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     OwnerMessengersComponent,
     FeaturePluginsComponent,
     AssistantSpeechSettingsComponent,
+    WhisperPluginSettingComponent,
     AssistantPersonalitySettingsComponent,
     AssistantSkillProposalsComponent,
     AssistantSkillRelationsComponent,

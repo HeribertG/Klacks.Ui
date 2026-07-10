@@ -1,0 +1,85 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.actions-row {
+  margin-top: 12px;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.secondColumn {
+  margin-inline-start: 40px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-text {
+  margin-inline-start: 30px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: var(--standartTextColor);
+  font-size: 12px;
+}
+
+.hint-text {
+  color: var(--standartTextColor);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-installed {
+  color: var(--bs-success, #198754);
+}
+
+.status-failed {
+  color: var(--bs-danger, #dc3545);
+}
+
+.action-message {
+  margin-inline-start: 30px;
+  margin-top: 6px;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--standartTextColor);
+}
+
+.model-block {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--standartTextColor);
+  margin-bottom: 0;
+}
+
+.model-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--colorLabel);
+}
+
+label {
+  font-size: 12px;
+  color: var(--colorLabel);
+  margin-bottom: 0;
+}

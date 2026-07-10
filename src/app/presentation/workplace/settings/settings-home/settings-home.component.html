@@ -580,6 +580,18 @@
       >
       </app-assistant-speech-settings>
     </div>
+    <div id="settings-home-whisper-plugin-row" class="container-profilline">
+      <app-whisper-plugin-setting
+        id="settings-whisper-plugin"
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (click)="isfocused('app-whisper-plugin-setting')"
+        data-klacksy-target="whisper-plugin"
+        data-klacksy-label-key="settings.whisperPlugin"
+        data-klacksy-category="settings.ai"
+        data-klacksy-route="/workplace/settings"
+      >
+      </app-whisper-plugin-setting>
+    </div>
     <div
       id="settings-home-assistant-personality-row"
       class="container-profilline"
