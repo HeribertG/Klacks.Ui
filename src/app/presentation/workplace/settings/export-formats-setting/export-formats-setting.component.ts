@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /**
- * Settings card for choosing which optional order export formats are offered in
- * the export dropdown. csv/json/xml are fixed and always enabled; datev/bmd and
- * future country formats are toggled here and persisted as the comma-separated
+ * Settings card for choosing which optional export formats are offered, spanning both the
+ * order/Fibu family (csv/json/xml/datev/bmd/...) and the payroll/country-pack family
+ * (DATEV Lohn & Gehalt, PAXml, POHODA, ...). csv/json/xml are fixed and always enabled;
+ * every other format is toggled here and persisted as the comma-separated
  * ENABLED_EXPORT_FORMATS setting. Changes are saved immediately.
  */
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
