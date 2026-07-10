@@ -1,0 +1,87 @@
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.actions-row {
+  margin-top: 12px;
+}
+
+.firstColumn {
+  margin-inline-start: 30px;
+}
+
+.secondColumn {
+  margin-inline-start: 15px;
+}
+
+.form-block {
+  margin-top: 10px;
+  margin-inline-end: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-text {
+  margin-inline-start: 30px;
+  margin-inline-end: 30px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: var(--standartTextColor);
+  font-size: 12px;
+}
+
+.allowed-keys {
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.version-warning {
+  color: var(--bs-warning, #b58100);
+  font-weight: 600;
+}
+
+.format-select {
+  font-size: 12px;
+  max-width: 420px;
+}
+
+.patch-textarea {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--standartTextColor);
+  margin-bottom: 0;
+}
+
+.action-message {
+  margin-inline-start: 30px;
+  margin-top: 6px;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--standartTextColor);
+}
+
+.error-message {
+  color: var(--bs-danger, #dc3545);
+  font-style: normal;
+  font-weight: 600;
+}
+
+label {
+  font-size: 12px;
+  color: var(--colorLabel);
+  margin-bottom: 0;
+}

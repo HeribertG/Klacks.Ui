@@ -1,0 +1,136 @@
+<div id="export-format-overrides-setting-container" class="container-dashboard">
+  <div id="export-format-overrides-setting-header" class="container-header">
+    {{ "setting.export-format-overrides.headline" | translate }}
+  </div>
+  <div id="export-format-overrides-setting-line" class="container-line"></div>
+
+  <div class="info-text">
+    {{ "setting.export-format-overrides.description" | translate }}
+  </div>
+
+  @if (data()) {
+    <div class="form-block firstColumn">
+      <label class="field-label" for="export-format-overrides-format-select">{{
+        "setting.export-format-overrides.format-label" | translate
+      }}</label>
+      <select
+        id="export-format-overrides-format-select"
+        class="form-select format-select"
+        [ngModel]="selectedFormatKey()"
+        (ngModelChange)="onFormatSelected($event)"
+        [disabled]="busy()"
+      >
+        @for (group of formatGroups(); track group.family) {
+          <optgroup [label]="group.labelKey | translate">
+            @for (option of group.options; track option.formatKey) {
+              <option [value]="option.formatKey">{{ option.label }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+    </div>
+
+    @if (selectedFormat()) {
+      <div id="export-format-overrides-allowed-keys" class="info-text">
+        {{ "setting.export-format-overrides.allowed-keys" | translate }}
+        <span class="allowed-keys">{{ allowedKeysText() }}</span>
+      </div>
+
+      @if (versionWarning(); as warning) {
+        <div id="export-format-overrides-version-warning" class="info-text version-warning">
+          {{
+            "setting.export-format-overrides.version-warning"
+              | translate: { created: warning.created, current: warning.current }
+          }}
+        </div>
+      }
+
+      <div class="form-block firstColumn">
+        <label class="field-label" for="export-format-overrides-patch">{{
+          "setting.export-format-overrides.patch-label" | translate
+        }}</label>
+        <textarea
+          id="export-format-overrides-patch"
+          class="form-control patch-textarea"
+          rows="6"
+          [ngModel]="patchJson()"
+          (ngModelChange)="patchJson.set($event)"
+          [disabled]="busy()"
+          [placeholder]="'setting.export-format-overrides.patch-placeholder' | translate"
+        ></textarea>
+      </div>
+
+      <div class="form-block firstColumn">
+        <label class="field-label" for="export-format-overrides-note">{{
+          "setting.export-format-overrides.note-label" | translate
+        }}</label>
+        <input
+          id="export-format-overrides-note"
+          type="text"
+          class="form-control"
+          [ngModel]="note()"
+          (ngModelChange)="note.set($event)"
+          [disabled]="busy()"
+        />
+      </div>
+
+      <div class="form-block firstColumn">
+        <label class="checkbox-label">
+          <input
+            id="export-format-overrides-enabled"
+            type="checkbox"
+            [ngModel]="isEnabled()"
+            (ngModelChange)="isEnabled.set($event)"
+            [disabled]="busy()"
+          />
+          <span>{{ "setting.export-format-overrides.enabled-label" | translate }}</span>
+        </label>
+      </div>
+
+      <div class="row-line actions-row">
+        <button
+          type="button"
+          id="export-format-overrides-save-btn"
+          class="btn btn-primary firstColumn"
+          [disabled]="busy()"
+          (click)="save()"
+        >
+          {{ "setting.export-format-overrides.save" | translate }}
+        </button>
+        <button
+          type="button"
+          id="export-format-overrides-preview-btn"
+          class="btn btn-outline-secondary secondColumn"
+          [disabled]="busy()"
+          (click)="downloadPreview()"
+        >
+          {{ "setting.export-format-overrides.preview" | translate }}
+        </button>
+        @if (hasOverride()) {
+          <button
+            type="button"
+            id="export-format-overrides-delete-btn"
+            class="btn btn-outline-danger secondColumn"
+            [disabled]="busy()"
+            (click)="removeOverride()"
+          >
+            {{ "setting.export-format-overrides.delete" | translate }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (actionMessage()) {
+      <div id="export-format-overrides-action-message" class="action-message">
+        {{ actionMessage() }}
+      </div>
+    }
+    @if (errorMessage()) {
+      <div id="export-format-overrides-error-message" class="action-message error-message">
+        {{ errorMessage() }}
+      </div>
+    }
+  }
+
+  <div class="bottom-border-space"></div>
+</div>

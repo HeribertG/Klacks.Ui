@@ -59,6 +59,7 @@ import { WizardSettingsComponent } from '../wizard-settings/wizard-settings.comp
 import { CalendarSelectionComponent } from '../calendar-selection/calendar-selection.component';
 import { DataRetentionSettingComponent } from '../data-retention-setting/data-retention-setting.component';
 import { ExportFormatsSettingComponent } from '../export-formats-setting/export-formats-setting.component';
+import { ExportFormatOverridesSettingComponent } from '../export-format-overrides-setting/export-format-overrides-setting.component';
 import { UpdatesSettingComponent } from '../updates-setting/updates-setting.component';
 import { QualificationsComponent } from '../qualifications/qualifications.component';
 import { PersonalAccessTokensComponent } from '../personal-access-tokens/personal-access-tokens.component';
@@ -124,6 +125,7 @@ import { IconExpandAllGreyComponent } from 'src/app/presentation/icons/icon-expa
     CalendarSelectionComponent,
     DataRetentionSettingComponent,
     ExportFormatsSettingComponent,
+    ExportFormatOverridesSettingComponent,
     UpdatesSettingComponent,
     QualificationsComponent,
     PersonalAccessTokensComponent,
