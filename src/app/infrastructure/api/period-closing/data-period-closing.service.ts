@@ -93,6 +93,20 @@ export class DataPeriodClosingService {
     );
   }
 
+  downloadPayrollExport(request: {
+    groupId: string;
+    fromDate: string;
+    untilDate: string;
+    language: string;
+    format: string;
+  }): Observable<HttpResponse<Blob>> {
+    return this.httpClient.post(
+      `${environment.baseUrl}PayrollExport`,
+      request,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
   downloadOrderRangeExport(request: IOrderRangeExportFilter): Observable<HttpResponse<Blob>> {
     return this.httpClient.post(
       `${environment.baseUrl}OrderRangeExport`,

@@ -47,6 +47,7 @@ const EMPTY_RESPONSE_BODY_MESSAGE = 'Empty response body';
 const GENERIC_ERROR_MESSAGE = 'Error';
 const ORDERS_PAGE_SIZE = 10;
 const FIRST_PAGE = 1;
+const ORDER_FAMILY = 'order';
 
 @Component({
   selector: 'app-order-range-export-section',
@@ -109,7 +110,7 @@ export class OrderRangeExportSectionComponent implements OnInit {
   private loadFormats(): void {
     this.exportFormatsApi.getFormats().subscribe({
       next: (list) => {
-        const enabled = list.filter((f) => f.enabled);
+        const enabled = list.filter((f) => f.enabled && f.family === ORDER_FAMILY);
         this.formats.set(
           enabled.map((f) => ({
             key: f.key as ExportFormat,

@@ -24,6 +24,8 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { SearchInputComponent } from 'src/app/presentation/shared/search-input/search-input.component';
 import { DataPeriodClosingService } from 'src/app/infrastructure/api/period-closing/data-period-closing.service';
 import { DataExportFormatsService } from 'src/app/infrastructure/api/period-closing/data-export-formats.service';
+import { DataGroupService } from 'src/app/infrastructure/api/group/data-group.service';
+import { GroupFilter, IGroup } from 'src/app/domain/models/group/group-class';
 import { ExportFormat } from 'src/app/infrastructure/api/period-closing/models/export-format';
 import { SealedOrderListItem } from 'src/app/infrastructure/api/period-closing/models/sealed-order-list-item';
 import {
@@ -41,6 +43,9 @@ import { OrderRangeExportSectionComponent } from './order-range-export-section/o
 import { DEFAULT_EXPORT_FORMAT, FORMAT_LABEL_PREFIX, ExportFormatOption } from './export-format-options.constants';
 
 const CLIENT_EXPORT_CURRENCY_CODE = 'EUR';
+const ORDER_FAMILY = 'order';
+const PAYROLL_FAMILY = 'payroll';
+const GROUP_LIST_PAGE_SIZE = 10000;
 
 type ExportsTab = 'single' | 'employee' | 'range';
 const DEFAULT_EXPORTS_TAB: ExportsTab = 'single';
@@ -64,6 +69,7 @@ const DEFAULT_EXPORTS_TAB: ExportsTab = 'single';
 export class ExportsTabComponent implements OnInit {
   private api = inject(DataPeriodClosingService);
   private exportFormatsApi = inject(DataExportFormatsService);
+  private groupApi = inject(DataGroupService);
   private toastShowService = inject(ToastShowService);
   private translate = inject(TranslateService);
 
@@ -93,10 +99,18 @@ export class ExportsTabComponent implements OnInit {
     { key: DEFAULT_EXPORT_FORMAT, labelKey: `${FORMAT_LABEL_PREFIX}${DEFAULT_EXPORT_FORMAT}` },
   ]);
 
+  private payrollFormatKeys = signal<Set<string>>(new Set());
+  public groups = signal<IGroup[]>([]);
+  public selectedGroupId = signal<string | null>(null);
+
+  public isPayrollFormat = computed<boolean>(() =>
+    this.payrollFormatKeys().has(this.clientExportFormat()),
+  );
+
   ngOnInit(): void {
     this.exportFormatsApi.getFormats().subscribe({
       next: (list) => {
-        const enabled = list.filter((f) => f.enabled);
+        const enabled = list.filter((f) => f.enabled && f.family === ORDER_FAMILY);
         this.formats.set(
           enabled.map((f) => ({
             key: f.key as ExportFormat,
@@ -111,21 +125,36 @@ export class ExportsTabComponent implements OnInit {
         }
 
         const generic = list.filter((f) => f.fixed);
-        if (generic.length > 0) {
+        const payroll = list.filter((f) => f.enabled && f.family === PAYROLL_FAMILY);
+        const employeeFormats = [...generic, ...payroll];
+        if (employeeFormats.length > 0) {
           this.clientExportFormats.set(
-            generic.map((f) => ({
+            employeeFormats.map((f) => ({
               key: f.key as ExportFormat,
               labelKey: `${FORMAT_LABEL_PREFIX}${f.key}`,
             })),
           );
-          if (!generic.some((f) => f.key === this.clientExportFormat())) {
-            this.clientExportFormat.set(generic[0].key as ExportFormat);
+          this.payrollFormatKeys.set(new Set(payroll.map((f) => f.key)));
+          if (!employeeFormats.some((f) => f.key === this.clientExportFormat())) {
+            this.clientExportFormat.set(employeeFormats[0].key as ExportFormat);
           }
         }
       },
       error: () => {
         // Keep the built-in default format option if the backend call fails.
       },
+    });
+
+    this.loadGroups();
+  }
+
+  private loadGroups(): void {
+    const filter = new GroupFilter();
+    filter.numberOfItemsPerPage = GROUP_LIST_PAGE_SIZE;
+    filter.requiredPage = 0;
+    this.groupApi.readGroupList(filter).subscribe({
+      next: (result) => this.groups.set(result.groups ?? []),
+      error: () => this.groups.set([]),
     });
   }
 
@@ -237,14 +266,32 @@ export class ExportsTabComponent implements OnInit {
       return;
     }
 
+    const format = this.clientExportFormat();
+    const language = this.translate.currentLang || this.translate.defaultLang || 'de';
+    const isPayroll = this.isPayrollFormat();
+    const groupId = this.selectedGroupId();
+
+    if (isPayroll && !groupId) {
+      this.toastShowService.showError(this.translate.instant('periodClosing.clientExport.error.groupRequired'));
+      return;
+    }
+
+    const request$ = isPayroll
+      ? this.api.downloadPayrollExport({ groupId: groupId!, fromDate, untilDate, language, format })
+      : this.api.downloadClientPeriodExport({
+          fromDate,
+          untilDate,
+          language,
+          currencyCode: CLIENT_EXPORT_CURRENCY_CODE,
+          format,
+        });
+
+    const fallbackName = isPayroll
+      ? `payroll-export_${fromDate}_${untilDate}.${format}`
+      : `client-period-export_${fromDate}_${untilDate}.${format}`;
+
     this.clientExportBusy.set(true);
-    this.api.downloadClientPeriodExport({
-      fromDate,
-      untilDate,
-      language: this.translate.currentLang || this.translate.defaultLang || 'de',
-      currencyCode: CLIENT_EXPORT_CURRENCY_CODE,
-      format: this.clientExportFormat(),
-    }).subscribe({
+    request$.subscribe({
       next: (res) => {
         const blob = res.body;
         if (!blob) {
@@ -253,7 +300,7 @@ export class ExportsTabComponent implements OnInit {
           return;
         }
         const fileName = extractFileNameFromContentDisposition(res.headers.get(CONTENT_DISPOSITION_HEADER))
-          ?? `client-period-export_${fromDate}_${untilDate}.${this.clientExportFormat()}`;
+          ?? fallbackName;
         triggerBlobDownload(blob, fileName);
         const msg = this.translate.instant('periodClosing.success.exported', { file: fileName });
         const header = this.translate.instant('periodClosing.clientExport.title');

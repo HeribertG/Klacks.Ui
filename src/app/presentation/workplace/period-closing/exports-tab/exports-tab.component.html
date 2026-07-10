@@ -184,11 +184,26 @@
           }
         </select>
       </div>
+      @if (isPayrollFormat()) {
+      <div class="filter-field">
+        <label class="form-label" for="clientExportGroup">{{ 'periodClosing.clientExport.group' | translate }}</label>
+        <select
+          id="clientExportGroup"
+          class="form-select form-select-sm"
+          [ngModel]="selectedGroupId()"
+          (ngModelChange)="selectedGroupId.set($event)">
+          <option [ngValue]="null">{{ 'periodClosing.clientExport.groupPlaceholder' | translate }}</option>
+          @for (g of groups(); track g.id) {
+            <option [ngValue]="g.id">{{ g.name }}</option>
+          }
+        </select>
+      </div>
+      }
       <div class="filter-field filter-action">
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          [disabled]="clientExportBusy()"
+          [disabled]="clientExportBusy() || (isPayrollFormat() && !selectedGroupId())"
           (click)="onClientPeriodExport()">
           @if (clientExportBusy()) {
             <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>

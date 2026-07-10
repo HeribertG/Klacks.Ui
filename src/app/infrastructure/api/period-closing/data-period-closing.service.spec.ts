@@ -93,4 +93,20 @@ describe('DataPeriodClosingService', () => {
         expect(flush.request.responseType).toBe('blob');
         flush.flush(new Blob(['<xml/>']));
     });
+
+    it('POSTs to PayrollExport endpoint and requests a blob response', () => {
+        const req = {
+            groupId: '11111111-1111-1111-1111-111111111111',
+            fromDate: '2026-01-01',
+            untilDate: '2026-01-31',
+            language: 'de',
+            format: 'datev-lug-bewegungsdaten',
+        };
+        service.downloadPayrollExport(req).subscribe();
+        const flush = httpMock.expectOne(`${environment.baseUrl}PayrollExport`);
+        expect(flush.request.method).toBe('POST');
+        expect(flush.request.body).toEqual(req);
+        expect(flush.request.responseType).toBe('blob');
+        flush.flush(new Blob(['data']));
+    });
 });
