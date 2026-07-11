@@ -456,14 +456,15 @@ describe('AssistantChatComponent', () => {
             showSpy = vi.spyOn(toastService, 'showInteractiveReply');
         });
 
-        function presentExplainStation(index: number): void {
+        function presentExplainStation(stationId: string): void {
+            const index = ONBOARDING_STATIONS.findIndex((station) => station.id === stationId);
             (component as any).tourIndex = index;
             (component as any).showStationChips(ONBOARDING_STATIONS[index]);
         }
 
         it('should keep tour chips alive and restore them after a side question during the tour', async () => {
             // Arrange
-            presentExplainStation(6);
+            presentExplainStation('scheduling');
             expect((component as any).isTourStationPending).toBe(true);
             dismissSpy.mockClear();
             showSpy.mockClear();
@@ -487,7 +488,7 @@ describe('AssistantChatComponent', () => {
 
         it('should prioritize tour chips over suggested replies from the answer', async () => {
             // Arrange
-            presentExplainStation(6);
+            presentExplainStation('scheduling');
             showSpy.mockClear();
             component.inputText.set('Was sehe ich hier?');
             mockLlmService.sendMessageStream.mockImplementation(

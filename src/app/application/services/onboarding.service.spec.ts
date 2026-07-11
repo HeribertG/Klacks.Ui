@@ -107,6 +107,15 @@ describe('OnboardingService', () => {
             expect(addSetting).toHaveBeenCalledTimes(1);
             expect(addSetting).toHaveBeenCalledWith({ id: undefined, type: AppSetting.APP_ADDRESS_ZIP, value: '8001' });
         });
+
+        it('writes the default-language answer into DEFAULT_LANGUAGE', () => {
+            const field = onboardingAskFields('default-language')[0];
+
+            service.writeField(field, ' fr ').subscribe();
+
+            expect(addSetting).toHaveBeenCalledTimes(1);
+            expect(addSetting).toHaveBeenCalledWith({ id: undefined, type: AppSetting.DEFAULT_LANGUAGE, value: 'fr' });
+        });
     });
 
     describe('firstPendingIndex', () => {
@@ -115,16 +124,31 @@ describe('OnboardingService', () => {
         });
 
         it('skips completed stations from the front', () => {
-            service.applyWelcome(state({ completedStations: ['title', 'address'] }));
+            service.applyWelcome(state({ completedStations: ['title', 'branding', 'address'] }));
 
-            expect(service.firstPendingIndex()).toBe(2);
-            expect(service.firstPendingStation()).toBe(ONBOARDING_STATIONS[2]);
+            expect(service.firstPendingIndex()).toBe(3);
+            expect(service.firstPendingStation()).toBe(ONBOARDING_STATIONS[3]);
         });
 
         it('equals the station count when everything is completed', () => {
             service.applyWelcome(state({ completedStations: ONBOARDING_STATIONS.map((station) => station.id) }));
 
             expect(service.firstPendingIndex()).toBe(ONBOARDING_STATIONS.length);
+        });
+    });
+
+    describe('progress', () => {
+        it('counts only station ids that exist in the catalog', () => {
+            service.applyWelcome(state({ completedStations: ['title', 'llm-klacksy', 'address'] }));
+
+            expect(service.progress()).toBe(2);
+        });
+
+        it('never exceeds the total even when the state holds only orphaned ids', () => {
+            service.applyWelcome(state({ completedStations: ['llm-klacksy', 'removed-station'] }));
+
+            expect(service.progress()).toBe(0);
+            expect(service.progress()).toBeLessThanOrEqual(service.total);
         });
     });
 

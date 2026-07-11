@@ -2,9 +2,11 @@
 
 /**
  * Holds the Klacksy first-run setup-tour state (from the welcome payload) as a signal, persists the
- * user's choices via the onboarding-state endpoint, and drives the per-field "ask" capture for the two
- * collect-and-write stations (title, address) by writing the answers as settings rows. The proactive
- * offer is surfaced at most once per browser session; the resumable progress card follows `showCard`.
+ * user's choices via the onboarding-state endpoint, and drives the per-field "ask" capture for the
+ * collect-and-write stations (title, address, default-language) by writing the answers as settings rows.
+ * Completed-station ids that no longer exist in the catalog are ignored for the progress count. The
+ * proactive offer is surfaced at most once per browser session; the resumable progress card follows
+ * `showCard`.
  * @param dataAssistant - HTTP API used to persist status/station changes
  * @param dataSettings - HTTP API used to upsert the collected title/address setting rows
  */
@@ -46,8 +48,12 @@ export class OnboardingService {
   readonly tourStartRequested = this.tourStartRequestSignal.asReadonly();
   readonly showCard = computed(() => this.stateSignal()?.showCard ?? false);
   readonly status = computed(() => this.stateSignal()?.status ?? '');
+  private readonly knownStationIds = new Set(ONBOARDING_STATIONS.map((station) => station.id));
+
   readonly total = ONBOARDING_STATIONS.length;
-  readonly progress = computed(() => this.stateSignal()?.completedStations.length ?? 0);
+  readonly progress = computed(
+    () => (this.stateSignal()?.completedStations ?? []).filter((id) => this.knownStationIds.has(id)).length,
+  );
 
   applyWelcome(onboarding?: IOnboardingState | null): void {
     this.stateSignal.set(onboarding ?? null);

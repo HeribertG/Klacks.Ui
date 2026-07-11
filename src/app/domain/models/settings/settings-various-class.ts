@@ -25,6 +25,7 @@ export class AppSetting {
   public static APP_ADDRESS_PHONE = 'APP_ADDRESS_PHONE';
   public static APP_ADDRESS_MAIL = 'APP_ADDRESS_MAIL';
   public static APP_ACCOUNTING_START = 'APP_ACCOUNTING_START';
+  public static DEFAULT_LANGUAGE = 'DEFAULT_LANGUAGE';
 
   public static APP_AUTHENTICATION_TYPE = 'authenticationType';
   public static APP_ENABLE_SSL = 'enabledSSL';

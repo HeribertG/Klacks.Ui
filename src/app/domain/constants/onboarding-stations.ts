@@ -40,6 +40,7 @@ export const ONBOARDING_ROUTE = {
   Shifts: '/workplace/shift',
   Availability: '/workplace/client-availability',
   PeriodClosing: '/workplace/period-closing',
+  Schedule: '/workplace/schedule',
 } as const;
 
 /**
@@ -83,12 +84,17 @@ const EXPLAIN = 'assistant-chat.onboarding.explain.';
 
 export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'title', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'title', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'branding', type: 'navigate', target: 'settings-general', explainKey: EXPLAIN + 'branding', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'address', type: 'ask', target: 'owner-address', explainKey: EXPLAIN + 'address', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'default-language', type: 'ask', target: 'settings-general', explainKey: EXPLAIN + 'default-language', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'llm-provider', type: 'navigate', target: 'llm-provider', explainKey: EXPLAIN + 'llm-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'harmonizer', type: 'explain', target: '', explainKey: EXPLAIN + 'harmonizer', navIconId: ONBOARDING_NAV_ICON.Schedules, route: ONBOARDING_ROUTE.Schedule },
   { id: 'calendar', type: 'navigate', target: 'calendar-selection', explainKey: EXPLAIN + 'calendar', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'users', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'users', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'group-scope', type: 'navigate', target: 'group-scope', explainKey: EXPLAIN + 'group-scope', navIconId: ONBOARDING_NAV_ICON.Groups },
   { id: 'identity-provider', type: 'navigate', target: 'identity-providers', explainKey: EXPLAIN + 'identity-provider', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'scheduling', type: 'explain', target: 'scheduling-defaults', explainKey: EXPLAIN + 'scheduling', navIconId: ONBOARDING_NAV_ICON.Schedules },
+  { id: 'weekend', type: 'navigate', target: 'scheduling-defaults', explainKey: EXPLAIN + 'weekend', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'employees', type: 'navigate', target: '', explainKey: EXPLAIN + 'employees', navIconId: ONBOARDING_NAV_ICON.Employees, route: ONBOARDING_ROUTE.Employees },
   { id: 'shifts', type: 'navigate', target: '', explainKey: EXPLAIN + 'shifts', navIconId: ONBOARDING_NAV_ICON.Shifts, route: ONBOARDING_ROUTE.Shifts },
   { id: 'availability', type: 'navigate', target: '', explainKey: EXPLAIN + 'availability', navIconId: ONBOARDING_NAV_ICON.Availability, route: ONBOARDING_ROUTE.Availability },
@@ -96,7 +102,8 @@ export const ONBOARDING_STATIONS: readonly IOnboardingStation[] = [
   { id: 'holidays', type: 'explain', target: 'calendar-rules', explainKey: EXPLAIN + 'holidays', navIconId: ONBOARDING_NAV_ICON.Schedules },
   { id: 'period-closing', type: 'navigate', target: '', explainKey: EXPLAIN + 'period-closing', navIconId: ONBOARDING_NAV_ICON.PeriodClosing, route: ONBOARDING_ROUTE.PeriodClosing },
   { id: 'email', type: 'explain', target: 'email-config', explainKey: EXPLAIN + 'email', navIconId: ONBOARDING_NAV_ICON.Inbox },
-  { id: 'llm-klacksy', type: 'explain', target: 'llm-provider', explainKey: EXPLAIN + 'llm-klacksy', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'klacksy-settings', type: 'navigate', target: 'assistant-speech', explainKey: EXPLAIN + 'klacksy-settings', navIconId: ONBOARDING_NAV_ICON.Settings },
+  { id: 'security', type: 'navigate', target: 'user-management', explainKey: EXPLAIN + 'security', navIconId: ONBOARDING_NAV_ICON.Settings },
   { id: 'plugins', type: 'explain', target: 'feature-plugins', explainKey: EXPLAIN + 'plugins', navIconId: ONBOARDING_NAV_ICON.Settings },
 ];
 
@@ -113,6 +120,9 @@ export const ONBOARDING_ASK_FIELDS: Record<string, readonly IOnboardingAskField[
       settingTypes: [AppSetting.APP_ADDRESS_ZIP, AppSetting.APP_ADDRESS_PLACE],
     },
     { promptKey: ASK + 'address-country', kind: 'text', settingTypes: [AppSetting.APP_ADDRESS_COUNTRY] },
+  ],
+  'default-language': [
+    { promptKey: ASK + 'default-language', kind: 'text', settingTypes: [AppSetting.DEFAULT_LANGUAGE] },
   ],
 };
 
